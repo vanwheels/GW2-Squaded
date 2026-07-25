@@ -5,18 +5,18 @@ interface BuildsStore {
   builds: Build[]
   loading: boolean
   refresh: () => Promise<void>
-  createDummyBuild: () => Promise<void>
+  createBuild: (build: Build) => Promise<void>
+  updateBuild: (build: Build) => Promise<void>
   removeBuild: (id: string) => Promise<void>
 }
 
 const BuildsStoreContext = createContext<BuildsStore | null>(null)
 
-function makeDummyBuild(): Build {
+export function makeBlankBuild(): Build {
   const now = new Date().toISOString()
-  const ordinal = Math.floor(Math.random() * 1000)
   return {
     id: crypto.randomUUID(),
-    name: `Untitled Build ${ordinal}`,
+    name: 'Untitled Build',
     notes: '',
     profession: 'Guardian',
     specializations: [],
@@ -45,10 +45,21 @@ export function BuildsStoreProvider({ children }: { children: ReactNode }) {
     void refresh()
   }, [refresh])
 
-  const createDummyBuild = useCallback(async () => {
-    await window.gw2Storage.builds.create(makeDummyBuild())
-    await refresh()
-  }, [refresh])
+  const createBuild = useCallback(
+    async (build: Build) => {
+      await window.gw2Storage.builds.create(build)
+      await refresh()
+    },
+    [refresh]
+  )
+
+  const updateBuild = useCallback(
+    async (build: Build) => {
+      await window.gw2Storage.builds.update(build)
+      await refresh()
+    },
+    [refresh]
+  )
 
   const removeBuild = useCallback(
     async (id: string) => {
@@ -59,7 +70,7 @@ export function BuildsStoreProvider({ children }: { children: ReactNode }) {
   )
 
   return (
-    <BuildsStoreContext.Provider value={{ builds, loading, refresh, createDummyBuild, removeBuild }}>
+    <BuildsStoreContext.Provider value={{ builds, loading, refresh, createBuild, updateBuild, removeBuild }}>
       {children}
     </BuildsStoreContext.Provider>
   )

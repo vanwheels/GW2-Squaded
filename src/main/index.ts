@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { is } from '@electron-toolkit/utils'
 import { createSqliteStorage } from './storage/sqlite-storage'
 import { registerStorageIpc } from './ipc/storage-ipc'
+import { registerGameDataIpc } from './ipc/game-data-ipc'
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -36,6 +37,7 @@ app.whenReady().then(() => {
   const dbPath = join(app.getPath('userData'), 'gw2-squaded.sqlite')
   const storage = createSqliteStorage(dbPath)
   registerStorageIpc(storage)
+  registerGameDataIpc()
 
   createWindow()
 

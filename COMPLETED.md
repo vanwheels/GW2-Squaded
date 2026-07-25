@@ -2,6 +2,42 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 2 — Build editor UI
+
+- Game-data IPC bridge: main process reads `data/game-data/*.json` once (`src/main/game-data/load-game-data.ts`,
+  cached in memory) and exposes it to the renderer via `window.gw2GameData.getAll()`
+  (`src/main/ipc/game-data-ipc.ts`, `src/preload/index.ts`), mirroring the existing
+  `window.gw2Storage` seam. `GameDataStoreProvider`/`useGameData` (`src/renderer/state/game-data-store.tsx`)
+  loads it once and exposes lookup maps/selectors (specializations by profession, major/minor
+  traits by specialization, skills by profession+slot).
+- Build editor UI (`src/renderer/components/build-editor/`): `ProfessionSelect`, `TraitsEditor`
+  (3 specialization lines, enforces at most one elite spec equipped and no duplicate lines,
+  3-tier major trait radio picker per line, minor traits shown read-only), `SkillsEditor`
+  (heal/utility×3/elite, filtered by profession + GW2 API `slot` field, prevents picking the
+  same utility skill in two slots), `EquipmentEditor` (16 gear slots × itemstat picker), and a
+  `BoonUptimePanel` stub documenting the planned calculator shape (per-boon source list with
+  computed duration) without implementing it yet.
+- `BuildEditorView` orchestrates all of the above with local draft state; changing profession
+  resets specializations/skills (they don't carry over between professions). Wired into
+  `BuildsView` — clicking a build (or "+ New build") opens the editor; Save round-trips through
+  `builds-store`'s new `createBuild`/`updateBuild` (replacing the old single-purpose
+  `createDummyBuild`).
+- Data quality fix: 13 of 191 itemstat entries from the live API have an empty `name` string
+  (deprecated/internal stat combos) — filtered out of the equipment picker rather than shown as
+  blank options.
+- Verified end-to-end via a scripted Playwright/Electron launch (not committed): create a build,
+  pick a profession/specialization/trait tier/skill/equipment stat, save, confirm it appears in
+  the list, reopen it, and confirm every selection persisted through SQLite. No console/page
+  errors during the run.
+
+### Scoping notes carried into TODO.md
+
+- Confirmed with the user: boon/condition calculator should mirror gw2skills.net for a single
+  build (list every source + computed duration from boon duration/concentration/consumables),
+  with a later squad-view mode showing all 5 party sources per boon. Needs a real GW2 API
+  `Fact`-parsing layer (not hand-written rules) and WvW-specific balance numbers (not PvE) —
+  both still open. Target first-pass party comp and full detail captured in TODO.md.
+
 ## Session 1 — Scaffolding & data-layer groundwork
 
 - Project scaffold: Electron + React + TypeScript via `electron-vite`, with `src/main`

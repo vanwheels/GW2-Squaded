@@ -2,6 +2,8 @@ import { contextBridge, ipcRenderer } from 'electron'
 import type { Build, SquadComp } from '@shared/types'
 import type { StorageAdapter } from '@shared/storage/storage-interface'
 import { StorageIpcChannel } from '@shared/storage/ipc-channels'
+import type { GameDataProvider } from '@shared/game-data/game-data-provider'
+import { GameDataIpcChannel } from '@shared/game-data/ipc-channels'
 
 /**
  * Implements the shared StorageAdapter interface over IPC. This is the Electron-specific
@@ -25,4 +27,9 @@ const storage: StorageAdapter = {
   }
 }
 
+const gameData: GameDataProvider = {
+  getAll: () => ipcRenderer.invoke(GameDataIpcChannel.getAll)
+}
+
 contextBridge.exposeInMainWorld('gw2Storage', storage)
+contextBridge.exposeInMainWorld('gw2GameData', gameData)
