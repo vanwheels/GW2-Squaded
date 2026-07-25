@@ -1,0 +1,4175 @@
+[
+  {
+    "id": 50,
+    "name": "",
+    "attributes": []
+  },
+  {
+    "id": 112,
+    "name": "",
+    "attributes": []
+  },
+  {
+    "id": 115,
+    "name": "",
+    "attributes": []
+  },
+  {
+    "id": 137,
+    "name": "Mighty",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 138,
+    "name": "Precise",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 139,
+    "name": "Vital",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 140,
+    "name": "Resilient",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 141,
+    "name": "Lingering",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 142,
+    "name": "Strong",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 144,
+    "name": "Ravaging",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 145,
+    "name": "Rejuvenating",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 146,
+    "name": "Vigorous",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 147,
+    "name": "Mending",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 148,
+    "name": "Stout",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 149,
+    "name": "Hearty",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 150,
+    "name": "Potent",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 151,
+    "name": "Penetrating",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 152,
+    "name": "Honed",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 153,
+    "name": "Shaman's",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 154,
+    "name": "Rabid",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 155,
+    "name": "Cleric's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 156,
+    "name": "Magi's",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 157,
+    "name": "Valkyrie",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 158,
+    "name": "Knight's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 159,
+    "name": "Rampager's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 160,
+    "name": "Carrion",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 161,
+    "name": "Berserker's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 162,
+    "name": "Soldier's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 175,
+    "name": "Healing",
+    "attributes": [
+      {
+        "attribute": "Healing",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 176,
+    "name": "Malign",
+    "attributes": [
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 520,
+    "name": "",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.15,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.15,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.15,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.15,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.15,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.15,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.15,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 559,
+    "name": "Celestial",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 575,
+    "name": "",
+    "attributes": []
+  },
+  {
+    "id": 581,
+    "name": "Dire and Rabid",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 583,
+    "name": "Cavalier's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 584,
+    "name": "Berserker's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 585,
+    "name": "Rabid",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 586,
+    "name": "Soldier's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 588,
+    "name": "Celestial",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 13
+      }
+    ]
+  },
+  {
+    "id": 591,
+    "name": "Berserker's and Valkyrie",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 592,
+    "name": "Rabid and Apothecary's",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0,
+        "value": 32
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 593,
+    "name": "Celestial",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 13
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 13
+      }
+    ]
+  },
+  {
+    "id": 594,
+    "name": "Rabid",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 595,
+    "name": "Rabid and Apothecary's",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0,
+        "value": 32
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 596,
+    "name": "Dire and Rabid",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 599,
+    "name": "Berserker's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 600,
+    "name": "Berserker's and Valkyrie",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 601,
+    "name": "Soldier's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 602,
+    "name": "Cavalier's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 605,
+    "name": "Apothecary's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 616,
+    "name": "Cavalier's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 625,
+    "name": "",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 626,
+    "name": "",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 627,
+    "name": "Giver's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 628,
+    "name": "Giver's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 629,
+    "name": "Giver's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 630,
+    "name": "Giver's",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 631,
+    "name": "Giver's",
+    "attributes": [
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 636,
+    "name": "",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 656,
+    "name": "Cleric's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 657,
+    "name": "Knight's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 658,
+    "name": "Rampager's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 659,
+    "name": "Apothecary's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 660,
+    "name": "Captain's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 661,
+    "name": "Cleric's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 662,
+    "name": "Knight's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 663,
+    "name": "Rampager's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 664,
+    "name": "Apothecary's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 665,
+    "name": "Captain's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 686,
+    "name": "Sentinel's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 689,
+    "name": "",
+    "attributes": []
+  },
+  {
+    "id": 690,
+    "name": "Settler's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 693,
+    "name": "Settler's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 700,
+    "name": "Settler's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 740,
+    "name": "",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.15,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.15,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.15,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.15,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 753,
+    "name": "Assassin's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 754,
+    "name": "Dire",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 755,
+    "name": "Hunter's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 756,
+    "name": "Dire",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 799,
+    "name": "Zealot's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 800,
+    "name": "",
+    "attributes": []
+  },
+  {
+    "id": 1011,
+    "name": "Forsaken",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1012,
+    "name": "Apostate's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1013,
+    "name": "Survivor's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1014,
+    "name": "Deserter's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1015,
+    "name": "Vagabond's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1026,
+    "name": "Nomad's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1030,
+    "name": "Giver's",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1031,
+    "name": "Giver's",
+    "attributes": [
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1032,
+    "name": "Bringer's",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1035,
+    "name": "Sentinel's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 1037,
+    "name": "Magi's",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 1038,
+    "name": "Carrion",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 1040,
+    "name": "Assassin's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1041,
+    "name": "Captain's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0,
+        "value": 32
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1042,
+    "name": "Rabid",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 1043,
+    "name": "Apothecary's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0,
+        "value": 32
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1044,
+    "name": "Cleric's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 1046,
+    "name": "Berserker's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0,
+        "value": 32
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1047,
+    "name": "Rampager's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0,
+        "value": 32
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1048,
+    "name": "Soldier's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0,
+        "value": 32
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1050,
+    "name": "Cavalier's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0,
+        "value": 32
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1051,
+    "name": "Knight's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0,
+        "value": 18
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 1052,
+    "name": "Celestial",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0,
+        "value": 13
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0,
+        "value": 13
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0,
+        "value": 13
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0,
+        "value": 13
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0,
+        "value": 13
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0,
+        "value": 13
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0,
+        "value": 13
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0,
+        "value": 13
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0,
+        "value": 13
+      }
+    ]
+  },
+  {
+    "id": 1063,
+    "name": "Nomad's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1064,
+    "name": "Sinister",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 1065,
+    "name": "Sinister",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 1066,
+    "name": "Nomad's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1067,
+    "name": "Sinister",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1070,
+    "name": "Giver's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1071,
+    "name": "Shaman's",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1073,
+    "name": "Dire",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1075,
+    "name": "Carrion",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1076,
+    "name": "Cleric's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.35,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1077,
+    "name": "Berserker's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1078,
+    "name": "Rampager's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1085,
+    "name": "Trailblazer's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1097,
+    "name": "Shaman's",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1098,
+    "name": "Crusader",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1109,
+    "name": "Crusader",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1111,
+    "name": "Marauder",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1114,
+    "name": "Dire",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 1115,
+    "name": "Trailblazer's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1118,
+    "name": "Vigilant",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1119,
+    "name": "Valkyrie",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1123,
+    "name": "Minstrel's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1125,
+    "name": "Commander's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1128,
+    "name": "Assassin's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1130,
+    "name": "Viper's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1131,
+    "name": "Commander's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1134,
+    "name": "Minstrel's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1139,
+    "name": "Vigilant",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1140,
+    "name": "Wanderer's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1145,
+    "name": "Marauder",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1153,
+    "name": "Viper's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1162,
+    "name": "Wanderer's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1163,
+    "name": "Zealot's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1220,
+    "name": "Seraph",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1222,
+    "name": "Seraph",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1224,
+    "name": "Viper's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1225,
+    "name": "Wanderer's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1226,
+    "name": "Minstrel's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1227,
+    "name": "Commander's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1228,
+    "name": "Vigilant",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1229,
+    "name": "Trailblazer's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1230,
+    "name": "Seraph",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1231,
+    "name": "Marauder",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1232,
+    "name": "Crusader",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1262,
+    "name": "Trailblazer's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1263,
+    "name": "Marauder",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1264,
+    "name": "Vigilant",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1265,
+    "name": "Minstrel's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1267,
+    "name": "Commander's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1268,
+    "name": "Viper's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1269,
+    "name": "Seraph",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1270,
+    "name": "Wanderer's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1271,
+    "name": "Crusader",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1329,
+    "name": "Grieving",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 1337,
+    "name": "Marshal's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1344,
+    "name": "Grieving",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1345,
+    "name": "Harrier's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1363,
+    "name": "Harrier's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1364,
+    "name": "Marshal's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1366,
+    "name": "Grieving",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 1367,
+    "name": "Harrier's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1374,
+    "name": "Marshal's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1377,
+    "name": "Harrier's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.35,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.25,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1378,
+    "name": "Marshal's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1379,
+    "name": "Grieving",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1419,
+    "name": "",
+    "attributes": []
+  },
+  {
+    "id": 1430,
+    "name": "Giver's",
+    "attributes": [
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.35,
+        "value": 32
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.25,
+        "value": 18
+      }
+    ]
+  },
+  {
+    "id": 1436,
+    "name": "Bringer's",
+    "attributes": [
+      {
+        "attribute": "Precision",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.25,
+        "value": 18
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.35,
+        "value": 32
+      }
+    ]
+  },
+  {
+    "id": 1484,
+    "name": "Plaguedoctor's",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1486,
+    "name": "Plaguedoctor's",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1538,
+    "name": "Diviner's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.3,
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 1539,
+    "name": "Diviner's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.3,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1548,
+    "name": "",
+    "attributes": []
+  },
+  {
+    "id": 1549,
+    "name": "Plaguedoctor's",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1556,
+    "name": "Diviner's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.3,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1559,
+    "name": "Plaguedoctor's",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Healing",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1566,
+    "name": "Diviner's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.3,
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 1681,
+    "name": "Dragon's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.3,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1686,
+    "name": "Ritualist's",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1687,
+    "name": "Dragon's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.3,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1691,
+    "name": "Dragon's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.3,
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 1694,
+    "name": "Ritualist's",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1697,
+    "name": "Dragon's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.3,
+        "value": 25
+      }
+    ]
+  },
+  {
+    "id": 1706,
+    "name": "Ritualist's",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  },
+  {
+    "id": 1717,
+    "name": "Ritualist's",
+    "attributes": [
+      {
+        "attribute": "Vitality",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDamage",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "BoonDuration",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "ConditionDuration",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1826,
+    "name": "Demolisher's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.3,
+        "value": 0
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.165,
+        "value": 0
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 0
+      }
+    ]
+  },
+  {
+    "id": 1827,
+    "name": "Demolisher's",
+    "attributes": [
+      {
+        "attribute": "Power",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Precision",
+        "multiplier": 0.3,
+        "value": 25
+      },
+      {
+        "attribute": "Toughness",
+        "multiplier": 0.165,
+        "value": 12
+      },
+      {
+        "attribute": "CritDamage",
+        "multiplier": 0.165,
+        "value": 12
+      }
+    ]
+  }
+]

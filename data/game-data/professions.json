@@ -1,0 +1,155 @@
+[
+  {
+    "id": "Guardian",
+    "name": "Guardian",
+    "icon": "https://render.guildwars2.com/file/C32BE61FC55C962524624F643897ECF1A9C80462/156634.png",
+    "iconBig": "https://render.guildwars2.com/file/6E0D0AC6E0CE5C0C29B3D736ABEA070F4A58540E/156633.png",
+    "specializationIds": [
+      42,
+      16,
+      13,
+      49,
+      46,
+      27,
+      62,
+      65,
+      81
+    ]
+  },
+  {
+    "id": "Warrior",
+    "name": "Warrior",
+    "icon": "https://render.guildwars2.com/file/0A97E13F29B3597A447EEC04A09BE5BD699A2250/156643.png",
+    "iconBig": "https://render.guildwars2.com/file/0A76324239946B79C061762095FAB2BDF7A1D8D7/156642.png",
+    "specializationIds": [
+      4,
+      36,
+      22,
+      11,
+      51,
+      18,
+      61,
+      68,
+      74
+    ]
+  },
+  {
+    "id": "Engineer",
+    "name": "Engineer",
+    "icon": "https://render.guildwars2.com/file/5CCB361F44CCC7256132405D31E3A24DACCF440A/156632.png",
+    "iconBig": "https://render.guildwars2.com/file/A94D00911BD47CDE39A104F90C7D07DE623554ED/156631.png",
+    "specializationIds": [
+      6,
+      38,
+      47,
+      29,
+      21,
+      43,
+      57,
+      70,
+      75
+    ]
+  },
+  {
+    "id": "Ranger",
+    "name": "Ranger",
+    "icon": "https://render.guildwars2.com/file/49B10316B424F4E20139EB5E51ADCF24A8724E9B/156640.png",
+    "iconBig": "https://render.guildwars2.com/file/FEF2479DC197D40758A8D6E95201F4A7996EB357/156639.png",
+    "specializationIds": [
+      8,
+      30,
+      33,
+      25,
+      32,
+      5,
+      55,
+      72,
+      78
+    ]
+  },
+  {
+    "id": "Thief",
+    "name": "Thief",
+    "icon": "https://render.guildwars2.com/file/F9EC00E23F630D6DB20CDA985592EC010E2A5705/156641.png",
+    "iconBig": "https://render.guildwars2.com/file/13A2C0EF23F23FF2084875629465279DDA807E3D/103581.png",
+    "specializationIds": [
+      28,
+      35,
+      20,
+      54,
+      44,
+      7,
+      58,
+      71,
+      77
+    ]
+  },
+  {
+    "id": "Elementalist",
+    "name": "Elementalist",
+    "icon": "https://render.guildwars2.com/file/77B793123251931AFF9FCA24C07E0F704BC4DA49/156630.png",
+    "iconBig": "https://render.guildwars2.com/file/BBED46EB20C80D0DDE0F99402493C7E6FFAE1530/156629.png",
+    "specializationIds": [
+      31,
+      41,
+      26,
+      17,
+      37,
+      48,
+      56,
+      67,
+      80
+    ]
+  },
+  {
+    "id": "Mesmer",
+    "name": "Mesmer",
+    "icon": "https://render.guildwars2.com/file/E43730AD49A903C3A1B4F27E41DE04EA51A775EC/156636.png",
+    "iconBig": "https://render.guildwars2.com/file/AF61567E16A83F145D6FB35D63BF01074A3A5AB9/156635.png",
+    "specializationIds": [
+      10,
+      1,
+      45,
+      23,
+      24,
+      40,
+      59,
+      66,
+      73
+    ]
+  },
+  {
+    "id": "Necromancer",
+    "name": "Necromancer",
+    "icon": "https://render.guildwars2.com/file/AE56F8670807B87CF6EEE3FC7E6CB9710959E004/156638.png",
+    "iconBig": "https://render.guildwars2.com/file/CA5A4E96080FCF057C9DA0ED35C693477580421C/156637.png",
+    "specializationIds": [
+      53,
+      39,
+      2,
+      19,
+      50,
+      34,
+      60,
+      64,
+      76
+    ]
+  },
+  {
+    "id": "Revenant",
+    "name": "Revenant",
+    "icon": "https://render.guildwars2.com/file/7C9309BE7A2A48C6A9FBCC70CC1EBEBFD7593C05/961390.png",
+    "iconBig": "https://render.guildwars2.com/file/696A48DD61EE01FD1F4FBBBDB82D74611E04EA39/965717.png",
+    "specializationIds": [
+      14,
+      9,
+      12,
+      3,
+      15,
+      52,
+      63,
+      69,
+      79
+    ]
+  }
+]

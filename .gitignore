@@ -1,0 +1,21 @@
+node_modules/
+dist/
+dist-electron/
+release/
+out/
+*.tsbuildinfo
+
+# Local SQLite databases
+*.sqlite
+*.sqlite3
+*.db
+
+.DS_Store
+*.log
+npm-debug.log*
+
+.env
+.env.local
+
+.vscode/*
+!.vscode/extensions.json
