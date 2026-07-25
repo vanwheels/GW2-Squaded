@@ -2,6 +2,53 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 3 — Boon/condition source parser (first slice of the uptime calculator)
+
+- Typed the GW2 API's `Fact` object (`src/shared/types/game-data.ts`): `Skill.facts`/
+  `traitedFacts` and `Trait.facts`/`traitedFacts` were `unknown[]`, now `Fact[]` with the fields
+  the calculator needs (`type`, `status`, `duration`, `apply_count`, `requires_trait`) plus an
+  index signature so the rest of each raw fact still round-trips untyped.
+- `src/shared/boon-calc/`: `constants.ts` has the fixed boon/condition name lists (`BOON_NAMES`,
+  `CONDITION_NAMES`); `sources.ts` has `computeBoonConditionSources(build, gameData)`, which walks
+  a build's equipped heal/utility/elite skills, auto-granted minor traits on each equipped
+  specialization line, and chosen major traits, extracting every `type: 'Buff'` fact whose
+  `status` matches a known boon/condition name. Facts gated by `requires_trait` (on skills or
+  traits) are only included if that trait is actually active for the build — computed via
+  `activeTraitIds` (minors of equipped lines + all chosen majors).
+- `BoonUptimePanel` (`src/renderer/components/build-editor/BoonUptimePanel.tsx`) now renders this
+  for real: sources grouped by boon/condition name, each with its source skill/trait name and
+  base duration. Explicitly labeled as base (unscaled) durations, with a visible caveat that gear/
+  food scaling isn't applied yet and that the public API doesn't reliably distinguish WvW from
+  PvE balance (see below).
+- Verified via a scripted Electron launch (not committed) against the actual `npm run build`
+  output: selected Guardian's "Purification" heal skill (grants Regeneration 10s + Blinded 6s)
+  and confirmed the panel grouped/displayed both correctly; then, as a `requires_trait` gating
+  test, equipped the Luminary line, picked "Resolute Stance" as the heal skill (grants Protection
+  3s only via a traitedFact gated on the Luminary tier-1 trait "Shimmering Stances"), confirmed
+  Protection was absent before that trait was chosen and present with the correct source after.
+  No console/page errors in either run.
+- Bug found and fixed during that verification: `loadGameData()` (`src/main/game-data/
+  load-game-data.ts`) resolved `data/game-data/` relative to `app.getAppPath()`, which only
+  happens to equal the project root under `electron-vite dev`. Running the actual built output
+  (`out/main/index.cjs`) resolves it to `out/main` instead, so every game-data IPC call threw
+  ENOENT and every selector in the editor silently rendered empty. Fixed by resolving the data
+  directory from `__dirname` (stable at `out/main` in both dev and build output) instead.
+
+### Investigated and confirmed this session (informs what's still open in TODO.md)
+
+- The GW2 API does **not** reliably expose WvW-specific balance numbers separately from PvE —
+  confirmed via GW2 forum reports (`/v2/skills` returns all facts for a skill with no game-mode
+  indicator, even when the skill behaves differently per mode) and the wiki's own `game_mode`/
+  `split` template fields, which are a human wiki-authoring convention, not an API-exposed field.
+  So today's parser surfaces whatever the API returns, which may be PvE-biased or ambiguous for
+  specific skills — the UI says so rather than implying WvW accuracy it can't back up.
+- Gear-based boon/condition duration scaling was investigated but deliberately NOT implemented:
+  the API's itemstat `multiplier`/`value` pairs need a major-vs-minor-attribute categorization per
+  stat-combo type (2/3/4-stat combos use different multiplier constants) to resolve into an
+  actual attribute value, and I couldn't verify that mapping confidently against the wiki this
+  session. Shipping a number that looks precise but is quietly wrong would be worse than not
+  computing it — deferred with the specific blocker written down in TODO.md rather than guessed.
+
 ## Session 2 — Build editor UI
 
 - Game-data IPC bridge: main process reads `data/game-data/*.json` once (`src/main/game-data/load-game-data.ts`,

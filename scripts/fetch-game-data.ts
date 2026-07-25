@@ -12,6 +12,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type {
+  Fact,
   GameData,
   ItemStat,
   Profession,
@@ -113,8 +114,8 @@ interface RawTrait {
   slot: string
   specialization: number
   icon: string
-  facts?: unknown[]
-  traited_facts?: unknown[]
+  facts?: Fact[]
+  traited_facts?: Fact[]
 }
 
 interface RawSkill {
@@ -127,8 +128,8 @@ interface RawSkill {
   weapon_type?: string
   professions?: string[]
   slot?: string
-  facts?: unknown[]
-  traited_facts?: unknown[]
+  facts?: Fact[]
+  traited_facts?: Fact[]
 }
 
 interface RawItemStatAttribute {

@@ -73,7 +73,7 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
           />
         </div>
         <div className="build-editor-column">
-          <BoonUptimePanel />
+          <BoonUptimePanel build={draft} />
         </div>
       </div>
     </section>

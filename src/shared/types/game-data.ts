@@ -5,15 +5,32 @@
  * scripts/fetch-game-data.ts (see docs/game-data.md) and written to
  * data/game-data/*.json. Raw API response shapes are intentionally NOT
  * modeled here — they're typed loosely and locally within the fetch script.
- *
- * `facts` / `traitedFacts` are kept as `unknown[]` for now: the GW2 API's
- * Fact object is a large polymorphic union (damage, buff, heal, distance, ...)
- * that only matters once the boon/condition calculator is implemented
- * (out of scope this session). The raw fact data is preserved untyped so it
- * isn't lost, and can be typed precisely when that work starts.
  */
 
 export type ProfessionId = string // e.g. "Guardian", "Warrior"
+
+/**
+ * The GW2 API's `Fact` object is a large polymorphic union keyed by `type`
+ * (Buff, Damage, Heal, Distance, Recharge, ...) — most fields are specific to
+ * one or two `type` values. Rather than modeling all ~19 variants, this keeps
+ * the fields the boon/condition calculator (src/shared/boon-calc/) actually
+ * reads, plus an index signature so the rest of the raw object round-trips
+ * even though it isn't typed. `status`/`duration`/`apply_count` are what a
+ * `type: 'Buff'` fact uses; `requires_trait` gates a fact (base or traited)
+ * behind a specific trait being chosen, on either skills or traits.
+ */
+export interface Fact {
+  type: string
+  text?: string
+  icon?: string
+  status?: string
+  description?: string
+  duration?: number
+  apply_count?: number
+  requires_trait?: number
+  overrides?: number
+  [key: string]: unknown
+}
 
 export interface Profession {
   id: ProfessionId
@@ -45,8 +62,8 @@ export interface Trait {
   slot: TraitSlot
   specializationId: number
   icon: string
-  facts: unknown[]
-  traitedFacts: unknown[]
+  facts: Fact[]
+  traitedFacts: Fact[]
 }
 
 export interface Skill {
@@ -59,8 +76,8 @@ export interface Skill {
   weaponType: string | null
   professions: ProfessionId[]
   slot: string
-  facts: unknown[]
-  traitedFacts: unknown[]
+  facts: Fact[]
+  traitedFacts: Fact[]
 }
 
 export interface ItemStatAttribute {

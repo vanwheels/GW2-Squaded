@@ -213,3 +213,61 @@ input[type='text'] {
 .boon-uptime-panel h3 {
   margin-top: 0;
 }
+
+.boon-uptime-panel h4 {
+  margin-bottom: 6px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.boon-uptime-caveat {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin-bottom: 16px;
+}
+
+.boon-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.boon-group {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+}
+
+.boon-group-name {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.boon-source-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.boon-source-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  gap: 8px;
+}
+
+.boon-source-name {
+  color: var(--text);
+}
+
+.boon-source-duration {
+  color: var(--muted);
+  white-space: nowrap;
+}
