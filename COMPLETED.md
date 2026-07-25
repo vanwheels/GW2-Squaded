@@ -2,6 +2,193 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 8 — WvW-vs-PvE fact splits for the boon/condition calculator
+
+Continuation of "keep working through the TODO" — picked up the next flagged item, applying
+WvW-specific (not PvE) balance numbers to the boon/condition uptime calculator. TODO.md had this
+scoped narrowly to "the ~15-20 skills/traits the target party comp actually uses"; expanded scope
+mid-session once it was clear the app lets you build any of the 9 professions, not just that one
+comp — a narrower fix would've left every other profession's builds silently showing PvE numbers.
+
+- **The problem, confirmed by direct API/wiki cross-check**: `/v2/skills` and `/v2/traits` Buff
+  facts carry no `game mode` tag. For an unsplit skill the API's `duration` is simply the one true
+  value; for a *split* skill/trait, the API's `duration` turns out to be the PvE-tagged wiki value
+  when a PvE variant exists, or the sole tagged value otherwise. Worse, some skills' facts arrays
+  mix PvE-only and WvW/PvP-only boons together with no way to tell which is which by looking at
+  the API alone — e.g. `Restoring Reprieve` (Firebrand heal) lists Protection+Resolution (PvE
+  only) right alongside Aegis (WvW/PvP only), so reading the API facts raw overstates what a WvW
+  build actually gets.
+- **New `scripts/fetch-wvw-splits.ts`** (`npm run fetch-wvw-splits`, after `fetch-game-data`),
+  writing `data/game-data/wvw-fact-overrides.json`. Same shape of approach as
+  `fetch-elite-spec-skills.ts` (wiki `action=query`/`action=raw`, User-Agent override, rate
+  limiting) but sourcing a different thing:
+  - Fetches `Category:Split skills` (1,664 pages) / `Category:Split traits` (545 pages) — real,
+    maintained wiki lists of pages with *some* `game mode=` split on them.
+  - Narrows to the ~1,110 pages that are BOTH in one of those categories AND correspond, by exact
+    unambiguous name match, to a skill/trait with a boon/condition Buff fact already in
+    `skills.json`/`traits.json` — the only ones the calculator reads. Page titles matching more
+    than one skill/trait id (119 of them) are excluded outright and logged, same "don't guess"
+    handling as the elite-spec-skills script.
+  - Fetches each candidate page's raw wikitext and parses every `{{skill fact|...}}` /
+    `{{trait fact|...}}` invocation whose first parameter is a boon/condition name: the boon name,
+    its first bare numeric positional value (the duration — confirmed by inspecting real examples
+    like `Empowering Might`'s `might|8|game mode=pve` vs `might|6|game mode=pvp wvw`, and
+    `Elixir B`'s four boons each split the same way), and its `game mode=` parameter if present
+    (values vary in wording — `wvw pvp`, `pvp wvw`, spacing around `=` — handled by
+    whitespace-token matching rather than exact string equality).
+  - Because naive `|`-splitting of wikitext can misparse a `[[Link|text]]` pipe embedded in a
+    later field (e.g. a `desc=` param), every parsed PvE-tagged duration is cross-validated
+    against the already-fetched API duration before being trusted — a mismatch is treated as a
+    parse failure, not a real balance value, and skipped+logged (68/1110 pages hit this).
+    Also skipped+logged, same fail-safe-not-guessed philosophy throughout: a boon/condition status
+    appearing more than once in one id's Buff facts, since there's no way to tell which wikitext
+    line maps to which fact (314/1110 — mostly multi-stack might/burning-style skills); more than
+    one same-game-mode fact line for one boon on one page (26/1110); and a PvE/WvW mix where one
+    variant is untagged (5/1110).
+  - Net output: 187 skills + 99 traits got a real WvW override (`'omit'` for a PvE-only fact with
+    no WvW variant, or a number to replace the API's default duration with the WvW-tagged one).
+- **Wiring**: added `WvwFactOverride`/`WvwFactOverrides` to `src/shared/types/game-data.ts`,
+  threaded through `load-game-data.ts` (main process) → IPC → `game-data-store.tsx` (same
+  pass-through pattern as `eliteSpecSkills`, no IPC changes needed). `sources.ts`'s
+  `extractFromFacts` now checks `gameData.wvwFactOverrides[kind][id][boonName]` for every Buff
+  fact before scaling: `'omit'` drops the source entirely, a number substitutes for
+  `fact.duration`. `BoonUptimePanel`'s caveat text now describes WvW-split coverage instead of the
+  old "API doesn't distinguish WvW from PvE" disclaimer.
+- **Verified**: typecheck/lint/build clean. Playwright: built a Guardian with Firebrand equipped
+  and Restoring Reprieve as the heal skill — the panel shows only Aegis (2s); Protection and
+  Resolution are correctly absent, matching the hand-verified wiki split exactly (screenshot
+  confirms both the boon list and the updated caveat text render correctly).
+- **Known gap, documented in TODO.md/docs/game-data.md**: skills/traits the fetch script couldn't
+  confidently resolve (see skip counts above) still show their PvE value — the same fail-safe
+  default as before this feature existed, not a regression. Re-run `fetch-wvw-splits` after future
+  `fetch-game-data` runs, since it's scoped to whatever boon/condition-granting content existed
+  locally at the time it was last run.
+
+## Session 7 — Gear scaling for boon/condition duration %
+
+Continuation of "keep working through the TODO" — picked up the top item in TODO.md's "Next up"
+list, the gear-scaling half of the boon/condition uptime calculator, previously left "verified
+and unblocked" pending an itemstat-id question.
+
+- **New `src/shared/gear-calc/attribute-totals.ts`**: `computeGearAttributeTotals(build,
+  itemStats)` sums each equipped item's contribution to every GW2 attribute via
+  `attribute_adjustment * multiplier + value`. Both the formula and the `attribute_adjustment`
+  constants (by armor detail type / trinket type / weapon handedness × Exotic/Ascended rarity)
+  are quoted directly from the wiki's `API:2/itemstats` page — fetched as raw wikitext this
+  session (`action=raw`, same pattern as `scripts/fetch-elite-spec-skills.ts`), not reconstructed
+  from memory or from the earlier WebFetch summary alone (cross-checked both and they agreed).
+  Defaults to level-80 Ascended (no rarity selector yet — the realistic tier for the target WvW
+  comp). `boonDurationPercent`/`conditionDurationPercent` convert the `BoonDuration`/
+  `ConditionDuration` attribute totals (i.e. Concentration/Expertise) to a duration % at a flat
+  15-points-per-1% rate, also quoted from the wiki's Concentration/Expertise pages.
+
+- **Resolved the itemstat-id question without new code**: TODO.md had flagged "which of 43
+  duplicate-name itemstat ids is correct per equipment slot" as blocking real math. Turned out
+  moot — `EquipmentEditor`'s dropdown only ever offers `dedupedStats()`'s canonical picks, so
+  `EquipmentSlot.itemStatId` on any build is always one of those already-sensible ids. Gear math
+  just looks it up directly; no further resolution needed.
+
+- **Known, documented limitation**: `EquipmentSlotKey` has no weapon-type field (only
+  `itemStatId`), so `attribute-totals.ts` can't tell a one-handed weapon slot from a two-handed
+  one. All weapon slots use the one-handed `attribute_adjustment` constant — this undercounts
+  totals for two-handed-weapon builds (Greatsword, Staff, etc.). Documented in code rather than
+  guessed at or silently wrong; revisit if it turns out to matter (would need a weapon-type field
+  added to the equipment model).
+
+- **Wired into `sources.ts`/`BoonUptimePanel`**: `BoonConditionSource` gained
+  `scaledDurationSeconds` (alongside the existing unscaled `baseDurationSeconds`), computed as
+  `base * (1 + percent/100)` using the build's gear-derived boon or condition duration %, applied
+  per-fact so boon sources scale by boon duration and condition sources scale by condition
+  duration. `BoonUptimePanel` now shows the build's overall gear boon/condition duration % in its
+  caveat line and renders `scaledDurationSeconds` (not the base value) per source.
+
+- **Verification**: `npm run typecheck`, `npm run lint`, `npm run build` all clean. Visually
+  verified via the established Playwright `_electron` driver (`env -u ELECTRON_RUN_AS_NODE`,
+  scratchpad-local `playwright-core`): built a Guardian with all 16 gear slots set to "Diviner's"
+  (has Concentration) and confirmed the rendered 109.1% boon duration matches a hand calculation
+  from the raw itemstats.json data exactly, and that every rendered source duration
+  (Aegis/Might/Protection, base 5s/15s/3s/1s) matches `base * 2.09124` to 2 decimals.
+
+## Session 6 — Icon+name swap follow-through: SkillsEditor and BoonUptimePanel
+
+Continuation of the icon+name UI swap from Session 5 ("keep working through the TODO" — the two
+sub-items that session explicitly left open), no new user direction beyond that.
+
+- **`SkillsEditor` rebuilt as an in-game-style skill bar** (`SkillsEditor.tsx`): the Heal/Utility
+  ×3/Elite slots render as 5 icon buttons in skill-bar order; clicking a slot opens an inline
+  icon+name picker grid of that slot's available skills (filtered the same way the old `<select>`
+  was — elite-spec gating, no duplicate utility picks), selecting one closes the picker. Empty
+  slots show a text placeholder instead of a blank icon. `Skill.icon` was already fetched from
+  the GW2 API, same as trait/spec icons in Session 5 — no new data sourcing needed.
+  - Added `skillsById: Map<number, Skill>` to `game-data-store.tsx` (mirrors the existing
+    `specializationsById`/`traitsById` pattern) so the skill bar can resolve a chosen skill id
+    back to its icon/name/description for the button and its tooltip.
+
+- **`BoonUptimePanel` boon/condition icons, sourced without a hand-maintained map**: TODO.md had
+  flagged this as needing "a small hand-maintained name→icon-URL map (12 boons + 14 conditions)"
+  since `ItemStat`-style API endpoints don't expose one directly. Turned out unnecessary — every
+  `type: 'Buff'` `Fact` on a skill/trait already carries an `icon` field pointing at the granted
+  boon/condition's own CDN icon (same URL everywhere that boon/condition is granted, e.g. every
+  Aegis-granting fact across the whole dataset points at one Aegis icon), and that data was
+  already sitting in `data/game-data/skills.json`/`traits.json` from prior fetches. Extracted the
+  26 URLs (all of `BOON_NAMES`/`CONDITION_NAMES`) via a one-off local scan of that already-fetched
+  JSON (no network call) into `src/shared/boon-calc/icons.ts`. Also threaded a `sourceIcon` field
+  through `BoonConditionSource`/`computeBoonConditionSources` (the granting skill's or trait's own
+  icon) so each source line in the panel shows icon+name too, not just the group header.
+
+- **Verification**: `npm run typecheck` and `npm run lint` both clean. Visually verified end-to-
+  end via the same Playwright `_electron` driver pattern as Session 5 (`env -u
+  ELECTRON_RUN_AS_NODE`, scratchpad-local `playwright-core` install) — screenshots confirm the
+  skill bar icons render, the picker grid opens/selects/closes correctly, and picking a heal +
+  utility skill immediately populates the Boon & Condition Uptime panel with the correct boon
+  icons, source skill icon, name, and duration for each — proving the new UI stays wired to the
+  existing `computeBoonConditionSources` logic, not just restyled.
+
+## Session 5 — Icon+name UI swap for gear loadout and traits, pulled forward ahead of MVP
+
+- **Traits panel rebuilt as an icon-based progression tree** mirroring gw2skills.net/in-game
+  layout (`TraitsEditor.tsx`): each of the 3 trait lines is a column with a row of clickable
+  specialization icon buttons (click again to deselect/swap) instead of a `<select>`, followed
+  by the real Adept → Master → Grandmaster progression — minor trait icon, then its 3 major
+  trait choices, repeated per tier — instead of a flat list. Both `Specialization.icon` and
+  `Trait.icon` were already fetched from the GW2 API; nothing new needed sourcing.
+  - **Bug fix found while rebuilding**: the old tier grouping filtered major traits by
+    `t.order` (0/1/2, the choice-slot position within a tier) instead of `t.tier` (1/2/3, the
+    actual Adept/Master/Grandmaster tier) — e.g. for Guardian's Valor line this silently mixed
+    "first choice of every tier" (Phantasmal Fury/Blinding Dissipation/Superiority Complex-style
+    triples) into one displayed row instead of grouping by real tier. Fixed by grouping on
+    `t.tier` and indexing `chosenTraitIds` by `tier - 1`.
+- **Equipment panel rebuilt as a paperdoll layout** (`EquipmentEditor.tsx` + new
+  `SlotIcon.tsx`): armor slots down the left column, trinkets down the right, two weapon sets
+  below — same positions as the in-game Hero > Equipment panel and gw2skills.net. Each slot
+  gets an icon + the existing `<select>` for its stat combo. `ItemStat` (what a slot actually
+  stores — just a stat combo, not a real item) has no `icon` field from the API, unlike
+  Skill/Trait/Specialization, so there's no upstream art for gear slots; `SlotIcon.tsx` is a
+  small set of hand-drawn inline SVG placeholder glyphs (helm/shoulders/chest/gloves/leggings/
+  boots/backpiece/accessory/ring/amulet/weapon), styled with `currentColor` so no image assets
+  or new dependencies were needed.
+- **Real CSP bug found and fixed during visual verification**: `src/renderer/index.html`'s
+  `Content-Security-Policy` was `default-src 'self'` with no `img-src` directive, which
+  silently blocked every remote icon (`https://render.guildwars2.com/...`) the whole
+  icon+name effort depends on — trait/spec icons rendered as empty circles in the built app
+  until this was caught. This wasn't a pre-existing visible bug (nothing rendered `<img>`
+  tags from that CDN before this session) but would have blocked this feature and any future
+  one using `Skill`/`Trait`/`Specialization` icons. Fixed by adding
+  `img-src 'self' https://render.guildwars2.com` to the policy.
+  - Caught by actually building and running the packaged app (`npm run build` +
+    Electron launched directly via Playwright's `_electron`, screenshotted) rather than
+    trusting typecheck/lint — both passed cleanly the whole time despite the CSP silently
+    dropping every icon.
+  - Environment gotcha hit while setting up the verification driver: `ELECTRON_RUN_AS_NODE=1`
+    was set in the shell environment (this session's harness sets it), which makes the
+    `electron` binary run as plain Node instead of launching the real Electron runtime —
+    `electron.app` comes back `undefined` and the main process crashes on
+    `electron.app.isPackaged`. Fixed by unsetting it for the launch (`env -u
+    ELECTRON_RUN_AS_NODE`), not by touching app code.
+- Left out of this pass on purpose (see TODO.md): `SkillsEditor`'s Heal/Utility/Elite pickers
+  are still plain `<select>`s (same icon pattern would apply directly), and boon/condition
+  names in `BoonUptimePanel` still have no icon source at all.
+
 ## Session 4 — Elite-spec skill gating, equipment dedup, and wiki-extraction research
 
 - **Elite-spec skill gating** (the build editor previously showed every Heal/Utility/Elite skill

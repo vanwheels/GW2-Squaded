@@ -75,6 +75,7 @@ needing to run the fetch script immediately:
 - `skills.json`
 - `itemstats.json`
 - `elite-spec-skills.json` — see below; sourced from the wiki, not `fetch-game-data.ts`
+- `wvw-fact-overrides.json` — see below; sourced from the wiki, not `fetch-game-data.ts`
 - `meta.json` — just `{ fetchedAt }`, so the app/UI can eventually surface "game data last
   updated on ..." somewhere.
 
@@ -109,3 +110,45 @@ default UA gets a 403; any identifiable UA passes — see `USER_AGENT` in the sc
 
 **Note:** this file's data is NOT re-derivable from `fetch-game-data.ts` — re-run
 `fetch-elite-spec-skills` too whenever a balance patch might add/change elite-spec-gated skills.
+
+## WvW-vs-PvE fact splits (`wvw-fact-overrides.json`)
+
+`/v2/skills` and `/v2/traits` facts carry no `game mode` tag, and (confirmed by direct
+cross-check against the wiki, not assumed) the API's `duration` for a Buff fact is the PvE-tagged
+value when a skill/trait's boon/condition grant is actually split between game modes, or the sole
+value when it isn't split. Some skills' facts array even includes PvE-only AND WvW/PvP-only boons
+side by side with no way to tell which applies where (e.g. Restoring Reprieve's API facts list
+Protection+Resolution — PvE only — right alongside Aegis — WvW/PvP only) — so reading the API
+facts directly, un-adjusted, overstates what a WvW-focused build actually gets.
+
+`scripts/fetch-wvw-splits.ts` (run via `npm run fetch-wvw-splits`, after `fetch-game-data`)
+sources the actual split from the wiki: `Category:Split skills` (1664 pages) / `Category:Split
+traits` (545 pages) are real, maintained lists of pages with a `{{skill fact|...|game
+mode=...}}` / `{{trait fact|...}}` split somewhere on them. The script narrows that down to the
+~1100 pages that are BOTH in one of those categories AND correspond (by exact, unambiguous name
+match) to a skill/trait with a boon/condition Buff fact in the already-fetched
+`skills.json`/`traits.json` — the only ones the boon/condition uptime calculator reads — fetches
+each page's raw wikitext (`action=raw`), and parses out every `{{skill fact}}`/`{{trait fact}}`
+invocation whose first parameter is a boon/condition name, its first bare numeric value (the
+duration), and its `game mode=` parameter if present.
+
+Because naive `|`-splitting of wikitext can misparse a `[[Link|text]]` pipe embedded in a later
+field, every parsed PvE-tagged value is cross-checked against the API's actual `duration` for
+that boon on that id before being trusted; a mismatch is treated as a parse failure and skipped
+rather than trusted. Also skipped (fail-safe, logged, not guessed): a page whose title maps to
+more than one skill/trait id (ambiguous), an id with more than one Buff fact sharing the same
+boon/condition status (can't tell which wikitext line maps to which), and more than one
+same-game-mode fact line for one boon on one page.
+
+Output is `{ skill: { [id]: { [boonName]: override } }, trait: { [id]: { [boonName]: override } } }`
+where `override` is either `'omit'` (this boon/condition is PvE-only — drop it entirely for a
+WvW view) or a number (the WvW-tagged duration to use in place of the API's). Consumed in
+`src/shared/boon-calc/sources.ts`. Boon names absent from an id's map are either genuinely
+unsplit (same value in every mode, the common case) or one of the skipped-and-logged cases above
+— both fall back to using the API's PvE value as-is, which is the same behavior as before this
+existed (fail-safe, not silently wrong).
+
+**Note:** this file's data is NOT re-derivable from `fetch-game-data.ts` — re-run
+`fetch-wvw-splits` too whenever a balance patch might change a WvW/PvE split. It's also scoped
+to skills/traits that had a boon/condition Buff fact in `skills.json`/`traits.json` *at the time
+it was last run* — re-run after `fetch-game-data` if new boon/condition-granting content is added.

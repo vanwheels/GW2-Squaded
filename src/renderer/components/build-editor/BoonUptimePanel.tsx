@@ -1,6 +1,9 @@
 import { useMemo } from 'react'
 import type { Build } from '@shared/types'
 import { computeBoonConditionSources, groupBoonConditionSources, type BoonConditionGroup } from '@shared/boon-calc/sources'
+import { BOON_CONDITION_ICONS } from '@shared/boon-calc/icons'
+import type { BoonName, ConditionName } from '@shared/boon-calc/constants'
+import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { useGameData } from '@renderer/state/game-data-store'
 
 interface Props {
@@ -9,10 +12,13 @@ interface Props {
 
 /**
  * Per-build boon/condition source list (gw2skills.net-style): every skill/trait
- * that grants a boon or condition, grouped by boon/condition name. Durations are
- * base (unscaled) values straight from the GW2 API facts — see the caveat note
- * below and TODO.md for why gear/food scaling and WvW-vs-PvE verification are
- * still open. Squad-view mode (5 players' sources per boon) is a later addition.
+ * that grants a boon or condition, grouped by boon/condition name. Durations use
+ * WvW-specific values where available (see gameData.wvwFactOverrides /
+ * scripts/fetch-wvw-splits.ts) and are then scaled by the build's gear-derived
+ * boon/condition duration % (Concentration/Expertise on equipped armor/
+ * trinkets/back) — see the caveat note below and TODO.md for what's still open
+ * (food/utility consumables, full WvW-split coverage). Squad-view mode (5
+ * players' sources per boon) is a later addition.
  */
 export function BoonUptimePanel({ build }: Props) {
   const gameData = useGameData()
@@ -24,13 +30,22 @@ export function BoonUptimePanel({ build }: Props) {
   const boonGroups = groups.filter((g) => !g.isCondition)
   const conditionGroups = groups.filter((g) => g.isCondition)
 
+  const gearDurationPercents = useMemo(() => {
+    const totals = computeGearAttributeTotals(build, gameData.itemStats)
+    return { boon: boonDurationPercent(totals), condition: conditionDurationPercent(totals) }
+  }, [build, gameData.itemStats])
+
   return (
     <div className="boon-uptime-panel">
       <h3>Boon &amp; condition uptime</h3>
       <p className="muted boon-uptime-caveat">
-        Base durations only — not yet scaled by boon/condition duration (gear) or food/utility.
-        The public GW2 API also doesn't reliably distinguish WvW-specific balance from PvE, so
-        cross-check anything high-stakes against the wiki.
+        Durations below use WvW-specific values where the wiki documents a PvE/WvW split (see
+        scripts/fetch-wvw-splits.ts — most, but not all, boon/condition sources are covered; a
+        skill/trait with an undocumented or ambiguous split still shows its PvE value), then scale
+        by this build's gear ({formatPercent(gearDurationPercents.boon)}% boon duration,{' '}
+        {formatPercent(gearDurationPercents.condition)}% condition duration, from Concentration/
+        Expertise on armor/trinkets/back — weapons are approximated as one-handed). Food/utility
+        consumables aren't factored in yet.
       </p>
       {groups.length === 0 ? (
         <p className="empty-state">
@@ -61,13 +76,24 @@ function BoonGroupList({ groups }: { groups: BoonConditionGroup[] }) {
     <div className="boon-groups">
       {groups.map((group) => (
         <div className="boon-group" key={group.name}>
-          <div className="boon-group-name">{group.name}</div>
+          <div className="boon-group-name">
+            <img
+              className="boon-group-icon"
+              src={BOON_CONDITION_ICONS[group.name as BoonName | ConditionName]}
+              alt=""
+            />
+            <span>{group.name}</span>
+          </div>
           <ul className="boon-source-list">
             {group.sources.map((source, index) => (
               <li key={`${source.sourceKind}-${source.sourceId}-${index}`}>
-                <span className="boon-source-name">{source.sourceName}</span>
+                <span className="boon-source-name">
+                  <img className="boon-source-icon" src={source.sourceIcon} alt="" />
+                  {source.sourceName}
+                </span>
                 <span className="boon-source-duration">
-                  {source.baseDurationSeconds}s{source.applyCount > 1 ? ` × ${source.applyCount}` : ''}
+                  {formatDuration(source.scaledDurationSeconds)}s
+                  {source.applyCount > 1 ? ` × ${source.applyCount}` : ''}
                 </span>
               </li>
             ))}
@@ -76,4 +102,12 @@ function BoonGroupList({ groups }: { groups: BoonConditionGroup[] }) {
       ))}
     </div>
   )
+}
+
+function formatDuration(seconds: number): string {
+  return Number.isInteger(seconds) ? String(seconds) : seconds.toFixed(2)
+}
+
+function formatPercent(percent: number): string {
+  return Number.isInteger(percent) ? String(percent) : percent.toFixed(1)
 }

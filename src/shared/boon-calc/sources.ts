@@ -1,13 +1,17 @@
-import type { Build, Fact, Skill, Trait } from '../types'
+import type { Build, Fact, ItemStat, Skill, Trait, WvwFactOverride, WvwFactOverrides } from '../types'
 import { isBoonName, isConditionName } from './constants'
+import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '../gear-calc/attribute-totals'
 
 export interface BoonConditionSource {
   sourceKind: 'skill' | 'trait'
   sourceId: number
   sourceName: string
+  sourceIcon: string
   boonOrConditionName: string
   isCondition: boolean
   baseDurationSeconds: number
+  /** `baseDurationSeconds` scaled by the build's gear-derived boon/condition duration %. */
+  scaledDurationSeconds: number
   applyCount: number
   requiresTraitId: number | null
 }
@@ -40,7 +44,10 @@ function extractFromFacts(
   activeIds: Set<number>,
   sourceKind: 'skill' | 'trait',
   sourceId: number,
-  sourceName: string
+  sourceName: string,
+  sourceIcon: string,
+  durationPercent: { boon: number; condition: number },
+  wvwOverrides: Record<string, WvwFactOverride> | undefined
 ): BoonConditionSource[] {
   const out: BoonConditionSource[] = []
   for (const fact of [...facts, ...traitedFacts]) {
@@ -52,13 +59,20 @@ function extractFromFacts(
     if (!isBoon && !isCondition) continue
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
 
+    const wvwOverride = wvwOverrides?.[fact.status]
+    if (wvwOverride === 'omit') continue
+    const baseDuration = typeof wvwOverride === 'number' ? wvwOverride : fact.duration
+
+    const percent = isCondition ? durationPercent.condition : durationPercent.boon
     out.push({
       sourceKind,
       sourceId,
       sourceName,
+      sourceIcon,
       boonOrConditionName: fact.status,
       isCondition,
-      baseDurationSeconds: fact.duration,
+      baseDurationSeconds: baseDuration,
+      scaledDurationSeconds: baseDuration * (1 + percent / 100),
       applyCount: fact.apply_count ?? 1,
       requiresTraitId: fact.requires_trait ?? null
     })
@@ -67,22 +81,37 @@ function extractFromFacts(
 }
 
 /**
- * Every boon/condition source (skill or trait) a build provides, with base
- * (unscaled) duration straight from the GW2 API's facts. Walks equipped
- * heal/utility/elite skills, auto-granted minor traits on equipped
+ * Every boon/condition source (skill or trait) a build provides. Walks
+ * equipped heal/utility/elite skills, auto-granted minor traits on equipped
  * specialization lines, and chosen major traits — gated by requires_trait so
  * conditional facts only show up when the trait that unlocks them is active.
  *
- * Deliberately does NOT scale by boon duration/condition duration (gear) or
- * food/utility yet — see TODO.md for why (gear scaling needs a verified
- * item-stat resolution formula; consumables aren't fetched/modeled yet).
+ * `baseDurationSeconds` is the WvW-adjusted value (see `wvwFactOverrides` below);
+ * `scaledDurationSeconds` further applies the build's gear-derived boon/condition duration %
+ * (Concentration/Expertise from equipped armor/trinkets/back, plus weapons approximated as
+ * one-handed — see src/shared/gear-calc/attribute-totals.ts for the formula and its documented
+ * weapon-handedness caveat). Food/utility consumables aren't fetched/modeled yet, so they're not
+ * included in either number — see TODO.md.
+ *
+ * The GW2 API's `Fact.duration` for a Buff fact is PvE data (or the sole value, for facts with no
+ * WvW/PvE split) — see scripts/fetch-wvw-splits.ts and docs/game-data.md for how that's verified
+ * and how `gameData.wvwFactOverrides` is derived from the wiki. Every Buff fact is checked against
+ * that map: an `'omit'` entry drops the fact (PvE-only, no WvW variant), a number entry replaces
+ * `fact.duration` with the WvW-tagged value. Facts with no entry are used as-is (either unsplit,
+ * or a split the fetch script couldn't confidently resolve — see TODO.md).
  */
 export function computeBoonConditionSources(
   build: Build,
-  gameData: { skills: Skill[]; traits: Trait[] }
+  gameData: { skills: Skill[]; traits: Trait[]; itemStats: ItemStat[]; wvwFactOverrides: WvwFactOverrides }
 ): BoonConditionSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
   const out: BoonConditionSource[] = []
+
+  const gearTotals = computeGearAttributeTotals(build, gameData.itemStats)
+  const durationPercent = {
+    boon: boonDurationPercent(gearTotals),
+    condition: conditionDurationPercent(gearTotals)
+  }
 
   const skillIds = [build.skills.heal, ...build.skills.utility, build.skills.elite].filter(
     (id): id is number => id !== null
@@ -90,7 +119,19 @@ export function computeBoonConditionSources(
   for (const id of skillIds) {
     const skill = gameData.skills.find((s) => s.id === id)
     if (!skill) continue
-    out.push(...extractFromFacts(skill.facts, skill.traitedFacts, activeIds, 'skill', skill.id, skill.name))
+    out.push(
+      ...extractFromFacts(
+        skill.facts,
+        skill.traitedFacts,
+        activeIds,
+        'skill',
+        skill.id,
+        skill.name,
+        skill.icon,
+        durationPercent,
+        gameData.wvwFactOverrides.skill[skill.id]
+      )
+    )
   }
 
   for (const line of build.specializations) {
@@ -99,7 +140,19 @@ export function computeBoonConditionSources(
       const isMinor = trait.slot === 'Minor'
       const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id)
       if (!isMinor && !isChosenMajor) continue
-      out.push(...extractFromFacts(trait.facts, trait.traitedFacts, activeIds, 'trait', trait.id, trait.name))
+      out.push(
+        ...extractFromFacts(
+          trait.facts,
+          trait.traitedFacts,
+          activeIds,
+          'trait',
+          trait.id,
+          trait.name,
+          trait.icon,
+          durationPercent,
+          gameData.wvwFactOverrides.trait[trait.id]
+        )
+      )
     }
   }
 

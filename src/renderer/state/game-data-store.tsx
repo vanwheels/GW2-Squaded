@@ -5,6 +5,7 @@ interface GameDataStore extends GameData {
   loading: boolean
   specializationsById: Map<number, Specialization>
   traitsById: Map<number, Trait>
+  skillsById: Map<number, Skill>
   specializationsForProfession: (profession: ProfessionId) => Specialization[]
   majorTraitsForSpecialization: (specializationId: number) => Trait[]
   minorTraitsForSpecialization: (specializationId: number) => Trait[]
@@ -21,7 +22,8 @@ const EMPTY_GAME_DATA: GameData = {
   traits: [],
   skills: [],
   itemStats: [],
-  eliteSpecSkills: {}
+  eliteSpecSkills: {},
+  wvwFactOverrides: { skill: {}, trait: {} }
 }
 
 const GameDataStoreContext = createContext<GameDataStore | null>(null)
@@ -45,12 +47,14 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
   const store = useMemo<GameDataStore>(() => {
     const specializationsById = new Map(gameData.specializations.map((s) => [s.id, s]))
     const traitsById = new Map(gameData.traits.map((t) => [t.id, t]))
+    const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
 
     return {
       ...gameData,
       loading,
       specializationsById,
       traitsById,
+      skillsById,
       specializationsForProfession: (profession) =>
         gameData.specializations.filter((s) => s.profession === profession),
       majorTraitsForSpecialization: (specializationId) =>

@@ -1,0 +1,914 @@
+{
+  "skill": {
+    "1123": {
+      "Fury": 10
+    },
+    "5491": {
+      "Burning": "omit"
+    },
+    "5522": {
+      "Bleeding": 8
+    },
+    "5525": {
+      "Bleeding": 6
+    },
+    "5535": {
+      "Burning": 6,
+      "Might": 9
+    },
+    "5538": {
+      "Chilled": 1.5
+    },
+    "5548": {
+      "Burning": "omit"
+    },
+    "5550": {
+      "Vulnerability": 6
+    },
+    "5561": {
+      "Vulnerability": 6
+    },
+    "5822": {
+      "Confusion": "omit"
+    },
+    "6004": {
+      "Immobile": 2
+    },
+    "6005": {
+      "Vulnerability": 6
+    },
+    "6153": {
+      "Might": 5
+    },
+    "9085": {
+      "Fury": 10
+    },
+    "9151": {
+      "Immobile": 3
+    },
+    "9192": {
+      "Fury": 2
+    },
+    "9247": {
+      "Burning": 3
+    },
+    "9265": {
+      "Might": 6
+    },
+    "10185": {
+      "Slow": 2,
+      "Quickness": 2
+    },
+    "10212": {
+      "Vulnerability": 6
+    },
+    "10236": {
+      "Fury": 3
+    },
+    "10273": {
+      "Fury": 3
+    },
+    "10289": {
+      "Torment": 2
+    },
+    "10314": {
+      "Confusion": "omit"
+    },
+    "10529": {
+      "Immobile": 3
+    },
+    "10583": {
+      "Protection": 6
+    },
+    "10622": {
+      "Bleeding": 8,
+      "Blinded": 4,
+      "Poisoned": 8,
+      "Vulnerability": 6
+    },
+    "10685": {
+      "Swiftness": 30
+    },
+    "10706": {
+      "Weakness": 4
+    },
+    "12338": {
+      "Fury": 6
+    },
+    "12466": {
+      "Might": 5
+    },
+    "12480": {
+      "Bleeding": 12
+    },
+    "12509": {
+      "Vulnerability": 6
+    },
+    "12516": {
+      "Fury": 12
+    },
+    "12550": {
+      "Quickness": 4
+    },
+    "12597": {
+      "Burning": 4
+    },
+    "12599": {
+      "Weakness": 4
+    },
+    "12621": {
+      "Might": 6,
+      "Swiftness": 10
+    },
+    "12639": {
+      "Vulnerability": 6
+    },
+    "12658": {
+      "Might": 15
+    },
+    "12712": {
+      "Fury": 15
+    },
+    "13010": {
+      "Torment": 6
+    },
+    "13011": {
+      "Might": 6
+    },
+    "13060": {
+      "Swiftness": 5
+    },
+    "13066": {
+      "Quickness": 4,
+      "Fury": 6
+    },
+    "13084": {
+      "Bleeding": 4
+    },
+    "13129": {
+      "Bleeding": 5
+    },
+    "13918": {
+      "Bleeding": 8
+    },
+    "14268": {
+      "Might": 5
+    },
+    "14355": {
+      "Fury": 6,
+      "Might": 5,
+      "Swiftness": 6
+    },
+    "14356": {
+      "Vulnerability": 6
+    },
+    "14381": {
+      "Burning": "omit"
+    },
+    "14386": {
+      "Weakness": 2
+    },
+    "14403": {
+      "Fury": 8
+    },
+    "14418": {
+      "Quickness": 0.5
+    },
+    "14421": {
+      "Fury": 1.5,
+      "Vulnerability": 6
+    },
+    "14472": {
+      "Crippled": 3
+    },
+    "14519": {
+      "Burning": 5
+    },
+    "27074": {
+      "Fury": 8
+    },
+    "27964": {
+      "Torment": 8
+    },
+    "28379": {
+      "Fury": 3
+    },
+    "28409": {
+      "Torment": 1
+    },
+    "28472": {
+      "Vulnerability": 5
+    },
+    "29209": {
+      "Fury": 6
+    },
+    "29233": {
+      "Chilled": 1
+    },
+    "29414": {
+      "Weakness": 5
+    },
+    "29453": {
+      "Protection": 0.5
+    },
+    "29606": {
+      "Fury": 2.5
+    },
+    "29613": {
+      "Vulnerability": 6
+    },
+    "29666": {
+      "Vulnerability": 6
+    },
+    "29706": {
+      "Might": 6
+    },
+    "29719": {
+      "Fury": 1
+    },
+    "29785": {
+      "Vulnerability": 6
+    },
+    "29786": {
+      "Crippled": 3
+    },
+    "29911": {
+      "Weakness": 1
+    },
+    "29941": {
+      "Fury": 8
+    },
+    "30047": {
+      "Stability": "omit"
+    },
+    "30074": {
+      "Bleeding": 10
+    },
+    "30105": {
+      "Stability": 6,
+      "Might": "omit",
+      "Fury": "omit",
+      "Quickness": 6
+    },
+    "30239": {
+      "Quickness": 3,
+      "Fury": 6
+    },
+    "30336": {
+      "Resistance": 3
+    },
+    "30364": {
+      "Fury": 8
+    },
+    "30432": {
+      "Protection": 3,
+      "Immobile": 3,
+      "Aegis": "omit"
+    },
+    "30489": {
+      "Might": 6,
+      "Vulnerability": 6
+    },
+    "30501": {
+      "Might": 6
+    },
+    "30553": {
+      "Stability": 4
+    },
+    "30662": {
+      "Fury": "omit"
+    },
+    "30795": {
+      "Vulnerability": 6
+    },
+    "30851": {
+      "Might": 5
+    },
+    "30860": {
+      "Vulnerability": 6
+    },
+    "31367": {
+      "Bleeding": 4
+    },
+    "31451": {
+      "Fury": 10
+    },
+    "31914": {
+      "Fury": 3
+    },
+    "40114": {
+      "Resolution": 3
+    },
+    "40133": {
+      "Resistance": 3
+    },
+    "40184": {
+      "Might": 8
+    },
+    "40497": {
+      "Bleeding": 4
+    },
+    "40888": {
+      "Fury": 8
+    },
+    "40963": {
+      "Stability": 3
+    },
+    "41205": {
+      "Vulnerability": 6
+    },
+    "41328": {
+      "Resolution": 5,
+      "Stability": 5
+    },
+    "41475": {
+      "Protection": "omit",
+      "Resolution": "omit"
+    },
+    "41615": {
+      "Regeneration": 6
+    },
+    "41820": {
+      "Burning": 1
+    },
+    "42271": {
+      "Burning": 8
+    },
+    "42355": {
+      "Slow": 1
+    },
+    "42863": {
+      "Quickness": 3
+    },
+    "42867": {
+      "Bleeding": 8
+    },
+    "42935": {
+      "Might": 6
+    },
+    "43671": {
+      "Poisoned": 4
+    },
+    "43803": {
+      "Vulnerability": 6
+    },
+    "43845": {
+      "Burning": 1
+    },
+    "43916": {
+      "Might": 6
+    },
+    "44097": {
+      "Immobile": 2
+    },
+    "44240": {
+      "Quickness": 2
+    },
+    "44241": {
+      "Might": 5
+    },
+    "44451": {
+      "Burning": 8
+    },
+    "44530": {
+      "Might": 6,
+      "Vulnerability": 6,
+      "Burning": "omit"
+    },
+    "44550": {
+      "Stability": 3
+    },
+    "44646": {
+      "Fury": 2
+    },
+    "44695": {
+      "Might": 6
+    },
+    "44926": {
+      "Stability": 3,
+      "Protection": 3
+    },
+    "45402": {
+      "Burning": 1
+    },
+    "45709": {
+      "Fury": 2.5,
+      "Vulnerability": 6
+    },
+    "45742": {
+      "Stability": 3
+    },
+    "46123": {
+      "Poisoned": 6
+    },
+    "46185": {
+      "Stability": 3
+    },
+    "46295": {
+      "Bleeding": 1
+    },
+    "46447": {
+      "Stability": 3
+    },
+    "46843": {
+      "Weakness": 3
+    },
+    "46857": {
+      "Burning": 3
+    },
+    "50466": {
+      "Bleeding": 6
+    },
+    "51684": {
+      "Stability": 4
+    },
+    "55050": {
+      "Vulnerability": 6
+    },
+    "62511": {
+      "Weakness": 4
+    },
+    "62513": {
+      "Torment": 5
+    },
+    "62565": {
+      "Weakness": 1.5,
+      "Burning": 2
+    },
+    "62573": {
+      "Fury": 7,
+      "Might": 6
+    },
+    "62689": {
+      "Alacrity": "omit"
+    },
+    "62692": {
+      "Vulnerability": 6
+    },
+    "62697": {
+      "Vulnerability": 6
+    },
+    "62752": {
+      "Chilled": 2,
+      "Vulnerability": 6
+    },
+    "62812": {
+      "Vulnerability": 6
+    },
+    "62859": {
+      "Might": 8,
+      "Protection": 2
+    },
+    "62884": {
+      "Burning": 6
+    },
+    "62895": {
+      "Fury": 3
+    },
+    "62942": {
+      "Torment": 5
+    },
+    "62967": {
+      "Fury": 8
+    },
+    "63121": {
+      "Burning": 3
+    },
+    "63174": {
+      "Confusion": 2
+    },
+    "63186": {
+      "Confusion": 2
+    },
+    "63276": {
+      "Torment": 8,
+      "Bleeding": 8
+    },
+    "63323": {
+      "Might": 8,
+      "Vigor": 5,
+      "Regeneration": 8
+    },
+    "63326": {
+      "Torment": 6
+    },
+    "63350": {
+      "Vulnerability": 6
+    },
+    "63351": {
+      "Protection": 2.5
+    },
+    "63367": {
+      "Slow": 1,
+      "Confusion": 2,
+      "Burning": 2
+    },
+    "71835": {
+      "Bleeding": 8,
+      "Poisoned": 1
+    },
+    "71860": {
+      "Aegis": "omit",
+      "Weakness": 3
+    },
+    "71870": {
+      "Aegis": 3
+    },
+    "71889": {
+      "Resolution": 4
+    },
+    "71907": {
+      "Burning": 8,
+      "Bleeding": 6
+    },
+    "71918": {
+      "Bleeding": 4
+    },
+    "71963": {
+      "Protection": 3
+    },
+    "71999": {
+      "Regeneration": 3
+    },
+    "72002": {
+      "Might": 6
+    },
+    "72005": {
+      "Might": 9,
+      "Fury": 9
+    },
+    "72031": {
+      "Bleeding": 4
+    },
+    "72034": {
+      "Bleeding": 8
+    },
+    "72076": {
+      "Weakness": "omit"
+    },
+    "72915": {
+      "Fury": 1
+    },
+    "72924": {
+      "Bleeding": 7
+    },
+    "72931": {
+      "Torment": 4,
+      "Vulnerability": 4
+    },
+    "72978": {
+      "Fury": 10
+    },
+    "73005": {
+      "Bleeding": 7,
+      "Poisoned": 7
+    },
+    "73015": {
+      "Torment": 4
+    },
+    "73041": {
+      "Bleeding": 6
+    },
+    "73064": {
+      "Burning": 1
+    },
+    "73093": {
+      "Might": 6
+    },
+    "73137": {
+      "Might": 7,
+      "Fury": 4
+    },
+    "73149": {
+      "Weakness": "omit",
+      "Slow": "omit"
+    },
+    "76493": {
+      "Burning": 4,
+      "Quickness": 3,
+      "Might": 6
+    },
+    "76769": {
+      "Aegis": 3
+    },
+    "77247": {
+      "Bleeding": 10,
+      "Protection": 3
+    },
+    "78501": {
+      "Resistance": 1,
+      "Regeneration": 3
+    },
+    "78845": {
+      "Immobile": 1
+    },
+    "80247": {
+      "Immobile": 1
+    }
+  },
+  "trait": {
+    "214": {
+      "Fury": 4
+    },
+    "227": {
+      "Fury": 5
+    },
+    "268": {
+      "Might": "omit"
+    },
+    "275": {
+      "Bleeding": 10
+    },
+    "294": {
+      "Might": 10
+    },
+    "296": {
+      "Burning": 1
+    },
+    "433": {
+      "Burning": 4
+    },
+    "445": {
+      "Resistance": 2
+    },
+    "469": {
+      "Fury": 3
+    },
+    "473": {
+      "Fury": "omit"
+    },
+    "515": {
+      "Bleeding": 1
+    },
+    "525": {
+      "Fury": 4
+    },
+    "536": {
+      "Fury": 4
+    },
+    "562": {
+      "Might": 6
+    },
+    "563": {
+      "Fury": 4
+    },
+    "577": {
+      "Fury": 8
+    },
+    "583": {
+      "Might": 9
+    },
+    "586": {
+      "Fury": 4
+    },
+    "666": {
+      "Regeneration": 4
+    },
+    "685": {
+      "Vulnerability": 5
+    },
+    "694": {
+      "Vulnerability": 6
+    },
+    "701": {
+      "Fury": 10
+    },
+    "802": {
+      "Bleeding": 1
+    },
+    "803": {
+      "Fury": 8
+    },
+    "813": {
+      "Weakness": 2.5
+    },
+    "917": {
+      "Might": 6
+    },
+    "965": {
+      "Might": 8,
+      "Fury": 8
+    },
+    "978": {
+      "Regeneration": 4
+    },
+    "1001": {
+      "Vulnerability": 9
+    },
+    "1021": {
+      "Fury": 6
+    },
+    "1047": {
+      "Fury": 3,
+      "Might": 6
+    },
+    "1055": {
+      "Regeneration": 5
+    },
+    "1056": {
+      "Fury": 5,
+      "Might": 5
+    },
+    "1067": {
+      "Vigor": 4
+    },
+    "1069": {
+      "Bleeding": 1
+    },
+    "1083": {
+      "Fury": 5
+    },
+    "1163": {
+      "Fury": 10
+    },
+    "1170": {
+      "Fury": 6
+    },
+    "1209": {
+      "Might": 6
+    },
+    "1210": {
+      "Fury": 4
+    },
+    "1234": {
+      "Vigor": 3
+    },
+    "1280": {
+      "Weakness": 3
+    },
+    "1289": {
+      "Might": 20
+    },
+    "1334": {
+      "Fury": 3
+    },
+    "1337": {
+      "Bleeding": 1
+    },
+    "1379": {
+      "Resistance": 2
+    },
+    "1417": {
+      "Might": 6
+    },
+    "1447": {
+      "Stability": "omit"
+    },
+    "1451": {
+      "Might": 6,
+      "Resistance": 4
+    },
+    "1667": {
+      "Quickness": "omit"
+    },
+    "1688": {
+      "Weakness": 3
+    },
+    "1711": {
+      "Might": 3
+    },
+    "1727": {
+      "Torment": 6
+    },
+    "1738": {
+      "Might": 4
+    },
+    "1740": {
+      "Weakness": 3
+    },
+    "1778": {
+      "Fury": 5
+    },
+    "1784": {
+      "Stability": 2
+    },
+    "1786": {
+      "Fury": 3
+    },
+    "1810": {
+      "Resolution": 3
+    },
+    "1813": {
+      "Regeneration": 3
+    },
+    "1838": {
+      "Slow": 1.5
+    },
+    "1863": {
+      "Vulnerability": 6
+    },
+    "1888": {
+      "Fury": 4
+    },
+    "1891": {
+      "Might": 6
+    },
+    "1923": {
+      "Fury": 4
+    },
+    "1963": {
+      "Stability": 3
+    },
+    "1979": {
+      "Vigor": 2
+    },
+    "1986": {
+      "Alacrity": "omit"
+    },
+    "2001": {
+      "Alacrity": "omit"
+    },
+    "2008": {
+      "Might": 6
+    },
+    "2016": {
+      "Protection": 3
+    },
+    "2042": {
+      "Fury": 5
+    },
+    "2052": {
+      "Quickness": "omit",
+      "Fury": "omit"
+    },
+    "2071": {
+      "Fury": 6
+    },
+    "2076": {
+      "Quickness": 1.5
+    },
+    "2101": {
+      "Quickness": 1
+    },
+    "2105": {
+      "Resistance": 1.5
+    },
+    "2111": {
+      "Fury": 10
+    },
+    "2134": {
+      "Fury": 5
+    },
+    "2146": {
+      "Fury": 12
+    },
+    "2154": {
+      "Fury": 4
+    },
+    "2166": {
+      "Resistance": 4
+    },
+    "2174": {
+      "Alacrity": "omit"
+    },
+    "2193": {
+      "Fury": 0
+    },
+    "2202": {
+      "Bleeding": 3
+    },
+    "2205": {
+      "Fury": 3
+    },
+    "2207": {
+      "Fury": 5
+    },
+    "2210": {
+      "Fury": 3
+    },
+    "2212": {
+      "Aegis": 3
+    },
+    "2215": {
+      "Quickness": 2,
+      "Fury": 3
+    },
+    "2224": {
+      "Fury": "omit"
+    },
+    "2242": {
+      "Stability": "omit"
+    },
+    "2260": {
+      "Burning": 1
+    },
+    "2271": {
+      "Quickness": "omit"
+    },
+    "2276": {
+      "Alacrity": "omit"
+    },
+    "2369": {
+      "Alacrity": "omit"
+    },
+    "2387": {
+      "Alacrity": "omit"
+    },
+    "2393": {
+      "Fury": 6
+    },
+    "2429": {
+      "Burning": 4
+    }
+  }
+}

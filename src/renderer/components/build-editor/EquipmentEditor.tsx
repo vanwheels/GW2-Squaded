@@ -1,5 +1,6 @@
 import type { ItemStat, EquipmentSlotKey } from '@shared/types'
 import { useGameData } from '@renderer/state/game-data-store'
+import { SlotIcon, type SlotIconType } from './SlotIcon'
 
 interface Props {
   value: Partial<Record<EquipmentSlotKey, { itemStatId: number | null }>>
@@ -42,23 +43,36 @@ function dedupedStats(itemStats: ItemStat[]): ItemStat[] {
   return Array.from(byName.values(), pickCanonicalStat)
 }
 
-const SLOTS: { key: EquipmentSlotKey; label: string }[] = [
-  { key: 'helm', label: 'Helm' },
-  { key: 'shoulders', label: 'Shoulders' },
-  { key: 'chest', label: 'Chest' },
-  { key: 'gloves', label: 'Gloves' },
-  { key: 'leggings', label: 'Leggings' },
-  { key: 'boots', label: 'Boots' },
-  { key: 'backpiece', label: 'Backpiece' },
-  { key: 'accessory1', label: 'Accessory 1' },
-  { key: 'accessory2', label: 'Accessory 2' },
-  { key: 'ring1', label: 'Ring 1' },
-  { key: 'ring2', label: 'Ring 2' },
-  { key: 'amulet', label: 'Amulet' },
-  { key: 'weaponA1', label: 'Weapon A1' },
-  { key: 'weaponA2', label: 'Weapon A2' },
-  { key: 'weaponB1', label: 'Weapon B1' },
-  { key: 'weaponB2', label: 'Weapon B2' }
+/**
+ * Paperdoll positions mirror the in-game Hero > Equipment panel and gw2skills.net: armor down
+ * the left column, trinkets down the right, weapon sets below as their own row.
+ */
+const ARMOR_SLOTS: { key: EquipmentSlotKey; label: string; icon: SlotIconType }[] = [
+  { key: 'helm', label: 'Helm', icon: 'helm' },
+  { key: 'shoulders', label: 'Shoulders', icon: 'shoulders' },
+  { key: 'chest', label: 'Chest', icon: 'chest' },
+  { key: 'gloves', label: 'Gloves', icon: 'gloves' },
+  { key: 'leggings', label: 'Leggings', icon: 'leggings' },
+  { key: 'boots', label: 'Boots', icon: 'boots' }
+]
+
+const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string; icon: SlotIconType }[] = [
+  { key: 'backpiece', label: 'Back', icon: 'backpiece' },
+  { key: 'accessory1', label: 'Accessory 1', icon: 'accessory' },
+  { key: 'accessory2', label: 'Accessory 2', icon: 'accessory' },
+  { key: 'ring1', label: 'Ring 1', icon: 'ring' },
+  { key: 'ring2', label: 'Ring 2', icon: 'ring' },
+  { key: 'amulet', label: 'Amulet', icon: 'amulet' }
+]
+
+const WEAPON_SET_A: { key: EquipmentSlotKey; label: string }[] = [
+  { key: 'weaponA1', label: 'Main hand' },
+  { key: 'weaponA2', label: 'Off hand' }
+]
+
+const WEAPON_SET_B: { key: EquipmentSlotKey; label: string }[] = [
+  { key: 'weaponB1', label: 'Main hand' },
+  { key: 'weaponB2', label: 'Off hand' }
 ]
 
 export function EquipmentEditor({ value, onChange }: Props) {
@@ -69,11 +83,14 @@ export function EquipmentEditor({ value, onChange }: Props) {
     onChange({ ...value, [key]: { itemStatId } })
   }
 
-  return (
-    <div className="equipment-editor">
-      {SLOTS.map(({ key, label }) => (
-        <label className="field" key={key}>
-          <span>{label}</span>
+  function renderSlot(key: EquipmentSlotKey, label: string, icon: SlotIconType) {
+    return (
+      <div className="gear-slot" key={key}>
+        <div className="gear-slot-icon">
+          <SlotIcon type={icon} />
+        </div>
+        <label className="gear-slot-body">
+          <span className="gear-slot-label">{label}</span>
           <select
             value={value[key]?.itemStatId ?? ''}
             onChange={(e) => setSlot(key, e.target.value ? Number(e.target.value) : null)}
@@ -86,7 +103,26 @@ export function EquipmentEditor({ value, onChange }: Props) {
             ))}
           </select>
         </label>
-      ))}
+      </div>
+    )
+  }
+
+  return (
+    <div className="equipment-editor">
+      <div className="gear-paperdoll">
+        <div className="gear-column">{ARMOR_SLOTS.map((s) => renderSlot(s.key, s.label, s.icon))}</div>
+        <div className="gear-column">{TRINKET_SLOTS.map((s) => renderSlot(s.key, s.label, s.icon))}</div>
+      </div>
+      <div className="gear-weapons">
+        <div className="gear-weapon-set">
+          <h4>Set A</h4>
+          {WEAPON_SET_A.map((s) => renderSlot(s.key, s.label, 'weapon'))}
+        </div>
+        <div className="gear-weapon-set">
+          <h4>Set B</h4>
+          {WEAPON_SET_B.map((s) => renderSlot(s.key, s.label, 'weapon'))}
+        </div>
+      </div>
     </div>
   )
 }

@@ -102,6 +102,20 @@ export interface ItemStat {
  */
 export type EliteSpecSkillMap = Record<number, number>
 
+/**
+ * A boon/condition Buff fact's game-mode split, per (skill/trait id, boon/condition name):
+ * `'omit'` means the wiki tags this fact PvE-only with no WvW/PvP variant, so it should be
+ * dropped entirely for a WvW-focused view; a number is the WvW/PvP-tagged duration to use in
+ * place of the API's (PvE-default) `fact.duration`. Boon names absent from an id's map are
+ * either unsplit (same value in every mode) or a split the fetch script couldn't verify — see
+ * scripts/fetch-wvw-splits.ts and docs/game-data.md.
+ */
+export type WvwFactOverride = number | 'omit'
+export interface WvwFactOverrides {
+  skill: Record<number, Record<string, WvwFactOverride>>
+  trait: Record<number, Record<string, WvwFactOverride>>
+}
+
 export interface GameData {
   professions: Profession[]
   specializations: Specialization[]
@@ -109,4 +123,5 @@ export interface GameData {
   skills: Skill[]
   itemStats: ItemStat[]
   eliteSpecSkills: EliteSpecSkillMap
+  wvwFactOverrides: WvwFactOverrides
 }
