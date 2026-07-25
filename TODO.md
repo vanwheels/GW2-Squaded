@@ -15,4 +15,3 @@
 - [ ] Automatic game-data refresh mechanism (balance patches) — manual refresh only for now
 - [ ] Electron packaging/distribution config (electron-builder.yml is not set up yet — only
       `install-app-deps` postinstall is wired up for native module rebuilding)
-- [ ] Push the initial commit(s) to a GitHub remote (not yet configured)
