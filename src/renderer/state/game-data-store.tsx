@@ -8,7 +8,11 @@ interface GameDataStore extends GameData {
   specializationsForProfession: (profession: ProfessionId) => Specialization[]
   majorTraitsForSpecialization: (specializationId: number) => Trait[]
   minorTraitsForSpecialization: (specializationId: number) => Trait[]
-  skillsForProfessionAndSlot: (profession: ProfessionId, slot: 'Heal' | 'Utility' | 'Elite') => Skill[]
+  skillsForProfessionAndSlot: (
+    profession: ProfessionId,
+    slot: 'Heal' | 'Utility' | 'Elite',
+    equippedSpecializationIds: ReadonlySet<number>
+  ) => Skill[]
 }
 
 const EMPTY_GAME_DATA: GameData = {
@@ -16,7 +20,8 @@ const EMPTY_GAME_DATA: GameData = {
   specializations: [],
   traits: [],
   skills: [],
-  itemStats: []
+  itemStats: [],
+  eliteSpecSkills: {}
 }
 
 const GameDataStoreContext = createContext<GameDataStore | null>(null)
@@ -56,8 +61,12 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
         gameData.traits
           .filter((t) => t.specializationId === specializationId && t.slot === 'Minor')
           .sort((a, b) => a.tier - b.tier),
-      skillsForProfessionAndSlot: (profession, slot) =>
-        gameData.skills.filter((s) => s.slot === slot && s.professions.includes(profession))
+      skillsForProfessionAndSlot: (profession, slot, equippedSpecializationIds) =>
+        gameData.skills.filter((s) => {
+          if (s.slot !== slot || !s.professions.includes(profession)) return false
+          const requiredSpecId = gameData.eliteSpecSkills[s.id]
+          return requiredSpecId === undefined || equippedSpecializationIds.has(requiredSpecId)
+        })
     }
   }, [gameData, loading])
 

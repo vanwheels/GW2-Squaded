@@ -234,7 +234,9 @@ async function main(): Promise<void> {
   console.log('Fetching itemstats...')
   const itemStats = (await fetchAllRecords<number, RawItemStat>('itemstats')).map(normalizeItemStat)
 
-  const gameData: GameData = { professions, specializations, traits, skills, itemStats }
+  // eliteSpecSkills isn't produced here — it's sourced from the wiki by the separate
+  // scripts/fetch-elite-spec-skills.ts, not the official GW2 API.
+  const gameData: Omit<GameData, 'eliteSpecSkills'> = { professions, specializations, traits, skills, itemStats }
 
   await Promise.all([
     writeFile(join(OUTPUT_DIR, 'professions.json'), JSON.stringify(professions, null, 2)),

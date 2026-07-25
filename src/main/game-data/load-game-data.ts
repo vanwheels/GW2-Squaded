@@ -27,7 +27,8 @@ export function loadGameData(): GameData {
       specializations: readJson('specializations.json'),
       traits: readJson('traits.json'),
       skills: readJson('skills.json'),
-      itemStats: readJson('itemstats.json')
+      itemStats: readJson('itemstats.json'),
+      eliteSpecSkills: readJson('elite-spec-skills.json')
     }
   }
   return cached

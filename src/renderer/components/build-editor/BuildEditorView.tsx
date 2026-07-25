@@ -1,5 +1,6 @@
-import { useState } from 'react'
-import type { Build, ProfessionId } from '@shared/types'
+import { useMemo, useState } from 'react'
+import type { Build, ProfessionId, SkillSelection, TraitLineSelection } from '@shared/types'
+import { useGameData } from '@renderer/state/game-data-store'
 import { ProfessionSelect } from './ProfessionSelect'
 import { TraitsEditor } from './TraitsEditor'
 import { SkillsEditor } from './SkillsEditor'
@@ -16,6 +17,12 @@ interface Props {
 export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
   const [draft, setDraft] = useState<Build>(build)
   const [saving, setSaving] = useState(false)
+  const { eliteSpecSkills } = useGameData()
+
+  const equippedSpecializationIds = useMemo(
+    () => new Set(draft.specializations.map((s) => s.specializationId)),
+    [draft.specializations]
+  )
 
   function handleProfessionChange(profession: ProfessionId): void {
     setDraft({
@@ -24,6 +31,24 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
       specializations: [],
       skills: { heal: null, utility: [null, null, null], elite: null }
     })
+  }
+
+  /** Equipping/swapping specialization lines can invalidate a previously-chosen elite-spec-
+   *  gated skill (e.g. dropping the Luminary line while "Resolute Stance" is the heal skill) —
+   *  clear any skill selection that's no longer valid under the new specialization set. */
+  function handleSpecializationsChange(specializations: TraitLineSelection[]): void {
+    const nextEquippedIds = new Set(specializations.map((s) => s.specializationId))
+    const stillValid = (skillId: number | null): number | null => {
+      if (skillId === null) return null
+      const requiredSpecId = eliteSpecSkills[skillId]
+      return requiredSpecId === undefined || nextEquippedIds.has(requiredSpecId) ? skillId : null
+    }
+    const skills: SkillSelection = {
+      heal: stillValid(draft.skills.heal),
+      utility: draft.skills.utility.map(stillValid) as SkillSelection['utility'],
+      elite: stillValid(draft.skills.elite)
+    }
+    setDraft({ ...draft, specializations, skills })
   }
 
   async function handleSave(): Promise<void> {
@@ -56,13 +81,14 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
           <TraitsEditor
             profession={draft.profession}
             value={draft.specializations}
-            onChange={(specializations) => setDraft({ ...draft, specializations })}
+            onChange={handleSpecializationsChange}
           />
           <h3>Skills</h3>
           <SkillsEditor
             profession={draft.profession}
             value={draft.skills}
             onChange={(skills) => setDraft({ ...draft, skills })}
+            equippedSpecializationIds={equippedSpecializationIds}
           />
         </div>
         <div className="build-editor-column">

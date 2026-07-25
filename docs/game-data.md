@@ -57,13 +57,12 @@ since retrying won't fix a malformed request.
 ## Raw vs. normalized shapes
 
 The raw GW2 API responses (especially `skills` and `traits`) include a lot of fields not
-needed yet — and their `facts` / `traited_facts` arrays are a large polymorphic union used to
-describe skill/trait effects (damage, boons applied, durations, etc.) that only matters once
-the boon/condition calculator is built. Raw shapes are typed loosely and locally inside
-`scripts/fetch-game-data.ts` (see the `Raw*` interfaces) and are never exposed outside that
-file. The normalized, app-facing types the rest of the app depends on live in
-`src/shared/types/game-data.ts`; `facts`/`traitedFacts` are preserved as `unknown[]` there so
-the data isn't lost, and can be typed precisely when the calculator work starts.
+needed yet. Their `facts` / `traited_facts` arrays are a large polymorphic union used to
+describe skill/trait effects (damage, boons applied, durations, etc.) — typed as `Fact` in
+`src/shared/types/game-data.ts` (loosely, via an index signature, since modeling all ~19 `type`
+variants isn't worth it when the boon/condition calculator only reads a handful of fields).
+Everything else in the raw responses is typed loosely and locally inside
+`scripts/fetch-game-data.ts` (see the `Raw*` interfaces) and never exposed outside that file.
 
 ## Output files
 
@@ -75,5 +74,38 @@ needing to run the fetch script immediately:
 - `traits.json`
 - `skills.json`
 - `itemstats.json`
+- `elite-spec-skills.json` — see below; sourced from the wiki, not `fetch-game-data.ts`
 - `meta.json` — just `{ fetchedAt }`, so the app/UI can eventually surface "game data last
   updated on ..." somewhere.
+
+## Elite-spec-gated skills (`elite-spec-skills.json`)
+
+The official API has no field indicating which elite specialization (if any) unlocks a given
+Heal/Utility/Elite skill — `/v2/skills` objects carry no `specialization` id, and
+`/v2/professions/:id`'s `training` array only groups **core** skill categories (Signet
+Training, Well Training, ...), not elite-spec-specific unlocks. Confirmed by direct API
+inspection, not assumption.
+
+`scripts/fetch-elite-spec-skills.ts` (run via `npm run fetch-elite-spec-skills`, after
+`fetch-game-data`) sources this from the wiki instead: every elite specialization has a
+maintained `Category:<Name> skills` page, and each member page is tagged with `Category:Healing
+skills` / `Category:Utility skills` / `Category:Elite skills` identifying its slot. The script
+pulls all 36 elite specs' category pages via the wiki's MediaWiki API (`action=query&
+generator=categorymembers&prop=categories`, paginated), filters to Heal/Utility/Elite-tagged
+members, and matches page titles against the already-fetched `skills.json` by
+(profession, slot, name) to resolve wiki titles to numeric skill ids. Output is a flat
+`{ [skillId]: specializationId }` map.
+
+**Known gaps (documented, not silently papered over):** as of the last run, 211 skills matched
+cleanly; ~16 wiki pages didn't match any `skills.json` entry (mostly Druid Celestial-Avatar-form
+variants and a couple of gadget "backfired" flavor pages — not real playable skill options), and
+~36 page titles matched *multiple* skill ids ambiguously (e.g. Revenant legend skills, Weaver
+dual-attunement skills — GW2 often has two skill ids sharing one display name for a display/
+tooltip-copy reason that isn't worth guessing at). Both cases are simply **excluded** from the
+map rather than guessed — a skill missing from the map is treated as ungated (shown regardless of
+equipped spec), which is a fail-safe default equal to the pre-existing (ungated) behavior, never
+a wrong exclusion. Requires the wiki API's default `User-Agent` header to be overridden (Node's
+default UA gets a 403; any identifiable UA passes — see `USER_AGENT` in the script).
+
+**Note:** this file's data is NOT re-derivable from `fetch-game-data.ts` — re-run
+`fetch-elite-spec-skills` too whenever a balance patch might add/change elite-spec-gated skills.

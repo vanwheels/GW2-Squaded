@@ -5,14 +5,15 @@ interface Props {
   profession: ProfessionId
   value: SkillSelection
   onChange: (value: SkillSelection) => void
+  equippedSpecializationIds: ReadonlySet<number>
 }
 
-export function SkillsEditor({ profession, value, onChange }: Props) {
+export function SkillsEditor({ profession, value, onChange, equippedSpecializationIds }: Props) {
   const { skillsForProfessionAndSlot } = useGameData()
 
-  const healOptions = skillsForProfessionAndSlot(profession, 'Heal')
-  const utilityOptions = skillsForProfessionAndSlot(profession, 'Utility')
-  const eliteOptions = skillsForProfessionAndSlot(profession, 'Elite')
+  const healOptions = skillsForProfessionAndSlot(profession, 'Heal', equippedSpecializationIds)
+  const utilityOptions = skillsForProfessionAndSlot(profession, 'Utility', equippedSpecializationIds)
+  const eliteOptions = skillsForProfessionAndSlot(profession, 'Elite', equippedSpecializationIds)
 
   function setUtility(slotIndex: 0 | 1 | 2, skillId: number | null): void {
     const utility: SkillSelection['utility'] = [...value.utility]

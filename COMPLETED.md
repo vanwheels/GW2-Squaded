@@ -2,6 +2,69 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 4 — Elite-spec skill gating, equipment dedup, and wiki-extraction research
+
+- **Elite-spec skill gating** (the build editor previously showed every Heal/Utility/Elite skill
+  for a profession regardless of which elite spec, if any, was equipped — e.g. Guardian's
+  Luminary-only "Resolute Stance" was selectable with no elite spec chosen at all). Root cause:
+  confirmed via direct API inspection that `/v2/skills` has no `specialization` field, and
+  `/v2/professions/:id`'s `training` array only groups core skill categories. Fixed by sourcing
+  the mapping from the wiki instead: `scripts/fetch-elite-spec-skills.ts` (new, run via
+  `npm run fetch-elite-spec-skills`) pulls all 36 elite specs' `Category:<Name> skills` wiki
+  pages via the MediaWiki API (`generator=categorymembers&prop=categories`, paginated), filters
+  to pages tagged `Category:Healing/Utility/Elite skills`, and matches page titles against
+  `skills.json` by (profession, slot, name) — with a quote-stripping fallback for shout-skill
+  title mismatches (wiki drops the surrounding `"..."` GW2 keeps in the API name). Output:
+  `data/game-data/elite-spec-skills.json`, a flat `{ skillId: specializationId }` map, 211
+  entries resolved cleanly this run (16 unmatched, 36 ambiguous — both excluded rather than
+  guessed, see docs/game-data.md for the full breakdown). Wired into `GameData`/`loadGameData`/
+  `game-data-store.tsx`'s `skillsForProfessionAndSlot` (now takes the build's equipped
+  specialization ids and filters out gated skills the build doesn't have), `SkillsEditor`, and
+  `BuildEditorView` (which also now clears any skill selection invalidated by a specialization
+  line change, e.g. dropping Luminary while "Resolute Stance" is the heal skill).
+  - Real bug hit while writing the fetch script: the wiki's API returns HTTP 403 for Node's
+    default `fetch` User-Agent (confirmed: `curl` with its default UA passes, bare Node `fetch`
+    doesn't) — fixed by setting an explicit descriptive `User-Agent` header.
+  - Verified the resulting map against the target party comp from TODO.md: all 5 Luminary-line
+    skills (Resolute Stance, Effulgent Stance, Piercing Stance, Valorous Stance, Stalwart Stance)
+    resolved correctly to the Luminary specialization id.
+- **Equipment picker duplicate stat-name entries** (screenshot from the user showed "Apothecary's"
+  listed 4 times, "Berserker's" 5 times, etc. in the Leggings dropdown with no way to tell them
+  apart). Root cause: `data/game-data/itemstats.json` has 43 stat-combo names with multiple
+  numeric ids each — legacy pre-revamp combos, trinket-only (value-only) variants, and the modern
+  armor/weapon (multiplier+value) combo all share a display name. Fixed with a dedup heuristic in
+  `EquipmentEditor.tsx`: per name, prefer the entry with the most attributes, then the one where
+  every attribute has both a nonzero multiplier and value (the fully-specified modern combo),
+  tie-broken by lowest id. Verified in Python against all 43 duplicate-name groups before porting
+  to TypeScript (the TS scoring function was checked to produce identical picks to the reference
+  implementation for every group). This is a display-only fix — it doesn't yet resolve which
+  itemstat id is *correct per equipment slot type* for real stat-scaling math (still open, see
+  TODO.md); nothing consumes itemstat attribute values yet, so this was safe to ship now.
+- **Wiki-extraction research** (user asked directly: "can we get WvW-split and gear-scaling data
+  from the wiki?" — prior session had only confirmed these were *missing* from the raw API,
+  not investigated wiki feasibility). Two real research passes against live wiki pages, not
+  assumptions:
+  - Gear-scaling formula **is** documented: `wiki.guildwars2.com/wiki/API:2/itemstats` states
+    `attribute_adjustment * multiplier + value` = attribute points, with a reference table of
+    `attribute_adjustment` constants by level/rarity/slot-type. This overturns last session's
+    finding that the multiplier→major/minor mapping was needed — that was based on the wiki's
+    *pre-computed final totals* table, not the general per-item formula, which turns out to be
+    much simpler. Still open: which itemstat id to pick for a given equipment slot when a name
+    has duplicates (undocumented — only a talk-page comment, unverified).
+  - WvW/PvE split values **are** extractable, just not via one bulk query: the wiki has no Cargo
+    extension (404 on `Special:CargoTables`) and Semantic MediaWiki doesn't index the `game
+    mode=` skill-fact template parameter (a live `Special:Ask` query for it returned nothing).
+    But `Category:Split_skills` (1,664 pages) and `Category:Split_traits` (545 pages) are real
+    maintained lists, and each page's raw wikitext has cleanly parseable `{{skill fact|...|game
+    mode=pve/wvw pvp}}` template calls — confirmed directly against `Restoring_Reprieve`'s raw
+    wikitext, matching the known in-game PvE-vs-WvW difference exactly. Feasible per-page for the
+    bounded set of skills/traits a specific build/party comp uses; not built yet.
+  - Elite-spec-to-skill mapping (the gating feature above) was confirmed feasible the same way
+    before it was built — findings folded directly into the shipped fetch script rather than
+    left as a separate note.
+- Fixed a stale doc comment in `docs/game-data.md` claiming `facts`/`traitedFacts` are still
+  `unknown[]` — they were typed as `Fact[]` last session; the doc just hadn't been updated.
+
 ## Session 3 — Boon/condition source parser (first slice of the uptime calculator)
 
 - Typed the GW2 API's `Fact` object (`src/shared/types/game-data.ts`): `Skill.facts`/

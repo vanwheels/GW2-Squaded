@@ -13,6 +13,7 @@
     "build": "electron-vite build",
     "start": "electron-vite preview",
     "fetch-game-data": "tsx scripts/fetch-game-data.ts",
+    "fetch-elite-spec-skills": "tsx scripts/fetch-elite-spec-skills.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json"
   },

@@ -92,10 +92,21 @@ export interface ItemStat {
   attributes: ItemStatAttribute[]
 }
 
+/**
+ * Skill id -> the elite specialization id required to use it, for Heal/Utility/Elite skills
+ * gated behind a specific elite spec. The public GW2 API has no field for this (skills carry no
+ * `specialization` id), so it's sourced from the wiki's per-spec skill categories instead — see
+ * scripts/fetch-elite-spec-skills.ts and docs/game-data.md. Skills absent from this map are
+ * either core (usable regardless of spec) or a small documented set the fetch script couldn't
+ * unambiguously resolve (fails open — treated as ungated, same as before this existed).
+ */
+export type EliteSpecSkillMap = Record<number, number>
+
 export interface GameData {
   professions: Profession[]
   specializations: Specialization[]
   traits: Trait[]
   skills: Skill[]
   itemStats: ItemStat[]
+  eliteSpecSkills: EliteSpecSkillMap
 }
