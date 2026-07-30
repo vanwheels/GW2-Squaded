@@ -1,4 +1,5 @@
-import type { Build, EquipmentSlotKey, Infusion, ItemStat } from '../types'
+import type { AttributeBonusText, Build, Consumable, EquipmentSlotKey, GameData, ItemStat, Rune } from '../types'
+import { RUNE_SLOT_KEYS } from './upgrade-slots'
 
 /**
  * attribute_adjustment constants for level-80 Exotic/Ascended gear, quoted directly from the
@@ -47,10 +48,30 @@ const SLOT_ADJUSTMENT_KEY: Partial<Record<EquipmentSlotKey, AdjustmentKey>> = {
 
 const UNDERWATER_WEAPON_SLOTS: EquipmentSlotKey[] = ['weaponU1', 'weaponU2']
 
-const RARITY: 'exotic' | 'ascended' = 'ascended'
+export const RARITY: 'exotic' | 'ascended' = 'ascended'
 
-/** Attribute name (as in `ItemStatAttribute.attribute`, e.g. "BoonDuration") -> summed points across all equipped gear. */
-export type AttributeTotals = Record<string, number>
+/**
+ * Gear/upgrade-derived attribute totals. `points` holds the 9 core GW2 attributes, keyed by their
+ * `ItemStat`/API attribute name — including the two that reuse their *derived percentage's* name
+ * as the raw-stat key (`BoonDuration` = raw Concentration points, `ConditionDuration` = raw
+ * Expertise points; `CritDamage` = raw Ferocity points), same convention the game's own item data
+ * uses (confirmed: `data/game-data/itemstats.json` has no separate "Concentration"/"Expertise"/
+ * "Ferocity" attribute keys at all). `bonusPercent` holds rune/food/utility bonus text that's
+ * already expressed as a direct percentage (e.g. "+5% Boon Duration") rather than raw attribute
+ * points — these add on top of the points-derived percentage rather than being converted again.
+ */
+export interface AttributeTotals {
+  points: Record<string, number>
+  bonusPercent: {
+    boonDuration: number
+    conditionDuration: number
+    magicFind: number
+  }
+}
+
+function emptyTotals(): AttributeTotals {
+  return { points: {}, bonusPercent: { boonDuration: 0, conditionDuration: 0, magicFind: 0 } }
+}
 
 /**
  * Land weapon slots (`weaponA1/A2/B1/B2`) always use the one-handed constant, even when a
@@ -65,15 +86,113 @@ function weaponAdjustmentKey(slotKey: EquipmentSlotKey): AdjustmentKey {
   return UNDERWATER_WEAPON_SLOTS.includes(slotKey) ? 'weaponTwoHanded' : 'weaponOneHanded'
 }
 
+function addPoints(totals: AttributeTotals, attribute: string, value: number): void {
+  totals.points[attribute] = (totals.points[attribute] ?? 0) + value
+}
+
+/**
+ * Free-text attribute name (from `Rune`/`Consumable` bonus lines, e.g. "Ferocity", "Concentration",
+ * case-insensitive) -> the `ItemStat`/API attribute key it corresponds to. Only the 9 core GW2
+ * combat attributes are mapped; everything else (Karma, Gold from Monsters, per-faction damage
+ * bonuses, "on Kill"/conditional procs, seasonal Magic Find, per-condition duration bonuses like
+ * "Burning Duration") is intentionally left unmapped — confirmed via a full scan of
+ * data/game-data/{runes,food,utility}.json's bonus attribute strings (see docs/game-data.md) that
+ * these fall well outside the stats panel's confirmed scope (aggregate Boon/Condition Duration
+ * only, not per-condition). Unmapped bonuses stay display-only (already shown via tooltip text
+ * from a prior session) rather than being guessed into a bucket.
+ */
+const FLAT_ATTRIBUTE_ALIASES: Record<string, string> = {
+  power: 'Power',
+  precision: 'Precision',
+  toughness: 'Toughness',
+  vitality: 'Vitality',
+  ferocity: 'CritDamage',
+  healing: 'Healing',
+  'healing power': 'Healing',
+  'condition damage': 'ConditionDamage',
+  concentration: 'BoonDuration',
+  expertise: 'ConditionDuration'
+}
+
+/** The 9 core GW2 combat attributes, by their `ItemStat`-convention key — what a "+N to All
+ *  Stats"/"+N to All Attributes" bonus (e.g. Superior Rune of Divinity) distributes across. */
+const ALL_CORE_ATTRIBUTE_KEYS = [
+  'Power',
+  'Precision',
+  'Toughness',
+  'Vitality',
+  'CritDamage',
+  'Healing',
+  'ConditionDamage',
+  'BoonDuration',
+  'ConditionDuration'
+]
+
+const ALL_STATS_ALIASES = new Set(['to all stats', 'to all attributes'])
+
+/** Free-text attribute name for a bonus already expressed as a direct percentage (e.g. "+5% Boon
+ *  Duration", "+20% Magic Find") -> which `bonusPercent` bucket it adds to. Exact-match only (not
+ *  substring) so conditional variants like "Magic Find while under the Effect of a Boon" or
+ *  "Magic Find during Lunar New Year" are correctly excluded as not being a build-always-on bonus. */
+const PERCENT_BONUS_ALIASES: Record<string, keyof AttributeTotals['bonusPercent']> = {
+  'boon duration': 'boonDuration',
+  'condition duration': 'conditionDuration',
+  'magic find': 'magicFind'
+}
+
+function addBonus(totals: AttributeTotals, bonus: AttributeBonusText): void {
+  if (bonus.attribute === null || bonus.value === null) return
+  const key = bonus.attribute.trim().toLowerCase()
+
+  if (bonus.isPercent) {
+    const percentKey = PERCENT_BONUS_ALIASES[key]
+    if (percentKey) totals.bonusPercent[percentKey] += bonus.value
+    return
+  }
+
+  if (ALL_STATS_ALIASES.has(key)) {
+    for (const attr of ALL_CORE_ATTRIBUTE_KEYS) addPoints(totals, attr, bonus.value)
+    return
+  }
+
+  const attr = FLAT_ATTRIBUTE_ALIASES[key]
+  if (attr) addPoints(totals, attr, bonus.value)
+}
+
+/**
+ * Runes are stage-gated by how many armor pieces carry the *same* rune id (standard GW2
+ * mechanic): equipping a rune on 3 pieces unlocks stages 1-3 (`bonuses[0..2]`), not stage 3 three
+ * times. Counts every armor slot independently (not deduped by stat combo), matching the 6
+ * armor slots that carry a rune slot (`RUNE_SLOT_KEYS`).
+ */
+function addRuneBonuses(totals: AttributeTotals, build: Build, runesById: Map<number, Rune>): void {
+  const countByRuneId = new Map<number, number>()
+  for (const slotKey of RUNE_SLOT_KEYS) {
+    const runeId = build.equipment[slotKey]?.runeId
+    if (runeId != null) countByRuneId.set(runeId, (countByRuneId.get(runeId) ?? 0) + 1)
+  }
+  for (const [runeId, count] of countByRuneId) {
+    const rune = runesById.get(runeId)
+    if (!rune) continue
+    for (const bonus of rune.bonuses.slice(0, count)) addBonus(totals, bonus)
+  }
+}
+
 /**
  * Infusions are optional (this function is called from several places, some without an
  * `infusions` list handy) and default to `[]` so gear-only totals still work — infusions simply
  * don't contribute in that case, same as an unequipped slot.
  */
-export function computeGearAttributeTotals(build: Build, itemStats: ItemStat[], infusions: Infusion[] = []): AttributeTotals {
-  const statsById = new Map(itemStats.map((s) => [s.id, s]))
-  const infusionsById = new Map(infusions.map((i) => [i.id, i]))
-  const totals: AttributeTotals = {}
+export function computeGearAttributeTotals(
+  build: Build,
+  gameData: Pick<GameData, 'itemStats' | 'infusions' | 'runes' | 'food' | 'utility'>
+): AttributeTotals {
+  const statsById = new Map<number, ItemStat>(gameData.itemStats.map((s) => [s.id, s]))
+  const infusionsById = new Map(gameData.infusions.map((i) => [i.id, i]))
+  const runesById = new Map(gameData.runes.map((r) => [r.id, r]))
+  const foodById = new Map<number, Consumable>(gameData.food.map((f) => [f.id, f]))
+  const utilityById = new Map<number, Consumable>(gameData.utility.map((u) => [u.id, u]))
+  const totals = emptyTotals()
 
   for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
     const slot = build.equipment[slotKey]
@@ -88,8 +207,7 @@ export function computeGearAttributeTotals(build: Build, itemStats: ItemStat[], 
       if (stat) {
         const adjustment = ATTRIBUTE_ADJUSTMENT[adjustmentKey][RARITY]
         for (const attr of stat.attributes) {
-          const points = adjustment * attr.multiplier + attr.value
-          totals[attr.attribute] = (totals[attr.attribute] ?? 0) + points
+          addPoints(totals, attr.attribute, adjustment * attr.multiplier + attr.value)
         }
       }
     }
@@ -103,10 +221,18 @@ export function computeGearAttributeTotals(build: Build, itemStats: ItemStat[], 
         if (infusionId === null) continue
         const infusion = infusionsById.get(infusionId)
         if (!infusion?.attribute || infusion.value === null) continue
-        totals[infusion.attribute] = (totals[infusion.attribute] ?? 0) + infusion.value
+        addPoints(totals, infusion.attribute, infusion.value)
       }
     }
   }
+
+  addRuneBonuses(totals, build, runesById)
+
+  const food = build.foodId !== null ? foodById.get(build.foodId) : undefined
+  if (food) for (const bonus of food.bonuses) addBonus(totals, bonus)
+
+  const utility = build.utilityId !== null ? utilityById.get(build.utilityId) : undefined
+  if (utility) for (const bonus of utility.bonuses) addBonus(totals, bonus)
 
   return totals
 }
@@ -115,14 +241,24 @@ export function computeGearAttributeTotals(build: Build, itemStats: ItemStat[], 
  * Concentration (API attribute name `BoonDuration`) and Expertise (`ConditionDuration`) each
  * convert to a duration percentage at a flat rate of 15 points per 1% — quoted directly from
  * the wiki's Concentration and Expertise pages ("Every 15 points of Concentration/Expertise
- * adds 1% to boon/condition duration"), fetched raw wikitext this session.
+ * adds 1% to boon/condition duration"), fetched raw wikitext this session. Rune/food/utility
+ * bonuses already expressed as a direct percentage (`bonusPercent`) add on top, unconverted.
  */
 const DURATION_POINTS_PER_PERCENT = 15
 
 export function boonDurationPercent(totals: AttributeTotals): number {
-  return (totals.BoonDuration ?? 0) / DURATION_POINTS_PER_PERCENT
+  return (totals.points.BoonDuration ?? 0) / DURATION_POINTS_PER_PERCENT + totals.bonusPercent.boonDuration
 }
 
 export function conditionDurationPercent(totals: AttributeTotals): number {
-  return (totals.ConditionDuration ?? 0) / DURATION_POINTS_PER_PERCENT
+  return (totals.points.ConditionDuration ?? 0) / DURATION_POINTS_PER_PERCENT + totals.bonusPercent.conditionDuration
+}
+
+/**
+ * Magic Find has no equippable core-attribute form in GW2 (no `ItemStat` combo grants it) — every
+ * point comes from rune/food/utility bonus text already expressed as a direct percentage, so
+ * there's no points-to-percent conversion to apply, unlike Boon/Condition Duration above.
+ */
+export function magicFindPercent(totals: AttributeTotals): number {
+  return totals.bonusPercent.magicFind
 }

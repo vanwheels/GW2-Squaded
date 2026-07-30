@@ -2,6 +2,96 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 16 — Character-stats panel: stats-calc math + UI
+
+Continuation of "Build editor UI/UX overhaul" → the character-stats-panel item, picking up
+exactly where Session 15 left off ("deliberately NOT done this session: merging rune/food/utility
+attribute-bonus text into `AttributeTotals`... and the crit%/armor/health derived-stat formulas —
+those need their own wiki-verification pass"). This session did that verification pass and built
+the actual panel UI, closing out the item's core scope (relic numeric effects, item-rarity color
+coding, and the bottom Conditions/Boons/Control/Auras/Misc/Combo icon bar remain separately open,
+see TODO.md).
+
+- **Wiki research first, same discipline as gear-scaling/WvW-splits**: fetched raw wikitext for
+  Precision, Ferocity, Toughness, Health, Armor (attribute), Armor class, Profession, and Magic
+  Find. Every formula below is a direct quote, not reconstructed from memory:
+  - Critical Chance % = `5 + (Precision - 1000) / 21` (wiki.guildwars2.com/wiki/Precision).
+  - Critical Damage % = `150 + Ferocity / 15` (wiki.guildwars2.com/wiki/Ferocity +
+    wiki.guildwars2.com/wiki/Critical_hit for the 150% base).
+  - Armor = Toughness + Defense, where Defense is a fixed per-armor-piece rating by weight class
+    (Light/Medium/Heavy) and rarity, quoted verbatim from the wiki's "Armor class" defense-rating
+    table (Ascended totals: Light 967, Medium 1118, Heavy 1271, matching this app's existing
+    Ascended-only assumption — see `RARITY` in `attribute-totals.ts`).
+  - Health = base health (by profession tier: Warrior/Necromancer 9,212; Revenant/Engineer/
+    Ranger/Mesmer 5,922; Guardian/Thief/Elementalist 1,645) + Vitality × 10.
+  - Profession → armor weight class confirmed via wiki.guildwars2.com/wiki/Profession ("scholars
+    wear light armor, adventurers wear medium armor, soldiers wear heavy armor": Scholars =
+    Elementalist/Mesmer/Necromancer, Adventurers = Engineer/Ranger/Thief, Soldiers = Guardian/
+    Revenant/Warrior).
+  - Magic Find has no equippable core-attribute form in GW2 at all — every point comes from rune/
+    food/utility bonus text already expressed as a direct percentage, so it needed no
+    points-to-percent conversion, unlike Boon/Condition Duration.
+  - **Two old reference-screenshot numbers (from a prior session, screenshots not saved to the
+    repo) turned out to disagree with each other and with the verified formula**: two
+    independently-sourced before/after pairs in TODO.md both showed Precision 1960 but different
+    crit chance (83.71% vs. 50.71%). The wiki formula matches the second pair exactly
+    (`5 + 960/21 = 50.71%`) and the first is unexplained — treated as an unreliable transcription
+    rather than a target to reverse-engineer, and documented as such in TODO.md rather than
+    silently ignored.
+- **`src/shared/gear-calc/attribute-totals.ts` restructured**: `AttributeTotals` is now
+  `{ points, bonusPercent }` instead of a flat `Record<string, number>` — `points` holds the 9 core
+  GW2 attributes (by `ItemStat`/API key, e.g. `BoonDuration` = raw Concentration points), while
+  `bonusPercent` holds rune/food/utility bonus text already expressed as a direct percentage (e.g.
+  "+5% Boon Duration") so it adds on top of the points-derived percentage instead of being
+  reconverted through the 15-points-per-1% rule a second time. `computeGearAttributeTotals` now
+  takes the relevant `GameData` slice directly (`itemStats`/`infusions`/`runes`/`food`/`utility`)
+  instead of separate positional array params — simpler at all 3 call sites
+  (`sources.ts`/`BoonUptimePanel.tsx`/`SkillsEditor.tsx`), which already had the whole `gameData`
+  object in scope. New `magicFindPercent` alongside the existing `boonDurationPercent`/
+  `conditionDurationPercent`.
+- **Free-text attribute-bonus merging** (`addBonus` in `attribute-totals.ts`): a small
+  case-insensitive alias table maps rune/food/utility bonus text (confirmed via a full scan of
+  `data/game-data/{runes,food,utility}.json` this session) to the matching `ItemStat` key —
+  "Ferocity"→`CritDamage`, "Concentration"→`BoonDuration`, "Expertise"→`ConditionDuration`,
+  "Healing"/"Healing Power"→`Healing`, plus the 5 attributes that already share their name. "+N to
+  All Stats"/"to All Attributes" (e.g. Superior Rune of Divinity/Traveler) distributes across all 9
+  core attributes. Percent-typed bonuses use an exact-match (not substring) table for exactly
+  "Boon Duration"/"Condition Duration"/"Magic Find", so conditional variants like "Magic Find while
+  under the Effect of a Boon" or "Magic Find during Lunar New Year" are correctly excluded.
+  Everything else scanned (Karma, Gold from Monsters, ~15 per-faction damage bonuses, "on Kill"/
+  "while Health below 50%" conditional procs, Fishing Power, per-condition durations like "Burning
+  Duration") is intentionally left unmapped — outside the stats panel's confirmed scope (aggregate
+  Boon/Condition Duration only), stays display-only same as before this session.
+- **Rune stage-gating** (`addRuneBonuses`): counts same-rune-id occurrences across the 6 armor
+  slots (`RUNE_SLOT_KEYS`) and applies `bonuses[0..count-1]` — i.e. equipping a rune on 3 pieces
+  activates stages 1-3 once each, not stage 3 three times, the standard GW2 mechanic. Food/utility
+  (build-level, at most 1 each) apply all their bonuses unconditionally, no stage gating.
+- **New `src/shared/gear-calc/derived-stats.ts`**: `computeCharacterStats(build, gameData)` returns
+  base-character-value + gear/rune/food/utility totals for the 9 raw attributes, plus the 7 derived
+  values (Armor, Health, Critical Chance/Damage %, Boon/Condition Duration %, Magic Find %) per the
+  formulas above. Armor's Defense component is gated per-armor-slot on `itemStatId !== null` (the
+  slot has *some* stat combo chosen) rather than depending on which combo — Defense is a property
+  of the physical armor piece's weight class, not the chosen stat allocation, so this differs from
+  how `Toughness` itself is gated (same condition, different reason) but keeps the "nothing
+  contributes until the user has put something in that slot" pattern consistent with the rest of
+  the gear calc.
+- **New `StatsPanel.tsx`**: the two-column layout confirmed via screenshots in a prior session
+  (left = raw attributes, right = derived %/values), wired into `BuildEditorView`'s 3rd column
+  above `BoonUptimePanel`. `BoonUptimePanel`'s caveat text updated to mention runes/food/utility are
+  now factored into its gear-derived duration %, not just Concentration/Expertise on stat combos.
+- **Verified**: `npm run typecheck`, `npm run lint`, `npm run build` all clean. Numerically verified
+  via a standalone `tsx` script (not committed) against 3 hand-calculated scenarios: (1) a fully
+  empty build — every value matched the expected base-character constants exactly; (2) a Guardian
+  in full Diviner's armor+weapon, Superior Rune of the Scholar on all 6 armor pieces (all 6 stages
+  active), a food item, and a Concentration infusion — every attribute and derived stat matched
+  hand math (the one initial "mismatch" was my own arithmetic slip, not a code bug — rechecked and
+  the code was right); (3) Superior Rune of the Traveler on 4/6 armor pieces (partial stage-gating,
+  exercising "to All Stats" flat bonuses interleaved with percent Boon Duration bonuses) plus a
+  Magic Find utility — again matched exactly, confirming stage-gating, the all-stats distribution,
+  and the percent-bonus path all work correctly together. Not visually confirmed in a running
+  window — standing Electron-sandbox limitation (see below); recommend `npm run dev` locally to
+  eyeball the new Stats panel.
+
 ## Session 15 — Gear-upgrade/consumable picker UI (runes, sigils, infusions, relics, food, utility)
 
 Continuation of "Build editor UI/UX overhaul" → the character-stats-panel item, picking up right

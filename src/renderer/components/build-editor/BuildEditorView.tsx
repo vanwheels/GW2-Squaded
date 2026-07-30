@@ -16,6 +16,7 @@ import { SkillsEditor } from './SkillsEditor'
 import { EquipmentEditor } from './EquipmentEditor'
 import { ConsumablesEditor } from './ConsumablesEditor'
 import { BoonUptimePanel } from './BoonUptimePanel'
+import { StatsPanel } from './StatsPanel'
 
 interface Props {
   build: Build
@@ -168,6 +169,7 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
           />
         </div>
         <div className="build-editor-column">
+          <StatsPanel build={draft} />
           <BoonUptimePanel build={draft} />
         </div>
       </div>

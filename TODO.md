@@ -364,6 +364,34 @@
         `npm run typecheck`, `npm run lint`, `npm run build`, all clean; not visually confirmed
         (standing Electron-sandbox limitation, see COMPLETED.md) — recommend `npm run dev`
         locally to eyeball the new rune/sigil/infusion/relic/food/utility pickers.
+        **Session 16 (2026-07-29, stats-calc math + panel pass): landed the piece Session 15 left
+        open** — merging rune/food/utility attribute-bonus text into `AttributeTotals`, the
+        crit%/armor/health/Magic Find derived-stat formulas (wiki-verified, not guessed), and the
+        actual `StatsPanel` UI (previously only designed, never built). See COMPLETED.md for the
+        full writeup and the wiki sources for every formula; short version: `AttributeTotals` is
+        now `{points, bonusPercent}` (points = the 9 core attributes; bonusPercent = rune/food/
+        utility bonuses already expressed as a direct % — e.g. "+5% Boon Duration" — which add on
+        top of the points-derived % rather than being reconverted). Rune bonuses are gated by
+        same-rune-id count across the 6 armor slots (stage 1..count active, not the top stage
+        alone). A free-text-attribute-name mapping table handles the ~9 core-attribute aliases
+        (including case variants and "+N to All Stats"/"to All Attributes" distributing across all
+        9); everything else (Karma, Gold from Monsters, per-faction damage, "on Kill" procs,
+        seasonal Magic Find, per-condition durations like "Burning Duration") is intentionally left
+        unmapped — out of the stats panel's confirmed scope, stays display-only. New
+        `src/shared/gear-calc/derived-stats.ts` computes the actual character stats (base +
+        gear/rune/food/utility) and the 7 derived values shown in `StatsPanel.tsx`, wired into
+        `BuildEditorView`'s 3rd column above `BoonUptimePanel`. Verified via a standalone `tsx`
+        script (not committed) with 3 hand-calculated scenarios — empty build, a fully-geared
+        build (Diviner's armor+weapon, Superior Rune of the Scholar ×6, a food item, a
+        Concentration infusion), and a partial-rune-stage-gating case (Superior Rune of the
+        Traveler ×4, exercising "to All Stats" + percent Boon Duration bonuses + a Magic Find
+        utility) — every computed value matched hand math to full float precision. `npm run
+        typecheck`/`lint`/`build` all clean; not visually confirmed in a running window (standing
+        Electron-sandbox limitation, see COMPLETED.md) — recommend `npm run dev` locally to
+        eyeball the new Stats panel. Still open, tracked below: relic numeric effects (no data from
+        the public API, needs a ~211-page wiki cross-check), item-rarity color coding, and the
+        bottom Conditions/Boons/Control/Auras/Misc/Combo icon bar (separate items, unchanged by
+        this session).
     - [ ] **Item-rarity color coding, and an important scope nuance**: user identified the app's
           (and gw2skills.net's) existing pink/magenta = Ascended, orange/yellow = Exotic border
           convention (already visible on armor pieces in every full-build screenshot). The
@@ -379,7 +407,7 @@
             decision; still fully in scope per the infusions bullet below.
           - Runes and sigils don't have an Ascended/Exotic distinction at all — "Superior" is
             simply their one relevant (max) tier, per the bullet below.
-    - [ ] **Runes/sigils: only the top ("Superior") tier matters** — user explicitly said lower
+    - [x] **Runes/sigils: only the top ("Superior") tier matters** — user explicitly said lower
           rune/sigil tiers (the non-Superior "Rune of X" / "Major Rune of X" progression) don't
           need to be fetched or selectable, only "Superior Rune of X" / "Superior Sigil of X".
           Rune tooltips show a numbered (1)–(6) stat-bonus list — bonuses unlock progressively
@@ -395,10 +423,8 @@
           (2 on two-handed, 1 each on main/off-hand) and don't have a count-based stage mechanic —
           confirmed via a fresh screenshot too (Superior Sigil of Force: flat "+5% strike damage",
           one effect, no stages).
-          **Data layer landed 2026-07-29** (picker UI landed the same day in session 15, see the
-          session-level note at the end of this item — stats-calc wiring, i.e. summing the correct
-          stage per same-rune-count and mapping free-text attribute names like "Ferocity" to the
-          `ItemStat` key `CritDamage`, is still open): `scripts/fetch-gear-upgrades.ts` fetches
+          **Data layer landed 2026-07-29** (picker UI landed the same day in session 15):
+          `scripts/fetch-gear-upgrades.ts` fetches
           198 Superior runes + 162 Superior sigils from `/v2/items` (new `Rune`/`Sigil` types in
           `src/shared/types/game-data.ts`). Confirmed live against Superior Rune of the Scholar:
           `details.bonuses` is exactly the literal 6-entry list predicted above
@@ -407,8 +433,14 @@
           `parseAttributeBonusText`(shared with food/utility parsing below) — falls back to
           `raw`-only for non-numeric proc text rather than guessing. Sigil effect text
           (`details.infix_upgrade.buff.description`) confirmed matching the Force example
-          ("+5% Damage").
-    - [ ] **Infusions: only WvW-specific infusions matter** — user said ignore Agony infusions and
+          ("+5% Damage"). **Stats-calc wiring landed 2026-07-29 (session 16)**: same-rune-id count
+          across the 6 armor slots gates which stages are active (`addRuneBonuses` in
+          `attribute-totals.ts`), and free-text attribute names (e.g. "Ferocity", "Concentration")
+          map to their `ItemStat` key via a small alias table — see the session-level note above.
+          Sigils remain proc/effect text only (no flat attribute to feed the stats calc, confirmed
+          via the Force example above), so they don't participate in `AttributeTotals` — not a gap,
+          just nothing to wire.
+    - [x] **Infusions: only WvW-specific infusions matter** — user said ignore Agony infusions and
           other general infusion types; only fetch/support ones like "Concentration WvW Infusion",
           "Expertise WvW Infusion", "Healing WvW Infusion". **Confirmed via a fresh screenshot**
           (Mighty WvW Infusion: "+5 Power" flat stat plus "+1% Damage to Guards/Lords/Supervisors"
@@ -464,7 +496,7 @@
           (`Build.relicId`), description shown as plain text in the tooltip. Still open: whether
           the stats panel shows relic effects as inert descriptive text (cheap) or invests in the
           wiki cross-check (expensive) — a scoping question for whoever picks this back up.
-    - [ ] **Food and utility consumables: keep the full list selectable, don't pre-filter to a
+    - [x] **Food and utility consumables: keep the full list selectable, don't pre-filter to a
           "WvW meta" subset** — user was explicit here despite there being a lot of options ("it's
           best to keep them all available"). Deferred fast-follow (not blocking first pass, but
           worth a placeholder TODO sub-item once this ships): add a "Favorites" marker so users
@@ -480,8 +512,10 @@
           `durationMs`/`applyCount` are `null` for those, by design, not a parse failure. **Picker
           UI landed 2026-07-29 (session 15)**: build-level food/utility pickers in the new
           `ConsumablesEditor` (`Build.foodId`/`utilityId`), full unfiltered catalogs, `UpgradePicker`
-          grows a name-search box since both lists are large. Stats-calc wiring (merging `bonuses`
-          into `AttributeTotals`) still open — same blocker as runes above.
+          grows a name-search box since both lists are large. **Stats-calc wiring landed 2026-07-29
+          (session 16)**: `bonuses` now feed `AttributeTotals` the same way rune bonuses do (see the
+          session-level note above) — a build's chosen food/utility affects the Stats panel and,
+          for Concentration/Expertise/Magic-Find-bearing ones, the boon/condition duration % too.
     - [x] Stats sidebar layout (from full-build screenshots, before/after gearing up): two columns
           of icon+number rows. Left column = raw/base attribute totals (Power, Toughness,
           Vitality, Precision, Ferocity, Healing Power, Condition Damage, Expertise,
@@ -506,6 +540,17 @@
           for a future polish pass on the traits UI, but out of scope for the stats-panel item.
           Two small unlabeled counters were also visible near the trait area (possibly Mastery/WvW
           rank points) — purpose unclear from the screenshot alone, not investigated further.
+          **Implemented 2026-07-29 (session 16)**, using formulas quoted directly from the wiki
+          (Precision/Ferocity/Toughness/Health/Armor-class pages — see
+          `src/shared/gear-calc/derived-stats.ts`) rather than reverse-engineered from these
+          screenshots — the two independently-sourced before/after pairs above turned out to
+          disagree with each other at the same Precision value (83.71% vs. 50.71% crit chance at
+          Precision 1960), which the wiki-sourced formula (`5% + (Precision-1000)/21`) resolves
+          exactly against the second, self-consistent pair (`5 + 960/21 = 50.71%`) — treated the
+          first pair's number as an unreliable screenshot transcription rather than a real target
+          to match, consistent with this project's "verify against the primary source" approach
+          elsewhere (e.g. gear-scaling, WvW splits). New `StatsPanel.tsx` renders exactly this
+          two-column layout, wired into `BuildEditorView`'s 3rd column above `BoonUptimePanel`.
     - [ ] Bottom "Conditions / Boons / Control / Auras / Miscellaneous / Combo" icon bar (already
           partially built as `BoonUptimePanel`, boons+conditions only): full screenshots show this
           bar in-game actually also covers Control (e.g. Daze), Auras, Miscellaneous (e.g.

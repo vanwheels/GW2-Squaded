@@ -32,9 +32,9 @@ export function BoonUptimePanel({ build }: Props) {
   const conditionGroups = groups.filter((g) => g.isCondition)
 
   const gearDurationPercents = useMemo(() => {
-    const totals = computeGearAttributeTotals(build, gameData.itemStats, gameData.infusions)
+    const totals = computeGearAttributeTotals(build, gameData)
     return { boon: boonDurationPercent(totals), condition: conditionDurationPercent(totals) }
-  }, [build, gameData.itemStats, gameData.infusions])
+  }, [build, gameData])
 
   return (
     <div className="boon-uptime-panel">
@@ -45,8 +45,8 @@ export function BoonUptimePanel({ build }: Props) {
         skill/trait with an undocumented or ambiguous split still shows its PvE value), then scale
         by this build's gear ({formatBoonPercent(gearDurationPercents.boon)}% boon duration,{' '}
         {formatBoonPercent(gearDurationPercents.condition)}% condition duration, from Concentration/
-        Expertise on armor/trinkets/back — weapons are approximated as one-handed). Food/utility
-        consumables aren't factored in yet.
+        Expertise on armor/trinkets/back plus runes/food/utility — weapons are approximated as
+        one-handed).
       </p>
       {groups.length === 0 ? (
         <p className="empty-state">
