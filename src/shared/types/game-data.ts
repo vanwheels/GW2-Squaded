@@ -127,6 +127,27 @@ export interface ItemStat {
 export type EliteSpecSkillMap = Record<number, number>
 
 /**
+ * A Revenant Legend: a fixed heal/3 utility/elite skill kit, swapped between (2 equipped at once)
+ * rather than picked skill-by-skill like every other profession. `id` is the API's own opaque id
+ * ("Legend1".."Legend8"); `name`/`icon` are borrowed from the legend's `swap` skill (the F2
+ * "invoke legend" skill players actually click in-game) since `/v2/legends` itself carries neither.
+ * `specializationId` is `null` for the 4 core legends, otherwise the elite specialization id that
+ * unlocks it (Herald/Renegade/Vindicator/Conduit) — not exposed by the API at all, so it's a small
+ * hand-verified constant table in scripts/fetch-game-data.ts (cross-checked against both the wiki
+ * and each legend's `swap` skill name; see docs/game-data.md).
+ */
+export interface Legend {
+  id: string
+  name: string
+  icon: string
+  swap: number
+  heal: number
+  elite: number
+  utilities: [number, number, number]
+  specializationId: number | null
+}
+
+/**
  * A boon/condition Buff fact's game-mode split, per (skill/trait id, boon/condition name):
  * `'omit'` means the wiki tags this fact PvE-only with no WvW/PvP variant, so it should be
  * dropped entirely for a WvW-focused view; a number is the WvW/PvP-tagged duration to use in
@@ -148,4 +169,5 @@ export interface GameData {
   itemStats: ItemStat[]
   eliteSpecSkills: EliteSpecSkillMap
   wvwFactOverrides: WvwFactOverrides
+  legends: Legend[]
 }

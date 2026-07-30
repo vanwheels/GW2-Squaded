@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import type { GameData, ProfessionId, Skill, Specialization, Trait } from '@shared/types'
+import type { GameData, Legend, ProfessionId, Skill, Specialization, Trait } from '@shared/types'
 
 interface GameDataStore extends GameData {
   loading: boolean
   specializationsById: Map<number, Specialization>
   traitsById: Map<number, Trait>
   skillsById: Map<number, Skill>
+  legendsById: Map<string, Legend>
   specializationsForProfession: (profession: ProfessionId) => Specialization[]
   majorTraitsForSpecialization: (specializationId: number) => Trait[]
   minorTraitsForSpecialization: (specializationId: number) => Trait[]
@@ -14,6 +15,9 @@ interface GameDataStore extends GameData {
     slot: 'Heal' | 'Utility' | 'Elite',
     equippedSpecializationIds: ReadonlySet<number>
   ) => Skill[]
+  /** Legends available given the currently-equipped specialization lines: the 4 core legends
+   *  always, plus any elite-spec-gated legend whose specialization is equipped. */
+  legendsForSpecializations: (equippedSpecializationIds: ReadonlySet<number>) => Legend[]
 }
 
 const EMPTY_GAME_DATA: GameData = {
@@ -23,7 +27,8 @@ const EMPTY_GAME_DATA: GameData = {
   skills: [],
   itemStats: [],
   eliteSpecSkills: {},
-  wvwFactOverrides: { skill: {}, trait: {} }
+  wvwFactOverrides: { skill: {}, trait: {} },
+  legends: []
 }
 
 const GameDataStoreContext = createContext<GameDataStore | null>(null)
@@ -48,6 +53,7 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
     const specializationsById = new Map(gameData.specializations.map((s) => [s.id, s]))
     const traitsById = new Map(gameData.traits.map((t) => [t.id, t]))
     const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
+    const legendsById = new Map(gameData.legends.map((l) => [l.id, l]))
 
     return {
       ...gameData,
@@ -55,6 +61,7 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
       specializationsById,
       traitsById,
       skillsById,
+      legendsById,
       specializationsForProfession: (profession) =>
         gameData.specializations.filter((s) => s.profession === profession),
       majorTraitsForSpecialization: (specializationId) =>
@@ -70,7 +77,11 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
           if (s.slot !== slot || !s.professions.includes(profession)) return false
           const requiredSpecId = gameData.eliteSpecSkills[s.id]
           return requiredSpecId === undefined || equippedSpecializationIds.has(requiredSpecId)
-        })
+        }),
+      legendsForSpecializations: (equippedSpecializationIds) =>
+        gameData.legends.filter(
+          (l) => l.specializationId === null || equippedSpecializationIds.has(l.specializationId)
+        )
     }
   }, [gameData, loading])
 

@@ -19,11 +19,29 @@ export interface TraitLineSelection {
  */
 export type TraitLineSlots = [TraitLineSelection | null, TraitLineSelection | null, TraitLineSelection | null]
 
-export interface SkillSelection {
+export interface StandardSkillSelection {
+  kind: 'standard'
   heal: number | null
   utility: [number | null, number | null, number | null]
   elite: number | null
 }
+
+/**
+ * Revenant's skill mechanic is fundamentally different from every other profession: instead of
+ * independently choosing a Heal/Utility/Elite skill, a Revenant equips 2 Legends (by `Legend.id`,
+ * see game-data.ts), each of which is a *fixed* kit (its own heal/3 utility/elite skills, not
+ * player-selectable) that can be swapped between in combat. `null` = that legend slot not yet
+ * chosen.
+ */
+export interface RevenantSkillSelection {
+  kind: 'revenant'
+  legends: [string | null, string | null]
+  /** Which equipped legend's fixed skill bar is currently displayed in the editor — display-only,
+   *  doesn't affect computed boon/condition totals since both legends' kits always contribute. */
+  activeLegendIndex: 0 | 1
+}
+
+export type SkillSelection = StandardSkillSelection | RevenantSkillSelection
 
 export type EquipmentSlotKey =
   | 'helm'

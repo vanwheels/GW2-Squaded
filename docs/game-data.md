@@ -27,6 +27,7 @@ All of these are public and require no API key / authentication:
 | `/v2/traits`           | number  | Individual major/minor traits                                  |
 | `/v2/skills`           | number  | Largest endpoint — several thousand records                    |
 | `/v2/itemstats`        | number  | Stat combinations (e.g. Berserker's, Minstrel's)                |
+| `/v2/legends`          | string  | Revenant legends (fixed heal/utility/elite kits) — see below     |
 
 ## Fetch pattern
 
@@ -74,10 +75,36 @@ needing to run the fetch script immediately:
 - `traits.json`
 - `skills.json`
 - `itemstats.json`
+- `legends.json` — Revenant legends; see below
 - `elite-spec-skills.json` — see below; sourced from the wiki, not `fetch-game-data.ts`
 - `wvw-fact-overrides.json` — see below; sourced from the wiki, not `fetch-game-data.ts`
 - `meta.json` — just `{ fetchedAt }`, so the app/UI can eventually surface "game data last
   updated on ..." somewhere.
+
+## Revenant legends (`legends.json`)
+
+Revenant doesn't pick Heal/Utility/Elite skills individually like every other profession — it
+equips 2 **Legends** at once (swappable in combat), each a *fixed* kit of 1 heal + 3 utility + 1
+elite skill (plus a `swap` skill, the F2 "invoke legend" button). `/v2/legends` returns exactly
+that shape per legend (`{ id, swap, heal, elite, utilities: [3] }`) but carries neither a
+human-readable `name`/`icon` nor which elite specialization (if any) unlocks it — both gaps are
+filled in `scripts/fetch-game-data.ts`'s `normalizeLegend`:
+
+- `name`/`icon` are borrowed from the legend's own `swap` skill (already fetched into
+  `skills.json` in the same run) — that skill **is** the legend, visually, in-game.
+- `specializationId` (`null` for the 4 core legends, otherwise the gating elite spec's id) comes
+  from a small hardcoded `LEGEND_SPECIALIZATION_ID` table in the script, hand-verified 2026-07-29
+  by cross-referencing each legend's `swap` skill name (fetched live from `/v2/skills`) against
+  the wiki's "Legend" page — Dwarf/Assassin/Centaur/Demon are core, Dragon/Renegade/Alliance/
+  Entity are gated behind Herald/Renegade/Vindicator/Conduit respectively, matching 1:1 with no
+  ambiguity. This isn't derivable from the API at all (`/v2/professions/Revenant` has no `legends`
+  field), and the set is small and stable — re-verify the same way if a new Revenant elite spec
+  ever adds a 9th legend (the fetch script logs a warning, rather than guessing, if it ever sees a
+  legend id outside the table).
+
+Consumed in `src/shared/boon-calc/sources.ts` (`skillIdsForBuild` resolves a Revenant build's 2
+equipped legends' full skill sets, since there's no per-skill picking to walk) and
+`src/renderer/components/build-editor/SkillsEditor.tsx` (the Revenant-specific dual-legend editor).
 
 ## Elite-spec-gated skills (`elite-spec-skills.json`)
 

@@ -20,7 +20,7 @@ export function makeBlankBuild(): Build {
     notes: '',
     profession: 'Guardian',
     specializations: [null, null, null],
-    skills: { heal: null, utility: [null, null, null], elite: null },
+    skills: { kind: 'standard', heal: null, utility: [null, null, null], elite: null },
     equipment: {},
     createdAt: now,
     updatedAt: now

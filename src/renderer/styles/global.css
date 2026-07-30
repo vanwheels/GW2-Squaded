@@ -432,6 +432,59 @@ input[type='text'] {
   border-radius: 4px;
 }
 
+.legend-select-row {
+  display: flex;
+  gap: 16px;
+}
+
+.legend-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+}
+
+.legend-slot-label {
+  font-size: 0.65rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.legend-slot .skill-picker {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  width: max-content;
+  min-width: 220px;
+}
+
+.legend-bar-toggle {
+  display: flex;
+  gap: 6px;
+}
+
+.legend-toggle-button {
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.legend-toggle-button.active {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.skill-slot-button:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
 .skill-option-name {
   font-size: 0.65rem;
   text-align: center;

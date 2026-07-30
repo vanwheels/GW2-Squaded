@@ -152,13 +152,34 @@
         has different content/height than the other two — fix the layout so all 3 trait columns
         align row-for-row regardless of which specializations are selected. Fixed as part of the
         horizontal-grid restructure above (same change, same commit).
-  - [ ] Revenant-specific: available skills depend on which specialization is selected (legend
+  - [x] Revenant-specific: available skills depend on which specialization is selected (legend
         pool), AND Revenant equips 2 legends at once, effectively giving 2 separate skill bars.
         Need to display one bar at a time with a toggle button to switch between them, and clearly
         indicate which legend/bar is currently "active" (matches in-game skill-bar swap UX).
-        Survey finding: confirmed `SkillSelection` (`build.ts:14-18`) is a single flat
-        `{ heal, utility: [3], elite }` bar with **no legend concept at all** and `SkillsEditor`
-        renders exactly one `.skill-bar` (lines 47-67) — this is new modeling, not a tweak.
+        Landed 2026-07-29: new `Legend` game-data type (`src/shared/types/game-data.ts`), fetched
+        from `/v2/legends` in `scripts/fetch-game-data.ts` (`name`/`icon` borrowed from the
+        legend's `swap` skill since the endpoint has neither; `specializationId` — null for the 4
+        core legends, else the gating elite spec — from a small hand-verified constant table,
+        since the API exposes no legend↔elite-spec link at all; see docs/game-data.md for the
+        full verification method). `SkillSelection` (`src/shared/types/build.ts`) is now a
+        discriminated union: `StandardSkillSelection` (unchanged shape, every non-Revenant
+        profession) vs `RevenantSkillSelection` (`{ legends: [string|null, string|null],
+        activeLegendIndex }`). `SkillsEditor.tsx` now dispatches on `value.kind`: Revenant gets a
+        dedicated editor with 2 legend-picker slots (gated by equipped specializations, can't pick
+        the same legend twice) plus a toggle row that switches which equipped legend's *fixed*
+        (read-only, not player-chosen) heal/3-utility/elite bar is displayed, each skill still
+        showing its boon/condition tooltip via the existing `boonConditionFactsForSkill`.
+        `sources.ts`'s `computeBoonConditionSources` gained `skillIdsForBuild` to resolve a
+        Revenant build's boon/condition sources from both equipped legends' full kits
+        (swap+heal+utilities+elite) instead of a single heal/utility/elite triplet.
+        `BuildEditorView`'s profession-change and specialization-change handlers updated to
+        build/gate the correct skills shape per kind (dropping the Herald line now clears a
+        Legendary Dragon Stance pick, same pattern elite-spec-gated skills already had for other
+        professions). Verified via `npm run typecheck` + `npm run lint` (both clean) and a live
+        `npm run fetch-game-data` run (8/8 legends matched the verification table, no
+        "unrecognized legend" warnings); not visually confirmed in a running window (see
+        COMPLETED.md for the standing Electron-sandbox launch limitation) — recommend
+        `npm run dev` locally to eyeball the new Revenant editor.
   - [x] Skill and weapon-skill tooltips/entries don't currently display the boons they grant —
         surface boon facts (already parsed for the boon-calc feature, see `sources.ts`) in the
         skill tooltip/detail view too, not just the aggregate `BoonUptimePanel`. Done for regular

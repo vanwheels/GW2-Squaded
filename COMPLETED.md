@@ -2,6 +2,50 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 12 — Revenant dual-legend skill bar
+
+Continuation of "Build editor UI/UX overhaul" — picked up the next well-specified open item
+(Revenant's legend-swap mechanic), which Session 9's survey had already flagged as needing new
+modeling rather than a tweak (`SkillSelection` had no legend concept at all).
+
+- **New `/v2/legends` fetch** in `scripts/fetch-game-data.ts`: the endpoint returns each legend's
+  `swap`/`heal`/`elite`/`utilities` skill ids but no `name`, `icon`, or elite-spec-gating info.
+  `name`/`icon` are borrowed from the legend's own `swap` skill (already fetched into
+  `skills.json` in the same run — that skill *is* the legend visually in-game). The elite-spec
+  gating (`specializationId`) isn't derivable from the API at all (`/v2/professions/Revenant` has
+  no `legends` field, confirmed by direct inspection) — resolved instead via a small hand-verified
+  constant table, cross-checking each legend's `swap` skill name (live API) against the wiki's
+  "Legend" page: 4 core (Dwarf/Assassin/Centaur/Demon) + 4 elite-gated (Dragon→Herald,
+  Renegade→Renegade, Alliance→Vindicator, Entity→Conduit — the last a legend/elite-spec pairing
+  from an expansion released after this assistant's training cutoff, confirmed live rather than
+  assumed). The fetch script logs a warning rather than guessing if a future legend id isn't in
+  the table. Live run matched all 8/8 legends cleanly, no warnings.
+- **`SkillSelection` is now a discriminated union** (`src/shared/types/build.ts`):
+  `StandardSkillSelection` (the old shape, every non-Revenant profession) vs
+  `RevenantSkillSelection` (`{ legends: [string|null, string|null], activeLegendIndex }`) — a
+  legend's kit is fixed, not picked skill-by-skill, so there's nothing to independently choose
+  beyond which 2 legends are equipped. `BuildEditorView`'s profession-change handler now
+  constructs the right shape per profession; its specialization-change handler branches on
+  `skills.kind` to gate either elite-spec-locked individual skills (unchanged) or elite-spec-
+  locked legends (new — e.g. dropping the Herald line clears an equipped Legendary Dragon Stance).
+- **`SkillsEditor.tsx` split into `StandardSkillsEditor`/`RevenantSkillsEditor`**, dispatched by
+  `value.kind`. The Revenant editor renders 2 legend-picker slots (icon buttons opening an
+  icon+name grid, filtered to legends available given equipped specializations, can't equip the
+  same legend in both slots) plus a toggle row switching which equipped legend's *read-only*
+  heal/3-utility/elite bar is currently displayed — matching the in-game single-visible-bar-at-a-
+  time swap UX the TODO item asked for. Each fixed skill still shows its boon/condition tooltip
+  via the existing `boonConditionFactsForSkill`, unchanged from the standard editor.
+- **`sources.ts` boon/condition calc updated for Revenant**: new `skillIdsForBuild` helper resolves
+  a build's full equipped-skill-id list — the old heal/utility/elite triplet for standard
+  professions, or both equipped legends' complete kits (swap+heal+3 utilities+elite) for Revenant
+  — used by `computeBoonConditionSources` so `BoonUptimePanel` totals correctly include a
+  Revenant's legend skills without needing them individually equipped in a heal/utility/elite
+  sense.
+- **Verification**: `npm run typecheck` and `npm run lint` both pass clean. `npm run fetch-game-data`
+  re-run live to produce `data/game-data/legends.json` (8 legends, all matched the verification
+  table). No visual check attempted — see the standing Electron-sandbox launch limitation noted in
+  prior sessions; recommend `npm run dev` locally to eyeball the new Revenant editor path.
+
 ## Session 11 — Weapon-selection reference screenshots digested; per-profession weapon data fetched
 
 User re-took the weapon-selection/stats-panel reference screenshots lost from the 2026-07-25

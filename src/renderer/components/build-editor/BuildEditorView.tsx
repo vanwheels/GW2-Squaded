@@ -1,5 +1,12 @@
 import { useMemo, useState } from 'react'
-import type { Build, ProfessionId, SkillSelection, TraitLineSelection, TraitLineSlots } from '@shared/types'
+import type {
+  Build,
+  ProfessionId,
+  SkillSelection,
+  StandardSkillSelection,
+  TraitLineSelection,
+  TraitLineSlots
+} from '@shared/types'
 import { useGameData } from '@renderer/state/game-data-store'
 import { ProfessionSelect } from './ProfessionSelect'
 import { EliteSpecSelect } from './EliteSpecSelect'
@@ -18,7 +25,7 @@ interface Props {
 export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
   const [draft, setDraft] = useState<Build>(build)
   const [saving, setSaving] = useState(false)
-  const { eliteSpecSkills } = useGameData()
+  const { eliteSpecSkills, legends } = useGameData()
 
   const equippedSpecializationIds = useMemo(
     () =>
@@ -29,30 +36,49 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
   )
 
   function handleProfessionChange(profession: ProfessionId): void {
+    const skills: SkillSelection =
+      profession === 'Revenant'
+        ? { kind: 'revenant', legends: [null, null], activeLegendIndex: 0 }
+        : { kind: 'standard', heal: null, utility: [null, null, null], elite: null }
     setDraft({
       ...draft,
       profession,
       specializations: [null, null, null],
-      skills: { heal: null, utility: [null, null, null], elite: null }
+      skills
     })
   }
 
   /** Equipping/swapping specialization lines can invalidate a previously-chosen elite-spec-
-   *  gated skill (e.g. dropping the Luminary line while "Resolute Stance" is the heal skill) —
-   *  clear any skill selection that's no longer valid under the new specialization set. */
+   *  gated skill (e.g. dropping the Luminary line while "Resolute Stance" is the heal skill) or
+   *  legend (e.g. dropping the Herald line while Legendary Dragon Stance is equipped) — clear any
+   *  selection that's no longer valid under the new specialization set. */
   function handleSpecializationsChange(specializations: TraitLineSlots): void {
     const nextEquippedIds = new Set(
       specializations.filter((s): s is TraitLineSelection => s !== null).map((s) => s.specializationId)
     )
-    const stillValid = (skillId: number | null): number | null => {
-      if (skillId === null) return null
-      const requiredSpecId = eliteSpecSkills[skillId]
-      return requiredSpecId === undefined || nextEquippedIds.has(requiredSpecId) ? skillId : null
-    }
-    const skills: SkillSelection = {
-      heal: stillValid(draft.skills.heal),
-      utility: draft.skills.utility.map(stillValid) as SkillSelection['utility'],
-      elite: stillValid(draft.skills.elite)
+    let skills: SkillSelection
+    if (draft.skills.kind === 'revenant') {
+      const legendStillValid = (legendId: string | null): string | null => {
+        if (legendId === null) return null
+        const requiredSpecId = legends.find((l) => l.id === legendId)?.specializationId
+        return requiredSpecId == null || nextEquippedIds.has(requiredSpecId) ? legendId : null
+      }
+      skills = {
+        ...draft.skills,
+        legends: draft.skills.legends.map(legendStillValid) as [string | null, string | null]
+      }
+    } else {
+      const stillValid = (skillId: number | null): number | null => {
+        if (skillId === null) return null
+        const requiredSpecId = eliteSpecSkills[skillId]
+        return requiredSpecId === undefined || nextEquippedIds.has(requiredSpecId) ? skillId : null
+      }
+      skills = {
+        kind: 'standard',
+        heal: stillValid(draft.skills.heal),
+        utility: draft.skills.utility.map(stillValid) as StandardSkillSelection['utility'],
+        elite: stillValid(draft.skills.elite)
+      }
     }
     setDraft({ ...draft, specializations, skills })
   }

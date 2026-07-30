@@ -201801,12 +201801,12 @@
     "description": "Defensive Artifact. Summon a holo-dancer decoy that taunts enemies and grants boons to nearby allies. It self-destructs if it is not destroyed, dealing damage to enemies in a large area and granting additional boons to allies.\n\nFor a short time after using this skill, the next utility skill you use has reduced cooldown.",
     "icon": "https://render.guildwars2.com/file/CEE6340604724A060D7C570709C4B05DFAD56617/3680212.png",
     "chatLink": "[&BoIrAQA=]",
-    "type": "Weapon",
-    "weaponType": "Nothing",
+    "type": "Profession",
+    "weaponType": "None",
     "professions": [
       "Thief"
     ],
-    "slot": "Weapon_1",
+    "slot": "Profession_2",
     "facts": [
       {
         "text": "Apply Buff/Condition",
@@ -204974,12 +204974,12 @@
     "description": "Backfire. The bomb explodes in your hands, damaging you and damaging and knocking down enemies around you. \n\nFor a short time after using this skill, you take increased strike and condition damage.",
     "icon": "https://render.guildwars2.com/file/0FBFB6FA27C9BEBD1872DAACDB040AEA71A616A9/3680208.png",
     "chatLink": "[&Bm0sAQA=]",
-    "type": "Weapon",
-    "weaponType": "Nothing",
+    "type": "Profession",
+    "weaponType": "None",
     "professions": [
       "Thief"
     ],
-    "slot": "Weapon_1",
+    "slot": "Profession_2",
     "facts": [
       {
         "text": "Apply Buff/Condition",

@@ -15,6 +15,7 @@ import type {
   Fact,
   GameData,
   ItemStat,
+  Legend,
   Profession,
   ProfessionWeapon,
   Skill,
@@ -153,6 +154,35 @@ interface RawItemStat {
   attributes: RawItemStatAttribute[]
 }
 
+interface RawLegend {
+  id: string
+  swap: number
+  heal: number
+  elite: number
+  utilities: number[]
+}
+
+/**
+ * Legend id -> elite specialization id required to unlock it, or `null` for the 4 core legends.
+ * NOT derivable from the API — `/v2/legends` carries no specialization field, and
+ * `/v2/professions/Revenant` has no `legends` field at all (confirmed by direct inspection). Hand-
+ * verified 2026-07-29 by cross-referencing each legend's `swap` skill name (fetched live from
+ * `/v2/skills`) against the wiki's "Legend" page, which lists Dwarf/Assassin/Centaur/Demon as core
+ * and Dragon/Renegade/Alliance/Entity as gated behind Herald/Renegade/Vindicator/Conduit
+ * respectively — matches exactly, 1:1, no ambiguity. Small and stable (new entries only arrive
+ * with a new Revenant elite spec); re-verify the same way if one is ever added.
+ */
+const LEGEND_SPECIALIZATION_ID: Record<string, number | null> = {
+  Legend1: 52, // Legendary Dragon Stance (Glint) — Herald
+  Legend2: null, // Legendary Assassin Stance (Shiro) — core
+  Legend3: null, // Legendary Dwarf Stance (Jalis) — core
+  Legend4: null, // Legendary Demon Stance (Mallyx) — core
+  Legend5: 63, // Legendary Renegade Stance (Kalla) — Renegade
+  Legend6: null, // Legendary Centaur Stance (Ventari) — core
+  Legend7: 69, // Legendary Alliance (Archemorus/Saint Viktor) — Vindicator
+  Legend8: 79 // Legendary Entity Stance (Razah) — Conduit
+}
+
 // --- Normalization ----------------------------------------------------------------------------
 
 function normalizeWeapon(raw: RawProfessionWeapon): ProfessionWeapon {
@@ -220,6 +250,27 @@ function normalizeSkill(raw: RawSkill): Skill {
   }
 }
 
+function normalizeLegend(raw: RawLegend, skillsById: Map<number, Skill>): Legend {
+  const swapSkill = skillsById.get(raw.swap)
+  if (!swapSkill) {
+    throw new Error(`Legend ${raw.id}: swap skill ${raw.swap} not found in fetched skills — cannot resolve name/icon`)
+  }
+  if (!(raw.id in LEGEND_SPECIALIZATION_ID)) {
+    console.warn(`  [legends] ${raw.id} is not in LEGEND_SPECIALIZATION_ID — treating as core (ungated). ` +
+      'This likely means a new Revenant elite spec/legend was added; update the map in this script.')
+  }
+  return {
+    id: raw.id,
+    name: swapSkill.name,
+    icon: swapSkill.icon,
+    swap: raw.swap,
+    heal: raw.heal,
+    elite: raw.elite,
+    utilities: raw.utilities as [number, number, number],
+    specializationId: LEGEND_SPECIALIZATION_ID[raw.id] ?? null
+  }
+}
+
 function normalizeItemStat(raw: RawItemStat): ItemStat {
   return {
     id: raw.id,
@@ -254,6 +305,10 @@ async function main(): Promise<void> {
   console.log('Fetching itemstats...')
   const itemStats = (await fetchAllRecords<number, RawItemStat>('itemstats')).map(normalizeItemStat)
 
+  console.log('Fetching legends...')
+  const skillsById = new Map(skills.map((s) => [s.id, s]))
+  const legends = (await fetchAllRecords<string, RawLegend>('legends')).map((raw) => normalizeLegend(raw, skillsById))
+
   // eliteSpecSkills / wvwFactOverrides aren't produced here — they're sourced from the wiki by
   // the separate scripts/fetch-elite-spec-skills.ts and scripts/fetch-wvw-splits.ts, not the
   // official GW2 API.
@@ -262,7 +317,8 @@ async function main(): Promise<void> {
     specializations,
     traits,
     skills,
-    itemStats
+    itemStats,
+    legends
   }
 
   await Promise.all([
@@ -271,6 +327,7 @@ async function main(): Promise<void> {
     writeFile(join(OUTPUT_DIR, 'traits.json'), JSON.stringify(traits, null, 2)),
     writeFile(join(OUTPUT_DIR, 'skills.json'), JSON.stringify(skills, null, 2)),
     writeFile(join(OUTPUT_DIR, 'itemstats.json'), JSON.stringify(itemStats, null, 2)),
+    writeFile(join(OUTPUT_DIR, 'legends.json'), JSON.stringify(legends, null, 2)),
     writeFile(
       join(OUTPUT_DIR, 'meta.json'),
       JSON.stringify({ fetchedAt: new Date().toISOString() }, null, 2)
@@ -279,7 +336,8 @@ async function main(): Promise<void> {
 
   console.log(
     `\nDone. professions=${gameData.professions.length} specializations=${gameData.specializations.length} ` +
-      `traits=${gameData.traits.length} skills=${gameData.skills.length} itemStats=${gameData.itemStats.length}`
+      `traits=${gameData.traits.length} skills=${gameData.skills.length} itemStats=${gameData.itemStats.length} ` +
+      `legends=${gameData.legends.length}`
   )
   console.log(`Written to ${OUTPUT_DIR}`)
 }

@@ -1,0 +1,114 @@
+[
+  {
+    "id": "Legend1",
+    "name": "Legendary Dragon Stance",
+    "icon": "https://render.guildwars2.com/file/27B5D1D4127A2EE73866E54F5A43E9102618B90B/1058605.png",
+    "swap": 28085,
+    "heal": 27220,
+    "elite": 27760,
+    "utilities": [
+      28379,
+      27014,
+      26644
+    ],
+    "specializationId": 52
+  },
+  {
+    "id": "Legend2",
+    "name": "Legendary Assassin Stance",
+    "icon": "https://render.guildwars2.com/file/67CDD35F6BC3072E0837715A5E0A90646529BAA2/1030005.png",
+    "swap": 28134,
+    "heal": 26937,
+    "elite": 28406,
+    "utilities": [
+      29209,
+      28231,
+      27107
+    ],
+    "specializationId": null
+  },
+  {
+    "id": "Legend3",
+    "name": "Legendary Dwarf Stance",
+    "icon": "https://render.guildwars2.com/file/03C66FA8A89697A0C4D309484172080E3A1141EF/961410.png",
+    "swap": 28419,
+    "heal": 27372,
+    "elite": 27975,
+    "utilities": [
+      28516,
+      26679,
+      26557
+    ],
+    "specializationId": null
+  },
+  {
+    "id": "Legend4",
+    "name": "Legendary Demon Stance",
+    "icon": "https://render.guildwars2.com/file/1A1407F7D34E5ED41B59A25F39EBF728CC926423/961413.png",
+    "swap": 28494,
+    "heal": 28219,
+    "elite": 28287,
+    "utilities": [
+      27322,
+      27505,
+      27917
+    ],
+    "specializationId": null
+  },
+  {
+    "id": "Legend5",
+    "name": "Legendary Renegade Stance",
+    "icon": "https://render.guildwars2.com/file/6B3205EF5ED0802DB74BBF7F0CAE04FAA2089B74/1770592.png",
+    "swap": 41858,
+    "heal": 45686,
+    "elite": 45773,
+    "utilities": [
+      42949,
+      40485,
+      41220
+    ],
+    "specializationId": 63
+  },
+  {
+    "id": "Legend6",
+    "name": "Legendary Centaur Stance",
+    "icon": "https://render.guildwars2.com/file/6CFF31B50AA00CAF3D35A02562964802B55AD292/1024105.png",
+    "swap": 28195,
+    "heal": 28427,
+    "elite": 27356,
+    "utilities": [
+      26821,
+      27025,
+      27715
+    ],
+    "specializationId": null
+  },
+  {
+    "id": "Legend7",
+    "name": "Legendary Alliance",
+    "icon": "https://render.guildwars2.com/file/E1910F4C5C74E0B00AB262D2D3DBA3FB51BE90CA/2491626.png",
+    "swap": 62749,
+    "heal": 62719,
+    "elite": 62942,
+    "utilities": [
+      62832,
+      62962,
+      62878
+    ],
+    "specializationId": 69
+  },
+  {
+    "id": "Legend8",
+    "name": "Legendary Entity Stance",
+    "icon": "https://render.guildwars2.com/file/3FEE4B97282956F1F3654BE36119A0030E08C1D7/3680200.png",
+    "swap": 76610,
+    "heal": 77043,
+    "elite": 76968,
+    "utilities": [
+      77243,
+      77291,
+      76805
+    ],
+    "specializationId": 79
+  }
+]

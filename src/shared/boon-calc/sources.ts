@@ -1,4 +1,4 @@
-import type { Build, Fact, ItemStat, Skill, Trait, WvwFactOverride, WvwFactOverrides } from '../types'
+import type { Build, Fact, ItemStat, Legend, Skill, Trait, WvwFactOverride, WvwFactOverrides } from '../types'
 import { isBoonName, isConditionName } from './constants'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '../gear-calc/attribute-totals'
 
@@ -109,6 +109,25 @@ export function boonConditionFactsForSkill(
 }
 
 /**
+ * Every skill id "equipped" by a build's skill selection — for a standard profession, the chosen
+ * Heal/Utility/Elite skills; for Revenant, every skill (swap + heal + 3 utility + elite) belonging
+ * to either of the 2 equipped legends, since a legend's kit is fixed rather than picked skill-by-
+ * skill (see `RevenantSkillSelection`).
+ */
+function skillIdsForBuild(build: Build, legends: Legend[]): number[] {
+  if (build.skills.kind === 'revenant') {
+    const equippedLegends = build.skills.legends
+      .filter((id): id is string => id !== null)
+      .map((id) => legends.find((l) => l.id === id))
+      .filter((l): l is Legend => l !== undefined)
+    return equippedLegends.flatMap((l) => [l.swap, l.heal, l.elite, ...l.utilities])
+  }
+  return [build.skills.heal, ...build.skills.utility, build.skills.elite].filter(
+    (id): id is number => id !== null
+  )
+}
+
+/**
  * Every boon/condition source (skill or trait) a build provides. Walks
  * equipped heal/utility/elite skills, auto-granted minor traits on equipped
  * specialization lines, and chosen major traits — gated by requires_trait so
@@ -130,7 +149,7 @@ export function boonConditionFactsForSkill(
  */
 export function computeBoonConditionSources(
   build: Build,
-  gameData: { skills: Skill[]; traits: Trait[]; itemStats: ItemStat[]; wvwFactOverrides: WvwFactOverrides }
+  gameData: { skills: Skill[]; traits: Trait[]; itemStats: ItemStat[]; wvwFactOverrides: WvwFactOverrides; legends: Legend[] }
 ): BoonConditionSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
   const out: BoonConditionSource[] = []
@@ -141,9 +160,7 @@ export function computeBoonConditionSources(
     condition: conditionDurationPercent(gearTotals)
   }
 
-  const skillIds = [build.skills.heal, ...build.skills.utility, build.skills.elite].filter(
-    (id): id is number => id !== null
-  )
+  const skillIds = skillIdsForBuild(build, gameData.legends)
   for (const id of skillIds) {
     const skill = gameData.skills.find((s) => s.id === id)
     if (!skill) continue
