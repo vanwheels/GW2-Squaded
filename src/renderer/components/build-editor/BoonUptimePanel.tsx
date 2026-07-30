@@ -32,9 +32,9 @@ export function BoonUptimePanel({ build }: Props) {
   const conditionGroups = groups.filter((g) => g.isCondition)
 
   const gearDurationPercents = useMemo(() => {
-    const totals = computeGearAttributeTotals(build, gameData.itemStats)
+    const totals = computeGearAttributeTotals(build, gameData.itemStats, gameData.infusions)
     return { boon: boonDurationPercent(totals), condition: conditionDurationPercent(totals) }
-  }, [build, gameData.itemStats])
+  }, [build, gameData.itemStats, gameData.infusions])
 
   return (
     <div className="boon-uptime-panel">

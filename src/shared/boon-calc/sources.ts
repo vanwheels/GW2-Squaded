@@ -1,4 +1,4 @@
-import type { Build, EquipmentSlotKey, Fact, ItemStat, Legend, Profession, Skill, Trait, WvwFactOverride, WvwFactOverrides } from '../types'
+import type { Build, EquipmentSlotKey, Fact, Infusion, ItemStat, Legend, Profession, Skill, Trait, WvwFactOverride, WvwFactOverrides } from '../types'
 import { isBoonName, isConditionName } from './constants'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '../gear-calc/attribute-totals'
 import { weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
@@ -193,6 +193,7 @@ export function computeBoonConditionSources(
     skills: Skill[]
     traits: Trait[]
     itemStats: ItemStat[]
+    infusions: Infusion[]
     wvwFactOverrides: WvwFactOverrides
     legends: Legend[]
     professions: Profession[]
@@ -202,7 +203,7 @@ export function computeBoonConditionSources(
   const out: BoonConditionSource[] = []
   const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
 
-  const gearTotals = computeGearAttributeTotals(build, gameData.itemStats)
+  const gearTotals = computeGearAttributeTotals(build, gameData.itemStats, gameData.infusions)
   const durationPercent = {
     boon: boonDurationPercent(gearTotals),
     condition: conditionDurationPercent(gearTotals)

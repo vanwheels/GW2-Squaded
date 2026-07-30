@@ -2,6 +2,76 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 15 — Gear-upgrade/consumable picker UI (runes, sigils, infusions, relics, food, utility)
+
+Continuation of "Build editor UI/UX overhaul" → the character-stats-panel item, picking up right
+where Session 14 left off ("data layer only... deliberately not the picker UI or stats-calc
+math"). This session landed the picker UI for all 6 categories plus one piece of stats-calc math
+that turned out to be free (infusions); the rest of the stats-calc math (rune stage counting,
+free-text-attribute-name mapping, food/utility merging, and the full crit%/armor/health derived-
+stat panel) remains open, tracked in TODO.md, same "data layer → picker UI → stats calc" 3-pass
+split the weapon-selection item used across Sessions 11/13.
+
+- **Data model** (`src/shared/types/build.ts`): `EquipmentSlot` gained `runeId` (armor slots
+  only), `sigilIds`/`infusionIds` (arrays sized to each slot's real capacity). `Build` gained
+  build-level `relicId`/`foodId`/`utilityId` (exactly 1 relic, at most 1 food, at most 1 utility
+  per build — not per-slot, unlike runes/sigils/infusions).
+- **New `src/shared/gear-calc/upgrade-slots.ts`**: encodes the exact per-slot capacity numbers the
+  user confirmed directly in a prior session (rings 3, backpiece 2, other armor/accessories 1,
+  amulet 0; a two-handed weapon has 2 sigil AND 2 infusion slots on that one item, a one-handed
+  weapon has 1 of each) as small lookup/helper functions (`armorTrinketInfusionCapacity`,
+  `weaponUpgradeCapacity`), plus `resizeUpgradeIds` to safely grow/shrink a stored id array to a
+  slot's current capacity (e.g. when a weapon slot flips between one- and two-handed).
+- **New shared `UpgradePicker` component** (`src/renderer/components/build-editor/
+  UpgradePicker.tsx`): one generic icon+name+search grid reused for all 6 categories (rune, sigil,
+  infusion, relic, food, utility), parameterized over a plain `{id, name, icon, description}`
+  shape rather than duplicating the skill/legend picker pattern 6 times. Grows a search box
+  automatically past 12 options (food has 859, utility 246 — the full unfiltered catalogs per
+  explicit user direction, not a "WvW meta" subset). Two visual variants: a small circular
+  `badge` (per-item upgrade slots on the paperdoll) and the larger square `slot` style already
+  used by the skill bar (build-level relic/food/utility picks).
+- **`EquipmentEditor.tsx` rewired**: every armor slot gets a rune badge (6 armor pieces only,
+  `RUNE_SLOT_KEYS`) plus N infusion badges per the capacity table; every weapon slot (main/off/
+  underwater) gets sigil + infusion badge rows sized to that slot's live handedness. Fixed a
+  latent bug this surfaced: `setItemStat`/`setMainItemStat`/`setOffItemStat`/underwater's
+  `setStat` previously constructed a *fresh* `EquipmentSlot` object on every stat-combo change,
+  which would have silently wiped a slot's rune/sigil/infusion picks the next time its stat combo
+  was changed — fixed to spread the existing slot first. Weapon-type changes still intentionally
+  reset sigil/infusion picks (capacity may have changed, e.g. 1H→2H), which was already the
+  existing (correct) behavior for `itemStatId`/`weaponType` on that path.
+- **New `ConsumablesEditor.tsx`**: build-level Relic/Food/Utility row using the same
+  `UpgradePicker` (`slot` variant), wired into `BuildEditorView` under a new "Consumables" heading
+  below Equipment.
+- **`attribute-totals.ts`**: infusions now feed `AttributeTotals` — confirmed live that all 8
+  core-attribute WvW infusions' `attribute` field matches an `ItemStat` attribute name verbatim
+  (`Power`/`Toughness`/`Vitality`/`Precision`/`Healing`/`ConditionDamage`/`BoonDuration`/
+  `ConditionDuration`), so no name-mapping table was needed, unlike runes (see below). This means
+  an equipped Concentration or Expertise WvW infusion now correctly raises the boon/condition
+  duration % shown in `BoonUptimePanel` — a real, if small, accuracy improvement to the app's core
+  existing feature, not just new UI. `computeGearAttributeTotals` gained an optional `infusions`
+  parameter (default `[]`, so the 2 call sites that don't have it handy yet don't break) but all 3
+  real call sites (`sources.ts`, `BoonUptimePanel.tsx`, `SkillsEditor.tsx`) were updated to pass
+  `gameData.infusions` through.
+- **Explicitly NOT done this session** (documented inline in TODO.md, not silently dropped):
+  merging rune/food/utility `AttributeBonusText` bonuses into `AttributeTotals`. Two real blockers
+  found while scoping it, left for whoever picks up the stats-calc pass: (1) rune/food bonus text
+  uses free-text attribute names that don't match `ItemStat`'s internal keys 1:1 (e.g. a rune
+  bonus literally reads `"Ferocity"` but the itemstat/infusion convention calls that attribute
+  `CritDamage`; similarly `"Boon Duration"` vs. `BoonDuration`, `"Healing Power"` vs. `Healing`) —
+  confirmed live via a full scan of `data/game-data/runes.json`'s bonus attribute strings, which
+  also turned up several duration-type bonuses (Bleeding/Burning/Chill/... Duration) with no
+  `ItemStat` equivalent at all, and one `"to All Stats"` outlier; (2) runes are stage-gated by
+  same-rune-id count across the 6 armor slots (not just "sum every equipped rune's bonuses"),
+  which the current per-slot iteration in `computeGearAttributeTotals` doesn't attempt. Also not
+  done: the full crit%/armor/health/Magic Find derived-stat sidebar (`Add a full character-stats
+  panel` — design was confirmed via screenshots in a prior session, math/formulas not yet even
+  started) and relic numeric effects (would need a ~211-page wiki cross-check, `Relic.description`
+  stays display-only text).
+- **Verified**: `npm run typecheck`, `npm run lint`, `npm run build` all clean. Not visually
+  confirmed in a running window — standing Electron-sandbox limitation (see below); recommend
+  `npm run dev` locally to eyeball the new rune/sigil/infusion badges on the paperdoll and the new
+  Consumables row.
+
 ## Session 14 — Gear-upgrade/consumable data layer (runes, sigils, infusions, relics, food, utility)
 
 Continuation of "Build editor UI/UX overhaul" → the character-stats-panel item, picking up its

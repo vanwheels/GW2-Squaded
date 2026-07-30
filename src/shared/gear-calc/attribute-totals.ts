@@ -1,4 +1,4 @@
-import type { Build, EquipmentSlotKey, ItemStat } from '../types'
+import type { Build, EquipmentSlotKey, Infusion, ItemStat } from '../types'
 
 /**
  * attribute_adjustment constants for level-80 Exotic/Ascended gear, quoted directly from the
@@ -65,25 +65,46 @@ function weaponAdjustmentKey(slotKey: EquipmentSlotKey): AdjustmentKey {
   return UNDERWATER_WEAPON_SLOTS.includes(slotKey) ? 'weaponTwoHanded' : 'weaponOneHanded'
 }
 
-export function computeGearAttributeTotals(build: Build, itemStats: ItemStat[]): AttributeTotals {
+/**
+ * Infusions are optional (this function is called from several places, some without an
+ * `infusions` list handy) and default to `[]` so gear-only totals still work — infusions simply
+ * don't contribute in that case, same as an unequipped slot.
+ */
+export function computeGearAttributeTotals(build: Build, itemStats: ItemStat[], infusions: Infusion[] = []): AttributeTotals {
   const statsById = new Map(itemStats.map((s) => [s.id, s]))
+  const infusionsById = new Map(infusions.map((i) => [i.id, i]))
   const totals: AttributeTotals = {}
 
   for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
     const slot = build.equipment[slotKey]
-    if (!slot || slot.itemStatId === null) continue
+    if (!slot) continue
 
     const isWeaponSlot = slotKey.startsWith('weapon')
-    if (isWeaponSlot && !slot.weaponType) continue // empty weapon slot — no item actually equipped
-    const adjustmentKey = SLOT_ADJUSTMENT_KEY[slotKey] ?? weaponAdjustmentKey(slotKey)
+    const weaponEquipped = !isWeaponSlot || Boolean(slot.weaponType)
 
-    const stat = statsById.get(slot.itemStatId)
-    if (!stat) continue
+    if (weaponEquipped && slot.itemStatId !== null) {
+      const adjustmentKey = SLOT_ADJUSTMENT_KEY[slotKey] ?? weaponAdjustmentKey(slotKey)
+      const stat = statsById.get(slot.itemStatId)
+      if (stat) {
+        const adjustment = ATTRIBUTE_ADJUSTMENT[adjustmentKey][RARITY]
+        for (const attr of stat.attributes) {
+          const points = adjustment * attr.multiplier + attr.value
+          totals[attr.attribute] = (totals[attr.attribute] ?? 0) + points
+        }
+      }
+    }
 
-    const adjustment = ATTRIBUTE_ADJUSTMENT[adjustmentKey][RARITY]
-    for (const attr of stat.attributes) {
-      const points = adjustment * attr.multiplier + attr.value
-      totals[attr.attribute] = (totals[attr.attribute] ?? 0) + points
+    // Infusion attribute names (see Infusion in game-data.ts) are confirmed to match ItemStat
+    // attribute names verbatim (Power, Toughness, Vitality, Precision, Healing, ConditionDamage,
+    // BoonDuration, ConditionDuration — all 8 core-attribute WvW infusions), so no name mapping
+    // is needed here, unlike Rune.bonuses' free-text attribute names.
+    if (weaponEquipped) {
+      for (const infusionId of slot.infusionIds ?? []) {
+        if (infusionId === null) continue
+        const infusion = infusionsById.get(infusionId)
+        if (!infusion?.attribute || infusion.value === null) continue
+        totals[infusion.attribute] = (totals[infusion.attribute] ?? 0) + infusion.value
+      }
     }
   }
 

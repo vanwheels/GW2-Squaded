@@ -345,6 +345,25 @@
         for the full endpoint/gotcha writeup; two real API-shape assumptions from the 2026-07-25
         scoping session turned out wrong once fetched live (infusions' `details.type`, relics'
         `Fact` system) and are corrected in place below rather than left stale.
+        **Session 15 (2026-07-29, picker UI pass): landed the picker UI** for every category —
+        `Build`/`EquipmentSlot` gained `runeId`/`sigilIds`/`infusionIds` (per-slot) and
+        `relicId`/`foodId`/`utilityId` (build-level); a new shared `UpgradePicker` component
+        (icon+name+search grid, reused across all 6 categories) wired into `EquipmentEditor`
+        (rune badge on the 6 armor slots, sigil+infusion badges on weapon slots, infusion badges
+        on every armor/trinket slot, all per the confirmed per-slot capacity table) and a new
+        `ConsumablesEditor` (relic/food/utility, build-level). Infusions were also wired into
+        `attribute-totals.ts`'s existing `AttributeTotals` — trivial since infusion attribute
+        names match `ItemStat` attribute names verbatim (confirmed live), so an equipped
+        Concentration/Expertise WvW infusion now correctly feeds the boon/condition duration %
+        calc. **Deliberately NOT done this session** (see the "full character-stats panel" item
+        below, still open): merging rune/food/utility attribute-bonus text into `AttributeTotals`
+        (blocked on a free-text-to-`ItemStat`-attribute-name mapping table, e.g. rune text
+        "Ferocity" vs. itemstat key `CritDamage`, plus rune's per-equipped-count stage math) and
+        the crit%/armor/health derived-stat formulas — those need their own wiki-verification
+        pass, scoped as their own session same as gear-scaling was. Verified via
+        `npm run typecheck`, `npm run lint`, `npm run build`, all clean; not visually confirmed
+        (standing Electron-sandbox limitation, see COMPLETED.md) — recommend `npm run dev`
+        locally to eyeball the new rune/sigil/infusion/relic/food/utility pickers.
     - [ ] **Item-rarity color coding, and an important scope nuance**: user identified the app's
           (and gw2skills.net's) existing pink/magenta = Ascended, orange/yellow = Exotic border
           convention (already visible on armor pieces in every full-build screenshot). The
@@ -376,8 +395,10 @@
           (2 on two-handed, 1 each on main/off-hand) and don't have a count-based stage mechanic —
           confirmed via a fresh screenshot too (Superior Sigil of Force: flat "+5% strike damage",
           one effect, no stages).
-          **Data layer landed 2026-07-29** (picker UI/stats-calc wiring still open — see the
-          session-level note at the end of this item): `scripts/fetch-gear-upgrades.ts` fetches
+          **Data layer landed 2026-07-29** (picker UI landed the same day in session 15, see the
+          session-level note at the end of this item — stats-calc wiring, i.e. summing the correct
+          stage per same-rune-count and mapping free-text attribute names like "Ferocity" to the
+          `ItemStat` key `CritDamage`, is still open): `scripts/fetch-gear-upgrades.ts` fetches
           198 Superior runes + 162 Superior sigils from `/v2/items` (new `Rune`/`Sigil` types in
           `src/shared/types/game-data.ts`). Confirmed live against Superior Rune of the Scholar:
           `details.bonuses` is exactly the literal 6-entry list predicted above
@@ -410,7 +431,12 @@
           alike (verified against a live Agony infusion too); `details.infusion_upgrade_flags`
           containing `'Infusion'` is the real infusion-slot marker, and there's no API field at
           all distinguishing WvW from Agony infusions — the `"... WvW Infusion"` name suffix is
-          the only reliable filter. Picker UI/per-slot-count wiring still open.
+          the only reliable filter. **Picker UI + attribute-totals wiring landed 2026-07-29
+          (session 15)**: per-slot infusion badges (using the exact counts above) in
+          `EquipmentEditor`, and infusion values now feed `attribute-totals.ts`'s
+          `AttributeTotals` directly (infusion attribute names matched `ItemStat` names verbatim,
+          no mapping table needed) — so a Concentration/Expertise WvW infusion already affects the
+          boon/condition duration % shown in `BoonUptimePanel`.
     - [ ] **Relics are a must-have, not optional** — exactly 1 relic equipped per build. Relics
           grant effects through the *same* `Fact` system already used for skills/traits, so relics
           should plug into the existing `sources.ts` boon/condition extraction path, not a separate
@@ -433,10 +459,11 @@
           was never going to receive relic data in a `Fact` shape); what's actually missing is any
           numeric relic value at all. Getting exact modifiers would need a per-relic wiki
           cross-check (~211 pages, same shape of effort as `scripts/fetch-wvw-splits.ts`) — not
-          done this session; `description` is stored as-is for display only. Still open: picker
-          UI, and whether the stats panel shows relic effects as inert descriptive text (cheap) or
-          invests in the wiki cross-check (expensive) — a scoping question for whoever picks this
-          back up.
+          done this session; `description` is stored as-is for display only. **Picker UI landed
+          2026-07-29 (session 15)**: build-level relic picker in the new `ConsumablesEditor`
+          (`Build.relicId`), description shown as plain text in the tooltip. Still open: whether
+          the stats panel shows relic effects as inert descriptive text (cheap) or invests in the
+          wiki cross-check (expensive) — a scoping question for whoever picks this back up.
     - [ ] **Food and utility consumables: keep the full list selectable, don't pre-filter to a
           "WvW meta" subset** — user was explicit here despite there being a lot of options ("it's
           best to keep them all available"). Deferred fast-follow (not blocking first pass, but
@@ -450,8 +477,11 @@
           same `parseAttributeBonusText` used for runes) and a Nourishment/Enhancement-labeled
           example each. ~37% of Food entries (e.g. "Feast" reagents meant to be served to a group,
           not eaten directly) have no buff at all — `bonuses` is empty and `effectName`/
-          `durationMs`/`applyCount` are `null` for those, by design, not a parse failure. Picker
-          UI/stats-calc wiring still open.
+          `durationMs`/`applyCount` are `null` for those, by design, not a parse failure. **Picker
+          UI landed 2026-07-29 (session 15)**: build-level food/utility pickers in the new
+          `ConsumablesEditor` (`Build.foodId`/`utilityId`), full unfiltered catalogs, `UpgradePicker`
+          grows a name-search box since both lists are large. Stats-calc wiring (merging `bonuses`
+          into `AttributeTotals`) still open — same blocker as runes above.
     - [x] Stats sidebar layout (from full-build screenshots, before/after gearing up): two columns
           of icon+number rows. Left column = raw/base attribute totals (Power, Toughness,
           Vitality, Precision, Ferocity, Healing Power, Condition Damage, Expertise,

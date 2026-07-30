@@ -1,6 +1,9 @@
 import type { EquipmentSlot, EquipmentSlotKey, ItemStat, ProfessionId, ProfessionWeapon } from '@shared/types'
+import { armorTrinketInfusionCapacity, resizeUpgradeIds, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from '@shared/gear-calc/upgrade-slots'
+import { stripGw2Markup } from '@shared/gear-calc/format-description'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
+import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
 import { SlotIcon, type SlotIconType } from './SlotIcon'
 
 interface Props {
@@ -68,16 +71,91 @@ const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string; icon: SlotIconType 
   { key: 'amulet', label: 'Amulet', icon: 'amulet' }
 ]
 
+function byName(a: UpgradeOption, b: UpgradeOption): number {
+  return a.name.localeCompare(b.name)
+}
+
 export function EquipmentEditor({ value, onChange, profession: professionId, equippedSpecializationIds }: Props) {
-  const { itemStats, professions, skillsById } = useGameData()
+  const { itemStats, professions, skillsById, runes, sigils, infusions } = useGameData()
   const sortedStats = dedupedStats(itemStats).sort((a, b) => a.name.localeCompare(b.name))
   const profession = professions.find((p) => p.id === professionId)
 
+  const runeOptions: UpgradeOption[] = runes
+    .map((r) => ({ id: r.id, name: r.name, icon: r.icon, description: r.bonuses.map((b) => b.raw).join('\n') }))
+    .sort(byName)
+  const sigilOptions: UpgradeOption[] = sigils
+    .map((s) => ({ id: s.id, name: s.name, icon: s.icon, description: stripGw2Markup(s.description) }))
+    .sort(byName)
+  const infusionOptions: UpgradeOption[] = infusions
+    .map((i) => ({
+      id: i.id,
+      name: i.name,
+      icon: i.icon,
+      description: i.attribute && i.value !== null ? `+${i.value} ${i.attribute}` : i.description
+    }))
+    .sort(byName)
+
   function setItemStat(key: EquipmentSlotKey, itemStatId: number | null): void {
-    onChange({ ...value, [key]: { itemStatId, weaponType: value[key]?.weaponType ?? null } })
+    onChange({ ...value, [key]: { ...(value[key] ?? {}), itemStatId } })
+  }
+
+  function setRune(key: EquipmentSlotKey, runeId: number | null): void {
+    onChange({ ...value, [key]: { ...(value[key] ?? { itemStatId: null }), runeId } })
+  }
+
+  function setInfusion(key: EquipmentSlotKey, capacity: number, index: number, infusionId: number | null): void {
+    const slot = value[key] ?? { itemStatId: null }
+    const ids = resizeUpgradeIds(slot.infusionIds, capacity)
+    ids[index] = infusionId
+    onChange({ ...value, [key]: { ...slot, infusionIds: ids } })
+  }
+
+  function setSigil(key: EquipmentSlotKey, capacity: number, index: number, sigilId: number | null): void {
+    const slot = value[key] ?? { itemStatId: null }
+    const ids = resizeUpgradeIds(slot.sigilIds, capacity)
+    ids[index] = sigilId
+    onChange({ ...value, [key]: { ...slot, sigilIds: ids } })
+  }
+
+  function infusionRow(key: EquipmentSlotKey, capacity: number) {
+    if (capacity === 0) return null
+    const ids = resizeUpgradeIds(value[key]?.infusionIds, capacity)
+    return (
+      <div className="upgrade-row">
+        {ids.map((id, i) => (
+          <UpgradePicker
+            key={i}
+            label="Infusion"
+            options={infusionOptions}
+            chosenId={id}
+            onChoose={(infusionId) => setInfusion(key, capacity, i, infusionId)}
+          />
+        ))}
+      </div>
+    )
+  }
+
+  function sigilRow(key: EquipmentSlotKey, capacity: number) {
+    if (capacity === 0) return null
+    const ids = resizeUpgradeIds(value[key]?.sigilIds, capacity)
+    return (
+      <div className="upgrade-row">
+        {ids.map((id, i) => (
+          <UpgradePicker
+            key={i}
+            label="Sigil"
+            options={sigilOptions}
+            chosenId={id}
+            onChoose={(sigilId) => setSigil(key, capacity, i, sigilId)}
+          />
+        ))}
+      </div>
+    )
   }
 
   function renderSlot(key: EquipmentSlotKey, label: string, icon: SlotIconType) {
+    const isRuneSlot = RUNE_SLOT_KEYS.includes(key)
+    const infusionCapacity = armorTrinketInfusionCapacity(key)
     return (
       <div className="gear-slot" key={key}>
         <div className="gear-slot-icon">
@@ -97,6 +175,12 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
             ))}
           </select>
         </label>
+        {isRuneSlot && (
+          <div className="upgrade-row">
+            <UpgradePicker label="Rune" options={runeOptions} chosenId={value[key]?.runeId ?? null} onChoose={(id) => setRune(key, id)} />
+          </div>
+        )}
+        {infusionRow(key, infusionCapacity)}
       </div>
     )
   }
@@ -160,6 +244,9 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
     const mainOptions = weaponOptions((w) => w.flags.includes('Mainhand') || w.flags.includes('TwoHand'))
     const offOptions = weaponOptions((w) => w.flags.includes('Offhand'))
 
+    const mainCapacity = weaponUpgradeCapacity(Boolean(mainSlot?.weaponType), isTwoHanded)
+    const offCapacity = weaponUpgradeCapacity(Boolean(value[offKey]?.weaponType), false)
+
     function chooseMain(weaponType: string | null): void {
       const newWeapon = weaponType ? profession?.weapons[weaponType] : undefined
       const newIsTwoHanded = newWeapon?.flags.includes('TwoHand') ?? false
@@ -174,11 +261,14 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
     }
 
     function setMainItemStat(itemStatId: number | null): void {
-      const nextMain: EquipmentSlot = { itemStatId, weaponType: mainSlot?.weaponType ?? null }
+      const nextMain: EquipmentSlot = { ...(mainSlot ?? {}), itemStatId, weaponType: mainSlot?.weaponType ?? null }
       onChange({
         ...value,
         [mainKey]: nextMain,
-        ...(isTwoHanded ? { [offKey]: { itemStatId, weaponType: mainSlot?.weaponType ?? null } } : {})
+        // A two-handed weapon's itemStatId is mirrored onto the off-hand slot too (see class doc
+        // comment), but its rune/sigil/infusion picks live independently per slot key — only the
+        // stat combo mirrors, not the upgrades.
+        ...(isTwoHanded ? { [offKey]: { ...(value[offKey] ?? {}), itemStatId, weaponType: mainSlot?.weaponType ?? null } } : {})
       })
     }
 
@@ -187,7 +277,7 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
     }
 
     function setOffItemStat(itemStatId: number | null): void {
-      onChange({ ...value, [offKey]: { itemStatId, weaponType: value[offKey]?.weaponType ?? null } })
+      onChange({ ...value, [offKey]: { ...(value[offKey] ?? {}), itemStatId, weaponType: value[offKey]?.weaponType ?? null } })
     }
 
     return (
@@ -205,6 +295,8 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
               ))}
             </select>
           </label>
+          {sigilRow(mainKey, mainCapacity)}
+          {infusionRow(mainKey, mainCapacity)}
         </div>
         <div className="gear-slot weapon-slot">
           {isTwoHanded ? (
@@ -226,6 +318,8 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
                   ))}
                 </select>
               </label>
+              {sigilRow(offKey, offCapacity)}
+              {infusionRow(offKey, offCapacity)}
             </>
           )}
         </div>
@@ -238,13 +332,16 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
   function renderUnderwaterSlot(key: EquipmentSlotKey, label: string) {
     const slot = value[key]
     const options = weaponOptions((w) => w.flags.includes('Aquatic'))
+    // Every aquatic weapon type is confirmed TwoHand (see class doc comment on this function), so
+    // an underwater slot always gets the 2-slot upgrade capacity once a weapon is equipped.
+    const capacity = weaponUpgradeCapacity(Boolean(slot?.weaponType), true)
 
     function choose(weaponType: string | null): void {
       onChange({ ...value, [key]: { itemStatId: slot?.itemStatId ?? null, weaponType } })
     }
 
     function setStat(itemStatId: number | null): void {
-      onChange({ ...value, [key]: { itemStatId, weaponType: slot?.weaponType ?? null } })
+      onChange({ ...value, [key]: { ...(slot ?? {}), itemStatId, weaponType: slot?.weaponType ?? null } })
     }
 
     return (
@@ -261,6 +358,8 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
             ))}
           </select>
         </label>
+        {sigilRow(key, capacity)}
+        {infusionRow(key, capacity)}
       </div>
     )
   }

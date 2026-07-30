@@ -68,6 +68,17 @@ export interface EquipmentSlot {
   /** Key into `Profession.weapons` (e.g. `"Greatsword"`). Only meaningful for the 6 weapon slot
    *  keys above — armor/trinket slots never populate this. */
   weaponType?: string | null
+  /** Rune id. Only meaningful for the 6 armor slot keys (helm/shoulders/chest/gloves/leggings/
+   *  boots) — see `RUNE_SLOT_KEYS` in `src/shared/gear-calc/upgrade-slots.ts`. */
+  runeId?: number | null
+  /** Sigil ids, one per sigil slot. Only meaningful for weapon slot keys — length matches that
+   *  slot's sigil capacity (see `weaponUpgradeCapacity` in upgrade-slots.ts: 2 for a two-handed
+   *  weapon, 1 for a one-handed main/off-hand or underwater weapon). */
+  sigilIds?: (number | null)[]
+  /** Infusion ids, one per infusion slot. Meaningful for every slot key — length matches that
+   *  slot's infusion capacity (see `infusionCapacity`/`weaponUpgradeCapacity` in
+   *  upgrade-slots.ts). */
+  infusionIds?: (number | null)[]
 }
 
 /** Whether a build is currently theorycrafted for land or underwater combat — scopes both the
@@ -89,6 +100,11 @@ export interface Build {
   specializations: TraitLineSlots
   skills: SkillSelection
   equipment: Partial<Record<EquipmentSlotKey, EquipmentSlot>>
+  /** Exactly 1 relic equipped per build (not per-slot — see `Relic` in game-data.ts). */
+  relicId: number | null
+  /** At most 1 food and 1 utility consumable active at a time (not per-slot). */
+  foodId: number | null
+  utilityId: number | null
   environment: Environment
   /** Which land weapon-swap set's skill bar is currently displayed — display-only, both sets'
    *  skills always contribute to boon/condition totals since a player carries both and can swap

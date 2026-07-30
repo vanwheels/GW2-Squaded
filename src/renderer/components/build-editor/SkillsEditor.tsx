@@ -46,9 +46,9 @@ export function useDurationContext(build: Build) {
   const gameData = useGameData()
   const activeIds = useMemo(() => activeTraitIds(build, gameData.traits), [build, gameData.traits])
   const durationPercent = useMemo(() => {
-    const totals = computeGearAttributeTotals(build, gameData.itemStats)
+    const totals = computeGearAttributeTotals(build, gameData.itemStats, gameData.infusions)
     return { boon: boonDurationPercent(totals), condition: conditionDurationPercent(totals) }
-  }, [build, gameData.itemStats])
+  }, [build, gameData.itemStats, gameData.infusions])
   return { gameData, activeIds, durationPercent }
 }
 

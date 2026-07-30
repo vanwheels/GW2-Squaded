@@ -14,6 +14,7 @@ import { EliteSpecSelect } from './EliteSpecSelect'
 import { TraitsEditor } from './TraitsEditor'
 import { SkillsEditor } from './SkillsEditor'
 import { EquipmentEditor } from './EquipmentEditor'
+import { ConsumablesEditor } from './ConsumablesEditor'
 import { BoonUptimePanel } from './BoonUptimePanel'
 
 interface Props {
@@ -159,6 +160,11 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
             onChange={(equipment) => setDraft({ ...draft, equipment })}
             profession={draft.profession}
             equippedSpecializationIds={equippedSpecializationIds}
+          />
+          <h3>Consumables</h3>
+          <ConsumablesEditor
+            value={{ relicId: draft.relicId, foodId: draft.foodId, utilityId: draft.utilityId }}
+            onChange={(patch) => setDraft({ ...draft, ...patch })}
           />
         </div>
         <div className="build-editor-column">
