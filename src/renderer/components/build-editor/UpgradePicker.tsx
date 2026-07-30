@@ -1,18 +1,18 @@
 import { useState } from 'react'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 
-export interface UpgradeOption {
-  id: number
+export interface UpgradeOption<T extends number | string = number> {
+  id: T
   name: string
   icon: string
   description?: string
 }
 
-interface Props {
+interface Props<T extends number | string = number> {
   label: string
-  options: UpgradeOption[]
-  chosenId: number | null
-  onChoose: (id: number | null) => void
+  options: UpgradeOption<T>[]
+  chosenId: T | null
+  onChoose: (id: T | null) => void
   /** `badge` is a small circular button for a per-item upgrade slot (rune/sigil/infusion),
    *  reusing the equipment paperdoll's visual density. `slot` is the larger square skill-bar-
    *  style button used for the build-level relic/food/utility picks. */
@@ -26,18 +26,27 @@ interface Props {
 
 /**
  * Shared icon+name+search picker popover for every gear-upgrade category (runes, sigils,
- * infusions, relics, food, utility) — all share the same "small badge/slot opens a searchable
- * grid, click an option to choose and close" interaction as the existing skill/legend pickers,
- * just parameterized over a generic `{id, name, icon}` option shape instead of `Skill`/`Legend`.
+ * infusions, relics, food, utility) plus squad-slot build assignment — all share the same "small
+ * badge/slot opens a searchable grid, click an option to choose and close" interaction as the
+ * existing skill/legend pickers, just parameterized over a generic `{id, name, icon}` option shape
+ * instead of `Skill`/`Legend`. `T` defaults to `number` (every gear-upgrade category's item id);
+ * the squad editor instantiates it with `string` (build ids are UUIDs).
  */
-export function UpgradePicker({ label, options, chosenId, onChoose, variant = 'badge', rarity }: Props) {
+export function UpgradePicker<T extends number | string = number>({
+  label,
+  options,
+  chosenId,
+  onChoose,
+  variant = 'badge',
+  rarity
+}: Props<T>) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const chosen = chosenId !== null ? options.find((o) => o.id === chosenId) : undefined
   const query = search.trim().toLowerCase()
   const filtered = query ? options.filter((o) => o.name.toLowerCase().includes(query)) : options
 
-  function choose(id: number | null): void {
+  function choose(id: T | null): void {
     onChoose(id)
     setOpen(false)
     setSearch('')

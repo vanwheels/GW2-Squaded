@@ -2,6 +2,96 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 21 — Squad preview builder (party grid, drag-and-drop, boon/condi summaries)
+
+Picked up TODO.md's next unstarted major feature after the build-editor overhaul was judged
+essentially complete. User provided a hand sketch ("Squad Manager") and answered follow-up
+questions to nail down scope before any code was written (see TODO.md's squad-preview-builder item
+for the full confirmed-decisions writeup: both click and drag for slot assignment, per-slot
+editable placeholder labels, a 10-party hard cap built to comfortably show ~5, presence-only party
+summary for v1).
+
+- **Key discovery before writing any code**: `SquadComp`/`Party`/`PartySlots`/`SquadSlot`
+  (`src/shared/types/squad-comp.ts`) and the full SQLite/IPC/`window.gw2Storage.squadComps`
+  persistence stack already existed, apparently scaffolded ahead of this feature in an earlier
+  session and never wired to any UI (`SquadsView.tsx` was a one-line stub). This meant the whole
+  feature landed as renderer + one shared calc module, with zero schema/IPC changes.
+- **New `src/renderer/state/squad-comps-store.tsx`**: mirrors `builds-store.tsx` exactly
+  (`SquadCompsStoreProvider`/`useSquadCompsStore` over `window.gw2Storage.squadComps`), plus
+  `makeBlankParty`/`makeBlankSquadComp` helpers. Wired into `App.tsx` alongside the existing
+  `BuildsStoreProvider` (the squad editor needs `useBuildsStore()` too, to resolve `buildId → Build`
+  and populate the builds sidebar).
+- **New `src/shared/squad-calc/party-summary.ts`** (`computePartyBoonConditionSummary`): for each
+  assigned slot in a party, calls the existing (unchanged) `computeBoonConditionSources` and merges
+  every source into a map keyed by boon/condition name, each entry keeping per-contribution
+  `{slotIndex, buildName, sourceName, sourceIcon, scaledDurationSeconds, applyCount}` for hover-tooltip
+  attribution. Deliberately a presence union, not a merged-uptime %, per the user's confirmed v1
+  scope and the existing "combined/ideal uptime" stretch goal already noted under the boon-calc
+  TODO item — modeling true combined uptime would need cooldown/rotation-overlap reasoning this app
+  doesn't do anywhere. A slot whose `buildId` doesn't resolve (empty, or a deleted build a squad
+  still references) is silently skipped, same fail-safe pattern used throughout this codebase.
+- **New `src/renderer/components/squad-editor/` directory**:
+  - `SquadCompEditorView.tsx` — top-level editor (parallels `BuildEditorView.tsx`'s `draft`/
+    `onSave`/`onCancel`/`isNew` contract). Owns all party/slot mutation logic: `assignBuild`,
+    `changeLabel`, `dropBuild` (the drag-drop swap/move logic, see below), `renameParty`,
+    `addParty`/`removeParty` (capped at 10 parties, minimum 1).
+  - `BuildsSidebar.tsx` — every saved build, each card `draggable` via the native HTML5 drag API.
+  - `PartyRow.tsx` — one "Line": party name input, an expand/collapse toggle (local `useState`,
+    intentionally *not* persisted on the squad comp — it's a pure display affordance) controlling
+    whether each slot's own boon/condi rows render, 5 `SlotTile`s, and the always-visible
+    party-wide summary column built from `computePartyBoonConditionSummary`.
+  - `SlotTile.tsx` — the big per-slot box. Reuses the existing generic `UpgradePicker` component for
+    the click-to-assign path (see below); shows an editable free-text role label
+    (`SquadSlot.placeholderLabel`) only while empty, replaced by the build's name once assigned;
+    always a drop target, and draggable itself (to move/swap an already-assigned build) when
+    occupied; when the row's toggle is expanded, renders the build's own boon/condition icon
+    summary via the exact data `BoonUptimePanel` already computes.
+  - `BoonConditionIconRow.tsx` — shared minimal icon+tooltip row, taking a generic
+    `{key, icon, tooltip}[]` shape. Used by both `SlotTile` (per-build groups from
+    `groupBoonConditionSources`) and `PartyRow` (party-wide entries from the new calc module) — no
+    calc logic duplicated, just a shared icon-list view each caller feeds independently.
+  - `drag-payload.ts` — tiny helper pair (`setBuildDragData`/`readBuildDragData`) encoding
+    `{buildId, sourcePartyIndex, sourceSlotIndex}` (the latter two `null` when dragging from the
+    sidebar) into `dataTransfer` under a custom MIME type.
+- **Drag-and-drop implemented natively (HTML5 `draggable`/`onDragOver`/`onDrop`), no new
+  dependency**: no DnD library (`@dnd-kit`, `react-dnd`, etc.) was installed, and this codebase's
+  established convention is to hand-roll interactive widgets rather than pull a library —
+  `Tooltip.tsx`'s own doc comment explicitly rejects a library approach for the same reason. The
+  interaction needed (drag a build card, drop on a slot) is simple enough that native HTML5 DnD
+  covers it fully. `SquadCompEditorView.dropBuild` reassigns the target slot's `buildId` to the
+  dragged build, and — only when the drag originated from another slot, not the sidebar — writes
+  the target slot's *previous* `buildId` back into the source slot, so dragging one assigned slot
+  onto another performs a real swap rather than clobbering the destination silently.
+- **`UpgradePicker` generalized to a generic component** (`UpgradePicker<T extends number | string =
+  number>`, `src/renderer/components/build-editor/UpgradePicker.tsx`) so the squad-slot build picker
+  (`SlotTile`) could reuse it directly instead of writing a near-duplicate grid component — build
+  ids are UUID strings, but every existing gear-upgrade category (runes/sigils/infusions/relics/
+  food/utility) uses numeric item ids. Defaulting `T` to `number` means both existing callers
+  (`ConsumablesEditor.tsx`/`EquipmentEditor.tsx`) needed no changes; `SlotTile` instantiates it with
+  `UpgradeOption<string>[]`.
+- **`SquadsView.tsx` rewritten** from its one-line stub to mirror `BuildsView.tsx`'s list/create/
+  edit/delete pattern exactly, using the new store.
+- **New CSS** appended to `src/renderer/styles/global.css` (`.squad-editor`, `.builds-sidebar`,
+  `.party-row`, `.slot-tile`, `.party-summary-column`, `.boon-icon-row`, etc.), reusing existing
+  sizing/color conventions (`--border`/`--surface`/`--accent`, `.skill-slot-button`'s icon-button
+  pattern enlarged for the bigger slot tiles) rather than inventing a new visual language.
+- **Verified**: `npm run typecheck`, `npm run lint`, `npm run build` all clean. A standalone script
+  (not committed) built two Firebrand builds sharing one heal skill (Restoring Reprieve) across 2
+  slots of a test party, plus an empty slot and a slot referencing a nonexistent build id, and
+  confirmed `computePartyBoonConditionSummary` merges the 2 Aegis contributions with correct
+  per-build (`buildName`) attribution, correctly omits the PvE-only Protection/Resolution facts
+  (existing WvW-override machinery, unchanged), and silently skips the empty/missing-build slots
+  rather than erroring — matching the same "Restoring Reprieve" case hand-verified in Session 8's
+  WvW-split work. Not visually confirmed in a running window — standing Electron-sandbox limitation
+  (this shell's spawned Electron process crashes on `electron.app.isPackaged` being undefined, see
+  every prior session's note); recommend `npm run dev` locally to eyeball assigning builds via both
+  click and drag-and-drop, editing placeholder labels, toggling each Line's boon/condi summary, and
+  hovering the party-wide summary icons to see per-character source/duration attribution.
+- **Left open, noted in TODO.md, not forgotten**: a "Favorites" pin for the builds sidebar once
+  rosters get large; the build-picker's `description` text is just the profession name today, not a
+  fuller spec/gear summary; native HTML5 drag-and-drop has no touch-input equivalent, worth
+  revisiting only if/when the Capacitor mobile port needs squad editing on a tablet.
+
 ## Session 20 — Relic numeric effects via a wiki `{{skill fact}}` cross-check
 
 Continuation of "Build editor UI/UX overhaul" → the character-stats-panel item's relic sub-item,

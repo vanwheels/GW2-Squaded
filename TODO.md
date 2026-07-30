@@ -676,8 +676,50 @@
           of this and wasn't sure what was meant, so **treat the original observation as
           unconfirmed/possibly mistaken**, not a real gap. `EquipmentEditor` doesn't have any such
           tabs today; leave as-is unless it resurfaces with a concrete example.
-- [ ] Squad preview builder (drag-and-drop party grid; WvWSquadCrafter as UX reference only —
-      no shared code/assets without explicit permission, no LICENSE on that repo)
+- [x] Squad preview builder (drag-and-drop party grid; WvWSquadCrafter as UX reference only —
+      no shared code/assets without explicit permission, no LICENSE on that repo). User provided a
+      hand sketch ("Squad Manager": Lines/parties of 5 slots each, per-slot profession icon +
+      editable role placeholder, a per-Line toggle expanding each slot's Boon/Condi icon summary,
+      plus an always-visible party-wide Boon/Condi presence summary) and answered follow-up
+      questions confirming both click-and-drag slot assignment, per-slot editable placeholder
+      labels, a 10-party hard cap (WvW's real 50-player squad max) built to comfortably show ~5
+      without scrolling, and a presence-only (not merged-uptime) party-wide summary for v1.
+      **Implemented 2026-07-30**: the `SquadComp`/`Party`/`PartySlots`/`SquadSlot` data model and
+      full SQLite/IPC/`window.gw2Storage.squadComps` persistence stack already existed unused
+      (scaffolded in an earlier session, never wired to any UI) — this session was almost entirely
+      renderer + one shared calc module, no schema/IPC changes needed. New
+      `src/renderer/state/squad-comps-store.tsx` (mirrors `builds-store.tsx`); new
+      `src/shared/squad-calc/party-summary.ts` (`computePartyBoonConditionSummary`, merging every
+      assigned slot's existing `computeBoonConditionSources` output by boon/condition name with
+      per-contribution build/slot attribution for hover tooltips — deliberately presence-only, no
+      merged-uptime-% math, same stretch-goal boundary the boon-calc item above already draws); new
+      `src/renderer/components/squad-editor/` (`SquadCompEditorView`, `BuildsSidebar`, `PartyRow`,
+      `SlotTile`, `BoonConditionIconRow`, `drag-payload.ts`); `SquadsView.tsx` rewritten from its
+      stub to mirror `BuildsView.tsx`. Drag-and-drop uses the native HTML5 `draggable`/
+      `onDragOver`/`onDrop` API rather than a new dependency (`@dnd-kit`/`react-dnd` etc. — none
+      were installed, and this codebase's established pattern is to hand-roll interactive widgets,
+      e.g. `Tooltip.tsx`'s doc comment explicitly rejecting a library for the same reason); dropping
+      a dragged build swaps the two slots' build ids when the source was another slot (a real
+      move/swap, not just an overwrite) or plain-assigns when the source was the sidebar. The build
+      picker (click path) reuses `UpgradePicker` rather than a new grid component — required
+      widening it to a generic `UpgradePicker<T extends number | string = number>` (build ids are
+      UUID strings, every existing gear-upgrade category's id is `number`; defaulting `T` to
+      `number` kept both existing callers, `ConsumablesEditor.tsx`/`EquipmentEditor.tsx`, unchanged).
+      Verified: `npm run typecheck`/`lint`/`build` all clean; a standalone script (not committed)
+      built two Firebrand builds sharing the same heal skill (Restoring Reprieve) across 2 party
+      slots plus an empty slot and a slot referencing a deleted build id, confirmed
+      `computePartyBoonConditionSummary` correctly merges the 2 Aegis contributions with correct
+      per-build attribution, correctly omits the PvE-only Protection/Resolution facts (per the
+      existing WvW-override machinery), and correctly skips the empty/deleted-build slots rather
+      than erroring. Not visually confirmed in a running window (standing Electron-sandbox
+      limitation, see COMPLETED.md) — recommend `npm run dev` locally to eyeball assigning builds
+      via both click and drag, editing placeholder labels, toggling per-line summaries, and
+      hovering the party-wide summary icons for per-character source attribution.
+  - [ ] Not done this session, left for later (noted, not forgotten): a "Favorites" pin for
+        frequently-used builds in the sidebar once squad rosters get large; the build-picker
+        option's `description` only shows the profession name today, not a fuller spec/gear
+        summary; native HTML5 drag-and-drop has no touch-input equivalent, worth revisiting if/when
+        the Capacitor mobile port (see TODO.md's roadmap) needs squad editing on a tablet.
 - [ ] Thin backend: generate/resolve shareable immutable links for builds and squad comps
 - [ ] Discord bot (client of the backend API)
 - [ ] Capacitor port for iOS/Android (swap storage adapter + native bindings only)

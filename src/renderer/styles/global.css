@@ -792,3 +792,203 @@ select.rarity-ascended {
   align-items: center;
   gap: 4px;
 }
+
+.squad-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.squad-editor-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.builds-sidebar {
+  flex: none;
+  width: 200px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.builds-sidebar h3 {
+  margin-top: 0;
+  font-size: 0.85rem;
+}
+
+.builds-sidebar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.builds-sidebar-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: grab;
+}
+
+.builds-sidebar-icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex: none;
+}
+
+.builds-sidebar-name {
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.party-rows {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.party-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.party-row-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.party-row-toggle {
+  padding: 2px 8px;
+  font-size: 0.75rem;
+}
+
+.party-row-name-input {
+  flex: 1;
+  max-width: 200px;
+  font-weight: 600;
+}
+
+.party-row-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.party-slots {
+  display: flex;
+  gap: 10px;
+}
+
+.slot-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 92px;
+  padding: 8px 6px;
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+}
+
+.slot-tile.drag-over {
+  border-color: var(--accent);
+  border-style: solid;
+  background: rgba(192, 57, 43, 0.08);
+}
+
+.slot-tile .skill-slot-button {
+  width: 64px;
+  height: 64px;
+}
+
+.slot-tile-label-input,
+.slot-tile-name {
+  width: 100%;
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.slot-tile-label-input {
+  padding: 3px 4px;
+}
+
+.slot-tile-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot-tile-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-top: 2px;
+}
+
+.boon-icon-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
+}
+
+.boon-icon-row-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  object-fit: cover;
+}
+
+.boon-icon-row-empty {
+  font-size: 0.7rem;
+}
+
+.party-summary-column {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 16px;
+  border-left: 1px solid var(--border);
+  min-width: 110px;
+}
+
+.party-summary-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.party-summary-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.party-summary-group .boon-icon-row {
+  justify-content: flex-start;
+}
+
+.party-row-add {
+  align-self: flex-start;
+}
