@@ -2,6 +2,85 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 22 — Follow-up build-editor feedback: horizontal traits, weapon/spec pickers, gear copy/paste, F-skill investigation
+
+Picked up a fresh round of user feedback (with reference screenshots) on the build editor, given
+after an earlier same-day pass (commit `6db4ef7`, backfilled below — it landed before this session
+started but was never written up in these docs) had already redesigned the trait lines into
+condensed rows and swapped the Heal/Utility/Elite picker and itemstat combos to icons.
+
+- **Traits: fixed the macro layout, not just the per-line content.** The `6db4ef7` pass condensed
+  each line's content but left `.traits-editor` as a 3-side-by-side-columns CSS grid — the user's
+  screenshots showed gw2skills.net's real layout is 3 stacked *horizontal* rows (Zeal/Virtues/
+  Firebrand, each reading left-to-right). `TraitsEditor.tsx` rewritten: `.traits-editor` is now a
+  vertical flex stack, each `.trait-line` a horizontal flex row.
+- **Removed the per-line expand/collapse, adopted the picker pattern more broadly instead.** The
+  user clarified the part of the gw2skills reference actually worth keeping is the specialization
+  *picker* (small button, current pick shown, click opens an overlay, pick-and-close) — not hiding
+  a line's tiers. Deleted the `expandedLines`/`condensedSummary`/`expandedTiers` split; tiers now
+  always render once a spec is chosen. The spec picker itself now reuses the existing
+  `UpgradePicker` component (already used everywhere for runes/sigils/infusions/relics/food/
+  utility) instead of an always-visible row of every available spec icon.
+- **Same picker tech applied to weapon-type selection**, per explicit request: `EquipmentEditor`'s
+  `weaponTypeRow` (previously an always-visible row of every weapon-type icon) now renders a single
+  `UpgradePicker` instead.
+- **Gear copy/paste**, built to the user's own proposed design (confirmed, not redesigned): a new
+  "copy/paste bar" at the top of `EquipmentEditor` with 4 template slots (Stat Prefix/Rune/Sigil/
+  Infusion), each a local-state-only `UpgradePicker` (not part of the `Build`). `UpgradePicker`
+  gained a `dragCategory` prop (`gear-drag-payload.ts`, native HTML5 DnD, same approach as the
+  squad editor's existing drag-and-drop — no new dependency): any picker sharing a `dragCategory`
+  string can drag its value out and accept a same-category drop, so an ordinary gear slot can also
+  copy directly from another ordinary slot, not just from a template. Each template also has an
+  "Apply to All" button (`applyStatToAll`/`applyRuneToAll`/`applySigilToAll`/`applyInfusionToAll`)
+  that bulk-fills every eligible slot for that category at its own existing capacity.
+- **F1-F6 profession-mechanic skills (Tomes, Kits, etc.) — investigated, data layer landed, UI
+  deliberately deferred.** This looked like a small "also show F1-F5" addition but turned out to be
+  one of the deepest remaining mechanics in the game to model correctly. Added
+  `Profession.professionSkills` (raw `/v2/professions` `skills` array, filtered to `type ===
+  'Profession'`) and `src/shared/skill-calc/profession-mechanic.ts` (`professionMechanicBar`),
+  which resolves a mechanic slot's raw candidates down to the one id that applies for a build's
+  equipped specs — verified correct across all of Guardian's base/Dragonhunter/Firebrand/
+  Willbender/Luminary combinations, including a real wrinkle (Firebrand's F1 slot lists 3 ids for
+  "Tome of Justice" alone — the real skill, a wiki-documented "dormant" duplicate, and its "Stow
+  Tome" close button — resolved via a `flipSkill`-chain-aware tiebreak, see the file's doc comment).
+  **Did not wire this into any UI**: live-checking all 9 professions showed the mechanic is
+  genuinely multi-axis for most of them — Warrior's Burst Skill depends on equipped *weapon type*,
+  Engineer's Toolbelt depends on equipped *Utility skill choice*, Ranger's F2-F5 depend on equipped
+  *pet* (not modeled anywhere in this app), and Revenant's duplicates the already-separate Legend
+  system — so a generic bar built only on this resolver would be flat wrong for most professions.
+  Full findings in docs/game-data.md's new "Profession-mechanic ('F-skill') data" section and
+  TODO.md (2 follow-up items: scoping the F-bar display itself, and separately the much deeper gap
+  of Tomes/Kits actually *replacing* the weapon skill bar 1-5 while active — confirmed live that the
+  replacement skills, e.g. Tome of Justice's 5 "Chapter" skills, have no id anywhere in the public
+  API at all, only unlinked names on the wiki page).
+- **Mantra/charge-based multi-effect tooltips — confirmed already covered, no code change.**
+  Verified the `6db4ef7` pass's flip-chain tooltip work (`skill-calc/multi-effect.ts`'s
+  `relatedVariantSkills`) already handles this: a Mesmer "Mantra of Pain" tooltip already shows its
+  own ammo-count fact ("Number of Casts: 2") plus an appended sub-block for its charged cast
+  ("Power Spike") with that skill's own distinct facts. Documented in TODO.md so this specific
+  complaint isn't mistaken for an open gap later.
+- **Backfilling commit `6db4ef7`** ("Fix stats/tooltip bugs; redesign traits, skill picker, and
+  equipment icons"), landed earlier the same day but never written up here: fixed the stats panel
+  double-counting inactive weapon sets, stripped raw GW2 markup from tooltips, clamped tooltips to
+  stay on-screen, dropped the itemstat possessive ("Wanderer" not "Wanderer's"), dropped Legendary-
+  tier duplicate runes/sigils/relics from pickers, gave squad slots the equipped elite spec's icon
+  plus ghost placeholders for empty slots, added the flip-chain/attunement "additional effects"
+  tooltip work this session builds on, redesigned the Heal/Utility/Elite picker into icon-only
+  category columns, and switched the itemstat-combo picker to real per-stat icons. See that
+  commit's message for the full list — not independently re-verified here, just recorded so the
+  history isn't silently missing a real landed pass.
+- **Verified**: `npm run typecheck`, `npm run lint`, `npm run build` all clean. Not visually
+  confirmed in a running window — re-attempted via the `run` skill this session and re-confirmed
+  the standing Electron-sandbox limitation still applies in this shell (`npm run dev`'s spawned
+  Electron process crashes on `electron.app.isPackaged` being undefined, same root cause as every
+  prior session, unrelated to these changes); recommend `npm run dev` locally to eyeball the new
+  horizontal trait rows, the click-to-open spec/weapon-type pickers, and the copy/paste bar.
+- **Also refreshed `data/game-data/{professions,skills,meta}.json`** via a live `npm run
+  fetch-game-data` run (needed to pick up the new `professionSkills` field) — incidental small
+  live-data drift in `skills.json` (a handful of ids' `type`/`slot`/`specializationId`/`flipSkill`
+  fields changed since the last fetch) reviewed and is normal upstream data movement, not a
+  regression.
+
 ## Session 21 — Squad preview builder (party grid, drag-and-drop, boon/condi summaries)
 
 Picked up TODO.md's next unstarted major feature after the build-editor overhaul was judged

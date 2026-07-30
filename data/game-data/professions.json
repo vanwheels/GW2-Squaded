@@ -376,7 +376,69 @@
           }
         ]
       }
-    }
+    },
+    "professionSkills": [
+      {
+        "id": 9115,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 9118,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 9120,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 44364,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 41780,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 42259,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 42371,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 41380,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 62668,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 62603,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 62648,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 78837,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 78604,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 78358,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 77073,
+        "slot": "Profession_4"
+      }
+    ]
   },
   {
     "id": "Warrior",
@@ -793,7 +855,233 @@
           }
         ]
       }
-    }
+    },
+    "professionSkills": [
+      {
+        "id": 14443,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 14544,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 14375,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 14353,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 14414,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 14506,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 14396,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 14387,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 30435,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 30185,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 29644,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 29679,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 30989,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 29852,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 29923,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 31048,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 30682,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 30851,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 30879,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 45252,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 39972,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 46044,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 41283,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 41543,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 43488,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 44397,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 43566,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 42707,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 40601,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 42803,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 41110,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 42041,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 41746,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 41330,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 44165,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 62745,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 62803,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 71932,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 72029,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 71922,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 71950,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 71875,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 69290,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 69297,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 73024,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 72911,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 73042,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 73006,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 73014,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 73103,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 72089,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 77342,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 76782,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 77155,
+        "slot": "Profession_4"
+      },
+      {
+        "id": 80203,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 80252,
+        "slot": "Profession_1"
+      }
+    ]
   },
   {
     "id": "Engineer",
@@ -1051,7 +1339,57 @@
           }
         ]
       }
-    }
+    },
+    "professionSkills": [
+      {
+        "id": 63050,
+        "slot": "Profession_4"
+      },
+      {
+        "id": 63210,
+        "slot": "Profession_4"
+      },
+      {
+        "id": 63089,
+        "slot": "Profession_4"
+      },
+      {
+        "id": 56920,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 42938,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 72114,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 72103,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 77388,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 76790,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 77107,
+        "slot": "Profession_4"
+      },
+      {
+        "id": 76642,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 76651,
+        "slot": "Profession_5"
+      }
+    ]
   },
   {
     "id": "Ranger",
@@ -1427,7 +1765,297 @@
           }
         ]
       }
-    }
+    },
+    "professionSkills": [
+      {
+        "id": 31869,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 44991,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 42042,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 43136,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 43060,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 43726,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 42894,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 43068,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 41461,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 41537,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 41575,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 41524,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 45743,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 40625,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 44514,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 44384,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 40111,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 44617,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 43548,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 41406,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 46432,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 43788,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 43701,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 44097,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 43671,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 42717,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 44885,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 43186,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 41837,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 42797,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 44360,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 41206,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 45479,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 42907,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 40255,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 46386,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 41908,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 44626,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 45797,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 40588,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 43375,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 40729,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 42809,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 42944,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 43014,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 59554,
+        "slot": "Profession_4"
+      },
+      {
+        "id": 67382,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 64038,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 64882,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 64699,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 66258,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 63147,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 63344,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 63209,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 63258,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 63094,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 71282,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 70889,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 71499,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 71546,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 72851,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 72636,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 73733,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 73938,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 75771,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 75814,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 76787,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 77213,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 79203,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 78091,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 80035,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 80031,
+        "slot": "Profession_2"
+      }
+    ]
   },
   {
     "id": "Thief",
@@ -1766,7 +2394,169 @@
           }
         ]
       }
-    }
+    },
+    "professionSkills": [
+      {
+        "id": 13014,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 43390,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 77397,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 76702,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 76601,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 76633,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 76550,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 76674,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 76800,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 77192,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 76900,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 76582,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 77277,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 77288,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 76909,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 76733,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 76895,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 78309,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 76966,
+        "slot": "Profession_4"
+      },
+      {
+        "id": 1131,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1118,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1162,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1167,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1115,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 45094,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1110,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 45094,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1110,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1139,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1125,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1148,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1148,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1129,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1129,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1123,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1123,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1141,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 1141,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 31438,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 31438,
+        "slot": "Profession_2"
+      }
+    ]
   },
   {
     "id": "Elementalist",
@@ -2692,7 +3482,145 @@
           }
         ]
       }
-    }
+    },
+    "professionSkills": [
+      {
+        "id": 5494,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 5495,
+        "slot": "Profession_4"
+      },
+      {
+        "id": 5492,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 5493,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 62940,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 63439,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 63459,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 62813,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 63458,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 63396,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 62723,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 63416,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 63461,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 62837,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 63454,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 63472,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 76643,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 75399,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 75394,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 75391,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 75395,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 75406,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 75392,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 75405,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 75407,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 76580,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 76988,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 76703,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 77082,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 76585,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 76811,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 77089,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 76707,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 80231,
+        "slot": "Profession_5"
+      }
+    ]
   },
   {
     "id": "Mesmer",
@@ -3058,7 +3986,89 @@
           }
         ]
       }
-    }
+    },
+    "professionSkills": [
+      {
+        "id": 10192,
+        "slot": "Profession_4"
+      },
+      {
+        "id": 10287,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 10190,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 10191,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 56930,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 56928,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 56873,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 29830,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 62617,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 62616,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 62602,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 62597,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 68273,
+        "slot": "Profession_4"
+      },
+      {
+        "id": 76552,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 76746,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 77079,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 77077,
+        "slot": "Profession_4"
+      },
+      {
+        "id": 76931,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 76960,
+        "slot": "Profession_4"
+      },
+      {
+        "id": 77306,
+        "slot": "Profession_1"
+      }
+    ]
   },
   {
     "id": "Necromancer",
@@ -3377,7 +4387,145 @@
           }
         ]
       }
-    }
+    },
+    "professionSkills": [
+      {
+        "id": 10574,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 10554,
+        "slot": "Downed_1"
+      },
+      {
+        "id": 10690,
+        "slot": "Downed_1"
+      },
+      {
+        "id": 30792,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 29442,
+        "slot": "Downed_1"
+      },
+      {
+        "id": 29458,
+        "slot": "Downed_1"
+      },
+      {
+        "id": 30278,
+        "slot": "Downed_1"
+      },
+      {
+        "id": 30825,
+        "slot": "Downed_2"
+      },
+      {
+        "id": 29958,
+        "slot": "Downed_3"
+      },
+      {
+        "id": 30504,
+        "slot": "Downed_4"
+      },
+      {
+        "id": 30557,
+        "slot": "Weapon_5"
+      },
+      {
+        "id": 40813,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 43448,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 44428,
+        "slot": "Profession_4"
+      },
+      {
+        "id": 44663,
+        "slot": "Profession_5"
+      },
+      {
+        "id": 44946,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 42297,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 46474,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 46473,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 62567,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 62611,
+        "slot": "Downed_1"
+      },
+      {
+        "id": 62621,
+        "slot": "Downed_2"
+      },
+      {
+        "id": 62672,
+        "slot": "Downed_3"
+      },
+      {
+        "id": 62539,
+        "slot": "Downed_4"
+      },
+      {
+        "id": 62563,
+        "slot": "Weapon_5"
+      },
+      {
+        "id": 10644,
+        "slot": "Downed_2"
+      },
+      {
+        "id": 10645,
+        "slot": "Downed_3"
+      },
+      {
+        "id": 10643,
+        "slot": "Downed_4"
+      },
+      {
+        "id": 77238,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 77061,
+        "slot": "Downed_1"
+      },
+      {
+        "id": 76864,
+        "slot": "Downed_2"
+      },
+      {
+        "id": 76961,
+        "slot": "Downed_3"
+      },
+      {
+        "id": 76684,
+        "slot": "Downed_4"
+      },
+      {
+        "id": 76607,
+        "slot": "Weapon_5"
+      }
+    ]
   },
   {
     "id": "Revenant",
@@ -3691,6 +4839,112 @@
           }
         ]
       }
-    }
+    },
+    "professionSkills": [
+      {
+        "id": 28419,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 28494,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 55029,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 28195,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 28134,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 28085,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 29371,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 46409,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 62891,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 44076,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 42836,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 45537,
+        "slot": "Profession_4"
+      },
+      {
+        "id": 51675,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 51714,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 51713,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 51696,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 51667,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 62757,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 72058,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 77371,
+        "slot": "Profession_3"
+      },
+      {
+        "id": 76610,
+        "slot": "Profession_1"
+      },
+      {
+        "id": 78845,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 78501,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 78661,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 78615,
+        "slot": "Profession_2"
+      },
+      {
+        "id": 78895,
+        "slot": "Profession_2"
+      }
+    ]
   }
 ]

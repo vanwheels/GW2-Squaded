@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import type { ProfessionId, Trait, TraitLineSelection, TraitLineSlots } from '@shared/types'
+import type { ProfessionId, TraitLineSelection, TraitLineSlots } from '@shared/types'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
+import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
 
 interface Props {
   profession: ProfessionId
@@ -14,16 +14,19 @@ const LINE_INDICES = [0, 1, 2] as const
 const TIERS = [1, 2, 3] as const
 
 /**
- * Each of the 3 trait lines is its own independent column that collapses/expands on its own
- * (confirmed 2026-07-30 — gw2skills-style condensed row + expand, not an accordion where opening
- * one closes the others). Collapsed is the default, decluttering the always-expanded 3-column tier
- * grid the user called out as "messy"; picking a spec for a line auto-expands just that line so
- * there's no extra click needed to reach the major-trait picker on a fresh pick.
+ * Each of the 3 trait lines is its own horizontal row (gw2skills.net reference layout: Zeal /
+ * Virtues / Firebrand stacked, each row reading left-to-right), not a per-line collapsible column —
+ * confirmed 2026-07-30 the "collapsible" concept the prior pass borrowed from gw2skills is really
+ * about the specialization *picker* (a single button that opens a small overlay of choices and
+ * closes on pick), not about hiding a line's tiers. So there's no line-level expand/collapse state
+ * here at all: once a spec is chosen for a line, its tiers are always shown, and the spec choice
+ * itself is made via the shared `UpgradePicker` click-to-open-overlay widget (the same "selection
+ * button" pattern already used for skills/runes/sigils/etc., now applied here and to weapon-type
+ * selection in `EquipmentEditor`).
  */
 export function TraitsEditor({ profession, value, onChange }: Props) {
   const { specializationsForProfession, specializationsById, majorTraitsForSpecialization, minorTraitsForSpecialization } =
     useGameData()
-  const [expandedLines, setExpandedLines] = useState<[boolean, boolean, boolean]>([false, false, false])
 
   const specs = specializationsForProfession(profession)
   const lines = value
@@ -35,17 +38,13 @@ export function TraitsEditor({ profession, value, onChange }: Props) {
     onChange(nextLines)
   }
 
-  function setExpanded(lineIndex: number, expanded: boolean): void {
-    const next = [...expandedLines] as [boolean, boolean, boolean]
-    next[lineIndex] = expanded
-    setExpandedLines(next)
-  }
-
-  function handleSpecClick(lineIndex: number, specializationId: number): void {
-    const line = lines[lineIndex]
-    const deselecting = line?.specializationId === specializationId
-    setLine(lineIndex, deselecting ? null : { specializationId, chosenTraitIds: [null, null, null] })
-    if (!deselecting) setExpanded(lineIndex, true)
+  function chooseSpec(lineIndex: number, specializationId: number | null): void {
+    if (specializationId === null) {
+      setLine(lineIndex, null)
+      return
+    }
+    if (lines[lineIndex]?.specializationId === specializationId) return
+    setLine(lineIndex, { specializationId, chosenTraitIds: [null, null, null] })
   }
 
   function handleTraitChoice(lineIndex: number, tierIndex: 0 | 1 | 2, traitId: number): void {
@@ -58,43 +57,9 @@ export function TraitsEditor({ profession, value, onChange }: Props) {
 
   const usedSpecIds = new Set(lines.filter((l): l is TraitLineSelection => l !== null).map((l) => l.specializationId))
 
-  function condensedSummary(lineIndex: number, specId: number, line: TraitLineSelection) {
-    const minors = minorTraitsForSpecialization(specId).sort((a, b) => a.tier - b.tier)
-    const majors = majorTraitsForSpecialization(specId)
-    const chosenMajors: (Trait | undefined)[] = TIERS.map((tier, tierIndex) =>
-      majors.find((t) => t.tier === tier && t.id === line.chosenTraitIds[tierIndex])
-    )
+  function tiersRow(lineIndex: number, specId: number, line: TraitLineSelection) {
     return (
-      <div className="trait-line-summary" key={`summary-${lineIndex}`}>
-        <div className="trait-summary-row">
-          {minors.map((m) => (
-            <Tooltip key={m.id} content={<TooltipBody title={m.name} description={m.description} />}>
-              <div className="minor-trait summary-icon">
-                <img src={m.icon} alt={m.name} />
-              </div>
-            </Tooltip>
-          ))}
-        </div>
-        <div className="trait-summary-row">
-          {chosenMajors.map((t, tierIndex) =>
-            t ? (
-              <Tooltip key={t.id} content={<TooltipBody title={t.name} description={t.description} />}>
-                <div className="major-trait selected summary-icon">
-                  <img src={t.icon} alt={t.name} />
-                </div>
-              </Tooltip>
-            ) : (
-              <div className="major-trait summary-icon empty" key={`empty-${tierIndex}`} />
-            )
-          )}
-        </div>
-      </div>
-    )
-  }
-
-  function expandedTiers(lineIndex: number, specId: number, line: TraitLineSelection) {
-    return (
-      <div className="trait-line-tiers" key={`tiers-${lineIndex}`}>
+      <div className="trait-line-tiers-horizontal">
         {TIERS.map((tier, tierIndex) => {
           const minor = minorTraitsForSpecialization(specId).find((t) => t.tier === tier)
           const tierMajors = majorTraitsForSpecialization(specId)
@@ -139,39 +104,22 @@ export function TraitsEditor({ profession, value, onChange }: Props) {
             s.id === line?.specializationId ||
             (!usedSpecIds.has(s.id) && !(s.elite && eliteLineIndex !== -1 && eliteLineIndex !== lineIndex))
         )
-        const isExpanded = expandedLines[lineIndex]
+        const specOptions: UpgradeOption[] = availableSpecs.map((s) => ({ id: s.id, name: s.name, icon: s.icon }))
 
         return (
           <div className="trait-line" key={lineIndex}>
-            <div className="spec-picker-row">
-              {availableSpecs.map((s) => (
-                <Tooltip key={s.id} content={<TooltipBody title={s.name} />}>
-                  <button
-                    type="button"
-                    className={s.id === line?.specializationId ? 'spec-icon-button chosen' : 'spec-icon-button'}
-                    style={{ backgroundImage: `url(${s.icon})` }}
-                    onClick={() => handleSpecClick(lineIndex, s.id)}
-                  />
-                </Tooltip>
-              ))}
+            <div className="trait-line-spec-select">
+              <UpgradePicker
+                label="Specialization"
+                options={specOptions}
+                chosenId={line?.specializationId ?? null}
+                onChoose={(id) => chooseSpec(lineIndex, id)}
+                variant="slot"
+              />
+              {chosenSpec && <span className="spec-line-name">{chosenSpec.name}</span>}
             </div>
 
-            {chosenSpec && line && (
-              <>
-                <div className="trait-line-header">
-                  <span className="spec-line-name">{chosenSpec.name}</span>
-                  <button
-                    type="button"
-                    className="trait-line-expand-toggle"
-                    onClick={() => setExpanded(lineIndex, !isExpanded)}
-                    aria-label={isExpanded ? 'Collapse trait line' : 'Expand trait line'}
-                  >
-                    {isExpanded ? '▾' : '▸'}
-                  </button>
-                </div>
-                {isExpanded ? expandedTiers(lineIndex, chosenSpec.id, line) : condensedSummary(lineIndex, chosenSpec.id, line)}
-              </>
-            )}
+            {chosenSpec && line && tiersRow(lineIndex, chosenSpec.id, line)}
           </div>
         )
       })}

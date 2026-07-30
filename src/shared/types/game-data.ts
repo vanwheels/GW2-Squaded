@@ -54,6 +54,22 @@ export interface ProfessionWeapon {
   skills: ProfessionWeaponSkillSlot[]
 }
 
+/**
+ * One profession-mechanic ("F-skill") slot entry, straight from `/v2/professions`' own `skills`
+ * array filtered to `type === 'Profession'` — e.g. Guardian's `Profession_1`/`_2`/`_3` (Virtue of
+ * Justice/Resolve/Courage), Engineer's `Profession_1`-`_4` (Toolbelt). Confirmed live 2026-07-30:
+ * an elite spec that reworks a mechanic skill (e.g. Firebrand's Tomes replacing Guardian's base
+ * Virtues) contributes its OWN id under the same `slot` string, distinguished from the base id via
+ * that skill's own `Skill.specializationId` field (the exact same signal
+ * `skill-calc/skill-variants.ts` already uses for Heal/Utility/Elite reworks) — no separate
+ * per-elite-spec field exists on this entry itself, and none was needed.
+ */
+export interface ProfessionMechanicSkill {
+  id: number
+  /** `Profession_1`-`Profession_4`, matching the GW2 API's mechanic-slot naming. */
+  slot: string
+}
+
 export interface Profession {
   id: ProfessionId
   name: string
@@ -62,6 +78,10 @@ export interface Profession {
   specializationIds: number[]
   /** Keyed by weapon type name (e.g. "Greatsword", "Axe"). */
   weapons: Record<string, ProfessionWeapon>
+  /** Every profession-mechanic skill id across every base/elite-spec variant — see
+   *  `ProfessionMechanicSkill` and `src/shared/skill-calc/profession-mechanic.ts`, which resolves
+   *  this down to the one bar (F1-F5) that actually applies for a build's equipped specs. */
+  professionSkills: ProfessionMechanicSkill[]
 }
 
 export interface Specialization {

@@ -39129,18 +39129,18 @@
     "description": "You cannot use skills while transformed.",
     "icon": "https://render.guildwars2.com/file/A9050BAB0847390C0112694321B0F6AEDF7AE1FB/102804.png",
     "chatLink": "[&BlopAAA=]",
-    "type": "Transform",
+    "type": "Profession",
     "weaponType": "None",
     "professions": [
       "Engineer",
       "Necromancer"
     ],
-    "slot": "Transform_1",
+    "slot": "Profession_1",
     "flags": [],
     "facts": [],
     "traitedFacts": [],
     "attunement": null,
-    "specializationId": null,
+    "specializationId": 70,
     "flipSkill": null,
     "categories": []
   },
@@ -133435,7 +133435,7 @@
     ],
     "traitedFacts": [],
     "attunement": null,
-    "specializationId": null,
+    "specializationId": 55,
     "flipSkill": null,
     "categories": []
   },
@@ -133825,12 +133825,12 @@
     "description": "Creates a mirror at target location. Touching the mirror shatters it, granting Mirage Cloak to you and weakening nearby foes.",
     "icon": "https://render.guildwars2.com/file/7F3FA1CD20D930E7EEC75459E7206979DD0AD016/1770518.png",
     "chatLink": "[&BoWuAAA=]",
-    "type": "Utility",
+    "type": "Heal",
     "weaponType": "None",
     "professions": [
       "Mesmer"
     ],
-    "slot": "Utility",
+    "slot": "Heal",
     "flags": [],
     "facts": [
       {
@@ -207100,7 +207100,7 @@
     "traitedFacts": [],
     "attunement": null,
     "specializationId": 69,
-    "flipSkill": null,
+    "flipSkill": 62729,
     "categories": []
   },
   {
@@ -229142,12 +229142,12 @@
     "description": "Defensive Artifact. Leap to the targeted area and slam down with an enchanted exalted hammer, damaging enemies while healing and granting boons to allies in the area.\n\nFor a short time after using this skill, activating any weapon skill that costs initiative creates an additional healing burst at your location.",
     "icon": "https://render.guildwars2.com/file/57A193E75618661CE3F51DC44AC59F7BA72E6169/3680210.png",
     "chatLink": "[&Bp4rAQA=]",
-    "type": "Weapon",
-    "weaponType": "Nothing",
+    "type": "Profession",
+    "weaponType": "None",
     "professions": [
       "Thief"
     ],
-    "slot": "Weapon_1",
+    "slot": "Profession_2",
     "flags": [
       "GroundTargeted",
       "NoUnderwater"
@@ -231396,12 +231396,12 @@
     "description": "Defensive Artifact. Place an electrified shield at your position that blocks projectiles, dealing damage to enemies and granting barrier to allies within it.\n\nFor a short time after using this skill, your weapon skills that cost initiative refund initiative.",
     "icon": "https://render.guildwars2.com/file/4506224EB1921800602CAD52B6B209960FE51153/3680209.png",
     "chatLink": "[&BhAsAQA=]",
-    "type": "Profession",
-    "weaponType": "None",
+    "type": "Weapon",
+    "weaponType": "Nothing",
     "professions": [
       "Thief"
     ],
-    "slot": "Profession_2",
+    "slot": "Weapon_1",
     "flags": [],
     "facts": [
       {
@@ -235797,12 +235797,12 @@
     "description": "Offensive Artifact. Summons a Kryptis turret at your targeted location and fires at the closest foe in range.\n\nFor a short time after using this skill, you deal increased damage to enemies that were struck by the turret.",
     "icon": "https://render.guildwars2.com/file/2DC92035E3A36CBCDB62C84E65BEF69BFA0BDD02/3680213.png",
     "chatLink": "[&BogtAQA=]",
-    "type": "Weapon",
-    "weaponType": "Nothing",
+    "type": "Profession",
+    "weaponType": "None",
     "professions": [
       "Thief"
     ],
-    "slot": "Weapon_1",
+    "slot": "Profession_2",
     "flags": [
       "GroundTargeted",
       "NoUnderwater"

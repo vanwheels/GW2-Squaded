@@ -1,8 +1,8 @@
+import { useState } from 'react'
 import type { EquipmentSlot, EquipmentSlotKey, ItemStat, ProfessionId, ProfessionWeapon } from '@shared/types'
 import { armorTrinketInfusionCapacity, resizeUpgradeIds, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from '@shared/gear-calc/upgrade-slots'
 import { formatItemStatName } from '@shared/gear-calc/format-description'
 import { useGameData } from '@renderer/state/game-data-store'
-import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
 
 interface Props {
@@ -70,14 +70,30 @@ const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
   { key: 'amulet', label: 'Amulet' }
 ]
 
+const WEAPON_SLOT_KEYS: EquipmentSlotKey[] = ['weaponA1', 'weaponA2', 'weaponB1', 'weaponB2', 'weaponU1', 'weaponU2']
+
 function byName(a: UpgradeOption, b: UpgradeOption): number {
   return a.name.localeCompare(b.name)
 }
+
+interface CopyPasteTemplates {
+  stat: number | null
+  rune: number | null
+  sigil: number | null
+  infusion: number | null
+}
+
+const BLANK_TEMPLATES: CopyPasteTemplates = { stat: null, rune: null, sigil: null, infusion: null }
 
 export function EquipmentEditor({ value, onChange, profession: professionId, equippedSpecializationIds }: Props) {
   const { itemStats, itemStatIcons, professions, skillsById, runes, sigils, infusions } = useGameData()
   const sortedStats = dedupedStats(itemStats).sort((a, b) => a.name.localeCompare(b.name))
   const profession = professions.find((p) => p.id === professionId)
+  // Copy/paste (2026-07-30): a template value per category, held only in local UI state (not part
+  // of the build) — pick a value here, then drag it onto any matching slot, or use "Apply to All"
+  // to fill every eligible slot at once. See `applyStatToAll`/`applyRuneToAll`/`applySigilToAll`/
+  // `applyInfusionToAll` below for what "eligible" means per category.
+  const [templates, setTemplates] = useState<CopyPasteTemplates>(BLANK_TEMPLATES)
 
   // Real per-stat-combo icons (see `itemStatIcons`'s doc comment on `GameData` for where these
   // come from) replace the old plain `<select>` of stat names — a small number of legacy/WvW-only
@@ -126,6 +142,69 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
     onChange({ ...value, [key]: { ...slot, sigilIds: ids } })
   }
 
+  /** A weapon slot's current sigil/infusion capacity — same rule `renderWeaponPair`/
+   *  `renderUnderwaterSlot` use locally, exposed here too for the "apply to all" bulk-fill below. */
+  function weaponSlotCapacity(key: EquipmentSlotKey): number {
+    const slot = value[key]
+    if (!slot?.weaponType) return 0
+    const isTwoHanded = profession?.weapons[slot.weaponType]?.flags.includes('TwoHand') ?? false
+    return weaponUpgradeCapacity(true, isTwoHanded)
+  }
+
+  /**
+   * Copy/paste (2026-07-30): fills every eligible slot in a category with one chosen value, for
+   * when a build's gear genuinely matches across every piece and clicking each slot individually
+   * would be pure repetition. A stat prefix applies to every armor/trinket/weapon slot (they all
+   * share the same `itemStatId` field); a rune only to the 6 armor slots; sigils/infusions to
+   * every weapon slot (sigils) or every armor/trinket/weapon slot (infusions) at their own
+   * capacity. Two-handed mirroring isn't a concern here since both mirrored slots end up with the
+   * identical id anyway.
+   */
+  function applyStatToAll(itemStatId: number | null): void {
+    const next = { ...value }
+    for (const key of [...ARMOR_SLOTS, ...TRINKET_SLOTS].map((s) => s.key)) {
+      next[key] = { ...(next[key] ?? {}), itemStatId }
+    }
+    for (const key of WEAPON_SLOT_KEYS) {
+      if (!next[key]?.weaponType) continue
+      next[key] = { ...next[key], itemStatId }
+    }
+    onChange(next)
+  }
+
+  function applyRuneToAll(runeId: number | null): void {
+    const next = { ...value }
+    for (const key of RUNE_SLOT_KEYS) {
+      next[key] = { ...(next[key] ?? { itemStatId: null }), runeId }
+    }
+    onChange(next)
+  }
+
+  function applySigilToAll(sigilId: number | null): void {
+    const next = { ...value }
+    for (const key of WEAPON_SLOT_KEYS) {
+      const capacity = weaponSlotCapacity(key)
+      if (capacity === 0) continue
+      next[key] = { ...(next[key] ?? { itemStatId: null }), sigilIds: new Array(capacity).fill(sigilId) }
+    }
+    onChange(next)
+  }
+
+  function applyInfusionToAll(infusionId: number | null): void {
+    const next = { ...value }
+    for (const key of [...ARMOR_SLOTS, ...TRINKET_SLOTS].map((s) => s.key)) {
+      const capacity = armorTrinketInfusionCapacity(key)
+      if (capacity === 0) continue
+      next[key] = { ...(next[key] ?? { itemStatId: null }), infusionIds: new Array(capacity).fill(infusionId) }
+    }
+    for (const key of WEAPON_SLOT_KEYS) {
+      const capacity = weaponSlotCapacity(key)
+      if (capacity === 0) continue
+      next[key] = { ...(next[key] ?? { itemStatId: null }), infusionIds: new Array(capacity).fill(infusionId) }
+    }
+    onChange(next)
+  }
+
   function infusionRow(key: EquipmentSlotKey, capacity: number) {
     if (capacity === 0) return null
     const ids = resizeUpgradeIds(value[key]?.infusionIds, capacity)
@@ -139,6 +218,7 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
             chosenId={id}
             onChoose={(infusionId) => setInfusion(key, capacity, i, infusionId)}
             rarity="fine"
+            dragCategory="infusion"
           />
         ))}
       </div>
@@ -157,6 +237,7 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
             options={sigilOptions}
             chosenId={id}
             onChoose={(sigilId) => setSigil(key, capacity, i, sigilId)}
+            dragCategory="sigil"
           />
         ))}
       </div>
@@ -175,13 +256,20 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
           onChoose={(id) => setItemStat(key, id)}
           variant="slot"
           rarity="ascended"
+          dragCategory="stat"
         />
         <label className="gear-slot-body">
           <span className="gear-slot-label">{label}</span>
         </label>
         {isRuneSlot && (
           <div className="upgrade-row">
-            <UpgradePicker label="Rune" options={runeOptions} chosenId={value[key]?.runeId ?? null} onChoose={(id) => setRune(key, id)} />
+            <UpgradePicker
+              label="Rune"
+              options={runeOptions}
+              chosenId={value[key]?.runeId ?? null}
+              onChoose={(id) => setRune(key, id)}
+              dragCategory="rune"
+            />
           </div>
         )}
         {infusionRow(key, infusionCapacity)}
@@ -203,34 +291,20 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
     return (firstSkillId !== undefined ? skillsById.get(firstSkillId)?.icon : undefined) ?? ''
   }
 
+  /** Weapon-type choice, like the trait specialization picker, is a single button showing the
+   *  current pick that opens a small overlay of the available types on click — not an always-
+   *  visible row of every weapon-type icon (confirmed 2026-07-30, same "selection button" tech). */
   function weaponTypeRow(
     options: [string, ProfessionWeapon][],
     chosen: string | null,
     onChoose: (weaponType: string | null) => void
   ) {
-    return (
-      <div className="profession-picker-row">
-        <Tooltip content={<TooltipBody title="None" />}>
-          <button
-            type="button"
-            className={chosen === null ? 'spec-icon-button core-spec-button chosen' : 'spec-icon-button core-spec-button'}
-            onClick={() => onChoose(null)}
-          >
-            —
-          </button>
-        </Tooltip>
-        {options.map(([name, weapon]) => (
-          <Tooltip key={name} content={<TooltipBody title={name} />}>
-            <button
-              type="button"
-              className={chosen === name ? 'spec-icon-button weapon-type-button chosen' : 'spec-icon-button weapon-type-button'}
-              style={{ backgroundImage: `url(${weaponIcon(weapon)})` }}
-              onClick={() => onChoose(name)}
-            />
-          </Tooltip>
-        ))}
-      </div>
-    )
+    const weaponOptions: UpgradeOption<string>[] = options.map(([name, weapon]) => ({
+      id: name,
+      name,
+      icon: weaponIcon(weapon)
+    }))
+    return <UpgradePicker label="Weapon" options={weaponOptions} chosenId={chosen} onChoose={onChoose} variant="slot" />
   }
 
   /**
@@ -298,6 +372,7 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
             onChoose={setMainItemStat}
             variant="slot"
             rarity="ascended"
+            dragCategory="stat"
           />
           {sigilRow(mainKey, mainCapacity)}
           {infusionRow(mainKey, mainCapacity)}
@@ -318,6 +393,7 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
                 onChoose={setOffItemStat}
                 variant="slot"
                 rarity="ascended"
+                dragCategory="stat"
               />
               {sigilRow(offKey, offCapacity)}
               {infusionRow(offKey, offCapacity)}
@@ -351,15 +427,54 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
         <label className="gear-slot-body">
           <span className="gear-slot-label">{label}</span>
         </label>
-        <UpgradePicker label={label} options={statOptions} chosenId={slot?.itemStatId ?? null} onChoose={setStat} variant="slot" rarity="ascended" />
+        <UpgradePicker
+          label={label}
+          options={statOptions}
+          chosenId={slot?.itemStatId ?? null}
+          onChoose={setStat}
+          variant="slot"
+          rarity="ascended"
+          dragCategory="stat"
+        />
         {sigilRow(key, capacity)}
         {infusionRow(key, capacity)}
       </div>
     )
   }
 
+  function copyPasteSlot(
+    categoryLabel: string,
+    dragCategory: 'stat' | 'rune' | 'sigil' | 'infusion',
+    options: UpgradeOption[],
+    applyToAll: (id: number | null) => void
+  ) {
+    const chosenId = templates[dragCategory]
+    return (
+      <div className="gear-copy-paste-item" key={dragCategory}>
+        <UpgradePicker
+          label={categoryLabel}
+          options={options}
+          chosenId={chosenId}
+          onChoose={(id) => setTemplates((t) => ({ ...t, [dragCategory]: id }))}
+          variant="slot"
+          dragCategory={dragCategory}
+        />
+        <span className="gear-copy-paste-label">{categoryLabel}</span>
+        <button type="button" className="apply-all-button" disabled={chosenId === null} onClick={() => applyToAll(chosenId)}>
+          Apply to All
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="equipment-editor">
+      <div className="gear-copy-paste-bar">
+        {copyPasteSlot('Stat Prefix', 'stat', statOptions, applyStatToAll)}
+        {copyPasteSlot('Rune', 'rune', runeOptions, applyRuneToAll)}
+        {copyPasteSlot('Sigil', 'sigil', sigilOptions, applySigilToAll)}
+        {copyPasteSlot('Infusion', 'infusion', infusionOptions, applyInfusionToAll)}
+      </div>
       <div className="gear-paperdoll">
         <div className="gear-column">{ARMOR_SLOTS.map((s) => renderSlot(s.key, s.label))}</div>
         <div className="gear-column">{TRINKET_SLOTS.map((s) => renderSlot(s.key, s.label))}</div>

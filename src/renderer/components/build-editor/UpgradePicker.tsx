@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
+import { readGearDragData, setGearDragData } from './gear-drag-payload'
 
 export interface UpgradeOption<T extends number | string = number> {
   id: T
@@ -22,6 +23,16 @@ interface Props<T extends number | string = number> {
    *  see TODO.md's item-rarity-color-coding scoping notes). Omit for categories with no single
    *  confirmed rarity (runes/sigils/food/utility). */
   rarity?: 'ascended' | 'fine'
+  /**
+   * Opts this picker into the copy/paste feature (2026-07-30): when set, a chosen value can be
+   * dragged out of this button, and the button accepts drops from any other picker sharing the
+   * same `dragCategory` string, replacing its own chosen value with the dropped one. Used to copy
+   * a stat prefix/rune/sigil/infusion from `EquipmentEditor`'s template slots onto any matching
+   * gear slot (or between two gear slots directly) without reopening the grid. `T` must be
+   * `number` when this is set — every gear-upgrade category's id type, unlike the squad editor's
+   * `string` build ids which never set this prop.
+   */
+  dragCategory?: string
 }
 
 /**
@@ -38,7 +49,8 @@ export function UpgradePicker<T extends number | string = number>({
   chosenId,
   onChoose,
   variant = 'badge',
-  rarity
+  rarity,
+  dragCategory
 }: Props<T>) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -52,6 +64,20 @@ export function UpgradePicker<T extends number | string = number>({
     setSearch('')
   }
 
+  function handleDragStart(e: React.DragEvent): void {
+    if (!dragCategory || chosenId === null) return
+    setGearDragData(e, { category: dragCategory, id: chosenId as number })
+  }
+
+  function handleDrop(e: React.DragEvent): void {
+    if (!dragCategory) return
+    const payload = readGearDragData(e)
+    if (payload && payload.category === dragCategory) {
+      e.preventDefault()
+      onChoose(payload.id as T)
+    }
+  }
+
   const baseClass = variant === 'badge' ? 'upgrade-badge' : 'skill-slot-button'
   const buttonClass = chosen && rarity ? `${baseClass} rarity-${rarity}` : baseClass
 
@@ -60,7 +86,15 @@ export function UpgradePicker<T extends number | string = number>({
       <Tooltip
         content={chosen ? <TooltipBody title={chosen.name} description={chosen.description} /> : <TooltipBody title={label} />}
       >
-        <button type="button" className={buttonClass} onClick={() => setOpen(!open)}>
+        <button
+          type="button"
+          className={buttonClass}
+          onClick={() => setOpen(!open)}
+          draggable={Boolean(dragCategory) && chosenId !== null}
+          onDragStart={handleDragStart}
+          onDragOver={(e) => dragCategory && e.preventDefault()}
+          onDrop={handleDrop}
+        >
           {chosen ? (
             chosen.icon ? (
               <img src={chosen.icon} alt={chosen.name} />

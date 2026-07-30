@@ -158,65 +158,33 @@ input[type='text'] {
   margin-top: 0;
 }
 
+/* Each of the 3 lines (e.g. Zeal/Virtues/Firebrand) is its own horizontal row, stacked vertically —
+   matches gw2skills.net's reference layout, replacing the earlier 3-side-by-side-columns grid. */
 .traits-editor {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  column-gap: 12px;
-  align-items: start;
-}
-
-/* Each of the 3 lines is a self-contained column that expands/collapses independently, so unlike
-   the header/picker rows above, nothing here needs cross-column row alignment via CSS Grid. */
-.trait-line {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  align-items: center;
-}
-
-.trait-line-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-}
-
-.trait-line-expand-toggle {
-  padding: 1px 6px;
-  font-size: 0.7rem;
-}
-
-.trait-line-summary {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-}
-
-.trait-summary-row {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-}
-
-.summary-icon.empty {
-  border-style: dashed;
-  opacity: 0.4;
-}
-
-.trait-line-tiers {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   gap: 10px;
 }
 
-.spec-picker-row {
+.trait-line {
   display: flex;
+  align-items: flex-start;
+  gap: 14px;
   flex-wrap: wrap;
-  justify-content: center;
+}
+
+.trait-line-spec-select {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 4px;
+  flex: none;
+}
+
+.trait-line-tiers-horizontal {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
 }
 
 .spec-icon-button {
@@ -318,6 +286,40 @@ input[type='text'] {
   gap: 20px;
 }
 
+/* Copy/paste (2026-07-30): pick a value in one of these 4 template slots, then drag it onto any
+   matching gear slot below, or click "Apply to All" to fill every eligible slot at once. */
+.gear-copy-paste-bar {
+  display: flex;
+  gap: 16px;
+  padding: 10px 12px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.gear-copy-paste-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gear-copy-paste-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.apply-all-button {
+  font-size: 0.7rem;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+.apply-all-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
 .gear-paperdoll {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -389,10 +391,6 @@ input[type='text'] {
   flex-direction: column;
   align-items: stretch;
   gap: 6px;
-}
-
-.weapon-type-button {
-  border-radius: 6px;
 }
 
 .weapon-slot-locked {

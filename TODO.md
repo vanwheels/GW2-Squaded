@@ -676,6 +676,94 @@
           of this and wasn't sure what was meant, so **treat the original observation as
           unconfirmed/possibly mistaken**, not a real gap. `EquipmentEditor` doesn't have any such
           tabs today; leave as-is unless it resurfaces with a concrete example.
+  - **Session 22 (2026-07-30), follow-up feedback pass**: an earlier same-day pass (commit
+    `6db4ef7`, landed before this session but never written up in these docs — backfilled into
+    COMPLETED.md now) had redesigned the trait lines into gw2skills-style condensed rows with a
+    per-line expand/collapse toggle, plus icon-only Heal/Utility/Elite pickers and real itemstat
+    icons. The user's follow-up feedback this session:
+    - [x] **Traits were still laid out as 3 side-by-side vertical columns, not horizontal rows**
+          like gw2skills.net's reference (Zeal/Virtues/Firebrand stacked, each reading
+          left-to-right) — `TraitsEditor`'s `.traits-editor` was `grid-template-columns: repeat(3,
+          1fr)`, so the earlier pass's condensed-row work happened *within* 3 still-vertical
+          columns rather than fixing the macro layout. Fixed: `.traits-editor` is now a vertical
+          flex stack of 3 horizontal rows.
+    - [x] **The per-line expand/collapse toggle isn't wanted** — user clarified the "collapsible"
+          concept worth keeping from the gw2skills screenshot is really about the specialization
+          *picker* (a small button showing the current pick that opens an overlay of choices and
+          closes on selection), not about hiding a line's tiers. Removed the per-line
+          `expandedLines`/`condensedSummary`/`expandedTiers` split entirely — tiers are always
+          shown once a spec is picked; the spec choice itself now uses the existing `UpgradePicker`
+          click-to-open-overlay widget (the same "selection button" already used for runes/sigils/
+          infusions/relics/food/utility) instead of an always-visible row of every available spec
+          icon. Major-trait-per-tier picking was deliberately left as-is (all 3 options shown
+          inline) since the user didn't ask for that to change too — worth reconsidering only if
+          it comes up again after this pass.
+    - [x] **Apply the same "selection button" tech to weapon-type selection** — `EquipmentEditor`'s
+          `weaponTypeRow` (an always-visible row of every available weapon-type icon) converted to
+          the same `UpgradePicker` click-to-open pattern.
+    - [x] **Copy/paste for stat prefixes/runes/sigils/infusions** — user's proposed design (a
+          separate template slot per category, drag the picked value onto any matching gear slot,
+          plus an "Apply to All" button) implemented as asked: a new "copy/paste bar" at the top of
+          `EquipmentEditor` with 4 template `UpgradePicker`s (Stat Prefix/Rune/Sigil/Infusion), each
+          holding local-only UI state (not part of the `Build`). Dragging is native HTML5 DnD (same
+          approach as the squad editor's build drag-and-drop, no new dependency) via a new
+          `dragCategory` prop on `UpgradePicker` (`gear-drag-payload.ts`): any picker sharing a
+          `dragCategory` string can drag its chosen value out and accept drops of the same
+          category, so this also lets two *ordinary* gear slots copy directly between each other,
+          not just from a template. "Apply to All" bulk-fills every eligible slot for that category
+          (stat prefix: every armor/trinket/weapon slot; rune: the 6 armor slots; sigil/infusion:
+          every slot at its own existing capacity) via new `applyStatToAll`/`applyRuneToAll`/
+          `applySigilToAll`/`applyInfusionToAll` functions.
+    - [ ] **F1-F6 profession-mechanic skills (e.g. Firebrand's Tomes, Engineer's Kits) aren't
+          modeled or displayed at all** — investigated this session, turned out to be
+          significantly bigger than it first looked. Landed the data layer only
+          (`Profession.professionSkills` + `src/shared/skill-calc/profession-mechanic.ts`'s
+          resolver — see docs/game-data.md's new "Profession-mechanic ('F-skill') data" section for
+          the full writeup) but did **not** wire any UI, because the mechanic turned out to be
+          multi-axis for most professions rather than a simple "one fixed skill per elite spec"
+          fact: Warrior's Burst Skill depends on equipped *weapon type*, Engineer's Toolbelt
+          depends on equipped *Utility skill choice* (plus Scrapper/Holosmith/Mechanist each having
+          their own F5 sub-mechanic), Ranger's F2-F5 depend on equipped *pet* (a concept this app
+          doesn't model anywhere), and Revenant's F-skills duplicate the already-separately-modeled
+          Legend system. Only Guardian (verified clean across all 4 elite specs) and likely a few
+          others (Thief Steal, Elementalist attunement swap, Necromancer shroud, Mesmer shatter
+          skills — not yet individually verified) fit the simple case the resolver handles. Needs a
+          scoping decision before any UI lands: either build real per-profession special-casing
+          (weapon-bar integration, a new "equipped pet" concept, utility→toolbelt derivation) or
+          explicitly scope the F-bar display to only the professions where it's genuinely fixed.
+    - [ ] **Tomes/Kits replacing the weapon skill bar (1-5) while active** — separate, deeper gap
+          than the F-bar display above: Firebrand's 3 Tomes and Engineer's Kits each have their own
+          5-skill bar that temporarily replaces weapon skills 1-5 (matches the user's screenshots:
+          Tome of Justice's tooltip listing "Chapter 1: Searing Spell" through "Epilogue: Ashes of
+          the Just", and a skill-bar screenshot showing 1-5 swapped to tome icons with F1-F3 above
+          it). Confirmed live 2026-07-30: the 5 chapter/kit-skill names have **no id anywhere in
+          the public API** — the wiki page lists them as unlinked skill names in a
+          `{{Weapon skill table row}}` template only. Getting real ids needs a wiki cross-check per
+          tome/kit (same shape of effort as `scripts/fetch-relic-effects.ts`, just scoped per-
+          mechanic rather than per-page) — not attempted this session; needs its own scoped pass,
+          and depends on the F-bar scoping decision above landing first (no point wiring tome/kit
+          sub-bars before the F1-F3 buttons that open them are even modeled per-profession).
+    - [x] **Mantras (and similar multi-charge skills) needing different tooltip text per charge
+          state** — investigated and confirmed this is **already handled** by the same
+          undocumented `6db4ef7` pass: `numericFactLines` already surfaces a skill's own ammo count
+          (e.g. Mesmer "Mantra of Pain"'s "Number of Casts: 2" fact), and
+          `skill-calc/multi-effect.ts`'s `relatedVariantSkills` already walks the `flipSkill` chain
+          to append the charged/attack skill's own name, description, and facts as a labeled
+          `.tooltip-skill-variant` sub-block below the base skill's tooltip (verified against
+          Mantra of Pain -> Power Spike: the appended block shows Power Spike's own Range/Damage/
+          Vulnerability facts, distinct from Mantra of Pain's own Recharge/Might/cast-count facts).
+          No code change needed — flagging here so this specific complaint isn't mistaken for an
+          open gap in a future session. The one real remaining unknown: whether any skill has a
+          *distinctly different* effect specifically on its *last* charge before recharging (vs.
+          every charge being identical) — no stock example was found to verify against, and the
+          API's `Fact` schema has no explicit "last charge only" concept to represent it even if
+          one exists; revisit only if a concrete example surfaces.
+    - Not visually confirmed in a running window for any of the above (standing Electron-sandbox
+      limitation — `npm run dev`'s spawned Electron process still crashes on
+      `electron.app.isPackaged` being undefined in this shell, re-confirmed this session, same
+      root cause as every prior session's note, unrelated to these code changes); `npm run
+      typecheck`/`lint`/`build` all clean. Recommend `npm run dev` locally to eyeball the new
+      horizontal trait rows, the weapon-type/spec click-to-open pickers, and the copy/paste bar.
 - [x] Squad preview builder (drag-and-drop party grid; WvWSquadCrafter as UX reference only —
       no shared code/assets without explicit permission, no LICENSE on that repo). User provided a
       hand sketch ("Squad Manager": Lines/parties of 5 slots each, per-slot profession icon +

@@ -95,6 +95,12 @@ interface RawProfessionWeapon {
   skills: { id: number; slot: string }[]
 }
 
+interface RawProfessionSkill {
+  id: number
+  slot: string
+  type: string
+}
+
 interface RawProfession {
   id: string
   name: string
@@ -102,6 +108,7 @@ interface RawProfession {
   icon_big: string
   specializations: number[]
   weapons: Record<string, RawProfessionWeapon>
+  skills: RawProfessionSkill[]
 }
 
 interface RawSpecialization {
@@ -207,7 +214,8 @@ function normalizeProfession(raw: RawProfession): Profession {
     specializationIds: raw.specializations,
     weapons: Object.fromEntries(
       Object.entries(raw.weapons).map(([weaponType, w]) => [weaponType, normalizeWeapon(w)])
-    )
+    ),
+    professionSkills: raw.skills.filter((s) => s.type === 'Profession').map((s) => ({ id: s.id, slot: s.slot }))
   }
 }
 

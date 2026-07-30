@@ -387,3 +387,56 @@ TODO.md if a future session wants to revisit modeling relic proc frequency.
 `fetch-gear-upgrades.ts` — re-run `fetch-relic-effects` too whenever a balance patch might
 change/add a relic (after re-running `fetch-gear-upgrades --refresh` first, since this script reads
 `relics.json`).
+
+## Profession-mechanic ("F-skill") data — landed, NOT yet wired into any UI
+
+`Profession.professionSkills` (`{id, slot}[]`) is sourced from `/v2/professions`' own `skills`
+array, filtered to `type === 'Profession'` (`scripts/fetch-game-data.ts`'s `normalizeProfession`).
+This is the raw list of every id that has ever occupied an F1-F5 mechanic slot for that profession,
+across every base-game and elite-spec variant — e.g. Guardian's `Profession_1` alone lists Virtue
+of Justice (core), Tome of Justice + a dormant duplicate + Stow Tome (Firebrand), Rushing Justice
+(Willbender), and Radiant Justice (Luminary), all sharing that one slot string.
+
+`src/shared/skill-calc/profession-mechanic.ts` (`professionMechanicBar`) resolves a slot's raw
+candidate list down to the one id that actually applies for a build's equipped specializations,
+using the skill's own `specializationId` field (same signal `skill-variants.ts` already uses for
+Heal/Utility/Elite reworks) plus a `flipSkill`-chain-aware tiebreak for same-slot duplicates (see
+that file's doc comment for the exact 4-step rule, verified 2026-07-30 against all of Guardian's
+base/Dragonhunter/Firebrand/Willbender/Luminary combinations).
+
+**This resolver is correct but only cleanly covers Guardian-shaped professions** (a fixed skill per
+elite spec, no other axis). Live-checked 2026-07-30 across all 9 professions and found the
+mechanic is genuinely multi-axis for several:
+- **Warrior** `Profession_1` (Burst Skill) varies by *equipped weapon type*, not by spec — dozens
+  of same-slot candidates with no `specializationId` set at all to disambiguate.
+- **Engineer** `Profession_1`-`_4` (Toolbelt) are generated per *equipped Utility skill choice*
+  (one toolbelt skill per utility skill), not fixed per spec; several came back literally named
+  "Locked" (a per-utility placeholder), and Scrapper/Holosmith/Mechanist F5 (Function Gyro/Photon
+  Forge/Mech Command) are their own distinct sub-mechanics.
+- **Ranger** `Profession_1`-`_4` (pet skills) vary by *equipped pet* — a game concept this app
+  doesn't model anywhere yet.
+- **Revenant** `Profession_1`/`_2` largely duplicate the already-separately-modeled Legend swap/
+  heal (see `Legend` in `game-data.ts`) — wiring this resolver here too would be redundant, not
+  additive.
+- Also found: `type === 'Profession'` isn't exclusively F-skills — some downed-state skills
+  (`slot: 'Downed_1'`-`'_4'`) are tagged the same `type`, so a consumer needs to also filter by
+  `slot` starting with `Profession_` (this resolver's caller doesn't yet, since it has no caller).
+
+**Deliberately not wired into any UI yet** — a generic bar would be flat wrong for Warrior/
+Engineer/Ranger (weapon/utility/pet-dependent) and redundant for Revenant, and only Guardian (plus
+likely Thief's Steal, Elementalist's attunement swap, Necromancer's shroud toggle, and Mesmer's
+shatter skills — not yet individually verified) fit the clean case this resolver handles. See
+TODO.md for the follow-up item: needs either genuine per-profession special-casing (weapon-bar
+integration for Warrior, a new "equipped pet" concept for Ranger, utility→toolbelt derivation for
+Engineer) or an explicit decision to only show the F-bar for the professions where it's actually a
+fixed per-spec fact, before any UI gets built on top of this.
+
+Separately, and orthogonal to the above: **Firebrand's Tomes (and Engineer Kits, similarly)
+replace the weapon skill bar (1-5) while active** — a real GW2 mechanic the user asked about
+directly. The F-skill data above only covers the button that *opens* a tome (e.g. "Tome of
+Justice"); the 5 skills a tome/kit swaps the weapon bar to (e.g. "Chapter 1: Searing Spell") have
+NO id in the public API at all — confirmed live 2026-07-30 via the wiki's `Tome of Justice` page,
+which documents them only as unlinked skill *names* in a `{{Weapon skill table row|...}}` template,
+no id. Getting real ids would need a wiki cross-check per tome/kit (same shape of effort as
+`fetch-relic-effects.ts`, scoped per-mechanic rather than per-page) — not attempted this session,
+noted in TODO.md as its own follow-up, separate from the F-skill-bar-resolution item above.
