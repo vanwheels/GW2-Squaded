@@ -347,15 +347,31 @@
         signals plus one deliberately-ambiguous case (Deploy Mine, confirmed left un-collapsed) —
         all passed. `npm run typecheck`/`lint`/`build` all clean; not visually confirmed in a
         running window (standing Electron-sandbox limitation, see COMPLETED.md) — recommend
-        `npm run dev` locally to eyeball the now-shorter picker lists.
-  - [ ] Same collapsing behavior, same arrows/tabs cycling UX, needed for multi-step skills
+        `npm run dev` locally to eyeball the now-shorter picker lists. **Update, Session 19**: a 4th
+        signal (`flip_skill`, see the multi-step-skills item directly below) resolved 24 of these
+        47 down to 1 id each — 23 remain genuinely ambiguous (Deploy Mine among them, still
+        unresolved as predicted). Current full list: Engineer "Grenade Kit"/"Slick Shoes"/
+        "Automatic Fire"/"Rocket Boots"/"Rocket Turret"/"Detonate Rocket Turret"/"Throw Mine"/
+        "Deploy Mine"/"Elixir X"/"Detonate Supply Crate Turrets"/"Overcharge Supply Crate", Ranger
+        "Glyph of Rejuvenation"/"Spike Trap"/"Glyph of the Tides"/"Glyph of Alignment"/"Glyph of
+        Equality"/"Glyph of Burgeoning"/"Glyph of the Stars", Elementalist "Rejuvenate"/"Mist
+        Form", Mesmer "Mirage Advance", Revenant "Protective Solace"/"Jade Winds".
+  - [x] Same collapsing behavior, same arrows/tabs cycling UX, needed for multi-step skills
         (distinct effects on 1st click vs. 2nd click, etc.) — one entry, not duplicate list
-        entries. **Not resolved by Session 18's investigation** — that pass only found
-        attunement/specialization/ground-target signals, nothing chain/multi-step-related
-        (`next_chain`/`flip_skill`/`transform_skills` weren't checked live this session). Separate
-        research pass still needed; the ~47 remaining ambiguous duplicate-name groups documented
-        above are a reasonable starting point to check for chain-skill fields, since some may
-        overlap with this item rather than being genuinely unresolvable trait reworks.
+        entries. **Implemented Session 19 (2026-07-29)**: live-verified `/v2/skills`' `flip_skill`
+        field (the id a skill becomes after activation — e.g. "Med Kit" flips to "Stow Med Kit",
+        "Healing Turret" flips to "Detonate Healing Turret", a Thief Elite chains 3 ids deep) and
+        found it resolves this cleanly with no cycling UX needed — same "turned out to be
+        automatic, nothing to cycle through" shape as Session 18's other 3 signals. New
+        `Skill.flipSkill` field; `skill-variants.ts` gained a global `stripFlipTargets` pre-pass
+        (removes a different-named flip target from the whole candidate pool before per-name
+        grouping — these 84 pairs, e.g. every Engineer kit/turret, Mesmer mantra, Ranger spirit,
+        Revenant facet, never landed in the same name-group to begin with) plus a 4th per-group
+        "flip-root" signal for same-name flip pairs (e.g. Guardian Spirit Weapons) Session 18
+        explicitly flagged as unresolved. Net effect: 84 previously wrongly-offered flip-target
+        skills now correctly hidden, and the ~47 ambiguous same-name groups Session 18 left open
+        drops to 23. See COMPLETED.md for the full writeup, including why Session 18's initial
+        "drop `flip_skill`, unneeded" conclusion turned out to be incomplete.
   - [x] Confirm equipment stat calculations use Ascended/Legendary values, not Exotic — Ascended
         and Legendary share the same (highest) stat budget, so gear math should always assume that
         tier regardless of what the user actually has crafted. Survey finding: this was already

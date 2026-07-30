@@ -2,6 +2,74 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 19 — Multi-step skill collapsing via the `flip_skill` field
+
+Picked up the "multi-step skills" TODO item left open after Session 18 (which explicitly
+considered `flip_skill` and dropped it, concluding the `GroundTargeted` signal alone covered
+every case it found — that conclusion turned out to be incomplete once checked against the
+Heal/Utility/Elite pool specifically rather than the ground-target duplicates alone).
+
+- **Live-verified `/v2/skills`' `flip_skill`/`next_chain`/`transform_skills`/`bundle_skills`/
+  `subskills` fields against real examples** (Engineer kits, Guardian Spirit Weapons, a Thief
+  Elite chain skill) before writing any code, same "confirm against the primary source" approach
+  as `fetch-wvw-splits.ts`. Key finding: `flip_skill` is the id a skill becomes after being
+  activated — e.g. "Med Kit" (id `5802`) flips to "Stow Med Kit" (`6109`) once equipped, "Healing
+  Turret" flips to "Detonate Healing Turret", a Thief Elite chains "Impact Strike" → "Uppercut" →
+  "Finishing Blow" three ids deep via `flip_skill` alone (confirmed live: its `next_chain` field
+  carries the exact same id at each step, so `flip_skill` is sufficient — `next_chain` wasn't
+  worth capturing separately). None of these targets are independently equippable in-game (you
+  can't bind "Stow Med Kit" as your heal skill), yet `skillsForProfessionAndSlot`'s filter
+  (`s.slot === slot && s.professions.includes(profession)`) had no way to know that and offered
+  them as if they were — a real, previously-undiscovered bug distinct from the same-name-duplicate
+  problem Session 18 solved. A live scan across all 4702 skills found 84 such different-named
+  Heal/Utility/Elite flip pairs (kits, turrets, mantras, Ranger spirits, Revenant facets, plus the
+  3-step Thief chain) and 35 same-named ones.
+- **New `Skill.flipSkill: number | null`** (`src/shared/types/game-data.ts`, `scripts/
+  fetch-game-data.ts`'s `normalizeSkill`) — straight from the already-fetched `/v2/skills`
+  response, no new endpoint.
+- **`src/shared/skill-calc/skill-variants.ts` gained two additions**: `stripFlipTargets`, a new
+  pre-pass in `visibleSkillsForSlot` that runs before the existing per-name grouping and removes
+  any candidate that's another *different-named* candidate's `flip_skill` target globally (kits/
+  turrets/mantras/chains never landed in the same name-group to begin with, so the existing
+  per-name signals could never have caught them) — and a 4th per-group signal in `resolveGroup`
+  ("flip-root": among same-named candidates, drop whichever is pointed to by another's
+  `flip_skill`), inserted between the existing specialization and ground-target signals. The
+  flip-root signal specifically fixes same-name flip pairs Session 18 left ambiguous because
+  neither `specializationId` nor (alone) `GroundTargeted` distinguished them, e.g. Guardian Spirit
+  Weapons — verified live that "Hammer of Wisdom" is actually a **4-id** group (a ground-targeted
+  flip pair `9125`→`46170` plus a separate auto-target flip pair `55040`→`55053`, all 4 sharing one
+  name and no `specializationId`): flip-root first collapses each pair down to its root (`9125`,
+  `55040`), then the pre-existing `GroundTargeted` signal picks `55040` as the one canonical id —
+  the two signals compounding to resolve a group neither could resolve alone.
+- **Re-verified specialization-gated flip pairs aren't broken by the new pre-pass**: same-name
+  pairs like "Renewed Focus" (`9154` base / `68666` Dragonhunter-reworked) still resolve correctly
+  via the existing `specializationId` signal, since `stripFlipTargets` only removes
+  *different*-named targets — same-named flip targets stay in their name-group specifically so the
+  specialization/flip-root signals can still choose between them. Also handles a subtler case
+  correctly: some flip pairs (e.g. Vindicator's "Icerazor's Ire" family) have the *same*
+  `specializationId` on both ends, so the specialization filter alone can't narrow them down to 1
+  even when that spec is equipped — flip-root does, since it doesn't depend on spec context at all.
+- **Net effect, verified by an exhaustive before/after scan across every profession's
+  Heal/Utility/Elite pool**: the ~47 same-name groups Session 18 left ambiguous (with no spec
+  equipped) drops to **23** — the other 24 resolve cleanly via the new flip-root signal, on top of
+  hiding 84 previously-wrongly-offered different-named flip targets from the pickers entirely
+  (these weren't part of the "duplicate name" count at all, since each had its own unique name and
+  so silently looked like a legitimate independent choice rather than an obvious duplicate — arguably
+  the more harmful bug of the two, since a user could have genuinely picked "Stow Med Kit" as their
+  heal skill by mistake with no visual hint anything was wrong). The remaining 23 groups (Engineer
+  "Deploy Mine", Ranger "Spike Trap", several Glyph/Mist-Form/Jade-Winds groups, etc.) still need a
+  per-skill wiki cross-check per Session 18's note — unchanged by this session, full list in
+  TODO.md.
+- **Verified**: a standalone script (not committed) re-implemented the updated
+  `visibleSkillsForSlot`/`resolveGroup` logic against the live-refetched `data/game-data/
+  skills.json` and checked 10 hand-picked cases spanning both new mechanisms plus 2 regression
+  checks (Renewed Focus with and without Dragonhunter equipped) — all 10 passed, including the
+  compounding Hammer-of-Wisdom case above. A second script did the exhaustive before/after
+  ambiguous-group-count scan (47 → 23) referenced above. `npm run typecheck`/`lint`/`build` all
+  clean; not visually confirmed in a running window (standing Electron-sandbox limitation, see
+  below) — recommend `npm run dev` locally to eyeball the now-shorter Engineer/Guardian/Mesmer/
+  Necromancer/Ranger/Revenant/Thief picker lists.
+
 ## Session 18 — Duplicate-name skill collapsing (attunement/specialization/ground-target signals)
 
 Continuation of "Build editor UI/UX overhaul" — picked up Session 17's explicitly-scoped next

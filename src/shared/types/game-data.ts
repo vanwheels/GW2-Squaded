@@ -116,6 +116,12 @@ export interface Skill {
    *  by Vindicator/Conduit) — `null` for the base/unmodified id. Used by
    *  src/shared/skill-calc/skill-variants.ts to auto-select the right variant per equipped specs. */
   specializationId: number | null
+  /** The skill id this one becomes after being activated (e.g. a kit's "Stow X" skill, a turret's
+   *  "Detonate X" skill, a mantra's charged cast, a multi-hit chain's next hit) — `null` if this
+   *  skill has no such second step. The target is never independently equippable in-game (you
+   *  can't bind "Stow Med Kit" as your heal skill), so it's excluded from Heal/Utility/Elite
+   *  pickers by src/shared/skill-calc/skill-variants.ts rather than offered as a separate pick. */
+  flipSkill: number | null
 }
 
 export interface ItemStatAttribute {

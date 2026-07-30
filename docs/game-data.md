@@ -141,7 +141,7 @@ default UA gets a 403; any identifiable UA passes — see `USER_AGENT` in the sc
 **Note:** this file's data is NOT re-derivable from `fetch-game-data.ts` — re-run
 `fetch-elite-spec-skills` too whenever a balance patch might add/change elite-spec-gated skills.
 
-## Duplicate-name skill collapsing (`skills.json`'s `attunement`/`specializationId` fields)
+## Duplicate-name skill collapsing (`skills.json`'s `attunement`/`specializationId`/`flipSkill` fields)
 
 A live scan (2026-07-29) found 117 groups of same-(name, slot, professions) skill ids in
 `skills.json` — e.g. Elementalist's "Glyph of Lesser Elementals" has 5 ids, Guardian's "Renewed
@@ -173,15 +173,37 @@ order (attunement → specialization → ground-target) and is wired into
 free — no UI changes needed, since the dedup happens before the picker ever sees the candidate
 list.
 
-**The remaining ~47 groups** (re-counted per-profession after the above collapsing; see
-`TODO.md`) have no `attunement`/`specialization`/`GroundTargeted` signal distinguishing their
-members — e.g. Engineer's "Deploy Mine" (`6163` "deploy a mine" vs `30893` "deploy two mines",
-almost certainly a trait rework with no `specialization` id set) or Ranger's "Spike Trap" (differs
-in whether it stuns or launches). These look like the same shape of problem `wvw-fact-overrides`
-solved for boon durations — a per-skill wiki cross-check to find the actual gating trait — but
-that's a new, separate research pass, not attempted here. Left un-collapsed and shown as-is
-(fail-safe, not guessed) rather than arbitrarily picking one id and hiding a possibly-meaningful
-choice from the user.
+**Session 19 addendum — `flip_skill` (multi-step skills):** Session 18 considered `flip_skill` and
+dropped it, reasoning the `GroundTargeted` signal alone covered every duplicate it had found. That
+turned out to be incomplete once checked directly: `flip_skill` is the id a skill becomes after
+being activated (e.g. Engineer's "Med Kit" `5802` flips to "Stow Med Kit" `6109`; "Healing Turret"
+flips to "Detonate Healing Turret"; a Thief Elite chains `29516`→`30077`→`29639` three ids deep via
+`flip_skill` alone — its `next_chain` field carries the identical id at each step, confirmed live,
+so `next_chain` itself wasn't worth capturing separately). A flip target is never independently
+equippable in-game, but 84 such different-named pairs (Engineer kits/turrets, Mesmer mantras,
+Ranger spirits, Revenant facets) were being offered as if they were, since each had its own unique
+name and so never entered the same-name grouping the first 3 signals operate on — arguably a worse
+bug than the visually-obvious duplicate-name case, since nothing looked wrong in the picker.
+`Skill.flipSkill: number | null` (from the same already-fetched `/v2/skills` response) feeds two
+new mechanisms in `skill-variants.ts`: a global `stripFlipTargets` pre-pass (removes a
+different-named flip target from the whole candidate pool before per-name grouping even runs) and
+a 4th per-group "flip-root" signal, inserted between specialization and ground-target, for
+same-name flip pairs (drops whichever id is pointed to by the other's `flip_skill`). The two
+existing signals and the new one compound where needed — e.g. Guardian's "Hammer of Wisdom" is
+actually a 4-id group (a ground-targeted flip pair `9125`→`46170` plus a separate auto-target flip
+pair `55040`→`55053`, all 4 sharing one name and no `specializationId`): flip-root collapses each
+pair to its root first, then `GroundTargeted` picks the auto-target root as the one canonical id.
+
+**The remaining 23 groups** (down from 47 after the `flip_skill` addition; re-counted per-profession
+with no spec equipped — see `TODO.md` for the full current list) have no `attunement`/
+`specialization`/`GroundTargeted`/`flip_skill` signal distinguishing their members — e.g.
+Engineer's "Deploy Mine" (`6163` "deploy a mine" vs `30893` "deploy two mines", almost certainly a
+trait rework with no `specialization` id set) or Ranger's "Spike Trap" (differs in whether it
+stuns or launches). These look like the same shape of problem `wvw-fact-overrides` solved for boon
+durations — a per-skill wiki cross-check to find the actual gating trait — but that's a new,
+separate research pass, not attempted here. Left un-collapsed and shown as-is (fail-safe, not
+guessed) rather than arbitrarily picking one id and hiding a possibly-meaningful choice from the
+user.
 
 ## WvW-vs-PvE fact splits (`wvw-fact-overrides.json`)
 
