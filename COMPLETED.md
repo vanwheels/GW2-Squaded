@@ -2,6 +2,37 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 17 — Item-rarity color coding + skill-variant-collapsing scoping investigation
+
+Picked up the "Build editor UI/UX overhaul" item's remaining open sub-items. Landed the
+item-rarity color coding sub-item; investigated (but deliberately did not implement) the
+skill-variant-collapsing sub-item once it turned out to need its own dedicated wiki-research
+session, same shape as `fetch-wvw-splits.ts`/`fetch-elite-spec-skills.ts` before it.
+
+- **Skill-variant-collapsing scoping**: confirmed via a live scan of `data/game-data/skills.json`
+  that 117 duplicate-skill-name groups exist across Heal/Utility/Elite slots (e.g. Elementalist
+  "Glyph of Lesser Elementals" ×5, "Lightning Flash" ×2 matching the trait-variant shape the TODO
+  item describes). Neither the currently-fetched `Skill` fields nor `scripts/fetch-game-data.ts`'s
+  `RawSkill` normalization carry any canonical/variant grouping signal — collapsing these
+  correctly needs re-fetching `/v2/skills` for fields this app doesn't currently pull
+  (`attunement`, possibly chain/transform fields) and a verification pass per TODO.md's notes, not
+  a same-session implementation. Documented in TODO.md rather than guessed at or silently
+  deferred, so the next session doesn't have to rediscover this from scratch.
+- **Item-rarity color coding**: this app has no real per-item icons for armor/weapon/trinket
+  slots (those slots store a stat *combo*, not a concrete item), so the border lands on the
+  visible slot chrome instead — `.gear-slot-icon` and the stat-combo `<select>` turn
+  `--rarity-ascended` (pink/magenta) once a stat combo is chosen, across all 4 places a stat combo
+  gets picked (`renderSlot`, both hands of `renderWeaponPair`, `renderUnderwaterSlot` in
+  `EquipmentEditor.tsx`). `UpgradePicker` (already shared by runes/sigils/infusions/relics/food/
+  utility) gained a `rarity?: 'ascended' | 'fine'` prop, wired to `'fine'` (blue) for the relic
+  slot (`ConsumablesEditor`) and every infusion badge — the two categories with a single
+  confirmed native GW2 rarity per the TODO scoping notes; runes/sigils/food/utility intentionally
+  left unstyled (no single confirmed rarity). New `--rarity-ascended`/`--rarity-fine` CSS custom
+  properties in `global.css`, using GW2's own well-known rarity colors. `npm run
+  typecheck`/`lint`/`build` all clean; not visually confirmed in a running window (standing
+  Electron-sandbox limitation, see below) — recommend `npm run dev` locally to eyeball the new
+  borders.
+
 ## Session 16 — Character-stats panel: stats-calc math + UI
 
 Continuation of "Build editor UI/UX overhaul" → the character-stats-panel item, picking up

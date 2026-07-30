@@ -30,7 +30,14 @@ export function ConsumablesEditor({ value, onChange }: Props) {
       <div className="skill-bar">
         <div className="consumable-slot">
           <span className="legend-slot-label">Relic</span>
-          <UpgradePicker label="Relic" options={relicOptions} chosenId={value.relicId} onChoose={(id) => onChange({ ...value, relicId: id })} variant="slot" />
+          <UpgradePicker
+            label="Relic"
+            options={relicOptions}
+            chosenId={value.relicId}
+            onChoose={(id) => onChange({ ...value, relicId: id })}
+            variant="slot"
+            rarity="fine"
+          />
         </div>
         <div className="consumable-slot">
           <span className="legend-slot-label">Food</span>

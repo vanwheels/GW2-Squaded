@@ -6,6 +6,10 @@
   --text: #e8e8ec;
   --muted: #8a8a96;
   --accent: #c0392b;
+  /* GW2's own item-rarity colors (Ascended pink/magenta, Fine blue) — see TODO.md's
+     item-rarity-color-coding item for which slot categories use which tier and why. */
+  --rarity-ascended: #fb3e8d;
+  --rarity-fine: #62a4da;
 }
 
 * {
@@ -318,6 +322,19 @@ input[type='text'] {
 .gear-slot-body select {
   width: 100%;
   color: var(--text);
+}
+
+/* Item-rarity border: Ascended for the armor/weapon/trinket stat-combo picked in a slot (this
+   app always assumes Ascended/Legendary stat budgets, see attribute-totals.ts's RARITY const),
+   Fine for WvW infusions and relics (their real, single, native GW2 rarity — see TODO.md). */
+.gear-slot-icon.rarity-ascended,
+select.rarity-ascended {
+  border-color: var(--rarity-ascended);
+}
+
+.upgrade-badge.rarity-fine,
+.skill-slot-button.rarity-fine {
+  border-color: var(--rarity-fine);
 }
 
 .gear-weapons {

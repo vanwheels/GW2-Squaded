@@ -17,6 +17,11 @@ interface Props {
    *  reusing the equipment paperdoll's visual density. `slot` is the larger square skill-bar-
    *  style button used for the build-level relic/food/utility picks. */
   variant?: 'badge' | 'slot'
+  /** GW2 item-rarity border color for the chosen item, when this category has a single fixed
+   *  rarity (e.g. every WvW infusion is Fine tier, every relic is Exotic-tier-but-shown-as-Fine —
+   *  see TODO.md's item-rarity-color-coding scoping notes). Omit for categories with no single
+   *  confirmed rarity (runes/sigils/food/utility). */
+  rarity?: 'ascended' | 'fine'
 }
 
 /**
@@ -25,7 +30,7 @@ interface Props {
  * grid, click an option to choose and close" interaction as the existing skill/legend pickers,
  * just parameterized over a generic `{id, name, icon}` option shape instead of `Skill`/`Legend`.
  */
-export function UpgradePicker({ label, options, chosenId, onChoose, variant = 'badge' }: Props) {
+export function UpgradePicker({ label, options, chosenId, onChoose, variant = 'badge', rarity }: Props) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const chosen = chosenId !== null ? options.find((o) => o.id === chosenId) : undefined
@@ -38,16 +43,15 @@ export function UpgradePicker({ label, options, chosenId, onChoose, variant = 'b
     setSearch('')
   }
 
+  const baseClass = variant === 'badge' ? 'upgrade-badge' : 'skill-slot-button'
+  const buttonClass = chosen && rarity ? `${baseClass} rarity-${rarity}` : baseClass
+
   return (
     <div className="upgrade-slot">
       <Tooltip
         content={chosen ? <TooltipBody title={chosen.name} description={chosen.description} /> : <TooltipBody title={label} />}
       >
-        <button
-          type="button"
-          className={variant === 'badge' ? 'upgrade-badge' : 'skill-slot-button'}
-          onClick={() => setOpen(!open)}
-        >
+        <button type="button" className={buttonClass} onClick={() => setOpen(!open)}>
           {chosen ? (
             <img src={chosen.icon} alt={chosen.name} />
           ) : (

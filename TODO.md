@@ -271,12 +271,16 @@
           main/off pair — so `EquipmentSlotKey` gained `weaponU1`/`weaponU2` (not a hand-paired
           4-key set) and `EquipmentEditor.tsx` renders a 3rd always-visible "Underwater" section
           alongside "Weapon I"/"Weapon II".
-    - [ ] Each weapon slot (once a type is chosen) still has its own sigil (×1–2) and infusion
+    - [x] Each weapon slot (once a type is chosen) still has its own sigil (×1–2) and infusion
           (×2) pickers layered on top — confirmed via the equipment-panel screenshots this session
           too (every weapon row shows the item icon plus 2 upgrade-slot badges beside it); the
-          weapon-type picker is an additional *new* picker, not a replacement for those. Still
-          pending — absorbed into the stats-panel item further down (runes/sigils/infusions/relics/
-          food all land together there, not here — see that item for why).
+          weapon-type picker is an additional *new* picker, not a replacement for those. Landed as
+          part of the stats-panel item's session 15 picker-UI pass (see below) —
+          `EquipmentEditor.tsx`'s `sigilRow`/`infusionRow` are wired into every weapon slot
+          (`renderWeaponPair` for main/off-hand, plus the underwater slot), gated by
+          per-item-not-per-slot capacity (2-handed = 2 slots on that one item, 1-handed = 1 each).
+          TODO line left unchecked in a prior pass by mistake — confirmed done by reading
+          `EquipmentEditor.tsx` directly, not re-implemented.
     - [x] Need a land/underwater toggle that scopes both the skill bar and the boon/condition
           calculator — confirmed via screenshot: a separate `ENVIRONMENT` control (tree icon =
           land / wave icon = underwater, active one underlined orange) is what actually switches
@@ -314,9 +318,36 @@
         show up as separate duplicate entries in the skill picker — should collapse to a single
         entry. User confirmed (2026-07-25) the cycling UX: small in-tooltip prev/next arrows or
         numbered tabs (1/2/3) to step through variants — not hover-auto-cycle, not a dropdown.
+        **Scoping investigation done 2026-07-29, not implemented this pass — bigger than it looks**:
+        `skillsForProfessionAndSlot`'s current filter (`game-data-store.tsx`) does zero dedup — every
+        skill id matching `slot`+`profession` is returned, so any same-name group all show up
+        side-by-side today. A live scan of `data/game-data/skills.json` found **117 duplicate-name
+        groups** across Heal/Utility/Elite (e.g. Elementalist "Glyph of Lesser Elementals" ×5 —
+        1 attunement-agnostic base id + 4 attunement-specific ids; "Lightning Flash" ×2, matching
+        the trait-variant shape this item describes — id 5536 is ground-targeted, id 50447 is
+        target-teleport-with-damage, almost certainly the "Bolt to the Heart"-trait rework case).
+        Neither the currently-fetched `Skill` fields nor the raw `/v2/skills` normalization in
+        `scripts/fetch-game-data.ts` (`RawSkill`: id/name/description/icon/chat_link/type/
+        weapon_type/professions/slot/flags/facts/traited_facts) carry any grouping/canonical-id
+        signal — no "variant of X" field is fetched. The public API is known (not yet verified live
+        against this project's own fetch) to expose additional per-skill fields this app drops
+        entirely: `attunement` (would directly solve the Elementalist-glyph case — group by
+        attunement instead of guessing from description text) and possibly `next_chain`/
+        `flip_skill`/`transform_skills` for multi-step/chain skills (the item just below). Also
+        worth checking `requires_trait` on `facts`/`traited_facts` (same field `sources.ts` already
+        gates boon/condition facts on) as a way to resolve which variant a trait-based pair belongs
+        to, once the canonical/variant grouping itself is known. **Recommend scoping this as its own
+        dedicated session**, same shape as `fetch-elite-spec-skills.ts`/`fetch-wvw-splits.ts`: (1)
+        re-fetch `/v2/skills` capturing `attunement`/chain-related fields live to see what's
+        actually populated, (2) determine the canonical/"actually equippable" id per duplicate-name
+        group (hypothesis: it's the one with no attunement/trait-specific wording — needs
+        verification, not all 117 groups may fit one rule), (3) only then build the collapsing UI.
+        Don't reuse the "description text mentions attunement" heuristic used to spot this — it was
+        eyeballing 2 examples, not a real classifier.
   - [ ] Same collapsing behavior, same arrows/tabs cycling UX, needed for multi-step skills
         (distinct effects on 1st click vs. 2nd click, etc.) — one entry, not duplicate list
-        entries.
+        entries. Likely resolved by the same investigation above (chain-skill API fields), not a
+        separate research pass — see that item's notes before starting this one.
   - [x] Confirm equipment stat calculations use Ascended/Legendary values, not Exotic — Ascended
         and Legendary share the same (highest) stat budget, so gear math should always assume that
         tier regardless of what the user actually has crafted. Survey finding: this was already
@@ -392,7 +423,7 @@
         the public API, needs a ~211-page wiki cross-check), item-rarity color coding, and the
         bottom Conditions/Boons/Control/Auras/Misc/Combo icon bar (separate items, unchanged by
         this session).
-    - [ ] **Item-rarity color coding, and an important scope nuance**: user identified the app's
+    - [x] **Item-rarity color coding, and an important scope nuance**: user identified the app's
           (and gw2skills.net's) existing pink/magenta = Ascended, orange/yellow = Exotic border
           convention (already visible on armor pieces in every full-build screenshot). The
           earlier "ignore Exotic, assume Ascended/Legendary" decision (see the equipment-stat item
@@ -407,6 +438,23 @@
             decision; still fully in scope per the infusions bullet below.
           - Runes and sigils don't have an Ascended/Exotic distinction at all — "Superior" is
             simply their one relevant (max) tier, per the bullet below.
+          **Implemented 2026-07-29**: since this app has no real per-item icons for armor/weapon/
+          trinket slots at all (those slots store a stat *combo*, not a concrete item — see
+          `SlotIcon.tsx`'s doc comment; the picker is a `<select>` of stat names, not an icon
+          grid), the border goes on the visible slot chrome instead of an item icon: `.gear-slot-
+          icon` (the placeholder glyph box) and the stat-combo `<select>` itself, both turning
+          `--rarity-ascended` (pink/magenta, `#fb3e8d`) once `itemStatId` is set, across all 4
+          render paths that pick a stat combo (`renderSlot` for armor/trinkets, both hands of
+          `renderWeaponPair`, `renderUnderwaterSlot`). Relic and infusion pickers (both already
+          `UpgradePicker`-based, unlike the raw-`<select>` armor/weapon slots) gained a new
+          `rarity?: 'ascended' | 'fine'` prop — `--rarity-fine` (blue, `#62a4da`) wired into the
+          relic slot (`ConsumablesEditor`) and every infusion badge (`EquipmentEditor`'s
+          `infusionRow`). Runes/sigils/food/utility intentionally left without a `rarity` prop —
+          no single confirmed rarity per the bullets above. New CSS custom properties `--rarity-
+          ascended`/`--rarity-fine` added to `:root` in `global.css`, sourced from GW2's own
+          well-known rarity colors (not guessed). `npm run typecheck`/`lint`/`build` all clean;
+          not visually confirmed in a running window (standing Electron-sandbox limitation, see
+          COMPLETED.md) — recommend `npm run dev` locally to eyeball the new borders.
     - [x] **Runes/sigils: only the top ("Superior") tier matters** — user explicitly said lower
           rune/sigil tiers (the non-Superior "Rune of X" / "Major Rune of X" progression) don't
           need to be fetched or selectable, only "Superior Rune of X" / "Superior Sigil of X".

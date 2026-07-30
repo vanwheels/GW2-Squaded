@@ -129,6 +129,7 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
             options={infusionOptions}
             chosenId={id}
             onChoose={(infusionId) => setInfusion(key, capacity, i, infusionId)}
+            rarity="fine"
           />
         ))}
       </div>
@@ -156,14 +157,16 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
   function renderSlot(key: EquipmentSlotKey, label: string, icon: SlotIconType) {
     const isRuneSlot = RUNE_SLOT_KEYS.includes(key)
     const infusionCapacity = armorTrinketInfusionCapacity(key)
+    const hasStat = value[key]?.itemStatId != null
     return (
       <div className="gear-slot" key={key}>
-        <div className="gear-slot-icon">
+        <div className={hasStat ? 'gear-slot-icon rarity-ascended' : 'gear-slot-icon'}>
           <SlotIcon type={icon} />
         </div>
         <label className="gear-slot-body">
           <span className="gear-slot-label">{label}</span>
           <select
+            className={hasStat ? 'rarity-ascended' : undefined}
             value={value[key]?.itemStatId ?? ''}
             onChange={(e) => setItemStat(key, e.target.value ? Number(e.target.value) : null)}
           >
@@ -286,7 +289,11 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
           {weaponTypeRow(mainOptions, mainSlot?.weaponType ?? null, chooseMain)}
           <label className="gear-slot-body">
             <span className="gear-slot-label">{mainLabel}</span>
-            <select value={mainSlot?.itemStatId ?? ''} onChange={(e) => setMainItemStat(e.target.value ? Number(e.target.value) : null)}>
+            <select
+              className={mainSlot?.itemStatId != null ? 'rarity-ascended' : undefined}
+              value={mainSlot?.itemStatId ?? ''}
+              onChange={(e) => setMainItemStat(e.target.value ? Number(e.target.value) : null)}
+            >
               <option value="">— None —</option>
               {sortedStats.map((stat) => (
                 <option key={stat.id} value={stat.id}>
@@ -307,6 +314,7 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
               <label className="gear-slot-body">
                 <span className="gear-slot-label">{offLabel}</span>
                 <select
+                  className={value[offKey]?.itemStatId != null ? 'rarity-ascended' : undefined}
                   value={value[offKey]?.itemStatId ?? ''}
                   onChange={(e) => setOffItemStat(e.target.value ? Number(e.target.value) : null)}
                 >
@@ -349,7 +357,11 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
         {weaponTypeRow(options, slot?.weaponType ?? null, choose)}
         <label className="gear-slot-body">
           <span className="gear-slot-label">{label}</span>
-          <select value={slot?.itemStatId ?? ''} onChange={(e) => setStat(e.target.value ? Number(e.target.value) : null)}>
+          <select
+            className={slot?.itemStatId != null ? 'rarity-ascended' : undefined}
+            value={slot?.itemStatId ?? ''}
+            onChange={(e) => setStat(e.target.value ? Number(e.target.value) : null)}
+          >
             <option value="">— None —</option>
             {sortedStats.map((stat) => (
               <option key={stat.id} value={stat.id}>
