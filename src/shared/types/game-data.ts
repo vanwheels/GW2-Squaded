@@ -32,12 +32,36 @@ export interface Fact {
   [key: string]: unknown
 }
 
+export type WeaponFlag = 'Mainhand' | 'Offhand' | 'TwoHand' | 'Aquatic'
+
+export interface ProfessionWeaponSkillSlot {
+  id: number
+  /** `Weapon_1`-`Weapon_5`, matching the GW2 API's weapon-skill slot naming. */
+  slot: string
+}
+
+/**
+ * One weapon type (e.g. "Greatsword") as usable by a specific profession. `flags` carries the
+ * real GW2 hand-restriction rules (`Mainhand`/`Offhand`/`TwoHand`) plus `Aquatic` for
+ * underwater-usable weapons — some weapons (e.g. Spear) carry both `TwoHand` and `Aquatic` and
+ * are dual-use (10 skills: 5 land + 5 underwater variants), while others (e.g. Trident) are
+ * `Aquatic`-only. Don't hand-roll this table — it's sourced directly from `/v2/professions`.
+ */
+export interface ProfessionWeapon {
+  flags: WeaponFlag[]
+  /** Elite specialization id required to unlock this weapon on this profession, if gated. */
+  specializationId: number | null
+  skills: ProfessionWeaponSkillSlot[]
+}
+
 export interface Profession {
   id: ProfessionId
   name: string
   icon: string
   iconBig: string
   specializationIds: number[]
+  /** Keyed by weapon type name (e.g. "Greatsword", "Axe"). */
+  weapons: Record<string, ProfessionWeapon>
 }
 
 export interface Specialization {

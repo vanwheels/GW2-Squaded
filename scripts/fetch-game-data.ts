@@ -16,10 +16,12 @@ import type {
   GameData,
   ItemStat,
   Profession,
+  ProfessionWeapon,
   Skill,
   Specialization,
   Trait,
-  TraitSlot
+  TraitSlot,
+  WeaponFlag
 } from '../src/shared/types/game-data'
 
 const API_BASE = 'https://api.guildwars2.com/v2'
@@ -86,12 +88,19 @@ async function fetchAllRecords<TId extends string | number, TRaw>(endpoint: stri
 
 // --- Raw API shapes (trimmed to the fields we actually consume) -----------------------------
 
+interface RawProfessionWeapon {
+  specialization?: number
+  flags: string[]
+  skills: { id: number; slot: string }[]
+}
+
 interface RawProfession {
   id: string
   name: string
   icon: string
   icon_big: string
   specializations: number[]
+  weapons: Record<string, RawProfessionWeapon>
 }
 
 interface RawSpecialization {
@@ -146,13 +155,24 @@ interface RawItemStat {
 
 // --- Normalization ----------------------------------------------------------------------------
 
+function normalizeWeapon(raw: RawProfessionWeapon): ProfessionWeapon {
+  return {
+    flags: raw.flags as WeaponFlag[],
+    specializationId: raw.specialization ?? null,
+    skills: raw.skills.map((s) => ({ id: s.id, slot: s.slot }))
+  }
+}
+
 function normalizeProfession(raw: RawProfession): Profession {
   return {
     id: raw.id,
     name: raw.name,
     icon: raw.icon,
     iconBig: raw.icon_big,
-    specializationIds: raw.specializations
+    specializationIds: raw.specializations,
+    weapons: Object.fromEntries(
+      Object.entries(raw.weapons).map(([weaponType, w]) => [weaponType, normalizeWeapon(w)])
+    )
   }
 }
 

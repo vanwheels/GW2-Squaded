@@ -2,6 +2,47 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 11 — Weapon-selection reference screenshots digested; per-profession weapon data fetched
+
+User re-took the weapon-selection/stats-panel reference screenshots lost from the 2026-07-25
+session (11 images this time, still not saved to the repo) and answered a few follow-up questions.
+This session's job was mostly digestion — writing every confirmed detail into TODO.md so it isn't
+lost again — plus landing the one piece of new scope that was cleanly actionable without any
+further UI design decisions: real per-profession weapon availability data.
+
+- **New `Profession.weapons` field** (`src/shared/types/game-data.ts`): `Record<string,
+  ProfessionWeapon>`, where `ProfessionWeapon` is `{ flags: WeaponFlag[], specializationId: number
+  | null, skills: {id, slot}[] }`. Sourced directly from `/v2/professions`' own `weapons` object
+  (confirmed live, not hand-rolled) — `scripts/fetch-game-data.ts` updated to capture it, and
+  `data/game-data/professions.json` re-fetched. Sanity-checked against known GW2 facts: Guardian's
+  `Axe` carries `specializationId: 62` (Firebrand) and `Longbow` carries `27` (Dragonhunter) — both
+  correct. Also discovered, and left documented in TODO.md for whoever builds the weapon picker:
+  `Spear` is dual-use (`flags: ['TwoHand', 'Aquatic']`, 10 skill entries = 5 land + 5 underwater),
+  while `Trident` is underwater-only (same flags, only 5 entries) — the `Aquatic` flag is what
+  actually distinguishes underwater-eligible weapons, there's no separate "underwater weapon type"
+  list to maintain by hand. This is data-layer only; no UI consumes it yet.
+- **Screenshots fully transcribed into TODO.md**, replacing several previously-vague or
+  "unconfirmed" notes with hard specifics: the off-hand picker's real filtered-list example, the
+  `WEAPON I` / `WEAPON II` / `UNDERWATER` sections being always-visible (not tabs), the separate
+  `ENVIRONMENT` (land/water) toggle confirmed to actually switch the rendered weapon-skill bar,
+  exact infusion-slot counts per equipment-panel row (2 per weapon, 1 per armor piece, 1 per
+  trinket except 0 on the amulet — previously only the weapon count was confirmed), a real Superior
+  Rune tooltip proving the per-stage attribute list isn't a fixed alternating formula (Scholar:
+  Power/Ferocity/Power/Ferocity/Power/Ferocity at different values each stage), and a Relic tooltip
+  (Relic of the Warrior) showing a passive-modifier fact shape (`Weapon Swap Recharge Reduction:
+  25%`) that today's Buff-focused `extractFromFacts` doesn't yet handle — flagged so the relic work
+  doesn't assume every relic looks like the earlier Relic-of-Agony example.
+- **Dropped/downgraded two items** based on follow-up answers: the 1-handed weapon yellow/orange
+  tint is no longer a requirement (user doesn't have it confirmed and said the color doesn't
+  matter as long as hand/profession restrictions are correct); the itemstat-combo-picker "two
+  filter tabs" note from the original survey couldn't be reproduced by the user this time, so it's
+  now marked unconfirmed/possibly mistaken rather than a real gap.
+- **New, out-of-scope-for-now observation** worth remembering for a later polish pass: gw2skills.net
+  shows each trait line as a condensed one-row summary (spec icon + compact trait-icon grid) with
+  an expand arrow, rather than this app's always-expanded `TraitsEditor` grid.
+- **Verification**: `npm run typecheck` and `npm run lint` pass clean after the `Profession` type
+  change and fetch-script update. No UI changed this session, so no visual check was attempted.
+
 ## Session 10 — Elite specialization selector, unblocked by a trait-line data-model fix
 
 Continuation of "Build editor UI/UX overhaul," picking up the item Session 9 explicitly left

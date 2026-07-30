@@ -14,7 +14,369 @@
       62,
       65,
       81
-    ]
+    ],
+    "weapons": {
+      "Axe": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": 62,
+        "skills": [
+          {
+            "id": 45047,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 40624,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 45402,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Focus": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 9112,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 9082,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Greatsword": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 9137,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 9081,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 9080,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 9146,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 9147,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Hammer": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 9159,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 9194,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 9260,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 9124,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 9195,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Spear": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 9189,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 73055,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 9190,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 72940,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 72978,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 9191,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 73094,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 9192,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 73132,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 9193,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Longbow": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": 27,
+        "skills": [
+          {
+            "id": 30471,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 30229,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 29630,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 29789,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 30628,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Mace": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 9109,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 9111,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 9086,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Pistol": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 72031,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 71968,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 71987,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 71918,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 71817,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Scepter": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 9098,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 9090,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 9099,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Shield": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 15834,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 9087,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 9091,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Staff": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 9122,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 9140,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 9143,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 9265,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 9144,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Sword": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 9105,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 9097,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 9107,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 62525,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 62650,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Torch": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 9104,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 9088,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Trident": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 9205,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 9207,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 9208,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 9209,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 9206,
+            "slot": "Weapon_5"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "Warrior",
@@ -31,7 +393,407 @@
       61,
       68,
       74
-    ]
+    ],
+    "weapons": {
+      "Axe": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 14369,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 14421,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 14398,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 14418,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 14399,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Dagger": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": 61,
+        "skills": [
+          {
+            "id": 42745,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 46233,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 44937,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 44004,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 45160,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Greatsword": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 14356,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 14554,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 14447,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 14510,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 14446,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Hammer": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 14358,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 14386,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 14482,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 14359,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 14511,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Spear": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 72958,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 14437,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 72897,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 14440,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 72959,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 14448,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 72992,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 14441,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 73009,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 14480,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Longbow": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 14431,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 14519,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 14381,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 14505,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 14504,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Mace": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 14376,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 14507,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 14503,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 14518,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 14415,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Pistol": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": 68,
+        "skills": [
+          {
+            "id": 62697,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 62800,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Rifle": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 14432,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 14416,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 14472,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 34296,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 14360,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Shield": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 14361,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 14362,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Speargun": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 14552,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 14466,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 14481,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 14467,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 14465,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Staff": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 72024,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 72002,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 71860,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 72026,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 71889,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Sword": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 14364,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 14366,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 80247,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 14498,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 14400,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Torch": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": 18,
+        "skills": [
+          {
+            "id": 29845,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 29940,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Warhorn": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 14393,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 14394,
+            "slot": "Weapon_5"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "Engineer",
@@ -48,7 +810,248 @@
       57,
       70,
       75
-    ]
+    ],
+    "weapons": {
+      "Hammer": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": 43,
+        "skills": [
+          {
+            "id": 30501,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 30088,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 30665,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 29840,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 30713,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Spear": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 72944,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 73122,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 73002,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 72977,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 72974,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Mace": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": 70,
+        "skills": [
+          {
+            "id": 63186,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 63169,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 63234,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Pistol": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 5827,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5828,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 5829,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5831,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5830,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Rifle": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 6003,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 6153,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 6004,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 6154,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 6005,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Shield": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 6053,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 6054,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Shortbow": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 71873,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 72052,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 71882,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 71870,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 71888,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Speargun": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 6148,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 6147,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 50380,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 6149,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 6145,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Sword": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": 57,
+        "skills": [
+          {
+            "id": 43476,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 70514,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 44110,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 71121,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 40160,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 69565,
+            "slot": "Weapon_3"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "Ranger",
@@ -65,7 +1068,366 @@
       55,
       72,
       78
-    ]
+    ],
+    "weapons": {
+      "Axe": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 12466,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 12480,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 12490,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 12638,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 12639,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Dagger": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": 55,
+        "skills": [
+          {
+            "id": 45426,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 43536,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 46123,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 12478,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 12477,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Greatsword": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 12474,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 12525,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 12521,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 12522,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 12475,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Hammer": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": 72,
+        "skills": [
+          {
+            "id": 63118,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 69167,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 69262,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 69340,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 69212,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Spear": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 72922,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 12553,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 73110,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 12559,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 72928,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 12557,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 73020,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 12561,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 73008,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 12552,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Longbow": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 12510,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 12509,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 12573,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 12511,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 12469,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Mace": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 72088,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 71999,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 71963,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 71903,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 71841,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Shortbow": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 12470,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 12468,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 12517,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 12507,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 12508,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Speargun": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 12526,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 12529,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 12528,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 12527,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 12530,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Staff": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": 5,
+        "skills": [
+          {
+            "id": 31710,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 31889,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 31535,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 31700,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 31496,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Sword": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 12471,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 69203,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 12482,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Torch": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 12635,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 12504,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Warhorn": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 12620,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 12621,
+            "slot": "Weapon_5"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "Thief",
@@ -82,7 +1444,329 @@
       58,
       71,
       77
-    ]
+    ],
+    "weapons": {
+      "Axe": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 71967,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 71852,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 71965,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 71864,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 71895,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Dagger": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 13004,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 13097,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 13006,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 13040,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 13110,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 13019,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 16432,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Spear": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 73145,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 13119,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 73041,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 13069,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 72986,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 13122,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 72927,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 13070,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 72991,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 13068,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Pistol": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 13084,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 13008,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 13011,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 13010,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 13111,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 13012,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 13113,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Rifle": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": 58,
+        "skills": [
+          {
+            "id": 41422,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 41494,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 43916,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 41937,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 40600,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Scepter": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": 71,
+        "skills": [
+          {
+            "id": 63066,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 63351,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 63254,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 63267,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 63154,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Shortbow": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 13022,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 13041,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 13083,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 13024,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 13025,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Speargun": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 13072,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 13073,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 13074,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 13075,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 13076,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Staff": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": 7,
+        "skills": [
+          {
+            "id": 30614,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 29911,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 30520,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 30775,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 30597,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Sword": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 13009,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 13015,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 13016,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 80244,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 13112,
+            "slot": "Weapon_3"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "Elementalist",
@@ -99,7 +1783,916 @@
       56,
       67,
       80
-    ]
+    ],
+    "weapons": {
+      "Dagger": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 15718,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 15716,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5489,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 15717,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5496,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 5537,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 5646,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 5525,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 40963,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 46018,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 46140,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 42379,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 44652,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 42330,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5644,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5487,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5527,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5559,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5520,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5691,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5529,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5690,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5557,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 5558,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 5687,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 5522,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Focus": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 5497,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5556,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5530,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5555,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5678,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 5490,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 5562,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 5521,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Hammer": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": 67,
+        "skills": [
+          {
+            "id": 62925,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 62865,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 62747,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 62683,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 62884,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 62958,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 62812,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 62976,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 69246,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 69246,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 69413,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 69413,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 69211,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 69211,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 69164,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 69164,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 69341,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 69341,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 69184,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 69184,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 62758,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 62834,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 62887,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 62975,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 62807,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 62948,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 62947,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 62992,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 62910,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 62843,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 62716,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 62778,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Spear": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 73088,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 72966,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 73124,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 72910,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 73080,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 73061,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 73091,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 72905,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 72906,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 73062,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 73052,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 72914,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 73104,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 72916,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 73137,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 72967,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 73037,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 73019,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 72988,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 73148,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 72998,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 73010,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 73054,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 72982,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 72915,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 72900,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Pistol": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 71929,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 72033,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 71904,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 71893,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 71828,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 72028,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 71966,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 72032,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 71863,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 71898,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 71993,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 71960,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 72062,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 72023,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 71940,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 71935,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 71857,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 71842,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Scepter": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 5508,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5693,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5526,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5500,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5692,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 5538,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 5561,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 5695,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 40794,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 46014,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 45742,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 42954,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 43576,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 42181,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5675,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5510,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5694,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5696,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Staff": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 5491,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5549,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5518,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5519,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5548,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 5550,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 5552,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 5528,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 42321,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 44550,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 41184,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 43762,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 41125,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 40332,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5679,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5681,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5553,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5685,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5680,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5515,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5682,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5683,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5501,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 5551,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 5671,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 5686,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Sword": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": 56,
+        "skills": [
+          {
+            "id": 39964,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 41052,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 44681,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 43616,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 45313,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 44405,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 44998,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 40709,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 42271,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 43074,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 46447,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 42867,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 40170,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 46295,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 44451,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 41167,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 43803,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 40139,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Trident": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 5598,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5604,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5656,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5657,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 5597,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 5605,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 5655,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 5658,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 40378,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 41712,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 46185,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 46360,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 41001,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 39981,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5566,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5606,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5652,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5662,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 5599,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5748,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5648,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5659,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 5600,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 5607,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 5650,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 5661,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Warhorn": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": 48,
+        "skills": [
+          {
+            "id": 29548,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 30864,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 30008,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 29453,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 29533,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 30446,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 30795,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 30336,
+            "slot": "Weapon_5"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "Mesmer",
@@ -116,7 +2709,356 @@
       59,
       66,
       73
-    ]
+    ],
+    "weapons": {
+      "Axe": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": 59,
+        "skills": [
+          {
+            "id": 44791,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 69344,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 69344,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 45243,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 69385,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 69385,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 43761,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Dagger": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": 66,
+        "skills": [
+          {
+            "id": 62510,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 62560,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 62560,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 69311,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 62607,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Focus": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 10186,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 10282,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Greatsword": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 10219,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 10333,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 10218,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 10221,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 10220,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Spear": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 73154,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 10315,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 73093,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 10318,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 73152,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 10251,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 72946,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 10325,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 72957,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 10255,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Pistol": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 10175,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 10229,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Rifle": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 71892,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 71897,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 72005,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 72007,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 72008,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Scepter": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 10289,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 10276,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 10168,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Shield": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": 40,
+        "skills": [
+          {
+            "id": 30769,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 30643,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Staff": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 10273,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 10310,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 10216,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 10331,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 10169,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Sword": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 10334,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 62568,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 62568,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 10173,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 10170,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 10280,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 10174,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Torch": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 10285,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 10189,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Trident": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 10258,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 10259,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 10327,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 10328,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 10260,
+            "slot": "Weapon_5"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "Necromancer",
@@ -133,7 +3075,309 @@
       60,
       64,
       76
-    ]
+    ],
+    "weapons": {
+      "Axe": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 10561,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 10528,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 10701,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Dagger": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 10702,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 69302,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 10529,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 10705,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 10706,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Focus": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 55050,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 10555,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Greatsword": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": 34,
+        "skills": [
+          {
+            "id": 29705,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 30163,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 30860,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 29855,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 29740,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Spear": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 73012,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 10692,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 73068,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 10694,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 73013,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 10619,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 73107,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 10695,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 73007,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 10616,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Pistol": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": 64,
+        "skills": [
+          {
+            "id": 62517,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 62513,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 62511,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Scepter": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 10698,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 10532,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 10709,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Staff": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 10596,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 19117,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 10605,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 19116,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 19115,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Sword": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 71986,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 71883,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 71799,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 71813,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 71998,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Torch": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": 60,
+        "skills": [
+          {
+            "id": 45846,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 44296,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Trident": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 10623,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 10624,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 10625,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 10628,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 10629,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Warhorn": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 10556,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 10557,
+            "slot": "Weapon_5"
+          }
+        ]
+      }
+    }
   },
   {
     "id": "Revenant",
@@ -150,6 +3394,303 @@
       63,
       69,
       79
-    ]
+    ],
+    "weapons": {
+      "Axe": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 28029,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 28409,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Greatsword": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": 69,
+        "skills": [
+          {
+            "id": 62913,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 62692,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 62895,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 62921,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 62929,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Hammer": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 28549,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 28253,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 27976,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 27665,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 28110,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Spear": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 73015,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 28714,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 72972,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 28915,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 72938,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 28827,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 72954,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 28692,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 73059,
+            "slot": "Weapon_5"
+          },
+          {
+            "id": 28930,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Mace": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 27066,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 28357,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 27964,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Scepter": {
+        "flags": [
+          "Mainhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 71933,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 71816,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 71952,
+            "slot": "Weapon_3"
+          }
+        ]
+      },
+      "Shield": {
+        "flags": [
+          "Offhand"
+        ],
+        "specializationId": 52,
+        "skills": [
+          {
+            "id": 29386,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 28262,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Shortbow": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": 63,
+        "skills": [
+          {
+            "id": 40497,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 40175,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 41829,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 43993,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 41820,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Staff": {
+        "flags": [
+          "TwoHand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 29180,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 29145,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 29288,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 29321,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 28978,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Sword": {
+        "flags": [
+          "Mainhand",
+          "Offhand"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 29057,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 29233,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 26699,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 28472,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 28571,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 27074,
+            "slot": "Weapon_5"
+          }
+        ]
+      },
+      "Trident": {
+        "flags": [
+          "TwoHand",
+          "Aquatic"
+        ],
+        "specializationId": null,
+        "skills": [
+          {
+            "id": 50395,
+            "slot": "Weapon_1"
+          },
+          {
+            "id": 50456,
+            "slot": "Weapon_2"
+          },
+          {
+            "id": 50390,
+            "slot": "Weapon_3"
+          },
+          {
+            "id": 50410,
+            "slot": "Weapon_4"
+          },
+          {
+            "id": 50483,
+            "slot": "Weapon_5"
+          }
+        ]
+      }
+    }
   }
 ]

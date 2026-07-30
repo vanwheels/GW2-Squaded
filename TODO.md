@@ -182,44 +182,64 @@
         already exists as per-skill metadata in game-data (`game-data.ts:76`). This UI is the
         natural place to finally capture weapon type per slot (ties into the gear-scaling
         limitation above where all weapon slots currently use the one-handed attribute constant).
-        Weapon-picker reference screenshots received 2026-07-25 clarify the UX and data needs:
+        The original 2026-07-25 reference screenshots were never saved; a fresh set (11 images) was
+        provided 2026-07-29 (also not saved to the repo — re-request if needed) and is fully
+        digested below, so nothing was lost.
+    - [x] **Foundational data landed this session**: `Profession` (`src/shared/types/game-data.ts`)
+          gained a `weapons: Record<string, ProfessionWeapon>` field —
+          `{ flags: WeaponFlag[], specializationId: number | null, skills: {id, slot}[] }` per
+          weapon type, sourced directly from `/v2/professions`' own `weapons` object (confirmed via
+          live API call, not hand-rolled). `scripts/fetch-game-data.ts` updated to capture it;
+          `data/game-data/professions.json` re-fetched. Verified against real examples: Guardian's
+          `Axe` carries `specializationId: 62` (Firebrand) and `Longbow` carries `27`
+          (Dragonhunter) — both match known unlocks, confirming the field means what it says.
+          `Spear` carries `flags: ['TwoHand', 'Aquatic']` with **10** skill entries (5 land + 5
+          underwater variants — it's the one dual-use land/underwater weapon), while `Trident`
+          carries `['TwoHand', 'Aquatic']` with only 5 (underwater-only, no land variant) — the
+          `Aquatic` flag is what distinguishes underwater-eligible weapons, not a separate
+          "underwater weapon type" list. Land-slot options = weapons whose `flags` include the
+          slot's needed hand flag; underwater-slot options = weapons whose `flags` include
+          `Aquatic`. Not yet wired into any UI/equipment model — this is the data layer only.
     - [ ] Choosing a weapon *type* (sword/axe/bow/etc.) is its own picker, separate from the
           existing stat-combo/sigil/infusion pickers on the equipped-weapon icon — a horizontal
-          row of weapon-type icons scoped to what the current profession can use.
-    - [ ] **Off-hand (2nd slot) picker shows a different, filtered list than main-hand**, not the
-          full weapon list — e.g. after picking a main-hand weapon, the off-hand picker offered
-          only axe/sword/shield in one screenshot. This is real GW2 main-hand-only / off-hand-only
-          / either-hand / two-handed weapon restriction per profession, not free choice — model it
-          from the GW2 API's `/v2/professions` response, which already includes a `weapons` object
-          keyed by weapon type with a `flags` array (`Mainhand`/`Offhand`/`TwoHand`/`Aquatic`) —
-          don't hand-roll this table, fetch it.
+          row of weapon-type icons scoped to what the current profession can use. Confirmed via
+          screenshot: this row appears inline in the `WEAPON I` header area once a profession is
+          selected (**profession must be chosen first** — the picker has nothing to show before
+          that, since availability is per-profession).
+    - [x] Off-hand (2nd slot) picker shows a different, filtered list than main-hand — confirmed
+          via screenshot (Revenant, main-hand Mace picked → off-hand picker offered only Axe /
+          Sword / Shield). Real GW2 hand-restriction, now directly modeled by the `ProfessionWeapon`
+          data above (see foundational-data item) — implement by filtering on `flags`, not by
+          fetching anything new.
     - [ ] A 2-handed weapon occupies both the main- and off-hand slot as a single entry (matches
-          in-game); a 1-handed weapon leaves the other slot independently choosable. User noted
-          gw2skills.net renders 1-handed weapon icons with a yellow/orange tint as a visual cue —
-          exact color semantics for 2-handed (and whether that tint is consistent regardless of
-          which weapon-swap-set tab is focused) weren't fully pinned down from the screenshots
-          alone; treat as a minor visual-polish detail to confirm by testing against the wiki/live
-          site later, not a blocker for the underlying data modeling.
-    - [ ] Underwater uses its own weapon bar (Spear main-hand, Trident/Harpoon Gun) with its own
-          swap toggle, separate from the land Weapon I/II swap — matches the existing UI tab
-          layout (`WEAPON I` / `WEAPON II` / `UNDERWATER` as 3 distinct sections) seen in every
-          full-build screenshot so far.
+          in-game); a 1-handed weapon leaves the other slot independently choosable. Re-asked about
+          the yellow/orange 1-handed tint this session — user doesn't have it confirmed either way
+          and said the color doesn't matter as long as main/off-hand and per-profession
+          availability are modeled correctly. **Drop the tint as a requirement**; treat as optional
+          visual polish only if it comes up again later.
+    - [x] Underwater uses its own weapon bar with its own swap toggle, separate from the land
+          Weapon I/II swap — confirmed via screenshot: `WEAPON I` / `WEAPON II` / `UNDERWATER` are
+          3 always-visible sections in the top bar (not tabs that hide each other), each with its
+          own independent swap-set toggle. A Revenant example screenshot showed Mace/Axe (land) +
+          Trident (underwater) all populated simultaneously.
     - [ ] Each weapon slot (once a type is chosen) still has its own sigil (×1–2) and infusion
-          (×2) pickers layered on top, per the earlier equipment-panel screenshots — the
+          (×2) pickers layered on top — confirmed via the equipment-panel screenshots this session
+          too (every weapon row shows the item icon plus 2 upgrade-slot badges beside it); the
           weapon-type picker is an additional *new* picker, not a replacement for those.
-    - [ ] **Need a land/underwater toggle that scopes both the skill bar and the boon/condition
-          calculator** (user note, 2026-07-25) — underwater weapon skills are a different skill
-          set from land weapon skills, and some skills either don't work underwater at all or have
-          a distinct underwater-specific version. Without a toggle, `BoonUptimePanel` would mix
-          land-only and underwater-only boon/condition sources together into one misleading total.
-          Needs: (1) a UI toggle (mirrors the existing land/underwater split already visible in
-          the `WEAPON I`/`WEAPON II` vs `UNDERWATER` tabs) that also filters which skill bar is
-          shown; (2) `sources.ts`/`BoonUptimePanel` gated by that same toggle so only the
-          currently-selected context's sources are summed; (3) data-modeling for skills with no
-          underwater functionality at all (excluded entirely in that mode) vs. skills with a
-          distinct underwater variant (different facts/duration/effects, not just a reused land
-          entry) — check whether the GW2 API already flags this per skill (e.g. a `flags` array
-          entry, or a separate underwater skill id) before inventing new modeling for it.
+    - [x] Need a land/underwater toggle that scopes both the skill bar and the boon/condition
+          calculator — confirmed via screenshot: a separate `ENVIRONMENT` control (tree icon =
+          land / wave icon = underwater, active one underlined orange) is what actually switches
+          which skill bar (slots 1-5, the weapon skills) and which stats/boon totals are shown —
+          distinct from the underwater weapon-swap-set's own internal toggle noted above. Confirmed
+          behavior across 2 screenshots of the same build: toggling `ENVIRONMENT` from land to
+          water swapped the rendered weapon-skill icons in slots 1-5 from the land set to the
+          underwater set, with the rest of the build (traits, other skills, stats) unchanged.
+          Real-data note for the "distinct underwater skill variant" sub-question: since `Spear`
+          alone carries 10 skill entries split by `slot` value (5x `Weapon_1..5` land + 5 more of
+          the same slot names, presumably order-distinguished — needs closer inspection of the raw
+          entries when this is implemented) while single-context weapons only have 5, the
+          land-vs-underwater skill id split is already fully present in the `ProfessionWeapon.skills`
+          data fetched above — no additional API flag hunting needed.
   - [x] Minor traits: original complaint was "no hover tooltip at all," but survey finding showed
         minor traits actually already carried a native `title=` same as majors — so there was no
         missing-wiring bug here specifically. Wired into the new `Tooltip` component along with
@@ -269,33 +289,49 @@
     - [ ] **Runes/sigils: only the top ("Superior") tier matters** — user explicitly said lower
           rune/sigil tiers (the non-Superior "Rune of X" / "Major Rune of X" progression) don't
           need to be fetched or selectable, only "Superior Rune of X" / "Superior Sigil of X".
-          Rune tooltips show a numbered (1)–(6) stat-bonus list (screenshot: Superior Rune of
-          Antitoxin) — bonuses unlock progressively based on how many pieces of that rune are
-          equipped (standard GW2 mechanic: 6 armor pieces → up to 6 stages), so the data model
-          needs the full per-count bonus table per rune, and the stats calc needs to count
+          Rune tooltips show a numbered (1)–(6) stat-bonus list — bonuses unlock progressively
+          based on how many pieces of that rune are equipped (standard GW2 mechanic: 6 armor
+          pieces → up to 6 stages). **Confirmed via a fresh screenshot (2026-07-29, Superior Rune
+          of the Scholar): the per-stage attribute is NOT a fixed alternating pattern** — this
+          rune's 6 stages read `+25 Power / +35 Ferocity / +50 Power / +65 Ferocity / +100 Power /
+          +125 Ferocity`, i.e. Power and Ferocity interleaved but at different values each stage,
+          not a simple "same two attributes repeating a formula." The data model needs the full
+          literal per-stage `{attribute, value}` list sourced per rune (from the API's item facts
+          or the wiki), not a derived/computed formula — and the stats calc needs to count
           same-rune armor pieces to know which stages are active. Sigils are 1–2 per weapon
-          (2 on two-handed, 1 each on main/off-hand) and don't have a count-based stage mechanic
-          (screenshot: Superior Sigil of Absorption tooltip is a single flat effect).
+          (2 on two-handed, 1 each on main/off-hand) and don't have a count-based stage mechanic —
+          confirmed via a fresh screenshot too (Superior Sigil of Force: flat "+5% strike damage",
+          one effect, no stages).
     - [ ] **Infusions: only WvW-specific infusions matter** — user said ignore Agony infusions and
           other general infusion types; only fetch/support ones like "Concentration WvW Infusion",
-          "Expertise WvW Infusion", "Healing WvW Infusion" (screenshot shows these grant a small
-          flat stat, e.g. +5 Concentration, plus a WvW-flavored secondary effect like "-1% damage
-          taken from Guards/Lords/Supervisors"). Infusion slots exist on weapons (2 per weapon,
-          confirmed from screenshot) and on armor + all trinkets **except the amulet** (user's
-          explicit rule) — confirm exact per-slot infusion counts against the wiki when
-          implementing, screenshots only clearly showed weapon slots with 2 each.
-    - [ ] **Relics are a must-have, not optional** — exactly 1 relic equipped per build (single
-          slot, screenshot shows a dedicated relic picker). Relics grant effects through the
-          *same* `Fact` system already used for skills/traits (screenshot: Relic of Agony's
-          tooltip shows a `Buff`/damage-style fact list identical in shape to skill/trait facts —
-          "Agony of the Choir (3 sec): 464 Damage", "Interval: 3 sec"), so relics should plug into
-          the existing `sources.ts` boon/condition extraction path, not a separate one-off system.
+          "Expertise WvW Infusion", "Healing WvW Infusion". **Confirmed via a fresh screenshot**
+          (Mighty WvW Infusion: "+5 Power" flat stat plus "+1% Damage to Guards/Lords/Supervisors"
+          WvW-flavored secondary effect) — matches the originally-assumed shape exactly. **Exact
+          per-slot infusion counts now fully confirmed via the 2026-07-29 equipment-panel
+          screenshots** (previously only weapon slots were confirmed): weapons get 2 each (both
+          Weapon I and Weapon II rows showed 2 upgrade-slot badges per weapon icon); every one of
+          the 6 armor pieces gets exactly 1; every trinket gets exactly 1 **except the amulet,
+          which visibly has none** — directly confirms the user's earlier rule, no wiki
+          cross-check needed anymore.
+    - [ ] **Relics are a must-have, not optional** — exactly 1 relic equipped per build. Relics
+          grant effects through the *same* `Fact` system already used for skills/traits, so relics
+          should plug into the existing `sources.ts` boon/condition extraction path, not a separate
+          one-off system — **but a fresh screenshot this session (2026-07-29, Relic of the
+          Warrior) shows a fact shape `extractFromFacts` doesn't handle yet**: "Weapon swap
+          recharge time is reduced." plus a named, non-Buff, non-duration fact
+          ("Weapon Swap Recharge Reduction: 25%") — a flat passive modifier, not a `Buff`/duration
+          or a `Damage`-per-interval shape like the previously-seen Relic of Agony example. When
+          this is implemented, `extractFromFacts`/the `Fact` type may need to widen beyond the
+          current Buff-focused handling (or explicitly skip unrecognized fact `type`s rather than
+          silently mis-rendering them) — check a handful of other relics' facts before assuming
+          Buff-shaped is the common case. Still no dedicated relic-*picker* screenshot (only the
+          tooltip) — picker UI/placement can be designed reasonably without one.
     - [ ] **Food and utility consumables: keep the full list selectable, don't pre-filter to a
           "WvW meta" subset** — user was explicit here despite there being a lot of options ("it's
           best to keep them all available"). Deferred fast-follow (not blocking first pass, but
           worth a placeholder TODO sub-item once this ships): add a "Favorites" marker so users
           can pin their preferred food/utility choices to the top of the selection list.
-    - [ ] Stats sidebar layout (from full-build screenshots, before/after gearing up): two columns
+    - [x] Stats sidebar layout (from full-build screenshots, before/after gearing up): two columns
           of icon+number rows. Left column = raw/base attribute totals (Power, Toughness,
           Vitality, Precision, Ferocity, Healing Power, Condition Damage, Expertise,
           Concentration — standard GW2 core+secondary attributes). Right column = derived/
@@ -306,6 +342,19 @@
           the same character the totals rose to Power 2947, Precision 1960 (83.71% crit),
           Ferocity 1255 (233.67% crit damage), Armor 2271, Magic Find 20%, etc. — confirms the
           panel is a live recompute of everything equipped, not a static per-slot display.
+          **Re-confirmed with a second, independently-sourced before/after pair (2026-07-29,
+          Revenant)**: empty build again showed the same flat base values; after gearing (weapon +
+          full armor/accessories, no consumables yet in this particular pair) the same two-column
+          layout showed Power 3187, Precision 1960 (50.71% crit), Ferocity 1255 (233.67% crit
+          damage), Armor 2271, Magic Find 20% — consistent shape and behavior across two different
+          professions/gear sets, scope considered closed (design confirmed, not yet implemented).
+          Also newly spotted in these screenshots, **not part of this item's scope**: gw2skills.net
+          shows each of the 3 trait lines as a condensed one-row summary (spec icon + a compact
+          grid of the chosen minor/major trait icons) with a "▶" expand control, rather than an
+          always-expanded per-tier grid like this app's current `TraitsEditor` — worth considering
+          for a future polish pass on the traits UI, but out of scope for the stats-panel item.
+          Two small unlabeled counters were also visible near the trait area (possibly Mastery/WvW
+          rank points) — purpose unclear from the screenshot alone, not investigated further.
     - [ ] Bottom "Conditions / Boons / Control / Auras / Miscellaneous / Combo" icon bar (already
           partially built as `BoonUptimePanel`, boons+conditions only): full screenshots show this
           bar in-game actually also covers Control (e.g. Daze), Auras, Miscellaneous (e.g.
@@ -319,16 +368,14 @@
           lists each heal skill on the bar with its computed heal amount at current Healing Power,
           e.g. "[6] Breakrazor's Bastion - 4,655; 416; 2,081") — a nice stretch goal once base
           Healing Power total is correct, not needed for v1 of the stats panel.
-    - [ ] Still open / optional: a screenshot of the actual weapon-*type* picker (choosing sword
-          vs. dagger vs. staff etc. for a weapon slot, before stats/sigils/infusions attach to it)
-          was not captured — the given screenshots only show slots already populated. Ask for it
-          if the weapon-selection sub-item (under this same overhaul, item above) needs it; likely
-          inferable from wiki data without it.
-    - [ ] Minor, non-blocking: the itemStat-combo picker screenshot showed two filter tabs (pink
-          vs. grey armor-shaped icon, unlabeled) above the stat-combo list (Apothecary, Assassin,
-          Berserker, Bringer, ...) — possibly an Ascended-vs-Exotic prefix-availability filter.
-          `EquipmentEditor` doesn't have this today; check the wiki's itemstat data for whether any
-          prefixes are tier-exclusive before deciding if this needs replicating.
+    - [x] The weapon-*type* picker screenshot gap is now closed — captured 2026-07-29 as part of
+          the weapon-selection reference set; see the weapon-selection item above for details.
+    - [ ] Minor, non-blocking, still genuinely unresolved: an earlier survey guessed the itemstat-
+          combo picker might have two filter tabs (pink vs. grey armor-shaped icon) for an
+          Ascended-vs-Exotic availability filter. Asked again 2026-07-29 — user has no screenshot
+          of this and wasn't sure what was meant, so **treat the original observation as
+          unconfirmed/possibly mistaken**, not a real gap. `EquipmentEditor` doesn't have any such
+          tabs today; leave as-is unless it resurfaces with a concrete example.
 - [ ] Squad preview builder (drag-and-drop party grid; WvWSquadCrafter as UX reference only —
       no shared code/assets without explicit permission, no LICENSE on that repo)
 - [ ] Thin backend: generate/resolve shareable immutable links for builds and squad comps
