@@ -5,40 +5,44 @@ import { formatBoonDuration } from '@shared/boon-calc/format'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
+import { WeaponSkillBar } from './WeaponSkillBar'
 
 interface Props {
   build: Build
   value: SkillSelection
   onChange: (value: SkillSelection) => void
+  onBuildChange: (patch: Partial<Pick<Build, 'environment' | 'activeWeaponSet' | 'activeUnderwaterSet'>>) => void
   equippedSpecializationIds: ReadonlySet<number>
 }
 
 type SlotId = 'heal' | 'utility0' | 'utility1' | 'utility2' | 'elite'
 
-export function SkillsEditor({ build, value, onChange, equippedSpecializationIds }: Props) {
-  if (value.kind === 'revenant') {
-    return (
-      <RevenantSkillsEditor
-        build={build}
-        value={value}
-        onChange={onChange}
-        equippedSpecializationIds={equippedSpecializationIds}
-      />
-    )
-  }
+export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSpecializationIds }: Props) {
   return (
-    <StandardSkillsEditor
-      build={build}
-      value={value}
-      onChange={onChange}
-      equippedSpecializationIds={equippedSpecializationIds}
-    />
+    <div className="skills-editor-root">
+      {value.kind === 'revenant' ? (
+        <RevenantSkillsEditor
+          build={build}
+          value={value}
+          onChange={onChange}
+          equippedSpecializationIds={equippedSpecializationIds}
+        />
+      ) : (
+        <StandardSkillsEditor
+          build={build}
+          value={value}
+          onChange={onChange}
+          equippedSpecializationIds={equippedSpecializationIds}
+        />
+      )}
+      <WeaponSkillBar build={build} onBuildChange={onBuildChange} />
+    </div>
   )
 }
 
 /** Shared by both editors: activeTraitIds + gear-derived boon/condition duration %, needed to
  *  compute a skill's scaled boon/condition tooltip facts the same way `BoonUptimePanel` does. */
-function useDurationContext(build: Build) {
+export function useDurationContext(build: Build) {
   const gameData = useGameData()
   const activeIds = useMemo(() => activeTraitIds(build, gameData.traits), [build, gameData.traits])
   const durationPercent = useMemo(() => {
@@ -48,7 +52,7 @@ function useDurationContext(build: Build) {
   return { gameData, activeIds, durationPercent }
 }
 
-function skillTooltipContent(skill: Skill, facts: BoonConditionSource[]) {
+export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[]) {
   return (
     <>
       <TooltipBody title={skill.name} description={skill.description} />

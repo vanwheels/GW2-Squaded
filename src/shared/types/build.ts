@@ -60,10 +60,21 @@ export type EquipmentSlotKey =
   | 'weaponA2'
   | 'weaponB1'
   | 'weaponB2'
+  | 'weaponU1'
+  | 'weaponU2'
 
 export interface EquipmentSlot {
   itemStatId: number | null
+  /** Key into `Profession.weapons` (e.g. `"Greatsword"`). Only meaningful for the 6 weapon slot
+   *  keys above — armor/trinket slots never populate this. */
+  weaponType?: string | null
 }
+
+/** Whether a build is currently theorycrafted for land or underwater combat — scopes both the
+ *  weapon-skill bar and the boon/condition calculator's weapon-derived sources, since a build
+ *  can't be in both contexts at once (unlike the land weapon-swap sets, which are both always
+ *  equipped — see `Build.activeWeaponSet`). */
+export type Environment = 'land' | 'underwater'
 
 /**
  * A theoretical stat build: profession + specialization/trait choices + skills +
@@ -78,6 +89,13 @@ export interface Build {
   specializations: TraitLineSlots
   skills: SkillSelection
   equipment: Partial<Record<EquipmentSlotKey, EquipmentSlot>>
+  environment: Environment
+  /** Which land weapon-swap set's skill bar is currently displayed — display-only, both sets'
+   *  skills always contribute to boon/condition totals since a player carries both and can swap
+   *  anytime (same reasoning as `RevenantSkillSelection.activeLegendIndex`). */
+  activeWeaponSet: 'A' | 'B'
+  /** Same as `activeWeaponSet`, for the 2 underwater swap sets. */
+  activeUnderwaterSet: 'U1' | 'U2'
   createdAt: Timestamp
   updatedAt: Timestamp
 }

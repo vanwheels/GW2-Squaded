@@ -1,10 +1,13 @@
-import type { ItemStat, EquipmentSlotKey } from '@shared/types'
+import type { EquipmentSlot, EquipmentSlotKey, ItemStat, ProfessionId, ProfessionWeapon } from '@shared/types'
 import { useGameData } from '@renderer/state/game-data-store'
+import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { SlotIcon, type SlotIconType } from './SlotIcon'
 
 interface Props {
-  value: Partial<Record<EquipmentSlotKey, { itemStatId: number | null }>>
-  onChange: (value: Partial<Record<EquipmentSlotKey, { itemStatId: number | null }>>) => void
+  value: Partial<Record<EquipmentSlotKey, EquipmentSlot>>
+  onChange: (value: Partial<Record<EquipmentSlotKey, EquipmentSlot>>) => void
+  profession: ProfessionId
+  equippedSpecializationIds: ReadonlySet<number>
 }
 
 /**
@@ -65,22 +68,13 @@ const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string; icon: SlotIconType 
   { key: 'amulet', label: 'Amulet', icon: 'amulet' }
 ]
 
-const WEAPON_SET_A: { key: EquipmentSlotKey; label: string }[] = [
-  { key: 'weaponA1', label: 'Main hand' },
-  { key: 'weaponA2', label: 'Off hand' }
-]
-
-const WEAPON_SET_B: { key: EquipmentSlotKey; label: string }[] = [
-  { key: 'weaponB1', label: 'Main hand' },
-  { key: 'weaponB2', label: 'Off hand' }
-]
-
-export function EquipmentEditor({ value, onChange }: Props) {
-  const { itemStats } = useGameData()
+export function EquipmentEditor({ value, onChange, profession: professionId, equippedSpecializationIds }: Props) {
+  const { itemStats, professions, skillsById } = useGameData()
   const sortedStats = dedupedStats(itemStats).sort((a, b) => a.name.localeCompare(b.name))
+  const profession = professions.find((p) => p.id === professionId)
 
-  function setSlot(key: EquipmentSlotKey, itemStatId: number | null): void {
-    onChange({ ...value, [key]: { itemStatId } })
+  function setItemStat(key: EquipmentSlotKey, itemStatId: number | null): void {
+    onChange({ ...value, [key]: { itemStatId, weaponType: value[key]?.weaponType ?? null } })
   }
 
   function renderSlot(key: EquipmentSlotKey, label: string, icon: SlotIconType) {
@@ -93,8 +87,172 @@ export function EquipmentEditor({ value, onChange }: Props) {
           <span className="gear-slot-label">{label}</span>
           <select
             value={value[key]?.itemStatId ?? ''}
-            onChange={(e) => setSlot(key, e.target.value ? Number(e.target.value) : null)}
+            onChange={(e) => setItemStat(key, e.target.value ? Number(e.target.value) : null)}
           >
+            <option value="">— None —</option>
+            {sortedStats.map((stat) => (
+              <option key={stat.id} value={stat.id}>
+                {stat.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+    )
+  }
+
+  /** Weapon types this profession can use in a given hand context, gated by equipped elite specs
+   *  the same way `skillsForProfessionAndSlot`/`legendsForSpecializations` gate skills/legends. */
+  function weaponOptions(filter: (w: ProfessionWeapon) => boolean): [string, ProfessionWeapon][] {
+    if (!profession) return []
+    return Object.entries(profession.weapons).filter(
+      ([, w]) => filter(w) && (w.specializationId === null || equippedSpecializationIds.has(w.specializationId))
+    )
+  }
+
+  function weaponIcon(weapon: ProfessionWeapon): string {
+    const firstSkillId = weapon.skills[0]?.id
+    return (firstSkillId !== undefined ? skillsById.get(firstSkillId)?.icon : undefined) ?? ''
+  }
+
+  function weaponTypeRow(
+    options: [string, ProfessionWeapon][],
+    chosen: string | null,
+    onChoose: (weaponType: string | null) => void
+  ) {
+    return (
+      <div className="profession-picker-row">
+        <Tooltip content={<TooltipBody title="None" />}>
+          <button
+            type="button"
+            className={chosen === null ? 'spec-icon-button core-spec-button chosen' : 'spec-icon-button core-spec-button'}
+            onClick={() => onChoose(null)}
+          >
+            —
+          </button>
+        </Tooltip>
+        {options.map(([name, weapon]) => (
+          <Tooltip key={name} content={<TooltipBody title={name} />}>
+            <button
+              type="button"
+              className={chosen === name ? 'spec-icon-button weapon-type-button chosen' : 'spec-icon-button weapon-type-button'}
+              style={{ backgroundImage: `url(${weaponIcon(weapon)})` }}
+              onClick={() => onChoose(name)}
+            />
+          </Tooltip>
+        ))}
+      </div>
+    )
+  }
+
+  /**
+   * A main+off hand pair (land Set A/B). A two-handed main-hand weapon mirrors its `weaponType`
+   * and `itemStatId` onto the off-hand key and locks it (matches the real game: a two-handed
+   * weapon occupies both slots as one item) — see `attribute-totals.ts` for why mirroring the
+   * one-handed attribute constant onto both slots, rather than special-casing a two-handed
+   * constant, already produces the correct total.
+   */
+  function renderWeaponPair(mainKey: EquipmentSlotKey, offKey: EquipmentSlotKey, mainLabel: string, offLabel: string) {
+    const mainSlot = value[mainKey]
+    const mainWeapon = mainSlot?.weaponType ? profession?.weapons[mainSlot.weaponType] : undefined
+    const isTwoHanded = mainWeapon?.flags.includes('TwoHand') ?? false
+
+    const mainOptions = weaponOptions((w) => w.flags.includes('Mainhand') || w.flags.includes('TwoHand'))
+    const offOptions = weaponOptions((w) => w.flags.includes('Offhand'))
+
+    function chooseMain(weaponType: string | null): void {
+      const newWeapon = weaponType ? profession?.weapons[weaponType] : undefined
+      const newIsTwoHanded = newWeapon?.flags.includes('TwoHand') ?? false
+      const itemStatId = mainSlot?.itemStatId ?? null
+      const nextMain: EquipmentSlot = { itemStatId, weaponType }
+      const nextOff: EquipmentSlot = newIsTwoHanded
+        ? { itemStatId, weaponType }
+        : isTwoHanded
+          ? { itemStatId: null, weaponType: null }
+          : (value[offKey] ?? { itemStatId: null, weaponType: null })
+      onChange({ ...value, [mainKey]: nextMain, [offKey]: nextOff })
+    }
+
+    function setMainItemStat(itemStatId: number | null): void {
+      const nextMain: EquipmentSlot = { itemStatId, weaponType: mainSlot?.weaponType ?? null }
+      onChange({
+        ...value,
+        [mainKey]: nextMain,
+        ...(isTwoHanded ? { [offKey]: { itemStatId, weaponType: mainSlot?.weaponType ?? null } } : {})
+      })
+    }
+
+    function chooseOff(weaponType: string | null): void {
+      onChange({ ...value, [offKey]: { itemStatId: value[offKey]?.itemStatId ?? null, weaponType } })
+    }
+
+    function setOffItemStat(itemStatId: number | null): void {
+      onChange({ ...value, [offKey]: { itemStatId, weaponType: value[offKey]?.weaponType ?? null } })
+    }
+
+    return (
+      <div className="gear-weapon-pair" key={mainKey}>
+        <div className="gear-slot weapon-slot">
+          {weaponTypeRow(mainOptions, mainSlot?.weaponType ?? null, chooseMain)}
+          <label className="gear-slot-body">
+            <span className="gear-slot-label">{mainLabel}</span>
+            <select value={mainSlot?.itemStatId ?? ''} onChange={(e) => setMainItemStat(e.target.value ? Number(e.target.value) : null)}>
+              <option value="">— None —</option>
+              {sortedStats.map((stat) => (
+                <option key={stat.id} value={stat.id}>
+                  {stat.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <div className="gear-slot weapon-slot">
+          {isTwoHanded ? (
+            <div className="weapon-slot-locked">(2-handed)</div>
+          ) : (
+            <>
+              {weaponTypeRow(offOptions, value[offKey]?.weaponType ?? null, chooseOff)}
+              <label className="gear-slot-body">
+                <span className="gear-slot-label">{offLabel}</span>
+                <select
+                  value={value[offKey]?.itemStatId ?? ''}
+                  onChange={(e) => setOffItemStat(e.target.value ? Number(e.target.value) : null)}
+                >
+                  <option value="">— None —</option>
+                  {sortedStats.map((stat) => (
+                    <option key={stat.id} value={stat.id}>
+                      {stat.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  /** A single underwater weapon slot — no hand pairing, since every aquatic weapon type is
+   *  confirmed `TwoHand` (verified against the live API for every profession). */
+  function renderUnderwaterSlot(key: EquipmentSlotKey, label: string) {
+    const slot = value[key]
+    const options = weaponOptions((w) => w.flags.includes('Aquatic'))
+
+    function choose(weaponType: string | null): void {
+      onChange({ ...value, [key]: { itemStatId: slot?.itemStatId ?? null, weaponType } })
+    }
+
+    function setStat(itemStatId: number | null): void {
+      onChange({ ...value, [key]: { itemStatId, weaponType: slot?.weaponType ?? null } })
+    }
+
+    return (
+      <div className="gear-slot weapon-slot" key={key}>
+        {weaponTypeRow(options, slot?.weaponType ?? null, choose)}
+        <label className="gear-slot-body">
+          <span className="gear-slot-label">{label}</span>
+          <select value={slot?.itemStatId ?? ''} onChange={(e) => setStat(e.target.value ? Number(e.target.value) : null)}>
             <option value="">— None —</option>
             {sortedStats.map((stat) => (
               <option key={stat.id} value={stat.id}>
@@ -115,12 +273,17 @@ export function EquipmentEditor({ value, onChange }: Props) {
       </div>
       <div className="gear-weapons">
         <div className="gear-weapon-set">
-          <h4>Set A</h4>
-          {WEAPON_SET_A.map((s) => renderSlot(s.key, s.label, 'weapon'))}
+          <h4>Weapon I</h4>
+          {renderWeaponPair('weaponA1', 'weaponA2', 'Main hand', 'Off hand')}
         </div>
         <div className="gear-weapon-set">
-          <h4>Set B</h4>
-          {WEAPON_SET_B.map((s) => renderSlot(s.key, s.label, 'weapon'))}
+          <h4>Weapon II</h4>
+          {renderWeaponPair('weaponB1', 'weaponB2', 'Main hand', 'Off hand')}
+        </div>
+        <div className="gear-weapon-set">
+          <h4>Underwater</h4>
+          {renderUnderwaterSlot('weaponU1', 'Set 1')}
+          {renderUnderwaterSlot('weaponU2', 'Set 2')}
         </div>
       </div>
     </div>

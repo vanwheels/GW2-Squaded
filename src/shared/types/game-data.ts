@@ -100,6 +100,9 @@ export interface Skill {
   weaponType: string | null
   professions: ProfessionId[]
   slot: string
+  /** Raw API skill flags (e.g. `"NoUnderwater"`) — used to disambiguate a weapon's land vs.
+   *  underwater skill variants, see src/shared/weapon-calc/weapon-skills.ts. */
+  flags: string[]
   facts: Fact[]
   traitedFacts: Fact[]
 }

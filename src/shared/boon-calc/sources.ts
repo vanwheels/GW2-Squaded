@@ -1,6 +1,7 @@
-import type { Build, Fact, ItemStat, Legend, Skill, Trait, WvwFactOverride, WvwFactOverrides } from '../types'
+import type { Build, EquipmentSlotKey, Fact, ItemStat, Legend, Profession, Skill, Trait, WvwFactOverride, WvwFactOverrides } from '../types'
 import { isBoonName, isConditionName } from './constants'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '../gear-calc/attribute-totals'
+import { weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
 
 export interface BoonConditionSource {
   sourceKind: 'skill' | 'trait'
@@ -109,22 +110,59 @@ export function boonConditionFactsForSkill(
 }
 
 /**
+ * Every weapon-derived skill id a build's currently-`environment`-relevant weapon sets grant.
+ * Land builds count BOTH swap sets (A and B); underwater builds count both underwater sets (U1
+ * and U2) — a player carries both and can swap anytime, same "both always contribute" reasoning
+ * as `RevenantSkillSelection.activeLegendIndex` (see its doc comment). `activeWeaponSet`/
+ * `activeUnderwaterSet` are display-only and don't gate this.
+ */
+function weaponSkillIdsForBuild(build: Build, professions: Profession[], skillsById: Map<number, Skill>): number[] {
+  const profession = professions.find((p) => p.id === build.profession)
+  if (!profession) return []
+
+  const pairs: [EquipmentSlotKey, EquipmentSlotKey | null][] =
+    build.environment === 'land'
+      ? [
+          ['weaponA1', 'weaponA2'],
+          ['weaponB1', 'weaponB2']
+        ]
+      : [
+          ['weaponU1', null],
+          ['weaponU2', null]
+        ]
+
+  const ids: number[] = []
+  for (const [mainKey, offKey] of pairs) {
+    const mainType = build.equipment[mainKey]?.weaponType
+    const offType = offKey ? build.equipment[offKey]?.weaponType : undefined
+    const mainWeapon = mainType ? profession.weapons[mainType] : undefined
+    const offWeapon = offType ? profession.weapons[offType] : mainWeapon
+    if (!mainWeapon && !offWeapon) continue
+    for (const id of weaponSkillIdsForPair(mainWeapon, offWeapon, build.environment, skillsById)) {
+      if (id !== null) ids.push(id)
+    }
+  }
+  return ids
+}
+
+/**
  * Every skill id "equipped" by a build's skill selection — for a standard profession, the chosen
  * Heal/Utility/Elite skills; for Revenant, every skill (swap + heal + 3 utility + elite) belonging
  * to either of the 2 equipped legends, since a legend's kit is fixed rather than picked skill-by-
- * skill (see `RevenantSkillSelection`).
+ * skill (see `RevenantSkillSelection`) — plus every weapon-derived skill id from the build's
+ * currently-relevant weapon sets (see `weaponSkillIdsForBuild`).
  */
-function skillIdsForBuild(build: Build, legends: Legend[]): number[] {
-  if (build.skills.kind === 'revenant') {
-    const equippedLegends = build.skills.legends
-      .filter((id): id is string => id !== null)
-      .map((id) => legends.find((l) => l.id === id))
-      .filter((l): l is Legend => l !== undefined)
-    return equippedLegends.flatMap((l) => [l.swap, l.heal, l.elite, ...l.utilities])
-  }
-  return [build.skills.heal, ...build.skills.utility, build.skills.elite].filter(
-    (id): id is number => id !== null
-  )
+function skillIdsForBuild(build: Build, legends: Legend[], professions: Profession[], skillsById: Map<number, Skill>): number[] {
+  const nonWeaponIds =
+    build.skills.kind === 'revenant'
+      ? build.skills.legends
+          .filter((id): id is string => id !== null)
+          .map((id) => legends.find((l) => l.id === id))
+          .filter((l): l is Legend => l !== undefined)
+          .flatMap((l) => [l.swap, l.heal, l.elite, ...l.utilities])
+      : [build.skills.heal, ...build.skills.utility, build.skills.elite].filter((id): id is number => id !== null)
+
+  return [...nonWeaponIds, ...weaponSkillIdsForBuild(build, professions, skillsById)]
 }
 
 /**
@@ -135,10 +173,12 @@ function skillIdsForBuild(build: Build, legends: Legend[]): number[] {
  *
  * `baseDurationSeconds` is the WvW-adjusted value (see `wvwFactOverrides` below);
  * `scaledDurationSeconds` further applies the build's gear-derived boon/condition duration %
- * (Concentration/Expertise from equipped armor/trinkets/back, plus weapons approximated as
- * one-handed — see src/shared/gear-calc/attribute-totals.ts for the formula and its documented
- * weapon-handedness caveat). Food/utility consumables aren't fetched/modeled yet, so they're not
- * included in either number — see TODO.md.
+ * (Concentration/Expertise from equipped armor/trinkets/back/weapons). Food/utility consumables
+ * aren't fetched/modeled yet, so they're not included in either number — see TODO.md.
+ *
+ * Also walks every weapon-derived skill from the build's currently-`environment`-relevant weapon
+ * sets (see `weaponSkillIdsForBuild`) — both land sets or both underwater sets always contribute,
+ * per `Build.activeWeaponSet`'s doc comment.
  *
  * The GW2 API's `Fact.duration` for a Buff fact is PvE data (or the sole value, for facts with no
  * WvW/PvE split) — see scripts/fetch-wvw-splits.ts and docs/game-data.md for how that's verified
@@ -149,10 +189,18 @@ function skillIdsForBuild(build: Build, legends: Legend[]): number[] {
  */
 export function computeBoonConditionSources(
   build: Build,
-  gameData: { skills: Skill[]; traits: Trait[]; itemStats: ItemStat[]; wvwFactOverrides: WvwFactOverrides; legends: Legend[] }
+  gameData: {
+    skills: Skill[]
+    traits: Trait[]
+    itemStats: ItemStat[]
+    wvwFactOverrides: WvwFactOverrides
+    legends: Legend[]
+    professions: Profession[]
+  }
 ): BoonConditionSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
   const out: BoonConditionSource[] = []
+  const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
 
   const gearTotals = computeGearAttributeTotals(build, gameData.itemStats)
   const durationPercent = {
@@ -160,9 +208,9 @@ export function computeBoonConditionSources(
     condition: conditionDurationPercent(gearTotals)
   }
 
-  const skillIds = skillIdsForBuild(build, gameData.legends)
+  const skillIds = skillIdsForBuild(build, gameData.legends, gameData.professions, skillsById)
   for (const id of skillIds) {
-    const skill = gameData.skills.find((s) => s.id === id)
+    const skill = skillsById.get(id)
     if (!skill) continue
     out.push(
       ...extractFromFacts(

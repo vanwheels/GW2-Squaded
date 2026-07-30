@@ -27,13 +27,10 @@ type AdjustmentKey = keyof typeof ATTRIBUTE_ADJUSTMENT
  * for the target WvW meta comp (see TODO.md) — not user-selectable yet (would need a rarity
  * field on `EquipmentSlot`).
  *
- * Weapon slots are mapped to the one-handed constant unconditionally: `EquipmentSlotKey` only
- * stores an `itemStatId`, not a weapon type, so this app has no way to know whether a given
- * weapon slot holds a one- or two-handed weapon. This undercounts total attributes for builds
- * using two-handed weapons (e.g. Greatsword, Staff) — documented limitation, not silently wrong
- * math for the common one-handed case.
+ * Armor/trinket slots map to a fixed adjustment key. Weapon slots are resolved dynamically in
+ * `computeGearAttributeTotals` instead (see below) now that `EquipmentSlot.weaponType` exists.
  */
-const SLOT_ADJUSTMENT_KEY: Record<EquipmentSlotKey, AdjustmentKey> = {
+const SLOT_ADJUSTMENT_KEY: Partial<Record<EquipmentSlotKey, AdjustmentKey>> = {
   helm: 'armorHelm',
   shoulders: 'armorLight',
   chest: 'armorCoat',
@@ -45,17 +42,28 @@ const SLOT_ADJUSTMENT_KEY: Record<EquipmentSlotKey, AdjustmentKey> = {
   accessory2: 'trinketAccessory',
   ring1: 'trinketRing',
   ring2: 'trinketRing',
-  amulet: 'trinketAmulet',
-  weaponA1: 'weaponOneHanded',
-  weaponA2: 'weaponOneHanded',
-  weaponB1: 'weaponOneHanded',
-  weaponB2: 'weaponOneHanded'
+  amulet: 'trinketAmulet'
 }
+
+const UNDERWATER_WEAPON_SLOTS: EquipmentSlotKey[] = ['weaponU1', 'weaponU2']
 
 const RARITY: 'exotic' | 'ascended' = 'ascended'
 
 /** Attribute name (as in `ItemStatAttribute.attribute`, e.g. "BoonDuration") -> summed points across all equipped gear. */
 export type AttributeTotals = Record<string, number>
+
+/**
+ * Land weapon slots (`weaponA1/A2/B1/B2`) always use the one-handed constant, even when a
+ * two-handed weapon is equipped: `EquipmentEditor` mirrors a two-handed weapon's `weaponType`+
+ * `itemStatId` onto BOTH its main- and off-hand slot keys, and `weaponOneHanded.ascended * 2 ===
+ * weaponTwoHanded.ascended` exactly (same for exotic) — so crediting the one-handed constant to
+ * each of the two mirrored slots already sums to the correct two-handed total, no special-casing
+ * needed. Underwater slots (`weaponU1/U2`) are single, non-paired slots and every aquatic weapon
+ * is confirmed two-handed, so they always use the two-handed constant directly.
+ */
+function weaponAdjustmentKey(slotKey: EquipmentSlotKey): AdjustmentKey {
+  return UNDERWATER_WEAPON_SLOTS.includes(slotKey) ? 'weaponTwoHanded' : 'weaponOneHanded'
+}
 
 export function computeGearAttributeTotals(build: Build, itemStats: ItemStat[]): AttributeTotals {
   const statsById = new Map(itemStats.map((s) => [s.id, s]))
@@ -64,10 +72,15 @@ export function computeGearAttributeTotals(build: Build, itemStats: ItemStat[]):
   for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
     const slot = build.equipment[slotKey]
     if (!slot || slot.itemStatId === null) continue
+
+    const isWeaponSlot = slotKey.startsWith('weapon')
+    if (isWeaponSlot && !slot.weaponType) continue // empty weapon slot — no item actually equipped
+    const adjustmentKey = SLOT_ADJUSTMENT_KEY[slotKey] ?? weaponAdjustmentKey(slotKey)
+
     const stat = statsById.get(slot.itemStatId)
     if (!stat) continue
 
-    const adjustment = ATTRIBUTE_ADJUSTMENT[SLOT_ADJUSTMENT_KEY[slotKey]][RARITY]
+    const adjustment = ATTRIBUTE_ADJUSTMENT[adjustmentKey][RARITY]
     for (const attr of stat.attributes) {
       const points = adjustment * attr.multiplier + attr.value
       totals[attr.attribute] = (totals[attr.attribute] ?? 0) + points

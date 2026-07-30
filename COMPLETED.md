@@ -2,6 +2,62 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 13 — Weapon selection (type picker, hand filtering, 2H merge, underwater, ENVIRONMENT toggle)
+
+Closed out every remaining sub-item of the "Weapon selection" TODO entry (data layer had already
+landed in a prior session — `Profession.weapons`, sourced from `/v2/professions`).
+
+- **Data model** (`src/shared/types/build.ts`): `EquipmentSlot` gained `weaponType?: string | null`
+  (a key into `Profession.weapons`); `EquipmentSlotKey` gained `weaponU1`/`weaponU2` (underwater
+  swap sets — confirmed via a live check that every aquatic weapon across all 9 professions carries
+  `TwoHand`, so underwater is always a single logical slot per set, never a main/off pair); `Build`
+  gained `environment: 'land' | 'underwater'` plus `activeWeaponSet`/`activeUnderwaterSet`
+  (display-only, mirroring `RevenantSkillSelection.activeLegendIndex`'s "both sets always
+  contribute to the boon calc" reasoning).
+- **Land/underwater skill disambiguation resolved properly, not guessed**: added `flags: string[]`
+  to `Skill` and re-ran `npm run fetch-game-data`. Verified against Guardian `Spear`'s 10 skill
+  entries (5 slots × 2) that the GW2 API tags each slot's land variant with `"NoUnderwater"` — the
+  earlier session's "presumably order-distinguished" guess was correct in practice but not a real
+  contract; this is the actual field. New `src/shared/weapon-calc/weapon-skills.ts`
+  (`resolveWeaponSkillIds`/`weaponSkillIdsForPair`) implements the rule, with a documented fallback
+  (first entry) for duplicate-slot cases unrelated to land/water that this app doesn't model —
+  Revenant `Sword`'s 6 entries (likely a hand-context split) and Elementalist's per-attunement
+  weapons (up to 26 entries) — flagged as a known limitation in TODO.md, not silently guessed.
+- **`EquipmentEditor.tsx` rewritten**: a horizontal weapon-type icon-button row (same visual
+  pattern as `EliteSpecSelect`, icon borrowed from the weapon type's first skill since
+  `ProfessionWeapon` has none of its own) per hand slot, filtered by `flags`
+  (`Mainhand`/`TwoHand` for main-hand, `Offhand` for off-hand, `Aquatic` for underwater) and gated
+  by equipped specializations. A two-handed main-hand pick mirrors `weaponType`+`itemStatId` onto
+  the off-hand slot and locks it (renders "(2-handed)" instead of its own picker); switching back
+  to one-handed clears the mirrored data rather than leaving it stale. Added a 3rd always-visible
+  "Underwater" section alongside "Weapon I"/"Weapon II". `BuildEditorView.tsx` now passes
+  `profession`/`equippedSpecializationIds` in, clears all weapon slots on profession change, and
+  extends the existing spec-change invalidation pass to also clear now-ungated weapon types.
+- **`attribute-totals.ts`**: weapon slots now use the real one-/two-handed constant instead of
+  always one-handed, via a small identity worth documenting — `weaponOneHanded.ascended * 2 ===
+  weaponTwoHanded.ascended` exactly (same for exotic), so crediting the one-handed constant to each
+  of the two mirrored slots of a two-handed weapon already sums to the correct total for free, no
+  special-casing needed. Underwater slots (single, always-two-handed) use the two-handed constant
+  directly. Also fixed a latent bug this newly exposed: the old code credited the one-handed
+  constant for every *present* weapon slot key regardless of whether a weapon was actually equipped
+  there (there was previously no way to represent "empty") — now skipped when `weaponType` is null.
+- **New `WeaponSkillBar.tsx`**, rendered by `SkillsEditor.tsx` for every profession (weapon skills
+  are orthogonal to Heal/Utility/Elite or Legend kits): a Land/Underwater `ENVIRONMENT` toggle plus
+  a second, display-only toggle for the active weapon-swap set, both reusing the existing
+  `.legend-bar-toggle` CSS from the Revenant editor. The read-only 5-icon bar below is built from
+  `weaponSkillIdsForPair` against the active set's equipped weapon type(s) and environment.
+- **`sources.ts`**: `skillIdsForBuild` now also resolves weapon-derived skill ids — both land sets
+  (A+B) or both underwater sets (U1+U2) depending on `build.environment`, always both regardless of
+  which is currently displayed (same reasoning as the Revenant legend kits) — so the boon/condition
+  calculator picks up weapon-skill boons/conditions for the first time.
+- Verified: `npm run typecheck` and `npm run lint` both clean; a standalone `tsx` spot-check against
+  the regenerated `skills.json` confirmed `resolveWeaponSkillIds` produces the correct 5 distinct
+  skill names for both Guardian Spear's land and underwater variants, and for Trident. Not visually
+  confirmed in a running window (standing Electron-sandbox limitation) — recommend `npm run dev`
+  locally to eyeball the new weapon pickers and toggles.
+- Still open, tracked in TODO.md: per-weapon-slot sigil/infusion pickers (absorbed into the
+  stats-panel item), and the duplicate-skill-slot known limitation noted above.
+
 ## Session 12 — Revenant dual-legend skill bar
 
 Continuation of "Build editor UI/UX overhaul" — picked up the next well-specified open item

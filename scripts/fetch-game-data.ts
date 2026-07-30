@@ -138,6 +138,7 @@ interface RawSkill {
   weapon_type?: string
   professions?: string[]
   slot?: string
+  flags?: string[]
   facts?: Fact[]
   traited_facts?: Fact[]
 }
@@ -245,6 +246,7 @@ function normalizeSkill(raw: RawSkill): Skill {
     weaponType: raw.weapon_type ?? null,
     professions: raw.professions ?? [],
     slot: raw.slot ?? '',
+    flags: raw.flags ?? [],
     facts: raw.facts ?? [],
     traitedFacts: raw.traited_facts ?? []
   }

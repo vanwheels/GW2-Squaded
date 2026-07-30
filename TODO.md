@@ -205,7 +205,15 @@
         limitation above where all weapon slots currently use the one-handed attribute constant).
         The original 2026-07-25 reference screenshots were never saved; a fresh set (11 images) was
         provided 2026-07-29 (also not saved to the repo — re-request if needed) and is fully
-        digested below, so nothing was lost.
+        digested below, so nothing was lost. **Resumed 2026-07-29 (2nd pass)**: every sub-item below
+        except the sigil/infusion pickers (absorbed into the stats-panel item further down, see
+        below) and the multi-variant-skill collapsing UX (separate item, see below) is now
+        implemented — `EquipmentSlot` gained `weaponType`, `EquipmentSlotKey` gained `weaponU1`/
+        `weaponU2`, `Build` gained `environment`/`activeWeaponSet`/`activeUnderwaterSet`, and a new
+        `src/shared/weapon-calc/weapon-skills.ts` resolves a weapon type's 5-slot skill bar per
+        environment. `npm run typecheck` and `npm run lint` both clean; not visually confirmed in a
+        running window (standing Electron-sandbox limitation, see COMPLETED.md) — recommend
+        `npm run dev` locally to eyeball the new weapon pickers.
     - [x] **Foundational data landed this session**: `Profession` (`src/shared/types/game-data.ts`)
           gained a `weapons: Record<string, ProfessionWeapon>` field —
           `{ flags: WeaponFlag[], specializationId: number | null, skills: {id, slot}[] }` per
@@ -221,32 +229,54 @@
           "underwater weapon type" list. Land-slot options = weapons whose `flags` include the
           slot's needed hand flag; underwater-slot options = weapons whose `flags` include
           `Aquatic`. Not yet wired into any UI/equipment model — this is the data layer only.
-    - [ ] Choosing a weapon *type* (sword/axe/bow/etc.) is its own picker, separate from the
+    - [x] Choosing a weapon *type* (sword/axe/bow/etc.) is its own picker, separate from the
           existing stat-combo/sigil/infusion pickers on the equipped-weapon icon — a horizontal
           row of weapon-type icons scoped to what the current profession can use. Confirmed via
           screenshot: this row appears inline in the `WEAPON I` header area once a profession is
           selected (**profession must be chosen first** — the picker has nothing to show before
-          that, since availability is per-profession).
+          that, since availability is per-profession). **Implemented 2026-07-29**:
+          `EquipmentEditor.tsx`'s `weaponTypeRow` renders a `.profession-picker-row` of
+          `.spec-icon-button.weapon-type-button` icon buttons (same visual pattern as
+          `EliteSpecSelect`, square not circular), gated by `profession.weapons` filtered to
+          `specializationId === null || equippedSpecializationIds.has(...)`, icon sourced from the
+          weapon type's first granted skill (`ProfessionWeapon` itself carries no icon field).
     - [x] Off-hand (2nd slot) picker shows a different, filtered list than main-hand — confirmed
           via screenshot (Revenant, main-hand Mace picked → off-hand picker offered only Axe /
           Sword / Shield). Real GW2 hand-restriction, now directly modeled by the `ProfessionWeapon`
           data above (see foundational-data item) — implement by filtering on `flags`, not by
-          fetching anything new.
-    - [ ] A 2-handed weapon occupies both the main- and off-hand slot as a single entry (matches
+          fetching anything new. **Implemented 2026-07-29**: main-hand picker filters on
+          `flags.includes('Mainhand') || flags.includes('TwoHand')`, off-hand on
+          `flags.includes('Offhand')`, underwater on `flags.includes('Aquatic')`.
+    - [x] A 2-handed weapon occupies both the main- and off-hand slot as a single entry (matches
           in-game); a 1-handed weapon leaves the other slot independently choosable. Re-asked about
           the yellow/orange 1-handed tint this session — user doesn't have it confirmed either way
           and said the color doesn't matter as long as main/off-hand and per-profession
           availability are modeled correctly. **Drop the tint as a requirement**; treat as optional
-          visual polish only if it comes up again later.
+          visual polish only if it comes up again later. **Implemented 2026-07-29**:
+          `EquipmentEditor.tsx`'s `renderWeaponPair` mirrors `weaponType`+`itemStatId` onto the
+          off-hand slot key when the chosen main-hand weapon's `flags` include `TwoHand`, and
+          renders the off-hand slot as a disabled "(2-handed)" placeholder instead of its own
+          picker; switching back to 1-handed (or clearing) resets the off-hand slot to empty rather
+          than leaving stale mirrored data. `attribute-totals.ts` relies on this mirroring: crediting
+          the one-handed constant to each of the two mirrored slots sums to the correct two-handed
+          total for free, since `weaponOneHanded.ascended * 2 === weaponTwoHanded.ascended` exactly
+          per the wiki's own constants — no special-casing needed, see that file's updated comment.
     - [x] Underwater uses its own weapon bar with its own swap toggle, separate from the land
           Weapon I/II swap — confirmed via screenshot: `WEAPON I` / `WEAPON II` / `UNDERWATER` are
           3 always-visible sections in the top bar (not tabs that hide each other), each with its
           own independent swap-set toggle. A Revenant example screenshot showed Mace/Axe (land) +
-          Trident (underwater) all populated simultaneously.
+          Trident (underwater) all populated simultaneously. **Implemented 2026-07-29**: confirmed
+          via a live check of every profession's aquatic weapons (`Spear`/`Trident`/`Speargun`) that
+          all carry `TwoHand` — underwater is always a single logical slot per swap set, never a
+          main/off pair — so `EquipmentSlotKey` gained `weaponU1`/`weaponU2` (not a hand-paired
+          4-key set) and `EquipmentEditor.tsx` renders a 3rd always-visible "Underwater" section
+          alongside "Weapon I"/"Weapon II".
     - [ ] Each weapon slot (once a type is chosen) still has its own sigil (×1–2) and infusion
           (×2) pickers layered on top — confirmed via the equipment-panel screenshots this session
           too (every weapon row shows the item icon plus 2 upgrade-slot badges beside it); the
-          weapon-type picker is an additional *new* picker, not a replacement for those.
+          weapon-type picker is an additional *new* picker, not a replacement for those. Still
+          pending — absorbed into the stats-panel item further down (runes/sigils/infusions/relics/
+          food all land together there, not here — see that item for why).
     - [x] Need a land/underwater toggle that scopes both the skill bar and the boon/condition
           calculator — confirmed via screenshot: a separate `ENVIRONMENT` control (tree icon =
           land / wave icon = underwater, active one underlined orange) is what actually switches
@@ -255,12 +285,27 @@
           behavior across 2 screenshots of the same build: toggling `ENVIRONMENT` from land to
           water swapped the rendered weapon-skill icons in slots 1-5 from the land set to the
           underwater set, with the rest of the build (traits, other skills, stats) unchanged.
-          Real-data note for the "distinct underwater skill variant" sub-question: since `Spear`
-          alone carries 10 skill entries split by `slot` value (5x `Weapon_1..5` land + 5 more of
-          the same slot names, presumably order-distinguished — needs closer inspection of the raw
-          entries when this is implemented) while single-context weapons only have 5, the
-          land-vs-underwater skill id split is already fully present in the `ProfessionWeapon.skills`
-          data fetched above — no additional API flag hunting needed.
+          **Implemented 2026-07-29**, including resolving the land/underwater skill-id split this
+          entry left as "presumably order-distinguished": re-fetched `/v2/skills` with a new
+          `Skill.flags` field (`scripts/fetch-game-data.ts`) and confirmed the real disambiguator is
+          each skill's own flags, not array order — the GW2 API tags a duplicate slot's land variant
+          with `"NoUnderwater"` (verified against Guardian `Spear`'s 10 entries: ids
+          `73015`/`72972`/... carry `NoUnderwater` and are the land skills; `28714`/`28915`/... don't
+          and are the underwater skills). `src/shared/weapon-calc/weapon-skills.ts`'s
+          `resolveWeaponSkillIds` implements this rule; `Build.environment` (new field) plus a new
+          `WeaponSkillBar.tsx` (rendered by `SkillsEditor.tsx` for every profession) provide the
+          actual Land/Underwater toggle plus a display-only active-set toggle (mirrors
+          `RevenantSkillSelection.activeLegendIndex`'s "both sets always contribute" reasoning —
+          `sources.ts`'s boon/condition calc now includes both land sets, or both underwater sets,
+          per `build.environment`, regardless of which one is currently displayed).
+    - [ ] **New, discovered this session**: some weapon types have duplicate skill-slot entries for
+          reasons other than land/underwater that this app doesn't disambiguate — e.g. Revenant
+          `Sword` has 6 entries (main/off-hand context split, unconfirmed which), and every
+          Elementalist weapon has up to 26 (per-attunement variants). `resolveWeaponSkillIds` falls
+          back to the first matching entry for these cases (documented in its own doc comment,
+          fail-safe not a silent guess) rather than attempting full auto-chain/hand-context/
+          attunement modeling, which is out of scope for this pass — revisit if Elementalist weapon
+          skill accuracy or off-hand-Sword accuracy turns out to matter for a real build.
   - [x] Minor traits: original complaint was "no hover tooltip at all," but survey finding showed
         minor traits actually already carried a native `title=` same as majors — so there was no
         missing-wiring bug here specifically. Wired into the new `Tooltip` component along with

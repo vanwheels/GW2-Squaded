@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type { GameData, Legend, ProfessionId, Skill, Specialization, Trait } from '@shared/types'
 
-interface GameDataStore extends GameData {
+export interface GameDataStore extends GameData {
   loading: boolean
   specializationsById: Map<number, Specialization>
   traitsById: Map<number, Trait>

@@ -22,6 +22,9 @@ export function makeBlankBuild(): Build {
     specializations: [null, null, null],
     skills: { kind: 'standard', heal: null, utility: [null, null, null], elite: null },
     equipment: {},
+    environment: 'land',
+    activeWeaponSet: 'A',
+    activeUnderwaterSet: 'U1',
     createdAt: now,
     updatedAt: now
   }

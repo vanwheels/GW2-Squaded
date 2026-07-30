@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import type {
   Build,
+  EquipmentSlotKey,
   ProfessionId,
   SkillSelection,
   StandardSkillSelection,
@@ -22,10 +23,18 @@ interface Props {
   onCancel: () => void
 }
 
+const WEAPON_SLOT_KEYS: EquipmentSlotKey[] = ['weaponA1', 'weaponA2', 'weaponB1', 'weaponB2', 'weaponU1', 'weaponU2']
+
+function clearedEquipment(equipment: Build['equipment']): Build['equipment'] {
+  const next = { ...equipment }
+  for (const key of WEAPON_SLOT_KEYS) delete next[key]
+  return next
+}
+
 export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
   const [draft, setDraft] = useState<Build>(build)
   const [saving, setSaving] = useState(false)
-  const { eliteSpecSkills, legends } = useGameData()
+  const { eliteSpecSkills, legends, professions } = useGameData()
 
   const equippedSpecializationIds = useMemo(
     () =>
@@ -44,7 +53,10 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
       ...draft,
       profession,
       specializations: [null, null, null],
-      skills
+      skills,
+      // Weapon types are profession-specific — old picks (and their itemStatId) are invalid on a
+      // new profession. Armor/trinket slots are untouched.
+      equipment: clearedEquipment(draft.equipment)
     })
   }
 
@@ -80,7 +92,18 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
         elite: stillValid(draft.skills.elite)
       }
     }
-    setDraft({ ...draft, specializations, skills })
+
+    const profession = professions.find((p) => p.id === draft.profession)
+    const equipment = { ...draft.equipment }
+    for (const key of WEAPON_SLOT_KEYS) {
+      const weaponType = equipment[key]?.weaponType
+      const requiredSpecId = weaponType ? profession?.weapons[weaponType]?.specializationId : null
+      if (requiredSpecId != null && !nextEquippedIds.has(requiredSpecId)) {
+        equipment[key] = { itemStatId: null, weaponType: null }
+      }
+    }
+
+    setDraft({ ...draft, specializations, skills, equipment })
   }
 
   async function handleSave(): Promise<void> {
@@ -125,6 +148,7 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
             build={draft}
             value={draft.skills}
             onChange={(skills) => setDraft({ ...draft, skills })}
+            onBuildChange={(patch) => setDraft({ ...draft, ...patch })}
             equippedSpecializationIds={equippedSpecializationIds}
           />
         </div>
@@ -133,6 +157,8 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
           <EquipmentEditor
             value={draft.equipment}
             onChange={(equipment) => setDraft({ ...draft, equipment })}
+            profession={draft.profession}
+            equippedSpecializationIds={equippedSpecializationIds}
           />
         </div>
         <div className="build-editor-column">
