@@ -23,14 +23,15 @@ export interface BoonConditionSource {
  * when a specific other trait is also active.
  */
 export function activeTraitIds(build: Build, allTraits: Trait[]): Set<number> {
-  const equippedSpecIds = new Set(build.specializations.map((line) => line.specializationId))
+  const equippedLines = build.specializations.filter((line): line is NonNullable<typeof line> => line != null)
+  const equippedSpecIds = new Set(equippedLines.map((line) => line.specializationId))
   const ids = new Set<number>()
   for (const trait of allTraits) {
     if (trait.slot === 'Minor' && equippedSpecIds.has(trait.specializationId)) {
       ids.add(trait.id)
     }
   }
-  for (const line of build.specializations) {
+  for (const line of equippedLines) {
     for (const chosenId of line.chosenTraitIds) {
       if (chosenId !== null) ids.add(chosenId)
     }
@@ -162,6 +163,7 @@ export function computeBoonConditionSources(
   }
 
   for (const line of build.specializations) {
+    if (line == null) continue
     for (const trait of gameData.traits) {
       if (trait.specializationId !== line.specializationId) continue
       const isMinor = trait.slot === 'Minor'

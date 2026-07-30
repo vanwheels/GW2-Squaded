@@ -11,6 +11,14 @@ export interface TraitLineSelection {
   chosenTraitIds: [number | null, number | null, number | null]
 }
 
+/**
+ * A build's 3 trait lines, indexed by fixed position (0-2; line 2 is conventionally the elite
+ * spec line). `null` = no specialization chosen for that line. Always exactly 3 entries so a
+ * line's array index is a stable identity — a picker targeting "line 3" can write `slots[2]`
+ * directly without the array shifting when an earlier line is empty.
+ */
+export type TraitLineSlots = [TraitLineSelection | null, TraitLineSelection | null, TraitLineSelection | null]
+
 export interface SkillSelection {
   heal: number | null
   utility: [number | null, number | null, number | null]
@@ -48,8 +56,8 @@ export interface Build {
   name: string
   notes: string
   profession: ProfessionId
-  /** Up to 3 equipped specialization lines. */
-  specializations: TraitLineSelection[]
+  /** The 3 equipped specialization lines (fixed positions; `null` = not chosen yet). */
+  specializations: TraitLineSlots
   skills: SkillSelection
   equipment: Partial<Record<EquipmentSlotKey, EquipmentSlot>>
   createdAt: Timestamp

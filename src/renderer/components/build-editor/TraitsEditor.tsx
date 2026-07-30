@@ -1,11 +1,11 @@
-import type { ProfessionId, TraitLineSelection } from '@shared/types'
+import type { ProfessionId, TraitLineSelection, TraitLineSlots } from '@shared/types'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 
 interface Props {
   profession: ProfessionId
-  value: TraitLineSelection[]
-  onChange: (value: TraitLineSelection[]) => void
+  value: TraitLineSlots
+  onChange: (value: TraitLineSlots) => void
 }
 
 const LINE_INDICES = [0, 1, 2] as const
@@ -16,26 +16,18 @@ const TIERS = [1, 2, 3] as const
  *  tiers aligned regardless of which specializations (with differing trait counts) are chosen. */
 const TIER_ROW_START = 3
 
-function toLines(value: TraitLineSelection[]): (TraitLineSelection | null)[] {
-  return LINE_INDICES.map((i) => value[i] ?? null)
-}
-
-function fromLines(lines: (TraitLineSelection | null)[]): TraitLineSelection[] {
-  return lines.filter((line): line is TraitLineSelection => line !== null)
-}
-
 export function TraitsEditor({ profession, value, onChange }: Props) {
   const { specializationsForProfession, specializationsById, majorTraitsForSpecialization, minorTraitsForSpecialization } =
     useGameData()
 
   const specs = specializationsForProfession(profession)
-  const lines = toLines(value)
+  const lines = value
   const eliteLineIndex = lines.findIndex((line) => line && specializationsById.get(line.specializationId)?.elite)
 
   function setLine(lineIndex: number, next: TraitLineSelection | null): void {
-    const nextLines = [...lines]
+    const nextLines = [...lines] as TraitLineSlots
     nextLines[lineIndex] = next
-    onChange(fromLines(nextLines))
+    onChange(nextLines)
   }
 
   function handleSpecClick(lineIndex: number, specializationId: number): void {

@@ -116,26 +116,38 @@
         placed by explicit `gridColumn`/`gridRow` rather than nested per-column divs — this also
         closes the row-alignment item below for free, since CSS Grid sizes each row track to its
         tallest cell across all 3 columns.
-  - [ ] Add a specialization selector beneath the profession selector, defaulting to the base
-        (non-elite) line for that profession. Survey finding: confirmed there is truly no
-        standalone specialization selector today — specializations are currently only chosen
-        implicitly by clicking spec icons inside `TraitsEditor`'s per-line picker row
-        (`handleSpecClick`). Not started this session — investigated and found a real blocker
-        worth recording: `TraitsEditor`'s `value: TraitLineSelection[]` is a **compacted** array
-        (`fromLines` filters out nulls before calling `onChange`), so "line 2" isn't a stable array
-        index — e.g. picking only the visually-2nd column's spec produces a 1-element array that
-        re-renders as the *1st* column on the next pass. A new selector that's supposed to
-        specifically drive "the 3rd trait line" needs either a non-compacting representation (keep
-        `[T | null, T | null, T | null]` fixed-length) or an explicit line-index field, not the
-        current filtered-array shape. Fix the data model before building this control, not after.
-  - [ ] Selecting a specialization there should auto-swap the 3rd trait line to that
+  - [x] Data-model fix (prerequisite, resumed 2026-07-29): `Build.specializations` changed from a
+        compacted `TraitLineSelection[]` to a fixed-length `TraitLineSlots` 3-tuple
+        (`[TraitLineSelection | null, TraitLineSelection | null, TraitLineSelection | null]`,
+        `src/shared/types/build.ts`) so a trait line's array index is a stable identity — picking
+        only the visually-2nd column's spec no longer re-renders as "line 1" on the next pass.
+        `TraitsEditor` no longer compacts/decompacts (`toLines`/`fromLines` removed — `value` is the
+        slots array directly); `sources.ts`'s two `build.specializations` consumers and
+        `BuildEditorView`'s `equippedSpecializationIds`/`handleSpecializationsChange` updated to
+        filter/guard nulls instead of assuming every entry is non-null. No on-disk build migration
+        needed — no builds are checked into the repo, and app-userData builds are dev-only so far.
+  - [x] Add a specialization selector beneath the profession selector, defaulting to the base
+        (non-elite) line for that profession. New `EliteSpecSelect` component
+        (`src/renderer/components/build-editor/EliteSpecSelect.tsx`): a row of icon buttons (reuses
+        `.spec-icon-button`) for the profession's elite specializations plus a "Core" option,
+        writing directly to `specializations[2]` (the elite line is always index 2 by GW2
+        convention) via the now-stable `TraitLineSlots` index. Wired into `BuildEditorView` beneath
+        `ProfessionSelect`, reusing the existing `handleSpecializationsChange` handler so switching
+        elite specs also clears any now-invalid elite-spec-gated skill picks, same as changing
+        specs any other way already did.
+  - [x] Selecting a specialization there should auto-swap the 3rd trait line to that
         specialization (i.e. specialization choice and 3rd-trait-line choice become one control,
-        not two independent ones). Blocked on the same data-model fix noted above.
-  - [~] Profession selector and the new specialization selector should both be icon buttons (like
+        not two independent ones). Same change as above — `EliteSpecSelect` writes `specializations[2]`
+        directly, so choosing an elite spec there *is* setting the 3rd trait line. Note:
+        `TraitsEditor`'s own per-line picker row for column 3 still independently allows choosing
+        any spec (elite or core) into that line too, same as before this session — the two controls
+        both target the same array slot and stay in sync, not a conflict, but worth knowing if a
+        future session wants to restrict column 3's own picker to elite-only for stricter parity.
+  - [x] Profession selector and the new specialization selector should both be icon buttons (like
         the existing `.spec-icon-button` pattern already used elsewhere), not `<select>` dropdowns.
-        `ProfessionSelect` converted to a row of icon buttons this session (reuses
-        `.spec-icon-button`). The specialization-selector half is blocked on the item above (control
-        doesn't exist yet).
+        `ProfessionSelect` (prior session) and `EliteSpecSelect` (this session) both use
+        `.spec-icon-button`; "Core" renders as a small pill-shaped text button (`.core-spec-button`)
+        since it has no icon to show.
   - [x] Trait rows don't line up evenly across the 3 columns because the 3rd line (elite spec)
         has different content/height than the other two — fix the layout so all 3 trait columns
         align row-for-row regardless of which specializations are selected. Fixed as part of the

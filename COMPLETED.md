@@ -2,6 +2,43 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 10 — Elite specialization selector, unblocked by a trait-line data-model fix
+
+Continuation of "Build editor UI/UX overhaul," picking up the item Session 9 explicitly left
+blocked: a specialization selector beneath the profession picker that auto-swaps the 3rd trait
+line.
+
+- **Fixed the underlying data model first**: `Build.specializations` was a *compacted*
+  `TraitLineSelection[]` — `TraitsEditor`'s `fromLines` dropped `null` entries before calling
+  `onChange`, so "line 2" wasn't a stable array index (picking only the visually-2nd column's spec
+  produced a 1-element array that silently became "line 0" on the next render). Replaced with a new
+  `TraitLineSlots` type (`src/shared/types/build.ts`): a fixed-length 3-tuple,
+  `[TraitLineSelection | null, TraitLineSelection | null, TraitLineSelection | null]`. `TraitsEditor`
+  no longer compacts/decompacts at all (`toLines`/`fromLines` deleted — `value` *is* the slots array
+  now). The two other consumers of `build.specializations` (`sources.ts`'s `activeTraitIds` and its
+  trait-fact loop, `BuildEditorView`'s `equippedSpecializationIds`/`handleSpecializationsChange`)
+  were already order-independent (they use `specializationId`, not array position) — updated only to
+  filter/guard the new possible `null` entries, no behavioral changes needed there. No build-data
+  migration required: no builds are checked into the repo, and the app-userData ones are dev-only so
+  far.
+- **New `EliteSpecSelect` component** (`src/renderer/components/build-editor/EliteSpecSelect.tsx`):
+  icon-button row (reuses `.spec-icon-button`) listing the current profession's elite specs plus a
+  "Core" option (new `.core-spec-button` pill style, since it has no icon), writing straight to
+  `specializations[2]` — the elite line is always index 3/array-index-2 by GW2 convention, and that
+  index is now stable thanks to the fix above. Wired into `BuildEditorView` beneath
+  `ProfessionSelect`, reusing the existing `handleSpecializationsChange` handler so switching elite
+  specs also clears any now-invalid elite-spec-gated skill picks (e.g. dropping Firebrand while
+  "Resolute Stance" is equipped), exactly like changing specs any other way already did.
+- **Known non-issue, documented in TODO.md**: `TraitsEditor`'s own per-line picker row for column 3
+  still independently lets you choose any spec (elite or core) into that line, unchanged from
+  before — it targets the same array slot as `EliteSpecSelect` so the two stay in sync rather than
+  conflicting, just worth knowing about for a future stricter-parity pass.
+- **Verified**: `npm run typecheck` and `npm run lint` both pass clean. Tried `npm run dev` again in
+  this sandboxed shell in case the user's "resolved the npm run dev issue" note (mentioned at the
+  start of this session) applied here too — it doesn't: same `electron.app.isPackaged` crash as
+  Session 9, so this remains typecheck/lint/code-review-verified only, not visually confirmed.
+  Recommend running `npm run dev` locally to eyeball it.
+
 ## Session 9 — Build editor UI/UX overhaul: instant tooltips, aligned trait grid, skill boon/condition tooltips
 
 Resumed the TODO at its explicitly-flagged next priority ("Build editor UI/UX overhaul," not

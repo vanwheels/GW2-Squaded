@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
-import type { Build, ProfessionId, SkillSelection, TraitLineSelection } from '@shared/types'
+import type { Build, ProfessionId, SkillSelection, TraitLineSelection, TraitLineSlots } from '@shared/types'
 import { useGameData } from '@renderer/state/game-data-store'
 import { ProfessionSelect } from './ProfessionSelect'
+import { EliteSpecSelect } from './EliteSpecSelect'
 import { TraitsEditor } from './TraitsEditor'
 import { SkillsEditor } from './SkillsEditor'
 import { EquipmentEditor } from './EquipmentEditor'
@@ -20,7 +21,10 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
   const { eliteSpecSkills } = useGameData()
 
   const equippedSpecializationIds = useMemo(
-    () => new Set(draft.specializations.map((s) => s.specializationId)),
+    () =>
+      new Set(
+        draft.specializations.filter((s): s is TraitLineSelection => s !== null).map((s) => s.specializationId)
+      ),
     [draft.specializations]
   )
 
@@ -28,7 +32,7 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
     setDraft({
       ...draft,
       profession,
-      specializations: [],
+      specializations: [null, null, null],
       skills: { heal: null, utility: [null, null, null], elite: null }
     })
   }
@@ -36,8 +40,10 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
   /** Equipping/swapping specialization lines can invalidate a previously-chosen elite-spec-
    *  gated skill (e.g. dropping the Luminary line while "Resolute Stance" is the heal skill) —
    *  clear any skill selection that's no longer valid under the new specialization set. */
-  function handleSpecializationsChange(specializations: TraitLineSelection[]): void {
-    const nextEquippedIds = new Set(specializations.map((s) => s.specializationId))
+  function handleSpecializationsChange(specializations: TraitLineSlots): void {
+    const nextEquippedIds = new Set(
+      specializations.filter((s): s is TraitLineSelection => s !== null).map((s) => s.specializationId)
+    )
     const stillValid = (skillId: number | null): number | null => {
       if (skillId === null) return null
       const requiredSpecId = eliteSpecSkills[skillId]
@@ -77,6 +83,11 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
       <div className="build-editor-columns">
         <div className="build-editor-column">
           <ProfessionSelect value={draft.profession} onChange={handleProfessionChange} />
+          <EliteSpecSelect
+            profession={draft.profession}
+            value={draft.specializations}
+            onChange={handleSpecializationsChange}
+          />
           <h3>Traits</h3>
           <TraitsEditor
             profession={draft.profession}

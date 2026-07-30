@@ -185,6 +185,14 @@ input[type='text'] {
   border-color: var(--accent);
 }
 
+.core-spec-button {
+  border-radius: 6px;
+  width: auto;
+  height: 30px;
+  padding: 0 10px;
+  font-size: 0.78rem;
+}
+
 .profession-picker-row {
   display: flex;
   flex-wrap: wrap;
