@@ -25,13 +25,16 @@ further UI design decisions: real per-profession weapon availability data.
   "unconfirmed" notes with hard specifics: the off-hand picker's real filtered-list example, the
   `WEAPON I` / `WEAPON II` / `UNDERWATER` sections being always-visible (not tabs), the separate
   `ENVIRONMENT` (land/water) toggle confirmed to actually switch the rendered weapon-skill bar,
-  exact infusion-slot counts per equipment-panel row (2 per weapon, 1 per armor piece, 1 per
-  trinket except 0 on the amulet — previously only the weapon count was confirmed), a real Superior
-  Rune tooltip proving the per-stage attribute list isn't a fixed alternating formula (Scholar:
-  Power/Ferocity/Power/Ferocity/Power/Ferocity at different values each stage), and a Relic tooltip
-  (Relic of the Warrior) showing a passive-modifier fact shape (`Weapon Swap Recharge Reduction:
-  25%`) that today's Buff-focused `extractFromFacts` doesn't yet handle — flagged so the relic work
-  doesn't assume every relic looks like the earlier Relic-of-Agony example.
+  per-slot infusion counts per equipment-panel row (a 2-handed weapon has 2 infusion slots on that
+  one item, each 1-handed weapon has 1 — corrected 2026-07-29 after an initial mis-read flattened
+  this to "2 per weapon slot"; rings have 3 each and the backpiece has 2, amulet still 0; armor
+  pieces and the other two trinkets are still only assumed at 1 each, not independently verified —
+  see TODO.md), a real Superior Rune tooltip proving the per-stage attribute list isn't a fixed
+  alternating formula (Scholar: Power/Ferocity/Power/Ferocity/Power/Ferocity at different values
+  each stage), and a Relic tooltip (Relic of the Warrior) showing a passive-modifier fact shape
+  (`Weapon Swap Recharge Reduction: 25%`) that today's Buff-focused `extractFromFacts` doesn't yet
+  handle — flagged so the relic work doesn't assume every relic looks like the earlier
+  Relic-of-Agony example.
 - **Dropped/downgraded two items** based on follow-up answers: the 1-handed weapon yellow/orange
   tint is no longer a requirement (user doesn't have it confirmed and said the color doesn't
   matter as long as hand/profession restrictions are correct); the itemstat-combo-picker "two

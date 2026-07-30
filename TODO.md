@@ -306,13 +306,17 @@
           other general infusion types; only fetch/support ones like "Concentration WvW Infusion",
           "Expertise WvW Infusion", "Healing WvW Infusion". **Confirmed via a fresh screenshot**
           (Mighty WvW Infusion: "+5 Power" flat stat plus "+1% Damage to Guards/Lords/Supervisors"
-          WvW-flavored secondary effect) — matches the originally-assumed shape exactly. **Exact
-          per-slot infusion counts now fully confirmed via the 2026-07-29 equipment-panel
-          screenshots** (previously only weapon slots were confirmed): weapons get 2 each (both
-          Weapon I and Weapon II rows showed 2 upgrade-slot badges per weapon icon); every one of
-          the 6 armor pieces gets exactly 1; every trinket gets exactly 1 **except the amulet,
-          which visibly has none** — directly confirms the user's earlier rule, no wiki
-          cross-check needed anymore.
+          WvW-flavored secondary effect) — matches the originally-assumed shape exactly.
+          **Per-slot infusion counts, corrected 2026-07-29** (an earlier read of the equipment-panel
+          screenshots mistakenly flattened this to "2 per weapon, 1 per trinket" — user caught the
+          error): a **2-handed weapon has 2 infusion slots on that single item; each 1-handed
+          weapon has 1** (so a main+off 1-handed pair still totals 2 across the set, same total as
+          one 2-handed weapon — it's per-item, not a flat "2 per weapon slot" rule). Among trinkets,
+          **rings have 3 infusion slots each** and the **backpiece has 2**; the amulet still has
+          **0** (confirmed, unchanged). Armor pieces and the remaining trinkets (accessory1/
+          accessory2) are still assumed at 1 each — that assumption came from the same
+          now-corrected screenshot read, so **re-verify those specific counts against the wiki
+          before implementing**, don't trust the earlier "confirmed" claim at face value.
     - [ ] **Relics are a must-have, not optional** — exactly 1 relic equipped per build. Relics
           grant effects through the *same* `Fact` system already used for skills/traits, so relics
           should plug into the existing `sources.ts` boon/condition extraction path, not a separate
