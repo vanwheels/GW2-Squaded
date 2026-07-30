@@ -1,0 +1,5379 @@
+{
+  "99965": {
+    "facts": [
+      {
+        "label": "healing",
+        "values": [
+          "1460"
+        ],
+        "params": {
+          "coefficient": "1.0"
+        }
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "99997": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "duration increase",
+        "values": [
+          "10%"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Duration",
+        "values": [
+          "6"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100031": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Monk (effect)",
+          "3"
+        ],
+        "params": {
+          "desc": "+1% Healing Increase to Others"
+        }
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100048": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.5"
+        }
+      },
+      {
+        "label": "chilled",
+        "values": [
+          "1.5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "vulnerability",
+        "values": [
+          "5"
+        ],
+        "params": {
+          "stacks": "3"
+        }
+      },
+      {
+        "label": "Icicles per Target",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "range",
+        "values": [
+          "900"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100063": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Shocking Aura (effect)",
+          "4"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100074": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "1.0"
+        }
+      },
+      {
+        "label": "Boons Converted to Conditions",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "range",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100090": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Duration Increase",
+        "values": [
+          "10%"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Duration",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100115": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Mabon's Strength",
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Effectiveness Increased",
+        "values": [
+          "25%"
+        ],
+        "params": {
+          "icon": "Radius.png"
+        }
+      },
+      {
+        "label": "Duration",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 2
+  },
+  "100144": {
+    "facts": [
+      {
+        "label": "Weapon Swap Recharge Reduction",
+        "values": [
+          "25%"
+        ],
+        "params": {
+          "icon": "Radius.png"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100148": {
+    "facts": [
+      {
+        "label": "Movement Speed Increase",
+        "values": [
+          "66"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100153": {
+    "facts": [
+      {
+        "label": "Burning",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Torment",
+        "values": [
+          "6"
+        ],
+        "params": {
+          "stacks": "2"
+        }
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "100158": {
+    "facts": [
+      {
+        "label": "torment",
+        "values": [
+          "6"
+        ],
+        "params": {
+          "stacks": "2"
+        }
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "100165": {
+    "facts": [
+      {
+        "label": "movement speed increase",
+        "values": [
+          "50"
+        ],
+        "params": {
+          "alt": "Movement Speed Decrease"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100177": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Torment",
+        "values": [
+          "4"
+        ],
+        "params": {
+          "stacks": "2"
+        }
+      },
+      {
+        "label": "Duration",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Range",
+        "values": [
+          "800"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 4
+  },
+  "100194": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Effect",
+        "values": [
+          "Relic of the Weaver (effect)",
+          "4"
+        ],
+        "params": {
+          "alt": "Relic of the Weaver"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100219": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Herald (effect)",
+          "3"
+        ],
+        "params": {
+          "desc": "25 Concentration"
+        }
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100230": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.5"
+        }
+      },
+      {
+        "label": "Bleeding",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Poison",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Torment",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Number of Targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Blast Radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100238": {
+    "facts": [],
+    "rechargeSeconds": 120
+  },
+  "100248": {
+    "facts": [
+      {
+        "label": "defiance break",
+        "values": [
+          "400"
+        ],
+        "params": {
+          "sic": "100 for 1 second stun, up to 300 for a 3 second stun"
+        }
+      },
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.01"
+        }
+      },
+      {
+        "label": "stun",
+        "values": [
+          "1"
+        ],
+        "params": {
+          "alt": "Minimum Stun"
+        }
+      },
+      {
+        "label": "stun",
+        "values": [
+          "3"
+        ],
+        "params": {
+          "alt": "Maximum Stun"
+        }
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "240"
+        ],
+        "params": {
+          "icon": "Miscellaneous effect.png",
+          "alt": "Blast Radius"
+        }
+      },
+      {
+        "label": "range",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100262": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "7"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of Fireworks (effect)",
+          "6"
+        ],
+        "params": {
+          "alt": "Relic of Fireworks"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100299": {
+    "facts": [
+      {
+        "label": "Weapon Swap Recharge Reduction",
+        "values": [
+          "25%"
+        ],
+        "params": {
+          "icon": "Radius.png"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100311": {
+    "facts": [],
+    "rechargeSeconds": 120
+  },
+  "100345": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Daredevil (effect)",
+          "10"
+        ],
+        "params": {
+          "desc": "Your next attack will be a critical hit."
+        }
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "100368": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Scourge (effect)",
+          "6"
+        ],
+        "params": {
+          "desc": "+1½% Condition Duration"
+        }
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "100385": {
+    "facts": [
+      {
+        "label": "stability",
+        "values": [
+          "4"
+        ],
+        "params": {
+          "stacks": "2"
+        }
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "100388": {
+    "facts": [
+      {
+        "label": "resistance",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Conditions Removed",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "allied targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100390": {
+    "facts": [
+      {
+        "label": "interval",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100400": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.1"
+        }
+      },
+      {
+        "label": "Poison",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Cripple",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Minimum Hits",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Maximum Hits",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Number of Targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Interval",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Radius",
+        "values": [
+          "150"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Range",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100403": {
+    "facts": [],
+    "rechargeSeconds": 120
+  },
+  "100411": {
+    "facts": [
+      {
+        "label": "conditions removed",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100429": {
+    "facts": [
+      {
+        "label": "Increased Health Percent",
+        "values": [
+          "30%"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Increased Revive Speed",
+        "values": [
+          "20%"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100432": {
+    "facts": [
+      {
+        "label": "Confusion",
+        "values": [
+          "2"
+        ],
+        "params": {
+          "stacks": "5"
+        }
+      },
+      {
+        "label": "Torment",
+        "values": [
+          "5"
+        ],
+        "params": {
+          "stacks": "2"
+        }
+      },
+      {
+        "label": "Targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Blast Radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 10
+  },
+  "100435": {
+    "facts": [
+      {
+        "label": "protection",
+        "values": [
+          "6"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Magnetic Aura (effect)",
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "360"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100442": {
+    "facts": [
+      {
+        "label": "icon=Radius.png",
+        "values": [
+          "Effectiveness Increased",
+          "20%"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100448": {
+    "facts": [
+      {
+        "label": "defiance break",
+        "values": [
+          "400"
+        ],
+        "params": {
+          "sic": "100 for 1 second stun, up to 300 for a 3 second stun"
+        }
+      },
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.01"
+        }
+      },
+      {
+        "label": "stun",
+        "values": [
+          "1"
+        ],
+        "params": {
+          "alt": "Minimum Stun"
+        }
+      },
+      {
+        "label": "stun",
+        "values": [
+          "3"
+        ],
+        "params": {
+          "alt": "Maximum Stun"
+        }
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "240"
+        ],
+        "params": {
+          "icon": "Miscellaneous effect.png",
+          "alt": "Blast Radius"
+        }
+      },
+      {
+        "label": "range",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100450": {
+    "facts": [
+      {
+        "label": "quickness",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100453": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Firebrand (effect)",
+          "4"
+        ],
+        "params": {
+          "desc": "+20% Boon Duration"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100455": {
+    "facts": [
+      {
+        "label": "protection",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "regeneration",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "resolution",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 15
+  },
+  "100461": {
+    "facts": [
+      {
+        "label": "damage reduced",
+        "values": [
+          "50"
+        ],
+        "params": {}
+      },
+      {
+        "label": "allied targets",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "duration",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 15
+  },
+  "100479": {
+    "facts": [],
+    "rechargeSeconds": 120
+  },
+  "100527": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Brawler (effect)",
+          "4"
+        ],
+        "params": {
+          "alt": "Relic of the Brawler"
+        }
+      }
+    ],
+    "rechargeSeconds": 8
+  },
+  "100531": {
+    "facts": [
+      {
+        "label": "Conditions Removed",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "360"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "100542": {
+    "facts": [
+      {
+        "label": "aegis",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "might",
+        "values": [
+          "5"
+        ],
+        "params": {
+          "stacks": "10"
+        }
+      },
+      {
+        "label": "quickness",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "swiftness",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "resistance",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "100557": {
+    "facts": [
+      {
+        "label": "defiance break",
+        "values": [
+          "150"
+        ],
+        "params": {}
+      },
+      {
+        "label": "pull",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      },
+      {
+        "label": "duration",
+        "values": [
+          "1"
+        ],
+        "params": {
+          "alt": "Missile Reflect Duration"
+        }
+      },
+      {
+        "label": "radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100561": {
+    "facts": [
+      {
+        "label": "Endurance Gained",
+        "values": [
+          "50"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "100562": {
+    "facts": [
+      {
+        "label": "protection",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "regeneration",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "resolution",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 15
+  },
+  "100579": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.9"
+        }
+      },
+      {
+        "label": "Poison",
+        "values": [
+          "8"
+        ],
+        "params": {
+          "stacks": "3"
+        }
+      },
+      {
+        "label": "Fear",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Number of Targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Blast Radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100580": {
+    "facts": [
+      {
+        "label": "movement speed increase",
+        "values": [
+          "50"
+        ],
+        "params": {
+          "alt": "Movement Speed Decrease"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100614": {
+    "facts": [
+      {
+        "label": "vigor",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "100625": {
+    "facts": [
+      {
+        "label": "Conditions Converted to Boons",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "360"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100633": {
+    "facts": [
+      {
+        "label": "healing",
+        "values": [
+          "1460"
+        ],
+        "params": {
+          "coefficient": "1.0"
+        }
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "100659": {
+    "facts": [
+      {
+        "label": "Conditions Removed",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "360"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "100676": {
+    "facts": [
+      {
+        "label": "life siphon damage",
+        "values": [
+          "754"
+        ],
+        "params": {
+          "coefficient": "0.1",
+          "icon": "Damage.png"
+        }
+      },
+      {
+        "label": "life siphon healing",
+        "values": [
+          "754"
+        ],
+        "params": {
+          "coefficient": "0.1",
+          "icon": "Damage.png"
+        }
+      },
+      {
+        "label": "healing",
+        "values": [
+          "10%"
+        ],
+        "params": {
+          "alt": "On-Kill Healing"
+        }
+      },
+      {
+        "label": "radius",
+        "values": [
+          "360"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "100693": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.3"
+        }
+      },
+      {
+        "label": "bleeding",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "poison",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "240"
+        ],
+        "params": {
+          "alt": "Blast Radius",
+          "icon": "Miscellaneous effect.png"
+        }
+      }
+    ],
+    "rechargeSeconds": 10
+  },
+  "100694": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Superspeed",
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "allied targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 5
+  },
+  "100739": {
+    "facts": [
+      {
+        "label": "chilled",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100752": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Superspeed",
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "might",
+        "values": [
+          "6"
+        ],
+        "params": {
+          "stacks": "5"
+        }
+      },
+      {
+        "label": "fury",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "360"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100775": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of Vass (effect)",
+          "10"
+        ],
+        "params": {
+          "alt": "Relic of Vass",
+          "stacks": "3"
+        }
+      },
+      {
+        "label": "Poisoned",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 10
+  },
+  "100794": {
+    "facts": [
+      {
+        "label": "resistance",
+        "values": [
+          "2.5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 10
+  },
+  "100849": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Aristocracy (effect)",
+          "8"
+        ],
+        "params": {
+          "alt": "Relic of the Aristocracy",
+          "desc": "+3% Condition Duration"
+        }
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "5"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "100886": {
+    "facts": [
+      {
+        "label": "vigor",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "100893": {
+    "facts": [
+      {
+        "label": "protection",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "resolution",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "duration",
+        "values": [
+          "4"
+        ],
+        "params": {
+          "alt": "Minimum Duration"
+        }
+      },
+      {
+        "label": "duration",
+        "values": [
+          "7"
+        ],
+        "params": {
+          "alt": "Maximum Duration"
+        }
+      },
+      {
+        "label": "interval",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "360"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100908": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "strikes": "6",
+          "weapon": "unequipped",
+          "coefficient": "1.8"
+        }
+      },
+      {
+        "label": "bleeding",
+        "values": [
+          "2"
+        ],
+        "params": {
+          "stacks": "6"
+        }
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "pulses",
+        "values": [
+          "6"
+        ],
+        "params": {}
+      },
+      {
+        "label": "duration",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "180"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100916": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Thief (effect)",
+          "6"
+        ],
+        "params": {
+          "alt": "Relic of the Thief"
+        }
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "5"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100924": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Deadeye (effect)",
+          "8"
+        ],
+        "params": {
+          "alt": "Relic of the Deadeye"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100934": {
+    "facts": [
+      {
+        "label": "healing",
+        "values": [
+          "5%"
+        ],
+        "params": {}
+      },
+      {
+        "label": "healing",
+        "values": [
+          "1%"
+        ],
+        "params": {
+          "alt": "Heal Reduction per Block"
+        }
+      },
+      {
+        "label": "healing",
+        "values": [
+          "1%"
+        ],
+        "params": {
+          "alt": "Minimum Heal Percent"
+        }
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "100942": {
+    "facts": [
+      {
+        "label": "defiance break",
+        "values": [
+          "200"
+        ],
+        "params": {}
+      },
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.4"
+        }
+      },
+      {
+        "label": "Vulnerability",
+        "values": [
+          "8"
+        ],
+        "params": {
+          "stacks": "5"
+        }
+      },
+      {
+        "label": "Blindness",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Weakness",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Daze",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Number of Targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Pierces",
+        "values": [],
+        "params": {}
+      },
+      {
+        "label": "Range",
+        "values": [
+          "1200"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "100947": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "7"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of Fireworks (effect)",
+          "6"
+        ],
+        "params": {
+          "alt": "Relic of Fireworks"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "100976": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Thief (effect)",
+          "6"
+        ],
+        "params": {
+          "alt": "Relic of the Thief"
+        }
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "5"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101116": {
+    "facts": [
+      {
+        "label": "swiftness",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "condition removed",
+        "values": [
+          "Immobile"
+        ],
+        "params": {}
+      },
+      {
+        "label": "condition removed",
+        "values": [
+          "Chilled"
+        ],
+        "params": {}
+      },
+      {
+        "label": "condition removed",
+        "values": [
+          "Crippled"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "300"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 10
+  },
+  "101139": {
+    "facts": [
+      {
+        "label": "might",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "fury",
+        "values": [
+          "3",
+          "20"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "300"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "101166": {
+    "facts": [
+      {
+        "label": "radius increase",
+        "values": [
+          "50%"
+        ],
+        "params": {
+          "alt": "Healing Reduction"
+        }
+      },
+      {
+        "label": "poisoned",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "101191": {
+    "facts": [
+      {
+        "label": "Damage to Healing",
+        "values": [
+          "10%"
+        ],
+        "params": {
+          "alt": "[[Healing|Damage to Healing]]",
+          "icon": "Radius.png"
+        }
+      },
+      {
+        "label": "Damage Increase",
+        "values": [
+          "15"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Damage Reduced",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Nourys's Hunger",
+          "5"
+        ],
+        "params": {
+          "desc": "+15% Damage, +15% Condition Damage, -10% Incoming Damage, -10% Incoming Condition Damage, +10% Healing from Outgoing Boon and Condition Damage, +10% from Outgoing Attack Damage"
+        }
+      },
+      {
+        "label": "Interval",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 0.25
+  },
+  "101198": {
+    "facts": [
+      {
+        "label": "healing",
+        "values": [
+          "198"
+        ],
+        "params": {
+          "coefficient": "0.05"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101268": {
+    "facts": [
+      {
+        "label": "healing",
+        "values": [
+          "805"
+        ],
+        "params": {
+          "coefficient": "0.5"
+        }
+      },
+      {
+        "label": "radius",
+        "values": [
+          "300"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101439": {
+    "facts": [
+      {
+        "label": "Increased Health Percent",
+        "values": [
+          "30%"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Increased Revive Speed",
+        "values": [
+          "20%"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101441": {
+    "facts": [
+      {
+        "label": "vigor",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "101442": {
+    "facts": [
+      {
+        "label": "Movement Speed Increase",
+        "values": [
+          "66"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101452": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Firebrand (effect)",
+          "4"
+        ],
+        "params": {
+          "desc": "+20% Boon Duration"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101453": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.9"
+        }
+      },
+      {
+        "label": "Poison",
+        "values": [
+          "8"
+        ],
+        "params": {
+          "stacks": "3"
+        }
+      },
+      {
+        "label": "Fear",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Number of Targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Blast Radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "101461": {
+    "facts": [
+      {
+        "label": "Conditions Converted to Boons",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "360"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "101465": {
+    "facts": [
+      {
+        "label": "movement speed increase",
+        "values": [
+          "50"
+        ],
+        "params": {
+          "alt": "Movement Speed Decrease"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101466": {
+    "facts": [
+      {
+        "label": "resistance",
+        "values": [
+          "2.5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 10
+  },
+  "101467": {
+    "facts": [
+      {
+        "label": "radius increase",
+        "values": [
+          "50%"
+        ],
+        "params": {
+          "alt": "Healing Reduction"
+        }
+      },
+      {
+        "label": "poisoned",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "101472": {
+    "facts": [
+      {
+        "label": "chilled",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101474": {
+    "facts": [
+      {
+        "label": "Conditions Removed",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "360"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "101489": {
+    "facts": [
+      {
+        "label": "Burning",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Torment",
+        "values": [
+          "6"
+        ],
+        "params": {
+          "stacks": "2"
+        }
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "101491": {
+    "facts": [
+      {
+        "label": "defiance break",
+        "values": [
+          "200"
+        ],
+        "params": {}
+      },
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.4"
+        }
+      },
+      {
+        "label": "Vulnerability",
+        "values": [
+          "8"
+        ],
+        "params": {
+          "stacks": "5"
+        }
+      },
+      {
+        "label": "Blindness",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Weakness",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Daze",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Number of Targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Pierces",
+        "values": [],
+        "params": {}
+      },
+      {
+        "label": "Range",
+        "values": [
+          "1200"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "101492": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of Vass (effect)",
+          "10"
+        ],
+        "params": {
+          "alt": "Relic of Vass",
+          "stacks": "3"
+        }
+      },
+      {
+        "label": "Poisoned",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 10
+  },
+  "101500": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "1.0"
+        }
+      },
+      {
+        "label": "Boons Converted to Conditions",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "range",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "101503": {
+    "facts": [
+      {
+        "label": "Damage to Healing",
+        "values": [
+          "10%"
+        ],
+        "params": {
+          "alt": "[[Healing|Damage to Healing]]",
+          "icon": "Radius.png"
+        }
+      },
+      {
+        "label": "Damage Increase",
+        "values": [
+          "15"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Damage Reduced",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Nourys's Hunger",
+          "5"
+        ],
+        "params": {
+          "desc": "+15% Damage, +15% Condition Damage, -10% Incoming Damage, -10% Incoming Condition Damage, +10% Healing from Outgoing Boon and Condition Damage, +10% from Outgoing Attack Damage"
+        }
+      },
+      {
+        "label": "Interval",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 0.25
+  },
+  "101509": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Herald (effect)",
+          "3"
+        ],
+        "params": {
+          "desc": "25 Concentration"
+        }
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101513": {
+    "facts": [
+      {
+        "label": "healing",
+        "values": [
+          "5%"
+        ],
+        "params": {}
+      },
+      {
+        "label": "healing",
+        "values": [
+          "1%"
+        ],
+        "params": {
+          "alt": "Heal Reduction per Block"
+        }
+      },
+      {
+        "label": "healing",
+        "values": [
+          "1%"
+        ],
+        "params": {
+          "alt": "Minimum Heal Percent"
+        }
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "101514": {
+    "facts": [
+      {
+        "label": "icon=Radius.png",
+        "values": [
+          "Effectiveness Increased",
+          "20%"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101526": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Effect",
+        "values": [
+          "Relic of the Weaver (effect)",
+          "4"
+        ],
+        "params": {
+          "alt": "Relic of the Weaver"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101534": {
+    "facts": [
+      {
+        "label": "aegis",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "might",
+        "values": [
+          "5"
+        ],
+        "params": {
+          "stacks": "10"
+        }
+      },
+      {
+        "label": "quickness",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "swiftness",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "resistance",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "101541": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.1"
+        }
+      },
+      {
+        "label": "Poison",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Cripple",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Minimum Hits",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Maximum Hits",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Number of Targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Interval",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Radius",
+        "values": [
+          "150"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Range",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "101545": {
+    "facts": [
+      {
+        "label": "Weapon Swap Recharge Reduction",
+        "values": [
+          "25%"
+        ],
+        "params": {
+          "icon": "Radius.png"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101546": {
+    "facts": [
+      {
+        "label": "healing",
+        "values": [
+          "805"
+        ],
+        "params": {
+          "coefficient": "0.5"
+        }
+      },
+      {
+        "label": "radius",
+        "values": [
+          "300"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101549": {
+    "facts": [
+      {
+        "label": "quickness",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101554": {
+    "facts": [
+      {
+        "label": "conditions removed",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101563": {
+    "facts": [
+      {
+        "label": "swiftness",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "condition removed",
+        "values": [
+          "Immobile"
+        ],
+        "params": {}
+      },
+      {
+        "label": "condition removed",
+        "values": [
+          "Chilled"
+        ],
+        "params": {}
+      },
+      {
+        "label": "condition removed",
+        "values": [
+          "Crippled"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "300"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 10
+  },
+  "101564": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "7"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of Fireworks (effect)",
+          "6"
+        ],
+        "params": {
+          "alt": "Relic of Fireworks"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101571": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Superspeed",
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "allied targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 5
+  },
+  "101573": {
+    "facts": [
+      {
+        "label": "Confusion",
+        "values": [
+          "2"
+        ],
+        "params": {
+          "stacks": "5"
+        }
+      },
+      {
+        "label": "Torment",
+        "values": [
+          "5"
+        ],
+        "params": {
+          "stacks": "2"
+        }
+      },
+      {
+        "label": "Targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Blast Radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 10
+  },
+  "101580": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Thief (effect)",
+          "6"
+        ],
+        "params": {
+          "alt": "Relic of the Thief"
+        }
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "5"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101581": {
+    "facts": [
+      {
+        "label": "torment",
+        "values": [
+          "6"
+        ],
+        "params": {
+          "stacks": "2"
+        }
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "101582": {
+    "facts": [],
+    "rechargeSeconds": null
+  },
+  "101586": {
+    "facts": [
+      {
+        "label": "defiance break",
+        "values": [
+          "150"
+        ],
+        "params": {}
+      },
+      {
+        "label": "pull",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      },
+      {
+        "label": "duration",
+        "values": [
+          "1"
+        ],
+        "params": {
+          "alt": "Missile Reflect Duration"
+        }
+      },
+      {
+        "label": "radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "101590": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Duration Increase",
+        "values": [
+          "10%"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Duration",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101600": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Brawler (effect)",
+          "4"
+        ],
+        "params": {
+          "alt": "Relic of the Brawler"
+        }
+      }
+    ],
+    "rechargeSeconds": 8
+  },
+  "101605": {
+    "facts": [
+      {
+        "label": "damage reduced",
+        "values": [
+          "50"
+        ],
+        "params": {}
+      },
+      {
+        "label": "allied targets",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "duration",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 15
+  },
+  "101607": {
+    "facts": [
+      {
+        "label": "stability",
+        "values": [
+          "4"
+        ],
+        "params": {
+          "stacks": "2"
+        }
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "101608": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.5"
+        }
+      },
+      {
+        "label": "chilled",
+        "values": [
+          "1.5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "vulnerability",
+        "values": [
+          "5"
+        ],
+        "params": {
+          "stacks": "3"
+        }
+      },
+      {
+        "label": "Icicles per Target",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "range",
+        "values": [
+          "900"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "101611": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Torment",
+        "values": [
+          "4"
+        ],
+        "params": {
+          "stacks": "2"
+        }
+      },
+      {
+        "label": "Duration",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Range",
+        "values": [
+          "800"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 4
+  },
+  "101618": {
+    "facts": [
+      {
+        "label": "protection",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "resolution",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "duration",
+        "values": [
+          "4"
+        ],
+        "params": {
+          "alt": "Minimum Duration"
+        }
+      },
+      {
+        "label": "duration",
+        "values": [
+          "7"
+        ],
+        "params": {
+          "alt": "Maximum Duration"
+        }
+      },
+      {
+        "label": "interval",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "360"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "101619": {
+    "facts": [
+      {
+        "label": "resistance",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Conditions Removed",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "allied targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101621": {
+    "facts": [
+      {
+        "label": "might",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "fury",
+        "values": [
+          "3",
+          "20"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "300"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "101627": {
+    "facts": [
+      {
+        "label": "healing",
+        "values": [
+          "198"
+        ],
+        "params": {
+          "coefficient": "0.05"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101630": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Monk (effect)",
+          "3"
+        ],
+        "params": {
+          "desc": "+1% Healing Increase to Others"
+        }
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101634": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Scourge (effect)",
+          "6"
+        ],
+        "params": {
+          "desc": "+1½% Condition Duration"
+        }
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "101637": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Deadeye (effect)",
+          "8"
+        ],
+        "params": {
+          "alt": "Relic of the Deadeye"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101640": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.5"
+        }
+      },
+      {
+        "label": "Bleeding",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Poison",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Torment",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Number of Targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Blast Radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "101643": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Mabon's Strength",
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Effectiveness Increased",
+        "values": [
+          "25%"
+        ],
+        "params": {
+          "icon": "Radius.png"
+        }
+      },
+      {
+        "label": "Duration",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 2
+  },
+  "101644": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Daredevil (effect)",
+          "10"
+        ],
+        "params": {
+          "desc": "Your next attack will be a critical hit."
+        }
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "101647": {
+    "facts": [
+      {
+        "label": "defiance break",
+        "values": [
+          "400"
+        ],
+        "params": {
+          "sic": "100 for 1 second stun, up to 300 for a 3 second stun"
+        }
+      },
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.01"
+        }
+      },
+      {
+        "label": "stun",
+        "values": [
+          "1"
+        ],
+        "params": {
+          "alt": "Minimum Stun"
+        }
+      },
+      {
+        "label": "stun",
+        "values": [
+          "3"
+        ],
+        "params": {
+          "alt": "Maximum Stun"
+        }
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "240"
+        ],
+        "params": {
+          "icon": "Miscellaneous effect.png",
+          "alt": "Blast Radius"
+        }
+      },
+      {
+        "label": "range",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "101649": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "duration increase",
+        "values": [
+          "10%"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Duration",
+        "values": [
+          "6"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101731": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.873"
+        }
+      },
+      {
+        "label": "might",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "stacks": "6"
+        }
+      },
+      {
+        "label": "Might",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "alt": "Might per Hit"
+        }
+      },
+      {
+        "label": "Weakness",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 10
+  },
+  "101737": {
+    "facts": [
+      {
+        "label": "Barrier",
+        "values": [
+          "479"
+        ],
+        "params": {
+          "coefficient": "0.3"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101767": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.873"
+        }
+      },
+      {
+        "label": "might",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "stacks": "6"
+        }
+      },
+      {
+        "label": "Might",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "alt": "Might per Hit"
+        }
+      },
+      {
+        "label": "Weakness",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 10
+  },
+  "101776": {
+    "facts": [
+      {
+        "label": "Barrier",
+        "values": [
+          "479"
+        ],
+        "params": {
+          "coefficient": "0.3"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101801": {
+    "facts": [
+      {
+        "label": "conditions removed",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "101860": {
+    "facts": [
+      {
+        "label": "conditions removed",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "101863": {
+    "facts": [
+      {
+        "label": "vulnerability",
+        "values": [
+          "6"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "101908": {
+    "facts": [
+      {
+        "label": "vulnerability",
+        "values": [
+          "6"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "101917": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Superspeed",
+          "2.5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "movement speed increase",
+        "values": [
+          "25"
+        ],
+        "params": {}
+      },
+      {
+        "label": "movement speed increase",
+        "values": [
+          "33"
+        ],
+        "params": {
+          "alt": "Noncombat Movement Speed Increase"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101943": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Superspeed",
+          "2.5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "movement speed increase",
+        "values": [
+          "25"
+        ],
+        "params": {}
+      },
+      {
+        "label": "movement speed increase",
+        "values": [
+          "33"
+        ],
+        "params": {
+          "alt": "Noncombat Movement Speed Increase"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101944": {
+    "facts": [
+      {
+        "label": "healing",
+        "values": [
+          "7%"
+        ],
+        "params": {
+          "icon": "Radius.png",
+          "alt": "Percent"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "101955": {
+    "facts": [
+      {
+        "label": "healing",
+        "values": [
+          "7%"
+        ],
+        "params": {
+          "icon": "Radius.png",
+          "alt": "Percent"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "102199": {
+    "facts": [
+      {
+        "label": "Poison",
+        "values": [
+          "7"
+        ],
+        "params": {
+          "stacks": "2"
+        }
+      },
+      {
+        "label": "Cripple",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Weakness",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "5"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      },
+      {
+        "label": "Targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 8
+  },
+  "102245": {
+    "facts": [
+      {
+        "label": "Effectiveness Increased",
+        "values": [
+          "15%"
+        ],
+        "params": {
+          "icon": "Radius.png"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "102442": {
+    "facts": [
+      {
+        "label": "Alacrity",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Regeneration",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "102595": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.36"
+        }
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Stormsinger (effect)",
+          "5"
+        ],
+        "params": {
+          "alt": "Relic of the Stormsinger"
+        }
+      },
+      {
+        "label": "Targets",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 3
+  },
+  "102787": {
+    "facts": [
+      {
+        "label": "Effectiveness Increased",
+        "values": [
+          "15%"
+        ],
+        "params": {
+          "icon": "Radius.png"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "102877": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "7"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Claw (effect)",
+          "8"
+        ],
+        "params": {
+          "alt": "Relic of the Claw"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "102896": {
+    "facts": [
+      {
+        "label": "Poison",
+        "values": [
+          "7"
+        ],
+        "params": {
+          "stacks": "2"
+        }
+      },
+      {
+        "label": "Cripple",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Weakness",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "5"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      },
+      {
+        "label": "Targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 8
+  },
+  "103015": {
+    "facts": [
+      {
+        "label": "Alacrity",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Regeneration",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "103262": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.36"
+        }
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Stormsinger (effect)",
+          "5"
+        ],
+        "params": {
+          "alt": "Relic of the Stormsinger"
+        }
+      },
+      {
+        "label": "Targets",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 3
+  },
+  "103424": {
+    "facts": [
+      {
+        "label": "Healing",
+        "values": [
+          "660"
+        ],
+        "params": {
+          "coefficient": "0.25"
+        }
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of Sorrow (effect)",
+          "1"
+        ],
+        "params": {
+          "alt": "Relic of Sorrow"
+        }
+      },
+      {
+        "label": "Duration",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Damage reduced",
+        "values": [
+          "20"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "103507": {
+    "facts": [
+      {
+        "label": "Healing",
+        "values": [
+          "660"
+        ],
+        "params": {
+          "coefficient": "0.25"
+        }
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of Sorrow (effect)",
+          "1"
+        ],
+        "params": {
+          "alt": "Relic of Sorrow"
+        }
+      },
+      {
+        "label": "Duration",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Damage reduced",
+        "values": [
+          "20"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "103574": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "7"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Claw (effect)",
+          "8"
+        ],
+        "params": {
+          "alt": "Relic of the Claw"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "103763": {
+    "facts": [
+      {
+        "label": "Endurance Gained",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 5
+  },
+  "103811": {
+    "facts": [
+      {
+        "label": "burning",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "103829": {
+    "facts": [
+      {
+        "label": "Endurance Gained",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 5
+  },
+  "103872": {
+    "facts": [
+      {
+        "label": "damage increase",
+        "values": [
+          "15"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of Mount Balrior (effect)"
+        ],
+        "params": {}
+      },
+      {
+        "label": "duration",
+        "values": [
+          "6"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "103901": {
+    "facts": [
+      {
+        "label": "Conditions Removed",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "103923": {
+    "facts": [
+      {
+        "label": "poison",
+        "values": [
+          "4"
+        ],
+        "params": {
+          "stacks": "8"
+        }
+      },
+      {
+        "label": "Number of Hits",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "240"
+        ],
+        "params": {
+          "icon": "Miscellaneous effect.png",
+          "alt": "Blast Radius"
+        }
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "103924": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Frost Aura (effect)",
+          "4"
+        ],
+        "params": {
+          "desc": "-10% Incoming Damage"
+        }
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Light Aura",
+          "4"
+        ],
+        "params": {
+          "desc": "-10% Incoming Condition Damage"
+        }
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "103941": {
+    "facts": [
+      {
+        "label": "Conditions Removed",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "103977": {
+    "facts": [
+      {
+        "label": "poison",
+        "values": [
+          "4"
+        ],
+        "params": {
+          "stacks": "8"
+        }
+      },
+      {
+        "label": "Number of Hits",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "240"
+        ],
+        "params": {
+          "icon": "Miscellaneous effect.png",
+          "alt": "Blast Radius"
+        }
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "103984": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Frost Aura (effect)",
+          "4"
+        ],
+        "params": {
+          "desc": "-10% Incoming Damage"
+        }
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Light Aura",
+          "4"
+        ],
+        "params": {
+          "desc": "-10% Incoming Condition Damage"
+        }
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "104022": {
+    "facts": [
+      {
+        "label": "burning",
+        "values": [
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "104035": {
+    "facts": [
+      {
+        "label": "damage increase",
+        "values": [
+          "15"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of Mount Balrior (effect)"
+        ],
+        "params": {}
+      },
+      {
+        "label": "duration",
+        "values": [
+          "6"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "104241": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "health threshold",
+        "values": [
+          "50"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "104249": {
+    "facts": [
+      {
+        "label": "life siphon damage",
+        "values": [
+          "754"
+        ],
+        "params": {
+          "coefficient": "0.1",
+          "icon": "Damage.png"
+        }
+      },
+      {
+        "label": "life siphon healing",
+        "values": [
+          "754"
+        ],
+        "params": {
+          "coefficient": "0.1",
+          "icon": "Damage.png"
+        }
+      },
+      {
+        "label": "healing",
+        "values": [
+          "10%"
+        ],
+        "params": {
+          "alt": "On-Kill Healing"
+        }
+      },
+      {
+        "label": "radius",
+        "values": [
+          "360"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "104256": {
+    "facts": [
+      {
+        "label": "might",
+        "values": [
+          "8"
+        ],
+        "params": {
+          "stacks": "6"
+        }
+      },
+      {
+        "label": "fury",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "300"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "104274": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Shocking Aura (effect)",
+          "4"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "104277": {
+    "facts": [],
+    "rechargeSeconds": 120
+  },
+  "104296": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of Thorns (effect)",
+          "30"
+        ],
+        "params": {
+          "desc": "50 [[Condition Damage]]"
+        }
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      }
+    ],
+    "rechargeSeconds": 5
+  },
+  "104308": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Fire Aura",
+          "4"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "104311": {
+    "facts": [],
+    "rechargeSeconds": 120
+  },
+  "104334": {
+    "facts": [],
+    "rechargeSeconds": 120
+  },
+  "104383": {
+    "facts": [
+      {
+        "label": "protection",
+        "values": [
+          "6"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Magnetic Aura (effect)",
+          "4"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "360"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "104390": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "strikes": "6",
+          "weapon": "unequipped",
+          "coefficient": "1.8"
+        }
+      },
+      {
+        "label": "bleeding",
+        "values": [
+          "2"
+        ],
+        "params": {
+          "stacks": "6"
+        }
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "pulses",
+        "values": [
+          "6"
+        ],
+        "params": {}
+      },
+      {
+        "label": "duration",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "180"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "104413": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "health threshold",
+        "values": [
+          "50"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "104416": {
+    "facts": [],
+    "rechargeSeconds": 120
+  },
+  "104424": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of Thorns (effect)",
+          "30"
+        ],
+        "params": {
+          "desc": "50 [[Condition Damage]]"
+        }
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      }
+    ],
+    "rechargeSeconds": 5
+  },
+  "104491": {
+    "facts": [
+      {
+        "label": "might",
+        "values": [
+          "8"
+        ],
+        "params": {
+          "stacks": "6"
+        }
+      },
+      {
+        "label": "fury",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "300"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "104501": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Fire Aura",
+          "4"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "104733": {
+    "facts": [
+      {
+        "label": "protection",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "104800": {
+    "facts": [
+      {
+        "label": "damage increase",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "alt": "Bloodstone Fervor Damage Increase"
+        }
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Bloodstone Volatility",
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Bloodstone Fervor",
+          "8"
+        ],
+        "params": {
+          "desc": "Your strike damage is increased."
+        }
+      },
+      {
+        "label": "Stack Threshold",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      },
+      {
+        "label": "combat",
+        "values": [],
+        "params": {}
+      },
+      {
+        "label": "text",
+        "values": [
+          "[[Bloodstone Explosion]]"
+        ],
+        "params": {}
+      },
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "2.0"
+        }
+      },
+      {
+        "label": "bleeding",
+        "values": [
+          "6"
+        ],
+        "params": {
+          "stacks": "6"
+        }
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "240"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "104848": {
+    "facts": [
+      {
+        "label": "Conditions Removed",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "104849": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Agony of the Choir",
+          "3"
+        ],
+        "params": {}
+      },
+      {
+        "label": "interval",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "104928": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Soul of the Titan",
+          "5"
+        ],
+        "params": {
+          "desc": "+15% [[All Stats]]"
+        }
+      },
+      {
+        "label": "Gain All Boons for Base Duration",
+        "values": [
+          "5 seconds"
+        ],
+        "params": {}
+      },
+      {
+        "label": "combat",
+        "values": [],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 60
+  },
+  "104938": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Soul of the Titan",
+          "5"
+        ],
+        "params": {
+          "desc": "+15% [[All Stats]]"
+        }
+      },
+      {
+        "label": "Gain All Boons for Base Duration",
+        "values": [
+          "5 seconds"
+        ],
+        "params": {}
+      },
+      {
+        "label": "combat",
+        "values": [],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 60
+  },
+  "104994": {
+    "facts": [
+      {
+        "label": "might",
+        "values": [
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "critical chance increase",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Stack Threshold",
+        "values": [
+          "20"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "105585": {
+    "facts": [
+      {
+        "label": "Damage Reduced",
+        "values": [
+          "33"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "105652": {
+    "facts": [
+      {
+        "label": "threshold",
+        "values": [
+          "50"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Healing Increase",
+        "values": [
+          "20"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "106206": {
+    "facts": [
+      {
+        "label": "Life Siphon Damage",
+        "values": [
+          "41"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Life Siphon Healing",
+        "values": [
+          "34"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "106221": {
+    "facts": [
+      {
+        "label": "quickness",
+        "values": [
+          "1.5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 1
+  },
+  "106355": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Scoundrel (effect)",
+          "8"
+        ],
+        "params": {
+          "desc": "+10% Critical Chance"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "106364": {
+    "facts": [
+      {
+        "label": "healing",
+        "values": [
+          "69"
+        ],
+        "params": {
+          "coefficient": "0.01"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "106916": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "1.5"
+        }
+      },
+      {
+        "label": "Range Threshold",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Revealed",
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "duration",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 10
+  },
+  "106920": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "1.0"
+        }
+      },
+      {
+        "label": "healing",
+        "values": [
+          "778"
+        ],
+        "params": {
+          "coefficient": "0.5"
+        }
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "allied targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "180"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "107030": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Relic of Fog (effect)",
+          "5"
+        ],
+        "params": {
+          "desc": "+100% Incoming [[Fumble]] Unrestricted Percent"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "107061": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.4"
+        }
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Coral Heart (effect)",
+          "6"
+        ],
+        "params": {}
+      },
+      {
+        "label": "interval",
+        "values": [
+          "1"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 20
+  },
+  "107124": {
+    "facts": [
+      {
+        "label": "defiance break",
+        "values": [
+          "150"
+        ],
+        "params": {}
+      },
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.01"
+        }
+      },
+      {
+        "label": "float",
+        "values": [
+          "1.5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      },
+      {
+        "label": "range",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "107192": {
+    "facts": [
+      {
+        "label": "recharge time reduced",
+        "values": [
+          "1.5"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "109264": {
+    "facts": [
+      {
+        "label": "damage",
+        "values": [],
+        "params": {
+          "weapon": "unequipped",
+          "coefficient": "0.1"
+        }
+      },
+      {
+        "label": "burning",
+        "values": [
+          "6"
+        ],
+        "params": {
+          "stacks": "2"
+        }
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "range",
+        "values": [
+          "1200"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 30
+  },
+  "109267": {
+    "facts": [
+      {
+        "label": "Protection",
+        "values": [
+          "3"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "109351": {
+    "facts": [
+      {
+        "label": "Damage Increase",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Vulnerability",
+        "values": [
+          "8"
+        ],
+        "params": {
+          "stacks": "8"
+        }
+      },
+      {
+        "label": "effect",
+        "values": [
+          "Relic of the Director (effect)",
+          "6"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": 15
+  },
+  "109522": {
+    "facts": [
+      {
+        "label": "Damage Reduced",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "109664": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "Kuda's Cruelty",
+          "8"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Maximum Stacks",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "icon": "Maximum Count.png"
+        }
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "109709": {
+    "facts": [
+      {
+        "label": "Weakness",
+        "values": [
+          "2"
+        ],
+        "params": {}
+      },
+      {
+        "label": "Duration Increase",
+        "values": [
+          "25%"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  }
+}

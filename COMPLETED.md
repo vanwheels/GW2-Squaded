@@ -2,6 +2,93 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 20 — Relic numeric effects via a wiki `{{skill fact}}` cross-check
+
+Continuation of "Build editor UI/UX overhaul" → the character-stats-panel item's relic sub-item,
+picking up the "scoping question for whoever picks this back up" Session 15 left open: relic
+tooltips only showed prose `description` text (the public API exposes nothing structured for
+relics, confirmed in Session 14) — inert-text-forever vs. investing in a ~211-page wiki
+cross-check, the same shape of effort as `fetch-wvw-splits.ts`. User chose the wiki cross-check.
+
+- **Confirmed live (not assumed) that relic wiki pages reuse the exact `{{skill fact|...}}`
+  template skills/traits use**, inside a `{{Relic infobox}}`'s `facts=` field — e.g. Relic of the
+  Warrior's page literally contains `{{skill fact|Weapon Swap Recharge Reduction|25%}}`, matching
+  the "25%" a screenshot had predicted 2 sessions ago but the API couldn't confirm. Checked ~10
+  relic pages by hand first (a Buff/boon-shaped one, a damage-coefficient one, a multi-fact
+  "effect"-wrapped one, a plain-recharge-only "summon a creature" one) before writing any parsing
+  code, same discipline as every prior wiki-sourced fetch script in this project.
+- **New `scripts/fetch-relic-effects.ts`** (`npm run fetch-relic-effects`, after
+  `fetch-gear-upgrades`): fetches each of the 113 unique relic *names* (not all 211 ids — see
+  below) via `action=raw`, extracts the `{{Relic infobox}}` block, and parses every `{{skill
+  fact|...}}` invocation inside its `facts=` field into a generic `{label, values, params}` shape
+  (not modeled semantically per fact "type" the way skill/trait Buff facts partially are — too
+  varied: damage coefficients, boon names, stack counts, min/max duration pairs, flat percentages).
+  Lines split by `game mode=` are resolved to the WvW-relevant one before storing (PvE-only/PvP-only
+  siblings for the same label are dropped). Also captures a relic's internal cooldown from the
+  infobox's own `recharge=`/`recharge wvw=`/`recharge pvp=` fields — discovered live that 7 relics
+  have a WvW-specific recharge distinct from PvE (e.g. Relic of the Lich: `recharge=60`, `recharge
+  wvw=120`), a real WvW-vs-PvE split in a place this app hadn't looked before (recharge time, not a
+  boon/condition duration).
+- **Two real wrinkles found and handled, not guessed around:**
+  - **113 unique relic names cover 211 ids, but MediaWiki has one page per exact title.** A live
+    check of every name-sharing id's API `description` text found 106 names where every id's
+    description is byte-identical (safe to apply one page's facts to all of them — re-releases,
+    level-80-boost variants, etc.) but **7 names where the ids' descriptions genuinely differ**
+    (e.g. "Relic of the Pack": one id grants "superspeed, might, and fury", another grants only
+    "superspeed" — an old pre-rework version and a newer one coexisting under one display name).
+    For those 7, facts are attributed *only* to the id(s) the wiki page's own `id=` field
+    explicitly lists (7 ids excluded, each logged) rather than guessed to apply everywhere.
+  - **Naive `|`-splitting breaks on a piped wikilink or nested template inside a later field** — a
+    full scan found 8 fact lines across the whole catalog with a `[[Link|text]]` or `{{template|
+    arg}}` pipe embedded in a `desc=`/`alt=` value. `protectPipes`/`restorePipes` swap one level of
+    such pipes for a placeholder before splitting, resolving 7 of the 8; the 8th (a `{{sic|...}}`
+    nested inside a link's own `desc=`, on "Relic of the Living City") is caught by a
+    bracket-balance check on each split segment and the whole fact line is dropped+logged rather
+    than stored corrupted — no independent API value exists here to cross-validate against (unlike
+    `fetch-wvw-splits.ts`), so this balance check is the only safety net, and it's deliberately
+    conservative (drop on any doubt, never guess).
+  - Also handled: a disambiguation-page retry (2 relic names — "Relic of Dwayna" collides with an
+    unrelated back-item page — retried as `"<name> (relic)"`), and 5 relic names (all "summon a
+    creature while in combat" relics, e.g. Relic of the Lich/Ogre/Golemancer/Privateer) that have
+    no `{{skill fact}}` lines at all — just a recharge, correctly left with an empty `facts` array
+    rather than treated as a parse failure.
+- **New types** (`src/shared/types/game-data.ts`): `RelicFactLine`, `RelicEffect`,
+  `RelicEffectsById`; `GameData` gained `relicEffects`, threaded through `load-game-data.ts` →
+  `game-data-store.tsx` (plain pass-through, same as every other lookup-by-id field — no new store
+  method needed since it's already keyed by relic id).
+- **New `src/shared/gear-calc/relic-effects-format.ts`** (`formatRelicDescription`): renders each
+  fact as `Label: value` (title-cased), with two special cases — an `effect`-type fact shows its
+  `desc=` payload plus duration in seconds (e.g. "+1% Healing Increase to Others (3s)"), and `alt=`
+  overrides the display label when present (disambiguates a relic with two same-label facts, e.g.
+  Relic of the Zephyrite's separate `alt=Minimum Duration`/`alt=Maximum Duration` pair; also
+  corrects at least one wiki mislabeling, Relic of the Necromancer's "movement speed increase"
+  fact whose `alt=Movement Speed Decrease` reveals it's actually a debuff applied to enemies).
+  Wired into `ConsumablesEditor.tsx`'s relic option list via `UpgradePicker`'s existing
+  `description` prop — no UI component changes needed, since `.tooltip-description` already
+  renders `white-space: pre-line` for food/utility's multi-line stat text.
+- **Deliberately NOT wired into `sources.ts`'s boon/condition uptime calculator**, despite some
+  relics' facts literally being boon names (e.g. "might", "protection" appear as fact labels on
+  several relics). A skill's Buff fact is a guaranteed on-cast effect, fully within player control;
+  a relic's fact fires on a conditional in-combat trigger ("after granting a boon to an ally",
+  "upon dealing damage with a 20s+-recharge skill") with no fixed per-rotation frequency this app
+  models anywhere — aggregating it into an uptime total would invent a number the app doesn't
+  actually have, unlike every other source `sources.ts` currently reads. Scoped as a
+  display-layer-only enrichment; documented in TODO.md/docs/game-data.md as an explicit boundary,
+  not an oversight, for whoever next considers modeling proc frequency.
+- **Result**: 204 of 211 relic ids got a real `RelicEffect` entry (108 relic names have at least
+  one fact line; 5 have none, just a recharge; 7 ids excluded per the differing-description rule
+  above; 1 fact line dropped as unparseable).
+- **Verified**: `npm run typecheck`, `npm run lint`, `npm run build` all clean (one lint fix along
+  the way — swapped a literal `\x00` placeholder for a Private-Use-Area character, since ESLint's
+  `no-control-regex` flags literal control characters in a regex). Rendered `formatRelicDescription`
+  output for 8 hand-picked relics spanning every case (a plain single-fact relic, a multi-fact
+  relic with a WvW-specific recharge override, an `effect`-wrapped boon-duration fact, a
+  game-mode-split fact, a "summon a creature" relic with no facts, the min/max-duration
+  `alt=`-disambiguation case, and the mislabeled-direction `alt=` case) against the source
+  wikitext by hand — all matched. Not visually confirmed in a running window (standing
+  Electron-sandbox limitation, see below) — recommend `npm run dev` locally to eyeball the new
+  relic tooltip text in `ConsumablesEditor`.
+
 ## Session 19 — Multi-step skill collapsing via the `flip_skill` field
 
 Picked up the "multi-step skills" TODO item left open after Session 18 (which explicitly

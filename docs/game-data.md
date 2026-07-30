@@ -81,6 +81,8 @@ needing to run the fetch script immediately:
 - `runes.json` / `sigils.json` / `infusions.json` / `relics.json` / `food.json` / `utility.json`
   — see below; sourced from `/v2/items` by `scripts/fetch-gear-upgrades.ts`, not
   `fetch-game-data.ts`
+- `relic-effects.json` — see below; sourced from the wiki, not `fetch-game-data.ts` or
+  `fetch-gear-upgrades.ts`
 - `meta.json` — just `{ fetchedAt }`, so the app/UI can eventually surface "game data last
   updated on ..." somewhere.
 
@@ -291,10 +293,9 @@ output) and reuses it on subsequent runs unless `--refresh` is passed. Delete `.
   `type: 'Back'`, correctly excluded). **Real gotcha**: relics carry NO `details` object at all
   via the public API — only a plain-text top-level `description` (e.g. "Weapon swap recharge
   time is reduced."), which can be *less* precise than the actual in-game tooltip (no "25%"
-  numeric value exposed for that example). There is currently no way to derive an exact numeric
-  modifier for most relics from this endpoint — `description` is stored as-is for display, not
-  parsed. Getting exact relic values would need a per-relic wiki cross-check (~211 pages), same
-  shape of effort as `fetch-wvw-splits.ts`; not done in this pass.
+  numeric value exposed for that example). `description` is stored as-is for display, not parsed.
+  Exact numeric values are sourced separately, from the wiki — see "Relic numeric effects
+  (`relic-effects.json`)" further down this doc.
 - **Food / Utility** — `type: 'Consumable'`, `details.type: 'Food'` or `'Utility'`. The full
   catalog is fetched, not pre-filtered to a "WvW meta" subset, per explicit user direction (see
   TODO.md). **Real gotcha**: a consumable's actual buff (if any) is NOT a `Fact[]` array like
@@ -308,3 +309,72 @@ output) and reuses it on subsequent runs unless `--refresh` is passed. Delete `.
 None of these 6 files are re-derivable from `fetch-game-data.ts` — re-run `fetch-gear-upgrades
 --refresh` separately after a balance patch that might add/change gear-upgrade or consumable
 items.
+
+## Relic numeric effects (`relic-effects.json`)
+
+`Relic.description` (from `fetch-gear-upgrades.ts`, above) is prose-only and often less precise
+than the real in-game tooltip — no "25%", no boon durations, nothing structured. `scripts/
+fetch-relic-effects.ts` (run via `npm run fetch-relic-effects`, after `fetch-gear-upgrades`) fills
+that gap from the wiki: every relic's wiki page uses a `{{Relic infobox}}` template whose `facts=`
+field is itself a list of `{{skill fact|...}}` invocations — **the exact same template
+skills/traits use to document their own facts**, confirmed live 2026-07-30 (e.g. Relic of the
+Warrior: `{{skill fact|Weapon Swap Recharge Reduction|25%}}`). Unlike `fetch-wvw-splits.ts`, there
+is no API-side numeric value to cross-validate a parse against here — relics carry no `Fact` data
+via the API at all (see above), so the wiki *is* the primary source for these numbers, not a
+secondary check on one.
+
+**Two real wrinkles, both handled rather than guessed around:**
+
+- **A relic name can map to multiple `relics.json` ids, but MediaWiki only has one page per exact
+  title.** A live scan (2026-07-30) found 113 unique relic names across 211 ids — 106 of those
+  names' ids all share byte-identical API `description` text (confirmed live), so one wiki page's
+  parsed facts safely apply to every id sharing that name (re-releases, level-80-boost variants,
+  etc. — same effect, different acquisition method). The other **7 names have ids whose
+  description text genuinely differs** (e.g. "Relic of the Pack": one id grants "superspeed,
+  might, and fury", another grants only "superspeed" — an old pre-rework version and a newer one
+  coexisting under the same display name) — for those, facts are attributed **only** to the id(s)
+  the wiki page's own `id=` infobox field explicitly lists; the other id(s) sharing the name are
+  left with no entry in `relic-effects.json` at all (falls back to `Relic.description` alone, same
+  as before this existed — fail-safe, not a guess about which version an unlisted id actually is).
+- **Naive `|`-splitting of a `{{skill fact|...}}` invocation breaks on a piped wikilink or nested
+  template inside a later parameter** (e.g. `desc=30 [[Condition Damage]]` is fine, but
+  `desc=Gain the [[Soul of the Titan|Soul of the TItan]]{{sic|Titan}}` has two nested pipes that
+  would otherwise get treated as field separators). `protectPipes`/`restorePipes` swap one level of
+  `[[X|Y]]`/`{{X|Y}}` pipes for a placeholder before splitting, which resolves every case found in a
+  full scan except one (a `{{sic|...}}` nested inside a link's own `desc=` value, on "Relic of the
+  Living City") — that remaining case is caught by a bracket-balance check (`isBalanced`) on each
+  split segment and the whole fact line is dropped and logged, not stored possibly-corrupted.
+
+**Output shape**: `Record<relicId, RelicEffect>` where `RelicEffect` is `{ facts: RelicFactLine[],
+rechargeSeconds: number | null }` — `RelicFactLine` keeps a fact's wiki label, its positional
+values, and its key=value params (`desc`, `stacks`, `alt`, `coefficient`, ...) close to verbatim
+(see the type's doc comment in `src/shared/types/game-data.ts`), rather than trying to model every
+fact "type" semantically the way skill/trait `Fact`s are partially modeled. A fact line split by
+`game mode=` is already resolved to the WvW-relevant line before being stored (the PvE-only or
+PvP-only sibling line for that same label is dropped) — confirmed live that a relic's internal
+cooldown can *also* have a WvW-specific override (`recharge wvw=`, 7 relics) or PvP-specific
+override (`recharge pvp=`, 5 relics) distinct from the base `recharge=` field; `rechargeSeconds`
+prefers the WvW-tagged value when present.
+
+**Consumed by** `src/shared/gear-calc/relic-effects-format.ts` (`formatRelicDescription`), which
+appends each fact's formatted line (and the recharge, if documented) below the relic's prose
+description — wired into `ConsumablesEditor.tsx`'s relic tooltip. Result counts as of the last run:
+204 of 211 relic ids got a `RelicEffect` entry (108 relic names have at least one `{{skill fact}}`
+line; 5 names — all "summon a creature while in combat" relics like Relic of the Lich — have none
+at all, just a recharge; 7 ids were excluded per the differing-description rule above; 1 fact line
+across the whole catalog was dropped as unparseable).
+
+**Deliberately NOT done**: wiring relic facts into the boon/condition uptime calculator
+(`src/shared/boon-calc/sources.ts`), even for facts whose label is a real boon/condition name
+(e.g. "might", "protection" facts do appear on some relics). Skill/trait Buff facts represent a
+guaranteed "you get this boon when you use this skill" — fully within player control (equipped +
+cast). A relic's facts fire on a conditional in-combat trigger ("after granting a boon to an
+ally", "upon dealing damage with a 20s+-recharge skill") with no fixed per-rotation frequency this
+app models anywhere — folding them into an aggregate uptime total would silently overstate a
+guaranteed number the app doesn't actually have. This is a display-layer enrichment only; see
+TODO.md if a future session wants to revisit modeling relic proc frequency.
+
+**Note:** this file's data is NOT re-derivable from `fetch-game-data.ts` or
+`fetch-gear-upgrades.ts` — re-run `fetch-relic-effects` too whenever a balance patch might
+change/add a relic (after re-running `fetch-gear-upgrades --refresh` first, since this script reads
+`relics.json`).

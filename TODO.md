@@ -541,7 +541,7 @@
           `AttributeTotals` directly (infusion attribute names matched `ItemStat` names verbatim,
           no mapping table needed) — so a Concentration/Expertise WvW infusion already affects the
           boon/condition duration % shown in `BoonUptimePanel`.
-    - [ ] **Relics are a must-have, not optional** — exactly 1 relic equipped per build. Relics
+    - [x] **Relics are a must-have, not optional** — exactly 1 relic equipped per build. Relics
           grant effects through the *same* `Fact` system already used for skills/traits, so relics
           should plug into the existing `sources.ts` boon/condition extraction path, not a separate
           one-off system — **but a fresh screenshot this session (2026-07-29, Relic of the
@@ -568,6 +568,38 @@
           (`Build.relicId`), description shown as plain text in the tooltip. Still open: whether
           the stats panel shows relic effects as inert descriptive text (cheap) or invests in the
           wiki cross-check (expensive) — a scoping question for whoever picks this back up.
+          **Wiki cross-check done 2026-07-30 (user chose this over the cheap option)**: every
+          relic's wiki page turns out to use `{{skill fact|...}}` — the exact same template
+          skills/traits use — inside its `{{Relic infobox}}`'s `facts=` field, confirmed live
+          (Relic of the Warrior: `{{skill fact|Weapon Swap Recharge Reduction|25%}}`, matching the
+          number this TODO item originally predicted from a screenshot). New
+          `scripts/fetch-relic-effects.ts` (`npm run fetch-relic-effects`, after
+          `fetch-gear-upgrades`) parses this for all 211 relics and writes
+          `data/game-data/relic-effects.json` — see docs/game-data.md for the full writeup,
+          including two real wrinkles handled rather than guessed around (7 relic names whose ids
+          have genuinely differing effects despite sharing one wiki page — facts attributed only
+          to the wiki-listed id(s), not every id sharing the name; and wikitext pipe-splitting
+          corruption from nested `[[Link|text]]`/`{{template|arg}}`, caught by a bracket-balance
+          check and dropped+logged rather than stored corrupted, 1 line across the whole catalog).
+          204/211 ids got real numeric fact data. New
+          `src/shared/gear-calc/relic-effects-format.ts` (`formatRelicDescription`) renders each
+          fact generically (label: value, `effect`-type facts show their `desc=`/duration,
+          `alt=` overrides the label for display when present — disambiguates same-label facts
+          like a relic's separate min/max `duration` lines) and appends a `Recharge: Ns` line when
+          the wiki documents one (preferring a WvW-specific `recharge wvw=` override over the base
+          `recharge=` when both exist, since 7 relics have one). Wired into `ConsumablesEditor`'s
+          relic tooltip via `UpgradePicker`'s existing `description` prop — no UI component
+          changes needed. **Deliberately still NOT wired into `sources.ts`'s boon/condition
+          calculator**, even though some relics' facts are literally boon-named (e.g. "might",
+          "protection"): unlike a skill's on-cast Buff fact, a relic fact fires on a conditional
+          in-combat trigger with no fixed frequency this app models anywhere, so aggregating it
+          into an uptime total would invent a number the app doesn't actually have — see
+          docs/game-data.md for the full reasoning. Verified: `npm run typecheck`/`lint`/`build`
+          all clean; sample tooltip output for 8 relics (including a corrupted-line case, a
+          differing-description case, and a WvW-recharge-override case) manually checked against
+          the source wikitext. Not visually confirmed in a running window (standing
+          Electron-sandbox limitation, see COMPLETED.md) — recommend `npm run dev` locally to
+          eyeball the new relic tooltip text.
     - [x] **Food and utility consumables: keep the full list selectable, don't pre-filter to a
           "WvW meta" subset** — user was explicit here despite there being a lot of options ("it's
           best to keep them all available"). Deferred fast-follow (not blocking first pass, but

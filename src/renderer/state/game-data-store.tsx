@@ -52,6 +52,7 @@ const EMPTY_GAME_DATA: GameData = {
   sigils: [],
   infusions: [],
   relics: [],
+  relicEffects: {},
   food: [],
   utility: []
 }

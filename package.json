@@ -16,6 +16,7 @@
     "fetch-elite-spec-skills": "tsx scripts/fetch-elite-spec-skills.ts",
     "fetch-wvw-splits": "tsx scripts/fetch-wvw-splits.ts",
     "fetch-gear-upgrades": "tsx scripts/fetch-gear-upgrades.ts",
+    "fetch-relic-effects": "tsx scripts/fetch-relic-effects.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json"
   },

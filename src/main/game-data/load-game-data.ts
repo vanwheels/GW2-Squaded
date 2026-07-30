@@ -35,6 +35,7 @@ export function loadGameData(): GameData {
       sigils: readJson('sigils.json'),
       infusions: readJson('infusions.json'),
       relics: readJson('relics.json'),
+      relicEffects: readJson('relic-effects.json'),
       food: readJson('food.json'),
       utility: readJson('utility.json')
     }

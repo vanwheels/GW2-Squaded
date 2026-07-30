@@ -1,5 +1,6 @@
 import type { Build } from '@shared/types'
 import { useGameData } from '@renderer/state/game-data-store'
+import { formatRelicDescription } from '@shared/gear-calc/relic-effects-format'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
 
 interface Props {
@@ -19,9 +20,11 @@ function byName(a: UpgradeOption, b: UpgradeOption): number {
  * search box past 12 options.
  */
 export function ConsumablesEditor({ value, onChange }: Props) {
-  const { relics, food, utility } = useGameData()
+  const { relics, relicEffects, food, utility } = useGameData()
 
-  const relicOptions: UpgradeOption[] = relics.map((r) => ({ id: r.id, name: r.name, icon: r.icon, description: r.description })).sort(byName)
+  const relicOptions: UpgradeOption[] = relics
+    .map((r) => ({ id: r.id, name: r.name, icon: r.icon, description: formatRelicDescription(r, relicEffects[r.id]) }))
+    .sort(byName)
   const foodOptions: UpgradeOption[] = food.map(consumableOption).sort(byName)
   const utilityOptions: UpgradeOption[] = utility.map(consumableOption).sort(byName)
 

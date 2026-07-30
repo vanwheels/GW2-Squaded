@@ -249,9 +249,7 @@ export interface Infusion {
  * `Fact`/`details` object at all via the public API — only a plain-text `description` (e.g.
  * "Weapon swap recharge time is reduced."), which is often less precise than the in-game tooltip
  * (no "25%" numeric value exposed here, unlike the fuller text a screenshot showed — see
- * TODO.md). There is currently no way to derive an exact numeric modifier for most relics from
- * this endpoint; `description` is displayable as-is but not safely parseable into a stats-calc
- * input without a per-relic wiki cross-check (out of scope for this pass).
+ * TODO.md). Exact numeric values are sourced separately from the wiki — see `RelicEffect` below.
  */
 export interface Relic {
   id: number
@@ -259,6 +257,49 @@ export interface Relic {
   icon: string
   description: string
 }
+
+/**
+ * One `{{skill fact|...}}` template invocation parsed from a relic's wiki infobox `facts=` field
+ * (relic wiki pages reuse the exact same template skills/traits use to document their own numeric
+ * facts — see scripts/fetch-relic-effects.ts). `label` is the template's first parameter (e.g.
+ * "Damage Increase", "effect", "might", "targets") in the wiki's own casing; `values` is every
+ * remaining bare (non key=value) positional parameter, in wikitext order; `params` is every
+ * key=value parameter (`desc`, `stacks`, `icon`, `alt`, `coefficient`, `weapon`, ...), keys
+ * lowercased. Already filtered to the WvW-relevant line wherever a fact is split by `game mode=`
+ * (a PvE-only or PvP-only alternate line for the same label is dropped, not stored) — there is no
+ * per-line game-mode field left on this type because that resolution already happened.
+ */
+export interface RelicFactLine {
+  label: string
+  values: string[]
+  params: Record<string, string>
+}
+
+/**
+ * A relic's wiki-sourced numeric effect data: every WvW-relevant `{{skill fact}}` line from its
+ * infobox, plus its internal cooldown if the wiki documents one (`rechargeSeconds` prefers a
+ * `recharge wvw=` override over the plain `recharge=` field, since a handful of relics have a
+ * WvW/PvP-specific recharge distinct from PvE — see docs/game-data.md). Purely a display-layer
+ * enrichment of `Relic.description` — deliberately NOT wired into the boon/condition uptime
+ * calculator (`src/shared/boon-calc/sources.ts`), unlike skill/trait Buff facts: a relic's facts
+ * fire on conditional player actions ("after granting a boon", "upon dealing damage with a
+ * skill on 20s+ recharge") rather than on-cast like a skill, so there's no fixed "you get this
+ * boon for this duration" guarantee to aggregate into an uptime total without inventing a usage-
+ * frequency assumption this app doesn't model anywhere else. See TODO.md.
+ */
+export interface RelicEffect {
+  facts: RelicFactLine[]
+  rechargeSeconds: number | null
+}
+
+/**
+ * Relic id -> its wiki-sourced effect data. Not every relic id has an entry: some relic wiki
+ * pages document a `facts=`-carrying effect that couldn't be safely attributed to every
+ * relics.json id sharing that page's name — see scripts/fetch-relic-effects.ts's id-reliability
+ * check — and those extra ids are simply omitted here (fail-safe: falls back to `Relic.description`
+ * only, same as before this existed, never wrong data attached to the wrong id).
+ */
+export type RelicEffectsById = Record<number, RelicEffect>
 
 export type ConsumableKind = 'Food' | 'Utility'
 
@@ -298,6 +339,7 @@ export interface GameData {
   sigils: Sigil[]
   infusions: Infusion[]
   relics: Relic[]
+  relicEffects: RelicEffectsById
   food: Consumable[]
   utility: Consumable[]
 }

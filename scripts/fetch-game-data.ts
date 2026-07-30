@@ -317,14 +317,23 @@ async function main(): Promise<void> {
   const skillsById = new Map(skills.map((s) => [s.id, s]))
   const legends = (await fetchAllRecords<string, RawLegend>('legends')).map((raw) => normalizeLegend(raw, skillsById))
 
-  // eliteSpecSkills / wvwFactOverrides aren't produced here — they're sourced from the wiki by
-  // the separate scripts/fetch-elite-spec-skills.ts and scripts/fetch-wvw-splits.ts, not the
-  // official GW2 API. runes/sigils/infusions/relics/food/utility are sourced from the same
-  // official API but via the separate, much-heavier scripts/fetch-gear-upgrades.ts (a full
-  // /v2/items scan) — not fetched here to keep this script's normal runtime fast.
+  // eliteSpecSkills / wvwFactOverrides / relicEffects aren't produced here — they're sourced from
+  // the wiki by the separate scripts/fetch-elite-spec-skills.ts, scripts/fetch-wvw-splits.ts, and
+  // scripts/fetch-relic-effects.ts, not the official GW2 API. runes/sigils/infusions/relics/food/
+  // utility are sourced from the same official API but via the separate, much-heavier
+  // scripts/fetch-gear-upgrades.ts (a full /v2/items scan) — not fetched here to keep this
+  // script's normal runtime fast.
   const gameData: Omit<
     GameData,
-    'eliteSpecSkills' | 'wvwFactOverrides' | 'runes' | 'sigils' | 'infusions' | 'relics' | 'food' | 'utility'
+    | 'eliteSpecSkills'
+    | 'wvwFactOverrides'
+    | 'relicEffects'
+    | 'runes'
+    | 'sigils'
+    | 'infusions'
+    | 'relics'
+    | 'food'
+    | 'utility'
   > = {
     professions,
     specializations,
