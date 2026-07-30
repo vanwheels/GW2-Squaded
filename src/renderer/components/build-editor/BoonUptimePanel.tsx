@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import type { Build } from '@shared/types'
 import { computeBoonConditionSources, groupBoonConditionSources, type BoonConditionGroup } from '@shared/boon-calc/sources'
+import { formatBoonDuration, formatBoonPercent } from '@shared/boon-calc/format'
 import { BOON_CONDITION_ICONS } from '@shared/boon-calc/icons'
 import type { BoonName, ConditionName } from '@shared/boon-calc/constants'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
@@ -42,8 +43,8 @@ export function BoonUptimePanel({ build }: Props) {
         Durations below use WvW-specific values where the wiki documents a PvE/WvW split (see
         scripts/fetch-wvw-splits.ts — most, but not all, boon/condition sources are covered; a
         skill/trait with an undocumented or ambiguous split still shows its PvE value), then scale
-        by this build's gear ({formatPercent(gearDurationPercents.boon)}% boon duration,{' '}
-        {formatPercent(gearDurationPercents.condition)}% condition duration, from Concentration/
+        by this build's gear ({formatBoonPercent(gearDurationPercents.boon)}% boon duration,{' '}
+        {formatBoonPercent(gearDurationPercents.condition)}% condition duration, from Concentration/
         Expertise on armor/trinkets/back — weapons are approximated as one-handed). Food/utility
         consumables aren't factored in yet.
       </p>
@@ -92,7 +93,7 @@ function BoonGroupList({ groups }: { groups: BoonConditionGroup[] }) {
                   {source.sourceName}
                 </span>
                 <span className="boon-source-duration">
-                  {formatDuration(source.scaledDurationSeconds)}s
+                  {formatBoonDuration(source.scaledDurationSeconds)}s
                   {source.applyCount > 1 ? ` × ${source.applyCount}` : ''}
                 </span>
               </li>
@@ -102,12 +103,4 @@ function BoonGroupList({ groups }: { groups: BoonConditionGroup[] }) {
       ))}
     </div>
   )
-}
-
-function formatDuration(seconds: number): string {
-  return Number.isInteger(seconds) ? String(seconds) : seconds.toFixed(2)
-}
-
-function formatPercent(percent: number): string {
-  return Number.isInteger(percent) ? String(percent) : percent.toFixed(1)
 }

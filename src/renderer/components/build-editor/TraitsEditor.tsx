@@ -1,5 +1,6 @@
 import type { ProfessionId, TraitLineSelection } from '@shared/types'
 import { useGameData } from '@renderer/state/game-data-store'
+import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 
 interface Props {
   profession: ProfessionId
@@ -10,6 +11,10 @@ interface Props {
 const LINE_INDICES = [0, 1, 2] as const
 /** Adept / Master / Grandmaster, matching GW2's `Trait.tier` (1-3), indexed to `chosenTraitIds`. */
 const TIERS = [1, 2, 3] as const
+/** Grid rows: 1 = spec-icon picker, 2 = chosen spec name, 3-5 = tiers 1-3 — one row per tier
+ *  spanning all 3 columns so CSS Grid sizes each row to its tallest cell, keeping every line's
+ *  tiers aligned regardless of which specializations (with differing trait counts) are chosen. */
+const TIER_ROW_START = 3
 
 function toLines(value: TraitLineSelection[]): (TraitLineSelection | null)[] {
   return LINE_INDICES.map((i) => value[i] ?? null)
@@ -55,64 +60,78 @@ export function TraitsEditor({ profession, value, onChange }: Props) {
     <div className="traits-editor">
       {LINE_INDICES.map((lineIndex) => {
         const line = lines[lineIndex]
-        const chosenSpec = line ? specializationsById.get(line.specializationId) : undefined
         const availableSpecs = specs.filter(
           (s) =>
             s.id === line?.specializationId ||
             (!usedSpecIds.has(s.id) && !(s.elite && eliteLineIndex !== -1 && eliteLineIndex !== lineIndex))
         )
-        const minors = chosenSpec ? minorTraitsForSpecialization(chosenSpec.id) : []
-        const majors = chosenSpec ? majorTraitsForSpecialization(chosenSpec.id) : []
 
         return (
-          <div className="trait-line" key={lineIndex}>
-            <div className="spec-picker-row">
-              {availableSpecs.map((s) => (
+          <div className="spec-picker-row" style={{ gridColumn: lineIndex + 1, gridRow: 1 }} key={`picker-${lineIndex}`}>
+            {availableSpecs.map((s) => (
+              <Tooltip key={s.id} content={<TooltipBody title={s.name} />}>
                 <button
                   type="button"
-                  key={s.id}
                   className={s.id === line?.specializationId ? 'spec-icon-button chosen' : 'spec-icon-button'}
                   style={{ backgroundImage: `url(${s.icon})` }}
-                  title={s.name}
                   onClick={() => handleSpecClick(lineIndex, s.id)}
                 />
-              ))}
-            </div>
-            {chosenSpec && <div className="spec-line-name">{chosenSpec.name}</div>}
-
-            {chosenSpec && (
-              <div className="trait-progression">
-                {TIERS.map((tier, tierIndex) => {
-                  const minor = minors.find((t) => t.tier === tier)
-                  const tierMajors = majors.filter((t) => t.tier === tier).sort((a, b) => a.order - b.order)
-                  return (
-                    <div className="trait-tier-group" key={tier}>
-                      {minor && (
-                        <div className="minor-trait" title={`${minor.name} — ${minor.description}`}>
-                          <img src={minor.icon} alt={minor.name} />
-                        </div>
-                      )}
-                      <div className="major-trait-tier">
-                        {tierMajors.map((t) => (
-                          <button
-                            type="button"
-                            key={t.id}
-                            className={line?.chosenTraitIds[tierIndex] === t.id ? 'major-trait selected' : 'major-trait'}
-                            title={`${t.name} — ${t.description}`}
-                            onClick={() => handleTraitChoice(lineIndex, tierIndex as 0 | 1 | 2, t.id)}
-                          >
-                            <img src={t.icon} alt={t.name} />
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+              </Tooltip>
+            ))}
           </div>
         )
       })}
+
+      {LINE_INDICES.map((lineIndex) => {
+        const line = lines[lineIndex]
+        const chosenSpec = line ? specializationsById.get(line.specializationId) : undefined
+        return (
+          <div className="spec-line-name" style={{ gridColumn: lineIndex + 1, gridRow: 2 }} key={`name-${lineIndex}`}>
+            {chosenSpec?.name}
+          </div>
+        )
+      })}
+
+      {TIERS.map((tier, tierIndex) =>
+        LINE_INDICES.map((lineIndex) => {
+          const line = lines[lineIndex]
+          const chosenSpec = line ? specializationsById.get(line.specializationId) : undefined
+          if (!chosenSpec) return <div key={`${tier}-${lineIndex}`} style={{ gridColumn: lineIndex + 1, gridRow: TIER_ROW_START + tierIndex }} />
+          const minors = minorTraitsForSpecialization(chosenSpec.id)
+          const majors = majorTraitsForSpecialization(chosenSpec.id)
+          const minor = minors.find((t) => t.tier === tier)
+          const tierMajors = majors.filter((t) => t.tier === tier).sort((a, b) => a.order - b.order)
+
+          return (
+            <div
+              className="trait-tier-group"
+              style={{ gridColumn: lineIndex + 1, gridRow: TIER_ROW_START + tierIndex }}
+              key={`${tier}-${lineIndex}`}
+            >
+              {minor && (
+                <Tooltip content={<TooltipBody title={minor.name} description={minor.description} />}>
+                  <div className="minor-trait">
+                    <img src={minor.icon} alt={minor.name} />
+                  </div>
+                </Tooltip>
+              )}
+              <div className="major-trait-tier">
+                {tierMajors.map((t) => (
+                  <Tooltip key={t.id} content={<TooltipBody title={t.name} description={t.description} />}>
+                    <button
+                      type="button"
+                      className={line?.chosenTraitIds[tierIndex] === t.id ? 'major-trait selected' : 'major-trait'}
+                      onClick={() => handleTraitChoice(lineIndex, tierIndex as 0 | 1 | 2, t.id)}
+                    >
+                      <img src={t.icon} alt={t.name} />
+                    </button>
+                  </Tooltip>
+                ))}
+              </div>
+            </div>
+          )
+        })
+      )}
     </div>
   )
 }

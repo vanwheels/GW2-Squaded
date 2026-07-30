@@ -22,7 +22,7 @@ export interface BoonConditionSource {
  * gate `Fact.requires_trait` — some facts (on skills AND traits) only apply
  * when a specific other trait is also active.
  */
-function activeTraitIds(build: Build, allTraits: Trait[]): Set<number> {
+export function activeTraitIds(build: Build, allTraits: Trait[]): Set<number> {
   const equippedSpecIds = new Set(build.specializations.map((line) => line.specializationId))
   const ids = new Set<number>()
   for (const trait of allTraits) {
@@ -78,6 +78,33 @@ function extractFromFacts(
     })
   }
   return out
+}
+
+/**
+ * Boon/condition facts a single skill grants, gated by the same `requires_trait`/WvW-override/
+ * duration-scaling rules as `computeBoonConditionSources` — used for skill tooltips (both the
+ * equipped skill-bar slots and the picker grid) so a skill's boon/condition output is visible
+ * without it needing to already be equipped. `activeIds`/`durationPercent` are the caller's
+ * responsibility to compute once (via `activeTraitIds` and gear-calc's duration-percent
+ * functions) and reuse across every skill shown, rather than recomputing per hover.
+ */
+export function boonConditionFactsForSkill(
+  skill: Skill,
+  activeIds: Set<number>,
+  durationPercent: { boon: number; condition: number },
+  wvwOverride: Record<string, WvwFactOverride> | undefined
+): BoonConditionSource[] {
+  return extractFromFacts(
+    skill.facts,
+    skill.traitedFacts,
+    activeIds,
+    'skill',
+    skill.id,
+    skill.name,
+    skill.icon,
+    durationPercent,
+    wvwOverride
+  )
 }
 
 /**

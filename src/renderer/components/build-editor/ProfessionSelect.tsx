@@ -1,5 +1,6 @@
 import type { ProfessionId } from '@shared/types'
 import { useGameData } from '@renderer/state/game-data-store'
+import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 
 interface Props {
   value: ProfessionId
@@ -10,15 +11,20 @@ export function ProfessionSelect({ value, onChange }: Props) {
   const { professions } = useGameData()
 
   return (
-    <label className="field">
+    <div className="field">
       <span>Profession</span>
-      <select value={value} onChange={(e) => onChange(e.target.value)}>
+      <div className="profession-picker-row">
         {professions.map((p) => (
-          <option key={p.id} value={p.id}>
-            {p.name}
-          </option>
+          <Tooltip key={p.id} content={<TooltipBody title={p.name} />}>
+            <button
+              type="button"
+              className={p.id === value ? 'spec-icon-button chosen' : 'spec-icon-button'}
+              style={{ backgroundImage: `url(${p.icon})` }}
+              onClick={() => onChange(p.id)}
+            />
+          </Tooltip>
         ))}
-      </select>
-    </label>
+      </div>
+    </div>
   )
 }

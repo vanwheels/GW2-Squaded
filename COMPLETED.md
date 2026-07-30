@@ -2,6 +2,60 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 9 — Build editor UI/UX overhaul: instant tooltips, aligned trait grid, skill boon/condition tooltips
+
+Resumed the TODO at its explicitly-flagged next priority ("Build editor UI/UX overhaul," not
+started as of the 2026-07-25 scoping session). That item has ~15 sub-parts of very different
+sizes; this session picked off the well-specified, low-ambiguity ones and deliberately deferred
+the ones that needed either the reference screenshots (not saved to the repo) or a data-model
+change discovered mid-session, rather than guessing.
+
+- **New `Tooltip` component** (`src/renderer/components/common/Tooltip.tsx`): replaces every
+  native `title=` attribute in the build editor, whose hover delay is OS/browser-controlled and
+  can't be shortened via CSS/JS. Portals a `position: fixed` popup into `document.body` on
+  `mouseenter`/`focus` (no delay) positioned from the trigger's `getBoundingClientRect()`, closes
+  on `mouseleave`/`blur`. A `TooltipBody` helper renders the common "bold title + muted
+  description" shape. Wired into every current hover target: `TraitsEditor` (spec icons, minor
+  traits, major traits), `SkillsEditor` (skill-bar slots + picker-grid options), `ProfessionSelect`
+  (profession icons).
+- **`TraitsEditor` restructured to a CSS Grid** (`grid-template-columns: repeat(3, 1fr)`) instead
+  of three independent `.trait-line` wrapper divs. Every line's spec-picker row, spec name, and
+  each tier (1-3) render as separate grid children placed via explicit `gridColumn`/`gridRow`
+  rather than being nested inside a per-column div — this closes both the "horizontal instead of
+  vertical" layout ask and the "trait rows don't line up evenly across columns" ask in one change,
+  since CSS Grid sizes each row track to its tallest cell across all 3 columns automatically.
+- **Skill tooltips now show the skill's boon/condition output**, not just name/description.
+  `sources.ts` gained `boonConditionFactsForSkill` (plus exporting the previously-private
+  `activeTraitIds`) — a per-skill wrapper around the existing `extractFromFacts` internals, letting
+  a skill's gated/WvW-scaled boon output be computed standalone, without it needing to already be
+  equipped on the build (needed for the picker grid, not just the 5 equipped slots).
+  `formatBoonDuration`/`formatBoonPercent` were factored out of `BoonUptimePanel` into
+  `src/shared/boon-calc/format.ts` so both it and the new `SkillsEditor` tooltips format durations
+  identically. Boons and conditions render in one undifferentiated list per skill, matching how the
+  skill actually behaves in-game.
+- **`ProfessionSelect` converted from a `<select>` to a row of icon buttons**, reusing the existing
+  `.spec-icon-button` pattern already used for specialization icons.
+- **Confirmed and closed** the already-resolved "equipment stats should use Ascended, not Exotic"
+  item from the 2026-07-25 survey — code already did this (`attribute-totals.ts:55`), no change
+  needed, just marking it off.
+- **New finding, not fixed this session**: the "specialization selector beneath the profession
+  selector, auto-swapping the 3rd trait line" item is blocked by a real data-model issue —
+  `TraitsEditor`'s `TraitLineSelection[]` is a *compacted* array (`fromLines` drops nulls before
+  calling `onChange`), so "the 3rd line" isn't a stable index today; a spec picked only in the
+  visually-2nd column silently becomes "line 1" on the next render. A selector meant to specifically
+  target "line 3" needs a non-compacting representation (fixed-length `[T|null,T|null,T|null]` or
+  an explicit line-index field) before it can be built correctly — documented in TODO.md so the
+  next session doesn't have to rediscover this.
+- **Verification**: `npm run typecheck` and `npm run lint` both pass clean. Could not get a live
+  screenshot in this sandboxed shell — `npm run dev` builds the main/preload/renderer bundles
+  successfully (renderer dev server does come up at `localhost:5173`), but the spawned Electron
+  process crashes on `electron.app.isPackaged` being undefined, which means it's being executed as
+  plain Node rather than through the real Electron runtime. That crash happens during main-process
+  bootstrap before any renderer code (including everything changed this session) ever loads, so
+  it's an environment/launch issue in this sandbox, not a regression from these changes — but it
+  does mean this session's UI changes are typecheck/lint-verified and code-reviewed, not
+  visually confirmed in a running window. Recommend running `npm run dev` locally to eyeball it.
+
 ## Session 8 — WvW-vs-PvE fact splits for the boon/condition calculator
 
 Continuation of "keep working through the TODO" — picked up the next flagged item, applying

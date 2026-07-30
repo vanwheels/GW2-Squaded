@@ -92,33 +92,54 @@
             populated straight from that existing data (one icon per name, same URL everywhere
             it's granted). Source lines also now show the granting skill/trait's own icon.
 - [ ] Build editor UI/UX overhaul — user reviewed the current build editor against gw2skills.net
-      (screenshots provided 2026-07-25, not saved to the repo) and called out the following. Not
-      started; treat as the next priority when resuming. Scoping questions were asked back and
-      answered same-day (2026-07-25) — decisions below are confirmed, not open. Grounded against
-      an Explore-agent code survey done the same day; file:line refs below reflect that survey.
-  - [ ] Tooltip hover delay is noticeably slow — should pop up ~instantly. Survey finding: there is
-        **no custom Tooltip component anywhere in `src/renderer`** (zero matches for "tooltip");
-        every current tooltip is a native HTML `title=` attribute (`TraitsEditor.tsx:76,91,101`,
-        `SkillsEditor.tsx:60,92`), and native `title` delay is OS/browser-controlled, not something
-        CSS/JS can shorten. So this isn't a tunable-delay fix — it requires building a real
-        Tooltip component (which is also required for the boon/condition display, minor-trait
-        tooltips, and variant-cycling items below, so build it once and reuse everywhere).
-  - [ ] Traits section layout should be horizontal instead of vertical (currently 3 vertical
-        `.trait-line` columns in `TraitsEditor.tsx:56-115` — reference gw2skills.net's horizontal
-        trait-line layout).
+      (screenshots provided 2026-07-25, not saved to the repo) and called out the following. In
+      progress (resumed 2026-07-29) — several sub-items landed this session, see below for what's
+      done vs. still open. Scoping questions were asked back and answered same-day (2026-07-25) —
+      decisions below are confirmed, not open. Grounded against an Explore-agent code survey done
+      the same day; file:line refs below reflect that survey (some now stale post-refactor).
+  - [x] Tooltip hover delay is noticeably slow — should pop up ~instantly. Survey finding: there
+        was **no custom Tooltip component anywhere in `src/renderer`**; every tooltip was a native
+        HTML `title=` attribute, and native `title` delay is OS/browser-controlled, not something
+        CSS/JS can shorten. Built `src/renderer/components/common/Tooltip.tsx`: portals a
+        `position: fixed` popup into `document.body` on `mouseenter`/`focus` (no delay), positioned
+        from the trigger's `getBoundingClientRect()`, hidden on `mouseleave`/`blur`. Wired into
+        every current icon hover target — `TraitsEditor` (spec icons, minor traits, major traits),
+        `SkillsEditor` (skill-bar slots + picker-grid options), `ProfessionSelect` (profession
+        icons) — replacing their native `title=` attributes. Still to reuse this component for:
+        minor-trait tooltips (done, see below), and the variant-cycling items further down (not
+        started).
+  - [x] Traits section layout should be horizontal instead of vertical (was 3 vertical
+        `.trait-line` columns, each stacking its own tiers independently — reference gw2skills.net's
+        horizontal trait-line layout). Restructured `TraitsEditor` from "one wrapper div per spec
+        column" to a single CSS Grid (`display: grid; grid-template-columns: repeat(3, 1fr)`) where
+        every line's spec-picker row, spec name, and each tier (1-3) are separate grid children
+        placed by explicit `gridColumn`/`gridRow` rather than nested per-column divs — this also
+        closes the row-alignment item below for free, since CSS Grid sizes each row track to its
+        tallest cell across all 3 columns.
   - [ ] Add a specialization selector beneath the profession selector, defaulting to the base
         (non-elite) line for that profession. Survey finding: confirmed there is truly no
         standalone specialization selector today — specializations are currently only chosen
-        implicitly by clicking spec icons inside `TraitsEditor`'s 3rd column (`handleSpecClick`,
-        `TraitsEditor.tsx:36-42`). `ProfessionSelect.tsx:15-21` is a plain `<select>`.
+        implicitly by clicking spec icons inside `TraitsEditor`'s per-line picker row
+        (`handleSpecClick`). Not started this session — investigated and found a real blocker
+        worth recording: `TraitsEditor`'s `value: TraitLineSelection[]` is a **compacted** array
+        (`fromLines` filters out nulls before calling `onChange`), so "line 2" isn't a stable array
+        index — e.g. picking only the visually-2nd column's spec produces a 1-element array that
+        re-renders as the *1st* column on the next pass. A new selector that's supposed to
+        specifically drive "the 3rd trait line" needs either a non-compacting representation (keep
+        `[T | null, T | null, T | null]` fixed-length) or an explicit line-index field, not the
+        current filtered-array shape. Fix the data model before building this control, not after.
   - [ ] Selecting a specialization there should auto-swap the 3rd trait line to that
         specialization (i.e. specialization choice and 3rd-trait-line choice become one control,
-        not two independent ones).
-  - [ ] Profession selector and the new specialization selector should both be icon buttons (like
+        not two independent ones). Blocked on the same data-model fix noted above.
+  - [~] Profession selector and the new specialization selector should both be icon buttons (like
         the existing `.spec-icon-button` pattern already used elsewhere), not `<select>` dropdowns.
-  - [ ] Trait rows don't line up evenly across the 3 columns because the 3rd line (elite spec)
+        `ProfessionSelect` converted to a row of icon buttons this session (reuses
+        `.spec-icon-button`). The specialization-selector half is blocked on the item above (control
+        doesn't exist yet).
+  - [x] Trait rows don't line up evenly across the 3 columns because the 3rd line (elite spec)
         has different content/height than the other two — fix the layout so all 3 trait columns
-        align row-for-row regardless of which specializations are selected.
+        align row-for-row regardless of which specializations are selected. Fixed as part of the
+        horizontal-grid restructure above (same change, same commit).
   - [ ] Revenant-specific: available skills depend on which specialization is selected (legend
         pool), AND Revenant equips 2 legends at once, effectively giving 2 separate skill bars.
         Need to display one bar at a time with a toggle button to switch between them, and clearly
@@ -126,10 +147,21 @@
         Survey finding: confirmed `SkillSelection` (`build.ts:14-18`) is a single flat
         `{ heal, utility: [3], elite }` bar with **no legend concept at all** and `SkillsEditor`
         renders exactly one `.skill-bar` (lines 47-67) — this is new modeling, not a tweak.
-  - [ ] Skill and weapon-skill tooltips/entries don't currently display the boons they grant —
+  - [x] Skill and weapon-skill tooltips/entries don't currently display the boons they grant —
         surface boon facts (already parsed for the boon-calc feature, see `sources.ts`) in the
-        skill tooltip/detail view too, not just the aggregate `BoonUptimePanel`.
-  - [ ] Same gap for conditions — condition facts aren't displayed in skill/weapon tooltips either.
+        skill tooltip/detail view too, not just the aggregate `BoonUptimePanel`. Done for regular
+        (Heal/Utility/Elite) skills: added `boonConditionFactsForSkill` to `sources.ts` (exports
+        `activeTraitIds` + a per-skill wrapper around the existing `extractFromFacts`, so a skill's
+        gated/scaled boon output can be computed without it being equipped — needed for the picker
+        grid, not just the equipped bar) and wired it into every skill tooltip in `SkillsEditor`
+        (both the 5 skill-bar slots and the picker-grid options), listed below the name/description
+        with the same scaled-duration formatting `BoonUptimePanel` uses (factored out to
+        `src/shared/boon-calc/format.ts`, shared by both now). Weapon-skill tooltips aren't
+        included yet since weapon skills aren't modeled as a slot type at all — revisit once the
+        weapon-selection item below lands.
+  - [x] Same gap for conditions — condition facts aren't displayed in skill/weapon tooltips either.
+        Closed by the same change (`boonConditionFactsForSkill` returns both boon and condition
+        facts undifferentiated in one list, matching how the skill actually behaves in-game).
   - [ ] Weapon selection — user confirmed (2026-07-25) full gw2skills.net parity: land Weapon I +
         Weapon II swap sets, AND underwater weapon slot, all in the first pass (not a smaller
         land-only first cut). Survey finding: weapon skills are entirely unhandled today — no
@@ -176,11 +208,10 @@
           distinct underwater variant (different facts/duration/effects, not just a reused land
           entry) — check whether the GW2 API already flags this per skill (e.g. a `flags` array
           entry, or a separate underwater skill id) before inventing new modeling for it.
-  - [ ] Minor traits: original complaint was "no hover tooltip at all," but survey finding shows
-        minor traits actually already carry a native `title=` (`TraitsEditor.tsx:91`) same as
-        majors — so there's no missing-wiring bug here specifically. The real gap is the same as
-        the tooltip item above: once a real Tooltip component exists, wire minor traits into it
-        too (not a separate fix).
+  - [x] Minor traits: original complaint was "no hover tooltip at all," but survey finding showed
+        minor traits actually already carried a native `title=` same as majors — so there was no
+        missing-wiring bug here specifically. Wired into the new `Tooltip` component along with
+        majors as part of the tooltip-infra item above (not a separate fix, as predicted).
   - [ ] Skills with multiple trait-dependent or (Revenant) legend-dependent variants currently
         show up as separate duplicate entries in the skill picker — should collapse to a single
         entry. User confirmed (2026-07-25) the cycling UX: small in-tooltip prev/next arrows or
@@ -188,14 +219,14 @@
   - [ ] Same collapsing behavior, same arrows/tabs cycling UX, needed for multi-step skills
         (distinct effects on 1st click vs. 2nd click, etc.) — one entry, not duplicate list
         entries.
-  - [ ] Confirm equipment stat calculations use Ascended/Legendary values, not Exotic — Ascended
+  - [x] Confirm equipment stat calculations use Ascended/Legendary values, not Exotic — Ascended
         and Legendary share the same (highest) stat budget, so gear math should always assume that
-        tier regardless of what the user actually has crafted. Survey finding: this is already
+        tier regardless of what the user actually has crafted. Survey finding: this was already
         true in code — `attribute-totals.ts:55` hardcodes `const RARITY: 'exotic' | 'ascended' =
         'ascended'` (comment there notes it's "not user-selectable yet, would need a rarity field
         on `EquipmentSlot`"), and no "Exotic"/"Ascended" strings appear anywhere in
-        `data/game-data`. So this item is really just a confirm-and-close, not new work, unless a
-        per-piece rarity selector UI is wanted later (not requested).
+        `data/game-data`. Confirm-and-close, no code change needed — a per-piece rarity selector UI
+        would be new scope if wanted later, but hasn't been requested.
   - [ ] Add a full character-stats panel (Power/Precision/Ferocity/Toughness/Vitality/etc. plus
         derived %s — crit chance, boon duration, etc.) that factors in gear + traits + runes +
         sigils + infusions + relic + food/utility, matching gw2skills.net's stats sidebar. User

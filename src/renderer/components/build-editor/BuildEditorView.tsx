@@ -85,7 +85,7 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
           />
           <h3>Skills</h3>
           <SkillsEditor
-            profession={draft.profession}
+            build={draft}
             value={draft.skills}
             onChange={(skills) => setDraft({ ...draft, skills })}
             equippedSpecializationIds={equippedSpecializationIds}

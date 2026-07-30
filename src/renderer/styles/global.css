@@ -154,28 +154,19 @@ input[type='text'] {
   margin-top: 0;
 }
 
-.trait-line {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px;
-  margin-bottom: 12px;
-}
-
 .traits-editor {
-  display: flex;
-  gap: 12px;
-}
-
-.trait-line {
-  flex: 1;
-  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 12px;
+  row-gap: 6px;
+  align-items: start;
 }
 
 .spec-picker-row {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 4px;
-  margin-bottom: 6px;
 }
 
 .spec-icon-button {
@@ -192,6 +183,12 @@ input[type='text'] {
 
 .spec-icon-button.chosen {
   border-color: var(--accent);
+}
+
+.profession-picker-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .spec-line-name {
@@ -518,4 +515,51 @@ input[type='text'] {
 .boon-source-duration {
   color: var(--muted);
   white-space: nowrap;
+}
+
+.tooltip-popup {
+  position: fixed;
+  z-index: 1000;
+  transform: translate(-50%, -100%);
+  max-width: 280px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.tooltip-title {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tooltip-description {
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.tooltip-boon-facts {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 8px 0 0;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tooltip-boon-facts li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--text);
+}
+
+.tooltip-boon-facts .boon-source-duration {
+  color: var(--muted);
 }
