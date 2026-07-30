@@ -62,7 +62,11 @@ export function UpgradePicker<T extends number | string = number>({
       >
         <button type="button" className={buttonClass} onClick={() => setOpen(!open)}>
           {chosen ? (
-            <img src={chosen.icon} alt={chosen.name} />
+            chosen.icon ? (
+              <img src={chosen.icon} alt={chosen.name} />
+            ) : (
+              <span className="upgrade-badge-empty">?</span>
+            )
           ) : (
             <span className={variant === 'badge' ? 'upgrade-badge-empty' : 'skill-slot-placeholder'}>
               {variant === 'slot' ? label : ''}
@@ -99,7 +103,7 @@ export function UpgradePicker<T extends number | string = number>({
                   className={chosenId === o.id ? 'skill-option-button chosen' : 'skill-option-button'}
                   onClick={() => choose(o.id)}
                 >
-                  <img src={o.icon} alt={o.name} />
+                  {o.icon ? <img src={o.icon} alt={o.name} /> : <span className="skill-option-none">?</span>}
                   <span className="skill-option-name">{o.name}</span>
                 </button>
               </Tooltip>

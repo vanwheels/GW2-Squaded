@@ -162,8 +162,54 @@ input[type='text'] {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   column-gap: 12px;
-  row-gap: 6px;
   align-items: start;
+}
+
+/* Each of the 3 lines is a self-contained column that expands/collapses independently, so unlike
+   the header/picker rows above, nothing here needs cross-column row alignment via CSS Grid. */
+.trait-line {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.trait-line-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.trait-line-expand-toggle {
+  padding: 1px 6px;
+  font-size: 0.7rem;
+}
+
+.trait-line-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.trait-summary-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.summary-icon.empty {
+  border-style: dashed;
+  opacity: 0.4;
+}
+
+.trait-line-tiers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
 .spec-picker-row {
@@ -207,7 +253,6 @@ input[type='text'] {
   font-size: 0.78rem;
   font-weight: 600;
   text-align: center;
-  margin-bottom: 10px;
 }
 
 .trait-progression {
@@ -291,24 +336,6 @@ input[type='text'] {
   gap: 8px;
 }
 
-.gear-slot-icon {
-  width: 30px;
-  height: 30px;
-  flex: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--muted);
-}
-
-.gear-slot-icon svg {
-  width: 18px;
-  height: 18px;
-}
-
 .gear-slot-body {
   flex: 1;
   min-width: 0;
@@ -319,16 +346,11 @@ input[type='text'] {
   color: var(--muted);
 }
 
-.gear-slot-body select {
-  width: 100%;
-  color: var(--text);
-}
-
 /* Item-rarity border: Ascended for the armor/weapon/trinket stat-combo picked in a slot (this
    app always assumes Ascended/Legendary stat budgets, see attribute-totals.ts's RARITY const),
    Fine for WvW infusions and relics (their real, single, native GW2 rarity — see TODO.md). */
-.gear-slot-icon.rarity-ascended,
-select.rarity-ascended {
+.upgrade-badge.rarity-ascended,
+.skill-slot-button.rarity-ascended {
   border-color: var(--rarity-ascended);
 }
 
@@ -551,6 +573,57 @@ select.rarity-ascended {
   box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.35);
 }
 
+/* Heal/Utility/Elite skill picker: columns grouped by GW2's own skill category (Meditation,
+   Signet, ...), icon-only buttons with name+description on hover via Tooltip instead of an
+   always-visible name label — matches gw2skills, replacing the flat named-icon grid above. */
+.skill-picker-columns {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  max-height: 320px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.skill-category-column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  flex: none;
+}
+
+.skill-category-header {
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.skill-icon-button {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.skill-icon-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.skill-icon-button.chosen {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.35);
+}
+
 .stats-panel {
   margin-bottom: 20px;
   padding-bottom: 16px;
@@ -705,6 +778,7 @@ select.rarity-ascended {
   margin-top: 2px;
 }
 
+.tooltip-numeric-facts,
 .tooltip-boon-facts {
   list-style: none;
   margin: 6px 0 0;
@@ -713,6 +787,20 @@ select.rarity-ascended {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+
+.tooltip-numeric-facts li {
+  color: var(--text);
+}
+
+.tooltip-skill-variant {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.tooltip-skill-variant .tooltip-title {
+  font-size: 0.85em;
 }
 
 .tooltip-boon-facts li {
@@ -881,9 +969,8 @@ select.rarity-ascended {
   font-size: 0.75rem;
 }
 
-.party-row-name-input {
+.party-row-label {
   flex: 1;
-  max-width: 200px;
   font-weight: 600;
 }
 
@@ -935,6 +1022,11 @@ select.rarity-ascended {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.slot-tile-ghost-name {
+  color: var(--muted);
+  font-style: italic;
 }
 
 .slot-tile-summary {

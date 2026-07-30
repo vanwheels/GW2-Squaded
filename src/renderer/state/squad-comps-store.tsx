@@ -13,11 +13,11 @@ interface SquadCompsStore {
 const SquadCompsStoreContext = createContext<SquadCompsStore | null>(null)
 
 function blankSlot(): SquadSlot {
-  return { buildId: null, placeholderLabel: null }
+  return { buildId: null, ghostPick: null, placeholderLabel: null }
 }
 
-export function makeBlankParty(name: string): Party {
-  return { name, slots: [blankSlot(), blankSlot(), blankSlot(), blankSlot(), blankSlot()] }
+export function makeBlankParty(): Party {
+  return { slots: [blankSlot(), blankSlot(), blankSlot(), blankSlot(), blankSlot()] }
 }
 
 export function makeBlankSquadComp(): SquadComp {
@@ -26,7 +26,7 @@ export function makeBlankSquadComp(): SquadComp {
     id: crypto.randomUUID(),
     name: 'Untitled Squad',
     notes: '',
-    parties: [makeBlankParty('Party 1')],
+    parties: [makeBlankParty()],
     createdAt: now,
     updatedAt: now
   }

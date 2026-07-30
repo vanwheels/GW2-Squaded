@@ -48,6 +48,27 @@ const SLOT_ADJUSTMENT_KEY: Partial<Record<EquipmentSlotKey, AdjustmentKey>> = {
 
 const UNDERWATER_WEAPON_SLOTS: EquipmentSlotKey[] = ['weaponU1', 'weaponU2']
 
+/**
+ * Unlike the boon/condition calculator (`sources.ts`), which deliberately counts both weapon-swap
+ * sets' *skills* as always-available (a player carries both sets into a fight and can swap
+ * anytime), a raw attribute total is a snapshot of what's affecting the character right now — only
+ * one weapon (and, underwater, only one of the 2 underwater sets) is actually equipped at a time.
+ * `build.environment` picks land vs. underwater; `activeWeaponSet`/`activeUnderwaterSet` pick which
+ * of that environment's 2 sets. Non-weapon slots (armor/trinkets) aren't swap-setted, so they're
+ * always active.
+ */
+function isActiveWeaponSlot(slotKey: EquipmentSlotKey, build: Build): boolean {
+  if (!slotKey.startsWith('weapon')) return true
+  if (build.environment === 'underwater') {
+    return slotKey === (build.activeUnderwaterSet === 'U1' ? 'weaponU1' : 'weaponU2')
+  }
+  return slotKey === 'weaponA1' || slotKey === 'weaponA2'
+    ? build.activeWeaponSet === 'A'
+    : slotKey === 'weaponB1' || slotKey === 'weaponB2'
+      ? build.activeWeaponSet === 'B'
+      : false
+}
+
 export const RARITY: 'exotic' | 'ascended' = 'ascended'
 
 /**
@@ -197,6 +218,7 @@ export function computeGearAttributeTotals(
   for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
     const slot = build.equipment[slotKey]
     if (!slot) continue
+    if (!isActiveWeaponSlot(slotKey, build)) continue
 
     const isWeaponSlot = slotKey.startsWith('weapon')
     const weaponEquipped = !isWeaponSlot || Boolean(slot.weaponType)

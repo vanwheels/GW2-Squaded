@@ -103,6 +103,13 @@ export interface Skill {
   /** Raw API skill flags (e.g. `"NoUnderwater"`) — used to disambiguate a weapon's land vs.
    *  underwater skill variants, see src/shared/weapon-calc/weapon-skills.ts. */
   flags: string[]
+  /** GW2's own profession-mechanic grouping (e.g. `"Meditation"`, `"Signet"`, `"Consecration"`)
+   *  for Heal/Utility/Elite skills — empty for weapon skills, which the API never categorizes.
+   *  Confirmed live against the raw `/v2/skills` endpoint 2026-07-30 (not modeled in this app's
+   *  data before that): most profession-mechanic skills carry exactly one category, a real chunk
+   *  carry none at all (e.g. Guardian's "Shelter", Firebrand's "Restoring Reprieve") — used to
+   *  group the skill picker into columns, see `SkillsEditor.tsx`. */
+  categories: string[]
   facts: Fact[]
   traitedFacts: Fact[]
   /** Elemental attunement this specific id's effect is for (e.g. `"Fire"`), only present on the
@@ -332,6 +339,12 @@ export interface GameData {
   traits: Trait[]
   skills: Skill[]
   itemStats: ItemStat[]
+  /** `ItemStat.name` -> a representative icon URL, e.g. "Berserker's" -> the icon of a real
+   *  "Berserker's ... Insignia" crafting item sharing that name prefix (itemstats themselves have
+   *  no icon field — see `scripts/fetch-gear-upgrades.ts`'s `deriveItemStatIcons`). Not every stat
+   *  name resolves: compound legacy combos (e.g. "Dire and Rabid") and WvW/PvP-only amulet stat
+   *  names (e.g. "Harrier's") have no matching insignia at all — absent from this map, not a bug. */
+  itemStatIcons: Record<string, string>
   eliteSpecSkills: EliteSpecSkillMap
   wvwFactOverrides: WvwFactOverrides
   legends: Legend[]

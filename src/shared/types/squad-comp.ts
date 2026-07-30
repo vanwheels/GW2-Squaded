@@ -1,8 +1,22 @@
 import type { LocalId, Timestamp } from './common'
+import type { ProfessionId } from './game-data'
 
-/** A single roster slot within a party — either empty or referencing a saved Build. */
+/**
+ * A "just the icon" pick for a slot with no saved Build ready yet — profession plus optionally an
+ * elite specialization (`null` = core/no elite spec chosen). Deliberately NOT a real `Build`: it's
+ * never saved, never appears in the Builds list, and has no majors/gear/skills to compute anything
+ * from — purely a visual stand-in until a real build gets assigned. Mutually exclusive with
+ * `SquadSlot.buildId` (assigning one always clears the other).
+ */
+export interface GhostPick {
+  profession: ProfessionId
+  specializationId: number | null
+}
+
+/** A single roster slot within a party — either empty, a `GhostPick`, or a saved Build. */
 export interface SquadSlot {
   buildId: LocalId | null
+  ghostPick: GhostPick | null
   /** Free-text label shown in the slot when no build is assigned yet, e.g. "any DPS". */
   placeholderLabel: string | null
 }
@@ -11,7 +25,6 @@ export interface SquadSlot {
 export type PartySlots = [SquadSlot, SquadSlot, SquadSlot, SquadSlot, SquadSlot]
 
 export interface Party {
-  name: string
   slots: PartySlots
 }
 

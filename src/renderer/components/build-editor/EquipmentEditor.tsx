@@ -1,10 +1,9 @@
 import type { EquipmentSlot, EquipmentSlotKey, ItemStat, ProfessionId, ProfessionWeapon } from '@shared/types'
 import { armorTrinketInfusionCapacity, resizeUpgradeIds, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from '@shared/gear-calc/upgrade-slots'
-import { stripGw2Markup } from '@shared/gear-calc/format-description'
+import { formatItemStatName } from '@shared/gear-calc/format-description'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
-import { SlotIcon, type SlotIconType } from './SlotIcon'
 
 interface Props {
   value: Partial<Record<EquipmentSlotKey, EquipmentSlot>>
@@ -53,22 +52,22 @@ function dedupedStats(itemStats: ItemStat[]): ItemStat[] {
  * Paperdoll positions mirror the in-game Hero > Equipment panel and gw2skills.net: armor down
  * the left column, trinkets down the right, weapon sets below as their own row.
  */
-const ARMOR_SLOTS: { key: EquipmentSlotKey; label: string; icon: SlotIconType }[] = [
-  { key: 'helm', label: 'Helm', icon: 'helm' },
-  { key: 'shoulders', label: 'Shoulders', icon: 'shoulders' },
-  { key: 'chest', label: 'Chest', icon: 'chest' },
-  { key: 'gloves', label: 'Gloves', icon: 'gloves' },
-  { key: 'leggings', label: 'Leggings', icon: 'leggings' },
-  { key: 'boots', label: 'Boots', icon: 'boots' }
+const ARMOR_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
+  { key: 'helm', label: 'Helm' },
+  { key: 'shoulders', label: 'Shoulders' },
+  { key: 'chest', label: 'Chest' },
+  { key: 'gloves', label: 'Gloves' },
+  { key: 'leggings', label: 'Leggings' },
+  { key: 'boots', label: 'Boots' }
 ]
 
-const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string; icon: SlotIconType }[] = [
-  { key: 'backpiece', label: 'Back', icon: 'backpiece' },
-  { key: 'accessory1', label: 'Accessory 1', icon: 'accessory' },
-  { key: 'accessory2', label: 'Accessory 2', icon: 'accessory' },
-  { key: 'ring1', label: 'Ring 1', icon: 'ring' },
-  { key: 'ring2', label: 'Ring 2', icon: 'ring' },
-  { key: 'amulet', label: 'Amulet', icon: 'amulet' }
+const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
+  { key: 'backpiece', label: 'Back' },
+  { key: 'accessory1', label: 'Accessory 1' },
+  { key: 'accessory2', label: 'Accessory 2' },
+  { key: 'ring1', label: 'Ring 1' },
+  { key: 'ring2', label: 'Ring 2' },
+  { key: 'amulet', label: 'Amulet' }
 ]
 
 function byName(a: UpgradeOption, b: UpgradeOption): number {
@@ -76,15 +75,25 @@ function byName(a: UpgradeOption, b: UpgradeOption): number {
 }
 
 export function EquipmentEditor({ value, onChange, profession: professionId, equippedSpecializationIds }: Props) {
-  const { itemStats, professions, skillsById, runes, sigils, infusions } = useGameData()
+  const { itemStats, itemStatIcons, professions, skillsById, runes, sigils, infusions } = useGameData()
   const sortedStats = dedupedStats(itemStats).sort((a, b) => a.name.localeCompare(b.name))
   const profession = professions.find((p) => p.id === professionId)
+
+  // Real per-stat-combo icons (see `itemStatIcons`'s doc comment on `GameData` for where these
+  // come from) replace the old plain `<select>` of stat names — a small number of legacy/WvW-only
+  // combos have no matching icon and fall back to `UpgradePicker`'s generic "?" glyph.
+  const statOptions: UpgradeOption[] = sortedStats.map((stat) => ({
+    id: stat.id,
+    name: formatItemStatName(stat.name),
+    icon: itemStatIcons[stat.name] ?? '',
+    description: stat.attributes.map((a) => a.attribute).join(' / ')
+  }))
 
   const runeOptions: UpgradeOption[] = runes
     .map((r) => ({ id: r.id, name: r.name, icon: r.icon, description: r.bonuses.map((b) => b.raw).join('\n') }))
     .sort(byName)
   const sigilOptions: UpgradeOption[] = sigils
-    .map((s) => ({ id: s.id, name: s.name, icon: s.icon, description: stripGw2Markup(s.description) }))
+    .map((s) => ({ id: s.id, name: s.name, icon: s.icon, description: s.description }))
     .sort(byName)
   const infusionOptions: UpgradeOption[] = infusions
     .map((i) => ({
@@ -154,29 +163,21 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
     )
   }
 
-  function renderSlot(key: EquipmentSlotKey, label: string, icon: SlotIconType) {
+  function renderSlot(key: EquipmentSlotKey, label: string) {
     const isRuneSlot = RUNE_SLOT_KEYS.includes(key)
     const infusionCapacity = armorTrinketInfusionCapacity(key)
-    const hasStat = value[key]?.itemStatId != null
     return (
       <div className="gear-slot" key={key}>
-        <div className={hasStat ? 'gear-slot-icon rarity-ascended' : 'gear-slot-icon'}>
-          <SlotIcon type={icon} />
-        </div>
+        <UpgradePicker
+          label={label}
+          options={statOptions}
+          chosenId={value[key]?.itemStatId ?? null}
+          onChoose={(id) => setItemStat(key, id)}
+          variant="slot"
+          rarity="ascended"
+        />
         <label className="gear-slot-body">
           <span className="gear-slot-label">{label}</span>
-          <select
-            className={hasStat ? 'rarity-ascended' : undefined}
-            value={value[key]?.itemStatId ?? ''}
-            onChange={(e) => setItemStat(key, e.target.value ? Number(e.target.value) : null)}
-          >
-            <option value="">— None —</option>
-            {sortedStats.map((stat) => (
-              <option key={stat.id} value={stat.id}>
-                {stat.name}
-              </option>
-            ))}
-          </select>
         </label>
         {isRuneSlot && (
           <div className="upgrade-row">
@@ -289,19 +290,15 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
           {weaponTypeRow(mainOptions, mainSlot?.weaponType ?? null, chooseMain)}
           <label className="gear-slot-body">
             <span className="gear-slot-label">{mainLabel}</span>
-            <select
-              className={mainSlot?.itemStatId != null ? 'rarity-ascended' : undefined}
-              value={mainSlot?.itemStatId ?? ''}
-              onChange={(e) => setMainItemStat(e.target.value ? Number(e.target.value) : null)}
-            >
-              <option value="">— None —</option>
-              {sortedStats.map((stat) => (
-                <option key={stat.id} value={stat.id}>
-                  {stat.name}
-                </option>
-              ))}
-            </select>
           </label>
+          <UpgradePicker
+            label={mainLabel}
+            options={statOptions}
+            chosenId={mainSlot?.itemStatId ?? null}
+            onChoose={setMainItemStat}
+            variant="slot"
+            rarity="ascended"
+          />
           {sigilRow(mainKey, mainCapacity)}
           {infusionRow(mainKey, mainCapacity)}
         </div>
@@ -313,19 +310,15 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
               {weaponTypeRow(offOptions, value[offKey]?.weaponType ?? null, chooseOff)}
               <label className="gear-slot-body">
                 <span className="gear-slot-label">{offLabel}</span>
-                <select
-                  className={value[offKey]?.itemStatId != null ? 'rarity-ascended' : undefined}
-                  value={value[offKey]?.itemStatId ?? ''}
-                  onChange={(e) => setOffItemStat(e.target.value ? Number(e.target.value) : null)}
-                >
-                  <option value="">— None —</option>
-                  {sortedStats.map((stat) => (
-                    <option key={stat.id} value={stat.id}>
-                      {stat.name}
-                    </option>
-                  ))}
-                </select>
               </label>
+              <UpgradePicker
+                label={offLabel}
+                options={statOptions}
+                chosenId={value[offKey]?.itemStatId ?? null}
+                onChoose={setOffItemStat}
+                variant="slot"
+                rarity="ascended"
+              />
               {sigilRow(offKey, offCapacity)}
               {infusionRow(offKey, offCapacity)}
             </>
@@ -357,19 +350,8 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
         {weaponTypeRow(options, slot?.weaponType ?? null, choose)}
         <label className="gear-slot-body">
           <span className="gear-slot-label">{label}</span>
-          <select
-            className={slot?.itemStatId != null ? 'rarity-ascended' : undefined}
-            value={slot?.itemStatId ?? ''}
-            onChange={(e) => setStat(e.target.value ? Number(e.target.value) : null)}
-          >
-            <option value="">— None —</option>
-            {sortedStats.map((stat) => (
-              <option key={stat.id} value={stat.id}>
-                {stat.name}
-              </option>
-            ))}
-          </select>
         </label>
+        <UpgradePicker label={label} options={statOptions} chosenId={slot?.itemStatId ?? null} onChoose={setStat} variant="slot" rarity="ascended" />
         {sigilRow(key, capacity)}
         {infusionRow(key, capacity)}
       </div>
@@ -379,8 +361,8 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
   return (
     <div className="equipment-editor">
       <div className="gear-paperdoll">
-        <div className="gear-column">{ARMOR_SLOTS.map((s) => renderSlot(s.key, s.label, s.icon))}</div>
-        <div className="gear-column">{TRINKET_SLOTS.map((s) => renderSlot(s.key, s.label, s.icon))}</div>
+        <div className="gear-column">{ARMOR_SLOTS.map((s) => renderSlot(s.key, s.label))}</div>
+        <div className="gear-column">{TRINKET_SLOTS.map((s) => renderSlot(s.key, s.label))}</div>
       </div>
       <div className="gear-weapons">
         <div className="gear-weapon-set">

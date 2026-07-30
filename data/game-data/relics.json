@@ -450,366 +450,6 @@
     "description": "Heal other nearby allies when you successfully combo a field with a blast finisher."
   },
   {
-    "id": 101439,
-    "name": "Relic of Mercy",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Revive allies faster and with more health. Only affects players in WvW."
-  },
-  {
-    "id": 101441,
-    "name": "Relic of Evasion",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain vigor after evading an attack."
-  },
-  {
-    "id": 101442,
-    "name": "Relic of Speed",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Increase movement speed when under the effect of swiftness."
-  },
-  {
-    "id": 101447,
-    "name": "Relic of the Pack",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Grant superspeed to nearby allies after using an elite skill."
-  },
-  {
-    "id": 101452,
-    "name": "Relic of the Firebrand",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Upon using the final charge of a mantra skill, gain increased boon duration."
-  },
-  {
-    "id": 101453,
-    "name": "Relic of the Nightmare",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "After using an elite skill, send forth a nightmare pulse that inflicts fear and poison on nearby enemies."
-  },
-  {
-    "id": 101461,
-    "name": "Relic of Leadership",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Convert conditions into boons on nearby allies after using an elite skill."
-  },
-  {
-    "id": 101465,
-    "name": "Relic of the Necromancer",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Fear you inflict causes foes to move slower."
-  },
-  {
-    "id": 101466,
-    "name": "Relic of Resistance",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain resistance after using a healing skill."
-  },
-  {
-    "id": 101467,
-    "name": "Relic of the Demon Queen",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Poison that you apply reduces healing by an additional amount. Disabling a foe applies poison. <br><c=@reminder>Disables include stun, taunt, daze, knockback, pull, knockdown, sink, float, fear, and launch.</c>"
-  },
-  {
-    "id": 101472,
-    "name": "Relic of the Reaper",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Chill nearby enemies after executing a <c=@abilitytype>shout</c> skill."
-  },
-  {
-    "id": 101474,
-    "name": "Relic of the Water",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Cleanse conditions from yourself and nearby allies after using a healing skill."
-  },
-  {
-    "id": 101487,
-    "name": "Relic of Antitoxin",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Outgoing condition cleanses remove an additional condition. <c=@reminder>This can only affect an ally once every 10 seconds.</c>"
-  },
-  {
-    "id": 101489,
-    "name": "Relic of the Fractal",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "When you inflict bleeding on an enemy with 6 or more stacks of bleeding, also inflict burning and torment."
-  },
-  {
-    "id": 101491,
-    "name": "Relic of Dagda",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "After using an elite skill, fire a projectile at the target or nearest enemy that damages and inflicts conditions. Damage scales with the recharge of the elite skill."
-  },
-  {
-    "id": 101492,
-    "name": "Relic of Vass",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "After using a healing or elixir skill, your next few attacks inflict poison. <c=@reminder>Healing skills can only trigger this effect once every interval.</c>"
-  },
-  {
-    "id": 101493,
-    "name": "Relic of the Afflicted",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Create a Death Nova at a foe's location upon their defeat that inflicts poison and bleeding. <c=@reminder>(Cooldown: 10 Seconds)</c>"
-  },
-  {
-    "id": 101500,
-    "name": "Relic of Cerus",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Upon using an elite skill, summon an Eye of Cerus that emits a rotating line attack, dealing damage and converting boons into conditions."
-  },
-  {
-    "id": 101503,
-    "name": "Relic of Nourys",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain stacks of Nourys's Hunger every interval when you remove boons from enemies. Consume 10 stacks to grow larger, dealing increased damage, taking reduced damage, and converting a percentage of outgoing damage into healing."
-  },
-  {
-    "id": 101504,
-    "name": "Relic of Durability",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain protection and regeneration after using a healing skill."
-  },
-  {
-    "id": 101509,
-    "name": "Relic of the Herald",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain concentration after granting a boon to an ally."
-  },
-  {
-    "id": 101511,
-    "name": "Relic of the Adventurer",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain 50% endurance after using a healing skill. <c=@reminder>(Cooldown: 20 Seconds)</c>"
-  },
-  {
-    "id": 101513,
-    "name": "Relic of the Defender",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Heal a percentage of your maximum health after blocking an attack. If you block again within 5 seconds, you heal less each time down to a minimum of 1%."
-  },
-  {
-    "id": 101514,
-    "name": "Relic of Dwayna",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Regeneration you apply is more effective."
-  },
-  {
-    "id": 101526,
-    "name": "Relic of the Weaver",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Upon using a <c=@abilitytype>stance</c> skill, deal increased strike damage for a duration."
-  },
-  {
-    "id": 101527,
-    "name": "Relic of the Flock",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Grant barrier to yourself and nearby allies after you use a healing skill."
-  },
-  {
-    "id": 101534,
-    "name": "Relic of the Cavalier",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Grant yourself aegis, quickness, swiftness, resistance, and might when striking an enemy with your mount's <c=@abilitytype>engage</c> skill."
-  },
-  {
-    "id": 101539,
-    "name": "Relic of the Aristocracy",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain 3% condition duration for 8 seconds when inflicting weakness or vulnerability on a foe, up to a maximum of 5 stacks. <c=@reminder>(Cooldown: 1 Second)</c>"
-  },
-  {
-    "id": 101541,
-    "name": "Relic of the Sunless",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Using an elite skill summons a pool on the target enemy that inflicts poison and cripple. Pool duration scales with the recharge of the elite skill."
-  },
-  {
-    "id": 101545,
-    "name": "Relic of the Warrior",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Weapon swap recharge time is reduced."
-  },
-  {
-    "id": 101546,
-    "name": "Relic of Karakosa",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Heal other nearby allies when you successfully combo a field with a blast finisher."
-  },
-  {
-    "id": 101549,
-    "name": "Relic of the Chronomancer",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain quickness when you use a <c=@abilitytype>well</c> skill."
-  },
-  {
-    "id": 101554,
-    "name": "Relic of the Trooper",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Remove a condition from affected allies after using a <c=@abilitytype>shout</c> skill."
-  },
-  {
-    "id": 101563,
-    "name": "Relic of Febe",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "When you use a healing skill, grant nearby allies swiftness and remove movement-impairing conditions from them."
-  },
-  {
-    "id": 101564,
-    "name": "Relic of Fireworks",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Upon dealing strike damage using a weapon skill with a recharge time of 20 seconds or more, deal increased strike damage for a duration. Refreshes duration on stack."
-  },
-  {
-    "id": 101571,
-    "name": "Relic of the Unseen Invasion",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Grant yourself and nearby allies superspeed when you enter or exit stealth."
-  },
-  {
-    "id": 101573,
-    "name": "Relic of Akeem",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "When you disable an enemy that is afflicted by 5 or more stacks of confusion or torment, inflict confusion and torment on enemies around the target."
-  },
-  {
-    "id": 101580,
-    "name": "Relic of the Thief",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Upon striking an enemy with a weapon skill that has a recharge or resource cost, gain increased strike damage. <c=@reminder>When this triggers, refresh the duration of all stacks.</c>"
-  },
-  {
-    "id": 101581,
-    "name": "Relic of the Mirage",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Inflict torment upon successfully evading an attack."
-  },
-  {
-    "id": 101582,
-    "name": "Legendary Relic",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Unused Relic Effect Slot"
-  },
-  {
-    "id": 101586,
-    "name": "Relic of the Wizard's Tower",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "After using an elite skill, shield yourself with a projectile-reflecting barrier while summoning a wave that pulls enemies toward you."
-  },
-  {
-    "id": 101590,
-    "name": "Relic of the Dragonhunter",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Enemies hit by your trap skills become hunted by you, increasing your strike damage and condition duration against them."
-  },
-  {
-    "id": 101600,
-    "name": "Relic of the Brawler",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Deal increased strike damage for a duration when granting protection or resolution to yourself."
-  },
-  {
-    "id": 101605,
-    "name": "Relic of Lyhr",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Upon healing an ally, shield up to four allies, redirecting a percentage of any strike damage they take to yourself. Allies may only be protected by one shield at a time."
-  },
-  {
-    "id": 101607,
-    "name": "Relic of the Centaur",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain stability when you use a healing skill."
-  },
-  {
-    "id": 101608,
-    "name": "Relic of the Ice",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "After using an elite skill, launch icicles that inflict chilled at nearby enemies."
-  },
-  {
-    "id": 101611,
-    "name": "Relic of Peitha",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "After shadowstepping or using a deception skill, fire a blade at a nearby enemy after a short delay, applying torment and increasing your strike damage against that target."
-  },
-  {
-    "id": 101618,
-    "name": "Relic of the Zephyrite",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Summon crystals that apply protection and resolution to allies after using an elite skill. Crystal duration scales with the recharge of the used skill."
-  },
-  {
-    "id": 101619,
-    "name": "Relic of the Astral Ward",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain a Signet of the Astral Ward after using a signet skill. Using a signet skill while this signet is active consumes it to remove conditions from nearby allies and grant them resistance."
-  },
-  {
-    "id": 101621,
-    "name": "Relic of the Midnight King",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Grant might and fury to nearby allies when you disable an enemy. <br><c=@reminder>Disables include stun, taunt, daze, knockback, pull, knockdown, sink, float, fear, and launch.</c>"
-  },
-  {
-    "id": 101627,
-    "name": "Relic of Nayos",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Removing a condition from yourself heals you."
-  },
-  {
-    "id": 101630,
-    "name": "Relic of the Monk",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Increase healing effectiveness to allies after granting a boon to an ally."
-  },
-  {
-    "id": 101634,
-    "name": "Relic of the Scourge",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Upon applying barrier to an ally, gain increased condition duration. <c=@reminder>When this triggers, refresh the duration of all stacks.</c>"
-  },
-  {
-    "id": 101637,
-    "name": "Relic of the Deadeye",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Deal increased strike damage for a duration when you use a <c=@abilitytype>cantrip</c> skill."
-  },
-  {
-    "id": 101640,
-    "name": "Relic of the Krait",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "After using an elite skill, emit a wave of corruption that inflicts damaging conditions."
-  },
-  {
-    "id": 101643,
-    "name": "Relic of Mabon",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Upon applying might while in combat, gain Mabon's Strength. At 10 stacks, your might stacks become more effective for a duration, after which you lose all might and Mabon's Strength."
-  },
-  {
-    "id": 101644,
-    "name": "Relic of the Daredevil",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "After dodge rolling in combat or evading an attack, your next attack is guaranteed to be a critical hit. <c=@reminder>(Cooldown: 1 Second)</c>"
-  },
-  {
-    "id": 101647,
-    "name": "Relic of the Citadel",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "After using an elite skill, call down an artillery strike that inflicts stun on the skill target or nearest enemy."
-  },
-  {
-    "id": 101649,
-    "name": "Relic of Isgarren",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "After evading an enemy's attack, place the Eye of Isgarren on them for a duration. You deal increased strike and condition duration against enemies with the Eye of Isgarren."
-  },
-  {
-    "id": 101731,
-    "name": "Relic of the Twin Generals",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain might and weaken nearby enemies when you use a healing skill. Gain additional might for each enemy struck."
-  },
-  {
     "id": 101737,
     "name": "Relic of the Founding",
     "icon": "https://render.guildwars2.com/file/FD9FE6B8CBBD44132D6DBCA7C2E92CF4C69D6EDC/3302016.png",
@@ -822,21 +462,9 @@
     "description": "Gain might and weaken nearby enemies when you use a healing skill. Gain additional might for each enemy struck."
   },
   {
-    "id": 101776,
-    "name": "Relic of the Founding",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain barrier when you successfully combo a field with a leap finisher."
-  },
-  {
     "id": 101801,
     "name": "Relic of Mosyn",
     "icon": "https://render.guildwars2.com/file/CAB064E2F11609D2309E356062BA93107F9F605E/3302017.png",
-    "description": "Remove a nondamaging condition whenever you evade an attack."
-  },
-  {
-    "id": 101860,
-    "name": "Relic of Mosyn",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
     "description": "Remove a nondamaging condition whenever you evade an attack."
   },
   {
@@ -846,28 +474,10 @@
     "description": "When you inflict crippled, chilled, or immobile, you also inflict vulnerability."
   },
   {
-    "id": 101908,
-    "name": "Relic of the Sorcerer",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "When you inflict crippled, chilled, or immobile, you also inflict vulnerability."
-  },
-  {
-    "id": 101917,
-    "name": "Relic of the Wayfinder",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain increased movement speed, which is further increased while out of combat. When you enter combat, gain a burst of speed."
-  },
-  {
     "id": 101943,
     "name": "Relic of the Wayfinder",
     "icon": "https://render.guildwars2.com/file/7D28503433AD96CEA902BBCD0411C9BE1D2505F4/3302020.png",
     "description": "Gain increased movement speed, which is further increased while out of combat. When you enter combat, gain a burst of speed."
-  },
-  {
-    "id": 101944,
-    "name": "Relic of Zakiros",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "While you are under the effects of fury, convert a percentage of your outgoing critical-strike damage into healing."
   },
   {
     "id": 101955,
@@ -888,34 +498,10 @@
     "description": "Your lifesteal damage and healing is increased."
   },
   {
-    "id": 102442,
-    "name": "Relic of Rivers",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain alacrity and regeneration at the end of your dodge roll."
-  },
-  {
     "id": 102595,
     "name": "Relic of the Stormsinger",
     "icon": "https://render.guildwars2.com/file/53B8A123D07CC679364EF4CF4BD7537624320919/3375223.png",
     "description": "After using a movement skill, your next attack creates an arc of chain lightning that strikes nearby enemies."
-  },
-  {
-    "id": 102787,
-    "name": "Relic of Atrocity",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Your lifesteal damage and healing is increased."
-  },
-  {
-    "id": 102877,
-    "name": "Relic of the Claw",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Deal increased strike damage for a duration after you disable a foe."
-  },
-  {
-    "id": 102896,
-    "name": "Relic of the Blightbringer",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain stacks of Greer's Virulence when you inflict poison on a foe. After reaching the maximum number of stacks, the next time you inflict poison also inflicts additional conditions on nearby enemies."
   },
   {
     "id": 103015,
@@ -924,21 +510,9 @@
     "description": "Gain alacrity and regeneration at the end of your dodge roll."
   },
   {
-    "id": 103262,
-    "name": "Relic of the Stormsinger",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "After using a movement skill, your next attack creates an arc of chain lightning that strikes nearby enemies."
-  },
-  {
     "id": 103424,
     "name": "Relic of Sorrow",
     "icon": "https://render.guildwars2.com/file/F943C04CD27C463AB167FDF49F9CCC3E27F0AD18/3375222.png",
-    "description": "After using an elite skill, create an area that protects allies and destroys enemy projectiles."
-  },
-  {
-    "id": 103507,
-    "name": "Relic of Sorrow",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
     "description": "After using an elite skill, create an area that protects allies and destroys enemy projectiles."
   },
   {
@@ -954,18 +528,6 @@
     "description": "Restore endurance to allies when you grant them vigor."
   },
   {
-    "id": 103811,
-    "name": "Relic of the Steamshrieker",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Burn nearby enemies when you successfully combo a water field with a blast or leap finisher."
-  },
-  {
-    "id": 103829,
-    "name": "Relic of Geysers",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Restore endurance to allies when you grant them vigor."
-  },
-  {
     "id": 103872,
     "name": "Relic of Mount Balrior",
     "icon": "https://render.guildwars2.com/file/49A8520BDB6C5A7BA90832DB9406677473A6932F/3441973.png",
@@ -975,24 +537,6 @@
     "id": 103901,
     "name": "Relic of the Mists Tide",
     "icon": "https://render.guildwars2.com/file/2ADA1A4509057D7B3854EEE9149A0F45CCD0EAA2/3441972.png",
-    "description": "Cleanse a condition from yourself when you successfully combo a field with a leap or blast finisher."
-  },
-  {
-    "id": 103923,
-    "name": "Relic of the Beehive",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "After using an elite skill, release a wave of pheromones that causes bees to swarm enemies struck."
-  },
-  {
-    "id": 103924,
-    "name": "Relic of Reunification",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain frost aura and light aura after using a healing skill."
-  },
-  {
-    "id": 103941,
-    "name": "Relic of the Mists Tide",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
     "description": "Cleanse a condition from yourself when you successfully combo a field with a leap or blast finisher."
   },
   {
@@ -1014,22 +558,10 @@
     "description": "Burn nearby enemies when you successfully combo a water field with a blast or leap finisher."
   },
   {
-    "id": 104035,
-    "name": "Relic of Mount Balrior",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "After using an elite skill, create an area underneath yourself. Standing in this area increases your outgoing strike damage."
-  },
-  {
     "id": 104241,
     "name": "Relic of the Eagle",
     "icon": "https://render.guildwars2.com/file/DFF4EB43AD0803F60D105658052321A0BE1AF02C/3592832.png",
     "description": "Deal increased strike damage to low-health enemies."
-  },
-  {
-    "id": 104249,
-    "name": "Relic of Vampirism",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Siphon life from nearby foes when you use a healing skill. Restore a portion of your maximum health upon killing a foe."
   },
   {
     "id": 104256,
@@ -1038,76 +570,10 @@
     "description": "Grant might and fury to nearby allies after using a healing skill."
   },
   {
-    "id": 104274,
-    "name": "Relic of Surging",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain shocking aura for 4 seconds after using an elite skill."
-  },
-  {
-    "id": 104277,
-    "name": "Relic of the Lich",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Summon a jagged horror while in combat."
-  },
-  {
-    "id": 104296,
-    "name": "Relic of Thorns",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain stacking condition damage when you are hit by a poisoned foe. <c=@reminder>When this triggers, it refreshes the duration of all stacks.</c>"
-  },
-  {
-    "id": 104308,
-    "name": "Relic of Fire",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Gain fire aura after using a healing skill. Fire aura now increases your outgoing strike damage."
-  },
-  {
-    "id": 104311,
-    "name": "Relic of the Privateer",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Summon a parrot while in combat."
-  },
-  {
-    "id": 104334,
-    "name": "Relic of the Ogre",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Summon a rock dog while in combat."
-  },
-  {
-    "id": 104383,
-    "name": "Relic of the Earth",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Grant protection and magnetic aura to allies after using an elite skill."
-  },
-  {
-    "id": 104390,
-    "name": "Relic of the Holosmith",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Create a laser disk after you use an elite skill."
-  },
-  {
-    "id": 104413,
-    "name": "Relic of the Eagle",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Deal increased strike damage to low-health enemies."
-  },
-  {
-    "id": 104416,
-    "name": "Relic of the Golemancer",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Summon a golem while in combat."
-  },
-  {
     "id": 104424,
     "name": "Relic of Thorns",
     "icon": "https://render.guildwars2.com/file/B6166933459C27FE500FCC23B572A7AE2A0F4DDA/3592841.png",
     "description": "Gain stacking condition damage when you are hit by a poisoned foe. <c=@reminder>When this triggers, it refreshes the duration of all stacks.</c>"
-  },
-  {
-    "id": 104491,
-    "name": "Relic of Altruism",
-    "icon": "https://render.guildwars2.com/file/08DED07BF6DF37E69A08D1C49D9C45D81BD8A5CA/3255567.png",
-    "description": "Grant might and fury to nearby allies after using a healing skill."
   },
   {
     "id": 104501,

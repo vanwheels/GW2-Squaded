@@ -144,6 +144,7 @@ interface RawSkill {
   attunement?: string
   specialization?: number
   flip_skill?: number
+  categories?: string[]
 }
 
 interface RawItemStatAttribute {
@@ -254,7 +255,8 @@ function normalizeSkill(raw: RawSkill): Skill {
     traitedFacts: raw.traited_facts ?? [],
     attunement: raw.attunement ?? null,
     specializationId: raw.specialization ?? null,
-    flipSkill: raw.flip_skill ?? null
+    flipSkill: raw.flip_skill ?? null,
+    categories: raw.categories ?? []
   }
 }
 
@@ -320,8 +322,8 @@ async function main(): Promise<void> {
   // eliteSpecSkills / wvwFactOverrides / relicEffects aren't produced here — they're sourced from
   // the wiki by the separate scripts/fetch-elite-spec-skills.ts, scripts/fetch-wvw-splits.ts, and
   // scripts/fetch-relic-effects.ts, not the official GW2 API. runes/sigils/infusions/relics/food/
-  // utility are sourced from the same official API but via the separate, much-heavier
-  // scripts/fetch-gear-upgrades.ts (a full /v2/items scan) — not fetched here to keep this
+  // utility/itemStatIcons are sourced from the same official API but via the separate, much-
+  // heavier scripts/fetch-gear-upgrades.ts (a full /v2/items scan) — not fetched here to keep this
   // script's normal runtime fast.
   const gameData: Omit<
     GameData,
@@ -334,6 +336,7 @@ async function main(): Promise<void> {
     | 'relics'
     | 'food'
     | 'utility'
+    | 'itemStatIcons'
   > = {
     professions,
     specializations,

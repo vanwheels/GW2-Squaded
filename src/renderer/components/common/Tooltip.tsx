@@ -1,5 +1,6 @@
-import { useRef, useState, type ReactNode } from 'react'
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { stripGw2Markup } from '@shared/gear-calc/format-description'
 
 interface Props {
   /** Tooltip body. `null`/`undefined` suppresses the tooltip entirely (no hover popup). */
@@ -14,10 +15,13 @@ interface Props {
  * scrollable/overflow-hidden ancestor panels, and positions itself from the trigger's
  * bounding rect on each hover rather than tracking the cursor.
  */
+const VIEWPORT_MARGIN = 8
+
 export function Tooltip({ content, children, className }: Props) {
   const [open, setOpen] = useState(false)
   const [coords, setCoords] = useState({ x: 0, y: 0 })
   const triggerRef = useRef<HTMLSpanElement>(null)
+  const popupRef = useRef<HTMLDivElement>(null)
 
   function show(): void {
     const rect = triggerRef.current?.getBoundingClientRect()
@@ -28,6 +32,22 @@ export function Tooltip({ content, children, className }: Props) {
   function hide(): void {
     setOpen(false)
   }
+
+  // The popup is centered/anchored via a CSS transform on a fixed-position box, so its rendered
+  // size isn't known until after layout. Measure once mounted and nudge `coords` back on-screen
+  // if the box overflows the viewport (common near window edges) — a pure shift of the anchor
+  // point, since the transform offset from that anchor stays constant either way.
+  useLayoutEffect(() => {
+    if (!open) return
+    const rect = popupRef.current?.getBoundingClientRect()
+    if (!rect) return
+    let dx = 0
+    let dy = 0
+    if (rect.left < VIEWPORT_MARGIN) dx = VIEWPORT_MARGIN - rect.left
+    else if (rect.right > window.innerWidth - VIEWPORT_MARGIN) dx = window.innerWidth - VIEWPORT_MARGIN - rect.right
+    if (rect.top < VIEWPORT_MARGIN) dy = VIEWPORT_MARGIN - rect.top
+    if (dx !== 0 || dy !== 0) setCoords((c) => ({ x: c.x + dx, y: c.y + dy }))
+  }, [open, content])
 
   return (
     <span
@@ -42,7 +62,7 @@ export function Tooltip({ content, children, className }: Props) {
       {open &&
         content != null &&
         createPortal(
-          <div className="tooltip-popup" style={{ left: coords.x, top: coords.y }} role="tooltip">
+          <div ref={popupRef} className="tooltip-popup" style={{ left: coords.x, top: coords.y }} role="tooltip">
             {content}
           </div>,
           document.body
@@ -56,12 +76,18 @@ interface TooltipBodyProps {
   description?: string
 }
 
-/** Common "bold name + muted description" shape shared by trait/skill/boon tooltips. */
+/**
+ * Common "bold name + muted description" shape shared by trait/skill/boon tooltips.
+ * `description` is stripped of raw GW2 API markup (`<c=@abilitytype>`/`<c=@reminder>` color
+ * tags, `<br>`) here so every caller gets clean text for free rather than each needing its own
+ * `stripGw2Markup` call.
+ */
 export function TooltipBody({ title, description }: TooltipBodyProps) {
+  const clean = description ? stripGw2Markup(description) : undefined
   return (
     <>
       <div className="tooltip-title">{title}</div>
-      {description && <div className="tooltip-description">{description}</div>}
+      {clean && <div className="tooltip-description">{clean}</div>}
     </>
   )
 }

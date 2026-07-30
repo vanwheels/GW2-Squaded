@@ -45,6 +45,7 @@ const EMPTY_GAME_DATA: GameData = {
   traits: [],
   skills: [],
   itemStats: [],
+  itemStatIcons: {},
   eliteSpecSkills: {},
   wvwFactOverrides: { skill: {}, trait: {} },
   legends: [],

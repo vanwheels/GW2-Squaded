@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
-import type { Build, RevenantSkillSelection, Skill, SkillSelection, StandardSkillSelection } from '@shared/types'
+import type { Build, RevenantSkillSelection, Skill, SkillSelection, StandardSkillSelection, WvwFactOverrides } from '@shared/types'
 import { activeTraitIds, boonConditionFactsForSkill, type BoonConditionSource } from '@shared/boon-calc/sources'
+import { numericFactLines } from '@shared/skill-calc/fact-numbers'
+import { relatedVariantSkills } from '@shared/skill-calc/multi-effect'
 import { formatBoonDuration } from '@shared/boon-calc/format'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { useGameData } from '@renderer/state/game-data-store'
@@ -52,13 +54,19 @@ export function useDurationContext(build: Build) {
   return { gameData, activeIds, durationPercent }
 }
 
-export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[]) {
+function factsBlock(numericLines: string[], boonFacts: BoonConditionSource[]) {
   return (
     <>
-      <TooltipBody title={skill.name} description={skill.description} />
-      {facts.length > 0 && (
+      {numericLines.length > 0 && (
+        <ul className="tooltip-numeric-facts">
+          {numericLines.map((line, i) => (
+            <li key={i}>{line}</li>
+          ))}
+        </ul>
+      )}
+      {boonFacts.length > 0 && (
         <ul className="tooltip-boon-facts">
-          {facts.map((f, i) => (
+          {boonFacts.map((f, i) => (
             <li key={i}>
               <span>{f.boonOrConditionName}</span>
               <span className="boon-source-duration">
@@ -71,6 +79,67 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[]) 
       )}
     </>
   )
+}
+
+export interface SkillVariantContext {
+  skills: Skill[]
+  skillsById: Map<number, Skill>
+  wvwFactOverrides: WvwFactOverrides
+  durationPercent: { boon: number; condition: number }
+}
+
+/**
+ * `variantContext` surfaces a skill's collapsed-away attunement variants (e.g. every Elementalist
+ * Glyph's per-attunement effect) and activation-chain targets (e.g. a Mantra's charged cast) below
+ * its own facts — see `multi-effect.ts`'s doc comment for why these are only shown here, on an
+ * already-equipped skill, rather than as extra picker entries.
+ */
+export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], activeIds: Set<number>, variantContext: SkillVariantContext) {
+  const numericLines = numericFactLines(skill.facts, skill.traitedFacts, activeIds)
+  const variants = relatedVariantSkills(skill, variantContext.skills, variantContext.skillsById)
+  return (
+    <>
+      <TooltipBody title={skill.name} description={skill.description} />
+      {factsBlock(numericLines, facts)}
+      {variants.map((v) => {
+        const vNumeric = numericFactLines(v.skill.facts, v.skill.traitedFacts, activeIds)
+        const vBoon = boonConditionFactsForSkill(
+          v.skill,
+          activeIds,
+          variantContext.durationPercent,
+          variantContext.wvwFactOverrides.skill[v.skill.id]
+        )
+        return (
+          <div className="tooltip-skill-variant" key={v.skill.id}>
+            <TooltipBody title={v.label} description={v.skill.description !== skill.description ? v.skill.description : undefined} />
+            {factsBlock(vNumeric, vBoon)}
+          </div>
+        )
+      })}
+    </>
+  )
+}
+
+/**
+ * Groups a Heal/Utility/Elite skill list by its GW2-native `categories[0]` (e.g. "Meditation",
+ * "Signet") — matches gw2skills' picker, which sorts skills into columns by the profession
+ * mechanic they belong to instead of one long flat grid. A skill with no category (a real chunk of
+ * them, e.g. Guardian's "Shelter") falls into an uncategorized bucket, always shown last so the
+ * meaningful groupings stay up front.
+ */
+function groupSkillsByCategory(skills: Skill[]): { category: string | null; skills: Skill[] }[] {
+  const order: (string | null)[] = []
+  const bySkillCategory = new Map<string | null, Skill[]>()
+  for (const skill of skills) {
+    const category = skill.categories[0] ?? null
+    if (!bySkillCategory.has(category)) {
+      bySkillCategory.set(category, [])
+      order.push(category)
+    }
+    bySkillCategory.get(category)!.push(skill)
+  }
+  order.sort((a, b) => (a === null ? 1 : 0) - (b === null ? 1 : 0))
+  return order.map((category) => ({ category, skills: bySkillCategory.get(category)! }))
 }
 
 interface StandardProps {
@@ -93,6 +162,8 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
   function skillFacts(skill: Skill): BoonConditionSource[] {
     return boonConditionFactsForSkill(skill, activeIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
   }
+
+  const variantContext: SkillVariantContext = { skills: gameData.skills, skillsById, wvwFactOverrides: gameData.wvwFactOverrides, durationPercent }
 
   function setUtility(slotIndex: 0 | 1 | 2, skillId: number | null): void {
     const utility: StandardSkillSelection['utility'] = [...value.utility]
@@ -130,7 +201,7 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
           return (
             <Tooltip
               key={slot}
-              content={chosen ? skillTooltipContent(chosen, skillFacts(chosen)) : <TooltipBody title={label} />}
+              content={chosen ? skillTooltipContent(chosen, skillFacts(chosen), activeIds, variantContext) : <TooltipBody title={label} />}
             >
               <button
                 type="button"
@@ -147,35 +218,41 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
       {openSlot &&
         (() => {
           const { label, chosenId, options, select } = slotConfig(openSlot)
+          function choose(id: number | null): void {
+            select(id)
+            setOpenSlot(null)
+          }
           return (
             <div className="skill-picker">
               <div className="skill-picker-header">{label}</div>
-              <div className="skill-picker-grid">
-                <button
-                  type="button"
-                  className={chosenId === null ? 'skill-option-button chosen' : 'skill-option-button'}
-                  onClick={() => {
-                    select(null)
-                    setOpenSlot(null)
-                  }}
-                >
-                  <span className="skill-option-none">—</span>
-                  <span className="skill-option-name">None</span>
-                </button>
-                {options.map((s) => (
-                  <Tooltip key={s.id} content={skillTooltipContent(s, skillFacts(s))}>
+              <div className="skill-picker-columns">
+                <div className="skill-category-column">
+                  <div className="skill-category-header">&nbsp;</div>
+                  <Tooltip content={<TooltipBody title="None" />}>
                     <button
                       type="button"
-                      className={chosenId === s.id ? 'skill-option-button chosen' : 'skill-option-button'}
-                      onClick={() => {
-                        select(s.id)
-                        setOpenSlot(null)
-                      }}
+                      className={chosenId === null ? 'skill-icon-button chosen' : 'skill-icon-button'}
+                      onClick={() => choose(null)}
                     >
-                      <img src={s.icon} alt={s.name} />
-                      <span className="skill-option-name">{s.name}</span>
+                      <span className="skill-option-none">—</span>
                     </button>
                   </Tooltip>
+                </div>
+                {groupSkillsByCategory(options).map(({ category, skills: skillsInCategory }) => (
+                  <div className="skill-category-column" key={category ?? '(none)'}>
+                    <div className="skill-category-header">{category ?? 'Other'}</div>
+                    {skillsInCategory.map((s) => (
+                      <Tooltip key={s.id} content={skillTooltipContent(s, skillFacts(s), activeIds, variantContext)}>
+                        <button
+                          type="button"
+                          className={chosenId === s.id ? 'skill-icon-button chosen' : 'skill-icon-button'}
+                          onClick={() => choose(s.id)}
+                        >
+                          <img src={s.icon} alt={s.name} />
+                        </button>
+                      </Tooltip>
+                    ))}
+                  </div>
                 ))}
               </div>
             </div>
@@ -205,12 +282,13 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
   const [openLegendSlot, setOpenLegendSlot] = useState<0 | 1 | null>(null)
 
   const availableLegends = legendsForSpecializations(equippedSpecializationIds)
+  const variantContext: SkillVariantContext = { skills: gameData.skills, skillsById, wvwFactOverrides: gameData.wvwFactOverrides, durationPercent }
 
   function skillTooltipFor(skillId: number) {
     const skill = skillsById.get(skillId)
     if (!skill) return null
     const facts = boonConditionFactsForSkill(skill, activeIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
-    return skillTooltipContent(skill, facts)
+    return skillTooltipContent(skill, facts, activeIds, variantContext)
   }
 
   function chooseLegend(slotIndex: 0 | 1, legendId: string | null): void {

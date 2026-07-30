@@ -81,6 +81,15 @@ needing to run the fetch script immediately:
 - `runes.json` / `sigils.json` / `infusions.json` / `relics.json` / `food.json` / `utility.json`
   — see below; sourced from `/v2/items` by `scripts/fetch-gear-upgrades.ts`, not
   `fetch-game-data.ts`
+- `itemstat-icons.json` — `ItemStat.name` -> icon URL, also written by `fetch-gear-upgrades.ts`
+  (it needs the same `/v2/items` dump). `/v2/itemstats` itself has no icon field (an abstract
+  attribute combo, not a real item); `deriveItemStatIcons` matches each stat name against a real
+  craftable "`<Stat> <material> Insignia`" item sharing that name prefix and uses its icon as a
+  representative glyph (Exotic-tier preferred, else lowest id, for determinism) — confirmed live
+  2026-07-30 that these have real per-stat art (181 distinct icons across 199 non-recipe Insignia
+  items), not one icon reused everywhere. 49/67 stat names resolve; the rest are compound legacy
+  combos (e.g. "Dire and Rabid") or WvW/PvP-only amulet-only stat names (e.g. "Harrier's") with no
+  matching insignia at all — absent from the map rather than guessed.
 - `relic-effects.json` — see below; sourced from the wiki, not `fetch-game-data.ts` or
   `fetch-gear-upgrades.ts`
 - `meta.json` — just `{ fetchedAt }`, so the app/UI can eventually surface "game data last

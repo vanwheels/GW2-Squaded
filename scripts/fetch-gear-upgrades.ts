@@ -75,6 +75,7 @@ interface RawItem {
   description?: string
   icon?: string
   type: string
+  rarity: string
   details?: {
     type?: string
     flags?: string[]
@@ -143,6 +144,16 @@ function bucketItem(item: RawItem): void {
   typeFrequency.set(item.type, (typeFrequency.get(item.type) ?? 0) + 1)
   const detailsType = item.details?.type
   if (detailsType) detailsTypeFrequency.set(detailsType, (detailsTypeFrequency.get(detailsType) ?? 0) + 1)
+
+  // Runes/sigils/relics each exist as a Legendary-rarity duplicate (same name, same effect,
+  // reforgeable via legendary crafting) of their Exotic-tier id — confirmed live against the raw
+  // item dump (e.g. "Superior Rune of the Afflicted" ids 24687 Exotic / 91460 Legendary). These
+  // add no new choice for a theorycraft build, so they're dropped here rather than deduped
+  // downstream. Runes/sigils turn out to be exact 1:1 Exotic/Legendary pairs (dropping Legendary
+  // leaves zero duplicate names); relics keep ~10 duplicate-name Exotic pairs even after this
+  // filter (reward-track-bound variants of the same relic, a separate/preexisting wrinkle, not
+  // Legendary-related) — left as-is, out of scope here.
+  if (item.rarity === 'Legendary') return
 
   if (item.type === 'UpgradeComponent' && detailsType === 'Rune' && item.name.startsWith('Superior Rune of')) {
     runeItems.push(item)
@@ -243,6 +254,35 @@ function normalizeConsumable(item: RawItem, kind: ConsumableKind): Consumable {
   }
 }
 
+const INSIGNIA_SUFFIX = ' Insignia'
+
+/**
+ * A per-stat-combo icon for the equipment editor's stat picker (e.g. "Berserker's", "Wanderer's")
+ * — `/v2/itemstats` itself has no icon field (it's an abstract attribute combo, not a real item),
+ * but every stat name IS also the prefix of a real craftable "<Stat> <material> Insignia" light-
+ * armor item, which does have an icon. Confirmed live 2026-07-30: 181 distinct icons across 199
+ * non-recipe Insignia items — i.e. real per-stat art, not one generic icon reused everywhere.
+ * Picks the Exotic-tier insignia when one exists (matching this app's existing ascended/exotic
+ * assumption elsewhere), else the lowest-id match, for a single deterministic icon per stat name —
+ * this is a stand-in glyph for the stat combo, not a claim that the build actually equips that
+ * specific insignia (compound/legacy stat names with no matching insignia, e.g. "Dire and Rabid",
+ * simply get no icon — fail-safe, not guessed).
+ */
+function deriveItemStatIcons(allItems: RawItem[], itemStatNames: string[]): Record<string, string> {
+  const insignias = allItems.filter(
+    (item) => item.rarity !== 'Legendary' && !item.name.startsWith('Recipe:') && item.name.endsWith(INSIGNIA_SUFFIX)
+  )
+  const icons: Record<string, string> = {}
+  for (const name of itemStatNames) {
+    if (name.trim() === '') continue
+    const matches = insignias.filter((item) => item.name.startsWith(`${name} `))
+    if (matches.length === 0) continue
+    const preferred = matches.find((item) => item.rarity === 'Exotic') ?? [...matches].sort((a, b) => a.id - b.id)[0]
+    if (preferred.icon) icons[name] = preferred.icon
+  }
+  return icons
+}
+
 async function main(): Promise<void> {
   await mkdir(OUTPUT_DIR, { recursive: true })
 
@@ -269,18 +309,28 @@ async function main(): Promise<void> {
   const food = foodItems.map((i) => normalizeConsumable(i, 'Food'))
   const utility = utilityItems.map((i) => normalizeConsumable(i, 'Utility'))
 
+  const itemStats = JSON.parse(await readFile(join(OUTPUT_DIR, 'itemstats.json'), 'utf-8')) as { name: string }[]
+  const itemStatNames = [...new Set(itemStats.map((s) => s.name))]
+  const itemStatIcons = deriveItemStatIcons(allItems, itemStatNames)
+  const namesWithoutIcon = itemStatNames.filter((n) => n.trim() !== '' && !(n in itemStatIcons))
+  if (namesWithoutIcon.length > 0) {
+    console.warn(`\n[warn] ${namesWithoutIcon.length}/${itemStatNames.length} stat names got no insignia-derived icon:`, namesWithoutIcon)
+  }
+
   await Promise.all([
     writeFile(join(OUTPUT_DIR, 'runes.json'), JSON.stringify(runes, null, 2)),
     writeFile(join(OUTPUT_DIR, 'sigils.json'), JSON.stringify(sigils, null, 2)),
     writeFile(join(OUTPUT_DIR, 'infusions.json'), JSON.stringify(infusions, null, 2)),
     writeFile(join(OUTPUT_DIR, 'relics.json'), JSON.stringify(relics, null, 2)),
     writeFile(join(OUTPUT_DIR, 'food.json'), JSON.stringify(food, null, 2)),
-    writeFile(join(OUTPUT_DIR, 'utility.json'), JSON.stringify(utility, null, 2))
+    writeFile(join(OUTPUT_DIR, 'utility.json'), JSON.stringify(utility, null, 2)),
+    writeFile(join(OUTPUT_DIR, 'itemstat-icons.json'), JSON.stringify(itemStatIcons, null, 2))
   ])
 
   console.log(
     `\nDone. runes=${runes.length} sigils=${sigils.length} infusions=${infusions.length} ` +
-      `relics=${relics.length} food=${food.length} utility=${utility.length}`
+      `relics=${relics.length} food=${food.length} utility=${utility.length} ` +
+      `itemStatIcons=${Object.keys(itemStatIcons).length}/${itemStatNames.length}`
   )
   console.log(`Written to ${OUTPUT_DIR}`)
 }

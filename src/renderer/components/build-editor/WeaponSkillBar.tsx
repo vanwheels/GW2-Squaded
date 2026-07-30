@@ -2,7 +2,7 @@ import type { Build } from '@shared/types'
 import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
 import { weaponSkillIdsForPair } from '@shared/weapon-calc/weapon-skills'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
-import { skillTooltipContent, useDurationContext } from './SkillsEditor'
+import { skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor'
 
 interface Props {
   build: Build
@@ -32,12 +32,13 @@ export function WeaponSkillBar({ build, onBuildChange }: Props) {
 
   const skillIds = profession ? weaponSkillIdsForPair(mainWeapon, offWeapon, build.environment, skillsById) : []
   const hasAnyWeapon = mainWeapon !== undefined || offWeapon !== undefined
+  const variantContext: SkillVariantContext = { skills: gameData.skills, skillsById, wvwFactOverrides: gameData.wvwFactOverrides, durationPercent }
 
   function skillTooltipFor(skillId: number) {
     const skill = skillsById.get(skillId)
     if (!skill) return null
     const facts = boonConditionFactsForSkill(skill, activeIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
-    return skillTooltipContent(skill, facts)
+    return skillTooltipContent(skill, facts, activeIds, variantContext)
   }
 
   return (

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import type { PartySlots, SquadComp, SquadSlot } from '@shared/types'
+import type { GhostPick, PartySlots, SquadComp, SquadSlot } from '@shared/types'
 import { useBuildsStore } from '@renderer/state/builds-store'
 import { makeBlankParty } from '@renderer/state/squad-comps-store'
 import { BuildsSidebar } from './BuildsSidebar'
@@ -34,7 +34,11 @@ export function SquadCompEditorView({ squadComp, isNew, onSave, onCancel }: Prop
   }
 
   function assignBuild(partyIndex: number, slotIndex: number, buildId: string | null): void {
-    updateSlot(partyIndex, slotIndex, (slot) => ({ ...slot, buildId }))
+    updateSlot(partyIndex, slotIndex, (slot) => ({ ...slot, buildId, ghostPick: null }))
+  }
+
+  function assignGhost(partyIndex: number, slotIndex: number, ghostPick: GhostPick | null): void {
+    updateSlot(partyIndex, slotIndex, (slot) => ({ ...slot, buildId: null, ghostPick }))
   }
 
   function changeLabel(partyIndex: number, slotIndex: number, label: string | null): void {
@@ -52,7 +56,7 @@ export function SquadCompEditorView({ squadComp, isNew, onSave, onCancel }: Prop
       const parties = prev.parties.map((party) => ({ ...party, slots: [...party.slots] as PartySlots }))
       const targetSlot = parties[partyIndex].slots[slotIndex]
       const targetPrevBuildId = targetSlot.buildId
-      parties[partyIndex].slots[slotIndex] = { ...targetSlot, buildId: payload.buildId }
+      parties[partyIndex].slots[slotIndex] = { ...targetSlot, buildId: payload.buildId, ghostPick: null }
 
       if (payload.sourcePartyIndex !== null && payload.sourceSlotIndex !== null) {
         const isSameSlot = payload.sourcePartyIndex === partyIndex && payload.sourceSlotIndex === slotIndex
@@ -60,7 +64,8 @@ export function SquadCompEditorView({ squadComp, isNew, onSave, onCancel }: Prop
           const sourceSlot = parties[payload.sourcePartyIndex].slots[payload.sourceSlotIndex]
           parties[payload.sourcePartyIndex].slots[payload.sourceSlotIndex] = {
             ...sourceSlot,
-            buildId: targetPrevBuildId
+            buildId: targetPrevBuildId,
+            ghostPick: null
           }
         }
       }
@@ -69,18 +74,9 @@ export function SquadCompEditorView({ squadComp, isNew, onSave, onCancel }: Prop
     })
   }
 
-  function renameParty(partyIndex: number, name: string): void {
-    setDraft((prev) => ({
-      ...prev,
-      parties: prev.parties.map((p, i) => (i === partyIndex ? { ...p, name } : p))
-    }))
-  }
-
   function addParty(): void {
     setDraft((prev) =>
-      prev.parties.length >= MAX_PARTIES
-        ? prev
-        : { ...prev, parties: [...prev.parties, makeBlankParty(`Party ${prev.parties.length + 1}`)] }
+      prev.parties.length >= MAX_PARTIES ? prev : { ...prev, parties: [...prev.parties, makeBlankParty()] }
     )
   }
 
@@ -121,8 +117,8 @@ export function SquadCompEditorView({ squadComp, isNew, onSave, onCancel }: Prop
               partyIndex={partyIndex}
               builds={builds}
               buildsById={buildsById}
-              onNameChange={(name) => renameParty(partyIndex, name)}
               onAssignBuild={(slotIndex, buildId) => assignBuild(partyIndex, slotIndex, buildId)}
+              onAssignGhost={(slotIndex, ghostPick) => assignGhost(partyIndex, slotIndex, ghostPick)}
               onLabelChange={(slotIndex, label) => changeLabel(partyIndex, slotIndex, label)}
               onDropBuild={(slotIndex, payload) => dropBuild(partyIndex, slotIndex, payload)}
               onRemove={() => removeParty(partyIndex)}
