@@ -141,6 +141,8 @@ interface RawSkill {
   flags?: string[]
   facts?: Fact[]
   traited_facts?: Fact[]
+  attunement?: string
+  specialization?: number
 }
 
 interface RawItemStatAttribute {
@@ -248,7 +250,9 @@ function normalizeSkill(raw: RawSkill): Skill {
     slot: raw.slot ?? '',
     flags: raw.flags ?? [],
     facts: raw.facts ?? [],
-    traitedFacts: raw.traited_facts ?? []
+    traitedFacts: raw.traited_facts ?? [],
+    attunement: raw.attunement ?? null,
+    specializationId: raw.specialization ?? null
   }
 }
 

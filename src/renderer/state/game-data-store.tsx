@@ -12,6 +12,7 @@ import type {
   Specialization,
   Trait
 } from '@shared/types'
+import { visibleSkillsForSlot } from '@shared/skill-calc/skill-variants'
 
 export interface GameDataStore extends GameData {
   loading: boolean
@@ -109,11 +110,14 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
           .filter((t) => t.specializationId === specializationId && t.slot === 'Minor')
           .sort((a, b) => a.tier - b.tier),
       skillsForProfessionAndSlot: (profession, slot, equippedSpecializationIds) =>
-        gameData.skills.filter((s) => {
-          if (s.slot !== slot || !s.professions.includes(profession)) return false
-          const requiredSpecId = gameData.eliteSpecSkills[s.id]
-          return requiredSpecId === undefined || equippedSpecializationIds.has(requiredSpecId)
-        }),
+        visibleSkillsForSlot(
+          gameData.skills.filter((s) => {
+            if (s.slot !== slot || !s.professions.includes(profession)) return false
+            const requiredSpecId = gameData.eliteSpecSkills[s.id]
+            return requiredSpecId === undefined || equippedSpecializationIds.has(requiredSpecId)
+          }),
+          equippedSpecializationIds
+        ),
       legendsForSpecializations: (equippedSpecializationIds) =>
         gameData.legends.filter(
           (l) => l.specializationId === null || equippedSpecializationIds.has(l.specializationId)

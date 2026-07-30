@@ -2,6 +2,77 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 18 — Duplicate-name skill collapsing (attunement/specialization/ground-target signals)
+
+Continuation of "Build editor UI/UX overhaul" — picked up Session 17's explicitly-scoped next
+step: the skill-variant-collapsing investigation it recommended as "its own dedicated session."
+
+- **Re-fetched `/v2/skills` live to check what fields Session 17 guessed might exist**: confirmed
+  `attunement` and `specialization` are both real, populated fields the app wasn't capturing
+  (`next_chain`/`flip_skill`/`transform_skills`, also guessed at, weren't checked this session —
+  left for the still-open multi-step-skill item). Verified against exact examples: "Glyph of
+  Lesser Elementals" id `5502` has `attunement: null` (the real, equippable id) while `25486`/
+  `25487`/`25495`/`25497` carry `attunement: "Fire"/"Water"/"Air"/"Earth"` (not independently
+  equippable — the API/wiki uses them to describe each attunement's effect, a player only ever
+  takes the base id and its effect varies live with current attunement); "Renewed Focus" id
+  `9154` has no `specialization` while `68666` carries `specialization: 27` (Dragonhunter) — the
+  Dragonhunter-reworked variant, auto-substituted whenever that spec is equipped, not a user pick.
+- **Session 17's "trait-dependent variant" framing turned out to not need the user-confirmed
+  cycling UX (small prev/next arrows / numbered tabs) at all**: every one of the 117 duplicate-name
+  groups that turned out to be cleanly resolvable resolves via automatic selection (current
+  attunement, currently-equipped spec, or "the two ids are functionally identical anyway") — not a
+  manual choice, so there's nothing to cycle through. A 3rd signal, the already-captured
+  `GroundTargeted` flag, resolved the largest chunk (~54 of 117 groups): GW2 exposes its
+  client-side ground-target-vs-auto-target casting toggle (a Settings option, not a build choice)
+  as two separate skill ids with an otherwise-identical effect (e.g. "Lightning Flash" `5536`
+  ground-targeted / `50447` auto-target; every Necromancer Well; every Warrior Banner) —
+  functionally identical for this app's purposes (boon/condition facts, tooltip text), so these
+  collapse to the non-ground-targeted id.
+- **New `src/shared/skill-calc/skill-variants.ts`** (`visibleSkillsForSlot`): groups same-name
+  candidates and applies the 3 signals in order (attunement → specialization → ground-target),
+  returning whichever id(s) remain after each stage — a group that's still ambiguous after all 3
+  stays as multiple entries rather than guessing. Wired into `skillsForProfessionAndSlot`
+  (`src/renderer/state/game-data-store.tsx`) — every consumer (skill-bar tooltips, the picker grid,
+  in both `StandardSkillsEditor` and the Revenant editor's underlying data) gets the collapsed list
+  for free, since dedup happens before the picker ever sees the candidate list. No UI changes
+  needed — confirmed by reading `SkillsEditor.tsx` first, since Revenant legend kits resolve their
+  skill ids directly from `Legend` records (already the real/canonical ids from `/v2/legends`,
+  never routed through `skillsForProfessionAndSlot`), so they were never affected by this bug.
+- **`Skill` type gained `attunement: string | null` and `specializationId: number | null`**
+  (`src/shared/types/game-data.ts`), populated by `scripts/fetch-game-data.ts`'s `normalizeSkill`
+  directly from the same `/v2/skills` response the app already fetches — no new script/endpoint
+  needed, unlike `eliteSpecSkills`/`wvwFactOverrides` (both wiki-sourced, since the API has no
+  equivalent field for those).
+  Considered adding `flipSkill` too (`/v2/skills`' `flip_skill` field, which links some
+  ground-target/auto-target pairs to each other) but dropped it — the `GroundTargeted` flag alone
+  resolves every ground-target case found, and `flip_skill` isn't populated symmetrically on all of
+  them (confirmed live: some auto-target ids have no `flip_skill` pointing back at their
+  ground-targeted counterpart), so it would've been unused dead data on the type.
+- **~47 groups remain genuinely ambiguous** (re-counted per-profession scan after collapsing, vs.
+  Session 17's 117 which was counted once per name across all professions combined — different
+  counting basis, not a discrepancy). No `attunement`/`specialization`/`GroundTargeted` signal
+  distinguishes their members — e.g. Engineer "Deploy Mine" (`6163` "deploy a mine" vs `30893`
+  "deploy two mines", almost certainly a trait rework with no `specialization` id set: both ids
+  share the same profession/slot/flags and differ only in effect text), Ranger "Spike Trap"
+  (differs in stun-vs-launch), several Guardian "Utility" duplicate groups shaped like
+  Elementalist's per-attunement pattern but for a different, unconfirmed mechanic (e.g. "Hammer of
+  Wisdom" ×4, all sharing one `specializationId` so the spec signal can't narrow further). Left
+  un-collapsed and shown as-is, fail-safe rather than guessed — would need a per-skill wiki
+  cross-check to resolve correctly, same shape of effort as `scripts/fetch-wvw-splits.ts`, not
+  attempted this session. Full list documented in TODO.md.
+- **Verified**: a standalone `tsx` script (not committed) checked 7 hand-picked cases spanning all
+  3 signals — Glyph of Lesser Elementals collapsing to its 1 real id, Renewed Focus resolving to
+  `9154` with no specs equipped and to `68666` with Dragonhunter equipped, Lightning Flash
+  collapsing to the auto-target id, Call to Anguish (a 4-id group needing BOTH the specialization
+  AND ground-target signals to fully resolve) collapsing correctly with and without Conduit
+  equipped, and Deploy Mine correctly left as 2 un-collapsed ids — all 7 passed. Also ran a
+  full-catalog scan confirming the picker list shrinks wherever a group collapses (e.g.
+  Elementalist Utility: 76 raw skill ids → 61 visible with no specs equipped) and printed the 47
+  remaining ambiguous group names for TODO.md. `npm run typecheck`/`lint`/`build` all clean; not
+  visually confirmed in a running window (standing Electron-sandbox limitation, see below) —
+  recommend `npm run dev` locally to eyeball the now-shorter picker lists (e.g. Elementalist
+  Utility should show noticeably fewer duplicate-looking entries than before).
+
 ## Session 17 — Item-rarity color coding + skill-variant-collapsing scoping investigation
 
 Picked up the "Build editor UI/UX overhaul" item's remaining open sub-items. Landed the

@@ -141,6 +141,48 @@ default UA gets a 403; any identifiable UA passes — see `USER_AGENT` in the sc
 **Note:** this file's data is NOT re-derivable from `fetch-game-data.ts` — re-run
 `fetch-elite-spec-skills` too whenever a balance patch might add/change elite-spec-gated skills.
 
+## Duplicate-name skill collapsing (`skills.json`'s `attunement`/`specializationId` fields)
+
+A live scan (2026-07-29) found 117 groups of same-(name, slot, professions) skill ids in
+`skills.json` — e.g. Elementalist's "Glyph of Lesser Elementals" has 5 ids, Guardian's "Renewed
+Focus" has 2 — which without dedup show up as visually-identical duplicate entries in the
+Heal/Utility/Elite pickers. Investigating why turned up 3 real (API-native, not guessed) signals
+that resolve ~70 of those 117 groups down to exactly one picker-visible id:
+
+- **`attunement`** (`/v2/skills`' own field, now captured on `Skill.attunement`): present only on
+  the attunement-specific ids of an Elementalist "effect varies with current attunement" skill
+  (e.g. `25486`/Fire, `25487`/Water, `25495`/Air, `25497`/Earth for Glyph of Lesser Elementals) —
+  the attunement-agnostic id (`5502`, `attunement: null`) is the only one a player actually
+  equips; the other 4 exist so the API/wiki can describe each attunement's effect. 8 groups.
+- **`specialization`** (`/v2/skills`' own field, now captured on `Skill.specializationId`):
+  present on a same-name skill's id when that variant's effect is what a specific elite spec
+  reworks it into (e.g. Guardian's Renewed Focus: `9154` base / `68666` under Dragonhunter;
+  several Revenant Legendary Demon skills reworked by Vindicator/Conduit). Automatic based on
+  which spec is equipped, not a user choice. 45 groups.
+- **The `GroundTargeted` flag** (already-captured `Skill.flags`): GW2 exposes its client-side
+  ground-target-vs-auto-target casting toggle (a Settings option / modifier key, not a build
+  choice) as two separate skill ids with an otherwise-identical effect — e.g. Lightning Flash
+  `5536` (ground-targeted) / `50447` (auto-target), every Necromancer Well, every Warrior Banner.
+  Functionally identical for this app's purposes (boon/condition facts, tooltip text), so these
+  collapse to the non-ground-targeted id. ~54 groups.
+
+`src/shared/skill-calc/skill-variants.ts`'s `visibleSkillsForSlot` applies these 3 signals in
+order (attunement → specialization → ground-target) and is wired into
+`skillsForProfessionAndSlot` in `src/renderer/state/game-data-store.tsx`, so every picker
+(Heal/Utility/Elite, both the skill-bar tooltips and the picker grid) sees the collapsed list for
+free — no UI changes needed, since the dedup happens before the picker ever sees the candidate
+list.
+
+**The remaining ~47 groups** (re-counted per-profession after the above collapsing; see
+`TODO.md`) have no `attunement`/`specialization`/`GroundTargeted` signal distinguishing their
+members — e.g. Engineer's "Deploy Mine" (`6163` "deploy a mine" vs `30893` "deploy two mines",
+almost certainly a trait rework with no `specialization` id set) or Ranger's "Spike Trap" (differs
+in whether it stuns or launches). These look like the same shape of problem `wvw-fact-overrides`
+solved for boon durations — a per-skill wiki cross-check to find the actual gating trait — but
+that's a new, separate research pass, not attempted here. Left un-collapsed and shown as-is
+(fail-safe, not guessed) rather than arbitrarily picking one id and hiding a possibly-meaningful
+choice from the user.
+
 ## WvW-vs-PvE fact splits (`wvw-fact-overrides.json`)
 
 `/v2/skills` and `/v2/traits` facts carry no `game mode` tag, and (confirmed by direct

@@ -314,40 +314,48 @@
         minor traits actually already carried a native `title=` same as majors — so there was no
         missing-wiring bug here specifically. Wired into the new `Tooltip` component along with
         majors as part of the tooltip-infra item above (not a separate fix, as predicted).
-  - [ ] Skills with multiple trait-dependent or (Revenant) legend-dependent variants currently
+  - [x] Skills with multiple trait-dependent or (Revenant) legend-dependent variants currently
         show up as separate duplicate entries in the skill picker — should collapse to a single
         entry. User confirmed (2026-07-25) the cycling UX: small in-tooltip prev/next arrows or
         numbered tabs (1/2/3) to step through variants — not hover-auto-cycle, not a dropdown.
-        **Scoping investigation done 2026-07-29, not implemented this pass — bigger than it looks**:
-        `skillsForProfessionAndSlot`'s current filter (`game-data-store.tsx`) does zero dedup — every
-        skill id matching `slot`+`profession` is returned, so any same-name group all show up
-        side-by-side today. A live scan of `data/game-data/skills.json` found **117 duplicate-name
-        groups** across Heal/Utility/Elite (e.g. Elementalist "Glyph of Lesser Elementals" ×5 —
-        1 attunement-agnostic base id + 4 attunement-specific ids; "Lightning Flash" ×2, matching
-        the trait-variant shape this item describes — id 5536 is ground-targeted, id 50447 is
-        target-teleport-with-damage, almost certainly the "Bolt to the Heart"-trait rework case).
-        Neither the currently-fetched `Skill` fields nor the raw `/v2/skills` normalization in
-        `scripts/fetch-game-data.ts` (`RawSkill`: id/name/description/icon/chat_link/type/
-        weapon_type/professions/slot/flags/facts/traited_facts) carry any grouping/canonical-id
-        signal — no "variant of X" field is fetched. The public API is known (not yet verified live
-        against this project's own fetch) to expose additional per-skill fields this app drops
-        entirely: `attunement` (would directly solve the Elementalist-glyph case — group by
-        attunement instead of guessing from description text) and possibly `next_chain`/
-        `flip_skill`/`transform_skills` for multi-step/chain skills (the item just below). Also
-        worth checking `requires_trait` on `facts`/`traited_facts` (same field `sources.ts` already
-        gates boon/condition facts on) as a way to resolve which variant a trait-based pair belongs
-        to, once the canonical/variant grouping itself is known. **Recommend scoping this as its own
-        dedicated session**, same shape as `fetch-elite-spec-skills.ts`/`fetch-wvw-splits.ts`: (1)
-        re-fetch `/v2/skills` capturing `attunement`/chain-related fields live to see what's
-        actually populated, (2) determine the canonical/"actually equippable" id per duplicate-name
-        group (hypothesis: it's the one with no attunement/trait-specific wording — needs
-        verification, not all 117 groups may fit one rule), (3) only then build the collapsing UI.
-        Don't reuse the "description text mentions attunement" heuristic used to spot this — it was
-        eyeballing 2 examples, not a real classifier.
+        **Session 18 (2026-07-29): implemented, and the confirmed cycling UX turned out not to be
+        needed for any of the 117 duplicate-name groups found in Session 17's scoping pass** — every
+        group that's cleanly resolvable turned out to resolve via automatic selection (current
+        attunement, equipped spec, or "functionally identical either way"), not a manual pick, so
+        there's nothing for a user to cycle through. 3 real, API-native (not guessed) signals,
+        captured live by re-fetching `/v2/skills` with 2 new fields on `Skill`
+        (`attunement`/`specializationId`) plus the already-captured `GroundTargeted` flag:
+        `attunement` (8 groups — e.g. Elementalist "Glyph of Lesser Elementals" ×5: the 4
+        attunement-tagged ids aren't independently equippable at all, only the attunement-agnostic
+        base id is a real pick), `specializationId` (45 groups — e.g. Guardian "Renewed Focus" ×2:
+        `68666` auto-replaces base id `9154` whenever Dragonhunter is equipped, zero user choice),
+        and the `GroundTargeted` flag (~54 groups — e.g. "Lightning Flash" ×2, every Necromancer
+        Well, every Warrior Banner: GW2's client-side ground-target-vs-auto-target casting toggle,
+        functionally identical effect either way). New `src/shared/skill-calc/skill-variants.ts`
+        (`visibleSkillsForSlot`) applies all 3 in order, wired into `skillsForProfessionAndSlot`
+        (`game-data-store.tsx`) — every picker gets the collapsed list for free, no UI changes
+        needed since dedup happens before the picker sees the candidate list. See
+        docs/game-data.md for the full signal writeup. **~47 groups remain genuinely ambiguous**
+        (re-counted per-profession after collapsing) — no `attunement`/`specialization`/
+        `GroundTargeted` signal distinguishes their members (e.g. Engineer "Deploy Mine": `6163`
+        "deploy a mine" vs `30893` "deploy two mines", almost certainly a trait rework with no
+        `specialization` id set; Ranger "Spike Trap" differs in stun-vs-launch). Left un-collapsed,
+        shown as-is (fail-safe, not guessed) — would need a per-skill wiki cross-check to resolve,
+        same shape of effort as `fetch-wvw-splits.ts`, not attempted this session. Full list of the
+        ~47 remaining group names is in the verification output referenced in COMPLETED.md.
+        Verified via a standalone script (not committed) against 7 hand-picked cases spanning all 3
+        signals plus one deliberately-ambiguous case (Deploy Mine, confirmed left un-collapsed) —
+        all passed. `npm run typecheck`/`lint`/`build` all clean; not visually confirmed in a
+        running window (standing Electron-sandbox limitation, see COMPLETED.md) — recommend
+        `npm run dev` locally to eyeball the now-shorter picker lists.
   - [ ] Same collapsing behavior, same arrows/tabs cycling UX, needed for multi-step skills
         (distinct effects on 1st click vs. 2nd click, etc.) — one entry, not duplicate list
-        entries. Likely resolved by the same investigation above (chain-skill API fields), not a
-        separate research pass — see that item's notes before starting this one.
+        entries. **Not resolved by Session 18's investigation** — that pass only found
+        attunement/specialization/ground-target signals, nothing chain/multi-step-related
+        (`next_chain`/`flip_skill`/`transform_skills` weren't checked live this session). Separate
+        research pass still needed; the ~47 remaining ambiguous duplicate-name groups documented
+        above are a reasonable starting point to check for chain-skill fields, since some may
+        overlap with this item rather than being genuinely unresolvable trait reworks.
   - [x] Confirm equipment stat calculations use Ascended/Legendary values, not Exotic — Ascended
         and Legendary share the same (highest) stat budget, so gear math should always assume that
         tier regardless of what the user actually has crafted. Survey finding: this was already

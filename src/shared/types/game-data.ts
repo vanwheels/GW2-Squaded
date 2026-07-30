@@ -105,6 +105,17 @@ export interface Skill {
   flags: string[]
   facts: Fact[]
   traitedFacts: Fact[]
+  /** Elemental attunement this specific id's effect is for (e.g. `"Fire"`), only present on the
+   *  4 attunement-specific ids of an Elementalist attunement-conditional skill (e.g. "Glyph of
+   *  Lesser Elementals") — the attunement-agnostic id a player actually equips has no attunement
+   *  field at all. Used by src/shared/skill-calc/skill-variants.ts to exclude the non-equippable
+   *  variant ids from pickers, see that file's doc comment. */
+  attunement: string | null
+  /** Elite specialization id this specific id's effect applies under, for a same-name skill whose
+   *  effect is reworked by having that spec equipped (e.g. Revenant Demon-legend skills reworked
+   *  by Vindicator/Conduit) — `null` for the base/unmodified id. Used by
+   *  src/shared/skill-calc/skill-variants.ts to auto-select the right variant per equipped specs. */
+  specializationId: number | null
 }
 
 export interface ItemStatAttribute {
