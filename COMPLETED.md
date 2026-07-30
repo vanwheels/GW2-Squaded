@@ -25,11 +25,11 @@ further UI design decisions: real per-profession weapon availability data.
   "unconfirmed" notes with hard specifics: the off-hand picker's real filtered-list example, the
   `WEAPON I` / `WEAPON II` / `UNDERWATER` sections being always-visible (not tabs), the separate
   `ENVIRONMENT` (land/water) toggle confirmed to actually switch the rendered weapon-skill bar,
-  per-slot infusion counts per equipment-panel row (a 2-handed weapon has 2 infusion slots on that
-  one item, each 1-handed weapon has 1 — corrected 2026-07-29 after an initial mis-read flattened
-  this to "2 per weapon slot"; rings have 3 each and the backpiece has 2, amulet still 0; armor
-  pieces and the other two trinkets are still only assumed at 1 each, not independently verified —
-  see TODO.md), a real Superior Rune tooltip proving the per-stage attribute list isn't a fixed
+  per-slot infusion counts per equipment-panel row, fully confirmed by the user after an initial
+  mis-read flattened this to "2 per weapon, 1 per trinket" (a 2-handed weapon has 2 infusion slots
+  on that one item, each 1-handed weapon has 1; rings have 3 each; the backpiece has 2; every other
+  armor piece and the remaining two trinkets have 1 each; the amulet has 0), a real Superior Rune
+  tooltip proving the per-stage attribute list isn't a fixed
   alternating formula (Scholar: Power/Ferocity/Power/Ferocity/Power/Ferocity at different values
   each stage), and a Relic tooltip (Relic of the Warrior) showing a passive-modifier fact shape
   (`Weapon Swap Recharge Reduction: 25%`) that today's Buff-focused `extractFromFacts` doesn't yet
