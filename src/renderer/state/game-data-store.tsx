@@ -1,5 +1,17 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import type { GameData, Legend, ProfessionId, Skill, Specialization, Trait } from '@shared/types'
+import type {
+  Consumable,
+  GameData,
+  Infusion,
+  Legend,
+  ProfessionId,
+  Relic,
+  Rune,
+  Sigil,
+  Skill,
+  Specialization,
+  Trait
+} from '@shared/types'
 
 export interface GameDataStore extends GameData {
   loading: boolean
@@ -7,6 +19,12 @@ export interface GameDataStore extends GameData {
   traitsById: Map<number, Trait>
   skillsById: Map<number, Skill>
   legendsById: Map<string, Legend>
+  runesById: Map<number, Rune>
+  sigilsById: Map<number, Sigil>
+  infusionsById: Map<number, Infusion>
+  relicsById: Map<number, Relic>
+  foodById: Map<number, Consumable>
+  utilityById: Map<number, Consumable>
   specializationsForProfession: (profession: ProfessionId) => Specialization[]
   majorTraitsForSpecialization: (specializationId: number) => Trait[]
   minorTraitsForSpecialization: (specializationId: number) => Trait[]
@@ -28,7 +46,13 @@ const EMPTY_GAME_DATA: GameData = {
   itemStats: [],
   eliteSpecSkills: {},
   wvwFactOverrides: { skill: {}, trait: {} },
-  legends: []
+  legends: [],
+  runes: [],
+  sigils: [],
+  infusions: [],
+  relics: [],
+  food: [],
+  utility: []
 }
 
 const GameDataStoreContext = createContext<GameDataStore | null>(null)
@@ -54,6 +78,12 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
     const traitsById = new Map(gameData.traits.map((t) => [t.id, t]))
     const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
     const legendsById = new Map(gameData.legends.map((l) => [l.id, l]))
+    const runesById = new Map(gameData.runes.map((r) => [r.id, r]))
+    const sigilsById = new Map(gameData.sigils.map((s) => [s.id, s]))
+    const infusionsById = new Map(gameData.infusions.map((i) => [i.id, i]))
+    const relicsById = new Map(gameData.relics.map((r) => [r.id, r]))
+    const foodById = new Map(gameData.food.map((f) => [f.id, f]))
+    const utilityById = new Map(gameData.utility.map((u) => [u.id, u]))
 
     return {
       ...gameData,
@@ -62,6 +92,12 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
       traitsById,
       skillsById,
       legendsById,
+      runesById,
+      sigilsById,
+      infusionsById,
+      relicsById,
+      foodById,
+      utilityById,
       specializationsForProfession: (profession) =>
         gameData.specializations.filter((s) => s.profession === profession),
       majorTraitsForSpecialization: (specializationId) =>

@@ -15,6 +15,7 @@
     "fetch-game-data": "tsx scripts/fetch-game-data.ts",
     "fetch-elite-spec-skills": "tsx scripts/fetch-elite-spec-skills.ts",
     "fetch-wvw-splits": "tsx scripts/fetch-wvw-splits.ts",
+    "fetch-gear-upgrades": "tsx scripts/fetch-gear-upgrades.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json"
   },

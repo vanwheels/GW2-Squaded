@@ -1,0 +1,66 @@
+[
+  {
+    "id": 43250,
+    "name": "Healing WvW Infusion",
+    "icon": "https://render.guildwars2.com/file/7E12A199E052DB414D2AF309FAB03DAAA0148090/587071.png",
+    "description": "Double-click to apply to an unused infusion slot.",
+    "attribute": "Healing",
+    "value": 5
+  },
+  {
+    "id": 43251,
+    "name": "Resilient WvW Infusion",
+    "icon": "https://render.guildwars2.com/file/C0F15CC7A245C804C71F31F6B1037F5B043F3905/587072.png",
+    "description": "Double-click to apply to an unused infusion slot.",
+    "attribute": "Toughness",
+    "value": 5
+  },
+  {
+    "id": 43252,
+    "name": "Vital WvW Infusion",
+    "icon": "https://render.guildwars2.com/file/C6029E732FBF2839F598B6E4D224BDD793241315/587073.png",
+    "description": "Double-click to apply to an unused infusion slot.",
+    "attribute": "Vitality",
+    "value": 5
+  },
+  {
+    "id": 43253,
+    "name": "Malign WvW Infusion",
+    "icon": "https://render.guildwars2.com/file/CB3B7590105E3EDC390C626735035361990CB1C0/587074.png",
+    "description": "Double-click to apply to an unused infusion slot.",
+    "attribute": "ConditionDamage",
+    "value": 5
+  },
+  {
+    "id": 43254,
+    "name": "Mighty WvW Infusion",
+    "icon": "https://render.guildwars2.com/file/F1B068BFD7E6AC11ED90FE09CAB916F6D4DC2C63/587075.png",
+    "description": "Double-click to apply to an unused infusion slot.",
+    "attribute": "Power",
+    "value": 5
+  },
+  {
+    "id": 43255,
+    "name": "Precise WvW Infusion",
+    "icon": "https://render.guildwars2.com/file/A95E4CE2CF099967CA2CED9329C031D2709F62EB/587076.png",
+    "description": "Double-click to apply to an unused infusion slot.",
+    "attribute": "Precision",
+    "value": 5
+  },
+  {
+    "id": 86986,
+    "name": "Concentration WvW Infusion",
+    "icon": "https://render.guildwars2.com/file/BA9330384DE30525AB3CBE1BA1B7000B336C0FBB/1947210.png",
+    "description": "Double-click to apply to an unused infusion slot.",
+    "attribute": "BoonDuration",
+    "value": 5
+  },
+  {
+    "id": 87218,
+    "name": "Expertise WvW Infusion",
+    "icon": "https://render.guildwars2.com/file/45F3EB4006E4ADE67703DAE36B429B6EB37AA1C5/1947211.png",
+    "description": "Double-click to apply to an unused infusion slot.",
+    "attribute": "ConditionDuration",
+    "value": 5
+  }
+]

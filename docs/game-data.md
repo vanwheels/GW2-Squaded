@@ -78,6 +78,9 @@ needing to run the fetch script immediately:
 - `legends.json` — Revenant legends; see below
 - `elite-spec-skills.json` — see below; sourced from the wiki, not `fetch-game-data.ts`
 - `wvw-fact-overrides.json` — see below; sourced from the wiki, not `fetch-game-data.ts`
+- `runes.json` / `sigils.json` / `infusions.json` / `relics.json` / `food.json` / `utility.json`
+  — see below; sourced from `/v2/items` by `scripts/fetch-gear-upgrades.ts`, not
+  `fetch-game-data.ts`
 - `meta.json` — just `{ fetchedAt }`, so the app/UI can eventually surface "game data last
   updated on ..." somewhere.
 
@@ -179,3 +182,65 @@ existed (fail-safe, not silently wrong).
 `fetch-wvw-splits` too whenever a balance patch might change a WvW/PvE split. It's also scoped
 to skills/traits that had a boon/condition Buff fact in `skills.json`/`traits.json` *at the time
 it was last run* — re-run after `fetch-game-data` if new boon/condition-granting content is added.
+
+## Gear upgrades and consumables (`runes.json`, `sigils.json`, `infusions.json`, `relics.json`, `food.json`, `utility.json`)
+
+`scripts/fetch-gear-upgrades.ts` (run via `npm run fetch-gear-upgrades`) fetches Superior runes,
+Superior sigils, WvW infusions, relics, and food/utility consumables. Unlike every other endpoint
+in this doc, there's no dedicated `/v2/runes` or `/v2/relics` collection — all of these are just
+`/v2/items` entries distinguished by their `type`/`details.type` fields, and `/v2/items` has
+**~74,000 entries with no server-side subtype filter**. The only way to find "every Superior
+rune" is to bulk-fetch the entire item catalog (370 batches of 200) and filter client-side.
+
+Because that full-catalog fetch takes several minutes and every tweak to the filter/normalize
+logic would otherwise cost a full refetch, the script caches the raw `/v2/items` dump to
+`.cache/items-raw.json` (gitignored, NOT the same as the committed `data/game-data/*.json`
+output) and reuses it on subsequent runs unless `--refresh` is passed. Delete `.cache/` or pass
+`--refresh` to force a fresh pull (e.g. after a balance patch that might add new items).
+
+**Per-category filter, confirmed live 2026-07-29 against real API responses (not assumed):**
+
+- **Runes** — `type: 'UpgradeComponent'`, `details.type: 'Rune'`, name starts with
+  `"Superior Rune of"`. Only the Superior tier is fetched (lower tiers aren't selectable in this
+  app). Per-stage bonuses come from `details.bonuses`, a flat array of freeform text lines (e.g.
+  `"+25 Power"`, `"+35 Ferocity"`) — index 0 is the 1-piece-equipped stage, index 5 is 6-piece.
+  Confirmed NOT a fixed alternating formula (Superior Rune of the Scholar: Power/Ferocity
+  interleaved at different values per stage, not a repeating pattern) — the literal per-stage
+  list has to be kept, not derived.
+- **Sigils** — `type: 'UpgradeComponent'`, `details.type: 'Sigil'`, name starts with
+  `"Superior Sigil of"`. Effect text comes from `details.infix_upgrade.buff.description` (too
+  varied — procs, on-crit/on-swap triggers — to model as a flat bonus like runes).
+  `details.flags` on a sigil is the list of weapon *type* names it applies to (e.g.
+  `"Greatsword"`, `"Dagger"`) — a different vocabulary than `WeaponFlag` in
+  `src/shared/types/game-data.ts` (which is hand/two-hand/aquatic, not weapon type).
+- **Infusions** — `type: 'UpgradeComponent'`, name includes `"WvW Infusion"`. **Real gotcha**:
+  infusions do NOT have `details.type === 'Infusion'` — that field is `'Default'` for every
+  infusion (WvW and Agony alike, confirmed against a live Agony infusion too).
+  `details.infusion_upgrade_flags` containing `'Infusion'` is the actual infusion-slot-compatible
+  marker, and there's no API field distinguishing WvW infusions from Agony ones at all — the name
+  suffix is the only reliable filter. Only WvW infusions are fetched (Agony infusions are out of
+  scope — WvW doesn't use Agony resistance). All 8 core-attribute WvW infusions
+  (Healing/Resilient/Vital/Malign/Mighty/Precise/Concentration/Expertise) confirmed to grant a
+  flat +5 to one attribute via `details.infix_upgrade.attributes[0]`.
+- **Relics** — top-level `type: 'Relic'` (211 found; verified against 12 unrelated "Relic of ..."
+  legendary *backpack* items from an older content release that share the naming pattern but are
+  `type: 'Back'`, correctly excluded). **Real gotcha**: relics carry NO `details` object at all
+  via the public API — only a plain-text top-level `description` (e.g. "Weapon swap recharge
+  time is reduced."), which can be *less* precise than the actual in-game tooltip (no "25%"
+  numeric value exposed for that example). There is currently no way to derive an exact numeric
+  modifier for most relics from this endpoint — `description` is stored as-is for display, not
+  parsed. Getting exact relic values would need a per-relic wiki cross-check (~211 pages), same
+  shape of effort as `fetch-wvw-splits.ts`; not done in this pass.
+- **Food / Utility** — `type: 'Consumable'`, `details.type: 'Food'` or `'Utility'`. The full
+  catalog is fetched, not pre-filtered to a "WvW meta" subset, per explicit user direction (see
+  TODO.md). **Real gotcha**: a consumable's actual buff (if any) is NOT a `Fact[]` array like
+  skills/traits use — it's a single flattened descriptor at
+  `details.{name, duration_ms, apply_count, description}`. `description` here is freeform text
+  (e.g. `"+100 Power\n+70 Precision\n+10% Experience from Kills"`), parsed line-by-line the same
+  way as rune bonuses. Some catalog entries (~37% of Food, e.g. "Feast" reagents meant to be
+  served to a group rather than eaten directly) have no buff at all — `effectName`/`durationMs`/
+  `applyCount` are `null` and `bonuses` is empty for those.
+
+None of these 6 files are re-derivable from `fetch-game-data.ts` — re-run `fetch-gear-upgrades
+--refresh` separately after a balance patch that might add/change gear-upgrade or consumable
+items.

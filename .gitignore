@@ -17,5 +17,9 @@ npm-debug.log*
 .env
 .env.local
 
+# Raw /v2/items dump cache for scripts/fetch-gear-upgrades.ts (~74k items, slow to refetch) —
+# not the normalized output (that's data/game-data/*.json, which IS committed).
+.cache/
+
 .vscode/*
 !.vscode/extensions.json

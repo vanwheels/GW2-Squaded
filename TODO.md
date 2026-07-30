@@ -337,6 +337,14 @@
         above — do them together here, not twice. 12 detailed reference screenshots received
         2026-07-25 (not saved to the repo — re-request if needed when resuming); scope nailed down
         from them plus follow-up user clarification:
+        **Session 2026-07-29 (3rd pass): landed the data layer only** (runes/sigils/infusions/
+        relics/food/utility fetch + normalized types + game-data-store wiring — see per-sub-item
+        notes below and COMPLETED.md), deliberately not the picker UI or stats-calc math, same
+        "data layer first" split as the weapon-selection item's Session 11/13 pattern. New
+        `scripts/fetch-gear-upgrades.ts` (`npm run fetch-gear-upgrades`) — see docs/game-data.md
+        for the full endpoint/gotcha writeup; two real API-shape assumptions from the 2026-07-25
+        scoping session turned out wrong once fetched live (infusions' `details.type`, relics'
+        `Fact` system) and are corrected in place below rather than left stale.
     - [ ] **Item-rarity color coding, and an important scope nuance**: user identified the app's
           (and gw2skills.net's) existing pink/magenta = Ascended, orange/yellow = Exotic border
           convention (already visible on armor pieces in every full-build screenshot). The
@@ -368,6 +376,17 @@
           (2 on two-handed, 1 each on main/off-hand) and don't have a count-based stage mechanic —
           confirmed via a fresh screenshot too (Superior Sigil of Force: flat "+5% strike damage",
           one effect, no stages).
+          **Data layer landed 2026-07-29** (picker UI/stats-calc wiring still open — see the
+          session-level note at the end of this item): `scripts/fetch-gear-upgrades.ts` fetches
+          198 Superior runes + 162 Superior sigils from `/v2/items` (new `Rune`/`Sigil` types in
+          `src/shared/types/game-data.ts`). Confirmed live against Superior Rune of the Scholar:
+          `details.bonuses` is exactly the literal 6-entry list predicted above
+          (`+25 Power/+35 Ferocity/+50 Power/+65 Ferocity/+100 Power/+125 Ferocity`), parsed into
+          structured `{attribute, value, isPercent}` per stage by
+          `parseAttributeBonusText`(shared with food/utility parsing below) — falls back to
+          `raw`-only for non-numeric proc text rather than guessing. Sigil effect text
+          (`details.infix_upgrade.buff.description`) confirmed matching the Force example
+          ("+5% Damage").
     - [ ] **Infusions: only WvW-specific infusions matter** — user said ignore Agony infusions and
           other general infusion types; only fetch/support ones like "Concentration WvW Infusion",
           "Expertise WvW Infusion", "Healing WvW Infusion". **Confirmed via a fresh screenshot**
@@ -382,6 +401,16 @@
           armor piece (helm/shoulders/chest/gloves/leggings/boots) has 1 each; accessory1/
           accessory2 have 1 each; the amulet has 0.** All confirmed by the user directly, no wiki
           cross-check needed.
+          **Data layer landed 2026-07-29**: `scripts/fetch-gear-upgrades.ts` found exactly the 8
+          core-attribute WvW infusions expected (Healing/Resilient/Vital/Malign/Mighty/Precise/
+          Concentration/Expertise), each a flat +5 to one attribute via
+          `details.infix_upgrade.attributes[0]` (new `Infusion` type). **Real gotcha hit and
+          documented in docs/game-data.md**: infusions do NOT have `details.type === 'Infusion'`
+          as originally assumed — that field is `'Default'` for every infusion, WvW and Agony
+          alike (verified against a live Agony infusion too); `details.infusion_upgrade_flags`
+          containing `'Infusion'` is the real infusion-slot marker, and there's no API field at
+          all distinguishing WvW from Agony infusions — the `"... WvW Infusion"` name suffix is
+          the only reliable filter. Picker UI/per-slot-count wiring still open.
     - [ ] **Relics are a must-have, not optional** — exactly 1 relic equipped per build. Relics
           grant effects through the *same* `Fact` system already used for skills/traits, so relics
           should plug into the existing `sources.ts` boon/condition extraction path, not a separate
@@ -395,11 +424,34 @@
           silently mis-rendering them) — check a handful of other relics' facts before assuming
           Buff-shaped is the common case. Still no dedicated relic-*picker* screenshot (only the
           tooltip) — picker UI/placement can be designed reasonably without one.
+          **Data-layer finding 2026-07-29, overturns the "same Fact system" assumption above**:
+          fetched all 211 relics from `/v2/items` (new `Relic` type) and confirmed live that
+          relics carry NO `details` object at all via the public API — not a `Fact[]` array, not
+          even the passive-modifier shape guessed above. `Relic of the Warrior`'s raw API response
+          is just `{ description: "Weapon swap recharge time is reduced." }` — no "25%", no
+          structured data whatsoever. So `extractFromFacts` doesn't need widening after all (it
+          was never going to receive relic data in a `Fact` shape); what's actually missing is any
+          numeric relic value at all. Getting exact modifiers would need a per-relic wiki
+          cross-check (~211 pages, same shape of effort as `scripts/fetch-wvw-splits.ts`) — not
+          done this session; `description` is stored as-is for display only. Still open: picker
+          UI, and whether the stats panel shows relic effects as inert descriptive text (cheap) or
+          invests in the wiki cross-check (expensive) — a scoping question for whoever picks this
+          back up.
     - [ ] **Food and utility consumables: keep the full list selectable, don't pre-filter to a
           "WvW meta" subset** — user was explicit here despite there being a lot of options ("it's
           best to keep them all available"). Deferred fast-follow (not blocking first pass, but
           worth a placeholder TODO sub-item once this ships): add a "Favorites" marker so users
           can pin their preferred food/utility choices to the top of the selection list.
+          **Data layer landed 2026-07-29**: fetched 859 Food + 246 Utility consumables (new
+          `Consumable` type). **Real gotcha, documented in docs/game-data.md**: a consumable's
+          buff is NOT a `Fact[]` array either — it's a flattened `details.{name, duration_ms,
+          apply_count, description}` descriptor. Confirmed against Plate of Truffle Steak
+          (`description: "+100 Power\n+70 Precision\n+10% Experience from Kills"`, parsed via the
+          same `parseAttributeBonusText` used for runes) and a Nourishment/Enhancement-labeled
+          example each. ~37% of Food entries (e.g. "Feast" reagents meant to be served to a group,
+          not eaten directly) have no buff at all — `bonuses` is empty and `effectName`/
+          `durationMs`/`applyCount` are `null` for those, by design, not a parse failure. Picker
+          UI/stats-calc wiring still open.
     - [x] Stats sidebar layout (from full-build screenshots, before/after gearing up): two columns
           of icon+number rows. Left column = raw/base attribute totals (Power, Toughness,
           Vitality, Precision, Ferocity, Healing Power, Condition Damage, Expertise,

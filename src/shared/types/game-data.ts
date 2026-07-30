@@ -164,6 +164,110 @@ export interface WvwFactOverrides {
   trait: Record<number, Record<string, WvwFactOverride>>
 }
 
+/**
+ * One line of flat attribute-bonus text, parsed from the API's raw bonus/description text (e.g.
+ * "+25 Power", "+5% Boon Duration"). Shared by rune per-stage bonuses and food/utility
+ * consumable effect text — both are API-provided as freeform lines, not a structured fact list
+ * (confirmed live 2026-07-29: unlike skills/traits, `/v2/items` never populates a `Fact`-shaped
+ * array for runes, consumables, or relics — see `Relic`/`Consumable` below). Not every line
+ * parses cleanly — some are unique proc/flavor text with no flat attribute (e.g. a rune's 6th
+ * stage: "Gain protection (3s) when you gain fury", or "+10% Experience from Kills", which isn't
+ * a real GW2 combat attribute) — those keep `raw` with `attribute`/`value` both `null` rather
+ * than a guessed value. See scripts/fetch-gear-upgrades.ts's `parseAttributeBonusText`.
+ */
+export interface AttributeBonusText {
+  raw: string
+  attribute: string | null
+  value: number | null
+  isPercent: boolean
+}
+
+/**
+ * A Superior rune. `bonuses` is one entry per equipped-count stage (index 0 = 1 piece equipped
+ * ... index 5 = 6 pieces), in the API's own literal order — confirmed NOT to be a fixed
+ * alternating pattern (e.g. Superior Rune of the Scholar: Power/Ferocity interleaved at
+ * different values each stage, not a repeating formula) — see TODO.md. Only "Superior" tier is
+ * fetched; lower rune tiers aren't selectable in this app.
+ */
+export interface Rune {
+  id: number
+  name: string
+  icon: string
+  bonuses: AttributeBonusText[]
+}
+
+/**
+ * A Superior sigil. Sigil effects (procs, on-crit/on-swap triggers, flat passive bonuses) are
+ * too varied to model structurally — kept as the API's own description text. `weaponTypes` is
+ * the list of weapon type names (e.g. `"Greatsword"`, `"Dagger"`) this sigil can be applied to —
+ * a different vocabulary than `WeaponFlag` (which is hand/two-hand/aquatic, not weapon type).
+ */
+export interface Sigil {
+  id: number
+  name: string
+  icon: string
+  description: string
+  weaponTypes: string[]
+}
+
+/**
+ * A WvW-specific infusion (e.g. "Concentration WvW Infusion"). Only WvW infusions are fetched —
+ * Agony infusions and other general-purpose infusion types are out of scope for this app (WvW
+ * doesn't use Agony resistance). Confirmed live 2026-07-29: all 8 core-attribute WvW infusions
+ * (Healing/Resilient/Vital/Malign/Mighty/Precise/Concentration/Expertise) grant a single flat
+ * +5 to one attribute — `attribute`/`value` capture that; `description` keeps the full tooltip
+ * text (some, like Mighty, also have a WvW-flavored secondary effect not modeled structurally).
+ */
+export interface Infusion {
+  id: number
+  name: string
+  icon: string
+  description: string
+  attribute: string | null
+  value: number | null
+}
+
+/**
+ * A relic (exactly 1 equipped per build). Confirmed live 2026-07-29: relics do NOT carry a
+ * `Fact`/`details` object at all via the public API — only a plain-text `description` (e.g.
+ * "Weapon swap recharge time is reduced."), which is often less precise than the in-game tooltip
+ * (no "25%" numeric value exposed here, unlike the fuller text a screenshot showed — see
+ * TODO.md). There is currently no way to derive an exact numeric modifier for most relics from
+ * this endpoint; `description` is displayable as-is but not safely parseable into a stats-calc
+ * input without a per-relic wiki cross-check (out of scope for this pass).
+ */
+export interface Relic {
+  id: number
+  name: string
+  icon: string
+  description: string
+}
+
+export type ConsumableKind = 'Food' | 'Utility'
+
+/**
+ * A food or utility consumable. The full catalog is fetched (not pre-filtered to a "WvW meta"
+ * subset) per explicit user direction — see TODO.md. Confirmed live 2026-07-29: a consumable's
+ * actual buff (if any) lives at `details.{name,duration_ms,apply_count,description}`, a single
+ * flattened descriptor — NOT the `Fact[]` shape skills/traits use. `effectName` is the buff's
+ * in-game label (e.g. "Nourishment", "Enhancement"); `bonuses` is `description` parsed line-by-
+ * line the same way as `Rune.bonuses`. Some catalog entries (e.g. "Feast" reagents meant to be
+ * served to a group rather than eaten directly) have no buff at all — `effectName`/`durationMs`/
+ * `applyCount` are `null` and `bonuses` is empty for those; `description` falls back to the
+ * item's own flavor text in that case.
+ */
+export interface Consumable {
+  id: number
+  name: string
+  icon: string
+  kind: ConsumableKind
+  effectName: string | null
+  durationMs: number | null
+  applyCount: number | null
+  description: string
+  bonuses: AttributeBonusText[]
+}
+
 export interface GameData {
   professions: Profession[]
   specializations: Specialization[]
@@ -173,4 +277,10 @@ export interface GameData {
   eliteSpecSkills: EliteSpecSkillMap
   wvwFactOverrides: WvwFactOverrides
   legends: Legend[]
+  runes: Rune[]
+  sigils: Sigil[]
+  infusions: Infusion[]
+  relics: Relic[]
+  food: Consumable[]
+  utility: Consumable[]
 }

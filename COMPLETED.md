@@ -2,6 +2,81 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 14 — Gear-upgrade/consumable data layer (runes, sigils, infusions, relics, food, utility)
+
+Continuation of "Build editor UI/UX overhaul" → the character-stats-panel item, picking up its
+largest remaining gap: runes/sigils/infusions/relics/food/utility didn't exist as concepts
+anywhere in the codebase. Scoped this session to the data layer only (fetch + types + store
+wiring), same "data layer first, picker UI later" split as the weapon-selection item's Session
+11/13 pattern — the picker UI and stats-calc math are still open, tracked in TODO.md.
+
+- **New `scripts/fetch-gear-upgrades.ts`** (`npm run fetch-gear-upgrades`). Unlike every other
+  `fetch-game-data.ts` endpoint, there's no dedicated `/v2/runes` or `/v2/relics` collection —
+  Superior runes, Superior sigils, WvW infusions, relics, and food/utility consumables are all
+  just `/v2/items` entries (73,989 total, confirmed via a live count) distinguished by `type`/
+  `details.type`, with no server-side subtype filter. The only reliable path is a full-catalog
+  bulk fetch (370 batches of 200) filtered client-side — same order of magnitude as
+  `fetch-wvw-splits.ts`'s ~2,200 wiki-page fetches, just against the official API instead.
+  Because every filter-logic tweak would otherwise cost a multi-minute refetch, the script caches
+  the raw dump to `.cache/items-raw.json` (gitignored, separate from the committed
+  `data/game-data/*.json` normalized output) and reuses it unless `--refresh` is passed — this
+  cache is what made iterating on the bugs below cheap instead of costing another 10-minute fetch
+  each time.
+- **Two real API-shape assumptions from the 2026-07-25 scoping session turned out wrong once
+  fetched live** (both documented in docs/game-data.md's new "Gear upgrades and consumables"
+  section, not silently corrected):
+  - **Infusions**: assumed `details.type === 'Infusion'` would identify them. Live data showed
+    that field is `'Default'` for *every* infusion, WvW and Agony alike (verified against both a
+    known WvW infusion id and a known Agony infusion id fetched directly). The real infusion-slot
+    marker is `details.infusion_upgrade_flags` containing `'Infusion'`; there's no API field at
+    all distinguishing WvW from Agony infusions, so the `"... WvW Infusion"` name suffix ended up
+    being the only usable filter. Fixed and re-verified: exactly the 8 expected core-attribute WvW
+    infusions (Healing/Resilient/Vital/Malign/Mighty/Precise/Concentration/Expertise) came back,
+    each a flat +5 to one attribute.
+  - **Relics**: TODO.md assumed relics use the same `Fact` system as skills/traits (based on a
+    screenshot showing "Weapon Swap Recharge Reduction: 25%" as a distinct tooltip line) and
+    flagged `extractFromFacts` as possibly needing to widen to handle a new fact shape. Live data
+    showed relics carry **no `details` object at all** via the public API — `Relic of the
+    Warrior`'s raw response is just `{ description: "Weapon swap recharge time is reduced." }`,
+    with no "25%" anywhere. `extractFromFacts` doesn't need touching (it was never going to see
+    relic data in `Fact` shape); the real gap is that exact relic numbers aren't derivable from
+    this endpoint at all — would need a per-relic wiki cross-check (~211 pages) to get real values,
+    not attempted this session. `Relic.description` is stored as-is for display, not parsed.
+  - Both bugs were caught (not shipped silently wrong) via the fetch script's own diagnostic
+    logging: a raw `type`/`details.type` frequency dump plus a check for any "Relic of ..."-named
+    item that *didn't* match the relic filter (12 hits — all turned out to be unrelated legendary
+    *backpack* items from an older release sharing the naming pattern, `type: 'Back'`, correctly
+    excluded, not a bug).
+- **New types** in `src/shared/types/game-data.ts`: `Rune`, `Sigil`, `Infusion`, `Relic`,
+  `Consumable` (`kind: 'Food' | 'Utility'`), plus a shared `AttributeBonusText` (`{raw, attribute,
+  value, isPercent}`) used for both rune per-stage bonuses and food/utility effect text — both
+  turned out to be the same shape (freeform text lines, not a `Fact[]` array), parsed by one
+  `parseAttributeBonusText` function. Verified against the exact numbers TODO.md had predicted
+  from screenshots: Superior Rune of the Scholar's 6 stages came back as literally `+25 Power /
+  +35 Ferocity / +50 Power / +65 Ferocity / +100 Power / +125 Ferocity` (confirming the "not a
+  fixed alternating formula" finding from the prior session), and Plate of Truffle Steak's
+  `details.description` (`"+100 Power\n+70 Precision\n+10% Experience from Kills"`) parsed
+  correctly line-by-line, including the non-attribute "Experience from Kills" line staying
+  correctly unparsed-into-an-attribute (it still gets a `value`/`isPercent` since it matches the
+  `+N%` shape, but `attribute` is just the literal text — deliberately not filtered against a
+  known-attribute allowlist, since consumers can do that check themselves).
+- **Discovered mid-session**: food/utility consumables' buff data lives at a single flattened
+  `details.{name, duration_ms, apply_count, description}` descriptor, not a `Fact[]` — richer
+  than originally planned (`effectName`/`durationMs`/`applyCount` all captured, not just a
+  description string). ~37% of fetched Food entries (e.g. "Feast" reagents meant to be served to
+  a group rather than eaten directly) have no buff at all — `bonuses` empty and the three new
+  fields `null` for those, by design.
+- **Wiring**: `GameData`/`load-game-data.ts` (main process)/`game-data-store.tsx` (renderer) all
+  extended with the 6 new arrays plus lookup maps (`runesById`, `sigilsById`, `infusionsById`,
+  `relicsById`, `foodById`, `utilityById`), mirroring the existing `skillsById`/`legendsById`
+  pattern — no `Build`/picker/stats-calc consumer exists yet, so these are unused outside the
+  store for now (next session's job).
+- **Final counts**: 198 runes, 162 sigils, 8 infusions, 211 relics, 859 food, 246 utility.
+- **Verified**: `npm run typecheck` and `npm run lint` both clean. Every category's normalized
+  output spot-checked against a real, independently-known example (Scholar rune, Force sigil,
+  Mighty WvW Infusion, Relic of the Warrior, Plate of Truffle Steak) — not just checked for
+  non-empty arrays. No UI changed this session, so no visual check was needed/attempted.
+
 ## Session 13 — Weapon selection (type picker, hand filtering, 2H merge, underwater, ENVIRONMENT toggle)
 
 Closed out every remaining sub-item of the "Weapon selection" TODO entry (data layer had already
