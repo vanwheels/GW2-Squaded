@@ -155,7 +155,9 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
             )
           })
         ) : (
-          <div className="skill-picker-header">Choose a weapon in the Equipment panel to see its skill bar</div>
+          <div className="skill-picker-header weapon-bar-empty-placeholder">
+            Choose a weapon in the Equipment panel to see its skill bar
+          </div>
         )}
       </div>
     )

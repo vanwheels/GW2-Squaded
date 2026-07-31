@@ -41,10 +41,10 @@ const THIEF_DUAL_WIELD_OFFHAND: Record<number, string | null> = {
  *    Engineer Kit, always 10 raw entries — 5 land + 5 underwater): only fires when exactly 2
  *    candidates remain and they cleanly split land-only vs. not.
  * 3. **`specializationId` match against `equippedSpecializationIds`** (e.g. Engineer Sword's two
- *    "Sun Edge" ids — `43476` requires Holosmith, `70514` doesn't; since this app only offers Sword
- *    at all once Holosmith is equipped — see `EquipmentEditor`'s weapon-type gating — the spec-
- *    matched id always wins in practice): prefers spec-matched candidates, falling back to the
- *    spec-less (`specializationId === null`) ones if none match — same rule
+ *    "Sun Edge" ids — `43476` requires Holosmith, `70514` doesn't; Weaponmaster Training means
+ *    Sword is equippable on Engineer with or without Holosmith equipped — see `EquipmentEditor`'s
+ *    weapon-type options, no longer elite-spec-gated): prefers spec-matched candidates, falling
+ *    back to the spec-less (`specializationId === null`) ones if none match — same rule
  *    `skill-calc/skill-variants.ts`/`skill-calc/profession-mechanic.ts` already use elsewhere.
  * 4. **Thief's `THIEF_DUAL_WIELD_OFFHAND` hand-context table** (`offWeaponType` param): only
  *    applies when every remaining candidate is a key in that table — matches the id whose required

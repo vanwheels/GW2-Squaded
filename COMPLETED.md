@@ -2,6 +2,27 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 35 — Skill bar feedback pass: General items
+
+Started working through the 2026-07-31 skill-bar UI/UX feedback pass (TODO.md), beginning with
+the two profession-agnostic "General" items.
+
+- Weapon-skill-bar empty-state placeholder ("Choose a weapon in the Equipment panel...") now has a
+  fixed width matching a full 5-slot skill row (272px = 5 × 48px buttons + 4 × 8px gaps), so the
+  bar no longer changes width switching between the placeholder and real skill icons, land or
+  underwater. New `.weapon-bar-empty-placeholder` CSS class in `global.css`.
+- "Weaponmaster Training" is now always-on: `EquipmentEditor.tsx`'s `weaponOptions` no longer
+  gates a weapon type behind its `specializationId` being in the build's equipped specs — every
+  weapon type an elite spec unlocks for a profession (e.g. Renegade's offhand Shield on
+  Revenant, Deadeye's main-hand Scepter on Thief) is now equippable regardless of which spec is
+  active. Removed the now-unused `equippedSpecializationIds` prop from `EquipmentEditor`
+  accordingly (only that one gating check read it). Left `weapon-calc/weapon-skills.ts`'s
+  spec-matched-skill-variant resolution (e.g. Engineer Sword's Holosmith-vs-base "Sun Edge") as-is
+  — it already falls back correctly to the spec-less variant when the gating spec isn't equipped,
+  just updated its doc comment since it no longer references EquipmentEditor gating as the reason
+  spec-matched always wins.
+- Verified via `npm run typecheck` and `npm run lint` (both clean); no test suite exists yet to run.
+
 ## Session 34 — Thin backend: shareable build/squad links, deployed live
 
 Picked up the next item in the 2026-07-31 roadmap priority order (Electron packaging → thin

@@ -47,6 +47,113 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       last charge before recharging (vs. every charge being identical) — no concrete example found
       to verify against; revisit if one surfaces.
 
+## Skill bar UI/UX feedback pass (2026-07-31)
+
+Large feedback pass from a full skill-bar walkthrough (screenshots per profession/general). Nothing
+below has been implemented yet — captured here for a future session to pick up. Two UX questions
+were resolved while triaging this list (see the affected items): multi-option F-icon toggles
+(Firebrand's 3 Tomes) switch directly to whichever icon is clicked rather than cycling in sequence,
+and the Ranger pet-swap/Untamed-swap text buttons get replaced by the cycle icon rather than gaining
+it alongside.
+
+### Guardian
+- [ ] Dragonhunter's F1-F3 Virtue icons don't change from core Guardian's, even though they should.
+      Needs live-verification against the wiki/API (same process as other `profession-mechanic.ts`
+      entries) to find the Dragonhunter-tagged skill ids.
+- [ ] Firebrand: remove the separate "Weapon / Tome of Justice / Tome of Resolve / Tome of Courage"
+      text-toggle row entirely. Instead make the F1-F3 Tome icons in `ProfessionMechanicBar`
+      themselves clickable: click a Tome icon to show its skills in the weapon-skill row, click the
+      active one again to revert to Weapon; clicking a different Tome while one is active switches
+      directly to it. Likely means `ProfessionMechanicBar` needs to become interactive for
+      bundle-capable entries (currently always `disabled`), sharing `Build.activeBundleSkillId` state
+      with `WeaponSkillBar`.
+
+### Warrior
+- [ ] Bladesworn's Dragon Trigger (F2) has its own unique weapon skills while active — same "bundle"
+      shape as Firebrand Tomes but not yet implemented as one at all. Apply the same F-icon
+      click-toggle pattern (click F2 to show Dragon Trigger's weapon skills, click again to revert).
+
+### Engineer
+- [ ] Edge case, explicitly deferred: Engineer's weapon-skill kit-swap is tied to `Skills`
+      (Heal/Utility/Elite choices), not to profession specialization, so the Firebrand-style F-icon
+      click-toggle pattern doesn't map cleanly onto it. Keep the current text-toggle row for kits
+      as-is for now; revisit later.
+
+### Ranger
+- [ ] Replace the Pet-swap "Pet 1 / Pet 2" named text-toggle buttons (`PetsEditor.tsx`) with the same
+      small cycle-icon button used for weapon-set-swap and Legend-swap.
+- [ ] Same replacement for Untamed's Normal/Unleashed text-toggle buttons (`WeaponSkillBar.tsx`'s
+      "extras" section) — swap for the cycle icon.
+- [ ] All Ranger forms except Soulbeast incorrectly show "Unflinching Fortitude" — that skill is
+      Soulbeast-exclusive. Find where it's leaking in (likely a `professionMechanicBar`/beastmode
+      resolution gap) and gate it to Soulbeast only.
+- [ ] Druid's Celestial Avatar form-swap should follow the same F-icon click-toggle pattern as
+      Firebrand Tomes (it already resolves through `bundle-skills.ts` — just needs the same UI
+      treatment, plus removal of its own "Weapon/Celestial Avatar" text-toggle entry). Also its
+      displayed icons are wrong — currently showing Ranger staff weapon-skill icons instead of the
+      real Astral skill icons (Solar Beam/Astral Wisp/Ancestral Grace/Vine Surge/Sublime Conversion);
+      needs investigation in `celestialAvatarSlotSkillIds` (`bundle-skills.ts`).
+- [ ] Core Ranger and normal-form Untamed don't display the core 3 pet skills (F1-F3) at all — only
+      Soulbeast's beastmode bar and Druid's pet-F2 currently render anything pet-skill-related in the
+      F-bar.
+- [ ] Druid's pet F2 skill is shown under the Pet toggle for every Ranger spec (not just Druid); it
+      should only appear in Druid's own F-skill bar.
+
+### Thief
+- [ ] F2 "Stolen Skill" needs to become a real skill picker (like Heal/Utility/Elite), not skipped
+      entirely (`profession-mechanic.ts`'s `SKIPPED_SLOTS` currently excludes Thief `Profession_2`
+      since the real skill depends on who you steal from in combat — a picker lets the user choose
+      which one to display/calc against). Note for later: figure out how a manually-picked stolen
+      skill should feed into the boon/condition calculator in `sources.ts`.
+- [ ] Specter isn't implemented at all: F1 (Steal) should become "Siphon", and F2 should become a
+      Shroud toggle mirroring Reaper's — another F-icon click-toggle that swaps the weapon-skill row
+      to Specter's Shroud skills. Needs its own bundle-skills-style resolution (Specter Shroud isn't a
+      Heal/Utility/Elite kit or a Tome, so `bundle-skills.ts` needs a 3rd bundle kind, or
+      `weapon-calc/weapon-skills.ts` needs a shroud-specific path).
+
+### Elementalist
+- [ ] Attunement toggle (`WeaponSkillBar.tsx`'s "extras" Fire/Water/Air/Earth buttons) should follow
+      the same F-icon click-toggle pattern as everything else, replacing the separate button row —
+      though Attunement has no F-bar icon of its own the way Tomes/Dragon Trigger/Celestial Avatar do
+      (it's not a `Profession_1`-`5` mechanic skill), so this needs its own UI location rather than
+      literally reusing `ProfessionMechanicBar`.
+- [ ] Tempest's F-bar Attunement icons should show the Overload icons, not the base Attunement icons.
+- [ ] Catalyst's Jade Sphere icon should change depending on current Attunement (same idea as
+      Tempest's Overload icons).
+- [ ] Weaver's weapon-skill-3 "Dual Attack" ambiguity — already tracked in "Skill picker follow-ups"
+      above and in `weapon-calc/weapon-skills.ts`; flagged again here as still open, no new action.
+- [ ] Evoker: replace the separate Familiar buttons with making the F5 skill button itself the
+      familiar-swap control (click F5 to change selected familiar), and have the F5 icon update to
+      reflect the currently-selected familiar instead of a fixed icon.
+- [ ] Bug: equipping Staff and then selecting Weaver gets weapon skills 4-5 stuck — they stay showing
+      Weaver's dual-attack skills even after switching away to a different specialization. Needs
+      reproduction + root-cause in `weapon-calc/weapon-skills.ts`'s Weaver-specific resolution.
+
+### Mesmer
+- [ ] Troubadour's "Tales" skills and Mirage's "Mirror" skills fall into the generic "Other" category
+      bucket in the skill picker (`groupSkillsByCategory` in `SkillsEditor.tsx`, driven by
+      `skill.categories[0]`) instead of their own "Tales"/"Mirror" headers — and this leaks into other
+      Mesmer specs' pickers too, not just Troubadour/Mirage's. Needs investigation into why the
+      category grouping isn't picking up the right `categories[0]` for these, and why it's
+      cross-contaminating unrelated specs.
+
+### Necromancer
+- [ ] Core Necromancer, Reaper, Harbinger, and Ritualist all have a Shroud (F1) toggle currently
+      implemented as a separate text-toggle row (same shape as the old Firebrand Tome buttons). Same
+      F-icon click-toggle pattern applies: clicking the Shroud F1 icon should swap the weapon-skill
+      row to Shroud's skills, not stay as its own labeled text button.
+- [ ] "Necrotic Traversal" (2nd half of Summon Flesh Wurm's flip-skill chain) is filed under "Other"
+      in the skill picker category grouping — should be associated with/grouped near Summon Flesh
+      Wurm instead.
+
+### Revenant
+- [ ] Conduit's first profession skill (F1) is supposed to change depending on which Legend is
+      currently active, but right now it always shows the base core-Revenant profession skill
+      regardless of active Legend. Needs investigation in `profession-mechanic.ts`'s Revenant handling
+      (note: the existing Revenant `Profession_1` exclusion list in `EXCLUDED_MECHANIC_SKILL_IDS` — the
+      8 Legend swap-skill ids — may need a Conduit-specific carve-out, since this sounds like a
+      related-but-distinct slot).
+
 ## Nice-to-haves
 
 - [ ] "Favorites" pin for frequently-used builds in the squad editor's build sidebar; the

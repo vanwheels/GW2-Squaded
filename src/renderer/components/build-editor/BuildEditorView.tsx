@@ -167,7 +167,6 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
                 value={draft.equipment}
                 onChange={(equipment) => setDraft({ ...draft, equipment })}
                 profession={draft.profession}
-                equippedSpecializationIds={equippedSpecializationIds}
                 consumables={{ relicId: draft.relicId, foodId: draft.foodId, utilityId: draft.utilityId }}
                 onConsumablesChange={(patch) => setDraft({ ...draft, ...patch })}
               />

@@ -649,6 +649,13 @@ input[type='text'] {
   margin-bottom: 8px;
 }
 
+/* Fixed to the same width as a full 5-slot weapon skill row (5 * 48px buttons + 4 * 8px gaps) so
+   the bar doesn't change width when the placeholder text replaces the actual skill buttons. */
+.weapon-bar-empty-placeholder {
+  width: 272px;
+  white-space: normal;
+}
+
 .skill-picker-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));

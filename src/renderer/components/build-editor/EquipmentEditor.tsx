@@ -14,7 +14,6 @@ interface Props {
   value: Partial<Record<EquipmentSlotKey, EquipmentSlot>>
   onChange: (value: Partial<Record<EquipmentSlotKey, EquipmentSlot>>) => void
   profession: ProfessionId
-  equippedSpecializationIds: ReadonlySet<number>
   consumables: Consumables
   onConsumablesChange: (value: Consumables) => void
 }
@@ -112,7 +111,6 @@ export function EquipmentEditor({
   value,
   onChange,
   profession: professionId,
-  equippedSpecializationIds,
   consumables,
   onConsumablesChange
 }: Props) {
@@ -330,13 +328,12 @@ export function EquipmentEditor({
     )
   }
 
-  /** Weapon types this profession can use in a given hand context, gated by equipped elite specs
-   *  the same way `skillsForProfessionAndSlot`/`legendsForSpecializations` gate skills/legends. */
+  /** Weapon types this profession can use in a given hand context. Not gated by equipped elite
+   *  specs — Weaponmaster Training makes every weapon type an elite spec unlocks for this
+   *  profession permanently available, regardless of which spec is currently equipped. */
   function weaponOptions(filter: (w: ProfessionWeapon) => boolean): [string, ProfessionWeapon][] {
     if (!profession) return []
-    return Object.entries(profession.weapons).filter(
-      ([, w]) => filter(w) && (w.specializationId === null || equippedSpecializationIds.has(w.specializationId))
-    )
+    return Object.entries(profession.weapons).filter(([, w]) => filter(w))
   }
 
   function weaponIcon(weapon: ProfessionWeapon): string {
