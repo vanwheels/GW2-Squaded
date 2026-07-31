@@ -95,6 +95,7 @@ needing to run the fetch script immediately:
   `fetch-gear-upgrades.ts`
 - `soulbeast-beastmode.json` — see "Soulbeast's Beastmode F1-F3" below; sourced from the wiki, not
   `fetch-game-data.ts`
+- `familiars.json` — Elementalist Evoker familiars; see below
 - `meta.json` — just `{ fetchedAt }`, so the app/UI can eventually surface "game data last
   updated on ..." somewhere.
 
@@ -147,6 +148,44 @@ See "Soulbeast's Beastmode F1-F3" further down this doc for the much larger `Pro
 pet-*family* skill list in `professionSkills` (e.g. "Swoop"/"Bite") — a different mechanic
 (Soulbeast's Beastmode) from this pet skill, resolved separately per pet family/archetype rather
 than per individual pet.
+
+## Elementalist Evoker familiars (`familiars.json`)
+
+Evoker's profession mechanic is choosing a **familiar** (Fox/Otter/Hare/Toad, one per element) via
+a right-click on `Profession_5` — only one active at a time, switchable out of combat. There is no
+`/v2/familiars` endpoint at all, so `familiars.json` isn't fetched from the API like `pets.json` —
+it's built by `fetch-game-data.ts`'s `buildFamiliars` from a small hand-verified `FAMILIARS`
+constant table (same pattern as `LEGEND_SPECIALIZATION_ID`), resolved once already-fetched
+`skills.json` is available.
+
+The one build-time-determinable effect of the choice this app models: the Heal skill "Rejuvenate"
+has 4 ids (`76634`/`79314`/`79315`/`79323`) sharing identical facts/recharge/description and the
+same `specializationId: 80` — an icon-only difference based on the currently-selected familiar, not
+a gameplay one. Confirmed live 2026-07-31 via the skill's own wiki infobox, which annotates each id
+in an HTML comment: `id = 79323 <!-- fire -->, 76634 <!-- water-->, 79315 <!-- air -->, 79314 <!--
+earth -->`, cross-referenced against the `Evoker` wiki page's own Fox=Fire/Otter=Water/Hare=Air/
+Toad=Earth mapping. `icon` on each `Familiar` is borrowed from its matching Rejuvenate variant's
+own icon (no dedicated familiar-portrait field exists, same "borrow from a real skill" reasoning as
+`Legend.icon`).
+
+Since all 4 ids share one `specializationId`, the existing per-spec dedup signal in
+`skill-variants.ts` can't tell them apart (it matches all 4). A new 8th signal
+(`familiarIdBySkillId`/`selectedFamiliarId` params on `visibleSkillsForSlot`/`resolveGroup`) picks
+the id matching `Build.familiarId`, falling back to the lowest id before a familiar is chosen — the
+Heal picker always collapses to exactly 1 Rejuvenate entry.
+
+**Deliberately not modeled**: the familiar's own passive combat bonus and active F5 skill. Per the
+wiki's `Evoker`/`Familiar` pages, the active skill needs 6 accumulated charges (weapon skills grant
+1, same-element weapon skills grant 2, Rejuvenate also contributes) and unlocks an "empowered"
+version after 3 casts — a real-time state machine this app's static per-build loadout model has no
+equivalent for, and there's no API endpoint to source per-familiar skill ids from even if it were
+modeled. Same scope boundary as Ranger Untamed's still-unmodeled pet-family Unleash-Pet skill set.
+
+Stored on `Build` directly (`familiarId: string | null`, Elementalist Evoker-only — meaningless,
+always `null`, elsewhere), reset on a profession change away from Elementalist or on dropping the
+Evoker trait line (`BuildEditorView.tsx`, same pattern as `equippedPetIds`'s reset). Consumed in
+`src/renderer/components/build-editor/EvokerFamiliarSelect.tsx` (single-pick icon row, same
+template as `EliteSpecSelect`).
 
 ## Elite-spec-gated skills (`elite-spec-skills.json`)
 

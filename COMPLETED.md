@@ -2,6 +2,55 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 29 — Elementalist Evoker's familiar concept + Rejuvenate dedup
+
+Picked up the "full modeling pass" TODO item for Elementalist's new Evoker elite spec, decided
+2026-07-31 to be scoped like the earlier Legend/Pet work: model the "familiar" companion concept
+enough to resolve the Heal skill "Rejuvenate"'s 4-id ambiguity (the last unresolved entry in the
+multi-session duplicate-skill-id dedup list).
+
+- **Corrected the original scoping note along the way**: it assumed Rejuvenate's 4 ids were "one
+  per attunement" — live data shows all 4 actually share `attunement: null`; they differ by
+  *familiar* instead. Confirmed via the skill's own wiki infobox, which annotates each id in an
+  HTML comment: `id = 79323 <!-- fire -->, 76634 <!-- water-->, 79315 <!-- air -->, 79314 <!--
+  earth -->`, cross-referenced against the `Evoker` wiki page's own Fox=Fire/Otter=Water/Hare=Air/
+  Toad=Earth familiar-to-element mapping. All 4 ids share identical facts/recharge/description — an
+  icon-only difference, not a gameplay one.
+- **`Profession`/`Specialization` data already had Evoker** (`specializationId 80`) from a prior
+  session's live fetch — no re-fetch gap there after all, just needed noticing.
+- **New `Familiar` type** (game-data.ts): `{id, name, element, icon, rejuvenateSkillId}`. Sourced
+  from a hand-verified 4-entry constant table in `fetch-game-data.ts` (`FAMILIARS`, same pattern as
+  `LEGEND_SPECIALIZATION_ID`) rather than a new wiki-scrape script — the one Rejuvenate page already
+  checked gave the complete mapping. `icon` is borrowed from the matching Rejuvenate variant's own
+  icon (same "no dedicated portrait endpoint" reasoning as `Legend.icon`). New `familiars.json`
+  output, wired into `load-game-data.ts` and `game-data-store.tsx` (`familiarsById`,
+  `familiarIdBySkillId`).
+- **New `Build.familiarId` field** (Elementalist Evoker-only — mirrors `rangerUnleashed`'s
+  "meaningless for every other profession" shape). `BuildEditorView.tsx` resets it to `null` on a
+  profession change away from Elementalist or on dropping the Evoker trait line, same pattern as
+  the existing pet-id reset logic.
+- **New `skill-variants.ts` signal (8th)**: `visibleSkillsForSlot`/`resolveGroup` gained
+  `familiarIdBySkillId`/`selectedFamiliarId` params. Since all 4 Rejuvenate ids share
+  `specializationId: 80`, the existing per-spec signal can't tell them apart (matches all 4, not
+  useful) — the new signal picks the id matching the build's currently-chosen familiar, falling
+  back to the lowest id when none is chosen yet, so the picker always collapses to exactly 1 entry.
+  Same "functionally identical, cosmetic-only difference" shape as the existing `GroundTargeted`
+  signal, just resolved by a `Build` field instead of always collapsing to one fixed id.
+- **New `EvokerFamiliarSelect.tsx`**: single-pick icon row, same template as `EliteSpecSelect`.
+  Wired into `SkillsEditor.tsx`, rendered only when Elementalist + Evoker are both equipped.
+- **Deliberately not modeled**: the familiar's own passive combat bonus and active F5 skill (a
+  6-charge accumulation + "empowered after 3 casts" state machine — confirmed via the wiki's
+  `Evoker`/`Familiar` pages — that this app's static loadout model has no equivalent for; no
+  `/v2/familiars` API endpoint exists either). Documented in `Familiar`'s doc comment as the scope
+  boundary, same shape as Untamed's still-unmodeled pet-family Unleash-Pet skill set.
+- **Verified**: a standalone script (not committed) confirmed 4 familiars with unique
+  elements/icons, confirmed `visibleSkillsForSlot` resolves each of the 4 familiar choices to
+  exactly its own Rejuvenate id and defaults to the lowest id (76634) with no familiar chosen, and
+  confirmed an unrelated duplicate-name group (Mist Form) is untouched by the new signal. `npm run
+  typecheck`/`lint`/`build` all clean. Not visually confirmed in a running window (standing
+  Electron-sandbox limitation, see below) — recommend `npm run dev` locally to eyeball the new
+  Familiar picker row.
+
 ## Session 28 — Soulbeast's Beastmode F1-F3 (per-pet-family/archetype skills)
 
 Picked up the "Soulbeast's real Beastmode gap" TODO item left open since Session 23/25: Beastmode's

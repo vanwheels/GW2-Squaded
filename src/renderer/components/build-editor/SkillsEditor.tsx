@@ -5,11 +5,13 @@ import { numericFactLines } from '@shared/skill-calc/fact-numbers'
 import { relatedVariantSkills } from '@shared/skill-calc/multi-effect'
 import { formatBoonDuration } from '@shared/boon-calc/format'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
+import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { WeaponSkillBar } from './WeaponSkillBar'
 import { ProfessionMechanicBar } from './ProfessionMechanicBar'
 import { PetsEditor } from './PetsEditor'
+import { EvokerFamiliarSelect } from './EvokerFamiliarSelect'
 
 interface Props {
   build: Build
@@ -26,6 +28,7 @@ interface Props {
         | 'activePetIndex'
         | 'activeBundleSkillId'
         | 'rangerUnleashed'
+        | 'familiarId'
       >
     >
   ) => void
@@ -38,6 +41,9 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
   return (
     <div className="skills-editor-root">
       {build.profession === 'Ranger' && <PetsEditor build={build} onBuildChange={onBuildChange} />}
+      {build.profession === 'Elementalist' && equippedSpecializationIds.has(EVOKER_SPECIALIZATION_ID) && (
+        <EvokerFamiliarSelect value={build.familiarId} onChange={(familiarId) => onBuildChange({ familiarId })} />
+      )}
       <ProfessionMechanicBar build={build} equippedSpecializationIds={equippedSpecializationIds} />
       {value.kind === 'revenant' ? (
         <RevenantSkillsEditor
@@ -172,7 +178,7 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
   const { skillsById, skillsForProfessionAndSlot } = gameData
   const [openSlot, setOpenSlot] = useState<SlotId | null>(null)
 
-  const healOptions = skillsForProfessionAndSlot(profession, 'Heal', equippedSpecializationIds)
+  const healOptions = skillsForProfessionAndSlot(profession, 'Heal', equippedSpecializationIds, build.familiarId)
   const utilityOptions = skillsForProfessionAndSlot(profession, 'Utility', equippedSpecializationIds)
   const eliteOptions = skillsForProfessionAndSlot(profession, 'Elite', equippedSpecializationIds)
 

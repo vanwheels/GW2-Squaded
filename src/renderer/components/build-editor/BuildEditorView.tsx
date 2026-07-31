@@ -8,6 +8,7 @@ import type {
   TraitLineSelection,
   TraitLineSlots
 } from '@shared/types'
+import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar'
 import { useGameData } from '@renderer/state/game-data-store'
 import { ProfessionSelect } from './ProfessionSelect'
 import { EliteSpecSelect } from './EliteSpecSelect'
@@ -62,7 +63,9 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
       // Pets are Ranger-only — a pet chosen before switching away (or never touched on a
       // non-Ranger build) is meaningless for the new profession.
       equippedPetIds: [null, null],
-      activePetIndex: 0
+      activePetIndex: 0,
+      // Familiar is Elementalist Evoker-only, same reasoning as pets above.
+      familiarId: profession === 'Elementalist' ? draft.familiarId : null
     })
   }
 
@@ -109,7 +112,9 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
       }
     }
 
-    setDraft({ ...draft, specializations, skills, equipment })
+    const familiarId = nextEquippedIds.has(EVOKER_SPECIALIZATION_ID) ? draft.familiarId : null
+
+    setDraft({ ...draft, specializations, skills, equipment, familiarId })
   }
 
   async function handleSave(): Promise<void> {

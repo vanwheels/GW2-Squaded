@@ -2,7 +2,7 @@
 
 ## Next up
 
-- [ ] Theoretical boon/condition uptime calculator — source list (Fact parser) shipped; scaling
+- [x] Theoretical boon/condition uptime calculator — source list (Fact parser) shipped; scaling
       and consumables still open. Confirmed scope: for a single build (like gw2skills.net), list
       every boon/condition source (skill or trait) it provides, with duration computed from base
       values scaled by boon duration/concentration and food/utility consumables. Squad-view mode
@@ -371,14 +371,15 @@
         pair remains genuinely ambiguous — likely an old-vs-reworked pair with no field
         distinguishing them). **Spike Trap's original "stun vs. launch" note was a wrong guess** —
         confirmed via the wiki's own version history this is an environment (land/underwater)
-        split, not a trait rework. **Still fully unresolved, 5 groups**: Throw Mine (confirmed via
-        wiki text to be Gadgeteer-trait-gated — resolving it needs the Utility picker to know the
-        build's currently-chosen traits, an architecture change, not attempted), Mist
+        split, not a trait rework. **Still fully unresolved, 5 groups at the time**: Throw Mine
+        (confirmed via wiki text to be Gadgeteer-trait-gated — resolving it needs the Utility picker
+        to know the build's currently-chosen traits, an architecture change, not attempted), Mist
         Form/Protective Solace/Jade Winds (wiki lists all ids together with no distinguishing field
         at all), Rejuvenate (Elementalist — discovered to belong to a brand-new, previously-unseen
         elite spec, `specialization = Evoker`, whose Heal skill varies by a new "familiar" companion
         concept this app has no model for at all yet — a real new-feature gap, not a dedup fix; see
-        docs/game-data.md for the full per-group writeup). New `GameData.skillVariantExclusions`
+        docs/game-data.md for the full per-group writeup). **Update, 2026-07-31: Rejuvenate resolved**
+        (see the Evoker/Familiar sub-item further down) — 4 groups remain. New `GameData.skillVariantExclusions`
         field/`skill-variant-exclusions.json`, consumed by `skill-variants.ts`'s
         `visibleSkillsForSlot` as 2 more pre-pass signals (6: `stripNonEquippableSubAbilities`,
         local-data-only; 7: the wiki exclusion list). Verified via a standalone script (not
@@ -389,7 +390,7 @@
         typecheck`/`lint`/`build` all clean. Not visually confirmed in a running window (standing
         Electron-sandbox limitation, see COMPLETED.md) — recommend `npm run dev` locally to eyeball
         the now-shorter Engineer Utility/Elite picker lists.
-        - [ ] **New, discovered this session**: Elementalist gained a brand-new elite spec
+        - [x] **New, discovered this session**: Elementalist gained a brand-new elite spec
               (`specializationId 80`, `specialization = Evoker` per the wiki) with a "familiar"
               companion concept (its Heal skill "Rejuvenate" has 4 ids, one per attunement, each
               with a different icon depending on the selected familiar) — not modeled anywhere in
@@ -403,6 +404,38 @@
               data to see the Evoker spec properly, wire the per-attunement Rejuvenate heal-skill
               variants into the skill picker). This also resolves the still-unresolved "Rejuvenate"
               entry in the multi-step-skill-dedup list below.
+              **Implemented 2026-07-31**: corrected one premise along the way — the 4 Rejuvenate ids
+              aren't "one per attunement" (all 4 share `attunement: null`), they're one per
+              *familiar*, confirmed via the skill's own wiki infobox comment (`id = 79323 <!-- fire
+              -->, 76634 <!-- water-->, 79315 <!-- air -->, 79314 <!-- earth -->`) cross-referenced
+              against the `Evoker` wiki page's Fox=Fire/Otter=Water/Hare=Air/Toad=Earth mapping — all
+              4 share identical facts/recharge/description, an icon-only difference. `Profession`/
+              `Specialization` data already had Evoker (id 80) from a prior live fetch; no gap there
+              after all. New `Familiar` type (game-data.ts) + a hand-verified 4-entry constant table
+              in `fetch-game-data.ts` (same pattern as `LEGEND_SPECIALIZATION_ID`, icon borrowed from
+              the matching Rejuvenate variant's own icon, same as `Legend.icon`) — no new fetch
+              script needed, since the one wiki page already checked gave the full mapping. New
+              `Build.familiarId` field (Elementalist Evoker-only, mirrors `rangerUnleashed`'s
+              "meaningless for other professions" shape), reset to `null` on profession change (away
+              from Elementalist) or on dropping the Evoker line, in `BuildEditorView.tsx`. New
+              `skill-variants.ts` signal 8 (`familiarIdBySkillId`/`selectedFamiliarId` params on
+              `visibleSkillsForSlot`/`resolveGroup`): since all 4 ids share `specializationId: 80`
+              (signal 2 can't tell them apart), this new signal picks the id matching the build's
+              chosen familiar, falling back to the lowest id before one is chosen — collapses the
+              picker to exactly 1 entry either way, same "functionally identical, cosmetic-only"
+              shape as the `GroundTargeted` signal. New `EvokerFamiliarSelect.tsx` (single-pick icon
+              row, same template as `EliteSpecSelect`), rendered in `SkillsEditor` only when
+              Elementalist + Evoker equipped. Deliberately NOT modeled: the familiar's own passive
+              bonus and active F5 skill (a 6-charge accumulation + "empowered after 3 casts" combat
+              state machine this app's static loadout model has no equivalent for — no `/v2/familiars`
+              API endpoint exists either) — see `Familiar`'s doc comment. Verified via a standalone
+              script (not committed): confirmed 4 familiars with unique elements/icons, confirmed
+              `visibleSkillsForSlot` resolves each familiar choice to exactly its own Rejuvenate id
+              and defaults to the lowest id (76634) with no familiar chosen, confirmed an unrelated
+              duplicate-name group (Mist Form) is untouched by the new signal. `npm run
+              typecheck`/`lint`/`build` all clean. Not visually confirmed in a running window
+              (standing Electron-sandbox limitation, see COMPLETED.md) — recommend `npm run dev`
+              locally to eyeball the new Familiar picker row.
   - [x] Same collapsing behavior, same arrows/tabs cycling UX, needed for multi-step skills
         (distinct effects on 1st click vs. 2nd click, etc.) — one entry, not duplicate list
         entries. **Implemented Session 19 (2026-07-29)**: live-verified `/v2/skills`' `flip_skill`

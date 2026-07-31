@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import type {
   Consumable,
+  Familiar,
   GameData,
   Infusion,
   Legend,
@@ -22,6 +23,7 @@ export interface GameDataStore extends GameData {
   skillsById: Map<number, Skill>
   legendsById: Map<string, Legend>
   petsById: Map<number, Pet>
+  familiarsById: Map<string, Familiar>
   runesById: Map<number, Rune>
   sigilsById: Map<number, Sigil>
   infusionsById: Map<number, Infusion>
@@ -34,7 +36,8 @@ export interface GameDataStore extends GameData {
   skillsForProfessionAndSlot: (
     profession: ProfessionId,
     slot: 'Heal' | 'Utility' | 'Elite',
-    equippedSpecializationIds: ReadonlySet<number>
+    equippedSpecializationIds: ReadonlySet<number>,
+    selectedFamiliarId?: string | null
   ) => Skill[]
   /** Legends available given the currently-equipped specialization lines: the 4 core legends
    *  always, plus any elite-spec-gated legend whose specialization is equipped. */
@@ -54,6 +57,7 @@ const EMPTY_GAME_DATA: GameData = {
   wvwFactOverrides: { skill: {}, trait: {} },
   legends: [],
   pets: [],
+  familiars: [],
   soulbeastBeastmode: {},
   runes: [],
   sigils: [],
@@ -89,6 +93,8 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
     const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
     const legendsById = new Map(gameData.legends.map((l) => [l.id, l]))
     const petsById = new Map(gameData.pets.map((p) => [p.id, p]))
+    const familiarsById = new Map(gameData.familiars.map((f) => [f.id, f]))
+    const familiarIdBySkillId = new Map(gameData.familiars.map((f) => [f.rejuvenateSkillId, f.id]))
     const runesById = new Map(gameData.runes.map((r) => [r.id, r]))
     const sigilsById = new Map(gameData.sigils.map((s) => [s.id, s]))
     const infusionsById = new Map(gameData.infusions.map((i) => [i.id, i]))
@@ -105,6 +111,7 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
       skillsById,
       legendsById,
       petsById,
+      familiarsById,
       runesById,
       sigilsById,
       infusionsById,
@@ -121,7 +128,7 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
         gameData.traits
           .filter((t) => t.specializationId === specializationId && t.slot === 'Minor')
           .sort((a, b) => a.tier - b.tier),
-      skillsForProfessionAndSlot: (profession, slot, equippedSpecializationIds) =>
+      skillsForProfessionAndSlot: (profession, slot, equippedSpecializationIds, selectedFamiliarId = null) =>
         visibleSkillsForSlot(
           gameData.skills.filter((s) => {
             if (s.slot !== slot || !s.professions.includes(profession)) return false
@@ -130,7 +137,9 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
           }),
           equippedSpecializationIds,
           gameData.glyphFormVariants,
-          skillVariantExclusionIds
+          skillVariantExclusionIds,
+          familiarIdBySkillId,
+          selectedFamiliarId
         ),
       legendsForSpecializations: (equippedSpecializationIds) =>
         gameData.legends.filter(

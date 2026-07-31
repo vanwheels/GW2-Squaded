@@ -13,6 +13,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type {
   Fact,
+  Familiar,
   GameData,
   ItemStat,
   Legend,
@@ -205,6 +206,24 @@ const LEGEND_SPECIALIZATION_ID: Record<string, number | null> = {
   Legend8: 79 // Legendary Entity Stance (Razah) — Conduit
 }
 
+/**
+ * Elementalist Evoker's 4 familiars -> the Heal skill "Rejuvenate" id that's bound while that
+ * familiar is active (icon-only difference — all 4 ids share identical facts/recharge/description,
+ * confirmed live 2026-07-31). NOT derivable from `/v2/skills` alone (all 4 share the same
+ * `specializationId: 80` with no other distinguishing field) — sourced from the skill's own wiki
+ * infobox, which annotates each id with its element in an HTML comment:
+ * `id = 79323 <!-- fire -->, 76634 <!-- water-->, 79315 <!-- air -->, 79314 <!-- earth -->`,
+ * cross-referenced against the `Evoker` wiki page's Fox=Fire/Otter=Water/Hare=Air/Toad=Earth
+ * familiar-to-element mapping. Small and stable (only changes if a new familiar element is ever
+ * added); re-verify the same way if that happens.
+ */
+const FAMILIARS: { id: string; name: string; element: string; rejuvenateSkillId: number }[] = [
+  { id: 'Fox', name: 'Fox', element: 'Fire', rejuvenateSkillId: 79323 },
+  { id: 'Otter', name: 'Otter', element: 'Water', rejuvenateSkillId: 76634 },
+  { id: 'Hare', name: 'Hare', element: 'Air', rejuvenateSkillId: 79315 },
+  { id: 'Toad', name: 'Toad', element: 'Earth', rejuvenateSkillId: 79314 }
+]
+
 // --- Normalization ----------------------------------------------------------------------------
 
 function normalizeWeapon(raw: RawProfessionWeapon): ProfessionWeapon {
@@ -301,6 +320,18 @@ function normalizeLegend(raw: RawLegend, skillsById: Map<number, Skill>): Legend
   }
 }
 
+function buildFamiliars(skillsById: Map<number, Skill>): Familiar[] {
+  return FAMILIARS.map((f) => {
+    const rejuvenateSkill = skillsById.get(f.rejuvenateSkillId)
+    if (!rejuvenateSkill) {
+      throw new Error(
+        `Familiar ${f.id}: Rejuvenate skill ${f.rejuvenateSkillId} not found in fetched skills — cannot resolve icon`
+      )
+    }
+    return { id: f.id, name: f.name, element: f.element, icon: rejuvenateSkill.icon, rejuvenateSkillId: f.rejuvenateSkillId }
+  })
+}
+
 function normalizePet(raw: RawPet): Pet {
   return {
     id: raw.id,
@@ -351,6 +382,9 @@ async function main(): Promise<void> {
   console.log('Fetching pets...')
   const pets = (await fetchAllRecords<number, RawPet>('pets')).map(normalizePet)
 
+  console.log('Building familiars...')
+  const familiars = buildFamiliars(skillsById)
+
   // eliteSpecSkills / glyphFormVariants / skillVariantExclusions / wvwFactOverrides /
   // relicEffects / tomeChapters / soulbeastBeastmode aren't produced here — they're sourced from
   // the wiki by the separate scripts/fetch-elite-spec-skills.ts, scripts/fetch-glyph-forms.ts,
@@ -383,7 +417,8 @@ async function main(): Promise<void> {
     skills,
     itemStats,
     legends,
-    pets
+    pets,
+    familiars
   }
 
   await Promise.all([
@@ -394,6 +429,7 @@ async function main(): Promise<void> {
     writeFile(join(OUTPUT_DIR, 'itemstats.json'), JSON.stringify(itemStats, null, 2)),
     writeFile(join(OUTPUT_DIR, 'legends.json'), JSON.stringify(legends, null, 2)),
     writeFile(join(OUTPUT_DIR, 'pets.json'), JSON.stringify(pets, null, 2)),
+    writeFile(join(OUTPUT_DIR, 'familiars.json'), JSON.stringify(familiars, null, 2)),
     writeFile(
       join(OUTPUT_DIR, 'meta.json'),
       JSON.stringify({ fetchedAt: new Date().toISOString() }, null, 2)
@@ -403,7 +439,7 @@ async function main(): Promise<void> {
   console.log(
     `\nDone. professions=${gameData.professions.length} specializations=${gameData.specializations.length} ` +
       `traits=${gameData.traits.length} skills=${gameData.skills.length} itemStats=${gameData.itemStats.length} ` +
-      `legends=${gameData.legends.length} pets=${gameData.pets.length}`
+      `legends=${gameData.legends.length} pets=${gameData.pets.length} familiars=${gameData.familiars.length}`
   )
   console.log(`Written to ${OUTPUT_DIR}`)
 }

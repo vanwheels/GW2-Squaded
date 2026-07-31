@@ -148,6 +148,13 @@ export interface Build {
    * `skill-calc/untamed-unleash.ts`.
    */
   rangerUnleashed: boolean
+  /**
+   * Elementalist Evoker only (meaningless, always `null`, for every other build): the chosen
+   * familiar (`Familiar.id` in game-data.ts — Fox/Otter/Hare/Toad), which determines only which of
+   * the Heal skill "Rejuvenate"'s 4 identical-effect ids is bound (icon changes to match). The
+   * familiar's own active/passive combat effects aren't modeled — see `Familiar`'s doc comment.
+   */
+  familiarId: string | null
   createdAt: Timestamp
   updatedAt: Timestamp
 }

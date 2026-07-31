@@ -1,0 +1,30 @@
+[
+  {
+    "id": "Fox",
+    "name": "Fox",
+    "element": "Fire",
+    "icon": "https://render.guildwars2.com/file/949C29AC4E910EC9017F9A92489E1131F976A95A/3729562.png",
+    "rejuvenateSkillId": 79323
+  },
+  {
+    "id": "Otter",
+    "name": "Otter",
+    "element": "Water",
+    "icon": "https://render.guildwars2.com/file/0CB5DE5B0D0A4E360C1F0F24E655F478C2DAA6B8/3680112.png",
+    "rejuvenateSkillId": 76634
+  },
+  {
+    "id": "Hare",
+    "name": "Hare",
+    "element": "Air",
+    "icon": "https://render.guildwars2.com/file/FABE18EDE4BA360AC3AFE0A7CD04F6F10F03A5A7/3729560.png",
+    "rejuvenateSkillId": 79315
+  },
+  {
+    "id": "Toad",
+    "name": "Toad",
+    "element": "Earth",
+    "icon": "https://render.guildwars2.com/file/BA45A84AF53AAC92301E586AAC76FA020306D96B/3729561.png",
+    "rejuvenateSkillId": 79314
+  }
+]

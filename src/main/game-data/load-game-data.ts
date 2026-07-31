@@ -35,6 +35,7 @@ export function loadGameData(): GameData {
       wvwFactOverrides: readJson('wvw-fact-overrides.json'),
       legends: readJson('legends.json'),
       pets: readJson('pets.json'),
+      familiars: readJson('familiars.json'),
       soulbeastBeastmode: readJson('soulbeast-beastmode.json'),
       runes: readJson('runes.json'),
       sigils: readJson('sigils.json'),

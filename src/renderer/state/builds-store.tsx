@@ -32,6 +32,7 @@ export function makeBlankBuild(): Build {
     activePetIndex: 0,
     activeBundleSkillId: null,
     rangerUnleashed: false,
+    familiarId: null,
     createdAt: now,
     updatedAt: now
   }

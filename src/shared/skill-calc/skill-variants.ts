@@ -69,6 +69,16 @@ const GROUND_TARGETED_FLAG = 'GroundTargeted'
  *    which this app doesn't model as a separate pick since only the weapon skill bar gets an
  *    Environment toggle. Applied as a pre-pass identically to signal 6.
  *
+ * 8. **`familiarIdBySkillId`** (Elementalist Evoker's Heal skill "Rejuvenate" only — 1 group, 4
+ *    ids): every id shares the same `specializationId` (80), so signal 2 can't tell them apart —
+ *    they differ only in which familiar (Fox/Otter/Hare/Toad) the wiki documents them under (see
+ *    `Familiar` in game-data.ts). Resolved by `selectedFamiliarId` (the build's own choice, not
+ *    game data) the same way signal 2 resolves by equipped specs: picks the id matching the
+ *    currently-selected familiar, falling back to a stable default (lowest id) before one is
+ *    chosen — same "functionally identical, cosmetic-only difference" shape as the
+ *    `GroundTargeted` signal, just resolved by a build field instead of always collapsing to one
+ *    fixed id.
+ *
  * The remaining duplicate-name groups (e.g. Ranger's "Mist Form" duplicate `5554,15795`, listed
  * together on one wiki page with no distinguishing field at all) differ for reasons none of these
  * signals capture — see TODO.md for the specific group names and per-group notes on why each is
@@ -78,7 +88,9 @@ export function visibleSkillsForSlot(
   candidates: Skill[],
   equippedSpecializationIds: ReadonlySet<number>,
   glyphFormVariants: GlyphFormVariantMap = {},
-  skillVariantExclusions: ReadonlySet<number> = new Set()
+  skillVariantExclusions: ReadonlySet<number> = new Set(),
+  familiarIdBySkillId: ReadonlyMap<number, string> = new Map(),
+  selectedFamiliarId: string | null = null
 ): Skill[] {
   // stripNonEquippableSubAbilities runs on the *full* candidate set before the exclusion filters
   // below — it identifies a sub-ability by the presence of its categorized parent (e.g. "Detonate
@@ -104,7 +116,7 @@ export function visibleSkillsForSlot(
 
   const out: Skill[] = []
   for (const name of groupOrder) {
-    out.push(...resolveGroup(groups.get(name)!, equippedSpecializationIds))
+    out.push(...resolveGroup(groups.get(name)!, equippedSpecializationIds, familiarIdBySkillId, selectedFamiliarId))
   }
   return out
 }
@@ -144,7 +156,12 @@ function stripNonEquippableSubAbilities(candidates: Skill[]): Skill[] {
   })
 }
 
-function resolveGroup(group: Skill[], equippedSpecializationIds: ReadonlySet<number>): Skill[] {
+function resolveGroup(
+  group: Skill[],
+  equippedSpecializationIds: ReadonlySet<number>,
+  familiarIdBySkillId: ReadonlyMap<number, string> = new Map(),
+  selectedFamiliarId: string | null = null
+): Skill[] {
   if (group.length === 1) return group
 
   const nonAttuned = group.filter((s) => s.attunement === null)
@@ -159,6 +176,12 @@ function resolveGroup(group: Skill[], equippedSpecializationIds: ReadonlySet<num
     if (ungated.length > 0) remaining = ungated
   }
   if (remaining.length === 1) return remaining
+
+  if (remaining.every((s) => familiarIdBySkillId.has(s.id))) {
+    const familiarMatched = remaining.filter((s) => familiarIdBySkillId.get(s.id) === selectedFamiliarId)
+    if (familiarMatched.length === 1) return familiarMatched
+    return [remaining.slice().sort((a, b) => a.id - b.id)[0]]
+  }
 
   const flipRoots = remaining.filter((s) => !remaining.some((other) => other.id !== s.id && other.flipSkill === s.id))
   if (flipRoots.length === 1) return flipRoots

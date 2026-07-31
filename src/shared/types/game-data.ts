@@ -253,6 +253,30 @@ export interface Pet {
 }
 
 /**
+ * Elementalist Evoker's "familiar" companion — a passive combat pet chosen via a right-click on
+ * profession skill 5 (`Profession_5`), one of 4 (Fox/Otter/Hare/Toad, one per element). Confirmed
+ * live 2026-07-31 against the wiki's `Evoker`/`Familiar` pages: only one is active at a time,
+ * switchable out of combat. This app models only the one build-time-determinable effect of
+ * choosing a familiar: which of the Heal skill "Rejuvenate"'s 4 identical-effect ids is currently
+ * bound (its icon changes to match the selected familiar — confirmed via the skill's own wiki
+ * infobox: `id = 79323 <!-- fire -->, 76634 <!-- water-->, 79315 <!-- air -->, 79314 <!-- earth -->`,
+ * cross-referenced against the `Evoker` page's Fox=Fire/Otter=Water/Hare=Air/Toad=Earth mapping).
+ * `icon` is borrowed from that same Rejuvenate variant (same pattern `Legend.icon` uses, since
+ * there's no dedicated familiar-portrait endpoint). The familiar's own basic/empowered active
+ * skill (accumulated via a 6-charge system Rejuvenate also contributes to) and its passive combat
+ * bonus are a real-time state machine this app's static loadout model has no equivalent for (no
+ * `/v2/familiars` API endpoint exists either) — deliberately not modeled, same boundary as e.g.
+ * Untamed's Unleash-Pet family-varying skill set. See TODO.md.
+ */
+export interface Familiar {
+  id: string
+  name: string
+  element: string
+  icon: string
+  rejuvenateSkillId: number
+}
+
+/**
  * Ranger Soulbeast's Beastmode F1/F2 (per pet *family*) and F3 (per pet *archetype*) skills,
  * keyed by `Pet.id` — see `scripts/fetch-soulbeast-beastmode.ts` for how this is resolved (no API
  * field links a pet to a Beastmode skill at all; wiki-sourced, cross-checked against
@@ -468,6 +492,7 @@ export interface GameData {
   wvwFactOverrides: WvwFactOverrides
   legends: Legend[]
   pets: Pet[]
+  familiars: Familiar[]
   soulbeastBeastmode: SoulbeastBeastmodeMap
   runes: Rune[]
   sigils: Sigil[]
