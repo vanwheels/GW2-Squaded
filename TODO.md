@@ -950,10 +950,18 @@
           above — the direction is currently unconfirmed), and (c) the "Unleash Ranger"/"Unleash
           Pet" toggle UI. Same shape of wiki-cross-check effort as Soulbeast's Beastmode gap above
           (per-pet-family name resolution, some ambiguous) — not attempted this session.
-          **Decided 2026-07-31: blocked on a fresh screenshot** — user will provide one next
-          session (same "visual confirmation before implementing" pattern used for Soulbeast
-          Beastmode/weapon selection). Do not attempt a wiki-only guess at the toggle direction in
-          the meantime.
+          **Screenshots provided 2026-07-31** (in-session, not saved to the repo — re-request if
+          needed): confirms the visual layout — F1-F3 are the pet-family Unleash-Pet skills, F4 is
+          pet swap, F5 is the Unleash toggle itself — and per the user, the specific F1-F3 icons
+          shown are the **Bear/Ursine family only**, not universal across pet families. Still
+          genuinely unresolved: (a) exact skill names/ids behind those Bear/Ursine icons — not
+          safe to guess from icon art alone, needs a wiki-page lookup same shape as
+          `fetch-soulbeast-beastmode.ts`; (b) the same for every other pet family (Canine, Feline,
+          etc. — these screenshots only cover Bear/Ursine); (c) confirming which Unleash-toggle
+          state (Ranger vs. Pet) this screenshot represents, since both provided screenshots show
+          the same F1-F3 icons with no visible toggle-state change between them. Unblocked enough
+          to start the wiki-lookup script next session, but not to finish the mapping from these
+          screenshots alone.
         - [x] Druid's Glyph Utility skills each have 3 same-name duplicate ids with genuinely different
           effects (e.g. "Glyph of the Tides": "Pulls enemies toward you" / "Draw...in or knock them
           away" / "Push nearby enemies away") and no API field (`attunement`/`specializationId`/
@@ -980,8 +988,16 @@
           sub-forms (Saint Viktor's/Archemorus's aspects) changing its skill kit — `/v2/legends`
           exposes only one fixed heal/utility/elite set for it; not investigated further, needs a
           screenshot/reference and likely a new "legend form" concept alongside `Legend`.
-          **Decided 2026-07-31: blocked on a screenshot/reference** — user will provide one next
-          session before this gets scoped or implemented.
+          **Screenshots provided 2026-07-31** (in-session, not saved to the repo — re-request if
+          needed): confirms the premise — same weapon bar and same F2/F3 "aspect" toggle icon
+          (with the 49% energy readout) across both, but the heal/utility/elite bar (6-0) is
+          **entirely different icon-for-icon** between the two states (warm orange/green/red set
+          vs. an all-blue lightning/ice set) — a full skill-kit swap, not a cosmetic recolor.
+          Confirms a new "legend form" concept is needed alongside `Legend` (`Build` would need a
+          field mirroring `activeLegendIndex`'s shape for which aspect is active). Still open:
+          which aspect is Saint Viktor's vs. Archemorus's, and the real skill ids behind each
+          icon — not safe to guess from icon art alone; needs a wiki lookup before implementing
+          (same shape as the other icon-only screenshot findings above).
     - [x] **Mantras (and similar multi-charge skills) needing different tooltip text per charge
           state** — investigated and confirmed this is **already handled** by the same
           undocumented `6db4ef7` pass: `numericFactLines` already surfaces a skill's own ammo count
