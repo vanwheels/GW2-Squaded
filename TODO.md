@@ -65,11 +65,10 @@
         correctly absent. Known gap: boon/condition sources on skills/traits the fetch script
         skipped (see counts above) still show their PvE value — same fail-safe default as before
         this existed, not a regression.
-  - [ ] Target party comp for first pass (per current WvW meta, confirm before assuming stale):
-        Luminary (Guardian elite spec — stability/defensive boons), Troubadour (Mesmer elite
-        spec — defensive boons + healing), Druid (Ranger — healer), plus 2 DPS (e.g. Reaper,
-        Spellbreaker). Elite spec roster has grown since original scaffolding — re-check
-        `data/game-data/specializations.json` rather than assuming a remembered list is current.
+  - [x] **Decided 2026-07-31: drop the "target party comp" concept entirely.** User confirmed
+        squad-view merged-uptime math is still a stretch goal (not built), and the app already
+        supports all 9 professions generically — no need to pin example builds to one comp. No
+        further action needed; remove this as a scoping question.
 - [ ] Elite-spec skill gating for the Heal/Utility/Elite pickers — mostly shipped this session
       (`scripts/fetch-elite-spec-skills.ts` + wiring in `SkillsEditor`/`BuildEditorView`/
       `game-data-store.tsx`; see docs/game-data.md and COMPLETED.md for how it works). 211
@@ -399,6 +398,11 @@
               `Legend`/`Pet` needed their own new types). Out of scope for this session (discovered
               while investigating an unrelated duplicate-skill-id question) — revisit as its own
               pass, scoped like the Legend/Pet items were.
+              **Decided 2026-07-31: full modeling pass, next time this is picked up** — same shape
+              of effort as Legend/Pet (new `Familiar` type, re-fetch `Profession`/`Specialization`
+              data to see the Evoker spec properly, wire the per-attunement Rejuvenate heal-skill
+              variants into the skill picker). This also resolves the still-unresolved "Rejuvenate"
+              entry in the multi-step-skill-dedup list below.
   - [x] Same collapsing behavior, same arrows/tabs cycling UX, needed for multi-step skills
         (distinct effects on 1st click vs. 2nd click, etc.) — one entry, not duplicate list
         entries. **Implemented Session 19 (2026-07-29)**: live-verified `/v2/skills`' `flip_skill`
@@ -946,6 +950,10 @@
           above — the direction is currently unconfirmed), and (c) the "Unleash Ranger"/"Unleash
           Pet" toggle UI. Same shape of wiki-cross-check effort as Soulbeast's Beastmode gap above
           (per-pet-family name resolution, some ambiguous) — not attempted this session.
+          **Decided 2026-07-31: blocked on a fresh screenshot** — user will provide one next
+          session (same "visual confirmation before implementing" pattern used for Soulbeast
+          Beastmode/weapon selection). Do not attempt a wiki-only guess at the toggle direction in
+          the meantime.
         - [x] Druid's Glyph Utility skills each have 3 same-name duplicate ids with genuinely different
           effects (e.g. "Glyph of the Tides": "Pulls enemies toward you" / "Draw...in or knock them
           away" / "Push nearby enemies away") and no API field (`attunement`/`specializationId`/
@@ -972,6 +980,8 @@
           sub-forms (Saint Viktor's/Archemorus's aspects) changing its skill kit — `/v2/legends`
           exposes only one fixed heal/utility/elite set for it; not investigated further, needs a
           screenshot/reference and likely a new "legend form" concept alongside `Legend`.
+          **Decided 2026-07-31: blocked on a screenshot/reference** — user will provide one next
+          session before this gets scoped or implemented.
     - [x] **Mantras (and similar multi-charge skills) needing different tooltip text per charge
           state** — investigated and confirmed this is **already handled** by the same
           undocumented `6db4ef7` pass: `numericFactLines` already surfaces a skill's own ammo count
@@ -1037,10 +1047,22 @@
         option's `description` only shows the profession name today, not a fuller spec/gear
         summary; native HTML5 drag-and-drop has no touch-input equivalent, worth revisiting if/when
         the Capacitor mobile port (see TODO.md's roadmap) needs squad editing on a tablet.
-- [ ] Thin backend: generate/resolve shareable immutable links for builds and squad comps
-- [ ] Discord bot (client of the backend API)
-- [ ] Capacitor port for iOS/Android (swap storage adapter + native bindings only)
-- [ ] "Not affiliated with ArenaNet/NCSOFT" disclaimer if bundling official GW2 icon assets
-- [ ] Automatic game-data refresh mechanism (balance patches) — manual refresh only for now
+**Decided 2026-07-31: priority order for the roadmap items below is Electron packaging first**
+(nothing else meaningfully ships without it), then thin backend, then whatever follows from that
+(Discord bot/Capacitor). Individual scoping decisions below, made same day so these are unblocked
+for next session — none of the 6 need a further scoping conversation before work can start.
+
 - [ ] Electron packaging/distribution config (electron-builder.yml is not set up yet — only
-      `install-app-deps` postinstall is wired up for native module rebuilding)
+      `install-app-deps` postinstall is wired up for native module rebuilding). **Priority: do
+      this first** (2026-07-31 decision, see above).
+- [ ] Thin backend: generate/resolve shareable immutable links for builds and squad comps.
+      **Decided 2026-07-31: serverless/managed approach** (e.g. Cloudflare Workers + KV/D1, or
+      similar) over a self-hosted server — minimal ops overhead for a low-traffic hobby app. Do
+      after Electron packaging.
+- [ ] Discord bot (client of the backend API) — depends on the thin backend above landing first.
+- [ ] Capacitor port for iOS/Android (swap storage adapter + native bindings only)
+- [ ] "Not affiliated with ArenaNet/NCSOFT" disclaimer if bundling official GW2 icon assets.
+      **Decided 2026-07-31: footer/about screen**, small persistent text line.
+- [ ] Automatic game-data refresh mechanism (balance patches) — manual refresh only for now.
+      **Decided 2026-07-31: check for updates on app launch, prompt the user to refresh** (not a
+      silent scheduled background refresh) — user stays in control of when the actual fetch runs.
