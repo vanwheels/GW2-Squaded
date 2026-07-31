@@ -326,7 +326,7 @@
           `RevenantSkillSelection.activeLegendIndex`'s "both sets always contribute" reasoning —
           `sources.ts`'s boon/condition calc now includes both land sets, or both underwater sets,
           per `build.environment`, regardless of which one is currently displayed).
-    - [ ] **New, discovered this session**: some weapon types have duplicate skill-slot entries for
+    - [x] **New, discovered this session**: some weapon types have duplicate skill-slot entries for
           reasons other than land/underwater that this app doesn't disambiguate — e.g. Revenant
           `Sword` has 6 entries (main/off-hand context split, unconfirmed which), and every
           Elementalist weapon has up to 26 (per-attunement variants). `resolveWeaponSkillIds` falls
@@ -334,6 +334,79 @@
           fail-safe not a silent guess) rather than attempting full auto-chain/hand-context/
           attunement modeling, which is out of scope for this pass — revisit if Elementalist weapon
           skill accuracy or off-hand-Sword accuracy turns out to matter for a real build.
+          **Resolved 2026-07-31**: full pass across every profession's duplicate weapon-skill slots,
+          not just the 2 cases originally spotted. Found and fixed 4 distinct causes, each via a
+          real signal (no guessing) — see `resolveSkillBarIds`'s doc comment in
+          `weapon-calc/weapon-skills.ts` for the full per-signal writeup:
+          1. **Revenant Sword off-hand Weapon_4** (the originally-spotted case): resolved via a new
+             flip-root signal — `28571` "Duelist's Preparation" (the block a player actually binds)
+             has `flipSkill: 28472` ("Shackling Wave", its own follow-up strike on a successful
+             block), and both raw ids land in the same Weapon_4 candidate group. Dropping whichever
+             candidate is another same-slot candidate's `flipSkill` target — the exact same
+             flip-root signal `skill-calc/skill-variants.ts` already used for Heal/Utility/Elite,
+             just not previously applied to weapon skills — resolves this cleanly to `28571`.
+          2. **Guardian Shield "Shield of Judgment" (Weapon_4, 2 ids)**: confirmed via a full field-
+             by-field diff that both ids (`15834`/`9087`) are byte-for-byte identical (same facts,
+             description, icon) — a legacy duplicate id, not a real ambiguity. No code change
+             needed; the existing first-entry fallback was already correct, just undocumented as
+             "confirmed identical" rather than "known limitation."
+          3. **Engineer Sword (all 3 slots, 2 ids each)**: wiki-confirmed (`Sun_Edge` page) this is
+             a Holosmith-vs-"Weaponmaster Training" split — one id scales with Holosmith's Heat
+             mechanic (`specializationId: 57`), the other doesn't (`specializationId: null`, usable
+             by any profession via the newer universal weapon-access system). Resolved by adding a
+             `specializationId`-match signal to `resolveSkillBarIds` (same rule
+             `skill-calc/skill-variants.ts`/`skill-calc/profession-mechanic.ts` already apply
+             elsewhere): prefers the spec-matched id when that spec is equipped, else the spec-less
+             one. Since this app's own weapon-type picker (`EquipmentEditor`) already requires
+             Holosmith to be equipped before Sword is even selectable, the Holosmith-gated id always
+             wins in practice.
+          4. **Thief's 5 main-hand weapons' Weapon_3 "Dual Wield" triples** (Dagger/Axe/Pistol/
+             Scepter/Sword, `categories: ["DualWield"]`, 2-3 ids each): the real, GW2-native
+             mechanic this app's doc comment had flagged as "hand-context variant, not modeled" —
+             which id activates depends on the *off-hand* weapon paired with that main-hand. No API
+             field encodes this, so wiki-verified (2026-07-31, one page per candidate id, cross-
+             checking each skill's own "Main hand X / Off hand Y" infobox field) a flat
+             skill-id -> required-off-hand-type table (`THIEF_DUAL_WIELD_OFFHAND` in
+             `weapon-skills.ts`), including the wiki's own "off hand empty" default entry for the
+             weapons that have one (used when the build's actual off-hand doesn't match a more
+             specific entry). `resolveSkillBarIds` gained an `offWeaponType` parameter feeding this
+             table as a resolution signal; `weaponSkillIdsForPair` now passes each side's own
+             weapon-type name to the *other* side's resolution call (each hand's Weapon_3 depends on
+             what's in the other hand). Verified against all 12 ids via a standalone script (not
+             committed): every (main, off) combo resolves to exactly its wiki-confirmed id.
+          5. **Elementalist's per-attunement weapon-skill duplication** (up to 16-26 raw entries per
+             weapon): reframed from "a duplicate-id problem" to what it actually is — Elementalist
+             genuinely has 4 live attunement-specific skill bars per weapon (swapped between in
+             real combat), the same "one profession, several simultaneously-equipped skill bars"
+             shape already modeled for Revenant's 2 legends and the land/underwater Environment
+             toggle. Implemented the same way: new `Build.activeAttunement` field (`'Fire' |
+             'Water' | 'Air' | 'Earth'`, display-only — doesn't gate boon/condition totals, since
+             all 4 attunements' skills always contribute regardless of which is shown, same "every
+             equipped alternate always contributes" reasoning as every other toggle in this
+             codebase), a new attunement toggle row in `WeaponSkillBar.tsx` (Elementalist-only,
+             reuses the existing `.legend-bar-toggle` styling), and an `attunement` parameter on
+             `resolveSkillBarIds`/`weaponSkillIdsForPair` that filters candidates to the selected
+             attunement first (every Elementalist weapon-skill candidate carries a non-null
+             `Skill.attunement`; every other profession's are all `null`, so this is a no-op
+             everywhere else). `sources.ts`'s `weaponSkillIdsForBuild` now loops over all 4
+             attunements for Elementalist builds when computing boon/condition sources (mirroring
+             how it already loops over both weapon-swap sets), so every attunement's granted
+             boons/conditions count as available sources regardless of the display toggle.
+             **Known remaining gap, explicitly out of scope**: Weaver's "Dual Attack" weapon-skill-3
+             replacements (e.g. 3 different Fire-tagged ids — "Ashen Blast"/"Plasma Burst"/"Steam
+             Surge" — all sharing `specializationId: 56`/Weaver) can't be told apart by any signal
+             this app has: which one is live depends on Weaver's *second* active attunement, a
+             combat-state axis with no equivalent in this app's static loadout model (same shape of
+             gap the Familiar/Legend features had before their own modeling passes). Falls back to
+             the first candidate deterministically — documented in `resolveSkillBarIds`'s doc
+             comment, not a silent guess.
+          Verified via `npm run typecheck`/`lint`/`build` (all clean) and a standalone script (not
+          committed) asserting 20 hand-derived expected ids across all 5 fixed cases, plus a direct
+          check confirming the Weaver gap resolves to a valid (if ambiguous) id rather than
+          crashing. Not visually confirmed in a running window (standing Electron-sandbox
+          limitation, see COMPLETED.md) — recommend `npm run dev` locally to eyeball the new
+          Elementalist attunement toggle row and the corrected Revenant/Engineer/Thief weapon skill
+          bars.
   - [x] Minor traits: original complaint was "no hover tooltip at all," but survey finding showed
         minor traits actually already carried a native `title=` same as majors — so there was no
         missing-wiring bug here specifically. Wired into the new `Tooltip` component along with

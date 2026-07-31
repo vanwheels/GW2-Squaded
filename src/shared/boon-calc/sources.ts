@@ -130,24 +130,38 @@ export function boonConditionFactsForSkill(
   )
 }
 
+const ELEMENTALIST_ATTUNEMENTS = ['Fire', 'Water', 'Air', 'Earth'] as const
+
 /**
  * Every weapon-derived skill id a build's currently-`environment`-relevant weapon sets grant.
  * Land builds count BOTH swap sets (A and B); underwater builds count both underwater sets (U1
  * and U2) — a player carries both and can swap anytime, same "both always contribute" reasoning
  * as `RevenantSkillSelection.activeLegendIndex` (see its doc comment). `activeWeaponSet`/
- * `activeUnderwaterSet` are display-only and don't gate this.
+ * `activeUnderwaterSet` are display-only and don't gate this. `equippedSpecializationIds` feeds
+ * `weaponSkillIdsForPair`'s `specializationId`-match signal (e.g. Engineer Sword's Holosmith-vs-
+ * base "Sun Edge" pair).
  *
  * For an Untamed Ranger, also includes each main-hand weapon's Untamed "Unleashed" autoattack
  * alternate (see `unleashedWeaponOneId`) alongside the normal one — same "both states always
  * contribute" reasoning as everything else here, since Unleashed cycles on a 1-second cooldown in
  * real combat rather than being a deliberate, long-lived player choice. `Build.rangerUnleashed` is
  * display-only and doesn't gate this, same as the other toggles above.
+ *
+ * For Elementalist, every attunement's own skill set contributes regardless of `Build.
+ * activeAttunement` — same "both/all states always contribute" reasoning, since a real
+ * Elementalist swaps attunement freely mid-fight (see `Build.activeAttunement`'s doc comment).
  */
-function weaponSkillIdsForBuild(build: Build, professions: Profession[], skillsById: Map<number, Skill>): number[] {
+function weaponSkillIdsForBuild(
+  build: Build,
+  professions: Profession[],
+  skillsById: Map<number, Skill>,
+  equippedSpecializationIds: ReadonlySet<number>
+): number[] {
   const profession = professions.find((p) => p.id === build.profession)
   if (!profession) return []
 
   const isUntamed = build.specializations.some((line) => line?.specializationId === UNTAMED_SPEC_ID)
+  const attunements: (string | null)[] = profession.id === 'Elementalist' ? [...ELEMENTALIST_ATTUNEMENTS] : [null]
 
   const pairs: [EquipmentSlotKey, EquipmentSlotKey | null][] =
     build.environment === 'land'
@@ -167,8 +181,19 @@ function weaponSkillIdsForBuild(build: Build, professions: Profession[], skillsB
     const mainWeapon = mainType ? profession.weapons[mainType] : undefined
     const offWeapon = offType ? profession.weapons[offType] : mainWeapon
     if (!mainWeapon && !offWeapon) continue
-    for (const id of weaponSkillIdsForPair(mainWeapon, offWeapon, build.environment, skillsById)) {
-      if (id !== null) ids.push(id)
+    for (const attunement of attunements) {
+      for (const id of weaponSkillIdsForPair(
+        mainWeapon,
+        offWeapon,
+        build.environment,
+        skillsById,
+        equippedSpecializationIds,
+        mainType ?? null,
+        offType ?? mainType ?? null,
+        attunement
+      )) {
+        if (id !== null) ids.push(id)
+      }
     }
     if (isUntamed && mainType && mainWeapon) {
       const altId = unleashedWeaponOneId(mainType, mainWeapon, build.environment, skillsById)
@@ -251,7 +276,12 @@ function skillIdsForBuild(
         .flatMap((bar) => [bar.f1SkillId, bar.f2SkillId, bar.f3SkillId])
     : []
 
-  return [...nonWeaponIds, ...petSkillIds, ...beastmodeSkillIds, ...weaponSkillIdsForBuild(build, professions, skillsById)]
+  return [
+    ...nonWeaponIds,
+    ...petSkillIds,
+    ...beastmodeSkillIds,
+    ...weaponSkillIdsForBuild(build, professions, skillsById, equippedSpecIds)
+  ]
 }
 
 /**

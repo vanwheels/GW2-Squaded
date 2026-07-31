@@ -2,6 +2,56 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 32 — Weapon duplicate-skill-slot edge cases resolved (Revenant/Guardian/Engineer/Thief/Elementalist)
+
+Picked up TODO.md's "New, discovered this session" weapon-skill-duplication item (originally spotted
+2 cases: Revenant Sword's 6-entry off-hand slot, Elementalist's up to-26-entry per-attunement sets) and
+did a full pass across every profession's raw `/v2/professions` weapon-skill data, not just those 2.
+Found 5 distinct causes total, each resolved via a real signal (wiki-verified where the API alone
+doesn't say enough) rather than left as an unexplained fallback:
+
+- **Revenant Sword off-hand Weapon_4** — added a flip-root signal to `resolveSkillBarIds`
+  (`weapon-calc/weapon-skills.ts`), the same one `skill-calc/skill-variants.ts` already used for
+  Heal/Utility/Elite but never applied to weapon skills: "Duelist's Preparation" (`28571`) flips into
+  "Shackling Wave" (`28472`) on a successful block, both raw candidates for the same slot — dropping
+  whichever candidate is another same-slot candidate's `flipSkill` target now resolves this to `28571`
+  (the id a player actually binds).
+- **Guardian Shield "Shield of Judgment" (2 ids)** — confirmed via a full field diff both ids are
+  byte-for-byte identical (legacy duplicate id). No code change; documented as confirmed-identical
+  rather than an open limitation.
+- **Engineer Sword (all 3 slots)** — wiki-confirmed a Holosmith-vs-"Weaponmaster Training" split (one
+  id scales with Holosmith's Heat mechanic, the other doesn't). Added a `specializationId`-match
+  signal to `resolveSkillBarIds` (mirroring `skill-variants.ts`/`profession-mechanic.ts`'s existing
+  rule) — resolves cleanly since this app's weapon-type picker already requires Holosmith equipped
+  before Sword is selectable at all.
+- **Thief's 5 main-hand weapons' Weapon_3 "Dual Wield" triples** (Dagger/Axe/Pistol/Scepter/Sword) —
+  the genuine hand-context case the old doc comment had flagged as unmodeled: which id fires depends
+  on the *off-hand* weapon paired with that main-hand. No API field encodes this, so wiki-verified
+  (one page per candidate id) a flat id -> required-off-hand-type table
+  (`THIEF_DUAL_WIELD_OFFHAND`), including each weapon's "off hand empty" default. New `offWeaponType`
+  parameter on `resolveSkillBarIds`; `weaponSkillIdsForPair` now passes each hand's weapon-type name
+  to the *other* hand's resolution call.
+- **Elementalist's per-attunement duplication** — reframed from "ambiguous ids" to what it actually
+  is: 4 live, simultaneously-equipped attunement skill bars per weapon, same shape as Revenant's 2
+  legends or the land/underwater Environment toggle. New `Build.activeAttunement` field (display-only,
+  doesn't gate boon/condition totals — all 4 always contribute), a new attunement toggle row in
+  `WeaponSkillBar.tsx` (Elementalist-only), and an `attunement` parameter on `resolveSkillBarIds` that
+  filters to the selected attunement (every Elementalist weapon skill carries a non-null
+  `Skill.attunement`; every other profession's is `null`, so this is a no-op elsewhere).
+  `sources.ts`'s `weaponSkillIdsForBuild` now loops all 4 attunements for Elementalist when computing
+  boon/condition sources. **Known remaining gap**: Weaver's "Dual Attack" weapon-3 replacements (e.g.
+  3 different Fire-tagged ids all sharing `specializationId: 56`) can't be told apart by any signal
+  this app has — which one is live depends on Weaver's *second* active attunement, a combat-state axis
+  with no equivalent in this app's static loadout model. Falls back to the first candidate
+  deterministically, documented not guessed.
+
+Verified via `npm run typecheck`/`lint`/`build` (all clean) and a standalone script (not committed)
+asserting 20 hand-derived expected ids across all 5 cases (including all Thief hand-context combos and
+Engineer Sword's Holosmith gating), plus a direct check confirming the Weaver gap resolves to a valid
+id rather than crashing. Not visually confirmed in a running window (standing Electron-sandbox
+limitation) — recommend `npm run dev` locally to eyeball the new Elementalist attunement toggle and
+the corrected Revenant/Engineer/Thief weapon skill bars.
+
 ## Session 31 — Ranger Untamed Unleash-Pet premise corrected; Vindicator Legend7 boon-calc gap fixed
 
 Continued through TODO.md's next 2 open items in order: the Ranger Untamed "pet-family Unleash-Pet

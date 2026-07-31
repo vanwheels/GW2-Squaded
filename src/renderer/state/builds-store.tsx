@@ -33,6 +33,7 @@ export function makeBlankBuild(): Build {
     activeBundleSkillId: null,
     rangerUnleashed: false,
     familiarId: null,
+    activeAttunement: 'Fire',
     createdAt: now,
     updatedAt: now
   }

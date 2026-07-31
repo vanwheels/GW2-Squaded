@@ -155,6 +155,15 @@ export interface Build {
    * familiar's own active/passive combat effects aren't modeled — see `Familiar`'s doc comment.
    */
   familiarId: string | null
+  /**
+   * Elementalist only (meaningless, always `'Fire'`, for every other profession): which attunement's
+   * weapon-skill bar (Weapon_1-5) is currently displayed — display-only, same "toggle doesn't gate
+   * boon/condition totals" reasoning as `activeWeaponSet`/`activeLegendIndex`/`activePetIndex`,
+   * since a real Elementalist cycles through all 4 attunements at will mid-fight and every
+   * attunement's skills always contribute regardless of which is shown here. See
+   * `weapon-calc/weapon-skills.ts`'s `attunement` parameter.
+   */
+  activeAttunement: 'Fire' | 'Water' | 'Air' | 'Earth'
   createdAt: Timestamp
   updatedAt: Timestamp
 }

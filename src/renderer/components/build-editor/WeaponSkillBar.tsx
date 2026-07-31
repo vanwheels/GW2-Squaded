@@ -13,9 +13,13 @@ interface Props {
   build: Build
   equippedSpecializationIds: ReadonlySet<number>
   onBuildChange: (
-    patch: Partial<Pick<Build, 'environment' | 'activeWeaponSet' | 'activeUnderwaterSet' | 'activeBundleSkillId' | 'rangerUnleashed'>>
+    patch: Partial<
+      Pick<Build, 'environment' | 'activeWeaponSet' | 'activeUnderwaterSet' | 'activeBundleSkillId' | 'rangerUnleashed' | 'activeAttunement'>
+    >
   ) => void
 }
+
+const ATTUNEMENTS = ['Fire', 'Water', 'Air', 'Earth'] as const
 
 /**
  * The weapon-derived half of the skill bar: an ENVIRONMENT toggle (land/underwater) and, within
@@ -50,7 +54,19 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
   const mainWeapon = mainType && profession ? profession.weapons[mainType] : undefined
   const offWeapon = offType && profession ? profession.weapons[offType] : mainWeapon
 
-  const baseSkillIds = profession ? weaponSkillIdsForPair(mainWeapon, offWeapon, build.environment, skillsById) : []
+  const isElementalist = build.profession === 'Elementalist'
+  const baseSkillIds = profession
+    ? weaponSkillIdsForPair(
+        mainWeapon,
+        offWeapon,
+        build.environment,
+        skillsById,
+        equippedSpecializationIds,
+        mainType ?? null,
+        offType ?? null,
+        isElementalist ? build.activeAttunement : null
+      )
+    : []
   const hasAnyWeapon = mainWeapon !== undefined || offWeapon !== undefined
   const variantContext: SkillVariantContext = { skills: gameData.skills, skillsById, wvwFactOverrides: gameData.wvwFactOverrides, durationPercent }
 
@@ -103,6 +119,21 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
           Underwater
         </button>
       </div>
+
+      {isElementalist && (
+        <div className="legend-bar-toggle">
+          {ATTUNEMENTS.map((attunement) => (
+            <button
+              key={attunement}
+              type="button"
+              className={build.activeAttunement === attunement ? 'legend-toggle-button active' : 'legend-toggle-button'}
+              onClick={() => onBuildChange({ activeAttunement: attunement })}
+            >
+              {attunement}
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="legend-bar-toggle">
         {isLand ? (
