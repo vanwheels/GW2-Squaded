@@ -55,7 +55,7 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds }: Prop
   if (entries.length === 0) return null
 
   return (
-    <div className="skill-bar profession-mechanic-bar">
+    <div className="skill-bar profession-mechanic-bar ingame-skill-bar-mechanic">
       {entries.map((entry) => (
         <Tooltip key={entry.slot} content={skillTooltipFor(entry.skill.id) ?? <TooltipBody title="Unknown skill" />}>
           <button type="button" className="skill-slot-button" disabled>

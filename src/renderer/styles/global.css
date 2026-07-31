@@ -10,6 +10,10 @@
      item-rarity-color-coding item for which slot categories use which tier and why. */
   --rarity-ascended: #fb3e8d;
   --rarity-fine: #62a4da;
+  /* Land/Underwater environment icon colors (see SkillBarIcon) — distinct from --accent so both
+     states stay readable side by side at a glance. */
+  --land-green: #5cb85c;
+  --water-blue: #4aa8e0;
 }
 
 * {
@@ -142,9 +146,29 @@ input[type='text'] {
 
 .build-editor-columns {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr;
+  /* The main group (Traits+Equipment side by side, Skills spanning below them) sizes to its own
+     content instead of stretching proportionally with the viewport — it was leaving large
+     dead-space gaps on wide windows since its content never actually got wider than its natural
+     size regardless of how much track it was given. The 2nd column (stats/boons) absorbs the
+     rest, since its text content benefits from the extra width more than icon grids do. */
+  grid-template-columns: max-content 1fr;
   gap: 24px;
   align-items: start;
+}
+
+.build-editor-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Traits and Equipment side by side, stretched to match each other's height (see
+   `.build-editor-column`'s border/background — mismatched heights read as sloppy here since
+   both are full bordered panels sitting on the same row). */
+.build-editor-top-row {
+  display: flex;
+  align-items: stretch;
+  gap: 24px;
 }
 
 .build-editor-column {
@@ -167,10 +191,17 @@ input[type='text'] {
 }
 
 .trait-line {
+  position: relative;
   display: flex;
-  align-items: flex-start;
+  /* Centers the spec-select column against the tiers row's full height, so it lines up with the
+     middle tier rather than hugging the top. */
+  align-items: center;
   gap: 14px;
   flex-wrap: wrap;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .trait-line-spec-select {
@@ -179,12 +210,30 @@ input[type='text'] {
   align-items: center;
   gap: 4px;
   flex: none;
+  position: relative;
+  z-index: 1;
 }
 
 .trait-line-tiers-horizontal {
   display: flex;
   gap: 16px;
   align-items: flex-start;
+  position: relative;
+  z-index: 1;
+}
+
+/* Connector line ("spec icon -> minor -> selected major", same shape the in-game trait UI draws)
+   overlaid behind the icons — see TraitsEditor.tsx's `useTraitConnector`. z-index 0 (below the
+   z-index 1 content above) keeps the icons' own opaque backgrounds covering the line at each node,
+   so it only reads as visible in the gaps between them, matching the reference screenshot. */
+.trait-connector-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  overflow: visible;
 }
 
 .spec-icon-button {
@@ -284,7 +333,7 @@ input[type='text'] {
 .equipment-editor {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
 }
 
 /* Copy/paste (2026-07-30): pick a value in one of these 4 template slots, then drag it onto any
@@ -321,31 +370,55 @@ input[type='text'] {
   cursor: default;
 }
 
-.gear-paperdoll {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px 16px;
+/* Weapon / Armor / Accessories side by side, matching gw2skills.net's reference layout — each
+   panel sizes to its own content (no flex-grow) rather than stretching across the column. */
+.gear-panels {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
 }
 
-.gear-column {
+.gear-panel {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+}
+
+.gear-panel-title {
+  margin: 0 0 2px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
 .gear-slot {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .gear-slot-body {
-  flex: 1;
-  min-width: 0;
+  flex: none;
   display: flex;
   flex-direction: column;
   gap: 2px;
   font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.gear-slot-type-icon-wrap {
+  display: flex;
+  flex: none;
+}
+
+.gear-slot-type-icon {
+  width: 20px;
+  height: 20px;
   color: var(--muted);
 }
 
@@ -362,36 +435,57 @@ input[type='text'] {
   border-color: var(--rarity-fine);
 }
 
-.gear-weapons {
-  display: flex;
-  gap: 24px;
-}
-
 .gear-weapon-set {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
-.gear-weapon-set h4 {
+.gear-weapon-set h5 {
   margin: 0;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
+/* Main hand / off hand side by side (was stacked) — matches gw2skills.net's reference layout. */
 .gear-weapon-pair {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.gear-weapon-pair > * {
+  flex: 1;
+  min-width: 0;
 }
 
 .weapon-slot {
   flex-direction: column;
   align-items: stretch;
+  gap: 4px;
+}
+
+/* Land/Underwater toggle atop the Weapon panel — only one set of weapon slots is shown at a
+   time, defaulting to land (see EquipmentEditor's `weaponMode` state). */
+.weapon-mode-toggle {
+  display: flex;
   gap: 6px;
+}
+
+.weapon-mode-toggle-button {
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.weapon-mode-toggle-button.active {
+  border-color: var(--accent);
+  color: var(--text);
 }
 
 .weapon-slot-locked {
@@ -413,12 +507,92 @@ input[type='text'] {
   gap: 8px;
 }
 
-.weapon-skill-bar {
+/* Editor-only display toggles with no HUD equivalent (attunement/unleashed/bundle) — shown above
+   the whole in-game-style bar rather than crowding the weapon-swap column. */
+.ingame-skill-bar-extras {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--border);
+}
+
+/* In-game-style bottom bar, as a grid so the weapon skills and utility skills rows land in the
+   same row regardless of how tall the profession-mechanic bar or legend-picker row above them is
+   — see `SkillsEditor`'s doc comment for why every piece here is a direct grid child. The narrow
+   `divider` column (~1 skill-icon width) plus its centered line separates the weapon skills from
+   the Heal/Utility/Elite (or Legend) skills without the wide gap a plain column-gap would leave. */
+.ingame-skill-bar {
+  display: grid;
+  grid-template-columns: auto auto 48px auto;
+  grid-template-areas:
+    'env  mechanic divider utility-top'
+    'swap weapon   divider utility-skills';
+  column-gap: 14px;
+  row-gap: 8px;
+  align-items: start;
+  justify-content: start;
+}
+
+.ingame-skill-bar-env {
+  grid-area: env;
+}
+
+.ingame-skill-bar-swap {
+  grid-area: swap;
+}
+
+.ingame-skill-bar-mechanic {
+  grid-area: mechanic;
+}
+
+.ingame-skill-bar-weapon {
+  grid-area: weapon;
+}
+
+.ingame-skill-bar-divider {
+  grid-area: divider;
+  width: 1px;
+  height: 100%;
+  background: var(--border);
+  justify-self: center;
+  align-self: stretch;
+}
+
+.ingame-skill-bar-utility-top {
+  grid-area: utility-top;
+}
+
+.ingame-skill-bar-utility-skills {
+  grid-area: utility-skills;
+}
+
+/* Small control icons (weapon-swap cycle, land/underwater) — a step down from the 48px
+   `skill-slot-button` since these are display toggles, not skill slots. */
+.skill-bar-icon-button {
+  width: 26px;
+  height: 26px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.skill-bar-icon {
+  width: 100%;
+  height: 100%;
+}
+
+.skill-bar-icon-button.env-land.active {
+  color: var(--land-green);
+  border-color: var(--land-green);
+}
+
+.skill-bar-icon-button.env-water.active {
+  color: var(--water-blue);
+  border-color: var(--water-blue);
 }
 
 .skill-bar {
@@ -514,6 +688,7 @@ input[type='text'] {
 
 .legend-select-row {
   display: flex;
+  align-items: center;
   gap: 16px;
 }
 
@@ -825,8 +1000,7 @@ input[type='text'] {
 
 .upgrade-row {
   display: flex;
-  gap: 4px;
-  margin-left: 38px;
+  gap: 5px;
 }
 
 .upgrade-slot {
@@ -843,6 +1017,18 @@ input[type='text'] {
   background-size: cover;
   background-position: center;
   overflow: hidden;
+}
+
+/* Infusion (md) and rune/sigil (lg) read as progressively more important than the default 20px
+   badge size — see UpgradePicker's `size` prop. */
+.upgrade-badge.upgrade-badge-md {
+  width: 26px;
+  height: 26px;
+}
+
+.upgrade-badge.upgrade-badge-lg {
+  width: 32px;
+  height: 32px;
 }
 
 .upgrade-badge img {
@@ -872,18 +1058,6 @@ input[type='text'] {
   margin-bottom: 8px;
 }
 
-.consumables-editor {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.consumable-slot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
 
 .squad-editor {
   display: flex;

@@ -17,7 +17,6 @@ import { EliteSpecSelect } from './EliteSpecSelect'
 import { TraitsEditor } from './TraitsEditor'
 import { SkillsEditor } from './SkillsEditor'
 import { EquipmentEditor } from './EquipmentEditor'
-import { ConsumablesEditor } from './ConsumablesEditor'
 import { BoonUptimePanel } from './BoonUptimePanel'
 import { StatsPanel } from './StatsPanel'
 
@@ -146,41 +145,44 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
       </div>
 
       <div className="build-editor-columns" ref={columnsRef}>
-        <div className="build-editor-column">
-          <ProfessionSelect value={draft.profession} onChange={handleProfessionChange} />
-          <EliteSpecSelect
-            profession={draft.profession}
-            value={draft.specializations}
-            onChange={handleSpecializationsChange}
-          />
-          <h3>Traits</h3>
-          <TraitsEditor
-            profession={draft.profession}
-            value={draft.specializations}
-            onChange={handleSpecializationsChange}
-          />
-          <h3>Skills</h3>
-          <SkillsEditor
-            build={draft}
-            value={draft.skills}
-            onChange={(skills) => setDraft({ ...draft, skills })}
-            onBuildChange={(patch) => setDraft({ ...draft, ...patch })}
-            equippedSpecializationIds={equippedSpecializationIds}
-          />
-        </div>
-        <div className="build-editor-column">
-          <h3>Equipment</h3>
-          <EquipmentEditor
-            value={draft.equipment}
-            onChange={(equipment) => setDraft({ ...draft, equipment })}
-            profession={draft.profession}
-            equippedSpecializationIds={equippedSpecializationIds}
-          />
-          <h3>Consumables</h3>
-          <ConsumablesEditor
-            value={{ relicId: draft.relicId, foodId: draft.foodId, utilityId: draft.utilityId }}
-            onChange={(patch) => setDraft({ ...draft, ...patch })}
-          />
+        <div className="build-editor-main">
+          <div className="build-editor-top-row">
+            <div className="build-editor-column">
+              <ProfessionSelect value={draft.profession} onChange={handleProfessionChange} />
+              <EliteSpecSelect
+                profession={draft.profession}
+                value={draft.specializations}
+                onChange={handleSpecializationsChange}
+              />
+              <h3>Traits</h3>
+              <TraitsEditor
+                profession={draft.profession}
+                value={draft.specializations}
+                onChange={handleSpecializationsChange}
+              />
+            </div>
+            <div className="build-editor-column">
+              <h3>Equipment</h3>
+              <EquipmentEditor
+                value={draft.equipment}
+                onChange={(equipment) => setDraft({ ...draft, equipment })}
+                profession={draft.profession}
+                equippedSpecializationIds={equippedSpecializationIds}
+                consumables={{ relicId: draft.relicId, foodId: draft.foodId, utilityId: draft.utilityId }}
+                onConsumablesChange={(patch) => setDraft({ ...draft, ...patch })}
+              />
+            </div>
+          </div>
+          <div className="build-editor-column">
+            <h3>Skills</h3>
+            <SkillsEditor
+              build={draft}
+              value={draft.skills}
+              onChange={(skills) => setDraft({ ...draft, skills })}
+              onBuildChange={(patch) => setDraft({ ...draft, ...patch })}
+              equippedSpecializationIds={equippedSpecializationIds}
+            />
+          </div>
         </div>
         <div className="build-editor-column">
           <StatsPanel build={draft} />

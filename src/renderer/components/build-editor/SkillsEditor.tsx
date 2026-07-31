@@ -12,6 +12,7 @@ import { WeaponSkillBar } from './WeaponSkillBar'
 import { ProfessionMechanicBar } from './ProfessionMechanicBar'
 import { PetsEditor } from './PetsEditor'
 import { EvokerFamiliarSelect } from './EvokerFamiliarSelect'
+import { SkillBarIcon } from './SkillBarIcon'
 
 interface Props {
   build: Build
@@ -37,6 +38,16 @@ interface Props {
 
 type SlotId = 'heal' | 'utility0' | 'utility1' | 'utility2' | 'elite'
 
+/**
+ * Laid out as a CSS grid mirroring the real HUD's bottom bar: a Land/Underwater toggle icon sits
+ * above a weapon-swap cycle icon (that pair forms its own narrow left column), next to it the
+ * profession-mechanic F1-F5 row sits above the weapon 1-5 skills, then a thin divider, then the
+ * Heal/Utility/Elite (or Legend) skills. Every piece below is a *direct* child of
+ * `.ingame-skill-bar` — each one declares its own `grid-area` (see the CSS) rather than being
+ * nested in a JS-side wrapper div — so the two skill rows (`weapon`/`utility-skills`) land in the
+ * same grid row and line up exactly regardless of how tall the profession-mechanic bar or the
+ * legend-picker row above them is.
+ */
 export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSpecializationIds }: Props) {
   return (
     <div className="skills-editor-root">
@@ -44,23 +55,39 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
       {build.profession === 'Elementalist' && equippedSpecializationIds.has(EVOKER_SPECIALIZATION_ID) && (
         <EvokerFamiliarSelect value={build.familiarId} onChange={(familiarId) => onBuildChange({ familiarId })} />
       )}
-      <ProfessionMechanicBar build={build} equippedSpecializationIds={equippedSpecializationIds} />
-      {value.kind === 'revenant' ? (
-        <RevenantSkillsEditor
-          build={build}
-          value={value}
-          onChange={onChange}
-          equippedSpecializationIds={equippedSpecializationIds}
-        />
-      ) : (
-        <StandardSkillsEditor
-          build={build}
-          value={value}
-          onChange={onChange}
-          equippedSpecializationIds={equippedSpecializationIds}
-        />
-      )}
-      <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} />
+      <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} section="extras" />
+      <div className="ingame-skill-bar">
+        <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} section="env" />
+        <ProfessionMechanicBar build={build} equippedSpecializationIds={equippedSpecializationIds} />
+        <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} section="swap" />
+        <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} section="weapon" />
+        <div className="ingame-skill-bar-divider" />
+        {value.kind === 'revenant' ? (
+          <>
+            <RevenantSkillsEditor
+              build={build}
+              value={value}
+              onChange={onChange}
+              equippedSpecializationIds={equippedSpecializationIds}
+              section="select"
+            />
+            <RevenantSkillsEditor
+              build={build}
+              value={value}
+              onChange={onChange}
+              equippedSpecializationIds={equippedSpecializationIds}
+              section="bar"
+            />
+          </>
+        ) : (
+          <StandardSkillsEditor
+            build={build}
+            value={value}
+            onChange={onChange}
+            equippedSpecializationIds={equippedSpecializationIds}
+          />
+        )}
+      </div>
     </div>
   )
 }
@@ -216,7 +243,7 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
   const slots: SlotId[] = ['heal', 'utility0', 'utility1', 'utility2', 'elite']
 
   return (
-    <div className="skills-editor">
+    <div className="skills-editor ingame-skill-bar-utility-skills">
       <div className="skill-bar">
         {slots.map((slot) => {
           const { label, chosenId } = slotConfig(slot)
@@ -290,16 +317,21 @@ interface RevenantProps {
   value: RevenantSkillSelection
   onChange: (value: SkillSelection) => void
   equippedSpecializationIds: ReadonlySet<number>
+  /** Split the same way `WeaponSkillBar` is (see its doc comment): `select` is the Legend 1/Legend
+   *  2 pickers plus the cycle icon between them that swaps which legend is active, `bar` is just
+   *  the resulting read-only skill row — so `SkillsEditor` can align `bar` with the weapon skills
+   *  row regardless of how tall the picker row above it is. */
+  section: 'select' | 'bar'
 }
 
 /**
  * Revenant equips 2 Legends at once (each a *fixed* heal/3 utility/elite kit — not picked
- * skill-by-skill) and swaps between them in combat. The editor mirrors that: 2 legend slots up
- * top (each opens a picker of legends available given the equipped specializations), and below
- * them the currently-active legend's fixed skill bar (read-only icons with boon/condition
- * tooltips, same as the standard skill bar) plus a toggle to switch which legend's bar is shown.
+ * skill-by-skill) and swaps between them in combat. The editor mirrors that: 2 legend slots
+ * (each opens a picker of legends available given the equipped specializations) with a cycle icon
+ * between them to swap which one is active, and the currently-active legend's fixed skill bar
+ * (read-only icons with boon/condition tooltips, same as the standard skill bar).
  */
-function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationIds }: RevenantProps) {
+function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationIds, section }: RevenantProps) {
   const { gameData, activeIds, durationPercent } = useDurationContext(build)
   const { skillsById, legendsById, legendsForSpecializations } = gameData
   const [openLegendSlot, setOpenLegendSlot] = useState<0 | 1 | null>(null)
@@ -321,75 +353,11 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
     setOpenLegendSlot(null)
   }
 
-  const activeLegendId = value.legends[value.activeLegendIndex]
-  const activeLegend = activeLegendId !== null ? legendsById.get(activeLegendId) : undefined
-
-  return (
-    <div className="skills-editor">
-      <div className="legend-select-row">
-        {([0, 1] as const).map((slotIndex) => {
-          const legendId = value.legends[slotIndex]
-          const legend = legendId !== null ? legendsById.get(legendId) : undefined
-          const chosenElsewhere = value.legends[slotIndex === 0 ? 1 : 0]
-          return (
-            <div key={slotIndex} className="legend-slot">
-              <div className="legend-slot-label">Legend {slotIndex + 1}</div>
-              <Tooltip content={legend ? <TooltipBody title={legend.name} /> : <TooltipBody title="No legend chosen" />}>
-                <button
-                  type="button"
-                  className={openLegendSlot === slotIndex ? 'skill-slot-button open' : 'skill-slot-button'}
-                  onClick={() => setOpenLegendSlot(openLegendSlot === slotIndex ? null : slotIndex)}
-                >
-                  {legend ? <img src={legend.icon} alt={legend.name} /> : <span className="skill-slot-placeholder">Legend</span>}
-                </button>
-              </Tooltip>
-              {openLegendSlot === slotIndex && (
-                <div className="skill-picker">
-                  <div className="skill-picker-header">Legend {slotIndex + 1}</div>
-                  <div className="skill-picker-grid">
-                    <button type="button" className="skill-option-button" onClick={() => chooseLegend(slotIndex, null)}>
-                      <span className="skill-option-none">—</span>
-                      <span className="skill-option-name">None</span>
-                    </button>
-                    {availableLegends
-                      .filter((l) => l.id !== chosenElsewhere)
-                      .map((l) => (
-                        <button
-                          key={l.id}
-                          type="button"
-                          className={legendId === l.id ? 'skill-option-button chosen' : 'skill-option-button'}
-                          onClick={() => chooseLegend(slotIndex, l.id)}
-                        >
-                          <img src={l.icon} alt={l.name} />
-                          <span className="skill-option-name">{l.name}</span>
-                        </button>
-                      ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-
-      <div className="legend-bar-toggle">
-        {([0, 1] as const).map((i) => {
-          const legendId = value.legends[i]
-          const legend = legendId !== null ? legendsById.get(legendId) : undefined
-          return (
-            <button
-              key={i}
-              type="button"
-              className={value.activeLegendIndex === i ? 'legend-toggle-button active' : 'legend-toggle-button'}
-              onClick={() => onChange({ ...value, activeLegendIndex: i })}
-            >
-              {legend ? legend.name : `Legend ${i + 1}`}
-            </button>
-          )
-        })}
-      </div>
-
-      <div className="skill-bar">
+  if (section === 'bar') {
+    const activeLegendId = value.legends[value.activeLegendIndex]
+    const activeLegend = activeLegendId !== null ? legendsById.get(activeLegendId) : undefined
+    return (
+      <div className="ingame-skill-bar-utility-skills skill-bar">
         {activeLegend ? (
           [activeLegend.heal, ...activeLegend.utilities, activeLegend.elite].map((skillId) => {
             const skill = skillsById.get(skillId)
@@ -405,6 +373,65 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
           <div className="skill-picker-header">Choose a legend above to see its skill bar</div>
         )}
       </div>
+    )
+  }
+
+  function legendSlot(slotIndex: 0 | 1) {
+    const legendId = value.legends[slotIndex]
+    const legend = legendId !== null ? legendsById.get(legendId) : undefined
+    const chosenElsewhere = value.legends[slotIndex === 0 ? 1 : 0]
+    return (
+      <div key={slotIndex} className="legend-slot">
+        <div className="legend-slot-label">Legend {slotIndex + 1}</div>
+        <Tooltip content={legend ? <TooltipBody title={legend.name} /> : <TooltipBody title="No legend chosen" />}>
+          <button
+            type="button"
+            className={openLegendSlot === slotIndex ? 'skill-slot-button open' : 'skill-slot-button'}
+            onClick={() => setOpenLegendSlot(openLegendSlot === slotIndex ? null : slotIndex)}
+          >
+            {legend ? <img src={legend.icon} alt={legend.name} /> : <span className="skill-slot-placeholder">Legend</span>}
+          </button>
+        </Tooltip>
+        {openLegendSlot === slotIndex && (
+          <div className="skill-picker">
+            <div className="skill-picker-header">Legend {slotIndex + 1}</div>
+            <div className="skill-picker-grid">
+              <button type="button" className="skill-option-button" onClick={() => chooseLegend(slotIndex, null)}>
+                <span className="skill-option-none">—</span>
+                <span className="skill-option-name">None</span>
+              </button>
+              {availableLegends
+                .filter((l) => l.id !== chosenElsewhere)
+                .map((l) => (
+                  <button
+                    key={l.id}
+                    type="button"
+                    className={legendId === l.id ? 'skill-option-button chosen' : 'skill-option-button'}
+                    onClick={() => chooseLegend(slotIndex, l.id)}
+                  >
+                    <img src={l.icon} alt={l.name} />
+                    <span className="skill-option-name">{l.name}</span>
+                  </button>
+                ))}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="legend-select-row ingame-skill-bar-utility-top">
+      {legendSlot(0)}
+      <button
+        type="button"
+        className="skill-bar-icon-button"
+        title="Swap active legend"
+        onClick={() => onChange({ ...value, activeLegendIndex: value.activeLegendIndex === 0 ? 1 : 0 })}
+      >
+        <SkillBarIcon kind="cycle" />
+      </button>
+      {legendSlot(1)}
     </div>
   )
 }

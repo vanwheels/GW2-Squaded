@@ -18,6 +18,10 @@ interface Props<T extends number | string = number> {
    *  reusing the equipment paperdoll's visual density. `slot` is the larger square skill-bar-
    *  style button used for the build-level relic/food/utility picks. */
   variant?: 'badge' | 'slot'
+  /** `badge`-variant size — runes/sigils read as the more important upgrade (`lg`), infusions a
+   *  step down (`md`), everything else unchanged (`sm`, the default). No effect on `slot` variant,
+   *  which is always the fixed 48px skill-bar size. */
+  size?: 'sm' | 'md' | 'lg'
   /** GW2 item-rarity border color for the chosen item, when this category has a single fixed
    *  rarity (e.g. every WvW infusion is Fine tier, every relic is Exotic-tier-but-shown-as-Fine —
    *  see TODO.md's item-rarity-color-coding scoping notes). Omit for categories with no single
@@ -49,6 +53,7 @@ export function UpgradePicker<T extends number | string = number>({
   chosenId,
   onChoose,
   variant = 'badge',
+  size = 'sm',
   rarity,
   dragCategory
 }: Props<T>) {
@@ -79,7 +84,9 @@ export function UpgradePicker<T extends number | string = number>({
   }
 
   const baseClass = variant === 'badge' ? 'upgrade-badge' : 'skill-slot-button'
-  const buttonClass = chosen && rarity ? `${baseClass} rarity-${rarity}` : baseClass
+  const sizeClass = variant === 'badge' && size !== 'sm' ? ` upgrade-badge-${size}` : ''
+  const rarityClass = chosen && rarity ? ` rarity-${rarity}` : ''
+  const buttonClass = `${baseClass}${sizeClass}${rarityClass}`
 
   return (
     <div className="upgrade-slot">

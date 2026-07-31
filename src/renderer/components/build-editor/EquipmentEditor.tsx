@@ -1,15 +1,22 @@
 import { useState } from 'react'
-import type { EquipmentSlot, EquipmentSlotKey, ItemStat, ProfessionId, ProfessionWeapon } from '@shared/types'
+import type { Build, EquipmentSlot, EquipmentSlotKey, ItemStat, ProfessionId, ProfessionWeapon } from '@shared/types'
 import { armorTrinketInfusionCapacity, resizeUpgradeIds, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from '@shared/gear-calc/upgrade-slots'
 import { formatItemStatName } from '@shared/gear-calc/format-description'
+import { formatRelicDescription } from '@shared/gear-calc/relic-effects-format'
 import { useGameData } from '@renderer/state/game-data-store'
+import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
+import { SlotTypeIcon, type SlotIconKind } from './SlotTypeIcon'
+
+type Consumables = Pick<Build, 'relicId' | 'foodId' | 'utilityId'>
 
 interface Props {
   value: Partial<Record<EquipmentSlotKey, EquipmentSlot>>
   onChange: (value: Partial<Record<EquipmentSlotKey, EquipmentSlot>>) => void
   profession: ProfessionId
   equippedSpecializationIds: ReadonlySet<number>
+  consumables: Consumables
+  onConsumablesChange: (value: Consumables) => void
 }
 
 /**
@@ -72,6 +79,22 @@ const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
 
 const WEAPON_SLOT_KEYS: EquipmentSlotKey[] = ['weaponA1', 'weaponA2', 'weaponB1', 'weaponB2', 'weaponU1', 'weaponU2']
 
+/** Maps each armor/trinket slot to the generic silhouette shown in place of its text label. */
+const SLOT_ICON_KIND: Partial<Record<EquipmentSlotKey, SlotIconKind>> = {
+  helm: 'helm',
+  shoulders: 'shoulders',
+  chest: 'chest',
+  gloves: 'gloves',
+  leggings: 'leggings',
+  boots: 'boots',
+  backpiece: 'back',
+  accessory1: 'accessory',
+  accessory2: 'accessory',
+  ring1: 'ring',
+  ring2: 'ring',
+  amulet: 'amulet'
+}
+
 function byName(a: UpgradeOption, b: UpgradeOption): number {
   return a.name.localeCompare(b.name)
 }
@@ -85,10 +108,22 @@ interface CopyPasteTemplates {
 
 const BLANK_TEMPLATES: CopyPasteTemplates = { stat: null, rune: null, sigil: null, infusion: null }
 
-export function EquipmentEditor({ value, onChange, profession: professionId, equippedSpecializationIds }: Props) {
-  const { itemStats, itemStatIcons, professions, skillsById, runes, sigils, infusions } = useGameData()
+export function EquipmentEditor({
+  value,
+  onChange,
+  profession: professionId,
+  equippedSpecializationIds,
+  consumables,
+  onConsumablesChange
+}: Props) {
+  const { itemStats, itemStatIcons, professions, skillsById, runes, sigils, infusions, relics, relicEffects, food, utility } =
+    useGameData()
   const sortedStats = dedupedStats(itemStats).sort((a, b) => a.name.localeCompare(b.name))
   const profession = professions.find((p) => p.id === professionId)
+  // Weapon panel toggle (2026-07-31): land Set A/B and the underwater sets share screen real
+  // estate poorly side by side, so only one is shown at a time — defaults to land since that's
+  // relevant to every build, unlike underwater gear which many builds never touch.
+  const [weaponMode, setWeaponMode] = useState<'land' | 'underwater'>('land')
   // Copy/paste (2026-07-30): a template value per category, held only in local UI state (not part
   // of the build) — pick a value here, then drag it onto any matching slot, or use "Apply to All"
   // to fill every eligible slot at once. See `applyStatToAll`/`applyRuneToAll`/`applySigilToAll`/
@@ -118,6 +153,19 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
       icon: i.icon,
       description: i.attribute && i.value !== null ? `+${i.value} ${i.attribute}` : i.description
     }))
+    .sort(byName)
+
+  // Build-level (not per-slot) picks: exactly 1 relic, plus at most 1 food and 1 utility
+  // consumable — unlike runes/sigils/infusions, these aren't tied to a specific equipment slot.
+  // Food/utility intentionally list the FULL catalog, not a pre-filtered subset (see TODO.md).
+  const relicOptions: UpgradeOption[] = relics
+    .map((r) => ({ id: r.id, name: r.name, icon: r.icon, description: formatRelicDescription(r, relicEffects[r.id]) }))
+    .sort(byName)
+  const foodOptions: UpgradeOption[] = food
+    .map((f) => ({ id: f.id, name: f.name, icon: f.icon, description: f.description }))
+    .sort(byName)
+  const utilityOptions: UpgradeOption[] = utility
+    .map((u) => ({ id: u.id, name: u.name, icon: u.icon, description: u.description }))
     .sort(byName)
 
   function setItemStat(key: EquipmentSlotKey, itemStatId: number | null): void {
@@ -219,6 +267,7 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
             onChoose={(infusionId) => setInfusion(key, capacity, i, infusionId)}
             rarity="fine"
             dragCategory="infusion"
+            size="md"
           />
         ))}
       </div>
@@ -238,6 +287,7 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
             chosenId={id}
             onChoose={(sigilId) => setSigil(key, capacity, i, sigilId)}
             dragCategory="sigil"
+            size="lg"
           />
         ))}
       </div>
@@ -258,9 +308,11 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
           rarity="ascended"
           dragCategory="stat"
         />
-        <label className="gear-slot-body">
-          <span className="gear-slot-label">{label}</span>
-        </label>
+        <Tooltip content={<TooltipBody title={label} />}>
+          <span className="gear-slot-type-icon-wrap">
+            <SlotTypeIcon kind={SLOT_ICON_KIND[key] ?? 'amulet'} />
+          </span>
+        </Tooltip>
         {isRuneSlot && (
           <div className="upgrade-row">
             <UpgradePicker
@@ -269,6 +321,7 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
               chosenId={value[key]?.runeId ?? null}
               onChoose={(id) => setRune(key, id)}
               dragCategory="rune"
+              size="lg"
             />
           </div>
         )}
@@ -467,6 +520,26 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
     )
   }
 
+  /** A build-level pick (relic/food/utility) rendered like a gear slot — the picker button plus
+   *  a text label, matching the weapon-type slot's `gear-slot-body`/`gear-slot-label` treatment
+   *  since these have no per-slot silhouette glyph the way armor/trinkets do. */
+  function renderOtherSlot(
+    label: string,
+    options: UpgradeOption[],
+    chosenId: number | null,
+    onChoose: (id: number | null) => void,
+    rarity?: 'fine'
+  ) {
+    return (
+      <div className="gear-slot" key={label}>
+        <UpgradePicker label={label} options={options} chosenId={chosenId} onChoose={onChoose} variant="slot" rarity={rarity} />
+        <label className="gear-slot-body">
+          <span className="gear-slot-label">{label}</span>
+        </label>
+      </div>
+    )
+  }
+
   return (
     <div className="equipment-editor">
       <div className="gear-copy-paste-bar">
@@ -475,23 +548,56 @@ export function EquipmentEditor({ value, onChange, profession: professionId, equ
         {copyPasteSlot('Sigil', 'sigil', sigilOptions, applySigilToAll)}
         {copyPasteSlot('Infusion', 'infusion', infusionOptions, applyInfusionToAll)}
       </div>
-      <div className="gear-paperdoll">
-        <div className="gear-column">{ARMOR_SLOTS.map((s) => renderSlot(s.key, s.label))}</div>
-        <div className="gear-column">{TRINKET_SLOTS.map((s) => renderSlot(s.key, s.label))}</div>
-      </div>
-      <div className="gear-weapons">
-        <div className="gear-weapon-set">
-          <h4>Weapon I</h4>
-          {renderWeaponPair('weaponA1', 'weaponA2', 'Main hand', 'Off hand')}
+      <div className="gear-panels">
+        <div className="gear-panel gear-panel-weapon">
+          <h4 className="gear-panel-title">Weapon</h4>
+          <div className="weapon-mode-toggle">
+            <button
+              type="button"
+              className={weaponMode === 'land' ? 'weapon-mode-toggle-button active' : 'weapon-mode-toggle-button'}
+              onClick={() => setWeaponMode('land')}
+            >
+              Land
+            </button>
+            <button
+              type="button"
+              className={weaponMode === 'underwater' ? 'weapon-mode-toggle-button active' : 'weapon-mode-toggle-button'}
+              onClick={() => setWeaponMode('underwater')}
+            >
+              Underwater
+            </button>
+          </div>
+          {weaponMode === 'land' ? (
+            <>
+              <div className="gear-weapon-set">
+                <h5>Weapon I</h5>
+                {renderWeaponPair('weaponA1', 'weaponA2', 'Main hand', 'Off hand')}
+              </div>
+              <div className="gear-weapon-set">
+                <h5>Weapon II</h5>
+                {renderWeaponPair('weaponB1', 'weaponB2', 'Main hand', 'Off hand')}
+              </div>
+            </>
+          ) : (
+            <div className="gear-weapon-set">
+              {renderUnderwaterSlot('weaponU1', 'Set 1')}
+              {renderUnderwaterSlot('weaponU2', 'Set 2')}
+            </div>
+          )}
         </div>
-        <div className="gear-weapon-set">
-          <h4>Weapon II</h4>
-          {renderWeaponPair('weaponB1', 'weaponB2', 'Main hand', 'Off hand')}
+        <div className="gear-panel gear-panel-armor">
+          <h4 className="gear-panel-title">Armor</h4>
+          {ARMOR_SLOTS.map((s) => renderSlot(s.key, s.label))}
         </div>
-        <div className="gear-weapon-set">
-          <h4>Underwater</h4>
-          {renderUnderwaterSlot('weaponU1', 'Set 1')}
-          {renderUnderwaterSlot('weaponU2', 'Set 2')}
+        <div className="gear-panel gear-panel-accessories">
+          <h4 className="gear-panel-title">Accessories</h4>
+          {TRINKET_SLOTS.map((s) => renderSlot(s.key, s.label))}
+        </div>
+        <div className="gear-panel gear-panel-other">
+          <h4 className="gear-panel-title">Other</h4>
+          {renderOtherSlot('Relic', relicOptions, consumables.relicId, (id) => onConsumablesChange({ ...consumables, relicId: id }), 'fine')}
+          {renderOtherSlot('Food', foodOptions, consumables.foodId, (id) => onConsumablesChange({ ...consumables, foodId: id }))}
+          {renderOtherSlot('Utility', utilityOptions, consumables.utilityId, (id) => onConsumablesChange({ ...consumables, utilityId: id }))}
         </div>
       </div>
     </div>

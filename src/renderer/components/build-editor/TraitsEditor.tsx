@@ -1,4 +1,5 @@
-import type { ProfessionId, TraitLineSelection, TraitLineSlots } from '@shared/types'
+import { useEffect, useRef, useState, type RefObject } from 'react'
+import type { ProfessionId, Specialization, Trait, TraitLineSelection, TraitLineSlots } from '@shared/types'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
@@ -12,6 +13,183 @@ interface Props {
 const LINE_INDICES = [0, 1, 2] as const
 /** Adept / Master / Grandmaster, matching GW2's `Trait.tier` (1-3), indexed to `chosenTraitIds`. */
 const TIERS = [1, 2, 3] as const
+
+/** GW2's own trait-line connector color (light cyan-blue) — deliberately distinct from --accent
+ *  (used for "selected" borders) so the two don't visually compete. */
+const CONNECTOR_COLOR = '#5ab7ff'
+
+interface Segment {
+  x1: number
+  y1: number
+  x2: number
+  y2: number
+}
+
+/**
+ * Measures the minor-trait / selected-major-trait DOM nodes and derives one continuous zigzag path
+ * through them — minor(tier1) -> major(tier1, if chosen) -> minor(tier2) -> major(tier2, if
+ * chosen) -> minor(tier3) -> major(tier3, if chosen) — the same single-path shape the real trait UI
+ * draws (starting at the first minor, not the specialization icon). Uses real DOM positions rather
+ * than fixed pixel math so it keeps working if icon sizes/gaps ever change, and recomputes on a
+ * ResizeObserver so it stays correct across window/column resizes, not just selection changes.
+ */
+function useTraitConnector(
+  wrapperRef: RefObject<HTMLDivElement>,
+  minorRefs: RefObject<(HTMLDivElement | null)[]>,
+  majorRefs: RefObject<Map<number, HTMLButtonElement>>,
+  chosenTraitIds: readonly (number | null)[],
+  active: boolean
+): Segment[] {
+  const [segments, setSegments] = useState<Segment[]>([])
+  const chosenKey = chosenTraitIds.join(',')
+
+  useEffect(() => {
+    const wrapper = wrapperRef.current
+    if (!wrapper || !active) {
+      setSegments([])
+      return
+    }
+
+    function recompute(): void {
+      const wrapperEl = wrapperRef.current
+      if (!wrapperEl) return
+      const rect = wrapperEl.getBoundingClientRect()
+      const centerOf = (el: HTMLElement): { x: number; y: number } => {
+        const r = el.getBoundingClientRect()
+        return { x: r.left + r.width / 2 - rect.left, y: r.top + r.height / 2 - rect.top }
+      }
+
+      const chain: { x: number; y: number }[] = []
+      ;(minorRefs.current ?? []).forEach((minorEl, tierIndex) => {
+        if (!minorEl) return
+        chain.push(centerOf(minorEl))
+        const traitId = chosenTraitIds[tierIndex]
+        const majorEl = traitId !== null && traitId !== undefined ? majorRefs.current?.get(traitId) : undefined
+        if (majorEl) chain.push(centerOf(majorEl))
+      })
+
+      const next: Segment[] = []
+      for (let i = 0; i < chain.length - 1; i++) {
+        const a = chain[i]
+        const b = chain[i + 1]
+        next.push({ x1: a.x, y1: a.y, x2: b.x, y2: b.y })
+      }
+
+      setSegments(next)
+    }
+
+    recompute()
+    const observer = new ResizeObserver(recompute)
+    observer.observe(wrapper)
+    return () => observer.disconnect()
+    // chosenKey stands in for chosenTraitIds (array identity changes every render otherwise)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, chosenKey])
+
+  return segments
+}
+
+interface TraitLineRowProps {
+  line: TraitLineSelection | null
+  chosenSpec: Specialization | undefined
+  specOptions: UpgradeOption[]
+  onChooseSpec: (specializationId: number | null) => void
+  onTraitChoice: (tierIndex: 0 | 1 | 2, traitId: number) => void
+  minorTraitsForSpecialization: (specializationId: number) => Trait[]
+  majorTraitsForSpecialization: (specializationId: number) => Trait[]
+}
+
+function TraitLineRow({
+  line,
+  chosenSpec,
+  specOptions,
+  onChooseSpec,
+  onTraitChoice,
+  minorTraitsForSpecialization,
+  majorTraitsForSpecialization
+}: TraitLineRowProps) {
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const minorRefs = useRef<(HTMLDivElement | null)[]>([null, null, null])
+  const majorRefs = useRef<Map<number, HTMLButtonElement>>(new Map())
+
+  const chosenTraitIds = line?.chosenTraitIds ?? [null, null, null]
+  const segments = useTraitConnector(wrapperRef, minorRefs, majorRefs, chosenTraitIds, Boolean(chosenSpec && line))
+
+  return (
+    <div className="trait-line" ref={wrapperRef}>
+      {segments.length > 0 && (
+        <svg className="trait-connector-svg">
+          {segments.map((s, i) => (
+            <line
+              key={i}
+              x1={s.x1}
+              y1={s.y1}
+              x2={s.x2}
+              y2={s.y2}
+              stroke={CONNECTOR_COLOR}
+              strokeWidth={2}
+              strokeLinecap="round"
+            />
+          ))}
+        </svg>
+      )}
+      <div className="trait-line-spec-select">
+        <UpgradePicker
+          label="Specialization"
+          options={specOptions}
+          chosenId={line?.specializationId ?? null}
+          onChoose={onChooseSpec}
+          variant="slot"
+        />
+        {chosenSpec && <span className="spec-line-name">{chosenSpec.name}</span>}
+      </div>
+
+      {chosenSpec && line && (
+        <div className="trait-line-tiers-horizontal">
+          {TIERS.map((tier, tierIndex) => {
+            const minor = minorTraitsForSpecialization(chosenSpec.id).find((t) => t.tier === tier)
+            const tierMajors = majorTraitsForSpecialization(chosenSpec.id)
+              .filter((t) => t.tier === tier)
+              .sort((a, b) => a.order - b.order)
+            return (
+              <div className="trait-tier-group" key={tier}>
+                {minor && (
+                  <Tooltip content={<TooltipBody title={minor.name} description={minor.description} />}>
+                    <div
+                      className="minor-trait"
+                      ref={(el) => {
+                        minorRefs.current[tierIndex] = el
+                      }}
+                    >
+                      <img src={minor.icon} alt={minor.name} />
+                    </div>
+                  </Tooltip>
+                )}
+                <div className="major-trait-tier">
+                  {tierMajors.map((t) => (
+                    <Tooltip key={t.id} content={<TooltipBody title={t.name} description={t.description} />}>
+                      <button
+                        type="button"
+                        ref={(el) => {
+                          if (el) majorRefs.current.set(t.id, el)
+                          else majorRefs.current.delete(t.id)
+                        }}
+                        className={chosenTraitIds[tierIndex] === t.id ? 'major-trait selected' : 'major-trait'}
+                        onClick={() => onTraitChoice(tierIndex as 0 | 1 | 2, t.id)}
+                      >
+                        <img src={t.icon} alt={t.name} />
+                      </button>
+                    </Tooltip>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
 
 /**
  * Each of the 3 trait lines is its own horizontal row (gw2skills.net reference layout: Zeal /
@@ -57,43 +235,6 @@ export function TraitsEditor({ profession, value, onChange }: Props) {
 
   const usedSpecIds = new Set(lines.filter((l): l is TraitLineSelection => l !== null).map((l) => l.specializationId))
 
-  function tiersRow(lineIndex: number, specId: number, line: TraitLineSelection) {
-    return (
-      <div className="trait-line-tiers-horizontal">
-        {TIERS.map((tier, tierIndex) => {
-          const minor = minorTraitsForSpecialization(specId).find((t) => t.tier === tier)
-          const tierMajors = majorTraitsForSpecialization(specId)
-            .filter((t) => t.tier === tier)
-            .sort((a, b) => a.order - b.order)
-          return (
-            <div className="trait-tier-group" key={tier}>
-              {minor && (
-                <Tooltip content={<TooltipBody title={minor.name} description={minor.description} />}>
-                  <div className="minor-trait">
-                    <img src={minor.icon} alt={minor.name} />
-                  </div>
-                </Tooltip>
-              )}
-              <div className="major-trait-tier">
-                {tierMajors.map((t) => (
-                  <Tooltip key={t.id} content={<TooltipBody title={t.name} description={t.description} />}>
-                    <button
-                      type="button"
-                      className={line.chosenTraitIds[tierIndex] === t.id ? 'major-trait selected' : 'major-trait'}
-                      onClick={() => handleTraitChoice(lineIndex, tierIndex as 0 | 1 | 2, t.id)}
-                    >
-                      <img src={t.icon} alt={t.name} />
-                    </button>
-                  </Tooltip>
-                ))}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    )
-  }
-
   return (
     <div className="traits-editor">
       {LINE_INDICES.map((lineIndex) => {
@@ -107,20 +248,16 @@ export function TraitsEditor({ profession, value, onChange }: Props) {
         const specOptions: UpgradeOption[] = availableSpecs.map((s) => ({ id: s.id, name: s.name, icon: s.icon }))
 
         return (
-          <div className="trait-line" key={lineIndex}>
-            <div className="trait-line-spec-select">
-              <UpgradePicker
-                label="Specialization"
-                options={specOptions}
-                chosenId={line?.specializationId ?? null}
-                onChoose={(id) => chooseSpec(lineIndex, id)}
-                variant="slot"
-              />
-              {chosenSpec && <span className="spec-line-name">{chosenSpec.name}</span>}
-            </div>
-
-            {chosenSpec && line && tiersRow(lineIndex, chosenSpec.id, line)}
-          </div>
+          <TraitLineRow
+            key={lineIndex}
+            line={line}
+            chosenSpec={chosenSpec}
+            specOptions={specOptions}
+            onChooseSpec={(specializationId) => chooseSpec(lineIndex, specializationId)}
+            onTraitChoice={(tierIndex, traitId) => handleTraitChoice(lineIndex, tierIndex, traitId)}
+            minorTraitsForSpecialization={minorTraitsForSpecialization}
+            majorTraitsForSpecialization={majorTraitsForSpecialization}
+          />
         )
       })}
     </div>

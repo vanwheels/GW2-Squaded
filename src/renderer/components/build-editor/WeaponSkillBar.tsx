@@ -7,6 +7,7 @@ import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '@shared/skill-calc/untame
 import { formatFactLine } from '@shared/gear-calc/relic-effects-format'
 import { isBoonName, isConditionName } from '@shared/boon-calc/constants'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
+import { SkillBarIcon } from './SkillBarIcon'
 import { factsBlock, skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor'
 
 interface Props {
@@ -17,6 +18,13 @@ interface Props {
       Pick<Build, 'environment' | 'activeWeaponSet' | 'activeUnderwaterSet' | 'activeBundleSkillId' | 'rangerUnleashed' | 'activeAttunement'>
     >
   ) => void
+  /** Renders the same underlying weapon-set derivation up to 4 times, split into the pieces the
+   *  in-game skill bar keeps visually distinct (see `SkillsEditor`'s grid layout): `extras` is the
+   *  editor-only display toggles with no live HUD equivalent (attunement/unleashed/bundle) shown
+   *  above the whole bar; `env` is a single combined Land/Underwater toggle icon sitting above the
+   *  weapon-swap icon; `swap` is the weapon-swap cycle icon itself, sitting immediately left of the
+   *  weapon skills; `weapon` is the resulting 1-5 icon row. */
+  section: 'extras' | 'env' | 'swap' | 'weapon'
 }
 
 const ATTUNEMENTS = ['Fire', 'Water', 'Air', 'Earth'] as const
@@ -40,7 +48,7 @@ const ATTUNEMENTS = ['Fire', 'Water', 'Air', 'Earth'] as const
  * Celestial-Avatar always contributes to boon/condition totals regardless of this toggle (see
  * `Build.activeBundleSkillId`'s doc comment) — this only changes what's shown.
  */
-export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange }: Props) {
+export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange, section }: Props) {
   const { gameData, activeIds, durationPercent } = useDurationContext(build)
   const { professions, skillsById, tomeChapters } = gameData
   const profession = professions.find((p) => p.id === build.profession)
@@ -101,123 +109,9 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
     )
   }
 
-  return (
-    <div className="weapon-skill-bar">
-      <div className="legend-bar-toggle">
-        <button
-          type="button"
-          className={isLand ? 'legend-toggle-button active' : 'legend-toggle-button'}
-          onClick={() => onBuildChange({ environment: 'land' })}
-        >
-          Land
-        </button>
-        <button
-          type="button"
-          className={!isLand ? 'legend-toggle-button active' : 'legend-toggle-button'}
-          onClick={() => onBuildChange({ environment: 'underwater' })}
-        >
-          Underwater
-        </button>
-      </div>
-
-      {isElementalist && (
-        <div className="legend-bar-toggle">
-          {ATTUNEMENTS.map((attunement) => (
-            <button
-              key={attunement}
-              type="button"
-              className={build.activeAttunement === attunement ? 'legend-toggle-button active' : 'legend-toggle-button'}
-              onClick={() => onBuildChange({ activeAttunement: attunement })}
-            >
-              {attunement}
-            </button>
-          ))}
-        </div>
-      )}
-
-      <div className="legend-bar-toggle">
-        {isLand ? (
-          <>
-            <button
-              type="button"
-              className={build.activeWeaponSet === 'A' ? 'legend-toggle-button active' : 'legend-toggle-button'}
-              onClick={() => onBuildChange({ activeWeaponSet: 'A' })}
-            >
-              Weapon I
-            </button>
-            <button
-              type="button"
-              className={build.activeWeaponSet === 'B' ? 'legend-toggle-button active' : 'legend-toggle-button'}
-              onClick={() => onBuildChange({ activeWeaponSet: 'B' })}
-            >
-              Weapon II
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              type="button"
-              className={build.activeUnderwaterSet === 'U1' ? 'legend-toggle-button active' : 'legend-toggle-button'}
-              onClick={() => onBuildChange({ activeUnderwaterSet: 'U1' })}
-            >
-              Set 1
-            </button>
-            <button
-              type="button"
-              className={build.activeUnderwaterSet === 'U2' ? 'legend-toggle-button active' : 'legend-toggle-button'}
-              onClick={() => onBuildChange({ activeUnderwaterSet: 'U2' })}
-            >
-              Set 2
-            </button>
-          </>
-        )}
-      </div>
-
-      {unleashedId !== null && (
-        <div className="legend-bar-toggle">
-          <button
-            type="button"
-            className={!build.rangerUnleashed ? 'legend-toggle-button active' : 'legend-toggle-button'}
-            onClick={() => onBuildChange({ rangerUnleashed: false })}
-          >
-            Normal
-          </button>
-          <button
-            type="button"
-            className={build.rangerUnleashed ? 'legend-toggle-button active' : 'legend-toggle-button'}
-            onClick={() => onBuildChange({ rangerUnleashed: true })}
-          >
-            Unleashed
-          </button>
-        </div>
-      )}
-
-      {bundleCapableIds.length > 0 && (
-        <div className="legend-bar-toggle">
-          <button
-            type="button"
-            className={activeBundleId === null ? 'legend-toggle-button active' : 'legend-toggle-button'}
-            onClick={() => onBuildChange({ activeBundleSkillId: null })}
-          >
-            Weapon
-          </button>
-          {bundleCapableIds.map((id) => {
-            const skill = skillsById.get(id)
-            return (
-              <button
-                key={id}
-                type="button"
-                className={activeBundleId === id ? 'legend-toggle-button active' : 'legend-toggle-button'}
-                onClick={() => onBuildChange({ activeBundleSkillId: id })}
-              >
-                {skill?.name ?? `#${id}`}
-              </button>
-            )
-          })}
-        </div>
-      )}
-
-      <div className="skill-bar">
+  if (section === 'weapon') {
+    return (
+      <div className="ingame-skill-bar-weapon skill-bar">
         {activeBundle ? (
           activeBundle.slots.map((slot, i) => {
             if (slot === null) {
@@ -264,6 +158,106 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
           <div className="skill-picker-header">Choose a weapon in the Equipment panel to see its skill bar</div>
         )}
       </div>
+    )
+  }
+
+  if (section === 'extras') {
+    const hasExtras = isElementalist || unleashedId !== null || bundleCapableIds.length > 0
+    if (!hasExtras) return null
+    return (
+      <div className="ingame-skill-bar-extras">
+        {isElementalist && (
+          <div className="legend-bar-toggle">
+            {ATTUNEMENTS.map((attunement) => (
+              <button
+                key={attunement}
+                type="button"
+                className={build.activeAttunement === attunement ? 'legend-toggle-button active' : 'legend-toggle-button'}
+                onClick={() => onBuildChange({ activeAttunement: attunement })}
+              >
+                {attunement}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {unleashedId !== null && (
+          <div className="legend-bar-toggle">
+            <button
+              type="button"
+              className={!build.rangerUnleashed ? 'legend-toggle-button active' : 'legend-toggle-button'}
+              onClick={() => onBuildChange({ rangerUnleashed: false })}
+            >
+              Normal
+            </button>
+            <button
+              type="button"
+              className={build.rangerUnleashed ? 'legend-toggle-button active' : 'legend-toggle-button'}
+              onClick={() => onBuildChange({ rangerUnleashed: true })}
+            >
+              Unleashed
+            </button>
+          </div>
+        )}
+
+        {bundleCapableIds.length > 0 && (
+          <div className="legend-bar-toggle">
+            <button
+              type="button"
+              className={activeBundleId === null ? 'legend-toggle-button active' : 'legend-toggle-button'}
+              onClick={() => onBuildChange({ activeBundleSkillId: null })}
+            >
+              Weapon
+            </button>
+            {bundleCapableIds.map((id) => {
+              const skill = skillsById.get(id)
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  className={activeBundleId === id ? 'legend-toggle-button active' : 'legend-toggle-button'}
+                  onClick={() => onBuildChange({ activeBundleSkillId: id })}
+                >
+                  {skill?.name ?? `#${id}`}
+                </button>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  if (section === 'env') {
+    return (
+      <div className="ingame-skill-bar-env">
+        <button
+          type="button"
+          className={isLand ? 'skill-bar-icon-button env-land active' : 'skill-bar-icon-button env-water active'}
+          title={isLand ? 'Switch to Underwater' : 'Switch to Land'}
+          onClick={() => onBuildChange({ environment: isLand ? 'underwater' : 'land' })}
+        >
+          <SkillBarIcon kind={isLand ? 'land' : 'water'} />
+        </button>
+      </div>
+    )
+  }
+
+  function cycleWeaponSet(): void {
+    if (isLand) onBuildChange({ activeWeaponSet: build.activeWeaponSet === 'A' ? 'B' : 'A' })
+    else onBuildChange({ activeUnderwaterSet: build.activeUnderwaterSet === 'U1' ? 'U2' : 'U1' })
+  }
+
+  return (
+    <div className="ingame-skill-bar-swap">
+      <button
+        type="button"
+        className="skill-bar-icon-button"
+        title={isLand ? 'Swap to the other weapon set' : 'Swap to the other underwater set'}
+        onClick={cycleWeaponSet}
+      >
+        <SkillBarIcon kind="cycle" />
+      </button>
     </div>
   )
 }

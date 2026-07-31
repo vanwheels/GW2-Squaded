@@ -8,8 +8,8 @@ import { registerCaptureIpc } from './ipc/capture-ipc'
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 800,
+    width: 1920,
+    height: 1080,
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
