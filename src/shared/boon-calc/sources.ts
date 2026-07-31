@@ -21,6 +21,7 @@ import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPerce
 import { weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
 import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bundle-skills'
 import { professionMechanicBar } from '../skill-calc/profession-mechanic'
+import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash'
 
 export interface BoonConditionSource {
   sourceKind: 'skill' | 'trait'
@@ -134,10 +135,18 @@ export function boonConditionFactsForSkill(
  * and U2) — a player carries both and can swap anytime, same "both always contribute" reasoning
  * as `RevenantSkillSelection.activeLegendIndex` (see its doc comment). `activeWeaponSet`/
  * `activeUnderwaterSet` are display-only and don't gate this.
+ *
+ * For an Untamed Ranger, also includes each main-hand weapon's Untamed "Unleashed" autoattack
+ * alternate (see `unleashedWeaponOneId`) alongside the normal one — same "both states always
+ * contribute" reasoning as everything else here, since Unleashed cycles on a 1-second cooldown in
+ * real combat rather than being a deliberate, long-lived player choice. `Build.rangerUnleashed` is
+ * display-only and doesn't gate this, same as the other toggles above.
  */
 function weaponSkillIdsForBuild(build: Build, professions: Profession[], skillsById: Map<number, Skill>): number[] {
   const profession = professions.find((p) => p.id === build.profession)
   if (!profession) return []
+
+  const isUntamed = build.specializations.some((line) => line?.specializationId === UNTAMED_SPEC_ID)
 
   const pairs: [EquipmentSlotKey, EquipmentSlotKey | null][] =
     build.environment === 'land'
@@ -159,6 +168,10 @@ function weaponSkillIdsForBuild(build: Build, professions: Profession[], skillsB
     if (!mainWeapon && !offWeapon) continue
     for (const id of weaponSkillIdsForPair(mainWeapon, offWeapon, build.environment, skillsById)) {
       if (id !== null) ids.push(id)
+    }
+    if (isUntamed && mainType && mainWeapon) {
+      const altId = unleashedWeaponOneId(mainType, mainWeapon, build.environment, skillsById)
+      if (altId !== null) ids.push(altId)
     }
   }
   return ids

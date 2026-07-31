@@ -19,7 +19,13 @@ interface Props {
     patch: Partial<
       Pick<
         Build,
-        'environment' | 'activeWeaponSet' | 'activeUnderwaterSet' | 'equippedPetIds' | 'activePetIndex' | 'activeBundleSkillId'
+        | 'environment'
+        | 'activeWeaponSet'
+        | 'activeUnderwaterSet'
+        | 'equippedPetIds'
+        | 'activePetIndex'
+        | 'activeBundleSkillId'
+        | 'rangerUnleashed'
       >
     >
   ) => void

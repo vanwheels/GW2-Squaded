@@ -2,6 +2,63 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 25 — Celestial Avatar / Untamed weapon-bar swap
+
+Picked up the "Celestial Avatar / Untamed weapon-bar swap" TODO item Session 24 left deferred
+("needs scope/priority decision" — unknown whether Celestial Avatar's 5 Astral skills have real API
+ids like Kits, or need a wiki scrape like Tomes). Both halves resolved entirely from already-fetched
+data — no new fetch script needed, and one of the item's own assumptions turned out wrong (same
+"investigation overturns the premise" shape as Session 24's Soulbeast finding).
+
+- **Celestial Avatar (Druid) has real API ids** — live-verified: every skill tagged
+  `specializationId === 5` (Druid) with a `Weapon_1`-`Weapon_5` slot is exactly one of the 5 Astral
+  skills (Solar Beam/Astral Wisp/Ancestral Grace/Vine Surge/Sublime Conversion), a clean 1-per-slot
+  set with no land/underwater duplication (Celestial Avatar has no underwater variant, matching that
+  it can't be entered underwater in-game). Implemented as a straight extension of Session 24's
+  bundle-skill machinery: `bundle-skills.ts` gained `celestialAvatarSlotSkillIds` (resolves the 5 ids
+  live from `skillsById` rather than a hand-maintained list — self-updating if the API changes) and
+  `CELESTIAL_AVATAR_SKILL_ID` (31869, Druid's `Profession_5` mechanic skill, same id
+  `professionMechanicBar` already resolves onto F5); `bundleCapableSkillIds`/`resolveActiveBundle`/
+  `bundleSkillIdsForBuild` all special-case this one id alongside Kits/Tomes. No `WeaponSkillBar.tsx`
+  changes needed beyond a doc-comment update — the existing "Weapon"/kit/tome toggle row and
+  bundle-slot rendering already handle any bundle-capable id generically.
+- **New finding, overturns part of the item's own premise**: Untamed's Unleash mechanic does **NOT**
+  replace the full weapon bar (1-5) the way Kits/Tomes/Celestial Avatar do — live-checked the wiki's
+  own Unleash Ranger/Unleash Pet pages 2026-07-30, which state the mechanic is a single toggle
+  cycling the Ranger between two states on a 1-second cooldown: "Unleash Pet" swaps the *pet's*
+  F1-F3 command skills to Venomous Outburst/Rending Vines/Enveloping Haze (already wired, Session
+  23), and "Unleash Ranger" empowers the Ranger's own weapon **autoattack only** (slot 1) — e.g.
+  "Hammer's turns into Relentless Whirl, Mace's becomes Rampant Growth." Confirmed this isn't
+  Hammer/Mace-specific flavor text: live data search found a `specializationId === 72` (Untamed)
+  alternate Weapon_1 skill for every Ranger weapon type except Torch/Warhorn (which have no Weapon_1
+  at all, being offhand-only) — Axe/Sword/Greatsword/Longbow/Shortbow/Staff/Dagger/Speargun/Spear all
+  have one too, Spear's split further by land (Ravager's Abandon) vs. underwater (Vicious Pike) via
+  the same `NoUnderwater`-flag convention weapon land/underwater variants already use. Confirmed this
+  matters for the boon/condition calculator, not just cosmetics: Relentless Whirl's facts include a
+  3s Stability application (a real boon) that Hammer Strike's plain-damage facts don't have.
+  New `src/shared/skill-calc/untamed-unleash.ts` (`unleashedWeaponOneId`): finds a weapon type's
+  Untamed-alternate Weapon_1 skill by excluding the base weapon's own autoattack chain (walked via
+  `Skill.flipSkill`, needed because Hammer's *entire* chain carries `specializationId === 72` too —
+  Hammer itself is Untamed-exclusive — so a naive "any spec-72 Weapon_1 skill" filter would wrongly
+  match the chain's own middle/end hits as if they were the alternate) then applying the same
+  land/underwater `NoUnderwater`-flag disambiguation `resolveSkillBarIds` already uses. New
+  `Build.rangerUnleashed: boolean` (display-only, same "both states always contribute" reasoning as
+  every other bar toggle — Unleashed cycles too fast in real combat to model as a deliberate,
+  long-lived choice); `WeaponSkillBar.tsx` grew a Normal/Unleashed toggle row (only shown when an
+  alternate exists for the current main-hand weapon) that swaps slot 1's displayed skill;
+  `sources.ts`'s `weaponSkillIdsForBuild` now always includes both the base and Unleashed alternate
+  id for an Untamed build's main-hand weapon, regardless of the toggle. This also means the "Ranger
+  pet's 3-more-skills-per-pet-category" bullet the TODO grouped alongside this one is a *separate*,
+  still-fully-open gap (Untamed's "Unleash Pet" pet-family skill set, not a weapon-bar-replacement at
+  all) — left as its own TODO line, not touched this session.
+- Verified via a standalone script (not committed): resolved Celestial Avatar's bar for a
+  Druid-specialized build and confirmed all 5 names/order match the prediction above; resolved every
+  Ranger weapon type's base-vs-Unleashed Weapon_1 pair and confirmed Hammer/Mace match the wiki's own
+  named examples exactly, Spear correctly splits by environment, and Torch/Warhorn correctly resolve
+  to no autoattack at all. `npm run typecheck`/`lint`/`build` all clean. Not visually confirmed in a
+  running window (standing Electron-sandbox limitation, see below) — recommend `npm run dev` locally
+  to eyeball the new Celestial Avatar bundle toggle and the Untamed Normal/Unleashed toggle.
+
 ## Session 24 — Engineer Kits and Firebrand Tomes replace the weapon skill bar
 
 Picked up the "Tomes/Kits/Beastmode replacing the weapon skill bar (1-5) while active" TODO item

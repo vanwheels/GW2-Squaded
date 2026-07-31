@@ -827,16 +827,41 @@
             "Beastmode" merge button. Full corrected findings in docs/game-data.md.
       - [x] **Pet picker needed a search bar** (66 pets, scrolling a flat grid was unusable) —
             added, reusing the same search-input pattern `UpgradePicker.tsx` already established.
-      - [ ] **Not attempted — needs scope/priority decision:**
-        - Tomes/Kits/Celestial-Avatar-form/Untamed-unleashed-form all replace the weapon skill bar
+      - [x] Tomes/Kits/Celestial-Avatar-form/Untamed-unleashed-form all replace the weapon skill bar
           (1-5) while active. **Tomes and Kits landed** (see the item above — both now factor into
-          the boon/condition calculator too). **Celestial Avatar (Druid) and Untamed's "Unleash
-          Ranger"/"Unleash Pet" forms are still open** — genuinely the same "weapon bar replacement"
-          shape (unlike Soulbeast's Beastmode, which turned out NOT to be this shape at all, see the
-          new finding above), not yet attempted: Celestial Avatar needs its own 5 "Astral" skill ids
-          identified (untouched this session — unknown yet whether they have real API ids like Kits
-          or need a wiki scrape like Tomes) and Untamed additionally needs the pet-family concept
-          the next bullet already describes.
+          the boon/condition calculator too). **Celestial Avatar and Untamed resolved 2026-07-30
+          (Session 25)**, and Untamed turned out NOT to fit this bucket at all:
+          - **Celestial Avatar (Druid): real API ids, no wiki scrape needed.** Every skill tagged
+            `specializationId === 5` with a `Weapon_1`-`Weapon_5` slot is exactly one of the 5
+            Astral skills (Solar Beam/Astral Wisp/Ancestral Grace/Vine Surge/Sublime Conversion) —
+            a clean, unambiguous 1-per-slot set. Implemented as a direct extension of the Kit/Tome
+            bundle machinery (`bundle-skills.ts`'s `celestialAvatarSlotSkillIds`); factors into the
+            boon/condition calculator the same unconditional way Kits/Tomes do. See COMPLETED.md.
+          - **New finding, overturns this item's own premise for Untamed**: live-checked the wiki's
+            Unleash Ranger/Unleash Pet pages 2026-07-30 — Untamed's Unleash mechanic does **NOT**
+            replace the full weapon bar. It's a single toggle cycling every ~1s in real combat:
+            "Unleash Pet" swaps the pet's F1-F3 commands to Venomous Outburst/Rending Vines/
+            Enveloping Haze (already wired, Session 23); "Unleash Ranger" empowers the Ranger's own
+            weapon **autoattack only** (slot 1) — confirmed via real data this applies to every
+            Ranger weapon type except Torch/Warhorn (e.g. Hammer's Hammer Strike -> Relentless
+            Whirl, Mace's Germinate -> Rampant Growth), not just the 2 the wiki names as examples.
+            Implemented as `skill-calc/untamed-unleash.ts` (`unleashedWeaponOneId`) + a new display
+            toggle (`Build.rangerUnleashed`) swapping slot 1 in `WeaponSkillBar.tsx`; both the base
+            and Unleashed autoattack always contribute to the boon calculator regardless of the
+            toggle (Relentless Whirl's Stability application is a real boon this now correctly
+            surfaces, not just cosmetic tooltip text). See COMPLETED.md for the full writeup,
+            including how the Hammer-chain edge case (Hammer itself is Untamed-exclusive, so its
+            *whole* autoattack chain — not just the Unleashed alternate — carries
+            `specializationId === 72`) is disambiguated.
+          - **Caveat found while re-reading this item's own pet-family bullet below**: that bullet
+            says "Unleash Ranger" grants the Ranger the already-wired Venomous Outburst/Rending
+            Vines/Enveloping Haze set, while "Unleash Pet" grants the *pet* a family-varying set —
+            but the wiki page titled "Unleash Pet" itself says activating it is what "replaces your
+            pet skills" with Venomous Outburst/Rending Vines/Enveloping Haze, the reverse mapping.
+            Not resolved this session (out of scope — this pass only needed to answer the weapon-bar
+            question, which doesn't depend on which toggle state is which); flagging so whoever
+            picks up the pet-family bullet below re-verifies which state shows which set with a
+            fresh screenshot before assuming either direction.
         - Ranger pet's "3 more skills per pet *category*" (e.g. Ursine/Canine) the user described,
           clarified via screenshot to be **Untamed** (not Druid): the screenshot shows F1-F3 as 3
           animal-themed icons (paw/canine-head/wing) directly beside the pet portrait, F4 = swap
@@ -846,11 +871,13 @@
           while "Unleash Pet" instead grants the *pet* 3 skills that vary by pet **family**
           (Ursine/Canine/etc.) — a second, entirely separate 3-skill set from the one already wired,
           not present anywhere in the fetched API data (no pet-family field exists at all, same gap
-          `Pet`'s doc comment already notes for Soulbeast). Confirms this needs both (a) a pet-
-          family concept sourced from the wiki (`/v2/pets` has no family field) and (b) the
-          "Unleash Ranger"/"Unleash Pet" toggle UI already flagged as excluded above — same shape
-          of work as the weapon-bar-replacement item, folded into that deferred bucket rather than
-          a separate item.
+          `Pet`'s doc comment already notes for Soulbeast). **Confirmed 2026-07-30 (Session 25): this
+          is a separate, still fully-open gap, NOT a weapon-bar-replacement** (see the correction
+          above) — needs (a) a pet-family concept sourced from the wiki (`/v2/pets` has no family
+          field), (b) resolving which Unleash-toggle state actually shows this set (see the caveat
+          above — the direction is currently unconfirmed), and (c) the "Unleash Ranger"/"Unleash
+          Pet" toggle UI. Same shape of wiki-cross-check effort as Soulbeast's Beastmode gap above
+          (per-pet-family name resolution, some ambiguous) — not attempted this session.
         - Druid's Glyph Utility skills each have 3 same-name duplicate ids with genuinely different
           effects (e.g. "Glyph of the Tides": "Pulls enemies toward you" / "Draw...in or knock them
           away" / "Push nearby enemies away") and no API field (`attunement`/`specializationId`/

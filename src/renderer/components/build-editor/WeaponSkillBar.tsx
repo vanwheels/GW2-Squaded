@@ -3,6 +3,7 @@ import { boonConditionFactsForSkill, tomeChapterBoonSources } from '@shared/boon
 import { weaponSkillIdsForPair } from '@shared/weapon-calc/weapon-skills'
 import { bundleCapableSkillIds, resolveActiveBundle } from '@shared/skill-calc/bundle-skills'
 import { professionMechanicBar } from '@shared/skill-calc/profession-mechanic'
+import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '@shared/skill-calc/untamed-unleash'
 import { formatFactLine } from '@shared/gear-calc/relic-effects-format'
 import { isBoonName, isConditionName } from '@shared/boon-calc/constants'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
@@ -11,7 +12,9 @@ import { factsBlock, skillTooltipContent, useDurationContext, type SkillVariantC
 interface Props {
   build: Build
   equippedSpecializationIds: ReadonlySet<number>
-  onBuildChange: (patch: Partial<Pick<Build, 'environment' | 'activeWeaponSet' | 'activeUnderwaterSet' | 'activeBundleSkillId'>>) => void
+  onBuildChange: (
+    patch: Partial<Pick<Build, 'environment' | 'activeWeaponSet' | 'activeUnderwaterSet' | 'activeBundleSkillId' | 'rangerUnleashed'>>
+  ) => void
 }
 
 /**
@@ -21,11 +24,17 @@ interface Props {
  * the Revenant legend-bar toggle it mirrors). Applies to every profession; weapon skills are
  * orthogonal to the Heal/Utility/Elite (or Legend) mechanic rendered above it.
  *
- * When the build has any equipped Engineer Kit or (for Firebrand) an available Tome — see
- * `bundle-skills.ts` — an extra toggle row lets the displayed 1-5 bar be swapped to that bundle's
- * own 5 skills instead, matching the real in-game "kit/tome replaces your weapon skills while
- * active" mechanic. Every equipped kit/tome always contributes to boon/condition totals regardless
- * of this toggle (see `Build.activeBundleSkillId`'s doc comment) — this only changes what's shown.
+ * For an Untamed Ranger, an extra Normal/Unleashed toggle swaps slot 1 between the weapon's normal
+ * autoattack and Untamed's "Unleashed" alternate (see `untamed-unleash.ts` — this does NOT replace
+ * the full bar, only slot 1; both states always contribute to boon/condition totals regardless of
+ * this toggle, same reasoning as every other toggle here).
+ *
+ * When the build has any equipped Engineer Kit, an available Firebrand Tome, or (for Druid) the
+ * Celestial Avatar mechanic — see `bundle-skills.ts` — an extra toggle row lets the displayed 1-5
+ * bar be swapped to that bundle's own 5 skills instead, matching the real in-game "kit/tome/
+ * Celestial-Avatar replaces your weapon skills while active" mechanic. Every equipped kit/tome/
+ * Celestial-Avatar always contributes to boon/condition totals regardless of this toggle (see
+ * `Build.activeBundleSkillId`'s doc comment) — this only changes what's shown.
  */
 export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange }: Props) {
   const { gameData, activeIds, durationPercent } = useDurationContext(build)
@@ -41,9 +50,14 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
   const mainWeapon = mainType && profession ? profession.weapons[mainType] : undefined
   const offWeapon = offType && profession ? profession.weapons[offType] : mainWeapon
 
-  const skillIds = profession ? weaponSkillIdsForPair(mainWeapon, offWeapon, build.environment, skillsById) : []
+  const baseSkillIds = profession ? weaponSkillIdsForPair(mainWeapon, offWeapon, build.environment, skillsById) : []
   const hasAnyWeapon = mainWeapon !== undefined || offWeapon !== undefined
   const variantContext: SkillVariantContext = { skills: gameData.skills, skillsById, wvwFactOverrides: gameData.wvwFactOverrides, durationPercent }
+
+  const isUntamed = equippedSpecializationIds.has(UNTAMED_SPEC_ID)
+  const unleashedId = isUntamed && mainType && mainWeapon ? unleashedWeaponOneId(mainType, mainWeapon, build.environment, skillsById) : null
+  const skillIds =
+    unleashedId !== null && build.rangerUnleashed ? [unleashedId, ...baseSkillIds.slice(1)] : baseSkillIds
 
   const mechanicBarSkillIds = profession ? professionMechanicBar(profession, skillsById, equippedSpecializationIds).map((e) => e.skill.id) : []
   const bundleCapableIds = bundleCapableSkillIds(build, skillsById, tomeChapters, mechanicBarSkillIds)
@@ -127,6 +141,25 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
           </>
         )}
       </div>
+
+      {unleashedId !== null && (
+        <div className="legend-bar-toggle">
+          <button
+            type="button"
+            className={!build.rangerUnleashed ? 'legend-toggle-button active' : 'legend-toggle-button'}
+            onClick={() => onBuildChange({ rangerUnleashed: false })}
+          >
+            Normal
+          </button>
+          <button
+            type="button"
+            className={build.rangerUnleashed ? 'legend-toggle-button active' : 'legend-toggle-button'}
+            onClick={() => onBuildChange({ rangerUnleashed: true })}
+          >
+            Unleashed
+          </button>
+        </div>
+      )}
 
       {bundleCapableIds.length > 0 && (
         <div className="legend-bar-toggle">

@@ -124,17 +124,30 @@ export interface Build {
   equippedPetIds: [number | null, number | null]
   activePetIndex: 0 | 1
   /**
-   * Engineer Kits and Firebrand Tomes both temporarily swap the displayed weapon-skill bar (1-5)
-   * for their own fixed 5-skill "bundle" while active — this is the id of whichever equipped
-   * bundle-capable skill is currently toggled to show that bar, or `null` to show the normal
-   * weapon skills. Display-only, same "toggle doesn't gate boon/condition totals" reasoning as
-   * `activeWeaponSet`/`activeLegendIndex`/`activePetIndex`: every equipped kit/tome's skills
-   * always contribute regardless of which (if any) is currently shown, since a player can open any
-   * of them at will mid-fight. For Engineer, must be one of `skills.utility`'s 3 chosen ids whose
-   * `Skill.bundleSkills` is non-null (see `skill-calc/bundle-skills.ts`); for Guardian/Firebrand,
-   * one of the 3 Tome ids `skill-calc/profession-mechanic.ts` resolves onto F1/F2/F3.
+   * Engineer Kits, Firebrand Tomes, and Druid's Celestial Avatar form all temporarily swap the
+   * displayed weapon-skill bar (1-5) for their own fixed 5-skill "bundle" while active — this is
+   * the id of whichever equipped bundle-capable skill is currently toggled to show that bar, or
+   * `null` to show the normal weapon skills. Display-only, same "toggle doesn't gate boon/condition
+   * totals" reasoning as `activeWeaponSet`/`activeLegendIndex`/`activePetIndex`: every equipped
+   * kit/tome/Celestial-Avatar's skills always contribute regardless of which (if any) is currently
+   * shown, since a player can open any of them at will mid-fight. For Engineer, must be one of
+   * `skills.utility`'s 3 chosen ids whose `Skill.bundleSkills` is non-null (see
+   * `skill-calc/bundle-skills.ts`); for Guardian/Firebrand, one of the 3 Tome ids
+   * `skill-calc/profession-mechanic.ts` resolves onto F1/F2/F3; for Ranger/Druid, the fixed
+   * Celestial Avatar id itself (Druid's `Profession_5`).
    */
   activeBundleSkillId: number | null
+  /**
+   * Ranger only (meaningless, always `false`, for every other profession): whether the displayed
+   * weapon bar shows the "Unleashed" (empowered) autoattack instead of the normal one — Untamed's
+   * profession mechanic swaps *both* the Ranger and the pet between an "Unleashed"/normal state on
+   * a 1-second cooldown in real combat (confirmed via the wiki's own Unleash Ranger/Unleash Pet
+   * pages 2026-07-30 — this does NOT replace the full weapon bar like a Kit/Tome/Celestial Avatar,
+   * only the weapon's own autoattack, i.e. slot 1). Display-only, same "both states always
+   * contribute" reasoning as every other toggle on this type — see
+   * `skill-calc/untamed-unleash.ts`.
+   */
+  rangerUnleashed: boolean
   createdAt: Timestamp
   updatedAt: Timestamp
 }

@@ -31,6 +31,7 @@ export function makeBlankBuild(): Build {
     equippedPetIds: [null, null],
     activePetIndex: 0,
     activeBundleSkillId: null,
+    rangerUnleashed: false,
     createdAt: now,
     updatedAt: now
   }
