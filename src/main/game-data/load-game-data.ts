@@ -32,6 +32,7 @@ export function loadGameData(): GameData {
       eliteSpecSkills: readJson('elite-spec-skills.json'),
       wvwFactOverrides: readJson('wvw-fact-overrides.json'),
       legends: readJson('legends.json'),
+      pets: readJson('pets.json'),
       runes: readJson('runes.json'),
       sigils: readJson('sigils.json'),
       infusions: readJson('infusions.json'),

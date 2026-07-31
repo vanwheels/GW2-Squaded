@@ -2409,6 +2409,10 @@
         "slot": "Profession_1"
       },
       {
+        "id": 76816,
+        "slot": "Profession_2"
+      },
+      {
         "id": 76702,
         "slot": "Profession_2"
       },
@@ -2417,15 +2421,7 @@
         "slot": "Profession_2"
       },
       {
-        "id": 76633,
-        "slot": "Profession_2"
-      },
-      {
         "id": 76550,
-        "slot": "Profession_2"
-      },
-      {
-        "id": 76674,
         "slot": "Profession_2"
       },
       {
@@ -2450,10 +2446,6 @@
       },
       {
         "id": 77288,
-        "slot": "Profession_2"
-      },
-      {
-        "id": 76909,
         "slot": "Profession_2"
       },
       {

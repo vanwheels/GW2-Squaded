@@ -1,4 +1,4 @@
-import type { Build, Consumable, EquipmentSlotKey, Fact, Infusion, ItemStat, Legend, Profession, Rune, Skill, Trait, WvwFactOverride, WvwFactOverrides } from '../types'
+import type { Build, Consumable, EquipmentSlotKey, Fact, Infusion, ItemStat, Legend, Pet, Profession, Rune, Skill, Trait, WvwFactOverride, WvwFactOverrides } from '../types'
 import { isBoonName, isConditionName } from './constants'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '../gear-calc/attribute-totals'
 import { weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
@@ -150,9 +150,11 @@ function weaponSkillIdsForBuild(build: Build, professions: Profession[], skillsB
  * Heal/Utility/Elite skills; for Revenant, every skill (swap + heal + 3 utility + elite) belonging
  * to either of the 2 equipped legends, since a legend's kit is fixed rather than picked skill-by-
  * skill (see `RevenantSkillSelection`) — plus every weapon-derived skill id from the build's
- * currently-relevant weapon sets (see `weaponSkillIdsForBuild`).
+ * currently-relevant weapon sets (see `weaponSkillIdsForBuild`), plus, for Ranger, both equipped
+ * pets' own skill (`Build.equippedPetIds` — both always contribute, same "both always equipped"
+ * reasoning as the Revenant legends and land weapon-swap sets above).
  */
-function skillIdsForBuild(build: Build, legends: Legend[], professions: Profession[], skillsById: Map<number, Skill>): number[] {
+function skillIdsForBuild(build: Build, legends: Legend[], pets: Pet[], professions: Profession[], skillsById: Map<number, Skill>): number[] {
   const nonWeaponIds =
     build.skills.kind === 'revenant'
       ? build.skills.legends
@@ -162,7 +164,16 @@ function skillIdsForBuild(build: Build, legends: Legend[], professions: Professi
           .flatMap((l) => [l.swap, l.heal, l.elite, ...l.utilities])
       : [build.skills.heal, ...build.skills.utility, build.skills.elite].filter((id): id is number => id !== null)
 
-  return [...nonWeaponIds, ...weaponSkillIdsForBuild(build, professions, skillsById)]
+  const petSkillIds =
+    build.profession === 'Ranger'
+      ? build.equippedPetIds
+          .filter((id): id is number => id !== null)
+          .map((id) => pets.find((p) => p.id === id))
+          .filter((p): p is Pet => p !== undefined)
+          .map((p) => p.skillId)
+      : []
+
+  return [...nonWeaponIds, ...petSkillIds, ...weaponSkillIdsForBuild(build, professions, skillsById)]
 }
 
 /**
@@ -199,6 +210,7 @@ export function computeBoonConditionSources(
     utility: Consumable[]
     wvwFactOverrides: WvwFactOverrides
     legends: Legend[]
+    pets: Pet[]
     professions: Profession[]
   }
 ): BoonConditionSource[] {
@@ -212,7 +224,7 @@ export function computeBoonConditionSources(
     condition: conditionDurationPercent(gearTotals)
   }
 
-  const skillIds = skillIdsForBuild(build, gameData.legends, gameData.professions, skillsById)
+  const skillIds = skillIdsForBuild(build, gameData.legends, gameData.pets, gameData.professions, skillsById)
   for (const id of skillIds) {
     const skill = skillsById.get(id)
     if (!skill) continue

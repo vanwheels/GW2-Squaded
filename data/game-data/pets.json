@@ -1,0 +1,398 @@
+[
+  {
+    "id": 1,
+    "name": "Juvenile Jungle Stalker",
+    "icon": "https://render.guildwars2.com/file/EF1CBC60372CC60E420AD479A3504D90207A9A3F/52535.png",
+    "skillId": 12658
+  },
+  {
+    "id": 2,
+    "name": "Juvenile Boar",
+    "icon": "https://render.guildwars2.com/file/F4A7D5033C6BBB14F4EDE9F0946190047D2AA96F/52537.png",
+    "skillId": 12754
+  },
+  {
+    "id": 3,
+    "name": "Juvenile Lynx",
+    "icon": "https://render.guildwars2.com/file/6C1D64F7D34D073A7E1860B754A33DBCBFCC6CE6/52539.png",
+    "skillId": 12680
+  },
+  {
+    "id": 4,
+    "name": "Juvenile Krytan Drakehound",
+    "icon": "https://render.guildwars2.com/file/76E6FF0DCD60DFC7287FB14542234EFAAA92194F/52541.png",
+    "skillId": 12715
+  },
+  {
+    "id": 5,
+    "name": "Juvenile Brown Bear",
+    "icon": "https://render.guildwars2.com/file/1B51DCA656B8ED7A2C1C48AC03A4BCD6EDA66901/52543.png",
+    "skillId": 12666
+  },
+  {
+    "id": 6,
+    "name": "Juvenile Carrion Devourer",
+    "icon": "https://render.guildwars2.com/file/C608E0CA50E16897B1BB7FCD492703E7D20308C8/52545.png",
+    "skillId": 12675
+  },
+  {
+    "id": 7,
+    "name": "Juvenile Salamander Drake",
+    "icon": "https://render.guildwars2.com/file/5EF6FBFDD6E60258DDFDD5467071E4FB31503BAC/52547.png",
+    "skillId": 12670
+  },
+  {
+    "id": 8,
+    "name": "Juvenile Alpine Wolf",
+    "icon": "https://render.guildwars2.com/file/9255640360EAAAF61A09284742E44A4626626339/52549.png",
+    "skillId": 12716
+  },
+  {
+    "id": 9,
+    "name": "Juvenile Snow Leopard",
+    "icon": "https://render.guildwars2.com/file/923714681AB4117A300E0946487CCB0F72E10921/52551.png",
+    "skillId": 12693
+  },
+  {
+    "id": 10,
+    "name": "Juvenile Raven",
+    "icon": "https://render.guildwars2.com/file/0BE49B5A5868FD4DAA02D2BE37DE5FC002A41E7D/52553.png",
+    "skillId": 12723
+  },
+  {
+    "id": 11,
+    "name": "Juvenile Jaguar",
+    "icon": "https://render.guildwars2.com/file/B90D0599D6F8B50AE1C24D140EFFC4F93303E62E/52555.png",
+    "skillId": 12681
+  },
+  {
+    "id": 12,
+    "name": "Juvenile Marsh Drake",
+    "icon": "https://render.guildwars2.com/file/75D8EEA0425007A3D1AC0A01D2CCC17036D65D23/1128510.png",
+    "skillId": 12701
+  },
+  {
+    "id": 13,
+    "name": "Juvenile Blue Moa",
+    "icon": "https://render.guildwars2.com/file/9220AB4AD4B72194F22A9864B5B59CF8C518096A/52559.png",
+    "skillId": 12713
+  },
+  {
+    "id": 14,
+    "name": "Juvenile White Moa",
+    "icon": "https://render.guildwars2.com/file/71DEFA80B950FA6C297AFD7A6BE1DA9726F57D94/52561.png",
+    "skillId": 12711
+  },
+  {
+    "id": 15,
+    "name": "Juvenile Pink Moa",
+    "icon": "https://render.guildwars2.com/file/D4F01CBFF90D45E04C98B836E836280AB01A0BB1/52563.png",
+    "skillId": 12708
+  },
+  {
+    "id": 16,
+    "name": "Juvenile Black Moa",
+    "icon": "https://render.guildwars2.com/file/6B9111F0B1CF94B4A4052FF39FB4E5041702FCDF/52565.png",
+    "skillId": 12709
+  },
+  {
+    "id": 17,
+    "name": "Juvenile Red Moa",
+    "icon": "https://render.guildwars2.com/file/FCB3E7C150F206DE3CE9D53A247A1EDD01080F6E/52566.png",
+    "skillId": 12712
+  },
+  {
+    "id": 18,
+    "name": "Juvenile Ice Drake",
+    "icon": "https://render.guildwars2.com/file/FC57A3DA7DB01370A16DE0CAF09BDF0F5A6464A6/52568.png",
+    "skillId": 12696
+  },
+  {
+    "id": 19,
+    "name": "Juvenile River Drake",
+    "icon": "https://render.guildwars2.com/file/0E0A036C030F8013556C0715CCC9B11C08B7926D/52570.png",
+    "skillId": 12698
+  },
+  {
+    "id": 20,
+    "name": "Juvenile Murellow",
+    "icon": "https://render.guildwars2.com/file/4AA07A3721C4050A92A9EA4D905366303E5AF4D4/52572.png",
+    "skillId": 12687
+  },
+  {
+    "id": 21,
+    "name": "Juvenile Shark",
+    "icon": "https://render.guildwars2.com/file/24DC58C7D70FED79BF7E0D38D202479E3D2EB2F9/52574.png",
+    "skillId": 12757
+  },
+  {
+    "id": 22,
+    "name": "Juvenile Fern Hound",
+    "icon": "https://render.guildwars2.com/file/5EBD4E7C03ABEC7EE648B30197559F660651BB00/52576.png",
+    "skillId": 12717
+  },
+  {
+    "id": 23,
+    "name": "Juvenile Black Bear",
+    "icon": "https://render.guildwars2.com/file/750CA07BDEC1D16FE29BD1AE17EE0C22F366E16E/52578.png",
+    "skillId": 12688
+  },
+  {
+    "id": 24,
+    "name": "Juvenile Polar Bear",
+    "icon": "https://render.guildwars2.com/file/A4FE067546F4AF76AE15B5A1A45447E4A3FB5AFC/52580.png",
+    "skillId": 12667
+  },
+  {
+    "id": 25,
+    "name": "Juvenile Arctodus",
+    "icon": "https://render.guildwars2.com/file/A54EA5421979C33E0F364301262416D4512D0DBF/52582.png",
+    "skillId": 12664
+  },
+  {
+    "id": 26,
+    "name": "Juvenile Whiptail Devourer",
+    "icon": "https://render.guildwars2.com/file/F350B25F6746B555B4A76BFC78CC0E94BF546A67/52584.png",
+    "skillId": 12702
+  },
+  {
+    "id": 27,
+    "name": "Juvenile Lashtail Devourer",
+    "icon": "https://render.guildwars2.com/file/E2E73A4428C6C566F1F551563167070D6F917173/52586.png",
+    "skillId": 12704
+  },
+  {
+    "id": 28,
+    "name": "Juvenile Hyena",
+    "icon": "https://render.guildwars2.com/file/31CCCCA90BAA6B09A80E2978D794DF2ED42B3779/52588.png",
+    "skillId": 12718
+  },
+  {
+    "id": 29,
+    "name": "Juvenile Wolf",
+    "icon": "https://render.guildwars2.com/file/D7E020A1FEDD31DB47F21E22A2217CA94C282A0C/52590.png",
+    "skillId": 12714
+  },
+  {
+    "id": 30,
+    "name": "Juvenile Owl",
+    "icon": "https://render.guildwars2.com/file/5A4CB8FF3E02BE075877C6DE2309394FCE549054/52592.png",
+    "skillId": 12721
+  },
+  {
+    "id": 31,
+    "name": "Juvenile Eagle",
+    "icon": "https://render.guildwars2.com/file/43495C762E04BEDDB5BB3EA467D63409F212F2CF/52594.png",
+    "skillId": 12722
+  },
+  {
+    "id": 32,
+    "name": "Juvenile White Raven",
+    "icon": "https://render.guildwars2.com/file/4C314B00DC20F50F2FCACC14615C91BB4F2262A3/52596.png",
+    "skillId": 12723
+  },
+  {
+    "id": 33,
+    "name": "Juvenile Forest Spider",
+    "icon": "https://render.guildwars2.com/file/46021B0706D37EEF1F3DE7090E5B0ACF0F927E7C/52598.png",
+    "skillId": 12731
+  },
+  {
+    "id": 34,
+    "name": "Juvenile Jungle Spider",
+    "icon": "https://render.guildwars2.com/file/227AF44EC32FC170BB76B5AA352DA0460374FB01/52600.png",
+    "skillId": 12729
+  },
+  {
+    "id": 35,
+    "name": "Juvenile Cave Spider",
+    "icon": "https://render.guildwars2.com/file/61567AC1D76EF13C4CD0D1D33018B09F7EA494D4/52602.png",
+    "skillId": 12730
+  },
+  {
+    "id": 36,
+    "name": "Juvenile Black Widow Spider",
+    "icon": "https://render.guildwars2.com/file/07EA03060306A6D95752C70CA7D8931420069B0D/52604.png",
+    "skillId": 12729
+  },
+  {
+    "id": 37,
+    "name": "Juvenile Warthog",
+    "icon": "https://render.guildwars2.com/file/DF96C29EFA4BDEC66C3149F280141490C20458D3/52606.png",
+    "skillId": 12755
+  },
+  {
+    "id": 38,
+    "name": "Juvenile Siamoth",
+    "icon": "https://render.guildwars2.com/file/0471617BD371046C089D7CDDB9104E57C33DA391/52608.png",
+    "skillId": 12756
+  },
+  {
+    "id": 39,
+    "name": "Juvenile Pig",
+    "icon": "https://render.guildwars2.com/file/CE671613E510096E1E0FA1ABCA6AD668900F03E1/52610.png",
+    "skillId": 12732
+  },
+  {
+    "id": 40,
+    "name": "Juvenile Armor Fish",
+    "icon": "https://render.guildwars2.com/file/F9A71C1308254B0544F40B9B5E05050EA87ED45B/52612.png",
+    "skillId": 12744
+  },
+  {
+    "id": 41,
+    "name": "Juvenile Blue Jellyfish",
+    "icon": "https://render.guildwars2.com/file/ED9A2FD006BAED6DCAD87C5BD9479C66111DCD79/52614.png",
+    "skillId": 12748
+  },
+  {
+    "id": 42,
+    "name": "Juvenile Red Jellyfish",
+    "icon": "https://render.guildwars2.com/file/C7F8301C1B76B3B208A23B19C3AABF0BBED8CA4C/52616.png",
+    "skillId": 12749
+  },
+  {
+    "id": 43,
+    "name": "Juvenile Rainbow Jellyfish",
+    "icon": "https://render.guildwars2.com/file/ED9A2FD006BAED6DCAD87C5BD9479C66111DCD79/52614.png",
+    "skillId": 12748
+  },
+  {
+    "id": 44,
+    "name": "Juvenile Hawk",
+    "icon": "https://render.guildwars2.com/file/70F79F793C0625969046DF0C00B548C50E17115B/543019.png",
+    "skillId": 20975
+  },
+  {
+    "id": 45,
+    "name": "Juvenile Reef Drake",
+    "icon": "https://render.guildwars2.com/file/A90B47ECE2A57D71DB23384E23F5EFF7130176B4/511359.png",
+    "skillId": 16426
+  },
+  {
+    "id": 46,
+    "name": "Juvenile Smokescale",
+    "icon": "https://render.guildwars2.com/file/9B1BB03EA406016DE343EBF4C733C05ADA7FD70D/1128512.png",
+    "skillId": 31568
+  },
+  {
+    "id": 47,
+    "name": "Juvenile Tiger",
+    "icon": "https://render.guildwars2.com/file/A41953A8682309700FA17601FE05DB040C6CD07B/1128514.png",
+    "skillId": 31451
+  },
+  {
+    "id": 48,
+    "name": "Juvenile Electric Wyvern",
+    "icon": "https://render.guildwars2.com/file/E93F21BDA224010D2A7CF90B9297E3083C436BF7/1128506.png",
+    "skillId": 31639
+  },
+  {
+    "id": 51,
+    "name": "Juvenile Fire Wyvern",
+    "icon": "https://render.guildwars2.com/file/AE90459E46D1F3E01C94A09A117FFA06ED2B54EB/1128508.png",
+    "skillId": 31459
+  },
+  {
+    "id": 52,
+    "name": "Juvenile Bristleback",
+    "icon": "https://render.guildwars2.com/file/371C4E26DD3744CDEEEE5D45142519561E286FFE/1128504.png",
+    "skillId": 31367
+  },
+  {
+    "id": 54,
+    "name": "Juvenile Cheetah",
+    "icon": "https://render.guildwars2.com/file/1911090762244A310BD539B2C54A23F702F66D0A/1769877.png",
+    "skillId": 42963
+  },
+  {
+    "id": 55,
+    "name": "Juvenile Sand Lion",
+    "icon": "https://render.guildwars2.com/file/0D23EE67F7C4F4E300637D43B9A46F500FD4799C/1769879.png",
+    "skillId": 42180
+  },
+  {
+    "id": 57,
+    "name": "Juvenile Jacaranda",
+    "icon": "https://render.guildwars2.com/file/DFA4A1F6006A0769DAAD0C7909FB607A3A21693D/1769881.png",
+    "skillId": 44980
+  },
+  {
+    "id": 59,
+    "name": "Juvenile Rock Gazelle",
+    "icon": "https://render.guildwars2.com/file/F3EED35B2DD6B52FFCBFD7FCCA184EB7EBCF01A4/1769875.png",
+    "skillId": 43636
+  },
+  {
+    "id": 61,
+    "name": "Juvenile Fanged Iboga",
+    "icon": "https://render.guildwars2.com/file/BE037F03F337204F7D9C99F1B94D7FA708AE00A7/1769883.png",
+    "skillId": 41156
+  },
+  {
+    "id": 63,
+    "name": "Juvenile White Tiger",
+    "icon": "https://render.guildwars2.com/file/5F10BEA9C0919C6AD32FEB5F51143835060E4209/2604596.png",
+    "skillId": 65109
+  },
+  {
+    "id": 64,
+    "name": "Juvenile Wallow",
+    "icon": "https://render.guildwars2.com/file/58AFDFDFDDB8325F5E076C2400C63D450C15EA09/2604592.png",
+    "skillId": 66622
+  },
+  {
+    "id": 65,
+    "name": "Juvenile Phoenix",
+    "icon": "https://render.guildwars2.com/file/E4090046CDB5069D7DF91DE605FBF3F2071CE946/2604594.png",
+    "skillId": 63716
+  },
+  {
+    "id": 66,
+    "name": "Juvenile Siege Turtle",
+    "icon": "https://render.guildwars2.com/file/090DAF0BC96523FF613BB30FF36F4A23EBFB49CD/2604598.png",
+    "skillId": 65418
+  },
+  {
+    "id": 67,
+    "name": "Juvenile Aether Hunter",
+    "icon": "https://render.guildwars2.com/file/51F3981E290D556DC861953CF3A37FC2B306000D/3124863.png",
+    "skillId": 71002
+  },
+  {
+    "id": 68,
+    "name": "Juvenile Sky-Chak Striker",
+    "icon": "https://render.guildwars2.com/file/16B2200803B76ABEDEA8DB1A40E04D14FE7D99DC/3256314.png",
+    "skillId": 71688
+  },
+  {
+    "id": 69,
+    "name": "Juvenile Spinegazer",
+    "icon": "https://render.guildwars2.com/file/FB779ACEF8182B465916A693EEC471AEE6BB7C15/3307063.png",
+    "skillId": 72843
+  },
+  {
+    "id": 70,
+    "name": "Juvenile Warclaw",
+    "icon": "https://render.guildwars2.com/file/7C5A4035C51E9EB3CEBA7028240CEA9E5F5FC038/3378993.png",
+    "skillId": 74314
+  },
+  {
+    "id": 71,
+    "name": "Juvenile Janthiri Bee",
+    "icon": "https://render.guildwars2.com/file/03BF0B1C079C06B359E0CE520E747AC5E878F395/3594054.png",
+    "skillId": 75783
+  },
+  {
+    "id": 72,
+    "name": "Juvenile Raptor Swiftwing",
+    "icon": "https://render.guildwars2.com/file/7DFEA0B69A935295F938F1BC043A3BAAAF506A1B/3713047.png",
+    "skillId": 78873
+  },
+  {
+    "id": 73,
+    "name": "Juvenile River Otter",
+    "icon": "https://render.guildwars2.com/file/4821BEE8B3346E020F982650A22548801C082352/3772540.png",
+    "skillId": 79766
+  }
+]

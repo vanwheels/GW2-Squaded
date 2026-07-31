@@ -149,6 +149,13 @@ export interface Skill {
    *  can't bind "Stow Med Kit" as your heal skill), so it's excluded from Heal/Utility/Elite
    *  pickers by src/shared/skill-calc/skill-variants.ts rather than offered as a separate pick. */
   flipSkill: number | null
+  /** Engineer-only: the Toolbelt skill this Heal/Utility/Elite skill generates (F1-F4) when
+   *  equipped — `null` for every non-Engineer skill and for Engineer skills with no toolbelt
+   *  counterpart. Sourced from the API's own `toolbelt_skill` field; used by
+   *  `skill-calc/profession-mechanic.ts`'s `engineerToolbeltBar` instead of the slot-based
+   *  resolver, since the base Toolbelt bar isn't enumerable via `professionSkills` at all — it's
+   *  generated per equipped Utility (and Heal) choice rather than fixed per elite spec. */
+  toolbeltSkill: number | null
 }
 
 export interface ItemStatAttribute {
@@ -192,6 +199,22 @@ export interface Legend {
   elite: number
   utilities: [number, number, number]
   specializationId: number | null
+}
+
+/**
+ * A Ranger pet species (e.g. "Juvenile Jungle Stalker"). Confirmed live 2026-07-30: `/v2/pets`
+ * gives exactly one real, always-equippable skill per pet (`skillId`, the "F2" special ability
+ * shown by the pet's portrait) — that's the entire per-build-determinable Ranger mechanic. The
+ * much larger per-pet-*family* skill list in `Profession.professionSkills` (Profession_1/_2, e.g.
+ * "Swoop"/"Bite") turned out to be Soulbeast's Beastmode skill-bar replacement, not this — same
+ * "replaces the weapon bar" shape as Firebrand Tomes/Engineer Kits, deliberately out of scope
+ * here (see TODO.md). Unlike `Legend`, pets aren't spec-gated at all (no core/elite split).
+ */
+export interface Pet {
+  id: number
+  name: string
+  icon: string
+  skillId: number
 }
 
 /**
@@ -368,6 +391,7 @@ export interface GameData {
   eliteSpecSkills: EliteSpecSkillMap
   wvwFactOverrides: WvwFactOverrides
   legends: Legend[]
+  pets: Pet[]
   runes: Rune[]
   sigils: Sigil[]
   infusions: Infusion[]

@@ -4,6 +4,7 @@ import type {
   GameData,
   Infusion,
   Legend,
+  Pet,
   ProfessionId,
   Relic,
   Rune,
@@ -20,6 +21,7 @@ export interface GameDataStore extends GameData {
   traitsById: Map<number, Trait>
   skillsById: Map<number, Skill>
   legendsById: Map<string, Legend>
+  petsById: Map<number, Pet>
   runesById: Map<number, Rune>
   sigilsById: Map<number, Sigil>
   infusionsById: Map<number, Infusion>
@@ -49,6 +51,7 @@ const EMPTY_GAME_DATA: GameData = {
   eliteSpecSkills: {},
   wvwFactOverrides: { skill: {}, trait: {} },
   legends: [],
+  pets: [],
   runes: [],
   sigils: [],
   infusions: [],
@@ -81,6 +84,7 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
     const traitsById = new Map(gameData.traits.map((t) => [t.id, t]))
     const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
     const legendsById = new Map(gameData.legends.map((l) => [l.id, l]))
+    const petsById = new Map(gameData.pets.map((p) => [p.id, p]))
     const runesById = new Map(gameData.runes.map((r) => [r.id, r]))
     const sigilsById = new Map(gameData.sigils.map((s) => [s.id, s]))
     const infusionsById = new Map(gameData.infusions.map((i) => [i.id, i]))
@@ -95,6 +99,7 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
       traitsById,
       skillsById,
       legendsById,
+      petsById,
       runesById,
       sigilsById,
       infusionsById,

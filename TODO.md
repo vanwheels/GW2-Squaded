@@ -714,35 +714,88 @@
           (stat prefix: every armor/trinket/weapon slot; rune: the 6 armor slots; sigil/infusion:
           every slot at its own existing capacity) via new `applyStatToAll`/`applyRuneToAll`/
           `applySigilToAll`/`applyInfusionToAll` functions.
-    - [ ] **F1-F6 profession-mechanic skills (e.g. Firebrand's Tomes, Engineer's Kits) aren't
-          modeled or displayed at all** — investigated this session, turned out to be
-          significantly bigger than it first looked. Landed the data layer only
-          (`Profession.professionSkills` + `src/shared/skill-calc/profession-mechanic.ts`'s
-          resolver — see docs/game-data.md's new "Profession-mechanic ('F-skill') data" section for
-          the full writeup) but did **not** wire any UI, because the mechanic turned out to be
-          multi-axis for most professions rather than a simple "one fixed skill per elite spec"
-          fact: Warrior's Burst Skill depends on equipped *weapon type*, Engineer's Toolbelt
-          depends on equipped *Utility skill choice* (plus Scrapper/Holosmith/Mechanist each having
-          their own F5 sub-mechanic), Ranger's F2-F5 depend on equipped *pet* (a concept this app
-          doesn't model anywhere), and Revenant's F-skills duplicate the already-separately-modeled
-          Legend system. Only Guardian (verified clean across all 4 elite specs) and likely a few
-          others (Thief Steal, Elementalist attunement swap, Necromancer shroud, Mesmer shatter
-          skills — not yet individually verified) fit the simple case the resolver handles. Needs a
-          scoping decision before any UI lands: either build real per-profession special-casing
-          (weapon-bar integration, a new "equipped pet" concept, utility→toolbelt derivation) or
-          explicitly scope the F-bar display to only the professions where it's genuinely fixed.
-    - [ ] **Tomes/Kits replacing the weapon skill bar (1-5) while active** — separate, deeper gap
-          than the F-bar display above: Firebrand's 3 Tomes and Engineer's Kits each have their own
-          5-skill bar that temporarily replaces weapon skills 1-5 (matches the user's screenshots:
-          Tome of Justice's tooltip listing "Chapter 1: Searing Spell" through "Epilogue: Ashes of
-          the Just", and a skill-bar screenshot showing 1-5 swapped to tome icons with F1-F3 above
-          it). Confirmed live 2026-07-30: the 5 chapter/kit-skill names have **no id anywhere in
-          the public API** — the wiki page lists them as unlinked skill names in a
-          `{{Weapon skill table row}}` template only. Getting real ids needs a wiki cross-check per
-          tome/kit (same shape of effort as `scripts/fetch-relic-effects.ts`, just scoped per-
-          mechanic rather than per-page) — not attempted this session; needs its own scoped pass,
-          and depends on the F-bar scoping decision above landing first (no point wiring tome/kit
-          sub-bars before the F1-F3 buttons that open them are even modeled per-profession).
+    - [x] **F1-F6 profession-mechanic skills (e.g. Firebrand's Tomes, Engineer's Kits) aren't
+          modeled or displayed at all** — landed in a follow-up session (2026-07-30), scoped
+          "broad": user chose to build the real per-profession special-casing (weapon-bar
+          integration for Warrior, a new "equipped pet" concept for Ranger, utility→toolbelt
+          derivation for Engineer) rather than only showing the F-bar where it's trivially fixed.
+          Live-verified all 9 professions against the real API before wiring anything: Guardian/
+          Necromancer/Mesmer/Elementalist(F1-F4)/Thief(F1 only) go through the existing generic
+          resolver; Warrior's Burst Skill resolves by equipped main-hand weapon type (new optional
+          `mainHandWeaponType` param on `professionMechanicBar`); Engineer's base Toolbelt (F1-F4)
+          turned out not to be in `professionSkills` at all — derived instead from each equipped
+          Heal/Utility skill's new `Skill.toolbeltSkill` field (`engineerToolbeltBar`); Ranger
+          turned out to need an entirely different concept than assumed — `/v2/pets` gives exactly
+          one real skill per pet, modeled as new `Pet`/`pets.json` plus `Build.equippedPetIds`/
+          `activePetIndex` and a `PetsEditor` mirroring the Legend picker (the big
+          `Profession_1`/`_2` id list this app's `professionSkills` data has for Ranger turned out
+          to be Soulbeast's Beastmode skill-bar replacement, not this mechanic — see the item
+          below). Revenant deliberately gets no F-bar (redundant with the existing Legend picker).
+          A handful of genuinely ambiguous legacy/duplicate ids (Warrior Spellbreaker's "Full
+          Counter" slot, Engineer Scrapper's "Function Gyro", Engineer Mechanist/newest-elite-spec
+          sub-mechanics, Elementalist's newest elite spec reworking the Attunement buttons) got a
+          small hand-verified pin/exclusion table (`EXCLUDED_MECHANIC_SKILL_IDS` in
+          `profession-mechanic.ts`) rather than a guess — full writeup in docs/game-data.md's
+          "Profession-mechanic ('F-skill') data" section.
+    - [ ] **Tomes/Kits/Beastmode replacing the weapon skill bar (1-5) while active** — separate,
+          deeper gap than the F-bar display above: Firebrand's 3 Tomes, Engineer's Kits, and (newly
+          confirmed) Ranger Soulbeast's Beastmode each have their own 5-skill bar that temporarily
+          replaces weapon skills 1-5 (matches the user's screenshots: Tome of Justice's tooltip
+          listing "Chapter 1: Searing Spell" through "Epilogue: Ashes of the Just", and a skill-bar
+          screenshot showing 1-5 swapped to tome icons with F1-F3 above it). Confirmed live
+          2026-07-30: Firebrand's 5 chapter-skill names have **no id anywhere in the public API** —
+          the wiki page lists them as unlinked skill names in a `{{Weapon skill table row}}`
+          template only. Engineer Kits and Ranger Soulbeast's Beastmode are different: both DO have
+          real ids already sitting in this app's fetched data (`bundle_skills` on a kit's own
+          skill object; `professionSkills`' `Profession_1`/`_2` entries for Beastmode) — a future
+          pass could wire those two before Firebrand, which would still need the wiki cross-check
+          (same shape of effort as `scripts/fetch-relic-effects.ts`, scoped per-mechanic rather
+          than per-page) — not attempted this session, needs its own scoped pass.
+    - [ ] **Follow-up round on the F-skill bar after user testing (2026-07-30)** — user tested the
+          F-bar/pet picker landed above and found real gaps, some of which were bugs (fixed same
+          session) and some genuinely new scope (not attempted, needs a decision):
+      - [x] **Bug: Revenant and Ranger were wrongly blanket-excluded from `professionMechanicBar`.**
+            The original pass checked only `Profession_1`/`_2` for each, found those fully redundant
+            (Revenant) or Soulbeast-only (Ranger), and wrongly generalized that conclusion to the
+            whole profession without checking `Profession_3`-`_5`. Fixed: Revenant now shows Ancient
+            Echo/Facet of Nature/Heroic Command/Energy Meld/Citadel Bombardment/Orders from Above/
+            Cosmic Wisdom as applicable; Ranger now shows Druid's Celestial Avatar toggle and
+            Untamed's Venomous Outburst/Rending Vines/Enveloping Haze plus Soulbeast's actual
+            "Beastmode" merge button. Full corrected findings in docs/game-data.md.
+      - [x] **Pet picker needed a search bar** (66 pets, scrolling a flat grid was unusable) —
+            added, reusing the same search-input pattern `UpgradePicker.tsx` already established.
+      - [ ] **Not attempted — needs scope/priority decision:**
+        - Tomes/Kits/Celestial-Avatar-form/Untamed-unleashed-form all replace the weapon skill bar
+          (1-5) while active, and none of those replacement skills currently factor into the boon/
+          condition calculator — this is the pre-existing "Tomes/Kits/Beastmode replacing the
+          weapon bar" item directly above, now confirmed to also need Celestial Avatar and Untamed
+          folded in. Blocked on the same wiki-scrape-for-Tomes work.
+        - Ranger pet's "3 more skills per pet *category*" (e.g. Ursine/Canine) the user described,
+          clarified via screenshot to be **Untamed** (not Druid): the screenshot shows F1-F3 as 3
+          animal-themed icons (paw/canine-head/wing) directly beside the pet portrait, F4 = swap
+          pet, F5 = the "Unleash" toggle — confirming Untamed's mechanic is genuinely 2-mode:
+          "Unleash Ranger" grants the Ranger 3 fixed skills (already wired — "Venomous Outburst"/
+          "Rending Vines"/"Enveloping Haze", F1-F3 currently shown unconditionally as the default),
+          while "Unleash Pet" instead grants the *pet* 3 skills that vary by pet **family**
+          (Ursine/Canine/etc.) — a second, entirely separate 3-skill set from the one already wired,
+          not present anywhere in the fetched API data (no pet-family field exists at all, same gap
+          `Pet`'s doc comment already notes for Soulbeast). Confirms this needs both (a) a pet-
+          family concept sourced from the wiki (`/v2/pets` has no family field) and (b) the
+          "Unleash Ranger"/"Unleash Pet" toggle UI already flagged as excluded above — same shape
+          of work as the weapon-bar-replacement item, folded into that deferred bucket rather than
+          a separate item.
+        - Druid's Glyph Utility skills each have 3 same-name duplicate ids with genuinely different
+          effects (e.g. "Glyph of the Tides": "Pulls enemies toward you" / "Draw...in or knock them
+          away" / "Push nearby enemies away") and no API field (`attunement`/`specializationId`/
+          `flipSkill`) distinguishing base-form vs. Celestial-Avatar-form vs. a possible 3rd/legacy
+          variant — live-verified 2026-07-30. Needs a wiki cross-check per glyph (same shape of
+          effort as `fetch-elite-spec-skills.ts`) to resolve which id is which, before the Utility
+          picker can correctly show only the base version (swapping to the CA version when a future
+          CA-form toggle is active) instead of all 3.
+        - Legendary Alliance Stance (Vindicator's own legend) reportedly has 2 visually-distinct
+          sub-forms (Saint Viktor's/Archemorus's aspects) changing its skill kit — `/v2/legends`
+          exposes only one fixed heal/utility/elite set for it; not investigated further, needs a
+          screenshot/reference and likely a new "legend form" concept alongside `Legend`.
     - [x] **Mantras (and similar multi-charge skills) needing different tooltip text per charge
           state** — investigated and confirmed this is **already handled** by the same
           undocumented `6db4ef7` pass: `numericFactLines` already surfaces a skill's own ammo count

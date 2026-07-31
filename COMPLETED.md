@@ -2,6 +2,75 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 23 — Trait tier alignment fix, full F1-F5 profession-mechanic bar
+
+Two pieces of follow-up on Session 22's F-skill investigation, plus an unrelated trait-layout fix
+requested at the start of this session.
+
+- **Trait tiers: minor centered beside a vertical column of 3 majors, not on top of a horizontal
+  row.** Session 22 made each trait line a horizontal row (Zeal/Virtues/Firebrand stacked), but
+  within each of the 3 tiers the minor trait sat above a horizontal row of 3 majors — not quite the
+  gw2skills.net reference the user pointed at, where the minor sits centered to the *side* of the 3
+  majors stacked *vertically*. Fixed in CSS only (no JSX change needed — `TraitsEditor.tsx` already
+  rendered the minor before the major group per tier): `.trait-tier-group` flipped from a column to
+  a row (minor left, majors right, `align-items: center` so the minor centers against the 3-row
+  column's full height), and `.major-trait-tier` flipped from a row to a column.
+- **F1-F5 profession-mechanic ("F-skill") bar — the "broad" scope from Session 22's deferred
+  decision.** Session 22 landed the data layer and a resolver but explicitly didn't wire any UI,
+  flagging a scoping decision: build genuine per-profession special-casing for Warrior/Engineer/
+  Ranger, or only show the bar where it's already a simple per-spec fact. Asked the user; they chose
+  broad. Before writing any code, live-verified the real API across all 9 professions (not just
+  Guardian) to find every wrinkle up front:
+  - **Guardian/Necromancer/Mesmer/Elementalist(F1-F4)/Thief(F1 only)** — clean, the existing generic
+    resolver already handles these (Thief's F2 "stolen skill" is explicitly skipped — its
+    candidates are tagged per enemy `source` profession, i.e. it depends on who you steal from in a
+    live fight, not on anything in the build).
+  - **Warrior** — Burst Skill (F1) has dozens of same-slot candidates with no `specializationId` at
+    all, varying by equipped weapon type instead; `professionMechanicBar` gained an optional
+    `mainHandWeaponType` param used only for this one slot, reusing `WeaponSkillBar.tsx`'s existing
+    main-hand lookup. Spellbreaker's F2 had 6 legacy `categories:["Burst"]` duplicate ids alongside
+    the real "Full Counter" — pinned via exclusion.
+  - **Engineer** — the base Toolbelt (F1-F4) isn't in `professionSkills` at all; it's generated per
+    equipped Heal/Utility choice instead. Added `Skill.toolbeltSkill` (the API's `toolbelt_skill`
+    field, previously uncaptured) and a new `engineerToolbeltBar` function, independent of the
+    slot-based resolver. F5 elite-spec sub-mechanics: Holosmith clean; Scrapper's "Function Gyro"
+    had 2 orphaned duplicate ids (pinned to the highest, best-effort); Mechanist and the newest
+    Engineer elite spec ("Amalgam") are excluded entirely — genuinely ambiguous/dynamically-chosen
+    data, not worth guessing at.
+  - **Ranger** — turned out to need an entirely different concept than the original TODO assumed.
+    `/v2/pets` gives exactly one real, always-equippable skill per pet — that's the whole
+    per-build-determinable Ranger mechanic. Added `Pet` (`pets.json`, mirroring `Legend`'s fetch
+    pattern) plus new `Build.equippedPetIds`/`activePetIndex` fields (top-level, NOT folded into
+    `SkillSelection` — a Ranger's pets are additive to its normal skill picks, not a full-kit
+    replacement like a Revenant's legends) and a `PetsEditor` component mirroring
+    `RevenantSkillsEditor`'s 2-slot-picker-plus-active-toggle shape. The large `Profession_1`/`_2`
+    id list this app's existing `professionSkills` data already had for Ranger (e.g. "Swoop"/"Bite")
+    turned out to be Soulbeast's Beastmode skill-bar replacement, not this mechanic at all — same
+    shape as Firebrand Tomes/Engineer Kits, folded into that existing separate TODO item instead of
+    treated as part of this one.
+  - **Revenant** — deliberately still gets no F-bar: confirmed live its `Profession_2` candidates
+    are exactly each legend's own `swap` skill id, already fully shown by the existing Legend
+    picker.
+  - Also fixed a latent correctness gap in the resolver itself while wiring all this in: a slot
+    whose only candidates require an unequipped elite spec (e.g. a newest-spec-only F4/F5) would
+    previously still resolve to that spec's skill by default (via the "if nothing matches, use
+    every candidate" last-resort fallback) even when the build has no elite spec at all equipped —
+    now the resolved skill's `specializationId` is checked against the build's equipped specs and
+    the slot is dropped entirely if it doesn't match, rather than shown wrong.
+  - `EXCLUDED_MECHANIC_SKILL_IDS` in `profession-mechanic.ts` holds every hand-verified pin/
+    exclusion above with its own reasoning comment, same pattern as `LEGEND_SPECIALIZATION_ID` in
+    `fetch-game-data.ts`. New `ProfessionMechanicBar.tsx` renders the resulting read-only bar
+    (same visual pattern as `WeaponSkillBar`'s disabled buttons) inside `SkillsEditor.tsx`, above
+    the Heal/Utility/Elite (or Legend) bar, for every profession except Revenant/Ranger.
+  - Ran `npm run fetch-game-data` live to pick up the new `toolbelt_skill`→`toolbeltSkill` field
+    and the new `pets.json` file. Full writeup of every live-verified finding (including the exact
+    ids excluded/pinned and why) in docs/game-data.md's "Profession-mechanic ('F-skill') data" and
+    new "Ranger pets" sections. See TODO.md for the still-open follow-up (Tomes/Kits/Beastmode
+    actually replacing the weapon skill bar while active).
+  - **Verified**: `npx tsc --noEmit` clean after each phase. Not visually confirmed in a running
+    window (standing Electron-sandbox limitation in this shell, see prior sessions) — recommend
+    `npm run dev` locally to eyeball the new F-bar/pet picker across a few professions.
+
 ## Session 22 — Follow-up build-editor feedback: horizontal traits, weapon/spec pickers, gear copy/paste, F-skill investigation
 
 Picked up a fresh round of user feedback (with reference screenshots) on the build editor, given

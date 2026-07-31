@@ -16,6 +16,7 @@ import type {
   GameData,
   ItemStat,
   Legend,
+  Pet,
   Profession,
   ProfessionWeapon,
   Skill,
@@ -152,6 +153,7 @@ interface RawSkill {
   specialization?: number
   flip_skill?: number
   categories?: string[]
+  toolbelt_skill?: number
 }
 
 interface RawItemStatAttribute {
@@ -172,6 +174,13 @@ interface RawLegend {
   heal: number
   elite: number
   utilities: number[]
+}
+
+interface RawPet {
+  id: number
+  name: string
+  icon: string
+  skills: { id: number }[]
 }
 
 /**
@@ -264,7 +273,8 @@ function normalizeSkill(raw: RawSkill): Skill {
     attunement: raw.attunement ?? null,
     specializationId: raw.specialization ?? null,
     flipSkill: raw.flip_skill ?? null,
-    categories: raw.categories ?? []
+    categories: raw.categories ?? [],
+    toolbeltSkill: raw.toolbelt_skill ?? null
   }
 }
 
@@ -286,6 +296,15 @@ function normalizeLegend(raw: RawLegend, skillsById: Map<number, Skill>): Legend
     elite: raw.elite,
     utilities: raw.utilities as [number, number, number],
     specializationId: LEGEND_SPECIALIZATION_ID[raw.id] ?? null
+  }
+}
+
+function normalizePet(raw: RawPet): Pet {
+  return {
+    id: raw.id,
+    name: raw.name,
+    icon: raw.icon,
+    skillId: raw.skills[0].id
   }
 }
 
@@ -327,6 +346,9 @@ async function main(): Promise<void> {
   const skillsById = new Map(skills.map((s) => [s.id, s]))
   const legends = (await fetchAllRecords<string, RawLegend>('legends')).map((raw) => normalizeLegend(raw, skillsById))
 
+  console.log('Fetching pets...')
+  const pets = (await fetchAllRecords<number, RawPet>('pets')).map(normalizePet)
+
   // eliteSpecSkills / wvwFactOverrides / relicEffects aren't produced here — they're sourced from
   // the wiki by the separate scripts/fetch-elite-spec-skills.ts, scripts/fetch-wvw-splits.ts, and
   // scripts/fetch-relic-effects.ts, not the official GW2 API. runes/sigils/infusions/relics/food/
@@ -351,7 +373,8 @@ async function main(): Promise<void> {
     traits,
     skills,
     itemStats,
-    legends
+    legends,
+    pets
   }
 
   await Promise.all([
@@ -361,6 +384,7 @@ async function main(): Promise<void> {
     writeFile(join(OUTPUT_DIR, 'skills.json'), JSON.stringify(skills, null, 2)),
     writeFile(join(OUTPUT_DIR, 'itemstats.json'), JSON.stringify(itemStats, null, 2)),
     writeFile(join(OUTPUT_DIR, 'legends.json'), JSON.stringify(legends, null, 2)),
+    writeFile(join(OUTPUT_DIR, 'pets.json'), JSON.stringify(pets, null, 2)),
     writeFile(
       join(OUTPUT_DIR, 'meta.json'),
       JSON.stringify({ fetchedAt: new Date().toISOString() }, null, 2)
@@ -370,7 +394,7 @@ async function main(): Promise<void> {
   console.log(
     `\nDone. professions=${gameData.professions.length} specializations=${gameData.specializations.length} ` +
       `traits=${gameData.traits.length} skills=${gameData.skills.length} itemStats=${gameData.itemStats.length} ` +
-      `legends=${gameData.legends.length}`
+      `legends=${gameData.legends.length} pets=${gameData.pets.length}`
   )
   console.log(`Written to ${OUTPUT_DIR}`)
 }

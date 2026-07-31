@@ -232,9 +232,9 @@ input[type='text'] {
 
 .trait-tier-group {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .minor-trait {
@@ -254,6 +254,7 @@ input[type='text'] {
 
 .major-trait-tier {
   display: flex;
+  flex-direction: column;
   gap: 6px;
 }
 
@@ -423,6 +424,11 @@ input[type='text'] {
 .skill-bar {
   display: flex;
   gap: 8px;
+}
+
+.profession-mechanic-bar {
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
 }
 
 .skill-slot-button {

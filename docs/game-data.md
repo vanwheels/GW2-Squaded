@@ -76,6 +76,7 @@ needing to run the fetch script immediately:
 - `skills.json`
 - `itemstats.json`
 - `legends.json` — Revenant legends; see below
+- `pets.json` — Ranger pets; see below
 - `elite-spec-skills.json` — see below; sourced from the wiki, not `fetch-game-data.ts`
 - `wvw-fact-overrides.json` — see below; sourced from the wiki, not `fetch-game-data.ts`
 - `runes.json` / `sigils.json` / `infusions.json` / `relics.json` / `food.json` / `utility.json`
@@ -119,6 +120,30 @@ filled in `scripts/fetch-game-data.ts`'s `normalizeLegend`:
 Consumed in `src/shared/boon-calc/sources.ts` (`skillIdsForBuild` resolves a Revenant build's 2
 equipped legends' full skill sets, since there's no per-skill picking to walk) and
 `src/renderer/components/build-editor/SkillsEditor.tsx` (the Revenant-specific dual-legend editor).
+
+## Ranger pets (`pets.json`)
+
+Ranger's profession mechanic is a 2nd axis on top of its normal Heal/Utility/Elite picks: it also
+equips 2 **pets** (swappable in combat), each contributing exactly one real skill (the "F2" special
+shown by the pet's portrait in-game). `/v2/pets` gives this directly and cleanly — `{ id, name,
+icon, skills: [{ id }] }`, one skill per pet, `type: "Pet"` on that skill's own `/v2/skills` entry
+— normalized 1:1 by `normalizePet` into `Pet { id, name, icon, skillId }`.
+
+Unlike `Legend`, `Pet` isn't spec-gated at all (no core/elite split — every pet is available
+regardless of equipped specialization), so there's no `LEGEND_SPECIALIZATION_ID`-style table
+needed here.
+
+Stored on `Build` directly (`equippedPetIds: [number|null, number|null]`, `activePetIndex: 0|1`)
+rather than folded into `SkillSelection` like `RevenantSkillSelection.legends` — a Ranger's pets
+are *additive* to its normal skill picks, not a full-kit replacement, so they don't belong in that
+union. Consumed in `src/shared/boon-calc/sources.ts` (`skillIdsForBuild` includes both equipped
+pets' skills, same "both always contribute" reasoning as Revenant's 2 legends) and
+`src/renderer/components/build-editor/PetsEditor.tsx` (mirrors `RevenantSkillsEditor`'s 2-slot-
+picker-plus-active-toggle shape).
+
+See "Profession-mechanic ('F-skill') data" further down this doc for why the much larger
+`Profession_1`/`_2` pet-*family* skill list in `professionSkills` (e.g. "Swoop"/"Bite") is a
+different, out-of-scope mechanic (Soulbeast's Beastmode), not this one.
 
 ## Elite-spec-gated skills (`elite-spec-skills.json`)
 
@@ -388,7 +413,7 @@ TODO.md if a future session wants to revisit modeling relic proc frequency.
 change/add a relic (after re-running `fetch-gear-upgrades --refresh` first, since this script reads
 `relics.json`).
 
-## Profession-mechanic ("F-skill") data — landed, NOT yet wired into any UI
+## Profession-mechanic ("F-skill") data
 
 `Profession.professionSkills` (`{id, slot}[]`) is sourced from `/v2/professions`' own `skills`
 array, filtered to `type === 'Profession'` (`scripts/fetch-game-data.ts`'s `normalizeProfession`).
@@ -398,45 +423,93 @@ of Justice (core), Tome of Justice + a dormant duplicate + Stow Tome (Firebrand)
 (Willbender), and Radiant Justice (Luminary), all sharing that one slot string.
 
 `src/shared/skill-calc/profession-mechanic.ts` (`professionMechanicBar`) resolves a slot's raw
-candidate list down to the one id that actually applies for a build's equipped specializations,
-using the skill's own `specializationId` field (same signal `skill-variants.ts` already uses for
+candidate list down to the one id that actually applies for a build's equipped specializations
+(and, for Warrior's `Profession_1` only, its equipped main-hand weapon type — see below), using the
+skill's own `specializationId` field (same signal `skill-variants.ts` already uses for
 Heal/Utility/Elite reworks) plus a `flipSkill`-chain-aware tiebreak for same-slot duplicates (see
-that file's doc comment for the exact 4-step rule, verified 2026-07-30 against all of Guardian's
-base/Dragonhunter/Firebrand/Willbender/Luminary combinations).
+that file's doc comment for the exact rule). It also filters `slot` to `Profession_*` — some
+downed-state skills (`slot: 'Downed_1'`-`'_4'`) and even a Reaper Shroud skill (`slot: 'Weapon_5'`)
+share `type === 'Profession'` in the raw data despite not being F-skills at all — and drops the
+resolved skill entirely if it needs a specialization the build doesn't have equipped, so a slot
+that only exists under one elite spec (e.g. a newest-spec-only F4/F5) doesn't leak through when
+that spec isn't equipped.
 
-**This resolver is correct but only cleanly covers Guardian-shaped professions** (a fixed skill per
-elite spec, no other axis). Live-checked 2026-07-30 across all 9 professions and found the
-mechanic is genuinely multi-axis for several:
-- **Warrior** `Profession_1` (Burst Skill) varies by *equipped weapon type*, not by spec — dozens
-  of same-slot candidates with no `specializationId` set at all to disambiguate.
-- **Engineer** `Profession_1`-`_4` (Toolbelt) are generated per *equipped Utility skill choice*
-  (one toolbelt skill per utility skill), not fixed per spec; several came back literally named
-  "Locked" (a per-utility placeholder), and Scrapper/Holosmith/Mechanist F5 (Function Gyro/Photon
-  Forge/Mech Command) are their own distinct sub-mechanics.
-- **Ranger** `Profession_1`-`_4` (pet skills) vary by *equipped pet* — a game concept this app
-  doesn't model anywhere yet.
-- **Revenant** `Profession_1`/`_2` largely duplicate the already-separately-modeled Legend swap/
-  heal (see `Legend` in `game-data.ts`) — wiring this resolver here too would be redundant, not
-  additive.
-- Also found: `type === 'Profession'` isn't exclusively F-skills — some downed-state skills
-  (`slot: 'Downed_1'`-`'_4'`) are tagged the same `type`, so a consumer needs to also filter by
-  `slot` starting with `Profession_` (this resolver's caller doesn't yet, since it has no caller).
+**Live-verified against the real API 2026-07-30 across all 9 professions** (not just Guardian) to
+scope what this resolver can and can't cleanly cover, wired into the UI (`ProfessionMechanicBar`)
+per the findings below:
 
-**Deliberately not wired into any UI yet** — a generic bar would be flat wrong for Warrior/
-Engineer/Ranger (weapon/utility/pet-dependent) and redundant for Revenant, and only Guardian (plus
-likely Thief's Steal, Elementalist's attunement swap, Necromancer's shroud toggle, and Mesmer's
-shatter skills — not yet individually verified) fit the clean case this resolver handles. See
-TODO.md for the follow-up item: needs either genuine per-profession special-casing (weapon-bar
-integration for Warrior, a new "equipped pet" concept for Ranger, utility→toolbelt derivation for
-Engineer) or an explicit decision to only show the F-bar for the professions where it's actually a
-fixed per-spec fact, before any UI gets built on top of this.
+- **Guardian** — clean, generic resolver, verified across base/Dragonhunter/Firebrand/Willbender/
+  Luminary.
+- **Necromancer/Mesmer/Elementalist(F1-F4)** — clean, generic resolver (Enter Shroud; the 4
+  Shatter skills + Chronomancer's F5; the 4 Attunement-swap buttons).
+- **Warrior** — `Profession_1` (Burst Skill) has dozens of same-slot candidates with no
+  `specializationId` at all, varying instead by equipped weapon type — `professionMechanicBar`
+  takes an optional `mainHandWeaponType` param used only for this slot on this profession, reusing
+  `WeaponSkillBar.tsx`'s existing main-hand lookup. Spellbreaker's `Profession_2` (Full Counter)
+  had 6 same-slot/same-spec/no-flip `categories:["Burst"]` legacy ids alongside the real "Full
+  Counter" (44165) — pinned via exclusion (see `EXCLUDED_MECHANIC_SKILL_IDS`).
+- **Thief** — `Profession_1` (Steal) via the generic resolver; `Profession_2` (the "stolen skill")
+  is explicitly skipped (`SKIPPED_SLOTS`) — its candidates are tagged per enemy `source` profession
+  (`"Warrior"`, `"Guardian"`, ...), i.e. it depends on who you steal from in a live fight, not on
+  anything in the build.
+- **Revenant** — corrected 2026-07-30 after user testing found "Energy Meld" (Vindicator's real F2)
+  missing: the original session wrongly generalized from `Profession_1` (which genuinely IS every
+  Legend's own `swap` id, still excluded — redundant with `RevenantSkillsEditor`) to assume the
+  *entire* mechanic was redundant, without checking `Profession_2`-`_4`. Those turned out to hold
+  real per-spec F-buttons: core "Ancient Echo" (F2), Herald's "Facet of Nature" (F2 — 5 same-slot
+  "True Nature" sub-effect ids also share the slot with no differentiator, but the existing
+  lowest-id tiebreak happens to already prefer the correct entry-point id since they're all much
+  newer), Renegade's "Heroic Command"/"Citadel Bombardment"/"Orders from Above" (F2/F3/F4), and
+  Vindicator's "Energy Meld" (F2, via the existing flip-chain tiebreak). Conduit's F2 ("Release
+  Potential", 5 ids named per Assassin/Monk/Dervish/Mesmer/Warrior "affinity") is excluded — depends
+  on a player-chosen "Vestige" build axis not modeled anywhere in this app; Conduit's F2 falls back
+  to the core "Ancient Echo" id instead (unverified whether that's actually correct in-game).
+- **Legendary Alliance Stance** (Vindicator's own legend, `Legend7`) is reported to have 2 visually-
+  distinct sub-forms (Saint Viktor's/Archemorus's aspects) that change its heal/utility/elite kit —
+  `/v2/legends` exposes only one fixed set for it, no form axis; not yet investigated further, see
+  TODO.md.
+- **Engineer** — the base Toolbelt (F1-F4) isn't in `professionSkills` at all (confirmed: no base
+  ids under those slots, only elite-spec sub-mechanics); it's generated per equipped Heal/Utility
+  choice instead, via each `Skill.toolbeltSkill` field (`profession-mechanic.ts`'s
+  `engineerToolbeltBar`, independent of the slot resolver). F5: Holosmith clean (Engage Photon
+  Forge); Scrapper's "Function Gyro" had 2 orphaned same-name duplicate ids, pinned via exclusion
+  to the highest remaining id (best-effort — no name-based tell, unlike the Warrior pin); Mechanist
+  (`Profession_4`: "Crash Down"/"Depth Charges"/"Recall Mech", 3 differently-named ids, no clean
+  single pick) and the newest elite spec "Amalgam" (`Profession_2`-`_5`, literally named "Locked" —
+  a dynamically-chosen sub-mechanic, not a fixed id) are excluded entirely, genuinely unresolved.
+- **Ranger** — `/v2/pets` gives exactly one real, always-equippable skill per pet (the "F2" special
+  shown by its portrait) — modeled as `Pet` (`pets.json`) plus `Build`'s `equippedPetIds`/
+  `activePetIndex` fields and a dedicated `PetsEditor` (mirrors `RevenantSkillsEditor`'s picker
+  shape, plus a name search input since there are 66 pets). Corrected 2026-07-30, same shape as the
+  Revenant mistake above: the original session wrongly generalized from `Profession_1`/`_2` (100%
+  Soulbeast-gated, spec id 55 — "Swoop"/"Bite"/"Quickening Screech"/"Defy Pain" etc., Beastmode's
+  per-pet-*family* skill kit, correctly excluded) to skip the resolver for Ranger entirely, without
+  checking `Profession_3`-`_5`. Those hold real per-spec F-buttons: Druid's "Celestial Avatar" F5
+  toggle (clean flip-chain to "Release Celestial Avatar") and Untamed's "Venomous Outburst"/
+  "Rending Vines"/"Enveloping Haze" (F1-F3). Untamed's F5 ("Unleash Ranger"/"Unleash Pet") is a real
+  mode-toggle pair, not a single pick — excluded, needs dedicated toggle UI later. Soulbeast's own
+  `Profession_3`/`_4` ("Spiritual Reprieve"/"Primal Cry"/"Eternal Bond") are more Beastmode/
+  contextual-alternate skills, excluded the same as `_1`/`_2`; `Profession_5` ("Beastmode", the
+  actual merge-with-pet toggle button) is the one clean single id, not excluded. Also found and
+  excluded "Worldly Impact" (`Profession_3`) — a Beastmode skill (description starts "Beast.", like
+  every other Soulbeast id) whose `specialization` field is missing entirely in the raw API data, a
+  real gap rather than a base-game core F3 (confirmed by re-fetching live, not a transient glitch).
 
-Separately, and orthogonal to the above: **Firebrand's Tomes (and Engineer Kits, similarly)
-replace the weapon skill bar (1-5) while active** — a real GW2 mechanic the user asked about
-directly. The F-skill data above only covers the button that *opens* a tome (e.g. "Tome of
-Justice"); the 5 skills a tome/kit swaps the weapon bar to (e.g. "Chapter 1: Searing Spell") have
-NO id in the public API at all — confirmed live 2026-07-30 via the wiki's `Tome of Justice` page,
-which documents them only as unlinked skill *names* in a `{{Weapon skill table row|...}}` template,
-no id. Getting real ids would need a wiki cross-check per tome/kit (same shape of effort as
-`fetch-relic-effects.ts`, scoped per-mechanic rather than per-page) — not attempted this session,
-noted in TODO.md as its own follow-up, separate from the F-skill-bar-resolution item above.
+`EXCLUDED_MECHANIC_SKILL_IDS` in `profession-mechanic.ts` holds every hand-verified pin/exclusion
+above, each with its own reasoning comment — same pattern as `LEGEND_SPECIALIZATION_ID` in
+`fetch-game-data.ts`: a small, documented constant table for a real API gap rather than a guess.
+
+Separately, and orthogonal to the above: **Firebrand's Tomes (and Engineer Kits, similarly, and now
+confirmed Ranger Soulbeast's Beastmode too) replace the weapon skill bar (1-5) while active** — a
+real GW2 mechanic the user asked about directly. The F-skill data above only covers the button that
+*opens* a tome (e.g. "Tome of Justice"); the 5 skills a tome/kit/beastmode swaps the weapon bar to
+(e.g. "Chapter 1: Searing Spell", or Soulbeast's per-pet-family "Swoop"/"Bite") have NO id in the
+public API at all for Tomes specifically — confirmed live 2026-07-30 via the wiki's `Tome of
+Justice` page, which documents them only as unlinked skill *names* in a
+`{{Weapon skill table row|...}}` template, no id. (Engineer Kits and Soulbeast's Beastmode DO have
+real ids — `bundle_skills` on the kit's own skill object, and `professionSkills`' `Profession_1`/
+`_2` entries, respectively — so a future pass could wire those two before Tomes, which would still
+need the wiki cross-check.) Getting real ids for Tomes would need a wiki cross-check per tome (same
+shape of effort as `fetch-relic-effects.ts`, scoped per-mechanic rather than per-page) — not
+attempted this session, noted in TODO.md as its own follow-up, separate from the F-skill-bar-
+resolution item above.

@@ -58,7 +58,11 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
       skills,
       // Weapon types are profession-specific — old picks (and their itemStatId) are invalid on a
       // new profession. Armor/trinket slots are untouched.
-      equipment: clearedEquipment(draft.equipment)
+      equipment: clearedEquipment(draft.equipment),
+      // Pets are Ranger-only — a pet chosen before switching away (or never touched on a
+      // non-Ranger build) is meaningless for the new profession.
+      equippedPetIds: [null, null],
+      activePetIndex: 0
     })
   }
 

@@ -8,12 +8,16 @@ import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPerce
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { WeaponSkillBar } from './WeaponSkillBar'
+import { ProfessionMechanicBar } from './ProfessionMechanicBar'
+import { PetsEditor } from './PetsEditor'
 
 interface Props {
   build: Build
   value: SkillSelection
   onChange: (value: SkillSelection) => void
-  onBuildChange: (patch: Partial<Pick<Build, 'environment' | 'activeWeaponSet' | 'activeUnderwaterSet'>>) => void
+  onBuildChange: (
+    patch: Partial<Pick<Build, 'environment' | 'activeWeaponSet' | 'activeUnderwaterSet' | 'equippedPetIds' | 'activePetIndex'>>
+  ) => void
   equippedSpecializationIds: ReadonlySet<number>
 }
 
@@ -22,6 +26,8 @@ type SlotId = 'heal' | 'utility0' | 'utility1' | 'utility2' | 'elite'
 export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSpecializationIds }: Props) {
   return (
     <div className="skills-editor-root">
+      {build.profession === 'Ranger' && <PetsEditor build={build} onBuildChange={onBuildChange} />}
+      <ProfessionMechanicBar build={build} equippedSpecializationIds={equippedSpecializationIds} />
       {value.kind === 'revenant' ? (
         <RevenantSkillsEditor
           build={build}

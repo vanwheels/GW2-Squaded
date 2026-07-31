@@ -112,6 +112,17 @@ export interface Build {
   activeWeaponSet: 'A' | 'B'
   /** Same as `activeWeaponSet`, for the 2 underwater swap sets. */
   activeUnderwaterSet: 'U1' | 'U2'
+  /**
+   * Ranger only (meaningless, always `[null, null]`/`0`, for every other profession): the 2
+   * equipped pets (by `Pet.id`, see game-data.ts) and which one's skill is currently displayed —
+   * same "always present, both slots always contribute" shape as
+   * `RevenantSkillSelection.legends`/`activeLegendIndex`, but kept as top-level `Build` fields
+   * rather than folded into `SkillSelection`: unlike a Revenant's legends, a Ranger's pets are
+   * *additive* to its normal Heal/Utility/Elite picks, not a full-kit replacement, so they don't
+   * belong in that union.
+   */
+  equippedPetIds: [number | null, number | null]
+  activePetIndex: 0 | 1
   createdAt: Timestamp
   updatedAt: Timestamp
 }

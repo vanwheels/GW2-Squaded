@@ -28,6 +28,8 @@ export function makeBlankBuild(): Build {
     environment: 'land',
     activeWeaponSet: 'A',
     activeUnderwaterSet: 'U1',
+    equippedPetIds: [null, null],
+    activePetIndex: 0,
     createdAt: now,
     updatedAt: now
   }
