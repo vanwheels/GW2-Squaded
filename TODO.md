@@ -989,15 +989,42 @@
           exposes only one fixed heal/utility/elite set for it; not investigated further, needs a
           screenshot/reference and likely a new "legend form" concept alongside `Legend`.
           **Screenshots provided 2026-07-31** (in-session, not saved to the repo — re-request if
-          needed): confirms the premise — same weapon bar and same F2/F3 "aspect" toggle icon
-          (with the 49% energy readout) across both, but the heal/utility/elite bar (6-0) is
-          **entirely different icon-for-icon** between the two states (warm orange/green/red set
-          vs. an all-blue lightning/ice set) — a full skill-kit swap, not a cosmetic recolor.
-          Confirms a new "legend form" concept is needed alongside `Legend` (`Build` would need a
-          field mirroring `activeLegendIndex`'s shape for which aspect is active). Still open:
-          which aspect is Saint Viktor's vs. Archemorus's, and the real skill ids behind each
-          icon — not safe to guess from icon art alone; needs a wiki lookup before implementing
-          (same shape as the other icon-only screenshot findings above).
+          needed), including full tooltip text (not just icons) for every slot, plus a comparison
+          weapon-chain example. **Materially changes the shape of this item**:
+          - **The client shows both aspect-variants of a slot stacked in one tooltip, with the
+            active one highlighted** — not a hidden alternate the UI has to reach for. User
+            confirmed this explicitly, and separately confirmed it's the *same tooltip pattern*
+            this app already renders for flip-skill chains (e.g. Mantra of Pain -> Power Spike,
+            via `skill-calc/multi-effect.ts`'s `relatedVariantSkills`) and for ordinary weapon
+            autoattack chains (their own reference screenshot: Vindicator Mace 1's 3-hit chain
+            "Germinate" -> "Burgeon" -> "Cultivate", tagged `Chain`, same shape as any other
+            weapon's 3-part autoattack). **This means a new "legend form" concept/`Build` field
+            may not be needed at all** if the API links each pair the same way `flip_skill`
+            already links chain skills — needs verifying live against `/v2/skills` before
+            assuming either way (don't guess from the screenshot alone; if the link isn't
+            `flip_skill`, a small hand-verified pairing table would be the fallback, same shape as
+            the Glyph-form-variants work).
+          - **Confirmed pairs per slot** (name only, real ids still need an API lookup — not
+            safe to guess from tooltip screenshots): Heal (6) "Selfish Spirit" (self-focused
+            damage+heal+might) / "Selfless Spirit" (pure ally heal); Utility (7) "Nomad's Advance"
+            (offensive leap+might) / "Battle Dance" (evade+boons to allies); Utility (8)
+            "Scavenger Burst" (damage+self boons/endurance) / "Tree Song" (heal+condition-cleanse
+            allies); Utility (9) "Reaver's Rage" (attack+stability stunbreak) / "Awakening"
+            (ally-protection stunbreak). Naming and effect pattern make the aspect split legible
+            even without a wiki check yet: the damage/self-focused skill in each pair is almost
+            certainly Archemorus (offense-themed), the healing/ally-focused one Saint Viktor
+            (defense-themed) — consistent with the Elite's own explicit naming below. Treat as a
+            strong lean, not yet a confirmed fact.
+          - **Elite (0) isn't a simple pair — it's a 3-part chain, differently shaped from the
+            other 3 slots**: "Spear of Archemorus" (ranged nuke) flips into "Urn of Saint Viktor"
+            (a transform state: continuous self-damage while healing/buffing nearby allies, can't
+            be healed) which flips into "Drop Urn of Saint Viktor" (ends the transform, heals
+            allies scaled by the caster's own health threshold at the time). Both spirits'
+            names appear explicitly in this one chain rather than being two alternate picks.
+          Net effect: this item is now well-scoped for a real implementation session (confirm the
+          `flip_skill`-or-equivalent link live, resolve real ids, decide whether existing
+          chain-tooltip code already covers it or needs a small extension) — no longer blocked on
+          a screenshot.
     - [x] **Mantras (and similar multi-charge skills) needing different tooltip text per charge
           state** — investigated and confirmed this is **already handled** by the same
           undocumented `6db4ef7` pass: `numericFactLines` already surfaces a skill's own ammo count
