@@ -46,18 +46,50 @@ const GROUND_TARGETED_FLAG = 'GroundTargeted'
  *    per-name grouping, same reasoning as flip targets: these ids are never independently
  *    equippable, so they shouldn't reach `resolveGroup` at all.
  *
- * The remaining ~17 duplicate-name groups (e.g. Engineer's "Deploy Mine", Ranger's "Spike Trap")
- * differ for reasons none of these signals capture — most look like trait-reworked variants with
- * no `specializationId` set, which would need a per-skill wiki cross-check (same shape of effort as
- * `scripts/fetch-wvw-splits.ts`) to resolve correctly. Left un-collapsed and shown as-is rather than
- * guessed at — see TODO.md for the specific group names.
+ * 6. **Turret/gadget/elixir "context-menu" sub-abilities** (Engineer only — `Automatic Fire`,
+ *    `Detonate <X> Turret`, `Overcharge Supply Crate`, ...): live-verified 2026-07-30 these carry
+ *    `categories: []` while sharing their `toolbeltSkill` value with the real equippable skill
+ *    that generates them (e.g. Rifle Turret `5818` and its own F5 overcharge `Automatic Fire`
+ *    `5874` both carry `toolbeltSkill: 6178`) — they're never independently bindable to a Heal/
+ *    Utility/Elite slot at all (you place the turret/gadget/elixir; the sub-ability appears
+ *    automatically), unlike a real equippable skill, which always carries a non-empty `categories`
+ *    (`Kit`/`Gadget`/`Turret`/`Elixir`/... — confirmed across all 745 Heal/Utility/Elite skills, no
+ *    false positives found). `stripNonEquippableSubAbilities` drops any empty-`categories` skill
+ *    that shares a `toolbeltSkill` with an equippable (non-empty-`categories`) sibling — a pure
+ *    local-data pre-pass, no wiki fetch needed. Same treatment as flip targets: excluded before
+ *    per-name grouping, sometimes emptying a group entirely (e.g. "Automatic Fire" isn't
+ *    independently equippable under *either* of its 2 ids — Rifle Turret's land one and Harpoon
+ *    Turret's underwater one — so the whole group disappears from the picker, not just collapses).
+ * 7. **`skillVariantExclusions`** (wiki-sourced, see `scripts/fetch-skill-duplicate-resolutions.ts`):
+ *    for groups signals 1-6 still can't resolve, this fetch script re-derives what's still
+ *    ambiguous, fetches that name's wiki page, and excludes any local id absent from the wiki's own
+ *    `id=` field (the wiki's main page is treated as authoritative for "what a player currently
+ *    binds") — catching cases like a land skill's now-undocumented legacy id (Rocket Turret `22574`)
+ *    or a skill's dedicated "(underwater)" sibling page (Elixir X, Rocket Boots, Spike Trap, ...),
+ *    which this app doesn't model as a separate pick since only the weapon skill bar gets an
+ *    Environment toggle. Applied as a pre-pass identically to signal 6.
+ *
+ * The remaining duplicate-name groups (e.g. Ranger's "Mist Form" duplicate `5554,15795`, listed
+ * together on one wiki page with no distinguishing field at all) differ for reasons none of these
+ * signals capture — see TODO.md for the specific group names and per-group notes on why each is
+ * still unresolved.
  */
 export function visibleSkillsForSlot(
   candidates: Skill[],
   equippedSpecializationIds: ReadonlySet<number>,
-  glyphFormVariants: GlyphFormVariantMap = {}
+  glyphFormVariants: GlyphFormVariantMap = {},
+  skillVariantExclusions: ReadonlySet<number> = new Set()
 ): Skill[] {
-  const withoutFormVariants = candidates.filter((s) => !(s.id in glyphFormVariants))
+  // stripNonEquippableSubAbilities runs on the *full* candidate set before the exclusion filters
+  // below — it identifies a sub-ability by the presence of its categorized parent (e.g. "Detonate
+  // Rocket Turret" `38748` needs its sibling Rocket Turret `22574` still present to recognize
+  // itself as non-equippable), and `skillVariantExclusions` can itself remove that parent (`22574`
+  // is a wiki-confirmed legacy id, see scripts/fetch-skill-duplicate-resolutions.ts) — so running
+  // sub-ability detection after exclusion would lose that evidence.
+  const withoutSubAbilities = stripNonEquippableSubAbilities(candidates)
+  const withoutFormVariants = withoutSubAbilities.filter(
+    (s) => !(s.id in glyphFormVariants) && !skillVariantExclusions.has(s.id)
+  )
   const withoutFlipTargets = stripFlipTargets(withoutFormVariants)
 
   const groupOrder: string[] = []
@@ -93,6 +125,23 @@ function stripFlipTargets(candidates: Skill[]): Skill[] {
     if (target && target.name !== skill.name) targetIdsToDrop.add(target.id)
   }
   return candidates.filter((s) => !targetIdsToDrop.has(s.id))
+}
+
+/** Drops empty-`categories` skills that share a `toolbeltSkill` value with an equippable
+ *  (non-empty-`categories`) sibling — see this file's doc comment, signal 6. */
+function stripNonEquippableSubAbilities(candidates: Skill[]): Skill[] {
+  const byToolbeltSkill = new Map<number, Skill[]>()
+  for (const skill of candidates) {
+    if (skill.toolbeltSkill === null) continue
+    if (!byToolbeltSkill.has(skill.toolbeltSkill)) byToolbeltSkill.set(skill.toolbeltSkill, [])
+    byToolbeltSkill.get(skill.toolbeltSkill)!.push(skill)
+  }
+  return candidates.filter((skill) => {
+    if (skill.categories.length > 0 || skill.toolbeltSkill === null) return true
+    const family = byToolbeltSkill.get(skill.toolbeltSkill) ?? []
+    const hasEquippableSibling = family.some((s) => s.id !== skill.id && s.categories.length > 0)
+    return !hasEquippableSibling
+  })
 }
 
 function resolveGroup(group: Skill[], equippedSpecializationIds: ReadonlySet<number>): Skill[] {

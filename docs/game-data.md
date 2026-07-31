@@ -264,6 +264,90 @@ every other fetch script here. All 6 known groups resolved cleanly on a live run
 flip targets) — see that file's doc comment. Brings the genuinely-unresolved group count from 23
 down to 17.
 
+**Session addendum — the remaining 17 groups, two more signals
+(`skill-variant-exclusions.json`):** Investigated all 17 by hand (11 Engineer, Ranger's "Spike
+Trap", Elementalist's "Rejuvenate"/"Mist Form", Mesmer's "Mirage Advance", Revenant's "Protective
+Solace"/"Jade Winds") and found two more real, distinguishable patterns:
+
+- **Turret/gadget/elixir context-menu sub-abilities** (Engineer only, e.g. "Automatic Fire",
+  "Detonate Rocket Turret", "Overcharge Supply Crate"): live-verified these are never
+  independently equippable at all — you bind the turret/gadget/elixir itself; the sub-ability
+  appears automatically once it's placed/active, the same way a kit's "Stow" skill or a turret's
+  old-style "Detonate" flip target already aren't offered as separate picks. The API doesn't flag
+  this directly, but two already-captured fields combine to reveal it cleanly: every one of the 745
+  Heal/Utility/Elite skills in the dataset that's a real independently-bindable pick carries a
+  non-empty `categories` (`Kit`/`Gadget`/`Turret`/`Elixir`/...); every sub-ability instead carries
+  `categories: []` while sharing its `toolbeltSkill` value with the real equippable skill that
+  generates it (e.g. Rifle Turret `5818` and its own F5 overcharge "Automatic Fire" `5874` both
+  carry `toolbeltSkill: 6178`) — confirmed with a full scan of all 256 empty-`categories` Heal/
+  Utility/Elite skills, no false positives (plenty of legitimately-equippable skills also have no
+  category, e.g. "Med Kit"/"Shelter" — only the ones sharing a `toolbeltSkill` with a categorized
+  sibling are sub-abilities). This is pure local-data logic — no wiki fetch needed — so it's a new
+  unconditional pre-pass in `skill-variants.ts`, `stripNonEquippableSubAbilities`, run before
+  per-name grouping. It fully resolves "Grenade Kit" (old pre-2015-rework id `5805` also happens to
+  have `categories: []`, sharing `toolbeltSkill` with the current `6020`) and empties "Automatic
+  Fire"/"Detonate Rocket Turret"/"Detonate Supply Crate Turrets"/"Overcharge Supply Crate" entirely
+  (neither id in any of those groups is independently equippable — confirmed both belong to
+  different turret/crate parents, e.g. "Automatic Fire" `5874` is Rifle Turret's own overcharge and
+  `6098` is the unrelated Harpoon Turret's, sharing a name by coincidence, not a real duplicate at
+  all).
+- **A wiki-page-membership check** for whatever's still ambiguous after that: new
+  `scripts/fetch-skill-duplicate-resolutions.ts` (`npm run fetch-skill-duplicate-resolutions`, after
+  `fetch-game-data` and `fetch-glyph-forms`) re-derives "still ambiguous today" by importing and
+  calling the real `visibleSkillsForSlot` across every (profession, slot) bucket (not a
+  reimplementation, so it can't drift from runtime behavior), then for each remaining group fetches
+  that skill name's own wiki page and excludes any local id absent from its `{{Skill infobox}}`
+  `id=` field (a bare id or comma-list, e.g. `id = 5910, 29522`) — treating the wiki's main page as
+  authoritative for "what a player can currently bind," same trust level already extended
+  everywhere else in this project. A group's wiki ids and local ids must overlap by at least one id
+  before anything is excluded (confirms the right page was found); if the wiki lists every local id
+  already, or shares nothing with the local group, the group is left untouched and logged rather
+  than guessed. Live results (2026-07-30), all independently cross-checked against each skill's
+  wiki page directly, not just this heuristic:
+  - **Fully resolved to 1 id**: Rocket Turret (`5912`; excludes `5991` — a `GroundTargeted`
+    duplicate the existing signal 4 already would have dropped alone, and `22574` — a legacy id the
+    current wiki page doesn't mention at all, no separate page found for it either), Elixir X
+    (`5832`; excludes `20451` — confirmed via a dedicated "Elixir X (underwater)" wiki page carrying
+    that exact id), Spike Trap (`12476`; excludes `51395` — confirmed via a dedicated "Spike Trap
+    (underwater)" page; the TODO's original "differs in stun vs. launch" note turned out to be an
+    environment split, not a trait rework as guessed — the wiki's own version history says so
+    directly: "This skill can now be used underwater. The underwater version now stuns enemies
+    instead of launching them."), Mirage Advance (`42851`; excludes `50419` — absent from the wiki
+    page entirely, same "undocumented legacy id" shape as Rocket Turret's `22574`).
+  - **Narrowed but still ambiguous**: Slick Shoes (4 ids -> 2: excludes `50472`/`50491`, both
+    absent from the land page's own id list — `50491` independently confirmed via a dedicated
+    "Slick Shoes (underwater)" page; a separate "Slick Shoes (Tybalt)" page exists too, for an NPC
+    hallucination effect with entirely different ids, not part of this group at all), Rocket Boots
+    (4 ids -> 2: excludes `50438`/`50441`, both confirmed via a dedicated "Rocket Boots
+    (underwater)" page listing exactly that pair). Both land pairs (`5825`/`30828` and
+    `5910`/`29522`) remain genuinely ambiguous — the wiki lists both together on the one land page
+    with no distinguishing field (likely an old-vs-reworked pair, same shape as "Grenade Kit", but
+    without that group's lucky `categories` difference to tell them apart).
+  - **Unchanged (wiki lists every local id already, no exclusion possible)**: Throw Mine
+    (`6161`/`30337` — confirmed via the wiki's own text this is a Gadgeteer-trait-gated pair, not a
+    legacy/environment split; resolving it correctly would need the picker to know the build's
+    currently-chosen traits, which `skillsForProfessionAndSlot` doesn't have access to today — an
+    architecture change, not attempted), Mist Form (`5554`/`15795`, no distinguishing field of any
+    kind found), Protective Solace (`26821`/`29310` — `26821` has a `flipSkill` chain into
+    "Diminish Solace" matching the wiki's own documented `chain1`/`chain2`, `29310` doesn't, weak
+    evidence but not conclusive enough to exclude), Jade Winds (`28406`/`31294`, no distinguishing
+    field found). Rejuvenate (Elementalist, a brand-new elite spec not previously seen in this
+    project — `specialization = Evoker` — whose Heal skill's tooltip icon changes per a new
+    "familiar" companion concept this app doesn't model at all yet) was found already narrowed to 3
+    of its 4 ids by the *existing* flip-root signal before this session touched anything (one id is
+    already the `flipSkill` target of another within the same name-group) — left fully alone, flagged
+    in TODO.md as needing real new-feature work, not a dedup fix.
+
+  9 ids total excluded, fully resolving 4 of the remaining 17 groups and narrowing 2 more. `npm run
+  typecheck`/`lint`/`build` all clean; verified via a standalone script (not committed) asserting
+  the exact expected id set for all 16 investigated groups (including the 5 left intentionally
+  unchanged) post-fix. One real ordering bug caught and fixed during that verification:
+  `stripNonEquippableSubAbilities` must run on the *full* candidate set before the
+  `skillVariantExclusions` filter, not after — "Detonate Rocket Turret" `38748` only recognizes
+  itself as non-equippable by finding its categorized sibling Rocket Turret `22574` still present in
+  the pool, and `22574` is itself one of the ids `skillVariantExclusions` removes; filtering first
+  would silently make `38748` look independently equippable again.
+
 ## WvW-vs-PvE fact splits (`wvw-fact-overrides.json`)
 
 `/v2/skills` and `/v2/traits` facts carry no `game mode` tag, and (confirmed by direct

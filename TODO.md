@@ -356,6 +356,49 @@
         "Glyph of Rejuvenation"/"Spike Trap"/"Glyph of the Tides"/"Glyph of Alignment"/"Glyph of
         Equality"/"Glyph of Burgeoning"/"Glyph of the Stars", Elementalist "Rejuvenate"/"Mist
         Form", Mesmer "Mirage Advance", Revenant "Protective Solace"/"Jade Winds".
+        **Update, 2026-07-30 (the 6 Glyph groups)**: resolved, see the Glyph-form-variants item
+        elsewhere in this file — down to 17 remaining.
+        **Update, 2026-07-30 (the other 17)**: investigated all 17 by hand. Found 2 more real
+        signals: (1) a pure-code check (`categories: []` + a shared `toolbeltSkill` with a
+        categorized sibling) that correctly identifies Engineer turret/gadget/elixir F5-menu
+        sub-abilities as never-independently-equippable — these were never a "duplicate pick"
+        problem at all, they shouldn't be offered as a pick *at all* under either id; and (2) a
+        wiki-page-`id=`-membership check (new `scripts/fetch-skill-duplicate-resolutions.ts`,
+        `npm run fetch-skill-duplicate-resolutions`) for whatever's left. Net result: **Grenade
+        Kit, Rocket Turret, Elixir X, Spike Trap, Mirage Advance now resolve to exactly 1 id**;
+        Automatic Fire/Detonate Rocket Turret/Detonate Supply Crate Turrets/Overcharge Supply Crate
+        now correctly show **0** (never independently equippable, not a dedup case); Slick
+        Shoes/Rocket Boots narrowed from 4 ids to 2 (their underwater pair excluded, their land
+        pair remains genuinely ambiguous — likely an old-vs-reworked pair with no field
+        distinguishing them). **Spike Trap's original "stun vs. launch" note was a wrong guess** —
+        confirmed via the wiki's own version history this is an environment (land/underwater)
+        split, not a trait rework. **Still fully unresolved, 5 groups**: Throw Mine (confirmed via
+        wiki text to be Gadgeteer-trait-gated — resolving it needs the Utility picker to know the
+        build's currently-chosen traits, an architecture change, not attempted), Mist
+        Form/Protective Solace/Jade Winds (wiki lists all ids together with no distinguishing field
+        at all), Rejuvenate (Elementalist — discovered to belong to a brand-new, previously-unseen
+        elite spec, `specialization = Evoker`, whose Heal skill varies by a new "familiar" companion
+        concept this app has no model for at all yet — a real new-feature gap, not a dedup fix; see
+        docs/game-data.md for the full per-group writeup). New `GameData.skillVariantExclusions`
+        field/`skill-variant-exclusions.json`, consumed by `skill-variants.ts`'s
+        `visibleSkillsForSlot` as 2 more pre-pass signals (6: `stripNonEquippableSubAbilities`,
+        local-data-only; 7: the wiki exclusion list). Verified via a standalone script (not
+        committed) asserting the exact expected id set for all 16 investigated groups; caught and
+        fixed one real ordering bug in the process (`stripNonEquippableSubAbilities` must see the
+        *full* candidate set before `skillVariantExclusions` removes anything, or a sub-ability can
+        lose the categorized sibling it needs to recognize itself as non-equippable). `npm run
+        typecheck`/`lint`/`build` all clean. Not visually confirmed in a running window (standing
+        Electron-sandbox limitation, see COMPLETED.md) — recommend `npm run dev` locally to eyeball
+        the now-shorter Engineer Utility/Elite picker lists.
+        - [ ] **New, discovered this session**: Elementalist gained a brand-new elite spec
+              (`specializationId 80`, `specialization = Evoker` per the wiki) with a "familiar"
+              companion concept (its Heal skill "Rejuvenate" has 4 ids, one per attunement, each
+              with a different icon depending on the selected familiar) — not modeled anywhere in
+              this app (`Profession`/`Specialization` data would need re-fetching to even see it
+              properly; no "familiar" concept exists on `Build` at all, similar in shape to how
+              `Legend`/`Pet` needed their own new types). Out of scope for this session (discovered
+              while investigating an unrelated duplicate-skill-id question) — revisit as its own
+              pass, scoped like the Legend/Pet items were.
   - [x] Same collapsing behavior, same arrows/tabs cycling UX, needed for multi-step skills
         (distinct effects on 1st click vs. 2nd click, etc.) — one entry, not duplicate list
         entries. **Implemented Session 19 (2026-07-29)**: live-verified `/v2/skills`' `flip_skill`

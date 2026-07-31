@@ -50,6 +50,7 @@ const EMPTY_GAME_DATA: GameData = {
   itemStatIcons: {},
   eliteSpecSkills: {},
   glyphFormVariants: {},
+  skillVariantExclusions: [],
   wvwFactOverrides: { skill: {}, trait: {} },
   legends: [],
   pets: [],
@@ -93,6 +94,7 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
     const relicsById = new Map(gameData.relics.map((r) => [r.id, r]))
     const foodById = new Map(gameData.food.map((f) => [f.id, f]))
     const utilityById = new Map(gameData.utility.map((u) => [u.id, u]))
+    const skillVariantExclusionIds = new Set(gameData.skillVariantExclusions)
 
     return {
       ...gameData,
@@ -126,7 +128,8 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
             return requiredSpecId === undefined || equippedSpecializationIds.has(requiredSpecId)
           }),
           equippedSpecializationIds,
-          gameData.glyphFormVariants
+          gameData.glyphFormVariants,
+          skillVariantExclusionIds
         ),
       legendsForSpecializations: (equippedSpecializationIds) =>
         gameData.legends.filter(

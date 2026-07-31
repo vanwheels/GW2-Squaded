@@ -203,6 +203,19 @@ export type EliteSpecSkillMap = Record<number, number>
 export type GlyphFormVariantMap = Record<number, number>
 
 /**
+ * Skill ids to always exclude from Heal/Utility/Elite pickers, on top of the 6 in-code signals
+ * `skill-calc/skill-variants.ts` already applies (attunement/specialization/flip-root/
+ * ground-target/glyph-form/turret-sub-ability). Wiki-sourced (see
+ * scripts/fetch-skill-duplicate-resolutions.ts): for a duplicate-name group none of the in-code
+ * signals resolve, an id absent from that skill's own wiki page `id=` field is treated as a
+ * legacy/undocumented-variant id (e.g. an "(underwater)" sibling page's own id, since this app has
+ * no per-skill environment toggle outside the weapon bar) and excluded. Ids absent from this list
+ * need no exclusion (either not ambiguous, or a group the fetch script couldn't verify against the
+ * wiki — fails open, left un-collapsed same as before this existed).
+ */
+export type SkillVariantExclusions = number[]
+
+/**
  * A Revenant Legend: a fixed heal/3 utility/elite skill kit, swapped between (2 equipped at once)
  * rather than picked skill-by-skill like every other profession. `id` is the API's own opaque id
  * ("Legend1".."Legend8"); `name`/`icon` are borrowed from the legend's `swap` skill (the F2
@@ -438,6 +451,7 @@ export interface GameData {
   itemStatIcons: Record<string, string>
   eliteSpecSkills: EliteSpecSkillMap
   glyphFormVariants: GlyphFormVariantMap
+  skillVariantExclusions: SkillVariantExclusions
   wvwFactOverrides: WvwFactOverrides
   legends: Legend[]
   pets: Pet[]

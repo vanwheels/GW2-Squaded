@@ -2,6 +2,66 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 27 — Remaining duplicate-skill groups: turret sub-abilities + wiki exclusion
+
+Continued down the list of ~17 remaining ambiguous duplicate-name Heal/Utility/Elite skill groups
+Session 26 left after resolving the 6 Druid Glyphs. Investigated all 17 by hand (11 Engineer,
+Ranger's Spike Trap, Elementalist's Rejuvenate/Mist Form, Mesmer's Mirage Advance, Revenant's
+Protective Solace/Jade Winds) and found two more real, verifiable signals rather than guessing at
+any of them.
+
+- **Turret/gadget/elixir context-menu sub-abilities aren't a dedup problem at all — they were never
+  independently equippable to begin with.** "Automatic Fire", "Detonate Rocket Turret", "Overcharge
+  Supply Crate", etc. appear once you place the parent turret/gadget/elixir; you never bind them to
+  a Heal/Utility/Elite slot directly. Found a clean, local-data-only signal distinguishing these
+  from real picks: every genuinely-equippable skill in the 745-skill Heal/Utility/Elite dataset
+  carries a non-empty `categories` (`Kit`/`Gadget`/`Turret`/`Elixir`/...); every sub-ability instead
+  has `categories: []` while sharing its `toolbeltSkill` value with the real equippable skill that
+  generates it. Verified against all 256 empty-`categories` skills in the dataset with zero false
+  positives (plenty of legitimate skills like "Med Kit" also lack a category — only the ones
+  sharing a `toolbeltSkill` with a *categorized* sibling are sub-abilities). New
+  `stripNonEquippableSubAbilities` in `skill-variants.ts`, an unconditional pre-pass (no wiki fetch
+  needed) — empties "Automatic Fire"/"Detonate Rocket Turret"/"Detonate Supply Crate
+  Turrets"/"Overcharge Supply Crate" entirely and resolves "Grenade Kit" to 1 id for free.
+- **New `scripts/fetch-skill-duplicate-resolutions.ts`** (`npm run fetch-skill-duplicate-resolutions`)
+  for whatever's left after that: imports and calls the real `visibleSkillsForSlot` (not a
+  reimplementation) to re-derive what's still ambiguous today, then per group fetches that skill
+  name's wiki page and excludes any local id absent from its `id=` field — same "wiki main page is
+  authoritative" trust level as `fetch-glyph-forms.ts`, requiring at least one local id to overlap
+  before trusting the page match. Fully resolved Rocket Turret (drops a `GroundTargeted` duplicate
+  plus an undocumented legacy id `22574`), Elixir X and Spike Trap (each drops a dedicated
+  "(underwater)" sibling page's id — Spike Trap's original "stun vs. launch" TODO note turned out to
+  be a wrong guess: the wiki's own version history says plainly this is an environment split, not a
+  trait rework), and Mirage Advance (drops an undocumented legacy id). Narrowed Slick Shoes and
+  Rocket Boots from 4 ids to 2 (drops each one's confirmed underwater pair; their land pairs remain
+  ambiguous, likely old-vs-reworked with no distinguishing field). Left Throw Mine, Mist Form,
+  Protective Solace, and Jade Winds fully untouched — wiki lists every local id together with either
+  no distinguishing field (Mist Form/Jade Winds/Protective Solace) or a confirmed Gadgeteer-trait
+  gate this app's picker has no way to act on today (Throw Mine, would need trait-aware picker
+  logic, an architecture change out of scope here).
+- **New finding, out of scope but flagged**: Elementalist's "Rejuvenate" (Heal skill, 4 ids) turned
+  out to belong to a brand-new elite spec never seen in this project before —
+  `specialization = Evoker` per the wiki — whose Heal skill varies by a new "familiar" companion
+  concept with no model anywhere in this app (no `Familiar` type, nothing on `Build`). Left
+  completely alone and flagged as its own future item (same shape as the Legend/Pet additions),
+  since actually resolving it needs new-feature work, not a dedup fix.
+- `GameData` gained `skillVariantExclusions: number[]` (`load-game-data.ts`,
+  `game-data-store.tsx`'s `EMPTY_GAME_DATA` and the `skillsForProfessionAndSlot` call site,
+  `fetch-game-data.ts`'s `Omit<GameData, ...>` summary type). `visibleSkillsForSlot` gained a 4th
+  parameter consuming it as a pre-pass.
+- Verified via a standalone script (not committed) asserting the exact expected id set for all 16
+  investigated groups (4 fully resolved, 2 narrowed, 4 emptied by the sub-ability signal, 1
+  full-resolved-for-free by the sub-ability signal, 5 left intentionally unchanged) — caught and
+  fixed one real ordering bug in the process: `stripNonEquippableSubAbilities` must run on the
+  *full* candidate set before `skillVariantExclusions` removes anything, since "Detonate Rocket
+  Turret" `38748` only recognizes itself as non-equippable by finding its categorized sibling
+  Rocket Turret `22574` still present — and `22574` is itself one of the ids
+  `skillVariantExclusions` removes. Fixed by reordering the pre-passes in `visibleSkillsForSlot`.
+  `npm run typecheck`/`lint`/`build` all clean. Not visually confirmed in a running window (standing
+  Electron-sandbox limitation, see below) — recommend `npm run dev` locally to eyeball the
+  now-shorter Engineer Utility/Elite picker lists. See docs/game-data.md for the full per-group
+  writeup with wiki citations.
+
 ## Session 26 — Druid Glyph duplicate-skill disambiguation
 
 Picked up one of the ~23 remaining genuinely-ambiguous duplicate-name skill groups
