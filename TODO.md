@@ -1015,12 +1015,18 @@
             certainly Archemorus (offense-themed), the healing/ally-focused one Saint Viktor
             (defense-themed) — consistent with the Elite's own explicit naming below. Treat as a
             strong lean, not yet a confirmed fact.
-          - **Elite (0) isn't a simple pair — it's a 3-part chain, differently shaped from the
-            other 3 slots**: "Spear of Archemorus" (ranged nuke) flips into "Urn of Saint Viktor"
-            (a transform state: continuous self-damage while healing/buffing nearby allies, can't
-            be healed) which flips into "Drop Urn of Saint Viktor" (ends the transform, heals
-            allies scaled by the caster's own health threshold at the time). Both spirits'
-            names appear explicitly in this one chain rather than being two alternate picks.
+          - **Elite (0) is the same pair shape as the other 3 slots — correcting an initial
+            misread**: "Spear of Archemorus" (ranged nuke) *is* the Archemorus-aspect elite skill,
+            a single cast like the other Archemorus-side skills. "Urn of Saint Viktor" is the
+            Saint-Viktor-aspect elite skill's activation (a transform: continuous self-damage
+            while healing/buffing nearby allies, can't be healed), and "Drop Urn of Saint Viktor"
+            is that same skill's own de-toggle/end (heals allies scaled by the caster's health
+            threshold at the time). So the real structure is: **pair** = [Archemorus: "Spear of
+            Archemorus"] vs. [Saint Viktor: "Urn of Saint Viktor" <-> "Drop Urn of Saint Viktor"
+            toggle] — the Saint Viktor side just happens to itself be a 2-part
+            activate/de-activate flip (matching the toggle-skill shape this app already handles
+            elsewhere, e.g. Engineer kits), nested inside the aspect pair rather than a 3-step
+            linear chain across both aspects.
           Net effect: this item is now well-scoped for a real implementation session (confirm the
           `flip_skill`-or-equivalent link live, resolve real ids, decide whether existing
           chain-tooltip code already covers it or needs a small extension) — no longer blocked on
