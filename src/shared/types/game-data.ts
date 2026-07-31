@@ -188,6 +188,21 @@ export interface ItemStat {
 export type EliteSpecSkillMap = Record<number, number>
 
 /**
+ * Non-equippable Glyph form-variant skill id -> the canonical id it's actually equipped as.
+ * Confirmed live 2026-07-30: Druid's 6 duplicate-named Glyph skills (e.g. "Glyph of Equality")
+ * each have 3 API ids — one canonical id a player actually binds (whose effect changes
+ * automatically with current Celestial Avatar form, the same "one id, context-dependent effect"
+ * shape `Skill.attunement` already models for Elementalist glyphs), plus two purely-descriptive
+ * wiki-subpage ids ("<name> (non-celestial)" / "<name> (Celestial Avatar)") that document each
+ * form's effect separately but are never independently equippable. No API field distinguishes
+ * these (unlike `Skill.attunement`), so it's sourced from the wiki instead — see
+ * scripts/fetch-glyph-forms.ts and docs/game-data.md. Ids absent from this map need no
+ * substitution (either not a Glyph, or a group the fetch script couldn't unambiguously resolve —
+ * fails open, left un-collapsed same as before this existed).
+ */
+export type GlyphFormVariantMap = Record<number, number>
+
+/**
  * A Revenant Legend: a fixed heal/3 utility/elite skill kit, swapped between (2 equipped at once)
  * rather than picked skill-by-skill like every other profession. `id` is the API's own opaque id
  * ("Legend1".."Legend8"); `name`/`icon` are borrowed from the legend's `swap` skill (the F2
@@ -422,6 +437,7 @@ export interface GameData {
    *  names (e.g. "Harrier's") have no matching insignia at all — absent from this map, not a bug. */
   itemStatIcons: Record<string, string>
   eliteSpecSkills: EliteSpecSkillMap
+  glyphFormVariants: GlyphFormVariantMap
   wvwFactOverrides: WvwFactOverrides
   legends: Legend[]
   pets: Pet[]

@@ -30,6 +30,7 @@ export function loadGameData(): GameData {
       itemStats: readJson('itemstats.json'),
       itemStatIcons: readJson('itemstat-icons.json'),
       eliteSpecSkills: readJson('elite-spec-skills.json'),
+      glyphFormVariants: readJson('glyph-form-variants.json'),
       wvwFactOverrides: readJson('wvw-fact-overrides.json'),
       legends: readJson('legends.json'),
       pets: readJson('pets.json'),

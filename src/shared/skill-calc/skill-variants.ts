@@ -1,4 +1,4 @@
-import type { Skill } from '../types'
+import type { GlyphFormVariantMap, Skill } from '../types'
 
 const GROUND_TARGETED_FLAG = 'GroundTargeted'
 
@@ -36,14 +36,29 @@ const GROUND_TARGETED_FLAG = 'GroundTargeted'
  *    for this app's purposes (boon/condition output, tooltip text), so these collapse to the
  *    non-ground-targeted id as the one canonical representative.
  *
- * The remaining ~18 duplicate-name groups (e.g. Engineer's "Deploy Mine", Ranger's "Spike Trap")
+ * 5. **`glyphFormVariants`** (6 groups, Druid's duplicate-named Glyph skills — e.g. "Glyph of
+ *    Equality" has 3 ids sharing one `specializationId`, so signal 2 above can't tell them apart):
+ *    wiki-sourced (no API field distinguishes these, see `scripts/fetch-glyph-forms.ts`) map of
+ *    non-equippable "(non-celestial)"/"(Celestial Avatar)" form-description id -> the one
+ *    canonical id a player actually binds, whose effect changes automatically with current
+ *    Celestial Avatar form (same "one id, context-dependent effect" shape as signal 1's
+ *    attunement-based Elementalist glyphs). Applied as a `stripFlipTargets`-style pre-pass, before
+ *    per-name grouping, same reasoning as flip targets: these ids are never independently
+ *    equippable, so they shouldn't reach `resolveGroup` at all.
+ *
+ * The remaining ~17 duplicate-name groups (e.g. Engineer's "Deploy Mine", Ranger's "Spike Trap")
  * differ for reasons none of these signals capture — most look like trait-reworked variants with
  * no `specializationId` set, which would need a per-skill wiki cross-check (same shape of effort as
  * `scripts/fetch-wvw-splits.ts`) to resolve correctly. Left un-collapsed and shown as-is rather than
  * guessed at — see TODO.md for the specific group names.
  */
-export function visibleSkillsForSlot(candidates: Skill[], equippedSpecializationIds: ReadonlySet<number>): Skill[] {
-  const withoutFlipTargets = stripFlipTargets(candidates)
+export function visibleSkillsForSlot(
+  candidates: Skill[],
+  equippedSpecializationIds: ReadonlySet<number>,
+  glyphFormVariants: GlyphFormVariantMap = {}
+): Skill[] {
+  const withoutFormVariants = candidates.filter((s) => !(s.id in glyphFormVariants))
+  const withoutFlipTargets = stripFlipTargets(withoutFormVariants)
 
   const groupOrder: string[] = []
   const groups = new Map<string, Skill[]>()

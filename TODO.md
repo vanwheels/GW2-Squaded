@@ -878,14 +878,28 @@
           above — the direction is currently unconfirmed), and (c) the "Unleash Ranger"/"Unleash
           Pet" toggle UI. Same shape of wiki-cross-check effort as Soulbeast's Beastmode gap above
           (per-pet-family name resolution, some ambiguous) — not attempted this session.
-        - Druid's Glyph Utility skills each have 3 same-name duplicate ids with genuinely different
+        - [x] Druid's Glyph Utility skills each have 3 same-name duplicate ids with genuinely different
           effects (e.g. "Glyph of the Tides": "Pulls enemies toward you" / "Draw...in or knock them
           away" / "Push nearby enemies away") and no API field (`attunement`/`specializationId`/
           `flipSkill`) distinguishing base-form vs. Celestial-Avatar-form vs. a possible 3rd/legacy
-          variant — live-verified 2026-07-30. Needs a wiki cross-check per glyph (same shape of
-          effort as `fetch-elite-spec-skills.ts`) to resolve which id is which, before the Utility
-          picker can correctly show only the base version (swapping to the CA version when a future
-          CA-form toggle is active) instead of all 3.
+          variant — live-verified 2026-07-30. **Resolved 2026-07-30**: the wiki cross-check found a
+          consistent, non-guessed pattern for all 6 duplicate-named Druid Glyphs (Rejuvenation/the
+          Tides/Alignment/Equality/Burgeoning/the Stars) — the "no CA-form toggle" premise turned out
+          to be wrong. Each has one "parent"-page id a player actually binds (its effect changes
+          automatically with current Celestial Avatar form — same shape as `attunement`-based
+          Elementalist glyphs), plus 2 purely-descriptive "(non-celestial)"/"(Celestial Avatar)"
+          wiki-subpage ids that were never independently equippable at all — nothing for a future
+          CA-form toggle to swap between, since the base id already handles both forms live. New
+          `scripts/fetch-glyph-forms.ts` (`npm run fetch-glyph-forms`) discovers every duplicate-named
+          Ranger Glyph group live (not a hand-typed name list) and verifies parent-id + child-ids
+          exactly account for the local group before trusting a mapping — all 6 groups resolved
+          cleanly on a live run, written to `data/game-data/glyph-form-variants.json`
+          (`GlyphFormVariantMap`). Wired into `skill-variants.ts`'s `visibleSkillsForSlot` as a new
+          pre-pass signal (5th, alongside attunement/specialization/flip-root/ground-target), dropping
+          the 2 non-equippable variant ids per group before per-name grouping runs — same treatment as
+          flip targets. Verified via a standalone script (not committed): all 6 groups now collapse to
+          exactly 1 picker-visible id each, matching the wiki-verified canonical id. `npm run
+          typecheck`/`lint`/`build` all clean. See docs/game-data.md for the full writeup.
         - Legendary Alliance Stance (Vindicator's own legend) reportedly has 2 visually-distinct
           sub-forms (Saint Viktor's/Archemorus's aspects) changing its skill kit — `/v2/legends`
           exposes only one fixed heal/utility/elite set for it; not investigated further, needs a

@@ -49,6 +49,7 @@ const EMPTY_GAME_DATA: GameData = {
   itemStats: [],
   itemStatIcons: {},
   eliteSpecSkills: {},
+  glyphFormVariants: {},
   wvwFactOverrides: { skill: {}, trait: {} },
   legends: [],
   pets: [],
@@ -124,7 +125,8 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
             const requiredSpecId = gameData.eliteSpecSkills[s.id]
             return requiredSpecId === undefined || equippedSpecializationIds.has(requiredSpecId)
           }),
-          equippedSpecializationIds
+          equippedSpecializationIds,
+          gameData.glyphFormVariants
         ),
       legendsForSpecializations: (equippedSpecializationIds) =>
         gameData.legends.filter(

@@ -241,6 +241,29 @@ separate research pass, not attempted here. Left un-collapsed and shown as-is (f
 guessed) rather than arbitrarily picking one id and hiding a possibly-meaningful choice from the
 user.
 
+**Session addendum — Druid Glyph form variants (`glyph-form-variants.json`):** 6 of the 23
+remaining groups turned out to be a distinct, resolvable pattern: Druid's duplicate-named Glyph
+skills (Glyph of Rejuvenation/the Tides/Alignment/Equality/Burgeoning/the Stars). Each has 3 API
+ids, but `specializationId` (signal 2) can't distinguish them — every id in a group shares the
+same `specializationId: 5` (Druid), since the whole skill is Druid-gated, not one variant of it.
+Live-checked each one's wiki page and found a consistent, non-guessed pattern: a "parent" page
+(e.g. "Glyph of Equality") whose own `{{Skill infobox}}` `id=` is the one id a player actually
+binds to a Heal/Utility/Elite slot — its effect changes automatically with current Celestial
+Avatar form, the same "one id, context-dependent effect" shape signal 1 (`attunement`) already
+models for Elementalist glyphs — plus 2 purely-descriptive child pages ("Glyph of Equality
+(non-celestial)" / "Glyph of Equality (Celestial Avatar)") that exist only so the wiki can
+document each form's effect separately and whose ids are never independently equippable. New
+`scripts/fetch-glyph-forms.ts` (`npm run fetch-glyph-forms`, after `fetch-game-data`) discovers
+every duplicate-named Ranger `categories: ["Glyph"]` group live (not a hand-typed name list),
+fetches each parent + child page, and only records a mapping when the parent id is a member of the
+local group AND the child ids together with the parent id exactly account for every id in the
+group — any mismatch is logged and the group left unresolved rather than guessed, same posture as
+every other fetch script here. All 6 known groups resolved cleanly on a live run. Output is
+`GlyphFormVariantMap` (variant id -> canonical id), consumed as a 5th pre-pass signal in
+`skill-variants.ts`'s `visibleSkillsForSlot` (dropped before per-name grouping, same treatment as
+flip targets) — see that file's doc comment. Brings the genuinely-unresolved group count from 23
+down to 17.
+
 ## WvW-vs-PvE fact splits (`wvw-fact-overrides.json`)
 
 `/v2/skills` and `/v2/traits` facts carry no `game mode` tag, and (confirmed by direct

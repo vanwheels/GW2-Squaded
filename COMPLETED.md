@@ -2,6 +2,49 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 26 — Druid Glyph duplicate-skill disambiguation
+
+Picked up one of the ~23 remaining genuinely-ambiguous duplicate-name skill groups
+`skill-variants.ts` left unresolved: Druid's 6 duplicate-named Glyph skills (Glyph of
+Rejuvenation/the Tides/Alignment/Equality/Burgeoning/the Stars), each with 3 API ids that the
+existing `specializationId` signal can't tell apart (every id in a group shares the same
+`specializationId: 5`, since the whole skill — not one variant of it — is Druid-gated).
+
+- **Live-verified the resolving pattern via the wiki, not guessed**: each Glyph has one "parent"
+  wiki page whose own `{{Skill infobox}}` `id=` is the id a player actually binds to a
+  Heal/Utility/Elite slot — its effect changes automatically with current Celestial Avatar form,
+  the same "one id, context-dependent effect" shape `Skill.attunement` already models for
+  Elementalist glyphs (e.g. Glyph of Lesser Elementals) — plus 2 purely-descriptive child pages
+  ("Glyph of Equality (non-celestial)" / "Glyph of Equality (Celestial Avatar)") that exist only so
+  the wiki can document each form's effect separately and whose ids were never independently
+  equippable at all. This overturns the TODO item's original premise (that a future CA-form toggle
+  would need to swap between base/CA picker entries) — there's nothing to toggle in the picker,
+  since the one canonical id already handles both forms live in-game.
+- New `scripts/fetch-glyph-forms.ts` (`npm run fetch-glyph-forms`, after `fetch-game-data`):
+  discovers every duplicate-named Ranger `categories: ["Glyph"]` group live from
+  `data/game-data/skills.json` (not a hand-typed name list, so it's self-updating if the API/wiki
+  ever adds a 7th), fetches each parent + child wiki page, and only records a mapping when the
+  parent id is a member of the local group AND the child ids together with the parent id exactly
+  account for every id in the group — any mismatch is logged and the group left unresolved, same
+  fail-safe posture as every other fetch script in this project. All 6 known groups resolved
+  cleanly on a live run; output is the new `GlyphFormVariantMap` type
+  (`data/game-data/glyph-form-variants.json`, variant id -> canonical id).
+- Wired into `skill-variants.ts`'s `visibleSkillsForSlot` as a new 5th pre-pass signal (alongside
+  attunement/specialization/flip-root/ground-target), consumed as an optional
+  `glyphFormVariants` parameter — dropped before per-name grouping runs, same treatment
+  `stripFlipTargets` already gives flip targets. `GameData` gained a `glyphFormVariants` field
+  (`game-data.ts`, `load-game-data.ts`, `game-data-store.tsx`'s `EMPTY_GAME_DATA` and the
+  `skillsForProfessionAndSlot` call site); `fetch-game-data.ts`'s `Omit<GameData, ...>` summary type
+  updated to exclude it, matching how `eliteSpecSkills`/`wvwFactOverrides`/etc. are already excluded
+  there (produced by separate wiki-sourced scripts, not the main API fetch).
+- Verified via a standalone script (not committed): resolved Heal/Utility/Elite picker candidates
+  for a Druid-specialized Ranger build and confirmed all 6 groups now collapse to exactly 1
+  picker-visible id each, matching the wiki-verified canonical id (e.g. "Glyph of Equality" -> only
+  `31746` shown, `31401`/`31658` dropped). `npm run typecheck`/`lint`/`build` all clean. Brings the
+  TODO's "~23 remaining ambiguous groups" count down to 17. Not visually confirmed in a running
+  window (standing Electron-sandbox limitation, see below) — recommend `npm run dev` locally to
+  eyeball the now-shorter Druid Utility/Elite picker lists.
+
 ## Session 25 — Celestial Avatar / Untamed weapon-bar swap
 
 Picked up the "Celestial Avatar / Untamed weapon-bar swap" TODO item Session 24 left deferred
