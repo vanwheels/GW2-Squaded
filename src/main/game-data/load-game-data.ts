@@ -39,7 +39,8 @@ export function loadGameData(): GameData {
       relics: readJson('relics.json'),
       relicEffects: readJson('relic-effects.json'),
       food: readJson('food.json'),
-      utility: readJson('utility.json')
+      utility: readJson('utility.json'),
+      tomeChapters: readJson('tome-chapters.json')
     }
   }
   return cached

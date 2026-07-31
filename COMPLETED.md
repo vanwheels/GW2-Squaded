@@ -2,6 +2,77 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 24 — Engineer Kits and Firebrand Tomes replace the weapon skill bar
+
+Picked up the "Tomes/Kits/Beastmode replacing the weapon skill bar (1-5) while active" TODO item
+left open after Session 23's F-bar work, scoped by the user as a "full pass" (do Kits, Tomes, AND
+Beastmode in one go, including the Firebrand wiki cross-check). Investigation partway through
+overturned one of the item's own assumptions — see below.
+
+- **Engineer Kits**: real API ids the whole way. Added `Skill.bundleSkills` (the API's
+  `bundle_skills` field, previously uncaptured) and re-ran `npm run fetch-game-data`; live-confirmed
+  a kit (Grenade Kit, id 5805) lists 10 bundle skill ids — 5 land + 5 underwater, same
+  `Weapon_1`-`Weapon_5` slot + `NoUnderwater`-flag disambiguation weapon types already use.
+  `weapon-calc/weapon-skills.ts`'s `resolveWeaponSkillIds` generalized to `resolveSkillBarIds`
+  (takes a bare `{id, slot}[]` instead of requiring a `ProfessionWeapon`) so both weapons and kits
+  share one resolver — no logic duplicated.
+- **Firebrand Tomes**: confirmed live 2026-07-30 the 15 chapter skills (5 per tome — e.g. Tome of
+  Justice's "Chapter 1: Searing Spell" through "Epilogue: Ashes of the Just") have **no id anywhere
+  in the public API**, even though each chapter's own wiki page lists one in its `{{Skill infobox}}`
+  (`/v2/skills?ids=41258` returns "all ids provided are invalid" for the id the wiki names). New
+  `scripts/fetch-tome-chapters.ts` (`npm run fetch-tome-chapters`) scrapes all 15 chapter pages:
+  each tome's page lists its 5 chapters via `{{Weapon skill table row|<name>}}` in slot order; each
+  chapter's own page has `description`/`facts=`/`weapon slot=` fields, the `facts=` using the exact
+  same `{{skill fact|...}}` template relics use — so `fetch-relic-effects.ts`'s parser
+  (`RelicFactLine`, pipe-protection, WvW-line selection) was reused verbatim via a duplicated copy
+  (these are standalone scripts, no shared script-lib module exists yet) rather than rewritten.
+  Hit one real bug copying it: the pipe-protection placeholder is a private-use-area Unicode
+  character (``) invisible in a text editor — a naive retype produced a real empty string,
+  silently turning every `split('|')` into a per-character split. Caught immediately by inspecting
+  the first fetch's output (garbled single-character "facts") rather than trusting a clean-looking
+  run; fixed by writing the exact codepoint via a small Node script instead of retyping it.
+  New `TomeChapter`/`TomeChaptersByTomeId` types; no per-chapter icon exists on the wiki infobox, so
+  every chapter falls back to its parent tome's own icon (documented simplification, not a guess at
+  an icon this app has no source for).
+- **Shared plumbing**: new `Build.activeBundleSkillId: number | null` — display-only, same "every
+  equipped option always contributes to boon/condition totals regardless of which is shown"
+  reasoning as `activeWeaponSet`/`activeLegendIndex`/`activePetIndex` (a kit/tome can be opened at
+  will mid-fight, so gating boon-calc inclusion on which one is currently *displayed* would
+  undercount). New `src/shared/skill-calc/bundle-skills.ts` (`bundleCapableSkillIds`/
+  `resolveActiveBundle`/`bundleSkillIdsForBuild`) resolves which equipped skills are bundle-capable
+  (Kits from `build.skills.utility`; Tomes from Firebrand's always-present F1-F3, found via the
+  existing `professionMechanicBar`) and what their 5 slots show for a given environment.
+  `WeaponSkillBar.tsx` grew a toggle row (one button per bundle-capable skill, plus "Weapon") that
+  swaps the displayed 1-5 bar; Kit slots reuse the existing `Skill`-based tooltip machinery for free
+  (real ids, real `Fact`s); Tome slots get a small dedicated path (`tomeChapterBoonSources`, new
+  export in `sources.ts`, plus `factsBlock` exported from `SkillsEditor.tsx` for reuse) since
+  chapters have no `Skill.facts` to read — it interprets each chapter's wiki-sourced
+  `RelicFactLine`s the same way `extractFromFacts` reads API `Fact`s (first bare value = duration,
+  `stacks=` = `apply_count`) for any label matching a boon/condition name. Both Kit skills' and Tome
+  chapters' contributions are folded into `computeBoonConditionSources`'s output unconditionally,
+  closing the "doesn't factor into the boon/condition calculator" gap the TODO item also flagged.
+- **New finding, overturns part of the item's own premise**: Ranger Soulbeast's Beastmode does
+  **NOT** replace the weapon-skill bar at all — live-checked the wiki's "Beastmode" page, which
+  states plainly the F1-F2 skills depend on the merged pet's *family* and F3 on its *archetype*
+  (i.e. it changes the *profession-mechanic* F1-F4 bar, the same slot shape `professionMechanicBar`
+  already resolves for every other profession's mechanic), plus a short list of *existing*
+  weapon/heal/utility/elite skills gaining a bonus secondary effect while merged — not a bar swap.
+  Session 23's "Beastmode has real ids, same shape of work as Kits" framing was written before
+  checking the wiki; corrected in TODO.md. Descoped from this pass — Soulbeast's F1-F4 stay
+  intentionally absent (pre-existing `RANGER_BEASTMODE_EXCLUDED_SLOTS` exclusion), since resolving
+  them for real needs a pet-family/archetype → skill-id wiki mapping (partially scoped in TODO.md
+  as its own new item: the wiki's family/archetype tables are mostly clean but a few skill *names*
+  are shared across different families, e.g. "Bite" for both Bear and Feline, needing disambiguated
+  per-page id lookups the same shape `fetch-elite-spec-skills.ts` already does).
+- **Verified**: a standalone script (not committed) built a Firebrand test build and confirmed the
+  Tome of Justice's Epilogue chapter correctly yields Burning (3s) + Might (8s ×5 stacks — the
+  WvW-tagged values, not the PvE-only 2s/8-stack ones sitting right next to them in the wikitext);
+  and an Engineer test build with Grenade Kit equipped resolves to the `NoUnderwater`-flagged ids on
+  land and the plain ids underwater, matching hand verification exactly. `npm run typecheck`/`lint`/
+  `build` all clean. Not visually confirmed in a running window (standing Electron-sandbox
+  limitation, see earlier sessions) — recommend `npm run dev` locally to eyeball the new Weapon/
+  Kit/Tome toggle row and chapter tooltips.
+
 ## Session 23 — Trait tier alignment fix, full F1-F5 profession-mechanic bar
 
 Two pieces of follow-up on Session 22's F-skill investigation, plus an unrelated trait-layout fix

@@ -1,4 +1,4 @@
-import type { Build, Consumable, Infusion, ItemStat, Legend, Party, Pet, Profession, Rune, Skill, Trait, WvwFactOverrides } from '../types'
+import type { Build, Consumable, Infusion, ItemStat, Legend, Party, Pet, Profession, Rune, Skill, TomeChaptersByTomeId, Trait, WvwFactOverrides } from '../types'
 import { computeBoonConditionSources } from '../boon-calc/sources'
 
 export interface PartyBoonConditionContribution {
@@ -44,6 +44,7 @@ export function computePartyBoonConditionSummary(
     legends: Legend[]
     pets: Pet[]
     professions: Profession[]
+    tomeChapters: TomeChaptersByTomeId
   }
 ): PartyBoonConditionEntry[] {
   const map = new Map<string, PartyBoonConditionEntry>()

@@ -1,0 +1,858 @@
+{
+  "41780": [
+    {
+      "tomeSkillId": 41780,
+      "slotIndex": 0,
+      "name": "Chapter 1: Desert Bloom",
+      "description": "Tales of desert blooms create a wave of healing for your allies.",
+      "icon": "https://render.guildwars2.com/file/E206770FD62BB63B71F56209F34BF99392BADF9E/1770478.png",
+      "facts": [
+        {
+          "label": "healing",
+          "values": [
+            "564"
+          ],
+          "params": {
+            "coefficient": "0.3"
+          }
+        },
+        {
+          "label": "Page Cost",
+          "values": [
+            "1"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "allied targets",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "range",
+          "values": [
+            "600"
+          ],
+          "params": {}
+        }
+      ]
+    },
+    {
+      "tomeSkillId": 41780,
+      "slotIndex": 1,
+      "name": "Chapter 2: Radiant Recovery",
+      "description": "Release magic from pages detailing the rebuilding of Vabbi, cleansing conditions on nearby allies. Allies are healed for each condition removed.",
+      "icon": "https://render.guildwars2.com/file/E206770FD62BB63B71F56209F34BF99392BADF9E/1770478.png",
+      "facts": [
+        {
+          "label": "healing",
+          "values": [
+            "388"
+          ],
+          "params": {
+            "alt": "Per Removed Condition",
+            "coefficient": "0.5"
+          }
+        },
+        {
+          "label": "conditions removed",
+          "values": [
+            "2"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Page Cost",
+          "values": [
+            "1"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "allied targets",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "radius",
+          "values": [
+            "240"
+          ],
+          "params": {}
+        }
+      ]
+    },
+    {
+      "tomeSkillId": 41780,
+      "slotIndex": 2,
+      "name": "Chapter 3: Azure Sun",
+      "description": "Inspired by countless poems describing the comforting powers of the water-reflected sun, grant boons to allies.",
+      "icon": "https://render.guildwars2.com/file/E206770FD62BB63B71F56209F34BF99392BADF9E/1770478.png",
+      "facts": [
+        {
+          "label": "healing",
+          "values": [
+            "1450"
+          ],
+          "params": {
+            "coefficient": "0.8"
+          }
+        },
+        {
+          "label": "vigor",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "regeneration",
+          "values": [
+            "6"
+          ],
+          "params": {}
+        },
+        {
+          "label": "swiftness",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Page Cost",
+          "values": [
+            "1"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "allied targets",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "radius",
+          "values": [
+            "240"
+          ],
+          "params": {}
+        },
+        {
+          "label": "range",
+          "values": [
+            "900"
+          ],
+          "params": {}
+        }
+      ]
+    },
+    {
+      "tomeSkillId": 41780,
+      "slotIndex": 3,
+      "name": "Chapter 4: Shining River",
+      "description": "Release a torrent of pages describing the water cycle of the Elon River. Heal allies and grant them swiftness.",
+      "icon": "https://render.guildwars2.com/file/E206770FD62BB63B71F56209F34BF99392BADF9E/1770478.png",
+      "facts": [
+        {
+          "label": "healing",
+          "values": [
+            "287"
+          ],
+          "params": {
+            "coefficient": "0.1"
+          }
+        },
+        {
+          "label": "swiftness",
+          "values": [
+            "4"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Page Cost",
+          "values": [
+            "2"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "pulses",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "radius",
+          "values": [
+            "360"
+          ],
+          "params": {}
+        },
+        {
+          "label": "combo",
+          "values": [
+            "water"
+          ],
+          "params": {}
+        }
+      ]
+    },
+    {
+      "tomeSkillId": 41780,
+      "slotIndex": 4,
+      "name": "Epilogue: Eternal Oasis",
+      "description": "Purify your allies with the waters of Amnoon and increase the healing they receive.",
+      "icon": "https://render.guildwars2.com/file/E206770FD62BB63B71F56209F34BF99392BADF9E/1770478.png",
+      "facts": [
+        {
+          "label": "effect",
+          "values": [
+            "Eternal Oasis",
+            "8"
+          ],
+          "params": {
+            "desc": "+20% Heal Effectiveness"
+          }
+        },
+        {
+          "label": "Conditions Converted to Boons",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Page Cost",
+          "values": [
+            "3"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "allied targets",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "radius",
+          "values": [
+            "600"
+          ],
+          "params": {}
+        }
+      ]
+    }
+  ],
+  "42259": [
+    {
+      "tomeSkillId": 42259,
+      "slotIndex": 0,
+      "name": "Chapter 1: Unflinching Charge",
+      "description": "Roused by tales of mythical Sunspear charges, ground and motivate allies before you.",
+      "icon": "https://render.guildwars2.com/file/49B3D2E829962602205B09619770E1650BF07108/1770466.png",
+      "facts": [
+        {
+          "label": "protection",
+          "values": [
+            "1.5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Swiftness",
+          "values": [
+            "6"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Page Cost",
+          "values": [
+            "1"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "allied targets",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "range",
+          "values": [
+            "600"
+          ],
+          "params": {}
+        }
+      ]
+    },
+    {
+      "tomeSkillId": 42259,
+      "slotIndex": 1,
+      "name": "Chapter 2: Daring Challenge",
+      "description": "As the tales recount of Turai, taunt your enemies by issuing an insightfully inciting challenge.",
+      "icon": "https://render.guildwars2.com/file/49B3D2E829962602205B09619770E1650BF07108/1770466.png",
+      "facts": [
+        {
+          "label": "damage",
+          "values": [],
+          "params": {
+            "weapon": "tome",
+            "coefficient": "0.01"
+          }
+        },
+        {
+          "label": "taunt",
+          "values": [
+            "1"
+          ],
+          "params": {}
+        },
+        {
+          "label": "resolution",
+          "values": [
+            "3"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Page Cost",
+          "values": [
+            "2"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "radius",
+          "values": [
+            "240"
+          ],
+          "params": {}
+        }
+      ]
+    },
+    {
+      "tomeSkillId": 42259,
+      "slotIndex": 2,
+      "name": "Chapter 3: Valiant Bulwark",
+      "description": "Manifest the shimmering purity of the desert sun, reflecting enemy missiles.",
+      "icon": "https://render.guildwars2.com/file/49B3D2E829962602205B09619770E1650BF07108/1770466.png",
+      "facts": [
+        {
+          "label": "Page Cost",
+          "values": [
+            "2"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "duration",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "radius",
+          "values": [
+            "240"
+          ],
+          "params": {}
+        },
+        {
+          "label": "reflect",
+          "values": [],
+          "params": {}
+        },
+        {
+          "label": "range",
+          "values": [
+            "900"
+          ],
+          "params": {}
+        }
+      ]
+    },
+    {
+      "tomeSkillId": 42259,
+      "slotIndex": 3,
+      "name": "Chapter 4: Stalwart Stand",
+      "description": "Recount the stand of Elonian loyalists against Palawa Joko, granting resistance to your allies.",
+      "icon": "https://render.guildwars2.com/file/49B3D2E829962602205B09619770E1650BF07108/1770466.png",
+      "facts": [
+        {
+          "label": "resistance",
+          "values": [
+            "1"
+          ],
+          "params": {
+            "stacks": "4"
+          }
+        },
+        {
+          "label": "Page Cost",
+          "values": [
+            "2"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "pulses",
+          "values": [
+            "3"
+          ],
+          "params": {}
+        },
+        {
+          "label": "interval",
+          "values": [
+            "1"
+          ],
+          "params": {}
+        },
+        {
+          "label": "radius",
+          "values": [
+            "360"
+          ],
+          "params": {}
+        },
+        {
+          "label": "combo",
+          "values": [
+            "light"
+          ],
+          "params": {}
+        },
+        {
+          "label": "breaks stun",
+          "values": [],
+          "params": {}
+        }
+      ]
+    },
+    {
+      "tomeSkillId": 42259,
+      "slotIndex": 4,
+      "name": "Epilogue: Unbroken Lines",
+      "description": "Recalling the memory of heroes past, enchant nearby allies with formidable defenses.",
+      "icon": "https://render.guildwars2.com/file/49B3D2E829962602205B09619770E1650BF07108/1770466.png",
+      "facts": [
+        {
+          "label": "effect",
+          "values": [
+            "Unbroken Lines",
+            "5"
+          ],
+          "params": {
+            "desc": "200 [[Toughness]]",
+            "effect bonus": "Toughness"
+          }
+        },
+        {
+          "label": "protection",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "stability",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "aegis",
+          "values": [
+            "4"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Page Cost",
+          "values": [
+            "2"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "allied targets",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "radius",
+          "values": [
+            "600"
+          ],
+          "params": {}
+        }
+      ]
+    }
+  ],
+  "44364": [
+    {
+      "tomeSkillId": 44364,
+      "slotIndex": 0,
+      "name": "Chapter 1: Searing Spell",
+      "description": "Fueled by tales of the desolation in Istan, incite a great swelling of heat before you.",
+      "icon": "https://render.guildwars2.com/file/2710AF269B38A4A365089BC7B3C9389B354DE59D/1770472.png",
+      "facts": [
+        {
+          "label": "damage",
+          "values": [],
+          "params": {
+            "weapon": "tome",
+            "coefficient": "0.6"
+          }
+        },
+        {
+          "label": "Burning",
+          "values": [
+            "2.5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "vulnerability",
+          "values": [
+            "6"
+          ],
+          "params": {
+            "stacks": "2"
+          }
+        },
+        {
+          "label": "Page Cost",
+          "values": [
+            "1"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "targets",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "range",
+          "values": [
+            "600"
+          ],
+          "params": {}
+        }
+      ]
+    },
+    {
+      "tomeSkillId": 44364,
+      "slotIndex": 1,
+      "name": "Chapter 2: Igniting Burst",
+      "description": "Ignite the air around you in an expanding burst.",
+      "icon": "https://render.guildwars2.com/file/2710AF269B38A4A365089BC7B3C9389B354DE59D/1770472.png",
+      "facts": [
+        {
+          "label": "damage",
+          "values": [],
+          "params": {
+            "weapon": "tome",
+            "coefficient": "0.55"
+          }
+        },
+        {
+          "label": "Burning",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Weakness",
+          "values": [
+            "2"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Page Cost",
+          "values": [
+            "1"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "targets",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "radius",
+          "values": [
+            "240"
+          ],
+          "params": {}
+        },
+        {
+          "label": "combo",
+          "values": [
+            "blast"
+          ],
+          "params": {}
+        }
+      ]
+    },
+    {
+      "tomeSkillId": 44364,
+      "slotIndex": 2,
+      "name": "Chapter 3: Heated Rebuke",
+      "description": "Call forth a heated vortex to collapse your enemies together.",
+      "icon": "https://render.guildwars2.com/file/2710AF269B38A4A365089BC7B3C9389B354DE59D/1770472.png",
+      "facts": [
+        {
+          "label": "damage",
+          "values": [],
+          "params": {
+            "weapon": "tome",
+            "coefficient": "0.01"
+          }
+        },
+        {
+          "label": "Pull",
+          "values": [
+            "240"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Page Cost",
+          "values": [
+            "2"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "targets",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Radius",
+          "values": [
+            "240"
+          ],
+          "params": {}
+        },
+        {
+          "label": "defiance break",
+          "values": [
+            "150"
+          ],
+          "params": {}
+        },
+        {
+          "label": "range",
+          "values": [
+            "900"
+          ],
+          "params": {}
+        }
+      ]
+    },
+    {
+      "tomeSkillId": 44364,
+      "slotIndex": 3,
+      "name": "Chapter 4: Scorched Aftermath",
+      "description": "Detail the suffering in fire and blood inflicted during Vabbi's occupation.",
+      "icon": "https://render.guildwars2.com/file/2710AF269B38A4A365089BC7B3C9389B354DE59D/1770472.png",
+      "facts": [
+        {
+          "label": "damage",
+          "values": [],
+          "params": {
+            "strikes": "5",
+            "weapon": "tome",
+            "coefficient": "2.0"
+          }
+        },
+        {
+          "label": "Bleeding",
+          "values": [
+            "2"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Burning",
+          "values": [
+            "2"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Page Cost",
+          "values": [
+            "1"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "targets",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "pulses",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Duration",
+          "values": [
+            "4"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Interval",
+          "values": [
+            "1"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Radius",
+          "values": [
+            "360"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Combo",
+          "values": [
+            "Fire"
+          ],
+          "params": {}
+        }
+      ]
+    },
+    {
+      "tomeSkillId": 44364,
+      "slotIndex": 4,
+      "name": "Epilogue: Ashes of the Just",
+      "description": "Recall the memory of fallen heroes, granting allies the searing blades of justice.",
+      "icon": "https://render.guildwars2.com/file/2710AF269B38A4A365089BC7B3C9389B354DE59D/1770472.png",
+      "facts": [
+        {
+          "label": "effect",
+          "values": [
+            "Ashes of the Just",
+            "10"
+          ],
+          "params": {
+            "stacks": "3"
+          }
+        },
+        {
+          "label": "Burning",
+          "values": [
+            "3"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Might",
+          "values": [
+            "8"
+          ],
+          "params": {
+            "stacks": "5"
+          }
+        },
+        {
+          "label": "Page Cost",
+          "values": [
+            "1"
+          ],
+          "params": {
+            "icon": "Maximum Count.png"
+          }
+        },
+        {
+          "label": "allied targets",
+          "values": [
+            "5"
+          ],
+          "params": {}
+        },
+        {
+          "label": "interval",
+          "values": [
+            "1"
+          ],
+          "params": {}
+        },
+        {
+          "label": "Radius",
+          "values": [
+            "600"
+          ],
+          "params": {}
+        }
+      ]
+    }
+  ]
+}

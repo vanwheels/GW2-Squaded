@@ -16,7 +16,12 @@ interface Props {
   value: SkillSelection
   onChange: (value: SkillSelection) => void
   onBuildChange: (
-    patch: Partial<Pick<Build, 'environment' | 'activeWeaponSet' | 'activeUnderwaterSet' | 'equippedPetIds' | 'activePetIndex'>>
+    patch: Partial<
+      Pick<
+        Build,
+        'environment' | 'activeWeaponSet' | 'activeUnderwaterSet' | 'equippedPetIds' | 'activePetIndex' | 'activeBundleSkillId'
+      >
+    >
   ) => void
   equippedSpecializationIds: ReadonlySet<number>
 }
@@ -43,7 +48,7 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
           equippedSpecializationIds={equippedSpecializationIds}
         />
       )}
-      <WeaponSkillBar build={build} onBuildChange={onBuildChange} />
+      <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} />
     </div>
   )
 }
@@ -60,7 +65,7 @@ export function useDurationContext(build: Build) {
   return { gameData, activeIds, durationPercent }
 }
 
-function factsBlock(numericLines: string[], boonFacts: BoonConditionSource[]) {
+export function factsBlock(numericLines: string[], boonFacts: BoonConditionSource[]) {
   return (
     <>
       {numericLines.length > 0 && (

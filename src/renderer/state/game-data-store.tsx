@@ -58,7 +58,8 @@ const EMPTY_GAME_DATA: GameData = {
   relics: [],
   relicEffects: {},
   food: [],
-  utility: []
+  utility: [],
+  tomeChapters: {}
 }
 
 const GameDataStoreContext = createContext<GameDataStore | null>(null)

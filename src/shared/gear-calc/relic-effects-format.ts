@@ -11,7 +11,7 @@ function titleCase(label: string): string {
  * Duration`) and occasionally corrects a mismatched label (e.g. a "movement speed increase"-named
  * fact that's actually inflicted on an enemy as a decrease, `alt=Movement Speed Decrease`).
  */
-function formatFactLine(fact: RelicFactLine): string {
+export function formatFactLine(fact: RelicFactLine): string {
   const label = fact.params.alt ?? fact.label
   if (fact.label.toLowerCase() === 'effect') {
     const detail = fact.params.desc ?? label

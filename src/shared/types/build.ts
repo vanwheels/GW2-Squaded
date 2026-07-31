@@ -123,6 +123,18 @@ export interface Build {
    */
   equippedPetIds: [number | null, number | null]
   activePetIndex: 0 | 1
+  /**
+   * Engineer Kits and Firebrand Tomes both temporarily swap the displayed weapon-skill bar (1-5)
+   * for their own fixed 5-skill "bundle" while active — this is the id of whichever equipped
+   * bundle-capable skill is currently toggled to show that bar, or `null` to show the normal
+   * weapon skills. Display-only, same "toggle doesn't gate boon/condition totals" reasoning as
+   * `activeWeaponSet`/`activeLegendIndex`/`activePetIndex`: every equipped kit/tome's skills
+   * always contribute regardless of which (if any) is currently shown, since a player can open any
+   * of them at will mid-fight. For Engineer, must be one of `skills.utility`'s 3 chosen ids whose
+   * `Skill.bundleSkills` is non-null (see `skill-calc/bundle-skills.ts`); for Guardian/Firebrand,
+   * one of the 3 Tome ids `skill-calc/profession-mechanic.ts` resolves onto F1/F2/F3.
+   */
+  activeBundleSkillId: number | null
   createdAt: Timestamp
   updatedAt: Timestamp
 }

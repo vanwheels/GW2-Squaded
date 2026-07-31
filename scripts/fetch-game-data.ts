@@ -154,6 +154,7 @@ interface RawSkill {
   flip_skill?: number
   categories?: string[]
   toolbelt_skill?: number
+  bundle_skills?: number[]
 }
 
 interface RawItemStatAttribute {
@@ -274,7 +275,8 @@ function normalizeSkill(raw: RawSkill): Skill {
     specializationId: raw.specialization ?? null,
     flipSkill: raw.flip_skill ?? null,
     categories: raw.categories ?? [],
-    toolbeltSkill: raw.toolbelt_skill ?? null
+    toolbeltSkill: raw.toolbelt_skill ?? null,
+    bundleSkills: raw.bundle_skills ?? null
   }
 }
 
@@ -349,12 +351,12 @@ async function main(): Promise<void> {
   console.log('Fetching pets...')
   const pets = (await fetchAllRecords<number, RawPet>('pets')).map(normalizePet)
 
-  // eliteSpecSkills / wvwFactOverrides / relicEffects aren't produced here — they're sourced from
-  // the wiki by the separate scripts/fetch-elite-spec-skills.ts, scripts/fetch-wvw-splits.ts, and
-  // scripts/fetch-relic-effects.ts, not the official GW2 API. runes/sigils/infusions/relics/food/
-  // utility/itemStatIcons are sourced from the same official API but via the separate, much-
-  // heavier scripts/fetch-gear-upgrades.ts (a full /v2/items scan) — not fetched here to keep this
-  // script's normal runtime fast.
+  // eliteSpecSkills / wvwFactOverrides / relicEffects / tomeChapters aren't produced here — they're
+  // sourced from the wiki by the separate scripts/fetch-elite-spec-skills.ts,
+  // scripts/fetch-wvw-splits.ts, scripts/fetch-relic-effects.ts, and scripts/fetch-tome-chapters.ts,
+  // not the official GW2 API. runes/sigils/infusions/relics/food/utility/itemStatIcons are sourced
+  // from the same official API but via the separate, much-heavier scripts/fetch-gear-upgrades.ts (a
+  // full /v2/items scan) — not fetched here to keep this script's normal runtime fast.
   const gameData: Omit<
     GameData,
     | 'eliteSpecSkills'
@@ -367,6 +369,7 @@ async function main(): Promise<void> {
     | 'food'
     | 'utility'
     | 'itemStatIcons'
+    | 'tomeChapters'
   > = {
     professions,
     specializations,

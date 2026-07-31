@@ -1,7 +1,26 @@
-import type { Build, Consumable, EquipmentSlotKey, Fact, Infusion, ItemStat, Legend, Pet, Profession, Rune, Skill, Trait, WvwFactOverride, WvwFactOverrides } from '../types'
+import type {
+  Build,
+  Consumable,
+  EquipmentSlotKey,
+  Fact,
+  Infusion,
+  ItemStat,
+  Legend,
+  Pet,
+  Profession,
+  Rune,
+  Skill,
+  TomeChapter,
+  TomeChaptersByTomeId,
+  Trait,
+  WvwFactOverride,
+  WvwFactOverrides
+} from '../types'
 import { isBoonName, isConditionName } from './constants'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '../gear-calc/attribute-totals'
 import { weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
+import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bundle-skills'
+import { professionMechanicBar } from '../skill-calc/profession-mechanic'
 
 export interface BoonConditionSource {
   sourceKind: 'skill' | 'trait'
@@ -177,6 +196,67 @@ function skillIdsForBuild(build: Build, legends: Legend[], pets: Pet[], professi
 }
 
 /**
+ * Every id a build's equipped Engineer Kits/Firebrand Tomes contribute — kit ids resolve to real
+ * `Skill`s (returned here to fold into the normal skill-id list, same as any other equipped
+ * skill); Tome chapters have no `Skill` id at all (see `TomeChapter`'s doc comment), so they're
+ * returned separately for `tomeChapterBoonSources` below. Every equipped bundle-capable skill
+ * contributes regardless of `Build.activeBundleSkillId` — see that field's doc comment for why.
+ */
+function bundleContributionsForBuild(
+  build: Build,
+  professions: Profession[],
+  skillsById: Map<number, Skill>,
+  tomeChapters: TomeChaptersByTomeId
+): { kitSkillIds: number[]; tomeChapters: TomeChapter[] } {
+  const profession = professions.find((p) => p.id === build.profession)
+  if (!profession) return { kitSkillIds: [], tomeChapters: [] }
+
+  const equippedSpecIds = new Set(build.specializations.filter((s): s is NonNullable<typeof s> => s !== null).map((s) => s.specializationId))
+  const mechanicBarSkillIds = professionMechanicBar(profession, skillsById, equippedSpecIds).map((e) => e.skill.id)
+  const bundleCapableIds = bundleCapableSkillIds(build, skillsById, tomeChapters, mechanicBarSkillIds)
+  return bundleSkillIdsForBuild(bundleCapableIds, skillsById, tomeChapters, build.environment)
+}
+
+/** Boon/condition-shaped facts among a Tome chapter's wiki-sourced `RelicFactLine`s (e.g.
+ *  "Burning"/"Might") — same extraction intent as `extractFromFacts`, but reading the wiki's
+ *  `{label, values, params}` shape instead of the API's `Fact` shape, since these 15 chapter
+ *  skills have no API `Fact` data to read at all (see `TomeChapter`'s doc comment). A fact's first
+ *  bare positional value is its duration in seconds (matches every boon/condition line seen across
+ *  all 15 chapters, e.g. `{{skill fact|Might|8|stacks=5}}` = 8s Might, `{{skill fact|Burning|3}}` =
+ *  3s Burning) and `stacks=` (when present) is `apply_count` — no `requires_trait` concept exists
+ *  in this wiki data, so every chapter fact is unconditional. WvW-vs-PvE line selection already
+ *  happened during parsing (`scripts/fetch-tome-chapters.ts`), unlike `extractFromFacts`'s
+ *  `wvwFactOverrides` lookup which corrects an API value after the fact — there's nothing to
+ *  correct here since the wiki-sourced value already IS the WvW one.
+ */
+export function tomeChapterBoonSources(chapter: TomeChapter, durationPercent: { boon: number; condition: number }): BoonConditionSource[] {
+  const out: BoonConditionSource[] = []
+  for (const fact of chapter.facts) {
+    const status = fact.label.charAt(0).toUpperCase() + fact.label.slice(1)
+    const isBoon = isBoonName(status)
+    const isCondition = isConditionName(status)
+    if (!isBoon && !isCondition) continue
+    const duration = Number(fact.values[0])
+    if (!Number.isFinite(duration)) continue
+
+    const percent = isCondition ? durationPercent.condition : durationPercent.boon
+    out.push({
+      sourceKind: 'skill',
+      sourceId: chapter.tomeSkillId,
+      sourceName: `${chapter.name}`,
+      sourceIcon: chapter.icon,
+      boonOrConditionName: status,
+      isCondition,
+      baseDurationSeconds: duration,
+      scaledDurationSeconds: duration * (1 + percent / 100),
+      applyCount: fact.params.stacks ? Number(fact.params.stacks) : 1,
+      requiresTraitId: null
+    })
+  }
+  return out
+}
+
+/**
  * Every boon/condition source (skill or trait) a build provides. Walks
  * equipped heal/utility/elite skills, auto-granted minor traits on equipped
  * specialization lines, and chosen major traits — gated by requires_trait so
@@ -212,6 +292,7 @@ export function computeBoonConditionSources(
     legends: Legend[]
     pets: Pet[]
     professions: Profession[]
+    tomeChapters: TomeChaptersByTomeId
   }
 ): BoonConditionSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
@@ -224,7 +305,11 @@ export function computeBoonConditionSources(
     condition: conditionDurationPercent(gearTotals)
   }
 
-  const skillIds = skillIdsForBuild(build, gameData.legends, gameData.pets, gameData.professions, skillsById)
+  const bundleContributions = bundleContributionsForBuild(build, gameData.professions, skillsById, gameData.tomeChapters)
+  const skillIds = [
+    ...skillIdsForBuild(build, gameData.legends, gameData.pets, gameData.professions, skillsById),
+    ...bundleContributions.kitSkillIds
+  ]
   for (const id of skillIds) {
     const skill = skillsById.get(id)
     if (!skill) continue
@@ -241,6 +326,9 @@ export function computeBoonConditionSources(
         gameData.wvwFactOverrides.skill[skill.id]
       )
     )
+  }
+  for (const chapter of bundleContributions.tomeChapters) {
+    out.push(...tomeChapterBoonSources(chapter, durationPercent))
   }
 
   for (const line of build.specializations) {

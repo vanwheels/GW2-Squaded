@@ -156,6 +156,13 @@ export interface Skill {
    *  resolver, since the base Toolbelt bar isn't enumerable via `professionSkills` at all — it's
    *  generated per equipped Utility (and Heal) choice rather than fixed per elite spec. */
   toolbeltSkill: number | null
+  /** Engineer Kit-style skills only: the ids of the 5 (or 10, land+underwater — see
+   *  `weapon-calc/weapon-skills.ts`'s land/underwater disambiguation, reused for these) skills this
+   *  bundle swaps the weapon-skill bar to while active. Sourced from the API's own `bundle_skills`
+   *  field; `null` for every skill that isn't a bundle (the vast majority). Not populated for
+   *  Firebrand's Tomes — those 15 chapter skills have no id anywhere in the public API at all (live-
+   *  verified 2026-07-30), so they're sourced from the wiki instead, see `TomeChapter` below. */
+  bundleSkills: number[] | null
 }
 
 export interface ItemStatAttribute {
@@ -351,6 +358,32 @@ export interface RelicEffect {
  */
 export type RelicEffectsById = Record<number, RelicEffect>
 
+/**
+ * One of a Firebrand Tome's 5 chapter skills (e.g. Tome of Justice's "Chapter 1: Searing Spell"),
+ * which genuinely replace the weapon-skill bar (1-5) while their tome is open — see
+ * `Skill.bundleSkills` for Engineer's equivalent Kit mechanic. Confirmed live 2026-07-30 these 15
+ * chapter skills carry NO id anywhere in the public API (`/v2/skills?ids=<the wiki's own internal
+ * id>` returns "all ids provided are invalid" even though the wiki's `{{Skill infobox}}` lists
+ * one), so unlike Kits, this data is entirely wiki-sourced via `scripts/fetch-tome-chapters.ts`,
+ * reusing the exact `{{skill fact|...}}` parsing `scripts/fetch-relic-effects.ts` already
+ * established (`RelicFactLine` — same shape, different source page).
+ */
+export interface TomeChapter {
+  /** The parent tome's own equippable id (e.g. Tome of Justice = 44364) — one of the ids already
+   *  resolved onto Firebrand's F1/F2/F3 by `skill-calc/profession-mechanic.ts`. */
+  tomeSkillId: number
+  /** 0-4, matching weapon-skill slots 1-5 in order (from the wiki's own `weapon slot=` field, not
+   *  array position — authoritative in case a page is ever reordered). */
+  slotIndex: number
+  name: string
+  description: string
+  icon: string
+  facts: RelicFactLine[]
+}
+
+/** Tome skill id -> its 5 chapters, in `slotIndex` order. */
+export type TomeChaptersByTomeId = Record<number, TomeChapter[]>
+
 export type ConsumableKind = 'Food' | 'Utility'
 
 /**
@@ -399,4 +432,5 @@ export interface GameData {
   relicEffects: RelicEffectsById
   food: Consumable[]
   utility: Consumable[]
+  tomeChapters: TomeChaptersByTomeId
 }

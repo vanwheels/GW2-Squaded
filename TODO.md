@@ -737,20 +737,83 @@
           small hand-verified pin/exclusion table (`EXCLUDED_MECHANIC_SKILL_IDS` in
           `profession-mechanic.ts`) rather than a guess — full writeup in docs/game-data.md's
           "Profession-mechanic ('F-skill') data" section.
-    - [ ] **Tomes/Kits/Beastmode replacing the weapon skill bar (1-5) while active** — separate,
-          deeper gap than the F-bar display above: Firebrand's 3 Tomes, Engineer's Kits, and (newly
-          confirmed) Ranger Soulbeast's Beastmode each have their own 5-skill bar that temporarily
-          replaces weapon skills 1-5 (matches the user's screenshots: Tome of Justice's tooltip
-          listing "Chapter 1: Searing Spell" through "Epilogue: Ashes of the Just", and a skill-bar
-          screenshot showing 1-5 swapped to tome icons with F1-F3 above it). Confirmed live
-          2026-07-30: Firebrand's 5 chapter-skill names have **no id anywhere in the public API** —
-          the wiki page lists them as unlinked skill names in a `{{Weapon skill table row}}`
-          template only. Engineer Kits and Ranger Soulbeast's Beastmode are different: both DO have
-          real ids already sitting in this app's fetched data (`bundle_skills` on a kit's own
-          skill object; `professionSkills`' `Profession_1`/`_2` entries for Beastmode) — a future
-          pass could wire those two before Firebrand, which would still need the wiki cross-check
-          (same shape of effort as `scripts/fetch-relic-effects.ts`, scoped per-mechanic rather
-          than per-page) — not attempted this session, needs its own scoped pass.
+    - [x] **Tomes/Kits replacing the weapon skill bar (1-5) while active** — separate, deeper gap
+          than the F-bar display above: Firebrand's 3 Tomes and Engineer's Kits each have their own
+          5-skill bar that temporarily replaces weapon skills 1-5 (matches the user's screenshots:
+          Tome of Justice's tooltip listing "Chapter 1: Searing Spell" through "Epilogue: Ashes of
+          the Just", and a skill-bar screenshot showing 1-5 swapped to tome icons with F1-F3 above
+          it). **Landed in a follow-up session (2026-07-30)**, split by data source:
+          - **Engineer Kits**: real API ids the whole way. New `Skill.bundleSkills` field (API's
+            `bundle_skills`) added and re-fetched; confirmed live a kit (e.g. Grenade Kit, id 5805)
+            lists 10 ids — 5 land + 5 underwater, same `Weapon_1`-`Weapon_5` slot + `NoUnderwater`-
+            flag disambiguation weapon types already use. `weapon-calc/weapon-skills.ts`'s
+            `resolveWeaponSkillIds` generalized to `resolveSkillBarIds` (takes a bare
+            `{id, slot}[]` instead of a `ProfessionWeapon`) so both weapons and kits share one
+            resolver.
+          - **Firebrand Tomes**: confirmed live 2026-07-30 the 15 chapter skills (5 per tome) have
+            **no id anywhere in the public API** — `/v2/skills?ids=<id>` returns "all ids provided
+            are invalid" even for the id the wiki's own `{{Skill infobox}}` lists (e.g. 41258 for
+            "Chapter 1: Searing Spell"). New `scripts/fetch-tome-chapters.ts` (`npm run
+            fetch-tome-chapters`) scrapes all 15 chapter pages: each tome's own page lists its 5
+            chapters via `{{Weapon skill table row|<name>}}` (in slot order), each chapter's own
+            page has a `{{Skill infobox}}` with `description`/`facts=`/`weapon slot=` — the exact
+            same `{{skill fact|...}}` template relics use, so `fetch-relic-effects.ts`'s parser
+            (`RelicFactLine`, pipe-protection, WvW-line selection) was reused verbatim rather than
+            rewritten. New `TomeChapter`/`TomeChaptersByTomeId` types; no per-chapter icon exists on
+            the wiki infobox, so every chapter falls back to its parent tome's own icon (documented
+            simplification, not a guess at a real per-chapter icon this app has no source for).
+          - **Shared plumbing**: new `Build.activeBundleSkillId: number | null` — display-only,
+            same "every equipped option always contributes to boon/condition totals regardless of
+            which is shown" reasoning as `activeWeaponSet`/`activeLegendIndex`/`activePetIndex`
+            (a kit/tome can be opened at will mid-fight, so gating boon-calc inclusion on which one
+            is currently *displayed* would undercount). New `src/shared/skill-calc/bundle-skills.ts`
+            (`bundleCapableSkillIds`/`resolveActiveBundle`/`bundleSkillIdsForBuild`) resolves which
+            equipped skills are bundle-capable (kits from `build.skills.utility`; tomes from
+            Firebrand's always-present F1-F3, found via `professionMechanicBar`) and what their 5
+            slots show. `WeaponSkillBar.tsx` grew a toggle row (kit/tome buttons + "Weapon") that
+            swaps the displayed 1-5 bar; kit slots reuse the existing `Skill`-based tooltip
+            machinery for free (real ids), tome slots get a small dedicated tooltip path
+            (`tomeChapterBoonSources`, new export in `sources.ts`) since chapters have no `Skill.facts`
+            to read — it interprets each chapter's wiki-sourced `RelicFactLine`s the same way
+            `extractFromFacts` reads API `Fact`s (first bare value = duration, `stacks=` =
+            `apply_count`) for any label matching a boon/condition name, and both kit skills' and
+            tome chapters' contributions are folded into `computeBoonConditionSources`'s output
+            unconditionally (closes the "doesn't factor into the boon/condition calculator" gap
+            flagged below at the same time). Verified via a standalone script (not committed):
+            Tome of Justice's Epilogue correctly yields Burning (3s) + Might (8s ×5 stacks, WvW-
+            tagged values, not the PvE ones); Grenade Kit resolves to the `NoUnderwater`-flagged ids
+            on land and the plain ids underwater, matching hand verification exactly. `npm run
+            typecheck`/`lint`/`build` all clean. Not visually confirmed in a running window
+            (standing Electron-sandbox limitation, see COMPLETED.md) — recommend `npm run dev`
+            locally to eyeball the new Weapon/Kit/Tome toggle row and chapter tooltips.
+          - **New finding, changes the record**: Ranger Soulbeast's Beastmode does **NOT** actually
+            replace the weapon-skill bar (1-5) — live-checked the wiki's own "Beastmode" page 2026-
+            07-30, which states plainly "The F1-F2 skills are determined by the pet's family, and
+            the F3 skill is determined by the pet's archetype" (i.e. it changes the *profession-
+            mechanic* F1-F4 bar, same slot shape `professionMechanicBar` already resolves for every
+            other profession) plus a short list of *existing* weapon/heal/utility/elite skills
+            getting a bonus secondary effect while merged (not a bar swap). The earlier session's
+            "Beastmode has real ids, same shape of work as Kits" framing was an assumption made
+            before checking the wiki — corrected here. Soulbeast's F1-F4 remain intentionally absent
+            today (`RANGER_BEASTMODE_EXCLUDED_SLOTS` in `profession-mechanic.ts`, pre-dates this
+            session) since resolving them correctly needs a pet-family/archetype → skill-id mapping
+            this app doesn't have — tracked as a new, separate item directly below, not folded into
+            this one.
+      - [ ] **New (2026-07-30): Soulbeast's real Beastmode gap — F1-F4 depend on merged pet's
+            family/archetype**, not a weapon-bar replacement (see finding above). The wiki's
+            "Soulbeast" page has a clean sortable table (`== Pet Family ==`) mapping each of ~26
+            pet families to its F1/F2 skill *names*, plus a smaller `== Pet Archetypes ==` table for
+            F3 — but several pets across different families share an identical skill name (e.g.
+            "Bite" appears for both Bear and Feline, live-confirmed 2 different skill ids share that
+            name under `Profession_1`), so name matching alone can't safely resolve every row — some
+            entries would need each name's own disambiguated wiki page (e.g. "Bite (soulbeast
+            bear)") fetched for its real id, same shape of per-page resolution
+            `fetch-elite-spec-skills.ts` already does. Not attempted this session (discovered late,
+            scoped as its own pass) — would need: fetching the family/archetype tables, resolving
+            every (mostly clean, some ambiguous) name to a real skill id, extending `Pet` with a
+            family/archetype field (`/v2/pets` has neither, matching the exact gap this TODO already
+            flagged for Untamed below), and gating `professionMechanicBar`'s Soulbeast F1-F4 by the
+            build's currently-merged pet's family/archetype instead of leaving the slots dropped.
     - [ ] **Follow-up round on the F-skill bar after user testing (2026-07-30)** — user tested the
           F-bar/pet picker landed above and found real gaps, some of which were bugs (fixed same
           session) and some genuinely new scope (not attempted, needs a decision):
@@ -766,10 +829,14 @@
             added, reusing the same search-input pattern `UpgradePicker.tsx` already established.
       - [ ] **Not attempted — needs scope/priority decision:**
         - Tomes/Kits/Celestial-Avatar-form/Untamed-unleashed-form all replace the weapon skill bar
-          (1-5) while active, and none of those replacement skills currently factor into the boon/
-          condition calculator — this is the pre-existing "Tomes/Kits/Beastmode replacing the
-          weapon bar" item directly above, now confirmed to also need Celestial Avatar and Untamed
-          folded in. Blocked on the same wiki-scrape-for-Tomes work.
+          (1-5) while active. **Tomes and Kits landed** (see the item above — both now factor into
+          the boon/condition calculator too). **Celestial Avatar (Druid) and Untamed's "Unleash
+          Ranger"/"Unleash Pet" forms are still open** — genuinely the same "weapon bar replacement"
+          shape (unlike Soulbeast's Beastmode, which turned out NOT to be this shape at all, see the
+          new finding above), not yet attempted: Celestial Avatar needs its own 5 "Astral" skill ids
+          identified (untouched this session — unknown yet whether they have real API ids like Kits
+          or need a wiki scrape like Tomes) and Untamed additionally needs the pet-family concept
+          the next bullet already describes.
         - Ranger pet's "3 more skills per pet *category*" (e.g. Ursine/Canine) the user described,
           clarified via screenshot to be **Untamed** (not Druid): the screenshot shows F1-F3 as 3
           animal-themed icons (paw/canine-head/wing) directly beside the pet portrait, F4 = swap

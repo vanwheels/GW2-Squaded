@@ -30,6 +30,7 @@ export function makeBlankBuild(): Build {
     activeUnderwaterSet: 'U1',
     equippedPetIds: [null, null],
     activePetIndex: 0,
+    activeBundleSkillId: null,
     createdAt: now,
     updatedAt: now
   }

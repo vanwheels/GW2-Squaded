@@ -499,17 +499,63 @@ per the findings below:
 above, each with its own reasoning comment — same pattern as `LEGEND_SPECIALIZATION_ID` in
 `fetch-game-data.ts`: a small, documented constant table for a real API gap rather than a guess.
 
-Separately, and orthogonal to the above: **Firebrand's Tomes (and Engineer Kits, similarly, and now
-confirmed Ranger Soulbeast's Beastmode too) replace the weapon skill bar (1-5) while active** — a
-real GW2 mechanic the user asked about directly. The F-skill data above only covers the button that
-*opens* a tome (e.g. "Tome of Justice"); the 5 skills a tome/kit/beastmode swaps the weapon bar to
-(e.g. "Chapter 1: Searing Spell", or Soulbeast's per-pet-family "Swoop"/"Bite") have NO id in the
-public API at all for Tomes specifically — confirmed live 2026-07-30 via the wiki's `Tome of
-Justice` page, which documents them only as unlinked skill *names* in a
-`{{Weapon skill table row|...}}` template, no id. (Engineer Kits and Soulbeast's Beastmode DO have
-real ids — `bundle_skills` on the kit's own skill object, and `professionSkills`' `Profession_1`/
-`_2` entries, respectively — so a future pass could wire those two before Tomes, which would still
-need the wiki cross-check.) Getting real ids for Tomes would need a wiki cross-check per tome (same
-shape of effort as `fetch-relic-effects.ts`, scoped per-mechanic rather than per-page) — not
-attempted this session, noted in TODO.md as its own follow-up, separate from the F-skill-bar-
-resolution item above.
+Separately, and orthogonal to the above: **Firebrand's Tomes and Engineer's Kits replace the weapon
+skill bar (1-5) while active** — a real GW2 mechanic the user asked about directly, landed in a
+follow-up session, see `Bundle skills (Engineer Kits, Firebrand Tomes)` below. **Ranger Soulbeast's
+Beastmode does NOT do this** — an earlier session's assumption otherwise, corrected once the wiki
+was actually checked; see that section for the real mechanic and TODO.md for the still-open item it
+left behind (a pet-family/archetype → skill-id mapping for Soulbeast's F1-F4, unrelated to bundle
+skills).
+
+## Bundle skills (Engineer Kits, Firebrand Tomes)
+
+Both mechanics temporarily swap the displayed weapon-skill bar (1-5) for a fixed 5-skill "bundle" —
+same in-game shape, two different data sources:
+
+- **Engineer Kits** have real API ids. A kit's own skill object (e.g. Grenade Kit, id 5805) carries
+  a `bundle_skills` array — confirmed live 2026-07-30 it's always 10 ids for a 5-slot kit: 5 land +
+  5 underwater, disambiguated the exact same way weapon types are (`Weapon_1`-`Weapon_5` slot label
+  + the `NoUnderwater` flag on the land variant — see `weapon-calc/weapon-skills.ts`). New
+  `Skill.bundleSkills: number[] | null` field (`scripts/fetch-game-data.ts`); `resolveWeaponSkillIds`
+  generalized to `resolveSkillBarIds` (takes a bare `{id, slot}[]` instead of requiring a
+  `ProfessionWeapon`) so weapons and kits share one resolver rather than duplicating the
+  land/underwater disambiguation logic.
+- **Firebrand's 3 Tomes' 15 chapter skills (5 each) have NO id anywhere in the public API** —
+  confirmed live 2026-07-30: even though each chapter's own wiki page (e.g. "Chapter 1: Searing
+  Spell") lists an `id=` field in its `{{Skill infobox}}` (41258 for that example), calling
+  `/v2/skills?ids=41258` returns `{"text": "all ids provided are invalid"}`. So this data is
+  entirely wiki-sourced. New `scripts/fetch-tome-chapters.ts` (`npm run fetch-tome-chapters`, after
+  `fetch-game-data`): each tome's own page (e.g. "Tome of Justice") lists its 5 chapters via
+  `{{Weapon skill table row|<chapter name>}}` in slot order; each chapter's own page has
+  `description=`, `facts=` (the exact same `{{skill fact|...}}` template relics/skills/traits all
+  use), and `weapon slot=` (1-5, used as the authoritative slot index over page order). The
+  `{{skill fact}}` parser (pipe-protection for embedded `[[Link|text]]`/`{{template|arg}}`, WvW-line
+  selection when a fact is split by `game mode=`) is a straight copy of `fetch-relic-effects.ts`'s
+  own — these are standalone scripts with no shared script-lib module today, so it's duplicated
+  rather than imported. **One real bug hit copying it**: the pipe-placeholder constant is a
+  private-use-area Unicode character invisible in a text editor; retyping it by hand silently
+  produced a real empty string, and splitting a string on `''` splits it into individual characters
+  — the first run's output was every fact value shattered into single-character fragments. Caught by
+  inspecting the output rather than trusting a clean-looking run; fixed by writing the exact
+  codepoint (``) via a small Node script instead of retyping the character directly. New
+  `TomeChapter`/`TomeChaptersByTomeId` types (`tomeChapters: Record<number, TomeChapter[]>`, keyed
+  by the parent tome's own equippable skill id); no icon field exists on a chapter's own infobox, so
+  every chapter falls back to its parent tome's icon (already in `skills.json`) — a documented
+  simplification, not a guessed per-chapter icon this app has no source for. All 15 chapters fetched
+  cleanly (0 log lines) on the verification run.
+- **Shared consumption**: `src/shared/skill-calc/bundle-skills.ts` resolves which of a build's
+  equipped skills are bundle-capable (Kits from `build.skills.utility`; Tomes from Firebrand's
+  always-present F1-F3, found via `professionMechanicBar` — Tomes aren't a Heal/Utility/Elite pick
+  at all, they're permanent mechanic-bar skills) and what their 5 slots show for the build's current
+  `environment`. New `Build.activeBundleSkillId: number | null` is purely the *display* toggle
+  (which bundle's bar is currently shown) — every equipped bundle's skills always contribute to
+  `computeBoonConditionSources`'s output regardless, same "could be opened at will" reasoning
+  `activeWeaponSet`/`activeLegendIndex`/`activePetIndex` already use. Kit skills are real `Skill`s
+  and fold into the normal skill-id list `sources.ts` already walks; Tome chapters have no `Skill`
+  to fold in, so a new `tomeChapterBoonSources` (`sources.ts`) reads their wiki-sourced
+  `RelicFactLine`s directly — a chapter fact's first bare value is its duration in seconds and
+  `stacks=` is `apply_count`, for any label matching a boon/condition name (case-normalized, since
+  the wiki template's label casing isn't consistent — e.g. `vulnerability` lowercase vs. the app's
+  `Vulnerability` constant). Verified against Tome of Justice's Epilogue chapter: correctly yields
+  Burning (3s) and Might (8s ×5 stacks) — the WvW-tagged values, not the PvE-only 2s/8-stack pair
+  sitting right next to them in the same wikitext line.
