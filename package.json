@@ -20,6 +20,7 @@
     "fetch-tome-chapters": "tsx scripts/fetch-tome-chapters.ts",
     "fetch-glyph-forms": "tsx scripts/fetch-glyph-forms.ts",
     "fetch-skill-duplicate-resolutions": "tsx scripts/fetch-skill-duplicate-resolutions.ts",
+    "fetch-soulbeast-beastmode": "tsx scripts/fetch-soulbeast-beastmode.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json"
   },

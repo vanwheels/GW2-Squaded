@@ -1,6 +1,12 @@
 import type { Build } from '@shared/types'
 import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
-import { engineerToolbeltBar, professionMechanicBar, type ProfessionMechanicBarEntry } from '@shared/skill-calc/profession-mechanic'
+import {
+  engineerToolbeltBar,
+  professionMechanicBar,
+  RANGER_BEASTMODE_SPEC_ID,
+  soulbeastBeastmodeBar,
+  type ProfessionMechanicBarEntry
+} from '@shared/skill-calc/profession-mechanic'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor'
 
@@ -41,6 +47,9 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds }: Prop
   let entries: ProfessionMechanicBarEntry[] = professionMechanicBar(profession, skillsById, equippedSpecializationIds, mainHandWeaponType)
   if (build.profession === 'Engineer') {
     entries = [...engineerToolbeltBar(build, skillsById), ...entries]
+  }
+  if (build.profession === 'Ranger' && equippedSpecializationIds.has(RANGER_BEASTMODE_SPEC_ID)) {
+    entries = [...soulbeastBeastmodeBar(build, skillsById, gameData.soulbeastBeastmode), ...entries]
   }
 
   if (entries.length === 0) return null

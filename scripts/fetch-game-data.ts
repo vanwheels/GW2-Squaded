@@ -352,10 +352,11 @@ async function main(): Promise<void> {
   const pets = (await fetchAllRecords<number, RawPet>('pets')).map(normalizePet)
 
   // eliteSpecSkills / glyphFormVariants / skillVariantExclusions / wvwFactOverrides /
-  // relicEffects / tomeChapters aren't produced here — they're sourced from the wiki by the
-  // separate scripts/fetch-elite-spec-skills.ts, scripts/fetch-glyph-forms.ts,
+  // relicEffects / tomeChapters / soulbeastBeastmode aren't produced here — they're sourced from
+  // the wiki by the separate scripts/fetch-elite-spec-skills.ts, scripts/fetch-glyph-forms.ts,
   // scripts/fetch-skill-duplicate-resolutions.ts, scripts/fetch-wvw-splits.ts,
-  // scripts/fetch-relic-effects.ts, and scripts/fetch-tome-chapters.ts, not the official GW2 API.
+  // scripts/fetch-relic-effects.ts, scripts/fetch-tome-chapters.ts, and
+  // scripts/fetch-soulbeast-beastmode.ts, not the official GW2 API.
   // runes/sigils/infusions/relics/food/utility/itemStatIcons are sourced
   // from the same official API but via the separate, much-heavier scripts/fetch-gear-upgrades.ts (a
   // full /v2/items scan) — not fetched here to keep this script's normal runtime fast.
@@ -374,6 +375,7 @@ async function main(): Promise<void> {
     | 'utility'
     | 'itemStatIcons'
     | 'tomeChapters'
+    | 'soulbeastBeastmode'
   > = {
     professions,
     specializations,

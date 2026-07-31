@@ -1,4 +1,4 @@
-import type { Build, Profession, ProfessionId, Skill } from '../types'
+import type { Build, Profession, ProfessionId, Skill, SoulbeastBeastmodeMap } from '../types'
 
 export interface ProfessionMechanicBarEntry {
   slot: string
@@ -66,13 +66,17 @@ const EXCLUDED_MECHANIC_SKILL_IDS = new Set<number>([
  * Ranger Soulbeast (specialization id 55): live-verified 2026-07-30 every `Profession_1`-`_4`
  * candidate gated to this spec (e.g. "Swoop"/"Bite"/"Quickening Screech"/"Defy Pain" per pet
  * *family* in `Profession_1`/`_2`; "Spiritual Reprieve"/"Primal Cry" in `Profession_3`; "Eternal
- * Bond" — a contextual "merge with your other pet" alternate — in `Profession_4`) is Beastmode's
- * per-pet-family kit or a contextual alternate, not a real always-shown F-button — same "replaces
- * the weapon bar" shape as Firebrand Tomes/Engineer Kits (see TODO.md), out of scope here.
- * `Profession_5` ("Beastmode", the actual merge-with-pet toggle button) is the one exception —
- * a single clean id, not excluded. Excluded by spec id rather than individually listing ~65 ids.
+ * Bond" — a contextual "merge with your other pet" alternate — in `Profession_4`) can't be picked
+ * by this resolver's normal per-spec logic — none of them is a single fixed id, since the real
+ * skill depends on which pet the build has merged with, not just which specialization is equipped.
+ * `Profession_1`-`_3` are resolved separately instead, by `soulbeastBeastmodeBar` (below) reading
+ * `data/game-data/soulbeast-beastmode.json`; `Profession_4` ("Eternal Bond", a contextual "merge
+ * with your other pet" alternate) has no such per-pet data and stays genuinely unresolved. All 4
+ * stay excluded here either way so this resolver's own per-spec fallback doesn't pick a wrong one.
+ * `Profession_5` ("Beastmode", the actual merge-with-pet toggle button) is the one exception — a
+ * single clean id, not excluded. Excluded by spec id rather than individually listing ~65 ids.
  */
-const RANGER_BEASTMODE_SPEC_ID = 55
+export const RANGER_BEASTMODE_SPEC_ID = 55
 const RANGER_BEASTMODE_EXCLUDED_SLOTS = new Set(['Profession_1', 'Profession_2', 'Profession_3', 'Profession_4'])
 
 /** Slots that exist in the raw data but aren't a real, build-determinable F-skill. Thief's F2 is
@@ -215,5 +219,32 @@ export function engineerToolbeltBar(build: Build, skillsById: Map<number, Skill>
     }
   })
 
+  return out
+}
+
+/**
+ * Ranger Soulbeast's Beastmode F1-F3, per the currently-active equipped pet: `RANGER_BEASTMODE_
+ * EXCLUDED_SLOTS` above deliberately drops every Profession_1-4 candidate whenever it's gated to
+ * Soulbeast's specialization id (55), since none of those candidates are a single fixed pick — the
+ * real skill depends on which pet is merged with (F1/F2, by the pet's *family*) or its archetype
+ * (F3), neither of which `professionMechanicBar`'s per-spec resolver has any way to know. Sourced
+ * from `data/game-data/soulbeast-beastmode.json` (see `scripts/fetch-soulbeast-beastmode.ts`),
+ * keyed by `Pet.id` rather than by name/family — no per-pet-family concept exists anywhere else in
+ * this app, so the wiki-sourced fetch script resolves family/archetype down to a flat per-pet
+ * skill triplet once, rather than this function needing to know about families at all.
+ */
+export function soulbeastBeastmodeBar(build: Build, skillsById: Map<number, Skill>, soulbeastBeastmode: SoulbeastBeastmodeMap): ProfessionMechanicBarEntry[] {
+  const activePetId = build.equippedPetIds[build.activePetIndex]
+  if (activePetId === null) return []
+  const bar = soulbeastBeastmode[activePetId]
+  if (!bar) return []
+
+  const out: ProfessionMechanicBarEntry[] = []
+  const f1 = skillsById.get(bar.f1SkillId)
+  if (f1) out.push({ slot: 'Profession_1', skill: f1 })
+  const f2 = skillsById.get(bar.f2SkillId)
+  if (f2) out.push({ slot: 'Profession_2', skill: f2 })
+  const f3 = skillsById.get(bar.f3SkillId)
+  if (f3) out.push({ slot: 'Profession_3', skill: f3 })
   return out
 }

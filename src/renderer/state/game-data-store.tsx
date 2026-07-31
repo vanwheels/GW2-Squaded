@@ -54,6 +54,7 @@ const EMPTY_GAME_DATA: GameData = {
   wvwFactOverrides: { skill: {}, trait: {} },
   legends: [],
   pets: [],
+  soulbeastBeastmode: {},
   runes: [],
   sigils: [],
   infusions: [],

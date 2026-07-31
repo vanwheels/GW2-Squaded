@@ -253,6 +253,19 @@ export interface Pet {
 }
 
 /**
+ * Ranger Soulbeast's Beastmode F1/F2 (per pet *family*) and F3 (per pet *archetype*) skills,
+ * keyed by `Pet.id` — see `scripts/fetch-soulbeast-beastmode.ts` for how this is resolved (no API
+ * field links a pet to a Beastmode skill at all; wiki-sourced, cross-checked against
+ * `data/game-data/skills.json` at every step, not guessed).
+ */
+export interface SoulbeastBeastmodeBar {
+  f1SkillId: number
+  f2SkillId: number
+  f3SkillId: number
+}
+export type SoulbeastBeastmodeMap = Record<number, SoulbeastBeastmodeBar>
+
+/**
  * A boon/condition Buff fact's game-mode split, per (skill/trait id, boon/condition name):
  * `'omit'` means the wiki tags this fact PvE-only with no WvW/PvP variant, so it should be
  * dropped entirely for a WvW-focused view; a number is the WvW/PvP-tagged duration to use in
@@ -455,6 +468,7 @@ export interface GameData {
   wvwFactOverrides: WvwFactOverrides
   legends: Legend[]
   pets: Pet[]
+  soulbeastBeastmode: SoulbeastBeastmodeMap
   runes: Rune[]
   sigils: Sigil[]
   infusions: Infusion[]

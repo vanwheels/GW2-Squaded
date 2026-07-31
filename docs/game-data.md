@@ -93,6 +93,8 @@ needing to run the fetch script immediately:
   matching insignia at all — absent from the map rather than guessed.
 - `relic-effects.json` — see below; sourced from the wiki, not `fetch-game-data.ts` or
   `fetch-gear-upgrades.ts`
+- `soulbeast-beastmode.json` — see "Soulbeast's Beastmode F1-F3" below; sourced from the wiki, not
+  `fetch-game-data.ts`
 - `meta.json` — just `{ fetchedAt }`, so the app/UI can eventually surface "game data last
   updated on ..." somewhere.
 
@@ -141,9 +143,10 @@ pets' skills, same "both always contribute" reasoning as Revenant's 2 legends) a
 `src/renderer/components/build-editor/PetsEditor.tsx` (mirrors `RevenantSkillsEditor`'s 2-slot-
 picker-plus-active-toggle shape).
 
-See "Profession-mechanic ('F-skill') data" further down this doc for why the much larger
-`Profession_1`/`_2` pet-*family* skill list in `professionSkills` (e.g. "Swoop"/"Bite") is a
-different, out-of-scope mechanic (Soulbeast's Beastmode), not this one.
+See "Soulbeast's Beastmode F1-F3" further down this doc for the much larger `Profession_1`/`_2`
+pet-*family* skill list in `professionSkills` (e.g. "Swoop"/"Bite") — a different mechanic
+(Soulbeast's Beastmode) from this pet skill, resolved separately per pet family/archetype rather
+than per individual pet.
 
 ## Elite-spec-gated skills (`elite-spec-skills.json`)
 
@@ -595,12 +598,17 @@ per the findings below:
   toggle (clean flip-chain to "Release Celestial Avatar") and Untamed's "Venomous Outburst"/
   "Rending Vines"/"Enveloping Haze" (F1-F3). Untamed's F5 ("Unleash Ranger"/"Unleash Pet") is a real
   mode-toggle pair, not a single pick — excluded, needs dedicated toggle UI later. Soulbeast's own
-  `Profession_3`/`_4` ("Spiritual Reprieve"/"Primal Cry"/"Eternal Bond") are more Beastmode/
-  contextual-alternate skills, excluded the same as `_1`/`_2`; `Profession_5` ("Beastmode", the
-  actual merge-with-pet toggle button) is the one clean single id, not excluded. Also found and
-  excluded "Worldly Impact" (`Profession_3`) — a Beastmode skill (description starts "Beast.", like
-  every other Soulbeast id) whose `specialization` field is missing entirely in the raw API data, a
-  real gap rather than a base-game core F3 (confirmed by re-fetching live, not a transient glitch).
+  `Profession_1`-`_4` (F1/F2 per merged pet *family*, F3 per pet *archetype*, F4 "Eternal Bond" a
+  contextual alternate) stay excluded from this generic per-spec resolver — none of them is a single
+  fixed id, so `EXCLUDED_MECHANIC_SKILL_IDS`/`RANGER_BEASTMODE_EXCLUDED_SLOTS` still drop all 4 here
+  — but F1-F3 are resolved separately by the dedicated `soulbeastBeastmodeBar` (see "Soulbeast's
+  Beastmode F1-F3" below); `Profession_4` has no per-pet data and stays genuinely unresolved.
+  `Profession_5` ("Beastmode", the actual merge-with-pet toggle button) is the one clean single id
+  from the generic resolver, not excluded. Also found and excluded "Worldly Impact" (`Profession_3`,
+  one of its 2 legacy duplicate ids) — a Beastmode skill (description starts "Beast.", like every
+  other Soulbeast id) whose `specialization` field is missing entirely in the raw API data on one of
+  its 2 ids, a real gap rather than a base-game core F3 (confirmed by re-fetching live, not a
+  transient glitch; the wiki's own infobox for this skill separately documents both ids together).
 
 `EXCLUDED_MECHANIC_SKILL_IDS` in `profession-mechanic.ts` holds every hand-verified pin/exclusion
 above, each with its own reasoning comment — same pattern as `LEGEND_SPECIALIZATION_ID` in
@@ -610,9 +618,65 @@ Separately, and orthogonal to the above: **Firebrand's Tomes and Engineer's Kits
 skill bar (1-5) while active** — a real GW2 mechanic the user asked about directly, landed in a
 follow-up session, see `Bundle skills (Engineer Kits, Firebrand Tomes)` below. **Ranger Soulbeast's
 Beastmode does NOT do this** — an earlier session's assumption otherwise, corrected once the wiki
-was actually checked; see that section for the real mechanic and TODO.md for the still-open item it
-left behind (a pet-family/archetype → skill-id mapping for Soulbeast's F1-F4, unrelated to bundle
-skills).
+was actually checked; see that section for the real mechanic and the "Soulbeast's Beastmode F1-F3"
+section directly below for the pet-family/archetype → skill-id mapping (resolved 2026-07-31).
+
+### Soulbeast's Beastmode F1-F3 (per-pet-family/archetype skills)
+
+No API field links a pet to a Beastmode skill at all — sourced entirely from the wiki's `Soulbeast`
+page, via `scripts/fetch-soulbeast-beastmode.ts` (`npm run fetch-soulbeast-beastmode`, after
+`fetch-game-data`), which writes `data/game-data/soulbeast-beastmode.json` (`SoulbeastBeastmodeMap`,
+`Pet.id` -> `{f1SkillId, f2SkillId, f3SkillId}`).
+
+- **`== Pet Family ==`** (26 rows): each row gives F1/F2 skill *titles* for one family — either a
+  single-species family (a direct `[[Juvenile X|X]]` link, e.g. Phoenix/Warclaw/Wallow — these
+  species get their own dedicated F1/F2, distinct from the broader archetype family they otherwise
+  belong to) or a shared multi-species family (a bare `[[Bear]]`/`[[Feline]]`/etc. link giving that
+  family's *default* F1/F2). Feline's row also carries one inline `<small>(...)</small>`-tagged
+  White-Tiger-only F2 override (base Feline F2 "Maul" -> White Tiger's own "Phase Pounce").
+- **`== Pet Archetypes ==`**: a "Soulbeast Beast skill" row gives the 5 archetypes' F3 titles in a
+  fixed Stout/Deadly/Versatile/Ferocious/Supportive column order; the family rows below it enumerate
+  every individual pet species as a real `[[Juvenile X|X]]` link per family+archetype cell — this is
+  what actually tells you which of the 66 pets belong to which shared family (the Pet Family table's
+  generic rows don't enumerate members themselves). **2 real family-name mismatches between the two
+  tables** (Pet Family table says "Bear"/"Bird", Pet Archetypes table says "Ursine"/"Avian" for the
+  same family) — handled by a small hardcoded rename table, `ARCHETYPE_TABLE_TO_FAMILY_TABLE_NAME`.
+- Every parsed title is resolved to a real skill id by matching (name, slot) against the local
+  Ranger `Profession_1`/`_2`/`_3` candidate pool; unique matches resolve directly, and the 4 real
+  same-name-same-slot collisions found ("Bite" ×2 — Bear vs. Feline; "Tail Lash" ×2 — Devourer vs.
+  Wyvern; "Brutal Charge" ×2 — Canine vs. Porcine; "Worldly Impact" ×2 — the known legacy-duplicate-
+  id case above) are disambiguated by fetching that specific title's own wiki page for its `id=`.
+- **Real finding: the wiki's aggregate tables lag actual game content.** Live-verified 2026-07-30:
+  after fully resolving both tables, 4 local `Profession_1`/`_2` Soulbeast (`specializationId ===
+  55`) ids remained unaccounted for — "Jet"/"Tail Whip" belong to a brand-new pet (Juvenile River
+  Otter, `family = River Otter` per its own `{{Pet infobox}}` — a family absent from both wiki
+  tables entirely) and "Saurian Might"/"Leaping Lizard" are an undocumented per-species override for
+  Juvenile Raptor Swiftwing (`family = avian` per its own infobox, so it archetype-wise belongs to
+  Avian, but its F1/F2 don't match Avian's shared "Bird" default — and unlike Phoenix/Warclaw it has
+  no dedicated override row in the Pet Family table either, since that table simply hasn't been
+  updated for this pet yet). Rather than hand-pinning these two cases, the script resolves *any*
+  leftover unaccounted id generically: wiki-search `"<skill name>" soulbeast`, fetch the first
+  result whose own `{{Skill infobox}}` `id=` matches, and read that page's own `pet=`/`mechanic
+  slot=` fields directly — confirmed live every Beastmode F1/F2 skill's own page carries these
+  (e.g. "Jet (soulbeast)"'s infobox: `pet = River Otter`, `mechanic slot = 1`), a *more*
+  authoritative per-skill signal than the aggregate table. This makes the resolution self-healing
+  against future new-pet content lag rather than a one-time hand-patch for today's 2 cases. Any pet
+  found only via this leftover sweep (so it has no archetype from either wiki table) gets its
+  `archetype=` field read straight from its own infobox as a final step.
+- **Net result**: all 66 pets resolve to a complete triplet. Only 1 log line on a clean run: the
+  wiki's own "Vampiric Bite (soulbeast)" title (documented as Wallow's F1 in the Pet Family table)
+  is itself marked `status = historical` on its own infobox — removed from the game in a
+  2023-11-28 patch and replaced by the generic Porcine family's shared "Maul". No special-casing was
+  needed: the script's existing family-default fallback (used whenever a species' own row leaves a
+  slot unresolved) already produces the correct current answer.
+- **Wiring**: `soulbeastBeastmodeBar` (`profession-mechanic.ts`) resolves the build's *active*
+  equipped pet's (`Build.equippedPetIds[activePetIndex]`) F1-F3, wired into `ProfessionMechanicBar
+  .tsx` ahead of the generic resolver's output whenever Soulbeast (spec 55, `RANGER_BEASTMODE_SPEC_
+  ID`, now exported) is equipped — same prepend pattern the Engineer Toolbelt already uses.
+  `sources.ts`'s `skillIdsForBuild` folds in *both* equipped pets' full triplets unconditionally
+  whenever Soulbeast is equipped (same "both always contribute regardless of which is active"
+  reasoning as every other bar toggle), so the boon/condition calculator picks up boon-granting
+  Beastmode skills correctly.
 
 ## Bundle skills (Engineer Kits, Firebrand Tomes)
 

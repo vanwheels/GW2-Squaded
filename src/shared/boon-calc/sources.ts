@@ -10,6 +10,7 @@ import type {
   Profession,
   Rune,
   Skill,
+  SoulbeastBeastmodeMap,
   TomeChapter,
   TomeChaptersByTomeId,
   Trait,
@@ -20,7 +21,7 @@ import { isBoonName, isConditionName } from './constants'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '../gear-calc/attribute-totals'
 import { weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
 import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bundle-skills'
-import { professionMechanicBar } from '../skill-calc/profession-mechanic'
+import { professionMechanicBar, RANGER_BEASTMODE_SPEC_ID } from '../skill-calc/profession-mechanic'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash'
 
 export interface BoonConditionSource {
@@ -184,9 +185,19 @@ function weaponSkillIdsForBuild(build: Build, professions: Profession[], skillsB
  * skill (see `RevenantSkillSelection`) — plus every weapon-derived skill id from the build's
  * currently-relevant weapon sets (see `weaponSkillIdsForBuild`), plus, for Ranger, both equipped
  * pets' own skill (`Build.equippedPetIds` — both always contribute, same "both always equipped"
- * reasoning as the Revenant legends and land weapon-swap sets above).
+ * reasoning as the Revenant legends and land weapon-swap sets above), plus, additionally for
+ * Soulbeast, both equipped pets' Beastmode F1/F2/F3 triplet (`soulbeastBeastmodeBar` — same "both
+ * always contribute regardless of which is currently active" reasoning, since Beastmode can be
+ * toggled to either merged pet at will mid-fight).
  */
-function skillIdsForBuild(build: Build, legends: Legend[], pets: Pet[], professions: Profession[], skillsById: Map<number, Skill>): number[] {
+function skillIdsForBuild(
+  build: Build,
+  legends: Legend[],
+  pets: Pet[],
+  professions: Profession[],
+  skillsById: Map<number, Skill>,
+  soulbeastBeastmode: SoulbeastBeastmodeMap
+): number[] {
   const nonWeaponIds =
     build.skills.kind === 'revenant'
       ? build.skills.legends
@@ -196,16 +207,21 @@ function skillIdsForBuild(build: Build, legends: Legend[], pets: Pet[], professi
           .flatMap((l) => [l.swap, l.heal, l.elite, ...l.utilities])
       : [build.skills.heal, ...build.skills.utility, build.skills.elite].filter((id): id is number => id !== null)
 
-  const petSkillIds =
-    build.profession === 'Ranger'
-      ? build.equippedPetIds
-          .filter((id): id is number => id !== null)
-          .map((id) => pets.find((p) => p.id === id))
-          .filter((p): p is Pet => p !== undefined)
-          .map((p) => p.skillId)
-      : []
+  const equippedPetIds = build.profession === 'Ranger' ? build.equippedPetIds.filter((id): id is number => id !== null) : []
+  const petSkillIds = equippedPetIds
+    .map((id) => pets.find((p) => p.id === id))
+    .filter((p): p is Pet => p !== undefined)
+    .map((p) => p.skillId)
 
-  return [...nonWeaponIds, ...petSkillIds, ...weaponSkillIdsForBuild(build, professions, skillsById)]
+  const equippedSpecIds = new Set(build.specializations.filter((s): s is NonNullable<typeof s> => s !== null).map((s) => s.specializationId))
+  const beastmodeSkillIds = equippedSpecIds.has(RANGER_BEASTMODE_SPEC_ID)
+    ? equippedPetIds
+        .map((id) => soulbeastBeastmode[id])
+        .filter((bar): bar is NonNullable<typeof bar> => bar !== undefined)
+        .flatMap((bar) => [bar.f1SkillId, bar.f2SkillId, bar.f3SkillId])
+    : []
+
+  return [...nonWeaponIds, ...petSkillIds, ...beastmodeSkillIds, ...weaponSkillIdsForBuild(build, professions, skillsById)]
 }
 
 /**
@@ -306,6 +322,7 @@ export function computeBoonConditionSources(
     pets: Pet[]
     professions: Profession[]
     tomeChapters: TomeChaptersByTomeId
+    soulbeastBeastmode: SoulbeastBeastmodeMap
   }
 ): BoonConditionSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
@@ -320,7 +337,7 @@ export function computeBoonConditionSources(
 
   const bundleContributions = bundleContributionsForBuild(build, gameData.professions, skillsById, gameData.tomeChapters)
   const skillIds = [
-    ...skillIdsForBuild(build, gameData.legends, gameData.pets, gameData.professions, skillsById),
+    ...skillIdsForBuild(build, gameData.legends, gameData.pets, gameData.professions, skillsById, gameData.soulbeastBeastmode),
     ...bundleContributions.kitSkillIds
   ]
   for (const id of skillIds) {

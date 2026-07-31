@@ -842,21 +842,46 @@
             session) since resolving them correctly needs a pet-family/archetype → skill-id mapping
             this app doesn't have — tracked as a new, separate item directly below, not folded into
             this one.
-      - [ ] **New (2026-07-30): Soulbeast's real Beastmode gap — F1-F4 depend on merged pet's
-            family/archetype**, not a weapon-bar replacement (see finding above). The wiki's
-            "Soulbeast" page has a clean sortable table (`== Pet Family ==`) mapping each of ~26
-            pet families to its F1/F2 skill *names*, plus a smaller `== Pet Archetypes ==` table for
-            F3 — but several pets across different families share an identical skill name (e.g.
-            "Bite" appears for both Bear and Feline, live-confirmed 2 different skill ids share that
-            name under `Profession_1`), so name matching alone can't safely resolve every row — some
-            entries would need each name's own disambiguated wiki page (e.g. "Bite (soulbeast
-            bear)") fetched for its real id, same shape of per-page resolution
-            `fetch-elite-spec-skills.ts` already does. Not attempted this session (discovered late,
-            scoped as its own pass) — would need: fetching the family/archetype tables, resolving
-            every (mostly clean, some ambiguous) name to a real skill id, extending `Pet` with a
-            family/archetype field (`/v2/pets` has neither, matching the exact gap this TODO already
-            flagged for Untamed below), and gating `professionMechanicBar`'s Soulbeast F1-F4 by the
-            build's currently-merged pet's family/archetype instead of leaving the slots dropped.
+      - [x] **Soulbeast's real Beastmode gap — F1-F4 depend on merged pet's family/archetype**, not
+            a weapon-bar replacement (see finding above). **Resolved 2026-07-31**: the ambiguous-
+            name problem this item originally flagged ("Bite" shared by Bear/Feline, etc.) turned
+            out to be only 4 same-slot collisions total (Bite/Tail Lash/Brutal Charge/Worldly
+            Impact), each cleanly disambiguated via that specific title's own wiki page `id=` —
+            same shape as `fetch-elite-spec-skills.ts`. New `scripts/fetch-soulbeast-beastmode.ts`
+            (`npm run fetch-soulbeast-beastmode`) parses the wiki's `Soulbeast` page's `== Pet
+            Family ==` (26 rows, F1/F2 per family + one inline White-Tiger-only F2 override) and
+            `== Pet Archetypes ==` (F3 per archetype, every individual pet species enumerated per
+            family+archetype cell) tables, resolves every title to a real skill id, and writes
+            `data/game-data/soulbeast-beastmode.json` (`Pet.id` -> `{f1SkillId, f2SkillId,
+            f3SkillId}`) — no new field needed on `Pet` itself, since the fetch script resolves
+            family/archetype down to a flat per-pet triplet once rather than the app needing to
+            reason about families anywhere else. **Real finding: the wiki's own tables lag actual
+            game content** — live-verified 2026-07-30/31 that 4 local Profession_1/2 Soulbeast
+            skill ids (Jet/Tail Whip for a brand-new pet, Juvenile River Otter; Saurian Might/
+            Leaping Lizard, an undocumented per-species F1/F2 override for Juvenile Raptor
+            Swiftwing that shares the Avian archetype family but not its shared "Bird" F1/F2) exist
+            in local data with no matching row in either wiki table. Rather than hand-pinning these
+            two, the script resolves any such leftover id generically: wiki-search the skill name,
+            fetch the first hit whose own `id=` matches, and read that page's own `pet=`/`mechanic
+            slot=` fields directly (every Beastmode F1/F2 skill's own page carries these — a more
+            authoritative per-skill signal than the aggregate table) — self-healing for any future
+            new-pet lag, not just today's two cases. New `soulbeastBeastmodeBar` in
+            `profession-mechanic.ts` resolves the *active* equipped pet's (`Build.equippedPetIds[
+            activePetIndex]`) F1-F3 (Profession_4 "Eternal Bond" stays unresolved — no per-pet data
+            for it, unchanged), wired into `ProfessionMechanicBar.tsx` ahead of the generic
+            resolver's output when Soulbeast (spec 55) is equipped (same pattern as the Engineer
+            Toolbelt prepend). `sources.ts`'s `skillIdsForBuild` also folds in *both* equipped
+            pets' full F1/F2/F3 triplets unconditionally when Soulbeast is equipped (same "both
+            always contribute regardless of which is active" reasoning as every other bar toggle),
+            so the boon/condition calculator now correctly sees e.g. Relentless-Whirl-shaped boon
+            grants from a merged pet's kit. Verified via a standalone script (not committed): the
+            active pet's bar resolves correctly and swaps when `activePetIndex` flips (confirmed
+            White Tiger's Phase Pounce F2 override specifically), the generic resolver still
+            excludes Profession_1-4 for Soulbeast, boon/condition output is identical regardless of
+            `activePetIndex` (both pets always contribute), and all 66 pets in `pets.json` resolve
+            to a complete, real triplet. `npm run typecheck`/`lint`/`build` all clean. Not visually
+            confirmed in a running window (standing Electron-sandbox limitation, see COMPLETED.md)
+            — recommend `npm run dev` locally to eyeball the new Soulbeast F1-F3 buttons.
     - [ ] **Follow-up round on the F-skill bar after user testing (2026-07-30)** — user tested the
           F-bar/pet picker landed above and found real gaps, some of which were bugs (fixed same
           session) and some genuinely new scope (not attempted, needs a decision):

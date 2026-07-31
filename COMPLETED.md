@@ -2,6 +2,77 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 28 — Soulbeast's Beastmode F1-F3 (per-pet-family/archetype skills)
+
+Picked up the "Soulbeast's real Beastmode gap" TODO item left open since Session 23/25: Beastmode's
+F1/F2 skills depend on the merged pet's *family* and F3 on its *archetype*, neither of which
+`professionMechanicBar`'s generic per-spec resolver (nor anything else in this app) had any way to
+know — the slot was simply dropped for Soulbeast builds.
+
+- **No API field links a pet to a Beastmode skill at all** — sourced entirely from the wiki's
+  `Soulbeast` page's `== Pet Family ==` (26 rows: single-species families like Phoenix/Warclaw/
+  Wallow as direct `[[Juvenile X|X]]` links, or shared multi-species families like Bear/Feline/
+  Canine as bare `[[Bear]]`-style links, each giving F1/F2 skill titles; Feline's row also carries
+  one inline `<small>(...)</small>`-tagged White-Tiger-only F2 override) and `== Pet Archetypes ==`
+  (F3 title per archetype in a fixed Stout/Deadly/Versatile/Ferocious/Supportive column order, plus
+  every individual pet species enumerated as a real `[[Juvenile X|X]]` link per family+archetype
+  cell) tables. New `scripts/fetch-soulbeast-beastmode.ts` (`npm run fetch-soulbeast-beastmode`)
+  parses both live and resolves every title to a real skill id: unique (name, slot) matches resolve
+  directly against the local Ranger `Profession_1`/`_2`/`_3` candidate pool; the 4 real same-name-
+  same-slot collisions found ("Bite" ×2, "Tail Lash" ×2, "Brutal Charge" ×2, "Worldly Impact" ×2 —
+  the latter already a known legacy-duplicate-id gap, see `EXCLUDED_MECHANIC_SKILL_IDS`) are
+  disambiguated by fetching that specific title's own wiki page for its `id=`, same shape of
+  per-page resolution `fetch-elite-spec-skills.ts`/`fetch-skill-duplicate-resolutions.ts` already
+  use.
+- **Real finding: the wiki's aggregate tables lag actual game content.** Live-verified 2026-07-30
+  that after fully resolving both tables, 4 local `Profession_1`/`_2` Soulbeast (`specializationId
+  === 55`) skill ids remained unaccounted for: "Jet"/"Tail Whip" (a brand-new pet, Juvenile River
+  Otter — its own `{{Pet infobox}}` confirmed `family = River Otter`, a family that doesn't appear
+  in either wiki table at all) and "Saurian Might"/"Leaping Lizard" (an undocumented per-species F1/
+  F2 override for Juvenile Raptor Swiftwing, which shares the Avian archetype family — confirmed via
+  its own infobox — but not Avian's shared "Bird" F1/F2, and has no dedicated override row the way
+  Phoenix/Warclaw do). Rather than hand-pinning these two cases, the script resolves any leftover id
+  generically: wiki-search `"<skill name>" soulbeast`, fetch the first result whose own `{{Skill
+  infobox}}` `id=` matches, and read that page's `pet=`/`mechanic slot=` fields directly — every
+  Beastmode F1/F2 skill's own page carries these, a *more* authoritative per-skill signal than the
+  aggregate table, and this makes the resolution self-healing against future new-pet content lag
+  rather than a one-time hand-patch. New pets found only via this leftover sweep (no archetype table
+  entry) get their `archetype=` read straight from their own infobox page as a final step (River
+  Otter: `Supportive`).
+- **Net result**: all 66 pets in `pets.json` resolve to a complete, real `{f1SkillId, f2SkillId,
+  f3SkillId}` triplet, written to `data/game-data/soulbeast-beastmode.json` (new
+  `SoulbeastBeastmodeMap` type, keyed by `Pet.id` — no new field needed on `Pet` itself, since the
+  fetch script resolves family/archetype down to a flat per-pet triplet once rather than the app
+  needing to reason about pet families anywhere else). Only 1 log line: the wiki's own "Vampiric
+  Bite (soulbeast)" title for Wallow's F1 turned out to document a skill removed from the game in a
+  2023-11-28 patch (its own `status = historical` field says so) and replaced by the generic Porcine
+  family's shared "Maul" — the script's own family-default fallback (used whenever a species' own
+  row leaves a slot unresolved) already produces the correct current answer without needing that
+  case special-cased.
+- **Wiring**: new `soulbeastBeastmodeBar` in `profession-mechanic.ts` resolves the *active* equipped
+  pet's (`Build.equippedPetIds[activePetIndex]`) F1-F3 from the new map (`Profession_4`, "Eternal
+  Bond", stays unresolved — no per-pet data exists for it, unchanged from before); wired into
+  `ProfessionMechanicBar.tsx` ahead of the generic resolver's own output whenever Soulbeast (spec
+  55) is equipped, same prepend pattern the Engineer Toolbelt already uses. `RANGER_BEASTMODE_SPEC_
+  ID` exported from `profession-mechanic.ts` (was a private const) so both the UI and `sources.ts`
+  share one definition instead of a second hardcoded `55`. `sources.ts`'s `skillIdsForBuild` folds
+  in *both* equipped pets' full F1/F2/F3 triplets unconditionally whenever Soulbeast is equipped —
+  same "both always contribute regardless of which is currently active" reasoning as every other bar
+  toggle (`activeWeaponSet`/`activeLegendIndex`/`activePetIndex` itself) — so the boon/condition
+  calculator now correctly picks up boon-granting Beastmode skills (e.g. a merged pet's kit) instead
+  of silently missing them. `computeBoonConditionSources`'s and `computePartyBoonConditionSummary`'s
+  inline `gameData` parameter types both grew a `soulbeastBeastmode` field; every call site already
+  passes the full `useGameData()` store, so no call-site changes were needed beyond the type.
+- **Verified**: a standalone script (not committed) confirmed the active pet's bar resolves
+  correctly and swaps when `activePetIndex` flips (specifically checked White Tiger's Phase Pounce
+  F2 override), the generic `professionMechanicBar` still excludes `Profession_1`-`_4` for
+  Soulbeast, boon/condition calculator output is byte-identical regardless of `activePetIndex`
+  (both pets always contribute), a build with no Soulbeast spec equipped leaks no Soulbeast-gated
+  id, and all 66 pets resolve to a complete triplet. `npm run typecheck`/`lint`/`build` all clean.
+  Not visually confirmed in a running window (standing Electron-sandbox limitation, see below) —
+  recommend `npm run dev` locally to eyeball the new Soulbeast F1-F3 buttons in the
+  profession-mechanic bar.
+
 ## Session 27 — Remaining duplicate-skill groups: turret sub-abilities + wiki exclusion
 
 Continued down the list of ~17 remaining ambiguous duplicate-name Heal/Utility/Elite skill groups
