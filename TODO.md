@@ -1276,9 +1276,35 @@
 (Discord bot/Capacitor). Individual scoping decisions below, made same day so these are unblocked
 for next session — none of the 6 need a further scoping conversation before work can start.
 
-- [ ] Electron packaging/distribution config (electron-builder.yml is not set up yet — only
+- [x] Electron packaging/distribution config (electron-builder.yml is not set up yet — only
       `install-app-deps` postinstall is wired up for native module rebuilding). **Priority: do
       this first** (2026-07-31 decision, see above).
+      **Implemented 2026-07-31**: new `electron-builder.yml` (appId `net.torastar.gw2squaded`,
+      `productName: GW2-Squaded`, output to `dist/`, targets nsis/dmg/AppImage for win/mac/linux)
+      plus 4 new `package.json` scripts (`package:dir`/`package:win`/`package:mac`/`package:linux`,
+      each running `electron-vite build` first). Two real gaps had to be closed, not just config
+      plumbing: (1) `asarUnpack: ['**/*.node']` — `better-sqlite3`'s native binding can't `dlopen`
+      from inside an asar archive, confirmed by inspecting a real build's output
+      (`dist/win-unpacked/resources/app.asar.unpacked/node_modules/better-sqlite3/prebuilds/*.node`
+      landed correctly outside the archive). (2) `load-game-data.ts`'s `DATA_DIR` resolution — its
+      own doc comment already flagged packaging as "still pending" — only handled the unpackaged
+      case (`__dirname`-relative to the repo root); added an `app.isPackaged` branch resolving to
+      `process.resourcesPath/data/game-data` instead, matching a new `extraResources` entry in
+      `electron-builder.yml` that ships `data/game-data/` outside the asar (confirmed via a real
+      `package:dir` build: all 23 JSON files landed at exactly
+      `dist/win-unpacked/resources/data/game-data/`). No custom app icon yet (no branding asset
+      exists anywhere in the repo) — electron-builder falls back to its own default Electron icon;
+      noted as optional future polish, not blocking. Verified: `npm run typecheck`/`lint` clean; a
+      real `npm run package:dir` build completed successfully end-to-end (electron-rebuild for
+      better-sqlite3, asar packing, unsigned local signtool pass) and both gaps above were
+      confirmed fixed by inspecting the actual output tree, not just reasoning about the config.
+      **Not launchable in this shell to visually confirm the packaged app boots**: even the real
+      packaged `.exe` (not just `electron-vite dev`'s spawn) exits silently within ~1s with no
+      output and no sqlite file update in `%APPDATA%`, regardless of launch method — a deeper
+      instance of the standing Electron-sandbox limitation (no attachable desktop session in this
+      shell), not a code issue; see COMPLETED.md for the full writeup. Recommend `npm run
+      package:dir` (or `:win`) locally and launching `dist/win-unpacked/GW2-Squaded.exe` directly to
+      confirm the packaged app boots, loads game data, and persists builds/squad comps correctly.
 - [ ] Thin backend: generate/resolve shareable immutable links for builds and squad comps.
       **Decided 2026-07-31: serverless/managed approach** (e.g. Cloudflare Workers + KV/D1, or
       similar) over a self-hosted server — minimal ops overhead for a low-traffic hobby app. Do

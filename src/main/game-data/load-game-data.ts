@@ -1,13 +1,19 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { app } from 'electron'
 import type { GameData } from '@shared/types'
 
 let cached: GameData | null = null
 
-// The main bundle lives at <projectRoot>/out/main/index.cjs (both in `electron-vite dev` and
-// `electron-vite build` output) — __dirname is stable there, unlike `app.getAppPath()`, which
-// resolves to `out/main` itself (not the project root) once running from the built bundle.
-const DATA_DIR = join(__dirname, '..', '..', 'data', 'game-data')
+// Unpackaged (dev and local `npm run build`), the main bundle lives at
+// <projectRoot>/out/main/index.cjs — __dirname is stable there, unlike `app.getAppPath()`, which
+// resolves to `out/main` itself (not the project root). Packaged, electron-builder.yml ships
+// data/game-data/ as an `extraResources` entry (outside app.asar, since native-module-adjacent
+// resources and large static data don't need to go through the archive), landing at
+// process.resourcesPath/data/game-data.
+const DATA_DIR = app.isPackaged
+  ? join(process.resourcesPath, 'data', 'game-data')
+  : join(__dirname, '..', '..', 'data', 'game-data')
 
 function readJson<T>(fileName: string): T {
   const filePath = join(DATA_DIR, fileName)

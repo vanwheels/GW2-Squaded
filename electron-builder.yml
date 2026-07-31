@@ -1,0 +1,43 @@
+appId: net.torastar.gw2squaded
+productName: GW2-Squaded
+directories:
+  output: dist
+  buildResources: build
+
+# out/ is electron-vite's build output (main/preload/renderer); data/game-data is the static
+# GW2 API cache read at runtime by src/main/game-data/load-game-data.ts (shipped via
+# extraResources below, not asar, so it lands at process.resourcesPath/data/game-data).
+files:
+  - out/**/*
+  - package.json
+  - '!**/*.map'
+
+extraResources:
+  - from: data/game-data
+    to: data/game-data
+
+# better-sqlite3's native .node binding can't be dlopen'd from inside an asar archive —
+# unpack it (and any other native module) alongside app.asar instead.
+asarUnpack:
+  - '**/*.node'
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+  category: public.app-category.games
+
+linux:
+  target:
+    - target: AppImage
+      arch: [x64]
+  category: Game

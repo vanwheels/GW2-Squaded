@@ -2,6 +2,48 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 33 — Electron packaging/distribution config
+
+Picked up the roadmap item TODO.md flagged as top priority (2026-07-31 decision: "Electron
+packaging first — nothing else meaningfully ships without it"). Landed `electron-builder.yml`
+(appId `net.torastar.gw2squaded`, `productName: GW2-Squaded`, nsis/dmg/AppImage targets for
+win/mac/linux, output to `dist/`) and 4 new `package.json` scripts
+(`package:dir`/`package:win`/`package:mac`/`package:linux`).
+
+Two real gaps surfaced and got fixed, not just config plumbing:
+
+- **better-sqlite3's native binding can't load from inside an asar archive.** Added
+  `asarUnpack: ['**/*.node']`. Confirmed by inspecting a real `package:dir` build's output tree:
+  the platform prebuild `.node` files landed correctly at
+  `dist/win-unpacked/resources/app.asar.unpacked/node_modules/better-sqlite3/prebuilds/`, outside
+  the archive, where Node's `dlopen` can actually reach them.
+- **`load-game-data.ts`'s `DATA_DIR` resolution only ever handled the unpackaged case** — its own
+  doc comment already flagged this ("packaging this as an extraResources entry ... is still
+  pending"). Added an `app.isPackaged` branch resolving to `process.resourcesPath/data/game-data`,
+  paired with a new `extraResources` entry in `electron-builder.yml` shipping `data/game-data/`
+  outside the asar at that exact path. Confirmed via the same real build: all 23 game-data JSON
+  files landed at `dist/win-unpacked/resources/data/game-data/`.
+
+No custom app icon — nothing resembling app branding/icon assets exists anywhere in this repo,
+so electron-builder falls back to its own default Electron icon. Left as optional future polish
+rather than guessed at.
+
+**Environment finding, extends the standing Electron-sandbox limitation**: tried to launch the
+real packaged `.exe` (not `electron-vite dev`'s spawn, which was already known-broken here) to
+visually confirm the packaged app actually boots. It exits silently within ~1s — empty stdout and
+stderr, no crash log — regardless of launch method (Git Bash, PowerShell `Start-Process`, with or
+without `--disable-gpu`), and a pre-existing `gw2-squaded.sqlite` in `%APPDATA%\gw2-squaded` never
+picked up a new mtime across any attempt, meaning the process never reaches `app.whenReady()` at
+all — dying even earlier than the previously-documented dev-mode `isPackaged`-undefined crash,
+most likely because this shell has no attachable interactive Windows desktop session for a GUI
+process to open a window on. Not a code regression from this session's changes. Verified the
+packaging work instead by inspecting the actual build output tree for both fixed gaps (see above)
+plus `npm run typecheck`/`npm run lint` (both clean) and a full successful `npm run package:dir`
+run (electron-rebuild for better-sqlite3, asar packing, unsigned local signtool pass, all
+completed without error). Recommend `npm run package:dir` (or `:win`) locally and launching
+`dist/win-unpacked/GW2-Squaded.exe` directly to confirm the packaged app boots, loads game data,
+and persists builds/squad comps to its own userData SQLite file correctly.
+
 ## Session 32 — Weapon duplicate-skill-slot edge cases resolved (Revenant/Guardian/Engineer/Thief/Elementalist)
 
 Picked up TODO.md's "New, discovered this session" weapon-skill-duplication item (originally spotted
