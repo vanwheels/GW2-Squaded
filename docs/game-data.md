@@ -205,16 +205,26 @@ members, and matches page titles against the already-fetched `skills.json` by
 (profession, slot, name) to resolve wiki titles to numeric skill ids. Output is a flat
 `{ [skillId]: specializationId }` map.
 
-**Known gaps (documented, not silently papered over):** as of the last run, 211 skills matched
-cleanly; ~16 wiki pages didn't match any `skills.json` entry (mostly Druid Celestial-Avatar-form
-variants and a couple of gadget "backfired" flavor pages — not real playable skill options), and
-~36 page titles matched *multiple* skill ids ambiguously (e.g. Revenant legend skills, Weaver
-dual-attunement skills — GW2 often has two skill ids sharing one display name for a display/
-tooltip-copy reason that isn't worth guessing at). Both cases are simply **excluded** from the
-map rather than guessed — a skill missing from the map is treated as ungated (shown regardless of
-equipped spec), which is a fail-safe default equal to the pre-existing (ungated) behavior, never
-a wrong exclusion. Requires the wiki API's default `User-Agent` header to be overridden (Node's
-default UA gets a 403; any identifiable UA passes — see `USER_AGENT` in the script).
+**Ambiguous-match resolution:** a wiki page title sometimes matches more than one `skills.json`
+id in the same (profession, slot) — e.g. a ground-targeted/auto-target pair, a `flip_skill`
+chain, or (for Druid) 3 ids sharing one name across its non-celestial/Celestial-Avatar forms.
+Rather than guess which one is "the real pick," the script checks each candidate's own
+`Skill.specializationId` field (already fetched from `/v2/skills`, no extra request): if *every*
+matched id independently carries this exact spec's id, all of them are gated to it — dedup
+(`skill-variants.ts`) still decides which single one reaches the picker, this only has to make
+sure whichever one that is comes out correctly gated. If the candidates disagree (or one has no
+`specializationId` at all), the page is left out of the map rather than guessed. A handful of
+pages also carry a MediaWiki disambiguation suffix not present in the API name at all (e.g.
+"Uppercut (Daredevil skill)" vs API `Uppercut`) — `titleVariants` strips a trailing `" (...)"`
+as an extra candidate.
+
+As of the last run (36 elite specs, post-fix): **295 skills matched, 0 unmatched, 0 ambiguous** —
+every previously-excluded case turned out to resolve via one of the two rules above (the
+`specializationId`-agreement check, or the disambiguation-suffix strip); nothing needed a guess.
+A skill missing from the map is treated as ungated (shown regardless of equipped spec) as a
+fail-safe default, but that path is now empty. Requires the wiki API's default `User-Agent`
+header to be overridden (Node's default UA gets a 403; any identifiable UA passes — see
+`USER_AGENT` in the script).
 
 **Note:** this file's data is NOT re-derivable from `fetch-game-data.ts` — re-run
 `fetch-elite-spec-skills` too whenever a balance patch might add/change elite-spec-gated skills.

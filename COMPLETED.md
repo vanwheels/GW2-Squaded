@@ -2,6 +2,37 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 30 — Elite-spec skill gating: resolved all ~36 ambiguous / ~16 unmatched wiki pages
+
+Picked up the last open sub-item under "Elite-spec skill gating for the Heal/Utility/Elite
+pickers" — the ~36 skill names that matched multiple `skills.json` ids per wiki page (left
+ungated, fail-safe) and the ~16 wiki pages that matched none at all.
+
+- **Ambiguous-match rule**: every candidate id in an ambiguous match already carries its own
+  `Skill.specializationId` field (already fetched from `/v2/skills`, not new data). Sanity-checked
+  against the 211 previously-clean mappings first: 211/212 already agreed with `specializationId`
+  exactly (the 1 exception has `specializationId: null` — a base skill the wiki category alone
+  caught). That gave confidence to extend `fetch-elite-spec-skills.ts`: when a wiki title matches
+  multiple ids and *every one* of them independently carries the current elite spec's own id (not
+  a different spec's, not null), gate all of them instead of excluding the page. Dedup
+  (`skill-variants.ts`) still decides which single id reaches the picker — this only had to
+  guarantee whichever one that is comes out correctly gated. All ~36 groups turned out to be
+  exactly this shape: ground-targeted/auto-target pairs and `flip_skill` chains living entirely
+  within one elite spec (Herald's "Elemental Blast", Harbinger's 6 Elixirs, Evoker's Rejuvenate/
+  Fox's Fury/Otter's Compassion/Hare's Agility/Toad's Fortitude/Elemental Procession, Conduit's
+  4-id "Beguiling Haze", etc.), plus the Druid Glyph 3-way non-celestial/Celestial-Avatar forms.
+- **Unmatched-page fix**: added a trailing `" (...)"` strip to `titleVariants` for MediaWiki
+  disambiguation suffixes the API's own skill name never carries (e.g. wiki "Uppercut (Daredevil
+  skill)" vs API `Uppercut`) — resolved the one unmatched page (of ~16) that wasn't already covered
+  by the ambiguous-match fix above (the Druid Glyph "(non-celestial)"/"(Celestial Avatar)"
+  sub-pages and Antiquary's "(backfired)" flavor pages were already redundant with their
+  already-resolved base page).
+- **Net result**: 295 skill→specialization mappings, 0 unmatched, 0 ambiguous (up from 212/16/36).
+  `npm run typecheck`/`lint` both clean. Not visually confirmed in a running window (standing
+  Electron-sandbox limitation) — recommend `npm run dev` locally; e.g. Evoker's utility skills
+  (Fox's Fury etc.) should now only appear in the picker with Evoker equipped, not for every
+  Elementalist build.
+
 ## Session 29 — Elementalist Evoker's familiar concept + Rejuvenate dedup
 
 Picked up the "full modeling pass" TODO item for Elementalist's new Evoker elite spec, decided

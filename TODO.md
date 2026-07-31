@@ -69,16 +69,41 @@
         squad-view merged-uptime math is still a stretch goal (not built), and the app already
         supports all 9 professions generically — no need to pin example builds to one comp. No
         further action needed; remove this as a scoping question.
-- [ ] Elite-spec skill gating for the Heal/Utility/Elite pickers — mostly shipped this session
+- [x] Elite-spec skill gating for the Heal/Utility/Elite pickers — mostly shipped a prior session
       (`scripts/fetch-elite-spec-skills.ts` + wiring in `SkillsEditor`/`BuildEditorView`/
       `game-data-store.tsx`; see docs/game-data.md and COMPLETED.md for how it works). 211
       skill→spec mappings resolved cleanly.
-  - [ ] ~36 skill names matched multiple ids ambiguously (mostly Revenant legend skills and
+  - [x] ~36 skill names matched multiple ids ambiguously (mostly Revenant legend skills and
         Elementalist dual-attunement skills — GW2 sometimes has two ids sharing a display name for
         a display/tooltip-copy reason) and ~16 wiki pages didn't match any skill id (Druid
-        Celestial-Avatar-form variants, a couple of gadget "backfired" flavor pages). Both are
-        excluded from the map rather than guessed, so those specific skills stay ungated (fail-
-        safe, not silently wrong) — revisit only if it turns out to matter for a real build.
+        Celestial-Avatar-form variants, a couple of gadget "backfired" flavor pages). Both were
+        excluded from the map rather than guessed, so those specific skills stayed ungated (fail-
+        safe, not silently wrong).
+        **Resolved 2026-07-31**: both cases turned out to have a real, non-guessed signal after
+        all. For the ~36 ambiguous groups, every candidate id already carries its own
+        `Skill.specializationId` field (fetched from `/v2/skills`, not new data) — checked against
+        the 211 already-clean mappings first: 211/212 agreed with `specializationId` exactly (the
+        1 exception has `specializationId: null`, i.e. it's a base skill the wiki category caught
+        that the field alone wouldn't have). That gave high confidence to extend the rule: when a
+        wiki title matches multiple ids and *all* of them independently carry the current spec's
+        own id (not a different spec, not null), gate all of them rather than excluding the page —
+        dedup (`skill-variants.ts`) still decides which single one reaches the picker, this only
+        had to guarantee whichever one that is comes out correctly gated. Every one of the ~36
+        groups (mostly ground-targeted/auto-target pairs and `flip_skill` chains within a single
+        elite spec, e.g. Herald's "Elemental Blast", Harbinger's 6 Elixirs, Evoker's Rejuvenate/
+        Fox's Fury/etc., plus the Druid Glyph 3-way forms) satisfied this cleanly — 0 remained
+        genuinely ambiguous. For the ~16 unmatched pages: all but one were the Druid Glyphs'
+        "(non-celestial)"/"(Celestial Avatar)" wiki sub-pages and the Antiquary "(backfired)"
+        flavor pages, already covered once the base (unsuffixed) page resolved via the rule above;
+        the remaining one, Daredevil's "Uppercut (Daredevil skill)", turned out to be a plain
+        MediaWiki disambiguation suffix the API's skill name (`Uppercut`) never had — added a
+        trailing `" (...)"`-strip to `titleVariants` and it matched cleanly (one candidate id,
+        `specializationId` already pointing at Daredevil). Net result: **295 skill→spec mappings,
+        0 unmatched, 0 ambiguous** (up from 212/16/36). `npm run typecheck`/`lint` both clean. Not
+        visually confirmed in a running window (standing Electron-sandbox limitation, see
+        COMPLETED.md) — recommend `npm run dev` locally to eyeball the now-correctly-gated
+        pickers (e.g. Evoker's Fox's Fury/Otter's Compassion/etc. utilities should now only show
+        with Evoker equipped, not for every Elementalist build).
 - [x] Icon + name UI swap, pulled forward ahead of MVP per explicit user direction ("I'd much
       rather switch to the icon+name UI swap now"). Landed in two passes — Traits/"masteries" +
       gear loadout first, then `SkillsEditor` and `BoonUptimePanel` icons as a follow-up pass

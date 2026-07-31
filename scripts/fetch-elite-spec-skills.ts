@@ -84,10 +84,14 @@ async function fetchSpecSkillPages(specName: string): Promise<WikiCategoryPage[]
 
 /** Wiki article titles for shout-style skills sometimes drop the surrounding quote marks that
  *  the GW2 API's skill.name keeps (e.g. wiki "Your Soul Is Mine!" vs API `"Your Soul Is Mine!"`)
- *  — try the raw title first, then a quote-stripped-on-both-sides comparison. */
+ *  — try the raw title first, then a quote-stripped-on-both-sides comparison. Titles also
+ *  sometimes carry a MediaWiki disambiguation suffix not present in the API name at all (e.g.
+ *  "Uppercut (Daredevil skill)" vs API `Uppercut`) — strip a trailing " (...)" too. */
 function titleVariants(title: string): string[] {
   const unquoted = title.replace(/^"(.*)"$/, '$1')
-  return unquoted === title ? [title, `"${title}"`] : [title, unquoted]
+  const withoutQuotes = unquoted === title ? [title, `"${title}"`] : [title, unquoted]
+  const withoutSuffix = title.replace(/\s*\([^()]*\)$/, '')
+  return withoutSuffix === title ? withoutQuotes : [...withoutQuotes, withoutSuffix]
 }
 
 async function main(): Promise<void> {
@@ -127,6 +131,15 @@ async function main(): Promise<void> {
         matchedCount++
       } else if (matches.length === 0) {
         unmatched.push(`${spec.name} / ${slot} / "${page.title}"`)
+      } else if (matches.every((m) => m.specializationId === spec.id)) {
+        // Multiple wiki-matched ids for one title (e.g. ground-targeted/auto-target pairs, a
+        // flip_skill chain, or same-name form variants) aren't a naming coincidence to guess at
+        // here: `Skill.specializationId` is the API's own field, already fetched, and every one
+        // of these candidates independently carries this exact spec's id on it. Gate all of them
+        // — whichever one dedup (skill-variants.ts) surfaces in the picker is correctly gated
+        // either way, rather than leaving all of them ungated because the name matched >1 id.
+        for (const m of matches) result[m.id] = spec.id
+        matchedCount += matches.length
       } else {
         ambiguous.push(`${spec.name} / ${slot} / "${page.title}" -> ids [${matches.map((m) => m.id).join(', ')}]`)
       }
