@@ -33,12 +33,12 @@
         undercounts total attributes for two-handed-weapon builds. Verified via Playwright: hand-
         calculated 109.124% boon duration for an all-"Diviner's" build matched the rendered
         109.1%, and every source's scaled duration matched `base * (1 + percent/100)` exactly.
-  - [ ] Needs food/utility consumable data + selection UI — not yet fetched (GW2 API `/v2/items`
-        is much larger than the endpoints currently pulled; scope that fetch when this starts)
-        and not yet modeled on `Build`. Superseded/absorbed by the "Build editor UI/UX overhaul"
-        stats-panel item below (user decided 2026-07-25 to build runes/sigils/food/consumables
-        together with that stats panel rather than as a separate pass) — do the fetch once there,
-        not twice.
+  - [x] Needs food/utility consumable data + selection UI — was superseded/absorbed by the "Build
+        editor UI/UX overhaul" stats-panel item below (user decided 2026-07-25 to build
+        runes/sigils/food/consumables together with that stats panel rather than as a separate
+        pass), and that item has since landed the fetch, `Build` fields, picker UI, and
+        stats-calc wiring (see its own writeup further down). Stale checkbox fixed 2026-07-31 —
+        no remaining work here specifically.
   - [x] IMPORTANT: use WvW-specific balance numbers, not PvE — now applied for the boon/condition
         calculator. Built as `scripts/fetch-wvw-splits.ts` (`npm run fetch-wvw-splits`), writing
         `data/game-data/wvw-fact-overrides.json`: fetches `Category:Split skills` (1,664 pages) /
