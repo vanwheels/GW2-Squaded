@@ -1,11 +1,19 @@
 import { useState } from 'react'
 import type { Build } from '@shared/types'
+import { isLikelyBuild } from '@shared/share/validate'
 import { useBuildsStore, makeBlankBuild } from '@renderer/state/builds-store'
 import { BuildEditorView } from '@renderer/components/build-editor/BuildEditorView'
+import { ImportFromLinkButton } from '@renderer/components/common/ImportFromLinkButton'
 
 export function BuildsView() {
   const { builds, loading, createBuild, updateBuild, removeBuild } = useBuildsStore()
   const [editing, setEditing] = useState<{ build: Build; isNew: boolean } | null>(null)
+
+  async function handleImport(data: unknown): Promise<void> {
+    if (!isLikelyBuild(data)) throw new Error('This link does not contain a valid build.')
+    const now = new Date().toISOString()
+    await createBuild({ ...data, id: crypto.randomUUID(), createdAt: now, updatedAt: now })
+  }
 
   if (editing) {
     return (
@@ -25,7 +33,10 @@ export function BuildsView() {
     <section>
       <div className="view-header">
         <h2>Builds</h2>
-        <button onClick={() => setEditing({ build: makeBlankBuild(), isNew: true })}>+ New build</button>
+        <div className="view-header-actions">
+          <ImportFromLinkButton kind="build" kindLabel="build" onImport={handleImport} />
+          <button onClick={() => setEditing({ build: makeBlankBuild(), isNew: true })}>+ New build</button>
+        </div>
       </div>
 
       {loading ? (

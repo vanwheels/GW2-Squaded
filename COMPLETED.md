@@ -2,6 +2,71 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 34 — Thin backend: shareable build/squad links, deployed live
+
+Picked up the next item in the 2026-07-31 roadmap priority order (Electron packaging → thin
+backend → whatever follows). Two scoping questions were asked before starting, since the app is a
+desktop Electron app rather than a website: how does someone actually "view" a shared link, and
+should the Worker get deployed live this session or just scaffolded. Answers: no public web viewer
+for v1 (an in-app "Import from link" paste box instead, plus a separate screenshot-to-clipboard
+feature for sharing a look with non-users), and deploy it live together this session rather than
+leaving deployment for later.
+
+- **`worker/`**: a new, self-contained npm project (own `package.json`/`tsconfig.json`, deliberately
+  outside the root TypeScript project references and `npm run typecheck`/`lint`, though
+  `eslint.config.js` gained `worker/.wrangler/**`/`worker/dist/**` ignores since flat-config ESLint
+  would otherwise lint wrangler's own local-dev build artifacts). `worker/src/index.ts` is a single
+  hand-rolled fetch handler (no framework — matches this codebase's established preference for
+  hand-rolling interactive/small pieces over adding a dependency) over a Cloudflare KV namespace:
+  `POST /shares` (`{kind: 'build'|'squadComp', data}`, ~256KB cap, stored under a fresh
+  `crypto.randomUUID()`, no TTL — shares are meant to persist indefinitely, matching `SquadComp`'s
+  pre-existing "Immutable-snapshot-on-share by design" doc comment) and `GET /shares/:id` (404 if
+  missing). Validates only "plausible kind + object", not the full `Build`/`SquadComp` shape — real
+  shape checking happens client-side on import (`src/shared/share/validate.ts`), keeping the
+  backend an intentionally dumb opaque-blob store.
+- **Deployed live, walked through together**: `npx wrangler login` (interactive OAuth via a URL
+  handed to the user — the first attempt timed out waiting for them to click through, which
+  incidentally confirmed this shell's backgrounded processes really do stay alive and listening,
+  unlike the Electron GUI launches documented elsewhere as silently dying; a second attempt
+  succeeded), `npx wrangler kv namespace create SHARES`, `npx wrangler deploy` → live at
+  `https://gw2-squaded-share.vanwheelstheman.workers.dev`. Verified with a real create+get roundtrip
+  against the live URL via both `curl` and PowerShell's `Invoke-RestMethod`.
+  **Environment finding**: this shell's `curl` intermittently returned a Cloudflare edge error
+  (1042) or hung on repeated rapid requests against the live `*.workers.dev` URL, while the exact
+  same requests via PowerShell's `Invoke-WebRequest`/`Invoke-RestMethod` succeeded cleanly every
+  time — treated as a `curl`-in-this-shell networking quirk (verified via a different network
+  stack, not the Worker), not a deployment problem. Worth remembering if a future session sees
+  flaky `curl` results against a real external HTTPS endpoint from this shell.
+- **Squad comps share as a self-contained snapshot, not build-id references**: `SquadCompSharePayload`
+  bundles every build referenced by any roster slot (looked up from the sharer's local
+  `buildsById`) alongside the `SquadComp` itself, since bare `buildId`s only resolve in the
+  sharer's own local database. On import, every bundled build is recreated locally under a fresh id
+  first, then slot `buildId`s are remapped onto the new ids before the squad comp itself saves.
+- **Client wiring**: `src/renderer/share/share-client.ts` (`createShare`/`fetchShare`) calls the
+  Worker directly via `fetch` in the renderer — no IPC round-trip through main, since it's a plain
+  public HTTPS API — but `index.html`'s CSP gained `connect-src 'self' https://*.workers.dev` to
+  actually allow it. New shared `SharePanel`/`ImportFromLinkButton` components
+  (`src/renderer/components/common/`), wired into `BuildEditorView`/`SquadCompEditorView` (Share
+  button) and `BuildsView`/`SquadsView` (Import-from-link button). The deployed URL is baked in as
+  a hardcoded default in `share-client.ts` — not secret, a public unauthenticated API — so sharing
+  works out of the box with no `.env` required; `VITE_SHARE_API_BASE_URL` still exists as an
+  override (e.g. to point a dev build at a local `wrangler dev` instance).
+- **Screenshot option** (replacing a web viewer for v1, per the scoping answer above): new
+  `ScreenshotButton` copies a screenshot of the build/squad editor's visible area straight to the
+  OS clipboard — `Element.getBoundingClientRect()` in the renderer feeds a new `capture:region` IPC
+  channel (`src/main/ipc/capture-ipc.ts`) that calls `webContents.capturePage(rect)` then
+  `clipboard.writeImage()` in the main process, exposed via a new `window.gw2Capture` preload
+  bridge (`CaptureProvider`, mirrors the `StorageAdapter`/`GameDataProvider` seam pattern, but
+  documented as desktop-only — no Capacitor-mobile equivalent, unlike those two). Known v1
+  limitation, documented in code: only the currently-visible (unscrolled) portion of the target
+  element is captured, since `capturePage` grabs from the rendered window surface rather than the
+  full scrollable DOM — no full-page stitching attempted.
+- Verified: `npm run typecheck`/`lint`/`build` all clean (including the worker's own `tsc --noEmit`,
+  run separately since it's outside the root TS project). Not visually confirmed in a running
+  window (standing Electron-sandbox limitation) — recommend `npm run dev` locally to eyeball the
+  new Share/Import/Screenshot buttons.
+- **Unblocks the Discord bot roadmap item** (was waiting on this).
+
 ## Session 33 — Electron packaging/distribution config
 
 Picked up the roadmap item TODO.md flagged as top priority (2026-07-31 decision: "Electron

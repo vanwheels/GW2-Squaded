@@ -1,0 +1,10 @@
+name = "gw2-squaded-share"
+main = "src/index.ts"
+compatibility_date = "2024-11-01"
+
+# Created via `npx wrangler kv namespace create SHARES` — id filled in after that command runs
+# (see TODO.md/COMPLETED.md for the deploy log). Immutable JSON blobs (builds/squad comps),
+# keyed by a UUID share id; no TTL, since shares are meant to persist indefinitely once created.
+[[kv_namespaces]]
+binding = "SHARES"
+id = "04662513e32840c7820530cc12c83054"

@@ -1088,3 +1088,53 @@ input[type='text'] {
 .party-row-add {
   align-self: flex-start;
 }
+
+.view-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.share-panel {
+  position: relative;
+}
+
+.share-popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 20;
+  margin-top: 6px;
+  width: max-content;
+  min-width: 320px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.share-url-input {
+  width: 100%;
+  padding: 6px 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-family: monospace;
+  font-size: 0.75rem;
+}
+
+.share-popover-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.share-error {
+  color: var(--accent);
+  font-size: 0.8rem;
+  margin: 0;
+}

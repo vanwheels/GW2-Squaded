@@ -4,6 +4,7 @@ dist-electron/
 release/
 out/
 *.tsbuildinfo
+.wrangler/
 
 # Local SQLite databases
 *.sqlite

@@ -4,6 +4,7 @@ import { is } from '@electron-toolkit/utils'
 import { createSqliteStorage } from './storage/sqlite-storage'
 import { registerStorageIpc } from './ipc/storage-ipc'
 import { registerGameDataIpc } from './ipc/game-data-ipc'
+import { registerCaptureIpc } from './ipc/capture-ipc'
 
 function createWindow(): void {
   const mainWindow = new BrowserWindow({
@@ -38,6 +39,7 @@ app.whenReady().then(() => {
   const storage = createSqliteStorage(dbPath)
   registerStorageIpc(storage)
   registerGameDataIpc()
+  registerCaptureIpc()
 
   createWindow()
 

@@ -219,7 +219,7 @@
   - [x] Same gap for conditions — condition facts aren't displayed in skill/weapon tooltips either.
         Closed by the same change (`boonConditionFactsForSkill` returns both boon and condition
         facts undifferentiated in one list, matching how the skill actually behaves in-game).
-  - [ ] Weapon selection — user confirmed (2026-07-25) full gw2skills.net parity: land Weapon I +
+  - [x] Weapon selection — user confirmed (2026-07-25) full gw2skills.net parity: land Weapon I +
         Weapon II swap sets, AND underwater weapon slot, all in the first pass (not a smaller
         land-only first cut). Survey finding: weapon skills are entirely unhandled today — no
         weapon-skill slot type exists, and `EquipmentSlotKey` (`build.ts:38-40`) only stores
@@ -1305,11 +1305,78 @@ for next session — none of the 6 need a further scoping conversation before wo
       shell), not a code issue; see COMPLETED.md for the full writeup. Recommend `npm run
       package:dir` (or `:win`) locally and launching `dist/win-unpacked/GW2-Squaded.exe` directly to
       confirm the packaged app boots, loads game data, and persists builds/squad comps correctly.
-- [ ] Thin backend: generate/resolve shareable immutable links for builds and squad comps.
+- [x] Thin backend: generate/resolve shareable immutable links for builds and squad comps.
       **Decided 2026-07-31: serverless/managed approach** (e.g. Cloudflare Workers + KV/D1, or
       similar) over a self-hosted server — minimal ops overhead for a low-traffic hobby app. Do
       after Electron packaging.
-- [ ] Discord bot (client of the backend API) — depends on the thin backend above landing first.
+      **Implemented and deployed 2026-07-31.** Two more scoping questions were asked and answered
+      before starting, since the app being a desktop Electron app (not a website) left "what does
+      opening a shared link actually do" undefined: (1) **no public web viewer for v1** — a shared
+      link is consumed via a new in-app "Import from link" paste box, plus a separate "Copy
+      screenshot" feature (see below) for sharing a look at a build/squad with people who don't
+      have the app; (2) **deployed live this session** (walked through together — user's own
+      Cloudflare account, via an interactive `wrangler login` OAuth flow run from this shell) rather
+      than just scaffolding code for a later deploy.
+      - New `worker/` — a separate, self-contained npm project (own `package.json`/`tsconfig.json`,
+        not part of the root workspace/typecheck/lint, though `eslint.config.js` gained a
+        `worker/.wrangler/**`+`worker/dist/**` ignore since flat-config ESLint would otherwise lint
+        wrangler's own local-dev build artifacts). `worker/src/index.ts` is a single hand-rolled
+        fetch handler (no framework, matching this codebase's established "hand-roll rather than add
+        a dependency" convention) backed by a Cloudflare KV namespace (`SHARES`): `POST /shares`
+        (body `{kind: 'build'|'squadComp', data}`, ~256KB cap, stores under a fresh
+        `crypto.randomUUID()`, no TTL — shares persist indefinitely, matching `SquadComp`'s existing
+        "Immutable-snapshot-on-share by design" doc comment) and `GET /shares/:id` (404 if missing).
+        Deliberately validates only "is this a plausible kind+object", not the full `Build`/
+        `SquadComp` shape — real shape validation happens client-side on import (`src/shared/share/
+        validate.ts`), keeping the backend a dumb opaque-blob store. Verified locally via
+        `wrangler dev` + curl (create/get/invalid-kind/CORS-preflight all correct) before deploying.
+      - **Deployed live**: `npx wrangler login` (interactive OAuth — the first attempt timed out
+        waiting for the user to click through, confirming this shell's backgrounded process really
+        does stay alive and listening rather than dying silently like the Electron GUI launches do;
+        a second attempt succeeded), `npx wrangler kv namespace create SHARES`, `npx wrangler
+        deploy` → live at `https://gw2-squaded-share.vanwheelstheman.workers.dev`. Verified with a
+        real create+get roundtrip via `curl`/PowerShell `Invoke-RestMethod` against the live URL
+        (not just local `wrangler dev`) — full round trip confirmed correct.
+        **Environment finding**: this shell's `curl` intermittently returned Cloudflare edge error
+        1042 or hung against the live `*.workers.dev` URL across repeated rapid requests, while the
+        exact same requests via PowerShell's `Invoke-WebRequest`/`Invoke-RestMethod` (a different
+        network stack) succeeded cleanly every time — treated as a `curl`-in-this-shell networking
+        quirk, not a Worker-side problem, since the Worker's own behavior was verified correct via
+        the PowerShell requests. Worth remembering if a future session sees flaky `curl` results
+        against a real external HTTPS endpoint from this same shell.
+      - **Squad comps share as a self-contained snapshot, not build-id references**: a
+        `SquadCompSharePayload` bundles every build referenced by any roster slot (looked up from
+        the sharer's local `buildsById`) alongside the `SquadComp` itself, since bare `buildId`s
+        only resolve in the sharer's own local database. On import, every bundled build is
+        recreated locally under a fresh id first, then slot `buildId`s are remapped onto those new
+        ids before the squad comp itself is saved (`SquadsView.tsx`'s `handleImport`).
+      - **Client wiring**: `src/renderer/share/share-client.ts` (`createShare`/`fetchShare`, plain
+        `fetch` directly in the renderer — no IPC round-trip through main, since this is a public
+        HTTPS API — but `index.html`'s CSP gained `connect-src 'self' https://*.workers.dev` to
+        actually allow it). New shared `SharePanel`/`ImportFromLinkButton` components
+        (`src/renderer/components/common/`) wired into `BuildEditorView`/`SquadCompEditorView`
+        (Share button) and `BuildsView`/`SquadsView` (Import-from-link button). The deployed URL is
+        baked in as a hardcoded default in `share-client.ts` (not secret — a public unauthenticated
+        API — so no per-build `.env` is required for sharing to work; `VITE_SHARE_API_BASE_URL`
+        still exists as an override for pointing a dev build at a local `wrangler dev` instance,
+        see `.env.example`).
+      - **"Screenshot" option (per the 2026-07-31 scoping answer, replacing a web viewer for v1)**:
+        new `ScreenshotButton` component copies a screenshot of the build/squad editor's visible
+        area straight to the OS clipboard — `Element.getBoundingClientRect()` in the renderer feeds
+        a new `capture:region` IPC channel (`src/main/ipc/capture-ipc.ts`) that calls
+        `webContents.capturePage(rect)` and `clipboard.writeImage()` in the main process, exposed
+        via a new `window.gw2Capture` preload bridge (`CaptureProvider`, mirrors the
+        `StorageAdapter`/`GameDataProvider` seam pattern, but documented as desktop-only with no
+        Capacitor equivalent, unlike those two). **Known v1 limitation, documented in code**: only
+        the currently-visible (unscrolled) portion of the target element is captured, since
+        `capturePage` grabs from the rendered window surface, not the full scrollable DOM — no
+        full-page stitching attempted.
+      - Verified: `npm run typecheck`/`lint`/`build` all clean (including the worker's own `tsc
+        --noEmit`, run separately since it's outside the root project). Not visually confirmed in a
+        running window (standing Electron-sandbox limitation, see COMPLETED.md) — recommend `npm
+        run dev` locally to eyeball the new Share/Import/Screenshot buttons.
+- [ ] Discord bot (client of the backend API) — now unblocked, the thin backend above is live at
+      `https://gw2-squaded-share.vanwheelstheman.workers.dev`.
 - [ ] Capacitor port for iOS/Android (swap storage adapter + native bindings only)
 - [ ] "Not affiliated with ArenaNet/NCSOFT" disclaimer if bundling official GW2 icon assets.
       **Decided 2026-07-31: footer/about screen**, small persistent text line.

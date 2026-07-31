@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type {
   Build,
   EquipmentSlotKey,
@@ -10,6 +10,8 @@ import type {
 } from '@shared/types'
 import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar'
 import { useGameData } from '@renderer/state/game-data-store'
+import { SharePanel } from '@renderer/components/common/SharePanel'
+import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
 import { ProfessionSelect } from './ProfessionSelect'
 import { EliteSpecSelect } from './EliteSpecSelect'
 import { TraitsEditor } from './TraitsEditor'
@@ -38,6 +40,7 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
   const [draft, setDraft] = useState<Build>(build)
   const [saving, setSaving] = useState(false)
   const { eliteSpecSkills, legends, professions } = useGameData()
+  const columnsRef = useRef<HTMLDivElement>(null)
 
   const equippedSpecializationIds = useMemo(
     () =>
@@ -138,9 +141,11 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
         <button onClick={() => void handleSave()} disabled={saving}>
           {saving ? 'Saving…' : isNew ? 'Create build' : 'Save'}
         </button>
+        <ScreenshotButton targetRef={columnsRef} />
+        <SharePanel kind="build" getData={() => draft} />
       </div>
 
-      <div className="build-editor-columns">
+      <div className="build-editor-columns" ref={columnsRef}>
         <div className="build-editor-column">
           <ProfessionSelect value={draft.profession} onChange={handleProfessionChange} />
           <EliteSpecSelect

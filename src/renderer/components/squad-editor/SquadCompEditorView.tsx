@@ -1,7 +1,10 @@
-import { useMemo, useState } from 'react'
-import type { GhostPick, PartySlots, SquadComp, SquadSlot } from '@shared/types'
+import { useMemo, useRef, useState } from 'react'
+import type { Build, GhostPick, PartySlots, SquadComp, SquadSlot } from '@shared/types'
+import type { SquadCompSharePayload } from '@shared/share/types'
 import { useBuildsStore } from '@renderer/state/builds-store'
 import { makeBlankParty } from '@renderer/state/squad-comps-store'
+import { SharePanel } from '@renderer/components/common/SharePanel'
+import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
 import { BuildsSidebar } from './BuildsSidebar'
 import { PartyRow } from './PartyRow'
 import type { BuildDragPayload } from './drag-payload'
@@ -21,6 +24,25 @@ export function SquadCompEditorView({ squadComp, isNew, onSave, onCancel }: Prop
   const [saving, setSaving] = useState(false)
   const { builds } = useBuildsStore()
   const buildsById = useMemo(() => new Map(builds.map((b) => [b.id, b])), [builds])
+  const bodyRef = useRef<HTMLDivElement>(null)
+
+  /** Bundles every build referenced by the current roster into the share payload as a full
+   *  standalone snapshot (not bare `buildId`s, which only resolve in this user's own local
+   *  database) — see `SquadCompSharePayload`'s doc comment. */
+  function buildSharePayload(): SquadCompSharePayload {
+    const referencedIds = new Set<string>()
+    for (const party of draft.parties) {
+      for (const slot of party.slots) {
+        if (slot.buildId) referencedIds.add(slot.buildId)
+      }
+    }
+    const sharedBuilds: Record<string, Build> = {}
+    for (const id of referencedIds) {
+      const found = buildsById.get(id)
+      if (found) sharedBuilds[id] = found
+    }
+    return { squadComp: draft, builds: sharedBuilds }
+  }
 
   function updateSlot(partyIndex: number, slotIndex: number, updater: (slot: SquadSlot) => SquadSlot): void {
     setDraft((prev) => ({
@@ -105,9 +127,11 @@ export function SquadCompEditorView({ squadComp, isNew, onSave, onCancel }: Prop
         <button onClick={() => void handleSave()} disabled={saving}>
           {saving ? 'Saving…' : isNew ? 'Create squad' : 'Save'}
         </button>
+        <ScreenshotButton targetRef={bodyRef} />
+        <SharePanel kind="squadComp" getData={buildSharePayload} />
       </div>
 
-      <div className="squad-editor-body">
+      <div className="squad-editor-body" ref={bodyRef}>
         <BuildsSidebar />
         <div className="party-rows">
           {draft.parties.map((party, partyIndex) => (
