@@ -54,11 +54,16 @@ const EXCLUDED_MECHANIC_SKILL_IDS = new Set<number>([
   // axis this app doesn't model at all yet. Excluding drops Conduit's F2 entirely rather than
   // guessing (picking one arbitrarily would be wrong for most players).
   78845, 78501, 78661, 78615, 78895,
-  // Ranger Untamed (spec 72) Profession_5 "Unleash Ranger"/"Unleash Pet": a real mode-toggle pair
-  // (like the Revenant legend-bar toggle or Herald's facet upkeep), not a single pick — showing
-  // only one (the resolver's lowest-id fallback would silently prefer "Unleash Ranger") would
-  // misrepresent the mechanic. Needs a dedicated toggle UI, not attempted this pass; both excluded
-  // so Untamed's F5 is simply omitted rather than showing half the picture.
+  // Ranger Untamed (spec 72) Profession_5 "Unleash Ranger"/"Unleash Pet": a single toggle skill (the
+  // 2 ids are each other's `flip_skill` target), not 2 independent picks — showing only one (the
+  // resolver's lowest-id fallback would silently prefer "Unleash Ranger") would misrepresent the
+  // mechanic. Resolved 2026-07-31: the toggle is surfaced separately as `Build.rangerUnleashed`, a
+  // `WeaponSkillBar.tsx` display toggle (see `untamed-unleash.ts`), not as a mechanic-bar button —
+  // both ids stay excluded here so Untamed's F5 is simply omitted from this bar rather than
+  // duplicating that toggle. (Untamed's actual F1-F3 pet-skill-replacement set — "Venomous
+  // Outburst"/"Rending Vines"/"Enveloping Haze" — is NOT excluded and resolves normally through this
+  // generic resolver whenever Untamed is equipped; see docs/game-data.md's "Untamed's Unleash
+  // mechanic, resolved" section for the full writeup, including why it's unconditional.)
   63147, 63344
 ])
 

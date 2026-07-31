@@ -2,6 +2,55 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 31 — Ranger Untamed Unleash-Pet premise corrected; Vindicator Legend7 boon-calc gap fixed
+
+Continued through TODO.md's next 2 open items in order: the Ranger Untamed "pet-family Unleash-Pet
+skill set" gap, and the Vindicator Legendary Alliance Stance aspect-pair item.
+
+- **Ranger Untamed: no code gap, only a wrong premise.** The open item assumed "Unleash Pet" grants
+  the pet a 3-skill set that varies by pet family (e.g. Bear/Ursine), based on a screenshot, and
+  queued up a `fetch-soulbeast-beastmode.ts`-shaped wiki-lookup script to resolve every family's ids.
+  Live-checked the `Unleash_Ranger`/`Unleash_Pet` wiki pages' raw wikitext directly instead of
+  re-reading the screenshot: "Unleash Pet" (id 63344) grants a **fixed** 3-skill set (Venomous
+  Outburst/Rending Vines/Enveloping Haze), not a family-varying one — the screenshot was almost
+  certainly showing the pet's own pre-existing, Untamed-*unrelated* default attack kit (documented on
+  the wiki's general `Pet` page: every pet's 3 basic attacks are shared by its family, unrelated to
+  Unleash). Also corrected the toggle direction, which an earlier session's note had backwards:
+  "Unleash Ranger" (63147) is what empowers the Ranger's own autoattack (already correctly
+  implemented, `untamed-unleash.ts`). Checked the code directly rather than assuming a gap: the fixed
+  Venomous Outburst/Rending Vines/Enveloping Haze set already has exactly 1 unambiguous candidate id
+  per slot (`specializationId: 72`, no competing candidate), so `professionMechanicBar`'s existing
+  generic resolver already surfaces all 3 whenever Untamed is equipped and they already flow into the
+  boon calculator — and `Build.rangerUnleashed`'s toggle UI (`WeaponSkillBar.tsx`) already existed too
+  (landed in an earlier session, just not cross-referenced when this item was last touched). **No code
+  changes** — updated `docs/game-data.md` (new "Untamed's Unleash mechanic, resolved" section),
+  `profession-mechanic.ts`'s stale exclusion comment, and `Familiar`'s doc comment (dropped its wrong
+  comparison to this "gap") so a future session doesn't re-queue the wiki-lookup script.
+- **Vindicator Legendary Alliance Stance: real boon-calc undercounting bug, fixed.** The item's own
+  prior-session scoping had already narrowed this to "confirm the `flip_skill`-or-equivalent link
+  live" — confirmed directly against `skills.json`/`legends.json`: every one of Legend7's heal/
+  utility/elite ids does carry a real `flipSkill` to its opposite-aspect (Saint Viktor vs. Archemorus)
+  counterpart, 2-deep for Elite (Spear of Archemorus -> Urn of Saint Viktor -> Drop Urn of Saint
+  Viktor). `RevenantSkillsEditor`'s tooltip already renders these via the existing
+  `relatedVariantSkills` flip-chain walk — no "legend form" concept or display code needed, confirming
+  the item's own lean. The real gap was in `sources.ts`: `skillIdsForBuild`'s Revenant branch only
+  ever fed the boon calculator each legend's *base* ids, never their `flipSkill` targets, so every
+  Saint-Viktor-side boon grant (Resistance/Regeneration/Protection/Stability — all real, confirmed via
+  each id's own `Fact` data) was silently missing from any Legendary-Alliance build's totals. Widened
+  the fix beyond just this one legend once a quick scan showed the same `flipSkill` pattern exists on
+  nearly every other legend's channeled skill too (e.g. Herald's Facet of Chaos -> Chaotic Release
+  granting Superspeed) — new `withFlipChain` helper folds each legend skill's full flip chain into the
+  boon-calc id list generically, same "every equipped alternate always contributes" convention used
+  everywhere else in this codebase (weapon-swap sets, both Ranger pets, Soulbeast Beastmode, Untamed's
+  Unleashed autoattack). Verified via a standalone script (not committed): built a Vindicator test
+  build with Legend7 equipped, confirmed all 5 previously-missing Saint-Viktor-side sources now appear
+  with correct boon/condition grants, and the 2 that correctly stay absent do so for a legitimate
+  reason (Selfless Spirit has no `Buff`-type facts at all; "Urn of Saint Viktor" grants only a
+  self-tracking non-boon status effect, correctly filtered).
+- `npm run typecheck`/`lint`/`build` all clean for both items. Not visually confirmed in a running
+  window (standing Electron-sandbox limitation, see below) — recommend `npm run dev` locally to
+  eyeball a Vindicator build's Legend7 tooltip showing both aspects per slot.
+
 ## Session 30 — Elite-spec skill gating: resolved all ~36 ambiguous / ~16 unmatched wiki pages
 
 Picked up the last open sub-item under "Elite-spec skill gating for the Heal/Utility/Elite

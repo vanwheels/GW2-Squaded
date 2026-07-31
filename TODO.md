@@ -944,7 +944,7 @@
             to a complete, real triplet. `npm run typecheck`/`lint`/`build` all clean. Not visually
             confirmed in a running window (standing Electron-sandbox limitation, see COMPLETED.md)
             — recommend `npm run dev` locally to eyeball the new Soulbeast F1-F3 buttons.
-    - [ ] **Follow-up round on the F-skill bar after user testing (2026-07-30)** — user tested the
+    - [x] **Follow-up round on the F-skill bar after user testing (2026-07-30)** — user tested the
           F-bar/pet picker landed above and found real gaps, some of which were bugs (fixed same
           session) and some genuinely new scope (not attempted, needs a decision):
       - [x] **Bug: Revenant and Ranger were wrongly blanket-excluded from `professionMechanicBar`.**
@@ -983,43 +983,48 @@
             including how the Hammer-chain edge case (Hammer itself is Untamed-exclusive, so its
             *whole* autoattack chain — not just the Unleashed alternate — carries
             `specializationId === 72`) is disambiguated.
-          - **Caveat found while re-reading this item's own pet-family bullet below**: that bullet
-            says "Unleash Ranger" grants the Ranger the already-wired Venomous Outburst/Rending
-            Vines/Enveloping Haze set, while "Unleash Pet" grants the *pet* a family-varying set —
-            but the wiki page titled "Unleash Pet" itself says activating it is what "replaces your
-            pet skills" with Venomous Outburst/Rending Vines/Enveloping Haze, the reverse mapping.
-            Not resolved this session (out of scope — this pass only needed to answer the weapon-bar
-            question, which doesn't depend on which toggle state is which); flagging so whoever
-            picks up the pet-family bullet below re-verifies which state shows which set with a
-            fresh screenshot before assuming either direction.
-        - Ranger pet's "3 more skills per pet *category*" (e.g. Ursine/Canine) the user described,
-          clarified via screenshot to be **Untamed** (not Druid): the screenshot shows F1-F3 as 3
-          animal-themed icons (paw/canine-head/wing) directly beside the pet portrait, F4 = swap
-          pet, F5 = the "Unleash" toggle — confirming Untamed's mechanic is genuinely 2-mode:
-          "Unleash Ranger" grants the Ranger 3 fixed skills (already wired — "Venomous Outburst"/
-          "Rending Vines"/"Enveloping Haze", F1-F3 currently shown unconditionally as the default),
-          while "Unleash Pet" instead grants the *pet* 3 skills that vary by pet **family**
-          (Ursine/Canine/etc.) — a second, entirely separate 3-skill set from the one already wired,
-          not present anywhere in the fetched API data (no pet-family field exists at all, same gap
-          `Pet`'s doc comment already notes for Soulbeast). **Confirmed 2026-07-30 (Session 25): this
-          is a separate, still fully-open gap, NOT a weapon-bar-replacement** (see the correction
-          above) — needs (a) a pet-family concept sourced from the wiki (`/v2/pets` has no family
-          field), (b) resolving which Unleash-toggle state actually shows this set (see the caveat
-          above — the direction is currently unconfirmed), and (c) the "Unleash Ranger"/"Unleash
-          Pet" toggle UI. Same shape of wiki-cross-check effort as Soulbeast's Beastmode gap above
-          (per-pet-family name resolution, some ambiguous) — not attempted this session.
-          **Screenshots provided 2026-07-31** (in-session, not saved to the repo — re-request if
-          needed): confirms the visual layout — F1-F3 are the pet-family Unleash-Pet skills, F4 is
-          pet swap, F5 is the Unleash toggle itself — and per the user, the specific F1-F3 icons
-          shown are the **Bear/Ursine family only**, not universal across pet families. Still
-          genuinely unresolved: (a) exact skill names/ids behind those Bear/Ursine icons — not
-          safe to guess from icon art alone, needs a wiki-page lookup same shape as
-          `fetch-soulbeast-beastmode.ts`; (b) the same for every other pet family (Canine, Feline,
-          etc. — these screenshots only cover Bear/Ursine); (c) confirming which Unleash-toggle
-          state (Ranger vs. Pet) this screenshot represents, since both provided screenshots show
-          the same F1-F3 icons with no visible toggle-state change between them. Unblocked enough
-          to start the wiki-lookup script next session, but not to finish the mapping from these
-          screenshots alone.
+          - [x] **Caveat resolved 2026-07-31**: re-checked the `Unleash_Ranger`/`Unleash_Pet` wiki
+            pages' own raw wikitext directly (not just their Notes prose) — confirms "Unleash Pet"
+            (id 63344) is what replaces the pet's skills with the fixed Venomous Outburst/Rending
+            Vines/Enveloping Haze set, and "Unleash Ranger" (id 63147) is what grants the Ranger's
+            own "Unleashed" effect (the empowered-autoattack alternate `untamed-unleash.ts` already
+            implements) — the earlier same-session note above had the mapping backwards, this
+            corrects it. The two ids are each other's `chain1`/`chain2` (and `flip_skill`) target —
+            one toggle skill with 2 states, not 2 independent picks, so both effects fire together
+            from a single activation. This also resolves the sibling bullet below (the "pet-family"
+            premise turned out to be a misreading, not a real gap) — see its own writeup.
+        - [x] Ranger pet's "3 more skills per pet *category*" (e.g. Ursine/Canine) the user
+          described, originally read as a still-open, family-varying "Unleash Pet" skill set needing
+          its own wiki-lookup script (same shape as `fetch-soulbeast-beastmode.ts`). **Resolved
+          2026-07-31, premise overturned**: live-checked the `Unleash_Pet` wiki page's raw wikitext
+          directly (`curl`, not a screenshot re-read) — its own Notes state plainly "Replaces your
+          pet skills with Venomous Outburst, Rending Vines, and Enveloping Haze," a **fixed** 3-skill
+          set with no per-family variation at all, contradicting the "Bear/Ursine family only" read
+          of the 2026-07-31 screenshots. Cross-checked against the wiki's general `Pet` page instead,
+          which resolves the real source of those screenshots: **every pet's own default (non-
+          Unleashed) 3-attack kit is family-based** ("these 3 skills the pet uses to attack are
+          determined and shared by their family," e.g. all bears share Slash (bear)/Bite (bear)/
+          Defy Pain) — a pre-existing, Untamed-*unrelated* GW2 mechanic (part of the standard Pet
+          Management panel, same for every ranger regardless of elite spec) that the screenshots were
+          almost certainly actually showing, not an Unleash-Pet variant. This app doesn't model that
+          per-pet default kit today (only `Pet.skillId`, the Beast/F2 skill) — same as before this
+          session, and not a gap tied to Unleash either way, so nothing new to build there. Separately
+          confirmed **no code gap exists for the real Unleash-Pet set**: `Venomous Outburst`/
+          `Rending Vines`/`Enveloping Haze` each carry `specializationId: 72` with exactly one
+          candidate in their `Profession_1`-`_3` slot (verified directly against `professions.json`),
+          so `professionMechanicBar`'s existing generic per-spec resolver already surfaces all 3
+          whenever Untamed is equipped, unconditionally, and they already flow into `sources.ts`'s
+          boon/condition totals through the same path every other profession's mechanic bar uses —
+          confirmed by reading `ProfessionMechanicBar.tsx`/`sources.ts` directly, no test script
+          needed since the resolution is a straightforward single-candidate case, not a heuristic
+          worth re-verifying standalone. The `Build.rangerUnleashed` toggle UI this bullet listed as
+          still-needed (part (c) above) already exists too — landed in the weapon-selection session
+          (`WeaponSkillBar.tsx`'s legend-toggle-style buttons) — this bullet just hadn't been updated
+          to reflect it. **No code changes needed**; updated `docs/game-data.md` (new "Untamed's
+          Unleash mechanic, resolved" section), `profession-mechanic.ts`'s stale exclusion comment,
+          and `Familiar`'s doc comment (dropped its now-wrong comparison to this "gap") so a future
+          session doesn't re-attempt the wiki-lookup script this bullet had queued up. `npm run
+          typecheck`/`lint`/`build` all clean (doc/comment-only changes, verified anyway).
         - [x] Druid's Glyph Utility skills each have 3 same-name duplicate ids with genuinely different
           effects (e.g. "Glyph of the Tides": "Pulls enemies toward you" / "Draw...in or knock them
           away" / "Push nearby enemies away") and no API field (`attunement`/`specializationId`/
@@ -1089,6 +1094,45 @@
           `flip_skill`-or-equivalent link live, resolve real ids, decide whether existing
           chain-tooltip code already covers it or needs a small extension) — no longer blocked on
           a screenshot.
+          - [x] **Implemented 2026-07-31.** Live-verified the `flip_skill`-or-equivalent link
+            directly against `data/game-data/{skills,legends}.json`: every one of Legend7's ("Legendary
+            Alliance") heal/utility/elite ids does carry a real `flipSkill` pointing at its opposite-
+            aspect counterpart, exactly matching the confirmed pairs table above — Selfish Spirit
+            (62719, heal) -> Selfless Spirit (62680); Nomad's Advance (62832, utility) -> Battle Dance
+            (62702); Scavenger Burst (62962, utility — the Legend's own data already picks this one of
+            2 same-name candidate ids, resolving the ambiguity noted above for free, no wiki
+            cross-check needed) -> Tree Song (62941); Reaver's Rage (62878, utility) -> Awakening
+            (62796); Spear of Archemorus (62942, elite) -> Urn of Saint Viktor (62687) -> Drop Urn of
+            Saint Viktor (62738), a 2-deep chain matching the predicted toggle-nested-in-aspect-pair
+            shape exactly. **Tooltip display needed no code change**: `RevenantSkillsEditor` already
+            renders every skill via `skillTooltipContent`, which already calls `relatedVariantSkills`
+            (`multi-effect.ts`) to walk `flipSkill` chains generically for its "additional effect"
+            sub-blocks — the aspect-pair's alternate skill (and, for Elite, the 2nd-level toggle too)
+            already shows up in the tooltip today with zero changes, confirming the item's own
+            "may not need a new legend form concept" lean was correct. **Real gap found and fixed**:
+            `sources.ts`'s `skillIdsForBuild` only ever fed the boon/condition calculator each
+            legend's base `heal`/`utilities`/`elite`/`swap` ids — never their `flipSkill` targets —
+            so every Saint-Viktor-aspect boon grant (Resistance/Regeneration/Protection/Stability, all
+            real, confirmed via each id's own `Fact` data) was silently undercounted for any
+            Legendary-Alliance build, and (a broader finding, not limited to this one legend) so was
+            every *other* legend's own channel-release effect (e.g. Herald's "Facet of Chaos" ->
+            "Chaotic Release" granting Superspeed; live-checked, this pattern exists across nearly
+            every legend, not just Vindicator's). Fixed generically, not special-cased to one legend:
+            new `withFlipChain` helper in `sources.ts` walks each legend skill id's `flipSkill` chain
+            before folding it into the boon-calc id list — same "every equipped alternate always
+            contributes, regardless of which is currently shown/toggled" convention already used for
+            weapon-swap sets/both Ranger pets/Soulbeast Beastmode/Untamed's Unleashed autoattack.
+            Verified via a standalone script (not committed): built a Vindicator test build with
+            Legend7 equipped, confirmed all 5 previously-missing Saint-Viktor-side sources
+            (Selfless Spirit/Battle Dance/Tree Song/Awakening/Drop Urn of Saint Viktor) now appear
+            with their real boon/condition grants (e.g. Battle Dance -> Resistance 3s + Regeneration
+            5s), while the 2 that correctly stay absent do so for a legitimate reason (Selfless Spirit
+            has zero `Buff`-type facts — pure numeric healing, nothing for the boon calculator to
+            extract; "Urn of Saint Viktor" itself grants only a self-tracking, non-boon status effect
+            named after itself, correctly filtered by not matching any real boon/condition name).
+            `npm run typecheck`/`lint`/`build` all clean. Not visually confirmed in a running window
+            (standing Electron-sandbox limitation, see COMPLETED.md) — recommend `npm run dev`
+            locally to eyeball a Vindicator build's Legend7 tooltip showing both aspects per slot.
     - [x] **Mantras (and similar multi-charge skills) needing different tooltip text per charge
           state** — investigated and confirmed this is **already handled** by the same
           undocumented `6db4ef7` pass: `numericFactLines` already surfaces a skill's own ammo count

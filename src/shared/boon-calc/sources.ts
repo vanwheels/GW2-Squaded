@@ -178,16 +178,45 @@ function weaponSkillIdsForBuild(build: Build, professions: Profession[], skillsB
   return ids
 }
 
+/** Every id reachable from `startId` by following `Skill.flipSkill` (its own activated/toggled-off
+ *  alternate, e.g. a Revenant channel's release effect, or — for Legendary Alliance's aspect-paired
+ *  skills specifically — the other aspect's version of the same slot; see `skillIdsForBuild`'s doc
+ *  comment). Same walk as `relatedVariantSkills`'s tooltip-chain logic and `untamed-unleash.ts`'s
+ *  private `flipChainIds`, duplicated locally rather than shared since each caller's return shape
+ *  differs (a flat id list here vs. a `Set` there). */
+function withFlipChain(startId: number, skillsById: Map<number, Skill>): number[] {
+  const ids: number[] = []
+  const seen = new Set<number>()
+  let current: number | null = startId
+  while (current !== null && !seen.has(current)) {
+    seen.add(current)
+    ids.push(current)
+    current = skillsById.get(current)?.flipSkill ?? null
+  }
+  return ids
+}
+
 /**
  * Every skill id "equipped" by a build's skill selection — for a standard profession, the chosen
  * Heal/Utility/Elite skills; for Revenant, every skill (swap + heal + 3 utility + elite) belonging
  * to either of the 2 equipped legends, since a legend's kit is fixed rather than picked skill-by-
- * skill (see `RevenantSkillSelection`) — plus every weapon-derived skill id from the build's
- * currently-relevant weapon sets (see `weaponSkillIdsForBuild`), plus, for Ranger, both equipped
- * pets' own skill (`Build.equippedPetIds` — both always contribute, same "both always equipped"
- * reasoning as the Revenant legends and land weapon-swap sets above), plus, additionally for
- * Soulbeast, both equipped pets' Beastmode F1/F2/F3 triplet (`soulbeastBeastmodeBar` — same "both
- * always contribute regardless of which is currently active" reasoning, since Beastmode can be
+ * skill (see `RevenantSkillSelection`), PLUS each of those ids' own `flipSkill` chain (`withFlipChain`
+ * above) — most legends' channeled skills grant different facts on activation vs. their own
+ * release/off effect (e.g. Herald's "Facet of Chaos" -> "Chaotic Release" granting Superspeed;
+ * confirmed live 2026-07-31 across every legend, not just one), and Legendary Alliance Stance's own
+ * heal/3-utility/elite ids each flip to their opposite-aspect (Saint Viktor vs. Archemorus) version
+ * of the same slot — `/v2/legends` only exposes one aspect's id per slot, with the other aspect
+ * reachable exclusively via this same `flipSkill` link (confirmed live: e.g. heal id "Selfish
+ * Spirit" flips to "Selfless Spirit", elite "Spear of Archemorus" flips 2 deep through "Urn of Saint
+ * Viktor" -> "Drop Urn of Saint Viktor" — real boons/conditions on every one of these, not cosmetic).
+ * Same "every equipped alternate always contributes, regardless of which is currently
+ * shown/toggled" reasoning as every other toggle in this codebase (weapon swap sets, Ranger's both
+ * pets, Soulbeast Beastmode, Untamed's Unleashed autoattack) — plus every weapon-derived skill id
+ * from the build's currently-relevant weapon sets (see `weaponSkillIdsForBuild`), plus, for Ranger,
+ * both equipped pets' own skill (`Build.equippedPetIds` — both always contribute, same "both always
+ * equipped" reasoning as the Revenant legends and land weapon-swap sets above), plus, additionally
+ * for Soulbeast, both equipped pets' Beastmode F1/F2/F3 triplet (`soulbeastBeastmodeBar` — same
+ * "both always contribute regardless of which is currently active" reasoning, since Beastmode can be
  * toggled to either merged pet at will mid-fight).
  */
 function skillIdsForBuild(
@@ -205,6 +234,7 @@ function skillIdsForBuild(
           .map((id) => legends.find((l) => l.id === id))
           .filter((l): l is Legend => l !== undefined)
           .flatMap((l) => [l.swap, l.heal, l.elite, ...l.utilities])
+          .flatMap((id) => withFlipChain(id, skillsById))
       : [build.skills.heal, ...build.skills.utility, build.skills.elite].filter((id): id is number => id !== null)
 
   const equippedPetIds = build.profession === 'Ranger' ? build.equippedPetIds.filter((id): id is number => id !== null) : []

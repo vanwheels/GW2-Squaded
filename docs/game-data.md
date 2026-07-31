@@ -179,7 +179,9 @@ wiki's `Evoker`/`Familiar` pages, the active skill needs 6 accumulated charges (
 1, same-element weapon skills grant 2, Rejuvenate also contributes) and unlocks an "empowered"
 version after 3 casts — a real-time state machine this app's static per-build loadout model has no
 equivalent for, and there's no API endpoint to source per-familiar skill ids from even if it were
-modeled. Same scope boundary as Ranger Untamed's still-unmodeled pet-family Unleash-Pet skill set.
+modeled. (An earlier note here compared this to Ranger Untamed's Unleash-Pet skill set as a similar
+open gap — that comparison was wrong, see "Ranger" below: Unleash-Pet turned out to be a fixed,
+non-family-varying set with no real-time charge mechanic, already fully resolved.)
 
 Stored on `Build` directly (`familiarId: string | null`, Elementalist Evoker-only — meaningless,
 always `null`, elsewhere), reset on a profession change away from Elementalist or on dropping the
@@ -623,10 +625,17 @@ per the findings below:
   Potential", 5 ids named per Assassin/Monk/Dervish/Mesmer/Warrior "affinity") is excluded — depends
   on a player-chosen "Vestige" build axis not modeled anywhere in this app; Conduit's F2 falls back
   to the core "Ancient Echo" id instead (unverified whether that's actually correct in-game).
-- **Legendary Alliance Stance** (Vindicator's own legend, `Legend7`) is reported to have 2 visually-
-  distinct sub-forms (Saint Viktor's/Archemorus's aspects) that change its heal/utility/elite kit —
-  `/v2/legends` exposes only one fixed set for it, no form axis; not yet investigated further, see
-  TODO.md.
+- **Legendary Alliance Stance** (Vindicator's own legend, `Legend7`) has 2 visually-distinct
+  sub-forms (Saint Viktor's/Archemorus's aspects) per heal/utility/elite slot. **Resolved
+  2026-07-31**: `/v2/legends` exposes only the Archemorus-aspect id per slot, but each one's own
+  `Skill.flipSkill` points straight at the Saint-Viktor-aspect id for the same slot (Elite chains 2
+  deep: "Spear of Archemorus" -> "Urn of Saint Viktor" -> "Drop Urn of Saint Viktor") — no separate
+  "legend form" concept needed. `RevenantSkillsEditor`'s existing tooltip already surfaces the
+  flip-chain target via `relatedVariantSkills` for free; the real gap was `sources.ts`'s boon-calc
+  input, which only fed the base ids — fixed via a new `withFlipChain` helper folding each legend
+  skill's full flip chain in, which also fixes the same undercounting for every *other* legend's own
+  channel-release effect (e.g. Herald's Facet of Chaos -> Chaotic Release), not just this one legend.
+  See TODO.md for the full writeup/verification.
 - **Engineer** — the base Toolbelt (F1-F4) isn't in `professionSkills` at all (confirmed: no base
   ids under those slots, only elite-spec sub-mechanics); it's generated per equipped Heal/Utility
   choice instead, via each `Skill.toolbeltSkill` field (`profession-mechanic.ts`'s
@@ -645,8 +654,12 @@ per the findings below:
   per-pet-*family* skill kit, correctly excluded) to skip the resolver for Ranger entirely, without
   checking `Profession_3`-`_5`. Those hold real per-spec F-buttons: Druid's "Celestial Avatar" F5
   toggle (clean flip-chain to "Release Celestial Avatar") and Untamed's "Venomous Outburst"/
-  "Rending Vines"/"Enveloping Haze" (F1-F3). Untamed's F5 ("Unleash Ranger"/"Unleash Pet") is a real
-  mode-toggle pair, not a single pick — excluded, needs dedicated toggle UI later. Soulbeast's own
+  "Rending Vines"/"Enveloping Haze" (F1-F3, unconditionally shown/counted whenever Untamed is
+  equipped — see "Untamed's Unleash mechanic, resolved" below, this is intentional). Untamed's F5
+  ("Unleash Ranger"/"Unleash Pet") is a single toggle skill (the 2 ids are each other's `flip_skill`
+  target) rather than 2 independent picks — both excluded here since the toggle is instead surfaced
+  as `Build.rangerUnleashed`, a `WeaponSkillBar.tsx` display toggle (landed in the weapon-selection
+  session), not as a mechanic-bar button. Soulbeast's own
   `Profession_1`-`_4` (F1/F2 per merged pet *family*, F3 per pet *archetype*, F4 "Eternal Bond" a
   contextual alternate) stay excluded from this generic per-spec resolver — none of them is a single
   fixed id, so `EXCLUDED_MECHANIC_SKILL_IDS`/`RANGER_BEASTMODE_EXCLUDED_SLOTS` still drop all 4 here
@@ -662,6 +675,41 @@ per the findings below:
 `EXCLUDED_MECHANIC_SKILL_IDS` in `profession-mechanic.ts` holds every hand-verified pin/exclusion
 above, each with its own reasoning comment — same pattern as `LEGEND_SPECIALIZATION_ID` in
 `fetch-game-data.ts`: a small, documented constant table for a real API gap rather than a guess.
+
+**Untamed's Unleash mechanic, resolved (2026-07-31)**: TODO.md had left this open pending a
+per-pet-family wiki lookup, on the assumption (from a user screenshot showing 3 animal-themed icons
+beside the pet portrait, described as "Bear/Ursine family only") that "Unleash Pet" grants the pet a
+3-skill set that varies by pet family — same shape of gap as Soulbeast's Beastmode. Live-checked the
+`Unleash_Ranger`/`Unleash_Pet` wiki pages directly (raw wikitext, both are `{{Skill infobox}}` pages
+with `chain1=`/`chain2=` linking them to each other, i.e. one toggle skill with 2 states, not 2
+independent picks) — this overturns that premise entirely:
+- **No family variance exists.** "Unleash Pet" (id 63344)'s own Notes state plainly: "Replaces your
+  pet skills with Venomous Outburst, Rending Vines, and Enveloping Haze" — a fixed 3-skill set, the
+  same regardless of which pet/family is active. The screenshot's "Bear/Ursine-only" icons were
+  almost certainly the pet's own *default* (non-Unleashed) family-based kit instead — a pre-existing,
+  Untamed-unrelated GW2 mechanic documented on the wiki's general `Pet` page ("these 3 skills the pet
+  uses to attack are determined and shared by their family," e.g. all bears share Slash (bear)/Bite
+  (bear)/Defy Pain) — not a per-family "Unleash Pet" variant. This app doesn't model that per-pet
+  autoattack+2-skill kit at all (only `Pet.skillId`, the Beast/F2 skill), same as before this session
+  — no gap, since it's not part of the Unleash toggle either way.
+- **The toggle direction was backwards in an earlier session's note.** "Unleash Ranger" (id 63147)
+  is the one that empowers the Ranger's own weapon autoattack (already correctly implemented,
+  `untamed-unleash.ts`'s `unleashedWeaponOneId`, verified independently via each weapon's own
+  `specializationId === 72` alternate skill data) — not "Unleash Pet" as an earlier write-up guessed.
+- **Already fully implemented, no code gap.** `Venomous Outburst`/`Rending Vines`/`Enveloping Haze`
+  each carry `specializationId: 72` with no competing candidate in their `Profession_1`-`_3` slots
+  (confirmed by inspecting `professions.json` directly), so `professionMechanicBar`'s existing
+  generic per-spec resolver already surfaces exactly these 3 whenever Untamed is equipped — with no
+  Soulbeast-style special-casing needed — and they already flow into `sources.ts`'s boon/condition
+  totals through the same `skillIdsForBuild`/`mechanicBarSkillIds` path every other profession's
+  mechanic bar uses. Since both effects (empowered autoattack + pet-skill swap) fire from the *same*
+  single toggle skill, unconditionally counting the pet-skill-replacement set (regardless of
+  `Build.rangerUnleashed`'s display state) is consistent with this app's established "both toggle
+  states always contribute" convention (`weaponSkillIdsForBuild`'s doc comment) — not a new
+  simplification invented for this case.
+No code changes were needed; this entry exists to correct the record (this doc, and the
+`EXCLUDED_MECHANIC_SKILL_IDS`/`Familiar` comments referencing the old, wrong assumption) so a future
+session doesn't re-attempt a wiki-lookup script for a per-family skill set that doesn't exist.
 
 Separately, and orthogonal to the above: **Firebrand's Tomes and Engineer's Kits replace the weapon
 skill bar (1-5) while active** — a real GW2 mechanic the user asked about directly, landed in a

@@ -265,8 +265,7 @@ export interface Pet {
  * there's no dedicated familiar-portrait endpoint). The familiar's own basic/empowered active
  * skill (accumulated via a 6-charge system Rejuvenate also contributes to) and its passive combat
  * bonus are a real-time state machine this app's static loadout model has no equivalent for (no
- * `/v2/familiars` API endpoint exists either) — deliberately not modeled, same boundary as e.g.
- * Untamed's Unleash-Pet family-varying skill set. See TODO.md.
+ * `/v2/familiars` API endpoint exists either) — deliberately not modeled. See TODO.md.
  */
 export interface Familiar {
   id: string
