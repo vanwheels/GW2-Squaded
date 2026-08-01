@@ -3,6 +3,89 @@ import type { Environment, ProfessionWeapon, ProfessionWeaponSkillSlot, Skill } 
 const LAND_ONLY_FLAG = 'NoUnderwater'
 
 /**
+ * Elementalist-only, live-API-verified 2026-08-01 while chasing the "Staff skill 4-5 stuck" bug
+ * (TODO.md): every Weapon_4/Weapon_5 candidate for every Elementalist weapon (Dagger, Focus,
+ * Hammer, Spear, Staff, Trident, Warhorn — every weapon type with off-hand or two-handed slots
+ * 4-5) comes back from `/v2/skills` with `attunement: null` and `specialization: 56` (Weaver),
+ * even for skills that need no elite spec at all (e.g. "Ride the Lightning", core off-hand Dagger
+ * since launch). Root cause of the bug: with `attunement` null, `resolveSkillBarIds`'s attunement
+ * filter matches nothing and silently no-ops, so resolution falls all the way through to the
+ * final `candidates[0]` fallback — always the same fixed skill regardless of the build's active
+ * attunement OR equipped specialization, which reads as "stuck" (worse than Weaver-specific: this
+ * hits every Elementalist form, Weaver equipped or not, once a Weapon_4/5-bearing weapon is
+ * equipped). Hand-patches the correct attunement per id (wiki/name-verified, e.g. Meteor
+ * Shower/Healing Rain/Static Field/Shock Wave are Staff's iconic Fire/Water/Air/Earth skill 5s) so
+ * the attunement filter narrows to exactly 1 before ever reaching the spec-match step — the
+ * `specialization: 56` mistag is never consulted once that happens, so it's left as-is rather than
+ * also overridden.
+ */
+const ELEMENTALIST_WEAPON_4_5_ATTUNEMENT: Record<number, string> = {
+  // Dagger (off-hand)
+  5691: 'Fire', // Ring of Fire
+  5520: 'Water', // Frost Aura
+  5529: 'Air', // Ride the Lightning
+  5690: 'Earth', // Earthquake
+  5557: 'Fire', // Fire Grab
+  5558: 'Water', // Cleansing Wave
+  5687: 'Air', // Updraft
+  5522: 'Earth', // Churning Earth
+  // Focus
+  5497: 'Fire', // Flamewall
+  5556: 'Water', // Freezing Gust
+  5530: 'Air', // Swirling Winds
+  5555: 'Earth', // Magnetic Wave
+  5678: 'Fire', // Fire Shield
+  5490: 'Water', // Comet
+  5562: 'Air', // Gale
+  5521: 'Earth', // Obsidian Flesh
+  // Hammer (Catalyst)
+  62807: 'Fire', // Triple Sear
+  62948: 'Water', // Crashing Font
+  62947: 'Air', // Wind Storm
+  62992: 'Earth', // Immutable Stone
+  62910: 'Fire', // Molten End
+  62843: 'Water', // Cleansing Typhoon
+  62716: 'Air', // Shock Blast
+  62778: 'Earth', // Ground Pound
+  // Spear
+  72988: 'Fire', // Meteor
+  73148: 'Water', // Undertow
+  72998: 'Air', // Twister
+  73010: 'Earth', // Fissure
+  73054: 'Fire', // Etching: Volcano
+  72982: 'Water', // Etching: Jökulhlaup
+  72915: 'Air', // Etching: Derecho
+  72900: 'Earth', // Etching: Haboob
+  // Staff
+  5680: 'Fire', // Burning Retreat
+  5515: 'Water', // Frozen Ground
+  5682: 'Air', // Windborne Speed
+  5683: 'Earth', // Unsteady Ground
+  5501: 'Fire', // Meteor Shower
+  5551: 'Water', // Healing Rain
+  5671: 'Air', // Static Field
+  5686: 'Earth', // Shock Wave
+  // Trident
+  5599: 'Fire', // Lava Chains
+  5748: 'Water', // Undercurrent
+  5648: 'Air', // Air Bubble
+  5659: 'Earth', // Rock Anchor
+  5600: 'Fire', // Heat Wave
+  5607: 'Water', // Tidal Wave
+  5650: 'Air', // Lightning Cage
+  5661: 'Earth', // Murky Water
+  // Warhorn
+  29548: 'Fire', // Heat Sync
+  30864: 'Water', // Tidal Surge
+  30008: 'Air', // Cyclone
+  29453: 'Earth', // Sand Squall
+  29533: 'Fire', // Wildfire
+  30446: 'Water', // Water Globe
+  30795: 'Air', // Lightning Orb
+  30336: 'Earth' // Dust Storm
+}
+
+/**
  * Thief-only, wiki-verified 2026-07-31 (no API field distinguishes these — every candidate is
  * tagged `categories: ["DualWield"]` with no other differentiator): the off-hand weapon type each
  * "Dual Wield" Weapon_3 skill actually requires, or `null` for the weapon's off-hand-agnostic
@@ -52,14 +135,20 @@ const THIEF_DUAL_WIELD_OFFHAND: Record<number, string | null> = {
  *    default entry if no specific match applies.
  * 5. **`attunement` filtering** (Elementalist only, `attunement` param): applied first, before any
  *    of the above — narrows straight to the candidates tagged for the build's currently-displayed
- *    attunement (every Elementalist weapon-skill candidate carries a non-null `attunement`, unlike
- *    every other profession's, which are all `null`). This alone resolves every non-Weaver-gated
- *    slot to exactly 1. For Weaver's per-slot "Dual Attack" replacements specifically: multiple
- *    Weaver-gated ids can still share one attunement (Weaver's dual-attunement system picks between
- *    them by which *second* attunement is also active, a combat-state axis this app's static
- *    loadout model has no equivalent for — same shape of gap as the Familiar/Legend items before
- *    they got their own modeling pass) — falls through to the deterministic first-candidate
- *    fallback below for that specific case, a documented known limitation, not a silent guess.
+ *    attunement. Every Elementalist weapon-skill candidate carries a non-null `attunement` from the
+ *    API *except* every weapon's Weapon_4/Weapon_5 candidates, which come back `attunement: null`
+ *    live (see `ELEMENTALIST_WEAPON_4_5_ATTUNEMENT` above for the hand-verified per-id patch this
+ *    step also consults) — without that patch this signal silently no-ops for slots 4-5 on every
+ *    weapon, not just Weaver's, and resolution falls all the way to the `candidates[0]` fallback
+ *    below, always the same fixed skill regardless of attunement (the original shape of the "Staff
+ *    skill 4-5 stuck" bug in TODO.md). With the patch, this alone resolves every non-Weaver-gated
+ *    slot to exactly 1. For Weaver's per-slot "Dual Attack" replacements specifically (Weapon_3
+ *    only): multiple Weaver-gated ids can still share one attunement (Weaver's dual-attunement
+ *    system picks between them by which *second* attunement is also active, a combat-state axis
+ *    this app's static loadout model has no equivalent for — same shape of gap as the
+ *    Familiar/Legend items before they got their own modeling pass) — falls through to the
+ *    deterministic first-candidate fallback below for that specific case, a documented known
+ *    limitation, not a silent guess.
  *
  * Remaining ambiguity (only Slick Shoes/Rocket Boots' old-vs-reworked land pair, per TODO.md, plus
  * Weaver's dual-attack sub-choice above) falls back to the first matching entry — a documented
@@ -79,7 +168,9 @@ export function resolveSkillBarIds(
     if (candidates.length === 0) return null
 
     if (attunement) {
-      const attuned = candidates.filter((c) => skillsById.get(c.id)?.attunement === attunement)
+      const attuned = candidates.filter(
+        (c) => (skillsById.get(c.id)?.attunement ?? ELEMENTALIST_WEAPON_4_5_ATTUNEMENT[c.id]) === attunement
+      )
       if (attuned.length > 0) candidates = attuned
     }
     if (candidates.length === 1) return candidates[0].id

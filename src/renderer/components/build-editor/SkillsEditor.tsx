@@ -5,13 +5,11 @@ import { numericFactLines } from '@shared/skill-calc/fact-numbers'
 import { relatedVariantSkills } from '@shared/skill-calc/multi-effect'
 import { formatBoonDuration } from '@shared/boon-calc/format'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
-import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { WeaponSkillBar } from './WeaponSkillBar'
 import { ProfessionMechanicBar } from './ProfessionMechanicBar'
 import { PetsEditor } from './PetsEditor'
-import { EvokerFamiliarSelect } from './EvokerFamiliarSelect'
 import { SkillBarIcon } from './SkillBarIcon'
 
 interface Props {
@@ -53,9 +51,6 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
     <div className="skills-editor-root">
       {build.profession === 'Ranger' && (
         <PetsEditor build={build} onBuildChange={onBuildChange} equippedSpecializationIds={equippedSpecializationIds} />
-      )}
-      {build.profession === 'Elementalist' && equippedSpecializationIds.has(EVOKER_SPECIALIZATION_ID) && (
-        <EvokerFamiliarSelect value={build.familiarId} onChange={(familiarId) => onBuildChange({ familiarId })} />
       )}
       <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} section="extras" />
       <div className="ingame-skill-bar">

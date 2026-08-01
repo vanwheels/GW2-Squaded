@@ -2,6 +2,49 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 39 — Elementalist skill-bar feedback pass (attunement toggle, Tempest/Catalyst/Evoker F-bar, Staff bug)
+
+Worked through the full Elementalist section of the 2026-07-31 skill-bar feedback pass.
+
+- **Root-caused the "Staff skill 4-5 stuck" bug** (`weapon-calc/weapon-skills.ts`) — turned out to
+  be much broader than Staff or Weaver: every Elementalist weapon's `Weapon_4`/`Weapon_5`
+  candidates (Dagger, Focus, Hammer, Spear, Staff, Trident, Warhorn — confirmed live against
+  `/v2/skills`) come back with `attunement: null` and a mistagged `specialization: 56` (Weaver),
+  even for core skills needing no elite spec at all (e.g. "Ride the Lightning"). With `attunement`
+  null, `resolveSkillBarIds`'s attunement-filter signal silently no-ops for these slots and
+  resolution falls all the way to the deterministic `candidates[0]` fallback — the same fixed skill
+  regardless of active attunement or equipped spec, on every Elementalist form, not just Weaver.
+  Fixed with a hand-verified `ELEMENTALIST_WEAPON_4_5_ATTUNEMENT` id→attunement override table (56
+  ids, name-verified — e.g. Staff's iconic Meteor Shower/Healing Rain/Static Field/Shock Wave are
+  its Fire/Water/Air/Earth skill 5s) consulted by the attunement filter before it gives up; the
+  `specialization: 56` mistag is never reached once attunement alone narrows to 1, so left as-is.
+- **Attunement toggle restyled as an F-icon click-toggle** (`WeaponSkillBar.tsx`'s "extras" row):
+  replaced the Fire/Water/Air/Earth text-button row with `skill-slot-button` icon buttons using the
+  real Attunement skill icons (5492-5495), same visual/interaction pattern as Tomes/Shroud/Celestial
+  Avatar. Kept in its own location in `WeaponSkillBar` rather than merged into
+  `ProfessionMechanicBar` — that bar's F1-F4 read-only Attunement icons (which already exist there,
+  informational/non-interactive, mirroring the real HUD) are unchanged and coexist alongside this
+  interactive toggle.
+- **Tempest's F1-F4 now show Overload icons**: each base Attunement id's own `flipSkill` field
+  already points at the matching "Overload Fire/Water/Air/Earth" id, so `professionMechanicBar`
+  swaps in the flip target whenever Tempest (spec 48, `TEMPEST_SPEC_ID`) is equipped — no new data
+  needed.
+- **Catalyst's F5 "Deploy Jade Sphere" now reflects the active attunement**: the raw slot has ~24
+  candidates (an old 3-per-attunement set with a `GroundTargeted`/`NoUnderwater` flag split, plus a
+  newer 2-per-attunement set of fully-identical duplicate ids). Resolved via new
+  `catalystJadeSphereBar`, filtering to the `GroundTargeted`+`NoUnderwater` (land) variant tagged
+  for `Build.activeAttunement`, then the highest remaining id as a best-effort "most recent" pick —
+  no hardcoded id table needed. Catalyst's own ids are excluded from the generic per-slot resolver
+  whenever Catalyst is equipped so nothing arbitrary leaks through first.
+- **Evoker's F5 is now the familiar-swap control itself**: removed the standalone
+  `EvokerFamiliarSelect` picker row entirely; clicking the F5 icon in `ProfessionMechanicBar` now
+  cycles `Build.familiarId` through `gameData.familiars` in order, and the icon shows that
+  familiar's actual F5 skill (new `evokerFamiliarBar`, keyed by the familiar's `element` field
+  against a small 4-entry map — Fox→Conflagration, Otter→Buoyant Deluge, Hare→Lightning Blitz,
+  Toad→Seismic Impact). Found and excluded one orphaned duplicate id along the way ("Ignite",
+  76643 — blank description, no-flip, same slot/spec as the real Fire pick). `Build.familiarId`
+  itself is unchanged, still also driving which Heal-skill "Rejuvenate" icon variant is bound.
+
 ## Session 38 — Fix Revenant Conduit's Release Potential (F2) legend-dependence
 
 Fixed the TODO.md item filed as "Conduit's F1 ... always shows the base core-Revenant profession

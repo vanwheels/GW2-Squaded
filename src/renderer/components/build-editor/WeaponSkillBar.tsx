@@ -29,6 +29,11 @@ interface Props {
 
 const ATTUNEMENTS = ['Fire', 'Water', 'Air', 'Earth'] as const
 
+/** Base Attunement skill ids (Fire/Water/Air/Earth), used purely for their icons in the editor's
+ *  own attunement-toggle row below — see that row's doc comment for why it can't literally reuse
+ *  `ProfessionMechanicBar`'s read-only F1-F4 rendering of these same 4 ids. */
+const ATTUNEMENT_SKILL_IDS: Record<(typeof ATTUNEMENTS)[number], number> = { Fire: 5492, Water: 5493, Air: 5494, Earth: 5495 }
+
 /**
  * The weapon-derived half of the skill bar: an ENVIRONMENT toggle (land/underwater) and, within
  * that, a toggle for which weapon-swap set is currently displayed (both sets always contribute
@@ -174,17 +179,25 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
     return (
       <div className="ingame-skill-bar-extras">
         {isElementalist && (
-          <div className="legend-bar-toggle">
-            {ATTUNEMENTS.map((attunement) => (
-              <button
-                key={attunement}
-                type="button"
-                className={build.activeAttunement === attunement ? 'legend-toggle-button active' : 'legend-toggle-button'}
-                onClick={() => onBuildChange({ activeAttunement: attunement })}
-              >
-                {attunement}
-              </button>
-            ))}
+          <div className="skill-bar">
+            {ATTUNEMENTS.map((attunement) => {
+              const skill = skillsById.get(ATTUNEMENT_SKILL_IDS[attunement])
+              const isActive = build.activeAttunement === attunement
+              return (
+                <Tooltip
+                  key={attunement}
+                  content={skill ? (skillTooltipFor(skill.id) ?? <TooltipBody title={attunement} />) : <TooltipBody title={attunement} />}
+                >
+                  <button
+                    type="button"
+                    className={isActive ? 'skill-slot-button active' : 'skill-slot-button'}
+                    onClick={() => onBuildChange({ activeAttunement: attunement })}
+                  >
+                    {skill ? <img src={skill.icon} alt={skill.name} /> : <span className="skill-slot-placeholder">{attunement}</span>}
+                  </button>
+                </Tooltip>
+              )
+            })}
           </div>
         )}
 

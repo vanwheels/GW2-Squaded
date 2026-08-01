@@ -77,22 +77,8 @@ it alongside.
       new bundle "kind" needed.
 
 ### Elementalist
-- [ ] Attunement toggle (`WeaponSkillBar.tsx`'s "extras" Fire/Water/Air/Earth buttons) should follow
-      the same F-icon click-toggle pattern as everything else, replacing the separate button row —
-      though Attunement has no F-bar icon of its own the way Tomes/Dragon Trigger/Celestial Avatar do
-      (it's not a `Profession_1`-`5` mechanic skill), so this needs its own UI location rather than
-      literally reusing `ProfessionMechanicBar`.
-- [ ] Tempest's F-bar Attunement icons should show the Overload icons, not the base Attunement icons.
-- [ ] Catalyst's Jade Sphere icon should change depending on current Attunement (same idea as
-      Tempest's Overload icons).
 - [ ] Weaver's weapon-skill-3 "Dual Attack" ambiguity — already tracked in "Skill picker follow-ups"
       above and in `weapon-calc/weapon-skills.ts`; flagged again here as still open, no new action.
-- [ ] Evoker: replace the separate Familiar buttons with making the F5 skill button itself the
-      familiar-swap control (click F5 to change selected familiar), and have the F5 icon update to
-      reflect the currently-selected familiar instead of a fixed icon.
-- [ ] Bug: equipping Staff and then selecting Weaver gets weapon skills 4-5 stuck — they stay showing
-      Weaver's dual-attack skills even after switching away to a different specialization. Needs
-      reproduction + root-cause in `weapon-calc/weapon-skills.ts`'s Weaver-specific resolution.
 
 ### Mesmer
 - [ ] Troubadour's "Tales" skills and Mirage's "Mirror" skills fall into the generic "Other" category

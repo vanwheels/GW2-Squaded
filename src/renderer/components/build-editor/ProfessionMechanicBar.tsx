@@ -1,14 +1,18 @@
 import type { Build } from '@shared/types'
 import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
 import {
+  CATALYST_SPEC_ID,
+  catalystJadeSphereBar,
   CONDUIT_SPEC_ID,
   conduitReleasePotentialBar,
   engineerToolbeltBar,
+  evokerFamiliarBar,
   professionMechanicBar,
   RANGER_BEASTMODE_SPEC_ID,
   soulbeastBeastmodeBar,
   type ProfessionMechanicBarEntry
 } from '@shared/skill-calc/profession-mechanic'
+import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar'
 import { isMechanicBarBundleId } from '@shared/skill-calc/bundle-skills'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor'
@@ -16,7 +20,7 @@ import { skillTooltipContent, useDurationContext, type SkillVariantContext } fro
 interface Props {
   build: Build
   equippedSpecializationIds: ReadonlySet<number>
-  onBuildChange: (patch: Partial<Pick<Build, 'activeBundleSkillId'>>) => void
+  onBuildChange: (patch: Partial<Pick<Build, 'activeBundleSkillId' | 'familiarId'>>) => void
 }
 
 /**
@@ -42,12 +46,30 @@ interface Props {
  * (Engineer Kits still use that row, see `WeaponSkillBar`'s `toggleRowIds`). Scoped via
  * `isMechanicBarBundleId` rather than a per-profession check since that's already the exact, only
  * set of ids this applies to.
+ *
+ * Elementalist Catalyst's F5 "Deploy Jade Sphere" (`catalystJadeSphereBar`) and Tempest's F1-F4
+ * Overload icons (handled inside `professionMechanicBar` itself) are read-only like the general
+ * case, just with a different icon than the generic per-spec resolver would pick — see
+ * `profession-mechanic.ts`'s doc comments on `CATALYST_SPEC_ID`/`TEMPEST_SPEC_ID`. Evoker's F5
+ * "Familiar" (`evokerFamiliarBar`) is a third clickable case, alongside Tomes/Shroud/Celestial
+ * Avatar/Gunsaber above but with its own click behavior (`cycleFamiliar` below) rather than
+ * `activeBundleSkillId`: since there are 4 familiars and only one F5 button to click (unlike
+ * Firebrand's 3 separate, simultaneously-visible Tome icons), clicking cycles `Build.familiarId`
+ * to the next familiar in `gameData.familiars` order — replacing the standalone
+ * `EvokerFamiliarSelect` picker row entirely (confirmed 2026-08-01; `Build.familiarId` itself is
+ * unchanged, still also feeding the Heal-skill icon variant, see that field's own doc comment).
  */
 export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuildChange }: Props) {
   const { gameData, activeIds, durationPercent } = useDurationContext(build)
-  const { professions, skillsById, tomeChapters } = gameData
+  const { professions, skillsById, tomeChapters, familiars } = gameData
   const profession = professions.find((p) => p.id === build.profession)
   const variantContext: SkillVariantContext = { skills: gameData.skills, skillsById, wvwFactOverrides: gameData.wvwFactOverrides, durationPercent }
+
+  function cycleFamiliar(): void {
+    const currentIndex = familiars.findIndex((f) => f.id === build.familiarId)
+    const next = familiars[(currentIndex + 1) % familiars.length]
+    onBuildChange({ familiarId: next.id })
+  }
 
   function skillTooltipFor(skillId: number) {
     const skill = skillsById.get(skillId)
@@ -72,6 +94,13 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
   if (build.profession === 'Revenant' && equippedSpecializationIds.has(CONDUIT_SPEC_ID)) {
     entries = [...conduitReleasePotentialBar(build, skillsById), ...entries]
   }
+  if (build.profession === 'Elementalist' && equippedSpecializationIds.has(CATALYST_SPEC_ID)) {
+    entries = [...entries, ...catalystJadeSphereBar(build, profession, skillsById)]
+  }
+  const isEvoker = build.profession === 'Elementalist' && equippedSpecializationIds.has(EVOKER_SPECIALIZATION_ID)
+  if (isEvoker) {
+    entries = [...entries, ...evokerFamiliarBar(build, skillsById, familiars)]
+  }
 
   if (entries.length === 0) return null
 
@@ -79,14 +108,20 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
     <div className="skill-bar profession-mechanic-bar ingame-skill-bar-mechanic">
       {entries.map((entry) => {
         const isBundle = isMechanicBarBundleId(entry.skill.id, tomeChapters)
+        const isFamiliarSlot = isEvoker && entry.slot === 'Profession_5'
         const isActive = isBundle && build.activeBundleSkillId === entry.skill.id
+        const onClick = isBundle
+          ? () => onBuildChange({ activeBundleSkillId: isActive ? null : entry.skill.id })
+          : isFamiliarSlot
+            ? cycleFamiliar
+            : undefined
         return (
           <Tooltip key={entry.slot} content={skillTooltipFor(entry.skill.id) ?? <TooltipBody title="Unknown skill" />}>
             <button
               type="button"
               className={isActive ? 'skill-slot-button active' : 'skill-slot-button'}
-              disabled={!isBundle}
-              onClick={isBundle ? () => onBuildChange({ activeBundleSkillId: isActive ? null : entry.skill.id }) : undefined}
+              disabled={!onClick}
+              onClick={onClick}
             >
               <img src={entry.skill.icon} alt={entry.skill.name} />
             </button>

@@ -150,8 +150,10 @@ export interface Build {
   rangerUnleashed: boolean
   /**
    * Elementalist Evoker only (meaningless, always `null`, for every other build): the chosen
-   * familiar (`Familiar.id` in game-data.ts — Fox/Otter/Hare/Toad), which determines only which of
-   * the Heal skill "Rejuvenate"'s 4 identical-effect ids is bound (icon changes to match). The
+   * familiar (`Familiar.id` in game-data.ts — Fox/Otter/Hare/Toad), set by clicking the F5
+   * "Familiar" icon in `ProfessionMechanicBar` (cycles through `gameData.familiars` in order).
+   * Determines which of the Heal skill "Rejuvenate"'s 4 identical-effect ids is bound (icon changes
+   * to match) and which F5 skill icon is shown (`evokerFamiliarBar` in profession-mechanic.ts). The
    * familiar's own active/passive combat effects aren't modeled — see `Familiar`'s doc comment.
    */
   familiarId: string | null

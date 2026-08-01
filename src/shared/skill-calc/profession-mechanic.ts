@@ -1,4 +1,5 @@
-import type { Build, Profession, ProfessionId, Skill, SoulbeastBeastmodeMap } from '../types'
+import type { Build, Familiar, Profession, ProfessionId, Skill, SoulbeastBeastmodeMap } from '../types'
+import { EVOKER_SPECIALIZATION_ID } from './familiar'
 
 export interface ProfessionMechanicBarEntry {
   slot: string
@@ -78,7 +79,14 @@ const EXCLUDED_MECHANIC_SKILL_IDS = new Set<number>([
   // Outburst"/"Rending Vines"/"Enveloping Haze" — is NOT excluded and resolves normally through this
   // generic resolver whenever Untamed is equipped; see docs/game-data.md's "Untamed's Unleash
   // mechanic, resolved" section for the full writeup, including why it's unconditional.)
-  63147, 63344
+  63147, 63344,
+  // Elementalist Evoker (spec 80) Profession_5 "Familiar": "Ignite" (76643) is a same-slot,
+  // same-spec, no-flip, blank-description orphan sharing an icon file id adjacent to the real
+  // Fire familiar skill "Conflagration" (76585) — live-verified 2026-08-01 while wiring up
+  // `evokerFamiliarBar` below, same class of pre-rework leftover as the Warrior Spellbreaker ids
+  // above. Excluded so it never becomes `evokerFamiliarBar`'s Fire pick or leaks through the
+  // generic resolver.
+  76643
 ])
 
 /**
@@ -173,6 +181,62 @@ const NECRO_SHROUD_SPEC_OVERRIDE: Record<number, number> = {
   77238: 76 // Ritualist's Shroud -> Ritualist
 }
 
+/**
+ * Elementalist Tempest (specialization id 48): live-verified 2026-08-01 Tempest doesn't rework the
+ * F1-F4 Attunement-swap ids at all — it keeps the base 4 (5492-5495, same as every other
+ * Elementalist form) but changes their *effect* to an Overload while the button is held. Each base
+ * id's own `flipSkill` field already points at the matching "Overload Fire/Water/Air/Earth" id
+ * (5492 "Fire Attunement" -> 29706 "Overload Fire", etc.) — same field `resolveMechanicSlot` uses
+ * elsewhere to find flip-chain entry points, reused here as a plain lookup instead: once the
+ * generic per-slot resolver picks the base Attunement id, swap it for its flip target's skill
+ * whenever Tempest is equipped, for icon/tooltip purposes only.
+ */
+export const TEMPEST_SPEC_ID = 48
+
+/**
+ * Elementalist Catalyst (specialization id 67): live-verified 2026-08-01 Catalyst's Profession_5
+ * "Deploy Jade Sphere" isn't a single fixed id the way a normal per-spec F5 is — the API returns
+ * ~24 raw candidates for the slot, an older set of 3 ids per attunement (a clean
+ * `GroundTargeted`+`NoUnderwater`-flagged land version, a `GroundTargeted`-only version, and a
+ * flagless version, with no further tell to pick between them) plus a newer set of 2
+ * *completely* identical-looking ids per attunement (same icon, same flags, same everything but
+ * the id — same shape of orphaned-duplicate gap as Engineer Scrapper's Function Gyro above).
+ * Resolved instead by `catalystJadeSphereBar` below: filtered to the land, ground-targeted variant
+ * (the version this app's environment-agnostic F-bar should represent — `WeaponSkillBar`'s own
+ * Land/Underwater toggle already covers underwater separately) tagged for the build's
+ * currently-active attunement, then the highest remaining id as a best-effort "most recent" pick
+ * (same tie-break Function Gyro uses) — no hardcoded per-attunement id table needed, unlike
+ * Conduit's Release Potential, since `attunement` plus the flag pair narrow cleanly on their own.
+ * Excluded from the generic resolver's own per-slot logic whenever Catalyst is equipped (same
+ * reasoning as `CONDUIT_RELEASE_POTENTIAL_EXCLUDED_SLOTS`) so nothing arbitrary leaks through
+ * before `catalystJadeSphereBar`'s entry is appended in `ProfessionMechanicBar.tsx` (appended, not
+ * prepended like Conduit's F2 — F5 is the last slot, and prepending would visually place it before
+ * F1-F4).
+ */
+export const CATALYST_SPEC_ID = 67
+const CATALYST_JADE_SPHERE_EXCLUDED_SLOTS = new Set(['Profession_5'])
+
+/**
+ * Elementalist Evoker's Profession_5 "Familiar" (specialization id 80, `EVOKER_SPECIALIZATION_ID`
+ * from `familiar.ts`): live-verified 2026-08-01 against the 5 raw Profession_5 candidates tagged
+ * spec 80 — 4 differently-named, distinctly-described skills each naming one of the 4 familiars in
+ * their own description ("Summon the fox..."/"...the otter..."/"...the hare..."/"...the toad..."),
+ * plus "Ignite" (76643, excluded above, a blank-description orphan). Keyed here by the familiar's
+ * `element` field (already how `data/game-data/familiars.json` ties a familiar to an attunement)
+ * rather than by familiar id directly, so `evokerFamiliarBar` just needs the build's chosen
+ * familiar's `element` to look up the right skill — no separate per-familiar-id table. Excluded
+ * from the generic resolver's own per-slot logic whenever Evoker is equipped, same reasoning as
+ * Catalyst above (5 same-spec candidates would otherwise resolve arbitrarily via the lowest-id
+ * fallback, never actually reflecting the chosen familiar).
+ */
+const EVOKER_FAMILIAR_EXCLUDED_SLOTS = new Set(['Profession_5'])
+const EVOKER_FAMILIAR_SKILL_BY_ELEMENT: Record<string, number> = {
+  Fire: 76585, // Conflagration (fox)
+  Water: 76811, // Buoyant Deluge (otter)
+  Air: 77089, // Lightning Blitz (hare)
+  Earth: 76707 // Seismic Impact (toad)
+}
+
 /** Slots that exist in the raw data but aren't a real, build-determinable F-skill. Thief's F2 is
  *  the "stolen skill" — live-verified its candidates are tagged per enemy *profession*
  *  (`source: "Warrior"`, `"Guardian"`, ...), i.e. it depends on who you steal from in a live
@@ -254,6 +318,20 @@ export function professionMechanicBar(
     ) {
       continue
     }
+    if (
+      profession.id === 'Elementalist' &&
+      CATALYST_JADE_SPHERE_EXCLUDED_SLOTS.has(slot) &&
+      equippedSpecializationIds.has(CATALYST_SPEC_ID)
+    ) {
+      continue
+    }
+    if (
+      profession.id === 'Elementalist' &&
+      EVOKER_FAMILIAR_EXCLUDED_SLOTS.has(slot) &&
+      equippedSpecializationIds.has(EVOKER_SPECIALIZATION_ID)
+    ) {
+      continue
+    }
     if (!bySlot.has(slot)) {
       bySlot.set(slot, [])
       slotOrder.push(slot)
@@ -271,9 +349,13 @@ export function professionMechanicBar(
       // equipped (or if nothing is), unlike every other Profession_1 candidate here.
       candidates = candidates.filter((s) => s.weaponType === null || s.weaponType === 'None' || s.weaponType === mainHandWeaponType)
     }
-    const chosen = resolveMechanicSlot(candidates, equippedSpecializationIds)
+    let chosen = resolveMechanicSlot(candidates, equippedSpecializationIds)
     if (!chosen) continue
     if (chosen.specializationId !== null && !equippedSpecializationIds.has(chosen.specializationId)) continue
+    if (profession.id === 'Elementalist' && equippedSpecializationIds.has(TEMPEST_SPEC_ID) && chosen.flipSkill !== null) {
+      const overload = skillsById.get(chosen.flipSkill)
+      if (overload) chosen = overload
+    }
     out.push({ slot, skill: chosen })
   }
   return out
@@ -377,4 +459,45 @@ export function conduitReleasePotentialBar(build: Build, skillsById: Map<number,
   const skill = skillsById.get(skillId)
   if (!skill) return []
   return [{ slot: 'Profession_2', skill }]
+}
+
+/**
+ * Elementalist Catalyst's Deploy Jade Sphere (F5), per the build's currently-displayed attunement
+ * — see `CATALYST_SPEC_ID`'s doc comment above for why the candidate set needs the flag+attunement
+ * filter rather than a fixed id table. Reads `Profession.professionSkills` itself (unlike
+ * `soulbeastBeastmodeBar`/`conduitReleasePotentialBar`, which read a build-state field or a
+ * side-table) since there's no simpler signal than the raw candidate list to filter down.
+ */
+export function catalystJadeSphereBar(build: Build, profession: Profession, skillsById: Map<number, Skill>): ProfessionMechanicBarEntry[] {
+  const candidates = profession.professionSkills
+    .filter((r) => r.slot === 'Profession_5')
+    .map((r) => skillsById.get(r.id))
+    .filter(
+      (s): s is Skill =>
+        s !== undefined &&
+        s.specializationId === CATALYST_SPEC_ID &&
+        s.attunement === build.activeAttunement &&
+        s.flags.includes('GroundTargeted') &&
+        s.flags.includes('NoUnderwater')
+    )
+  if (candidates.length === 0) return []
+  const chosen = candidates.reduce((a, b) => (b.id > a.id ? b : a))
+  return [{ slot: 'Profession_5', skill: chosen }]
+}
+
+/**
+ * Elementalist Evoker's Familiar (F5), per the build's currently-chosen familiar
+ * (`Build.familiarId`) — see `EVOKER_FAMILIAR_SKILL_BY_ELEMENT`'s doc comment above. Returns empty
+ * (slot omitted entirely) when no familiar is chosen yet, same as every other bar here that reads
+ * an unset build-state field.
+ */
+export function evokerFamiliarBar(build: Build, skillsById: Map<number, Skill>, familiars: Familiar[]): ProfessionMechanicBarEntry[] {
+  if (build.familiarId === null) return []
+  const familiar = familiars.find((f) => f.id === build.familiarId)
+  if (!familiar) return []
+  const skillId = EVOKER_FAMILIAR_SKILL_BY_ELEMENT[familiar.element]
+  if (skillId === undefined) return []
+  const skill = skillsById.get(skillId)
+  if (!skill) return []
+  return [{ slot: 'Profession_5', skill }]
 }
