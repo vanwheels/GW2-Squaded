@@ -56,11 +56,17 @@ const EXCLUDED_MECHANIC_SKILL_IDS = new Set<number>([
   // (`RevenantSkillsEditor`), so showing them again as a redundant "F1" button would be confusing.
   // Re-verify against legends.json if a new Revenant elite spec/legend is ever added.
   28419, 28494, 28195, 28134, 28085, 46409, 62891, 76610,
-  // Revenant Conduit (spec 79) Profession_2 "Release Potential": 5 differently-named ids (one per
-  // Assassin/Monk/Dervish/Mesmer/Warrior "affinity") sharing one slot with no clean single pick —
-  // live-verified 2026-07-30 the correct one depends on a player-chosen "Vestige"/Affinity build
-  // axis this app doesn't model at all yet. Excluding drops Conduit's F2 entirely rather than
-  // guessing (picking one arbitrarily would be wrong for most players).
+  // Revenant Conduit (spec 79) Profession_2 "Release Potential": resolved 2026-07-31 by
+  // `conduitReleasePotentialBar` below instead of the generic per-spec resolver (see that
+  // function's doc comment) — the 5 named-variant ids actually reachable via
+  // `Profession.professionSkills` (confirmed live; a 6th same-named id, 77896 "Release Potential:
+  // Warrior" with no `GroundTargeted` flag, exists in `/v2/skills` but is NOT one of Revenant's
+  // `professionSkills` — same class of orphaned pre-rework leftover id as the Warrior Spellbreaker
+  // ids above, so 78895, the one the profession's own skill list actually references, is the real
+  // one) excluded here so the generic resolver never picks one arbitrarily.
+  // `CONDUIT_RELEASE_POTENTIAL_EXCLUDED_SLOTS` below additionally drops the slot's spec-less
+  // fallback ("Ancient Echo") whenever Conduit is equipped, so nothing from the generic resolver
+  // leaks through before `conduitReleasePotentialBar`'s entry is prepended in `ProfessionMechanicBar.tsx`.
   78845, 78501, 78661, 78615, 78895,
   // Ranger Untamed (spec 72) Profession_5 "Unleash Ranger"/"Unleash Pet": a single toggle skill (the
   // 2 ids are each other's `flip_skill` target), not 2 independent picks — showing only one (the
@@ -91,6 +97,44 @@ const EXCLUDED_MECHANIC_SKILL_IDS = new Set<number>([
  */
 export const RANGER_BEASTMODE_SPEC_ID = 55
 const RANGER_BEASTMODE_EXCLUDED_SLOTS = new Set(['Profession_1', 'Profession_2', 'Profession_3', 'Profession_4'])
+
+/**
+ * Revenant Conduit (specialization id 79): live-verified against the wiki 2026-07-31 — Conduit's
+ * Profession_2 "Release Potential" isn't a fixed per-spec pick like every other elite spec's F2
+ * (contra this file's earlier assumption, see `EXCLUDED_MECHANIC_SKILL_IDS`'s old comment). The
+ * wiki (wiki.guildwars2.com/wiki/Cosmic_Wisdom, /wiki/Release_Potential) confirms both Profession_2
+ * "Release Potential" and Profession_3 "Cosmic Wisdom" change effect based on which Legend is
+ * *currently active* (swappable mid-fight, unlike a normal per-spec F-button) — Razah himself
+ * channels 5 GW1-profession "forms" (Assassin/Monk/Mesmer/Warrior/Dervish), one per Legend. Cosmic
+ * Wisdom stays a single id regardless (its effect differs in-game but the API only exposes one
+ * skill id/icon for it, so the generic resolver already handles Profession_3 correctly unmodified);
+ * Release Potential has 5 differently-named ids with no spec-based way to pick between them, so
+ * this slot is dropped from the generic resolver's own per-spec logic (see
+ * `CONDUIT_RELEASE_POTENTIAL_EXCLUDED_SLOTS` below) and resolved instead by
+ * `conduitReleasePotentialBar`, keyed off `Build`'s actual active Legend.
+ *
+ * Since Conduit occupies the elite-spec trait line itself, only the 4 core Legends (Assassin/Dwarf
+ * /Demon/Centaur) or Razah's own Legendary Entity Stance can ever be equipped alongside it — Dragon
+ * /Renegade/Alliance each require a *different* elite spec's line — which maps 1:1 onto the wiki's
+ * 5 documented "forms" with none left over:
+ *   Legend2 (Legendary Assassin Stance)  -> Form of the Assassin -> "Release Potential: Assassin" (78845)
+ *   Legend3 (Legendary Dwarf Stance)     -> Form of the Warrior  -> "Release Potential: Warrior"  (78895)
+ *   Legend4 (Legendary Demon Stance)     -> Form of the Mesmer   -> "Release Potential: Mesmer"   (78615)
+ *   Legend6 (Legendary Centaur Stance)   -> Form of the Monk     -> "Release Potential: Monk"     (78501)
+ *   Legend8 (Legendary Entity Stance)    -> Form of the Dervish  -> "Release Potential: Dervish"  (78661)
+ * "Release Potential: Warrior" has a same-named orphaned id (77896, not in `professionSkills` at
+ * all — see `EXCLUDED_MECHANIC_SKILL_IDS`'s comment above) — 78895 is the real one; every other
+ * variant has exactly one raw id.
+ */
+export const CONDUIT_SPEC_ID = 79
+const CONDUIT_RELEASE_POTENTIAL_EXCLUDED_SLOTS = new Set(['Profession_2'])
+const CONDUIT_RELEASE_POTENTIAL_BY_LEGEND: Record<string, number> = {
+  Legend2: 78845,
+  Legend3: 78895,
+  Legend4: 78615,
+  Legend6: 78501,
+  Legend8: 78661
+}
 
 /**
  * Guardian Dragonhunter (specialization id 27): live-verified 2026-07-31 a real gap in the
@@ -203,6 +247,13 @@ export function professionMechanicBar(
     ) {
       continue
     }
+    if (
+      profession.id === 'Revenant' &&
+      CONDUIT_RELEASE_POTENTIAL_EXCLUDED_SLOTS.has(slot) &&
+      equippedSpecializationIds.has(CONDUIT_SPEC_ID)
+    ) {
+      continue
+    }
     if (!bySlot.has(slot)) {
       bySlot.set(slot, [])
       slotOrder.push(slot)
@@ -305,4 +356,25 @@ export function soulbeastBeastmodeBar(build: Build, skillsById: Map<number, Skil
   const f3 = skillsById.get(bar.f3SkillId)
   if (f3) out.push({ slot: 'Profession_3', skill: f3 })
   return out
+}
+
+/**
+ * Revenant Conduit's Release Potential (F2), per the currently-active equipped Legend — see
+ * `CONDUIT_RELEASE_POTENTIAL_BY_LEGEND` above for why this is a fixed 5-Legend mapping rather than
+ * something derivable from `Skill.specializationId`. Mirrors `soulbeastBeastmodeBar`'s "read the
+ * build's own active-index field, since the generic resolver has no way to know it" shape; also
+ * mirrors `RevenantSkillsEditor`'s own active-legend skill bar (`SkillsEditor.tsx`), which already
+ * reads `build.skills.legends[build.skills.activeLegendIndex]` the same way for Heal/Utility/Elite
+ * display — display-only, same as that bar (see `RevenantSkillSelection.activeLegendIndex`'s own
+ * doc comment for why this doesn't feed boon/condition totals).
+ */
+export function conduitReleasePotentialBar(build: Build, skillsById: Map<number, Skill>): ProfessionMechanicBarEntry[] {
+  if (build.skills.kind !== 'revenant') return []
+  const activeLegendId = build.skills.legends[build.skills.activeLegendIndex]
+  if (activeLegendId === null) return []
+  const skillId = CONDUIT_RELEASE_POTENTIAL_BY_LEGEND[activeLegendId]
+  if (skillId === undefined) return []
+  const skill = skillsById.get(skillId)
+  if (!skill) return []
+  return [{ slot: 'Profession_2', skill }]
 }

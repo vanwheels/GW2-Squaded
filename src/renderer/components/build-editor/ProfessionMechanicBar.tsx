@@ -1,6 +1,8 @@
 import type { Build } from '@shared/types'
 import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
 import {
+  CONDUIT_SPEC_ID,
+  conduitReleasePotentialBar,
   engineerToolbeltBar,
   professionMechanicBar,
   RANGER_BEASTMODE_SPEC_ID,
@@ -25,7 +27,10 @@ interface Props {
  * excluded per profession/elite spec (Revenant's Legend-swap-duplicate ids and Ranger's
  * pet-adjacent ids are filtered out there, not here — this component renders for every profession,
  * including Revenant/Ranger, since both have *other* real F-buttons beyond what their dedicated
- * `RevenantSkillsEditor`/`PetsEditor` pickers already show).
+ * `RevenantSkillsEditor`/`PetsEditor` pickers already show). Revenant Conduit's F2 "Release
+ * Potential" is prepended separately via `conduitReleasePotentialBar` — unlike every other entry
+ * here, its icon depends on the build's currently-*active* Legend (`activeLegendIndex`), which the
+ * generic per-spec resolver has no way to read; see that function's doc comment.
  *
  * Firebrand's Tome entries (F1-F3), Necromancer's Shroud entry (F1), Druid's Celestial Avatar
  * entry (F5), and Bladesworn's "Unsheathe Gunsaber" entry (F1) are the exception — clickable
@@ -63,6 +68,9 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
   }
   if (build.profession === 'Ranger' && equippedSpecializationIds.has(RANGER_BEASTMODE_SPEC_ID)) {
     entries = [...soulbeastBeastmodeBar(build, skillsById, gameData.soulbeastBeastmode), ...entries]
+  }
+  if (build.profession === 'Revenant' && equippedSpecializationIds.has(CONDUIT_SPEC_ID)) {
+    entries = [...conduitReleasePotentialBar(build, skillsById), ...entries]
   }
 
   if (entries.length === 0) return null

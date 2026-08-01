@@ -621,10 +621,28 @@ per the findings below:
   "True Nature" sub-effect ids also share the slot with no differentiator, but the existing
   lowest-id tiebreak happens to already prefer the correct entry-point id since they're all much
   newer), Renegade's "Heroic Command"/"Citadel Bombardment"/"Orders from Above" (F2/F3/F4), and
-  Vindicator's "Energy Meld" (F2, via the existing flip-chain tiebreak). Conduit's F2 ("Release
-  Potential", 5 ids named per Assassin/Monk/Dervish/Mesmer/Warrior "affinity") is excluded — depends
-  on a player-chosen "Vestige" build axis not modeled anywhere in this app; Conduit's F2 falls back
-  to the core "Ancient Echo" id instead (unverified whether that's actually correct in-game).
+  Vindicator's "Energy Meld" (F2, via the existing flip-chain tiebreak). **Corrected 2026-08-01**:
+  Conduit's F2 ("Release Potential", 5 ids named per Assassin/Monk/Dervish/Mesmer/Warrior) was
+  previously assumed to depend on a player-chosen "Vestige" build axis this app doesn't model, and
+  excluded outright — falling back to the core "Ancient Echo" id regardless of build, which live
+  testing found never changed no matter which Legend was active (filed in TODO.md as "Conduit's F1
+  ... always shows the base core-Revenant profession skill regardless of active Legend" — the
+  reporter's "F1" meant the first *visible* mechanic-bar icon, since `Profession_1`/the real F1 is
+  unconditionally hidden; the actual affected slot is `Profession_2`). The wiki
+  (wiki.guildwars2.com/wiki/Cosmic_Wisdom, /wiki/Release_Potential) confirms there's no "Vestige"
+  axis at all — Release Potential (and Profession_3's "Cosmic Wisdom", already correctly resolved
+  as a single id) both change based on which Legend is *currently active* (swappable mid-fight),
+  Razah channeling one of 5 GW1-profession "forms" per Legend. Since Conduit occupies the elite-spec
+  line itself, only the 4 core Legends + Razah's own Legendary Entity Stance can ever be equipped
+  alongside it — a clean 1:1 map onto the 5 forms, no ambiguity left over. Now resolved by
+  `conduitReleasePotentialBar` (`profession-mechanic.ts`), keyed off `Build`'s `activeLegendIndex`
+  the same way `RevenantSkillsEditor`'s own Heal/Utility/Elite bar already is — display-only, per
+  `RevenantSkillSelection.activeLegendIndex`'s doc comment, and doesn't feed boon/condition totals
+  (mechanic-bar skills never do; only bundle-capable ones like Tomes/Shroud do, via
+  `bundleContributionsForBuild`). One of the 5 named variants, "Release Potential: Warrior", has a
+  same-named orphaned id (77896) that exists in `/v2/skills` but isn't in Revenant's
+  `professionSkills` at all — same class of leftover id as the Warrior Spellbreaker Full Counter
+  duplicates above; 78895 (the one `professionSkills` actually references) is the real one.
 - **Legendary Alliance Stance** (Vindicator's own legend, `Legend7`) has 2 visually-distinct
   sub-forms (Saint Viktor's/Archemorus's aspects) per heal/utility/elite slot. **Resolved
   2026-07-31**: `/v2/legends` exposes only the Archemorus-aspect id per slot, but each one's own

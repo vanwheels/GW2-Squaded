@@ -107,14 +107,6 @@ it alongside.
       in the skill picker category grouping — should be associated with/grouped near Summon Flesh
       Wurm instead.
 
-### Revenant
-- [ ] Conduit's first profession skill (F1) is supposed to change depending on which Legend is
-      currently active, but right now it always shows the base core-Revenant profession skill
-      regardless of active Legend. Needs investigation in `profession-mechanic.ts`'s Revenant handling
-      (note: the existing Revenant `Profession_1` exclusion list in `EXCLUDED_MECHANIC_SKILL_IDS` — the
-      8 Legend swap-skill ids — may need a Conduit-specific carve-out, since this sounds like a
-      related-but-distinct slot).
-
 ## Nice-to-haves
 
 - [ ] "Favorites" pin for frequently-used builds in the squad editor's build sidebar; the

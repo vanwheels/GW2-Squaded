@@ -2,6 +2,37 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 38 — Fix Revenant Conduit's Release Potential (F2) legend-dependence
+
+Fixed the TODO.md item filed as "Conduit's F1 ... always shows the base core-Revenant profession
+skill regardless of active Legend." The literal `Profession_1` slot was already correctly hidden
+(it's just every Legend's own swap id, already surfaced by `RevenantSkillsEditor`) — the reporter's
+"F1" meant the first *visible* icon in the mechanic bar, which for Conduit was `Profession_2`
+("Release Potential"), previously excluded outright on the assumption it depended on a
+player-chosen "Vestige" build axis this app doesn't model, silently falling back to core Revenant's
+"Ancient Echo" — a single fixed id, hence "never changes regardless of active Legend."
+
+- WebFetch against wiki.guildwars2.com/wiki/Cosmic_Wisdom and /wiki/Release_Potential (Conduit is
+  post-cutoff content) confirmed there's no "Vestige" axis at all: Release Potential and Cosmic
+  Wisdom (`Profession_3`, already correctly resolved as a single id) both change based on which
+  Legend is *currently active*, Razah channeling one of 5 GW1-profession "forms"
+  (Assassin/Monk/Mesmer/Warrior/Dervish) per Legend. Since Conduit occupies the elite-spec line
+  itself, only the 4 core Legends + Razah's own Legendary Entity Stance can ever be equipped
+  alongside it — a clean 1:1 map onto the 5 forms (`Cosmic_Wisdom`'s own per-form text names each
+  Legend directly), no ambiguity left over.
+- Added `conduitReleasePotentialBar` (`profession-mechanic.ts`), keyed off `Build`'s
+  `activeLegendIndex` the same "display-only" way `RevenantSkillsEditor`'s own Heal/Utility/Elite
+  bar already reads it — doesn't feed boon/condition totals, since mechanic-bar skills never do
+  (only bundle-capable ones like Tomes/Shroud do). `Profession_2` is now unconditionally dropped
+  from the generic per-spec resolver whenever Conduit is equipped
+  (`CONDUIT_RELEASE_POTENTIAL_EXCLUDED_SLOTS`, same shape as Ranger Soulbeast's Beastmode slots) so
+  nothing leaks through before the dedicated bar's entry is prepended in `ProfessionMechanicBar.tsx`.
+- One data wrinkle caught along the way: "Release Potential: Warrior" has a same-named orphaned id
+  (77896) present in `/v2/skills` but never referenced by Revenant's `professionSkills` at all —
+  same class of leftover pre-rework id as the Warrior Spellbreaker Full Counter duplicates already
+  documented in this file; confirmed via a direct `professionSkills` membership check (not just a
+  flat `skills.json` scan) that 78895 is the real, currently-equippable one.
+
 ## Session 37 — Skill bar feedback pass: Warrior (Bladesworn Gunsaber/Dragon Trigger)
 
 Unblocked the Bladesworn item deferred in Session 35 with the user's help: they supplied real
