@@ -553,49 +553,54 @@ export function EquipmentEditor({
         {copyPasteSlot('Infusion', 'infusion', infusionOptions, applyInfusionToAll)}
       </div>
       <div className="gear-panels">
+        <div className="gear-panels-top">
+          <div className="gear-panel gear-panel-armor">
+            <h4 className="gear-panel-title">Armor</h4>
+            {ARMOR_SLOTS.map((s) => renderSlot(s.key, s.label))}
+          </div>
+          <div className="gear-panel gear-panel-accessories">
+            <h4 className="gear-panel-title">Accessories</h4>
+            {TRINKET_SLOTS.map((s) => renderSlot(s.key, s.label))}
+          </div>
+          <div className="gear-panel gear-panel-other">
+            <h4 className="gear-panel-title">Other</h4>
+            {renderOtherSlot('Relic', relicOptions, consumables.relicId, (id) => onConsumablesChange({ ...consumables, relicId: id }), 'fine')}
+            {renderOtherSlot('Food', foodOptions, consumables.foodId, (id) => onConsumablesChange({ ...consumables, foodId: id }))}
+            {renderOtherSlot('Utility', utilityOptions, consumables.utilityId, (id) => onConsumablesChange({ ...consumables, utilityId: id }))}
+          </div>
+        </div>
         <div className="gear-panel gear-panel-weapon">
-          <h4 className="gear-panel-title">Weapon</h4>
-          <div className="weapon-mode-toggle">
-            <button
-              type="button"
-              className={weaponMode === 'land' ? 'skill-bar-icon-button env-land active' : 'skill-bar-icon-button env-water active'}
-              title={weaponMode === 'land' ? 'Switch to Underwater' : 'Switch to Land'}
-              onClick={() => setWeaponMode(weaponMode === 'land' ? 'underwater' : 'land')}
-            >
-              <SkillBarIcon kind={weaponMode === 'land' ? 'land' : 'water'} />
-            </button>
+          <div className="gear-panel-weapon-header">
+            <h4 className="gear-panel-title">Weapon</h4>
+            <div className="weapon-mode-toggle">
+              <button
+                type="button"
+                className={weaponMode === 'land' ? 'skill-bar-icon-button env-land active' : 'skill-bar-icon-button env-water active'}
+                title={weaponMode === 'land' ? 'Switch to Underwater' : 'Switch to Land'}
+                onClick={() => setWeaponMode(weaponMode === 'land' ? 'underwater' : 'land')}
+              >
+                <SkillBarIcon kind={weaponMode === 'land' ? 'land' : 'water'} />
+              </button>
+            </div>
           </div>
           {weaponMode === 'land' ? (
-            <>
+            <div className="gear-weapon-row">
               <div className="gear-weapon-set">
                 <h5>Weapon I</h5>
                 {renderWeaponPair('weaponA1', 'weaponA2', 'Main hand', 'Off hand')}
               </div>
+              <div className="gear-weapon-divider" />
               <div className="gear-weapon-set">
                 <h5>Weapon II</h5>
                 {renderWeaponPair('weaponB1', 'weaponB2', 'Main hand', 'Off hand')}
               </div>
-            </>
+            </div>
           ) : (
-            <div className="gear-weapon-set">
+            <div className="gear-weapon-row">
               {renderUnderwaterSlot('weaponU1', 'Set 1')}
               {renderUnderwaterSlot('weaponU2', 'Set 2')}
             </div>
           )}
-        </div>
-        <div className="gear-panel gear-panel-armor">
-          <h4 className="gear-panel-title">Armor</h4>
-          {ARMOR_SLOTS.map((s) => renderSlot(s.key, s.label))}
-        </div>
-        <div className="gear-panel gear-panel-accessories">
-          <h4 className="gear-panel-title">Accessories</h4>
-          {TRINKET_SLOTS.map((s) => renderSlot(s.key, s.label))}
-        </div>
-        <div className="gear-panel gear-panel-other">
-          <h4 className="gear-panel-title">Other</h4>
-          {renderOtherSlot('Relic', relicOptions, consumables.relicId, (id) => onConsumablesChange({ ...consumables, relicId: id }), 'fine')}
-          {renderOtherSlot('Food', foodOptions, consumables.foodId, (id) => onConsumablesChange({ ...consumables, foodId: id }))}
-          {renderOtherSlot('Utility', utilityOptions, consumables.utilityId, (id) => onConsumablesChange({ ...consumables, utilityId: id }))}
         </div>
       </div>
     </div>

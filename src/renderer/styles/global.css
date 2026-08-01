@@ -375,9 +375,15 @@ input[type='text'] {
 }
 
 
-/* Weapon / Armor / Accessories side by side, matching gw2skills.net's reference layout — each
-   panel sizes to its own content (no flex-grow) rather than stretching across the column. */
+/* Armor / Accessories / Other side by side on top, Weapon spans the full width below — each
+   top-row panel sizes to its own content (no flex-grow) rather than stretching across the column. */
 .gear-panels {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gear-panels-top {
   display: flex;
   align-items: flex-start;
   gap: 20px;
@@ -440,6 +446,46 @@ input[type='text'] {
   border-color: var(--rarity-fine);
 }
 
+/* Weapon panel spans the full width beneath Armor/Accessories/Other, with a divider line above
+   it separating it from the top row (matches the reference layout: armor+accessories on top,
+   weapon slots as one horizontal row below). */
+.gear-panel-weapon {
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.gear-panel-weapon-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.gear-panel-weapon-header .gear-panel-title {
+  margin: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+/* Weapon I and Weapon II side by side as one row of 4 slots: Mainhand 1, Offhand 1, Mainhand 2,
+   Offhand 2 — separated by a vertical divider between the two weapon sets. */
+.gear-weapon-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.gear-weapon-row > .gear-weapon-set {
+  flex: 1;
+  min-width: 0;
+}
+
+.gear-weapon-divider {
+  align-self: stretch;
+  width: 1px;
+  background: var(--border);
+}
+
 .gear-weapon-set {
   display: flex;
   flex-direction: column;
@@ -472,8 +518,8 @@ input[type='text'] {
   gap: 4px;
 }
 
-/* Land/Underwater toggle atop the Weapon panel — only one set of weapon slots is shown at a
-   time, defaulting to land (see EquipmentEditor's `weaponMode` state). Reuses the same
+/* Land/Underwater toggle in the Weapon panel header — only one set of weapon slots is shown at
+   a time, defaulting to land (see EquipmentEditor's `weaponMode` state). Reuses the same
    `skill-bar-icon-button`/`SkillBarIcon` treatment as the Skills panel's own env toggle
    (`WeaponSkillBar`'s "env" section) rather than a separate text-button pair. */
 .weapon-mode-toggle {
@@ -909,83 +955,6 @@ input[type='text'] {
 .stat-value {
   font-weight: 600;
   text-align: right;
-}
-
-.boon-uptime-panel h3 {
-  margin-top: 0;
-}
-
-.boon-uptime-panel h4 {
-  margin-top: 0;
-  margin-bottom: 6px;
-  color: var(--muted);
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.boon-uptime-columns {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 16px;
-}
-
-.boon-groups {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.boon-group {
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 8px 10px;
-}
-
-.boon-group-name {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.boon-group-icon {
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  object-fit: cover;
-}
-
-.boon-source-icon {
-  width: 16px;
-  height: 16px;
-  border-radius: 3px;
-  object-fit: cover;
-  vertical-align: middle;
-  margin-right: 4px;
-}
-
-.boon-source-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.boon-source-list li {
-  display: flex;
-  align-items: baseline;
-  justify-content: flex-start;
-  font-size: 0.85rem;
-  gap: 8px;
-}
-
-.boon-source-name {
-  color: var(--text);
 }
 
 .boon-source-duration {
