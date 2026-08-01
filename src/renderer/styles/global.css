@@ -542,6 +542,22 @@ input[type='text'] {
 
 .ingame-skill-bar-mechanic {
   grid-area: mechanic;
+  position: relative;
+}
+
+/* Thief's Stolen Skill picker overlays rather than sits in normal flow — unlike
+   `StandardSkillsEditor`'s Heal/Utility/Elite picker (which can safely grow its own grid row),
+   `.ingame-skill-bar-mechanic` shares a grid row with `env` (see `.ingame-skill-bar`), and growing
+   that row would shove the weapon-skill row below it down. Same fix as `.legend-slot .skill-picker`
+   uses for the same reason. */
+.ingame-skill-bar-mechanic .skill-picker {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 5;
+  width: max-content;
+  min-width: 220px;
+  margin-top: 8px;
 }
 
 .ingame-skill-bar-weapon {

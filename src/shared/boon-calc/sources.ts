@@ -242,7 +242,10 @@ function withFlipChain(startId: number, skillsById: Map<number, Skill>): number[
  * equipped" reasoning as the Revenant legends and land weapon-swap sets above), plus, additionally
  * for Soulbeast, both equipped pets' Beastmode F1/F2/F3 triplet (`soulbeastBeastmodeBar` — same
  * "both always contribute regardless of which is currently active" reasoning, since Beastmode can be
- * toggled to either merged pet at will mid-fight).
+ * toggled to either merged pet at will mid-fight), plus, for Thief, the manually-picked Stolen
+ * Skill (`Build.thiefStolenSkillId` — unlike every other id folded in here, this one has no
+ * automatic in-build resolution at all, see that field's doc comment; contributes directly, not
+ * via `withFlipChain`, since none of `THIEF_STOLEN_SKILL_IDS` has an outgoing `flipSkill`).
  */
 function skillIdsForBuild(
   build: Build,
@@ -276,10 +279,13 @@ function skillIdsForBuild(
         .flatMap((bar) => [bar.f1SkillId, bar.f2SkillId, bar.f3SkillId])
     : []
 
+  const stolenSkillIds = build.thiefStolenSkillId !== null ? [build.thiefStolenSkillId] : []
+
   return [
     ...nonWeaponIds,
     ...petSkillIds,
     ...beastmodeSkillIds,
+    ...stolenSkillIds,
     ...weaponSkillIdsForBuild(build, professions, skillsById, equippedSpecIds)
   ]
 }

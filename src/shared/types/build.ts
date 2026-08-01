@@ -166,6 +166,18 @@ export interface Build {
    * `weapon-calc/weapon-skills.ts`'s `attunement` parameter.
    */
   activeAttunement: 'Fire' | 'Water' | 'Air' | 'Earth'
+  /**
+   * Thief only (meaningless, always `null`, for every other profession): the manually-chosen F2
+   * "Stolen Skill" (`Skill.id`, one of `THIEF_STOLEN_SKILL_IDS` in `thief-stolen-skill.ts`), set by
+   * opening the picker on the F2 mechanic-bar icon. Unlike every other `Build` field that mirrors a
+   * live in-combat toggle, this one has no automatic resolution at all — which stolen skill is
+   * "live" depends entirely on which enemy you steal from in a real fight, not on anything else in
+   * the build — so the player picks one directly, same shape as `familiarId`. Meaningless (and
+   * overridden by Specter's own Shroud-toggle F2, see `SPECTER_MECHANIC_SKILLS` in
+   * `profession-mechanic.ts`) whenever Specter is equipped; cleared automatically in that case, see
+   * `BuildEditorView`'s specialization-change handler.
+   */
+  thiefStolenSkillId: number | null
   createdAt: Timestamp
   updatedAt: Timestamp
 }

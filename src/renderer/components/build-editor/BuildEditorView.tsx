@@ -9,6 +9,7 @@ import type {
   TraitLineSlots
 } from '@shared/types'
 import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar'
+import { SPECTER_SPEC_ID } from '@shared/skill-calc/profession-mechanic'
 import { useGameData } from '@renderer/state/game-data-store'
 import { SharePanel } from '@renderer/components/common/SharePanel'
 import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
@@ -67,7 +68,9 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
       equippedPetIds: [null, null],
       activePetIndex: 0,
       // Familiar is Elementalist Evoker-only, same reasoning as pets above.
-      familiarId: profession === 'Elementalist' ? draft.familiarId : null
+      familiarId: profession === 'Elementalist' ? draft.familiarId : null,
+      // Stolen Skill is Thief-only, same reasoning as pets/familiar above.
+      thiefStolenSkillId: profession === 'Thief' ? draft.thiefStolenSkillId : null
     })
   }
 
@@ -115,8 +118,11 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
     }
 
     const familiarId = nextEquippedIds.has(EVOKER_SPECIALIZATION_ID) ? draft.familiarId : null
+    // Specter's own F2 "Enter Shadow Shroud" replaces the manually-picked Stolen Skill slot
+    // entirely — see `Build.thiefStolenSkillId`'s doc comment.
+    const thiefStolenSkillId = nextEquippedIds.has(SPECTER_SPEC_ID) ? null : draft.thiefStolenSkillId
 
-    setDraft({ ...draft, specializations, skills, equipment, familiarId })
+    setDraft({ ...draft, specializations, skills, equipment, familiarId, thiefStolenSkillId })
   }
 
   async function handleSave(): Promise<void> {

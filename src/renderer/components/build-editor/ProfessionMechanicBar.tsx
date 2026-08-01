@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Build } from '@shared/types'
 import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
 import {
@@ -10,18 +11,22 @@ import {
   professionMechanicBar,
   RANGER_BEASTMODE_SPEC_ID,
   soulbeastBeastmodeBar,
+  SPECTER_SPEC_ID,
   type ProfessionMechanicBarEntry
 } from '@shared/skill-calc/profession-mechanic'
 import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar'
 import { isMechanicBarBundleId } from '@shared/skill-calc/bundle-skills'
+import { THIEF_STOLEN_SKILL_IDS, thiefStolenSkillBar } from '@shared/skill-calc/thief-stolen-skill'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor'
 
 interface Props {
   build: Build
   equippedSpecializationIds: ReadonlySet<number>
-  onBuildChange: (patch: Partial<Pick<Build, 'activeBundleSkillId' | 'familiarId'>>) => void
+  onBuildChange: (patch: Partial<Pick<Build, 'activeBundleSkillId' | 'familiarId' | 'thiefStolenSkillId'>>) => void
 }
+
+const THIEF_STOLEN_SKILL_SLOT = 'Profession_2'
 
 /**
  * The profession-mechanic ("F1-F5") bar: Guardian's Virtues, Warrior's Burst Skill (plus
@@ -58,17 +63,32 @@ interface Props {
  * to the next familiar in `gameData.familiars` order — replacing the standalone
  * `EvokerFamiliarSelect` picker row entirely (confirmed 2026-08-01; `Build.familiarId` itself is
  * unchanged, still also feeding the Heal-skill icon variant, see that field's own doc comment).
+ *
+ * Thief's F2 is a fourth, distinct case: unlike every button above, there's no way to derive
+ * "the current Stolen Skill" from the build at all (see `thief-stolen-skill.ts`), so clicking the
+ * F2 icon opens an inline picker (same visual pattern as Heal/Utility/Elite's own picker in
+ * `SkillsEditor` — flat icon grid, no category columns, since these ids carry no `categories`)
+ * instead of toggling `activeBundleSkillId` or cycling a fixed set. Only rendered when Thief is
+ * equipped and Specter isn't — Specter's own F2 "Enter Shadow Shroud" already occupies that slot
+ * through the generic resolver and behaves like any other Shroud (clickable bundle toggle, not a
+ * picker).
  */
 export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuildChange }: Props) {
   const { gameData, activeIds, durationPercent } = useDurationContext(build)
   const { professions, skillsById, tomeChapters, familiars } = gameData
   const profession = professions.find((p) => p.id === build.profession)
   const variantContext: SkillVariantContext = { skills: gameData.skills, skillsById, wvwFactOverrides: gameData.wvwFactOverrides, durationPercent }
+  const [stolenSkillPickerOpen, setStolenSkillPickerOpen] = useState(false)
 
   function cycleFamiliar(): void {
     const currentIndex = familiars.findIndex((f) => f.id === build.familiarId)
     const next = familiars[(currentIndex + 1) % familiars.length]
     onBuildChange({ familiarId: next.id })
+  }
+
+  function chooseStolenSkill(id: number | null): void {
+    onBuildChange({ thiefStolenSkillId: id })
+    setStolenSkillPickerOpen(false)
   }
 
   function skillTooltipFor(skillId: number) {
@@ -101,20 +121,27 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
   if (isEvoker) {
     entries = [...entries, ...evokerFamiliarBar(build, skillsById, familiars)]
   }
+  const showStolenSkillPicker = build.profession === 'Thief' && !equippedSpecializationIds.has(SPECTER_SPEC_ID)
+  if (showStolenSkillPicker) {
+    entries = [...entries, ...thiefStolenSkillBar(build, skillsById)].sort((a, b) => a.slot.localeCompare(b.slot))
+  }
 
-  if (entries.length === 0) return null
+  if (entries.length === 0 && !showStolenSkillPicker) return null
 
   return (
     <div className="skill-bar profession-mechanic-bar ingame-skill-bar-mechanic">
       {entries.map((entry) => {
         const isBundle = isMechanicBarBundleId(entry.skill.id, tomeChapters)
         const isFamiliarSlot = isEvoker && entry.slot === 'Profession_5'
-        const isActive = isBundle && build.activeBundleSkillId === entry.skill.id
-        const onClick = isBundle
-          ? () => onBuildChange({ activeBundleSkillId: isActive ? null : entry.skill.id })
-          : isFamiliarSlot
-            ? cycleFamiliar
-            : undefined
+        const isStolenSkillSlot = showStolenSkillPicker && entry.slot === THIEF_STOLEN_SKILL_SLOT
+        const isActive = (isBundle && build.activeBundleSkillId === entry.skill.id) || (isStolenSkillSlot && stolenSkillPickerOpen)
+        const onClick = isStolenSkillSlot
+          ? () => setStolenSkillPickerOpen((open) => !open)
+          : isBundle
+            ? () => onBuildChange({ activeBundleSkillId: isActive ? null : entry.skill.id })
+            : isFamiliarSlot
+              ? cycleFamiliar
+              : undefined
         return (
           <Tooltip key={entry.slot} content={skillTooltipFor(entry.skill.id) ?? <TooltipBody title="Unknown skill" />}>
             <button
@@ -128,6 +155,54 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
           </Tooltip>
         )
       })}
+      {showStolenSkillPicker && !entries.some((e) => e.slot === THIEF_STOLEN_SKILL_SLOT) && (
+        <Tooltip content={<TooltipBody title="Stolen Skill" />}>
+          <button
+            type="button"
+            className={stolenSkillPickerOpen ? 'skill-slot-button open' : 'skill-slot-button'}
+            onClick={() => setStolenSkillPickerOpen((open) => !open)}
+          >
+            <span className="skill-slot-placeholder">Stolen Skill</span>
+          </button>
+        </Tooltip>
+      )}
+      {showStolenSkillPicker && stolenSkillPickerOpen && (
+        <div className="skill-picker">
+          <div className="skill-picker-header">Stolen Skill</div>
+          <div className="skill-picker-columns">
+            <div className="skill-category-column">
+              <div className="skill-category-header">&nbsp;</div>
+              <Tooltip content={<TooltipBody title="None" />}>
+                <button
+                  type="button"
+                  className={build.thiefStolenSkillId === null ? 'skill-icon-button chosen' : 'skill-icon-button'}
+                  onClick={() => chooseStolenSkill(null)}
+                >
+                  <span className="skill-option-none">—</span>
+                </button>
+              </Tooltip>
+            </div>
+            <div className="skill-category-column">
+              <div className="skill-category-header">Stolen Skill</div>
+              {THIEF_STOLEN_SKILL_IDS.map((id) => {
+                const skill = skillsById.get(id)
+                if (!skill) return null
+                return (
+                  <Tooltip key={id} content={skillTooltipFor(id) ?? <TooltipBody title={skill.name} />}>
+                    <button
+                      type="button"
+                      className={build.thiefStolenSkillId === id ? 'skill-icon-button chosen' : 'skill-icon-button'}
+                      onClick={() => chooseStolenSkill(id)}
+                    >
+                      <img src={skill.icon} alt={skill.name} />
+                    </button>
+                  </Tooltip>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -34,6 +34,7 @@ export function makeBlankBuild(): Build {
     rangerUnleashed: false,
     familiarId: null,
     activeAttunement: 'Fire',
+    thiefStolenSkillId: null,
     createdAt: now,
     updatedAt: now
   }

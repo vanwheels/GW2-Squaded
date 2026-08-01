@@ -1,4 +1,4 @@
-import type { Build, Familiar, Profession, ProfessionId, Skill, SoulbeastBeastmodeMap } from '../types'
+import type { Build, Familiar, Profession, Skill, SoulbeastBeastmodeMap } from '../types'
 import { EVOKER_SPECIALIZATION_ID } from './familiar'
 
 export interface ProfessionMechanicBarEntry {
@@ -86,8 +86,47 @@ const EXCLUDED_MECHANIC_SKILL_IDS = new Set<number>([
   // `evokerFamiliarBar` below, same class of pre-rework leftover as the Warrior Spellbreaker ids
   // above. Excluded so it never becomes `evokerFamiliarBar`'s Fire pick or leaks through the
   // generic resolver.
-  76643
+  76643,
+  // Thief's Profession_2 "Stolen Skill": live-verified 2026-08-01 all 22 raw candidates carry
+  // `specializationId: null` and `categories: []` — no per-profession/per-source tell exists in
+  // this dataset (contra this file's own older assumption) — themed instead by enemy weapon/
+  // monster type (e.g. "Mace Head Crack", "Whirling Axe", "Skull Fear"); which skill is "live"
+  // depends entirely on who you steal from in combat, not on anything in the build. Excluded
+  // here (rather than via `SKIPPED_SLOTS`, since Specter's real Profession_2 "Enter Shadow Shroud"
+  // below shares this exact slot and must still resolve normally) so the generic resolver's
+  // fallback never arbitrarily picks one; surfaced instead by `ThiefStolenSkillPicker`'s own manual
+  // build-state field (see `thief-stolen-skill.ts`) for display/calc purposes. 3 pairs
+  // (76702/76601 "Exalted Hammer", 76633/76550 "Forged Surfer Dash", 45094/1110 "Throw Gunk") are
+  // same-named orphan duplicates within this set, same class as Warrior Spellbreaker's above — both
+  // ids of each pair excluded here; the manual picker dedupes to the lower id itself.
+  76702, 76601, 76633, 76550, 76800, 76900, 77288, 76895, 1131, 1118, 1162, 1167, 1115, 45094, 1110, 1139, 1125, 1148, 1129, 1123, 1141, 31438,
+  // Specter (spec 71) Profession_2 "Exit Shadow Shroud" (63251): the toggled-off/exit half of
+  // Shroud's entry pair — live-verified 2026-08-01 neither 63251 nor its entry counterpart 63155
+  // "Enter Shadow Shroud" carries a `flipSkill` link to the other (unlike Necromancer's Death
+  // Shroud <-> End Death Shroud, which do chain via `flipSkill`), so `resolveMechanicSlot`'s
+  // flip-chain dedup step can't tell them apart on its own. Excluded explicitly so only the entry
+  // id ever surfaces as Specter's F2 mechanic-bar button, same as every other Shroud variant's
+  // entry-only F-bar icon.
+  63251
 ])
+
+/**
+ * Specter (specialization id 71): live-verified 2026-08-01 against `/v2/skills` — like Guardian
+ * Dragonhunter's virtue rework (`DRAGONHUNTER_VIRTUE_SKILLS` above), Specter's own F1 "Siphon"
+ * (63067, replaces "Steal") and F2 "Enter Shadow Shroud" (63155, a Shroud-toggle mirroring
+ * Necromancer's — see `SPECTER_SHROUD_SLOT_SKILLS` in `bundle-skills.ts`) exist correctly in
+ * `/v2/skills`, correctly tagged `specializationId: 71` and `slot: "Profession_1"`/`"_2"`, but
+ * never appear in Thief's `professionSkills` at all — the same real API data gap, not a guess.
+ * Hand-injected below so the normal per-slot resolver (spec-match preferred over the null-spec
+ * "Steal" fallback) picks them correctly once Specter is equipped; without this, Specter silently
+ * shows core Thief's unthemed "Steal" for F1 and drops F2 entirely (its only candidates would be
+ * the excluded stolen-skill ids above).
+ */
+export const SPECTER_SPEC_ID = 71
+const SPECTER_MECHANIC_SKILLS: { id: number; slot: string }[] = [
+  { id: 63067, slot: 'Profession_1' }, // Siphon
+  { id: 63155, slot: 'Profession_2' } // Enter Shadow Shroud
+]
 
 /**
  * Ranger Soulbeast (specialization id 55): live-verified 2026-07-30 every `Profession_1`-`_4`
@@ -237,14 +276,6 @@ const EVOKER_FAMILIAR_SKILL_BY_ELEMENT: Record<string, number> = {
   Earth: 76707 // Seismic Impact (toad)
 }
 
-/** Slots that exist in the raw data but aren't a real, build-determinable F-skill. Thief's F2 is
- *  the "stolen skill" — live-verified its candidates are tagged per enemy *profession*
- *  (`source: "Warrior"`, `"Guardian"`, ...), i.e. it depends on who you steal from in a live
- *  fight, not on anything in the build. */
-const SKIPPED_SLOTS: Partial<Record<ProfessionId, string[]>> = {
-  Thief: ['Profession_2']
-}
-
 /**
  * Resolves a profession's mechanic ("F-skill") bar — Guardian's Virtue of Justice/Resolve/Courage
  * in F1-F3, Warrior's per-weapon Burst Skill, etc. — down to the one id per slot that actually
@@ -264,7 +295,7 @@ const SKIPPED_SLOTS: Partial<Record<ProfessionId, string[]>> = {
  *
  * Per slot, resolution is:
  * 0. Drop any candidate in `EXCLUDED_MECHANIC_SKILL_IDS` (hand-verified legacy/ambiguous ids, see
- *    that constant's doc comment) and any slot listed in `SKIPPED_SLOTS`.
+ *    that constant's doc comment).
  * 1. Warrior's `Profession_1` only: further filter candidates to `skill.weaponType ===
  *    mainHandWeaponType` — Burst Skill has dozens of candidates with no `specializationId` at all
  *    to disambiguate, varying by equipped weapon instead of by spec.
@@ -293,13 +324,13 @@ export function professionMechanicBar(
   equippedSpecializationIds: ReadonlySet<number>,
   mainHandWeaponType?: string | null
 ): ProfessionMechanicBarEntry[] {
-  const skippedSlots = new Set(SKIPPED_SLOTS[profession.id] ?? [])
   const slotOrder: string[] = []
   const bySlot = new Map<string, Skill[]>()
   const rawSkillRefs: { id: number; slot: string }[] = [...profession.professionSkills]
   if (profession.id === 'Guardian') rawSkillRefs.push(...DRAGONHUNTER_VIRTUE_SKILLS)
+  if (profession.id === 'Thief') rawSkillRefs.push(...SPECTER_MECHANIC_SKILLS)
   for (const { id, slot } of rawSkillRefs) {
-    if (!slot.startsWith('Profession_') || skippedSlots.has(slot) || EXCLUDED_MECHANIC_SKILL_IDS.has(id)) continue
+    if (!slot.startsWith('Profession_') || EXCLUDED_MECHANIC_SKILL_IDS.has(id)) continue
     let skill = skillsById.get(id)
     if (!skill) continue
     const necroShroudSpec = profession.id === 'Necromancer' ? NECRO_SHROUD_SPEC_OVERRIDE[id] : undefined

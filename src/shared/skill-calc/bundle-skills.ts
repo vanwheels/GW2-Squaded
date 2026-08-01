@@ -70,6 +70,28 @@ const NECRO_SHROUD_SLOT_SKILLS: Record<number, number[]> = {
   77238: [77061, 76864, 76741, 76684, 76607] // Ritualist's Shroud
 }
 
+/**
+ * Thief Specter (specialization id 71, `SPECTER_SPEC_ID` in `profession-mechanic.ts`)'s "Enter
+ * Shadow Shroud" (63155, Specter's F2 — see that file's doc comment for the hand-injection this
+ * relies on): same bundle shape as Necromancer's Shroud above, live-verified 2026-08-01. Unlike
+ * every Necromancer variant, these 5 weapon-bar ids carry no raw `Downed_`/`Weapon_5` split at all
+ * — all 5 are plain `Weapon_1`-`Weapon_5`, and none is part of Scepter's own normal weapon bar
+ * (Scepter's real ids are 63066/63351/63254/63267/63154 — easy to confuse since both share
+ * `specializationId: 71` and overlapping "Shadow"/"Night" flavor text). Weapon_2 ("Grasping
+ * Shadows") and Weapon_3 ("Dawn's Repose") each have a `GroundTargeted` duplicate id with no other
+ * distinguishing field — same "duplicate ids, no clean signal" shape as Ritualist's Shroud dupes
+ * above; falls back to the lower (non-ground-targeted) id deterministically, matching this file's
+ * existing convention rather than guessing.
+ */
+const SPECTER_SHROUD_SLOT_SKILLS: Record<number, number[]> = {
+  63155: [63362, 63107, 63227, 63160, 63249] // Enter Shadow Shroud
+}
+
+/** Every entry-skill id that toggles the weapon-skill row into a fixed 5-skill Shroud bundle —
+ *  Necromancer's 4 Shroud variants plus Specter's — keyed the same way; merged into one lookup
+ *  since every caller below treats them identically. */
+const SHROUD_SLOT_SKILLS: Record<number, number[]> = { ...NECRO_SHROUD_SLOT_SKILLS, ...SPECTER_SHROUD_SLOT_SKILLS }
+
 /** Bladesworn's "Unsheathe Gunsaber" id (Warrior's Profession_1 F1 button — see
  *  `profession-mechanic.ts`'s Warrior weapon-type-filter carve-out for why it survives that
  *  filter) mapped to Gunsaber's own 5 weapon-bar skills — same bundle shape as Necromancer's
@@ -101,7 +123,7 @@ export function bundleCapableSkillIds(
   const kitIds = equippedIds.filter((id): id is number => id !== null && (skillsById.get(id)?.bundleSkills?.length ?? 0) > 0)
   const tomeIds = mechanicBarSkillIds.filter((id) => id in tomeChapters)
   const celestialAvatarIds = mechanicBarSkillIds.filter((id) => id === CELESTIAL_AVATAR_SKILL_ID)
-  const shroudIds = mechanicBarSkillIds.filter((id) => id in NECRO_SHROUD_SLOT_SKILLS)
+  const shroudIds = mechanicBarSkillIds.filter((id) => id in SHROUD_SLOT_SKILLS)
   const gunsaberIds = mechanicBarSkillIds.filter((id) => id in GUNSABER_SLOT_SKILLS)
   return [...kitIds, ...tomeIds, ...celestialAvatarIds, ...shroudIds, ...gunsaberIds]
 }
@@ -110,7 +132,7 @@ export function bundleCapableSkillIds(
  *  through the separate toggle row — Tomes, Shroud, Celestial Avatar, and Gunsaber (Engineer Kits
  *  still use the row; see that component's doc comment for why). */
 export function isMechanicBarBundleId(id: number, tomeChapters: TomeChaptersByTomeId): boolean {
-  return id in tomeChapters || id in NECRO_SHROUD_SLOT_SKILLS || id === CELESTIAL_AVATAR_SKILL_ID || id in GUNSABER_SLOT_SKILLS
+  return id in tomeChapters || id in SHROUD_SLOT_SKILLS || id === CELESTIAL_AVATAR_SKILL_ID || id in GUNSABER_SLOT_SKILLS
 }
 
 /** One resolved slot (1-5) of an active kit/tome bundle — either a real `Skill` (Kit) or a
@@ -164,7 +186,7 @@ export function resolveActiveBundle(
     }
   }
 
-  const shroudSlotIds = NECRO_SHROUD_SLOT_SKILLS[id]
+  const shroudSlotIds = SHROUD_SLOT_SKILLS[id]
   if (shroudSlotIds) {
     return {
       kind: 'kit',
@@ -236,7 +258,7 @@ export function bundleSkillIdsForBuild(
       }
       continue
     }
-    const shroudSlotIds = NECRO_SHROUD_SLOT_SKILLS[id]
+    const shroudSlotIds = SHROUD_SLOT_SKILLS[id]
     if (shroudSlotIds) {
       kitSkillIds.push(...shroudSlotIds)
       continue

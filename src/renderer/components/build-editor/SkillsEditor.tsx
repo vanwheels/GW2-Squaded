@@ -28,6 +28,7 @@ interface Props {
         | 'activeBundleSkillId'
         | 'rangerUnleashed'
         | 'familiarId'
+        | 'thiefStolenSkillId'
       >
     >
   ) => void

@@ -2,6 +2,44 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 40 — Thief skill-bar feedback pass (Specter Siphon/Shroud, manual Stolen Skill picker)
+
+Worked through both open Thief items from the 2026-07-31 skill-bar feedback pass.
+
+- **Specter's F1 "Siphon" and F2 "Enter Shadow Shroud"**: both ids (63067/63155, plus the Shroud
+  exit id 63251) exist correctly in `/v2/skills`, correctly tagged `specializationId: 71`, but are
+  missing from Thief's `professionSkills` entirely — same data-gap class as Guardian Dragonhunter's
+  virtue skills. Hand-injected via a new `SPECTER_MECHANIC_SKILLS` table in `profession-mechanic.ts`
+  (same pattern as `DRAGONHUNTER_VIRTUE_SKILLS`), so the existing generic per-spec resolver picks
+  them correctly once Specter is equipped, with no other resolver changes needed. F2's Shroud toggle
+  reuses the exact bundle mechanism Necromancer's own Shroud already uses (`bundle-skills.ts`) — a
+  new `SPECTER_SHROUD_SLOT_SKILLS` entry (`63155: [63362, 63107, 63227, 63160, 63249]`, hand-verified
+  against `/v2/skills`, none of which are part of Scepter's own weapon bar) merged into a combined
+  `SHROUD_SLOT_SKILLS` lookup so `ProfessionMechanicBar`'s existing click-to-toggle-bundle logic
+  (`isMechanicBarBundleId`) picks it up automatically.
+- **Removed the old `SKIPPED_SLOTS: { Thief: ['Profession_2'] }` blanket skip** (it would have
+  dropped Specter's real F2 alongside the stolen-skill candidates it was meant for) in favor of
+  excluding all 22 raw stolen-skill ids individually via `EXCLUDED_MECHANIC_SKILL_IDS` — corrected
+  that constant's stale doc comment along the way: live-verified there's no `source`-profession
+  field on these ids at all (contra the old comment), they're themed by enemy weapon/monster type
+  instead (e.g. "Mace Head Crack", "Skull Fear").
+- **Thief's F2 "Stolen Skill" is now a real manual picker**: since which stolen skill is "live"
+  depends on who you steal from in combat (no build-derivable signal exists), added
+  `Build.thiefStolenSkillId` (null for every other profession, same shape as `familiarId`) and a new
+  `thief-stolen-skill.ts` with the 19 canonical candidate ids (deduped from the raw 22 — 3 pairs are
+  same-named orphan duplicates, lower id kept). Clicking the F2 icon in `ProfessionMechanicBar` now
+  opens an inline picker (flat icon grid, same visual pattern as Heal/Utility/Elite's own picker,
+  just without category columns since these ids carry no `categories`); only shown for Thief
+  builds without Specter equipped (Specter's own F2 already covers that slot). The picked skill's
+  facts now feed `sources.ts`'s boon/condition calculator directly, closing out the "how should this
+  feed the calculator" question the original TODO item left open. Field is cleared automatically on
+  profession change or when Specter gets equipped (`BuildEditorView`'s existing clear-on-change
+  handlers, same pattern as `familiarId`/pets).
+- Added `.ingame-skill-bar-mechanic .skill-picker` (absolute overlay, mirroring
+  `.legend-slot .skill-picker`'s existing fix) since the mechanic bar shares a grid row with `env` —
+  without it, opening the Stolen Skill picker would grow that row and shove the weapon-skill row
+  below it down.
+
 ## Session 39 — Elementalist skill-bar feedback pass (attunement toggle, Tempest/Catalyst/Evoker F-bar, Staff bug)
 
 Worked through the full Elementalist section of the 2026-07-31 skill-bar feedback pass.

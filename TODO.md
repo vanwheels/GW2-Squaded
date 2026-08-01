@@ -62,20 +62,6 @@ it alongside.
       click-toggle pattern doesn't map cleanly onto it. Keep the current text-toggle row for kits
       as-is for now; revisit later.
 
-### Thief
-- [ ] F2 "Stolen Skill" needs to become a real skill picker (like Heal/Utility/Elite), not skipped
-      entirely (`profession-mechanic.ts`'s `SKIPPED_SLOTS` currently excludes Thief `Profession_2`
-      since the real skill depends on who you steal from in combat — a picker lets the user choose
-      which one to display/calc against). Note for later: figure out how a manually-picked stolen
-      skill should feed into the boon/condition calculator in `sources.ts`.
-- [ ] Specter isn't implemented at all: F1 (Steal) should become "Siphon", and F2 should become a
-      Shroud toggle mirroring Reaper's — another F-icon click-toggle that swaps the weapon-skill row
-      to Specter's Shroud skills. `bundle-skills.ts` already has a generic mechanism for this now
-      (`NECRO_SHROUD_SLOT_SKILLS`'s `Record<toggleSkillId, number[]>` shape, added 2026-07-31 for
-      Necromancer's own Shroud) — Specter's Shroud just needs its own hand-verified 5-id entry added
-      to that same map (or a sibling one) once the skill ids are confirmed against the wiki/API; no
-      new bundle "kind" needed.
-
 ### Elementalist
 - [ ] Weaver's weapon-skill-3 "Dual Attack" ambiguity — already tracked in "Skill picker follow-ups"
       above and in `weapon-calc/weapon-skills.ts`; flagged again here as still open, no new action.
