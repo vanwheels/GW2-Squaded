@@ -20,7 +20,6 @@ import { TraitsEditor } from './TraitsEditor'
 import { SkillsEditor } from './SkillsEditor'
 import { EquipmentEditor } from './EquipmentEditor'
 import { StatsPanel } from './StatsPanel'
-import { CombatStatePanel } from './CombatStatePanel'
 
 interface Props {
   build: Build
@@ -192,8 +191,7 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
           </div>
         </div>
         <div className="build-editor-column">
-          <StatsPanel build={draft} combatState={combatState} />
-          <CombatStatePanel build={draft} value={combatState} onChange={setCombatState} />
+          <StatsPanel build={draft} combatState={combatState} onCombatStateChange={setCombatState} />
         </div>
       </div>
     </section>

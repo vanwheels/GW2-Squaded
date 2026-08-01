@@ -4,8 +4,13 @@ Entries are added as work lands, most recent first.
 
 ## Session 41 — "Combat state" simulation inputs (Might, Fury, stacking sigil, relic)
 
-Implemented the TODO item mapped out 2026-08-01: a new ephemeral "Combat State" panel next to
-`StatsPanel` for what-if mid-fight inputs.
+Implemented the TODO item mapped out 2026-08-01: ephemeral what-if mid-fight inputs rendered
+inline inside `StatsPanel`, to the right of the stat grid behind a vertical divider (revised from
+an initial separate-panel layout per feedback) — icon-based controls (boon/sigil/relic icons from
+`BOON_CONDITION_ICONS`/`gameData.sigils`/`gameData.relics`) rather than text-labeled inputs. Might
+and the stacking-sigil stepper are `<select>` dropdowns in 5-stack increments (0/5/10/15/20/25);
+Fury and the relic bonus are click-to-toggle icons (greyed out via `combat-state-icon-inactive`
+when off, same visual language as `SkillsEditor`'s inactive boon/condition icons).
 
 - New `src/shared/gear-calc/combat-state.ts`: `CombatState` (mightStacks 0-25, furyActive,
   stackingSigilStacks 0-25, relicActive), never persisted on `Build` — lives as local `useState` in

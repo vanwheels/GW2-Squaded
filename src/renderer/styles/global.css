@@ -957,35 +957,52 @@ input[type='text'] {
   text-align: right;
 }
 
-.combat-state-panel h3 {
-  margin-top: 0;
+.stats-panel-body {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+}
+
+.stats-panel-divider {
+  width: 1px;
+  background: var(--border);
+}
+
+.combat-state-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  padding-top: 2px;
 }
 
 .combat-state-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 4px 0;
+  gap: 6px;
 }
 
-.combat-state-row label {
-  color: var(--muted);
-  font-size: 0.85rem;
+.combat-state-row select {
+  font-size: 0.78rem;
 }
 
-.combat-state-row input[type='number'] {
-  width: 48px;
+.combat-state-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 4px;
+  object-fit: cover;
 }
 
-.combat-state-toggle {
-  width: 100%;
-  color: var(--muted);
+.combat-state-icon-inactive {
+  filter: grayscale(1);
+  opacity: 0.35;
 }
 
-.combat-state-toggle.active {
-  border-color: var(--accent);
-  color: var(--text);
+.combat-state-toggle-icon {
+  padding: 0;
+  border: none;
+  background: none;
+  line-height: 0;
 }
 
 .boon-source-duration {
