@@ -42,6 +42,14 @@ const EXCLUDED_MECHANIC_SKILL_IDS = new Set<number>([
   // rest of Soulbeast's per-pet-family kit — a real API data gap, not a base-game core F3.
   // Excluding it directly since the spec-based exclusion below can't catch it.
   42809,
+  // Ranger's "Unflinching Fortitude" (Profession_3): same class of gap as "Worldly Impact" just
+  // above — live-verified 2026-07-31 it's one of the 5 per-pet-archetype F3 ids in
+  // `data/game-data/soulbeast-beastmode.json` (Soulbeast-exclusive, description starts "Beast."
+  // exactly like the rest of that kit) but its raw `specialization` field is null, so without this
+  // exclusion the generic resolver picks it as core Ranger's spec-less Profession_3 fallback and
+  // shows it on every Ranger form (Druid, Untamed, no elite spec) except Soulbeast, which already
+  // gets its own correct F3 from `soulbeastBeastmodeBar`.
+  45797,
   // Revenant Profession_1: every candidate here is exactly one of the 8 Legends' own `swap` skill
   // id (live-verified 2026-07-30 by name match against legends.json, e.g. 28419 "Legendary Dwarf
   // Stance" = Jalis's swap skill) — already fully surfaced by the Legend picker itself,

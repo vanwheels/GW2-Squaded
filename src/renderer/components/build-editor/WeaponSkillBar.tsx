@@ -41,12 +41,13 @@ const ATTUNEMENTS = ['Fire', 'Water', 'Air', 'Earth'] as const
  * the full bar, only slot 1; both states always contribute to boon/condition totals regardless of
  * this toggle, same reasoning as every other toggle here).
  *
- * When the build has any equipped Engineer Kit, an available Firebrand Tome, or (for Druid) the
- * Celestial Avatar mechanic — see `bundle-skills.ts` — an extra toggle row lets the displayed 1-5
- * bar be swapped to that bundle's own 5 skills instead, matching the real in-game "kit/tome/
- * Celestial-Avatar replaces your weapon skills while active" mechanic. Every equipped kit/tome/
- * Celestial-Avatar always contributes to boon/condition totals regardless of this toggle (see
- * `Build.activeBundleSkillId`'s doc comment) — this only changes what's shown.
+ * When the build has any equipped Engineer Kit, an extra toggle row lets the displayed 1-5 bar be
+ * swapped to that kit's own 5 skills instead, matching the real in-game "kit replaces your weapon
+ * skills while active" mechanic (Firebrand Tomes, Necromancer Shroud, and Druid's Celestial Avatar
+ * toggle via their own F-bar icon in `ProfessionMechanicBar` instead — see that component's doc
+ * comment). Every equipped kit/tome/Shroud/Celestial-Avatar always contributes to boon/condition
+ * totals regardless of this toggle (see `Build.activeBundleSkillId`'s doc comment) — this only
+ * changes what's shown.
  */
 export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange, section }: Props) {
   const { gameData, activeIds, durationPercent } = useDurationContext(build)
@@ -188,20 +189,14 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
         )}
 
         {unleashedId !== null && (
-          <div className="legend-bar-toggle">
+          <div className="ingame-skill-bar-swap">
             <button
               type="button"
-              className={!build.rangerUnleashed ? 'legend-toggle-button active' : 'legend-toggle-button'}
-              onClick={() => onBuildChange({ rangerUnleashed: false })}
+              className="skill-bar-icon-button"
+              title={build.rangerUnleashed ? 'Switch to Normal' : 'Switch to Unleashed'}
+              onClick={() => onBuildChange({ rangerUnleashed: !build.rangerUnleashed })}
             >
-              Normal
-            </button>
-            <button
-              type="button"
-              className={build.rangerUnleashed ? 'legend-toggle-button active' : 'legend-toggle-button'}
-              onClick={() => onBuildChange({ rangerUnleashed: true })}
-            >
-              Unleashed
+              <SkillBarIcon kind="cycle" />
             </button>
           </div>
         )}

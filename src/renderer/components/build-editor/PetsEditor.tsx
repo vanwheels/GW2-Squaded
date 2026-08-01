@@ -2,11 +2,14 @@ import { useState } from 'react'
 import type { Build } from '@shared/types'
 import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
+import { RANGER_BEASTMODE_SPEC_ID } from '@shared/skill-calc/profession-mechanic'
+import { SkillBarIcon } from './SkillBarIcon'
 import { skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor'
 
 interface Props {
   build: Build
   onBuildChange: (patch: Partial<Pick<Build, 'equippedPetIds' | 'activePetIndex'>>) => void
+  equippedSpecializationIds: ReadonlySet<number>
 }
 
 /**
@@ -14,9 +17,11 @@ interface Props {
  * skill, mirroring `RevenantSkillsEditor`'s legend picker almost exactly (see that component's doc
  * comment). Unlike a Legend, a pet isn't a full heal/utility/elite kit — just the single skill
  * `/v2/pets` exposes — and pets aren't spec-gated at all, so there's no `availableLegends`-style
- * filtering here.
+ * filtering here. Soulbeast is the one spec where the active pet's own F2 skill is NOT shown here:
+ * merging with the pet (Beastmode, rendered by `ProfessionMechanicBar`/`soulbeastBeastmodeBar`)
+ * replaces its standalone skill bar entirely in-game.
  */
-export function PetsEditor({ build, onBuildChange }: Props) {
+export function PetsEditor({ build, onBuildChange, equippedSpecializationIds }: Props) {
   const { gameData, activeIds, durationPercent } = useDurationContext(build)
   const { skillsById, petsById, pets } = gameData
   const [openPetSlot, setOpenPetSlot] = useState<0 | 1 | null>(null)
@@ -49,93 +54,89 @@ export function PetsEditor({ build, onBuildChange }: Props) {
   const activePetId = build.equippedPetIds[build.activePetIndex]
   const activePet = activePetId !== null ? petsById.get(activePetId) : undefined
 
+  function petSlot(slotIndex: 0 | 1) {
+    const petId = build.equippedPetIds[slotIndex]
+    const pet = petId !== null ? petsById.get(petId) : undefined
+    const chosenElsewhere = build.equippedPetIds[slotIndex === 0 ? 1 : 0]
+    return (
+      <div key={slotIndex} className="legend-slot">
+        <div className="legend-slot-label">Pet {slotIndex + 1}</div>
+        <Tooltip content={pet ? <TooltipBody title={pet.name} /> : <TooltipBody title="No pet chosen" />}>
+          <button
+            type="button"
+            className={openPetSlot === slotIndex ? 'skill-slot-button open' : 'skill-slot-button'}
+            onClick={() => toggleSlot(slotIndex)}
+          >
+            {pet ? <img src={pet.icon} alt={pet.name} /> : <span className="skill-slot-placeholder">Pet</span>}
+          </button>
+        </Tooltip>
+        {openPetSlot === slotIndex && (
+          <div className="skill-picker">
+            <div className="skill-picker-header">Pet {slotIndex + 1}</div>
+            <input
+              type="text"
+              className="upgrade-picker-search"
+              placeholder="Search…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              autoFocus
+            />
+            <div className="skill-picker-grid">
+              <button type="button" className="skill-option-button" onClick={() => choosePet(slotIndex, null)}>
+                <span className="skill-option-none">—</span>
+                <span className="skill-option-name">None</span>
+              </button>
+              {filteredPets
+                .filter((p) => p.id !== chosenElsewhere)
+                .map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    className={petId === p.id ? 'skill-option-button chosen' : 'skill-option-button'}
+                    onClick={() => choosePet(slotIndex, p.id)}
+                  >
+                    <img src={p.icon} alt={p.name} />
+                    <span className="skill-option-name">{p.name}</span>
+                  </button>
+                ))}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="skills-editor">
       <div className="legend-select-row">
-        {([0, 1] as const).map((slotIndex) => {
-          const petId = build.equippedPetIds[slotIndex]
-          const pet = petId !== null ? petsById.get(petId) : undefined
-          const chosenElsewhere = build.equippedPetIds[slotIndex === 0 ? 1 : 0]
-          return (
-            <div key={slotIndex} className="legend-slot">
-              <div className="legend-slot-label">Pet {slotIndex + 1}</div>
-              <Tooltip content={pet ? <TooltipBody title={pet.name} /> : <TooltipBody title="No pet chosen" />}>
-                <button
-                  type="button"
-                  className={openPetSlot === slotIndex ? 'skill-slot-button open' : 'skill-slot-button'}
-                  onClick={() => toggleSlot(slotIndex)}
-                >
-                  {pet ? <img src={pet.icon} alt={pet.name} /> : <span className="skill-slot-placeholder">Pet</span>}
-                </button>
-              </Tooltip>
-              {openPetSlot === slotIndex && (
-                <div className="skill-picker">
-                  <div className="skill-picker-header">Pet {slotIndex + 1}</div>
-                  <input
-                    type="text"
-                    className="upgrade-picker-search"
-                    placeholder="Search…"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    autoFocus
-                  />
-                  <div className="skill-picker-grid">
-                    <button type="button" className="skill-option-button" onClick={() => choosePet(slotIndex, null)}>
-                      <span className="skill-option-none">—</span>
-                      <span className="skill-option-name">None</span>
-                    </button>
-                    {filteredPets
-                      .filter((p) => p.id !== chosenElsewhere)
-                      .map((p) => (
-                        <button
-                          key={p.id}
-                          type="button"
-                          className={petId === p.id ? 'skill-option-button chosen' : 'skill-option-button'}
-                          onClick={() => choosePet(slotIndex, p.id)}
-                        >
-                          <img src={p.icon} alt={p.name} />
-                          <span className="skill-option-name">{p.name}</span>
-                        </button>
-                      ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )
-        })}
+        {petSlot(0)}
+        <button
+          type="button"
+          className="skill-bar-icon-button"
+          title="Swap active pet"
+          onClick={() => onBuildChange({ activePetIndex: build.activePetIndex === 0 ? 1 : 0 })}
+        >
+          <SkillBarIcon kind="cycle" />
+        </button>
+        {petSlot(1)}
       </div>
 
-      <div className="legend-bar-toggle">
-        {([0, 1] as const).map((i) => {
-          const petId = build.equippedPetIds[i]
-          const pet = petId !== null ? petsById.get(petId) : undefined
-          return (
-            <button
-              key={i}
-              type="button"
-              className={build.activePetIndex === i ? 'legend-toggle-button active' : 'legend-toggle-button'}
-              onClick={() => onBuildChange({ activePetIndex: i })}
-            >
-              {pet ? pet.name : `Pet ${i + 1}`}
-            </button>
-          )
-        })}
-      </div>
-
-      <div className="skill-bar">
-        {activePet ? (
-          <Tooltip content={skillTooltipFor(activePet.skillId) ?? <TooltipBody title="Unknown skill" />}>
-            <button type="button" className="skill-slot-button" disabled>
-              {(() => {
-                const skill = skillsById.get(activePet.skillId)
-                return skill ? <img src={skill.icon} alt={skill.name} /> : <span className="skill-slot-placeholder">?</span>
-              })()}
-            </button>
-          </Tooltip>
-        ) : (
-          <div className="skill-picker-header">Choose a pet above to see its skill</div>
-        )}
-      </div>
+      {!equippedSpecializationIds.has(RANGER_BEASTMODE_SPEC_ID) && (
+        <div className="skill-bar">
+          {activePet ? (
+            <Tooltip content={skillTooltipFor(activePet.skillId) ?? <TooltipBody title="Unknown skill" />}>
+              <button type="button" className="skill-slot-button" disabled>
+                {(() => {
+                  const skill = skillsById.get(activePet.skillId)
+                  return skill ? <img src={skill.icon} alt={skill.name} /> : <span className="skill-slot-placeholder">?</span>
+                })()}
+              </button>
+            </Tooltip>
+          ) : (
+            <div className="skill-picker-header">Choose a pet above to see its skill</div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

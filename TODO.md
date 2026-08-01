@@ -80,24 +80,14 @@ it alongside.
       as-is for now; revisit later.
 
 ### Ranger
-- [ ] Replace the Pet-swap "Pet 1 / Pet 2" named text-toggle buttons (`PetsEditor.tsx`) with the same
-      small cycle-icon button used for weapon-set-swap and Legend-swap.
-- [ ] Same replacement for Untamed's Normal/Unleashed text-toggle buttons (`WeaponSkillBar.tsx`'s
-      "extras" section) — swap for the cycle icon.
-- [ ] All Ranger forms except Soulbeast incorrectly show "Unflinching Fortitude" — that skill is
-      Soulbeast-exclusive. Find where it's leaking in (likely a `professionMechanicBar`/beastmode
-      resolution gap) and gate it to Soulbeast only.
-- [ ] Druid's Celestial Avatar form-swap should follow the same F-icon click-toggle pattern as
-      Firebrand Tomes (it already resolves through `bundle-skills.ts` — just needs the same UI
-      treatment, plus removal of its own "Weapon/Celestial Avatar" text-toggle entry). Also its
-      displayed icons are wrong — currently showing Ranger staff weapon-skill icons instead of the
-      real Astral skill icons (Solar Beam/Astral Wisp/Ancestral Grace/Vine Surge/Sublime Conversion);
-      needs investigation in `celestialAvatarSlotSkillIds` (`bundle-skills.ts`).
-- [ ] Core Ranger and normal-form Untamed don't display the core 3 pet skills (F1-F3) at all — only
-      Soulbeast's beastmode bar and Druid's pet-F2 currently render anything pet-skill-related in the
-      F-bar.
-- [ ] Druid's pet F2 skill is shown under the Pet toggle for every Ranger spec (not just Druid); it
-      should only appear in Druid's own F-skill bar.
+- [ ] Core Ranger and normal-form Untamed still have no F1 (pet attack command) or F3 (pet swap)
+      icon in the F-bar — only pet F2 (`PetsEditor.tsx`'s own bar, now correctly scoped: shown for
+      core/Druid/Untamed, hidden for Soulbeast since Beastmode replaces it) and Soulbeast's
+      Beastmode F1-F3 render anything pet-related today. Blocked on data, not UI: confirmed
+      2026-07-31 via `Pet` type's own doc comment that `/v2/pets` exposes no id for either the
+      generic "attack" or "swap pets" command at all (unlike Beastmode's per-pet ids, sourced by
+      `scripts/fetch-soulbeast-beastmode.ts` from the wiki) — would need the same kind of
+      wiki-sourced hand-verification pass before it could be added, not guessed.
 
 ### Thief
 - [ ] F2 "Stolen Skill" needs to become a real skill picker (like Heal/Utility/Elite), not skipped

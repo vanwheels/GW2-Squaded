@@ -51,7 +51,9 @@ type SlotId = 'heal' | 'utility0' | 'utility1' | 'utility2' | 'elite'
 export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSpecializationIds }: Props) {
   return (
     <div className="skills-editor-root">
-      {build.profession === 'Ranger' && <PetsEditor build={build} onBuildChange={onBuildChange} />}
+      {build.profession === 'Ranger' && (
+        <PetsEditor build={build} onBuildChange={onBuildChange} equippedSpecializationIds={equippedSpecializationIds} />
+      )}
       {build.profession === 'Elementalist' && equippedSpecializationIds.has(EVOKER_SPECIALIZATION_ID) && (
         <EvokerFamiliarSelect value={build.familiarId} onChange={(familiarId) => onBuildChange({ familiarId })} />
       )}

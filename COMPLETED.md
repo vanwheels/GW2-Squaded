@@ -2,6 +2,51 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 36 — Skill bar feedback pass: Ranger
+
+Continuing the 2026-07-31 skill-bar UI/UX feedback pass (TODO.md), working through Ranger's items.
+
+- Pet-swap (`PetsEditor.tsx`) and Untamed's Normal/Unleashed toggle (`WeaponSkillBar.tsx`'s
+  "extras" section) both replaced their named text-toggle buttons with the same small cycle-icon
+  button already used for weapon-set-swap/Legend-swap (`SkillBarIcon` `kind="cycle"`). Pet-swap's
+  two picker slots now sit either side of the cycle button in one row (matching
+  `RevenantSkillsEditor`'s Legend-slot layout exactly) instead of a separate row below.
+- Fixed "Unflinching Fortitude" (id 45797) incorrectly showing on every non-Soulbeast Ranger form's
+  F3. Root cause: it's one of the 5 per-pet-archetype Soulbeast Beastmode F3 ids (confirmed present
+  in `data/game-data/soulbeast-beastmode.json`'s `f3SkillId` values, description starts "Beast."
+  exactly like the rest of that kit) but its raw `specialization` field is null — same class of gap
+  as "Worldly Impact" already excluded in `profession-mechanic.ts`. Added to
+  `EXCLUDED_MECHANIC_SKILL_IDS` alongside it.
+- Pet F2 display scope: confirmed with the user that core Ranger/Druid/Untamed should keep showing
+  the active pet's F2 skill (real GW2 mechanic whenever you have a separate, un-merged pet) and
+  only Soulbeast should hide it (Beastmode fully replaces it). `PetsEditor` now takes
+  `equippedSpecializationIds` and skips its own skill-bar row when `RANGER_BEASTMODE_SPEC_ID` is
+  equipped.
+- Druid's Celestial Avatar now click-toggles from its own F5 icon in `ProfessionMechanicBar`, same
+  pattern as Firebrand Tomes/Necromancer Shroud, replacing its "Weapon/Celestial Avatar"
+  text-toggle row entry (Engineer Kits keep the row). `isMechanicBarBundleId` extended to include
+  `CELESTIAL_AVATAR_SKILL_ID`.
+- Found and fixed a real data-identification bug while investigating the "wrong icons" part of
+  that same TODO item: `celestialAvatarSlotSkillIds` (`bundle-skills.ts`) was filtering on
+  `specializationId === 5` (Druid), which only proves "gated to Druid" — true of BOTH Celestial
+  Avatar's real transformation skills AND Ranger's normal (non-transformed) Staff weapon bar
+  (`profession.weapons.Staff.skills`: Solar Beam/Astral Wisp/Ancestral Grace/Vine Surge/Sublime
+  Conversion, tagged `specializationId: 5` at the weapon level since Staff was originally
+  Druid-exclusive — a damage/heal hybrid kit used to build Astral Force, not what you see once
+  transformed). Toggling Celestial Avatar on previously showed those same Staff icons unchanged,
+  which is what the TODO's "showing Ranger staff weapon-skill icons instead of the real Astral
+  skill icons" was actually describing. The real transformation skills (Cosmic Ray/Seed of
+  Life/Lunar Impact/Rejuvenating Tides/Natural Convergence) are a separate, heal-focused set
+  live-verified via `categories.includes('CelestialAvatar')` plus descriptions that all literally
+  start "Celestial Avatar." (same naming-convention tell as Soulbeast's "Beast."-prefixed kit).
+  Each slot has 2 near-identical duplicate ids (a `GroundTargeted`/`NoUnderwater` flag pair with no
+  other distinguishing field, same shape as Ritualist's Shroud slots) — falls back to the lower id
+  deterministically, a documented known limitation, not a guessed land/underwater split. Verified
+  end-to-end with a standalone trace script (not committed) before shipping: resolves to Cosmic
+  Ray/Seed of Life/Lunar Impact/Rejuvenating Tides/Natural Convergence, in slot order.
+- Remaining Ranger item from the feedback pass (core Ranger/Untamed F1/F3 pet-command icons) is
+  blocked on a real data gap, not UI — see TODO.md.
+
 ## Session 35 — Skill bar feedback pass: General, Guardian, Necromancer
 
 Working through the 2026-07-31 skill-bar UI/UX feedback pass (TODO.md), starting with the two

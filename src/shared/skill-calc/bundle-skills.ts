@@ -1,28 +1,42 @@
 import type { Build, Environment, Skill, TomeChapter, TomeChaptersByTomeId } from '../types'
 import { resolveSkillBarIds } from '../weapon-calc/weapon-skills'
 
-/** Druid's specialization id and its "Celestial Avatar" mechanic-bar (Profession_5) skill id —
- *  live-verified 2026-07-30: entering Celestial Avatar form replaces the weapon skill bar (1-5)
- *  with 5 real API skills (Solar Beam/Astral Wisp/Ancestral Grace/Vine Surge/Sublime Conversion),
- *  same "bundle" shape as Engineer Kits/Firebrand Tomes — no wiki scrape needed, unlike Tomes,
- *  since every Astral skill already carries a real id + `specializationId: 5` + a `Weapon_1`-`5`
- *  slot in the normal `/v2/skills` data (see `celestialAvatarSlotSkillIds` below). */
-const DRUID_SPEC_ID = 5
+/** Druid's "Celestial Avatar" mechanic-bar (Profession_5) skill id. */
 const CELESTIAL_AVATAR_SKILL_ID = 31869
 
 /**
- * The 5 Astral skills Celestial Avatar form shows in the weapon-skill-bar slots, resolved directly
- * from already-fetched data rather than a hand-maintained id list: every skill tagged
- * `specializationId === 5` (Druid) with a `Weapon_1`-`Weapon_5` slot is one of these 5 — confirmed
- * live this is an exact, unambiguous 1-per-slot set with no land/underwater duplication (Celestial
- * Avatar has no underwater variant in the API data, matching that it can't be entered underwater).
+ * The 5 real Celestial-Avatar-form skills, resolved by `categories.includes('CelestialAvatar')`
+ * rather than by `specializationId` — live-verified 2026-07-31 (correcting an earlier, wrong
+ * 2026-07-30 identification that used `specializationId === 5`/Druid instead): that field only
+ * identifies "a skill gated to Druid," which is ALSO true of Ranger's normal (non-transformed)
+ * Staff weapon bar (Solar Beam/Astral Wisp/Ancestral Grace/Vine Surge/Sublime Conversion —
+ * `profession.weapons.Staff.skills`, tagged `specializationId: 5` at the weapon level since Staff
+ * was originally Druid-exclusive) — a hybrid damage/heal kit used to build Astral Force, NOT what
+ * you see once transformed. The real transformation skills (Cosmic Ray/Seed of Life/Lunar Impact/
+ * Rejuvenating Tides/Natural Convergence) are a completely different, heal-focused set whose
+ * descriptions all literally start "Celestial Avatar." (same naming-convention tell already used
+ * elsewhere in this codebase — e.g. Soulbeast's per-pet-family kit starting "Beast.", see
+ * `profession-mechanic.ts`'s `EXCLUDED_MECHANIC_SKILL_IDS`) and which carry `specializationId:
+ * null` — the wrong-set bug hid behind exactly that split. Each slot has 2 near-identical ids
+ * (differing only by a `GroundTargeted`/`NoUnderwater` flag pair with no other distinguishing
+ * field) — same shape as Ritualist's Shroud slots in `NECRO_SHROUD_SLOT_SKILLS` below, not a real
+ * land/underwater split (Celestial Avatar can't be entered underwater at all); falls back to the
+ * lower id deterministically, a documented known limitation rather than a guess.
  */
 function celestialAvatarSlotSkillIds(skillsById: Map<number, Skill>): (number | null)[] {
-  const bySlot = new Map<string, Skill>()
+  const bySlot = new Map<string, Skill[]>()
   for (const skill of skillsById.values()) {
-    if (skill.specializationId === DRUID_SPEC_ID && skill.slot.startsWith('Weapon_')) bySlot.set(skill.slot, skill)
+    if (skill.categories.includes('CelestialAvatar') && skill.slot.startsWith('Weapon_')) {
+      const existing = bySlot.get(skill.slot)
+      if (existing) existing.push(skill)
+      else bySlot.set(skill.slot, [skill])
+    }
   }
-  return ['Weapon_1', 'Weapon_2', 'Weapon_3', 'Weapon_4', 'Weapon_5'].map((slot) => bySlot.get(slot)?.id ?? null)
+  return ['Weapon_1', 'Weapon_2', 'Weapon_3', 'Weapon_4', 'Weapon_5'].map((slot) => {
+    const candidates = bySlot.get(slot)
+    if (!candidates || candidates.length === 0) return null
+    return [...candidates].sort((a, b) => a.id - b.id)[0].id
+  })
 }
 
 /**
@@ -81,10 +95,10 @@ export function bundleCapableSkillIds(
 }
 
 /** Ids `ProfessionMechanicBar` makes clickable directly on their own F-bar icon rather than
- *  through the separate toggle row — currently Tomes and Shroud (Celestial Avatar and Kits still
- *  use the row; see that component's doc comment for why). */
+ *  through the separate toggle row — Tomes, Shroud, and Celestial Avatar (Engineer Kits still use
+ *  the row; see that component's doc comment for why). */
 export function isMechanicBarBundleId(id: number, tomeChapters: TomeChaptersByTomeId): boolean {
-  return id in tomeChapters || id in NECRO_SHROUD_SLOT_SKILLS
+  return id in tomeChapters || id in NECRO_SHROUD_SLOT_SKILLS || id === CELESTIAL_AVATAR_SKILL_ID
 }
 
 /** One resolved slot (1-5) of an active kit/tome bundle — either a real `Skill` (Kit) or a
