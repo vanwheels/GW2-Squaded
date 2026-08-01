@@ -26,13 +26,45 @@ function celestialAvatarSlotSkillIds(skillsById: Map<number, Skill>): (number | 
 }
 
 /**
+ * Necromancer's Shroud (core Death Shroud, Reaper's Shroud, Harbinger Shroud, Ritualist's Shroud —
+ * NOT Scourge, which replaces Shroud with the non-bundle Shade mechanic instead): entering Shroud
+ * replaces the weapon-skill bar with 5 fixed skills, same bundle shape as Celestial Avatar, keyed
+ * by the F1 mechanic-bar skill id `profession-mechanic.ts` already resolves (10574/30792/62567/
+ * 77238 for core/Reaper/Harbinger/Ritualist respectively). Hand-verified 2026-07-31 against both
+ * the wiki and `/v2/skills` — a genuinely unusual API data shape not worth generalizing into a
+ * `celestialAvatarSlotSkillIds`-style auto-scan: every Shroud's slots 1-4 are tagged `slot:
+ * "Downed_1"`-`"Downed_4"` in the raw data (reusing the Downed-state bar's own slot labels, not a
+ * `Weapon_`-prefixed one — real, confirmed by cross-referencing exact skill names against the wiki
+ * page for each Shroud, not a guess), and only slot 5 gets `"Weapon_5"`. Per-variant notes:
+ * - Core: single id per slot, no ambiguity (10554/10604/10588/10594/19504).
+ * - Reaper: slot 1 is itself a 3-hit chain (Life Rend -> Life Slash -> Life Reap); slot 3's
+ *   "Infusing Terror" flips to a dormant "Terrify" id. Only the chain/flip entry points are listed
+ *   below (29442, not 29458/30278; 29958, not its flip target 29709) — the flip targets are never
+ *   independently equippable, same reasoning `weapon-calc/weapon-skills.ts` already documents.
+ * - Harbinger: single id per slot, no ambiguity.
+ * - Ritualist: slots 3 ("Wanderlust") and 5 ("Summon Spirits") each have 2 near-identical duplicate
+ *   ids differing only in a `GroundTargeted`/`NoUnderwater` flag pair with no other distinguishing
+ *   field — same "duplicate ids, no clean signal" shape as the Weaver Dual Attack/duplicate-skill
+ *   cases in TODO.md. Falls back to the lower id deterministically (76741, 76607) rather than
+ *   guessing which is "correct" — a documented known limitation, not a silent guess.
+ */
+const NECRO_SHROUD_SLOT_SKILLS: Record<number, number[]> = {
+  10574: [10554, 10604, 10588, 10594, 19504], // core Death Shroud
+  30792: [29442, 30825, 29958, 30504, 30557], // Reaper's Shroud
+  62567: [62611, 62621, 62672, 62539, 62563], // Harbinger Shroud
+  77238: [77061, 76864, 76741, 76684, 76607] // Ritualist's Shroud
+}
+
+/**
  * Every equipped Heal/Utility/Elite skill id that's a "bundle" — Engineer Kits (`Skill.bundleSkills`)
  * — plus every Firebrand Tome id present in `mechanicBarSkillIds` (Tomes are Guardian mechanic-bar
  * skills, not Heal/Utility/Elite picks — see `Build.activeBundleSkillId`'s doc comment — so they're
- * passed in separately rather than read off `build.skills`), plus Druid's Celestial Avatar id under
- * the same condition (`Profession_5`, resolved by `professionMechanicBar` same as Tomes' `Profession_
- * 1`-`3`). These are the ids capable of being toggled into `Build.activeBundleSkillId`; used both to
- * validate/clear that field and to list toggle candidates in the UI.
+ * passed in separately rather than read off `build.skills`), plus Druid's Celestial Avatar id and
+ * Necromancer's Shroud id under the same condition (`Profession_1`/`_5`, resolved by
+ * `professionMechanicBar` same as Tomes' `Profession_1`-`3`). These are the ids capable of being
+ * toggled into `Build.activeBundleSkillId`; used both to validate/clear that field and to list
+ * toggle candidates in the UI (though Tomes and Shroud toggle via their own F-bar icon now, see
+ * `ProfessionMechanicBar` — only Kits and Celestial Avatar still use the separate toggle row).
  */
 export function bundleCapableSkillIds(
   build: Build,
@@ -44,7 +76,15 @@ export function bundleCapableSkillIds(
   const kitIds = equippedIds.filter((id): id is number => id !== null && (skillsById.get(id)?.bundleSkills?.length ?? 0) > 0)
   const tomeIds = mechanicBarSkillIds.filter((id) => id in tomeChapters)
   const celestialAvatarIds = mechanicBarSkillIds.filter((id) => id === CELESTIAL_AVATAR_SKILL_ID)
-  return [...kitIds, ...tomeIds, ...celestialAvatarIds]
+  const shroudIds = mechanicBarSkillIds.filter((id) => id in NECRO_SHROUD_SLOT_SKILLS)
+  return [...kitIds, ...tomeIds, ...celestialAvatarIds, ...shroudIds]
+}
+
+/** Ids `ProfessionMechanicBar` makes clickable directly on their own F-bar icon rather than
+ *  through the separate toggle row — currently Tomes and Shroud (Celestial Avatar and Kits still
+ *  use the row; see that component's doc comment for why). */
+export function isMechanicBarBundleId(id: number, tomeChapters: TomeChaptersByTomeId): boolean {
+  return id in tomeChapters || id in NECRO_SHROUD_SLOT_SKILLS
 }
 
 /** One resolved slot (1-5) of an active kit/tome bundle — either a real `Skill` (Kit) or a
@@ -98,6 +138,18 @@ export function resolveActiveBundle(
     }
   }
 
+  const shroudSlotIds = NECRO_SHROUD_SLOT_SKILLS[id]
+  if (shroudSlotIds) {
+    return {
+      kind: 'kit',
+      sourceSkill,
+      slots: shroudSlotIds.map((skillId) => {
+        const skill = skillsById.get(skillId)
+        return skill ? { kind: 'kit', skill } : null
+      })
+    }
+  }
+
   const chapters = tomeChapters[id]
   if (chapters) {
     const bySlot = new Map(chapters.map((c) => [c.slotIndex, c]))
@@ -144,6 +196,11 @@ export function bundleSkillIdsForBuild(
       for (const resolvedId of celestialAvatarSlotSkillIds(skillsById)) {
         if (resolvedId !== null) kitSkillIds.push(resolvedId)
       }
+      continue
+    }
+    const shroudSlotIds = NECRO_SHROUD_SLOT_SKILLS[id]
+    if (shroudSlotIds) {
+      kitSkillIds.push(...shroudSlotIds)
       continue
     }
     const tomeChaptersForId = tomeChapters[id]

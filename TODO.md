@@ -57,9 +57,21 @@ and the Ranger pet-swap/Untamed-swap text buttons get replaced by the cycle icon
 it alongside.
 
 ### Warrior
-- [ ] Bladesworn's Dragon Trigger (F2) has its own unique weapon skills while active — same "bundle"
-      shape as Firebrand Tomes but not yet implemented as one at all. Apply the same F-icon
-      click-toggle pattern (click F2 to show Dragon Trigger's weapon skills, click again to revert).
+- [ ] Bladesworn's Gunsaber/Dragon Trigger: turned out to be a much deeper gap than expected,
+      investigated 2026-07-31 and deliberately deferred rather than shipping unverified data.
+      Gunsaber is Bladesworn's innate main-hand weapon ("second weapon set" — normal weapon-swap is
+      disabled in combat for Bladesworn) and has NO entry anywhere in `profession.weapons`; its
+      wiki-named slot-1-3 skills (Swift Cut/Steel Divide/Explosive Thrust) come back from the live
+      `/v2/skills` API with no `professions`/`specialization`/`slot` fields at all — worse than
+      Dragonhunter's gap, where those fields were at least present. Two separate wiki fetches for
+      Gunsaber's slot-4/5 skills also gave contradictory names (Blooming Fire/Artillery Slash vs.
+      Cyclone Trigger/Break Step), so treat any wiki-derived name for this page as unreliable
+      without a second, independent source. Red herring already ruled out: "Gunstinger"/"Dragon's
+      Roar" (specializationId 68, Weapon_4/5) are NOT Gunsaber's skills — they're Bladesworn's
+      Weaponmaster-Training unlock for Warrior's off-hand Pistol (`profession.weapons['Pistol']`,
+      `flags: ["Offhand"]`), unrelated to the main-hand Gunsaber weapon. Needs either a better data
+      source (in-game screenshot/tooltip confirmation) or accepting explicitly-flagged low-confidence
+      ids before implementing Gunsaber's base bar + Dragon Trigger's F2 bundle-toggle on top of it.
 
 ### Engineer
 - [ ] Edge case, explicitly deferred: Engineer's weapon-skill kit-swap is tied to `Skills`
@@ -95,9 +107,11 @@ it alongside.
       skill should feed into the boon/condition calculator in `sources.ts`.
 - [ ] Specter isn't implemented at all: F1 (Steal) should become "Siphon", and F2 should become a
       Shroud toggle mirroring Reaper's — another F-icon click-toggle that swaps the weapon-skill row
-      to Specter's Shroud skills. Needs its own bundle-skills-style resolution (Specter Shroud isn't a
-      Heal/Utility/Elite kit or a Tome, so `bundle-skills.ts` needs a 3rd bundle kind, or
-      `weapon-calc/weapon-skills.ts` needs a shroud-specific path).
+      to Specter's Shroud skills. `bundle-skills.ts` already has a generic mechanism for this now
+      (`NECRO_SHROUD_SLOT_SKILLS`'s `Record<toggleSkillId, number[]>` shape, added 2026-07-31 for
+      Necromancer's own Shroud) — Specter's Shroud just needs its own hand-verified 5-id entry added
+      to that same map (or a sibling one) once the skill ids are confirmed against the wiki/API; no
+      new bundle "kind" needed.
 
 ### Elementalist
 - [ ] Attunement toggle (`WeaponSkillBar.tsx`'s "extras" Fire/Water/Air/Earth buttons) should follow
@@ -126,10 +140,6 @@ it alongside.
       cross-contaminating unrelated specs.
 
 ### Necromancer
-- [ ] Core Necromancer, Reaper, Harbinger, and Ritualist all have a Shroud (F1) toggle currently
-      implemented as a separate text-toggle row (same shape as the old Firebrand Tome buttons). Same
-      F-icon click-toggle pattern applies: clicking the Shroud F1 icon should swap the weapon-skill
-      row to Shroud's skills, not stay as its own labeled text button.
 - [ ] "Necrotic Traversal" (2nd half of Summon Flesh Wurm's flip-skill chain) is filed under "Other"
       in the skill picker category grouping — should be associated with/grouped near Summon Flesh
       Wurm instead.

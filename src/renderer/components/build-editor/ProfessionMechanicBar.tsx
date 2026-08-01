@@ -7,6 +7,7 @@ import {
   soulbeastBeastmodeBar,
   type ProfessionMechanicBarEntry
 } from '@shared/skill-calc/profession-mechanic'
+import { isMechanicBarBundleId } from '@shared/skill-calc/bundle-skills'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor'
 
@@ -26,14 +27,15 @@ interface Props {
  * including Revenant/Ranger, since both have *other* real F-buttons beyond what their dedicated
  * `RevenantSkillsEditor`/`PetsEditor` pickers already show).
  *
- * Firebrand's Tome entries (F1-F3) are the one exception — clickable rather than disabled,
- * confirmed 2026-07-31: clicking a Tome icon swaps `WeaponSkillBar`'s displayed 1-5 row to that
- * Tome's chapters (`Build.activeBundleSkillId`, same field the old "Weapon/Tome of X" text-toggle
- * row used), clicking the active one again reverts to Weapon, and clicking a different Tome while
- * one is active switches directly to it — replacing the separate text-toggle row entirely for
- * Tomes specifically (Engineer Kits and Druid's Celestial Avatar still use that row, see
- * `WeaponSkillBar`'s `toggleRowIds`). Scoped by `id in tomeChapters` rather than a Firebrand
- * profession check since that's already the exact, only set of ids this applies to.
+ * Firebrand's Tome entries (F1-F3) and Necromancer's Shroud entry (F1) are the exception —
+ * clickable rather than disabled, confirmed 2026-07-31: clicking the icon swaps `WeaponSkillBar`'s
+ * displayed 1-5 row to that bundle's skills (`Build.activeBundleSkillId`, same field the old
+ * "Weapon/Tome of X" text-toggle row used), clicking the active one again reverts to Weapon, and
+ * clicking a different one while one is active switches directly to it — replacing the separate
+ * text-toggle row entirely for Tomes/Shroud specifically (Engineer Kits and Druid's Celestial
+ * Avatar still use that row, see `WeaponSkillBar`'s `toggleRowIds`; Druid's own click-toggle
+ * conversion is a separate, still-open TODO item). Scoped via `isMechanicBarBundleId` rather than
+ * a per-profession check since that's already the exact, only set of ids this applies to.
  */
 export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuildChange }: Props) {
   const { gameData, activeIds, durationPercent } = useDurationContext(build)
@@ -67,15 +69,15 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
   return (
     <div className="skill-bar profession-mechanic-bar ingame-skill-bar-mechanic">
       {entries.map((entry) => {
-        const isTome = entry.skill.id in tomeChapters
-        const isActive = isTome && build.activeBundleSkillId === entry.skill.id
+        const isBundle = isMechanicBarBundleId(entry.skill.id, tomeChapters)
+        const isActive = isBundle && build.activeBundleSkillId === entry.skill.id
         return (
           <Tooltip key={entry.slot} content={skillTooltipFor(entry.skill.id) ?? <TooltipBody title="Unknown skill" />}>
             <button
               type="button"
               className={isActive ? 'skill-slot-button active' : 'skill-slot-button'}
-              disabled={!isTome}
-              onClick={isTome ? () => onBuildChange({ activeBundleSkillId: isActive ? null : entry.skill.id }) : undefined}
+              disabled={!isBundle}
+              onClick={isBundle ? () => onBuildChange({ activeBundleSkillId: isActive ? null : entry.skill.id }) : undefined}
             >
               <img src={entry.skill.icon} alt={entry.skill.name} />
             </button>

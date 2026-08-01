@@ -1,7 +1,7 @@
 import type { Build, TomeChapter } from '@shared/types'
 import { boonConditionFactsForSkill, tomeChapterBoonSources } from '@shared/boon-calc/sources'
 import { weaponSkillIdsForPair } from '@shared/weapon-calc/weapon-skills'
-import { bundleCapableSkillIds, resolveActiveBundle } from '@shared/skill-calc/bundle-skills'
+import { bundleCapableSkillIds, isMechanicBarBundleId, resolveActiveBundle } from '@shared/skill-calc/bundle-skills'
 import { professionMechanicBar } from '@shared/skill-calc/profession-mechanic'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '@shared/skill-calc/untamed-unleash'
 import { formatFactLine } from '@shared/gear-calc/relic-effects-format'
@@ -87,9 +87,10 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
   const bundleCapableIds = bundleCapableSkillIds(build, skillsById, tomeChapters, mechanicBarSkillIds)
   const activeBundleId = build.activeBundleSkillId !== null && bundleCapableIds.includes(build.activeBundleSkillId) ? build.activeBundleSkillId : null
   const activeBundle = activeBundleId !== null ? resolveActiveBundle(build, skillsById, tomeChapters, build.environment) : null
-  // Firebrand Tomes toggle via their own F1-F3 icons in `ProfessionMechanicBar` now, not this row
-  // (see that component's doc comment) — Engineer Kits and Druid's Celestial Avatar still do.
-  const toggleRowIds = bundleCapableIds.filter((id) => !(id in tomeChapters))
+  // Firebrand Tomes/Necromancer Shroud toggle via their own F-bar icon in `ProfessionMechanicBar`
+  // now, not this row (see that component's doc comment) — Engineer Kits and Druid's Celestial
+  // Avatar still do.
+  const toggleRowIds = bundleCapableIds.filter((id) => !isMechanicBarBundleId(id, tomeChapters))
 
   function skillTooltipFor(skillId: number) {
     const skill = skillsById.get(skillId)

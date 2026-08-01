@@ -2,10 +2,10 @@
 
 Entries are added as work lands, most recent first.
 
-## Session 35 — Skill bar feedback pass: General + Guardian items
+## Session 35 — Skill bar feedback pass: General, Guardian, Necromancer
 
 Working through the 2026-07-31 skill-bar UI/UX feedback pass (TODO.md), starting with the two
-profession-agnostic "General" items, then Guardian's two.
+profession-agnostic "General" items, then Guardian's two, then Necromancer's Shroud toggle.
 
 - Weapon-skill-bar empty-state placeholder ("Choose a weapon in the Equipment panel...") now has a
   fixed width matching a full 5-slot skill row (272px = 5 × 48px buttons + 4 × 8px gaps), so the
@@ -38,12 +38,36 @@ profession-agnostic "General" items, then Guardian's two.
   chapters, click the active one again to revert to Weapon, click a different Tome while one's
   active to switch directly to it — all still driving the same `Build.activeBundleSkillId` field
   the old row used, so the boon/condition calc and `WeaponSkillBar`'s "weapon" section needed no
-  changes. `ProfessionMechanicBar` now takes `onBuildChange` and scopes the clickable/active
-  treatment to `id in tomeChapters` (i.e. Tomes only, automatically — no Firebrand-specific check
-  needed). Engineer Kits and Druid's Celestial Avatar keep using the old text-toggle row
-  unchanged (`WeaponSkillBar`'s new `toggleRowIds` just excludes Tome ids from it) — Druid's own
-  click-toggle conversion is a separate, still-open TODO item (it also needs an icon fix Firebrand
-  didn't). New `.skill-slot-button.active` CSS class for the highlighted state.
+  changes. Engineer Kits and Druid's Celestial Avatar keep using the old text-toggle row unchanged
+  (`WeaponSkillBar`'s new `toggleRowIds` excludes only the ids `ProfessionMechanicBar` now handles
+  itself) — Druid's own click-toggle conversion is a separate, still-open TODO item (it also needs
+  an icon fix Firebrand didn't). New `.skill-slot-button.active` CSS class for the highlighted
+  state.
+- Necromancer's Shroud (core Death Shroud, Reaper's, Harbinger, Ritualist's — not Scourge, which
+  uses the unrelated Shade mechanic) now works the same way: F1 is clickable, swapping the weapon
+  row to Shroud's 5 skills. This one needed real data archaeology, not just a UI change: Shroud's
+  slots 1-4 are tagged `slot: "Downed_1"`-`"Downed_4"` in the raw API (reusing the Downed-state
+  bar's own labels, confirmed against the wiki for all 4 variants — not a guess), with only slot 5
+  tagged `"Weapon_5"`; Reaper's slot 1 is itself a 3-hit chain and slot 3 has a flip target,
+  resolved the same "keep the entry point, drop the flip target" way `weapon-calc/weapon-skills.ts`
+  already does; Ritualist's slots 3 and 5 each have 2 near-identical duplicate ids with no
+  distinguishing field (documented known limitation, falls back to the lower id, same shape as the
+  Weaver Dual Attack case). New `NECRO_SHROUD_SLOT_SKILLS` map in `bundle-skills.ts`, hooked into
+  the existing `bundleCapableSkillIds`/`resolveActiveBundle`/`bundleSkillIdsForBuild` functions
+  alongside Kits/Tomes/Celestial Avatar (Shroud always contributes to boon/condition totals
+  regardless of display state, same "could be entered at will" reasoning as every other bundle).
+  Generalized the Firebrand-only "is this clickable in the F-bar" check from a literal
+  `id in tomeChapters` into a shared `isMechanicBarBundleId` helper (Tomes ∪ Shroud) so both
+  `ProfessionMechanicBar` and `WeaponSkillBar`'s `toggleRowIds` stay in sync automatically as more
+  professions get this treatment.
+- Investigated Warrior Bladesworn's Dragon Trigger (F2) per the TODO item, but it turned out to
+  need its own innate-weapon foundation first ("Gunsaber") that doesn't exist in this app at all —
+  bigger than the TODO's framing assumed. Deliberately stopped short of implementing rather than
+  shipping unverified data: Gunsaber's core skills come back from the live API with no
+  profession/spec/slot fields whatsoever (worse than Dragonhunter's gap), and two wiki fetches for
+  its slot 4-5 skills gave contradictory names. Full findings and the ruled-out red herring
+  ("Gunstinger"/"Dragon's Roar" are Bladesworn's off-hand-Pistol Weaponmaster-Training unlock, not
+  Gunsaber) are written up in TODO.md's Warrior section for whoever picks this up next.
 - Verified via `npm run typecheck` and `npm run lint` (both clean); no test suite exists yet to run.
 
 ## Session 34 — Thin backend: shareable build/squad links, deployed live
