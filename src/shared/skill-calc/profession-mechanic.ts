@@ -214,7 +214,11 @@ export function professionMechanicBar(
   for (const slot of slotOrder.sort()) {
     let candidates = bySlot.get(slot)!
     if (profession.id === 'Warrior' && slot === 'Profession_1') {
-      candidates = mainHandWeaponType ? candidates.filter((s) => s.weaponType === mainHandWeaponType) : []
+      // Burst Skill candidates carry a real weaponType and vary by equipped main-hand weapon;
+      // Bladesworn's Gunsaber toggle ("Unsheathe Gunsaber", weaponType "None") doesn't — it's an
+      // innate, weapon-independent button, so it must survive this filter regardless of what's
+      // equipped (or if nothing is), unlike every other Profession_1 candidate here.
+      candidates = candidates.filter((s) => s.weaponType === null || s.weaponType === 'None' || s.weaponType === mainHandWeaponType)
     }
     const chosen = resolveMechanicSlot(candidates, equippedSpecializationIds)
     if (!chosen) continue

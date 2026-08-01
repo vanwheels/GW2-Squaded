@@ -56,23 +56,6 @@ were resolved while triaging this list (see the affected items): multi-option F-
 and the Ranger pet-swap/Untamed-swap text buttons get replaced by the cycle icon rather than gaining
 it alongside.
 
-### Warrior
-- [ ] Bladesworn's Gunsaber/Dragon Trigger: turned out to be a much deeper gap than expected,
-      investigated 2026-07-31 and deliberately deferred rather than shipping unverified data.
-      Gunsaber is Bladesworn's innate main-hand weapon ("second weapon set" — normal weapon-swap is
-      disabled in combat for Bladesworn) and has NO entry anywhere in `profession.weapons`; its
-      wiki-named slot-1-3 skills (Swift Cut/Steel Divide/Explosive Thrust) come back from the live
-      `/v2/skills` API with no `professions`/`specialization`/`slot` fields at all — worse than
-      Dragonhunter's gap, where those fields were at least present. Two separate wiki fetches for
-      Gunsaber's slot-4/5 skills also gave contradictory names (Blooming Fire/Artillery Slash vs.
-      Cyclone Trigger/Break Step), so treat any wiki-derived name for this page as unreliable
-      without a second, independent source. Red herring already ruled out: "Gunstinger"/"Dragon's
-      Roar" (specializationId 68, Weapon_4/5) are NOT Gunsaber's skills — they're Bladesworn's
-      Weaponmaster-Training unlock for Warrior's off-hand Pistol (`profession.weapons['Pistol']`,
-      `flags: ["Offhand"]`), unrelated to the main-hand Gunsaber weapon. Needs either a better data
-      source (in-game screenshot/tooltip confirmation) or accepting explicitly-flagged low-confidence
-      ids before implementing Gunsaber's base bar + Dragon Trigger's F2 bundle-toggle on top of it.
-
 ### Engineer
 - [ ] Edge case, explicitly deferred: Engineer's weapon-skill kit-swap is tied to `Skills`
       (Heal/Utility/Elite choices), not to profession specialization, so the Firebrand-style F-icon

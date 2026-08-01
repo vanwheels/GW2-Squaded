@@ -27,15 +27,16 @@ interface Props {
  * including Revenant/Ranger, since both have *other* real F-buttons beyond what their dedicated
  * `RevenantSkillsEditor`/`PetsEditor` pickers already show).
  *
- * Firebrand's Tome entries (F1-F3), Necromancer's Shroud entry (F1), and Druid's Celestial Avatar
- * entry (F5) are the exception — clickable rather than disabled, confirmed 2026-07-31: clicking
- * the icon swaps `WeaponSkillBar`'s displayed 1-5 row to that bundle's skills
- * (`Build.activeBundleSkillId`, same field the old "Weapon/Tome of X"/"Weapon/Celestial Avatar"
- * text-toggle row used), clicking the active one again reverts to Weapon, and clicking a different
- * one while one is active switches directly to it — replacing the separate text-toggle row
- * entirely for Tomes/Shroud/Celestial-Avatar specifically (Engineer Kits still use that row, see
- * `WeaponSkillBar`'s `toggleRowIds`). Scoped via `isMechanicBarBundleId` rather than a
- * per-profession check since that's already the exact, only set of ids this applies to.
+ * Firebrand's Tome entries (F1-F3), Necromancer's Shroud entry (F1), Druid's Celestial Avatar
+ * entry (F5), and Bladesworn's "Unsheathe Gunsaber" entry (F1) are the exception — clickable
+ * rather than disabled, confirmed 2026-07-31: clicking the icon swaps `WeaponSkillBar`'s displayed
+ * 1-5 row to that bundle's skills (`Build.activeBundleSkillId`, same field the old "Weapon/Tome of
+ * X"/"Weapon/Celestial Avatar" text-toggle row used), clicking the active one again reverts to
+ * Weapon, and clicking a different one while one is active switches directly to it — replacing the
+ * separate text-toggle row entirely for Tomes/Shroud/Celestial-Avatar/Gunsaber specifically
+ * (Engineer Kits still use that row, see `WeaponSkillBar`'s `toggleRowIds`). Scoped via
+ * `isMechanicBarBundleId` rather than a per-profession check since that's already the exact, only
+ * set of ids this applies to.
  */
 export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuildChange }: Props) {
   const { gameData, activeIds, durationPercent } = useDurationContext(build)

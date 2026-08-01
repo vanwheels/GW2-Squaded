@@ -2,6 +2,53 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 37 — Skill bar feedback pass: Warrior (Bladesworn Gunsaber/Dragon Trigger)
+
+Unblocked the Bladesworn item deferred in Session 35 with the user's help: they supplied real
+in-game tooltip screenshots (F1/F2 icons, all 5 Gunsaber weapon-bar skills), which turned out to
+reveal a different and more precise gap than the original wiki-only investigation had found.
+
+- F1 "Unsheathe Gunsaber"/"Sheathe Gunsaber" (62745/62861) and F2 "Dragon Trigger" (62803) were
+  already present in `data/game-data/skills.json` with full, correctly-tagged data
+  (`specializationId: 68`, `Profession_1`/`_2` slots) — the original investigation's "no
+  professions/specialization/slot fields at all" finding didn't apply to these; they resolve
+  through the existing generic `professionMechanicBar` resolver with zero special-casing needed.
+  One real bug found in that resolver along the way: Warrior's `Profession_1` slot has a
+  weapon-type filter (`candidates.filter((s) => s.weaponType === mainHandWeaponType)`) built for
+  Burst Skill's per-weapon variants, which was silently excluding Gunsaber's F1 entirely (its
+  `weaponType` is the literal string `"None"`, never equal to any real weapon type) — fixed by
+  letting `null`/`"None"`-weaponType candidates through regardless of equipped weapon.
+- The actual Gunsaber weapon-skill-bar (1-5) was the genuinely hard part. The user's tooltips gave
+  exact slot assignments (1: Swift Cut→Steel Divide→Explosive Thrust auto-attack chain, 2: Blooming
+  Fire, 3: Artillery Slash, 4: Cyclone Trigger, 5: Break Step) with description text that let every
+  id be nailed down precisely via the wiki. Along the way, caught the earlier investigation's ids
+  (66473/65618/63841/64766) as flat-out wrong — a coincidental same-name collision with unrelated
+  Cantha Living World NPC boss skills (e.g. the found "Artillery Slash" was actually Minister Li's
+  attack, with completely different numbers from the user's screenshot). The REAL ids (Swift Cut
+  62966, Blooming Fire 62930, Artillery Slash 62732, Cyclone Trigger 62789, Break Step 62885) are
+  wiki-confirmed (description text matches the screenshots word-for-word) but — confirmed via a
+  fresh direct query, not stale cache — don't resolve through the public `/v2/skills` endpoint at
+  all ("all ids provided are invalid"), even though the bare id index shows no gap around them.
+  Genuinely excluded from the public API, apparently deliberately on ArenaNet's side.
+- Confirmed with the user: hand-author these 5 as `Skill` objects (new `gunsaber-skills.ts`) merged
+  into `skillsById` at load time (`game-data-store.tsx`), same idea as Tome chapters being sourced
+  outside the normal API pipeline. Icons use the wiki's own hosted images (no official CDN render
+  exists for these) — the one deliberate icon-sourcing inconsistency in the app, called out
+  explicitly rather than silently introduced. Facts are limited to non-damage structural data
+  (Range/Recharge/Targets/Combo Finisher) plus the 2 real self-buffs that matter for this app's
+  core purpose (Cyclone Trigger's 3s Aegis, Break Step's 5s Fury) — raw damage numbers from a
+  screenshot are a function of the viewer's own power stat, not portable data, matching this app's
+  existing, deliberate policy of never reconstructing those (`skill-calc/fact-numbers.ts`).
+- Wired through the same "F1 click-toggle swaps the weapon bar to 5 fixed skills" bundle mechanism
+  as Necromancer's Shroud (`GUNSABER_SLOT_SKILLS` in `bundle-skills.ts`, keyed by the Unsheathe
+  Gunsaber id). Verified end-to-end with standalone trace scripts (not committed): Bladesworn's
+  F-bar resolves to the right F1/F2 ids, the F1 icon is clickable, activating it resolves the
+  weapon bar to exactly Swift Cut/Blooming Fire/Artillery Slash/Cyclone Trigger/Break Step in the
+  right slot order with working wiki icon URLs, the boon extractor correctly picks up Aegis/Fury
+  from the right 2 skills, and a base Warrior (no elite spec) still sees a normal per-weapon Burst
+  Skill at F1 rather than Gunsaber — confirming the weapon-type-filter fix didn't regress the
+  normal case.
+
 ## Session 36 — Skill bar feedback pass: Ranger
 
 Continuing the 2026-07-31 skill-bar UI/UX feedback pass (TODO.md), working through Ranger's items.

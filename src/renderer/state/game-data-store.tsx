@@ -15,6 +15,7 @@ import type {
   Trait
 } from '@shared/types'
 import { visibleSkillsForSlot } from '@shared/skill-calc/skill-variants'
+import { GUNSABER_SKILLS } from '@shared/skill-calc/gunsaber-skills'
 
 export interface GameDataStore extends GameData {
   loading: boolean
@@ -90,7 +91,10 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
   const store = useMemo<GameDataStore>(() => {
     const specializationsById = new Map(gameData.specializations.map((s) => [s.id, s]))
     const traitsById = new Map(gameData.traits.map((t) => [t.id, t]))
-    const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
+    // Bladesworn's Gunsaber weapon-bar skills don't exist in the public API at all (see
+    // `gunsaber-skills.ts`'s doc comment) — merged in here so every normal consumer of
+    // `skillsById` works unmodified, same as any other skill.
+    const skillsById = new Map([...gameData.skills, ...GUNSABER_SKILLS].map((s) => [s.id, s]))
     const legendsById = new Map(gameData.legends.map((l) => [l.id, l]))
     const petsById = new Map(gameData.pets.map((p) => [p.id, p]))
     const familiarsById = new Map(gameData.familiars.map((f) => [f.id, f]))

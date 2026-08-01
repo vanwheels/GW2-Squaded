@@ -1,5 +1,6 @@
 import type { Build, Environment, Skill, TomeChapter, TomeChaptersByTomeId } from '../types'
 import { resolveSkillBarIds } from '../weapon-calc/weapon-skills'
+import { GUNSABER_WEAPON_BAR_SKILL_IDS } from './gunsaber-skills'
 
 /** Druid's "Celestial Avatar" mechanic-bar (Profession_5) skill id. */
 const CELESTIAL_AVATAR_SKILL_ID = 31869
@@ -69,6 +70,16 @@ const NECRO_SHROUD_SLOT_SKILLS: Record<number, number[]> = {
   77238: [77061, 76864, 76741, 76684, 76607] // Ritualist's Shroud
 }
 
+/** Bladesworn's "Unsheathe Gunsaber" id (Warrior's Profession_1 F1 button — see
+ *  `profession-mechanic.ts`'s Warrior weapon-type-filter carve-out for why it survives that
+ *  filter) mapped to Gunsaber's own 5 weapon-bar skills — same bundle shape as Necromancer's
+ *  Shroud above, except these 5 ids don't exist in the API at all and are hand-authored in
+ *  `gunsaber-skills.ts` (see that file's doc comment for the full data-gap writeup). */
+const GUNSABER_UNSHEATHE_SKILL_ID = 62745
+const GUNSABER_SLOT_SKILLS: Record<number, number[]> = {
+  [GUNSABER_UNSHEATHE_SKILL_ID]: GUNSABER_WEAPON_BAR_SKILL_IDS
+}
+
 /**
  * Every equipped Heal/Utility/Elite skill id that's a "bundle" — Engineer Kits (`Skill.bundleSkills`)
  * — plus every Firebrand Tome id present in `mechanicBarSkillIds` (Tomes are Guardian mechanic-bar
@@ -91,14 +102,15 @@ export function bundleCapableSkillIds(
   const tomeIds = mechanicBarSkillIds.filter((id) => id in tomeChapters)
   const celestialAvatarIds = mechanicBarSkillIds.filter((id) => id === CELESTIAL_AVATAR_SKILL_ID)
   const shroudIds = mechanicBarSkillIds.filter((id) => id in NECRO_SHROUD_SLOT_SKILLS)
-  return [...kitIds, ...tomeIds, ...celestialAvatarIds, ...shroudIds]
+  const gunsaberIds = mechanicBarSkillIds.filter((id) => id in GUNSABER_SLOT_SKILLS)
+  return [...kitIds, ...tomeIds, ...celestialAvatarIds, ...shroudIds, ...gunsaberIds]
 }
 
 /** Ids `ProfessionMechanicBar` makes clickable directly on their own F-bar icon rather than
- *  through the separate toggle row — Tomes, Shroud, and Celestial Avatar (Engineer Kits still use
- *  the row; see that component's doc comment for why). */
+ *  through the separate toggle row — Tomes, Shroud, Celestial Avatar, and Gunsaber (Engineer Kits
+ *  still use the row; see that component's doc comment for why). */
 export function isMechanicBarBundleId(id: number, tomeChapters: TomeChaptersByTomeId): boolean {
-  return id in tomeChapters || id in NECRO_SHROUD_SLOT_SKILLS || id === CELESTIAL_AVATAR_SKILL_ID
+  return id in tomeChapters || id in NECRO_SHROUD_SLOT_SKILLS || id === CELESTIAL_AVATAR_SKILL_ID || id in GUNSABER_SLOT_SKILLS
 }
 
 /** One resolved slot (1-5) of an active kit/tome bundle — either a real `Skill` (Kit) or a
@@ -164,6 +176,18 @@ export function resolveActiveBundle(
     }
   }
 
+  const gunsaberSlotIds = GUNSABER_SLOT_SKILLS[id]
+  if (gunsaberSlotIds) {
+    return {
+      kind: 'kit',
+      sourceSkill,
+      slots: gunsaberSlotIds.map((skillId) => {
+        const skill = skillsById.get(skillId)
+        return skill ? { kind: 'kit', skill } : null
+      })
+    }
+  }
+
   const chapters = tomeChapters[id]
   if (chapters) {
     const bySlot = new Map(chapters.map((c) => [c.slotIndex, c]))
@@ -215,6 +239,11 @@ export function bundleSkillIdsForBuild(
     const shroudSlotIds = NECRO_SHROUD_SLOT_SKILLS[id]
     if (shroudSlotIds) {
       kitSkillIds.push(...shroudSlotIds)
+      continue
+    }
+    const gunsaberSlotIds = GUNSABER_SLOT_SKILLS[id]
+    if (gunsaberSlotIds) {
+      kitSkillIds.push(...gunsaberSlotIds)
       continue
     }
     const tomeChaptersForId = tomeChapters[id]
