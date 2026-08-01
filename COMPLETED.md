@@ -60,6 +60,18 @@ profession-agnostic "General" items, then Guardian's two, then Necromancer's Shr
   `id in tomeChapters` into a shared `isMechanicBarBundleId` helper (Tomes ∪ Shroud) so both
   `ProfessionMechanicBar` and `WeaponSkillBar`'s `toggleRowIds` stay in sync automatically as more
   professions get this treatment.
+- Follow-up bug found immediately after the above landed (user report: Reaper/Harbinger/Ritualist
+  were all displaying core Death Shroud's skills instead of their own): the F1 "which Shroud is
+  this" resolution in `profession-mechanic.ts` was the culprit, not `NECRO_SHROUD_SLOT_SKILLS`
+  itself — Reaper's Shroud/Harbinger Shroud/Ritualist's Shroud are, unlike every other elite spec's
+  mechanic-skill rework already handled in this file, tagged `specializationId: null` in the raw
+  API (verified live), so the generic resolver's spec-match step couldn't tell them apart from core
+  and its "lowest id" tie-break always silently picked Death Shroud (10574) regardless of equipped
+  spec. Fixed with a small `NECRO_SHROUD_SPEC_OVERRIDE` map feeding the resolver a corrected
+  `specializationId` per id, so the existing spec-match/flip-chain logic resolves each case
+  correctly unmodified — confirmed against all 4 (no elite spec / Reaper / Harbinger / Ritualist)
+  plus Scourge (unaffected, already correctly tagged) with a standalone trace script before
+  shipping.
 - Investigated Warrior Bladesworn's Dragon Trigger (F2) per the TODO item, but it turned out to
   need its own innate-weapon foundation first ("Gunsaber") that doesn't exist in this app at all —
   bigger than the TODO's framing assumed. Deliberately stopped short of implementing rather than

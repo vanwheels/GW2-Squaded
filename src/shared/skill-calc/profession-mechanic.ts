@@ -103,6 +103,24 @@ const DRAGONHUNTER_VIRTUE_SKILLS: { id: number; slot: string }[] = [
   { id: 30039, slot: 'Profession_3' } // Shield of Courage (flip target)
 ]
 
+/**
+ * Necromancer's Shroud-enter skills — core Death Shroud (10574), Reaper's Shroud (30792),
+ * Harbinger Shroud (62567), Ritualist's Shroud (77238) — live-verified 2026-07-31 while wiring up
+ * Shroud's F1 click-toggle (see `bundle-skills.ts`'s `NECRO_SHROUD_SLOT_SKILLS`): unlike every
+ * other elite spec's mechanic-skill rework in this file, all 4 are tagged `specializationId: null`
+ * in the raw API — none of them actually carries the elite spec that requires it. Without this
+ * override the generic resolver's spec-match step can't tell them apart at all, and its final
+ * "lowest id" tie-break always silently picks core Death Shroud regardless of equipped elite spec.
+ * Used to feed the resolver a corrected `specializationId` per id (see `professionMechanicBar`'s
+ * candidate-gathering loop) rather than duplicating its spec-match/flip-chain logic here — core
+ * Death Shroud itself needs no entry, it's correctly the fallback once the other 3 are excluded.
+ */
+const NECRO_SHROUD_SPEC_OVERRIDE: Record<number, number> = {
+  30792: 34, // Reaper's Shroud -> Reaper
+  62567: 64, // Harbinger Shroud -> Harbinger
+  77238: 76 // Ritualist's Shroud -> Ritualist
+}
+
 /** Slots that exist in the raw data but aren't a real, build-determinable F-skill. Thief's F2 is
  *  the "stolen skill" — live-verified its candidates are tagged per enemy *profession*
  *  (`source: "Warrior"`, `"Guardian"`, ...), i.e. it depends on who you steal from in a live
@@ -166,8 +184,10 @@ export function professionMechanicBar(
   if (profession.id === 'Guardian') rawSkillRefs.push(...DRAGONHUNTER_VIRTUE_SKILLS)
   for (const { id, slot } of rawSkillRefs) {
     if (!slot.startsWith('Profession_') || skippedSlots.has(slot) || EXCLUDED_MECHANIC_SKILL_IDS.has(id)) continue
-    const skill = skillsById.get(id)
+    let skill = skillsById.get(id)
     if (!skill) continue
+    const necroShroudSpec = profession.id === 'Necromancer' ? NECRO_SHROUD_SPEC_OVERRIDE[id] : undefined
+    if (necroShroudSpec !== undefined) skill = { ...skill, specializationId: necroShroudSpec }
     if (
       profession.id === 'Ranger' &&
       RANGER_BEASTMODE_EXCLUDED_SLOTS.has(slot) &&
