@@ -5,8 +5,9 @@ import { createSqliteStorage } from './storage/sqlite-storage'
 import { registerStorageIpc } from './ipc/storage-ipc'
 import { registerGameDataIpc } from './ipc/game-data-ipc'
 import { registerCaptureIpc } from './ipc/capture-ipc'
+import { registerUpdaterIpc } from './updater/auto-updater'
 
-function createWindow(): void {
+function createWindow(): BrowserWindow {
   const mainWindow = new BrowserWindow({
     width: 1920,
     height: 1080,
@@ -32,6 +33,8 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
+  return mainWindow
 }
 
 app.whenReady().then(() => {
@@ -41,7 +44,11 @@ app.whenReady().then(() => {
   registerGameDataIpc()
   registerCaptureIpc()
 
-  createWindow()
+  let mainWindow: BrowserWindow | null = createWindow()
+  mainWindow.on('closed', () => {
+    mainWindow = null
+  })
+  registerUpdaterIpc(() => mainWindow)
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

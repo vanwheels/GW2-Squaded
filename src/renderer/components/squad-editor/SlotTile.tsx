@@ -3,10 +3,28 @@ import type { Build, GhostPick, SquadSlot } from '@shared/types'
 import { useGameData } from '@renderer/state/game-data-store'
 import { TooltipBody } from '@renderer/components/common/Tooltip'
 import { UpgradePicker, type UpgradeOption } from '@renderer/components/build-editor/UpgradePicker'
-import { computeBoonConditionSources, groupBoonConditionSources } from '@shared/boon-calc/sources'
-import { BOON_CONDITION_ICONS } from '@shared/boon-calc/icons'
+import {
+  BOON_STRIP_CORRUPT_MATCHERS,
+  CONTROL_MATCHERS,
+  MISCELLANEOUS_MATCHERS,
+  computeAuraSources,
+  computeBoonConditionSources,
+  computeComboSources,
+  computeNamedFactSources,
+  groupBoonConditionSources,
+  groupNamedFactSources,
+  type ComboSource
+} from '@shared/boon-calc/sources'
+import {
+  AURA_ICONS,
+  BOON_CONDITION_ICONS,
+  BOON_STRIP_CORRUPT_ICONS,
+  COMBO_ICONS,
+  CONTROL_ICONS,
+  MISCELLANEOUS_ICONS
+} from '@shared/boon-calc/icons'
 import { formatBoonDuration } from '@shared/boon-calc/format'
-import type { BoonName, ConditionName } from '@shared/boon-calc/constants'
+import type { AuraName, BoonName, ConditionName } from '@shared/boon-calc/constants'
 import { BoonConditionIconRow, type BoonConditionIconItem } from './BoonConditionIconRow'
 import { readBuildDragData, setBuildDragData, type BuildDragPayload } from './drag-payload'
 
@@ -42,7 +60,10 @@ function decodeGhostId(id: string): GhostPick {
  * One roster slot: the profession-icon assignment control (reuses the generic `UpgradePicker`,
  * widened to accept string build ids, exactly like the rune/sigil/relic pickers) plus, when empty,
  * an editable free-text role label (`SquadSlot.placeholderLabel`) and, when a build is assigned and
- * the party row's toggle is expanded, that build's boon/condition icon summary.
+ * the party row's toggle is expanded, that build's Boons/Conditions/Control/Auras/Miscellaneous/
+ * Strip-Corrupt/Combo icon summary (same categories as the build editor's `BoonConditionSummaryPanel`,
+ * but only showing icons this build actually produces — no "always render every name, grey out
+ * unproduced ones" treatment, since a slot tile is too narrow for that).
  *
  * The same picker also offers `GhostPick` options (one per profession, plus one per elite spec) —
  * a "just the icon" stand-in for when no real Build is ready yet. These are encoded into the same
@@ -115,6 +136,13 @@ export function SlotTile({
   const ghostName = ghostSpec ? ghostSpec.name : ghostProfession ? `${ghostProfession.name} (Core)` : undefined
 
   const groups = build ? groupBoonConditionSources(computeBoonConditionSources(build, gameData)) : []
+  const auraGroups = build ? groupBoonConditionSources(computeAuraSources(build, gameData)) : []
+  const controlGroups = build ? groupNamedFactSources(computeNamedFactSources(build, gameData, CONTROL_MATCHERS)) : []
+  const miscGroups = build ? groupNamedFactSources(computeNamedFactSources(build, gameData, MISCELLANEOUS_MATCHERS)) : []
+  const stripCorruptGroups = build
+    ? groupNamedFactSources(computeNamedFactSources(build, gameData, BOON_STRIP_CORRUPT_MATCHERS))
+    : []
+  const comboSources = build ? computeComboSources(build, gameData) : []
 
   function iconItems(isCondition: boolean): BoonConditionIconItem[] {
     return groups
@@ -131,6 +159,51 @@ export function SlotTile({
           />
         )
       }))
+  }
+
+  const auraItems: BoonConditionIconItem[] = auraGroups.map((g) => ({
+    key: g.name,
+    icon: AURA_ICONS[g.name as AuraName],
+    tooltip: (
+      <TooltipBody
+        title={g.name}
+        description={g.sources.map((s) => `${s.sourceName}: ${formatBoonDuration(s.scaledDurationSeconds)}s`).join('\n')}
+      />
+    )
+  }))
+
+  function namedFactItems(namedGroups: typeof controlGroups, icons: Record<string, string>): BoonConditionIconItem[] {
+    return namedGroups.map((g) => ({
+      key: g.name,
+      icon: icons[g.name],
+      tooltip: (
+        <TooltipBody
+          title={g.name}
+          description={g.sources.map((s) => `${s.sourceName}${s.detail ? `: ${s.detail}` : ''}`).join('\n')}
+        />
+      )
+    }))
+  }
+
+  function comboItems(sources: ComboSource[]): BoonConditionIconItem[] {
+    const fields = sources.filter((s) => s.kind === 'field')
+    const finishers = sources.filter((s) => s.kind === 'finisher')
+    function item(kind: 'field' | 'finisher', label: string, entries: ComboSource[]): BoonConditionIconItem | null {
+      if (entries.length === 0) return null
+      return {
+        key: kind,
+        icon: COMBO_ICONS[kind],
+        tooltip: (
+          <TooltipBody
+            title={`Combo ${label}`}
+            description={entries.map((s) => `${s.sourceName}: ${s.fieldType ?? s.finisherType}`).join('\n')}
+          />
+        )
+      }
+    }
+    return [item('field', 'Field', fields), item('finisher', 'Finisher', finishers)].filter(
+      (i): i is BoonConditionIconItem => i !== null
+    )
   }
 
   return (
@@ -175,6 +248,11 @@ export function SlotTile({
         <div className="slot-tile-summary">
           <BoonConditionIconRow items={iconItems(false)} />
           <BoonConditionIconRow items={iconItems(true)} />
+          <BoonConditionIconRow items={namedFactItems(controlGroups, CONTROL_ICONS)} />
+          <BoonConditionIconRow items={auraItems} />
+          <BoonConditionIconRow items={namedFactItems(miscGroups, MISCELLANEOUS_ICONS)} />
+          <BoonConditionIconRow items={namedFactItems(stripCorruptGroups, BOON_STRIP_CORRUPT_ICONS)} />
+          <BoonConditionIconRow items={comboItems(comboSources)} />
         </div>
       )}
     </div>

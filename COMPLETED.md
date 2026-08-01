@@ -2,6 +2,59 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 44 — Beta release prep: in-app auto-update (Settings tab), repo flipped public
+
+User wants to start distributing beta builds to people they know, with two hard requirements:
+Windows-only for now, and updates delivered inside the app rather than "download the new .exe from
+GitHub each time."
+
+- **Repo visibility**: electron-updater's GitHub provider needs release assets to be publicly
+  downloadable; `vanwheels/GW2-Squaded` was private. Asked the user how to reconcile that (make the
+  repo public / keep it private behind a shipped token / host updates on our own public endpoint
+  instead) rather than deciding unilaterally — a shipped GitHub token is extractable from any
+  installed copy of the app, so this had real security tradeoffs. User chose to make the repo
+  public. Checked git history and the tracked `worker/wrangler.toml` for secrets first (none found —
+  `.env`/`.wrangler` are gitignored, the only tracked worker file is a KV namespace *id*, not a
+  credential) before running `gh repo edit --visibility public`.
+- **`electron-updater` added** (`^6.8.9`, matches Electron 43). `electron-builder.yml` gained a
+  `publish` block (`provider: github`, owner/repo) — this is what makes NSIS builds emit
+  `latest.yml` and is also what `electron-updater` reads from at runtime, same config driving both
+  directions. New `package:win:publish` script (`electron-builder --win --publish always`) for
+  cutting a release; requires a `GH_TOKEN` env var with repo access on whoever runs it (not
+  something this session could set up — noted for the user).
+- **New seam, mirroring the existing `CaptureProvider`/`StorageAdapter` pattern**:
+  `src/shared/updater/` (`UpdaterProvider` interface + `UpdateStatus` union, `ipc-channels.ts`) →
+  `src/main/updater/auto-updater.ts` (wraps electron-updater's `autoUpdater`, forwards its events to
+  the renderer as one `updater:status` push) → `window.gw2Updater` preload bridge. `autoDownload`
+  and `autoInstallOnAppQuit` are both off — check/download/install are 3 explicit user-triggered
+  steps (`checkForUpdates`/`downloadUpdate`/`quitAndInstall`), not a silent background flow, matching
+  the same "user stays in control of when the fetch runs" philosophy TODO.md already documents for
+  game-data refreshes.
+- **Windows-only, enforced in the main process, not just the UI**: `auto-updater.ts` gates every
+  handler on `process.platform === 'win32'` (only NSIS has auto-update wired up — mac's
+  Squirrel.Mac path needs a signed app, which this project doesn't have) plus `app.isPackaged` (so
+  it's inert in dev, where electron-updater has nothing to diff against). A new `isSupported` IPC
+  call lets the renderer show a plain "not available in this build" message instead of dead buttons
+  on any other platform.
+- **New Settings tab** (`NavBar`'s `ViewKey` gained `'settings'`, routed in `App.tsx`) →
+  `SettingsView.tsx`: shows the running app version (`app.getVersion()` round-tripped over IPC) and
+  an `UpdateControls` block that switches on `UpdateStatus['state']` — idle/checking/not-available/
+  available/downloading (with a progress bar)/downloaded/error, each with its own action button
+  where relevant. New `.settings-panel`/`.settings-update-row`/`.progress-bar`/`.error-text` CSS,
+  reusing the existing `--accent`/`--surface`/`--border`/`--muted` custom properties rather than
+  introducing new colors.
+- Verified `electron-updater` actually lands inside the packaged app: ran `npm run package:dir`
+  after the changes (still succeeds — better-sqlite3's native rebuild and asar packing both
+  unaffected) and inspected the output `app.asar` directly (`@electron/asar`'s `listPackage`) to
+  confirm `node_modules/electron-updater` is bundled, since `electron.vite.config.ts`'s
+  `externalizeDepsPlugin` means the main bundle `require()`s it at runtime rather than inlining it —
+  electron-builder's automatic production-dependency inclusion (driven by `package.json`
+  `dependencies`, independent of the `files` allowlist) picked it up with no config change needed.
+  `npm run typecheck`/`lint` both clean. Not visually confirmed in a running window (standing
+  Electron-sandbox limitation) — recommend `npm run package:win:publish` (with `GH_TOKEN` set) for a
+  real first release, then `npm run dev`/an installed copy to eyeball the new Settings tab and click
+  through Check → Download → Restart-and-install against a real GitHub release.
+
 ## Session 43 — Elite-spec grid column-alignment fix; full Control CC set, Miscellaneous, Strip/Corrupt rows
 
 Two follow-ups from Session 42's feedback pass.

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef } from 'react'
 import type { Build } from '@shared/types'
 import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
 import {
@@ -18,6 +18,8 @@ import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar'
 import { isMechanicBarBundleId } from '@shared/skill-calc/bundle-skills'
 import { THIEF_STOLEN_SKILL_IDS, thiefStolenSkillBar } from '@shared/skill-calc/thief-stolen-skill'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
+import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
+import { usePickerOpen } from '@renderer/state/picker-registry'
 import { skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor'
 
 interface Props {
@@ -78,7 +80,8 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
   const { professions, skillsById, tomeChapters, familiars } = gameData
   const profession = professions.find((p) => p.id === build.profession)
   const variantContext: SkillVariantContext = { skills: gameData.skills, skillsById, wvwFactOverrides: gameData.wvwFactOverrides, durationPercent }
-  const [stolenSkillPickerOpen, setStolenSkillPickerOpen] = useState(false)
+  const { open: stolenSkillPickerOpen, openThis: openStolenSkillPicker, close: closeStolenSkillPicker } = usePickerOpen()
+  const stolenSkillButtonRef = useRef<HTMLButtonElement>(null)
 
   function cycleFamiliar(): void {
     const currentIndex = familiars.findIndex((f) => f.id === build.familiarId)
@@ -86,9 +89,14 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
     onBuildChange({ familiarId: next.id })
   }
 
+  function toggleStolenSkillPicker(): void {
+    if (stolenSkillPickerOpen) closeStolenSkillPicker()
+    else openStolenSkillPicker()
+  }
+
   function chooseStolenSkill(id: number | null): void {
     onBuildChange({ thiefStolenSkillId: id })
-    setStolenSkillPickerOpen(false)
+    closeStolenSkillPicker()
   }
 
   function skillTooltipFor(skillId: number) {
@@ -136,7 +144,7 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
         const isStolenSkillSlot = showStolenSkillPicker && entry.slot === THIEF_STOLEN_SKILL_SLOT
         const isActive = (isBundle && build.activeBundleSkillId === entry.skill.id) || (isStolenSkillSlot && stolenSkillPickerOpen)
         const onClick = isStolenSkillSlot
-          ? () => setStolenSkillPickerOpen((open) => !open)
+          ? toggleStolenSkillPicker
           : isBundle
             ? () => onBuildChange({ activeBundleSkillId: isActive ? null : entry.skill.id })
             : isFamiliarSlot
@@ -145,6 +153,7 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
         return (
           <Tooltip key={entry.slot} content={skillTooltipFor(entry.skill.id) ?? <TooltipBody title="Unknown skill" />}>
             <button
+              ref={isStolenSkillSlot ? stolenSkillButtonRef : undefined}
               type="button"
               className={isActive ? 'skill-slot-button active' : 'skill-slot-button'}
               disabled={!onClick}
@@ -158,16 +167,22 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
       {showStolenSkillPicker && !entries.some((e) => e.slot === THIEF_STOLEN_SKILL_SLOT) && (
         <Tooltip content={<TooltipBody title="Stolen Skill" />}>
           <button
+            ref={stolenSkillButtonRef}
             type="button"
             className={stolenSkillPickerOpen ? 'skill-slot-button open' : 'skill-slot-button'}
-            onClick={() => setStolenSkillPickerOpen((open) => !open)}
+            onClick={toggleStolenSkillPicker}
           >
             <span className="skill-slot-placeholder">Stolen Skill</span>
           </button>
         </Tooltip>
       )}
-      {showStolenSkillPicker && stolenSkillPickerOpen && (
-        <div className="skill-picker">
+      {showStolenSkillPicker && (
+        <FloatingPanel
+          open={stolenSkillPickerOpen}
+          anchorRef={stolenSkillButtonRef}
+          onClose={closeStolenSkillPicker}
+          className="skill-picker"
+        >
           <div className="skill-picker-header">Stolen Skill</div>
           <div className="skill-picker-columns">
             <div className="skill-category-column">
@@ -201,7 +216,7 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
               })}
             </div>
           </div>
-        </div>
+        </FloatingPanel>
       )}
     </div>
   )

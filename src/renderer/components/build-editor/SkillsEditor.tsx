@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import type { Build, RevenantSkillSelection, Skill, SkillSelection, StandardSkillSelection, WvwFactOverrides } from '@shared/types'
 import { activeTraitIds, boonConditionFactsForSkill, type BoonConditionSource } from '@shared/boon-calc/sources'
 import { numericFactLines } from '@shared/skill-calc/fact-numbers'
@@ -6,7 +6,9 @@ import { relatedVariantSkills } from '@shared/skill-calc/multi-effect'
 import { formatBoonDuration } from '@shared/boon-calc/format'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { useGameData } from '@renderer/state/game-data-store'
+import { usePickerOpen } from '@renderer/state/picker-registry'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
+import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
 import { WeaponSkillBar } from './WeaponSkillBar'
 import { ProfessionMechanicBar } from './ProfessionMechanicBar'
 import { PetsEditor } from './PetsEditor'
@@ -202,7 +204,9 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
   const profession = build.profession
   const { gameData, activeIds, durationPercent } = useDurationContext(build)
   const { skillsById, skillsForProfessionAndSlot } = gameData
+  const { open, openThis, close } = usePickerOpen()
   const [openSlot, setOpenSlot] = useState<SlotId | null>(null)
+  const slotButtonRefs = useRef<Partial<Record<SlotId, HTMLButtonElement | null>>>({})
 
   const healOptions = skillsForProfessionAndSlot(profession, 'Heal', equippedSpecializationIds, build.familiarId)
   const utilityOptions = skillsForProfessionAndSlot(profession, 'Utility', equippedSpecializationIds)
@@ -253,9 +257,19 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
               content={chosen ? skillTooltipContent(chosen, skillFacts(chosen), activeIds, variantContext) : <TooltipBody title={label} />}
             >
               <button
+                ref={(el) => {
+                  slotButtonRefs.current[slot] = el
+                }}
                 type="button"
-                className={openSlot === slot ? 'skill-slot-button open' : 'skill-slot-button'}
-                onClick={() => setOpenSlot(openSlot === slot ? null : slot)}
+                className={open && openSlot === slot ? 'skill-slot-button open' : 'skill-slot-button'}
+                onClick={() => {
+                  if (open && openSlot === slot) {
+                    close()
+                  } else {
+                    setOpenSlot(slot)
+                    openThis()
+                  }
+                }}
               >
                 {chosen ? <img src={chosen.icon} alt={chosen.name} /> : <span className="skill-slot-placeholder">{label}</span>}
               </button>
@@ -269,10 +283,16 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
           const { label, chosenId, options, select } = slotConfig(openSlot)
           function choose(id: number | null): void {
             select(id)
+            close()
             setOpenSlot(null)
           }
           return (
-            <div className="skill-picker">
+            <FloatingPanel
+              open={open}
+              anchorRef={{ current: slotButtonRefs.current[openSlot] ?? null }}
+              onClose={close}
+              className="skill-picker"
+            >
               <div className="skill-picker-header">{label}</div>
               <div className="skill-picker-columns">
                 <div className="skill-category-column">
@@ -304,7 +324,7 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
                   </div>
                 ))}
               </div>
-            </div>
+            </FloatingPanel>
           )
         })()}
     </div>
@@ -333,7 +353,9 @@ interface RevenantProps {
 function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationIds, section }: RevenantProps) {
   const { gameData, activeIds, durationPercent } = useDurationContext(build)
   const { skillsById, legendsById, legendsForSpecializations } = gameData
+  const { open, openThis, close } = usePickerOpen()
   const [openLegendSlot, setOpenLegendSlot] = useState<0 | 1 | null>(null)
+  const legendButtonRefs = useRef<[HTMLButtonElement | null, HTMLButtonElement | null]>([null, null])
 
   const availableLegends = legendsForSpecializations(equippedSpecializationIds)
   const variantContext: SkillVariantContext = { skills: gameData.skills, skillsById, wvwFactOverrides: gameData.wvwFactOverrides, durationPercent }
@@ -349,6 +371,7 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
     const legends: [string | null, string | null] = [...value.legends]
     legends[slotIndex] = legendId
     onChange({ ...value, legends })
+    close()
     setOpenLegendSlot(null)
   }
 
@@ -384,15 +407,25 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
         <div className="legend-slot-label">Legend {slotIndex + 1}</div>
         <Tooltip content={legend ? <TooltipBody title={legend.name} /> : <TooltipBody title="No legend chosen" />}>
           <button
+            ref={(el) => {
+              legendButtonRefs.current[slotIndex] = el
+            }}
             type="button"
-            className={openLegendSlot === slotIndex ? 'skill-slot-button open' : 'skill-slot-button'}
-            onClick={() => setOpenLegendSlot(openLegendSlot === slotIndex ? null : slotIndex)}
+            className={open && openLegendSlot === slotIndex ? 'skill-slot-button open' : 'skill-slot-button'}
+            onClick={() => {
+              if (open && openLegendSlot === slotIndex) {
+                close()
+              } else {
+                setOpenLegendSlot(slotIndex)
+                openThis()
+              }
+            }}
           >
             {legend ? <img src={legend.icon} alt={legend.name} /> : <span className="skill-slot-placeholder">Legend</span>}
           </button>
         </Tooltip>
         {openLegendSlot === slotIndex && (
-          <div className="skill-picker">
+          <FloatingPanel open={open} anchorRef={{ current: legendButtonRefs.current[slotIndex] }} onClose={close} className="skill-picker">
             <div className="skill-picker-header">Legend {slotIndex + 1}</div>
             <div className="skill-picker-grid">
               <button type="button" className="skill-option-button" onClick={() => chooseLegend(slotIndex, null)}>
@@ -413,7 +446,7 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
                   </button>
                 ))}
             </div>
-          </div>
+          </FloatingPanel>
         )}
       </div>
     )

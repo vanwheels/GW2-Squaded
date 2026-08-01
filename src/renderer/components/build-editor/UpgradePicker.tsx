@@ -1,5 +1,7 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
+import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
+import { usePickerOpen } from '@renderer/state/picker-registry'
 import { readGearDragData, setGearDragData } from './gear-drag-payload'
 
 export interface UpgradeOption<T extends number | string = number> {
@@ -57,15 +59,16 @@ export function UpgradePicker<T extends number | string = number>({
   rarity,
   dragCategory
 }: Props<T>) {
-  const [open, setOpen] = useState(false)
+  const { open, openThis, close } = usePickerOpen()
   const [search, setSearch] = useState('')
+  const buttonRef = useRef<HTMLButtonElement>(null)
   const chosen = chosenId !== null ? options.find((o) => o.id === chosenId) : undefined
   const query = search.trim().toLowerCase()
   const filtered = query ? options.filter((o) => o.name.toLowerCase().includes(query)) : options
 
   function choose(id: T | null): void {
     onChoose(id)
-    setOpen(false)
+    close()
     setSearch('')
   }
 
@@ -94,9 +97,10 @@ export function UpgradePicker<T extends number | string = number>({
         content={chosen ? <TooltipBody title={chosen.name} description={chosen.description} /> : <TooltipBody title={label} />}
       >
         <button
+          ref={buttonRef}
           type="button"
           className={buttonClass}
-          onClick={() => setOpen(!open)}
+          onClick={() => (open ? close() : openThis())}
           draggable={Boolean(dragCategory) && chosenId !== null}
           onDragStart={handleDragStart}
           onDragOver={(e) => dragCategory && e.preventDefault()}
@@ -115,43 +119,41 @@ export function UpgradePicker<T extends number | string = number>({
           )}
         </button>
       </Tooltip>
-      {open && (
-        <div className="skill-picker upgrade-picker-popover">
-          <div className="skill-picker-header">{label}</div>
-          {options.length > 12 && (
-            <input
-              type="text"
-              className="upgrade-picker-search"
-              placeholder="Search…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              autoFocus
-            />
-          )}
-          <div className="skill-picker-grid">
-            <button
-              type="button"
-              className={chosenId === null ? 'skill-option-button chosen' : 'skill-option-button'}
-              onClick={() => choose(null)}
-            >
-              <span className="skill-option-none">—</span>
-              <span className="skill-option-name">None</span>
-            </button>
-            {filtered.map((o) => (
-              <Tooltip key={o.id} content={<TooltipBody title={o.name} description={o.description} />}>
-                <button
-                  type="button"
-                  className={chosenId === o.id ? 'skill-option-button chosen' : 'skill-option-button'}
-                  onClick={() => choose(o.id)}
-                >
-                  {o.icon ? <img src={o.icon} alt={o.name} /> : <span className="skill-option-none">?</span>}
-                  <span className="skill-option-name">{o.name}</span>
-                </button>
-              </Tooltip>
-            ))}
-          </div>
+      <FloatingPanel open={open} anchorRef={buttonRef} onClose={close} className="skill-picker">
+        <div className="skill-picker-header">{label}</div>
+        {options.length > 12 && (
+          <input
+            type="text"
+            className="upgrade-picker-search"
+            placeholder="Search…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            autoFocus
+          />
+        )}
+        <div className="skill-picker-grid">
+          <button
+            type="button"
+            className={chosenId === null ? 'skill-option-button chosen' : 'skill-option-button'}
+            onClick={() => choose(null)}
+          >
+            <span className="skill-option-none">—</span>
+            <span className="skill-option-name">None</span>
+          </button>
+          {filtered.map((o) => (
+            <Tooltip key={o.id} content={<TooltipBody title={o.name} description={o.description} />}>
+              <button
+                type="button"
+                className={chosenId === o.id ? 'skill-option-button chosen' : 'skill-option-button'}
+                onClick={() => choose(o.id)}
+              >
+                {o.icon ? <img src={o.icon} alt={o.name} /> : <span className="skill-option-none">?</span>}
+                <span className="skill-option-name">{o.name}</span>
+              </button>
+            </Tooltip>
+          ))}
         </div>
-      )}
+      </FloatingPanel>
     </div>
   )
 }

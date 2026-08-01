@@ -98,6 +98,45 @@ button:hover {
   color: var(--muted);
 }
 
+.settings-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  max-width: 480px;
+}
+
+.settings-panel h3 {
+  margin-top: 0;
+}
+
+.settings-update-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.progress-bar {
+  flex: 1;
+  min-width: 120px;
+  height: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+
+.error-text {
+  color: var(--accent);
+}
+
 .record-open {
   flex: 1;
   display: flex;
@@ -583,22 +622,6 @@ input[type='text'] {
 
 .ingame-skill-bar-mechanic {
   grid-area: mechanic;
-  position: relative;
-}
-
-/* Thief's Stolen Skill picker overlays rather than sits in normal flow — unlike
-   `StandardSkillsEditor`'s Heal/Utility/Elite picker (which can safely grow its own grid row),
-   `.ingame-skill-bar-mechanic` shares a grid row with `env` (see `.ingame-skill-bar`), and growing
-   that row would shove the weapon-skill row below it down. Same fix as `.legend-slot .skill-picker`
-   uses for the same reason. */
-.ingame-skill-bar-mechanic .skill-picker {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 5;
-  width: max-content;
-  min-width: 220px;
-  margin-top: 8px;
 }
 
 .ingame-skill-bar-weapon {
@@ -706,11 +729,20 @@ input[type='text'] {
   padding: 2px;
 }
 
+/* Always a floating popover now (portaled via `FloatingPanel`, never in normal document flow) —
+   `width: max-content` sizes it to its content instead of stretching to fill the fixed-position
+   containing block, `min-width` keeps sparse pickers (e.g. a 2-legend list) from reading as too
+   narrow, and `max-width` plus the box-shadow keep it legible and visually separated from the
+   1920x1080 window content it now floats above. */
 .skill-picker {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 10px;
   background: var(--surface);
+  width: max-content;
+  min-width: 220px;
+  max-width: calc(100vw - 16px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 .skill-picker-header {
@@ -776,7 +808,6 @@ input[type='text'] {
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  position: relative;
 }
 
 .legend-slot-label {
@@ -784,15 +815,6 @@ input[type='text'] {
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-}
-
-.legend-slot .skill-picker {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 5;
-  width: max-content;
-  min-width: 220px;
 }
 
 .legend-bar-toggle {
@@ -1076,10 +1098,6 @@ input[type='text'] {
   gap: 5px;
 }
 
-.upgrade-slot {
-  position: relative;
-}
-
 .upgrade-badge {
   width: 20px;
   height: 20px;
@@ -1115,15 +1133,6 @@ input[type='text'] {
   display: block;
   width: 100%;
   height: 100%;
-}
-
-.upgrade-picker-popover {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 5;
-  width: max-content;
-  min-width: 220px;
 }
 
 .upgrade-picker-search {
@@ -1318,16 +1327,30 @@ input[type='text'] {
   flex: none;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   padding-left: 16px;
   border-left: 1px solid var(--border);
-  min-width: 110px;
+}
+
+.party-summary-row {
+  display: flex;
+  align-items: flex-start;
 }
 
 .party-summary-group {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 72px;
+  padding: 0 12px;
+}
+
+.party-summary-row .party-summary-group:first-child {
+  padding-left: 0;
+}
+
+.party-summary-row .party-summary-group + .party-summary-group {
+  border-left: 1px solid var(--border);
 }
 
 .party-summary-label {

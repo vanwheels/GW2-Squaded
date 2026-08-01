@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { Build } from '@shared/types'
 import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
+import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
+import { usePickerOpen } from '@renderer/state/picker-registry'
 import { RANGER_BEASTMODE_SPEC_ID } from '@shared/skill-calc/profession-mechanic'
 import { SkillBarIcon } from './SkillBarIcon'
 import { skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor'
@@ -24,8 +26,10 @@ interface Props {
 export function PetsEditor({ build, onBuildChange, equippedSpecializationIds }: Props) {
   const { gameData, activeIds, durationPercent } = useDurationContext(build)
   const { skillsById, petsById, pets } = gameData
+  const { open, openThis, close } = usePickerOpen()
   const [openPetSlot, setOpenPetSlot] = useState<0 | 1 | null>(null)
   const [search, setSearch] = useState('')
+  const petButtonRefs = useRef<[HTMLButtonElement | null, HTMLButtonElement | null]>([null, null])
   const query = search.trim().toLowerCase()
   const filteredPets = query ? pets.filter((p) => p.name.toLowerCase().includes(query)) : pets
 
@@ -42,12 +46,18 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds }: 
     const equippedPetIds: [number | null, number | null] = [...build.equippedPetIds]
     equippedPetIds[slotIndex] = petId
     onBuildChange({ equippedPetIds })
+    close()
     setOpenPetSlot(null)
     setSearch('')
   }
 
   function toggleSlot(slotIndex: 0 | 1): void {
-    setOpenPetSlot(openPetSlot === slotIndex ? null : slotIndex)
+    if (open && openPetSlot === slotIndex) {
+      close()
+    } else {
+      setOpenPetSlot(slotIndex)
+      openThis()
+    }
     setSearch('')
   }
 
@@ -63,15 +73,18 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds }: 
         <div className="legend-slot-label">Pet {slotIndex + 1}</div>
         <Tooltip content={pet ? <TooltipBody title={pet.name} /> : <TooltipBody title="No pet chosen" />}>
           <button
+            ref={(el) => {
+              petButtonRefs.current[slotIndex] = el
+            }}
             type="button"
-            className={openPetSlot === slotIndex ? 'skill-slot-button open' : 'skill-slot-button'}
+            className={open && openPetSlot === slotIndex ? 'skill-slot-button open' : 'skill-slot-button'}
             onClick={() => toggleSlot(slotIndex)}
           >
             {pet ? <img src={pet.icon} alt={pet.name} /> : <span className="skill-slot-placeholder">Pet</span>}
           </button>
         </Tooltip>
         {openPetSlot === slotIndex && (
-          <div className="skill-picker">
+          <FloatingPanel open={open} anchorRef={{ current: petButtonRefs.current[slotIndex] }} onClose={close} className="skill-picker">
             <div className="skill-picker-header">Pet {slotIndex + 1}</div>
             <input
               type="text"
@@ -100,7 +113,7 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds }: 
                   </button>
                 ))}
             </div>
-          </div>
+          </FloatingPanel>
         )}
       </div>
     )
