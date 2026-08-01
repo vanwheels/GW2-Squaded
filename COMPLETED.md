@@ -2,6 +2,48 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 43 — Elite-spec grid column-alignment fix; full Control CC set, Miscellaneous, Strip/Corrupt rows
+
+Two follow-ups from Session 42's feedback pass.
+
+- **Fixed the elite-spec grid not actually column-aligning under its profession portrait.**
+  Root cause: `Tooltip` wraps its trigger in a `<span>`, and that span — not the `<button>` inside
+  it — is the real CSS Grid item inside `.elite-spec-picker-grid`. `gridColumn`/`gridRow` had been
+  set as an inline style on the button (a grandchild, not a grid item), so it had zero effect and
+  every icon fell back to sequential auto-placement. Added a `style` passthrough prop to `Tooltip`
+  and moved the placement there.
+- **Control got a real fact-shape investigation, not a guess.** The Buff-status-based Control
+  detection from Session 42 (`isControlName`, Stun/Daze only) turned out to be reading a minority
+  signal — a full scan of data/game-data/{skills,traits}.json found Stun/Daze mostly appear as
+  `type: "Time", text: "Stun"/"Daze"` facts (104/74 occurrences) rather than `type: "Buff", status:
+  "Stun"/"Daze"` (16/3) — and Knockdown/Knockback/Launch/Pull are genuine, clean, exact-match facts
+  too (`Time`/`Distance`/`Number` typed respectively, e.g. Bull's Charge → `{type:"Time",
+  text:"Knockdown"}`, Spectral Grasp → `{type:"Number", text:"Pull"}`) — an earlier broad scan of
+  `Distance`-type facts had been misleading (`text` there is mostly free-form AoE-radius flavor
+  text, not a CC signal; the *specific* exact-text-match facts turned out totally reliable once
+  found). Float/Sink excluded (underwater-only, out of scope per the app's WvW focus).
+  - Replaced the old Buff-status Control classifier with `CONTROL_MATCHERS` in
+    `boon-calc/sources.ts` — a `name -> (fact) => boolean` table checked against every equipped
+    skill/trait's raw facts, via a new generic `computeNamedFactSources` (parallel to
+    `computeAuraSources`/`computeComboSources` for facts that don't share boons/conditions/auras'
+    `Buff`-with-`status` shape).
+  - Added a **Miscellaneous** row (`MISCELLANEOUS_MATCHERS`): Stealth, Superspeed (both genuine
+    `Buff` statuses), Evade (`type:"Time", text:"Evade"`), Breaks Stun (`type:"StunBreak"` OR
+    `type:"NoData", text:"Breaks Stun"` — both shapes appear in real data, unioned), and Barrier
+    (`type:"AttributeAdjust"` facts whose `text` contains "Barrier" — ~15 distinct exact labels,
+    confirmed all consistently substring-matchable). Healing was explicitly requested but deferred
+    per user direction — see TODO.md.
+  - Added a **Strip / Corrupt** row (`BOON_STRIP_CORRUPT_MATCHERS`) — not part of gw2skills' own
+    bar, added on request: `type:"Number"` facts matching "Boons Removed"/"Boons Stolen" (Strip) or
+    "Boons Converted" (Corrupt), confirmed exhaustive via a full scan of every `Number` fact's
+    `text`; deliberately excludes the much larger "Conditions Removed" family (self/ally condition
+    cleanse — an unrelated concept). Both share the same generic API icon (no per-type icon exists),
+    distinguished by row label instead, like `COMBO_ICONS`.
+  - `constants.ts`'s old `CONTROL_NAMES`/`isControlName` (Buff-status-only, now provably incomplete)
+    were removed rather than left as dead/misleading code; `computeControlAuraSources` was split
+    into `computeAuraSources` (auras only, still Buff-status-based — that part was correct) plus the
+    new generic mechanism for everything else.
+
 ## Session 42 — Build editor 3-column layout: single-click profession/elite-spec picker, relocated Boons/Conditions summary + Control/Auras/Combo
 
 Feedback pass aimed at fitting the whole build editor in one window without scrolling.

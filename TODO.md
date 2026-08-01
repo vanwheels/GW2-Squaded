@@ -37,14 +37,15 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 - [ ] Stretch goal, not currently planned: a per-skill "Damage" tooltip breakdown mirroring the
       Healing breakdown idea below — hovering a DPS stat would list each weapon/utility skill on the
       bar with its computed damage at current Power/Precision/Ferocity/condition stats.
-- [ ] "Miscellaneous" icon row (Healing/Execute in gw2skills' own bottom bar) — the last uncovered
-      category from the old "Conditions / Boons / Control / Auras / Miscellaneous / Combo" TODO item.
-      Implemented 2026-08-01: `BoonConditionSummaryPanel` now covers Conditions/Boons (existing
-      `computeBoonConditionSources`) plus new Control (Stun/Daze) and Auras (all 7) via
-      `computeControlAuraSources`, and Combo Field/Finisher via `computeComboSources` — see
-      COMPLETED.md. Miscellaneous was skipped: unlike those, it has no equivalent structural `Fact`
-      shape anywhere in the ingested data (no "Healing"/"Execute" fact type exists) — would need
-      investigation into what gw2skills is even sourcing that from before this is attemptable at all.
+- [ ] "Healing" row in `BoonConditionSummaryPanel`'s Miscellaneous section — deliberately deferred
+      to the "Healing and Damage numbers" pass below (per user direction 2026-08-01), not attempted
+      as part of the Control/Auras/Miscellaneous/Strip&Corrupt/Combo work (see COMPLETED.md): unlike
+      Stealth/Superspeed/Evade/Breaks Stun/Barrier, "does this build grant Healing" has no single
+      clean fact shape — `AttributeAdjust` facts carry 100+ distinct free-text labels for it ("Healing",
+      "Ally Healing", "Heal per Condition Removed", ...), AND it's nearly always-true for every build
+      (everyone has a heal skill) so a naive presence check wouldn't be a useful signal — needs the
+      same real magnitude computation the "Healing"/"Damage" tooltip stretch goals below are already
+      about, not another boolean icon.
 - [ ] Stretch goal, not currently planned: a per-skill "Healing" tooltip breakdown (hovering the
       Healing stat lists each heal skill on the bar with its computed heal amount at current Healing
       Power).

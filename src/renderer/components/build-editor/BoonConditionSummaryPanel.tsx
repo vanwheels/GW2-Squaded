@@ -1,16 +1,22 @@
 import { useMemo } from 'react'
 import type { Build } from '@shared/types'
 import {
+  BOON_STRIP_CORRUPT_MATCHERS,
+  CONTROL_MATCHERS,
+  MISCELLANEOUS_MATCHERS,
+  computeAuraSources,
   computeBoonConditionSources,
   computeComboSources,
-  computeControlAuraSources,
+  computeNamedFactSources,
   groupBoonConditionSources,
+  groupNamedFactSources,
   type BoonConditionGroup,
-  type ComboSource
+  type ComboSource,
+  type NamedFactGroup
 } from '@shared/boon-calc/sources'
 import { formatBoonDuration } from '@shared/boon-calc/format'
-import { BOON_NAMES, CONDITION_NAMES, CONTROL_NAMES, AURA_NAMES } from '@shared/boon-calc/constants'
-import { BOON_CONDITION_ICONS, CONTROL_AURA_ICONS, COMBO_ICONS } from '@shared/boon-calc/icons'
+import { BOON_NAMES, CONDITION_NAMES, AURA_NAMES } from '@shared/boon-calc/constants'
+import { BOON_CONDITION_ICONS, AURA_ICONS, CONTROL_ICONS, MISCELLANEOUS_ICONS, BOON_STRIP_CORRUPT_ICONS, COMBO_ICONS } from '@shared/boon-calc/icons'
 import { useGameData } from '@renderer/state/game-data-store'
 import { TooltipBody } from '@renderer/components/common/Tooltip'
 import { BoonConditionIconRow, type BoonConditionIconItem } from '@renderer/components/squad-editor/BoonConditionIconRow'
@@ -41,6 +47,37 @@ function iconItemsFor(groups: BoonConditionGroup[], names: readonly string[], ic
                   {formatBoonDuration(s.scaledDurationSeconds)}s
                   {s.applyCount > 1 ? ` × ${s.applyCount}` : ''}
                 </span>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <TooltipBody title={name} />
+      )
+    }
+  })
+}
+
+/** Same "always show every name, grey out unproduced ones" treatment as `iconItemsFor`, for
+ *  `computeNamedFactSources`' output (Control/Miscellaneous/Strip&Corrupt) instead of
+ *  `computeBoonConditionSources`'/`computeAuraSources`' — a different source shape (`detail` is a
+ *  free-form magnitude string, not a scaled duration), so the tooltip line is built differently. */
+function namedFactIconItemsFor(groups: NamedFactGroup[], names: readonly string[], icons: Record<string, string>): BoonConditionIconItem[] {
+  const groupByName = new Map(groups.map((g) => [g.name, g]))
+  return names.map((name) => {
+    const group = groupByName.get(name)
+    return {
+      key: name,
+      icon: icons[name],
+      className: group ? undefined : 'boon-icon-row-icon-inactive',
+      tooltip: group ? (
+        <>
+          <TooltipBody title={name} />
+          <ul className="tooltip-boon-facts">
+            {group.sources.map((s, i) => (
+              <li key={`${s.sourceKind}-${s.sourceId}-${i}`}>
+                <span>{s.sourceName}</span>
+                {s.detail && <span className="boon-source-duration">{s.detail}</span>}
               </li>
             ))}
           </ul>
@@ -90,23 +127,37 @@ function comboIconItems(sources: ComboSource[]): BoonConditionIconItem[] {
 /**
  * gw2skills.net-style "Conditions / Boons / Control / Auras / Combo" summary, relocated here
  * (beneath `StatsPanel`, in the build editor's right column) from the icon rows that used to sit
- * inline in the Skills bar itself (see COMPLETED.md) — same underlying data, just given its own
- * section with room for the 2 new categories. Miscellaneous (Healing/Execute in gw2skills' own bar)
- * is deliberately left out: unlike Control/Auras/Combo, it has no equivalent structural fact shape
- * anywhere in this app's data to build a real fixed icon list from — see TODO.md.
+ * inline in the Skills bar itself (see COMPLETED.md), plus 2 rows gw2skills doesn't have at all
+ * (Strip/Corrupt — see `BOON_STRIP_CORRUPT_MATCHERS`). "Miscellaneous" (Stealth/Superspeed/Evade/
+ * Breaks Stun/Barrier — gw2skills' own bar also has Healing/Execute here, deliberately not
+ * included: see `MISCELLANEOUS_MATCHERS`'s doc comment for Healing).
  */
 export function BoonConditionSummaryPanel({ build }: Props) {
   const gameData = useGameData()
 
   const boonConditionGroups = useMemo(() => groupBoonConditionSources(computeBoonConditionSources(build, gameData)), [build, gameData])
-  const controlAuraGroups = useMemo(() => groupBoonConditionSources(computeControlAuraSources(build, gameData)), [build, gameData])
+  const auraGroups = useMemo(() => groupBoonConditionSources(computeAuraSources(build, gameData)), [build, gameData])
+  const controlGroups = useMemo(
+    () => groupNamedFactSources(computeNamedFactSources(build, gameData, CONTROL_MATCHERS)),
+    [build, gameData]
+  )
+  const miscGroups = useMemo(
+    () => groupNamedFactSources(computeNamedFactSources(build, gameData, MISCELLANEOUS_MATCHERS)),
+    [build, gameData]
+  )
+  const stripCorruptGroups = useMemo(
+    () => groupNamedFactSources(computeNamedFactSources(build, gameData, BOON_STRIP_CORRUPT_MATCHERS)),
+    [build, gameData]
+  )
   const comboSources = useMemo(() => computeComboSources(build, gameData), [build, gameData])
 
   const rows: { label: string; items: BoonConditionIconItem[] }[] = [
     { label: 'Conditions', items: iconItemsFor(boonConditionGroups, CONDITION_NAMES, BOON_CONDITION_ICONS) },
     { label: 'Boons', items: iconItemsFor(boonConditionGroups, BOON_NAMES, BOON_CONDITION_ICONS) },
-    { label: 'Control', items: iconItemsFor(controlAuraGroups, CONTROL_NAMES, CONTROL_AURA_ICONS) },
-    { label: 'Auras', items: iconItemsFor(controlAuraGroups, AURA_NAMES, CONTROL_AURA_ICONS) },
+    { label: 'Control', items: namedFactIconItemsFor(controlGroups, Object.keys(CONTROL_MATCHERS), CONTROL_ICONS) },
+    { label: 'Auras', items: iconItemsFor(auraGroups, AURA_NAMES, AURA_ICONS) },
+    { label: 'Miscellaneous', items: namedFactIconItemsFor(miscGroups, Object.keys(MISCELLANEOUS_MATCHERS), MISCELLANEOUS_ICONS) },
+    { label: 'Strip / Corrupt', items: namedFactIconItemsFor(stripCorruptGroups, Object.keys(BOON_STRIP_CORRUPT_MATCHERS), BOON_STRIP_CORRUPT_ICONS) },
     { label: 'Combo', items: comboIconItems(comboSources) }
   ]
 

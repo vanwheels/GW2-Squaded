@@ -983,7 +983,7 @@ input[type='text'] {
 
 .boon-summary-row-label {
   flex: none;
-  width: 68px;
+  width: 88px;
   font-size: 0.7rem;
   color: var(--muted);
   text-transform: uppercase;

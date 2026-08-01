@@ -17,14 +17,14 @@ import type {
   WvwFactOverride,
   WvwFactOverrides
 } from '../types'
-import { isAuraName, isBoonName, isConditionName, isControlName } from './constants'
+import { isAuraName, isBoonName, isConditionName } from './constants'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '../gear-calc/attribute-totals'
 import { weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
 import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bundle-skills'
 import { professionMechanicBar, RANGER_BEASTMODE_SPEC_ID } from '../skill-calc/profession-mechanic'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash'
 
-export type BoonConditionCategory = 'boon' | 'condition' | 'control' | 'aura'
+export type BoonConditionCategory = 'boon' | 'condition' | 'aura'
 
 export interface BoonConditionSource {
   sourceKind: 'skill' | 'trait'
@@ -33,13 +33,13 @@ export interface BoonConditionSource {
   sourceIcon: string
   boonOrConditionName: string
   isCondition: boolean
-  /** 'control'/'aura' entries only ever come from `computeControlAuraSources` — `computeBoonConditionSources`
-   *  (and everything built on it: squad views, the in-build skill tooltips) only ever produces
+  /** 'aura' entries only ever come from `computeAuraSources` — `computeBoonConditionSources` (and
+   *  everything built on it: squad views, the in-build skill tooltips) only ever produces
    *  'boon'/'condition', unchanged from before this field existed. */
   category: BoonConditionCategory
   baseDurationSeconds: number
-  /** `baseDurationSeconds` scaled by the build's gear-derived boon/condition duration % — 'control'/
-   *  'aura' entries are never scaled (Concentration/Expertise only affect boons/conditions), so this
+  /** `baseDurationSeconds` scaled by the build's gear-derived boon/condition duration % — 'aura'
+   *  entries are never scaled (Concentration/Expertise only affect boons/conditions), so this
    *  always equals `baseDurationSeconds` for those. */
   scaledDurationSeconds: number
   applyCount: number
@@ -78,10 +78,8 @@ function classifyBoonCondition(status: string): BoonConditionCategory | null {
   return null
 }
 
-/** `computeControlAuraSources`' classifier — Stun/Daze and the 7 auras, see `CONTROL_NAMES`/
- *  `AURA_NAMES` in constants.ts for why these (and only these) are structurally extractable. */
-function classifyControlAura(status: string): BoonConditionCategory | null {
-  if (isControlName(status)) return 'control'
+/** `computeAuraSources`' classifier — the 7 auras, see `AURA_NAMES` in constants.ts. */
+function classifyAura(status: string): BoonConditionCategory | null {
   if (isAuraName(status)) return 'aura'
   return null
 }
@@ -480,10 +478,10 @@ export function computeBoonConditionSources(
   return out
 }
 
-/** Shared by `computeControlAuraSources`/`computeComboSources`: every equipped skill id, matching
- *  `computeBoonConditionSources`'s own skill-id gathering exactly (same helpers, same rules) but
- *  factored out since neither caller needs `computeBoonConditionSources`'s gear-derived duration-%
- *  computation (Concentration/Expertise don't affect control effects, auras, or combo facts). */
+/** Shared by `computeAuraSources`/`computeComboSources`/`computeNamedFactSources`: every equipped
+ *  skill id, matching `computeBoonConditionSources`'s own skill-id gathering exactly (same helpers,
+ *  same rules) but factored out since none of these callers need `computeBoonConditionSources`'s
+ *  gear-derived duration-% computation (Concentration/Expertise don't affect any of these facts). */
 function equippedSkillsById(
   build: Build,
   gameData: {
@@ -505,19 +503,21 @@ function equippedSkillsById(
 }
 
 /**
- * Every Control (Stun/Daze)/Aura source a build provides — same skill/trait-walking rules as
+ * Every Aura source a build provides — same skill/trait-walking rules as
  * `computeBoonConditionSources` (equipped skills, weapon skills, auto-granted minor traits, chosen
- * major traits, `requires_trait`/WvW-override gating), just classified against `CONTROL_NAMES`/
- * `AURA_NAMES` instead of `BOON_NAMES`/`CONDITION_NAMES`. Deliberately a separate function rather
- * than folded into `computeBoonConditionSources` itself: that function's output already feeds the
- * Squad tab's party-wide boon/condition summary (`party-summary.ts`) and per-slot icon rows, which
- * assume every entry is a real boon or condition — mixing control/aura sources into that same
- * stream would silently break those (e.g. `BOON_CONDITION_ICONS['Stun']` doesn't exist). Not
- * duration-scaled (see `BoonConditionSource.scaledDurationSeconds`'s doc comment) — Firebrand Tome
- * chapters are skipped (wiki-sourced tome data has no Stun/Daze/aura facts, confirmed via a full
- * scan of data/game-data/tome-chapters.json this session).
+ * major traits, `requires_trait`/WvW-override gating), just classified against `AURA_NAMES` instead
+ * of `BOON_NAMES`/`CONDITION_NAMES`. Deliberately a separate function rather than folded into
+ * `computeBoonConditionSources` itself: that function's output already feeds the Squad tab's
+ * party-wide boon/condition summary (`party-summary.ts`) and per-slot icon rows, which assume every
+ * entry is a real boon or condition — mixing aura sources into that same stream would silently
+ * break those (e.g. `BOON_CONDITION_ICONS['Fire Aura']` doesn't exist). Not duration-scaled (see
+ * `BoonConditionSource.scaledDurationSeconds`'s doc comment) — Firebrand Tome chapters are skipped
+ * (wiki-sourced tome data has no aura facts, confirmed via a full scan of
+ * data/game-data/tome-chapters.json this session). Control/Hard-CC (Stun, Daze, Knockdown,
+ * Knockback, Launch, Pull) turned out not to share auras' `Buff`-status shape — see
+ * `computeNamedFactSources`/`CONTROL_MATCHERS` below instead.
  */
-export function computeControlAuraSources(
+export function computeAuraSources(
   build: Build,
   gameData: {
     skills: Skill[]
@@ -549,7 +549,7 @@ export function computeControlAuraSources(
         skill.icon,
         unscaled,
         gameData.wvwFactOverrides.skill[skill.id],
-        classifyControlAura
+        classifyAura
       )
     )
   }
@@ -572,13 +572,167 @@ export function computeControlAuraSources(
           trait.icon,
           unscaled,
           gameData.wvwFactOverrides.trait[trait.id],
-          classifyControlAura
+          classifyAura
         )
       )
     }
   }
 
   return out
+}
+
+export interface NamedFactSource {
+  sourceKind: 'skill' | 'trait'
+  sourceId: number
+  sourceName: string
+  sourceIcon: string
+  name: string
+  /** Human-readable magnitude when the underlying fact carries one (duration in seconds, a
+   *  distance, or a plain count) — `null` for presence-only facts (e.g. Breaks Stun). */
+  detail: string | null
+}
+
+function namedFactDetail(fact: Fact): string | null {
+  if (typeof fact.duration === 'number') return `${fact.duration}s`
+  if (typeof fact.distance === 'number') return `${fact.distance}`
+  if (typeof fact.value === 'number') return `${fact.value}`
+  return null
+}
+
+/** At most one entry per matcher name per source (a skill/trait with 2 facts both matching e.g.
+ *  "Barrier" shouldn't produce 2 identical tooltip lines). */
+function namedFactsFrom(
+  facts: Fact[],
+  traitedFacts: Fact[],
+  activeIds: Set<number>,
+  sourceKind: 'skill' | 'trait',
+  sourceId: number,
+  sourceName: string,
+  sourceIcon: string,
+  matchers: Record<string, (fact: Fact) => boolean>
+): NamedFactSource[] {
+  const out: NamedFactSource[] = []
+  const matchedNames = new Set<string>()
+  for (const fact of [...facts, ...traitedFacts]) {
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
+    for (const [name, match] of Object.entries(matchers)) {
+      if (matchedNames.has(name) || !match(fact)) continue
+      out.push({ sourceKind, sourceId, sourceName, sourceIcon, name, detail: namedFactDetail(fact) })
+      matchedNames.add(name)
+    }
+  }
+  return out
+}
+
+/**
+ * Control/Hard-CC matchers for `computeNamedFactSources` — each a structurally-verified exact
+ * `type`+`text`/`status` match (not text-mined from free-form descriptions), confirmed via a full
+ * scan of data/game-data/{skills,traits}.json this session. Stun/Daze can appear as either a
+ * `Time`-typed fact (`text`, majority of occurrences) or a `Buff`-typed one (`status`, minority) —
+ * both checked so neither is undercounted. Knockdown/Knockback/Launch/Pull only ever appear as
+ * `Time`/`Distance`/`Number`-typed facts respectively (no `Buff`-typed alternate exists). Sink/Float
+ * (underwater-only hard CC) are deliberately excluded — not relevant to this app's WvW land focus.
+ * Object key order is this row's display order (`Object.keys` preserves insertion order).
+ */
+export const CONTROL_MATCHERS: Record<string, (fact: Fact) => boolean> = {
+  Stun: (f) => (f.type === 'Time' && f.text === 'Stun') || (f.type === 'Buff' && f.status === 'Stun'),
+  Daze: (f) => (f.type === 'Time' && f.text === 'Daze') || (f.type === 'Buff' && f.status === 'Daze'),
+  Knockdown: (f) => f.type === 'Time' && f.text === 'Knockdown',
+  Knockback: (f) => f.type === 'Distance' && f.text === 'Knockback',
+  Launch: (f) => f.type === 'Distance' && f.text === 'Launch',
+  Pull: (f) => f.type === 'Number' && f.text === 'Pull'
+}
+
+/**
+ * Miscellaneous matchers for `computeNamedFactSources`. "Barrier" is the one exception to "exact
+ * `text` match" here: `AttributeAdjust` facts that grant Barrier carry ~15 different exact labels
+ * ("Barrier", "Ally Barrier", "Barrier per Hit", "Initial Barrier", ...) that all consistently
+ * contain the word "Barrier" (confirmed via a full scan of every `AttributeAdjust` fact's `text`
+ * this session) — a substring match, not a guess. Healing is deliberately not included here — see
+ * TODO.md's "Healing"/"Damage" numbers pass, which is where a real Healing signal belongs.
+ */
+export const MISCELLANEOUS_MATCHERS: Record<string, (fact: Fact) => boolean> = {
+  Stealth: (f) => f.type === 'Buff' && f.status === 'Stealth',
+  Superspeed: (f) => f.type === 'Buff' && f.status === 'Superspeed',
+  Evade: (f) => f.type === 'Time' && f.text === 'Evade',
+  'Breaks Stun': (f) => f.type === 'StunBreak' || (f.type === 'NoData' && f.text === 'Breaks Stun'),
+  Barrier: (f) => f.type === 'AttributeAdjust' && typeof f.text === 'string' && /barrier/i.test(f.text)
+}
+
+/**
+ * Boon Strip/Corrupt — not part of gw2skills' own reference bar, added on request (strip = remove
+ * an enemy's boon; corrupt = convert it into a condition instead). Both read `type: 'Number'` facts
+ * — e.g. Corrupt Boon's "Boons Converted", Spectral-Grasp-style pulls' "Boons Removed"/"Boons
+ * Stolen" — confirmed exhaustive label sets via a full scan of every `Number` fact's `text` this
+ * session; deliberately excludes the much larger "Conditions Removed"-family labels (a build's own
+ * condition-cleanse on itself/allies — an unrelated concept, not a strip/corrupt of an enemy boon).
+ */
+export const BOON_STRIP_CORRUPT_MATCHERS: Record<string, (fact: Fact) => boolean> = {
+  Strip: (f) => f.type === 'Number' && typeof f.text === 'string' && /boons? (removed|stolen)/i.test(f.text),
+  Corrupt: (f) => f.type === 'Number' && typeof f.text === 'string' && /boons? converted/i.test(f.text)
+}
+
+/**
+ * Generic counterpart to `computeAuraSources`/`computeComboSources` for named facts that don't
+ * share boons/conditions/auras' `Buff`-with-`status` shape — Control/Miscellaneous/Strip&Corrupt
+ * each read a mix of fact `type`s (`Time`/`Distance`/`Number`/`StunBreak`/`NoData`/`AttributeAdjust`),
+ * so each is defined as a small `name -> (fact) => boolean` matcher table (`CONTROL_MATCHERS` etc.,
+ * above) instead of a single classify function. Same skill/trait-walking rules as
+ * `computeAuraSources`/`computeComboSources`; call once per matcher table.
+ */
+export function computeNamedFactSources(
+  build: Build,
+  gameData: {
+    skills: Skill[]
+    traits: Trait[]
+    legends: Legend[]
+    pets: Pet[]
+    professions: Profession[]
+    tomeChapters: TomeChaptersByTomeId
+    soulbeastBeastmode: SoulbeastBeastmodeMap
+  },
+  matchers: Record<string, (fact: Fact) => boolean>
+): NamedFactSource[] {
+  const activeIds = activeTraitIds(build, gameData.traits)
+  const out: NamedFactSource[] = []
+  const { skillsById, skillIds } = equippedSkillsById(build, gameData)
+
+  for (const id of skillIds) {
+    const skill = skillsById.get(id)
+    if (!skill) continue
+    out.push(...namedFactsFrom(skill.facts, skill.traitedFacts, activeIds, 'skill', skill.id, skill.name, skill.icon, matchers))
+  }
+
+  for (const line of build.specializations) {
+    if (line == null) continue
+    for (const trait of gameData.traits) {
+      if (trait.specializationId !== line.specializationId) continue
+      const isMinor = trait.slot === 'Minor'
+      const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id)
+      if (!isMinor && !isChosenMajor) continue
+      out.push(...namedFactsFrom(trait.facts, trait.traitedFacts, activeIds, 'trait', trait.id, trait.name, trait.icon, matchers))
+    }
+  }
+
+  return out
+}
+
+export interface NamedFactGroup {
+  name: string
+  sources: NamedFactSource[]
+}
+
+export function groupNamedFactSources(sources: NamedFactSource[]): NamedFactGroup[] {
+  const map = new Map<string, NamedFactGroup>()
+  for (const source of sources) {
+    let group = map.get(source.name)
+    if (!group) {
+      group = { name: source.name, sources: [] }
+      map.set(source.name, group)
+    }
+    group.sources.push(source)
+  }
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name))
 }
 
 export interface ComboSource {
@@ -616,9 +770,9 @@ function comboFactsFrom(
 
 /**
  * Every Combo Field/Finisher a build provides — same skill/trait-walking rules as
- * `computeControlAuraSources`, reading the API's own `ComboField`/`ComboFinisher` fact types
+ * `computeAuraSources`, reading the API's own `ComboField`/`ComboFinisher` fact types
  * directly (a different shape than the `Buff`-with-`status`/`duration` facts boons/conditions/
- * control/auras use, so this doesn't go through `extractFromFacts`/`classify` at all). The API
+ * auras use, so this doesn't go through `extractFromFacts`/`classify` at all). The API
  * exposes only one generic icon per fact type (not per field/finisher type — confirmed via a scan
  * of data/game-data/skills.json this session: every `ComboField` fact shares one icon regardless of
  * `field_type`, same for `ComboFinisher`/`finisher_type`), so `fieldType`/`finisherType` are
