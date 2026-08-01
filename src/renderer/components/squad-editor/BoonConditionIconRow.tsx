@@ -5,6 +5,9 @@ export interface BoonConditionIconItem {
   key: string
   icon: string
   tooltip: ReactNode
+  /** Extra class appended to this item's icon only — e.g. greying out a boon/condition the
+   *  current build doesn't produce, while still showing its icon and a name-only tooltip. */
+  className?: string
 }
 
 interface Props {
@@ -27,7 +30,11 @@ export function BoonConditionIconRow({ items, emptyLabel }: Props) {
     <div className="boon-icon-row">
       {items.map((item) => (
         <Tooltip key={item.key} content={item.tooltip}>
-          <img className="boon-icon-row-icon" src={item.icon} alt="" />
+          <img
+            className={item.className ? `boon-icon-row-icon ${item.className}` : 'boon-icon-row-icon'}
+            src={item.icon}
+            alt=""
+          />
         </Tooltip>
       ))}
     </div>

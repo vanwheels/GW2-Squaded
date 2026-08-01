@@ -117,6 +117,7 @@ function TraitLineRow({
 
   return (
     <div className="trait-line" ref={wrapperRef}>
+      {chosenSpec && <span className="trait-line-name-label">{chosenSpec.name}</span>}
       {segments.length > 0 && (
         <svg className="trait-connector-svg">
           {segments.map((s, i) => (
@@ -141,7 +142,6 @@ function TraitLineRow({
           onChoose={onChooseSpec}
           variant="slot"
         />
-        {chosenSpec && <span className="spec-line-name">{chosenSpec.name}</span>}
       </div>
 
       {chosenSpec && line && (

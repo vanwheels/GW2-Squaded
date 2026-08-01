@@ -200,23 +200,39 @@ input[type='text'] {
   flex-wrap: wrap;
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 10px 12px;
+  /* Extra top padding reserves room for .trait-line-name-label without it overlapping the icon
+     row below. */
+  padding: 24px 12px 10px;
   background: rgba(255, 255, 255, 0.03);
 }
 
+/* The spec name used to sit in a text row below the icon, but its width varied with the name's
+   length ("Chaos" vs "Troubadour") and knocked every row's tier columns out of alignment with each
+   other. It's now an absolutely-positioned label pinned to the card's top-left corner instead, so
+   this column is just the icon button and every row's tiers start at the same fixed x. */
 .trait-line-spec-select {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
   flex: none;
   position: relative;
   z-index: 1;
 }
 
+.trait-line-name-label {
+  position: absolute;
+  top: 6px;
+  left: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--muted);
+  z-index: 1;
+  pointer-events: none;
+}
+
 .trait-line-tiers-horizontal {
   display: flex;
-  gap: 16px;
+  gap: 10px;
   align-items: flex-start;
   position: relative;
   z-index: 1;
@@ -266,12 +282,6 @@ input[type='text'] {
   gap: 4px;
 }
 
-.spec-line-name {
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-align: center;
-}
-
 .trait-progression {
   display: flex;
   flex-direction: column;
@@ -279,11 +289,16 @@ input[type='text'] {
   gap: 6px;
 }
 
+/* gap matches .trait-line-tiers-horizontal's gap: with the minor (30px, radius 15) and major
+   (38px, radius 19) icon sizes fixed, equal gaps make the minor->major center-to-center distance
+   and the major->next-tier's-minor center-to-center distance come out the same (15+10+19 either
+   way), so the connector segments read as a consistent length instead of the tier-to-tier hop
+   looking longer than the minor-to-major hop within the same row. */
 .trait-tier-group {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .minor-trait {
@@ -562,28 +577,33 @@ input[type='text'] {
   grid-area: divider2;
 }
 
-/* Proof-of-concept Boons/Conditions summary rows (2026-08-01) — level with the F1-F5 row and the
-   Heal/Utility/Elite row respectively, same divider treatment as the weapon/utility split. Icons
-   render via the squad editor's `BoonConditionIconRow` (nowrap/left-aligned override below,
-   vs. that component's own wrapping/centered default sizing for a narrow slot-tile column). */
+/* Fixed Boons/Conditions grids — level with the F1-F5 row and the Heal/Utility/Elite row
+   respectively, same divider treatment as the weapon/utility split. Icons render via the squad
+   editor's `BoonConditionIconRow`, overridden here from that component's own wrapping/centered
+   default (sized for a narrow slot-tile column) into a fixed 2-row grid: all 12 boons in 2 rows
+   of 6, all 14 conditions in 2 rows of 7 (see `BOON_NAMES`/`CONDITION_NAMES`), so the layout never
+   reflows as boon/condition sources are added or removed. */
 .ingame-skill-bar-boons {
   grid-area: boons;
-  height: 48px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .ingame-skill-bar-conditions {
   grid-area: conditions;
-  height: 48px;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 }
 
-.ingame-skill-bar-boons .boon-icon-row,
+.ingame-skill-bar-boons .boon-icon-row {
+  display: grid;
+  grid-template-columns: repeat(6, 24px);
+  gap: 4px;
+}
+
 .ingame-skill-bar-conditions .boon-icon-row {
-  flex-wrap: nowrap;
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: repeat(7, 24px);
   gap: 4px;
 }
 
@@ -865,42 +885,30 @@ input[type='text'] {
   margin-top: 0;
 }
 
-.stats-panel-columns {
+.stats-panel-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0 16px;
-}
-
-.stats-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stats-list li {
-  display: flex;
+  grid-template-columns: max-content max-content 20px max-content max-content;
+  column-gap: 6px;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 0.85rem;
 }
 
-.stats-list li span:first-child {
+.stat-cell {
+  font-size: 0.85rem;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.stat-cell:nth-last-child(-n + 5) {
+  border-bottom: none;
+}
+
+.stat-label {
   color: var(--muted);
 }
 
-.stats-list li span:last-child {
+.stat-value {
   font-weight: 600;
-}
-
-.stats-panel-caveat {
-  font-size: 0.78rem;
-  line-height: 1.4;
-  margin-top: 12px;
-  margin-bottom: 0;
+  text-align: right;
 }
 
 .boon-uptime-panel h3 {
@@ -908,6 +916,7 @@ input[type='text'] {
 }
 
 .boon-uptime-panel h4 {
+  margin-top: 0;
   margin-bottom: 6px;
   color: var(--muted);
   font-size: 0.8rem;
@@ -915,10 +924,10 @@ input[type='text'] {
   letter-spacing: 0.04em;
 }
 
-.boon-uptime-caveat {
-  font-size: 0.78rem;
-  line-height: 1.4;
-  margin-bottom: 16px;
+.boon-uptime-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 16px;
 }
 
 .boon-groups {
@@ -970,7 +979,7 @@ input[type='text'] {
 .boon-source-list li {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: flex-start;
   font-size: 0.85rem;
   gap: 8px;
 }
@@ -1279,6 +1288,14 @@ input[type='text'] {
   height: 16px;
   border-radius: 3px;
   object-fit: cover;
+}
+
+/* Boon/condition not currently produced by this build (see `SkillsEditor`'s fixed 12/14-icon
+   grid) — greyed out in place of the icon's usual orange/red color, rather than hidden, so the
+   full grid's layout stays fixed regardless of which boons/conditions this build produces. */
+.boon-icon-row-icon-inactive {
+  filter: grayscale(1);
+  opacity: 0.35;
 }
 
 .boon-icon-row-empty {

@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { Fragment, useMemo } from 'react'
 import type { Build } from '@shared/types'
 import { computeCharacterStats } from '@shared/gear-calc/derived-stats'
 import { formatBoonPercent } from '@shared/boon-calc/format'
@@ -8,11 +8,22 @@ interface Props {
   build: Build
 }
 
+interface StatRow {
+  leftLabel: string
+  leftValue: string
+  rightLabel?: string
+  rightValue?: string
+}
+
 /**
  * gw2skills.net-style stats sidebar: left column = raw attribute totals (base character value +
- * every gear/rune/infusion/food/utility contribution), right column = derived/converted values.
+ * every gear/rune/infusion/food/utility contribution), right column = derived/converted values,
+ * paired by row where the attribute directly feeds the derived stat (e.g. Vitality/Health).
  * Design confirmed via reference screenshots in a prior session (see TODO.md); formulas are
  * quoted directly from the wiki (see src/shared/gear-calc/derived-stats.ts), not guessed.
+ *
+ * Rendered as a single flat grid (rather than two independent lists) so left/right rows share
+ * the same grid row tracks and line up pixel-for-pixel.
  */
 export function StatsPanel({ build }: Props) {
   const gameData = useGameData()
@@ -21,86 +32,31 @@ export function StatsPanel({ build }: Props) {
 
   const round = (n: number): number => Math.round(n)
 
+  const rows: StatRow[] = [
+    { leftLabel: 'Power', leftValue: `${round(stats.attributes.power)}`, rightLabel: 'Condition Damage', rightValue: `${round(stats.attributes.conditionDamage)}` },
+    { leftLabel: 'Vitality', leftValue: `${round(stats.attributes.vitality)}`, rightLabel: 'Health', rightValue: `${round(stats.derived.health)}` },
+    { leftLabel: 'Toughness', leftValue: `${round(stats.attributes.toughness)}`, rightLabel: 'Armor', rightValue: `${round(stats.derived.armor)}` },
+    { leftLabel: 'Precision', leftValue: `${round(stats.attributes.precision)}`, rightLabel: 'Critical Chance', rightValue: `${formatBoonPercent(stats.derived.criticalChance)}%` },
+    { leftLabel: 'Ferocity', leftValue: `${round(stats.attributes.ferocity)}`, rightLabel: 'Critical Damage', rightValue: `${formatBoonPercent(stats.derived.criticalDamage)}%` },
+    { leftLabel: 'Concentration', leftValue: `${round(stats.attributes.concentration)}`, rightLabel: 'Boon Duration', rightValue: `${formatBoonPercent(stats.derived.boonDuration)}%` },
+    { leftLabel: 'Expertise', leftValue: `${round(stats.attributes.expertise)}`, rightLabel: 'Condition Duration', rightValue: `${formatBoonPercent(stats.derived.conditionDuration)}%` },
+    { leftLabel: 'Healing Power', leftValue: `${round(stats.attributes.healingPower)}`, rightLabel: 'Magic Find', rightValue: `${formatBoonPercent(stats.derived.magicFind)}%` },
+  ]
+
   return (
     <div className="stats-panel">
       <h3>Stats</h3>
-      <div className="stats-panel-columns">
-        <ul className="stats-list">
-          <li>
-            <span>Power</span>
-            <span>{round(stats.attributes.power)}</span>
-          </li>
-          <li>
-            <span>Toughness</span>
-            <span>{round(stats.attributes.toughness)}</span>
-          </li>
-          <li>
-            <span>Vitality</span>
-            <span>{round(stats.attributes.vitality)}</span>
-          </li>
-          <li>
-            <span>Precision</span>
-            <span>{round(stats.attributes.precision)}</span>
-          </li>
-          <li>
-            <span>Ferocity</span>
-            <span>{round(stats.attributes.ferocity)}</span>
-          </li>
-          <li>
-            <span>Healing Power</span>
-            <span>{round(stats.attributes.healingPower)}</span>
-          </li>
-          <li>
-            <span>Condition Damage</span>
-            <span>{round(stats.attributes.conditionDamage)}</span>
-          </li>
-          <li>
-            <span>Expertise</span>
-            <span>{round(stats.attributes.expertise)}</span>
-          </li>
-          <li>
-            <span>Concentration</span>
-            <span>{round(stats.attributes.concentration)}</span>
-          </li>
-        </ul>
-        <ul className="stats-list">
-          <li>
-            <span>Armor</span>
-            <span>{round(stats.derived.armor)}</span>
-          </li>
-          <li>
-            <span>Health</span>
-            <span>{round(stats.derived.health)}</span>
-          </li>
-          <li>
-            <span>Critical Chance</span>
-            <span>{formatBoonPercent(stats.derived.criticalChance)}%</span>
-          </li>
-          <li>
-            <span>Critical Damage</span>
-            <span>{formatBoonPercent(stats.derived.criticalDamage)}%</span>
-          </li>
-          <li>
-            <span>Boon Duration</span>
-            <span>{formatBoonPercent(stats.derived.boonDuration)}%</span>
-          </li>
-          <li>
-            <span>Condition Duration</span>
-            <span>{formatBoonPercent(stats.derived.conditionDuration)}%</span>
-          </li>
-          <li>
-            <span>Magic Find</span>
-            <span>{formatBoonPercent(stats.derived.magicFind)}%</span>
-          </li>
-        </ul>
+      <div className="stats-panel-grid">
+        {rows.map((row) => (
+          <Fragment key={row.leftLabel}>
+            <span className="stat-cell stat-label">{row.leftLabel}</span>
+            <span className="stat-cell stat-value">{row.leftValue}</span>
+            <span className="stat-gap" aria-hidden="true" />
+            <span className="stat-cell stat-label">{row.rightLabel ?? ''}</span>
+            <span className="stat-cell stat-value">{row.rightValue ?? ''}</span>
+          </Fragment>
+        ))}
       </div>
-      <p className="muted stats-panel-caveat">
-        Assumes level-80 Ascended gear on every filled slot, and includes rune stage bonuses (by
-        same-rune armor count), infusions, and the equipped food/utility consumable. Does not yet
-        include relic effects (no numeric data exposed by the public API — see TODO.md) or the
-        bottom Conditions/Boons/Control/Auras bar (see the Boon &amp; Condition Uptime panel below
-        for boon/condition sources specifically).
-      </p>
     </div>
   )
 }
