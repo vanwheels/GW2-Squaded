@@ -48,6 +48,10 @@ reveal a different and more precise gap than the original wiki-only investigatio
   from the right 2 skills, and a base Warrior (no elite spec) still sees a normal per-weapon Burst
   Skill at F1 rather than Gunsaber — confirming the weapon-type-filter fix didn't regress the
   normal case.
+- Closed out the last open Ranger item from Session 36 (core Ranger/Druid's missing F1/F3
+  pet-command icons): confirmed with the user those two skills ("Attack My Target"/"Return To Me")
+  are pure pet-movement commands with no combat effect, so this app (scoped to boon/condition
+  tracking) has no reason to model them — removed from TODO.md rather than left open.
 
 ## Session 36 — Skill bar feedback pass: Ranger
 

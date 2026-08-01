@@ -62,16 +62,6 @@ it alongside.
       click-toggle pattern doesn't map cleanly onto it. Keep the current text-toggle row for kits
       as-is for now; revisit later.
 
-### Ranger
-- [ ] Core Ranger and normal-form Untamed still have no F1 (pet attack command) or F3 (pet swap)
-      icon in the F-bar — only pet F2 (`PetsEditor.tsx`'s own bar, now correctly scoped: shown for
-      core/Druid/Untamed, hidden for Soulbeast since Beastmode replaces it) and Soulbeast's
-      Beastmode F1-F3 render anything pet-related today. Blocked on data, not UI: confirmed
-      2026-07-31 via `Pet` type's own doc comment that `/v2/pets` exposes no id for either the
-      generic "attack" or "swap pets" command at all (unlike Beastmode's per-pet ids, sourced by
-      `scripts/fetch-soulbeast-beastmode.ts` from the wiki) — would need the same kind of
-      wiki-sourced hand-verification pass before it could be added, not guessed.
-
 ### Thief
 - [ ] F2 "Stolen Skill" needs to become a real skill picker (like Heal/Utility/Elite), not skipped
       entirely (`profession-mechanic.ts`'s `SKIPPED_SLOTS` currently excludes Thief `Profession_2`
