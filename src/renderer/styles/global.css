@@ -274,13 +274,13 @@ input[type='text'] {
   gap: 6px;
 }
 
-/* Every elite specialization across every profession, in one flat grid below the profession row —
-   see `ProfessionSpecPicker`'s doc comment for why (1-click profession+elite-spec picks). Wraps to
-   fill the column's width evenly rather than a fixed column count, since that width varies with
-   `.build-editor-column`'s natural (content-driven) sizing. */
+/* Every elite specialization across every profession, column-aligned under its owning profession's
+   portrait in `.profession-picker-row` above (same 36px `.spec-icon-button` width + 6px gap, so the
+   columns line up) — see `ProfessionSpecPicker`'s doc comment for why (1-click profession+elite-spec
+   picks, row = release order). `grid-template-columns` is set inline (profession count isn't a
+   static constant here). */
 .elite-spec-picker-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   gap: 6px;
   margin-top: 8px;
 }
