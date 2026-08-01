@@ -7,6 +7,7 @@ import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
 import { SlotTypeIcon, type SlotIconKind } from './SlotTypeIcon'
+import { SkillBarIcon } from './SkillBarIcon'
 
 type Consumables = Pick<Build, 'relicId' | 'foodId' | 'utilityId'>
 
@@ -510,8 +511,14 @@ export function EquipmentEditor({
           dragCategory={dragCategory}
         />
         <span className="gear-copy-paste-label">{categoryLabel}</span>
-        <button type="button" className="apply-all-button" disabled={chosenId === null} onClick={() => applyToAll(chosenId)}>
-          Apply to All
+        <button
+          type="button"
+          className="skill-bar-icon-button"
+          title="Apply to All"
+          disabled={chosenId === null}
+          onClick={() => applyToAll(chosenId)}
+        >
+          <SkillBarIcon kind="applyAll" />
         </button>
       </div>
     )
@@ -551,17 +558,11 @@ export function EquipmentEditor({
           <div className="weapon-mode-toggle">
             <button
               type="button"
-              className={weaponMode === 'land' ? 'weapon-mode-toggle-button active' : 'weapon-mode-toggle-button'}
-              onClick={() => setWeaponMode('land')}
+              className={weaponMode === 'land' ? 'skill-bar-icon-button env-land active' : 'skill-bar-icon-button env-water active'}
+              title={weaponMode === 'land' ? 'Switch to Underwater' : 'Switch to Land'}
+              onClick={() => setWeaponMode(weaponMode === 'land' ? 'underwater' : 'land')}
             >
-              Land
-            </button>
-            <button
-              type="button"
-              className={weaponMode === 'underwater' ? 'weapon-mode-toggle-button active' : 'weapon-mode-toggle-button'}
-              onClick={() => setWeaponMode('underwater')}
-            >
-              Underwater
+              <SkillBarIcon kind={weaponMode === 'land' ? 'land' : 'water'} />
             </button>
           </div>
           {weaponMode === 'land' ? (

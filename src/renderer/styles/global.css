@@ -359,16 +359,6 @@ input[type='text'] {
   white-space: nowrap;
 }
 
-.apply-all-button {
-  font-size: 0.7rem;
-  padding: 3px 8px;
-  white-space: nowrap;
-}
-
-.apply-all-button:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
 
 /* Weapon / Armor / Accessories side by side, matching gw2skills.net's reference layout — each
    panel sizes to its own content (no flex-grow) rather than stretching across the column. */
@@ -468,24 +458,11 @@ input[type='text'] {
 }
 
 /* Land/Underwater toggle atop the Weapon panel — only one set of weapon slots is shown at a
-   time, defaulting to land (see EquipmentEditor's `weaponMode` state). */
+   time, defaulting to land (see EquipmentEditor's `weaponMode` state). Reuses the same
+   `skill-bar-icon-button`/`SkillBarIcon` treatment as the Skills panel's own env toggle
+   (`WeaponSkillBar`'s "env" section) rather than a separate text-button pair. */
 .weapon-mode-toggle {
   display: flex;
-  gap: 6px;
-}
-
-.weapon-mode-toggle-button {
-  padding: 4px 10px;
-  font-size: 0.72rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--muted);
-}
-
-.weapon-mode-toggle-button.active {
-  border-color: var(--accent);
-  color: var(--text);
 }
 
 .weapon-slot-locked {
@@ -522,10 +499,10 @@ input[type='text'] {
    the Heal/Utility/Elite (or Legend) skills without the wide gap a plain column-gap would leave. */
 .ingame-skill-bar {
   display: grid;
-  grid-template-columns: auto auto 48px auto;
+  grid-template-columns: auto auto 48px auto 48px auto;
   grid-template-areas:
-    'env  mechanic divider utility-top'
-    'swap weapon   divider utility-skills';
+    'env  mechanic divider utility-top     divider2 boons'
+    'swap weapon   divider utility-skills  divider2 conditions';
   column-gap: 14px;
   row-gap: 8px;
   align-items: start;
@@ -581,6 +558,43 @@ input[type='text'] {
   grid-area: utility-skills;
 }
 
+.ingame-skill-bar-divider2 {
+  grid-area: divider2;
+}
+
+/* Proof-of-concept Boons/Conditions summary rows (2026-08-01) — level with the F1-F5 row and the
+   Heal/Utility/Elite row respectively, same divider treatment as the weapon/utility split. Icons
+   render via the squad editor's `BoonConditionIconRow` (nowrap/left-aligned override below,
+   vs. that component's own wrapping/centered default sizing for a narrow slot-tile column). */
+.ingame-skill-bar-boons {
+  grid-area: boons;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.ingame-skill-bar-conditions {
+  grid-area: conditions;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.ingame-skill-bar-boons .boon-icon-row,
+.ingame-skill-bar-conditions .boon-icon-row {
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 4px;
+}
+
+/* Half the 48px skill-slot-button size — big enough to read at a glance next to the skill icons
+   they sit beside, unlike the 16px compact row used in the Squads tab's per-slot summary. */
+.ingame-skill-bar-boons .boon-icon-row-icon,
+.ingame-skill-bar-conditions .boon-icon-row-icon {
+  width: 24px;
+  height: 24px;
+}
+
 /* Small control icons (weapon-swap cycle, land/underwater) — a step down from the 48px
    `skill-slot-button` since these are display toggles, not skill slots. */
 .skill-bar-icon-button {
@@ -609,6 +623,11 @@ input[type='text'] {
 .skill-bar-icon-button.env-water.active {
   color: var(--water-blue);
   border-color: var(--water-blue);
+}
+
+.skill-bar-icon-button:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .skill-bar {

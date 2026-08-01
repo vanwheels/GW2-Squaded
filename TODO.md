@@ -17,6 +17,26 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Stats panel / boon-condition bar polish
 
+- [ ] Boon tab / Squad tab: distinguish self-only vs. party-wide (up to 5) boon sources. Confirmed
+      2026-08-01 the raw GW2 API data (already ingested into `data/game-data/skills.json`) carries
+      this signal: a skill's `facts` array includes a `type: "Number"` fact with
+      `text: "Number of Targets"` or `"Number of Allied Targets"` (`value` usually 5) alongside its
+      `Buff` facts when the skill hits allies; purely self-targeted buffs (e.g. Signet of Fury/
+      Signet of Might's passive/active) carry no such fact. `Fact` (`src/shared/types/game-data.ts`)
+      already round-trips this via its index signature, but `extractFromFacts`
+      (`src/shared/boon-calc/sources.ts`) currently ignores `Number` facts entirely — would need a
+      `targetCount: number | null` (null = self only) added to `BoonConditionSource`, read from the
+      first `Number` fact whose `text` contains "Target" among a skill's facts. Known caveats before
+      building this: (1) the facts array is flat, so a skill with a self-only buff AND a separate
+      ally-only buff in the same list (rare, not yet found a concrete example) can't be bound
+      per-buff-line without a positional heuristic; (2) no WvW-style override table exists yet for
+      target count the way `wvwFactOverrides` exists for duration, so any trait/WvW-driven target-
+      count change would need the same manual wiki-verification pass docs/game-data.md describes for
+      durations; (3) stationary sources (banners/wells/spirits) haven't been spot-checked for the
+      same fact shape.
+- [ ] Stretch goal, not currently planned: a per-skill "Damage" tooltip breakdown mirroring the
+      Healing breakdown idea below — hovering a DPS stat would list each weapon/utility skill on the
+      bar with its computed damage at current Power/Precision/Ferocity/condition stats.
 - [ ] Bottom "Conditions / Boons / Control / Auras / Miscellaneous / Combo" icon bar —
       gw2skills.net-style screenshots show this bar also covers Control (e.g. Daze), Auras,
       Miscellaneous (e.g. Healing, Execute), and Combo-field/finisher icons, highlighted/greyed by

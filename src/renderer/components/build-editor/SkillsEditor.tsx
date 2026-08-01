@@ -1,12 +1,21 @@
 import { useMemo, useState } from 'react'
 import type { Build, RevenantSkillSelection, Skill, SkillSelection, StandardSkillSelection, WvwFactOverrides } from '@shared/types'
-import { activeTraitIds, boonConditionFactsForSkill, type BoonConditionSource } from '@shared/boon-calc/sources'
+import {
+  activeTraitIds,
+  boonConditionFactsForSkill,
+  computeBoonConditionSources,
+  groupBoonConditionSources,
+  type BoonConditionSource
+} from '@shared/boon-calc/sources'
 import { numericFactLines } from '@shared/skill-calc/fact-numbers'
 import { relatedVariantSkills } from '@shared/skill-calc/multi-effect'
 import { formatBoonDuration } from '@shared/boon-calc/format'
+import { BOON_CONDITION_ICONS } from '@shared/boon-calc/icons'
+import type { BoonName, ConditionName } from '@shared/boon-calc/constants'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
+import { BoonConditionIconRow, type BoonConditionIconItem } from '@renderer/components/squad-editor/BoonConditionIconRow'
 import { WeaponSkillBar } from './WeaponSkillBar'
 import { ProfessionMechanicBar } from './ProfessionMechanicBar'
 import { PetsEditor } from './PetsEditor'
@@ -37,17 +46,60 @@ interface Props {
 
 type SlotId = 'heal' | 'utility0' | 'utility1' | 'utility2' | 'elite'
 
+/** One boon/condition group's icon-row entry: the hover tooltip lists every current source
+ *  contributing it (skill/trait name + scaled duration + apply count), same shape/wording as
+ *  `BoonUptimePanel`'s own per-boon source list — this is the same underlying data, just shown as
+ *  a compact hover row instead of a full panel. */
+function boonConditionIconItems(
+  groups: ReturnType<typeof groupBoonConditionSources>,
+  isCondition: boolean
+): BoonConditionIconItem[] {
+  return groups
+    .filter((g) => g.isCondition === isCondition)
+    .map((g) => ({
+      key: g.name,
+      icon: BOON_CONDITION_ICONS[g.name as BoonName | ConditionName],
+      tooltip: (
+        <>
+          <TooltipBody title={g.name} />
+          <ul className="tooltip-boon-facts">
+            {g.sources.map((s, i) => (
+              <li key={`${s.sourceKind}-${s.sourceId}-${i}`}>
+                <span>{s.sourceName}</span>
+                <span className="boon-source-duration">
+                  {formatBoonDuration(s.scaledDurationSeconds)}s
+                  {s.applyCount > 1 ? ` × ${s.applyCount}` : ''}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </>
+      )
+    }))
+}
+
 /**
  * Laid out as a CSS grid mirroring the real HUD's bottom bar: a Land/Underwater toggle icon sits
  * above a weapon-swap cycle icon (that pair forms its own narrow left column), next to it the
  * profession-mechanic F1-F5 row sits above the weapon 1-5 skills, then a thin divider, then the
- * Heal/Utility/Elite (or Legend) skills. Every piece below is a *direct* child of
+ * Heal/Utility/Elite (or Legend) skills, then a second divider, then — proof of concept, 2026-08-01
+ * — a Boons icon row (level with the F1-F5 row) and a Conditions icon row (level with the
+ * Heal/Utility/Elite row) summarizing every boon/condition this build's *currently equipped*
+ * skills/traits produce (same `computeBoonConditionSources`/`groupBoonConditionSources` data as
+ * `BoonUptimePanel`, just rendered as hover-only icons via the squad editor's
+ * `BoonConditionIconRow` rather than a full source list). Every piece below is a *direct* child of
  * `.ingame-skill-bar` — each one declares its own `grid-area` (see the CSS) rather than being
  * nested in a JS-side wrapper div — so the two skill rows (`weapon`/`utility-skills`) land in the
  * same grid row and line up exactly regardless of how tall the profession-mechanic bar or the
  * legend-picker row above them is.
  */
 export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSpecializationIds }: Props) {
+  const gameData = useGameData()
+  const boonConditionGroups = useMemo(
+    () => groupBoonConditionSources(computeBoonConditionSources(build, gameData)),
+    [build, gameData]
+  )
+
   return (
     <div className="skills-editor-root">
       {build.profession === 'Ranger' && (
@@ -85,6 +137,13 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
             equippedSpecializationIds={equippedSpecializationIds}
           />
         )}
+        <div className="ingame-skill-bar-divider ingame-skill-bar-divider2" />
+        <div className="ingame-skill-bar-boons">
+          <BoonConditionIconRow items={boonConditionIconItems(boonConditionGroups, false)} emptyLabel="No boons yet" />
+        </div>
+        <div className="ingame-skill-bar-conditions">
+          <BoonConditionIconRow items={boonConditionIconItems(boonConditionGroups, true)} emptyLabel="No conditions yet" />
+        </div>
       </div>
     </div>
   )
