@@ -29,6 +29,30 @@ export function SettingsView() {
           </p>
         )}
       </div>
+
+      <div className="settings-panel settings-panel-spaced">
+        <h3>Credits</h3>
+        <p>
+          Equipment-slot and stat-prefix icons are used with permission from{' '}
+          <strong>gw2skills.net</strong> — thanks to Connor McLeoud for granting reuse.
+        </p>
+        <p>
+          Reference data and imagery also draw on the{' '}
+          <strong>Guild Wars 2 Wiki</strong> community.
+        </p>
+        <p className="muted">
+          This application is not affiliated with or endorsed by ArenaNet or NCSOFT. Guild Wars 2
+          game data is used under{' '}
+          <a
+            href="https://www.guildwars2.com/en/legal/guild-wars-2-content-terms-of-use/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            ArenaNet's Content Terms of Use
+          </a>
+          .
+        </p>
+      </div>
     </section>
   )
 }

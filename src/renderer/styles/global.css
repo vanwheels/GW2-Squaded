@@ -110,6 +110,14 @@ button:hover {
   margin-top: 0;
 }
 
+.settings-panel-spaced {
+  margin-top: 16px;
+}
+
+.settings-panel p:last-child {
+  margin-bottom: 0;
+}
+
 .settings-update-row {
   display: flex;
   align-items: center;
@@ -472,7 +480,8 @@ input[type='text'] {
 .gear-slot-type-icon {
   width: 20px;
   height: 20px;
-  color: var(--muted);
+  object-fit: contain;
+  border-radius: 3px;
 }
 
 /* Item-rarity border: Ascended for the armor/weapon/trinket stat-combo picked in a slot (this
