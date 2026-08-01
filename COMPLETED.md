@@ -55,6 +55,27 @@ GitHub each time."
   real first release, then `npm run dev`/an installed copy to eyeball the new Settings tab and click
   through Check → Download → Restart-and-install against a real GitHub release.
 
+## Session 44 (continued) — First beta release published: v0.1.0
+
+Published the actual first beta immediately after landing the auto-update work above, using the
+`gh` CLI's already-authenticated token (`gh auth token`, scopes include `repo`) as `GH_TOKEN` for
+`electron-builder`'s GitHub publisher — no separate PAT needed.
+
+- **Found and worked around a real electron-builder bug**: `package:win:publish` uploads the
+  `.exe` and `.exe.blockmap` concurrently, and on a brand-new tag both uploads independently raced
+  to create the GitHub release, producing **two duplicate draft releases** with assets split
+  between them (one got the `.exe`, the other got the `.exe.blockmap`/`latest.yml`) —
+  `gh release view <tag>` only surfaced one by name-match, hiding the split; `gh api
+  repos/OWNER/REPO/releases` was needed to see both. Deleted both broken drafts, then avoided the
+  race by pre-creating the draft release myself (`gh release create v0.1.0 --draft`) before
+  re-running the publish, so electron-builder found the existing release instead of racing to
+  create it. Verified via the API that all 3 assets landed on the one release, then un-drafted it.
+- Live at https://github.com/vanwheels/GW2-Squaded/releases/tag/v0.1.0, confirmed publicly
+  downloadable without auth (`curl`'d `latest.yml` unauthenticated, correct version/hash).
+- Documented the race + the pre-create workaround for future releases (see this session's earlier
+  entry and TODO.md is not the place for it since it's a recurring release-process note, not a
+  product feature — captured in project memory instead).
+
 ## Session 43 — Elite-spec grid column-alignment fix; full Control CC set, Miscellaneous, Strip/Corrupt rows
 
 Two follow-ups from Session 42's feedback pass.
