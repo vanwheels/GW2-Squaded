@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { stripGw2Markup } from '@shared/gear-calc/format-description'
 
@@ -7,6 +7,10 @@ interface Props {
   content: ReactNode
   children: ReactNode
   className?: string
+  /** For callers that need to position the trigger itself (e.g. an explicit CSS Grid
+   *  `gridColumn`/`gridRow` placement) — the wrapping `<span>` is the actual grid/flex item, not
+   *  `children`, so a style on `children` alone wouldn't reach it. */
+  style?: CSSProperties
 }
 
 /**
@@ -17,7 +21,7 @@ interface Props {
  */
 const VIEWPORT_MARGIN = 8
 
-export function Tooltip({ content, children, className }: Props) {
+export function Tooltip({ content, children, className, style }: Props) {
   const [open, setOpen] = useState(false)
   const [coords, setCoords] = useState({ x: 0, y: 0 })
   const triggerRef = useRef<HTMLSpanElement>(null)
@@ -53,6 +57,7 @@ export function Tooltip({ content, children, className }: Props) {
     <span
       ref={triggerRef}
       className={className}
+      style={style}
       onMouseEnter={show}
       onMouseLeave={hide}
       onFocus={show}

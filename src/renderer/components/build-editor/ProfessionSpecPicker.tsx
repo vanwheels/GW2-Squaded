@@ -55,11 +55,15 @@ export function ProfessionSpecPicker({ profession, specializations, onChoose }: 
       <div className="elite-spec-picker-grid" style={{ gridTemplateColumns: `repeat(${professions.length}, 36px)` }}>
         {professions.flatMap((p, colIndex) =>
           (eliteSpecsByProfession.get(p.id) ?? []).map((s, rowIndex) => (
-            <Tooltip key={s.id} content={<TooltipBody title={s.name} />}>
+            <Tooltip
+              key={s.id}
+              content={<TooltipBody title={s.name} />}
+              style={{ gridColumn: colIndex + 1, gridRow: rowIndex + 1 }}
+            >
               <button
                 type="button"
                 className={s.id === currentEliteSpecId ? 'spec-icon-button chosen' : 'spec-icon-button'}
-                style={{ backgroundImage: `url(${s.icon})`, gridColumn: colIndex + 1, gridRow: rowIndex + 1 }}
+                style={{ backgroundImage: `url(${s.icon})` }}
                 onClick={() => onChoose(s.profession, s.id)}
               />
             </Tooltip>
