@@ -58,7 +58,7 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
       <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} section="extras" />
       <div className="ingame-skill-bar">
         <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} section="env" />
-        <ProfessionMechanicBar build={build} equippedSpecializationIds={equippedSpecializationIds} />
+        <ProfessionMechanicBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} />
         <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} section="swap" />
         <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} section="weapon" />
         <div className="ingame-skill-bar-divider" />

@@ -87,6 +87,9 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
   const bundleCapableIds = bundleCapableSkillIds(build, skillsById, tomeChapters, mechanicBarSkillIds)
   const activeBundleId = build.activeBundleSkillId !== null && bundleCapableIds.includes(build.activeBundleSkillId) ? build.activeBundleSkillId : null
   const activeBundle = activeBundleId !== null ? resolveActiveBundle(build, skillsById, tomeChapters, build.environment) : null
+  // Firebrand Tomes toggle via their own F1-F3 icons in `ProfessionMechanicBar` now, not this row
+  // (see that component's doc comment) — Engineer Kits and Druid's Celestial Avatar still do.
+  const toggleRowIds = bundleCapableIds.filter((id) => !(id in tomeChapters))
 
   function skillTooltipFor(skillId: number) {
     const skill = skillsById.get(skillId)
@@ -164,7 +167,7 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
   }
 
   if (section === 'extras') {
-    const hasExtras = isElementalist || unleashedId !== null || bundleCapableIds.length > 0
+    const hasExtras = isElementalist || unleashedId !== null || toggleRowIds.length > 0
     if (!hasExtras) return null
     return (
       <div className="ingame-skill-bar-extras">
@@ -202,7 +205,7 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
           </div>
         )}
 
-        {bundleCapableIds.length > 0 && (
+        {toggleRowIds.length > 0 && (
           <div className="legend-bar-toggle">
             <button
               type="button"
@@ -211,7 +214,7 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
             >
               Weapon
             </button>
-            {bundleCapableIds.map((id) => {
+            {toggleRowIds.map((id) => {
               const skill = skillsById.get(id)
               return (
                 <button

@@ -626,6 +626,16 @@ input[type='text'] {
   border-color: var(--accent);
 }
 
+/* Currently-active bundle toggle (e.g. a Firebrand Tome swapped into the weapon-skill row) —
+ * distinct meaning from `.open` (a picker overlay is showing), but same visual treatment. */
+.skill-slot-button.active {
+  border-color: var(--accent);
+}
+
+.skill-slot-button:not(:disabled) {
+  cursor: pointer;
+}
+
 .skill-slot-placeholder {
   display: block;
   font-size: 0.6rem;

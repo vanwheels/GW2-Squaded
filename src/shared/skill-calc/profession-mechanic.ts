@@ -84,6 +84,25 @@ const EXCLUDED_MECHANIC_SKILL_IDS = new Set<number>([
 export const RANGER_BEASTMODE_SPEC_ID = 55
 const RANGER_BEASTMODE_EXCLUDED_SLOTS = new Set(['Profession_1', 'Profession_2', 'Profession_3', 'Profession_4'])
 
+/**
+ * Guardian Dragonhunter (specialization id 27): live-verified 2026-07-31 a real gap in the
+ * `/v2/professions/Guardian` response — its virtue skills "Spear of Justice" (F1)/"Wings of
+ * Resolve" (F2)/"Shield of Courage" (F3) never appear in `professionSkills` at all (unlike every
+ * other Guardian elite spec's virtue rework, which does), even though the ids themselves exist in
+ * `/v2/skills` correctly tagged `specialization: 27` and `slot: "Profession_1"`/`"_2"`/`"_3"` — the
+ * same class of gap as Ranger's "Worldly Impact" above. Hand-injected by id below so the normal
+ * per-slot resolver (flip-chain dedup, spec-match preference) still runs over them like any other
+ * candidate; without this, Dragonhunter silently falls back to showing core Guardian's unthemed
+ * Virtue of Justice/Resolve/Courage instead of its own.
+ */
+const DRAGONHUNTER_VIRTUE_SKILLS: { id: number; slot: string }[] = [
+  { id: 29887, slot: 'Profession_1' }, // Spear of Justice
+  { id: 30783, slot: 'Profession_2' }, // Wings of Resolve (entry point)
+  { id: 30225, slot: 'Profession_2' }, // Wings of Resolve (flip target)
+  { id: 30029, slot: 'Profession_3' }, // Shield of Courage (entry point)
+  { id: 30039, slot: 'Profession_3' } // Shield of Courage (flip target)
+]
+
 /** Slots that exist in the raw data but aren't a real, build-determinable F-skill. Thief's F2 is
  *  the "stolen skill" — live-verified its candidates are tagged per enemy *profession*
  *  (`source: "Warrior"`, `"Guardian"`, ...), i.e. it depends on who you steal from in a live
@@ -143,7 +162,9 @@ export function professionMechanicBar(
   const skippedSlots = new Set(SKIPPED_SLOTS[profession.id] ?? [])
   const slotOrder: string[] = []
   const bySlot = new Map<string, Skill[]>()
-  for (const { id, slot } of profession.professionSkills) {
+  const rawSkillRefs: { id: number; slot: string }[] = [...profession.professionSkills]
+  if (profession.id === 'Guardian') rawSkillRefs.push(...DRAGONHUNTER_VIRTUE_SKILLS)
+  for (const { id, slot } of rawSkillRefs) {
     if (!slot.startsWith('Profession_') || skippedSlots.has(slot) || EXCLUDED_MECHANIC_SKILL_IDS.has(id)) continue
     const skill = skillsById.get(id)
     if (!skill) continue

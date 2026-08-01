@@ -2,10 +2,10 @@
 
 Entries are added as work lands, most recent first.
 
-## Session 35 — Skill bar feedback pass: General items
+## Session 35 — Skill bar feedback pass: General + Guardian items
 
-Started working through the 2026-07-31 skill-bar UI/UX feedback pass (TODO.md), beginning with
-the two profession-agnostic "General" items.
+Working through the 2026-07-31 skill-bar UI/UX feedback pass (TODO.md), starting with the two
+profession-agnostic "General" items, then Guardian's two.
 
 - Weapon-skill-bar empty-state placeholder ("Choose a weapon in the Equipment panel...") now has a
   fixed width matching a full 5-slot skill row (272px = 5 × 48px buttons + 4 × 8px gaps), so the
@@ -21,6 +21,29 @@ the two profession-agnostic "General" items.
   — it already falls back correctly to the spec-less variant when the gating spec isn't equipped,
   just updated its doc comment since it no longer references EquipmentEditor gating as the reason
   spec-matched always wins.
+- Dragonhunter's F1-F3 Virtue icons ("Spear of Justice"/"Wings of Resolve"/"Shield of Courage")
+  now actually differ from core Guardian's, as they should. Root cause (live-verified against both
+  the wiki and the live `/v2/professions/Guardian` API response): a genuine gap in that endpoint —
+  Dragonhunter's virtue-rework ids are simply absent from Guardian's `professionSkills` array,
+  unlike every other Guardian elite spec's virtue rework (Firebrand/Willbender/Luminary), even
+  though the 5 ids involved (29887, 30783/30225, 30039/30029) do exist in `/v2/skills` correctly
+  tagged `specialization: 27` and the right `Profession_1`/`_2`/`_3` slot — same class of gap as
+  Ranger's "Worldly Impact" already documented in `profession-mechanic.ts`. Fixed by hand-injecting
+  those 5 ids (`DRAGONHUNTER_VIRTUE_SKILLS`) into `professionMechanicBar`'s candidate list for
+  Guardian specifically; the existing flip-chain/spec-match resolver logic handles picking the
+  right one per slot with no further changes needed.
+- Firebrand's F1-F3 Tome icons in `ProfessionMechanicBar` are now clickable, replacing the separate
+  "Weapon / Tome of Justice / Tome of Resolve / Tome of Courage" text-toggle row for Tomes
+  specifically: click a Tome icon to swap `WeaponSkillBar`'s displayed 1-5 row to that Tome's
+  chapters, click the active one again to revert to Weapon, click a different Tome while one's
+  active to switch directly to it — all still driving the same `Build.activeBundleSkillId` field
+  the old row used, so the boon/condition calc and `WeaponSkillBar`'s "weapon" section needed no
+  changes. `ProfessionMechanicBar` now takes `onBuildChange` and scopes the clickable/active
+  treatment to `id in tomeChapters` (i.e. Tomes only, automatically — no Firebrand-specific check
+  needed). Engineer Kits and Druid's Celestial Avatar keep using the old text-toggle row
+  unchanged (`WeaponSkillBar`'s new `toggleRowIds` just excludes Tome ids from it) — Druid's own
+  click-toggle conversion is a separate, still-open TODO item (it also needs an icon fix Firebrand
+  didn't). New `.skill-slot-button.active` CSS class for the highlighted state.
 - Verified via `npm run typecheck` and `npm run lint` (both clean); no test suite exists yet to run.
 
 ## Session 34 — Thin backend: shareable build/squad links, deployed live

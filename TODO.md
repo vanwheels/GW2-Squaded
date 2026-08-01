@@ -56,18 +56,6 @@ were resolved while triaging this list (see the affected items): multi-option F-
 and the Ranger pet-swap/Untamed-swap text buttons get replaced by the cycle icon rather than gaining
 it alongside.
 
-### Guardian
-- [ ] Dragonhunter's F1-F3 Virtue icons don't change from core Guardian's, even though they should.
-      Needs live-verification against the wiki/API (same process as other `profession-mechanic.ts`
-      entries) to find the Dragonhunter-tagged skill ids.
-- [ ] Firebrand: remove the separate "Weapon / Tome of Justice / Tome of Resolve / Tome of Courage"
-      text-toggle row entirely. Instead make the F1-F3 Tome icons in `ProfessionMechanicBar`
-      themselves clickable: click a Tome icon to show its skills in the weapon-skill row, click the
-      active one again to revert to Weapon; clicking a different Tome while one is active switches
-      directly to it. Likely means `ProfessionMechanicBar` needs to become interactive for
-      bundle-capable entries (currently always `disabled`), sharing `Build.activeBundleSkillId` state
-      with `WeaponSkillBar`.
-
 ### Warrior
 - [ ] Bladesworn's Dragon Trigger (F2) has its own unique weapon skills while active — same "bundle"
       shape as Firebrand Tomes but not yet implemented as one at all. Apply the same F-icon
