@@ -6,6 +6,13 @@ import {
   magicFindPercent
 } from './attribute-totals'
 import { RUNE_SLOT_KEYS } from './upgrade-slots'
+import {
+  combatStatePoints,
+  CURATED_RELIC_DAMAGE_BONUSES,
+  DEFAULT_COMBAT_STATE,
+  FURY_CRITICAL_CHANCE_PERCENT,
+  type CombatState
+} from './combat-state'
 
 /** A level-80 character's base attributes before any gear/upgrade contribution. Precision/
  *  Toughness/Vitality/Power all start at 1000 (confirmed via wiki.guildwars2.com/wiki/Ferocity,
@@ -114,6 +121,9 @@ export interface DerivedStats {
   boonDuration: number
   conditionDuration: number
   magicFind: number
+  /** Flat outgoing-damage-% bonus from `CombatState.relicActive`, when the equipped relic has a
+   *  curated entry — 0 otherwise. See `CURATED_RELIC_DAMAGE_BONUSES` in combat-state.ts. */
+  outgoingDamagePercent: number
 }
 
 export interface CharacterStats {
@@ -123,10 +133,13 @@ export interface CharacterStats {
 
 export function computeCharacterStats(
   build: Build,
-  gameData: Pick<GameData, 'itemStats' | 'infusions' | 'runes' | 'food' | 'utility'>
+  gameData: Pick<GameData, 'itemStats' | 'infusions' | 'runes' | 'food' | 'utility'>,
+  combatState: CombatState = DEFAULT_COMBAT_STATE
 ): CharacterStats {
   const gearTotals = computeGearAttributeTotals(build, gameData)
-  const total = (key: string): number => (BASE_ATTRIBUTES[key] ?? 0) + (gearTotals.points[key] ?? 0)
+  const combatPoints = combatStatePoints(build, combatState)
+  const total = (key: string): number =>
+    (BASE_ATTRIBUTES[key] ?? 0) + (gearTotals.points[key] ?? 0) + (combatPoints[key] ?? 0)
 
   const attributes: CharacterAttributes = {
     power: total('Power'),
@@ -148,11 +161,15 @@ export function computeCharacterStats(
     armor: attributes.toughness + defense,
     health: baseHealth + attributes.vitality * HEALTH_PER_VITALITY,
     criticalChance:
-      BASE_CRITICAL_CHANCE_PERCENT + (attributes.precision - 1000) / PRECISION_PER_CRITICAL_CHANCE_PERCENT,
+      BASE_CRITICAL_CHANCE_PERCENT +
+      (attributes.precision - 1000) / PRECISION_PER_CRITICAL_CHANCE_PERCENT +
+      (combatState.furyActive ? FURY_CRITICAL_CHANCE_PERCENT : 0),
     criticalDamage: BASE_CRITICAL_DAMAGE_PERCENT + attributes.ferocity / FEROCITY_PER_CRITICAL_DAMAGE_PERCENT,
     boonDuration: boonDurationPercent(gearTotals),
     conditionDuration: conditionDurationPercent(gearTotals),
-    magicFind: magicFindPercent(gearTotals)
+    magicFind: magicFindPercent(gearTotals),
+    outgoingDamagePercent:
+      combatState.relicActive && build.relicId !== null ? (CURATED_RELIC_DAMAGE_BONUSES[build.relicId] ?? 0) : 0
   }
 
   return { attributes, derived }

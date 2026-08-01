@@ -957,6 +957,37 @@ input[type='text'] {
   text-align: right;
 }
 
+.combat-state-panel h3 {
+  margin-top: 0;
+}
+
+.combat-state-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.combat-state-row label {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.combat-state-row input[type='number'] {
+  width: 48px;
+}
+
+.combat-state-toggle {
+  width: 100%;
+  color: var(--muted);
+}
+
+.combat-state-toggle.active {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
 .boon-source-duration {
   color: var(--muted);
   white-space: nowrap;

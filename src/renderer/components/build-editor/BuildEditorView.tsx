@@ -10,6 +10,7 @@ import type {
 } from '@shared/types'
 import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar'
 import { SPECTER_SPEC_ID } from '@shared/skill-calc/profession-mechanic'
+import { DEFAULT_COMBAT_STATE, type CombatState } from '@shared/gear-calc/combat-state'
 import { useGameData } from '@renderer/state/game-data-store'
 import { SharePanel } from '@renderer/components/common/SharePanel'
 import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
@@ -19,6 +20,7 @@ import { TraitsEditor } from './TraitsEditor'
 import { SkillsEditor } from './SkillsEditor'
 import { EquipmentEditor } from './EquipmentEditor'
 import { StatsPanel } from './StatsPanel'
+import { CombatStatePanel } from './CombatStatePanel'
 
 interface Props {
   build: Build
@@ -38,6 +40,7 @@ function clearedEquipment(equipment: Build['equipment']): Build['equipment'] {
 export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
   const [draft, setDraft] = useState<Build>(build)
   const [saving, setSaving] = useState(false)
+  const [combatState, setCombatState] = useState<CombatState>(DEFAULT_COMBAT_STATE)
   const { eliteSpecSkills, legends, professions } = useGameData()
   const columnsRef = useRef<HTMLDivElement>(null)
 
@@ -189,7 +192,8 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
           </div>
         </div>
         <div className="build-editor-column">
-          <StatsPanel build={draft} />
+          <StatsPanel build={draft} combatState={combatState} />
+          <CombatStatePanel build={draft} value={combatState} onChange={setCombatState} />
         </div>
       </div>
     </section>

@@ -1,11 +1,13 @@
 import { Fragment, useMemo } from 'react'
 import type { Build } from '@shared/types'
 import { computeCharacterStats } from '@shared/gear-calc/derived-stats'
+import { DEFAULT_COMBAT_STATE, type CombatState } from '@shared/gear-calc/combat-state'
 import { formatBoonPercent } from '@shared/boon-calc/format'
 import { useGameData } from '@renderer/state/game-data-store'
 
 interface Props {
   build: Build
+  combatState?: CombatState
 }
 
 interface StatRow {
@@ -25,10 +27,13 @@ interface StatRow {
  * Rendered as a single flat grid (rather than two independent lists) so left/right rows share
  * the same grid row tracks and line up pixel-for-pixel.
  */
-export function StatsPanel({ build }: Props) {
+export function StatsPanel({ build, combatState = DEFAULT_COMBAT_STATE }: Props) {
   const gameData = useGameData()
 
-  const stats = useMemo(() => computeCharacterStats(build, gameData), [build, gameData])
+  const stats = useMemo(
+    () => computeCharacterStats(build, gameData, combatState),
+    [build, gameData, combatState]
+  )
 
   const round = (n: number): number => Math.round(n)
 
@@ -41,6 +46,7 @@ export function StatsPanel({ build }: Props) {
     { leftLabel: 'Concentration', leftValue: `${round(stats.attributes.concentration)}`, rightLabel: 'Boon Duration', rightValue: `${formatBoonPercent(stats.derived.boonDuration)}%` },
     { leftLabel: 'Expertise', leftValue: `${round(stats.attributes.expertise)}`, rightLabel: 'Condition Duration', rightValue: `${formatBoonPercent(stats.derived.conditionDuration)}%` },
     { leftLabel: 'Healing Power', leftValue: `${round(stats.attributes.healingPower)}`, rightLabel: 'Magic Find', rightValue: `${formatBoonPercent(stats.derived.magicFind)}%` },
+    { leftLabel: '', leftValue: '', rightLabel: 'Outgoing Damage', rightValue: `${formatBoonPercent(stats.derived.outgoingDamagePercent)}%` },
   ]
 
   return (
@@ -48,7 +54,7 @@ export function StatsPanel({ build }: Props) {
       <h3>Stats</h3>
       <div className="stats-panel-grid">
         {rows.map((row) => (
-          <Fragment key={row.leftLabel}>
+          <Fragment key={`${row.leftLabel}-${row.rightLabel}`}>
             <span className="stat-cell stat-label">{row.leftLabel}</span>
             <span className="stat-cell stat-value">{row.leftValue}</span>
             <span className="stat-gap" aria-hidden="true" />

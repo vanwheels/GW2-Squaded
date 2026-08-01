@@ -57,7 +57,7 @@ const UNDERWATER_WEAPON_SLOTS: EquipmentSlotKey[] = ['weaponU1', 'weaponU2']
  * of that environment's 2 sets. Non-weapon slots (armor/trinkets) aren't swap-setted, so they're
  * always active.
  */
-function isActiveWeaponSlot(slotKey: EquipmentSlotKey, build: Build): boolean {
+export function isActiveWeaponSlot(slotKey: EquipmentSlotKey, build: Build): boolean {
   if (!slotKey.startsWith('weapon')) return true
   if (build.environment === 'underwater') {
     return slotKey === (build.activeUnderwaterSet === 'U1' ? 'weaponU1' : 'weaponU2')
@@ -136,8 +136,9 @@ const FLAT_ATTRIBUTE_ALIASES: Record<string, string> = {
 }
 
 /** The 9 core GW2 combat attributes, by their `ItemStat`-convention key — what a "+N to All
- *  Stats"/"+N to All Attributes" bonus (e.g. Superior Rune of Divinity) distributes across. */
-const ALL_CORE_ATTRIBUTE_KEYS = [
+ *  Stats"/"+N to All Attributes" bonus (e.g. Superior Rune of Divinity, Superior Sigil of the
+ *  Stars) distributes across. */
+export const ALL_CORE_ATTRIBUTE_KEYS = [
   'Power',
   'Precision',
   'Toughness',

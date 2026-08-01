@@ -2,6 +2,38 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 41 — "Combat state" simulation inputs (Might, Fury, stacking sigil, relic)
+
+Implemented the TODO item mapped out 2026-08-01: a new ephemeral "Combat State" panel next to
+`StatsPanel` for what-if mid-fight inputs.
+
+- New `src/shared/gear-calc/combat-state.ts`: `CombatState` (mightStacks 0-25, furyActive,
+  stackingSigilStacks 0-25, relicActive), never persisted on `Build` — lives as local `useState` in
+  `BuildEditorView`, so it resets whenever the editor unmounts (leaving to the builds list),
+  matching the "what-if snapshot, not a build choice" design.
+- Might: flat +34 Power / +34 Condition Damage per stack, folded into `computeCharacterStats` via a
+  new `combatStatePoints` helper merged alongside `computeGearAttributeTotals`'s points before the
+  attribute totals are computed.
+- Fury: flat +20% Critical Chance added directly to `derived.criticalChance`. Per-skill/trait Fury
+  conditionals remain unmodeled (explicit stretch goal, not attempted).
+- Stacking sigil: auto-detected from the active weapon set's equipped `sigilIds` (no separate
+  picker) via `detectActiveStackingSigil`, reusing `attribute-totals.ts`'s `isActiveWeaponSlot`
+  (now exported). Hardcoded all 8 real stacking-sigil ids from `data/game-data/sigils.json` —
+  Bloodlust/Power, Corruption/Condition Damage, Perception/Precision, Life/Healing,
+  Momentum/Toughness, Cruelty/Ferocity, Bounty/Concentration, and the Stars sigil (+2 all 9 core
+  attributes/stack, via the now-exported `ALL_CORE_ATTRIBUTE_KEYS`). Note these names/attributes
+  differ from the TODO's original write-up, which had gone stale — verified directly against
+  current `sigils.json` description text instead. Stepper only renders when a stacking sigil is
+  actually equipped.
+- Relic: curated lookup (`CURATED_RELIC_DAMAGE_BONUSES`) of relics whose full proc is a flat,
+  unconditional outgoing-damage-%. Only Relic of Fireworks (7%) is verified so far — both its
+  duplicate `relics.json` ids (100262/100947, same relic listed twice) are mapped. Toggle only
+  renders when the build's equipped relic is in this table. Added a new `outgoingDamagePercent`
+  field to `DerivedStats` and a matching "Outgoing Damage" row in `StatsPanel` — no such concept
+  existed anywhere in the app before this.
+- `StatsPanel`/`computeCharacterStats` both take an optional `combatState` param (defaulting to
+  all-zero/off) so every other caller is unaffected.
+
 ## Session 40 — Thief skill-bar feedback pass (Specter Siphon/Shroud, manual Stolen Skill picker)
 
 Worked through both open Thief items from the 2026-07-31 skill-bar feedback pass.

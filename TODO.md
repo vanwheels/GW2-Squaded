@@ -17,42 +17,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Stats panel / boon-condition bar polish
 
-- [ ] "Combat state" simulation inputs (Might stacks, Fury, stacking-sigil stacks, relic
-      Active/Inactive) — mapped out 2026-08-01, not yet implemented. Design:
-  - Ephemeral, local-component state only (not saved on `Build` — resets on reload/build switch;
-    this is a "what-if" snapshot, not a build choice like equipment/skills).
-  - Might (0-25 stepper): +34 Power, +34 Condition Damage per stack at level 80 (wiki-confirmed
-    flat value) — feeds `attributes.power`/`attributes.conditionDamage` in
-    `src/shared/gear-calc/derived-stats.ts`.
-  - Fury (on/off toggle): flat +20% Critical Chance, feeds `derived.criticalChance`. Fury's effect
-    on specific skills/traits ("while under the effect of Fury") is NOT modeled — no structural
-    data ingested for conditional Fury-gated bonuses anywhere in the app; explicit stretch goal,
-    not part of this feature.
-  - Stacking sigil (0-25 stepper): auto-detected from whichever sigil is actually equipped in
-    `EquipmentSlot.sigilIds` (no separate picker) — confirmed exactly 8 stacking sigils exist in
-    `data/game-data/sigils.json` (Bloodlust/Power, Malice/Condition Damage, Perception/Precision,
-    Renewal/Healing, Stamina/Toughness, Strength/Ferocity, Energy/Concentration, Bounty/all stats
-    +2 each), all sharing the identical "Gain a charge of +X `<attr>` each time you kill a foe...
-    Max 25 stacks" description text — needs a small hardcoded id -> {attribute, perStackValue}
-    lookup table (not worth structurally parsing, only 8 exist). Only the active weapon set's
-    sigil counts (reuse `isActiveWeaponSlot` gating from `attribute-totals.ts`), matching the
-    in-game rule that only one stacking sigil can be active at a time. Stepper is hidden if no
-    stacking sigil is equipped.
-  - Relic Active/Inactive (toggle, only shown for curated relics): full structural modeling of
-    every relic's proc is explicitly out of scope (relics are description-text-only today by
-    design — see `Relic`'s doc comment in `src/shared/types/game-data.ts`). Narrower slice: hand-
-    curate the subset of relics whose effect is a flat, unconditional outgoing-damage-% (the
-    `"Damage Increase"` fact in `data/game-data/relic-effects.json`) into a lookup table — Relic of
-    Fireworks (id 100262, 7%, 6s duration) is the confirmed concrete example. ~20+ relics carry a
-    "Damage Increase" fact but not all are simple/unconditional (some are conditional on target
-    health, skill type, etc.) — needs one manual wiki-verification pass per relic before adding to
-    the curated list, same process as the existing WvW-duration override work (see
-    `docs/game-data.md`). This also requires a brand-new "outgoing damage %" derived-stat row in
-    `StatsPanel.tsx` — no such concept exists anywhere in the app yet (checked gear-calc,
-    boon-calc, and `game-data.ts` — confirmed nothing computes or displays a damage modifier %
-    today).
-  - UI: new small panel (e.g. "Combat State") near `StatsPanel`/`BoonUptimePanel`, both of which
-    already read `build` + `gameData` the same way this would.
 - [ ] Boon tab / Squad tab: distinguish self-only vs. party-wide (up to 5) boon sources. Confirmed
       2026-08-01 the raw GW2 API data (already ingested into `data/game-data/skills.json`) carries
       this signal: a skill's `facts` array includes a `type: "Number"` fact with
