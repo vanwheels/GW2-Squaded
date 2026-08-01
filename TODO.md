@@ -37,11 +37,14 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 - [ ] Stretch goal, not currently planned: a per-skill "Damage" tooltip breakdown mirroring the
       Healing breakdown idea below — hovering a DPS stat would list each weapon/utility skill on the
       bar with its computed damage at current Power/Precision/Ferocity/condition stats.
-- [ ] Bottom "Conditions / Boons / Control / Auras / Miscellaneous / Combo" icon bar —
-      gw2skills.net-style screenshots show this bar also covers Control (e.g. Daze), Auras,
-      Miscellaneous (e.g. Healing, Execute), and Combo-field/finisher icons, highlighted/greyed by
-      whether the current build can produce them. `BoonUptimePanel` currently only covers
-      boons/conditions — treat this as the long-term target shape for it to grow into.
+- [ ] "Miscellaneous" icon row (Healing/Execute in gw2skills' own bottom bar) — the last uncovered
+      category from the old "Conditions / Boons / Control / Auras / Miscellaneous / Combo" TODO item.
+      Implemented 2026-08-01: `BoonConditionSummaryPanel` now covers Conditions/Boons (existing
+      `computeBoonConditionSources`) plus new Control (Stun/Daze) and Auras (all 7) via
+      `computeControlAuraSources`, and Combo Field/Finisher via `computeComboSources` — see
+      COMPLETED.md. Miscellaneous was skipped: unlike those, it has no equivalent structural `Fact`
+      shape anywhere in the ingested data (no "Healing"/"Execute" fact type exists) — would need
+      investigation into what gw2skills is even sourcing that from before this is attemptable at all.
 - [ ] Stretch goal, not currently planned: a per-skill "Healing" tooltip breakdown (hovering the
       Healing stat lists each heal skill on the bar with its computed heal amount at current Healing
       Power).

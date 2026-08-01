@@ -144,28 +144,11 @@ input[type='text'] {
   padding: 6px 10px;
 }
 
+/* 3 columns side by side (Traits / Equipment / Stats+Boons+Skills), stretched to match each
+   other's height — Traits and Equipment size to their own content, the 3rd column absorbs
+   whatever width is left (its text/icon-row content benefits from extra width more than the
+   other two's icon grids do). */
 .build-editor-columns {
-  display: grid;
-  /* The main group (Traits+Equipment side by side, Skills spanning below them) sizes to its own
-     content instead of stretching proportionally with the viewport — it was leaving large
-     dead-space gaps on wide windows since its content never actually got wider than its natural
-     size regardless of how much track it was given. The 2nd column (stats/boons) absorbs the
-     rest, since its text content benefits from the extra width more than icon grids do. */
-  grid-template-columns: max-content 1fr;
-  gap: 24px;
-  align-items: start;
-}
-
-.build-editor-main {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* Traits and Equipment side by side, stretched to match each other's height (see
-   `.build-editor-column`'s border/background — mismatched heights read as sloppy here since
-   both are full bordered panels sitting on the same row). */
-.build-editor-top-row {
   display: flex;
   align-items: stretch;
   gap: 24px;
@@ -180,6 +163,23 @@ input[type='text'] {
 
 .build-editor-column h3 {
   margin-top: 0;
+}
+
+.build-editor-column-fill {
+  flex: 1;
+}
+
+/* Columns whose last child (`.build-editor-column-pushed`) should sit flush with the bottom —
+   `align-items: stretch` on `.build-editor-columns` already equalizes every column's height to the
+   tallest one (Equipment); this makes that column a flex column internally so the pushed child's
+   `margin-top: auto` has somewhere to expand into. */
+.build-editor-column-stretch {
+  display: flex;
+  flex-direction: column;
+}
+
+.build-editor-column-pushed {
+  margin-top: auto;
 }
 
 /* Each of the 3 lines (e.g. Zeal/Virtues/Firebrand) is its own horizontal row, stacked vertically —
@@ -253,8 +253,8 @@ input[type='text'] {
 }
 
 .spec-icon-button {
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   flex: none;
   padding: 0;
   border: 2px solid var(--border);
@@ -268,18 +268,21 @@ input[type='text'] {
   border-color: var(--accent);
 }
 
-.core-spec-button {
-  border-radius: 6px;
-  width: auto;
-  height: 30px;
-  padding: 0 10px;
-  font-size: 0.78rem;
-}
-
 .profession-picker-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
+}
+
+/* Every elite specialization across every profession, in one flat grid below the profession row —
+   see `ProfessionSpecPicker`'s doc comment for why (1-click profession+elite-spec picks). Wraps to
+   fill the column's width evenly rather than a fixed column count, since that width varies with
+   `.build-editor-column`'s natural (content-driven) sizing. */
+.elite-spec-picker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
 }
 
 .trait-progression {
@@ -560,10 +563,10 @@ input[type='text'] {
    the Heal/Utility/Elite (or Legend) skills without the wide gap a plain column-gap would leave. */
 .ingame-skill-bar {
   display: grid;
-  grid-template-columns: auto auto 48px auto 48px auto;
+  grid-template-columns: auto auto 48px auto;
   grid-template-areas:
-    'env  mechanic divider utility-top     divider2 boons'
-    'swap weapon   divider utility-skills  divider2 conditions';
+    'env  mechanic divider utility-top'
+    'swap weapon   divider utility-skills';
   column-gap: 14px;
   row-gap: 8px;
   align-items: start;
@@ -617,48 +620,6 @@ input[type='text'] {
 
 .ingame-skill-bar-utility-skills {
   grid-area: utility-skills;
-}
-
-.ingame-skill-bar-divider2 {
-  grid-area: divider2;
-}
-
-/* Fixed Boons/Conditions grids — level with the F1-F5 row and the Heal/Utility/Elite row
-   respectively, same divider treatment as the weapon/utility split. Icons render via the squad
-   editor's `BoonConditionIconRow`, overridden here from that component's own wrapping/centered
-   default (sized for a narrow slot-tile column) into a fixed 2-row grid: all 12 boons in 2 rows
-   of 6, all 14 conditions in 2 rows of 7 (see `BOON_NAMES`/`CONDITION_NAMES`), so the layout never
-   reflows as boon/condition sources are added or removed. */
-.ingame-skill-bar-boons {
-  grid-area: boons;
-  display: flex;
-  align-items: flex-start;
-}
-
-.ingame-skill-bar-conditions {
-  grid-area: conditions;
-  display: flex;
-  align-items: flex-start;
-}
-
-.ingame-skill-bar-boons .boon-icon-row {
-  display: grid;
-  grid-template-columns: repeat(6, 24px);
-  gap: 4px;
-}
-
-.ingame-skill-bar-conditions .boon-icon-row {
-  display: grid;
-  grid-template-columns: repeat(7, 24px);
-  gap: 4px;
-}
-
-/* Half the 48px skill-slot-button size — big enough to read at a glance next to the skill icons
-   they sit beside, unlike the 16px compact row used in the Squads tab's per-slot summary. */
-.ingame-skill-bar-boons .boon-icon-row-icon,
-.ingame-skill-bar-conditions .boon-icon-row-icon {
-  width: 24px;
-  height: 24px;
 }
 
 /* Small control icons (weapon-swap cycle, land/underwater) — a step down from the 48px
@@ -1003,6 +964,40 @@ input[type='text'] {
   border: none;
   background: none;
   line-height: 0;
+}
+
+.boon-summary-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.boon-summary-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.boon-summary-row-label {
+  flex: none;
+  width: 68px;
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.boon-summary-row .boon-icon-row {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.boon-summary-row .boon-icon-row-icon {
+  width: 22px;
+  height: 22px;
 }
 
 .boon-source-duration {

@@ -1,4 +1,4 @@
-import type { BoonName, ConditionName } from './constants'
+import type { AuraName, BoonName, ConditionName, ControlName } from './constants'
 
 /**
  * Icon URL for each boon/condition name, keyed the same way as `BOON_NAMES`/
@@ -38,4 +38,26 @@ export const BOON_CONDITION_ICONS: Record<BoonName | ConditionName, string> = {
   Torment: 'https://render.guildwars2.com/file/10BABF2708CA3575730AC662A2E72EC292565B08/598887.png',
   Vulnerability: 'https://render.guildwars2.com/file/3A394C1A0A3257EB27A44842DDEEF0DF000E1241/102850.png',
   Weakness: 'https://render.guildwars2.com/file/6CB0E64AF9AA292E332A38C1770CE577E2CDE0E8/102853.png'
+}
+
+/** Icon URL for each `CONTROL_NAMES`/`AURA_NAMES` entry — same sourcing method as
+ *  `BOON_CONDITION_ICONS` (first matching `Fact.icon` found in skills.json/traits.json). */
+export const CONTROL_AURA_ICONS: Record<ControlName | AuraName, string> = {
+  Daze: 'https://render.guildwars2.com/file/9AE125E930C92FEA0DD99E7EBAEDE4CF5EC556B6/433474.png',
+  Stun: 'https://render.guildwars2.com/file/1999B9DB355005D2DD19F66DFFBAA6D466057508/522727.png',
+  'Chaos Aura': 'https://render.guildwars2.com/file/FEF378D8A91D0523A04A380ED0547F0BF944A967/2261518.png',
+  'Dark Aura': 'https://render.guildwars2.com/file/9471B12401BB04730A0614E277FEFD6AE43C5251/2261519.png',
+  'Fire Aura': 'https://render.guildwars2.com/file/2E7050E44690AFE0A396FA0DAD526699392743F3/2261521.png',
+  'Frost Aura': 'https://render.guildwars2.com/file/719B80E35C276D68EF0AABB79126CF4CD42E3AF6/2261522.png',
+  'Light Aura': 'https://render.guildwars2.com/file/62405ED2322E80A4A95663BA6C6804DB0962E6B0/867451.png',
+  'Magnetic Aura': 'https://render.guildwars2.com/file/33D27C7FE0017F70749DE84576F56F381DDF0C30/2261524.png',
+  'Shocking Aura': 'https://render.guildwars2.com/file/79F60BF40AB3F306E7367CF3479A4163F76F3944/2261527.png'
+}
+
+/** The API exposes exactly one icon per Combo Field fact and one per Combo Finisher fact,
+ *  regardless of `field_type`/`finisher_type` (confirmed via a scan of data/game-data/skills.json)
+ *  — unlike boons/conditions/control/auras, there's no per-type icon to look up here. */
+export const COMBO_ICONS = {
+  field: 'https://render.guildwars2.com/file/59E0DB6A699810641C959926ADFEF73E08CC255B/156655.png',
+  finisher: 'https://render.guildwars2.com/file/A513F3653D33FBA4220D2D307799F8A327A36A3B/156656.png'
 }

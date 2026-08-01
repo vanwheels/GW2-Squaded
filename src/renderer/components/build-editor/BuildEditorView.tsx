@@ -14,12 +14,12 @@ import { DEFAULT_COMBAT_STATE, type CombatState } from '@shared/gear-calc/combat
 import { useGameData } from '@renderer/state/game-data-store'
 import { SharePanel } from '@renderer/components/common/SharePanel'
 import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
-import { ProfessionSelect } from './ProfessionSelect'
-import { EliteSpecSelect } from './EliteSpecSelect'
+import { ProfessionSpecPicker } from './ProfessionSpecPicker'
 import { TraitsEditor } from './TraitsEditor'
 import { SkillsEditor } from './SkillsEditor'
 import { EquipmentEditor } from './EquipmentEditor'
 import { StatsPanel } from './StatsPanel'
+import { BoonConditionSummaryPanel } from './BoonConditionSummaryPanel'
 
 interface Props {
   build: Build
@@ -51,15 +51,24 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
     [draft.specializations]
   )
 
-  function handleProfessionChange(profession: ProfessionId): void {
+  /** `initialEliteSpecId` lets `ProfessionSpecPicker` land on a different profession's elite spec
+   *  in one click (see its doc comment) — seeded directly into the reset specialization slots
+   *  rather than as a follow-up `handleSpecializationsChange` call, since two separate `setDraft`
+   *  calls in the same handler would have the second one operate on stale `draft`. */
+  function handleProfessionChange(profession: ProfessionId, initialEliteSpecId: number | null = null): void {
     const skills: SkillSelection =
       profession === 'Revenant'
         ? { kind: 'revenant', legends: [null, null], activeLegendIndex: 0 }
         : { kind: 'standard', heal: null, utility: [null, null, null], elite: null }
+    const specializations: TraitLineSlots = [
+      null,
+      null,
+      initialEliteSpecId === null ? null : { specializationId: initialEliteSpecId, chosenTraitIds: [null, null, null] }
+    ]
     setDraft({
       ...draft,
       profession,
-      specializations: [null, null, null],
+      specializations,
       skills,
       // Weapon types are profession-specific — old picks (and their itemStatId) are invalid on a
       // new profession. Armor/trinket slots are untouched.
@@ -126,6 +135,21 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
     setDraft({ ...draft, specializations, skills, equipment, familiarId, thiefStolenSkillId })
   }
 
+  /** `ProfessionSpecPicker`'s single combined onChoose — an elite spec from a different profession
+   *  switches profession first (seeding that new profession's reset specialization slots with the
+   *  chosen spec directly, see `handleProfessionChange`); same-profession picks just update the
+   *  elite trait line via the normal `handleSpecializationsChange` invalidation logic. */
+  function handleEliteSpecChoose(profession: ProfessionId, eliteSpecializationId: number | null): void {
+    if (profession !== draft.profession) {
+      handleProfessionChange(profession, eliteSpecializationId)
+      return
+    }
+    const nextSpecializations = [...draft.specializations] as TraitLineSlots
+    nextSpecializations[2] =
+      eliteSpecializationId === null ? null : { specializationId: eliteSpecializationId, chosenTraitIds: [null, null, null] }
+    handleSpecializationsChange(nextSpecializations)
+  }
+
   async function handleSave(): Promise<void> {
     setSaving(true)
     try {
@@ -152,34 +176,35 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
       </div>
 
       <div className="build-editor-columns" ref={columnsRef}>
-        <div className="build-editor-main">
-          <div className="build-editor-top-row">
-            <div className="build-editor-column">
-              <ProfessionSelect value={draft.profession} onChange={handleProfessionChange} />
-              <EliteSpecSelect
-                profession={draft.profession}
-                value={draft.specializations}
-                onChange={handleSpecializationsChange}
-              />
-              <h3>Traits</h3>
-              <TraitsEditor
-                profession={draft.profession}
-                value={draft.specializations}
-                onChange={handleSpecializationsChange}
-              />
-            </div>
-            <div className="build-editor-column">
-              <h3>Equipment</h3>
-              <EquipmentEditor
-                value={draft.equipment}
-                onChange={(equipment) => setDraft({ ...draft, equipment })}
-                profession={draft.profession}
-                consumables={{ relicId: draft.relicId, foodId: draft.foodId, utilityId: draft.utilityId }}
-                onConsumablesChange={(patch) => setDraft({ ...draft, ...patch })}
-              />
-            </div>
+        <div className="build-editor-column build-editor-column-stretch">
+          <ProfessionSpecPicker
+            profession={draft.profession}
+            specializations={draft.specializations}
+            onChoose={handleEliteSpecChoose}
+          />
+          <div className="build-editor-column-pushed">
+            <h3>Traits</h3>
+            <TraitsEditor
+              profession={draft.profession}
+              value={draft.specializations}
+              onChange={handleSpecializationsChange}
+            />
           </div>
-          <div className="build-editor-column">
+        </div>
+        <div className="build-editor-column">
+          <h3>Equipment</h3>
+          <EquipmentEditor
+            value={draft.equipment}
+            onChange={(equipment) => setDraft({ ...draft, equipment })}
+            profession={draft.profession}
+            consumables={{ relicId: draft.relicId, foodId: draft.foodId, utilityId: draft.utilityId }}
+            onConsumablesChange={(patch) => setDraft({ ...draft, ...patch })}
+          />
+        </div>
+        <div className="build-editor-column build-editor-column-fill build-editor-column-stretch">
+          <StatsPanel build={draft} combatState={combatState} onCombatStateChange={setCombatState} />
+          <BoonConditionSummaryPanel build={draft} />
+          <div className="build-editor-column-pushed">
             <h3>Skills</h3>
             <SkillsEditor
               build={draft}
@@ -189,9 +214,6 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
               equippedSpecializationIds={equippedSpecializationIds}
             />
           </div>
-        </div>
-        <div className="build-editor-column">
-          <StatsPanel build={draft} combatState={combatState} onCombatStateChange={setCombatState} />
         </div>
       </div>
     </section>

@@ -2,6 +2,58 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 42 — Build editor 3-column layout: single-click profession/elite-spec picker, relocated Boons/Conditions summary + Control/Auras/Combo
+
+Feedback pass aimed at fitting the whole build editor in one window without scrolling.
+
+- **Profession + elite specialization: one combined click instead of two.** Replaced
+  `ProfessionSelect` + `EliteSpecSelect` (2 separate rows: pick profession, then separately pick its
+  elite spec) with a single new `ProfessionSpecPicker`: a profession-portrait row plus one flat grid
+  of every elite specialization across every profession. Clicking an elite-spec icon switches to its
+  owning profession AND equips that spec in one click (each icon uniquely identifies both), instead
+  of needing a profession click first when the target elite spec belongs to a different profession
+  than the one currently equipped. `BuildEditorView.handleProfessionChange` gained an
+  `initialEliteSpecId` param so the profession-reset and elite-spec-seed happen in one `setDraft`
+  call (two separate calls in the same handler would have the second read stale `draft`). Bumped
+  `.spec-icon-button` from 30px to 36px per feedback ("a tiny bit bigger... more evenly fit the
+  width"). Deleted the old 2 files, nothing else referenced them.
+- **3-column equal-height layout**: `build-editor-columns` went from a 2-column grid (Traits+Equipment
+  stacked above a full-width Skills row, Stats as a 2nd column) to a flat 3-column flex row —
+  Traits | Equipment | Stats+BoonConditionSummary+Skills — all stretched to match the tallest
+  (Equipment). Traits and Skills are each wrapped in a `.build-editor-column-pushed` block
+  (`margin-top: auto`) inside a `.build-editor-column-stretch` (flex-column) parent, so both sit
+  flush against the bottom of their column — Traits bumped down per feedback, and Traits/Equipment/
+  Skills now all end at the same height.
+- **Boons/Conditions summary relocated + expanded**: moved out of `SkillsEditor`'s inline
+  `.ingame-skill-bar-boons`/`-conditions` grid rows (removed those, plus the now-unused `divider2`
+  grid area) into a new standalone `BoonConditionSummaryPanel`, rendered directly beneath
+  `StatsPanel` in the right column. Same underlying `computeBoonConditionSources` data, now also
+  joined by 2 new categories:
+  - **Control** (Stun/Daze) and **Auras** (all 7) via new `computeControlAuraSources` in
+    `boon-calc/sources.ts` — reuses `extractFromFacts`'s existing Buff-fact extraction, now
+    parameterized by a `classify` callback (`classifyBoonCondition` default, `classifyControlAura`
+    new) instead of hardcoding `isBoonName`/`isConditionName`. Deliberately a *separate* exported
+    function rather than folded into `computeBoonConditionSources` itself: that function's output
+    feeds the Squad tab's party-wide summary and per-slot icon rows, which assume every entry is a
+    real boon/condition — mixing control/aura in would've broken those (undefined icon lookups).
+    `BoonConditionSource` gained a `category` field (`'boon'|'condition'|'control'|'aura'`) alongside
+    the pre-existing `isCondition` boolean, which every existing caller still reads unchanged.
+    Confirmed exhaustive via a full scan of every `Buff`-type fact's `status` across
+    data/game-data/{skills,traits}.json: Stun/Daze are the only 2 non-boon/condition Buff facts with
+    a `duration`, and all 7 real auras are present. Not duration-scaled (Concentration/Expertise only
+    affect boons/conditions).
+  - **Combo** (Field/Finisher) via new `computeComboSources`, reading the API's own `ComboField`/
+    `ComboFinisher` fact types directly (a different shape — no `status`/`duration` — so it doesn't go
+    through `extractFromFacts`). The API only exposes one generic icon per fact type (not per
+    `field_type`/`finisher_type`, confirmed via a skills.json scan), so this renders as exactly 2
+    icons (Field, Finisher) with the specific types produced listed in the tooltip rather than as
+    distinct per-type icons.
+  - **Miscellaneous was left out** — no equivalent structural fact shape exists in the ingested data
+    for it (unlike Control/Auras/Combo, which all map onto real, scannable API fact shapes); see
+    TODO.md.
+- Not visually verified in a running window — this shell can't launch the Electron app (see memory);
+  verified via `npm run typecheck`/`lint`/`build` and careful code review instead.
+
 ## Session 41 — "Combat state" simulation inputs (Might, Fury, stacking sigil, relic)
 
 Implemented the TODO item mapped out 2026-08-01: ephemeral what-if mid-fight inputs rendered

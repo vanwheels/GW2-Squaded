@@ -1,21 +1,12 @@
 import { useMemo, useState } from 'react'
 import type { Build, RevenantSkillSelection, Skill, SkillSelection, StandardSkillSelection, WvwFactOverrides } from '@shared/types'
-import {
-  activeTraitIds,
-  boonConditionFactsForSkill,
-  computeBoonConditionSources,
-  groupBoonConditionSources,
-  type BoonConditionSource
-} from '@shared/boon-calc/sources'
+import { activeTraitIds, boonConditionFactsForSkill, type BoonConditionSource } from '@shared/boon-calc/sources'
 import { numericFactLines } from '@shared/skill-calc/fact-numbers'
 import { relatedVariantSkills } from '@shared/skill-calc/multi-effect'
 import { formatBoonDuration } from '@shared/boon-calc/format'
-import { BOON_CONDITION_ICONS } from '@shared/boon-calc/icons'
-import { BOON_NAMES, CONDITION_NAMES, type BoonName, type ConditionName } from '@shared/boon-calc/constants'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
-import { BoonConditionIconRow, type BoonConditionIconItem } from '@renderer/components/squad-editor/BoonConditionIconRow'
 import { WeaponSkillBar } from './WeaponSkillBar'
 import { ProfessionMechanicBar } from './ProfessionMechanicBar'
 import { PetsEditor } from './PetsEditor'
@@ -47,70 +38,17 @@ interface Props {
 type SlotId = 'heal' | 'utility0' | 'utility1' | 'utility2' | 'elite'
 
 /**
- * Every boon (12) / condition (14) icon, always shown in `BOON_NAMES`/`CONDITION_NAMES`'s fixed
- * order regardless of whether this build currently produces it — unlike `BoonUptimePanel`, which
- * only lists boons/conditions actually present. Ones the build doesn't produce render greyed out
- * (`boon-icon-row-icon-inactive`, see global.css) with a name-only tooltip; produced ones keep
- * their full source-list tooltip (skill/trait name + scaled duration + apply count), same
- * shape/wording as `BoonUptimePanel`'s own per-boon source list.
- */
-function boonConditionIconItems(
-  groups: ReturnType<typeof groupBoonConditionSources>,
-  names: readonly (BoonName | ConditionName)[]
-): BoonConditionIconItem[] {
-  const groupByName = new Map(groups.map((g) => [g.name, g]))
-  return names.map((name) => {
-    const group = groupByName.get(name)
-    return {
-      key: name,
-      icon: BOON_CONDITION_ICONS[name],
-      className: group ? undefined : 'boon-icon-row-icon-inactive',
-      tooltip: group ? (
-        <>
-          <TooltipBody title={group.name} />
-          <ul className="tooltip-boon-facts">
-            {group.sources.map((s, i) => (
-              <li key={`${s.sourceKind}-${s.sourceId}-${i}`}>
-                <span>{s.sourceName}</span>
-                <span className="boon-source-duration">
-                  {formatBoonDuration(s.scaledDurationSeconds)}s
-                  {s.applyCount > 1 ? ` × ${s.applyCount}` : ''}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </>
-      ) : (
-        <TooltipBody title={name} />
-      )
-    }
-  })
-}
-
-/**
  * Laid out as a CSS grid mirroring the real HUD's bottom bar: a Land/Underwater toggle icon sits
  * above a weapon-swap cycle icon (that pair forms its own narrow left column), next to it the
  * profession-mechanic F1-F5 row sits above the weapon 1-5 skills, then a thin divider, then the
- * Heal/Utility/Elite (or Legend) skills, then a second divider, then a fixed Boons grid (2 rows of
- * 6, level with the F1-F5 row) and a fixed Conditions grid (2 rows of 7, level with the
- * Heal/Utility/Elite row) — every boon/condition in the game always renders in its
- * `BOON_NAMES`/`CONDITION_NAMES` order, greyed out (`boon-icon-row-icon-inactive`) unless this
- * build's *currently equipped* skills/traits actually produce it (same
- * `computeBoonConditionSources`/`groupBoonConditionSources` data as `BoonUptimePanel`, just
- * rendered as hover-only icons via the squad editor's `BoonConditionIconRow` rather than a full
- * source list). Every piece below is a *direct* child of
- * `.ingame-skill-bar` — each one declares its own `grid-area` (see the CSS) rather than being
- * nested in a JS-side wrapper div — so the two skill rows (`weapon`/`utility-skills`) land in the
- * same grid row and line up exactly regardless of how tall the profession-mechanic bar or the
- * legend-picker row above them is.
+ * Heal/Utility/Elite (or Legend) skills. The Boons/Conditions icon rows that used to sit here moved
+ * to `BoonConditionSummaryPanel` (see COMPLETED.md) — this bar is weapon/mechanic/heal-utility-elite
+ * only now. Every piece below is a *direct* child of `.ingame-skill-bar` — each one declares its own
+ * `grid-area` (see the CSS) rather than being nested in a JS-side wrapper div — so the two skill
+ * rows (`weapon`/`utility-skills`) land in the same grid row and line up exactly regardless of how
+ * tall the profession-mechanic bar or the legend-picker row above them is.
  */
 export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSpecializationIds }: Props) {
-  const gameData = useGameData()
-  const boonConditionGroups = useMemo(
-    () => groupBoonConditionSources(computeBoonConditionSources(build, gameData)),
-    [build, gameData]
-  )
-
   return (
     <div className="skills-editor-root">
       {build.profession === 'Ranger' && (
@@ -148,13 +86,6 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
             equippedSpecializationIds={equippedSpecializationIds}
           />
         )}
-        <div className="ingame-skill-bar-divider ingame-skill-bar-divider2" />
-        <div className="ingame-skill-bar-boons">
-          <BoonConditionIconRow items={boonConditionIconItems(boonConditionGroups, BOON_NAMES)} />
-        </div>
-        <div className="ingame-skill-bar-conditions">
-          <BoonConditionIconRow items={boonConditionIconItems(boonConditionGroups, CONDITION_NAMES)} />
-        </div>
       </div>
     </div>
   )

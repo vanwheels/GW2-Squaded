@@ -17,12 +17,14 @@ import type {
   WvwFactOverride,
   WvwFactOverrides
 } from '../types'
-import { isBoonName, isConditionName } from './constants'
+import { isAuraName, isBoonName, isConditionName, isControlName } from './constants'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '../gear-calc/attribute-totals'
 import { weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
 import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bundle-skills'
 import { professionMechanicBar, RANGER_BEASTMODE_SPEC_ID } from '../skill-calc/profession-mechanic'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash'
+
+export type BoonConditionCategory = 'boon' | 'condition' | 'control' | 'aura'
 
 export interface BoonConditionSource {
   sourceKind: 'skill' | 'trait'
@@ -31,8 +33,14 @@ export interface BoonConditionSource {
   sourceIcon: string
   boonOrConditionName: string
   isCondition: boolean
+  /** 'control'/'aura' entries only ever come from `computeControlAuraSources` — `computeBoonConditionSources`
+   *  (and everything built on it: squad views, the in-build skill tooltips) only ever produces
+   *  'boon'/'condition', unchanged from before this field existed. */
+  category: BoonConditionCategory
   baseDurationSeconds: number
-  /** `baseDurationSeconds` scaled by the build's gear-derived boon/condition duration %. */
+  /** `baseDurationSeconds` scaled by the build's gear-derived boon/condition duration % — 'control'/
+   *  'aura' entries are never scaled (Concentration/Expertise only affect boons/conditions), so this
+   *  always equals `baseDurationSeconds` for those. */
   scaledDurationSeconds: number
   applyCount: number
   requiresTraitId: number | null
@@ -61,6 +69,23 @@ export function activeTraitIds(build: Build, allTraits: Trait[]): Set<number> {
   return ids
 }
 
+/** Default classifier: real boons/conditions only — every existing caller relies on this exact
+ *  behavior (unchanged from before `BoonConditionCategory` existed), so it's the default rather
+ *  than something every call site has to pass explicitly. */
+function classifyBoonCondition(status: string): BoonConditionCategory | null {
+  if (isBoonName(status)) return 'boon'
+  if (isConditionName(status)) return 'condition'
+  return null
+}
+
+/** `computeControlAuraSources`' classifier — Stun/Daze and the 7 auras, see `CONTROL_NAMES`/
+ *  `AURA_NAMES` in constants.ts for why these (and only these) are structurally extractable. */
+function classifyControlAura(status: string): BoonConditionCategory | null {
+  if (isControlName(status)) return 'control'
+  if (isAuraName(status)) return 'aura'
+  return null
+}
+
 function extractFromFacts(
   facts: Fact[],
   traitedFacts: Fact[],
@@ -70,30 +95,31 @@ function extractFromFacts(
   sourceName: string,
   sourceIcon: string,
   durationPercent: { boon: number; condition: number },
-  wvwOverrides: Record<string, WvwFactOverride> | undefined
+  wvwOverrides: Record<string, WvwFactOverride> | undefined,
+  classify: (status: string) => BoonConditionCategory | null = classifyBoonCondition
 ): BoonConditionSource[] {
   const out: BoonConditionSource[] = []
   for (const fact of [...facts, ...traitedFacts]) {
     if (fact.type !== 'Buff' || typeof fact.status !== 'string' || typeof fact.duration !== 'number') {
       continue
     }
-    const isBoon = isBoonName(fact.status)
-    const isCondition = isConditionName(fact.status)
-    if (!isBoon && !isCondition) continue
+    const category = classify(fact.status)
+    if (category === null) continue
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
 
     const wvwOverride = wvwOverrides?.[fact.status]
     if (wvwOverride === 'omit') continue
     const baseDuration = typeof wvwOverride === 'number' ? wvwOverride : fact.duration
 
-    const percent = isCondition ? durationPercent.condition : durationPercent.boon
+    const percent = category === 'condition' ? durationPercent.condition : category === 'boon' ? durationPercent.boon : 0
     out.push({
       sourceKind,
       sourceId,
       sourceName,
       sourceIcon,
       boonOrConditionName: fact.status,
-      isCondition,
+      isCondition: category === 'condition',
+      category,
       baseDurationSeconds: baseDuration,
       scaledDurationSeconds: baseDuration * (1 + percent / 100),
       applyCount: fact.apply_count ?? 1,
@@ -342,6 +368,7 @@ export function tomeChapterBoonSources(chapter: TomeChapter, durationPercent: { 
       sourceIcon: chapter.icon,
       boonOrConditionName: status,
       isCondition,
+      category: isCondition ? 'condition' : 'boon',
       baseDurationSeconds: duration,
       scaledDurationSeconds: duration * (1 + percent / 100),
       applyCount: fact.params.stacks ? Number(fact.params.stacks) : 1,
@@ -447,6 +474,186 @@ export function computeBoonConditionSources(
           gameData.wvwFactOverrides.trait[trait.id]
         )
       )
+    }
+  }
+
+  return out
+}
+
+/** Shared by `computeControlAuraSources`/`computeComboSources`: every equipped skill id, matching
+ *  `computeBoonConditionSources`'s own skill-id gathering exactly (same helpers, same rules) but
+ *  factored out since neither caller needs `computeBoonConditionSources`'s gear-derived duration-%
+ *  computation (Concentration/Expertise don't affect control effects, auras, or combo facts). */
+function equippedSkillsById(
+  build: Build,
+  gameData: {
+    skills: Skill[]
+    legends: Legend[]
+    pets: Pet[]
+    professions: Profession[]
+    tomeChapters: TomeChaptersByTomeId
+    soulbeastBeastmode: SoulbeastBeastmodeMap
+  }
+): { skillsById: Map<number, Skill>; skillIds: number[] } {
+  const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
+  const bundleContributions = bundleContributionsForBuild(build, gameData.professions, skillsById, gameData.tomeChapters)
+  const skillIds = [
+    ...skillIdsForBuild(build, gameData.legends, gameData.pets, gameData.professions, skillsById, gameData.soulbeastBeastmode),
+    ...bundleContributions.kitSkillIds
+  ]
+  return { skillsById, skillIds }
+}
+
+/**
+ * Every Control (Stun/Daze)/Aura source a build provides — same skill/trait-walking rules as
+ * `computeBoonConditionSources` (equipped skills, weapon skills, auto-granted minor traits, chosen
+ * major traits, `requires_trait`/WvW-override gating), just classified against `CONTROL_NAMES`/
+ * `AURA_NAMES` instead of `BOON_NAMES`/`CONDITION_NAMES`. Deliberately a separate function rather
+ * than folded into `computeBoonConditionSources` itself: that function's output already feeds the
+ * Squad tab's party-wide boon/condition summary (`party-summary.ts`) and per-slot icon rows, which
+ * assume every entry is a real boon or condition — mixing control/aura sources into that same
+ * stream would silently break those (e.g. `BOON_CONDITION_ICONS['Stun']` doesn't exist). Not
+ * duration-scaled (see `BoonConditionSource.scaledDurationSeconds`'s doc comment) — Firebrand Tome
+ * chapters are skipped (wiki-sourced tome data has no Stun/Daze/aura facts, confirmed via a full
+ * scan of data/game-data/tome-chapters.json this session).
+ */
+export function computeControlAuraSources(
+  build: Build,
+  gameData: {
+    skills: Skill[]
+    traits: Trait[]
+    wvwFactOverrides: WvwFactOverrides
+    legends: Legend[]
+    pets: Pet[]
+    professions: Profession[]
+    tomeChapters: TomeChaptersByTomeId
+    soulbeastBeastmode: SoulbeastBeastmodeMap
+  }
+): BoonConditionSource[] {
+  const activeIds = activeTraitIds(build, gameData.traits)
+  const out: BoonConditionSource[] = []
+  const unscaled = { boon: 0, condition: 0 }
+  const { skillsById, skillIds } = equippedSkillsById(build, gameData)
+
+  for (const id of skillIds) {
+    const skill = skillsById.get(id)
+    if (!skill) continue
+    out.push(
+      ...extractFromFacts(
+        skill.facts,
+        skill.traitedFacts,
+        activeIds,
+        'skill',
+        skill.id,
+        skill.name,
+        skill.icon,
+        unscaled,
+        gameData.wvwFactOverrides.skill[skill.id],
+        classifyControlAura
+      )
+    )
+  }
+
+  for (const line of build.specializations) {
+    if (line == null) continue
+    for (const trait of gameData.traits) {
+      if (trait.specializationId !== line.specializationId) continue
+      const isMinor = trait.slot === 'Minor'
+      const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id)
+      if (!isMinor && !isChosenMajor) continue
+      out.push(
+        ...extractFromFacts(
+          trait.facts,
+          trait.traitedFacts,
+          activeIds,
+          'trait',
+          trait.id,
+          trait.name,
+          trait.icon,
+          unscaled,
+          gameData.wvwFactOverrides.trait[trait.id],
+          classifyControlAura
+        )
+      )
+    }
+  }
+
+  return out
+}
+
+export interface ComboSource {
+  sourceKind: 'skill' | 'trait'
+  sourceId: number
+  sourceName: string
+  sourceIcon: string
+  kind: 'field' | 'finisher'
+  /** GW2's 11 field types (e.g. "Fire", "Water", "Ethereal") — set when `kind === 'field'`. */
+  fieldType: string | null
+  /** GW2's 4 finisher types ("Blast"/"Leap"/"Projectile"/"Whirl") — set when `kind === 'finisher'`. */
+  finisherType: string | null
+}
+
+function comboFactsFrom(
+  facts: Fact[],
+  traitedFacts: Fact[],
+  activeIds: Set<number>,
+  sourceKind: 'skill' | 'trait',
+  sourceId: number,
+  sourceName: string,
+  sourceIcon: string
+): ComboSource[] {
+  const out: ComboSource[] = []
+  for (const fact of [...facts, ...traitedFacts]) {
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
+    if (fact.type === 'ComboField' && typeof fact.field_type === 'string') {
+      out.push({ sourceKind, sourceId, sourceName, sourceIcon, kind: 'field', fieldType: fact.field_type, finisherType: null })
+    } else if (fact.type === 'ComboFinisher' && typeof fact.finisher_type === 'string') {
+      out.push({ sourceKind, sourceId, sourceName, sourceIcon, kind: 'finisher', fieldType: null, finisherType: fact.finisher_type })
+    }
+  }
+  return out
+}
+
+/**
+ * Every Combo Field/Finisher a build provides — same skill/trait-walking rules as
+ * `computeControlAuraSources`, reading the API's own `ComboField`/`ComboFinisher` fact types
+ * directly (a different shape than the `Buff`-with-`status`/`duration` facts boons/conditions/
+ * control/auras use, so this doesn't go through `extractFromFacts`/`classify` at all). The API
+ * exposes only one generic icon per fact type (not per field/finisher type — confirmed via a scan
+ * of data/game-data/skills.json this session: every `ComboField` fact shares one icon regardless of
+ * `field_type`, same for `ComboFinisher`/`finisher_type`), so `fieldType`/`finisherType` are
+ * display-layer detail (e.g. a tooltip) rather than something with its own distinct icon to render.
+ */
+export function computeComboSources(
+  build: Build,
+  gameData: {
+    skills: Skill[]
+    traits: Trait[]
+    legends: Legend[]
+    pets: Pet[]
+    professions: Profession[]
+    tomeChapters: TomeChaptersByTomeId
+    soulbeastBeastmode: SoulbeastBeastmodeMap
+  }
+): ComboSource[] {
+  const activeIds = activeTraitIds(build, gameData.traits)
+  const out: ComboSource[] = []
+  const { skillsById, skillIds } = equippedSkillsById(build, gameData)
+
+  for (const id of skillIds) {
+    const skill = skillsById.get(id)
+    if (!skill) continue
+    out.push(...comboFactsFrom(skill.facts, skill.traitedFacts, activeIds, 'skill', skill.id, skill.name, skill.icon))
+  }
+
+  for (const line of build.specializations) {
+    if (line == null) continue
+    for (const trait of gameData.traits) {
+      if (trait.specializationId !== line.specializationId) continue
+      const isMinor = trait.slot === 'Minor'
+      const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id)
+      if (!isMinor && !isChosenMajor) continue
+      out.push(...comboFactsFrom(trait.facts, trait.traitedFacts, activeIds, 'trait', trait.id, trait.name, trait.icon))
     }
   }
 
