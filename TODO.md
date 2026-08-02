@@ -25,8 +25,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       shim that mimics the same shape) rather than assuming Electron IPC always exists.
   - Native HTML5 drag-and-drop (squad editor) has no touch-input equivalent yet — needs a touch
     fallback if/when this lands.
-- [ ] "Not affiliated with ArenaNet/NCSOFT" disclaimer if bundling official GW2 icon assets.
-      Decided 2026-07-31: footer/about screen, small persistent text line.
 - [ ] Automatic game-data refresh mechanism (balance patches) — manual refresh only for now.
       Decided 2026-07-31: check for updates on app launch, prompt the user to refresh (not a silent
       scheduled background refresh) — user stays in control of when the fetch runs. Scoped
@@ -139,15 +137,6 @@ it alongside.
 
 Feedback list from the user; scoped below with concrete implementation approach and open decisions.
 Nothing here is implemented yet.
-
-### Compact Builds/Squads cards
-`BuildsView.tsx`/`SquadsView.tsx` render each record as a `<li>` in `.record-list`
-(`display: flex; flex-direction: column`, one full-width row per record — confirmed in
-`global.css`). Convert to a responsive card grid (`display: grid; grid-template-columns:
-repeat(auto-fill, minmax(...))`) of smaller cards, similar in spirit to `BuildsSidebar.tsx`'s
-existing compact `.builds-sidebar-card` (profession icon + name). Open question not yet resolved:
-how much per-card detail beyond name/profession (e.g. elite spec icon, gear preview) — default to
-matching the sidebar card's minimal info unless told otherwise.
 
 ### Tags + filter/search (Builds, Squads, and the squad editor's build picker)
 Decided 2026-08-01: tags, not folders — flat, multiple tags per item, filter by tag combination

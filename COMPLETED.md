@@ -2,6 +2,21 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 45 — Compact Builds/Squads card grid
+
+- `BuildsView.tsx`/`SquadsView.tsx` now render saved records as a responsive card grid
+  (`.record-list` switched from a `flex column` of full-width rows to `display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr))`) instead of one row per record.
+  Build cards show the profession icon (sourced from `useGameData()`, same lookup
+  `BuildsSidebar.tsx` already used) + name + profession name, matching the sidebar's existing
+  compact-card info level per the 2026-08-01 scoping note; squad cards show name + party count
+  (no icon — `SquadComp` isn't tied to a single profession). New shared CSS classes
+  `.record-open-icon`/`.record-open-text` in `global.css` support the icon+stacked-text card
+  layout; `.record-open`/`.record-list li` were restyled in place (only consumers were these two
+  views) rather than adding parallel classes.
+- Confirmed the "Not affiliated with ArenaNet/NCSOFT" disclaimer TODO item was already done
+  (present in `SettingsView.tsx`) — removed from TODO.md, no code change needed.
+
 ## Session 44 — Beta release prep: in-app auto-update (Settings tab), repo flipped public
 
 User wants to start distributing beta builds to people they know, with two hard requirements:

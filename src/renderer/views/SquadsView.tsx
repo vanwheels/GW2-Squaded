@@ -72,8 +72,12 @@ export function SquadsView() {
           {squadComps.map((squadComp) => (
             <li key={squadComp.id}>
               <button className="record-open" onClick={() => setEditing({ squadComp, isNew: false })}>
-                <strong>{squadComp.name}</strong>
-                <span className="muted"> — {squadComp.parties.length} part{squadComp.parties.length === 1 ? 'y' : 'ies'}</span>
+                <span className="record-open-text">
+                  <strong>{squadComp.name}</strong>
+                  <span className="muted">
+                    {squadComp.parties.length} part{squadComp.parties.length === 1 ? 'y' : 'ies'}
+                  </span>
+                </span>
               </button>
               <button onClick={() => void removeSquadComp(squadComp.id)}>Delete</button>
             </li>
