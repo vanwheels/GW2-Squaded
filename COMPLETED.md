@@ -2,6 +2,48 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 54 — Healing tooltip breakdown: new "Healing" row on the Boon-Condition summary bar
+
+First half of the bumped-priority Healing/Damage tooltip-breakdown TODO item (Damage still open,
+see TODO.md — it needs a separate scoping pass). Discovered along the way that the item's original
+assumption ("Healing is more tractable — reuse `numericFactLines`") didn't hold: the GW2 API's
+`AttributeAdjust`/`target: 'Healing'` fact `value` is only the heal amount at the API's reference
+build (0 bonus Healing Power), with no scaling coefficient exposed anywhere — confirmed by fetching
+`api.guildwars2.com/v2/skills/5503` raw and cross-checking against the wiki's own
+`{{skill fact|healing|...|coefficient=...}}` template source (not a summarized/paraphrased fetch,
+after one paraphrase mismatched this app's own data for one skill). Real scaling needed a
+wiki-sourced per-skill coefficient, same curation rigor as `CURATED_RELIC_DAMAGE_BONUSES`/
+`FURY_CRIT_CHANCE_TRAIT_BONUSES` — new `src/shared/skill-calc/healing-calc.ts` module
+(`CURATED_HEALING_COEFFICIENTS`, `healingLinesForSkill`), seeded 2026-08-02 with one common WvW heal
+skill per base profession (10 entries total — Elementalist/Signet of Restoration,
+Engineer/Healing Turret, Guardian/Shelter, Mesmer/Ether Feast, Necromancer/Well of Blood,
+Ranger/Water Spirit, Revenant/Empowering Misery, Thief/Withdraw, Warrior/Healing Signet+Mending),
+not a bulk pass over the 85 Heal-slot skills a full scan found with a qualifying fact — extend
+incrementally as specific builds get tested, per that file's doc comment.
+
+Also surfaced a real, separate WvW-value gap: several curated skills' wiki pages split healing
+between a "pve" mode and a "pvp wvw" mode with *different* numbers, and WvW groups with PvP here —
+the opposite of how this app's existing `wvwFactOverrides` mechanism defaults Buff-duration facts to
+PvE-unless-a-verified-WvW-override-exists. `data/game-data/skills.json` only ever captured the API's
+PvE-default value for these facts, so `healing-calc.ts`'s curated table stores the WvW-correct
+number directly (`baseValue`/`coefficient` sourced from the wiki's "pvp wvw" split, matched against
+a skill's own fact by `text` presence only, not by re-checking `fact.value`) rather than trusting the
+underlying data file. The underlying data/other tooltips (skill picker, etc.) still show the PvE
+number for those same facts — out of scope here, noted in TODO.md.
+
+Wiring: `boon-calc/sources.ts` gained `computeHealingSources` (same equipped-skill walk as
+`computeComboSources`, traits deliberately excluded — the curated table only covers skill-cast
+heals, not trait procs) and a `HEALING_ICON` constant in `icons.ts`. `BoonConditionSummaryPanel` got
+a new single-icon "Healing" row (list-per-source tooltip, same shape as the existing Combo row)
+computed from `computeCharacterStats(...).attributes.healingPower` — the same Healing Power value
+already shown in `StatsPanel`, so both panels agree. `BoonConditionSummaryPanel` now takes an
+optional `combatState` prop (`BuildEditorView` threads its existing state through) since Healing
+Power can be affected by combat-state toggles the same way other derived stats are.
+
+Typecheck and lint both pass clean. Not visually verified in the running app (Electron sandbox
+limitation, see memory) — worth a live spot-check against gw2skills.net or in-game tooltips next
+session before extending the curated table further.
+
 ## Session 53 — Trait and food/utility tooltips now show structured content, not raw description
 
 Bumped-to-priority TODO item: traits and food/utility consumables previously showed only the raw

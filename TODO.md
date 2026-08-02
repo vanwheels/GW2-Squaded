@@ -48,21 +48,32 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       single flat point). Needs a UI decision too: `GearOptimizerPanel.tsx` currently has one
       "optimize food/utility" checkbox — likely wants a parallel "optimize runes/infusions" toggle
       rather than always searching them, consistent with the existing opt-in pattern.
-- [ ] Bumped to priority 2026-08-02 (was a "not currently planned" stretch goal — see the old entry
-      this replaces, formerly in "Stats panel / boon-condition bar polish"): per-skill "Healing" and
-      "Damage" tooltip breakdowns — hovering the Healing/DPS stat on the Boon-Condition summary bar
-      should list each heal/weapon/utility skill on the bar with its computed magnitude at current
-      Healing Power / Power+Precision+Ferocity+condition stats, mirroring how the gear stat-prefix
-      tooltips (`EquipmentEditor.tsx`'s `statOptionsFor`) already show a real per-attribute numeric
-      breakdown instead of just flavor text. Healing is the more tractable of the two: heal skills'
-      `AttributeAdjust`/`Number` facts carry a base heal coefficient that scales off Healing Power
-      the same way `numericFactLines` (`src/shared/skill-calc/fact-numbers.ts`) already renders
-      other fact types for the skill picker's own tooltips — reuse that formatter rather than a new
-      one. Damage is harder: weapon-skill damage facts are typically expressed as a coefficient
+- [ ] Healing tooltip breakdown done 2026-08-02 (`BoonConditionSummaryPanel`'s new "Healing" row);
+      Damage is still open. Scoping turned out different than this item originally assumed: the
+      API's `AttributeAdjust`/`target: 'Healing'` fact `value` is only the heal at the API's
+      reference build (0 bonus Healing Power, matching this app's `BASE_ATTRIBUTES.Healing`) — it
+      carries no scaling coefficient, so getting a real current-Healing-Power number needed a
+      wiki-sourced per-skill coefficient (`Heal = baseValue + coefficient * HealingPower`, quoted
+      from each skill's `{{skill fact|healing|...|coefficient=...}}` wikitext), same curation rigor
+      as `CURATED_RELIC_DAMAGE_BONUSES`/`FURY_CRIT_CHANCE_TRAIT_BONUSES` — NOT a `numericFactLines`
+      formatter reuse like originally assumed. Also surfaced a real WvW-value gap along the way: for
+      several curated skills the wiki's "pvp wvw" split differs from "pve" (WvW groups with PvP, not
+      PvE, the opposite of this app's existing `wvwFactOverrides` default-to-PvE-unless-overridden
+      convention for Buff-duration facts), and `data/game-data/skills.json` only ever captured the
+      API's PvE-default value — `healing-calc.ts`'s curated table stores the WvW-correct number
+      directly rather than trusting `fact.value`, but the underlying skill data itself isn't
+      corrected, so `numericFactLines`/skill-picker tooltips elsewhere still show the PvE number for
+      those same skills. Seeded 2026-08-02 with one common WvW heal skill per base profession (10
+      skills total, see `CURATED_HEALING_COEFFICIENTS` in `src/shared/skill-calc/healing-calc.ts`) —
+      NOT a bulk pass (85 Heal-slot skills alone have a qualifying fact per a full scan); extend
+      incrementally as specific builds get tested, same policy as the trait-attribute table.
+      Damage remains unscoped: weapon-skill damage facts are typically expressed as a coefficient
       against Power (and condition skills separately against Condition Damage), and WvW also has
       target-armor assumptions baked into gw2skills.net-style damage calculators that this app has
       never modeled anywhere — needs its own scoping pass on what "current stats" damage math to use
-      before implementation, not just a formatter reuse like Healing.
+      before implementation (the Healing work above suggests wiki-sourced per-skill coefficients are
+      the right shape for it too, but Damage's target-armor question is a separate open decision
+      Healing didn't have).
 - [ ] Follow-up to the tooltip-overhaul items above, noted 2026-08-02, updated 2026-08-02: trait
       and food/utility tooltips now carry real structured content (traits: `numericFactLines` lines
       appended below the description via `factsBlock`, same as skills; food/utility:
@@ -173,15 +184,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       count change would need the same manual wiki-verification pass docs/game-data.md describes for
       durations; (3) stationary sources (banners/wells/spirits) haven't been spot-checked for the
       same fact shape.
-- [ ] "Healing" row in `BoonConditionSummaryPanel`'s Miscellaneous section — deliberately deferred
-      to the "Healing and Damage numbers" pass (now bumped to priority, see "Next up") per user
-      direction 2026-08-01, not attempted as part of the Control/Auras/Miscellaneous/Strip&Corrupt/
-      Combo work (see COMPLETED.md): unlike Stealth/Superspeed/Evade/Breaks Stun/Barrier, "does this
-      build grant Healing" has no single clean fact shape — `AttributeAdjust` facts carry 100+
-      distinct free-text labels for it ("Healing", "Ally Healing", "Heal per Condition Removed", ...),
-      AND it's nearly always-true for every build (everyone has a heal skill) so a naive presence
-      check wouldn't be a useful signal — needs the same real magnitude computation the Healing
-      tooltip breakdown item is already about, not another boolean icon.
 - [ ] Minor, unconfirmed: possible Ascended-vs-Exotic filter tabs on the itemstat-combo picker — no
       screenshot exists confirming this is real; leave as-is unless it resurfaces with a concrete
       example.
