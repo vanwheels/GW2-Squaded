@@ -166,6 +166,22 @@ export const ALL_CORE_ATTRIBUTE_KEYS = [
 
 const ALL_STATS_ALIASES = new Set(['to all stats', 'to all attributes'])
 
+/** Raw `ItemStat`/API attribute key -> the player-facing name it's shown as on the Stats panel
+ *  (`StatsPanel.tsx`) — the 3 that rename (`CritDamage`/`Healing`/`BoonDuration`/`ConditionDuration`)
+ *  match the same raw-key convention documented on `AttributeTotals` above. Used anywhere a raw
+ *  per-item point breakdown is shown to the user (e.g. the gear-slot picker's hover tooltip). */
+export const ATTRIBUTE_DISPLAY_NAME: Record<string, string> = {
+  Power: 'Power',
+  Precision: 'Precision',
+  Toughness: 'Toughness',
+  Vitality: 'Vitality',
+  CritDamage: 'Ferocity',
+  Healing: 'Healing Power',
+  ConditionDamage: 'Condition Damage',
+  BoonDuration: 'Concentration',
+  ConditionDuration: 'Expertise'
+}
+
 /** Free-text attribute name for a bonus already expressed as a direct percentage (e.g. "+5% Boon
  *  Duration", "+20% Magic Find") -> which `bonusPercent` bucket it adds to. Exact-match only (not
  *  substring) so conditional variants like "Magic Find while under the Effect of a Boon" or

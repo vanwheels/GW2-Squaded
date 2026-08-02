@@ -1,6 +1,13 @@
 import { useState } from 'react'
 import type { Build, EquipmentSlot, EquipmentSlotKey, ItemStat, ItemStatLegalIds, ProfessionId, ProfessionWeapon } from '@shared/types'
 import { armorTrinketInfusionCapacity, resizeUpgradeIds, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from '@shared/gear-calc/upgrade-slots'
+import {
+  ATTRIBUTE_DISPLAY_NAME,
+  SLOT_ADJUSTMENT_KEY,
+  statComboContribution,
+  weaponAdjustmentKey,
+  type AdjustmentKey
+} from '@shared/gear-calc/attribute-totals'
 import { formatItemStatName } from '@shared/gear-calc/format-description'
 import { formatRelicDescription } from '@shared/gear-calc/relic-effects-format'
 import { useGameData } from '@renderer/state/game-data-store'
@@ -187,11 +194,31 @@ export function EquipmentEditor({
   // Real per-stat-combo icons (see `itemStatIcons`'s doc comment on `GameData` for where these
   // come from) replace the old plain `<select>` of stat names — a small number of legacy/WvW-only
   // combos have no matching icon and fall back to `UpgradePicker`'s generic "?" glyph.
-  const statOptions: UpgradeOption[] = sortedStats.map((stat) => ({
+  //
+  // The hover tooltip shows the actual point value each attribute contributes *in this slot*
+  // (e.g. "+108 Toughness"), matching gw2skills.net's item tooltips — added after a user cross-
+  // check against gw2skills flagged that this app had no way to see per-item numbers at all, only
+  // attribute names. Contribution is slot-dependent (a helm and a two-handed weapon apply the same
+  // stat combo's multiplier/value against different `ATTRIBUTE_ADJUSTMENT` constants), so this is
+  // a function of `adjustmentKey`, not a single shared list — see `statComboContribution`.
+  function statOptionsFor(adjustmentKey: AdjustmentKey): UpgradeOption[] {
+    return sortedStats.map((stat) => {
+      const contribution = statComboContribution(stat, adjustmentKey)
+      const description = stat.attributes
+        .map((a) => `+${Math.round(contribution.points[a.attribute] ?? 0)} ${ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute}`)
+        .join('\n')
+      return { id: stat.id, name: formatItemStatName(stat.name), icon: itemStatIcons[stat.name] ?? '', description }
+    })
+  }
+
+  // The copy/paste template picker broadcasts one stat prefix across every armor/trinket/weapon
+  // slot at once (see `applyStatToAll`) — there's no single slot context to compute a numeric
+  // breakdown against, so it lists names only (attribute names, not point values).
+  const templateStatOptions: UpgradeOption[] = sortedStats.map((stat) => ({
     id: stat.id,
     name: formatItemStatName(stat.name),
     icon: itemStatIcons[stat.name] ?? '',
-    description: stat.attributes.map((a) => a.attribute).join(' / ')
+    description: stat.attributes.map((a) => ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute).join(' / ')
   }))
 
   const runeOptions: UpgradeOption[] = runes
@@ -351,11 +378,12 @@ export function EquipmentEditor({
   function renderSlot(key: EquipmentSlotKey, label: string) {
     const isRuneSlot = RUNE_SLOT_KEYS.includes(key)
     const infusionCapacity = armorTrinketInfusionCapacity(key)
+    const adjustmentKey = SLOT_ADJUSTMENT_KEY[key] ?? weaponAdjustmentKey(key)
     return (
       <div className="gear-slot" key={key}>
         <UpgradePicker
           label={label}
-          options={statOptions}
+          options={statOptionsFor(adjustmentKey)}
           chosenId={value[key]?.itemStatId ?? null}
           onChoose={(id) => setItemStat(key, id)}
           variant="slot"
@@ -469,7 +497,7 @@ export function EquipmentEditor({
           </label>
           <UpgradePicker
             label={mainLabel}
-            options={statOptions}
+            options={statOptionsFor(weaponAdjustmentKey(mainKey))}
             chosenId={mainSlot?.itemStatId ?? null}
             onChoose={setMainItemStat}
             variant="slot"
@@ -492,7 +520,7 @@ export function EquipmentEditor({
               </label>
               <UpgradePicker
                 label={offLabel}
-                options={statOptions}
+                options={statOptionsFor(weaponAdjustmentKey(offKey))}
                 chosenId={value[offKey]?.itemStatId ?? null}
                 onChoose={setOffItemStat}
                 variant="slot"
@@ -535,7 +563,7 @@ export function EquipmentEditor({
         </label>
         <UpgradePicker
           label={label}
-          options={statOptions}
+          options={statOptionsFor(weaponAdjustmentKey(key))}
           chosenId={slot?.itemStatId ?? null}
           onChoose={setStat}
           variant="slot"
@@ -613,7 +641,7 @@ export function EquipmentEditor({
   return (
     <div className="equipment-editor">
       <div className="gear-copy-paste-bar">
-        {copyPasteSlot('Stat Prefix', 'stat', statOptions, applyStatToAll)}
+        {copyPasteSlot('Stat Prefix', 'stat', templateStatOptions, applyStatToAll)}
         {copyPasteSlot('Rune', 'rune', runeOptions, applyRuneToAll)}
         {copyPasteSlot('Sigil', 'sigil', sigilOptions, applySigilToAll)}
         {copyPasteSlot('Infusion', 'infusion', infusionOptions, applyInfusionToAll)}

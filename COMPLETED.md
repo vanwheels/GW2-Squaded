@@ -2,6 +2,39 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 50 — Per-item numeric stat tooltips; formula re-verified byte-exact against gw2skills
+
+User followed up Session 49's trait-bonus fix with a second gw2skills.net cross-check (same build,
+same gear/traits/food/utility) and Toughness/Vitality/Concentration/Healing Power still didn't
+match — asked directly whether the per-item gear math itself was correct, and separately asked for
+a feature we didn't have: hovering an equipped item to see its numeric attribute contribution
+(gw2skills shows this on every item, e.g. "Scepter [Minstrel]: +108 Toughness, +59 Vitality, +59
+Concentration, +108 Healing Power").
+
+- **Per-item formula re-verified, confirmed correct.** Ran `statComboContribution` for Minstrel's
+  against both `weaponOneHanded` and `armorHelm` adjustment keys and compared to the user's own
+  gw2skills tooltip screenshots: weapon slot gave exactly +108/+59/+108/+59, helm slot gave exactly
+  +54/+30/+54/+30 — byte-for-byte matches on every value. The `adjustment * multiplier + value`
+  math and the `ATTRIBUTE_ADJUSTMENT` constants are not the source of the remaining mismatch.
+- **Added the missing hover-tooltip feature** (`EquipmentEditor.tsx`): the gear-slot stat-prefix
+  picker's existing `Tooltip` previously only listed attribute *names* ("Toughness / Vitality /
+  Concentration / Healing"); `statOptionsFor(adjustmentKey)` now computes each combo's actual point
+  contribution *for that specific slot* (armor/weapon/trinket slots each use a different
+  `ATTRIBUTE_ADJUSTMENT` constant, so this couldn't be one shared list) via the already-exported
+  `statComboContribution`, and renders it as "+N AttributeName" per line. New
+  `ATTRIBUTE_DISPLAY_NAME` export on `attribute-totals.ts` maps raw keys to the Stats-panel's
+  player-facing names (`CritDamage`→Ferocity, `Healing`→Healing Power, `BoonDuration`→Concentration,
+  `ConditionDuration`→Expertise) for this. The copy/paste template picker (broadcasts one stat
+  prefix across every slot at once, so has no single slot context) keeps a name-only description.
+- **Conclusion / still open**: since individual item math is proven correct, the remaining
+  Toughness/Vitality/Concentration/Healing Power gap is most likely more unmodeled traits in the
+  same category as Session 49's Life Attunement fix — the user's build separately confirmed
+  Vindicator's "Empire Divided" (+240 Power / +240 Healing Power, but conditional on a health
+  threshold) is also missing, which explains the Power gap but not Toughness/Vitality/Concentration.
+  Asked the user for the build's exact trait selections (or a gw2skills chat code/link) to identify
+  the specific trait(s) still missing rather than guessing from screenshots — logged as a TODO
+  follow-up (`trait-attributes.ts` curation) once identified.
+
 ## Session 49 — Trait attribute bonuses (flat + conversion): a real, previously-unmodeled gap
 
 User cross-checked a Revenant/Salvation build (all-Minstrel gear) against gw2skills.net and found

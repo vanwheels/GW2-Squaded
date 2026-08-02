@@ -17,7 +17,12 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       (not a skill/proc/conditional effect) before being added, same wiki-verification rigor as
       every other curated table in this codebase (`CURATED_RELIC_DAMAGE_BONUSES`,
       `FURY_CRIT_CHANCE_TRAIT_BONUSES`) — add entries incrementally as specific builds get tested,
-      not as a bulk pass.
+      not as a bulk pass. A concrete second example surfaced 2026-08-02: Vindicator's "Empire
+      Divided" (Power +240 / Healing Power +240) is **conditional** on being above/below a 50%
+      health threshold, not unconditional like Life Attunement — that's a different shape than
+      `CURATED_FLAT_BONUSES` handles (which assumes "always active once the trait is active") and
+      would need its own `CombatState`-style toggle (like `furyActive`) before it could be modeled
+      safely; don't force it into the unconditional table.
 - [ ] Discord bot (client of the backend API) — scoped 2026-08-01: the worker
       (`worker/src/index.ts`) is currently just an anonymous KV blob store with 2 endpoints —
       `POST /shares` (create) and `GET /shares/:id` (fetch by random id). There is **no** user-
