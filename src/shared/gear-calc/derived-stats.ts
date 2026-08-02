@@ -1,8 +1,10 @@
 import type { Build, EquipmentSlotKey, GameData, ProfessionId } from '../types'
 import {
+  addPoints,
   boonDurationPercent,
   computeGearAttributeTotals,
   conditionDurationPercent,
+  emptyTotals,
   magicFindPercent
 } from './attribute-totals'
 import { RUNE_SLOT_KEYS } from './upgrade-slots'
@@ -14,6 +16,7 @@ import {
   FURY_CRITICAL_CHANCE_PERCENT,
   type CombatState
 } from './combat-state'
+import { applyTraitBonuses } from './trait-attributes'
 
 /** A level-80 character's base attributes before any gear/upgrade contribution. Precision/
  *  Toughness/Vitality/Power all start at 1000 (confirmed via wiki.guildwars2.com/wiki/Ferocity,
@@ -149,19 +152,30 @@ export function computeCharacterStats(
   const gearTotals = computeGearAttributeTotals(build, gameData)
   const traitsById = new Map(gameData.traits.map((t) => [t.id, t]))
   const combatPoints = combatStatePoints(build, combatState)
-  const total = (key: string): number =>
-    (BASE_ATTRIBUTES[key] ?? 0) + (gearTotals.points[key] ?? 0) + (combatPoints[key] ?? 0)
+
+  // Single unified totals: base + gear/rune/food/utility + combat state, then every active
+  // trait's flat AttributeAdjust bonus and BuffConversion (e.g. Revenant/Salvation's "Life
+  // Attunement": +120 Healing Power, 7% of Healing Power -> Concentration) applied on top —
+  // traits weren't factored into attribute totals anywhere before this, confirmed missing via a
+  // user cross-check against gw2skills.net. Conversions need the *final* source-attribute value
+  // (after gear etc.), so `applyTraitBonuses` must run last. See `trait-attributes.ts`.
+  const totals = emptyTotals()
+  for (const [k, v] of Object.entries(BASE_ATTRIBUTES)) addPoints(totals, k, v)
+  for (const [k, v] of Object.entries(gearTotals.points)) addPoints(totals, k, v)
+  for (const [k, v] of Object.entries(combatPoints)) addPoints(totals, k, v)
+  totals.bonusPercent = { ...gearTotals.bonusPercent }
+  applyTraitBonuses(totals, build, traitsById)
 
   const attributes: CharacterAttributes = {
-    power: total('Power'),
-    toughness: total('Toughness'),
-    vitality: total('Vitality'),
-    precision: total('Precision'),
-    ferocity: total('CritDamage'),
-    healingPower: total('Healing'),
-    conditionDamage: total('ConditionDamage'),
-    expertise: total('ConditionDuration'),
-    concentration: total('BoonDuration')
+    power: totals.points.Power ?? 0,
+    toughness: totals.points.Toughness ?? 0,
+    vitality: totals.points.Vitality ?? 0,
+    precision: totals.points.Precision ?? 0,
+    ferocity: totals.points.CritDamage ?? 0,
+    healingPower: totals.points.Healing ?? 0,
+    conditionDamage: totals.points.ConditionDamage ?? 0,
+    expertise: totals.points.ConditionDuration ?? 0,
+    concentration: totals.points.BoonDuration ?? 0
   }
 
   const weightClass = WEIGHT_CLASS_BY_PROFESSION[build.profession]
@@ -178,9 +192,9 @@ export function computeCharacterStats(
         ? FURY_CRITICAL_CHANCE_PERCENT + furyCritChanceTraitBonus(build, traitsById)
         : 0),
     criticalDamage: BASE_CRITICAL_DAMAGE_PERCENT + attributes.ferocity / FEROCITY_PER_CRITICAL_DAMAGE_PERCENT,
-    boonDuration: boonDurationPercent(gearTotals),
-    conditionDuration: conditionDurationPercent(gearTotals),
-    magicFind: magicFindPercent(gearTotals),
+    boonDuration: boonDurationPercent(totals),
+    conditionDuration: conditionDurationPercent(totals),
+    magicFind: magicFindPercent(totals),
     outgoingDamagePercent:
       combatState.relicActive && build.relicId !== null ? (CURATED_RELIC_DAMAGE_BONUSES[build.relicId] ?? 0) : 0
   }

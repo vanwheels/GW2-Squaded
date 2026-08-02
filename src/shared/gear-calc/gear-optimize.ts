@@ -25,6 +25,7 @@ import {
 } from './derived-stats'
 import { combatStatePoints, furyCritChanceTraitBonus, FURY_CRITICAL_CHANCE_PERCENT, type CombatState } from './combat-state'
 import { formatItemStatName } from './format-description'
+import { activeTraitFlatBonuses, applyTraitBonuses } from './trait-attributes'
 
 /**
  * The 9 stat metrics the Gear Optimizer can be given as a floor and/or a maximize-priority tier.
@@ -531,13 +532,27 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
 
   const gearTotals = computeGearAttributeTotals(fixedBuild, gameData)
   const combatPoints = combatStatePoints(build, combatState)
+  const traitsById = new Map(gameData.traits.map((t: Trait) => [t.id, t]))
+
+  // Baseline includes active traits' FLAT bonuses (gear-independent, e.g. Revenant/Salvation's
+  // "Life Attunement": +120 Healing Power) — safe to fix once like runes/relic. It deliberately
+  // does NOT include trait attribute *conversions* (e.g. that same trait's 7% Healing->
+  // Concentration): a conversion's source attribute (Healing here) can itself be a searched
+  // metric, so its true value isn't known until after the search picks gear — folding it into a
+  // pre-search baseline would use an artificially low source value and understate the bonus. The
+  // search itself is therefore a slight underestimate of the true achievable value whenever a
+  // floor/target's metric is boosted by a conversion sourced from another searched metric (a real
+  // but narrow limitation — see TODO.md); the final `metricValues` below are NOT affected, since
+  // those are re-derived from the actual resulting build via `applyTraitBonuses` (full accuracy,
+  // conversions included).
   const baseline = emptyTotals()
   for (const [k, v] of Object.entries(BASE_ATTRIBUTES)) addPoints(baseline, k, v)
   for (const [k, v] of Object.entries(gearTotals.points)) addPoints(baseline, k, v)
   for (const [k, v] of Object.entries(combatPoints)) addPoints(baseline, k, v)
   baseline.bonusPercent = { ...gearTotals.bonusPercent }
+  const traitFlat = activeTraitFlatBonuses(build, traitsById)
+  for (const [k, v] of Object.entries(traitFlat.points)) addPoints(baseline, k, v)
 
-  const traitsById = new Map(gameData.traits.map((t: Trait) => [t.id, t]))
   const weightClass = WEIGHT_CLASS_BY_PROFESSION[build.profession]
   const ctx: MetricContext = {
     furyFlatCritBonus: combatState.furyActive ? FURY_CRITICAL_CHANCE_PERCENT + furyCritChanceTraitBonus(build, traitsById) : 0,
@@ -610,13 +625,15 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
   // Re-derive final totals from `resultBuild` via the same canonical function `StatsPanel` uses
   // (rather than summing `baseline + chosen deltas` by hand) so the reported `metricValues` are
   // guaranteed to match what the Stats panel would show for this exact build, with zero
-  // duplicated math to drift out of sync.
+  // duplicated math to drift out of sync. Unlike `baseline` above, this applies FULL trait
+  // bonuses (flat + conversions) since every attribute is now fully known.
   const finalGearTotals = computeGearAttributeTotals(resultBuild, gameData)
   const finalTotals = emptyTotals()
   for (const [k, v] of Object.entries(BASE_ATTRIBUTES)) addPoints(finalTotals, k, v)
   for (const [k, v] of Object.entries(finalGearTotals.points)) addPoints(finalTotals, k, v)
   for (const [k, v] of Object.entries(combatPoints)) addPoints(finalTotals, k, v)
   finalTotals.bonusPercent = { ...finalGearTotals.bonusPercent }
+  applyTraitBonuses(finalTotals, build, traitsById)
 
   const metricValues: Partial<Record<OptimizerMetricId, number>> = {}
   for (const id of METRIC_IDS) metricValues[id] = evaluateMetric(id, finalTotals, ctx)

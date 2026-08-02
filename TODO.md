@@ -4,6 +4,20 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
+- [ ] Curate more trait attribute bonuses (`trait-attributes.ts`, added 2026-08-02). Traits can
+      grant a flat attribute bonus or an attribute-to-attribute % conversion — found via a user
+      cross-check against gw2skills.net (Revenant/Salvation's "Life Attunement" was silently
+      missing from our totals). Only that one trait is curated so far (verified: +120 Healing
+      Power, 7% Healing→Concentration). A `traits.json` scan found **~190 more candidates**
+      (168 traits with an `AttributeAdjust` fact, 25 with `BuffConversion`) but **the fact type
+      alone doesn't mean "you passively gain this"** — confirmed live that "Healer's Gift" (also
+      Revenant/Salvation) has an unambiguous single-value `AttributeAdjust` fact that's actually
+      the base-heal coefficient for its own dodge-roll proc, not a stat grant at all. Each
+      candidate needs its trait *description* read for genuine unconditional "gain X" language
+      (not a skill/proc/conditional effect) before being added, same wiki-verification rigor as
+      every other curated table in this codebase (`CURATED_RELIC_DAMAGE_BONUSES`,
+      `FURY_CRIT_CHANCE_TRAIT_BONUSES`) — add entries incrementally as specific builds get tested,
+      not as a bulk pass.
 - [ ] Discord bot (client of the backend API) — scoped 2026-08-01: the worker
       (`worker/src/index.ts`) is currently just an anonymous KV blob store with 2 endpoints —
       `POST /shares` (create) and `GET /shares/:id` (fetch by random id). There is **no** user-

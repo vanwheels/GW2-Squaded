@@ -2,6 +2,50 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 49 — Trait attribute bonuses (flat + conversion): a real, previously-unmodeled gap
+
+User cross-checked a Revenant/Salvation build (all-Minstrel gear) against gw2skills.net and found
+our Stats panel numbers didn't match. Root cause: GW2 traits can grant a flat attribute bonus
+(`AttributeAdjust` fact, e.g. Salvation's minor "Life Attunement": "+120 Healing Power") or convert
+a % of one attribute into another (`BuffConversion` fact, e.g. that same trait's "7% of Healing
+Power becomes Concentration") — and `computeGearAttributeTotals`/`computeCharacterStats` never
+looked at `build.specializations` at all, so every such trait was silently contributing nothing.
+A full `traits.json` scan found this is **not a one-off**: 193 traits across every profession carry
+at least one of these facts.
+
+- **`src/shared/gear-calc/trait-attributes.ts`** (new): `activeTraitFlatBonuses`,
+  `activeTraitConversions`, `applyTraitBonuses` — resolves which traits are active on a build
+  (every Minor of an equipped spec line, auto-granted; Major only if actually chosen) and applies
+  a **hand-curated whitelist** of flat bonuses/conversions, same pattern as
+  `CURATED_RELIC_DAMAGE_BONUSES`/`FURY_CRIT_CHANCE_TRAIT_BONUSES`. Conversions are applied from the
+  *final* combined totals (base+gear+runes+food+utility+combat state+trait flat bonuses), not
+  chained/compounding, matching how the game computes simultaneous conversions.
+- **Important correction mid-implementation**: the first pass tried to auto-apply every trait fact
+  whose raw value was unambiguous (single distinct number), only flagging *multi-value* facts as
+  needing curation — this looked safe (119/168 `AttributeAdjust` + 17/25 `BuffConversion` facts
+  have exactly one value) but was wrong. Verified live: "Healer's Gift" (Revenant/Salvation minor,
+  "The end of your dodge roll heals nearby allies") has a perfectly unambiguous single-value
+  `AttributeAdjust` fact (197 Healing) that is **not a stat grant** — it's the base-heal amount for
+  that trait's own proc, reusing the same fact type as a genuine passive bonus. A synthetic test
+  build caught this immediately (expected +120 Healing, got +317). There's no reliable signal in
+  the fact data alone to tell "passive gain" from "skill-effect coefficient" apart — only the
+  trait's own description text does, and that requires a human (or wiki-cross-referencing) read
+  per trait. Reworked to a strict opt-in whitelist: nothing applies unless individually verified
+  and added, same rigor as every other curated table in this codebase. Only Life Attunement is
+  curated so far (both its flat bonus and its 7%-not-4% conversion percent verified via
+  wiki.guildwars2.com/wiki/Life_Attunement); the other ~190 candidate traits are listed in TODO.md
+  for incremental follow-up as specific builds surface a need.
+- Wired into `derived-stats.ts`'s `computeCharacterStats` (single unified totals object, trait
+  bonuses applied last) and `gear-optimize.ts` (flat bonuses folded into the search's fixed
+  baseline — gear-independent, safe; conversions applied only to the final reported `metricValues`
+  after the actual result is known, since a conversion's source attribute, e.g. Healing, can itself
+  be a floor/target the search is varying — documented as a narrow known limitation: the search
+  itself doesn't yet credit a conversion's benefit while deciding gear, only the final numbers
+  shown are fully accurate).
+- Verified with a throwaway script (not committed): a synthetic all-Minstrel Revenant build with
+  vs. without Salvation equipped showed exactly the expected deltas (+120 Healing Power, and a
+  Concentration delta matching `7% × (post-bonus Healing)` to the fraction).
+
 ## Session 48 — Gear Optimizer rework: embedded in build editor, translated stats, lexicographic tiers
 
 Follow-up to Session 47 after the user tried it, with four pieces of feedback:
