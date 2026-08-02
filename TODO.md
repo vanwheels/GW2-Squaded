@@ -103,6 +103,23 @@ it alongside.
       in the skill picker category grouping — should be associated with/grouped near Summon Flesh
       Wurm instead.
 
+## Feature feedback pass (2026-08-01)
+
+Feedback list from the user, not yet implemented — captured here for a future session.
+
+- [ ] Builds tab: build cards currently take the full page width; make them smaller/more compact so
+      more fit on screen at once.
+- [ ] Builds tab: add filter, search, and folders for organizing builds.
+- [ ] Squads tab: add filter, search, and folders for organizing squad comps (same ask as Builds).
+- [ ] Squads tab: the build picker/"saved builds" panel in the squad editor (`BuildsSidebar.tsx`)
+      also needs its own filter/search and folder view, not just the top-level Builds/Squads lists.
+- [ ] New "Gear Optimizer" feature (net new, no existing page/component yet): pick a profession,
+      input target minimum (>=) values for stats (e.g. Power, Precision, Ferocity, Boon Duration),
+      and auto-generate an optimized gear loadout (weapons/armor/trinkets — stat combos, runes/
+      sigils) that hits the desired stat floors. User still needs to find/confirm the specific GW2
+      stat formulas (base attributes, itemstat combo math, rune/sigil bonuses) before this is
+      buildable — blocked on that research, not yet scoped further.
+
 ## Nice-to-haves
 
 - [ ] "Favorites" pin for frequently-used builds in the squad editor's build sidebar; the
