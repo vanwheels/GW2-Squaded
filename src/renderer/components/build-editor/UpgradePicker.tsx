@@ -83,7 +83,7 @@ export function UpgradePicker<T extends number | string = number>({
 
   function handleDragStart(e: React.DragEvent): void {
     if (!dragCategory || chosenId === null) return
-    setGearDragData(e, { category: dragCategory, id: chosenId as number })
+    setGearDragData(e, { category: dragCategory, id: chosenId as number, name: chosen?.name })
   }
 
   function handleDrop(e: React.DragEvent): void {
@@ -91,7 +91,12 @@ export function UpgradePicker<T extends number | string = number>({
     const payload = readGearDragData(e)
     if (payload && payload.category === dragCategory) {
       e.preventDefault()
-      onChoose(payload.id as T)
+      // Prefer resolving by name against this picker's own (already category-scoped) options —
+      // the dragged id alone can be wrong for this slot if the two pickers use different id spaces
+      // for the same combo name (e.g. an armor/weapon "stat" id dropped onto a trinket slot). Falls
+      // back to the raw id when no name match exists here, same as before `name` existed.
+      const matched = payload.name ? options.find((o) => o.name === payload.name) : undefined
+      onChoose((matched ? matched.id : payload.id) as T)
     }
   }
 

@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import type { Build, EquipmentSlot, EquipmentSlotKey, ItemStat, ItemStatLegalIds, ProfessionId, ProfessionWeapon } from '@shared/types'
+import type { Build, EquipmentSlot, EquipmentSlotKey, ItemStat, ProfessionId, ProfessionWeapon } from '@shared/types'
 import { armorTrinketInfusionCapacity, resizeUpgradeIds, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from '@shared/gear-calc/upgrade-slots'
 import {
   ATTRIBUTE_DISPLAY_NAME,
+  itemStatCategoryForSlot,
+  resolveItemStatId,
   SLOT_ADJUSTMENT_KEY,
   statComboContribution,
-  weaponAdjustmentKey,
-  type AdjustmentKey
+  weaponAdjustmentKey
 } from '@shared/gear-calc/attribute-totals'
 import { formatItemStatName } from '@shared/gear-calc/format-description'
 import { formatRelicDescription } from '@shared/gear-calc/relic-effects-format'
@@ -25,15 +26,15 @@ interface Props {
 }
 
 /**
- * The GW2 API's /v2/itemstats returns multiple ids for the same display name (e.g. 5 different
- * "Berserker's" entries) — legacy pre-revamp combos, trinket-only (value-only) variants, and the
- * modern armor/weapon combo (multiplier+value) all coexist under one name. Picking the entry
- * with the most attributes, then preferring one where every attribute has both a nonzero
- * multiplier AND value (the fully-specified modern combo), gives a single sensible option per
- * name for display. Verified against all 43 duplicate-name groups in the live dataset — see
- * TODO.md for the one caveat (name collisions across genuinely different legacy combos, e.g.
- * "Giver's", still resolve correctly under this heuristic but aren't chosen for a documented
- * reason, just the best available signal).
+ * The GW2 API's /v2/itemstats returns multiple ids for the same display name within a single
+ * category (e.g. duplicate identical rows, or a legacy 2-attribute combo sharing a name with the
+ * modern 4-attribute one, like "Giver's"). Picking the entry with the most attributes, then
+ * preferring one where every attribute has both a nonzero multiplier AND value, resolves to a
+ * single sensible id per name.
+ *
+ * **Must only ever be called with ids already filtered to one category** (armor/weapon xor
+ * trinket) — see `dedupedStatsForCategory`'s doc comment for why merging categories here was a
+ * real, previously-shipped bug.
  */
 function pickCanonicalStat(entries: ItemStat[]): ItemStat {
   return entries.reduce((best, entry) => {
@@ -50,14 +51,21 @@ function scoreStat(stat: ItemStat): number {
 }
 
 /**
- * Restricts the picker to stat combos actually selectable on a current item — see
- * `ItemStatLegalIds`'s doc comment. Both categories are combined into one set here since the
- * picker itself is shared across every armor/trinket/weapon slot (see `pickCanonicalStat`'s doc
- * comment on why one canonical id per name already works for every slot type numerically); an id
- * legal for *either* category is enough to keep that name in the list.
+ * Restricts the picker to stat combos actually selectable on a current item, for one
+ * `ItemStatLegalIds` category at a time. **Never merge `armorWeapon` and `trinket` ids before
+ * deduping** — confirmed live 2026-08-02 (user cross-check against gw2skills.net's own item
+ * tooltips) that a combo with both an armor/weapon and a trinket variant (e.g. Minstrel's) is two
+ * genuinely different API entries: the trinket entry carries an extra flat `value` bonus on top of
+ * the same `multiplier` (e.g. Minstrel's Toughness is `adjustment * 0.3` on a helm/weapon but
+ * `adjustment * 0.3 + 25` on a ring/amulet/accessory/back). The previous implementation deduped
+ * both categories together under one shared id per name, and `pickCanonicalStat`'s "prefer fully
+ * specified" tiebreak (a nonzero `value` scores higher) consistently picked the trinket entry —
+ * silently inflating Toughness/Vitality/Concentration/Healing Power (and any other combo with this
+ * shape) on every armor and weapon slot in the app. See `resolveItemStatId` in
+ * `attribute-totals.ts` for how already-saved builds self-heal from this without a data migration.
  */
-function dedupedStats(itemStats: ItemStat[], legalIds: ItemStatLegalIds): ItemStat[] {
-  const legal = new Set([...legalIds.armorWeapon, ...legalIds.trinket])
+function dedupedStatsForCategory(itemStats: ItemStat[], legalIds: number[]): ItemStat[] {
+  const legal = new Set(legalIds)
   const byName = new Map<string, ItemStat[]>()
   for (const stat of itemStats) {
     if (stat.name.trim() === '' || !legal.has(stat.id)) continue
@@ -179,7 +187,11 @@ export function EquipmentEditor({
 }: Props) {
   const { itemStats, itemStatIcons, itemStatLegalIds, professions, runes, sigils, infusions, relics, relicEffects, food, utility } =
     useGameData()
-  const sortedStats = dedupedStats(itemStats, itemStatLegalIds).sort((a, b) => a.name.localeCompare(b.name))
+  // Two entirely separate deduped lists, never merged — see `dedupedStatsForCategory`'s doc
+  // comment on why mixing armor/weapon and trinket combos here was a real bug.
+  const armorWeaponStats = dedupedStatsForCategory(itemStats, itemStatLegalIds.armorWeapon).sort((a, b) => a.name.localeCompare(b.name))
+  const trinketStats = dedupedStatsForCategory(itemStats, itemStatLegalIds.trinket).sort((a, b) => a.name.localeCompare(b.name))
+  const itemStatsById = new Map(itemStats.map((s) => [s.id, s]))
   const profession = professions.find((p) => p.id === professionId)
   // Weapon panel toggle (2026-07-31): land Set A/B and the underwater sets share screen real
   // estate poorly side by side, so only one is shown at a time — defaults to land since that's
@@ -200,9 +212,12 @@ export function EquipmentEditor({
   // check against gw2skills flagged that this app had no way to see per-item numbers at all, only
   // attribute names. Contribution is slot-dependent (a helm and a two-handed weapon apply the same
   // stat combo's multiplier/value against different `ATTRIBUTE_ADJUSTMENT` constants), so this is
-  // a function of `adjustmentKey`, not a single shared list — see `statComboContribution`.
-  function statOptionsFor(adjustmentKey: AdjustmentKey): UpgradeOption[] {
-    return sortedStats.map((stat) => {
+  // a function of the slot's category+adjustment tier, not a single shared list — see
+  // `statComboContribution`/`dedupedStatsForCategory`.
+  function statOptionsFor(slotKey: EquipmentSlotKey): UpgradeOption[] {
+    const adjustmentKey = SLOT_ADJUSTMENT_KEY[slotKey] ?? weaponAdjustmentKey(slotKey)
+    const source = itemStatCategoryForSlot(slotKey) === 'trinket' ? trinketStats : armorWeaponStats
+    return source.map((stat) => {
       const contribution = statComboContribution(stat, adjustmentKey)
       const description = stat.attributes
         .map((a) => `+${Math.round(contribution.points[a.attribute] ?? 0)} ${ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute}`)
@@ -211,15 +226,28 @@ export function EquipmentEditor({
     })
   }
 
-  // The copy/paste template picker broadcasts one stat prefix across every armor/trinket/weapon
-  // slot at once (see `applyStatToAll`) — there's no single slot context to compute a numeric
-  // breakdown against, so it lists names only (attribute names, not point values).
-  const templateStatOptions: UpgradeOption[] = sortedStats.map((stat) => ({
-    id: stat.id,
-    name: formatItemStatName(stat.name),
-    icon: itemStatIcons[stat.name] ?? '',
-    description: stat.attributes.map((a) => ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute).join(' / ')
-  }))
+  /** A slot's *displayed* selected id — resolves an already-saved build's `itemStatId` to
+   *  whichever id is actually legal for this slot's category before comparing it against
+   *  `statOptionsFor`'s (category-scoped) option list, so a pre-fix build's stat prefix still
+   *  shows as selected instead of appearing blank. See `resolveItemStatId`'s doc comment. */
+  function displayedItemStatId(slotKey: EquipmentSlotKey, rawId: number | null): number | null {
+    if (rawId === null) return null
+    return resolveItemStatId(rawId, itemStatsById, itemStatLegalIds, itemStatCategoryForSlot(slotKey))
+  }
+
+  // The copy/paste template picker broadcasts one stat prefix *name* across every armor/trinket/
+  // weapon slot at once (see `applyStatToAll`) — armor/weapon and trinket slots need different ids
+  // for the same name (see `dedupedStatsForCategory`), so this list (deduped by name across both
+  // categories, id is just a representative token `applyStatToAll` resolves back to a name) has no
+  // single slot context to compute a numeric breakdown against, so it lists attribute names only.
+  const templateStatOptions: UpgradeOption[] = Array.from(new Map([...armorWeaponStats, ...trinketStats].map((s) => [s.name, s])).values())
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((stat) => ({
+      id: stat.id,
+      name: formatItemStatName(stat.name),
+      icon: itemStatIcons[stat.name] ?? '',
+      description: stat.attributes.map((a) => ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute).join(' / ')
+    }))
 
   const runeOptions: UpgradeOption[] = runes
     .map((r) => ({ id: r.id, name: r.name, icon: r.icon, description: r.bonuses.map((b) => b.raw).join('\n') }))
@@ -283,20 +311,31 @@ export function EquipmentEditor({
   /**
    * Copy/paste (2026-07-30): fills every eligible slot in a category with one chosen value, for
    * when a build's gear genuinely matches across every piece and clicking each slot individually
-   * would be pure repetition. A stat prefix applies to every armor/trinket/weapon slot (they all
-   * share the same `itemStatId` field); a rune only to the 6 armor slots; sigils/infusions to
-   * every weapon slot (sigils) or every armor/trinket/weapon slot (infusions) at their own
-   * capacity. Two-handed mirroring isn't a concern here since both mirrored slots end up with the
-   * identical id anyway.
+   * would be pure repetition. A rune applies only to the 6 armor slots; sigils/infusions to every
+   * weapon slot (sigils) or every armor/trinket/weapon slot (infusions) at their own capacity.
+   * Two-handed mirroring isn't a concern here since both mirrored slots end up with the identical
+   * id anyway.
+   *
+   * A stat prefix is the one category with a wrinkle: `templateStatOptions`' `itemStatId` is just
+   * a representative id for the chosen *name* (armor/weapon and trinket slots need different ids
+   * for the same name — see `dedupedStatsForCategory`), so this resolves the name once and looks
+   * up each category's own correct id before applying — never broadcasts the raw template id
+   * as-is.
    */
   function applyStatToAll(itemStatId: number | null): void {
+    const name = itemStatId !== null ? itemStatsById.get(itemStatId)?.name : null
+    const armorWeaponId = name ? (armorWeaponStats.find((s) => s.name === name)?.id ?? null) : null
+    const trinketId = name ? (trinketStats.find((s) => s.name === name)?.id ?? null) : null
     const next = { ...value }
-    for (const key of [...ARMOR_SLOTS, ...TRINKET_SLOTS].map((s) => s.key)) {
-      next[key] = { ...(next[key] ?? {}), itemStatId }
+    for (const { key } of ARMOR_SLOTS) {
+      next[key] = { ...(next[key] ?? {}), itemStatId: armorWeaponId }
+    }
+    for (const { key } of TRINKET_SLOTS) {
+      next[key] = { ...(next[key] ?? {}), itemStatId: trinketId }
     }
     for (const key of WEAPON_SLOT_KEYS) {
       if (!next[key]?.weaponType) continue
-      next[key] = { ...next[key], itemStatId }
+      next[key] = { ...next[key], itemStatId: armorWeaponId }
     }
     onChange(next)
   }
@@ -378,13 +417,12 @@ export function EquipmentEditor({
   function renderSlot(key: EquipmentSlotKey, label: string) {
     const isRuneSlot = RUNE_SLOT_KEYS.includes(key)
     const infusionCapacity = armorTrinketInfusionCapacity(key)
-    const adjustmentKey = SLOT_ADJUSTMENT_KEY[key] ?? weaponAdjustmentKey(key)
     return (
       <div className="gear-slot" key={key}>
         <UpgradePicker
           label={label}
-          options={statOptionsFor(adjustmentKey)}
-          chosenId={value[key]?.itemStatId ?? null}
+          options={statOptionsFor(key)}
+          chosenId={displayedItemStatId(key, value[key]?.itemStatId ?? null)}
           onChoose={(id) => setItemStat(key, id)}
           variant="slot"
           rarity="ascended"
@@ -497,8 +535,8 @@ export function EquipmentEditor({
           </label>
           <UpgradePicker
             label={mainLabel}
-            options={statOptionsFor(weaponAdjustmentKey(mainKey))}
-            chosenId={mainSlot?.itemStatId ?? null}
+            options={statOptionsFor(mainKey)}
+            chosenId={displayedItemStatId(mainKey, mainSlot?.itemStatId ?? null)}
             onChoose={setMainItemStat}
             variant="slot"
             rarity="ascended"
@@ -520,8 +558,8 @@ export function EquipmentEditor({
               </label>
               <UpgradePicker
                 label={offLabel}
-                options={statOptionsFor(weaponAdjustmentKey(offKey))}
-                chosenId={value[offKey]?.itemStatId ?? null}
+                options={statOptionsFor(offKey)}
+                chosenId={displayedItemStatId(offKey, value[offKey]?.itemStatId ?? null)}
                 onChoose={setOffItemStat}
                 variant="slot"
                 rarity="ascended"
@@ -563,8 +601,8 @@ export function EquipmentEditor({
         </label>
         <UpgradePicker
           label={label}
-          options={statOptionsFor(weaponAdjustmentKey(key))}
-          chosenId={slot?.itemStatId ?? null}
+          options={statOptionsFor(key)}
+          chosenId={displayedItemStatId(key, slot?.itemStatId ?? null)}
           onChoose={setStat}
           variant="slot"
           rarity="ascended"

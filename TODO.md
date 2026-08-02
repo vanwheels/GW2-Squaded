@@ -22,7 +22,10 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       health threshold, not unconditional like Life Attunement — that's a different shape than
       `CURATED_FLAT_BONUSES` handles (which assumes "always active once the trait is active") and
       would need its own `CombatState`-style toggle (like `furyActive`) before it could be modeled
-      safely; don't force it into the unconditional table.
+      safely; don't force it into the unconditional table. Note: the *dominant* Stats-panel
+      discrepancy the user was chasing across Sessions 49-51 turned out to be a separate, bigger
+      bug (see COMPLETED.md Session 51, `itemStatId` category mismatch) — trait bonuses are a real
+      but comparatively small remaining gap now.
 - [ ] Discord bot (client of the backend API) — scoped 2026-08-01: the worker
       (`worker/src/index.ts`) is currently just an anonymous KV blob store with 2 endpoints —
       `POST /shares` (create) and `GET /shares/:id` (fetch by random id). There is **no** user-

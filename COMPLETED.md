@@ -2,6 +2,58 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 51 — Root cause found: stat-prefix picker saved the wrong id for armor/weapon slots
+
+Session 50 shipped per-item hover tooltips and re-verified the `adjustment * multiplier + value`
+formula was correct — but confirmed correct using `Array.find()` on a raw JSON array, which happens
+to return an item's *first* matching entry, not what the app's actual dedup code path picks. The
+user then sent gw2skills.net tooltip screenshots for **every single equipped piece** (both weapons,
+all 6 armor pieces, all 6 trinkets), which is what actually cracked it: comparing those numbers to
+what the new hover-tooltip feature displayed in-app showed every armor and weapon value was wrong,
+while every trinket value happened to be right.
+
+**Root cause**: `/v2/itemstats` returns *two different API entries* for a combo name that has both
+an armor/weapon and a trinket variant (e.g. "Minstrel's" is ids 1123 *and* 1134) — same
+`multiplier`, but the trinket entry has an extra flat `value` (e.g. `+25` Toughness/Healing, `+12`
+Vitality/Concentration) that the armor/weapon entry doesn't. `EquipmentEditor.tsx`'s stat-prefix
+picker (`dedupedStats`/`pickCanonicalStat`) deduped **both categories together** into one shared id
+per name, and the "prefer fully-specified" tiebreak (nonzero `value` scores higher) always picked
+the trinket entry — so picking "Minstrel's" on a helm or weapon silently saved the *trinket* id,
+inflating Toughness/Vitality/Concentration/Healing Power (and any other combo with this shape) on
+every armor and weapon slot in the app. Verified with a script reproducing the real dedup logic
+against every one of the user's screenshotted pieces (Staff, Scepter, Shield, Helm, Shoulders,
+Coat, Gloves, Leggings, Boots, Amulet, Ring, Accessory, Back) — every value now matches gw2skills
+exactly after the fix, none did before.
+
+- **`ItemStatLegalIds.armorWeapon`/`.trinket` are disjoint** (confirmed in `game-data.ts`'s existing
+  doc comment) — the fix is to never merge them before deduping. `EquipmentEditor.tsx`:
+  `dedupedStats` split into `dedupedStatsForCategory` (takes one category's id list), called
+  separately into `armorWeaponStats`/`trinketStats`; `statOptionsFor` now takes a slot key and
+  picks the right list via `itemStatCategoryForSlot`.
+- **Self-healing, not a migration**: already-saved builds have the wrong id sitting in
+  `equipment[slot].itemStatId` for any affected armor/weapon slot — rather than a one-time data
+  migration, `attribute-totals.ts` gets `resolveItemStatId(id, statsById, legalIds, category)`: if
+  a stored id isn't legal for its slot's category, look up its same-named counterpart in the
+  correct category and use that instead. Wired into `computeGearAttributeTotals` (so every
+  stats/boon-duration/party-summary consumer self-corrects automatically) and into
+  `EquipmentEditor`'s own `chosenId` display (so a legacy build's stat prefix still shows as
+  selected instead of appearing blank now that the picker's options are category-scoped). Nothing
+  is ever written back to the stored build — picking a fresh value from the now-correct picker
+  naturally overwrites the old id going forward.
+- **Copy/paste ("Apply to All") and drag-and-drop both had the same latent issue** and got the same
+  category-aware fix: `applyStatToAll` now resolves the chosen template's *name* to each category's
+  own correct id before broadcasting (previously spread one raw id across every slot type
+  unconditionally); `UpgradePicker`'s drag payload (`gear-drag-payload.ts`) gained an optional
+  `name` field so dropping a stat prefix from one slot onto a different-category slot resolves by
+  name against the target's own (already category-scoped) option list instead of reusing the
+  source id verbatim.
+- `computeGearAttributeTotals`'s and `computeCharacterStats`'s `gameData` params widened to require
+  `itemStatLegalIds` (previously only `itemStats`) — propagated through `sources.ts` and
+  `party-summary.ts`'s inline gameData param shapes, which construct a narrower object than the
+  full `GameData` type.
+- `gear-optimize.ts` was **never affected** — it already looked up `legalArmorWeapon`/`legalTrinket`
+  separately per slot category before deduping, confirmed by reading through its `statOptionsFor`.
+
 ## Session 50 — Per-item numeric stat tooltips; formula re-verified byte-exact against gw2skills
 
 User followed up Session 49's trait-bonus fix with a second gw2skills.net cross-check (same build,

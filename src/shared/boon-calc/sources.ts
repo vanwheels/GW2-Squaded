@@ -5,6 +5,7 @@ import type {
   Fact,
   Infusion,
   ItemStat,
+  ItemStatLegalIds,
   Legend,
   Pet,
   Profession,
@@ -404,6 +405,7 @@ export function computeBoonConditionSources(
     skills: Skill[]
     traits: Trait[]
     itemStats: ItemStat[]
+    itemStatLegalIds: ItemStatLegalIds
     infusions: Infusion[]
     runes: Rune[]
     food: Consumable[]

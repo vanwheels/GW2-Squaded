@@ -1,4 +1,4 @@
-import type { AttributeBonusText, Build, Consumable, EquipmentSlotKey, GameData, ItemStat, Rune } from '../types'
+import type { AttributeBonusText, Build, Consumable, EquipmentSlotKey, GameData, ItemStat, ItemStatLegalIds, Rune } from '../types'
 import { RUNE_SLOT_KEYS } from './upgrade-slots'
 
 /**
@@ -47,6 +47,51 @@ export const SLOT_ADJUSTMENT_KEY: Partial<Record<EquipmentSlotKey, AdjustmentKey
 }
 
 const UNDERWATER_WEAPON_SLOTS: EquipmentSlotKey[] = ['weaponU1', 'weaponU2']
+
+/**
+ * The 4 equipment slots whose legal stat-combo ids come from `ItemStatLegalIds.trinket` — every
+ * other slot (armor + every weapon slot) draws from `ItemStatLegalIds.armorWeapon` instead. The
+ * two lists are **disjoint**: a stat combo with the same display name (e.g. "Minstrel's") is a
+ * genuinely different API entry per category — the trinket entry carries an extra flat `value`
+ * bonus on top of the same `multiplier` that the armor/weapon entry doesn't have (confirmed live
+ * against gw2skills.net's own per-item tooltips, 2026-08-02: e.g. Minstrel's Toughness is
+ * `adjustment * 0.3` on a helm/weapon but `adjustment * 0.3 + 25` on a ring/amulet/accessory/back).
+ * See `resolveItemStatId` for why this distinction matters beyond just which options are offered.
+ */
+const TRINKET_CATEGORY_SLOT_KEYS = new Set<EquipmentSlotKey>(['backpiece', 'accessory1', 'accessory2', 'ring1', 'ring2', 'amulet'])
+
+export function itemStatCategoryForSlot(slotKey: EquipmentSlotKey): keyof ItemStatLegalIds {
+  return TRINKET_CATEGORY_SLOT_KEYS.has(slotKey) ? 'trinket' : 'armorWeapon'
+}
+
+/**
+ * Resolves a slot's stored `itemStatId` to the id that's actually legal for that slot's category,
+ * correcting builds saved before `EquipmentEditor`'s stat-prefix picker was category-aware
+ * (2026-08-02 fix): the picker used to offer one shared id per combo name across every slot type,
+ * which for combos with a trinket-only variant (see `TRINKET_CATEGORY_SLOT_KEYS`'s doc comment)
+ * meant an armor/weapon slot could end up with the trinket-flavored id saved in `itemStatId`,
+ * silently inflating every affected attribute. This is a pure read-time correction (never mutates
+ * the stored build) — every stat-total consumer (`computeGearAttributeTotals`) and the picker's
+ * own displayed selection resolve through this, so already-saved builds self-heal the moment
+ * they're computed or viewed, with no separate migration step. A stored id that's already legal
+ * for its slot, or that has no same-named counterpart in the correct category, passes through
+ * unchanged.
+ */
+export function resolveItemStatId(
+  itemStatId: number,
+  statsById: Map<number, ItemStat>,
+  legalIds: ItemStatLegalIds,
+  category: keyof ItemStatLegalIds
+): number {
+  const stat = statsById.get(itemStatId)
+  if (!stat) return itemStatId
+  const legalSet = legalIds[category]
+  if (legalSet.includes(itemStatId)) return itemStatId
+  for (const [id, candidate] of statsById) {
+    if (candidate.name === stat.name && legalSet.includes(id)) return id
+  }
+  return itemStatId
+}
 
 /**
  * Unlike the boon/condition calculator (`sources.ts`), which deliberately counts both weapon-swap
@@ -240,7 +285,7 @@ function addRuneBonuses(totals: AttributeTotals, build: Build, runesById: Map<nu
  */
 export function computeGearAttributeTotals(
   build: Build,
-  gameData: Pick<GameData, 'itemStats' | 'infusions' | 'runes' | 'food' | 'utility'>
+  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'food' | 'utility'>
 ): AttributeTotals {
   const statsById = new Map<number, ItemStat>(gameData.itemStats.map((s) => [s.id, s]))
   const infusionsById = new Map(gameData.infusions.map((i) => [i.id, i]))
@@ -259,7 +304,8 @@ export function computeGearAttributeTotals(
 
     if (weaponEquipped && slot.itemStatId !== null) {
       const adjustmentKey = SLOT_ADJUSTMENT_KEY[slotKey] ?? weaponAdjustmentKey(slotKey)
-      const stat = statsById.get(slot.itemStatId)
+      const resolvedId = resolveItemStatId(slot.itemStatId, statsById, gameData.itemStatLegalIds, itemStatCategoryForSlot(slotKey))
+      const stat = statsById.get(resolvedId)
       if (stat) {
         const adjustment = ATTRIBUTE_ADJUSTMENT[adjustmentKey][RARITY]
         for (const attr of stat.attributes) {
