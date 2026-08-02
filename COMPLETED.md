@@ -2,6 +2,45 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 45 (continued) — Drag-to-reorder cards; Tags + filter/search; last-updated display
+
+- **Drag-to-reorder**: `Build`/`SquadComp` gained an `order: number` field (`src/shared/types/`).
+  Legacy records backfill `order ?? Date.parse(createdAt)` in `builds-store.tsx`/
+  `squad-comps-store.tsx` (same no-migration pattern as `tags` below); both stores now sort by
+  `order` on every `refresh()` instead of relying on the SQLite row's own `updated_at DESC` (which
+  would otherwise reshuffle cards on every edit, fighting a manually-arranged order). `BuildsView`/
+  `SquadsView` cards are `draggable`; dropping one only ever rewrites *its own* `order` to a new
+  midpoint value between its new neighbors (`renderer/lib/reorder.ts`'s `reorderBefore`/
+  `computeOrderBetween`) — no other record's fields change, and specifically `updatedAt` is left
+  untouched by a reorder (see the "last updated" item below for why that separation matters).
+  Reordering works against whatever's currently filtered/searched (drop position is read from the
+  visible neighbors), not just the unfiltered list. `BuildsSidebar.tsx` picks up the same order
+  automatically (via the store) but has no drag-reorder UI of its own — out of scope, it already
+  has a different drag purpose (assigning a build to a squad slot).
+- **Tags + filter/search**, per the 2026-08-01 TODO scoping note: `Build`/`SquadComp` gained
+  `tags: string[]` (same backfill-on-read pattern as `order`, no storage migration).
+  `TagInput` (`components/common/TagInput.tsx`) is the chip-row + autocomplete editor wired into
+  `BuildEditorView`/`SquadCompEditorView`, suggesting every tag already used on any of the user's
+  other builds/squads. `TagFilterBar` (`components/common/TagFilterBar.tsx`) + the shared
+  `useTagFilter` hook (`state/use-tag-filter.ts`, name-substring search AND tag-combination
+  filter) are reused identically by `BuildsView`, `SquadsView`, and `BuildsSidebar` — the sidebar
+  now has the same search+tag row above its build list.
+  - Per user direction: every build automatically carries its profession + (if any) elite spec as
+    non-removable tags (e.g. "Mesmer" + "Chronomancer"), shown in the tag editor and folded into
+    the same filterable tag vocabulary as user tags. These are **computed, not stored** —
+    `shared/tags/auto-tags.ts`'s `getBuildAutoTags` derives them from `Build.profession`/
+    `specializations` on the fly, so they can never go stale if the build's profession/spec
+    changes later (unlike a persisted string, which would). `SquadComp` gets no equivalent — a
+    squad spans multiple professions, so there's no single "class" tag to derive.
+- **Last updated**: each card now shows a relative "Updated 3 days ago"-style line
+  (`renderer/lib/format-relative-time.ts`, built on `Intl.RelativeTimeFormat` — no new dependency;
+  hovering shows the exact timestamp) sourced from the record's own `updatedAt`, which only
+  changes on a real content save (`handleSave` in both editor views), never on a drag-reorder — see
+  above. Per user request this was meant to ideally be relative to GW2 balance patches rather than
+  wall-clock time; deferred (see TODO.md) because that needs the GW2 API build-number-polling
+  mechanism the existing "Automatic game-data refresh" TODO item already flags as undecided —
+  didn't want to build a second, parallel patch-detection path to answer a smaller question.
+
 ## Session 45 — Compact Builds/Squads card grid
 
 - `BuildsView.tsx`/`SquadsView.tsx` now render saved records as a responsive card grid

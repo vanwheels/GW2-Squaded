@@ -39,4 +39,10 @@ export interface SquadComp {
   parties: Party[]
   createdAt: Timestamp
   updatedAt: Timestamp
+  /** User-defined labels for search/filtering (`SquadsView`). Absent on records saved before this
+   *  field existed — read paths backfill `tags ?? []`, no storage migration. See `Build.tags`. */
+  tags: string[]
+  /** Manual sort position for the Squads card grid's drag-to-reorder (`SquadsView`) — same
+   *  scheme as `Build.order`, see its doc comment. */
+  order: number
 }

@@ -1,6 +1,11 @@
+import { useCallback } from 'react'
+import type { Build } from '@shared/types'
+import { getBuildAutoTags } from '@shared/tags/auto-tags'
 import { useBuildsStore } from '@renderer/state/builds-store'
 import { useGameData } from '@renderer/state/game-data-store'
+import { useTagFilter } from '@renderer/state/use-tag-filter'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
+import { TagFilterBar } from '@renderer/components/common/TagFilterBar'
 import { setBuildDragData } from './drag-payload'
 
 /**
@@ -10,7 +15,17 @@ import { setBuildDragData } from './drag-payload'
  */
 export function BuildsSidebar() {
   const { builds, loading } = useBuildsStore()
-  const { professions } = useGameData()
+  const { professions, specializationsById } = useGameData()
+
+  const getTags = useCallback(
+    (build: Build) => [...getBuildAutoTags(build, { professions, specializationsById }), ...build.tags],
+    [professions, specializationsById]
+  )
+  const { query, setQuery, allTags, selectedTags, toggleTag, filtered } = useTagFilter({
+    records: builds,
+    getName: (build) => build.name,
+    getTags
+  })
 
   return (
     <aside className="builds-sidebar">
@@ -20,27 +35,41 @@ export function BuildsSidebar() {
       ) : builds.length === 0 ? (
         <p className="empty-state">No saved builds yet — create one in the Builds tab.</p>
       ) : (
-        <ul className="builds-sidebar-list">
-          {builds.map((build) => {
-            const profession = professions.find((p) => p.id === build.profession)
-            return (
-              <li key={build.id}>
-                <Tooltip content={<TooltipBody title={build.name} description={profession?.name ?? build.profession} />}>
-                  <div
-                    className="builds-sidebar-card"
-                    draggable
-                    onDragStart={(e) =>
-                      setBuildDragData(e, { buildId: build.id, sourcePartyIndex: null, sourceSlotIndex: null })
-                    }
-                  >
-                    {profession && <img className="builds-sidebar-icon" src={profession.icon} alt="" />}
-                    <span className="builds-sidebar-name">{build.name}</span>
-                  </div>
-                </Tooltip>
-              </li>
-            )
-          })}
-        </ul>
+        <>
+          <TagFilterBar
+            query={query}
+            onQueryChange={setQuery}
+            allTags={allTags}
+            selectedTags={selectedTags}
+            onToggleTag={toggleTag}
+            placeholder="Search…"
+          />
+          {filtered.length === 0 ? (
+            <p className="empty-state">No builds match your search/filter.</p>
+          ) : (
+            <ul className="builds-sidebar-list">
+              {filtered.map((build) => {
+                const profession = professions.find((p) => p.id === build.profession)
+                return (
+                  <li key={build.id}>
+                    <Tooltip content={<TooltipBody title={build.name} description={profession?.name ?? build.profession} />}>
+                      <div
+                        className="builds-sidebar-card"
+                        draggable
+                        onDragStart={(e) =>
+                          setBuildDragData(e, { buildId: build.id, sourcePartyIndex: null, sourceSlotIndex: null })
+                        }
+                      >
+                        {profession && <img className="builds-sidebar-icon" src={profession.icon} alt="" />}
+                        <span className="builds-sidebar-name">{build.name}</span>
+                      </div>
+                    </Tooltip>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </>
       )}
     </aside>
   )

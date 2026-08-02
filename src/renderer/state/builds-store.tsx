@@ -12,6 +12,12 @@ interface BuildsStore {
 
 const BuildsStoreContext = createContext<BuildsStore | null>(null)
 
+/** Backfills fields absent on records saved before they existed — see `Build.tags`/`Build.order`
+ *  doc comments. No storage migration; every read goes through this. */
+function normalizeBuild(build: Build): Build {
+  return { ...build, tags: build.tags ?? [], order: build.order ?? Date.parse(build.createdAt) }
+}
+
 export function makeBlankBuild(): Build {
   const now = new Date().toISOString()
   return {
@@ -36,7 +42,9 @@ export function makeBlankBuild(): Build {
     activeAttunement: 'Fire',
     thiefStolenSkillId: null,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
+    tags: [],
+    order: Date.now()
   }
 }
 
@@ -48,7 +56,7 @@ export function BuildsStoreProvider({ children }: { children: ReactNode }) {
     setLoading(true)
     try {
       const result = await window.gw2Storage.builds.list()
-      setBuilds(result)
+      setBuilds(result.map(normalizeBuild).sort((a, b) => a.order - b.order))
     } finally {
       setLoading(false)
     }

@@ -20,6 +20,12 @@ export function makeBlankParty(): Party {
   return { slots: [blankSlot(), blankSlot(), blankSlot(), blankSlot(), blankSlot()] }
 }
 
+/** Backfills fields absent on records saved before they existed — see `SquadComp.tags`/
+ *  `SquadComp.order` doc comments. No storage migration; every read goes through this. */
+function normalizeSquadComp(squadComp: SquadComp): SquadComp {
+  return { ...squadComp, tags: squadComp.tags ?? [], order: squadComp.order ?? Date.parse(squadComp.createdAt) }
+}
+
 export function makeBlankSquadComp(): SquadComp {
   const now = new Date().toISOString()
   return {
@@ -28,7 +34,9 @@ export function makeBlankSquadComp(): SquadComp {
     notes: '',
     parties: [makeBlankParty()],
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
+    tags: [],
+    order: Date.now()
   }
 }
 
@@ -40,7 +48,7 @@ export function SquadCompsStoreProvider({ children }: { children: ReactNode }) {
     setLoading(true)
     try {
       const result = await window.gw2Storage.squadComps.list()
-      setSquadComps(result)
+      setSquadComps(result.map(normalizeSquadComp).sort((a, b) => a.order - b.order))
     } finally {
       setLoading(false)
     }

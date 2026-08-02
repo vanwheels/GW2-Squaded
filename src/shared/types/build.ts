@@ -180,4 +180,24 @@ export interface Build {
   thiefStolenSkillId: number | null
   createdAt: Timestamp
   updatedAt: Timestamp
+  /**
+   * User-defined labels for search/filtering (`BuildsView`, `BuildsSidebar`). Doesn't include the
+   * profession/elite-spec labels shown alongside them in the UI — those are derived on the fly
+   * from `profession`/`specializations` (see `shared/tags/auto-tags.ts`) rather than duplicated
+   * here, so they can't drift out of sync with the build's actual profession/spec. Absent on
+   * records saved before this field existed — read paths backfill `tags ?? []`, no storage
+   * migration.
+   */
+  tags: string[]
+  /**
+   * Manual sort position for the Builds card grid's drag-to-reorder (`BuildsView`) — lower sorts
+   * first. Deliberately separate from `updatedAt`: dragging a card to reorder it isn't a content
+   * edit, and `updatedAt` is meant to reflect real build changes (see its use on the card's "last
+   * updated" line). Absent on records saved before this field existed — read paths backfill
+   * `order ?? Date.parse(createdAt)`, keeping legacy records in creation order relative to each
+   * other until manually reordered. Only ever changes by one card at a time (new midpoint value
+   * between its new neighbors, see `renderer/lib/reorder.ts`), so reordering never touches any
+   * other build's fields.
+   */
+  order: number
 }

@@ -3,13 +3,25 @@ import type { PartySlots, SquadComp } from '@shared/types'
 import { isLikelySquadCompSharePayload } from '@shared/share/validate'
 import { useSquadCompsStore, makeBlankSquadComp } from '@renderer/state/squad-comps-store'
 import { useBuildsStore } from '@renderer/state/builds-store'
+import { useTagFilter } from '@renderer/state/use-tag-filter'
+import { reorderBefore } from '@renderer/lib/reorder'
+import { formatRelativeTime } from '@renderer/lib/format-relative-time'
 import { SquadCompEditorView } from '@renderer/components/squad-editor/SquadCompEditorView'
 import { ImportFromLinkButton } from '@renderer/components/common/ImportFromLinkButton'
+import { TagFilterBar } from '@renderer/components/common/TagFilterBar'
 
 export function SquadsView() {
   const { squadComps, loading, createSquadComp, updateSquadComp, removeSquadComp } = useSquadCompsStore()
   const { createBuild } = useBuildsStore()
   const [editing, setEditing] = useState<{ squadComp: SquadComp; isNew: boolean } | null>(null)
+  const [dragId, setDragId] = useState<string | null>(null)
+  const [dropTargetId, setDropTargetId] = useState<string | null>(null)
+
+  const { query, setQuery, allTags, selectedTags, toggleTag, filtered } = useTagFilter({
+    records: squadComps,
+    getName: (squadComp) => squadComp.name,
+    getTags: (squadComp) => squadComp.tags
+  })
 
   /** Re-creates every bundled build locally under a fresh id first (a shared squad's builds are a
    *  standalone snapshot, not references into the importer's own database — see
@@ -37,6 +49,17 @@ export function SquadsView() {
         })) as PartySlots
       }))
     })
+  }
+
+  function handleDrop(beforeId: string | null): void {
+    const draggedId = dragId
+    setDragId(null)
+    setDropTargetId(null)
+    if (!draggedId || draggedId === beforeId) return
+    const squadComp = squadComps.find((s) => s.id === draggedId)
+    if (!squadComp) return
+    const order = reorderBefore(filtered, draggedId, beforeId)
+    if (order !== squadComp.order) void updateSquadComp({ ...squadComp, order })
   }
 
   if (editing) {
@@ -68,21 +91,65 @@ export function SquadsView() {
       ) : squadComps.length === 0 ? (
         <p className="empty-state">No saved squads yet. Click "+ New squad" to create one.</p>
       ) : (
-        <ul className="record-list">
-          {squadComps.map((squadComp) => (
-            <li key={squadComp.id}>
-              <button className="record-open" onClick={() => setEditing({ squadComp, isNew: false })}>
-                <span className="record-open-text">
-                  <strong>{squadComp.name}</strong>
-                  <span className="muted">
-                    {squadComp.parties.length} part{squadComp.parties.length === 1 ? 'y' : 'ies'}
-                  </span>
-                </span>
-              </button>
-              <button onClick={() => void removeSquadComp(squadComp.id)}>Delete</button>
-            </li>
-          ))}
-        </ul>
+        <>
+          <TagFilterBar
+            query={query}
+            onQueryChange={setQuery}
+            allTags={allTags}
+            selectedTags={selectedTags}
+            onToggleTag={toggleTag}
+            placeholder="Search squads…"
+          />
+          {filtered.length === 0 ? (
+            <p className="empty-state">No squads match your search/filter.</p>
+          ) : (
+            <ul className="record-list" onDragOver={(e) => e.preventDefault()} onDrop={() => handleDrop(null)}>
+              {filtered.map((squadComp) => {
+                const className = [
+                  dragId === squadComp.id ? 'record-card-dragging' : null,
+                  dropTargetId === squadComp.id ? 'record-card-drop-target' : null
+                ]
+                  .filter(Boolean)
+                  .join(' ')
+                return (
+                  <li
+                    key={squadComp.id}
+                    className={className || undefined}
+                    draggable
+                    onDragStart={() => setDragId(squadComp.id)}
+                    onDragEnd={() => {
+                      setDragId(null)
+                      setDropTargetId(null)
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setDropTargetId(squadComp.id)
+                    }}
+                    onDragLeave={() => setDropTargetId((id) => (id === squadComp.id ? null : id))}
+                    onDrop={(e) => {
+                      e.stopPropagation()
+                      handleDrop(squadComp.id)
+                    }}
+                  >
+                    <button className="record-open" onClick={() => setEditing({ squadComp, isNew: false })}>
+                      <span className="record-open-text">
+                        <strong>{squadComp.name}</strong>
+                        <span className="muted">
+                          {squadComp.parties.length} part{squadComp.parties.length === 1 ? 'y' : 'ies'}
+                        </span>
+                        <span className="muted record-updated" title={new Date(squadComp.updatedAt).toLocaleString()}>
+                          Updated {formatRelativeTime(squadComp.updatedAt)}
+                        </span>
+                      </span>
+                    </button>
+                    <button onClick={() => void removeSquadComp(squadComp.id)}>Delete</button>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </>
       )}
     </section>
   )

@@ -11,9 +11,12 @@ import type {
 import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar'
 import { SPECTER_SPEC_ID } from '@shared/skill-calc/profession-mechanic'
 import { DEFAULT_COMBAT_STATE, type CombatState } from '@shared/gear-calc/combat-state'
+import { getBuildAutoTags } from '@shared/tags/auto-tags'
 import { useGameData } from '@renderer/state/game-data-store'
+import { useBuildsStore } from '@renderer/state/builds-store'
 import { SharePanel } from '@renderer/components/common/SharePanel'
 import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
+import { TagInput } from '@renderer/components/common/TagInput'
 import { ProfessionSpecPicker } from './ProfessionSpecPicker'
 import { TraitsEditor } from './TraitsEditor'
 import { SkillsEditor } from './SkillsEditor'
@@ -40,8 +43,15 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
   const [draft, setDraft] = useState<Build>(build)
   const [saving, setSaving] = useState(false)
   const [combatState, setCombatState] = useState<CombatState>(DEFAULT_COMBAT_STATE)
-  const { eliteSpecSkills, legends, professions } = useGameData()
+  const { eliteSpecSkills, legends, professions, specializationsById } = useGameData()
+  const { builds } = useBuildsStore()
   const columnsRef = useRef<HTMLDivElement>(null)
+
+  const autoTags = useMemo(
+    () => getBuildAutoTags(draft, { professions, specializationsById }),
+    [draft, professions, specializationsById]
+  )
+  const tagSuggestions = useMemo(() => [...new Set(builds.flatMap((b) => b.tags))].sort(), [builds])
 
   const equippedSpecializationIds = useMemo(
     () =>
@@ -173,6 +183,15 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
         </button>
         <ScreenshotButton targetRef={columnsRef} />
         <SharePanel kind="build" getData={() => draft} />
+      </div>
+
+      <div className="editor-tags-row">
+        <TagInput
+          tags={draft.tags}
+          onChange={(tags) => setDraft({ ...draft, tags })}
+          suggestions={tagSuggestions}
+          autoTags={autoTags}
+        />
       </div>
 
       <div className="build-editor-columns" ref={columnsRef}>

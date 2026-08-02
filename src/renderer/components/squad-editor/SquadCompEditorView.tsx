@@ -2,9 +2,10 @@ import { useMemo, useRef, useState } from 'react'
 import type { Build, GhostPick, PartySlots, SquadComp, SquadSlot } from '@shared/types'
 import type { SquadCompSharePayload } from '@shared/share/types'
 import { useBuildsStore } from '@renderer/state/builds-store'
-import { makeBlankParty } from '@renderer/state/squad-comps-store'
+import { makeBlankParty, useSquadCompsStore } from '@renderer/state/squad-comps-store'
 import { SharePanel } from '@renderer/components/common/SharePanel'
 import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
+import { TagInput } from '@renderer/components/common/TagInput'
 import { BuildsSidebar } from './BuildsSidebar'
 import { PartyRow } from './PartyRow'
 import type { BuildDragPayload } from './drag-payload'
@@ -23,8 +24,10 @@ export function SquadCompEditorView({ squadComp, isNew, onSave, onCancel }: Prop
   const [draft, setDraft] = useState<SquadComp>(squadComp)
   const [saving, setSaving] = useState(false)
   const { builds } = useBuildsStore()
+  const { squadComps } = useSquadCompsStore()
   const buildsById = useMemo(() => new Map(builds.map((b) => [b.id, b])), [builds])
   const bodyRef = useRef<HTMLDivElement>(null)
+  const tagSuggestions = useMemo(() => [...new Set(squadComps.flatMap((s) => s.tags))].sort(), [squadComps])
 
   /** Bundles every build referenced by the current roster into the share payload as a full
    *  standalone snapshot (not bare `buildId`s, which only resolve in this user's own local
@@ -129,6 +132,10 @@ export function SquadCompEditorView({ squadComp, isNew, onSave, onCancel }: Prop
         </button>
         <ScreenshotButton targetRef={bodyRef} />
         <SharePanel kind="squadComp" getData={buildSharePayload} />
+      </div>
+
+      <div className="editor-tags-row">
+        <TagInput tags={draft.tags} onChange={(tags) => setDraft({ ...draft, tags })} suggestions={tagSuggestions} />
       </div>
 
       <div className="squad-editor-body" ref={bodyRef}>

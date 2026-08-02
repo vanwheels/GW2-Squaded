@@ -44,6 +44,12 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       - Detecting a patch either way likely means fetching GW2 API's `/v2/build` endpoint (a single
         integer) on launch and comparing to a stored last-known value — that part is small and
         needed regardless of which option is chosen.
+- [ ] Stretch, deferred 2026-08-01: frame a build's "last updated" (now shown plainly as a relative
+      timestamp on its card, see COMPLETED.md) relative to GW2 balance patches instead — e.g. "not
+      reviewed since the last patch" — rather than just "3 days ago". Blocked on the same
+      patch-build-number detection the item above needs (`/v2/build` polling + a stored
+      last-known-build value don't exist yet); revisit once that mechanism is decided rather than
+      building a second, parallel patch-tracking path here.
 
 ## Stats panel / boon-condition bar polish
 
@@ -138,25 +144,6 @@ it alongside.
 Feedback list from the user; scoped below with concrete implementation approach and open decisions.
 Nothing here is implemented yet.
 
-### Tags + filter/search (Builds, Squads, and the squad editor's build picker)
-Decided 2026-08-01: tags, not folders — flat, multiple tags per item, filter by tag combination
-(no hierarchy).
-- **Schema**: add `tags: string[]` to `Build` (`src/shared/types/build.ts`) and `SquadComp`
-  (`src/shared/types/squad-comp.ts`). No storage migration needed — `JsonBlobRepository`
-  (`src/main/storage/json-blob-repository.ts`) stores each record as an opaque JSON blob keyed by
-  id (see `schema.ts`: `data TEXT`), so existing records simply lack the key; read path needs a
-  `tags: record.tags ?? []` backfill default (in the stores or a shared normalizer) rather than a
-  DB migration.
-- **UI**: a tag-input control on `BuildEditorView`/`SquadCompEditorView` (create/edit existing
-  tags or type a new one — needs a small "all tags in use" autocomplete sourced from
-  `builds`/`squadComps` in the respective store). `BuildsView`/`SquadsView` get a search text input
-  (matches name, case-insensitive substring) plus a tag-filter chip row (multi-select, AND or OR
-  across selected tags — pick AND, matches typical tag-filter UX, unless real usage shows OR is
-  wanted).
-- **`BuildsSidebar.tsx`** (the squad editor's drag-source build list) needs the same search+tag
-  filter row added above its `<ul>`, reusing whatever filter-state hook/component the Builds tab
-  gets rather than duplicating the logic.
-
 ### Gear Optimizer (net new feature)
 Correction to the 2026-08-01 feedback note: the GW2 stat formulas are **not** missing research —
 `src/shared/gear-calc/attribute-totals.ts` already implements itemstat-combo → attribute-point math
@@ -195,7 +182,10 @@ problem over already-known math, not a formula-research problem.
 
 - [ ] "Favorites" pin for frequently-used builds in the squad editor's build sidebar; the
       build-picker option's description only shows the profession name today, not a fuller
-      spec/gear summary.
+      spec/gear summary. Partially addressed 2026-08-01 by manual drag-to-reorder on the Builds
+      view (`BuildsView.tsx`, `Build.order` — the sidebar now follows that same order), but that's
+      a full custom ordering the user arranges by hand, not a lightweight "pin to top" independent
+      of it — still a distinct nice-to-have if wanted.
 - [ ] "Favorites" marker for food/utility consumables, to pin preferred choices to the top of the
       selection list (currently the full unfiltered catalog, by design).
 - [ ] Settings toggle for underwater weapons/skills, defaulted **off**. Noted 2026-07-31 (UI polish
