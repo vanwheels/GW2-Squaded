@@ -4,16 +4,48 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
-- [ ] Discord bot (client of the backend API) — unblocked now that the thin backend is live at
-      https://gw2-squaded-share.vanwheelstheman.workers.dev.
-- [ ] Capacitor port for iOS/Android (swap storage adapter + native bindings only).
+- [ ] Discord bot (client of the backend API) — scoped 2026-08-01: the worker
+      (`worker/src/index.ts`) is currently just an anonymous KV blob store with 2 endpoints —
+      `POST /shares` (create) and `GET /shares/:id` (fetch by random id). There is **no** user-
+      account concept and **no** "list a user's builds/squads" endpoint, so a bot can only do
+      "given a share link/id, post an embed of that build/squad" today — it cannot browse or
+      manage anyone's saved library. Real scoping blocked on: what should the bot actually do
+      (post-a-share-as-embed only, vs. a fuller command set that would need new
+      auth+listing endpoints on the worker, a bigger lift than the bot itself)? Needs a follow-up
+      conversation on desired bot commands before this can be sized.
+- [ ] Capacitor port for iOS/Android — scoped 2026-08-01: the seam is real but two-part, not just
+      "swap storage adapter." (1) `StorageAdapter`/`Repository<T>` (`src/shared/storage/
+      storage-interface.ts`) is already backend-agnostic — a Capacitor build needs a new
+      implementation (e.g. `@capacitor-community/sqlite` or Preferences) satisfying the same
+      interface, replacing `sqlite-storage.ts`. (2) The renderer never calls that interface
+      directly — it goes through the Electron-only preload bridge (`window.gw2Storage`, wired in
+      `src/preload/index.ts` + `src/main/ipc/storage-ipc.ts`), which has no Capacitor equivalent;
+      a Capacitor build would call its storage plugin directly from the renderer instead of over
+      IPC, so `window.gw2Storage`'s call sites need a platform-neutral seam (or a Capacitor-side
+      shim that mimics the same shape) rather than assuming Electron IPC always exists.
   - Native HTML5 drag-and-drop (squad editor) has no touch-input equivalent yet — needs a touch
     fallback if/when this lands.
 - [ ] "Not affiliated with ArenaNet/NCSOFT" disclaimer if bundling official GW2 icon assets.
       Decided 2026-07-31: footer/about screen, small persistent text line.
 - [ ] Automatic game-data refresh mechanism (balance patches) — manual refresh only for now.
       Decided 2026-07-31: check for updates on app launch, prompt the user to refresh (not a silent
-      scheduled background refresh) — user stays in control of when the fetch runs.
+      scheduled background refresh) — user stays in control of when the fetch runs. Scoped
+      2026-08-01, mechanism still undecided (needs a follow-up decision before implementing):
+      `data/game-data/meta.json` currently only records `fetchedAt`, not a GW2 API build/version
+      number, so "is there a new patch" isn't even detectable yet under either option below.
+      - **Option A — live re-scrape in-app**: bundle the existing fetch/scrape pipeline
+        (`scripts/fetch-*.ts`, currently dev-only Node/tsx scripts hitting the GW2 API + wiki) into
+        the packaged app so it can re-pull data on demand. Bigger lift: those scripts assume a dev
+        Node environment and write straight to `data/game-data/*.json` in the repo, not a
+        packaged app's writable user-data directory, and wiki-scraping from a shipped consumer app
+        is fragile (layout changes break it with no one watching).
+      - **Option B — piggyback on the auto-updater**: "new data available" just means "new app
+        version available" — reuse the Settings-tab update flow already shipped
+        (`src/main/updater/auto-updater.ts`). Data only changes via a new release; no in-app
+        scraping. Simpler, but means a data-only fix still requires a full version bump/release.
+      - Detecting a patch either way likely means fetching GW2 API's `/v2/build` endpoint (a single
+        integer) on launch and comparing to a stored last-known value — that part is small and
+        needed regardless of which option is chosen.
 
 ## Stats panel / boon-condition bar polish
 
@@ -103,22 +135,72 @@ it alongside.
       in the skill picker category grouping — should be associated with/grouped near Summon Flesh
       Wurm instead.
 
-## Feature feedback pass (2026-08-01)
+## Feature feedback pass (2026-08-01) — scoped 2026-08-01
 
-Feedback list from the user, not yet implemented — captured here for a future session.
+Feedback list from the user; scoped below with concrete implementation approach and open decisions.
+Nothing here is implemented yet.
 
-- [ ] Builds tab: build cards currently take the full page width; make them smaller/more compact so
-      more fit on screen at once.
-- [ ] Builds tab: add filter, search, and folders for organizing builds.
-- [ ] Squads tab: add filter, search, and folders for organizing squad comps (same ask as Builds).
-- [ ] Squads tab: the build picker/"saved builds" panel in the squad editor (`BuildsSidebar.tsx`)
-      also needs its own filter/search and folder view, not just the top-level Builds/Squads lists.
-- [ ] New "Gear Optimizer" feature (net new, no existing page/component yet): pick a profession,
-      input target minimum (>=) values for stats (e.g. Power, Precision, Ferocity, Boon Duration),
-      and auto-generate an optimized gear loadout (weapons/armor/trinkets — stat combos, runes/
-      sigils) that hits the desired stat floors. User still needs to find/confirm the specific GW2
-      stat formulas (base attributes, itemstat combo math, rune/sigil bonuses) before this is
-      buildable — blocked on that research, not yet scoped further.
+### Compact Builds/Squads cards
+`BuildsView.tsx`/`SquadsView.tsx` render each record as a `<li>` in `.record-list`
+(`display: flex; flex-direction: column`, one full-width row per record — confirmed in
+`global.css`). Convert to a responsive card grid (`display: grid; grid-template-columns:
+repeat(auto-fill, minmax(...))`) of smaller cards, similar in spirit to `BuildsSidebar.tsx`'s
+existing compact `.builds-sidebar-card` (profession icon + name). Open question not yet resolved:
+how much per-card detail beyond name/profession (e.g. elite spec icon, gear preview) — default to
+matching the sidebar card's minimal info unless told otherwise.
+
+### Tags + filter/search (Builds, Squads, and the squad editor's build picker)
+Decided 2026-08-01: tags, not folders — flat, multiple tags per item, filter by tag combination
+(no hierarchy).
+- **Schema**: add `tags: string[]` to `Build` (`src/shared/types/build.ts`) and `SquadComp`
+  (`src/shared/types/squad-comp.ts`). No storage migration needed — `JsonBlobRepository`
+  (`src/main/storage/json-blob-repository.ts`) stores each record as an opaque JSON blob keyed by
+  id (see `schema.ts`: `data TEXT`), so existing records simply lack the key; read path needs a
+  `tags: record.tags ?? []` backfill default (in the stores or a shared normalizer) rather than a
+  DB migration.
+- **UI**: a tag-input control on `BuildEditorView`/`SquadCompEditorView` (create/edit existing
+  tags or type a new one — needs a small "all tags in use" autocomplete sourced from
+  `builds`/`squadComps` in the respective store). `BuildsView`/`SquadsView` get a search text input
+  (matches name, case-insensitive substring) plus a tag-filter chip row (multi-select, AND or OR
+  across selected tags — pick AND, matches typical tag-filter UX, unless real usage shows OR is
+  wanted).
+- **`BuildsSidebar.tsx`** (the squad editor's drag-source build list) needs the same search+tag
+  filter row added above its `<ul>`, reusing whatever filter-state hook/component the Builds tab
+  gets rather than duplicating the logic.
+
+### Gear Optimizer (net new feature)
+Correction to the 2026-08-01 feedback note: the GW2 stat formulas are **not** missing research —
+`src/shared/gear-calc/attribute-totals.ts` already implements itemstat-combo → attribute-point math
+(`attribute_adjustment * multiplier + value`, per-slot budgets in `ATTRIBUTE_ADJUSTMENT`) and
+`derived-stats.ts` converts points → derived percentages. This is a **search/optimization**
+problem over already-known math, not a formula-research problem.
+- **Inputs**: profession (`ProfessionId`) + a set of stat floors (e.g. `BoonDuration >= 900pts`,
+  i.e. 60%) chosen from the 9 core attributes in `ALL_CORE_ATTRIBUTE_KEYS`
+  (`attribute-totals.ts`). Decided 2026-08-01: once floors are satisfiable, maximize one
+  user-chosen secondary stat with the remaining gear budget (not "fewest stat combos" or "first
+  valid combo").
+- **Search space**: per-slot choice of `ItemStat.id` (from `data/game-data/itemstats.json`, 178
+  combos total) across the 12 armor/trinket slots + 2-4 weapon slots (`EquipmentSlotKey`), plus
+  which rune (6-armor-piece rune bonuses via `addRuneBonuses`) and which relic/sigils contribute
+  flat/percent bonuses. Full combinatorial space is large per-slot-independent but each slot's
+  contribution is linear and independent given the adjustment constants, so this reduces to a
+  bounded integer/linear-programming-style search (or greedy allocation + backtracking), not
+  brute-force over every combination — needs a small `gear-optimize.ts` module in
+  `src/shared/gear-calc/` alongside the existing calc code.
+- **Open decision, not yet resolved**: whether to search the full 178-combo `itemstats.json` list
+  or a curated "actually obtainable in current GW2" subset (~20-30 real meta combos — Berserker's/
+  Viper's/Diviner's/Minstrel's/etc.). The raw dataset has no "is this obtainable/current" flag, so
+  the full-dataset option risks suggesting legacy/unobtainable stat combos (e.g. old PvP-only
+  combos). Recommend curating a short allowlist before building the search, but this needs a
+  confirmation pass (spot-check a handful of combos against the current in-game vendor/crafting
+  list) rather than guessing which of the 178 are current.
+- **Output**: a full `EquipmentSlot` map (itemStatId per slot, at minimum) the user can review and
+  apply to a build — likely a new "Gear Optimizer" nav view (`NavBar.tsx`/`App.tsx` gain a
+  `ViewKey`) with a "copy to build" action rather than editing a `Build` in place, so the user can
+  compare a couple of candidate outputs before committing.
+- **Out of scope for a first pass** (revisit if requested): factoring in rune/sigil/relic choice
+  into the search itself (treat those as fixed inputs the user already picked, only optimize the
+  9 itemstat slots), and food/utility consumable stat contributions.
 
 ## Nice-to-haves
 
