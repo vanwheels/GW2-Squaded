@@ -2,6 +2,44 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 48 — Gear Optimizer rework: embedded in build editor, translated stats, lexicographic tiers
+
+Follow-up to Session 47 after the user tried it, with four pieces of feedback:
+
+- **Moved into the build editor** (`GearOptimizerPanel.tsx`, a collapsible section inside
+  `BuildEditorView.tsx`), not a separate nav tab — `GearOptimizerView.tsx`/the `'optimizer'`
+  `ViewKey` are gone. Operates directly on the build being edited (no build picker needed), and
+  reuses the editor's existing `combatState` (the Stats panel's Fury/Might toggles) instead of a
+  duplicate `CombatStatePanel` instance, so both stay in sync. "Apply" only patches the in-memory
+  draft via a callback — it never saves on its own, same as every other editor sub-panel.
+- **Metric set changed to translated stats**: Magic Find removed entirely (no gear-legal source,
+  so it could never be a real search variable), and raw Vitality/Toughness/Precision/Ferocity
+  replaced with their derived Health/Armor/Critical Chance/Critical Damage equivalents — nobody
+  thinks in raw Precision, they think in Critical Chance %. `derived-stats.ts` gained a few new
+  exports (`fullArmorDefense`, `BASE_HEALTH_BY_PROFESSION`, etc.) so `gear-optimize.ts` could reuse
+  the exact same formulas rather than re-deriving them.
+- **Up to 3 ordered "maximize" tiers** instead of one target — lexicographic, not a weighted
+  blend: tier 2 can never trade away any of tier 1's achieved value to improve itself. Implemented
+  by solving tier 1 normally, then re-solving with tier 1's exact achieved value pinned in as an
+  additional floor before tier 2 runs, and so on.
+- **Search-quality bug**: multi-attribute stat prefixes (e.g. Minstrel's
+  Healing/Toughness/Vitality/Concentration) were being systematically passed over even when
+  clearly optimal for several simultaneous floors. Root cause was the greedy warm start scoring
+  options against whichever single floor had the largest absolute gap, in isolation — a combo
+  strong across 4 floors at once always lost to a combo that maxes out just one. Rewrote it to
+  score every option by *combined* proportional progress across all unmet floors at once (each
+  floor's credit capped at 1), and applied the same scoring to branch-and-bound's per-node option
+  ordering (previously pure target-first, which could spend the entire node budget chasing the
+  target while never finding a single feasible leaf when the target metric didn't itself help the
+  floors). Also found and fixed a real perf regression introduced mid-session: option dedup had
+  briefly moved to the full 9-metric space "for simplicity" ahead of the tiers work, which barely
+  dedupes anything in practice and blew the search space up enough to truncate even single-floor
+  cases; reverted to deduping only over the metrics actually in play (every floor ∪ every tier,
+  fixed before any tier starts solving). Verified with a throwaway script: found the true
+  infeasibility boundary on a 4-simultaneous-floor case (a floor 95pts above the actual achievable
+  max correctly reported infeasible; lowering it 1 unit inside the boundary found a solution in
+  ms), confirming both correctness and that NODE_LIMIT (raised 200k → 500k) has real headroom.
+
 ## Session 47 — Gear Optimizer
 
 Implemented the net-new Gear Optimizer feature scoped in TODO.md, with the scope widened per

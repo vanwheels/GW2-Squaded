@@ -37,14 +37,14 @@ export const PRECISION_PER_CRITICAL_CHANCE_PERCENT = 21
 
 // wiki.guildwars2.com/wiki/Ferocity: "every 15 points of ferocity adds 1% to critical damage",
 // base critical damage (0 bonus Ferocity) is 150% per wiki.guildwars2.com/wiki/Critical_hit.
-const BASE_CRITICAL_DAMAGE_PERCENT = 150
-const FEROCITY_PER_CRITICAL_DAMAGE_PERCENT = 15
+export const BASE_CRITICAL_DAMAGE_PERCENT = 150
+export const FEROCITY_PER_CRITICAL_DAMAGE_PERCENT = 15
 
 // wiki.guildwars2.com/wiki/Health: base health at level 80 (before Vitality), by profession
 // tier — confirmed live against this app's own Revenant example (5,922 + 1000*10 = 15,922,
 // matching a reference screenshot's baseline Health value, see TODO.md).
-const HEALTH_PER_VITALITY = 10
-const BASE_HEALTH_BY_PROFESSION: Record<ProfessionId, number> = {
+export const HEALTH_PER_VITALITY = 10
+export const BASE_HEALTH_BY_PROFESSION: Record<ProfessionId, number> = {
   Warrior: 9212,
   Necromancer: 9212,
   Revenant: 5922,
@@ -56,13 +56,13 @@ const BASE_HEALTH_BY_PROFESSION: Record<ProfessionId, number> = {
   Elementalist: 1645
 }
 
-type ArmorWeightClass = 'Light' | 'Medium' | 'Heavy'
+export type ArmorWeightClass = 'Light' | 'Medium' | 'Heavy'
 
 // wiki.guildwars2.com/wiki/Profession: "scholars wear light armor, adventurers wear medium
 // armor, and soldiers wear heavy armor" (Scholars: Elementalist/Mesmer/Necromancer; Adventurers:
 // Engineer/Ranger/Thief; Soldiers: Guardian/Revenant/Warrior) — a fixed profession-design rule,
 // not a balance number, so not expected to drift between patches.
-const WEIGHT_CLASS_BY_PROFESSION: Record<ProfessionId, ArmorWeightClass> = {
+export const WEIGHT_CLASS_BY_PROFESSION: Record<ProfessionId, ArmorWeightClass> = {
   Guardian: 'Heavy',
   Revenant: 'Heavy',
   Warrior: 'Heavy',
@@ -97,6 +97,15 @@ function armorDefenseTotal(build: Build, weightClass: ArmorWeightClass): number 
     if (build.equipment[slotKey]?.itemStatId != null) total += perPiece[slotKey] ?? 0
   }
   return total
+}
+
+/** Every armor slot's Defense rating summed unconditionally (not gated on `itemStatId !== null`
+ *  like `armorDefenseTotal` above) — for the Gear Optimizer (`gear-optimize.ts`), which always
+ *  assigns every one of the 6 armor slots a stat combo by construction, so by the time a result
+ *  exists Defense is already at this fixed total regardless of which specific combos were chosen. */
+export function fullArmorDefense(weightClass: ArmorWeightClass): number {
+  const perPiece = ARMOR_PIECE_DEFENSE[weightClass]
+  return RUNE_SLOT_KEYS.reduce((sum, slotKey) => sum + (perPiece[slotKey] ?? 0), 0)
 }
 
 /** Raw (non-percentage) attribute totals for the stats panel's left column — base character

@@ -23,6 +23,7 @@ import { SkillsEditor } from './SkillsEditor'
 import { EquipmentEditor } from './EquipmentEditor'
 import { StatsPanel } from './StatsPanel'
 import { BoonConditionSummaryPanel } from './BoonConditionSummaryPanel'
+import { GearOptimizerPanel } from './GearOptimizerPanel'
 
 interface Props {
   build: Build
@@ -234,6 +235,14 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
             />
           </div>
         </div>
+      </div>
+
+      <div className="build-editor-optimizer-row">
+        <GearOptimizerPanel
+          build={draft}
+          combatState={combatState}
+          onApply={(patch) => setDraft({ ...draft, ...patch })}
+        />
       </div>
     </section>
   )

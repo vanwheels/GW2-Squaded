@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { NavBar, type ViewKey } from '@renderer/components/NavBar'
 import { BuildsView } from '@renderer/views/BuildsView'
 import { SquadsView } from '@renderer/views/SquadsView'
-import { GearOptimizerView } from '@renderer/views/GearOptimizerView'
 import { SettingsView } from '@renderer/views/SettingsView'
 import { BuildsStoreProvider } from '@renderer/state/builds-store'
 import { SquadCompsStoreProvider } from '@renderer/state/squad-comps-store'
@@ -21,7 +20,6 @@ export function App() {
             <PickerRegistryProvider>
               {activeView === 'builds' && <BuildsView />}
               {activeView === 'squads' && <SquadsView />}
-              {activeView === 'optimizer' && <GearOptimizerView />}
               {activeView === 'settings' && <SettingsView />}
             </PickerRegistryProvider>
           </main>

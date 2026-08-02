@@ -7,36 +7,43 @@ import {
   computeGearAttributeTotals,
   emptyTotals,
   isActiveWeaponSlot,
-  magicFindPercent,
   SLOT_ADJUSTMENT_KEY,
   statComboContribution,
   type AdjustmentKey,
   type AttributeTotals
 } from './attribute-totals'
-import { BASE_ATTRIBUTES, BASE_CRITICAL_CHANCE_PERCENT, PRECISION_PER_CRITICAL_CHANCE_PERCENT } from './derived-stats'
+import {
+  BASE_ATTRIBUTES,
+  BASE_CRITICAL_CHANCE_PERCENT,
+  BASE_CRITICAL_DAMAGE_PERCENT,
+  BASE_HEALTH_BY_PROFESSION,
+  FEROCITY_PER_CRITICAL_DAMAGE_PERCENT,
+  fullArmorDefense,
+  HEALTH_PER_VITALITY,
+  PRECISION_PER_CRITICAL_CHANCE_PERCENT,
+  WEIGHT_CLASS_BY_PROFESSION
+} from './derived-stats'
 import { combatStatePoints, furyCritChanceTraitBonus, FURY_CRITICAL_CHANCE_PERCENT, type CombatState } from './combat-state'
 import { formatItemStatName } from './format-description'
 
 /**
- * The 11 stat metrics the Gear Optimizer can be given as a floor and/or a maximize target. The 7
- * point-based ids match `AttributeTotals.points` keys directly (see `metricDelta`/`evaluateMetric`
- * below); the 4 percent-based ids are derived values with no raw-point equivalent worth exposing
- * (Magic Find has no raw-point form at all; Boon/Condition Duration and Critical Chance all mix a
- * raw-point term with a flat bonus — food/utility/Fury — that a raw-points floor would silently
- * ignore). Entered/displayed in the same unit `StatsPanel` already shows each in.
+ * The 9 stat metrics the Gear Optimizer can be given as a floor and/or a maximize-priority tier.
+ * All entered/displayed in the same unit `StatsPanel` shows each in — translated stats (Health,
+ * Armor, Critical Chance, Critical Damage) rather than their raw attribute (Vitality, Toughness,
+ * Precision, Ferocity), per user direction: nobody thinks in raw Precision, they think in Critical
+ * Chance %. Magic Find is deliberately not offered — it has no gear-legal source at all (only
+ * runes/food/utility, all fixed inputs to this search), so it can never be a search variable here.
  */
 export type OptimizerMetricId =
   | 'Power'
-  | 'Precision'
-  | 'Toughness'
-  | 'Vitality'
-  | 'CritDamage'
+  | 'Health'
+  | 'Armor'
+  | 'CriticalChancePercent'
+  | 'CriticalDamagePercent'
   | 'Healing'
   | 'ConditionDamage'
   | 'BoonDurationPercent'
   | 'ConditionDurationPercent'
-  | 'MagicFindPercent'
-  | 'CriticalChancePercent'
 
 export interface OptimizerMetric {
   id: OptimizerMetricId
@@ -46,35 +53,44 @@ export interface OptimizerMetric {
 
 export const OPTIMIZER_METRICS: OptimizerMetric[] = [
   { id: 'Power', label: 'Power', unit: 'points' },
-  { id: 'Precision', label: 'Precision', unit: 'points' },
-  { id: 'Toughness', label: 'Toughness', unit: 'points' },
-  { id: 'Vitality', label: 'Vitality', unit: 'points' },
-  { id: 'CritDamage', label: 'Ferocity', unit: 'points' },
+  { id: 'Health', label: 'Health', unit: 'points' },
+  { id: 'Armor', label: 'Armor', unit: 'points' },
+  { id: 'CriticalChancePercent', label: 'Critical Chance', unit: 'percent' },
+  { id: 'CriticalDamagePercent', label: 'Critical Damage', unit: 'percent' },
   { id: 'Healing', label: 'Healing Power', unit: 'points' },
   { id: 'ConditionDamage', label: 'Condition Damage', unit: 'points' },
   { id: 'BoonDurationPercent', label: 'Boon Duration', unit: 'percent' },
-  { id: 'ConditionDurationPercent', label: 'Condition Duration', unit: 'percent' },
-  { id: 'MagicFindPercent', label: 'Magic Find', unit: 'percent' },
-  { id: 'CriticalChancePercent', label: 'Critical Chance', unit: 'percent' }
+  { id: 'ConditionDurationPercent', label: 'Condition Duration', unit: 'percent' }
 ]
 
+const METRIC_IDS: OptimizerMetricId[] = OPTIMIZER_METRICS.map((m) => m.id)
+
+interface MetricContext {
+  furyFlatCritBonus: number
+  baseHealth: number
+  defense: number
+}
+
 /**
- * A metric's value purely from a *delta* (no baseline/base-attribute offset) — used during search
- * to score candidate slot choices against each other. Boon/Condition Duration and Magic Find have
- * no baseline offset at all (base value 0), so their normal derived-value functions already double
- * as their delta form; Critical Chance's baseline offset (base 5% + Fury) is stripped out here,
- * leaving just the Precision-per-21 term.
+ * A metric's value purely from a *delta* (no baseline/base-attribute or profession-constant
+ * offset) — used during search to score candidate slot choices against each other. Health/Armor's
+ * constant part (base health, Defense) doesn't vary with which stat combo is chosen, so it's
+ * folded into `evaluateMetric`'s baseline instead of here.
  */
 function metricDelta(id: OptimizerMetricId, delta: AttributeTotals): number {
   switch (id) {
+    case 'Health':
+      return (delta.points.Vitality ?? 0) * HEALTH_PER_VITALITY
+    case 'Armor':
+      return delta.points.Toughness ?? 0
     case 'BoonDurationPercent':
       return boonDurationPercent(delta)
     case 'ConditionDurationPercent':
       return conditionDurationPercent(delta)
-    case 'MagicFindPercent':
-      return magicFindPercent(delta)
     case 'CriticalChancePercent':
       return (delta.points.Precision ?? 0) / PRECISION_PER_CRITICAL_CHANCE_PERCENT
+    case 'CriticalDamagePercent':
+      return (delta.points.CritDamage ?? 0) / FEROCITY_PER_CRITICAL_DAMAGE_PERCENT
     default:
       return delta.points[id] ?? 0
   }
@@ -82,15 +98,23 @@ function metricDelta(id: OptimizerMetricId, delta: AttributeTotals): number {
 
 /** A metric's real, final value against full accumulated totals (baseline + every chosen delta) —
  *  matches exactly what `computeCharacterStats`/`StatsPanel` would show for the resulting build. */
-function evaluateMetric(id: OptimizerMetricId, totals: AttributeTotals, furyFlatCritBonus: number): number {
-  if (id === 'CriticalChancePercent') {
-    return (
-      BASE_CRITICAL_CHANCE_PERCENT +
-      ((totals.points.Precision ?? 0) - 1000) / PRECISION_PER_CRITICAL_CHANCE_PERCENT +
-      furyFlatCritBonus
-    )
+function evaluateMetric(id: OptimizerMetricId, totals: AttributeTotals, ctx: MetricContext): number {
+  switch (id) {
+    case 'Health':
+      return ctx.baseHealth + (totals.points.Vitality ?? 0) * HEALTH_PER_VITALITY
+    case 'Armor':
+      return ctx.defense + (totals.points.Toughness ?? 0)
+    case 'CriticalChancePercent':
+      return (
+        BASE_CRITICAL_CHANCE_PERCENT +
+        ((totals.points.Precision ?? 0) - 1000) / PRECISION_PER_CRITICAL_CHANCE_PERCENT +
+        ctx.furyFlatCritBonus
+      )
+    case 'CriticalDamagePercent':
+      return BASE_CRITICAL_DAMAGE_PERCENT + (totals.points.CritDamage ?? 0) / FEROCITY_PER_CRITICAL_DAMAGE_PERCENT
+    default:
+      return metricDelta(id, totals)
   }
-  return metricDelta(id, totals)
 }
 
 function deltaSignature(delta: AttributeTotals, relevant: OptimizerMetricId[]): string {
@@ -101,10 +125,9 @@ interface SearchOption {
   /** `ItemStat.id`, `Consumable.id`, or `null` for a food/utility slot's "none" option. */
   id: number | null
   label: string
-  delta: AttributeTotals
-  /** Precomputed `metricDelta` per entry of `relevant` (same order), so the solver never has to
-   *  re-derive a metric value from `delta` while searching. */
-  relevantDeltas: number[]
+  /** Precomputed `metricDelta` per entry of the run's `relevant` metric list (same order), so the
+   *  solver never has to re-derive a metric value from a raw `AttributeTotals` while searching. */
+  deltas: number[]
 }
 
 export interface OptimizerSlot {
@@ -134,9 +157,15 @@ const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
   { key: 'amulet', label: 'Amulet' }
 ]
 
-/** One legal stat-combo option per unique (relevant-metric) delta shape for a given slot
- *  category+adjustment tier — collapses the ~40 legal ids per category down to a handful of
- *  distinct "shapes" before the solver ever sees them. */
+/** One legal stat-combo option per unique delta shape (over the run's `relevant` metrics only —
+ *  see `optimizeGear`) for a given slot category+adjustment tier — collapses the ~40 legal ids per
+ *  category down to a handful of distinct "shapes" before the solver ever sees them. Deliberately
+ *  NOT deduped over the full 9-metric space: that sounds more precise but in practice barely
+ *  dedupes anything (most combos differ on *some* untracked attribute), which multiplies the
+ *  search's branching factor and was measured to blow well past the node budget even for a single
+ *  floor. Restricting to metrics actually in play (floors ∪ every maximize tier, fixed for the
+ *  whole multi-tier run before any solving starts) keeps options-per-slot small without losing any
+ *  precision that could actually affect the result. */
 function statOptionsFor(itemStats: ItemStat[], legalIds: Set<number>, adjustmentKey: AdjustmentKey, relevant: OptimizerMetricId[]): SearchOption[] {
   const seen = new Map<string, SearchOption>()
   for (const stat of itemStats) {
@@ -144,20 +173,20 @@ function statOptionsFor(itemStats: ItemStat[], legalIds: Set<number>, adjustment
     const delta = statComboContribution(stat, adjustmentKey)
     const sig = deltaSignature(delta, relevant)
     if (seen.has(sig)) continue
-    seen.set(sig, { id: stat.id, label: formatItemStatName(stat.name), delta, relevantDeltas: relevant.map((id) => metricDelta(id, delta)) })
+    seen.set(sig, { id: stat.id, label: formatItemStatName(stat.name), deltas: relevant.map((id) => metricDelta(id, delta)) })
   }
   return [...seen.values()]
 }
 
 function consumableOptionsFor(catalog: Consumable[], relevant: OptimizerMetricId[]): SearchOption[] {
   const seen = new Map<string, SearchOption>()
-  seen.set('none', { id: null, label: 'None', delta: emptyTotals(), relevantDeltas: relevant.map(() => 0) })
+  seen.set('none', { id: null, label: 'None', deltas: relevant.map(() => 0) })
   for (const item of catalog) {
     const delta = emptyTotals()
     for (const bonus of item.bonuses) addBonus(delta, bonus)
     const sig = deltaSignature(delta, relevant)
     if (seen.has(sig)) continue
-    seen.set(sig, { id: item.id, label: item.name, delta, relevantDeltas: relevant.map((id) => metricDelta(id, delta)) })
+    seen.set(sig, { id: item.id, label: item.name, deltas: relevant.map((id) => metricDelta(id, delta)) })
   }
   return [...seen.values()]
 }
@@ -166,7 +195,13 @@ function consumableOptionsFor(catalog: Consumable[], relevant: OptimizerMetricId
  *  "only the currently-active set contributes" rule, so the optimizer only touches slots that
  *  actually affect the totals it's constraining. The inactive set's `itemStatId` is left untouched
  *  in the result. */
-function buildWeaponSlots(build: Build, gameData: Pick<GameData, 'professions'>, relevant: OptimizerMetricId[], legalArmorWeapon: Set<number>, itemStats: ItemStat[]): OptimizerSlot[] {
+function buildWeaponSlots(
+  build: Build,
+  gameData: Pick<GameData, 'professions'>,
+  legalArmorWeapon: Set<number>,
+  itemStats: ItemStat[],
+  relevant: OptimizerMetricId[]
+): OptimizerSlot[] {
   const profession = gameData.professions.find((p) => p.id === build.profession)
 
   function isTwoHanded(weaponType: string | null | undefined): boolean {
@@ -226,7 +261,13 @@ export interface OptimizerInput {
   gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'professions' | 'infusions' | 'runes' | 'food' | 'utility' | 'traits'>
   combatState: CombatState
   floors: OptimizerFloor[]
-  target: OptimizerMetricId
+  /**
+   * 1-3 metrics, in priority order: the search first maximizes `targets[0]`, then — among every
+   * assignment that ties its best-possible `targets[0]` value — maximizes `targets[1]`, and so on.
+   * This is lexicographic, not a weighted blend: a lower-priority tier can never trade away any of
+   * a higher-priority tier's achieved value to improve itself.
+   */
+  targets: OptimizerMetricId[]
   /** When true, food and utility choice are search variables too (in addition to gear); when
    *  false, the build's current food/utility (if any) are treated as fixed inputs, same as
    *  runes/sigils/relic. */
@@ -242,8 +283,8 @@ export interface OptimizerSlotResult {
 
 export interface OptimizerResult {
   feasible: boolean
-  /** True if the node budget was exhausted before the search could prove optimality — `slots`
-   *  still holds the best assignment found, just not a guaranteed-optimal one. */
+  /** True if any tier's node budget was exhausted before that tier's search could prove
+   *  optimality — `slots` still holds the best assignment found, just not guaranteed-optimal. */
   truncated: boolean
   /** Populated when `feasible` is false: which floor(s) are mathematically unreachable even
    *  giving every slot its best-possible contribution to that one metric. */
@@ -251,41 +292,40 @@ export interface OptimizerResult {
   slots: OptimizerSlotResult[]
   foodId: number | null
   utilityId: number | null
-  /** Final value of every metric that was in play (every floor, plus the target), evaluated the
-   *  same way `computeCharacterStats` would. */
+  /** Final value of every metric, evaluated the same way `computeCharacterStats` would. */
   metricValues: Partial<Record<OptimizerMetricId, number>>
   /** The source build with the result's `itemStatId`s (and `foodId`/`utilityId` if
    *  `optimizeFoodUtility`) applied — ready to feed into `computeCharacterStats` for a full
-   *  preview, or to save directly via `updateBuild`. */
+   *  preview, or to merge into the build editor's draft directly. */
   build: Build
 }
 
-const NODE_LIMIT = 200_000
+const NODE_LIMIT = 500_000
+const EPS = 1e-6
 
 interface SolveOutcome {
   choice: number[]
   score: number
   truncated: boolean
-  /** Indices into `relevant` that are mathematically unreachable even giving every slot its best
-   *  possible contribution — empty unless that's exactly why this outcome has no `choice`. */
+  /** Indices into this call's `relevant` list that are mathematically unreachable even giving
+   *  every slot its best-possible contribution — empty unless that's exactly why this outcome has
+   *  no `choice`. */
   unreachable: number[]
 }
 
 /**
- * `requiredDelta[m]` is `-Infinity` for any metric with no floor (including the target, when it
- * has none) — every comparison below (`accum[m] >= requiredDelta[m]`, `best < requiredDelta[m]`)
- * is trivially satisfied against `-Infinity`, so unconstrained metrics fall out of every check for
- * free without a separate `m === targetIndex` special case. This also correctly handles the one
- * edge case that special-casing `targetIndex` would have broken: a floor set on the same metric
- * being maximized.
+ * `requiredDelta[m]` is `-Infinity` for any metric with no floor (including the current tier's
+ * target, when it has none) — every comparison below (`accum[m] >= requiredDelta[m]`) is trivially
+ * satisfied against `-Infinity`, so unconstrained metrics fall out of every check for free without
+ * a separate `m === targetIndex` special case. This also correctly handles a floor set on the same
+ * metric currently being maximized, and (see `optimizeGear`) a higher-priority tier's achieved
+ * value being pinned in as a floor for every subsequent tier.
  */
 function solve(slots: OptimizerSlot[], relevant: OptimizerMetricId[], requiredDelta: number[], targetIndex: number): SolveOutcome {
   const slotCount = slots.length
-  const EPS = 1e-6
+  const metricCount = relevant.length
 
-  const bestPerSlotPerMetric: number[][] = slots.map((slot) =>
-    relevant.map((_, m) => Math.max(...slot.options.map((o) => o.relevantDeltas[m])))
-  )
+  const bestPerSlotPerMetric: number[][] = slots.map((slot) => relevant.map((_, m) => Math.max(...slot.options.map((o) => o.deltas[m]))))
   const totalBest = relevant.map((_, m) => bestPerSlotPerMetric.reduce((sum, row) => sum + row[m], 0))
 
   // Upfront impossibility check: even with every slot independently maximized per floor metric,
@@ -295,61 +335,63 @@ function solve(slots: OptimizerSlot[], relevant: OptimizerMetricId[], requiredDe
   if (unreachable.length > 0) return { choice: [], score: -Infinity, truncated: false, unreachable }
 
   function isFeasible(accum: number[]): boolean {
-    return relevant.every((_, m) => accum[m] >= requiredDelta[m] - EPS)
+    return accum.every((v, m) => v >= requiredDelta[m] - EPS)
   }
 
-  // Greedy warm start: repeatedly close the largest outstanding floor gap using whichever
-  // remaining slot's option contributes most to it, then let every still-unassigned slot pick its
-  // own best target contribution independently (optimal once no constraints remain). Gives
-  // branch-and-bound a real incumbent to prune against from node 1 instead of starting blind.
+  // Greedy warm start: repeatedly assign whichever remaining (slot, option) makes the most
+  // combined proportional progress across every still-unmet floor at once (each floor's credit is
+  // its fraction of the remaining gap it closes, capped at 1) — not just whichever single slot is
+  // best for whichever single floor currently has the largest absolute gap. That single-floor
+  // version systematically overlooked multi-attribute stat combos (e.g. a 4-attribute prefix
+  // touching Healing/Armor/Health/Boon-Duration all at once): it looks merely "good, not best" on
+  // any one dimension in isolation, but is actually the most efficient pick once several floors
+  // are active simultaneously. Gives branch-and-bound a real, well-shaped incumbent to prune
+  // against from node 1 instead of starting blind.
   const assigned = new Array<number>(slotCount).fill(-1)
   const usedSlot = new Array<boolean>(slotCount).fill(false)
   const remainingGap = requiredDelta.slice()
 
-  function worstUnmetFloor(): number {
-    let worst = -1
-    let worstGap = EPS
-    for (let m = 0; m < relevant.length; m++) {
-      if (remainingGap[m] > worstGap) {
-        worstGap = remainingGap[m]
-        worst = m
-      }
-    }
-    return worst
+  function anyUnmetFloor(): boolean {
+    return remainingGap.some((gap) => gap > EPS)
   }
 
-  for (let floorIdx = worstUnmetFloor(); floorIdx !== -1; floorIdx = worstUnmetFloor()) {
+  while (anyUnmetFloor()) {
     let bestSlot = -1
     let bestOption = -1
-    let bestContribution = -Infinity
+    let bestScore = -Infinity
     for (let s = 0; s < slotCount; s++) {
       if (usedSlot[s]) continue
       slots[s].options.forEach((option, o) => {
-        if (option.relevantDeltas[floorIdx] > bestContribution) {
-          bestContribution = option.relevantDeltas[floorIdx]
+        let score = 0
+        for (let m = 0; m < metricCount; m++) {
+          if (remainingGap[m] <= EPS) continue
+          score += Math.max(0, Math.min(option.deltas[m], remainingGap[m])) / remainingGap[m]
+        }
+        if (score > bestScore) {
+          bestScore = score
           bestSlot = s
           bestOption = o
         }
       })
     }
-    if (bestSlot === -1) break
+    if (bestSlot === -1 || bestScore <= EPS) break
     usedSlot[bestSlot] = true
     assigned[bestSlot] = bestOption
-    for (let m = 0; m < relevant.length; m++) remainingGap[m] -= slots[bestSlot].options[bestOption].relevantDeltas[m]
+    for (let m = 0; m < metricCount; m++) remainingGap[m] -= slots[bestSlot].options[bestOption].deltas[m]
   }
   for (let s = 0; s < slotCount; s++) {
     if (usedSlot[s]) continue
     let bestOption = 0
     let bestValue = -Infinity
     slots[s].options.forEach((option, o) => {
-      if (option.relevantDeltas[targetIndex] > bestValue) {
-        bestValue = option.relevantDeltas[targetIndex]
+      if (option.deltas[targetIndex] > bestValue) {
+        bestValue = option.deltas[targetIndex]
         bestOption = o
       }
     })
     assigned[s] = bestOption
   }
-  const greedyAccum = relevant.map((_, m) => slots.reduce((sum, slot, s) => sum + slot.options[assigned[s]].relevantDeltas[m], 0))
+  const greedyAccum = relevant.map((_, m) => slots.reduce((sum, slot, s) => sum + slot.options[assigned[s]].deltas[m], 0))
 
   let best: { choice: number[]; score: number } | null = isFeasible(greedyAccum) ? { choice: assigned.slice(), score: greedyAccum[targetIndex] } : null
   let nodeCount = 0
@@ -361,21 +403,21 @@ function solve(slots: OptimizerSlot[], relevant: OptimizerMetricId[], requiredDe
     .map((_, i) => i)
     .sort((a, b) => {
       const spread = (i: number): number => {
-        const values = slots[i].options.map((o) => o.relevantDeltas[targetIndex])
+        const values = slots[i].options.map((o) => o.deltas[targetIndex])
         return Math.max(...values) - Math.min(...values)
       }
       return spread(b) - spread(a)
     })
   // Suffix best-possible-per-metric sums aligned to `order`: index i holds the sum, over
-  // order[i..], of that slot's single best contribution to each relevant metric — an admissible
-  // bound for both pruning rules below.
-  const suffixBest: number[][] = new Array(slotCount + 1).fill(null).map(() => new Array(relevant.length).fill(0))
+  // order[i..], of that slot's single best contribution to each metric — an admissible bound for
+  // both pruning rules below.
+  const suffixBest: number[][] = new Array(slotCount + 1).fill(null).map(() => new Array(metricCount).fill(0))
   for (let i = slotCount - 1; i >= 0; i--) {
     const row = bestPerSlotPerMetric[order[i]]
-    for (let m = 0; m < relevant.length; m++) suffixBest[i][m] = suffixBest[i + 1][m] + row[m]
+    for (let m = 0; m < metricCount; m++) suffixBest[i][m] = suffixBest[i + 1][m] + row[m]
   }
 
-  const accum = new Array(relevant.length).fill(0)
+  const accum = new Array(metricCount).fill(0)
   const choice = new Array<number>(slotCount).fill(-1)
 
   function dfs(depth: number): void {
@@ -393,19 +435,40 @@ function solve(slots: OptimizerSlot[], relevant: OptimizerMetricId[], requiredDe
     if (best !== null && accum[targetIndex] + suffixBest[depth][targetIndex] <= (best as { score: number }).score + EPS) return
     // Feasibility: even taking every remaining slot's best contribution to each floor, can the
     // remaining gap still close?
-    for (let m = 0; m < relevant.length; m++) {
+    for (let m = 0; m < metricCount; m++) {
       if (accum[m] + suffixBest[depth][m] < requiredDelta[m] - EPS) return
     }
 
     const slotIdx = order[depth]
     const options = slots[slotIdx].options
-    const byTargetDesc = options.map((_, i) => i).sort((a, b) => options[b].relevantDeltas[targetIndex] - options[a].relevantDeltas[targetIndex])
-    for (const optIdx of byTargetDesc) {
-      const deltas = options[optIdx].relevantDeltas
-      for (let m = 0; m < relevant.length; m++) accum[m] += deltas[m]
+
+    // Branch-order options: while any floor is still unmet by `accum` so far, try whichever
+    // option makes the most combined proportional progress toward the remaining gaps first (same
+    // scoring the greedy warm start uses) — critical while `best` is still null (no incumbent
+    // yet, so the target-bound prune above can't cut anything): pure target-first ordering would
+    // otherwise spend the whole search exploring "maximize the target" branches that starve a
+    // floor the target metric doesn't itself contribute to, and might never reach a feasible leaf
+    // before the node budget runs out. Once every floor is already satisfied by `accum`, there's
+    // nothing left to chase but the target, so fall back to target-descending as before.
+    const floorsRemain = requiredDelta.some((req, m) => req > -Infinity && accum[m] < req - EPS)
+    const scored = options.map((option, i) => {
+      if (!floorsRemain) return { i, score: option.deltas[targetIndex] }
+      let score = 0
+      for (let m = 0; m < metricCount; m++) {
+        const gap = requiredDelta[m] - accum[m]
+        if (gap <= EPS) continue
+        score += Math.max(0, Math.min(option.deltas[m], gap)) / gap
+      }
+      return { i, score }
+    })
+    scored.sort((a, b) => b.score - a.score)
+
+    for (const { i: optIdx } of scored) {
+      const deltas = options[optIdx].deltas
+      for (let m = 0; m < metricCount; m++) accum[m] += deltas[m]
       choice[slotIdx] = optIdx
       dfs(depth + 1)
-      for (let m = 0; m < relevant.length; m++) accum[m] -= deltas[m]
+      for (let m = 0; m < metricCount; m++) accum[m] -= deltas[m]
       if (truncated) return
     }
   }
@@ -418,13 +481,15 @@ function solve(slots: OptimizerSlot[], relevant: OptimizerMetricId[], requiredDe
 }
 
 export function optimizeGear(input: OptimizerInput): OptimizerResult {
-  const { build, gameData, combatState, floors, target, optimizeFoodUtility } = input
+  const { build, gameData, combatState, floors, targets, optimizeFoodUtility } = input
+  if (targets.length === 0) throw new Error('optimizeGear requires at least one maximize target')
 
-  const relevant: OptimizerMetricId[] = [...new Set([...floors.map((f) => f.metric), target])]
-  const targetIndex = relevant.indexOf(target)
+  // Every metric that can possibly matter for this run, fixed upfront (floors don't change
+  // mid-run, and every tier's target is already known before the first tier is solved) — see
+  // `statOptionsFor`'s doc comment for why this is a meaningful perf requirement, not just a
+  // tidy default.
+  const relevant: OptimizerMetricId[] = [...new Set([...floors.map((f) => f.metric), ...targets])]
 
-  // Slots being searched: every armor/trinket slot always, the active weapon set's slots if a
-  // weapon is equipped there, and food/utility only if the caller opted in.
   const legalArmorWeapon = new Set(gameData.itemStatLegalIds.armorWeapon)
   const legalTrinket = new Set(gameData.itemStatLegalIds.trinket)
 
@@ -439,7 +504,7 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
     if (!adjustmentKey) continue
     slots.push({ id: key, label, equipmentKeys: [key], options: statOptionsFor(gameData.itemStats, legalTrinket, adjustmentKey, relevant) })
   }
-  slots.push(...buildWeaponSlots(build, gameData, relevant, legalArmorWeapon, gameData.itemStats))
+  slots.push(...buildWeaponSlots(build, gameData, legalArmorWeapon, gameData.itemStats, relevant))
 
   const searchedKeys = new Set(slots.flatMap((s) => s.equipmentKeys))
 
@@ -449,10 +514,9 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
   }
 
   // Baseline: every fixed contribution (runes, infusions, current food/utility if not being
-  // searched, weapon-type-derived nothing) with every searched slot's itemStatId nulled out so it
-  // contributes nothing here — the search adds its own delta back on top. Nulling itemStatId
-  // (not the whole slot) keeps rune/infusion contributions, which are always fixed regardless of
-  // `optimizeFoodUtility`.
+  // searched) with every searched slot's itemStatId nulled out so it contributes nothing here —
+  // the search adds its own delta back on top. Nulling itemStatId (not the whole slot) keeps
+  // rune/infusion contributions, which are always fixed regardless of `optimizeFoodUtility`.
   const fixedEquipment: Partial<Record<EquipmentSlotKey, EquipmentSlot>> = { ...build.equipment }
   for (const key of searchedKeys) {
     const slot = fixedEquipment[key]
@@ -474,31 +538,53 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
   baseline.bonusPercent = { ...gearTotals.bonusPercent }
 
   const traitsById = new Map(gameData.traits.map((t: Trait) => [t.id, t]))
-  const furyFlatCritBonus = combatState.furyActive ? FURY_CRITICAL_CHANCE_PERCENT + furyCritChanceTraitBonus(build, traitsById) : 0
+  const weightClass = WEIGHT_CLASS_BY_PROFESSION[build.profession]
+  const ctx: MetricContext = {
+    furyFlatCritBonus: combatState.furyActive ? FURY_CRITICAL_CHANCE_PERCENT + furyCritChanceTraitBonus(build, traitsById) : 0,
+    baseHealth: BASE_HEALTH_BY_PROFESSION[build.profession] ?? 0,
+    defense: weightClass ? fullArmorDefense(weightClass) : 0
+  }
 
-  const baselineValues = relevant.map((id) => evaluateMetric(id, baseline, furyFlatCritBonus))
+  const baselineValues = relevant.map((id) => evaluateMetric(id, baseline, ctx))
   // No matching floor -> -Infinity, i.e. no lower bound to enforce (see `solve`'s doc comment on
-  // why that sentinel needs no special-casing elsewhere, including when the target itself has a
-  // floor set on it).
+  // why that sentinel needs no special-casing elsewhere).
   const requiredDelta = relevant.map((id, i) => {
     const floor = floors.find((f) => f.metric === id)
     return floor ? floor.value - baselineValues[i] : -Infinity
   })
 
-  const outcome = solve(slots, relevant, requiredDelta, targetIndex)
-
-  if (outcome.score === -Infinity) {
-    return {
-      feasible: false,
-      truncated: outcome.truncated,
-      infeasibleFloors: outcome.unreachable.map((m) => relevant[m]),
-      slots: [],
-      foodId: build.foodId,
-      utilityId: build.utilityId,
-      metricValues: {},
-      build
+  // Lexicographic multi-tier search: solve for `targets[0]`'s max, pin that achieved value in as
+  // an additional floor (so no later tier can trade it away), then solve for `targets[1]`'s max
+  // subject to everything so far, and so on. Each tier's `solve()` call still only branches on the
+  // *current* target — but because a higher-priority tier's exact achieved value is now a floor,
+  // a lower tier can only pick among assignments that already match it.
+  let outcome: SolveOutcome | null = null
+  let truncatedAny = false
+  for (const targetMetric of targets) {
+    const targetIndex = relevant.indexOf(targetMetric)
+    const tierOutcome = solve(slots, relevant, requiredDelta, targetIndex)
+    if (tierOutcome.score === -Infinity) {
+      if (!outcome) {
+        return {
+          feasible: false,
+          truncated: tierOutcome.truncated,
+          infeasibleFloors: tierOutcome.unreachable.map((m) => relevant[m]),
+          slots: [],
+          foodId: build.foodId,
+          utilityId: build.utilityId,
+          metricValues: {},
+          build
+        }
+      }
+      // A later tier failing (should only happen on floating-point edge cases, since the previous
+      // tier's own assignment trivially satisfies its own pin) — keep the last good tier's result.
+      break
     }
+    outcome = tierOutcome
+    truncatedAny = truncatedAny || tierOutcome.truncated
+    requiredDelta[targetIndex] = tierOutcome.score
   }
+  const finalOutcome = outcome as SolveOutcome
 
   const resultEquipment: Partial<Record<EquipmentSlotKey, EquipmentSlot>> = { ...build.equipment }
   const slotResults: OptimizerSlotResult[] = []
@@ -506,7 +592,7 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
   let utilityId = build.utilityId
 
   slots.forEach((slot, i) => {
-    const option = slot.options[outcome.choice[i]]
+    const option = slot.options[finalOutcome.choice[i]]
     if (slot.id === 'food') {
       foodId = option.id
     } else if (slot.id === 'utility') {
@@ -533,11 +619,11 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
   finalTotals.bonusPercent = { ...finalGearTotals.bonusPercent }
 
   const metricValues: Partial<Record<OptimizerMetricId, number>> = {}
-  for (const id of relevant) metricValues[id] = evaluateMetric(id, finalTotals, furyFlatCritBonus)
+  for (const id of METRIC_IDS) metricValues[id] = evaluateMetric(id, finalTotals, ctx)
 
   return {
     feasible: true,
-    truncated: outcome.truncated,
+    truncated: truncatedAny,
     infeasibleFloors: [],
     slots: slotResults,
     foodId,
