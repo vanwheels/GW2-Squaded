@@ -19,13 +19,19 @@ export interface CombatState {
   /** Only meaningful when the equipped relic has a curated entry in
    *  `CURATED_RELIC_DAMAGE_BONUSES` below. */
   relicActive: boolean
+  /** Assumed enemy armor class for the Damage tooltip row (see `damage-calc.ts`) — armor is the
+   *  *target's* stat, not this build's, so it has no other home on a single-build editor and rides
+   *  along with the other "what-if" combat inputs here. Same 3-tier convention gw2skills.net's own
+   *  WvW golem toggle uses. */
+  targetArmorClass: TargetArmorClass
 }
 
 export const DEFAULT_COMBAT_STATE: CombatState = {
   mightStacks: 0,
   furyActive: false,
   stackingSigilStacks: 0,
-  relicActive: false
+  relicActive: false,
+  targetArmorClass: 'Medium'
 }
 
 // wiki-confirmed flat value at level 80, quoted directly (not derived from a per-level formula).
@@ -33,6 +39,17 @@ export const MIGHT_POWER_PER_STACK = 34
 export const MIGHT_CONDITION_DAMAGE_PER_STACK = 34
 
 export const FURY_CRITICAL_CHANCE_PERCENT = 20
+
+export type TargetArmorClass = 'Light' | 'Medium' | 'Heavy'
+
+/** gw2skills.net's own WvW golem armor values, quoted directly per the user's spec rather than
+ *  re-derived — this app has no independent source for "typical WvW target armor" the way skill
+ *  coefficients have the wiki. */
+export const TARGET_ARMOR_VALUES: Record<TargetArmorClass, number> = {
+  Light: 2000,
+  Medium: 2200,
+  Heavy: 2681
+}
 
 const ALL_STATS = 'AllStats' as const
 

@@ -2,6 +2,58 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 55 — Damage tooltip breakdown: new "Damage" row on the Boon-Condition summary bar
+
+Second half of the Healing/Damage tooltip-breakdown TODO item (Healing landed Session 54). Scoping
+turned out bigger than Healing's: Healing only needed a wiki coefficient because the API already
+told us *which skill*; Damage needed the real GW2 damage formula too, since the app tracks Power but
+not the *target's* Armor (the other half of `Damage = weaponStrength * coefficient * Power /
+targetArmor`, confirmed via wiki.guildwars2.com/wiki/Damage's own stated formula).
+
+Three curation pieces, all wiki-sourced (fetched raw wikitext per skill, not paraphrased, same rigor
+as `CURATED_RELIC_DAMAGE_BONUSES`/`CURATED_HEALING_COEFFICIENTS`):
+
+- **Per-skill coefficient** (`CURATED_DAMAGE_COEFFICIENTS` in new `src/shared/skill-calc/
+  damage-calc.ts`) — confirmed the API's own `Damage` fact `dmg_multiplier` only ever reflects PvE
+  (same PvE-vs-WvW gap Healing found), sometimes by a lot (Mesmer's Illusionary Wave: PvE 0.3 vs
+  WvW/PvP 0.01). Also found the wiki's coefficient is sometimes per-hit and sometimes pre-totaled
+  across a fact's `hit_count`, distinguished by whether the wiki's own template carries a `strikes=N`
+  parameter (confirmed via Whirling Axe: `strikes=15|coefficient=8.388` PvE ÷ 15 = 0.5592/hit, exactly
+  matching the API's PvE `dmg_multiplier` for that fact) — entries needing the per-hit case are
+  pre-multiplied by hit count before being stored, so the runtime function never needs `hit_count` at
+  all. Seeded with 1 common WvW weapon skill per base profession (9 entries), each cross-checked
+  against `professions.json`'s own weapon-skill-slot list to curate the actually-equippable skill id
+  (not just name-matched — several names collide across multiple near-duplicate ids, e.g. Ranger's
+  "Maul" has 6 in skills.json; 2 candidate skills, Zealot's Defense and Blurred Frenzy, were dropped
+  after their API facts and wiki infobox didn't reconcile cleanly and swapped for a cleaner pick
+  rather than guessing).
+- **Weapon-strength constants** (`WEAPON_STRENGTH_MIDPOINTS`, same file) — midpoint of each weapon
+  type's min-max range from wiki.guildwars2.com/wiki/Weapon_strength, the same convention
+  gw2skills.net-style calculators use. Verified against a real documented number rather than trusted
+  blind: Judge's Intervention (`weapon=trait skill` → `unequipped`, 690.5) × PvE coefficient 0.5 ×
+  1000 Power ÷ 2597 reference Armor ≈ 133, matching the wiki's own quoted tooltip damage for that
+  skill exactly — this is also why `fact-numbers.ts`'s older "20-30% off in every attempt" note no
+  longer applies to this curated path (that note was about the API's `dmg_multiplier` alone, with no
+  weapon-strength table backing it).
+- **Target armor** — armor is the *enemy's* stat, which this app has never modeled since it only
+  builds one side of a fight. Asked the user rather than guessing a single number: they pointed at
+  gw2skills.net's own WvW convention (a Light/Medium/Heavy toggle, 2000/2200/2681 armor
+  respectively) as the reference to match. Landed as `CombatState.targetArmorClass` (new field,
+  defaults to `'Medium'`) plus a `TARGET_ARMOR_VALUES` constant in `combat-state.ts` — it rides along
+  with the other ephemeral "what-if" combat inputs since it has no other natural home on a
+  single-build editor, with a new 3-option dropdown in `CombatStatePanel.tsx` (icon-reused from
+  `DAMAGE_ICON`, since there's no dedicated "target armor" icon in the API).
+
+Wiring mirrors Healing exactly: `boon-calc/sources.ts` gained `computeDamageSources` (same
+equipped-skill walk, traits excluded), `BoonConditionSummaryPanel` got a new single-icon "Damage" row
+computed from `computeCharacterStats(...).attributes.power` and the new target-armor combat-state
+value.
+
+Typecheck and lint both pass clean. Not visually verified in the running app (Electron sandbox
+limitation, see memory) — worth a live spot-check against gw2skills.net next session, same as
+Healing's outstanding item, before extending either curated table further. The tooltip-visual-pass
+follow-up item in TODO.md is now unblocked (both Healing and Damage content have landed).
+
 ## Session 54 — Healing tooltip breakdown: new "Healing" row on the Boon-Condition summary bar
 
 First half of the bumped-priority Healing/Damage tooltip-breakdown TODO item (Damage still open,

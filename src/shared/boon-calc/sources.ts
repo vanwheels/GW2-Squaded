@@ -25,6 +25,7 @@ import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bun
 import { professionMechanicBar, RANGER_BEASTMODE_SPEC_ID } from '../skill-calc/profession-mechanic'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash'
 import { healingLinesForSkill } from '../skill-calc/healing-calc'
+import { damageLinesForSkill } from '../skill-calc/damage-calc'
 
 export type BoonConditionCategory = 'boon' | 'condition' | 'aura'
 
@@ -856,6 +857,50 @@ export function computeHealingSources(
     const skill = skillsById.get(id)
     if (!skill) continue
     for (const line of healingLinesForSkill(skill, healingPower, activeIds)) {
+      out.push({ sourceId: skill.id, sourceName: skill.name, sourceIcon: skill.icon, label: line.label, value: line.value })
+    }
+  }
+
+  return out
+}
+
+export interface DamageSource {
+  sourceId: number
+  sourceName: string
+  sourceIcon: string
+  label: string
+  value: number
+}
+
+/**
+ * Real, current-Power-scaled (and assumed-target-armor-scaled, see `CombatState.targetArmorClass`)
+ * damage magnitudes for every equipped weapon/utility skill a build has a wiki-verified coefficient
+ * for — see `damage-calc.ts`'s `CURATED_DAMAGE_COEFFICIENTS` doc comment for why this is seeded
+ * incrementally rather than covering every damage skill. Same skill-walking rules as
+ * `computeHealingSources`; traits are deliberately not walked here for the same reason.
+ */
+export function computeDamageSources(
+  build: Build,
+  gameData: {
+    skills: Skill[]
+    traits: Trait[]
+    legends: Legend[]
+    pets: Pet[]
+    professions: Profession[]
+    tomeChapters: TomeChaptersByTomeId
+    soulbeastBeastmode: SoulbeastBeastmodeMap
+  },
+  power: number,
+  targetArmor: number
+): DamageSource[] {
+  const activeIds = activeTraitIds(build, gameData.traits)
+  const out: DamageSource[] = []
+  const { skillsById, skillIds } = equippedSkillsById(build, gameData)
+
+  for (const id of skillIds) {
+    const skill = skillsById.get(id)
+    if (!skill) continue
+    for (const line of damageLinesForSkill(skill, power, targetArmor, activeIds)) {
       out.push({ sourceId: skill.id, sourceName: skill.name, sourceIcon: skill.icon, label: line.label, value: line.value })
     }
   }

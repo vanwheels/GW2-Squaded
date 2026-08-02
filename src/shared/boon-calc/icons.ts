@@ -86,6 +86,11 @@ export const BOON_STRIP_CORRUPT_ICONS: Record<string, string> = {
  *  "Healing" row (see `computeHealingSources` in boon-calc/sources.ts). */
 export const HEALING_ICON = 'https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png'
 
+/** Every `Damage`-type fact shares this one icon across every skill (confirmed via a scan of
+ *  data/game-data/skills.json) — used for the `BoonConditionSummaryPanel`'s "Damage" row (see
+ *  `computeDamageSources` in boon-calc/sources.ts). */
+export const DAMAGE_ICON = 'https://render.guildwars2.com/file/61AA4919C4A7990903241B680A69530121E994C7/156657.png'
+
 /** The API exposes exactly one icon per Combo Field fact and one per Combo Finisher fact,
  *  regardless of `field_type`/`finisher_type` (confirmed via a scan of data/game-data/skills.json)
  *  — unlike boons/conditions/auras, there's no per-type icon to look up here. */

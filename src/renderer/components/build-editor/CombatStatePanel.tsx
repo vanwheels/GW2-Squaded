@@ -1,6 +1,11 @@
 import type { Build } from '@shared/types'
-import { CURATED_RELIC_DAMAGE_BONUSES, detectActiveStackingSigil, type CombatState } from '@shared/gear-calc/combat-state'
-import { BOON_CONDITION_ICONS } from '@shared/boon-calc/icons'
+import {
+  CURATED_RELIC_DAMAGE_BONUSES,
+  detectActiveStackingSigil,
+  type CombatState,
+  type TargetArmorClass
+} from '@shared/gear-calc/combat-state'
+import { BOON_CONDITION_ICONS, DAMAGE_ICON } from '@shared/boon-calc/icons'
 import { useGameData } from '@renderer/state/game-data-store'
 
 interface Props {
@@ -13,6 +18,8 @@ interface Props {
  *  0-25, matching how stacks are actually gained/tracked in practice. */
 const STACK_OPTIONS = [0, 5, 10, 15, 20, 25]
 
+const TARGET_ARMOR_OPTIONS: TargetArmorClass[] = ['Light', 'Medium', 'Heavy']
+
 function iconClass(active: boolean): string {
   return active ? 'combat-state-icon' : 'combat-state-icon combat-state-icon-inactive'
 }
@@ -20,8 +27,9 @@ function iconClass(active: boolean): string {
 /**
  * Icon-based controls for `CombatState`, rendered inline inside `StatsPanel` to the right of the
  * stat grid. Might/stacking-sigil are steppers (icon + 5-increment dropdown); Fury/relic are
- * click-to-toggle icons (no dropdown, boolean on/off) — see `CombatState`'s doc comment for why
- * each field takes the shape it does.
+ * click-to-toggle icons (no dropdown, boolean on/off); target armor is a 3-option dropdown (not a
+ * stepper — only Light/Medium/Heavy exist, no intermediate values) — see `CombatState`'s doc comment
+ * for why each field takes the shape it does.
  */
 export function CombatStatePanel({ build, value, onChange }: Props) {
   const { sigilsById, relicsById } = useGameData()
@@ -74,6 +82,21 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           </select>
         </div>
       )}
+
+      <div className="combat-state-row">
+        <img className="combat-state-icon" src={DAMAGE_ICON} alt="" title="Target armor (Damage row)" />
+        <select
+          aria-label="Target armor class"
+          value={value.targetArmorClass}
+          onChange={(e) => onChange({ ...value, targetArmorClass: e.target.value as TargetArmorClass })}
+        >
+          {TARGET_ARMOR_OPTIONS.map((cls) => (
+            <option key={cls} value={cls}>
+              {cls}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {relicHasCuratedBonus && relicIcon && (
         <button

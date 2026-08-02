@@ -49,31 +49,18 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       "optimize food/utility" checkbox — likely wants a parallel "optimize runes/infusions" toggle
       rather than always searching them, consistent with the existing opt-in pattern.
 - [ ] Healing tooltip breakdown done 2026-08-02 (`BoonConditionSummaryPanel`'s new "Healing" row);
-      Damage is still open. Scoping turned out different than this item originally assumed: the
-      API's `AttributeAdjust`/`target: 'Healing'` fact `value` is only the heal at the API's
-      reference build (0 bonus Healing Power, matching this app's `BASE_ATTRIBUTES.Healing`) — it
-      carries no scaling coefficient, so getting a real current-Healing-Power number needed a
-      wiki-sourced per-skill coefficient (`Heal = baseValue + coefficient * HealingPower`, quoted
-      from each skill's `{{skill fact|healing|...|coefficient=...}}` wikitext), same curation rigor
-      as `CURATED_RELIC_DAMAGE_BONUSES`/`FURY_CRIT_CHANCE_TRAIT_BONUSES` — NOT a `numericFactLines`
-      formatter reuse like originally assumed. Also surfaced a real WvW-value gap along the way: for
-      several curated skills the wiki's "pvp wvw" split differs from "pve" (WvW groups with PvP, not
-      PvE, the opposite of this app's existing `wvwFactOverrides` default-to-PvE-unless-overridden
-      convention for Buff-duration facts), and `data/game-data/skills.json` only ever captured the
-      API's PvE-default value — `healing-calc.ts`'s curated table stores the WvW-correct number
-      directly rather than trusting `fact.value`, but the underlying skill data itself isn't
-      corrected, so `numericFactLines`/skill-picker tooltips elsewhere still show the PvE number for
-      those same skills. Seeded 2026-08-02 with one common WvW heal skill per base profession (10
-      skills total, see `CURATED_HEALING_COEFFICIENTS` in `src/shared/skill-calc/healing-calc.ts`) —
-      NOT a bulk pass (85 Heal-slot skills alone have a qualifying fact per a full scan); extend
-      incrementally as specific builds get tested, same policy as the trait-attribute table.
-      Damage remains unscoped: weapon-skill damage facts are typically expressed as a coefficient
-      against Power (and condition skills separately against Condition Damage), and WvW also has
-      target-armor assumptions baked into gw2skills.net-style damage calculators that this app has
-      never modeled anywhere — needs its own scoping pass on what "current stats" damage math to use
-      before implementation (the Healing work above suggests wiki-sourced per-skill coefficients are
-      the right shape for it too, but Damage's target-armor question is a separate open decision
-      Healing didn't have).
+      Damage tooltip breakdown also done 2026-08-02 (`BoonConditionSummaryPanel`'s new "Damage" row,
+      `src/shared/skill-calc/damage-calc.ts`, `CombatState.targetArmorClass` + `TARGET_ARMOR_VALUES`
+      in `combat-state.ts`) — see COMPLETED.md Sessions 54-55 for the full curation writeup. Both are
+      seeded incrementally (1 skill per base profession each, not a bulk pass) — extend as specific
+      builds get tested, same policy as the trait-attribute table. Neither has been visually
+      spot-checked in the running app yet (Electron sandbox limitation) — do that before extending
+      either curated table further, and before starting the tooltip-visual-pass item below.
+      Condition-skill damage (coefficient against Condition Damage rather than Power) was not
+      scoped as part of this work — the curated skills above are all direct-hit Power damage; a
+      condition-damage skill would need its own wiki-verification pass (condition-per-stack-per-
+      second base values are a separate, well-documented wiki constant table, not skill-specific
+      coefficients) before extending `CURATED_DAMAGE_COEFFICIENTS` to cover one.
 - [ ] Follow-up to the tooltip-overhaul items above, noted 2026-08-02, updated 2026-08-02: trait
       and food/utility tooltips now carry real structured content (traits: `numericFactLines` lines
       appended below the description via `factsBlock`, same as skills; food/utility:
@@ -81,9 +68,9 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       `Duration:` line from `durationMs`/`applyCount`, falling back to raw `description` only for
       buff-less consumables like Feast reagents — `effectName` deliberately left unused, it's just
       the buff category label ("Nourishment"/"Enhancement") and added no useful info next to the
-      bonus lines already shown). Still waiting on the Healing/Damage tooltip breakdown item above
-      before this visual pass makes sense — do a dedicated visual pass over **every** tooltip in the
-      app once that lands too — traits, skills, gear stat prefixes, runes, sigils, relics,
+      bonus lines already shown). The Healing/Damage tooltip breakdown item above has now landed
+      (2026-08-02, both halves) — this visual pass is unblocked. Do a dedicated visual pass over
+      **every** tooltip in the app — traits, skills, gear stat prefixes, runes, sigils, relics,
       food/utility, infusions — so they read like a single coherent design instead of whatever shape
       each one organically grew into while the content work landed. Target look: in-game GW2
       tooltip / gw2skills.net conventions (rarity-colored item name header, icon next to title, a
@@ -93,9 +80,7 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       `.tooltip-*` rules (`.tooltip-title`, `.tooltip-description`, `.tooltip-numeric-facts`,
       `.tooltip-boon-facts`, `.tooltip-skill-variant`) already give skills a semi-structured layout
       — extend that shared vocabulary to the newly-enriched tooltip types rather than inventing new
-      one-off styling per content type. Sequence this AFTER the Healing/Damage content work lands,
-      not concurrently — no point styling layouts around content shapes that are still about to
-      change.
+      one-off styling per content type.
 - [ ] Curate more trait attribute bonuses (`trait-attributes.ts`, added 2026-08-02). Traits can
       grant a flat attribute bonus or an attribute-to-attribute % conversion — found via a user
       cross-check against gw2skills.net (Revenant/Salvation's "Life Attunement" was silently
