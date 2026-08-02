@@ -39,6 +39,13 @@ interface Props<T extends number | string = number> {
    * `string` build ids which never set this prop.
    */
   dragCategory?: string
+  /** Small icon overlaid in the button's top-left corner — the gw2skills-style equipment-slot or
+   *  weapon-type glyph identifying which slot this stat-prefix picker belongs to, since the big
+   *  stat-prefix art itself (`option.icon`) doesn't otherwise say "this one's for the Helm". */
+  cornerIcon?: string
+  /** Art shown in place of the "?" empty-slot glyph when nothing is chosen yet — used for weapon
+   *  stat-prefix slots to preview the selected weapon type's silhouette before a stat is picked. */
+  emptyIcon?: string
 }
 
 /**
@@ -57,7 +64,9 @@ export function UpgradePicker<T extends number | string = number>({
   variant = 'badge',
   size = 'sm',
   rarity,
-  dragCategory
+  dragCategory,
+  cornerIcon,
+  emptyIcon
 }: Props<T>) {
   const { open, openThis, close } = usePickerOpen()
   const [search, setSearch] = useState('')
@@ -112,11 +121,14 @@ export function UpgradePicker<T extends number | string = number>({
             ) : (
               <span className="upgrade-badge-empty">?</span>
             )
+          ) : emptyIcon ? (
+            <img className="upgrade-badge-placeholder" src={emptyIcon} alt="" />
           ) : (
             <span className={variant === 'badge' ? 'upgrade-badge-empty' : 'skill-slot-placeholder'}>
               {variant === 'slot' ? label : ''}
             </span>
           )}
+          {cornerIcon && (chosen || !emptyIcon) && <img className="upgrade-badge-corner" src={cornerIcon} alt="" />}
         </button>
       </Tooltip>
       <FloatingPanel open={open} anchorRef={buttonRef} onClose={close} className="skill-picker">

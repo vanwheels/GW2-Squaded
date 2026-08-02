@@ -331,7 +331,7 @@ function bundleContributionsForBuild(
   if (!profession) return { kitSkillIds: [], tomeChapters: [] }
 
   const equippedSpecIds = new Set(build.specializations.filter((s): s is NonNullable<typeof s> => s !== null).map((s) => s.specializationId))
-  const mechanicBarSkillIds = professionMechanicBar(profession, skillsById, equippedSpecIds).map((e) => e.skill.id)
+  const mechanicBarSkillIds = professionMechanicBar(profession, skillsById, equippedSpecIds, build.environment).map((e) => e.skill.id)
   const bundleCapableIds = bundleCapableSkillIds(build, skillsById, tomeChapters, mechanicBarSkillIds)
   return bundleSkillIdsForBuild(bundleCapableIds, skillsById, tomeChapters, build.environment)
 }

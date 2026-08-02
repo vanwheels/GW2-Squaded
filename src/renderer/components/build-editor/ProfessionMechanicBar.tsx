@@ -112,7 +112,13 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
   const mainKey = isLand ? (build.activeWeaponSet === 'A' ? 'weaponA1' : 'weaponB1') : build.activeUnderwaterSet === 'U1' ? 'weaponU1' : 'weaponU2'
   const mainHandWeaponType = build.equipment[mainKey]?.weaponType ?? null
 
-  let entries: ProfessionMechanicBarEntry[] = professionMechanicBar(profession, skillsById, equippedSpecializationIds, mainHandWeaponType)
+  let entries: ProfessionMechanicBarEntry[] = professionMechanicBar(
+    profession,
+    skillsById,
+    equippedSpecializationIds,
+    build.environment,
+    mainHandWeaponType
+  )
   if (build.profession === 'Engineer') {
     entries = [...engineerToolbeltBar(build, skillsById), ...entries]
   }

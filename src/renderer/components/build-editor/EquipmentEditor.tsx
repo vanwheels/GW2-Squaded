@@ -4,9 +4,7 @@ import { armorTrinketInfusionCapacity, resizeUpgradeIds, RUNE_SLOT_KEYS, weaponU
 import { formatItemStatName } from '@shared/gear-calc/format-description'
 import { formatRelicDescription } from '@shared/gear-calc/relic-effects-format'
 import { useGameData } from '@renderer/state/game-data-store'
-import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
-import { SlotTypeIcon, type SlotIconKind } from './SlotTypeIcon'
 import { SkillBarIcon } from './SkillBarIcon'
 
 type Consumables = Pick<Build, 'relicId' | 'foodId' | 'utilityId'>
@@ -79,8 +77,9 @@ const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
 
 const WEAPON_SLOT_KEYS: EquipmentSlotKey[] = ['weaponA1', 'weaponA2', 'weaponB1', 'weaponB2', 'weaponU1', 'weaponU2']
 
-/** Maps each armor/trinket slot to the generic silhouette shown in place of its text label. */
-const SLOT_ICON_KIND: Partial<Record<EquipmentSlotKey, SlotIconKind>> = {
+/** Maps each armor/trinket slot to its gw2skills mini-icon name, overlaid in the corner of the
+ *  slot's stat-prefix picker (see UpgradePicker's `cornerIcon` prop). */
+const SLOT_ICON_KIND: Partial<Record<EquipmentSlotKey, string>> = {
   helm: 'helm',
   shoulders: 'shoulders',
   chest: 'chest',
@@ -93,6 +92,51 @@ const SLOT_ICON_KIND: Partial<Record<EquipmentSlotKey, SlotIconKind>> = {
   ring1: 'ring',
   ring2: 'ring',
   amulet: 'amulet'
+}
+
+/** GW2 API weapon-type key (`ProfessionWeapon`'s key in `profession.weapons`) to gw2skills icon
+ *  filename slug — both `weapon-mini/` (corner overlay) and `weapon-placeholder/` (large empty-
+ *  slot art) use the same slugs, except `Spear` on land: the gw2skills source sprite has a
+ *  distinct land-Spear mini icon (`spear-land`, no wave decoration) but no separate large-render
+ *  placeholder for it, so `weaponMiniIcon` special-cases `Spear` by `isAquatic` while
+ *  `weaponPlaceholderIcon` always uses this table's plain `spear` (the underwater art) for both.
+ *  `Speargun` is the Harpoon Gun. */
+const WEAPON_ICON_SLUG: Record<string, string> = {
+  Axe: 'axe',
+  Dagger: 'dagger',
+  Focus: 'focus',
+  Greatsword: 'greatsword',
+  Hammer: 'hammer',
+  Longbow: 'longbow',
+  Mace: 'mace',
+  Pistol: 'pistol',
+  Rifle: 'rifle',
+  Scepter: 'scepter',
+  Shield: 'shield',
+  Shortbow: 'shortbow',
+  Spear: 'spear',
+  Speargun: 'harpoon-gun',
+  Staff: 'staff',
+  Sword: 'sword',
+  Torch: 'torch',
+  Trident: 'trident',
+  Warhorn: 'warhorn'
+}
+
+/** `Trident`/`Speargun` are `Aquatic`-flagged and never usable on land. `Spear` is also
+ *  `Aquatic`-flagged but, as of the Janthir Wilds expansion, usable on land too (with its own
+ *  `NoUnderwater`-flagged land skill ids — see `profession-mechanic.ts`/`weapon-skills.ts`) — so
+ *  it can't be excluded from land weapon options by the `Aquatic` flag alone. */
+const AQUATIC_ONLY_WEAPON_NAMES = new Set(['Trident', 'Speargun'])
+
+function weaponMiniIcon(weaponType: string | null | undefined, isAquatic: boolean): string | undefined {
+  const slug = weaponType === 'Spear' && !isAquatic ? 'spear-land' : weaponType ? WEAPON_ICON_SLUG[weaponType] : undefined
+  return slug ? `/icons/weapon-mini/${slug}.png` : undefined
+}
+
+function weaponPlaceholderIcon(weaponType: string | null | undefined): string | undefined {
+  const slug = weaponType ? WEAPON_ICON_SLUG[weaponType] : undefined
+  return slug ? `/icons/weapon-placeholder/${slug}.png` : undefined
 }
 
 function byName(a: UpgradeOption, b: UpgradeOption): number {
@@ -115,8 +159,7 @@ export function EquipmentEditor({
   consumables,
   onConsumablesChange
 }: Props) {
-  const { itemStats, itemStatIcons, professions, skillsById, runes, sigils, infusions, relics, relicEffects, food, utility } =
-    useGameData()
+  const { itemStats, itemStatIcons, professions, runes, sigils, infusions, relics, relicEffects, food, utility } = useGameData()
   const sortedStats = dedupedStats(itemStats).sort((a, b) => a.name.localeCompare(b.name))
   const profession = professions.find((p) => p.id === professionId)
   // Weapon panel toggle (2026-07-31): land Set A/B and the underwater sets share screen real
@@ -306,12 +349,9 @@ export function EquipmentEditor({
           variant="slot"
           rarity="ascended"
           dragCategory="stat"
+          cornerIcon={`/icons/slot-mini/${SLOT_ICON_KIND[key] ?? 'amulet'}.png`}
+          emptyIcon={`/icons/equip-slot/${SLOT_ICON_KIND[key] ?? 'amulet'}.png`}
         />
-        <Tooltip content={<TooltipBody title={label} />}>
-          <span className="gear-slot-type-icon-wrap">
-            <SlotTypeIcon kind={SLOT_ICON_KIND[key] ?? 'amulet'} />
-          </span>
-        </Tooltip>
         {isRuneSlot && (
           <div className="upgrade-row">
             <UpgradePicker
@@ -332,28 +372,25 @@ export function EquipmentEditor({
   /** Weapon types this profession can use in a given hand context. Not gated by equipped elite
    *  specs — Weaponmaster Training makes every weapon type an elite spec unlocks for this
    *  profession permanently available, regardless of which spec is currently equipped. */
-  function weaponOptions(filter: (w: ProfessionWeapon) => boolean): [string, ProfessionWeapon][] {
+  function weaponOptions(filter: (name: string, w: ProfessionWeapon) => boolean): [string, ProfessionWeapon][] {
     if (!profession) return []
-    return Object.entries(profession.weapons).filter(([, w]) => filter(w))
-  }
-
-  function weaponIcon(weapon: ProfessionWeapon): string {
-    const firstSkillId = weapon.skills[0]?.id
-    return (firstSkillId !== undefined ? skillsById.get(firstSkillId)?.icon : undefined) ?? ''
+    return Object.entries(profession.weapons).filter(([name, w]) => filter(name, w))
   }
 
   /** Weapon-type choice, like the trait specialization picker, is a single button showing the
    *  current pick that opens a small overlay of the available types on click — not an always-
-   *  visible row of every weapon-type icon (confirmed 2026-07-30, same "selection button" tech). */
+   *  visible row of every weapon-type icon (confirmed 2026-07-30, same "selection button" tech).
+   *  Icons are the gw2skills placeholder renders (not the profession's own skill-1 icon) so every
+   *  profession's weapon-type picker looks the same regardless of which class is selected. */
   function weaponTypeRow(
     options: [string, ProfessionWeapon][],
     chosen: string | null,
     onChoose: (weaponType: string | null) => void
   ) {
-    const weaponOptions: UpgradeOption<string>[] = options.map(([name, weapon]) => ({
+    const weaponOptions: UpgradeOption<string>[] = options.map(([name]) => ({
       id: name,
       name,
-      icon: weaponIcon(weapon)
+      icon: weaponPlaceholderIcon(name) ?? ''
     }))
     return <UpgradePicker label="Weapon" options={weaponOptions} chosenId={chosen} onChoose={onChoose} variant="slot" />
   }
@@ -370,8 +407,10 @@ export function EquipmentEditor({
     const mainWeapon = mainSlot?.weaponType ? profession?.weapons[mainSlot.weaponType] : undefined
     const isTwoHanded = mainWeapon?.flags.includes('TwoHand') ?? false
 
-    const mainOptions = weaponOptions((w) => w.flags.includes('Mainhand') || w.flags.includes('TwoHand'))
-    const offOptions = weaponOptions((w) => w.flags.includes('Offhand'))
+    const mainOptions = weaponOptions(
+      (name, w) => (w.flags.includes('Mainhand') || w.flags.includes('TwoHand')) && !AQUATIC_ONLY_WEAPON_NAMES.has(name)
+    )
+    const offOptions = weaponOptions((_name, w) => w.flags.includes('Offhand'))
 
     const mainCapacity = weaponUpgradeCapacity(Boolean(mainSlot?.weaponType), isTwoHanded)
     const offCapacity = weaponUpgradeCapacity(Boolean(value[offKey]?.weaponType), false)
@@ -424,6 +463,8 @@ export function EquipmentEditor({
             variant="slot"
             rarity="ascended"
             dragCategory="stat"
+            cornerIcon={weaponMiniIcon(mainSlot?.weaponType, false)}
+            emptyIcon={weaponPlaceholderIcon(mainSlot?.weaponType)}
           />
           {sigilRow(mainKey, mainCapacity)}
           {infusionRow(mainKey, mainCapacity)}
@@ -445,6 +486,8 @@ export function EquipmentEditor({
                 variant="slot"
                 rarity="ascended"
                 dragCategory="stat"
+                cornerIcon={weaponMiniIcon(value[offKey]?.weaponType, false)}
+                emptyIcon={weaponPlaceholderIcon(value[offKey]?.weaponType)}
               />
               {sigilRow(offKey, offCapacity)}
               {infusionRow(offKey, offCapacity)}
@@ -459,7 +502,7 @@ export function EquipmentEditor({
    *  confirmed `TwoHand` (verified against the live API for every profession). */
   function renderUnderwaterSlot(key: EquipmentSlotKey, label: string) {
     const slot = value[key]
-    const options = weaponOptions((w) => w.flags.includes('Aquatic'))
+    const options = weaponOptions((_name, w) => w.flags.includes('Aquatic'))
     // Every aquatic weapon type is confirmed TwoHand (see class doc comment on this function), so
     // an underwater slot always gets the 2-slot upgrade capacity once a weapon is equipped.
     const capacity = weaponUpgradeCapacity(Boolean(slot?.weaponType), true)
@@ -486,6 +529,8 @@ export function EquipmentEditor({
           variant="slot"
           rarity="ascended"
           dragCategory="stat"
+          cornerIcon={weaponMiniIcon(slot?.weaponType, true)}
+          emptyIcon={weaponPlaceholderIcon(slot?.weaponType)}
         />
         {sigilRow(key, capacity)}
         {infusionRow(key, capacity)}
@@ -532,11 +577,20 @@ export function EquipmentEditor({
     options: UpgradeOption[],
     chosenId: number | null,
     onChoose: (id: number | null) => void,
-    rarity?: 'fine'
+    rarity?: 'fine',
+    emptyIcon?: string
   ) {
     return (
       <div className="gear-slot" key={label}>
-        <UpgradePicker label={label} options={options} chosenId={chosenId} onChoose={onChoose} variant="slot" rarity={rarity} />
+        <UpgradePicker
+          label={label}
+          options={options}
+          chosenId={chosenId}
+          onChoose={onChoose}
+          variant="slot"
+          rarity={rarity}
+          emptyIcon={emptyIcon}
+        />
         <label className="gear-slot-body">
           <span className="gear-slot-label">{label}</span>
         </label>
@@ -564,7 +618,14 @@ export function EquipmentEditor({
           </div>
           <div className="gear-panel gear-panel-other">
             <h4 className="gear-panel-title">Other</h4>
-            {renderOtherSlot('Relic', relicOptions, consumables.relicId, (id) => onConsumablesChange({ ...consumables, relicId: id }), 'fine')}
+            {renderOtherSlot(
+              'Relic',
+              relicOptions,
+              consumables.relicId,
+              (id) => onConsumablesChange({ ...consumables, relicId: id }),
+              'fine',
+              '/icons/weapon-placeholder/relic.png'
+            )}
             {renderOtherSlot('Food', foodOptions, consumables.foodId, (id) => onConsumablesChange({ ...consumables, foodId: id }))}
             {renderOtherSlot('Utility', utilityOptions, consumables.utilityId, (id) => onConsumablesChange({ ...consumables, utilityId: id }))}
           </div>

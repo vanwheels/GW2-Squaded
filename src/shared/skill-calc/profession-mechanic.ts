@@ -1,5 +1,10 @@
-import type { Build, Familiar, Profession, Skill, SoulbeastBeastmodeMap } from '../types'
+import type { Build, Environment, Familiar, Profession, Skill, SoulbeastBeastmodeMap } from '../types'
 import { EVOKER_SPECIALIZATION_ID } from './familiar'
+
+/** Same land/underwater disambiguation signal as `weapon-calc/weapon-skills.ts`'s `LAND_ONLY_FLAG`
+ *  — Warrior's Burst Skill needs it too now that Spear (Janthir Wilds) is a dual land/underwater
+ *  weapon type with separate skill ids per environment for every slot, Profession_1 included. */
+const LAND_ONLY_FLAG = 'NoUnderwater'
 
 export interface ProfessionMechanicBarEntry {
   slot: string
@@ -322,6 +327,7 @@ export function professionMechanicBar(
   profession: Profession,
   skillsById: Map<number, Skill>,
   equippedSpecializationIds: ReadonlySet<number>,
+  environment: Environment = 'land',
   mainHandWeaponType?: string | null
 ): ProfessionMechanicBarEntry[] {
   const slotOrder: string[] = []
@@ -379,6 +385,34 @@ export function professionMechanicBar(
       // innate, weapon-independent button, so it must survive this filter regardless of what's
       // equipped (or if nothing is), unlike every other Profession_1 candidate here.
       candidates = candidates.filter((s) => s.weaponType === null || s.weaponType === 'None' || s.weaponType === mainHandWeaponType)
+      // Spear (Janthir Wilds) is the one weaponType with both a land and an underwater Burst Skill
+      // id, same `NoUnderwater`-flag land/underwater split `weapon-skills.ts` uses for the weapon
+      // bar itself — but unlike a normal weapon slot, Warrior's Profession_1 has a SEPARATE
+      // land/underwater pair per spec that can override it (Berserker: Wild Throw/Wild Whirl,
+      // specId 18; Spellbreaker: its own Harrier's Toss/Whirling Strike ids, specId 61; core:
+      // specId null), so the split has to be resolved independently within each spec's own
+      // candidates, not across the whole weapon-matched set (an id from one spec's pair is never a
+      // valid stand-in for another spec's). The null-spec land side also carries 4 duplicate
+      // "Harrier's Toss" ids (same shape as this file's other known-duplicate-id cases) — sorting
+      // by id and taking the lowest collapses that before pairing, so it doesn't stop the pairing
+      // from being clean 1-vs-1.
+      const weaponMatched = candidates.filter((s) => s.weaponType === mainHandWeaponType)
+      const bySpec = new Map<number | null, Skill[]>()
+      for (const s of weaponMatched) {
+        if (!bySpec.has(s.specializationId)) bySpec.set(s.specializationId, [])
+        bySpec.get(s.specializationId)!.push(s)
+      }
+      const resolvedWeaponMatched: Skill[] = []
+      for (const group of bySpec.values()) {
+        const landOnly = group.filter((s) => s.flags.includes(LAND_ONLY_FLAG)).sort((a, b) => a.id - b.id)
+        const notLandOnly = group.filter((s) => !s.flags.includes(LAND_ONLY_FLAG)).sort((a, b) => a.id - b.id)
+        if (landOnly.length > 0 && notLandOnly.length > 0) {
+          resolvedWeaponMatched.push(environment === 'land' ? landOnly[0] : notLandOnly[0])
+        } else {
+          resolvedWeaponMatched.push(...group)
+        }
+      }
+      candidates = candidates.filter((s) => s.weaponType !== mainHandWeaponType).concat(resolvedWeaponMatched)
     }
     let chosen = resolveMechanicSlot(candidates, equippedSpecializationIds)
     if (!chosen) continue

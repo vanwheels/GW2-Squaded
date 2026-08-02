@@ -472,18 +472,6 @@ input[type='text'] {
   white-space: nowrap;
 }
 
-.gear-slot-type-icon-wrap {
-  display: flex;
-  flex: none;
-}
-
-.gear-slot-type-icon {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
-  border-radius: 3px;
-}
-
 /* Item-rarity border: Ascended for the armor/weapon/trinket stat-combo picked in a slot (this
    app always assumes Ascended/Legendary stat budgets, see attribute-totals.ts's RARITY const),
    Fine for WvW infusions and relics (their real, single, native GW2 rarity — see TODO.md). */
@@ -700,6 +688,7 @@ input[type='text'] {
 }
 
 .skill-slot-button {
+  position: relative;
   width: 48px;
   height: 48px;
   padding: 0;
@@ -714,6 +703,34 @@ input[type='text'] {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* Weapon-type render shown in place of the "?" glyph before a stat prefix is chosen (see
+   UpgradePicker's `emptyIcon` prop) — same footprint as the chosen-icon `<img>` above. */
+.upgrade-badge-placeholder {
+  opacity: 0.6;
+}
+
+/* gw2skills' stat-prefix art is drawn with a blank notch reserved for exactly this: a small
+   equipment-slot or weapon-type glyph identifying which slot the big icon belongs to. Selector is
+   deliberately `.skill-slot-button .upgrade-badge-corner` (not just `.upgrade-badge-corner`) so it
+   outranks the general `.skill-slot-button img` rule above (100% size, `object-fit: cover`) on
+   specificity alone — needed because these source crops are 28x32, not square, so `cover` would
+   crop them instead of the intended letterboxed `contain`. Inset is 3px, not 2px: the parent's
+   8px border-radius clips anything inside the corner arc closer than ~2.3px, so a 2px inset was
+   getting its own top-left corner pixel-clipped by the rounded corner underneath it. The dark
+   backing chip gives the small art a defined edge against the busy stat-prefix art behind it. */
+.skill-slot-button .upgrade-badge-corner {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  background: rgba(20, 20, 26, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  pointer-events: none;
 }
 
 .skill-slot-button.open {

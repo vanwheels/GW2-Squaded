@@ -89,7 +89,9 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
   const skillIds =
     unleashedId !== null && build.rangerUnleashed ? [unleashedId, ...baseSkillIds.slice(1)] : baseSkillIds
 
-  const mechanicBarSkillIds = profession ? professionMechanicBar(profession, skillsById, equippedSpecializationIds).map((e) => e.skill.id) : []
+  const mechanicBarSkillIds = profession
+    ? professionMechanicBar(profession, skillsById, equippedSpecializationIds, build.environment).map((e) => e.skill.id)
+    : []
   const bundleCapableIds = bundleCapableSkillIds(build, skillsById, tomeChapters, mechanicBarSkillIds)
   const activeBundleId = build.activeBundleSkillId !== null && bundleCapableIds.includes(build.activeBundleSkillId) ? build.activeBundleSkillId : null
   const activeBundle = activeBundleId !== null ? resolveActiveBundle(build, skillsById, tomeChapters, build.environment) : null
