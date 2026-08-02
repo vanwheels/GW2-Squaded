@@ -34,9 +34,11 @@ win:
     - target: nsis
       arch: [x64]
 
+# oneClick: true makes in-app updates (electron-updater's quitAndInstall) install silently in the
+# background and auto-relaunch, instead of popping the full installer wizard on every update — the
+# wizard/directory-picker only ever mattered for the very first install anyway.
 nsis:
-  oneClick: false
-  allowToChangeInstallationDirectory: true
+  oneClick: true
 
 mac:
   target:
