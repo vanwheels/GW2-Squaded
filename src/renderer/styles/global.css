@@ -1560,3 +1560,61 @@ input[type='text'] {
   font-size: 0.8rem;
   margin: 0;
 }
+
+.optimizer-panel-wide {
+  max-width: 720px;
+}
+
+.optimizer-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px 16px;
+}
+
+.optimizer-metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.85rem;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.optimizer-metric-row input[type='number'] {
+  width: 80px;
+  text-align: right;
+}
+
+.optimizer-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.optimizer-run-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.optimizer-slot-list {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 4px 16px;
+}
+
+.optimizer-slot-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.82rem;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+}

@@ -1,4 +1,4 @@
-export type ViewKey = 'builds' | 'squads' | 'settings'
+export type ViewKey = 'builds' | 'squads' | 'optimizer' | 'settings'
 
 interface NavBarProps {
   active: ViewKey
@@ -8,6 +8,7 @@ interface NavBarProps {
 const NAV_ITEMS: { key: ViewKey; label: string }[] = [
   { key: 'builds', label: 'Builds' },
   { key: 'squads', label: 'Squads' },
+  { key: 'optimizer', label: 'Gear Optimizer' },
   { key: 'settings', label: 'Settings' }
 ]
 

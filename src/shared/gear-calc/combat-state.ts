@@ -1,4 +1,4 @@
-import type { Build, EquipmentSlotKey } from '../types'
+import type { Build, EquipmentSlotKey, Trait } from '../types'
 import { ALL_CORE_ATTRIBUTE_KEYS, isActiveWeaponSlot } from './attribute-totals'
 
 /**
@@ -66,6 +66,49 @@ export const STACKING_SIGILS: Record<number, { name: string; attribute: string |
 export const CURATED_RELIC_DAMAGE_BONUSES: Record<number, number> = {
   100262: 7, // Relic of Fireworks
   100947: 7 // Relic of Fireworks (duplicate relics.json id, identical effect)
+}
+
+/**
+ * Trait id -> extra critical-hit-chance % granted while Fury is active, on top of the flat
+ * `FURY_CRITICAL_CHANCE_PERCENT` every profession already gets from Fury itself — hand-curated
+ * and wiki-verified per trait, same process as `CURATED_RELIC_DAMAGE_BONUSES` above (the raw API
+ * `facts` array is ambiguous: it dumps PvE/WvW/PvP-split values together with no mode tag, so the
+ * wiki's own text is the only reliable source). `1719` is Revenant/Invocation's tier-3 Major trait
+ * "Roiling Mists" ("Critical-hit chance is further increased while you are under the effect of
+ * fury") — confirmed via wiki.guildwars2.com/wiki/Roiling_Mists 2026-08-01: the raw facts list
+ * both 25 (PvE) and 20 (WvW/PvP); this app is WvW-focused (see gw2squaded-claude-code-prompt.md),
+ * so 20 is correct here. A
+ * handful of other professions have similarly-shaped fury-crit traits (Engineer's Hematic Focus,
+ * Warrior's Furious Burst, Ranger's Vicious Quarry, Mesmer's Quiet Intensity, Revenant/Renegade's
+ * Brutal Momentum — found via a full `traits.json` scan for "Critical Chance Increase" facts near
+ * "fury" in the description) but aren't curated yet — add them here the same way once verified.
+ */
+export const FURY_CRIT_CHANCE_TRAIT_BONUSES: Record<number, number> = {
+  1719: 20 // Roiling Mists (Revenant, Invocation, Major tier 3) — WvW value
+}
+
+/**
+ * Sums every curated fury-crit trait bonus actually active on this build: the trait's
+ * specialization line must be equipped, and — for a Major trait (player-chosen, unlike a Minor
+ * trait which is auto-granted just by equipping the line) — it must be the specific trait chosen
+ * for that tier. Only meaningful when combined with `combatState.furyActive` by the caller (this
+ * function doesn't know about `CombatState` at all, matching `boonDurationPercent`'s "raw
+ * ingredient" shape rather than a fully-derived value).
+ */
+export function furyCritChanceTraitBonus(build: Build, traitsById: Map<number, Trait>): number {
+  const equippedSpecIds = new Set(build.specializations.filter((line) => line !== null).map((line) => line.specializationId))
+  const chosenTraitIds = new Set(
+    build.specializations.flatMap((line) => line?.chosenTraitIds.filter((id): id is number => id !== null) ?? [])
+  )
+  let bonus = 0
+  for (const [traitIdText, value] of Object.entries(FURY_CRIT_CHANCE_TRAIT_BONUSES)) {
+    const traitId = Number(traitIdText)
+    const trait = traitsById.get(traitId)
+    if (!trait || !equippedSpecIds.has(trait.specializationId)) continue
+    if (trait.slot === 'Major' && !chosenTraitIds.has(traitId)) continue
+    bonus += value
+  }
+  return bonus
 }
 
 export interface ActiveStackingSigil {

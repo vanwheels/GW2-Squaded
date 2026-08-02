@@ -2,6 +2,51 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 47 — Gear Optimizer
+
+Implemented the net-new Gear Optimizer feature scoped in TODO.md, with the scope widened per
+2026-08-01 follow-up direction: it operates on an existing saved build (not a blank
+profession-only slate) — weapon types, runes, sigils, and the relic stay exactly as that build has
+them, floors/target account for their real contribution, and the search only chooses
+`itemStatId` per slot (plus food/utility, if toggled on).
+
+- **`src/shared/gear-calc/gear-optimize.ts`** (new): the search itself. Every "thing that can be
+  assigned" (a gear slot's stat combo, or food/utility when toggled on) is a search slot with a
+  finite, per-slot-deduped option list; each option's contribution is precomputed against only the
+  metrics actually in play (the floors + the maximize target), reducing the problem to a small
+  multiple-choice-knapsack rather than the full 9-attribute space. Solved via a greedy warm start
+  (closes the largest floor gap first, using whichever remaining slot helps most) feeding an
+  admissible-bound branch-and-bound refinement, capped by a node budget (`truncated: true` if hit).
+  `optimizeGear()` re-derives the final numbers by applying the winning choice to a cloned `Build`
+  and calling the same `computeGearAttributeTotals`/`computeCharacterStats` path `StatsPanel`
+  already uses, so the preview is guaranteed to match what the Stats panel would show — no
+  duplicated math to drift.
+- **11 selectable metrics** (`OPTIMIZER_METRICS`): the 7 point-based core attributes plus 4
+  percent-based derived metrics (Boon/Condition Duration, Magic Find, Critical Chance) — the
+  percent group entered/displayed in the same unit `StatsPanel` shows, needed because Magic Find
+  has no raw-point form and Critical Chance has a non-linear Fury add-on a raw-points floor would
+  miss entirely.
+- **Fury-boosted Critical Chance** (`combat-state.ts`'s new `FURY_CRIT_CHANCE_TRAIT_BONUSES` +
+  `furyCritChanceTraitBonus`): user flagged that some profession traits further increase crit
+  chance while under Fury (e.g. Revenant's Roiling Mists) on top of Fury's own flat bonus. Seeded
+  with trait id 1719 (Roiling Mists, Revenant/Invocation, Major tier 3) at 20% — confirmed via
+  wiki.guildwars2.com/wiki/Roiling_Mists 2026-08-01 that the raw API `facts` array conflates PvE
+  (25%) and WvW/PvP (20%) values with no mode tag; this app is WvW-only, so 20 is correct. A scan
+  of `traits.json` found 6 more professions with similarly-shaped fury-crit traits, left uncurated
+  for now (extensible table, same pattern as `CURATED_RELIC_DAMAGE_BONUSES`). Threaded into
+  `derived-stats.ts`'s `computeCharacterStats`, so `StatsPanel`'s own Critical Chance reading also
+  became more accurate as a side effect, not just the optimizer's.
+- **`GearOptimizerView.tsx`** (new nav tab, `NavBar`/`App.tsx`): build picker, per-metric floor
+  inputs, a maximize-target select, a "also optimize food & utility" checkbox, the existing
+  `CombatStatePanel` reused as-is for Fury/Might/sigil context, a results readout, and an
+  "Apply to Build" action that writes the result straight onto the selected build via
+  `updateBuild` (never auto-saves).
+- Verified with a throwaway script exercising `optimizeGear` directly against real game data
+  (unconstrained max, a Toughness-floor case that found a zero-Power-cost solution, an
+  intentionally-impossible floor, floor-and-target-on-the-same-metric, Magic-Find-via-food, and a
+  Fury-gated Critical Chance floor) — all matched hand-computed expectations before the script was
+  discarded (not committed).
+
 ## Session 46 — Legendary-Armory-derived stat-combo legality; EquipmentEditor stat picker cleanup
 
 Scoping the Gear Optimizer's still-open "curated vs. full combo pool" question (TODO.md) surfaced

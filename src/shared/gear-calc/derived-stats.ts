@@ -10,6 +10,7 @@ import {
   combatStatePoints,
   CURATED_RELIC_DAMAGE_BONUSES,
   DEFAULT_COMBAT_STATE,
+  furyCritChanceTraitBonus,
   FURY_CRITICAL_CHANCE_PERCENT,
   type CombatState
 } from './combat-state'
@@ -18,7 +19,7 @@ import {
  *  Toughness/Vitality/Power all start at 1000 (confirmed via wiki.guildwars2.com/wiki/Ferocity,
  *  wiki.guildwars2.com/wiki/Precision — both formulas below are stated relative to a 1000
  *  baseline); every other core attribute starts at 0. */
-const BASE_ATTRIBUTES: Record<string, number> = {
+export const BASE_ATTRIBUTES: Record<string, number> = {
   Power: 1000,
   Precision: 1000,
   Toughness: 1000,
@@ -31,8 +32,8 @@ const BASE_ATTRIBUTES: Record<string, number> = {
 }
 
 // wiki.guildwars2.com/wiki/Precision: "Critical Chance (%) = 5 + [ (Precision - 1000) / 21 ]"
-const BASE_CRITICAL_CHANCE_PERCENT = 5
-const PRECISION_PER_CRITICAL_CHANCE_PERCENT = 21
+export const BASE_CRITICAL_CHANCE_PERCENT = 5
+export const PRECISION_PER_CRITICAL_CHANCE_PERCENT = 21
 
 // wiki.guildwars2.com/wiki/Ferocity: "every 15 points of ferocity adds 1% to critical damage",
 // base critical damage (0 bonus Ferocity) is 150% per wiki.guildwars2.com/wiki/Critical_hit.
@@ -133,10 +134,11 @@ export interface CharacterStats {
 
 export function computeCharacterStats(
   build: Build,
-  gameData: Pick<GameData, 'itemStats' | 'infusions' | 'runes' | 'food' | 'utility'>,
+  gameData: Pick<GameData, 'itemStats' | 'infusions' | 'runes' | 'food' | 'utility' | 'traits'>,
   combatState: CombatState = DEFAULT_COMBAT_STATE
 ): CharacterStats {
   const gearTotals = computeGearAttributeTotals(build, gameData)
+  const traitsById = new Map(gameData.traits.map((t) => [t.id, t]))
   const combatPoints = combatStatePoints(build, combatState)
   const total = (key: string): number =>
     (BASE_ATTRIBUTES[key] ?? 0) + (gearTotals.points[key] ?? 0) + (combatPoints[key] ?? 0)
@@ -163,7 +165,9 @@ export function computeCharacterStats(
     criticalChance:
       BASE_CRITICAL_CHANCE_PERCENT +
       (attributes.precision - 1000) / PRECISION_PER_CRITICAL_CHANCE_PERCENT +
-      (combatState.furyActive ? FURY_CRITICAL_CHANCE_PERCENT : 0),
+      (combatState.furyActive
+        ? FURY_CRITICAL_CHANCE_PERCENT + furyCritChanceTraitBonus(build, traitsById)
+        : 0),
     criticalDamage: BASE_CRITICAL_DAMAGE_PERCENT + attributes.ferocity / FEROCITY_PER_CRITICAL_DAMAGE_PERCENT,
     boonDuration: boonDurationPercent(gearTotals),
     conditionDuration: conditionDurationPercent(gearTotals),

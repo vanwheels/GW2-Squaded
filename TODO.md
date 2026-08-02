@@ -144,49 +144,6 @@ it alongside.
 Feedback list from the user; scoped below with concrete implementation approach and open decisions.
 Nothing here is implemented yet.
 
-### Gear Optimizer (net new feature)
-Correction to the 2026-08-01 feedback note: the GW2 stat formulas are **not** missing research —
-`src/shared/gear-calc/attribute-totals.ts` already implements itemstat-combo → attribute-point math
-(`attribute_adjustment * multiplier + value`, per-slot budgets in `ATTRIBUTE_ADJUSTMENT`) and
-`derived-stats.ts` converts points → derived percentages. This is a **search/optimization**
-problem over already-known math, not a formula-research problem.
-- **Inputs**: profession (`ProfessionId`) + a set of stat floors (e.g. `BoonDuration >= 900pts`,
-  i.e. 60%) chosen from the 9 core attributes in `ALL_CORE_ATTRIBUTE_KEYS`
-  (`attribute-totals.ts`). Decided 2026-08-01: once floors are satisfiable, maximize one
-  user-chosen secondary stat with the remaining gear budget (not "fewest stat combos" or "first
-  valid combo").
-- **Search space**: per-slot choice of `ItemStat.id` (from `data/game-data/itemstats.json`, 178
-  combos total) across the 12 armor/trinket slots + 2-4 weapon slots (`EquipmentSlotKey`), plus
-  which rune (6-armor-piece rune bonuses via `addRuneBonuses`) and which relic/sigils contribute
-  flat/percent bonuses. Full combinatorial space is large per-slot-independent but each slot's
-  contribution is linear and independent given the adjustment constants, so this reduces to a
-  bounded integer/linear-programming-style search (or greedy allocation + backtracking), not
-  brute-force over every combination — needs a small `gear-optimize.ts` module in
-  `src/shared/gear-calc/` alongside the existing calc code.
-- **Combo pool — resolved 2026-08-01**: no curated allowlist. Search the full set of
-  `data/game-data/itemstat-legal-ids.json` ids (derived in `scripts/fetch-gear-upgrades.ts` from
-  every Legendary item's `details.stat_choices` — the Legendary Armory stat-selector list, i.e.
-  "legal if selectable via Legendary Armor," per user direction). That set (39 armor/weapon ids +
-  43 trinket ids, confirmed live) already excludes the ~110 dead/legacy `itemstats.json` entries
-  (Vital, Vigorous, etc.) without guessing at a "meta" shortlist — a fixed "common ~8" list was
-  explicitly rejected: which prefixes are worth mixing in (e.g. Assassin's/Demolisher's/Dragon's
-  alongside Berserker's/Marauder's) is build- and slot-specific, so the optimizer should search the
-  whole legal pool per slot rather than pre-filtering it. `ItemStatLegalIds` (`game-data.ts`) and
-  the `EquipmentEditor.tsx` stat picker already consume this data (see COMPLETED.md); the Gear
-  Optimizer's search just needs to reuse the same `itemStatLegalIds` field.
-- **Output**: a full `EquipmentSlot` map (itemStatId per slot, at minimum) the user can review and
-  apply to a build — likely a new "Gear Optimizer" nav view (`NavBar.tsx`/`App.tsx` gain a
-  `ViewKey`) with a "copy to build" action rather than editing a `Build` in place, so the user can
-  compare a couple of candidate outputs before committing.
-- **Out of scope for a first pass** (revisit if requested): factoring in rune/sigil/relic choice
-  into the search itself (treat those as fixed inputs the user already picked, only optimize the
-  9 itemstat slots), and food/utility consumable stat contributions.
-- **Reference checked 2026-08-01**: [discretize/discretize-gear-optimizer](https://github.com/discretize/discretize-gear-optimizer)
-  is an existing open-source GW2 gear optimizer, but it's built around PvE DPS rotations
-  (skill-rotation damage simulation), which WvW doesn't care about the same way. Confirms this
-  needs its own build rather than adapting that one: our objective is threshold-satisfaction +
-  maximize-a-chosen-secondary-stat, not rotation-DPS maximization.
-
 ## Nice-to-haves
 
 - [ ] "Favorites" pin for frequently-used builds in the squad editor's build sidebar; the
@@ -202,3 +159,10 @@ problem over already-known math, not a formula-research problem.
       boon/condition output. When off, the Underwater weapon-set editor and its skill bar should
       stay hidden, and `sources.ts`'s boon/condition calculator should skip underwater skill ids
       the same way it would if nothing were equipped there.
+- [ ] More curated fury-crit-chance traits in `combat-state.ts`'s `FURY_CRIT_CHANCE_TRAIT_BONUSES`
+      (added 2026-08-01 for the Gear Optimizer's Critical Chance metric, seeded with only
+      Revenant's Roiling Mists). A `traits.json` scan found 6 more profession traits with the same
+      "extra crit chance while under Fury" shape — Engineer's Hematic Focus, Warrior's Furious
+      Burst, Ranger's Vicious Quarry, Mesmer's Quiet Intensity, Revenant/Renegade's Brutal
+      Momentum — each needs its current WvW-mode value confirmed against the wiki (same as Roiling
+      Mists) before being added.

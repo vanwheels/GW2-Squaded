@@ -21,7 +21,7 @@ const ATTRIBUTE_ADJUSTMENT = {
   weaponTwoHanded: { exotic: 682.88, ascended: 717.024 }
 } as const
 
-type AdjustmentKey = keyof typeof ATTRIBUTE_ADJUSTMENT
+export type AdjustmentKey = keyof typeof ATTRIBUTE_ADJUSTMENT
 
 /**
  * Every equipment slot this app models defaults to level-80 Ascended, the realistic gear tier
@@ -31,7 +31,7 @@ type AdjustmentKey = keyof typeof ATTRIBUTE_ADJUSTMENT
  * Armor/trinket slots map to a fixed adjustment key. Weapon slots are resolved dynamically in
  * `computeGearAttributeTotals` instead (see below) now that `EquipmentSlot.weaponType` exists.
  */
-const SLOT_ADJUSTMENT_KEY: Partial<Record<EquipmentSlotKey, AdjustmentKey>> = {
+export const SLOT_ADJUSTMENT_KEY: Partial<Record<EquipmentSlotKey, AdjustmentKey>> = {
   helm: 'armorHelm',
   shoulders: 'armorLight',
   chest: 'armorCoat',
@@ -90,7 +90,7 @@ export interface AttributeTotals {
   }
 }
 
-function emptyTotals(): AttributeTotals {
+export function emptyTotals(): AttributeTotals {
   return { points: {}, bonusPercent: { boonDuration: 0, conditionDuration: 0, magicFind: 0 } }
 }
 
@@ -103,12 +103,26 @@ function emptyTotals(): AttributeTotals {
  * needed. Underwater slots (`weaponU1/U2`) are single, non-paired slots and every aquatic weapon
  * is confirmed two-handed, so they always use the two-handed constant directly.
  */
-function weaponAdjustmentKey(slotKey: EquipmentSlotKey): AdjustmentKey {
+export function weaponAdjustmentKey(slotKey: EquipmentSlotKey): AdjustmentKey {
   return UNDERWATER_WEAPON_SLOTS.includes(slotKey) ? 'weaponTwoHanded' : 'weaponOneHanded'
 }
 
-function addPoints(totals: AttributeTotals, attribute: string, value: number): void {
+export function addPoints(totals: AttributeTotals, attribute: string, value: number): void {
   totals.points[attribute] = (totals.points[attribute] ?? 0) + value
+}
+
+/**
+ * One stat combo's raw attribute-point contribution when equipped in a slot of the given
+ * adjustment tier — the same `adjustment * multiplier + value` formula
+ * `computeGearAttributeTotals` applies per-slot, factored out so the Gear Optimizer's search
+ * (`gear-optimize.ts`) can precompute each legal combo's contribution once per slot without
+ * duplicating the formula.
+ */
+export function statComboContribution(stat: ItemStat, adjustmentKey: AdjustmentKey): AttributeTotals {
+  const totals = emptyTotals()
+  const adjustment = ATTRIBUTE_ADJUSTMENT[adjustmentKey][RARITY]
+  for (const attr of stat.attributes) addPoints(totals, attr.attribute, adjustment * attr.multiplier + attr.value)
+  return totals
 }
 
 /**
@@ -162,7 +176,10 @@ const PERCENT_BONUS_ALIASES: Record<string, keyof AttributeTotals['bonusPercent'
   'magic find': 'magicFind'
 }
 
-function addBonus(totals: AttributeTotals, bonus: AttributeBonusText): void {
+/** A `Rune`/`Consumable` bonus line's contribution — exported so `gear-optimize.ts` can fold a
+ *  candidate food/utility choice's bonuses into a search option's delta the same way runes/food/
+ *  utility already contribute to `computeGearAttributeTotals` below. */
+export function addBonus(totals: AttributeTotals, bonus: AttributeBonusText): void {
   if (bonus.attribute === null || bonus.value === null) return
   const key = bonus.attribute.trim().toLowerCase()
 
