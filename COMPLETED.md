@@ -2,6 +2,30 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 52 — Two-handed weapon tooltip used the one-handed constant, not a true 2x/rounding bug
+
+Follow-up to Session 51: the user confirmed two-handed weapons were still off and specifically
+flagged that it's *not* a plain "double the one-handed number" relationship because of rounding.
+That's correct — `weaponOneHanded.ascended * 2 === weaponTwoHanded.ascended` exactly (358.512 * 2 =
+717.024), so `computeGearAttributeTotals`'s mirror-onto-both-slots-and-sum-raw-floats approach for
+the *Stats panel total* was already exact and needed no change. The bug was narrower: `renderSlot`'s
+hover tooltip (new this session-cluster) only renders on a two-handed weapon's main-hand slot (the
+off-hand shows a locked "(2-handed)" placeholder, no picker), but `statOptionsFor` always resolved
+the adjustment key via `weaponAdjustmentKey(slotKey)`, which is slot-based and always returns
+`weaponOneHanded` for land weapon slots regardless of whether the equipped weapon is actually 1H or
+2H — so the one tooltip a user sees for a 2H weapon showed the *halved* one-handed number (e.g.
+Minstrel's Toughness: `round(107.5536) = 108`) instead of gw2skills' single "whole item" number
+(`round(215.1072) = 215`) — and `108 * 2 = 216 ≠ 215` is exactly the "not strictly 2x" rounding
+artifact the user described.
+
+- `EquipmentEditor.tsx`: `statOptionsFor` gained an optional `adjustmentKeyOverride` param;
+  `renderWeaponPair` passes `'weaponTwoHanded'` for the main-hand slot when `isTwoHanded`, so the
+  tooltip shows the real two-handed value directly rather than a mirrored/halved one-handed value.
+- Confirmed no other code path had this issue: `gear-optimize.ts`'s optimizer already builds one
+  combined slot using `'weaponTwoHanded'` directly for a 2H weapon (never mirrors), and underwater
+  weapon slots (`weaponU1/U2`) already resolve to `'weaponTwoHanded'` unconditionally since every
+  aquatic weapon is confirmed two-handed — only the land main-hand tooltip needed the fix.
+
 ## Session 51 — Root cause found: stat-prefix picker saved the wrong id for armor/weapon slots
 
 Session 50 shipped per-item hover tooltips and re-verified the `adjustment * multiplier + value`

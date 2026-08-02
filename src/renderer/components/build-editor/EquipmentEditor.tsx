@@ -7,7 +7,8 @@ import {
   resolveItemStatId,
   SLOT_ADJUSTMENT_KEY,
   statComboContribution,
-  weaponAdjustmentKey
+  weaponAdjustmentKey,
+  type AdjustmentKey
 } from '@shared/gear-calc/attribute-totals'
 import { formatItemStatName } from '@shared/gear-calc/format-description'
 import { formatRelicDescription } from '@shared/gear-calc/relic-effects-format'
@@ -214,8 +215,19 @@ export function EquipmentEditor({
   // stat combo's multiplier/value against different `ATTRIBUTE_ADJUSTMENT` constants), so this is
   // a function of the slot's category+adjustment tier, not a single shared list — see
   // `statComboContribution`/`dedupedStatsForCategory`.
-  function statOptionsFor(slotKey: EquipmentSlotKey): UpgradeOption[] {
-    const adjustmentKey = SLOT_ADJUSTMENT_KEY[slotKey] ?? weaponAdjustmentKey(slotKey)
+  //
+  // `adjustmentKeyOverride` (2026-08-02): only ever passed for a two-handed weapon's main-hand
+  // slot. `weaponAdjustmentKey(slotKey)` always resolves land weapon slots to `weaponOneHanded` —
+  // correct for `computeGearAttributeTotals`'s *totals*, since mirroring the one-handed constant
+  // across both mirrored slots and summing the raw (unrounded) floats is exactly equal to using
+  // the two-handed constant once (`weaponOneHanded.ascended * 2 === weaponTwoHanded.ascended`
+  // exactly). But this tooltip only renders on the main-hand slot for a 2H weapon (the off-hand
+  // slot shows "(2-handed)", no picker at all), so it must show gw2skills' single "whole item"
+  // number — the real two-handed constant applied once — not the halved one-handed number. Those
+  // two differ after rounding (e.g. Minstrel's: `round(358.512*0.3)*2 = 216` vs. the real
+  // `round(717.024*0.3) = 215`), confirmed by the user cross-checking against gw2skills.net.
+  function statOptionsFor(slotKey: EquipmentSlotKey, adjustmentKeyOverride?: AdjustmentKey): UpgradeOption[] {
+    const adjustmentKey = adjustmentKeyOverride ?? SLOT_ADJUSTMENT_KEY[slotKey] ?? weaponAdjustmentKey(slotKey)
     const source = itemStatCategoryForSlot(slotKey) === 'trinket' ? trinketStats : armorWeaponStats
     return source.map((stat) => {
       const contribution = statComboContribution(stat, adjustmentKey)
@@ -535,7 +547,7 @@ export function EquipmentEditor({
           </label>
           <UpgradePicker
             label={mainLabel}
-            options={statOptionsFor(mainKey)}
+            options={statOptionsFor(mainKey, isTwoHanded ? 'weaponTwoHanded' : undefined)}
             chosenId={displayedItemStatId(mainKey, mainSlot?.itemStatId ?? null)}
             onChoose={setMainItemStat}
             variant="slot"
