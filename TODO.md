@@ -163,13 +163,17 @@ problem over already-known math, not a formula-research problem.
   bounded integer/linear-programming-style search (or greedy allocation + backtracking), not
   brute-force over every combination — needs a small `gear-optimize.ts` module in
   `src/shared/gear-calc/` alongside the existing calc code.
-- **Open decision, not yet resolved**: whether to search the full 178-combo `itemstats.json` list
-  or a curated "actually obtainable in current GW2" subset (~20-30 real meta combos — Berserker's/
-  Viper's/Diviner's/Minstrel's/etc.). The raw dataset has no "is this obtainable/current" flag, so
-  the full-dataset option risks suggesting legacy/unobtainable stat combos (e.g. old PvP-only
-  combos). Recommend curating a short allowlist before building the search, but this needs a
-  confirmation pass (spot-check a handful of combos against the current in-game vendor/crafting
-  list) rather than guessing which of the 178 are current.
+- **Combo pool — resolved 2026-08-01**: no curated allowlist. Search the full set of
+  `data/game-data/itemstat-legal-ids.json` ids (derived in `scripts/fetch-gear-upgrades.ts` from
+  every Legendary item's `details.stat_choices` — the Legendary Armory stat-selector list, i.e.
+  "legal if selectable via Legendary Armor," per user direction). That set (39 armor/weapon ids +
+  43 trinket ids, confirmed live) already excludes the ~110 dead/legacy `itemstats.json` entries
+  (Vital, Vigorous, etc.) without guessing at a "meta" shortlist — a fixed "common ~8" list was
+  explicitly rejected: which prefixes are worth mixing in (e.g. Assassin's/Demolisher's/Dragon's
+  alongside Berserker's/Marauder's) is build- and slot-specific, so the optimizer should search the
+  whole legal pool per slot rather than pre-filtering it. `ItemStatLegalIds` (`game-data.ts`) and
+  the `EquipmentEditor.tsx` stat picker already consume this data (see COMPLETED.md); the Gear
+  Optimizer's search just needs to reuse the same `itemStatLegalIds` field.
 - **Output**: a full `EquipmentSlot` map (itemStatId per slot, at minimum) the user can review and
   apply to a build — likely a new "Gear Optimizer" nav view (`NavBar.tsx`/`App.tsx` gain a
   `ViewKey`) with a "copy to build" action rather than editing a `Build` in place, so the user can
@@ -177,6 +181,11 @@ problem over already-known math, not a formula-research problem.
 - **Out of scope for a first pass** (revisit if requested): factoring in rune/sigil/relic choice
   into the search itself (treat those as fixed inputs the user already picked, only optimize the
   9 itemstat slots), and food/utility consumable stat contributions.
+- **Reference checked 2026-08-01**: [discretize/discretize-gear-optimizer](https://github.com/discretize/discretize-gear-optimizer)
+  is an existing open-source GW2 gear optimizer, but it's built around PvE DPS rotations
+  (skill-rotation damage simulation), which WvW doesn't care about the same way. Confirms this
+  needs its own build rather than adapting that one: our objective is threshold-satisfaction +
+  maximize-a-chosen-secondary-stat, not rotation-DPS maximization.
 
 ## Nice-to-haves
 

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Build, EquipmentSlot, EquipmentSlotKey, ItemStat, ProfessionId, ProfessionWeapon } from '@shared/types'
+import type { Build, EquipmentSlot, EquipmentSlotKey, ItemStat, ItemStatLegalIds, ProfessionId, ProfessionWeapon } from '@shared/types'
 import { armorTrinketInfusionCapacity, resizeUpgradeIds, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from '@shared/gear-calc/upgrade-slots'
 import { formatItemStatName } from '@shared/gear-calc/format-description'
 import { formatRelicDescription } from '@shared/gear-calc/relic-effects-format'
@@ -42,10 +42,18 @@ function scoreStat(stat: ItemStat): number {
   return attrCount * 10 + (fullySpecified ? 1 : 0)
 }
 
-function dedupedStats(itemStats: ItemStat[]): ItemStat[] {
+/**
+ * Restricts the picker to stat combos actually selectable on a current item — see
+ * `ItemStatLegalIds`'s doc comment. Both categories are combined into one set here since the
+ * picker itself is shared across every armor/trinket/weapon slot (see `pickCanonicalStat`'s doc
+ * comment on why one canonical id per name already works for every slot type numerically); an id
+ * legal for *either* category is enough to keep that name in the list.
+ */
+function dedupedStats(itemStats: ItemStat[], legalIds: ItemStatLegalIds): ItemStat[] {
+  const legal = new Set([...legalIds.armorWeapon, ...legalIds.trinket])
   const byName = new Map<string, ItemStat[]>()
   for (const stat of itemStats) {
-    if (stat.name.trim() === '') continue
+    if (stat.name.trim() === '' || !legal.has(stat.id)) continue
     const group = byName.get(stat.name)
     if (group) group.push(stat)
     else byName.set(stat.name, [stat])
@@ -162,8 +170,9 @@ export function EquipmentEditor({
   consumables,
   onConsumablesChange
 }: Props) {
-  const { itemStats, itemStatIcons, professions, runes, sigils, infusions, relics, relicEffects, food, utility } = useGameData()
-  const sortedStats = dedupedStats(itemStats).sort((a, b) => a.name.localeCompare(b.name))
+  const { itemStats, itemStatIcons, itemStatLegalIds, professions, runes, sigils, infusions, relics, relicEffects, food, utility } =
+    useGameData()
+  const sortedStats = dedupedStats(itemStats, itemStatLegalIds).sort((a, b) => a.name.localeCompare(b.name))
   const profession = professions.find((p) => p.id === professionId)
   // Weapon panel toggle (2026-07-31): land Set A/B and the underwater sets share screen real
   // estate poorly side by side, so only one is shown at a time — defaults to land since that's

@@ -408,6 +408,7 @@ async function main(): Promise<void> {
     | 'food'
     | 'utility'
     | 'itemStatIcons'
+    | 'itemStatLegalIds'
     | 'tomeChapters'
     | 'soulbeastBeastmode'
   > = {

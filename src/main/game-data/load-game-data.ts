@@ -35,6 +35,7 @@ export function loadGameData(): GameData {
       skills: readJson('skills.json'),
       itemStats: readJson('itemstats.json'),
       itemStatIcons: readJson('itemstat-icons.json'),
+      itemStatLegalIds: readJson('itemstat-legal-ids.json'),
       eliteSpecSkills: readJson('elite-spec-skills.json'),
       glyphFormVariants: readJson('glyph-form-variants.json'),
       skillVariantExclusions: readJson('skill-variant-exclusions.json'),

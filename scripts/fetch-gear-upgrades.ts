@@ -89,6 +89,7 @@ interface RawItem {
     apply_count?: number
     name?: string
     description?: string
+    stat_choices?: number[]
   }
 }
 
@@ -283,6 +284,29 @@ function deriveItemStatIcons(allItems: RawItem[], itemStatNames: string[]): Reco
   return icons
 }
 
+/**
+ * Which `ItemStat.id`s are actually current/obtainable, split by equipment category — `itemstats`
+ * itself carries no such flag (see `ItemStatLegalIds` doc comment in game-data.ts), but every
+ * Legendary item's `details.stat_choices` (the Legendary Armory stat-selector list) is exactly
+ * that legality signal, straight from the API. Confirmed live 2026-08-01: every Legendary armor
+ * item and every Legendary weapon share one identical 38-id list; every Legendary trinket (back/
+ * ring/accessory/amulet) shares a separate, entirely disjoint 43-id list — so armor and weapons
+ * pool together, trinkets pool separately, and taking the union across all Legendary items per
+ * category (rather than trusting a single sample) guards against any category having a variant
+ * item with a slightly different list.
+ */
+function deriveLegalItemStatIds(allItems: RawItem[]): { armorWeapon: number[]; trinket: number[] } {
+  const armorWeapon = new Set<number>()
+  const trinket = new Set<number>()
+  for (const item of allItems) {
+    if (item.rarity !== 'Legendary' || !item.details?.stat_choices) continue
+    const bucket = item.type === 'Armor' || item.type === 'Weapon' ? armorWeapon : item.type === 'Back' || item.type === 'Trinket' ? trinket : null
+    if (!bucket) continue
+    for (const id of item.details.stat_choices) bucket.add(id)
+  }
+  return { armorWeapon: [...armorWeapon].sort((a, b) => a - b), trinket: [...trinket].sort((a, b) => a - b) }
+}
+
 async function main(): Promise<void> {
   await mkdir(OUTPUT_DIR, { recursive: true })
 
@@ -317,6 +341,11 @@ async function main(): Promise<void> {
     console.warn(`\n[warn] ${namesWithoutIcon.length}/${itemStatNames.length} stat names got no insignia-derived icon:`, namesWithoutIcon)
   }
 
+  const itemStatLegalIds = deriveLegalItemStatIds(allItems)
+  if (itemStatLegalIds.armorWeapon.length === 0 || itemStatLegalIds.trinket.length === 0) {
+    console.warn('\n[warn] found no Legendary-item stat_choices for one or both categories — legality data may be stale/wrong:', itemStatLegalIds)
+  }
+
   await Promise.all([
     writeFile(join(OUTPUT_DIR, 'runes.json'), JSON.stringify(runes, null, 2)),
     writeFile(join(OUTPUT_DIR, 'sigils.json'), JSON.stringify(sigils, null, 2)),
@@ -324,13 +353,15 @@ async function main(): Promise<void> {
     writeFile(join(OUTPUT_DIR, 'relics.json'), JSON.stringify(relics, null, 2)),
     writeFile(join(OUTPUT_DIR, 'food.json'), JSON.stringify(food, null, 2)),
     writeFile(join(OUTPUT_DIR, 'utility.json'), JSON.stringify(utility, null, 2)),
-    writeFile(join(OUTPUT_DIR, 'itemstat-icons.json'), JSON.stringify(itemStatIcons, null, 2))
+    writeFile(join(OUTPUT_DIR, 'itemstat-icons.json'), JSON.stringify(itemStatIcons, null, 2)),
+    writeFile(join(OUTPUT_DIR, 'itemstat-legal-ids.json'), JSON.stringify(itemStatLegalIds, null, 2))
   ])
 
   console.log(
     `\nDone. runes=${runes.length} sigils=${sigils.length} infusions=${infusions.length} ` +
       `relics=${relics.length} food=${food.length} utility=${utility.length} ` +
-      `itemStatIcons=${Object.keys(itemStatIcons).length}/${itemStatNames.length}`
+      `itemStatIcons=${Object.keys(itemStatIcons).length}/${itemStatNames.length} ` +
+      `itemStatLegalIds=${itemStatLegalIds.armorWeapon.length}armor/weapon+${itemStatLegalIds.trinket.length}trinket`
   )
   console.log(`Written to ${OUTPUT_DIR}`)
 }

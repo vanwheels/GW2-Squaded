@@ -52,6 +52,7 @@ const EMPTY_GAME_DATA: GameData = {
   skills: [],
   itemStats: [],
   itemStatIcons: {},
+  itemStatLegalIds: { armorWeapon: [], trinket: [] },
   eliteSpecSkills: {},
   glyphFormVariants: {},
   skillVariantExclusions: [],

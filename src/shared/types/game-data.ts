@@ -178,6 +178,22 @@ export interface ItemStat {
 }
 
 /**
+ * Which `ItemStat.id`s are actually current/obtainable, split by equipment category —
+ * `itemstats.json` itself is a raw dump of every combo the API has ever assigned an id to
+ * (legacy pre-revamp combos included) with no "is this real" flag. Derived in
+ * `scripts/fetch-gear-upgrades.ts` from every Legendary item's `details.stat_choices` (the
+ * Legendary Armory stat-selector list) — confirmed live 2026-08-01 that Legendary armor and
+ * Legendary weapons draw from one shared list (`armorWeapon`) and every Legendary trinket
+ * (back/ring/accessory/amulet) draws from a separate, entirely disjoint list (`trinket`). A stat
+ * id present in neither array (e.g. old 1-2 attribute-line combos like "Vital"/"Vigorous") isn't
+ * selectable on any current item.
+ */
+export interface ItemStatLegalIds {
+  armorWeapon: number[]
+  trinket: number[]
+}
+
+/**
  * Skill id -> the elite specialization id required to use it, for Heal/Utility/Elite skills
  * gated behind a specific elite spec. The public GW2 API has no field for this (skills carry no
  * `specialization` id), so it's sourced from the wiki's per-spec skill categories instead — see
@@ -485,6 +501,7 @@ export interface GameData {
    *  name resolves: compound legacy combos (e.g. "Dire and Rabid") and WvW/PvP-only amulet stat
    *  names (e.g. "Harrier's") have no matching insignia at all — absent from this map, not a bug. */
   itemStatIcons: Record<string, string>
+  itemStatLegalIds: ItemStatLegalIds
   eliteSpecSkills: EliteSpecSkillMap
   glyphFormVariants: GlyphFormVariantMap
   skillVariantExclusions: SkillVariantExclusions

@@ -2,6 +2,35 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 46 — Legendary-Armory-derived stat-combo legality; EquipmentEditor stat picker cleanup
+
+Scoping the Gear Optimizer's still-open "curated vs. full combo pool" question (TODO.md) surfaced
+a cleaner answer than either option: `itemstats.json` (raw `/v2/itemstats` dump) has no
+"obtainable/current" flag at all, but every Legendary item's `details.stat_choices` field IS
+exactly that — the Legendary Armory stat-selector list, straight from the API. Confirmed live
+2026-08-01 (Frostfang/Triumphant Hero's Warhelm/Warbringer/Conflux/Aurora/Transcendence) that
+Legendary armor and Legendary weapons share one identical list, and every Legendary trinket
+(back/ring/accessory/amulet) shares a separate, entirely disjoint list.
+
+- **`deriveLegalItemStatIds`** (`scripts/fetch-gear-upgrades.ts`): unions `stat_choices` across
+  every Legendary item, bucketed by `armorWeapon` (39 ids) vs. `trinket` (43 ids), written to the
+  new `data/game-data/itemstat-legal-ids.json`. Wired through `ItemStatLegalIds`
+  (`shared/types/game-data.ts`) → `GameData` → `load-game-data.ts` → `game-data-store.tsx`, same
+  pattern as every other static data file.
+- **`EquipmentEditor.tsx`'s `dedupedStats`** now filters to this legal-id set before its existing
+  per-name canonicalization, so dead 1-2 attribute-line legacy combos (Vital, Vigorous, etc. — ~110
+  of the 191 raw `itemstats.json` entries) no longer show up in the stat-prefix picker. 43 real,
+  current prefix names remain.
+- **Resolves the Gear Optimizer combo-pool question**: no curated "common ~8" allowlist — a fixed
+  shortlist doesn't fit how stat-mixing actually works (user direction: better players mix in
+  Assassin's/Demolisher's/Dragon's etc. alongside Berserker's/Marauder's per-build, not from a
+  fixed set). The optimizer should search the full legal pool per slot, not a pre-filtered subset.
+- **Caution for future `fetch-gear-upgrades` runs**: re-running the script also regenerates
+  `itemstat-icons.json` via `deriveItemStatIcons` (live `render.guildwars2.com` insignia-icon
+  URLs), which silently overwrites the gw2skills.net-licensed local icon paths manually wired in
+  commit `d205a01` — that file is not currently reproducible by the script and must be restored
+  from git (or re-applied by hand) after any future gear-upgrades refetch.
+
 ## Session 45 (continued) — Tag-filter UI rework: profession/elite-spec picker, custom-tag dropdown, OR semantics
 
 Follow-up to the tags+filter/search work just below, after user feedback on the first pass: the
