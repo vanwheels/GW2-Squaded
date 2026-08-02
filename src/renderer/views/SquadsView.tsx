@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { PartySlots, SquadComp } from '@shared/types'
 import { isLikelySquadCompSharePayload } from '@shared/share/validate'
 import { useSquadCompsStore, makeBlankSquadComp } from '@renderer/state/squad-comps-store'
@@ -17,11 +17,12 @@ export function SquadsView() {
   const [dragId, setDragId] = useState<string | null>(null)
   const [dropTargetId, setDropTargetId] = useState<string | null>(null)
 
-  const { query, setQuery, allTags, selectedTags, toggleTag, filtered } = useTagFilter({
+  const { query, setQuery, selectedTags, toggleTag, filtered } = useTagFilter({
     records: squadComps,
     getName: (squadComp) => squadComp.name,
     getTags: (squadComp) => squadComp.tags
   })
+  const customTags = useMemo(() => [...new Set(squadComps.flatMap((s) => s.tags))].sort(), [squadComps])
 
   /** Re-creates every bundled build locally under a fresh id first (a shared squad's builds are a
    *  standalone snapshot, not references into the importer's own database — see
@@ -95,7 +96,7 @@ export function SquadsView() {
           <TagFilterBar
             query={query}
             onQueryChange={setQuery}
-            allTags={allTags}
+            customTags={customTags}
             selectedTags={selectedTags}
             onToggleTag={toggleTag}
             placeholder="Search squads…"

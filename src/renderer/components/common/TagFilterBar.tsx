@@ -1,14 +1,30 @@
+import { ProfessionTagPicker } from './ProfessionTagPicker'
+import { TagChipDropdown } from './TagChipDropdown'
+
 interface Props {
   query: string
   onQueryChange: (query: string) => void
-  allTags: string[]
+  /** User-created tags in use across the current records (not profession/elite-spec auto tags —
+   *  those get their own icon picker, see `showProfessionPicker`). */
+  customTags: string[]
   selectedTags: Set<string>
   onToggleTag: (tag: string) => void
+  /** Show the profession/elite-spec icon picker above the custom-tag dropdown — only meaningful
+   *  for build-listing views (`BuildsView`/`BuildsSidebar`); squads have no single profession. */
+  showProfessionPicker?: boolean
   placeholder?: string
 }
 
-/** Search box + multi-select tag chip row, shared by BuildsView/SquadsView/BuildsSidebar. */
-export function TagFilterBar({ query, onQueryChange, allTags, selectedTags, onToggleTag, placeholder }: Props) {
+/** Search box + tag filters, shared by BuildsView/SquadsView/BuildsSidebar. */
+export function TagFilterBar({
+  query,
+  onQueryChange,
+  customTags,
+  selectedTags,
+  onToggleTag,
+  showProfessionPicker,
+  placeholder
+}: Props) {
   return (
     <div className="tag-filter-bar">
       <input
@@ -18,20 +34,8 @@ export function TagFilterBar({ query, onQueryChange, allTags, selectedTags, onTo
         onChange={(e) => onQueryChange(e.target.value)}
         placeholder={placeholder ?? 'Search…'}
       />
-      {allTags.length > 0 && (
-        <div className="tag-filter-chips">
-          {allTags.map((tag) => (
-            <button
-              key={tag}
-              type="button"
-              className={selectedTags.has(tag) ? 'tag-filter-chip tag-filter-chip-active' : 'tag-filter-chip'}
-              onClick={() => onToggleTag(tag)}
-            >
-              {tag}
-            </button>
-          ))}
-        </div>
-      )}
+      {showProfessionPicker && <ProfessionTagPicker selectedTags={selectedTags} onToggleTag={onToggleTag} />}
+      <TagChipDropdown allTags={customTags} selectedTags={selectedTags} onToggleTag={onToggleTag} />
     </div>
   )
 }

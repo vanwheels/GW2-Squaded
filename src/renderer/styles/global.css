@@ -213,22 +213,21 @@ button:hover {
   max-width: 320px;
 }
 
+.tag-filter-dropdown {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.tag-filter-dropdown select {
+  max-width: 200px;
+}
+
 .tag-filter-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-}
-
-.tag-filter-chip {
-  font-size: 0.78rem;
-  padding: 3px 10px;
-  border-radius: 999px;
-  color: var(--muted);
-}
-
-.tag-filter-chip-active {
-  border-color: var(--accent);
-  color: var(--accent);
 }
 
 .editor-tags-row {

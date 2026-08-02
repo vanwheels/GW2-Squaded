@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { Build } from '@shared/types'
 import { getBuildAutoTags } from '@shared/tags/auto-tags'
 import { useBuildsStore } from '@renderer/state/builds-store'
@@ -21,11 +21,12 @@ export function BuildsSidebar() {
     (build: Build) => [...getBuildAutoTags(build, { professions, specializationsById }), ...build.tags],
     [professions, specializationsById]
   )
-  const { query, setQuery, allTags, selectedTags, toggleTag, filtered } = useTagFilter({
+  const { query, setQuery, selectedTags, toggleTag, filtered } = useTagFilter({
     records: builds,
     getName: (build) => build.name,
     getTags
   })
+  const customTags = useMemo(() => [...new Set(builds.flatMap((b) => b.tags))].sort(), [builds])
 
   return (
     <aside className="builds-sidebar">
@@ -36,10 +37,13 @@ export function BuildsSidebar() {
         <p className="empty-state">No saved builds yet — create one in the Builds tab.</p>
       ) : (
         <>
+          {/* No `showProfessionPicker` here — the sidebar is a fixed 200px column, too narrow for
+              the elite-spec grid's per-profession-column layout (see `ProfessionTagPicker`); the
+              full picker lives on the Builds tab (`BuildsView`), which has the width for it. */}
           <TagFilterBar
             query={query}
             onQueryChange={setQuery}
-            allTags={allTags}
+            customTags={customTags}
             selectedTags={selectedTags}
             onToggleTag={toggleTag}
             placeholder="Search…"

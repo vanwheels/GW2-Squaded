@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import type { Build } from '@shared/types'
 import { isLikelyBuild } from '@shared/share/validate'
 import { getBuildAutoTags } from '@shared/tags/auto-tags'
@@ -22,11 +22,12 @@ export function BuildsView() {
     (build: Build) => [...getBuildAutoTags(build, { professions, specializationsById }), ...build.tags],
     [professions, specializationsById]
   )
-  const { query, setQuery, allTags, selectedTags, toggleTag, filtered } = useTagFilter({
+  const { query, setQuery, selectedTags, toggleTag, filtered } = useTagFilter({
     records: builds,
     getName: (build) => build.name,
     getTags
   })
+  const customTags = useMemo(() => [...new Set(builds.flatMap((b) => b.tags))].sort(), [builds])
 
   async function handleImport(data: unknown): Promise<void> {
     if (!isLikelyBuild(data)) throw new Error('This link does not contain a valid build.')
@@ -78,9 +79,10 @@ export function BuildsView() {
           <TagFilterBar
             query={query}
             onQueryChange={setQuery}
-            allTags={allTags}
+            customTags={customTags}
             selectedTags={selectedTags}
             onToggleTag={toggleTag}
+            showProfessionPicker
             placeholder="Search builds…"
           />
           {filtered.length === 0 ? (

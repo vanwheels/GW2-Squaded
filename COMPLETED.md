@@ -2,6 +2,32 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 45 (continued) — Tag-filter UI rework: profession/elite-spec picker, custom-tag dropdown, OR semantics
+
+Follow-up to the tags+filter/search work just below, after user feedback on the first pass: the
+flat button row of every tag (auto + custom mixed together) was unintuitive, and selecting 2+ tags
+used AND semantics (impossible to satisfy for 2 professions at once — a build can only be one
+profession — so multi-selecting professions always showed zero results).
+
+- **OR, not AND**: `useTagFilter`'s `filtered` now keeps a record if it has *any* selected tag
+  (`.some()`), not *every* selected tag. Fixes the "select 2 professions, see nothing" bug directly.
+- **Profession/elite-spec picker**: new `ProfessionTagPicker.tsx`, visually identical to the build
+  editor's `ProfessionSpecPicker` (same `.spec-icon-button`/`.profession-picker-row`/
+  `.elite-spec-picker-grid` CSS, per explicit user request) but toggle-multi-select instead of
+  single-select — clicking an icon toggles that profession/elite-spec name in/out of
+  `selectedTags` rather than switching a build's own profession. Reuses the exact tag strings
+  `shared/tags/auto-tags.ts` already produces, so no new tag vocabulary. Shown on `BuildsView` only
+  (`TagFilterBar`'s `showProfessionPicker` prop) — not `BuildsSidebar`, whose fixed 200px width
+  can't fit the elite-spec grid's per-profession-column layout.
+- **Custom-tag dropdown**: new `TagChipDropdown.tsx` replaces the old flat "every tag is a button"
+  row for user-created tags — a `<select>` of tags not yet active (choosing one adds it to the
+  filter) plus the currently-active ones as removable chips below, reusing the same `.tag-chip`/
+  `.tag-chip-remove` styling the editor's `TagInput` already established. `BuildsView`/`SquadsView`/
+  `BuildsSidebar` each compute their own `customTags` list (unique `tags` values in use) and pass
+  it in; `useTagFilter` no longer computes a merged `allTags` itself (it doesn't need to distinguish
+  auto vs. custom tags for matching, only the UI does, and the UI now sources each facet
+  separately).
+
 ## Session 45 (continued) — Drag-to-reorder cards; Tags + filter/search; last-updated display
 
 - **Drag-to-reorder**: `Build`/`SquadComp` gained an `order: number` field (`src/shared/types/`).

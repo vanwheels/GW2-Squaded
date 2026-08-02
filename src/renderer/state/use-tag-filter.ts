@@ -9,12 +9,11 @@ interface UseTagFilterOptions<T> {
 interface TagFilter<T> {
   query: string
   setQuery: (query: string) => void
-  /** Every distinct tag across `records`, alphabetized — feeds the filter-chip row. */
-  allTags: string[]
   selectedTags: Set<string>
   toggleTag: (tag: string) => void
-  /** Name-substring match (case-insensitive) AND every selected tag present (not OR) — see the
-   *  2026-08-01 TODO scoping note on the tags feature for why AND was picked. */
+  /** Name-substring match (case-insensitive) AND at least one selected tag present (OR across
+   *  tags, not AND — a build can only be one profession, so requiring every selected tag would
+   *  make selecting 2 professions always show nothing). */
   filtered: T[]
 }
 
@@ -25,12 +24,6 @@ interface TagFilter<T> {
 export function useTagFilter<T>({ records, getName, getTags }: UseTagFilterOptions<T>): TagFilter<T> {
   const [query, setQuery] = useState('')
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set())
-
-  const allTags = useMemo(() => {
-    const tags = new Set<string>()
-    for (const record of records) for (const tag of getTags(record)) tags.add(tag)
-    return [...tags].sort((a, b) => a.localeCompare(b))
-  }, [records, getTags])
 
   function toggleTag(tag: string): void {
     setSelectedTags((prev) => {
@@ -46,11 +39,9 @@ export function useTagFilter<T>({ records, getName, getTags }: UseTagFilterOptio
     return records.filter((record) => {
       if (needle && !getName(record).toLowerCase().includes(needle)) return false
       if (selectedTags.size === 0) return true
-      const recordTags = new Set(getTags(record))
-      for (const tag of selectedTags) if (!recordTags.has(tag)) return false
-      return true
+      return getTags(record).some((tag) => selectedTags.has(tag))
     })
   }, [records, query, selectedTags, getName, getTags])
 
-  return { query, setQuery, allTags, selectedTags, toggleTag, filtered }
+  return { query, setQuery, selectedTags, toggleTag, filtered }
 }
