@@ -131,12 +131,15 @@ const AQUATIC_ONLY_WEAPON_NAMES = new Set(['Trident', 'Speargun'])
 
 function weaponMiniIcon(weaponType: string | null | undefined, isAquatic: boolean): string | undefined {
   const slug = weaponType === 'Spear' && !isAquatic ? 'spear-land' : weaponType ? WEAPON_ICON_SLUG[weaponType] : undefined
-  return slug ? `/icons/weapon-mini/${slug}.png` : undefined
+  // Relative (no leading slash): the packaged app loads index.html via `file://`, where a
+  // root-absolute path resolves against the OS filesystem root, not the app's own directory —
+  // broke every local icon in production (see COMPLETED.md/git history, discovered post-release).
+  return slug ? `icons/weapon-mini/${slug}.png` : undefined
 }
 
 function weaponPlaceholderIcon(weaponType: string | null | undefined): string | undefined {
   const slug = weaponType ? WEAPON_ICON_SLUG[weaponType] : undefined
-  return slug ? `/icons/weapon-placeholder/${slug}.png` : undefined
+  return slug ? `icons/weapon-placeholder/${slug}.png` : undefined
 }
 
 function byName(a: UpgradeOption, b: UpgradeOption): number {
@@ -349,8 +352,8 @@ export function EquipmentEditor({
           variant="slot"
           rarity="ascended"
           dragCategory="stat"
-          cornerIcon={`/icons/slot-mini/${SLOT_ICON_KIND[key] ?? 'amulet'}.png`}
-          emptyIcon={`/icons/equip-slot/${SLOT_ICON_KIND[key] ?? 'amulet'}.png`}
+          cornerIcon={`icons/slot-mini/${SLOT_ICON_KIND[key] ?? 'amulet'}.png`}
+          emptyIcon={`icons/equip-slot/${SLOT_ICON_KIND[key] ?? 'amulet'}.png`}
         />
         {isRuneSlot && (
           <div className="upgrade-row">
@@ -624,7 +627,7 @@ export function EquipmentEditor({
               consumables.relicId,
               (id) => onConsumablesChange({ ...consumables, relicId: id }),
               'fine',
-              '/icons/weapon-placeholder/relic.png'
+              'icons/weapon-placeholder/relic.png'
             )}
             {renderOtherSlot('Food', foodOptions, consumables.foodId, (id) => onConsumablesChange({ ...consumables, foodId: id }))}
             {renderOtherSlot('Utility', utilityOptions, consumables.utilityId, (id) => onConsumablesChange({ ...consumables, utilityId: id }))}
