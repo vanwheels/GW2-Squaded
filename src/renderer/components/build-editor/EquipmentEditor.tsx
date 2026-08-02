@@ -10,7 +10,7 @@ import {
   weaponAdjustmentKey,
   type AdjustmentKey
 } from '@shared/gear-calc/attribute-totals'
-import { formatItemStatName } from '@shared/gear-calc/format-description'
+import { formatConsumableDescription, formatItemStatName } from '@shared/gear-calc/format-description'
 import { formatRelicDescription } from '@shared/gear-calc/relic-effects-format'
 import { useGameData } from '@renderer/state/game-data-store'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
@@ -283,10 +283,10 @@ export function EquipmentEditor({
     .map((r) => ({ id: r.id, name: r.name, icon: r.icon, description: formatRelicDescription(r, relicEffects[r.id]) }))
     .sort(byName)
   const foodOptions: UpgradeOption[] = food
-    .map((f) => ({ id: f.id, name: f.name, icon: f.icon, description: f.description }))
+    .map((f) => ({ id: f.id, name: f.name, icon: f.icon, description: formatConsumableDescription(f) }))
     .sort(byName)
   const utilityOptions: UpgradeOption[] = utility
-    .map((u) => ({ id: u.id, name: u.name, icon: u.icon, description: u.description }))
+    .map((u) => ({ id: u.id, name: u.name, icon: u.icon, description: formatConsumableDescription(u) }))
     .sort(byName)
 
   function setItemStat(key: EquipmentSlotKey, itemStatId: number | null): void {

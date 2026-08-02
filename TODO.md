@@ -4,6 +4,87 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
+- [ ] Sigils aren't factored into the Stats panel yet (user report, 2026-08-01). Confirmed the
+      `Sigil` type (`src/shared/types/game-data.ts`) has no structural `bonuses` field at all —
+      unlike Rune/Consumable, it's free-text `description` only — so `computeGearAttributeTotals`
+      has nothing to read for a sigil's stat contribution. The only sigil effect modeled anywhere
+      is the 8 on-kill stacking sigils' flat-per-stack bonus, hand-curated in `combat-state.ts`'s
+      `STACKING_SIGILS` table and applied via the `CombatState` stepper — that's a proc/combat-state
+      mechanic, not a structural stat grant, so it doesn't cover sigils in general. Needs scoping:
+      do any sigils grant an *unconditional* flat stat (rare — most are on-crit/on-swap/on-kill
+      procs, which arguably belong in the same "not modeled, out of scope" bucket as other procs),
+      or is this report specifically about the stacking sigils' current stack count not visibly
+      moving the Stats panel numbers (a wiring bug, not a missing-data problem)? Check
+      `StatsPanel.tsx`/`derived-stats.ts` for whether `combatStatePoints` (which is where
+      `STACKING_SIGILS` contributions actually land) is even included in the panel's displayed
+      totals before assuming new data modeling is needed.
+- [ ] Food and utility aren't factored into the Stats panel yet (user report, 2026-08-01). This is
+      surprising given the code: `EquipmentEditor.tsx` already has a build-level Food/Utility picker
+      wired to `build.foodId`/`build.utilityId`, `computeGearAttributeTotals`
+      (`attribute-totals.ts`) already reads both ids and applies their `Consumable.bonuses` via
+      `addBonus`, and `data/game-data/food.json`/`utility.json` do carry populated `bonuses` arrays
+      (spot-checked live, not empty). So the underlying math path looks wired correctly — next
+      session should reproduce live (pick a food/utility with a clear flat bonus, e.g. a
+      Healing-Power food, and watch the Stats panel) before assuming missing modeling; likely
+      candidates if it really doesn't move: a stale-state bug where `StatsPanel` reads a different
+      `build` reference than the Equipment editor's in-progress draft (not committed until saved?),
+      or a bonus-attribute-name mismatch between `addBonus`'s expected keys and what
+      food/utility's `bonuses[].attribute` actually contains for the specific items tested.
+- [ ] Gear Optimizer should also let rune and infusion choice be search variables (not just gear
+      stat-prefix + optional food/utility, which is all it searches today) — noted 2026-08-01, scope
+      to runes + infusions only for now, leave sigils out (sigils are procs, not a stat lever the
+      optimizer's floor/maximize model fits — see the sigils item above). Currently
+      `gear-optimize.ts`'s `optimizeGear` treats the build's equipped runes/infusions as **fixed**
+      baseline contributions (see its "Baseline" comment — `computeGearAttributeTotals(fixedBuild,
+      ...)` folds them in before the search ever runs) exactly like it treats food/utility when
+      `optimizeFoodUtility` is off. Making runes/infusions searchable means: (1) new `OptimizerSlot`
+      entries for rune choice (per equipped rune count/tier — WvW rune sets are usually 6x one
+      rune, so likely a single "rune set" slot analogous to how weapon pairs collapse to one slot,
+      not 6 independent slots) and each infusion slot already present on gear
+      (`armorTrinketInfusionCapacity`/`weaponUpgradeCapacity` from `upgrade-slots.ts` already know
+      capacity per slot); (2) `statOptionsFor`'s dedup-by-relevant-metric-delta pattern should
+      extend cleanly to runes (`Rune.bonuses`, tiered 1pc/2pc/.../6pc like the existing rune bonus
+      parsing in `attribute-totals.ts`) and infusions (`Infusion.attribute`/`.value`, already a
+      single flat point). Needs a UI decision too: `GearOptimizerPanel.tsx` currently has one
+      "optimize food/utility" checkbox — likely wants a parallel "optimize runes/infusions" toggle
+      rather than always searching them, consistent with the existing opt-in pattern.
+- [ ] Bumped to priority 2026-08-02 (was a "not currently planned" stretch goal — see the old entry
+      this replaces, formerly in "Stats panel / boon-condition bar polish"): per-skill "Healing" and
+      "Damage" tooltip breakdowns — hovering the Healing/DPS stat on the Boon-Condition summary bar
+      should list each heal/weapon/utility skill on the bar with its computed magnitude at current
+      Healing Power / Power+Precision+Ferocity+condition stats, mirroring how the gear stat-prefix
+      tooltips (`EquipmentEditor.tsx`'s `statOptionsFor`) already show a real per-attribute numeric
+      breakdown instead of just flavor text. Healing is the more tractable of the two: heal skills'
+      `AttributeAdjust`/`Number` facts carry a base heal coefficient that scales off Healing Power
+      the same way `numericFactLines` (`src/shared/skill-calc/fact-numbers.ts`) already renders
+      other fact types for the skill picker's own tooltips — reuse that formatter rather than a new
+      one. Damage is harder: weapon-skill damage facts are typically expressed as a coefficient
+      against Power (and condition skills separately against Condition Damage), and WvW also has
+      target-armor assumptions baked into gw2skills.net-style damage calculators that this app has
+      never modeled anywhere — needs its own scoping pass on what "current stats" damage math to use
+      before implementation, not just a formatter reuse like Healing.
+- [ ] Follow-up to the tooltip-overhaul items above, noted 2026-08-02, updated 2026-08-02: trait
+      and food/utility tooltips now carry real structured content (traits: `numericFactLines` lines
+      appended below the description via `factsBlock`, same as skills; food/utility:
+      `formatConsumableDescription` in `format-description.ts` builds `bonuses[].raw` lines + a
+      `Duration:` line from `durationMs`/`applyCount`, falling back to raw `description` only for
+      buff-less consumables like Feast reagents — `effectName` deliberately left unused, it's just
+      the buff category label ("Nourishment"/"Enhancement") and added no useful info next to the
+      bonus lines already shown). Still waiting on the Healing/Damage tooltip breakdown item above
+      before this visual pass makes sense — do a dedicated visual pass over **every** tooltip in the
+      app once that lands too — traits, skills, gear stat prefixes, runes, sigils, relics,
+      food/utility, infusions — so they read like a single coherent design instead of whatever shape
+      each one organically grew into while the content work landed. Target look: in-game GW2
+      tooltip / gw2skills.net conventions (rarity-colored item name header, icon next to title, a
+      divider between name and effect text, stat lines as a tidy list rather than a wrapped
+      paragraph, muted/secondary color for flavor text vs. bright color for real numeric bonuses).
+      Starting point already exists — `Tooltip.tsx`'s `TooltipBody` plus `global.css`'s
+      `.tooltip-*` rules (`.tooltip-title`, `.tooltip-description`, `.tooltip-numeric-facts`,
+      `.tooltip-boon-facts`, `.tooltip-skill-variant`) already give skills a semi-structured layout
+      — extend that shared vocabulary to the newly-enriched tooltip types rather than inventing new
+      one-off styling per content type. Sequence this AFTER the Healing/Damage content work lands,
+      not concurrently — no point styling layouts around content shapes that are still about to
+      change.
 - [ ] Curate more trait attribute bonuses (`trait-attributes.ts`, added 2026-08-02). Traits can
       grant a flat attribute bonus or an attribute-to-attribute % conversion — found via a user
       cross-check against gw2skills.net (Revenant/Salvation's "Life Attunement" was silently
@@ -92,21 +173,15 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       count change would need the same manual wiki-verification pass docs/game-data.md describes for
       durations; (3) stationary sources (banners/wells/spirits) haven't been spot-checked for the
       same fact shape.
-- [ ] Stretch goal, not currently planned: a per-skill "Damage" tooltip breakdown mirroring the
-      Healing breakdown idea below — hovering a DPS stat would list each weapon/utility skill on the
-      bar with its computed damage at current Power/Precision/Ferocity/condition stats.
 - [ ] "Healing" row in `BoonConditionSummaryPanel`'s Miscellaneous section — deliberately deferred
-      to the "Healing and Damage numbers" pass below (per user direction 2026-08-01), not attempted
-      as part of the Control/Auras/Miscellaneous/Strip&Corrupt/Combo work (see COMPLETED.md): unlike
-      Stealth/Superspeed/Evade/Breaks Stun/Barrier, "does this build grant Healing" has no single
-      clean fact shape — `AttributeAdjust` facts carry 100+ distinct free-text labels for it ("Healing",
-      "Ally Healing", "Heal per Condition Removed", ...), AND it's nearly always-true for every build
-      (everyone has a heal skill) so a naive presence check wouldn't be a useful signal — needs the
-      same real magnitude computation the "Healing"/"Damage" tooltip stretch goals below are already
-      about, not another boolean icon.
-- [ ] Stretch goal, not currently planned: a per-skill "Healing" tooltip breakdown (hovering the
-      Healing stat lists each heal skill on the bar with its computed heal amount at current Healing
-      Power).
+      to the "Healing and Damage numbers" pass (now bumped to priority, see "Next up") per user
+      direction 2026-08-01, not attempted as part of the Control/Auras/Miscellaneous/Strip&Corrupt/
+      Combo work (see COMPLETED.md): unlike Stealth/Superspeed/Evade/Breaks Stun/Barrier, "does this
+      build grant Healing" has no single clean fact shape — `AttributeAdjust` facts carry 100+
+      distinct free-text labels for it ("Healing", "Ally Healing", "Heal per Condition Removed", ...),
+      AND it's nearly always-true for every build (everyone has a heal skill) so a naive presence
+      check wouldn't be a useful signal — needs the same real magnitude computation the Healing
+      tooltip breakdown item is already about, not another boolean icon.
 - [ ] Minor, unconfirmed: possible Ascended-vs-Exotic filter tabs on the itemstat-combo picker — no
       screenshot exists confirming this is real; leave as-is unless it resurfaces with a concrete
       example.

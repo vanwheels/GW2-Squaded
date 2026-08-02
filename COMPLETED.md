@@ -2,6 +2,31 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 53 — Trait and food/utility tooltips now show structured content, not raw description
+
+Bumped-to-priority TODO item: traits and food/utility consumables previously showed only the raw
+API `description` sentence. Reused two patterns already proven elsewhere instead of inventing new
+ones:
+
+- **Traits** (`TraitsEditor.tsx`): both minor and major trait tooltips now append
+  `numericFactLines(trait.facts, trait.traitedFacts, activeIds)` via `factsBlock` (imported from
+  `SkillsEditor.tsx`), the same Recharge/Damage-hits/AttributeAdjust/Number/Range/Distance/Time
+  formatter the skill picker already used. `activeIds` is computed locally in `TraitsEditor` from
+  its own `TraitLineSlots` value (minors auto-active per equipped spec, majors per chosen id) —
+  mirrors `boon-calc/sources.ts`'s `activeTraitIds` but doesn't need a full `Build`, which
+  `TraitsEditor` never receives.
+- **Food/utility** (`EquipmentEditor.tsx`): `foodOptions`/`utilityOptions` now build their
+  description via a new `formatConsumableDescription` (`format-description.ts`), which joins
+  `bonuses[].raw` lines the same way runes already do, plus a `Duration: Xm Ys` line derived from
+  `durationMs`/`applyCount`. Falls back to the raw `description` untouched for buff-less
+  consumables (e.g. "Feast" reagents meant to be served rather than eaten — `bonuses` is empty and
+  `durationMs` is null for those). `effectName` was deliberately left unused — it's just the buff
+  category label ("Nourishment"/"Enhancement") and added no information the bonus lines don't
+  already convey.
+
+Typecheck and lint both pass clean. The follow-up "visual pass over every tooltip" TODO item is
+still blocked on the separate Healing/Damage tooltip breakdown item, not on this work.
+
 ## Session 52 — Two-handed weapon tooltip used the one-handed constant, not a true 2x/rounding bug
 
 Follow-up to Session 51: the user confirmed two-handed weapons were still off and specifically

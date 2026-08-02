@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState, type RefObject } from 'react'
+import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import type { ProfessionId, Specialization, Trait, TraitLineSelection, TraitLineSlots } from '@shared/types'
+import { numericFactLines } from '@shared/skill-calc/fact-numbers'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
+import { factsBlock } from './SkillsEditor'
 
 interface Props {
   profession: ProfessionId
@@ -97,6 +99,10 @@ interface TraitLineRowProps {
   onTraitChoice: (tierIndex: 0 | 1 | 2, traitId: number) => void
   minorTraitsForSpecialization: (specializationId: number) => Trait[]
   majorTraitsForSpecialization: (specializationId: number) => Trait[]
+  /** All currently-active trait ids across every line (minors auto-active once their spec is
+   *  equipped, majors once chosen) — gates a trait's own `requires_trait`-conditioned facts the
+   *  same way `numericFactLines` gates skill facts, see `SkillsEditor.tsx`'s `useDurationContext`. */
+  activeIds: ReadonlySet<number>
 }
 
 function TraitLineRow({
@@ -106,7 +112,8 @@ function TraitLineRow({
   onChooseSpec,
   onTraitChoice,
   minorTraitsForSpecialization,
-  majorTraitsForSpecialization
+  majorTraitsForSpecialization,
+  activeIds
 }: TraitLineRowProps) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const minorRefs = useRef<(HTMLDivElement | null)[]>([null, null, null])
@@ -154,7 +161,14 @@ function TraitLineRow({
             return (
               <div className="trait-tier-group" key={tier}>
                 {minor && (
-                  <Tooltip content={<TooltipBody title={minor.name} description={minor.description} />}>
+                  <Tooltip
+                    content={
+                      <>
+                        <TooltipBody title={minor.name} description={minor.description} />
+                        {factsBlock(numericFactLines(minor.facts, minor.traitedFacts, activeIds), [])}
+                      </>
+                    }
+                  >
                     <div
                       className="minor-trait"
                       ref={(el) => {
@@ -167,7 +181,15 @@ function TraitLineRow({
                 )}
                 <div className="major-trait-tier">
                   {tierMajors.map((t) => (
-                    <Tooltip key={t.id} content={<TooltipBody title={t.name} description={t.description} />}>
+                    <Tooltip
+                      key={t.id}
+                      content={
+                        <>
+                          <TooltipBody title={t.name} description={t.description} />
+                          {factsBlock(numericFactLines(t.facts, t.traitedFacts, activeIds), [])}
+                        </>
+                      }
+                    >
                       <button
                         type="button"
                         ref={(el) => {
@@ -235,6 +257,19 @@ export function TraitsEditor({ profession, value, onChange }: Props) {
 
   const usedSpecIds = new Set(lines.filter((l): l is TraitLineSelection => l !== null).map((l) => l.specializationId))
 
+  // Mirrors `boon-calc/sources.ts`'s `activeTraitIds`, scoped to this editor's own `TraitLineSlots`
+  // value rather than a full `Build` (which `TraitsEditor` doesn't have — it's only ever handed
+  // `build.specializations` directly).
+  const activeIds = useMemo(() => {
+    const ids = new Set<number>()
+    for (const line of lines) {
+      if (!line) continue
+      for (const minor of minorTraitsForSpecialization(line.specializationId)) ids.add(minor.id)
+      for (const chosenId of line.chosenTraitIds) if (chosenId !== null) ids.add(chosenId)
+    }
+    return ids
+  }, [lines, minorTraitsForSpecialization])
+
   return (
     <div className="traits-editor">
       {LINE_INDICES.map((lineIndex) => {
@@ -257,6 +292,7 @@ export function TraitsEditor({ profession, value, onChange }: Props) {
             onTraitChoice={(tierIndex, traitId) => handleTraitChoice(lineIndex, tierIndex, traitId)}
             minorTraitsForSpecialization={minorTraitsForSpecialization}
             majorTraitsForSpecialization={majorTraitsForSpecialization}
+            activeIds={activeIds}
           />
         )
       })}
