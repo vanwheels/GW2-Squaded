@@ -94,9 +94,18 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       `healing_damage_coefficient_curation` memory). Utility-slot skills were swept the same way
       2026-08-02 (40 candidates found via the same scan approach, but 17 were the API mislabeling a
       Barrier fact as Healing — see the new Barrier item below; of the 23 genuine Healing candidates,
-      20 landed in the table, 3 stayed uncurated, see below). Next category up per the agreed plan:
-      Elite skills, then weapon skills last (weapon skills are the largest surface — every weapon ×
-      profession × spec-driven skill-3 replacement etc.).
+      20 landed in the table, 3 stayed uncurated, see below). Elite-slot skills were swept 2026-08-02
+      too (only 12 candidates — 1 was the same Barrier trap, excluded; of 11 genuine candidates, 10
+      landed in the table, 1 stayed uncurated, see below). **Next and last category per the agreed
+      plan: weapon skills** (the largest surface — every weapon × profession × spec-driven skill-3
+      replacement etc.).
+      1 Elite skill was investigated but left uncurated:
+      - **Revenant 29114 (Energy Expulsion, Legendary Centaur Stance flip-skill)**: a fresh live
+        `/v2/skills/29114` API pull (not just this app's cached `skills.json`) still returns a
+        completely different fact set — a "Healing Fragment"/"Number of Fragments"/"Knockback"
+        mechanic — than the wiki's current page describes (a single knockdown+heal, no fragments at
+        all). A genuine, unresolved API/wiki mechanic mismatch, not a stale local cache — left
+        uncurated rather than guessing which source to trust.
       3 Utility skills were investigated but left uncurated, same reasoning bar as the Heal-skill
       gaps below — don't just re-guess a coefficient:
       - **Guardian 31295 (Sanctuary, underwater/self-cast variant)**: shares its name with id 9128 but
@@ -138,7 +147,10 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       2026-08-02: of 40 Utility-slot skills the GW2 API tags with a Healing-type `AttributeAdjust`
       fact, 17 turned out to actually be Barrier facts (the API mislabels Barrier's `target` as
       "Healing" too, not just genuine heals) — e.g. Barrier Signet, Banner of Defense, "Brace
-      Yourselves!", Bulwark Gyro, Utility Goggles, Serpent Siphon, Imminent Threat, and more. Barrier
+      Yourselves!", Bulwark Gyro, Utility Goggles, Serpent Siphon, Imminent Threat, and more. The
+      Elite-skill sweep (also 2026-08-02) hit the same trap once more: Warrior's "We Will Never
+      Yield!" (id 76562) tags its "Minimum Barrier"/"Maximum Barrier" facts as Healing too — same
+      exclusion applied, not curated. Barrier
       scales off Healing Power with the exact same `base + coefficient * HealingPower` shape as a real
       heal (confirmed on several of these skills' wiki pages), but this app has no Barrier-amount UI
       or formula anywhere — `CURATED_HEALING_COEFFICIENTS`/`healingLinesForSkill` only ever renders

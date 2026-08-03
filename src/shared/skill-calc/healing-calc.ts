@@ -415,7 +415,67 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // so only the WvW-correct pair is curated (PvE-only: base 774, coefficient 0.5).
   76739: [{ factText: 'Life Siphon Healing', baseValue: 606, coefficient: 0.15 }],
   // Necromancer — Weapon of Remedy (Harbinger). No PvE/WvW split.
-  77022: [{ factText: 'Healing per Condition Removed', baseValue: 408, coefficient: 0.2 }]
+  77022: [{ factText: 'Healing per Condition Removed', baseValue: 408, coefficient: 0.2 }],
+
+  // --- Elite-slot skills (category sweep 2026-08-02, see TODO.md/COMPLETED.md) ---
+  // Only 12 equippable Elite-slot skills carry a Healing-type `AttributeAdjust` fact at all (a much
+  // smaller surface than Heal/Utility) — of those, 1 (Warrior's "We Will Never Yield!", id 76562) is
+  // the same API Barrier-mislabeling trap already seen on Necromancer's Sand Flare/several Utility
+  // skills (its 2 Healing-tagged facts are literally named "Minimum Barrier"/"Maximum Barrier") and is
+  // out of scope, not listed here. Of the remaining 11 genuine Healing candidates, 1 stayed uncurated
+  // (Revenant's Energy Expulsion, id 29114 — see below).
+  // Elementalist — Crashing Waves. No PvE/WvW split.
+  25492: [{ factText: 'Healing', baseValue: 6410, coefficient: 1.0 }],
+  // Elementalist — "Rebound!" (Tempest). No PvE/WvW split.
+  29968: [{ factText: 'Healing', baseValue: 2836, coefficient: 1.5 }],
+  // Guardian — Signet of Courage (both ids share identical facts — 68676 is a Dragonhunter-tagged
+  // duplicate of the same core-Guardian signet). No PvE/WvW split on any of the 3 facts. A 4th fact
+  // shares the exact same text ("Passive Healing") as the base passive heal but is the Perfect
+  // Inscriptions trait's (+20%) boosted variant (requires_trait 579) — same identical-text collision
+  // already documented on Thief's Signet of Malice, so only the untraited baseline is curated here;
+  // the trait bonus isn't reflected.
+  30461: [
+    { factText: 'Passive Healing', baseValue: 202, coefficient: 0.15 },
+    { factText: 'Active Heal Pulse', baseValue: 650, coefficient: 0.2 },
+    { factText: 'Final Heal Pulse', baseValue: 3250, coefficient: 2.0 }
+  ],
+  68676: [
+    { factText: 'Passive Healing', baseValue: 202, coefficient: 0.15 },
+    { factText: 'Active Heal Pulse', baseValue: 650, coefficient: 0.2 },
+    { factText: 'Final Heal Pulse', baseValue: 3250, coefficient: 2.0 }
+  ],
+  // Necromancer — Xinrae's Weapon (Harbinger). "Life Siphon Healing" splits by mode (PvE 1990/0.005
+  // vs "pvp wvw" 1001/0.005, same coefficient) — WvW value used. The wiki doesn't separately document
+  // a plain "Healing" fact for this skill; only the siphon.
+  76941: [{ factText: 'Life Siphon Healing', baseValue: 1001, coefficient: 0.005 }],
+  // Ranger — Glyph of the Stars (Druid). 2 ids are genuinely different sub-skills, not duplicates —
+  // the wiki's own "(Celestial Avatar)" and "(non-celestial)" sub-pages document different base
+  // values/coefficients for each cast form. No PvE/WvW split on either's healing fact (only the
+  // Celestial Avatar form's separate revive-% fact splits by mode, unrelated to Healing Power).
+  55024: [{ factText: 'Healing', baseValue: 392, coefficient: 0.14 }], // Celestial Avatar form
+  55046: [{ factText: 'Healing', baseValue: 293, coefficient: 0.105 }], // non-celestial form
+  // Revenant — Soulcleave's Summit (Vindicator). Both "Healing" and "Life Siphon Healing" split by
+  // mode (Healing: "pve wvw" 1439/0.25 vs pvp 1199/0.25; Life Siphon Healing: "pve wvw" 578/0.5 vs
+  // pvp 489/0.12) — WvW groups with PvE for both here (opposite of Xinrae's Weapon above) — WvW
+  // values used for both.
+  45773: [
+    { factText: 'Healing', baseValue: 1439, coefficient: 0.25 },
+    { factText: 'Life Siphon Healing', baseValue: 578, coefficient: 0.5 }
+  ],
+  // Revenant — Urn of Saint Viktor (Vindicator). PvE/WvW base-value split (PvE+PvP grouped 708 vs WvW
+  // 450, same 0.22 coefficient) — WvW value used.
+  62687: [{ factText: 'Healing', baseValue: 450, coefficient: 0.22 }],
+  // Revenant — Drop Urn of Saint Viktor (Vindicator, Urn of Saint Viktor's flip-skill detonate). No
+  // PvE/WvW split.
+  62738: [{ factText: 'Base Heal', baseValue: 709, coefficient: 0.22 }]
+  // Revenant — Energy Expulsion (Legendary Centaur Stance flip-skill, id 29114) investigated but left
+  // uncurated: the live GW2 API (re-confirmed via a fresh `/v2/skills/29114` pull, not just this app's
+  // cached data) returns a completely different fact set — a "Healing Fragment"/"Number of
+  // Fragments"/"Knockback" mechanic — than the wiki's current page, which describes a single
+  // knockdown+heal with no fragments at all (`{{skill fact|healing|1970|coefficient=1.0|game
+  // mode=pve}}` / `1478/0.5` pvp+wvw). This is a genuine, unresolved API/wiki mechanic mismatch (not
+  // just a value tweak), not a case where either source can be trusted over the other — left
+  // uncurated rather than guessing which one is stale.
 }
 
 export interface HealingLine {

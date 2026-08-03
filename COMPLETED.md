@@ -2,6 +2,44 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 59 — Full Elite-skill category sweep for `CURATED_HEALING_COEFFICIENTS`
+
+Continuation of Sessions 57-58's category-sweep plan (Heal → Utility → Elite → weapon skills, now the
+last one remaining). Scanned `data/game-data/skills.json` for every `slot: 'Elite'` skill with a
+qualifying `AttributeAdjust`/`target: 'Healing'` fact: only 12 candidates, a far smaller surface than
+Heal (85) or Utility (40). Of those, 1 (Warrior's "We Will Never Yield!", id 76562) was the same API
+Barrier-mislabeling trap already logged in the Barrier TODO item — its 2 Healing-tagged facts are
+literally named "Minimum Barrier"/"Maximum Barrier" — excluded, not added to that TODO list again
+since it's the same known issue.
+
+That left 11 genuine Healing candidates across 6 professions (Elementalist, Guardian, Necromancer,
+Ranger, Revenant, plus none for Engineer/Mesmer/Thief/Warrior at this slot). Small enough to fetch
+directly via `curl` against raw wikitext in the main session rather than dispatching per-profession
+research agents. 10 of 11 landed in `CURATED_HEALING_COEFFICIENTS`; 1 stayed uncurated — Revenant's
+Energy Expulsion (id 29114): a fresh live `/v2/skills/29114` pull confirmed the GW2 API itself still
+returns a completely different fact set (a "Healing Fragment"/"Number of Fragments"/"Knockback"
+mechanic) than the wiki's current page describes (a single knockdown+heal, no fragments at all) — a
+genuine unresolved API/wiki mechanic mismatch, not a stale local cache, left uncurated rather than
+guessing which source to trust.
+
+Notable findings during curation:
+- Guardian's Signet of Courage has a 4th Healing fact sharing the exact same text ("Passive Healing")
+  as its base passive heal — this one is the Perfect Inscriptions trait's (+20%) boosted variant
+  (`requires_trait` 579), not a game-mode split. Same identical-text collision already documented on
+  Thief's Signet of Malice (Session 57) — only the untraited baseline is curated, the trait-boosted
+  number isn't reflected in this app yet.
+- Ranger's two "Glyph of the Stars" ids are genuinely different sub-skills (the wiki's own
+  "(Celestial Avatar)" vs. "(non-celestial)" cast-form sub-pages), each with its own base
+  value/coefficient — not duplicates and not a game-mode split.
+- Revenant's Soulcleave's Summit and Necromancer's Xinrae's Weapon both split PvE/WvW/PvP by
+  coefficient as well as base value on their Life Siphon Healing facts, but the WvW grouping direction
+  differs between them (Soulcleave's Summit: WvW groups with PvE; Xinrae's Weapon: WvW groups with
+  PvP) — confirms this has to be checked per-skill, never assumed from another skill's precedent.
+
+Typecheck and lint both pass. Not visually spot-checked in the running app (Electron sandbox
+limitation, same as prior sessions). Weapon skills are next and last in the category-sweep plan — the
+largest remaining surface (every weapon × profession × spec-driven skill-3 replacement etc.).
+
 ## Session 58 — Full Utility-skill category sweep for `CURATED_HEALING_COEFFICIENTS`
 
 Continuation of Session 57's category-sweep plan (Heal → Utility → Elite → weapon skills). Scanned
