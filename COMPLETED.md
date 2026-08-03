@@ -2,6 +2,42 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 60 — Full Weapon-slot category sweep for `CURATED_HEALING_COEFFICIENTS` (last category)
+
+Completed the category-sweep plan from Sessions 57-59 (Heal → Utility → Elite → Weapon skills).
+Enumerated every distinct weapon-skill id across all professions' weapons (main-hand, off-hand,
+two-handed, underwater, every elite-spec weapon including the newer Janthir Wilds Spear) via
+`professions.json`'s `weapons[].skills` — 648 distinct ids, the largest surface of any category so
+far. Of those, 110 carry a Healing-type `AttributeAdjust` fact.
+
+Two known traps plus one newly-discovered one narrowed the field before any wiki research started:
+- 17 were the familiar Barrier-mislabeling trap (API tags Barrier facts `target: 'Healing'` too).
+- 38 — nearly every initiative-costing Thief weapon skill — turned out to all be the same shared
+  trait, Assassin's Reward (id 1238, "heal yourself...for each point of initiative spent"),
+  duplicated onto each skill's own facts as a `requires_trait`-gated entry. This is a trait formula,
+  not a per-skill design, so none of these belong in a per-skill coefficient table — flagged as its
+  own new TODO item (a future generic trait-bonus table, mirroring `FURY_CRIT_CHANCE_TRAIT_BONUSES`,
+  would be the right home for it).
+- A local-data cross-check (comparing every "genuine" candidate's `requires_trait` field against
+  `skills.json`, not just the raw candidate scan) caught a one-off instance of the same shape:
+  Necromancer's Chillblains (id 10605) has no unconditional Healing fact at all — its only one
+  requires trait 778 (Transfusion) — excluded the same way.
+
+That left 55 genuine candidates across 8 professions (Elementalist 20, Guardian 8, Necromancer 9,
+Mesmer 3, Ranger 5, Revenant 5, Thief 1, Warrior 3, Engineer 1). Dispatched one research agent per
+profession in parallel (small professions batched into one agent), each fetching raw wikitext
+directly via curl — same methodology as every prior sweep, never a summarizing WebFetch. 49 of the
+55 landed in `healing-calc.ts`'s new "Weapon-slot skills" section; 6 stayed uncurated after
+investigation (see TODO.md for the per-skill writeup: Etching: Jökulhlaup's missing coefficient,
+Death Spiral's wiki stub tag, Life Siphon's genuine wiki/API base-value conflict, Astral Wisp's
+post-rework pulse-count ambiguity, Shadow Veil's unresolvable factText collision, and Chillblains'
+trait-only gating).
+
+`CURATED_HEALING_COEFFICIENTS` is now a complete pass over Heal + Utility + Elite + Weapon slots
+across every profession — the full category-sweep plan from Session 57 is done. `typecheck` and
+`lint` both pass clean on the new entries; not visually spot-checked in the running app (Electron
+sandbox limitation, same caveat as every prior session touching this table).
+
 ## Session 59 — Full Elite-skill category sweep for `CURATED_HEALING_COEFFICIENTS`
 
 Continuation of Sessions 57-58's category-sweep plan (Heal → Utility → Elite → weapon skills, now the

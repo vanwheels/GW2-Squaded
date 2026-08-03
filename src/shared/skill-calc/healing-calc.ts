@@ -467,7 +467,214 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   62687: [{ factText: 'Healing', baseValue: 450, coefficient: 0.22 }],
   // Revenant — Drop Urn of Saint Viktor (Vindicator, Urn of Saint Viktor's flip-skill detonate). No
   // PvE/WvW split.
-  62738: [{ factText: 'Base Heal', baseValue: 709, coefficient: 0.22 }]
+  62738: [{ factText: 'Base Heal', baseValue: 709, coefficient: 0.22 }],
+
+  // --- Weapon-slot skills (category sweep 2026-08-02, see TODO.md/COMPLETED.md; last category —
+  // Heal/Utility/Elite were swept first). Of 648 distinct weapon-skill ids across every profession's
+  // weapons (main-hand, off-hand, two-handed, underwater, every elite-spec weapon including the
+  // newer Janthir Wilds Spear), 110 carry a Healing-type `AttributeAdjust` fact. 17 are the familiar
+  // Barrier-mislabeling trap (API tags Barrier facts `target: 'Healing'` too) and out of scope, not
+  // listed here. A second, previously-unseen trap surfaced this sweep: 38 candidates (nearly every
+  // initiative-costing Thief weapon skill) turned out to be a single trait, Assassin's Reward
+  // ("Heal yourself...for each point of initiative spent", id 1238, Deadly Arts), duplicated onto
+  // every skill's own facts as a `requires_trait`-gated entry — that's a shared trait formula, not a
+  // per-skill design, so it doesn't belong in a per-skill coefficient table (same reasoning already
+  // used below to leave Signet of Courage's Perfect Inscriptions-boosted variant uncurated) and none
+  // of those 38 are listed here either; a generalized trait-bonus table (like
+  // `FURY_CRIT_CHANCE_TRAIT_BONUSES`) would be the right home for it if ever built. A third, one-off
+  // case of the same shape: Necromancer's Chillblains (id 10605) has no unconditional Healing fact at
+  // all — its only Healing fact requires trait 778 (Transfusion) — so it's excluded here too, not
+  // listed as an uncurated research gap below.
+  //
+  // Of the remaining 55 genuine candidates, 49 landed in the table (research done in parallel via one
+  // agent per profession, each fetching raw wikitext directly, same methodology as every prior sweep).
+  // 5 stayed uncurated after investigation:
+  // - **Elementalist 72982 (Etching: Jökulhlaup, Spear)**: wiki's own `{{skill fact|healing|532}}`
+  //   template has no `coefficient=` parameter at all — base value present, scaling undocumented.
+  // - **Necromancer 30860 (Death Spiral)**: wiki page is explicitly tagged
+  //   `{{stub||missing siphon coefficients}}` — neither of its two Life Siphon Healing facts has a
+  //   coefficient documented anywhere on the page.
+  // - **Necromancer 69302 (Life Siphon)**: wiki's own base values (450 PvE / 300 WvW+PvP) don't match
+  //   this app's API-sourced values (537 / 238) under either mode ordering — a genuine, unexplained
+  //   conflict, not a mode-split naming mismatch.
+  // - **Ranger 31889 (Astral Wisp, Druid Staff, post-2026-07-15 rework)**: wiki's rewritten page gives
+  //   one base value (1288) shared across all modes with only the coefficient split (0.6 pve/pvp vs 0.9
+  //   wvw), but the API shows two duplicate-text facts both valued 322 — roughly a quarter of 1288,
+  //   suggesting a pulse-count relationship neither source documents post-rework. Left uncurated rather
+  //   than guessing which coefficient pairs with which quartering.
+  // - **Thief 72991 (Shadow Veil, Spear)**: two facts share the identical factText "Healing" (2570 and
+  //   1290) — the wiki documents a coefficient for only one of them (1290 -> 0.5), and since this
+  //   table matches facts by factText alone, an entry here would bind to whichever fact
+  //   `Array.find` returns first, not reliably the one the coefficient was verified against. Left
+  //   entirely uncurated rather than risk mislabeling.
+  // Elementalist — Water Trident. Both facts keep the same base value across modes but the coefficient
+  // splits (PvE 1.0/0.1 vs WvW 0.7/0.1) — WvW coefficients used.
+  5510: [
+    { factText: 'First-Hit Healing', baseValue: 1099, coefficient: 0.7 },
+    { factText: 'Additional-Hit Healing', baseValue: 550, coefficient: 0.1 }
+  ],
+  // Elementalist — Cone of Cold. Wiki documents one 4-pulse-total fact per mode (PvE 1888/1.2, WvW/PvP
+  // 1416/0.8); divided by 4 to match this app's per-pulse API facts (472 PvE, 354 WvW/PvP, both exact)
+  // — WvW per-pulse value used.
+  5537: [{ factText: 'Healing', baseValue: 354, coefficient: 0.2 }],
+  // Elementalist — Water Blast. PvE/WvW coefficient split (PvE 0.25 vs WvW 0.15, same 372 base) — WvW
+  // value used.
+  5549: [{ factText: 'Healing', baseValue: 223, coefficient: 0.15 }],
+  // Elementalist — Healing Rain (Staff 5). No PvE/WvW split.
+  5551: [{ factText: 'Heal per Condition', baseValue: 427, coefficient: 0.1 }],
+  // Elementalist — Cleansing Wave. No PvE/WvW split (unified since a 2024-10-08 patch); wiki's 2222 vs
+  // this app's API 2220 is a negligible 2-point rounding difference, not a real conflict.
+  5558: [{ factText: 'Healing', baseValue: 2220, coefficient: 1.0 }],
+  // Elementalist — Tidal Wave. No PvE/WvW split.
+  5607: [{ factText: 'Healing', baseValue: 325, coefficient: 0.1 }],
+  // Elementalist — Geyser. Wiki documents one 5-pulse-total fact per mode (PvE 2760/2.0, WvW/PvP
+  // 2205/1.25); divided by 5 to match this app's per-pulse API fact (552, exact) — WvW per-pulse value
+  // used.
+  5681: [{ factText: 'Healing', baseValue: 441, coefficient: 0.25 }],
+  // Elementalist — Undercurrent (Trident). No PvE/WvW split.
+  5748: [{ factText: 'Healing', baseValue: 1940, coefficient: 1.0 }],
+  // Elementalist — Water Globe (Warhorn). Base value unchanged across modes but coefficient splits
+  // (PvE 0.24 vs WvW 0.125) — WvW value used.
+  30446: [{ factText: 'Healing', baseValue: 470, coefficient: 0.125 }],
+  // Elementalist — Tidal Surge (Warhorn). No PvE/WvW split on the healing fact (only damage splits).
+  30864: [{ factText: 'Healing', baseValue: 1302, coefficient: 0.5 }],
+  // Elementalist — Pressure Blast (Catalyst hammer). No PvE/WvW split on either fact.
+  40332: [
+    { factText: 'Ally Healing', baseValue: 1285, coefficient: 0.5 },
+    { factText: 'Self Healing', baseValue: 1285, coefficient: 0.25 }
+  ],
+  // Elementalist — Seiche (Catalyst hammer). No PvE/WvW split.
+  41052: [{ factText: 'Healing', baseValue: 66, coefficient: 0.05 }],
+  // Elementalist — Aqua Siphon (Catalyst hammer). No PvE/WvW split.
+  41167: [{ factText: 'Healing', baseValue: 2255, coefficient: 0.5 }],
+  // Elementalist — Steam Surge (Catalyst hammer). Base value unchanged across modes but coefficient
+  // splits (PvE base 427 shown by API) — WvW base 213, same coefficient 0.1 both modes.
+  42330: [{ factText: 'Healing', baseValue: 213, coefficient: 0.1 }],
+  // Elementalist — Riptide (Weaver dagger). PvE/WvW+PvP split (PvE 216/0.18 vs WvW 120/0.05) — WvW
+  // value used. Wiki separately flags an unintended PvP-only scaling bug (coefficient reads 0.5
+  // in-game) that explicitly doesn't apply to WvW, so the documented 0.05 stands for WvW.
+  44405: [{ factText: 'Healing', baseValue: 120, coefficient: 0.05 }],
+  // Elementalist — Crashing Font (Catalyst hammer). Base value splits by mode on both facts (WvW
+  // 1580/3159 vs PvE 2330/4659); coefficient is identical across modes for both.
+  62948: [
+    { factText: 'Lesser Healing', baseValue: 1580, coefficient: 0.225 },
+    { factText: 'Greater Healing', baseValue: 3159, coefficient: 0.45 }
+  ],
+  // Elementalist — Soothing Splash (Spear). No PvE/WvW split.
+  72033: [{ factText: 'Healing per Unique Condition', baseValue: 23, coefficient: 0.05 }],
+  // Elementalist — Restorative Spear. Wiki explicitly documents `coefficient=0` — a genuine flat heal
+  // with no Healing Power scaling, not an undocumented/missing value.
+  72966: [{ factText: 'Healing', baseValue: 216, coefficient: 0 }],
+  // Elementalist — Ripple (Spear). Base value splits by mode (PvE 2025 vs WvW/PvP 1385), coefficient
+  // (0.5) identical across modes.
+  72967: [{ factText: 'Healing', baseValue: 1385, coefficient: 0.5 }],
+  // Engineer — Essence of Living Shadows (Spear). Both facts group "pve wvw" together (WvW = PvE
+  // here, PvP-only differs) — the API's own values (970/645) already match the WvW-correct number.
+  71882: [
+    { factText: 'Initial Heal', baseValue: 970, coefficient: 0.45 },
+    { factText: 'Pulse Heal', baseValue: 645, coefficient: 0.2 }
+  ],
+  // Guardian — Leap of Faith (Spear). No PvE/WvW split on either fact.
+  9080: [
+    { factText: 'First-Hit Healing', baseValue: 1750, coefficient: 0.2 },
+    { factText: 'Additional-Hit Healing', baseValue: 750, coefficient: 0.1 }
+  ],
+  // Guardian — Symbol of Faith (Spear). No PvE/WvW split.
+  9111: [{ factText: 'Healing', baseValue: 527, coefficient: 0.5 }],
+  // Guardian — Ray of Judgment (Spear). No PvE/WvW split on the healing fact (only damage splits).
+  9112: [{ factText: 'Healing', baseValue: 975, coefficient: 0.2 }],
+  // Guardian — Holy Strike (Spear). PvE/WvW+PvP split (PvE 221/0.25 vs WvW 177/0.1) — WvW value used.
+  9140: [{ factText: 'Healing', baseValue: 177, coefficient: 0.1 }],
+  // Guardian — Empower (Spear). No PvE/WvW split on either fact.
+  9265: [
+    { factText: 'Final Heal', baseValue: 1500, coefficient: 0.5 },
+    { factText: 'Heal Pulses', baseValue: 496, coefficient: 0.17 }
+  ],
+  // Guardian — Helio Rush (Spear). "Illuminated" is a self-buff state (not a trait), so both facts are
+  // the base skill's own effects, not a trait-conditional variant. Both split PvE/WvW+PvP by
+  // coefficient (base value unchanged) — WvW coefficients used.
+  72940: [
+    { factText: 'Healing', baseValue: 805, coefficient: 0.4 },
+    { factText: 'Illuminated Healing', baseValue: 966, coefficient: 0.48 }
+  ],
+  // Guardian — Daybreaking Slash (Spear). PvE/WvW+PvP base-value split (PvE 390 vs WvW 198), same
+  // 0.06 coefficient both modes — WvW value used.
+  73055: [{ factText: 'Healing', baseValue: 198, coefficient: 0.06 }],
+  // Guardian — Solar Storm (Spear). No PvE/WvW split.
+  73094: [{ factText: 'Healing', baseValue: 966, coefficient: 0.3 }],
+  // Mesmer — Friendly Fire (Spear). PvE/WvW+PvP split (PvE 325/0.2 vs WvW 229/0.1) — WvW value used.
+  71892: [{ factText: 'Healing', baseValue: 229, coefficient: 0.1 }],
+  // Mesmer — Journey (Spear). 3-way split by mode (PvE 1295 / WvW 911 / PvP, separately valued), same
+  // 0.67 coefficient across modes — WvW value used.
+  71897: [{ factText: 'Healing', baseValue: 911, coefficient: 0.67 }],
+  // Mesmer — Imaginary Inversion (Spear). "Empowered Healing" is a distinct wiki-labeled sub-effect
+  // (boosted heal while under the Clarity buff), not a trait-gated variant — confirmed no
+  // `requires_trait` on either fact. Both split PvE/WvW+PvP by base value, same 0.1 coefficient both.
+  73152: [
+    { factText: 'Healing', baseValue: 1610, coefficient: 0.1 },
+    { factText: 'Empowered Healing', baseValue: 2890, coefficient: 0.1 }
+  ],
+  // Necromancer — Locust Swarm. 4 API facts: an untraited PvE/WvW+PvP pair (37/55, same 0.08
+  // coefficient) plus a second pair gated behind trait 799 (Banshee's Wail) at 55/83 — only the
+  // untraited baseline is curated here, same reasoning as Signet of Courage's traited variant below;
+  // the trait bonus isn't reflected. WvW value of the untraited pair used.
+  10557: [{ factText: 'Life Siphon Healing', baseValue: 55, coefficient: 0.08 }],
+  // Necromancer — Deadly Feast. No PvE/WvW split.
+  10619: [{ factText: 'Life Siphon Healing', baseValue: 69, coefficient: 0.1 }],
+  // Necromancer — Soul Grasp. PvE/WvW+PvP base-value split (PvE 1003 vs WvW 440), same 0.2
+  // coefficient both modes — WvW value used.
+  55050: [{ factText: 'Life Siphon Healing', baseValue: 440, coefficient: 0.2 }],
+  // Necromancer — Path of Gluttony (Spear). No PvE/WvW split on either fact.
+  71799: [
+    { factText: 'First-Hit Healing', baseValue: 2410, coefficient: 0.4 },
+    { factText: 'Additional-Hit Healing', baseValue: 410, coefficient: 0.1 }
+  ],
+  // Necromancer — Hungering Maelstrom (Spear). First-Hit Healing groups "pve wvw" together (vs a
+  // lower PvP-only value) — the grouped value matches this app's own API value directly.
+  // Additional-Hit Healing has no split.
+  71813: [
+    { factText: 'First-Hit Healing', baseValue: 1764, coefficient: 0.2 },
+    { factText: 'Additional-Hit Healing', baseValue: 294, coefficient: 0.034 }
+  ],
+  // Necromancer — Enervation Blade (Spear). No PvE/WvW split on either fact.
+  71986: [
+    { factText: 'First-Hit Healing', baseValue: 202, coefficient: 0.05 },
+    { factText: 'Additional-Hit Healing', baseValue: 40, coefficient: 0.01 }
+  ],
+  // Ranger — Sublime Conversion (Druid Staff). No PvE/WvW split.
+  31496: [{ factText: 'Healing', baseValue: 162, coefficient: 0.025 }],
+  // Ranger — Ancestral Grace (Druid Staff). Base value unchanged across modes but coefficient splits
+  // (PvE 1.0 vs WvW 1.5) — WvW value used.
+  31535: [{ factText: 'Healing', baseValue: 1450, coefficient: 1.5 }],
+  // Ranger — Solar Beam (Druid Staff). PvE/WvW+PvP base-value split (PvE 66 vs WvW 30), same 0.03
+  // coefficient both modes — WvW value used.
+  31710: [{ factText: 'Healing', baseValue: 30, coefficient: 0.03 }],
+  // Ranger — Flourish (Spear). "wvw pvp" grouped coefficient split from PvE (PvE 509/0.5 vs WvW+PvP
+  // 410/0.25) — WvW value used.
+  71999: [{ factText: 'Healing', baseValue: 410, coefficient: 0.25 }],
+  // Revenant — Crystal Hibernation (Herald, Legendary Dragon Stance). PvE/WvW+PvP split confirmed by
+  // version history as a competitive-mode balance pass (620/0.5 pve vs 496/0.125 wvw+pvp) — WvW value
+  // used.
+  28262: [{ factText: 'Healing', baseValue: 496, coefficient: 0.125 }],
+  // Revenant — Mender's Rebuke (Legendary Dwarf Stance, Jalis). No PvE/WvW split on the healing fact.
+  29145: [{ factText: 'Healing', baseValue: 650, coefficient: 0.2 }],
+  // Revenant — Renewing Wave (Legendary Assassin Stance, Shiro). No PvE/WvW split.
+  29321: [{ factText: 'Healing', baseValue: 1295, coefficient: 0.65 }],
+  // Revenant — Envoy of Exuberance (Herald facet). Coefficient (1.0) identical across modes; only
+  // base value splits (PvE 1620 vs WvW+PvP 1215) — WvW value used.
+  29386: [{ factText: 'Healing', baseValue: 1215, coefficient: 1.0 }],
+  // Revenant — Reckoning Blast (underwater trident skill 4, condition-per-active-legend). No PvE/WvW
+  // split.
+  50410: [{ factText: 'Healing', baseValue: 1428, coefficient: 0.8 }],
+  // Warrior — Line Breaker (Spear). 3-way split by mode (PvE 3240/2.25, WvW 2203/1.25, PvP separately
+  // valued) — WvW value used.
+  71860: [{ factText: 'Healing', baseValue: 2203, coefficient: 1.25 }],
+  // Warrior — Defiant Roar (Spear). 3-way split by mode (PvE 5180/2.5, WvW 1940/1.1, PvP separately
+  // valued) — WvW value used.
+  71889: [{ factText: 'Healing', baseValue: 1940, coefficient: 1.1 }],
+  // Warrior — Valiant Leap (Spear). 3-way split by mode (PvE 1295/1.0, WvW 975/0.5, PvP separately
+  // valued) — WvW value used.
+  72002: [{ factText: 'Healing', baseValue: 975, coefficient: 0.5 }]
   // Revenant — Energy Expulsion (Legendary Centaur Stance flip-skill, id 29114) investigated but left
   // uncurated: the live GW2 API (re-confirmed via a fresh `/v2/skills/29114` pull, not just this app's
   // cached data) returns a completely different fact set — a "Healing Fragment"/"Number of

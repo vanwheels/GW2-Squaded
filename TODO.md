@@ -96,9 +96,19 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       Barrier fact as Healing — see the new Barrier item below; of the 23 genuine Healing candidates,
       20 landed in the table, 3 stayed uncurated, see below). Elite-slot skills were swept 2026-08-02
       too (only 12 candidates — 1 was the same Barrier trap, excluded; of 11 genuine candidates, 10
-      landed in the table, 1 stayed uncurated, see below). **Next and last category per the agreed
-      plan: weapon skills** (the largest surface — every weapon × profession × spec-driven skill-3
-      replacement etc.).
+      landed in the table, 1 stayed uncurated, see below). **Weapon-slot skills swept 2026-08-02,
+      the last category in the agreed plan** — of 648 distinct weapon-skill ids across every
+      profession's weapons (including the newer Janthir Wilds Spear), 110 carried a Healing-type
+      fact; 17 were the Barrier trap (excluded) and a newly-found third trap surfaced too: 38
+      candidates (nearly every initiative-costing Thief skill) turned out to be one shared trait,
+      Assassin's Reward (id 1238, "heal per initiative spent"), duplicated onto each skill's own
+      facts via `requires_trait` — a trait-bonus formula, not a per-skill design, so none of those
+      38 are curated either (see the dedicated item below). Necromancer's Chillblains (id 10605) is
+      a one-off instance of the same shape (only healing fact requires trait 778, Transfusion) and
+      is excluded the same way. Of the remaining 55 genuine candidates, 49 landed in the table
+      (`healing-calc.ts`'s new "Weapon-slot skills" section), 6 stayed uncurated — see below.
+      `CURATED_HEALING_COEFFICIENTS` is now a complete pass over Heal + Utility + Elite + Weapon
+      slots across every profession.
       1 Elite skill was investigated but left uncurated:
       - **Revenant 29114 (Energy Expulsion, Legendary Centaur Stance flip-skill)**: a fresh live
         `/v2/skills/29114` API pull (not just this app's cached `skills.json`) still returns a
@@ -143,6 +153,23 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         that doesn't match this app's own API base value (1560) — a real +80 wiki/API discrepancy
         (the same offset also shows up on this skill's Siphon Damage facts), so unclear which source
         is stale.
+      5 Weapon-slot skills were investigated but left uncurated, same reasoning bar as above:
+      - **Elementalist 72982 (Etching: Jökulhlaup, Spear)**: wiki's own `{{skill fact|healing|532}}`
+        template has no `coefficient=` parameter at all.
+      - **Necromancer 30860 (Death Spiral)**: wiki page is explicitly tagged
+        `{{stub||missing siphon coefficients}}` — neither Life Siphon Healing fact has a documented
+        coefficient.
+      - **Necromancer 69302 (Life Siphon)**: wiki base values (450 PvE / 300 WvW+PvP) don't match
+        this app's API values (537 / 238) under either mode ordering — a genuine, unexplained
+        conflict.
+      - **Ranger 31889 (Astral Wisp, post-2026-07-15 rework)**: wiki's rewritten page gives one base
+        value (1288) across all modes with only the coefficient split, but the API shows two
+        duplicate-text facts both valued 322 (~1288/4) — a pulse-count relationship neither source
+        documents post-rework. Left uncurated rather than guessing the pairing.
+      - **Thief 72991 (Shadow Veil, Spear)**: two facts share the identical factText "Healing" (2570
+        and 1290) and the wiki only documents a coefficient for one of them (1290) — since this
+        table matches facts by factText alone, curating it risks binding the coefficient to whichever
+        fact `Array.find` happens to return first. Left entirely uncurated.
 - [ ] Barrier is an entirely unmodeled resource bar, surfaced clearly by the Utility-skill sweep
       2026-08-02: of 40 Utility-slot skills the GW2 API tags with a Healing-type `AttributeAdjust`
       fact, 17 turned out to actually be Barrier facts (the API mislabels Barrier's `target` as
@@ -160,8 +187,21 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       genuine `CURATED_BARRIER_COEFFICIENTS`/`barrierLinesForSkill` pair (mirroring
       `healing-calc.ts`'s shape) displayed as its own tooltip line — not folded into the Healing
       number, since Barrier and Health are different bars — is probably worth scoping as its own
-      category sweep at some point, separate from the Heal/Utility/Elite/weapon Healing-coefficient
-      ordering already underway.
+      category sweep at some point, now that the Heal/Utility/Elite/Weapon Healing-coefficient sweep
+      itself is complete (see the item above).
+- [ ] Trait-bonus healing formulas smeared across many skills' own facts, surfaced by the weapon-skill
+      sweep 2026-08-02: Thief's Assassin's Reward trait (id 1238, Deadly Arts, "heal yourself for
+      each point of initiative spent") shows up as a `requires_trait`-gated Healing fact on ~38
+      different weapon skills (nearly every initiative-costing one), and Necromancer's Transfusion
+      trait (id 778) does the same to Chillblains (id 10605). Neither is curated in
+      `CURATED_HEALING_COEFFICIENTS` — a shared trait formula duplicated per-skill by the API isn't a
+      per-skill design, same reasoning already used to leave Signet of Courage's Perfect
+      Inscriptions-boosted variant unreflected. If this app ever wants to show these, the right shape
+      is a small generic trait-bonus table (like `FURY_CRIT_CHANCE_TRAIT_BONUSES`) — one entry per
+      trait with its own wiki-verified per-point coefficient, applied to whichever skill's
+      requires_trait-gated fact matches, rather than 38+ near-duplicate per-skill entries. Worth
+      checking whether other professions have an equivalent "heal on X while this trait is active"
+      trait before scoping — Assassin's Reward/Transfusion may not be the only two.
 - [ ] Follow-up to the tooltip-overhaul items above, noted 2026-08-02, updated 2026-08-02: trait
       and food/utility tooltips now carry real structured content (traits: `numericFactLines` lines
       appended below the description via `factsBlock`, same as skills; food/utility:
