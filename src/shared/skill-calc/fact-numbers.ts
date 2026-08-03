@@ -4,6 +4,16 @@ function formatNumber(n: number): string {
   return Math.round(n).toLocaleString()
 }
 
+/** One tooltip-ready fact line: display text plus the fact's own CDN icon (straight off the API's
+ *  `Fact.icon`, same one the real in-game tooltip shows next to this exact line — every fact of a
+ *  given `type` shares one icon, confirmed via a full scan of data/game-data/skills.json) so callers
+ *  can render an icon-glyph-then-text row instead of plain text. `icon` is `null` for the rare fact
+ *  with no `icon` field on it. */
+export interface FactLine {
+  icon: string | null
+  text: string
+}
+
 /**
  * One human-readable line per directly-usable numeric `Fact` (Recharge seconds, hit counts,
  * Number/Distance raw values, `AttributeAdjust`'s base-stat reference number) — everything derivable
@@ -16,34 +26,35 @@ function formatNumber(n: number): string {
  * exists, this generic line otherwise; traits (`TraitsEditor.tsx`) always go through
  * `numericFactLines` unchanged, since neither curated table has a trait entry yet.
  */
-export function factLine(fact: Fact): string | null {
+export function factLine(fact: Fact): FactLine | null {
+  const icon = fact.icon ?? null
   switch (fact.type) {
     case 'Recharge':
-      return typeof fact.value === 'number' ? `Recharge: ${fact.value}s` : null
+      return typeof fact.value === 'number' ? { icon, text: `Recharge: ${fact.value}s` } : null
     case 'Damage': {
       const hitCount = fact.hit_count
-      return typeof hitCount === 'number' ? `Damage: ${hitCount} hit${hitCount === 1 ? '' : 's'}` : null
+      return typeof hitCount === 'number' ? { icon, text: `Damage: ${hitCount} hit${hitCount === 1 ? '' : 's'}` } : null
     }
     case 'HealingAdjust': {
       const hitCount = fact.hit_count
-      return typeof hitCount === 'number' ? `Healing: ${hitCount} hit${hitCount === 1 ? '' : 's'}` : null
+      return typeof hitCount === 'number' ? { icon, text: `Healing: ${hitCount} hit${hitCount === 1 ? '' : 's'}` } : null
     }
     case 'AttributeAdjust':
       return typeof fact.value === 'number' && (typeof fact.text === 'string' || typeof fact.target === 'string')
-        ? `${typeof fact.text === 'string' ? fact.text : fact.target} (base): ${formatNumber(fact.value)}`
+        ? { icon, text: `${typeof fact.text === 'string' ? fact.text : fact.target} (base): ${formatNumber(fact.value)}` }
         : null
     case 'Number':
     case 'Range':
       return typeof fact.value === 'number'
-        ? `${typeof fact.text === 'string' ? fact.text : fact.type}: ${formatNumber(fact.value)}`
+        ? { icon, text: `${typeof fact.text === 'string' ? fact.text : fact.type}: ${formatNumber(fact.value)}` }
         : null
     case 'Distance':
       return typeof fact.distance === 'number'
-        ? `${typeof fact.text === 'string' ? fact.text : 'Distance'}: ${formatNumber(fact.distance)}`
+        ? { icon, text: `${typeof fact.text === 'string' ? fact.text : 'Distance'}: ${formatNumber(fact.distance)}` }
         : null
     case 'Time':
       return typeof fact.duration === 'number'
-        ? `${typeof fact.text === 'string' ? fact.text : 'Time'}: ${fact.duration}s`
+        ? { icon, text: `${typeof fact.text === 'string' ? fact.text : 'Time'}: ${fact.duration}s` }
         : null
     default:
       return null
@@ -56,14 +67,14 @@ export function factLine(fact: Fact): string | null {
  * identical lines (e.g. a skill with 2 near-identical Damage facts for a physical + condition
  * component both reporting the same hit count) rather than repeating them.
  */
-export function numericFactLines(facts: Fact[], traitedFacts: Fact[], activeIds: ReadonlySet<number>): string[] {
-  const lines: string[] = []
+export function numericFactLines(facts: Fact[], traitedFacts: Fact[], activeIds: ReadonlySet<number>): FactLine[] {
+  const lines: FactLine[] = []
   const seen = new Set<string>()
   for (const fact of [...facts, ...traitedFacts]) {
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
     const line = factLine(fact)
-    if (line && !seen.has(line)) {
-      seen.add(line)
+    if (line && !seen.has(line.text)) {
+      seen.add(line.text)
       lines.push(line)
     }
   }

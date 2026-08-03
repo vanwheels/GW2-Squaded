@@ -121,7 +121,7 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
     const boonNames = new Set(boonFacts.map((f) => f.boonOrConditionName))
     const numericLines = chapter.facts
       .filter((f) => !(isBoonName(f.label) || isConditionName(f.label)) || !boonNames.has(f.label.charAt(0).toUpperCase() + f.label.slice(1)))
-      .map(formatFactLine)
+      .map((f) => ({ icon: null, text: formatFactLine(f) }))
     return (
       <>
         <TooltipBody title={chapter.name} description={chapter.description} />

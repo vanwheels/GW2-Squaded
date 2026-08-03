@@ -49,7 +49,10 @@ function iconItemsFor(groups: BoonConditionGroup[], names: readonly string[], ic
           <ul className="tooltip-boon-facts">
             {group.sources.map((s, i) => (
               <li key={`${s.sourceKind}-${s.sourceId}-${i}`}>
-                <span>{s.sourceName}</span>
+                <span className="tooltip-fact-label">
+                  <img className="tooltip-fact-icon" src={s.sourceIcon} alt="" />
+                  <span>{s.sourceName}</span>
+                </span>
                 <span className="boon-source-duration">
                   {formatBoonDuration(s.scaledDurationSeconds)}s
                   {s.applyCount > 1 ? ` × ${s.applyCount}` : ''}
@@ -83,7 +86,10 @@ function namedFactIconItemsFor(groups: NamedFactGroup[], names: readonly string[
           <ul className="tooltip-boon-facts">
             {group.sources.map((s, i) => (
               <li key={`${s.sourceKind}-${s.sourceId}-${i}`}>
-                <span>{s.sourceName}</span>
+                <span className="tooltip-fact-label">
+                  <img className="tooltip-fact-icon" src={s.sourceIcon} alt="" />
+                  <span>{s.sourceName}</span>
+                </span>
                 {s.detail && <span className="boon-source-duration">{s.detail}</span>}
               </li>
             ))}
@@ -116,7 +122,10 @@ function comboIconItems(sources: ComboSource[]): BoonConditionIconItem[] {
             <ul className="tooltip-boon-facts">
               {entries.map((s, i) => (
                 <li key={`${s.sourceKind}-${s.sourceId}-${i}`}>
-                  <span>{s.sourceName}</span>
+                  <span className="tooltip-fact-label">
+                    <img className="tooltip-fact-icon" src={s.sourceIcon} alt="" />
+                    <span>{s.sourceName}</span>
+                  </span>
                   <span className="boon-source-duration">{s.fieldType ?? s.finisherType}</span>
                 </li>
               ))}

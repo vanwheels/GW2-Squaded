@@ -6,6 +6,9 @@
   --text: #e8e8ec;
   --muted: #8a8a96;
   --accent: #c0392b;
+  /* GW2's own skill/trait tooltip title color (gold) — distinct from --accent (used for
+     destructive/warning UI elsewhere), matching the in-game and gw2skills.net tooltip look. */
+  --tooltip-title: #e5c988;
   /* GW2's own item-rarity colors (Ascended pink/magenta, Fine blue) — see TODO.md's
      item-rarity-color-coding item for which slot categories use which tier and why. */
   --rarity-ascended: #fb3e8d;
@@ -1175,7 +1178,7 @@ input[type='text'] {
   position: fixed;
   z-index: 1000;
   transform: translate(-50%, -100%);
-  max-width: 280px;
+  max-width: 300px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -1188,7 +1191,7 @@ input[type='text'] {
 
 .tooltip-title {
   font-weight: 600;
-  color: var(--text);
+  color: var(--tooltip-title);
 }
 
 .tooltip-description {
@@ -1200,15 +1203,32 @@ input[type='text'] {
 .tooltip-boon-facts {
   list-style: none;
   margin: 6px 0 0;
-  padding: 8px 0 0;
+  padding: 7px 0 0;
   border-top: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .tooltip-numeric-facts li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   color: var(--text);
+}
+
+.tooltip-fact-icon {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  object-fit: contain;
+}
+
+.tooltip-fact-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
 }
 
 .tooltip-skill-variant {
@@ -1223,7 +1243,7 @@ input[type='text'] {
 
 .tooltip-boon-facts li {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
   color: var(--text);
@@ -1231,6 +1251,7 @@ input[type='text'] {
 
 .tooltip-boon-facts .boon-source-duration {
   color: var(--muted);
+  flex: none;
 }
 
 .tooltip-description {

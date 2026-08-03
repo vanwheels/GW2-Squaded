@@ -2,8 +2,10 @@ import { useMemo, useRef, useState } from 'react'
 import type { Build, RevenantSkillSelection, Skill, SkillSelection, StandardSkillSelection, WvwFactOverrides } from '@shared/types'
 import { activeTraitIds, boonConditionFactsForSkill, type BoonConditionSource } from '@shared/boon-calc/sources'
 import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
+import type { FactLine } from '@shared/skill-calc/fact-numbers'
 import { relatedVariantSkills } from '@shared/skill-calc/multi-effect'
 import { formatBoonDuration } from '@shared/boon-calc/format'
+import { BOON_CONDITION_ICONS } from '@shared/boon-calc/icons'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { computeCharacterStats } from '@shared/gear-calc/derived-stats'
 import { DEFAULT_COMBAT_STATE, TARGET_ARMOR_VALUES, type CombatState } from '@shared/gear-calc/combat-state'
@@ -148,13 +150,18 @@ export function useDurationContext(build: Build, combatState: CombatState = DEFA
   return { gameData, activeIds, durationPercent, characterAttributes, targetArmor }
 }
 
-export function factsBlock(numericLines: string[], boonFacts: BoonConditionSource[]) {
+const BOON_CONDITION_ICONS_BY_NAME: Record<string, string> = BOON_CONDITION_ICONS
+
+export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSource[]) {
   return (
     <>
       {numericLines.length > 0 && (
         <ul className="tooltip-numeric-facts">
           {numericLines.map((line, i) => (
-            <li key={i}>{line}</li>
+            <li key={i}>
+              {line.icon && <img className="tooltip-fact-icon" src={line.icon} alt="" />}
+              <span>{line.text}</span>
+            </li>
           ))}
         </ul>
       )}
@@ -162,7 +169,12 @@ export function factsBlock(numericLines: string[], boonFacts: BoonConditionSourc
         <ul className="tooltip-boon-facts">
           {boonFacts.map((f, i) => (
             <li key={i}>
-              <span>{f.boonOrConditionName}</span>
+              <span className="tooltip-fact-label">
+                {BOON_CONDITION_ICONS_BY_NAME[f.boonOrConditionName] && (
+                  <img className="tooltip-fact-icon" src={BOON_CONDITION_ICONS_BY_NAME[f.boonOrConditionName]} alt="" />
+                )}
+                <span>{f.boonOrConditionName}</span>
+              </span>
               <span className="boon-source-duration">
                 {formatBoonDuration(f.scaledDurationSeconds)}s
                 {f.applyCount > 1 ? ` × ${f.applyCount}` : ''}
