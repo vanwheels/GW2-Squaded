@@ -2,6 +2,58 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 57 — Full Heal-skill category sweep for `CURATED_HEALING_COEFFICIENTS`; Firebrand mantra Final Charge fix
+
+User pushed back on continuing to curate Healing coefficients build-by-build: "the spirit of
+theorycrafting is scouting all classes for unique optimizations, not just through builds — but
+through class combinations as well." Agreed strategy going forward: full category sweep across every
+profession before moving to the next category (Heal → Utility → Elite → weapon skills, weapon skills
+saved for last since that's the largest surface area). See `heal_coefficient_curation_strategy`
+memory.
+
+Swept all 85 candidate Heal-slot skills found via a full `data/game-data/skills.json` scan (every
+skill with `slot: 'Heal'` and a qualifying `AttributeAdjust`/`target: 'Healing'` fact) — 9 parallel
+research agents, one per profession, each fetched every skill's raw wikitext directly via `curl`
+(never through WebFetch's summarizing model — a prior session's WebFetch summary produced a real
+wrong number, see `healing_damage_coefficient_curation` memory) and cross-checked the wiki's PvE
+value against this app's own API base value before trusting a coefficient. 81 of 85 skills landed in
+`CURATED_HEALING_COEFFICIENTS`; 4 stayed uncurated where the wiki and this app's own API data
+genuinely disagree (Elementalist Aquatic Stance, Engineer Mitotic State, Necromancer Summon Blood
+Fiend, Necromancer's second Well of Blood id) — see TODO.md for the per-skill reasoning, not guessed.
+
+Caught two real bugs during review, both fixed before landing:
+- Had written placeholder Revenant coefficients into the file before that profession's research
+  agent had actually returned — caught on review and corrected against the real report. A reminder
+  that even inside a otherwise-rigorous pipeline, a rushed edit can reintroduce exactly the guessing
+  the rigor exists to prevent.
+- Thief's Signet of Malice has two `AttributeAdjust`/Healing facts that share the *exact same* fact
+  `text` ("Healing") — this table's lookup matches by that string, so curating both under one label
+  would let the second silently overwrite the first everywhere it's read (`skillFactLines`'s
+  `Map`-based lookup keeps only the last of any duplicate key). Fixed to curate only the active heal,
+  same reasoning `CURATED_HEALING_COEFFICIENTS`'s Healing Signet entry already documents for its own
+  passive-tick exclusion.
+
+Also fixed several elite-specialization names in existing/new curated-table comments that didn't
+match this app's own `specializations.json` (e.g. Firebrand's Mantra of Solace charges were labeled
+"Willbender", Revenant's Conduit variant was labeled "Vindicator") — comments only, no data changes.
+
+Separately, user spot-checked the app against gw2skills.net and reported two more gaps:
+1. Mesmer Troubadour's "Tale of the Second Scion" heal skill shows no numbers at all — root-caused to
+   the GW2 API returning zero `AttributeAdjust` facts for this skill (unlike every other Heal skill
+   checked this session), not a missing curated-table entry. Logged in TODO.md as its own follow-up
+   (needs a wiki-only synthetic-fact mechanism, an architecture change).
+2. Firebrand's Heal mantra ("Mantra of Solace") was missing its "Final Charge" sub-skill
+   (Rejuvenating Respite) from the combined tooltip. Root cause: a mantra's `flipSkill` chain only
+   ever reaches the regular charge — the API has no field linking the regular charge (or the mantra
+   itself) forward to the Final Charge skill at all. Fixed by hand-curating the link for all 6
+   Firebrand mantras (`src/shared/skill-calc/mantra-final-charge.ts`, `MANTRA_FINAL_CHARGE_IDS`,
+   matched by shared `specializationId` 62 plus each Final Charge skill's `description` starting
+   "Final Charge." and its thematic effect matching the regular charge) and wiring it into
+   `multi-effect.ts`'s `relatedVariantSkills` as one more hop after the `flipSkill` walk ends.
+
+Typecheck and lint both pass. Not visually spot-checked in the running app (Electron sandbox
+limitation, same as Sessions 54-56) — still worth doing before the next category (Utility skills).
+
 ## Session 56 — Healing/Damage real numbers moved from the summary row into each skill's own tooltip
 
 User feedback right after Session 55 landed: the standalone "Damage" row (mirroring the "Healing"

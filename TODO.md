@@ -56,16 +56,68 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       summary icon (Session 56, `SkillsEditor.tsx`'s `skillTooltipContent` now calls
       `skill-fact-lines.ts`'s `skillFactLines` instead of the generic `numericFactLines` for skills;
       traits are unchanged, still generic-only). See COMPLETED.md Sessions 54-56 for the full
-      curation writeup. Both curated tables are seeded incrementally (1 skill per base profession
-      each, not a bulk pass) — extend as specific builds get tested, same policy as the
-      trait-attribute table. Neither has been visually spot-checked in the running app yet (Electron
-      sandbox limitation) — do that before extending either curated table further, and before
-      starting the tooltip-visual-pass item below. Condition-skill damage (coefficient against
+      curation writeup. `CURATED_DAMAGE_COEFFICIENTS` is still seeded incrementally (1 skill per base
+      profession, not a bulk pass) — extend as specific builds get tested, same policy as the
+      trait-attribute table.  `CURATED_HEALING_COEFFICIENTS` (`healing-calc.ts`) was instead taken to
+      a full category sweep 2026-08-02 — see the item below for the writeup and what's still
+      uncurated in it. Neither table has been visually spot-checked in the running app yet (Electron
+      sandbox limitation) — do that before extending `CURATED_DAMAGE_COEFFICIENTS` further, and
+      before starting the tooltip-visual-pass item below. Condition-skill damage (coefficient against
       Condition Damage rather than Power) was not scoped as part of this work — the curated skills
       above are all direct-hit Power damage; a condition-damage skill would need its own
       wiki-verification pass (condition-per-stack-per-second base values are a separate,
       well-documented wiki constant table, not skill-specific coefficients) before extending
       `CURATED_DAMAGE_COEFFICIENTS` to cover one.
+- [ ] Mesmer Troubadour's Heal skill, "Tale of the Second Scion" (id 76695), shows no Healing numbers
+      at all in this app (user screenshot comparison, 2026-08-02) — confirmed root cause: the GW2 API
+      returns only 3 facts for this skill (`Recharge`, `Number of Targets`, `Radius`) with **zero**
+      `AttributeAdjust`/Healing facts, unlike every other Heal-slot skill checked this session. The
+      in-game tooltip and gw2skills.net both show real "Self-Healing"/"Ally Healing" numbers plus a
+      "Scion's Reprieve" buff (+15% Heal Effectiveness) that the API doesn't expose either. This
+      isn't a missing `CURATED_HEALING_COEFFICIENTS` entry — `healingLinesForSkill` only ever renders
+      a number when a matching real API fact exists to gate it (deliberate, see that function's doc
+      comment), and there's no fact here to match against at all. Fixing this needs a new mechanism
+      that doesn't require a backing API fact (e.g. a wiki-only synthetic-fact table, injected the
+      way `wvw-fact-overrides.json` patches values but for facts that don't exist yet) — scoped as
+      its own follow-up rather than folded into the Heal-skill sweep above, since it's an
+      architecture change, not a data-curation one. Likely worth checking whether other very recent
+      (Janthir Wilds-era) skills have the same API gap before building a one-off fix just for this
+      skill.
+- [ ] Healing-coefficient curation strategy changed 2026-08-02: user explicitly rejected build-by-
+      build curation ("the spirit of theorycrafting is scouting all classes for unique optimizations,
+      not just through builds") in favor of a full category sweep across all professions before
+      moving to the next category. `CURATED_HEALING_COEFFICIENTS` (`healing-calc.ts`) is now a
+      complete pass over every equippable Heal-slot skill with a qualifying `AttributeAdjust`/
+      `target: 'Healing'` fact (85 candidates found via a full `skills.json` scan; parallel research
+      agents per profession fetched each skill's raw wikitext directly via curl — never through
+      WebFetch's summarizing model, which caused a real wrong-number error earlier this session, see
+      `healing_damage_coefficient_curation` memory). Next category up per the agreed plan: Utility
+      skills, then Elite, then weapon skills last (weapon skills are the largest surface — every
+      weapon × profession × spec-driven skill-3 replacement etc.).
+      A handful of Heal skills were investigated but left uncurated — each needs a fresh look before
+      being added, don't just re-guess a coefficient:
+      - **Elementalist 44239 (Aquatic Stance)**: wiki's current skill-fact template (base 6400)
+        matches neither this app's own API base value (6480) nor the wiki's own most recent
+        version-history text (which also says 6480) — looks like a stale/unedited wiki template.
+      - **Engineer 63049 (Rectifier Signet)**: the Mech Core: J-Drive trait-upgraded pulse heal
+        (`requires_trait` 2298) has no wiki skill-fact template at all, only incomplete prose in the
+        Notes section that doesn't even cover all 3 game modes.
+      - **Engineer 76738 (Mitotic State)**: this app's own API base value (305) doesn't reconcile with
+        either wiki-listed value (7625 PvE/WvW, 5500 PvP) — 7625/305 = 25 exactly, suggesting 305 may
+        be a per-tick amount from a 25-tick heal-over-time while the wiki fact is the pre-summed
+        total, but no interval/tick-count fact confirms this on the wiki page.
+      - **Necromancer 10547 (Summon Blood Fiend)**: the pet's heal scales off the pet's own fixed
+        (permanently-0) Healing Power stat, not the player's — the wiki fact has no `coefficient=`
+        param at all, consistent with this being a genuinely non-scaling number for this app's
+        formula.
+      - **Necromancer 10670 (2nd Well of Blood id)**: shares Well of Blood's wiki page/values with id
+        10527 (already curated), but this app's own API base values for 10670 (5240/280) don't match
+        either the PvE or WvW reading of that shared page — likely a Scourge-context variant the wiki
+        doesn't separately document.
+      - **Revenant 26937 (Enchanted Daggers)**: the "Initial Heal" fact has a wiki base value (1640)
+        that doesn't match this app's own API base value (1560) — a real +80 wiki/API discrepancy
+        (the same offset also shows up on this skill's Siphon Damage facts), so unclear which source
+        is stale.
 - [ ] Follow-up to the tooltip-overhaul items above, noted 2026-08-02, updated 2026-08-02: trait
       and food/utility tooltips now carry real structured content (traits: `numericFactLines` lines
       appended below the description via `factsBlock`, same as skills; food/utility:

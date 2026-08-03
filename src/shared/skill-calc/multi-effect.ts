@@ -1,4 +1,5 @@
 import type { Skill } from '../types'
+import { MANTRA_FINAL_CHARGE_IDS } from './mantra-final-charge'
 
 export interface SkillVariantEffect {
   label: string
@@ -18,6 +19,10 @@ export interface SkillVariantEffect {
  * Focus" under Dragonhunter) — those aren't "additional effects" of the same skill, they're a full
  * replacement already resolved to the one correct id by `skill-variants.ts`'s auto-selection, so
  * there's nothing extra to show alongside it.
+ *
+ * Firebrand mantras add one more hop the API doesn't structurally link at all: after the `flipSkill`
+ * chain reaches the regular charge, `MANTRA_FINAL_CHARGE_IDS` (hand-curated, see its own doc comment)
+ * appends that mantra's enhanced Final Charge cast too.
  */
 export function relatedVariantSkills(skill: Skill, allSkills: Skill[], skillsById: Map<number, Skill>): SkillVariantEffect[] {
   const out: SkillVariantEffect[] = []
@@ -37,6 +42,12 @@ export function relatedVariantSkills(skill: Skill, allSkills: Skill[], skillsByI
     seen.add(next.id)
     out.push({ label: next.name, skill: next })
     current = next
+  }
+
+  const finalChargeId = MANTRA_FINAL_CHARGE_IDS[current.id]
+  if (finalChargeId !== undefined && !seen.has(finalChargeId)) {
+    const finalCharge = skillsById.get(finalChargeId)
+    if (finalCharge) out.push({ label: finalCharge.name, skill: finalCharge })
   }
 
   return out
