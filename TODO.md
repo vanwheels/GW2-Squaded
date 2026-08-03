@@ -91,9 +91,25 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       `target: 'Healing'` fact (85 candidates found via a full `skills.json` scan; parallel research
       agents per profession fetched each skill's raw wikitext directly via curl — never through
       WebFetch's summarizing model, which caused a real wrong-number error earlier this session, see
-      `healing_damage_coefficient_curation` memory). Next category up per the agreed plan: Utility
-      skills, then Elite, then weapon skills last (weapon skills are the largest surface — every
-      weapon × profession × spec-driven skill-3 replacement etc.).
+      `healing_damage_coefficient_curation` memory). Utility-slot skills were swept the same way
+      2026-08-02 (40 candidates found via the same scan approach, but 17 were the API mislabeling a
+      Barrier fact as Healing — see the new Barrier item below; of the 23 genuine Healing candidates,
+      20 landed in the table, 3 stayed uncurated, see below). Next category up per the agreed plan:
+      Elite skills, then weapon skills last (weapon skills are the largest surface — every weapon ×
+      profession × spec-driven skill-3 replacement etc.).
+      3 Utility skills were investigated but left uncurated, same reasoning bar as the Heal-skill
+      gaps below — don't just re-guess a coefficient:
+      - **Guardian 31295 (Sanctuary, underwater/self-cast variant)**: shares its name with id 9128 but
+        is a distinct, frozen-in-a-pre-2016-balance-pass copy (no `GroundTargeted` flag, half the
+        radius) — the wiki's "Sanctuary" page only documents 9128's formula, no coefficient exists
+        anywhere for 31295. Underwater is out of scope for WvW anyway (see the underwater-toggle
+        nice-to-have below), so likely not worth chasing further.
+      - **Guardian 62669 (Repose)**: the wiki page is literally tagged `{{stub|skill|heal coeff}}` —
+        base values are documented (PvE 2595 vs WvW/PvP 1635) but the coefficient itself is an
+        unfilled `?` placeholder on the wiki, not something this app can derive.
+      - **Revenant 29082 (Natural Harmony, Ventari facet)**: wiki lists base value 1124, but a fresh
+        `/v2/skills/29082` API pull independently confirmed this app's own known base value (1620) is
+        current and correct — a real, reconfirmed wiki/API disagreement, not a stale read.
       A handful of Heal skills were investigated but left uncurated — each needs a fresh look before
       being added, don't just re-guess a coefficient:
       - **Elementalist 44239 (Aquatic Stance)**: wiki's current skill-fact template (base 6400)
@@ -118,6 +134,22 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         that doesn't match this app's own API base value (1560) — a real +80 wiki/API discrepancy
         (the same offset also shows up on this skill's Siphon Damage facts), so unclear which source
         is stale.
+- [ ] Barrier is an entirely unmodeled resource bar, surfaced clearly by the Utility-skill sweep
+      2026-08-02: of 40 Utility-slot skills the GW2 API tags with a Healing-type `AttributeAdjust`
+      fact, 17 turned out to actually be Barrier facts (the API mislabels Barrier's `target` as
+      "Healing" too, not just genuine heals) — e.g. Barrier Signet, Banner of Defense, "Brace
+      Yourselves!", Bulwark Gyro, Utility Goggles, Serpent Siphon, Imminent Threat, and more. Barrier
+      scales off Healing Power with the exact same `base + coefficient * HealingPower` shape as a real
+      heal (confirmed on several of these skills' wiki pages), but this app has no Barrier-amount UI
+      or formula anywhere — `CURATED_HEALING_COEFFICIENTS`/`healingLinesForSkill` only ever renders
+      real Health-restoring heals, and Barrier facts are deliberately excluded from it (same call
+      already made for Necromancer's Sand Flare in the original Heal-slot sweep). Given how common
+      this turned out to be in the Utility category specifically (nearly half the candidates), a
+      genuine `CURATED_BARRIER_COEFFICIENTS`/`barrierLinesForSkill` pair (mirroring
+      `healing-calc.ts`'s shape) displayed as its own tooltip line — not folded into the Healing
+      number, since Barrier and Health are different bars — is probably worth scoping as its own
+      category sweep at some point, separate from the Heal/Utility/Elite/weapon Healing-coefficient
+      ordering already underway.
 - [ ] Follow-up to the tooltip-overhaul items above, noted 2026-08-02, updated 2026-08-02: trait
       and food/utility tooltips now carry real structured content (traits: `numericFactLines` lines
       appended below the description via `factsBlock`, same as skills; food/utility:

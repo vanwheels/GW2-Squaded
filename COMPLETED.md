@@ -2,6 +2,43 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 58 — Full Utility-skill category sweep for `CURATED_HEALING_COEFFICIENTS`
+
+Continuation of Session 57's category-sweep plan (Heal → Utility → Elite → weapon skills). Scanned
+`data/game-data/skills.json` for every `slot: 'Utility'` skill with a qualifying `AttributeAdjust`/
+`target: 'Healing'` fact: 40 candidates found. Of those, 17 turned out to actually be Barrier facts —
+the GW2 API mislabels Barrier's `target` as "Healing" too, not just genuine heals (e.g. Barrier
+Signet, Banner of Defense, Bulwark Gyro, Utility Goggles, Serpent Siphon). Barrier is a separate
+resource bar this app doesn't model at all (same exclusion already made for Necromancer's Sand Flare
+in the Heal-slot sweep) — logged as its own new TODO.md item since the Utility category made clear
+just how common it is (nearly half the candidates), worth a dedicated `CURATED_BARRIER_COEFFICIENTS`
+scoping pass at some point.
+
+That left 23 genuine Healing candidates across 8 professions (no Mesmer Utility skill heals at all).
+8 parallel research agents, one per profession, each fetched every skill's raw wikitext directly via
+`curl` (never WebFetch, same rigor as Session 57) and cross-checked the wiki's PvE value against this
+app's own API base value before trusting a coefficient. 20 of 23 landed in
+`CURATED_HEALING_COEFFICIENTS`; 3 stayed uncurated — Guardian's underwater Sanctuary variant (id
+31295, no wiki-documented coefficient exists for it), Guardian's Repose (id 62669, the wiki's own
+coefficient field is a literal unfilled "?" stub), and Revenant's Natural Harmony (id 29082, wiki base
+1124 vs. this app's own live API base 1620 — independently reconfirmed against a fresh
+`/v2/skills/29082` pull, a genuine disagreement not a stale read). See TODO.md for the per-skill
+reasoning.
+
+Notable findings during curation:
+- Several duplicate same-name-but-different-value ids resolved to real distinct mechanics, not
+  errors: Guardian's two "Sanctuary" ids are a ground-targeted skill vs. a frozen pre-2016-balance
+  underwater/self-cast copy; Ranger's two "Glyph of Burgeoning" ids are the same skill's
+  non-Celestial-Avatar-form (heals) vs. Celestial-Avatar-form (grants Barrier instead) casts.
+- Guardian's Merciful Intervention and Necromancer's Nightmare Weapon both have two `AttributeAdjust`
+  facts sharing the *exact same* fact text ("Healing" / "Life Siphon Healing" respectively) on the
+  wiki itself, not just in this app's data — confirmed these are PvE-vs-WvW/PvP game-mode splits the
+  API flattens into duplicate-labeled facts (same shape as Thief's Signet of Malice from Session 57),
+  so only the WvW-correct pair was curated for each.
+
+Typecheck and lint both pass. Not visually spot-checked in the running app (Electron sandbox
+limitation, same as prior sessions) — still worth doing before the next category (Elite skills).
+
 ## Session 57 — Full Heal-skill category sweep for `CURATED_HEALING_COEFFICIENTS`; Firebrand mantra Final Charge fix
 
 User pushed back on continuing to curate Healing coefficients build-by-build: "the spirit of

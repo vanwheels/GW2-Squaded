@@ -36,7 +36,8 @@ export interface HealingCoefficient {
  * and why). Deliberately a full category pass rather than build-by-build — this app is meant to
  * support cross-profession theorycrafting, not just whatever build was last tested, so Heal skills
  * were finished as one complete unit before moving to the next category (Utility, then Elite, then
- * weapon skills — see TODO.md).
+ * weapon skills — see TODO.md). Utility-slot skills were swept the same way 2026-08-02 (see the
+ * dedicated comment block below the racial Heal entries).
  */
 export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> = {
   // Elementalist — Signet of Restoration. Active heal has no PvE/WvW split; passive "Healing per
@@ -345,7 +346,76 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Racial — Prayer to Dwayna (Human). No PvE/WvW split.
   12360: [{ factText: 'Healing', baseValue: 6520, coefficient: 0.85 }],
   // Racial — Healing Seed (Sylvari). No PvE/WvW split.
-  12440: [{ factText: 'Healing', baseValue: 6520, coefficient: 1.0 }]
+  12440: [{ factText: 'Healing', baseValue: 6520, coefficient: 1.0 }],
+
+  // --- Utility-slot skills (category sweep 2026-08-02, see TODO.md/COMPLETED.md) ---
+  // Of 40 Utility-slot skills the API tags with a Healing-type `AttributeAdjust` fact, 17 are
+  // actually Barrier facts (the API mislabels Barrier's target as "Healing" too — same quirk
+  // already noted on Necromancer's Sand Flare above); those are out of scope (Barrier is a
+  // separate resource bar this app doesn't model) and not listed here at all, curated or not.
+  // Of the 23 genuine Healing candidates, 3 stayed uncurated (see TODO.md): Guardian's underwater
+  // Sanctuary variant (id 31295, no wiki-documented coefficient exists for it at all), Guardian's
+  // Repose (id 62669, the wiki's own coefficient field is a literal unfilled "?" stub), and
+  // Revenant's Natural Harmony (id 29082, wiki base 1124 vs. this app's own live API base 1620 —
+  // a genuine disagreement, independently reconfirmed against a fresh `/v2/skills/29082` API pull).
+  // Elementalist — Signet of Water (both ids share one wiki page/identical Healing fact; 49056
+  // is a stale/legacy duplicate id missing the post-2025-06-24 "Conditions Removed" fact). No
+  // PvE/WvW split on the heal itself.
+  5570: [{ factText: 'Healing', baseValue: 1940, coefficient: 1.3 }],
+  49056: [{ factText: 'Healing', baseValue: 1940, coefficient: 1.3 }],
+  // Engineer — Elixir C. Heals once per boon currently held, right after converting conditions to
+  // boons. No PvE/WvW split.
+  5860: [{ factText: 'Healing', baseValue: 450, coefficient: 0.05 }],
+  // Guardian — Sanctuary (ground-targeted version; id 31295 is a self-cast underwater variant the
+  // wiki's page doesn't separately document a coefficient for — left uncurated). Per-pulse heal, no
+  // PvE/WvW split (only recharge differs by mode).
+  9128: [{ factText: 'Healing', baseValue: 522, coefficient: 0.1375 }],
+  // Guardian — Bow of Truth (4 ids: 2 ammo charges x 2 flip-skill halves, all sharing one wiki page
+  // and identical facts). Coefficient splits PvE 0.15 vs "pvp wvw" 0.05 (base value unchanged) — WvW
+  // value used.
+  9175: [{ factText: 'Healing', baseValue: 232, coefficient: 0.05 }],
+  43565: [{ factText: 'Healing', baseValue: 232, coefficient: 0.05 }],
+  46600: [{ factText: 'Healing', baseValue: 232, coefficient: 0.05 }],
+  46750: [{ factText: 'Healing', baseValue: 232, coefficient: 0.05 }],
+  // Guardian — Merciful Intervention. Single heal-on-impact effect split PvE (2344/1.1) vs "pvp wvw"
+  // (2024/0.8) — the API flattens this into two identically-labeled "Healing" facts (same shape as
+  // Thief's Signet of Malice above), so only the WvW-correct pair is curated here.
+  9246: [{ factText: 'Healing', baseValue: 2024, coefficient: 0.8 }],
+  // Guardian — Valorous Stance (Willbender). Genuine Healing-Power-scaling proc heal fired once per
+  // boon granted to nearby allies (confirmed via description — not Barrier, not a flat tick). No
+  // PvE/WvW split.
+  77300: [{ factText: 'Healing', baseValue: 76, coefficient: 0.0046 }],
+  // Ranger — Glyph of Alignment (Celestial Avatar-form cast; the non-celestial cast deals damage
+  // instead, a separate id not in this table). No PvE/WvW split.
+  31348: [{ factText: 'Healing', baseValue: 3076, coefficient: 1.0 }],
+  // Ranger — Glyph of Burgeoning (non-Celestial-Avatar-form cast; id 31740 is the same skill name's
+  // Celestial-Avatar-form cast, which grants Barrier instead — excluded, Barrier not modeled). No
+  // PvE/WvW split.
+  31888: [{ factText: 'Healing', baseValue: 1935, coefficient: 1.0 }],
+  // Thief — Shadow Refuge. Per-pulse tick (5 pulses over the field's duration); wiki's own skill-fact
+  // template gives the 5-pulse aggregate (2850/0.9), matched here to this app's per-pulse API fact by
+  // dividing by 5. No PvE/WvW split. Also grants percentage-based revive healing to downed allies
+  // (5%/pulse) not captured by this Healing Power coefficient at all.
+  13117: [{ factText: 'Healing', baseValue: 570, coefficient: 0.18 }],
+  // Warrior — Dolyak Signet (active burst heal). No PvE/WvW split.
+  14413: [{ factText: 'Healing', baseValue: 2870, coefficient: 0.35 }],
+  // Revenant — Vengeful Hammers (Legendary Dwarf Stance, Jalis). Passive per-hit heal tick from the
+  // summoned hammers. No PvE/WvW split.
+  26557: [{ factText: 'Healing', baseValue: 53, coefficient: 0.004 }],
+  // Revenant — Purifying Essence (Legendary Centaur Stance, Ventari facet). No PvE/WvW split on the
+  // healing fact itself (only recharge splits).
+  29197: [{ factText: 'Healing per Condition Removed', baseValue: 325, coefficient: 0.2 }],
+  // Revenant — Tree Song (Legendary Alliance Stance, Kurzick; Vindicator. 2 ids are the same skill's
+  // legend-swap variants, confirmed byte-identical Healing facts via direct API pulls). No PvE/WvW
+  // split.
+  62793: [{ factText: 'Healing per Condition', baseValue: 709, coefficient: 0.22 }],
+  62941: [{ factText: 'Healing per Condition', baseValue: 709, coefficient: 0.22 }],
+  // Necromancer — Nightmare Weapon (Harbinger). Both game-mode variants share the exact same fact
+  // text ("Life Siphon Healing") on the wiki too — a genuine duplicate label, not an app oversight —
+  // so only the WvW-correct pair is curated (PvE-only: base 774, coefficient 0.5).
+  76739: [{ factText: 'Life Siphon Healing', baseValue: 606, coefficient: 0.15 }],
+  // Necromancer — Weapon of Remedy (Harbinger). No PvE/WvW split.
+  77022: [{ factText: 'Healing per Condition Removed', baseValue: 408, coefficient: 0.2 }]
 }
 
 export interface HealingLine {
