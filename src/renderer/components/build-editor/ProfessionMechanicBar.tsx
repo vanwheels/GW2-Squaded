@@ -1,5 +1,6 @@
 import { useRef } from 'react'
 import type { Build } from '@shared/types'
+import type { CombatState } from '@shared/gear-calc/combat-state'
 import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
 import {
   CATALYST_SPEC_ID,
@@ -26,6 +27,7 @@ interface Props {
   build: Build
   equippedSpecializationIds: ReadonlySet<number>
   onBuildChange: (patch: Partial<Pick<Build, 'activeBundleSkillId' | 'familiarId' | 'thiefStolenSkillId'>>) => void
+  combatState: CombatState
 }
 
 const THIEF_STOLEN_SKILL_SLOT = 'Profession_2'
@@ -75,11 +77,18 @@ const THIEF_STOLEN_SKILL_SLOT = 'Profession_2'
  * through the generic resolver and behaves like any other Shroud (clickable bundle toggle, not a
  * picker).
  */
-export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuildChange }: Props) {
-  const { gameData, activeIds, durationPercent } = useDurationContext(build)
+export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuildChange, combatState }: Props) {
+  const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
   const { professions, skillsById, tomeChapters, familiars } = gameData
   const profession = professions.find((p) => p.id === build.profession)
-  const variantContext: SkillVariantContext = { skills: gameData.skills, skillsById, wvwFactOverrides: gameData.wvwFactOverrides, durationPercent }
+  const variantContext: SkillVariantContext = {
+    skills: gameData.skills,
+    skillsById,
+    wvwFactOverrides: gameData.wvwFactOverrides,
+    durationPercent,
+    characterAttributes,
+    targetArmor
+  }
   const { open: stolenSkillPickerOpen, openThis: openStolenSkillPicker, close: closeStolenSkillPicker } = usePickerOpen()
   const stolenSkillButtonRef = useRef<HTMLButtonElement>(null)
 

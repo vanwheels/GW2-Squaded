@@ -48,19 +48,24 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       single flat point). Needs a UI decision too: `GearOptimizerPanel.tsx` currently has one
       "optimize food/utility" checkbox — likely wants a parallel "optimize runes/infusions" toggle
       rather than always searching them, consistent with the existing opt-in pattern.
-- [ ] Healing tooltip breakdown done 2026-08-02 (`BoonConditionSummaryPanel`'s new "Healing" row);
-      Damage tooltip breakdown also done 2026-08-02 (`BoonConditionSummaryPanel`'s new "Damage" row,
-      `src/shared/skill-calc/damage-calc.ts`, `CombatState.targetArmorClass` + `TARGET_ARMOR_VALUES`
-      in `combat-state.ts`) — see COMPLETED.md Sessions 54-55 for the full curation writeup. Both are
-      seeded incrementally (1 skill per base profession each, not a bulk pass) — extend as specific
-      builds get tested, same policy as the trait-attribute table. Neither has been visually
-      spot-checked in the running app yet (Electron sandbox limitation) — do that before extending
-      either curated table further, and before starting the tooltip-visual-pass item below.
-      Condition-skill damage (coefficient against Condition Damage rather than Power) was not
-      scoped as part of this work — the curated skills above are all direct-hit Power damage; a
-      condition-damage skill would need its own wiki-verification pass (condition-per-stack-per-
-      second base values are a separate, well-documented wiki constant table, not skill-specific
-      coefficients) before extending `CURATED_DAMAGE_COEFFICIENTS` to cover one.
+- [ ] Healing tooltip breakdown done 2026-08-02; Damage tooltip breakdown also done 2026-08-02
+      (`src/shared/skill-calc/damage-calc.ts`, `CombatState.targetArmorClass` +
+      `TARGET_ARMOR_VALUES` in `combat-state.ts`). Both briefly lived as their own aggregated row on
+      `BoonConditionSummaryPanel` (Sessions 54-55) but moved into each skill's own tooltip instead
+      per user feedback — a per-skill number read in place was easier to follow than a separate
+      summary icon (Session 56, `SkillsEditor.tsx`'s `skillTooltipContent` now calls
+      `skill-fact-lines.ts`'s `skillFactLines` instead of the generic `numericFactLines` for skills;
+      traits are unchanged, still generic-only). See COMPLETED.md Sessions 54-56 for the full
+      curation writeup. Both curated tables are seeded incrementally (1 skill per base profession
+      each, not a bulk pass) — extend as specific builds get tested, same policy as the
+      trait-attribute table. Neither has been visually spot-checked in the running app yet (Electron
+      sandbox limitation) — do that before extending either curated table further, and before
+      starting the tooltip-visual-pass item below. Condition-skill damage (coefficient against
+      Condition Damage rather than Power) was not scoped as part of this work — the curated skills
+      above are all direct-hit Power damage; a condition-damage skill would need its own
+      wiki-verification pass (condition-per-stack-per-second base values are a separate,
+      well-documented wiki constant table, not skill-specific coefficients) before extending
+      `CURATED_DAMAGE_COEFFICIENTS` to cover one.
 - [ ] Follow-up to the tooltip-overhaul items above, noted 2026-08-02, updated 2026-08-02: trait
       and food/utility tooltips now carry real structured content (traits: `numericFactLines` lines
       appended below the description via `factsBlock`, same as skills; food/utility:

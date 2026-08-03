@@ -1,4 +1,5 @@
 import type { Build, TomeChapter } from '@shared/types'
+import type { CombatState } from '@shared/gear-calc/combat-state'
 import { boonConditionFactsForSkill, tomeChapterBoonSources } from '@shared/boon-calc/sources'
 import { weaponSkillIdsForPair } from '@shared/weapon-calc/weapon-skills'
 import { bundleCapableSkillIds, isMechanicBarBundleId, resolveActiveBundle } from '@shared/skill-calc/bundle-skills'
@@ -18,6 +19,7 @@ interface Props {
       Pick<Build, 'environment' | 'activeWeaponSet' | 'activeUnderwaterSet' | 'activeBundleSkillId' | 'rangerUnleashed' | 'activeAttunement'>
     >
   ) => void
+  combatState: CombatState
   /** Renders the same underlying weapon-set derivation up to 4 times, split into the pieces the
    *  in-game skill bar keeps visually distinct (see `SkillsEditor`'s grid layout): `extras` is the
    *  editor-only display toggles with no live HUD equivalent (attunement/unleashed/bundle) shown
@@ -54,8 +56,8 @@ const ATTUNEMENT_SKILL_IDS: Record<(typeof ATTUNEMENTS)[number], number> = { Fir
  * totals regardless of this toggle (see `Build.activeBundleSkillId`'s doc comment) — this only
  * changes what's shown.
  */
-export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange, section }: Props) {
-  const { gameData, activeIds, durationPercent } = useDurationContext(build)
+export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange, combatState, section }: Props) {
+  const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
   const { professions, skillsById, tomeChapters } = gameData
   const profession = professions.find((p) => p.id === build.profession)
 
@@ -82,7 +84,14 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
       )
     : []
   const hasAnyWeapon = mainWeapon !== undefined || offWeapon !== undefined
-  const variantContext: SkillVariantContext = { skills: gameData.skills, skillsById, wvwFactOverrides: gameData.wvwFactOverrides, durationPercent }
+  const variantContext: SkillVariantContext = {
+    skills: gameData.skills,
+    skillsById,
+    wvwFactOverrides: gameData.wvwFactOverrides,
+    durationPercent,
+    characterAttributes,
+    targetArmor
+  }
 
   const isUntamed = equippedSpecializationIds.has(UNTAMED_SPEC_ID)
   const unleashedId = isUntamed && mainType && mainWeapon ? unleashedWeaponOneId(mainType, mainWeapon, build.environment, skillsById) : null

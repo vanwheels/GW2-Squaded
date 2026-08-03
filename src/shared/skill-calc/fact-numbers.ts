@@ -6,19 +6,17 @@ function formatNumber(n: number): string {
 
 /**
  * One human-readable line per directly-usable numeric `Fact` (Recharge seconds, hit counts,
- * Number/Distance raw values, `AttributeAdjust`'s base-stat reference number) — everything the API
- * gives us WITHOUT needing an unverified damage formula. Deliberately excludes `Damage`'s
- * `dmg_multiplier`: turning that into a real damage number needs a per-weapon-type average weapon
- * strength constant (wiki-quoted, same as `attribute-totals.ts`'s `ATTRIBUTE_ADJUSTMENT` table)
- * PLUS the exact formula ArenaNet's tooltip uses to combine it with `dmg_multiplier` — cross-
- * checking a real example (Judge's Intervention: API `dmg_multiplier: 0.5` vs. the wiki's own
- * documented tooltip damage "133") against every formula this session could derive from the
- * wiki's public damage-formula pages came out ~20-30% off in every attempt, so the exact
- * combination isn't reliably known yet. A wrong-but-plausible-looking damage number would be worse
- * than none, so only `Damage`'s hit count is surfaced (still real, useful information) until that
- * gap gets its own dedicated verification pass — see TODO.md.
+ * Number/Distance raw values, `AttributeAdjust`'s base-stat reference number) — everything derivable
+ * WITHOUT per-skill wiki curation. Deliberately falls back to `Damage`'s hit count (not a real
+ * damage number) and `AttributeAdjust`'s reference-build base value (not a real Healing-Power-scaled
+ * number): both need a wiki-verified per-skill coefficient to mean anything (see
+ * `CURATED_DAMAGE_COEFFICIENTS`/`CURATED_HEALING_COEFFICIENTS`), which most skills don't have yet.
+ * Exported so `skill-fact-lines.ts`'s `skillFactLines` can reuse this as its own per-fact fallback
+ * for any fact a curated table doesn't cover — skill tooltips show the real number when curated data
+ * exists, this generic line otherwise; traits (`TraitsEditor.tsx`) always go through
+ * `numericFactLines` unchanged, since neither curated table has a trait entry yet.
  */
-function factLine(fact: Fact): string | null {
+export function factLine(fact: Fact): string | null {
   switch (fact.type) {
     case 'Recharge':
       return typeof fact.value === 'number' ? `Recharge: ${fact.value}s` : null

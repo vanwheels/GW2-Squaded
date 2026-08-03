@@ -1,10 +1,12 @@
 import { useMemo, useRef, useState } from 'react'
 import type { Build, RevenantSkillSelection, Skill, SkillSelection, StandardSkillSelection, WvwFactOverrides } from '@shared/types'
 import { activeTraitIds, boonConditionFactsForSkill, type BoonConditionSource } from '@shared/boon-calc/sources'
-import { numericFactLines } from '@shared/skill-calc/fact-numbers'
+import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
 import { relatedVariantSkills } from '@shared/skill-calc/multi-effect'
 import { formatBoonDuration } from '@shared/boon-calc/format'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
+import { computeCharacterStats } from '@shared/gear-calc/derived-stats'
+import { DEFAULT_COMBAT_STATE, TARGET_ARMOR_VALUES, type CombatState } from '@shared/gear-calc/combat-state'
 import { useGameData } from '@renderer/state/game-data-store'
 import { usePickerOpen } from '@renderer/state/picker-registry'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
@@ -35,6 +37,10 @@ interface Props {
     >
   ) => void
   equippedSpecializationIds: ReadonlySet<number>
+  /** Threaded down to every skill tooltip in this bar so their real Damage/Healing numbers (see
+   *  `skillFactLines`) match `StatsPanel`'s displayed Power/Healing Power and the target-armor
+   *  assumption, instead of silently ignoring combat-state toggles. */
+  combatState?: CombatState
 }
 
 type SlotId = 'heal' | 'utility0' | 'utility1' | 'utility2' | 'elite'
@@ -50,18 +56,47 @@ type SlotId = 'heal' | 'utility0' | 'utility1' | 'utility2' | 'elite'
  * rows (`weapon`/`utility-skills`) land in the same grid row and line up exactly regardless of how
  * tall the profession-mechanic bar or the legend-picker row above them is.
  */
-export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSpecializationIds }: Props) {
+export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSpecializationIds, combatState = DEFAULT_COMBAT_STATE }: Props) {
   return (
     <div className="skills-editor-root">
       {build.profession === 'Ranger' && (
-        <PetsEditor build={build} onBuildChange={onBuildChange} equippedSpecializationIds={equippedSpecializationIds} />
+        <PetsEditor build={build} onBuildChange={onBuildChange} equippedSpecializationIds={equippedSpecializationIds} combatState={combatState} />
       )}
-      <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} section="extras" />
+      <WeaponSkillBar
+        build={build}
+        equippedSpecializationIds={equippedSpecializationIds}
+        onBuildChange={onBuildChange}
+        section="extras"
+        combatState={combatState}
+      />
       <div className="ingame-skill-bar">
-        <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} section="env" />
-        <ProfessionMechanicBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} />
-        <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} section="swap" />
-        <WeaponSkillBar build={build} equippedSpecializationIds={equippedSpecializationIds} onBuildChange={onBuildChange} section="weapon" />
+        <WeaponSkillBar
+          build={build}
+          equippedSpecializationIds={equippedSpecializationIds}
+          onBuildChange={onBuildChange}
+          section="env"
+          combatState={combatState}
+        />
+        <ProfessionMechanicBar
+          build={build}
+          equippedSpecializationIds={equippedSpecializationIds}
+          onBuildChange={onBuildChange}
+          combatState={combatState}
+        />
+        <WeaponSkillBar
+          build={build}
+          equippedSpecializationIds={equippedSpecializationIds}
+          onBuildChange={onBuildChange}
+          section="swap"
+          combatState={combatState}
+        />
+        <WeaponSkillBar
+          build={build}
+          equippedSpecializationIds={equippedSpecializationIds}
+          onBuildChange={onBuildChange}
+          section="weapon"
+          combatState={combatState}
+        />
         <div className="ingame-skill-bar-divider" />
         {value.kind === 'revenant' ? (
           <>
@@ -70,6 +105,7 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
               value={value}
               onChange={onChange}
               equippedSpecializationIds={equippedSpecializationIds}
+              combatState={combatState}
               section="select"
             />
             <RevenantSkillsEditor
@@ -77,6 +113,7 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
               value={value}
               onChange={onChange}
               equippedSpecializationIds={equippedSpecializationIds}
+              combatState={combatState}
               section="bar"
             />
           </>
@@ -86,6 +123,7 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
             value={value}
             onChange={onChange}
             equippedSpecializationIds={equippedSpecializationIds}
+            combatState={combatState}
           />
         )}
       </div>
@@ -94,15 +132,20 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
 }
 
 /** Shared by both editors: activeTraitIds + gear-derived boon/condition duration %, needed to
- *  compute a skill's scaled boon/condition tooltip facts the same way `BoonUptimePanel` does. */
-export function useDurationContext(build: Build) {
+ *  compute a skill's scaled boon/condition tooltip facts the same way `BoonUptimePanel` does, plus
+ *  the current Power/Healing Power/target-armor a skill tooltip's real Damage/Healing lines (see
+ *  `skillFactLines`) scale against — same `computeCharacterStats` call `StatsPanel` uses, so both
+ *  agree. */
+export function useDurationContext(build: Build, combatState: CombatState = DEFAULT_COMBAT_STATE) {
   const gameData = useGameData()
   const activeIds = useMemo(() => activeTraitIds(build, gameData.traits), [build, gameData.traits])
   const durationPercent = useMemo(() => {
     const totals = computeGearAttributeTotals(build, gameData)
     return { boon: boonDurationPercent(totals), condition: conditionDurationPercent(totals) }
   }, [build, gameData])
-  return { gameData, activeIds, durationPercent }
+  const characterAttributes = useMemo(() => computeCharacterStats(build, gameData, combatState).attributes, [build, gameData, combatState])
+  const targetArmor = TARGET_ARMOR_VALUES[combatState.targetArmorClass]
+  return { gameData, activeIds, durationPercent, characterAttributes, targetArmor }
 }
 
 export function factsBlock(numericLines: string[], boonFacts: BoonConditionSource[]) {
@@ -137,6 +180,10 @@ export interface SkillVariantContext {
   skillsById: Map<number, Skill>
   wvwFactOverrides: WvwFactOverrides
   durationPercent: { boon: number; condition: number }
+  /** Current Power/Healing Power (`useDurationContext`'s `characterAttributes`) and assumed target
+   *  armor a skill's real Damage/Healing tooltip lines scale against — see `skillFactLines`. */
+  characterAttributes: { power: number; healingPower: number }
+  targetArmor: number
 }
 
 /**
@@ -146,14 +193,15 @@ export interface SkillVariantContext {
  * already-equipped skill, rather than as extra picker entries.
  */
 export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], activeIds: Set<number>, variantContext: SkillVariantContext) {
-  const numericLines = numericFactLines(skill.facts, skill.traitedFacts, activeIds)
+  const { power, healingPower } = variantContext.characterAttributes
+  const numericLines = skillFactLines(skill, activeIds, power, healingPower, variantContext.targetArmor)
   const variants = relatedVariantSkills(skill, variantContext.skills, variantContext.skillsById)
   return (
     <>
       <TooltipBody title={skill.name} description={skill.description} />
       {factsBlock(numericLines, facts)}
       {variants.map((v) => {
-        const vNumeric = numericFactLines(v.skill.facts, v.skill.traitedFacts, activeIds)
+        const vNumeric = skillFactLines(v.skill, activeIds, power, healingPower, variantContext.targetArmor)
         const vBoon = boonConditionFactsForSkill(
           v.skill,
           activeIds,
@@ -198,11 +246,12 @@ interface StandardProps {
   value: StandardSkillSelection
   onChange: (value: SkillSelection) => void
   equippedSpecializationIds: ReadonlySet<number>
+  combatState: CombatState
 }
 
-function StandardSkillsEditor({ build, value, onChange, equippedSpecializationIds }: StandardProps) {
+function StandardSkillsEditor({ build, value, onChange, equippedSpecializationIds, combatState }: StandardProps) {
   const profession = build.profession
-  const { gameData, activeIds, durationPercent } = useDurationContext(build)
+  const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
   const { skillsById, skillsForProfessionAndSlot } = gameData
   const { open, openThis, close } = usePickerOpen()
   const [openSlot, setOpenSlot] = useState<SlotId | null>(null)
@@ -216,7 +265,14 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
     return boonConditionFactsForSkill(skill, activeIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
   }
 
-  const variantContext: SkillVariantContext = { skills: gameData.skills, skillsById, wvwFactOverrides: gameData.wvwFactOverrides, durationPercent }
+  const variantContext: SkillVariantContext = {
+    skills: gameData.skills,
+    skillsById,
+    wvwFactOverrides: gameData.wvwFactOverrides,
+    durationPercent,
+    characterAttributes,
+    targetArmor
+  }
 
   function setUtility(slotIndex: 0 | 1 | 2, skillId: number | null): void {
     const utility: StandardSkillSelection['utility'] = [...value.utility]
@@ -336,6 +392,7 @@ interface RevenantProps {
   value: RevenantSkillSelection
   onChange: (value: SkillSelection) => void
   equippedSpecializationIds: ReadonlySet<number>
+  combatState: CombatState
   /** Split the same way `WeaponSkillBar` is (see its doc comment): `select` is the Legend 1/Legend
    *  2 pickers plus the cycle icon between them that swaps which legend is active, `bar` is just
    *  the resulting read-only skill row — so `SkillsEditor` can align `bar` with the weapon skills
@@ -350,15 +407,22 @@ interface RevenantProps {
  * between them to swap which one is active, and the currently-active legend's fixed skill bar
  * (read-only icons with boon/condition tooltips, same as the standard skill bar).
  */
-function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationIds, section }: RevenantProps) {
-  const { gameData, activeIds, durationPercent } = useDurationContext(build)
+function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationIds, combatState, section }: RevenantProps) {
+  const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
   const { skillsById, legendsById, legendsForSpecializations } = gameData
   const { open, openThis, close } = usePickerOpen()
   const [openLegendSlot, setOpenLegendSlot] = useState<0 | 1 | null>(null)
   const legendButtonRefs = useRef<[HTMLButtonElement | null, HTMLButtonElement | null]>([null, null])
 
   const availableLegends = legendsForSpecializations(equippedSpecializationIds)
-  const variantContext: SkillVariantContext = { skills: gameData.skills, skillsById, wvwFactOverrides: gameData.wvwFactOverrides, durationPercent }
+  const variantContext: SkillVariantContext = {
+    skills: gameData.skills,
+    skillsById,
+    wvwFactOverrides: gameData.wvwFactOverrides,
+    durationPercent,
+    characterAttributes,
+    targetArmor
+  }
 
   function skillTooltipFor(skillId: number) {
     const skill = skillsById.get(skillId)

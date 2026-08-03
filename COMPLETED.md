@@ -2,6 +2,49 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 56 — Healing/Damage real numbers moved from the summary row into each skill's own tooltip
+
+User feedback right after Session 55 landed: the standalone "Damage" row (mirroring the "Healing"
+row from Session 54) was hard to read — a single icon whose tooltip lists every curated skill's
+number, disconnected from the skill it belongs to, rather than the number showing up where you'd
+naturally look for it (on the skill itself, next to its icon). Asked whether Healing should move the
+same way for consistency rather than leaving two different UI patterns for near-identical data — user
+agreed. Both rows are gone; both curated tables (`CURATED_HEALING_COEFFICIENTS`/
+`CURATED_DAMAGE_COEFFICIENTS`) are unchanged, only where their numbers render moved.
+
+New `src/shared/skill-calc/skill-fact-lines.ts` (`skillFactLines`) is the skill-tooltip counterpart
+to `fact-numbers.ts`'s `numericFactLines`: same per-fact walk and `requires_trait` gating, but a
+`Damage`/`AttributeAdjust`-Healing fact this skill has a curated coefficient for renders its real
+current-build-scaled number (labeled by the fact's own `text`, e.g. "Front Damage"/"Back damage")
+instead of the generic hit-count/reference-base-value placeholder every other skill still falls back
+to (`fact-numbers.ts`'s `factLine` was exported so this new module can reuse it as that fallback
+without duplicating the per-fact-type switch). `SkillsEditor.tsx`'s `skillTooltipContent` — the one
+function every skill tooltip in the app already routed through (Heal/Utility/Elite slots, weapon
+skills, profession-mechanic F-skills, Revenant legends, pets) — now calls this instead of
+`numericFactLines`; traits (`TraitsEditor.tsx`) are untouched, since neither curated table has a
+trait entry yet.
+
+Real numbers need the build's current Power/Healing Power (for consistency with `StatsPanel`, not a
+recomputed-from-scratch value) and the target-armor combat-state toggle, none of which
+`skillTooltipContent`'s callers previously had — `useDurationContext` (shared by `SkillsEditor`,
+`WeaponSkillBar`, `ProfessionMechanicBar`, `PetsEditor`) now takes an optional `combatState` param
+and returns `characterAttributes`/`targetArmor` alongside its existing `activeIds`/`durationPercent`,
+threaded through `SkillVariantContext`. Mechanical but real prop-drilling: `combatState` is now a
+prop on `SkillsEditor`, `WeaponSkillBar`, `ProfessionMechanicBar`, and `PetsEditor`, sourced from
+`BuildEditorView`'s existing combat-state (previously only reached `StatsPanel`/
+`BoonConditionSummaryPanel`). `BoonConditionSummaryPanel` lost its `combatState` prop entirely —
+after removing the Healing/Damage rows nothing left in it reads combat state.
+
+`sources.ts`'s `computeHealingSources`/`computeDamageSources` (and their `HealingSource`/
+`DamageSource` types) were deleted rather than left unused — the per-skill walk they did is now
+redundant with each tooltip's own call site already iterating equipped skills. `HEALING_ICON` was
+deleted from `icons.ts` too (nothing references it anymore); `DAMAGE_ICON` stays, still used by
+`CombatStatePanel`'s target-armor row.
+
+Typecheck and lint both pass clean. Not visually verified in the running app (Electron sandbox
+limitation, see memory) — this is now the second time that verification has been deferred across
+Sessions 54-56; strongly worth doing before extending either curated table further.
+
 ## Session 55 — Damage tooltip breakdown: new "Damage" row on the Boon-Condition summary bar
 
 Second half of the Healing/Damage tooltip-breakdown TODO item (Healing landed Session 54). Scoping

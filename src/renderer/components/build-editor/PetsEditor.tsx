@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import type { Build } from '@shared/types'
+import type { CombatState } from '@shared/gear-calc/combat-state'
 import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
@@ -12,6 +13,7 @@ interface Props {
   build: Build
   onBuildChange: (patch: Partial<Pick<Build, 'equippedPetIds' | 'activePetIndex'>>) => void
   equippedSpecializationIds: ReadonlySet<number>
+  combatState: CombatState
 }
 
 /**
@@ -23,8 +25,8 @@ interface Props {
  * merging with the pet (Beastmode, rendered by `ProfessionMechanicBar`/`soulbeastBeastmodeBar`)
  * replaces its standalone skill bar entirely in-game.
  */
-export function PetsEditor({ build, onBuildChange, equippedSpecializationIds }: Props) {
-  const { gameData, activeIds, durationPercent } = useDurationContext(build)
+export function PetsEditor({ build, onBuildChange, equippedSpecializationIds, combatState }: Props) {
+  const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
   const { skillsById, petsById, pets } = gameData
   const { open, openThis, close } = usePickerOpen()
   const [openPetSlot, setOpenPetSlot] = useState<0 | 1 | null>(null)
@@ -33,7 +35,14 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds }: 
   const query = search.trim().toLowerCase()
   const filteredPets = query ? pets.filter((p) => p.name.toLowerCase().includes(query)) : pets
 
-  const variantContext: SkillVariantContext = { skills: gameData.skills, skillsById, wvwFactOverrides: gameData.wvwFactOverrides, durationPercent }
+  const variantContext: SkillVariantContext = {
+    skills: gameData.skills,
+    skillsById,
+    wvwFactOverrides: gameData.wvwFactOverrides,
+    durationPercent,
+    characterAttributes,
+    targetArmor
+  }
 
   function skillTooltipFor(skillId: number) {
     const skill = skillsById.get(skillId)

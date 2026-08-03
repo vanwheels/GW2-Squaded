@@ -24,8 +24,6 @@ import { weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
 import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bundle-skills'
 import { professionMechanicBar, RANGER_BEASTMODE_SPEC_ID } from '../skill-calc/profession-mechanic'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash'
-import { healingLinesForSkill } from '../skill-calc/healing-calc'
-import { damageLinesForSkill } from '../skill-calc/damage-calc'
 
 export type BoonConditionCategory = 'boon' | 'condition' | 'aura'
 
@@ -652,9 +650,10 @@ export const CONTROL_MATCHERS: Record<string, (fact: Fact) => boolean> = {
  * `text` match" here: `AttributeAdjust` facts that grant Barrier carry ~15 different exact labels
  * ("Barrier", "Ally Barrier", "Barrier per Hit", "Initial Barrier", ...) that all consistently
  * contain the word "Barrier" (confirmed via a full scan of every `AttributeAdjust` fact's `text`
- * this session) — a substring match, not a guess. Healing is deliberately not included here — see
- * a presence-only boolean would be true for nearly every build (everyone has a heal
- * skill) — it needs `computeHealingSources`'s real computed magnitude instead, not another icon.
+ * this session) — a substring match, not a guess. Healing is deliberately not included here — a
+ * presence-only boolean would be true for nearly every build (everyone has a heal skill); its real
+ * computed magnitude is shown on the heal skill's own tooltip instead (see `SkillsEditor.tsx`'s
+ * `skillFactLines`), not as another icon here.
  */
 export const MISCELLANEOUS_MATCHERS: Record<string, (fact: Fact) => boolean> = {
   Stealth: (f) => f.type === 'Buff' && f.status === 'Stealth',
@@ -813,95 +812,6 @@ export function computeComboSources(
       const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id)
       if (!isMinor && !isChosenMajor) continue
       out.push(...comboFactsFrom(trait.facts, trait.traitedFacts, activeIds, 'trait', trait.id, trait.name, trait.icon))
-    }
-  }
-
-  return out
-}
-
-export interface HealingSource {
-  sourceId: number
-  sourceName: string
-  sourceIcon: string
-  label: string
-  value: number
-}
-
-/**
- * Real, current-Healing-Power-scaled heal magnitudes for every equipped heal/utility/weapon skill
- * a build has a wiki-verified coefficient for — see `healing-calc.ts`'s `CURATED_HEALING_COEFFICIENTS`
- * doc comment for why this is seeded incrementally rather than covering every heal skill. Same
- * skill-walking rules as `computeComboSources`/`computeAuraSources` (equipped Heal/Utility/Elite,
- * Revenant legend kits, weapon-derived skills, kits/Tomes, pets/Beastmode, Thief's stolen skill);
- * traits are deliberately not walked here (unlike `computeBoonConditionSources`) — the curated table
- * only covers skill-cast heals, not trait-granted procs, per the TODO this implements.
- */
-export function computeHealingSources(
-  build: Build,
-  gameData: {
-    skills: Skill[]
-    traits: Trait[]
-    legends: Legend[]
-    pets: Pet[]
-    professions: Profession[]
-    tomeChapters: TomeChaptersByTomeId
-    soulbeastBeastmode: SoulbeastBeastmodeMap
-  },
-  healingPower: number
-): HealingSource[] {
-  const activeIds = activeTraitIds(build, gameData.traits)
-  const out: HealingSource[] = []
-  const { skillsById, skillIds } = equippedSkillsById(build, gameData)
-
-  for (const id of skillIds) {
-    const skill = skillsById.get(id)
-    if (!skill) continue
-    for (const line of healingLinesForSkill(skill, healingPower, activeIds)) {
-      out.push({ sourceId: skill.id, sourceName: skill.name, sourceIcon: skill.icon, label: line.label, value: line.value })
-    }
-  }
-
-  return out
-}
-
-export interface DamageSource {
-  sourceId: number
-  sourceName: string
-  sourceIcon: string
-  label: string
-  value: number
-}
-
-/**
- * Real, current-Power-scaled (and assumed-target-armor-scaled, see `CombatState.targetArmorClass`)
- * damage magnitudes for every equipped weapon/utility skill a build has a wiki-verified coefficient
- * for — see `damage-calc.ts`'s `CURATED_DAMAGE_COEFFICIENTS` doc comment for why this is seeded
- * incrementally rather than covering every damage skill. Same skill-walking rules as
- * `computeHealingSources`; traits are deliberately not walked here for the same reason.
- */
-export function computeDamageSources(
-  build: Build,
-  gameData: {
-    skills: Skill[]
-    traits: Trait[]
-    legends: Legend[]
-    pets: Pet[]
-    professions: Profession[]
-    tomeChapters: TomeChaptersByTomeId
-    soulbeastBeastmode: SoulbeastBeastmodeMap
-  },
-  power: number,
-  targetArmor: number
-): DamageSource[] {
-  const activeIds = activeTraitIds(build, gameData.traits)
-  const out: DamageSource[] = []
-  const { skillsById, skillIds } = equippedSkillsById(build, gameData)
-
-  for (const id of skillIds) {
-    const skill = skillsById.get(id)
-    if (!skill) continue
-    for (const line of damageLinesForSkill(skill, power, targetArmor, activeIds)) {
-      out.push({ sourceId: skill.id, sourceName: skill.name, sourceIcon: skill.icon, label: line.label, value: line.value })
     }
   }
 
