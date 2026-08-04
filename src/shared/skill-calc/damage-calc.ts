@@ -124,7 +124,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
 
   // --- Elite-slot skills (category sweep started 2026-08-04, see TODO.md/COMPLETED.md; done
   // profession-by-profession per user request rather than all at once — 48 raw candidates, larger
-  // than Healing's equivalent 12). Sub-swept so far: Warrior, Guardian.
+  // than Healing's equivalent 12). Sub-swept so far: Warrior, Guardian, Revenant.
   // Warrior — Battle Standard. 2 API ids share this name (14419/14569); the wiki infobox's own
   // `id =` field confirms 14419 is canonical (GroundTargeted, matches the live ground-target cast),
   // 14569 discarded as a stale duplicate. PvE/WvW+PvP coefficient split (4.0/1.5) — WvW value used.
@@ -150,7 +150,34 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // infobox's own "ground target = circle" param and the live leap-to-area cast, so 77198 is treated
   // as a stale duplicate (same reasoning as Dragon's Maw/Battle Standard above). PvE/WvW+PvP split
   // (3.0/0.01) — WvW value used.
-  76687: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }]
+  76687: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Revenant — 5 raw candidates, 4 curated. NOT curated: Legendary Dragon Stance's "Facet of Chaos"
+  // (id 27760, the actually-equipped elite-slot id per legends.json) carries zero Damage fact of its
+  // own — the fact lives only on "Chaotic Release" (id 28075, PvE 4.0/WvW 0.01), reachable exclusively
+  // via `flipSkill` (27760 -> 28075, the toggle's "consume" release). `skillFactLines`/`SkillsEditor`
+  // never follow `flipSkill` for Damage-fact rendering (only `boon-calc/sources.ts` does, for its own
+  // boon-aggregation purpose via `withFlipChain`), so curating 28075 here would be dead data no UI
+  // path currently reaches — an architecture gap, not a data gap, same bucket as the Mesmer Troubadour
+  // Heal-skill follow-up in TODO.md. Left uncurated pending that fix rather than added inert.
+  // Revenant/Herald — Jade Winds. 2 API ids share this name (28406/31294); unlike other duplicate-id
+  // cases above, the wiki infobox itself lists both together (`id = 28406,31294`) with no resolving
+  // field, and this is a previously-documented unresolvable picker duplicate (see TODO.md's Skill
+  // picker follow-ups) — both curated identically since one wiki page/formula covers both. 3-way
+  // split (PvE 3.0/WvW 2.0/PvP 0.01, added 2025-02-11 when WvW was un-nerfed from parity with PvP) —
+  // WvW value used. The API's own `dmg_multiplier` is stale on both ids (1.5, pre-2022-11-29 PvE
+  // value) — expected, since it's PvE-only and doesn't track the coefficient used here anyway.
+  28406: [{ factText: 'Damage', coefficient: 2.0, weapon: 'unequipped' }],
+  31294: [{ factText: 'Damage', coefficient: 2.0, weapon: 'unequipped' }],
+  // Revenant/Legendary Demon Stance — Embrace the Darkness. 2 API ids share this name (28287/78191);
+  // the wiki infobox's own `id =` field confirms 28287 (matches legends.json's Legend4 `elite`),
+  // 78191 discarded as a stale duplicate. No PvE/WvW/PvP split.
+  28287: [{ factText: 'Damage', coefficient: 0.3, weapon: 'unequipped' }],
+  // Revenant/Legendary Renegade Stance — Soulcleave's Summit. No split. Fact text is "Additional
+  // Strike Damage", not the generic "Damage" label the other entries here match on.
+  45773: [{ factText: 'Additional Strike Damage', coefficient: 0.8, weapon: 'unequipped' }],
+  // Revenant/Vindicator — Spear of Archemorus. 3-way split (PvE 5.0/WvW 2.67/PvP 2.33) — WvW value
+  // used.
+  62942: [{ factText: 'Damage', coefficient: 2.67, weapon: 'unequipped' }]
 }
 
 export interface DamageLine {

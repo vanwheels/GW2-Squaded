@@ -91,8 +91,23 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         but only 76687 carries the `GroundTargeted` flag matching the live cast, 77198 treated as
         stale). All 4 Guardian entries are PvE/WvW+PvP splits with the WvW value steeply nerfed
         (0.01) vs. PvE (1.5-3.6), same "damage skill blunted hard in competitive modes" pattern as
-        Warrior's Head Butt. **Next up: Revenant (5 candidates).** Remaining after that: Ranger(4),
-        Thief(6), Engineer(6), Necromancer(6), Elementalist(8), Mesmer(4).
+        Warrior's Head Butt. Revenant done (2026-08-04): 4 of 5 candidates curated (Jade Winds —
+        ids 28406/31294, the same unresolvable duplicate-id pair already noted in the Skill picker
+        follow-ups section below, both curated identically since one wiki page covers both, 3-way
+        PvE/WvW/PvP split 3.0/2.0/0.01; Embrace the Darkness id 28287 — 78191 is a stale duplicate, no
+        split; Soulcleave's Summit — no split, fact text "Additional Strike Damage" not generic
+        "Damage"; Spear of Archemorus — 3-way split 5.0/2.67/2.33). 1 left uncurated: **Chaotic
+        Release (id 28075)**, Legendary Dragon Stance's elite facet's "release" damage — the
+        equipped elite-slot id (Facet of Chaos, 27760, per `legends.json`) carries zero Damage fact
+        of its own; the fact lives only on 28075, reachable exclusively via that skill's `flipSkill`
+        link. `skillFactLines`/`SkillsEditor.tsx` never follow `flipSkill` for Damage-fact rendering
+        (only `boon-calc/sources.ts`'s `withFlipChain` does, for its own boon-aggregation purpose) —
+        curating 28075 would be dead data no UI path reaches, an architecture gap not a data gap
+        (same bucket as the Mesmer Troubadour Heal-skill follow-up below). Worth checking whether
+        other legends' elite facets have this same on/release fact split when Utility-slot is swept —
+        each legend's 3 utility facets follow the identical toggle+flipSkill shape. **Next up:
+        Ranger (4 candidates).** Remaining after that: Thief(6), Engineer(6), Necromancer(6),
+        Elementalist(8), Mesmer(4).
       - New mechanics this sweep surfaced beyond the Healing-sweep's traps (Barrier-mislabeling,
         trait-duplicated formulas): (1) duplicate-name id resolution — the wiki infobox's own `id =`
         field states the canonical equippable id, don't guess from flags/recharge; (2) the Damage
