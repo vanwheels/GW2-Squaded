@@ -215,7 +215,34 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Specter — Shadowfall. PvE/WvW+PvP split 1.5/0.01. Wiki's own `weapon=unequipped` param here
   // (unlike the other 4 Thief entries' `weapon=utility`) already matches the Elite-slot convention
   // directly.
-  63275: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }]
+  63275: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Engineer — 8 raw candidate ids, 3 distinct new skills curated. 2 stale duplicate ids discarded
+  // (6183, a duplicate of Supply Crate 5868 missing the `GroundTargeted` flag the wiki infobox's own
+  // `id =` field confirms as canonical; 38750, a duplicate of Detonate Supply Crate Turrets 29518,
+  // excluded anyway — see below). 1 raw id, Artillery Barrage (12343), is the same cross-profession
+  // golem-summon skill already curated above under Guardian, not a new Engineer entry. 2 more excluded
+  // as non-player-scaling: Detonate Supply Crate Turrets (29518, wiki `power=2389` override plus its
+  // own note "damage...does not scale with player stats" — same reasoning as the Heal-slot sweep's
+  // Detonate Healing Turret exclusion) and Jade Buster Cannon (63374, the Mechanist's auto-triggered
+  // mech follow-up to Overclock Signet — wiki `weapon=pet|power=1250` override means this is the mech's
+  // own fixed Power stat, not the player's; same non-player-scaling trap as Detonate Supply Crate
+  // Turrets, just discovered on an Elite-slot skill instead of Heal-slot).
+  // Supply Crate. PvE/WvW+PvP split 1.0/0.01 — WvW value used.
+  5868: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Holosmith — Prime Light Beam. 3-way split (PvE 3.0/WvW 1.0/PvP 1.5) — WvW value used. Separate
+  // "Field Damage" fact (PvE/PvP grouped 0.5, WvW 0.4) — WvW value used; API's own fact text carries
+  // wiki markup (`<c=@abilitytype>Field Damage</c>`), matched verbatim.
+  42009: [
+    { factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' },
+    { factText: '<c=@abilitytype>Field Damage</c>', coefficient: 0.4, weapon: 'unequipped' }
+  ],
+  // Amalgam (new elite spec, `requires = voe`) — Flux State. PvE/WvW+PvP split 2.0/0.01 — WvW value
+  // used. Separate `strikes=12` "Storm Damage" fact, already totaled per the usual convention
+  // (PvE 9.0/WvW+PvP 4.8) — WvW value used.
+  76993: [
+    { factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' },
+    { factText: 'Storm Damage', coefficient: 4.8, weapon: 'unequipped' }
+  ]
 }
 
 export interface DamageLine {

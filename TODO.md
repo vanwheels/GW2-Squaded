@@ -119,8 +119,21 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         (Daredevil skill)" since the bare "Uppercut" title redirects to an unrelated Warrior Rampage
         transform skill; Shadowfall — split 1.5/0.01). The 6th raw id, again Artillery Barrage
         (12343), is the same cross-profession skill already curated under Guardian, not a new Thief
-        entry. **Next up: Engineer (6 candidates).**
-        Remaining after that: Necromancer(6), Elementalist(8), Mesmer(4).
+        entry. Engineer done (2026-08-04): 8 raw candidate ids, 3 distinct new skills curated (Supply
+        Crate — 2 API ids share this name, 6183 discarded as a stale duplicate missing the
+        `GroundTargeted` flag the wiki infobox's own `id =` field confirms as canonical (5868), PvE/
+        WvW+PvP split 1.0/0.01; Holosmith's Prime Light Beam — 3-way split 3.0/1.0/1.5, plus a separate
+        "Field Damage" fact PvE/PvP 0.5 vs WvW 0.4, API fact text carries wiki markup `<c=@abilitytype>
+        Field Damage</c>`, matched verbatim; the new Amalgam spec's Flux State — PvE/WvW+PvP split
+        2.0/0.01, plus a `strikes=12` "Storm Damage" fact already totaled, PvE 9.0/WvW+PvP 4.8). 1 raw
+        id, Artillery Barrage (12343), is the same cross-profession skill already curated under
+        Guardian. 2 more excluded as non-player-scaling — a new instance of the Heal-slot sweep's
+        Detonate Healing Turret trap: Detonate Supply Crate Turrets (29518, wiki `power=2389` override
+        + its own note "does not scale with player stats"; 38750 is its stale duplicate id) and
+        Jade Buster Cannon (63374, the Mechanist's auto-triggered mech follow-up to Overclock Signet —
+        wiki `weapon=pet|power=1250` override means this is the mech's own fixed Power, not the
+        player's). **Next up: Necromancer (6 candidates).**
+        Remaining after that: Elementalist(8), Mesmer(4).
       - New mechanics this sweep surfaced beyond the Healing-sweep's traps (Barrier-mislabeling,
         trait-duplicated formulas): (1) duplicate-name id resolution — the wiki infobox's own `id =`
         field states the canonical equippable id, don't guess from flags/recharge; (2) the Damage
