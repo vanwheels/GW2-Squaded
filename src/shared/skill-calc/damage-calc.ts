@@ -434,7 +434,76 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
     { factText: 'Minimum Damage', coefficient: 0.5, weapon: 'unequipped' }
   ],
   // Luminary — Piercing Stance. PvE/WvW+PvP split 2.0/0.25 — WvW value used.
-  77078: [{ factText: 'Damage', coefficient: 0.25, weapon: 'unequipped' }]
+  77078: [{ factText: 'Damage', coefficient: 0.25, weapon: 'unequipped' }],
+
+  // Revenant — 27 raw candidate ids, resolved via the real (not reimplemented)
+  // `visibleSkillsForSlot` (a throwaway tsx script confirmed which ids the picker actually
+  // surfaces, same verification approach as Guardian's Spirit Weapons blind spot above) down to 12
+  // distinct in-game skills, 3 of which stay uncurated (see below). A recurring shape this
+  // profession's legends create that no earlier category hit: several skills exist as a
+  // spec-less id AND a separately-numbered id gated behind a *later* elite spec that reworks the
+  // same skill (`specializationId` signal, not `GroundTargeted` — e.g. Legendary Demon Stance's
+  // Banish Enchantment/Call to Anguish get Conduit-specific ids, 78587/78798) — both ids are
+  // genuinely equippable (whichever the build's specs resolve to) and share one wiki page/
+  // coefficient, so both are curated identically, same treatment as Jade Winds' unresolvable
+  // same-page duplicate in the Elite-slot sweep. One duplicate-id pair (Call to Anguish's
+  // GroundTargeted/auto-target ids) surfaced a stale-cache gap: the auto-target id this app's
+  // picker actually shows (31100/78798) carries only ONE local "Damage" fact (PvE 1.2, missing the
+  // WvW+PvP 0.01 split its GroundTargeted sibling 27917/78203 correctly carries both of) — harmless
+  // for curation purposes since `damageLinesForSkill` only needs a same-text "Damage" fact to exist
+  // locally to key off, not for its value to be current; the curated coefficient here (0.01) is the
+  // wiki-verified WvW one regardless of what the stale local fact shows.
+  // Legendary Dwarf — Vengeful Hammers. No split.
+  26557: [{ factText: 'Damage', coefficient: 0.2, weapon: 'unequipped' }],
+  // Legendary Dwarf — Forced Engagement. PvE/WvW+PvP split 0.5/0.01 — WvW value used.
+  26679: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Legendary Assassin — Impossible Odds. 3-way split PvE/WvW/PvP 0.65/0.55/0.45 — WvW value used.
+  27107: [{ factText: 'Damage', coefficient: 0.55, weapon: 'unequipped' }],
+  // Herald — Elemental Blast. No `strikes=` param despite hitting 3 times; wiki's own note states
+  // the per-strike PvE/WvW+PvP split (1.5/0.89) totals to 4.5/2.67 — the already-totaled WvW value
+  // (2.67) used directly per that note rather than re-deriving.
+  51698: [{ factText: 'Damage', coefficient: 2.67, weapon: 'unequipped' }],
+  // Legendary Demon — Banish Enchantment. `strikes=3` present -> wiki coefficient already totaled.
+  // PvE/WvW+PvP split 1.2/0.3 — WvW value used. Conduit reworks this skill under a separate id
+  // (78587) sharing the same wiki page/values — both curated (see block comment above).
+  27505: [{ factText: 'Damage', coefficient: 0.3, weapon: 'unequipped' }],
+  78587: [{ factText: 'Damage', coefficient: 0.3, weapon: 'unequipped' }],
+  // Legendary Demon — Call to Anguish. No `strikes=` param, single hit. PvE/WvW+PvP split 1.2/0.01
+  // — WvW value used. Conduit reworks this skill under a separate id (78798) sharing the same wiki
+  // page/values — both curated (see block comment above re: the stale-local-fact gap on these ids).
+  31100: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  78798: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Legendary Assassin — Phase Traversal. PvE/WvW+PvP split 2.0/1.0 — WvW value used.
+  28231: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Legendary Dwarf — Inspiring Reinforcement. PvE+PvP grouped 1.5 vs. a lower WvW-only 0.75 (the
+  // reverse of the usual "WvW groups with PvP" pattern seen elsewhere in this table) — WvW value
+  // used.
+  50383: [{ factText: 'Damage', coefficient: 0.75, weapon: 'unequipped' }],
+  // Vindicator/Legendary Alliance — Nomad's Advance. 3-way split PvE/WvW/PvP 4.0/2.3/2.0 — WvW
+  // value used.
+  62832: [{ factText: 'Damage', coefficient: 2.3, weapon: 'unequipped' }],
+  // Vindicator/Legendary Alliance — Scavenger Burst. PvE/WvW+PvP split 2.25/1.25 — WvW value used.
+  62841: [{ factText: 'Damage', coefficient: 1.25, weapon: 'unequipped' }],
+  // Vindicator/Legendary Alliance — Reaver's Rage. 3-way split PvE/WvW/PvP 2.22/1.25/1.0 — WvW
+  // value used.
+  62878: [{ factText: 'Damage', coefficient: 1.25, weapon: 'unequipped' }],
+  // Conduit/Legendary Entity — Beguiling Haze. Only the "Follow-Up Damage" fact is curated here (no
+  // split, coefficient 0.6, verified: 690.5*0.6*1000/2597 ≈ 160 matches the wiki's quoted value
+  // exactly) — the main "Damage" fact's PvE side is clearly stated (coefficient 2.2, verified ≈585)
+  // but its WvW+PvP side gives only a raw tooltip value (286) with NO `coefficient=` param to read at
+  // all; back-solving via this app's own verified Power1000/Armor2597 formula yields ≈1.076, which
+  // doesn't cleanly match any value in this skill's own version history (last touched 2025-11-18,
+  // PvE-only). Conduit is this app's newest-added elite spec (released 2025-08-19) and its other two
+  // Legendary Entity Utility skills are both wiki `{{stub|damage coefficient}}`-tagged outright (see
+  // Hex-Eater Vortex/Gladiator's Defense below) — consistent with the wiki simply not having caught
+  // up on this mode's exact number yet, same "unfilled coefficient, not something this app can
+  // derive" bucket as Guardian's Repose (Heal-slot sweep). Left uncurated pending a cleaner source.
+  76805: [{ factText: 'Follow-Up Damage', coefficient: 0.6, weapon: 'unequipped' }]
+  // Conduit/Legendary Entity — Hex-Eater Vortex (77243) and Gladiator's Defense (77291) excluded
+  // entirely: both wiki pages are explicitly tagged `{{stub|damage coefficient}}`/
+  // `{{stub|gamemode split, missing dmg coeff}}`, quoting only a bare tooltip value with no
+  // `coefficient=` param at all — same "wiki hasn't documented the coefficient" gap as Repose, just
+  // on brand-new Conduit skills instead of an old stub.
 }
 
 export interface DamageLine {

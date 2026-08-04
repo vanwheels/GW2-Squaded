@@ -251,8 +251,25 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         docs/game-data.md for the full writeup. Worth auditing whether other professions' Utility/
         Heal/Elite groups have the same "signal-4-collapsed-before-the-wiki-check-ran" blind spot;
         none found elsewhere in this leg, but the rest of the roster (Revenant onward for Utility,
-        plus Weapon-slot entirely) hasn't been checked for it yet. **Next up: Revenant's Utility-slot
-        leg.**
+        plus Weapon-slot entirely) hasn't been checked for it yet (none found in Revenant's own leg
+        below either). Revenant done 2026-08-04: 27 raw candidate ids, resolved via the real
+        `visibleSkillsForSlot` (same throwaway-script verification as Guardian's Spirit Weapons) down
+        to 12 distinct in-game skills — 9 fully curated (Vengeful Hammers, Forced Engagement,
+        Impossible Odds — a 3-way PvE/WvW/PvP split; Elemental Blast — 3-strike total per the wiki's
+        own note; Banish Enchantment and Call to Anguish, each curated under 2 ids since Conduit
+        reworks both under separate spec-gated ids sharing the same wiki page; Phase Traversal,
+        Inspiring Reinforcement — a rare PvE+PvP-grouped-vs-WvW-alone split, the reverse of the usual
+        pattern; Nomad's Advance, Scavenger Burst, Reaver's Rage, all 3 Legendary Alliance/Vindicator
+        skills), 1 partially curated (Beguiling Haze — only its "Follow-Up Damage" fact, no split; the
+        main "Damage" fact's WvW+PvP side has no wiki `coefficient=` param to read, only a raw tooltip
+        number that doesn't cleanly back-solve), 2 fully excluded (Hex-Eater Vortex, Gladiator's
+        Defense — both wiki-stub-tagged for a missing damage coefficient outright). All 3 partial/
+        excluded skills are Conduit's (this app's newest elite spec, released 2025-08-19) — the wiki
+        apparently hasn't finished documenting that spec's coefficients yet, same "unfilled
+        coefficient" bucket as Guardian's Repose. Also surfaced: Call to Anguish's auto-target id
+        (the one the picker actually shows) carries a stale local `Damage` fact missing the WvW split
+        its GroundTargeted sibling has — harmless for curation since only fact *presence* is needed to
+        key off, not its cached value. **Next up: Ranger's Utility-slot leg.**
       - Weapon-slot (919 raw candidates): not started, last category in the sweep order.
 - [ ] Mesmer Troubadour's Heal skill, "Tale of the Second Scion" (id 76695), shows no Healing numbers
       at all in this app (user screenshot comparison, 2026-08-02) — confirmed root cause: the GW2 API
