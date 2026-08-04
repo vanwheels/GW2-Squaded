@@ -56,10 +56,9 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       summary icon (Session 56, `SkillsEditor.tsx`'s `skillTooltipContent` now calls
       `skill-fact-lines.ts`'s `skillFactLines` instead of the generic `numericFactLines` for skills;
       traits are unchanged, still generic-only). See COMPLETED.md Sessions 54-56 for the full
-      curation writeup. `CURATED_DAMAGE_COEFFICIENTS` is still seeded incrementally (1 skill per base
-      profession, not a bulk pass) — extend as specific builds get tested, same policy as the
-      trait-attribute table.  `CURATED_HEALING_COEFFICIENTS` (`healing-calc.ts`) was instead taken to
-      a full category sweep 2026-08-02 — see the item below for the writeup and what's still
+      curation writeup. `CURATED_DAMAGE_COEFFICIENTS` was seeded 2026-08-02 with 1 skill per base
+      profession, then taken to a full category sweep starting 2026-08-04, same policy as
+      `CURATED_HEALING_COEFFICIENTS` — see the item below for the writeup and what's still
       uncurated in it. Neither table has been visually spot-checked in the running app yet (Electron
       sandbox limitation) — do that before extending `CURATED_DAMAGE_COEFFICIENTS` further, and
       before starting the tooltip-visual-pass item below. Condition-skill damage (coefficient against
@@ -68,6 +67,34 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       wiki-verification pass (condition-per-stack-per-second base values are a separate,
       well-documented wiki constant table, not skill-specific coefficients) before extending
       `CURATED_DAMAGE_COEFFICIENTS` to cover one.
+- [ ] **`CURATED_DAMAGE_COEFFICIENTS` full category sweep, in progress, started 2026-08-04** (see
+      `heal_coefficient_curation_strategy` memory for the general policy). Raw candidate counts per
+      category (full `skills.json` scan, before any trap-filtering): Heal 7, Elite 48, Utility 220,
+      Weapon 919 — a very different size profile than Healing's 85/40/12/55, since almost every
+      weapon skill deals damage while almost no Heal-slot skills do. Order: Heal → Elite → Utility →
+      Weapon (smallest to largest), and per explicit user request 2026-08-04, each category (except
+      Heal, small enough to do in one pass) is swept **one profession at a time** rather than all at
+      once or via parallel background agents — land each profession's pass, stop, let the user decide
+      when to continue, rather than chaining passes automatically. Profession order within a category
+      follows the existing one-per-profession seed order in `damage-calc.ts`: Warrior, Guardian,
+      Revenant, Ranger, Thief, Engineer, Necromancer, Elementalist, Mesmer.
+      - **Heal-slot: COMPLETE** (2026-08-04). 5 of 7 candidates curated; 2 excluded as
+        non-player-scaling (Engineer's Detonate Healing Turret has a wiki `power=` fixed override;
+        Necromancer's Summon Blood Fiend scales off its pet's own fixed 0 Power — same reasoning
+        already applied to this skill's Healing fact).
+      - **Elite-slot: in progress.** Warrior done (2026-08-04): all 3 candidates curated (Battle
+        Standard id 14419 — 2 API ids share this name, the wiki infobox's own `id =` field resolved
+        which is canonical, see the code comment; Head Butt; Winds of Disenchantment). **Next up:
+        Guardian (4 candidates).** Remaining after that: Revenant(5), Ranger(4), Thief(6),
+        Engineer(6), Necromancer(6), Elementalist(8), Mesmer(4).
+      - New mechanics this sweep surfaced beyond the Healing-sweep's traps (Barrier-mislabeling,
+        trait-duplicated formulas): (1) duplicate-name id resolution — the wiki infobox's own `id =`
+        field states the canonical equippable id, don't guess from flags/recharge; (2) the Damage
+        coefficient itself can have a PvE/WvW split (not just base-value splits like Healing), e.g.
+        Supply Crate 1.0 PvE vs 0.01 WvW/PvP; (3) transformation skills (Tornado, Lich Form, Rampage,
+        etc.) use their own special weapon-strength category from the wiki's Weapon Strength page's
+        "non-weapons" table, not the generic `unequipped` (690.5) bucket every other slot skill uses.
+      - Utility-slot and Weapon-slot: not started.
 - [ ] Mesmer Troubadour's Heal skill, "Tale of the Second Scion" (id 76695), shows no Healing numbers
       at all in this app (user screenshot comparison, 2026-08-02) — confirmed root cause: the GW2 API
       returns only 3 facts for this skill (`Recharge`, `Number of Targets`, `Radius`) with **zero**

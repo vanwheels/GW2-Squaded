@@ -53,13 +53,16 @@ export interface DamageCoefficient {
 }
 
 /**
- * Seeded 2026-08-02 with one common WvW weapon skill per base profession — same "add entries
- * incrementally as specific builds get tested" policy as `CURATED_HEALING_COEFFICIENTS`, not a bulk
- * pass. Only skills confirmed to be the *actually-equippable* skill id (cross-checked against
- * `professions.json`'s own weapon-skill lists, not just matched by name — several skill names have
- * multiple near-duplicate ids in skills.json, e.g. Ranger's "Maul" has 6) are curated here.
+ * Seeded 2026-08-02 with one common WvW weapon skill per base profession; extended 2026-08-04 to a
+ * full category sweep, same policy as `CURATED_HEALING_COEFFICIENTS` (see `healing-calc.ts` and
+ * TODO.md) — Heal-slot skills swept first (smallest category, only 7 candidates), then Elite,
+ * Utility, Weapon last (largest — 919 candidates). Only skills confirmed to be the
+ * *actually-equippable* skill id (cross-checked against `professions.json`'s own weapon-skill lists,
+ * not just matched by name — several skill names have multiple near-duplicate ids in skills.json,
+ * e.g. Ranger's "Maul" has 6) are curated here.
  */
 export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = {
+  // --- one-per-profession seed (2026-08-02) ---
   // Warrior — Axe 5, Whirling Axe. `strikes=15` present -> wiki coefficient already totaled.
   14399: [{ factText: 'Damage', coefficient: 4.47, weapon: 'axe' }],
   // Guardian — Sword 2, Symbol of Blades. No `strikes=` param despite 5 pulses -> wiki's 0.45 is
@@ -88,7 +91,52 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   ],
   // Mesmer — Greatsword 5, Illusionary Wave. Single hit; heavily reduced in WvW/PvP vs. its PvE 0.3
   // (this skill is primarily a CC/combo-finisher pick, not a damage skill, in competitive modes).
-  10220: [{ factText: 'Damage', coefficient: 0.01, weapon: 'greatsword' }]
+  10220: [{ factText: 'Damage', coefficient: 0.01, weapon: 'greatsword' }],
+
+  // --- Heal-slot skills (category sweep 2026-08-04, see TODO.md/COMPLETED.md) ---
+  // Of 7 equippable Heal-slot skills with a `Damage` fact (full `skills.json` scan), 2 are excluded:
+  // Engineer's Detonate Healing Turret (id 5961, wiki `{{skill fact|damage|weapon=utility|power=2389|
+  // coefficient=2.0}}` — the `power=` override plus the wiki's own note "damage...does not scale with
+  // player stats" mean this is the turret's own fixed damage, not Power-scaled) and Necromancer's
+  // Summon Blood Fiend (id 10547, wiki: "damage and healing scale with the power...of the Blood
+  // Fiend. However, it has 0 healing power and cannot be increased" — the pet's own fixed stats, not
+  // the player's, same exclusion already applied to this skill's Healing fact, see TODO.md). Per the
+  // wiki's own Weapon Strength page: "Slot skills, which consist of healing skills, utility skills,
+  // and elite skills...all use unequipped weapon strength" regardless of what each skill's own wiki
+  // template `weapon=` param literally says (several below say `weapon=utility`, which per that page
+  // isn't itself a weapon-strength category) — so every entry here uses `unequipped`. None of these 5
+  // skills' Damage facts have a PvE/WvW coefficient split (unlike some of their Healing facts).
+  // Elementalist — Arcane Brilliance. `type=Critical Damage` on the wiki template, but the API's own
+  // fact text is plain "Damage" — matched on that.
+  21656: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Guardian/Dragonhunter — Purification (trap heal). No split.
+  30025: [{ factText: 'Damage', coefficient: 0.1875, weapon: 'unequipped' }],
+  // Necromancer/Reaper — "Your Soul Is Mine!". No split (separate "damage increase" melee-range fact,
+  // PvE 100%/WvW+PvP 50%, isn't a weapon-strength-scaled Damage fact and isn't modeled here).
+  30488: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Mesmer/Virtuoso — Twin Blade Restoration. `strikes=2` present -> wiki's 0.7 already totaled
+  // (API confirms: hit_count 2, dmg_multiplier 0.35/hit, 0.35 * 2 = 0.7).
+  62522: [{ factText: 'Damage', coefficient: 0.7, weapon: 'unequipped' }],
+  // Revenant/Vindicator — Selfish Spirit. Single value despite "Number of Casts: 4" (no `strikes=`
+  // param, and the API's own hit_count is 1) — the 4 casts are 4 separate skill activations of the
+  // channel, not 4 pulses of one cast, so no totaling needed.
+  62719: [{ factText: 'Damage', coefficient: 0.222, weapon: 'unequipped' }],
+
+  // --- Elite-slot skills (category sweep started 2026-08-04, see TODO.md/COMPLETED.md; done
+  // profession-by-profession per user request rather than all at once — 48 raw candidates, larger
+  // than Healing's equivalent 12). Sub-swept so far: Warrior.
+  // Warrior — Battle Standard. 2 API ids share this name (14419/14569); the wiki infobox's own
+  // `id =` field confirms 14419 is canonical (GroundTargeted, matches the live ground-target cast),
+  // 14569 discarded as a stale duplicate. PvE/WvW+PvP coefficient split (4.0/1.5) — WvW value used.
+  // The API duplicates the "Damage" fact text once per mode here; harmless since `damageLinesForSkill`
+  // never reads a matched fact's own value, only checks a same-text match exists.
+  14419: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }],
+  // Warrior/Berserker — Head Butt. PvE/WvW+PvP split (4.5/0.01) — WvW value used (a steep nerf vs PvE,
+  // consistent with this being a stun-into-burst combo piece competitive modes deliberately blunt).
+  30343: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Warrior/Spellbreaker — Winds of Disenchantment. "pve wvw" grouped vs. a separate lower "pvp" value
+  // (0.45/0.20) — WvW groups with PvE here, 0.45 used.
+  45333: [{ factText: 'Damage', coefficient: 0.45, weapon: 'unequipped' }]
 }
 
 export interface DamageLine {
