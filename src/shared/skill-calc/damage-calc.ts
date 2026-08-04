@@ -124,7 +124,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
 
   // --- Elite-slot skills (category sweep started 2026-08-04, see TODO.md/COMPLETED.md; done
   // profession-by-profession per user request rather than all at once — 48 raw candidates, larger
-  // than Healing's equivalent 12). Sub-swept so far: Warrior, Guardian, Revenant.
+  // than Healing's equivalent 12). Sub-swept so far: Warrior, Guardian, Revenant, Ranger.
   // Warrior — Battle Standard. 2 API ids share this name (14419/14569); the wiki infobox's own
   // `id =` field confirms 14419 is canonical (GroundTargeted, matches the live ground-target cast),
   // 14569 discarded as a stale duplicate. PvE/WvW+PvP coefficient split (4.0/1.5) — WvW value used.
@@ -177,7 +177,24 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   45773: [{ factText: 'Additional Strike Damage', coefficient: 0.8, weapon: 'unequipped' }],
   // Revenant/Vindicator — Spear of Archemorus. 3-way split (PvE 5.0/WvW 2.67/PvP 2.33) — WvW value
   // used.
-  62942: [{ factText: 'Damage', coefficient: 2.67, weapon: 'unequipped' }]
+  62942: [{ factText: 'Damage', coefficient: 2.67, weapon: 'unequipped' }],
+  // Ranger — 4 raw candidate ids, 3 distinct skills curated (a 4th raw id, Artillery Barrage/12343,
+  // is a cross-profession shared golem-summon skill already curated above under Guardian, so isn't a
+  // new Ranger entry). Entangle — `strikes=4` present -> wiki's 0.8 already totaled; no PvE/WvW split
+  // despite the page's own `split = pve, wvw pvp` (that split only affects recharge, not this fact).
+  12580: [{ factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' }],
+  // Ranger/Soulbeast — One Wolf Pack. PvE/WvW+PvP split (0.95/0.5) — WvW value used.
+  45717: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Ranger/Galeshot — Perfect Storm. 2 API ids share this name (76979/79309, both reporting identical
+  // PvE-only dmg_multiplier values); only 76979 carries the `GroundTargeted` flag matching the wiki
+  // infobox's own `ground target = circle` param, so 79309 is treated as a stale duplicate (same
+  // reasoning as Dragon's Maw/Daring Advance above). Two independently-split Damage facts: Traveling
+  // Tornado Damage (PvE 2.0/WvW+PvP 0.01) and Stationary Tornado Damage (`strikes=12`, already
+  // totaled: PvE 8.4/WvW+PvP 6.0) — WvW values used for both.
+  76979: [
+    { factText: 'Traveling Tornado Damage', coefficient: 0.01, weapon: 'unequipped' },
+    { factText: 'Stationary Tornado Damage', coefficient: 6.0, weapon: 'unequipped' }
+  ]
 }
 
 export interface DamageLine {

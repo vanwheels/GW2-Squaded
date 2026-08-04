@@ -105,9 +105,15 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         curating 28075 would be dead data no UI path reaches, an architecture gap not a data gap
         (same bucket as the Mesmer Troubadour Heal-skill follow-up below). Worth checking whether
         other legends' elite facets have this same on/release fact split when Utility-slot is swept —
-        each legend's 3 utility facets follow the identical toggle+flipSkill shape. **Next up:
-        Ranger (4 candidates).** Remaining after that: Thief(6), Engineer(6), Necromancer(6),
-        Elementalist(8), Mesmer(4).
+        each legend's 3 utility facets follow the identical toggle+flipSkill shape. Ranger done
+        (2026-08-04): 4 raw candidate ids, 3 distinct skills curated (Entangle — `strikes=4` already
+        totaled to 0.8, no split; One Wolf Pack — PvE/WvW+PvP split 0.95/0.5; Perfect Storm — 2 API
+        ids share this name (76979/79309), only 76979 carries the `GroundTargeted` flag matching the
+        wiki infobox's own ground-target param so 79309 is a stale duplicate, 2 independently-split
+        Damage facts: Traveling Tornado 2.0/0.01, Stationary Tornado (`strikes=12`, totaled) 8.4/6.0).
+        The 4th raw id, Artillery Barrage (12343), is a cross-profession shared golem-summon skill
+        already curated under Guardian, not a new Ranger entry. **Next up: Thief (6 candidates).**
+        Remaining after that: Engineer(6), Necromancer(6), Elementalist(8), Mesmer(4).
       - New mechanics this sweep surfaced beyond the Healing-sweep's traps (Barrier-mislabeling,
         trait-duplicated formulas): (1) duplicate-name id resolution — the wiki infobox's own `id =`
         field states the canonical equippable id, don't guess from flags/recharge; (2) the Damage
