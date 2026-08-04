@@ -99,7 +99,7 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         non-player-scaling (Engineer's Detonate Healing Turret has a wiki `power=` fixed override;
         Necromancer's Summon Blood Fiend scales off its pet's own fixed 0 Power — same reasoning
         already applied to this skill's Healing fact).
-      - **Elite-slot: in progress.** Warrior done (2026-08-04): all 3 candidates curated (Battle
+      - **Elite-slot: COMPLETE** (2026-08-04). Warrior done: all 3 candidates curated (Battle
         Standard id 14419 — 2 API ids share this name, the wiki infobox's own `id =` field resolved
         which is canonical, see the code comment; Head Butt; Winds of Disenchantment). Guardian done
         (2026-08-04): all 4 candidates curated (Artillery Barrage — no split; Dragon's Maw id 30273 —
@@ -177,7 +177,15 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         `skill-variants.ts`'s existing filters** (no `toolbeltSkill`/`flipSkill` link back to its
         parent for `stripNonEquippableSubAbilities`/`stripFlipTargets` to key off), so it likely still
         leaks into the live Elite picker as its own bindable-looking skill — see the new follow-up
-        item below. **Next up: Mesmer (4 candidates) — the last profession in the Elite-slot sweep.**
+        item below. Mesmer done (2026-08-04), the last profession — **Elite-slot sweep is now
+        COMPLETE**: 4 raw candidate ids, 3 distinct new skills curated (Thousand Cuts — `strikes=10`
+        already totaled to 5.0, no split; Gravity Well — 2 independently-split Damage facts, Pulse
+        Damage PvE/WvW+PvP 1.1/0.01 and Final Damage 2.1/0.01, both steeply nerfed in competitive
+        modes like several other Elite-slot skills; Jaunt — PvE/WvW+PvP split 1.0/0.5, API represents
+        the split as two identical-text "Damage" facts rather than distinct fact names). The 4th raw
+        id, Artillery Barrage (12343), is the same cross-profession skill already curated under
+        Guardian, not a new Mesmer entry. **Next up: Utility-slot (220 raw candidates) — the next
+        category in the agreed sweep order.**
       - New mechanics this sweep surfaced beyond the Healing-sweep's traps (Barrier-mislabeling,
         trait-duplicated formulas): (1) duplicate-name id resolution — the wiki infobox's own `id =`
         field states the canonical equippable id, don't guess from flags/recharge; (2) the Damage
@@ -185,7 +193,7 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         Supply Crate 1.0 PvE vs 0.01 WvW/PvP; (3) transformation skills (Tornado, Lich Form, Rampage,
         etc.) use their own special weapon-strength category from the wiki's Weapon Strength page's
         "non-weapons" table, not the generic `unequipped` (690.5) bucket every other slot skill uses.
-      - Utility-slot and Weapon-slot: not started.
+      - Utility-slot (220 raw candidates) and Weapon-slot (919 raw candidates): not started.
 - [ ] Mesmer Troubadour's Heal skill, "Tale of the Second Scion" (id 76695), shows no Healing numbers
       at all in this app (user screenshot comparison, 2026-08-02) — confirmed root cause: the GW2 API
       returns only 3 facts for this skill (`Recharge`, `Number of Targets`, `Radius`) with **zero**

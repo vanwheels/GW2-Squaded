@@ -122,10 +122,10 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // channel, not 4 pulses of one cast, so no totaling needed.
   62719: [{ factText: 'Damage', coefficient: 0.222, weapon: 'unequipped' }],
 
-  // --- Elite-slot skills (category sweep started 2026-08-04, see TODO.md/COMPLETED.md; done
+  // --- Elite-slot skills (category sweep 2026-08-04, see TODO.md/COMPLETED.md; done
   // profession-by-profession per user request rather than all at once — 48 raw candidates, larger
-  // than Healing's equivalent 12). Sub-swept so far: Warrior, Guardian, Revenant, Ranger, Thief,
-  // Engineer, Necromancer, Elementalist. Remaining: Mesmer.
+  // than Healing's equivalent 12). COMPLETE: Warrior, Guardian, Revenant, Ranger, Thief, Engineer,
+  // Necromancer, Elementalist, Mesmer.
   // Warrior — Battle Standard. 2 API ids share this name (14419/14569); the wiki infobox's own
   // `id =` field confirms 14419 is canonical (GroundTargeted, matches the live ground-target cast),
   // 14569 discarded as a stale duplicate. PvE/WvW+PvP coefficient split (4.0/1.5) — WvW value used.
@@ -283,7 +283,25 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Whirlpool (Tornado's underwater replacement — a separately-named id, so it isn't collapsed by
   // `skill-variants.ts`'s same-name dedup and appears as its own Elite pick). PvE/WvW+PvP split
   // 2.2/0.01 — WvW value used.
-  5602: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }]
+  5602: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Mesmer — 4 raw candidate ids, 3 distinct new skills curated (the 4th raw id, Artillery Barrage/
+  // 12343, is the same cross-profession golem-summon skill already curated above under Guardian, not
+  // a new Mesmer entry). This is the last profession in the Elite-slot sweep — Elite-slot is now
+  // COMPLETE across all 9 professions.
+  // Virtuoso — Thousand Cuts. No split. `strikes=10` present -> wiki's 5.0 already totaled (API
+  // confirms: hit_count 10 * dmg_multiplier 0.5 = 5.0).
+  24755: [{ factText: 'Damage', coefficient: 5.0, weapon: 'unequipped' }],
+  // Chronomancer — Gravity Well. Two independently-split Damage facts, both steeply nerfed in
+  // competitive modes like several other Elite-slot skills above: Pulse Damage (PvE 1.1/WvW+PvP
+  // 0.01) and Final Damage (PvE 2.1/WvW+PvP 0.01) — WvW values used for both.
+  30359: [
+    { factText: 'Pulse Damage', coefficient: 0.01, weapon: 'unequipped' },
+    { factText: 'Final Damage', coefficient: 0.01, weapon: 'unequipped' }
+  ],
+  // Mirage — Jaunt. PvE/WvW+PvP split 1.0/0.5 — WvW value used. The API lists this as two identical-
+  // text "Damage" facts (one per mode); harmless since `damageLinesForSkill` only checks a same-text
+  // match exists, same as several other split entries above.
+  45449: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }]
 }
 
 export interface DamageLine {
