@@ -84,9 +84,15 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         already applied to this skill's Healing fact).
       - **Elite-slot: in progress.** Warrior done (2026-08-04): all 3 candidates curated (Battle
         Standard id 14419 — 2 API ids share this name, the wiki infobox's own `id =` field resolved
-        which is canonical, see the code comment; Head Butt; Winds of Disenchantment). **Next up:
-        Guardian (4 candidates).** Remaining after that: Revenant(5), Ranger(4), Thief(6),
-        Engineer(6), Necromancer(6), Elementalist(8), Mesmer(4).
+        which is canonical, see the code comment; Head Butt; Winds of Disenchantment). Guardian done
+        (2026-08-04): all 4 candidates curated (Artillery Barrage — no split; Dragon's Maw id 30273 —
+        2 API ids share this name, wiki infobox `id =` field resolved 68686 as the stale duplicate;
+        Heaven's Palm; Daring Advance id 76687 — 2 API ids share this name, wiki infobox lists both
+        but only 76687 carries the `GroundTargeted` flag matching the live cast, 77198 treated as
+        stale). All 4 Guardian entries are PvE/WvW+PvP splits with the WvW value steeply nerfed
+        (0.01) vs. PvE (1.5-3.6), same "damage skill blunted hard in competitive modes" pattern as
+        Warrior's Head Butt. **Next up: Revenant (5 candidates).** Remaining after that: Ranger(4),
+        Thief(6), Engineer(6), Necromancer(6), Elementalist(8), Mesmer(4).
       - New mechanics this sweep surfaced beyond the Healing-sweep's traps (Barrier-mislabeling,
         trait-duplicated formulas): (1) duplicate-name id resolution — the wiki infobox's own `id =`
         field states the canonical equippable id, don't guess from flags/recharge; (2) the Damage

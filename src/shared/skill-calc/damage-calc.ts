@@ -124,7 +124,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
 
   // --- Elite-slot skills (category sweep started 2026-08-04, see TODO.md/COMPLETED.md; done
   // profession-by-profession per user request rather than all at once — 48 raw candidates, larger
-  // than Healing's equivalent 12). Sub-swept so far: Warrior.
+  // than Healing's equivalent 12). Sub-swept so far: Warrior, Guardian.
   // Warrior — Battle Standard. 2 API ids share this name (14419/14569); the wiki infobox's own
   // `id =` field confirms 14419 is canonical (GroundTargeted, matches the live ground-target cast),
   // 14569 discarded as a stale duplicate. PvE/WvW+PvP coefficient split (4.0/1.5) — WvW value used.
@@ -136,7 +136,21 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   30343: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
   // Warrior/Spellbreaker — Winds of Disenchantment. "pve wvw" grouped vs. a separate lower "pvp" value
   // (0.45/0.20) — WvW groups with PvE here, 0.45 used.
-  45333: [{ factText: 'Damage', coefficient: 0.45, weapon: 'unequipped' }]
+  45333: [{ factText: 'Damage', coefficient: 0.45, weapon: 'unequipped' }],
+  // Guardian — Artillery Barrage. No PvE/WvW split (single wiki coefficient covers all modes).
+  12343: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }],
+  // Guardian/Dragonhunter — Dragon's Maw. 2 API ids share this name (30273/68686, both reporting the
+  // PvE-only 3.6 multiplier); the wiki infobox's own `id =` field confirms 30273 is canonical, 68686
+  // discarded as a stale duplicate. PvE/WvW+PvP split (3.6/0.01) — WvW value used.
+  30273: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Guardian/Willbender — Heaven's Palm. PvE/WvW+PvP split (3.0/0.01) — WvW value used.
+  62561: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Guardian/Luminary — Daring Advance. 2 API ids share this name (76687/77198); the wiki infobox's
+  // own `id =` field lists both, but only 76687 carries the `GroundTargeted` flag matching the
+  // infobox's own "ground target = circle" param and the live leap-to-area cast, so 77198 is treated
+  // as a stale duplicate (same reasoning as Dragon's Maw/Battle Standard above). PvE/WvW+PvP split
+  // (3.0/0.01) — WvW value used.
+  76687: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }]
 }
 
 export interface DamageLine {
