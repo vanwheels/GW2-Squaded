@@ -124,7 +124,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
 
   // --- Elite-slot skills (category sweep started 2026-08-04, see TODO.md/COMPLETED.md; done
   // profession-by-profession per user request rather than all at once — 48 raw candidates, larger
-  // than Healing's equivalent 12). Sub-swept so far: Warrior, Guardian, Revenant, Ranger.
+  // than Healing's equivalent 12). Sub-swept so far: Warrior, Guardian, Revenant, Ranger, Thief.
   // Warrior — Battle Standard. 2 API ids share this name (14419/14569); the wiki infobox's own
   // `id =` field confirms 14419 is canonical (GroundTargeted, matches the live ground-target cast),
   // 14569 discarded as a stale duplicate. PvE/WvW+PvP coefficient split (4.0/1.5) — WvW value used.
@@ -194,7 +194,28 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   76979: [
     { factText: 'Traveling Tornado Damage', coefficient: 0.01, weapon: 'unequipped' },
     { factText: 'Stationary Tornado Damage', coefficient: 6.0, weapon: 'unequipped' }
-  ]
+  ],
+  // Thief — 6 raw candidate ids, 5 distinct new skills curated (the 6th raw id, Artillery Barrage/
+  // 12343, is the same cross-profession shared golem-summon skill already curated above under
+  // Guardian, not a new Thief entry). No duplicate-name id collisions among the 5 (each resolves to
+  // exactly one skill.json id with profession Thief/slot Elite). All 5 have a PvE/WvW+PvP split, WvW
+  // value used in every case; all single-hit (`hit_count: 1`, no wiki `strikes=` param).
+  // Dagger Storm. PvE/WvW+PvP split 1.33/0.4.
+  13085: [{ factText: 'Damage', coefficient: 0.4, weapon: 'unequipped' }],
+  // Daredevil — Impact Strike. PvE/WvW+PvP split 1.75/0.75.
+  29516: [{ factText: 'Damage', coefficient: 0.75, weapon: 'unequipped' }],
+  // Daredevil — Finishing Blow (Impact Strike's follow-up chain skill). PvE/WvW+PvP split 4.0/2.5.
+  29639: [{ factText: 'Damage', coefficient: 2.5, weapon: 'unequipped' }],
+  // Daredevil — Uppercut (Impact Strike's other follow-up chain skill). Wiki page title
+  // "Uppercut (Daredevil skill)" — the bare "Uppercut" title is a disambiguation redirect to the
+  // unrelated Warrior Rampage transform skill (id 14487, coefficient 2.4/1.36, NOT this skill).
+  // PvE/WvW+PvP split 2.25/0.01 — a steep competitive-mode nerf like several other Elite-slot skills
+  // above.
+  30077: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Specter — Shadowfall. PvE/WvW+PvP split 1.5/0.01. Wiki's own `weapon=unequipped` param here
+  // (unlike the other 4 Thief entries' `weapon=utility`) already matches the Elite-slot convention
+  // directly.
+  63275: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }]
 }
 
 export interface DamageLine {

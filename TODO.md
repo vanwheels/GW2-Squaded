@@ -112,8 +112,15 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         wiki infobox's own ground-target param so 79309 is a stale duplicate, 2 independently-split
         Damage facts: Traveling Tornado 2.0/0.01, Stationary Tornado (`strikes=12`, totaled) 8.4/6.0).
         The 4th raw id, Artillery Barrage (12343), is a cross-profession shared golem-summon skill
-        already curated under Guardian, not a new Ranger entry. **Next up: Thief (6 candidates).**
-        Remaining after that: Engineer(6), Necromancer(6), Elementalist(8), Mesmer(4).
+        already curated under Guardian, not a new Ranger entry. Thief done (2026-08-04): 6 raw
+        candidate ids, 5 distinct skills curated (Dagger Storm — PvE/WvW+PvP split 1.33/0.4; Impact
+        Strike — split 1.75/0.75; Finishing Blow, Impact Strike's chain follow-up — split 4.0/2.5;
+        Uppercut, Impact Strike's other chain follow-up — split 2.25/0.01, wiki page title "Uppercut
+        (Daredevil skill)" since the bare "Uppercut" title redirects to an unrelated Warrior Rampage
+        transform skill; Shadowfall — split 1.5/0.01). The 6th raw id, again Artillery Barrage
+        (12343), is the same cross-profession skill already curated under Guardian, not a new Thief
+        entry. **Next up: Engineer (6 candidates).**
+        Remaining after that: Necromancer(6), Elementalist(8), Mesmer(4).
       - New mechanics this sweep surfaced beyond the Healing-sweep's traps (Barrier-mislabeling,
         trait-duplicated formulas): (1) duplicate-name id resolution — the wiki infobox's own `id =`
         field states the canonical equippable id, don't guess from flags/recharge; (2) the Damage
