@@ -301,7 +301,70 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Mirage — Jaunt. PvE/WvW+PvP split 1.0/0.5 — WvW value used. The API lists this as two identical-
   // text "Damage" facts (one per mode); harmless since `damageLinesForSkill` only checks a same-text
   // match exists, same as several other split entries above.
-  45449: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }]
+  45449: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+
+  // --- Utility-slot skills (category sweep 2026-08-04, see TODO.md/COMPLETED.md; done
+  // profession-by-profession per user request — 220 raw candidates, the largest category swept so
+  // far besides Weapon. Warrior done.
+  // Racial Utility skills carrying a Damage fact (professions.length === 8, specializationId null —
+  // same shared-across-professions shape as Artillery Barrage in the Elite-slot sweep) are curated
+  // once here, under Warrior, and referenced (not re-curated) under every later profession they
+  // recur in. Of 6 racial candidates, 4 curated; 2 excluded as non-player-scaling: Seed Turret
+  // (12456, wiki's own note: "damage...is not affected by the creator's stats" — same trap as the
+  // Heal/Elite-slot sweeps' turret exclusions) and Grasping Vines (12453) — its wiki fact has no
+  // `weapon=` param at all (`{{skill fact|damage|127|coefficient=0.2}}`), the same template shape as
+  // Seed Turret's own fact (`{{skill fact|damage|318|coefficient=0.5}}`) and unlike every other
+  // candidate in this sweep (all of which carry an explicit `weapon=` param); the flat "127" doesn't
+  // reproduce from this app's own formula at any reference stat, consistent with it being a
+  // precomputed non-scaling number like Seed Turret's "318" rather than a real weapon-strength base.
+  // Asura — Radiation Field. No split.
+  12319: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Charr — Shrapnel Mine. No split. Wiki's own `weapon=unequipped` param already matches.
+  12337: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }],
+  // Charr — Hidden Pistol. No split. Wiki's own `weapon=unequipped` param already matches.
+  12339: [{ factText: 'Damage', coefficient: 0.6, weapon: 'unequipped' }],
+  // Norn — Call Owl. No split.
+  12387: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Warrior — Throw Bolas. No split.
+  14354: [{ factText: 'Damage', coefficient: 0.25, weapon: 'unequipped' }],
+  // Warrior — Stomp. PvE/WvW+PvP split 0.75/0.01 — WvW value used.
+  14388: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Warrior — Kick. PvE/WvW+PvP split 1.0/0.01 — WvW value used. Wiki page title
+  // "Kick (warrior utility skill)" — the bare "Kick" title is a disambiguation page (this app's own
+  // `skill-variants.ts` resolves the 6 same-named "Kick" ids across different professions/slots by
+  // profession+slot, not name alone, same as this curation's own id-based lookup).
+  14502: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Warrior — Bull's Charge. PvE/WvW+PvP split 2.0/0.01 — WvW value used.
+  14516: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Warrior — Banner of Discipline. 2 API ids share this name (14407 GroundTargeted/14571 not);
+  // `skill-variants.ts`'s own doc comment names "every Warrior Banner" as a case its GroundTargeted
+  // signal resolves automatically to the non-ground-targeted id, so 14571 (not 14407) is the id this
+  // app's picker actually shows — confirmed both ids carry an identical Damage fact (dmg_multiplier
+  // 0.5) since the two are otherwise-identical ground-target-toggle variants of one in-game skill. No
+  // PvE/WvW split on the Damage fact itself (the wiki's "fury" fact has a split, this doesn't).
+  14571: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Warrior — Banner of Strength. Same GroundTargeted duplicate-id shape as Banner of Discipline
+  // above (14405 GroundTargeted/14572 not) — 14572 is the canonical id. No split.
+  14572: [{ factText: 'Damage', coefficient: 2.0, weapon: 'unequipped' }],
+  // Berserker — Sundering Leap. PvE/WvW+PvP split 2.5/2.0 — WvW value used (the page's own
+  // `split = pve, wvw, pvp` header is about `recharge pvp` differing, not this Damage fact, which
+  // only splits PvE from a WvW+PvP-grouped value).
+  29613: [{ factText: 'Damage', coefficient: 2.0, weapon: 'unequipped' }],
+  // Berserker — Wild Blow. PvE/WvW+PvP split 2.5/1.7 — WvW value used.
+  29941: [{ factText: 'Damage', coefficient: 1.7, weapon: 'unequipped' }],
+  // Berserker — Shattering Blow. PvE/WvW+PvP split 1.5/0.5 — WvW value used.
+  30074: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Spellbreaker — Break Enchantments. 3-way split PvE/WvW/PvP 1.5/0.7/0.1 — WvW value used. Local
+  // `skills.json` carries all 3 as separate same-text "Damage" facts (dmg_multiplier 1.5/0.1/0.7);
+  // harmless since `damageLinesForSkill` only checks a same-text match exists, same as several
+  // Elite-slot split entries above.
+  43123: [{ factText: 'Damage', coefficient: 0.7, weapon: 'unequipped' }],
+  // Bladesworn — Dragonspike Mine. PvE/WvW+PvP split 1.5/0.6 — WvW value used.
+  62960: [{ factText: 'Damage', coefficient: 0.6, weapon: 'unequipped' }],
+  // Paragon — "Find Their Weakness!". PvE/WvW+PvP split 2.0/1.0 — WvW value used.
+  77040: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Paragon — "On Your Knees!". PvE/WvW+PvP split 1.5/0.8 — WvW value used.
+  77114: [{ factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' }]
 }
 
 export interface DamageLine {

@@ -204,8 +204,8 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         modes like several other Elite-slot skills; Jaunt — PvE/WvW+PvP split 1.0/0.5, API represents
         the split as two identical-text "Damage" facts rather than distinct fact names). The 4th raw
         id, Artillery Barrage (12343), is the same cross-profession skill already curated under
-        Guardian, not a new Mesmer entry. **Next up: Utility-slot (220 raw candidates) — the next
-        category in the agreed sweep order.**
+        Guardian, not a new Mesmer entry. **Elite-slot sweep is now COMPLETE across all 9
+        professions.**
       - New mechanics this sweep surfaced beyond the Healing-sweep's traps (Barrier-mislabeling,
         trait-duplicated formulas): (1) duplicate-name id resolution — the wiki infobox's own `id =`
         field states the canonical equippable id, don't guess from flags/recharge; (2) the Damage
@@ -213,7 +213,27 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         Supply Crate 1.0 PvE vs 0.01 WvW/PvP; (3) transformation skills (Tornado, Lich Form, Rampage,
         etc.) use their own special weapon-strength category from the wiki's Weapon Strength page's
         "non-weapons" table, not the generic `unequipped` (690.5) bucket every other slot skill uses.
-      - Utility-slot (220 raw candidates) and Weapon-slot (919 raw candidates): not started.
+      - **Utility-slot (220 raw candidates): in progress, started 2026-08-04, same
+        profession-by-profession pacing as Elite-slot.** Warrior done: 21 raw candidate ids, 17
+        distinct skills curated. 6 of the 21 are racial Utility skills (`professions.length === 8`,
+        `specializationId` null — same shared-across-professions shape as Elite-slot's Artillery
+        Barrage) curated once here and reused by reference for later professions rather than
+        re-curated: Radiation Field, Shrapnel Mine, Hidden Pistol, Call Owl curated (no splits); Seed
+        Turret and Grasping Vines excluded as non-player-scaling (Seed Turret's own wiki note: "damage
+        ...is not affected by the creator's stats"; Grasping Vines' Damage fact has no `weapon=` param
+        at all, same template shape as Seed Turret's, a new sub-variant of the turret/pet
+        non-player-scaling trap — no `power=` override needed as the signal, absence of `weapon=`
+        itself is suspect on an otherwise-uniform 21-candidate list). The other 15 raw ids are 13
+        distinct Warrior-only skills (2 GroundTargeted duplicate-id pairs, Banner of Strength
+        14405/14572 and Banner of Discipline 14407/14571 — `skill-variants.ts`'s own doc comment names
+        "every Warrior Banner" as auto-resolving to the non-ground-targeted id via its GroundTargeted
+        signal, so 14572/14571 are curated, not 14405/14407): Throw Bolas, Kick, Bull's Charge (all
+        3 PvE/WvW+PvP split or no split), both Banners (no split), Berserker's Sundering Leap/Wild
+        Blow/Shattering Blow (all PvE/WvW+PvP split), Spellbreaker's Break Enchantments (3-way
+        PvE/WvW/PvP split, WvW value used), Bladesworn's Dragonspike Mine, and the new Paragon elite
+        spec's "Find Their Weakness!"/"On Your Knees!" (both PvE/WvW+PvP split). **Next up: Guardian's
+        Utility-slot leg.**
+      - Weapon-slot (919 raw candidates): not started, last category in the sweep order.
 - [ ] Mesmer Troubadour's Heal skill, "Tale of the Second Scion" (id 76695), shows no Healing numbers
       at all in this app (user screenshot comparison, 2026-08-02) — confirmed root cause: the GW2 API
       returns only 3 facts for this skill (`Recharge`, `Number of Targets`, `Radius`) with **zero**
