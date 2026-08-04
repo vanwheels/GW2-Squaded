@@ -21,6 +21,26 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       whole category worth excluding by name-prefix convention (would need wiki spot-checks first —
       "Lesser" doesn't guarantee non-equippable, e.g. some elite specs have legitimately-bound
       skills named that way).
+- [ ] **Racial skills should be toggleable (show/hide) in the skill pickers, eventually as a settings
+      option** — noted by the user 2026-08-04 while doing the Elite-slot Damage sweep, using
+      Artillery Barrage as the example (a Norn racial elite, not a real Guardian/Warrior/etc. skill —
+      it just appears under 8 of the 9 professions' Elite lists, e.g. `skills.json` id 12343 lists
+      `professions: [Guardian, Warrior, Engineer, Ranger, Thief, Elementalist, Mesmer, Necromancer]`
+      with `specializationId: null`, missing only Revenant). This app has **no race concept
+      modeled at all today** (confirmed: no `race` field anywhere in `src/shared/types`, no
+      race-data JSON under `data/game-data/`), so this is new scope, not a tweak to existing
+      filtering. The Mesmer Elite-slot scan for the Damage sweep surfaced the likely full racial-elite
+      set riding along in every profession's picker: Artillery Barrage, Summon 7-Series Golem, Summon
+      D-Series Golem, Summon Power Suit, Charrzooka, Warband Support (Charr); Hounds of Balthazar,
+      Reaper of Grenth, Avatar of Melandru + Remove Avatar of Melandru (Human); Become/Release the
+      Bear, Wolf, Snow Leopard, Raven (Norn); Summon Druid Spirit, Summon Sylvan Hound, Take Root
+      (Sylvari); Mistfire Wolf (Asura?) — worth a full `skills.json` scan for the exact set (likely
+      identifiable by `specializationId: null` + a `professions` array spanning most/all professions,
+      cross-checked against the wiki's own "Racial skill" category page rather than guessed from
+      flags). Needs scoping before implementing: (1) where the toggle lives (a new Settings panel
+      doesn't exist yet either — check if one does before assuming); (2) default state (show or hide
+      by default); (3) whether this also needs the Gear Optimizer / any other skill-consuming surface
+      to respect the same toggle, not just the picker UI.
 - [ ] Sigils aren't factored into the Stats panel yet (user report, 2026-08-01). Confirmed the
       `Sigil` type (`src/shared/types/game-data.ts`) has no structural `bonuses` field at all —
       unlike Rune/Consumable, it's free-text `description` only — so `computeGearAttributeTotals`
