@@ -4,6 +4,23 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
+- [ ] `skill-variants.ts`'s Elite/Utility/Heal picker filters (`stripNonEquippableSubAbilities`,
+      `stripFlipTargets`) don't catch every non-equippable "sub-skill" — found while curating
+      `CURATED_DAMAGE_COEFFICIENTS`'s Elementalist Elite-slot entries 2026-08-04. Elementalist's
+      Lesser Fiery Eruption (id 44918), Conjure Fiery Greatsword's auto-triggered passive proc (wiki
+      `parent = Conjure Fiery Greatsword`, `Category:Lesser skills` — not something a player binds
+      directly), has neither a `toolbeltSkill` link (the signal `stripNonEquippableSubAbilities`
+      keys off) nor a `flipSkill` link from its parent (the signal `stripFlipTargets` keys off), so it
+      likely still shows up in the live Elite picker as if it were its own independently-bindable
+      skill. Needs: (1) live verification in the running app (Electron sandbox limitation — see
+      `electron_sandbox_limitation` memory) that this actually reproduces; (2) if confirmed, a new
+      signal for `skill-variants.ts`, probably wiki-sourced like `skillVariantExclusions` since
+      neither the API's local `skills.json` nor any other structural field marks a "Lesser" skill as
+      non-equippable — worth first checking how many other "Lesser"-titled skills exist across
+      `skills.json` (a quick grep on `name` starting with "Lesser ") to see if this is a one-off or a
+      whole category worth excluding by name-prefix convention (would need wiki spot-checks first —
+      "Lesser" doesn't guarantee non-equippable, e.g. some elite specs have legitimately-bound
+      skills named that way).
 - [ ] Sigils aren't factored into the Stats panel yet (user report, 2026-08-01). Confirmed the
       `Sigil` type (`src/shared/types/game-data.ts`) has no structural `bonuses` field at all —
       unlike Rune/Consumable, it's free-text `description` only — so `computeGearAttributeTotals`
@@ -142,8 +159,25 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         wiki's Minion page confirms minions "only inherit the player's Condition Damage, Condition
         Duration, and Boon Duration attributes... All other attributes, such as health, are
         determined by the minion type," the same reasoning already applied to the Heal-slot sweep's
-        Summon Blood Fiend exclusion (Power isn't in that inherited list either). **Next up:
-        Elementalist (8 candidates), then Mesmer (4).**
+        Summon Blood Fiend exclusion (Power isn't in that inherited list either). Elementalist done
+        (2026-08-04): 8 raw candidate ids, 3 distinct new skills curated (Conjure Fiery Greatsword —
+        no split, wiki's own `weapon=utility` param normalized to `unequipped`; Tornado — PvE/WvW+PvP
+        split 1.1/0.01; Whirlpool, Tornado's underwater replacement, a separately-named id so it isn't
+        collapsed by `skill-variants.ts`'s same-name dedup — PvE/WvW+PvP split 2.2/0.01). 1 raw id,
+        Artillery Barrage (12343), is the same cross-profession skill already curated under Guardian.
+        4 more excluded: Crashing Waves (25492) and Flame Barrage (25499), the Water/Fire Glyph of
+        Elementals' summoned-elemental "command" follow-ups — both wiki pages explicitly state "the
+        direct damage is unaffected by any modifiers such as power or might," a new phrasing of the
+        same non-player-scaling trap seen elsewhere as a `power=` override; Tailored Victory (44637),
+        Weave Self's `flipSkill` release effect (Weave Self itself, 43638, carries zero Damage fact of
+        its own) — same "Damage fact unreachable via the current UI" architecture gap as Revenant's
+        Chaotic Release above; Lesser Fiery Eruption (44918), Conjure Fiery Greatsword's auto-triggered
+        passive proc (wiki `parent = Conjure Fiery Greatsword`, `Category:Lesser skills`) — not
+        independently equippable, but **unlike Tailored Victory this one isn't caught by
+        `skill-variants.ts`'s existing filters** (no `toolbeltSkill`/`flipSkill` link back to its
+        parent for `stripNonEquippableSubAbilities`/`stripFlipTargets` to key off), so it likely still
+        leaks into the live Elite picker as its own bindable-looking skill — see the new follow-up
+        item below. **Next up: Mesmer (4 candidates) — the last profession in the Elite-slot sweep.**
       - New mechanics this sweep surfaced beyond the Healing-sweep's traps (Barrier-mislabeling,
         trait-duplicated formulas): (1) duplicate-name id resolution — the wiki infobox's own `id =`
         field states the canonical equippable id, don't guess from flags/recharge; (2) the Damage
