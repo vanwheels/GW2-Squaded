@@ -305,7 +305,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
 
   // --- Utility-slot skills (category sweep 2026-08-04, see TODO.md/COMPLETED.md; done
   // profession-by-profession per user request — 220 raw candidates, the largest category swept so
-  // far besides Weapon. Warrior, Guardian done.
+  // far besides Weapon. Warrior, Guardian, Revenant, Ranger done.
   // Racial Utility skills carrying a Damage fact (professions.length === 8, specializationId null —
   // same shared-across-professions shape as Artillery Barrage in the Elite-slot sweep) are curated
   // once here, under Warrior, and referenced (not re-curated) under every later profession they
@@ -498,12 +498,70 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Hex-Eater Vortex/Gladiator's Defense below) — consistent with the wiki simply not having caught
   // up on this mode's exact number yet, same "unfilled coefficient, not something this app can
   // derive" bucket as Guardian's Repose (Heal-slot sweep). Left uncurated pending a cleaner source.
-  76805: [{ factText: 'Follow-Up Damage', coefficient: 0.6, weapon: 'unequipped' }]
+  76805: [{ factText: 'Follow-Up Damage', coefficient: 0.6, weapon: 'unequipped' }],
   // Conduit/Legendary Entity — Hex-Eater Vortex (77243) and Gladiator's Defense (77291) excluded
   // entirely: both wiki pages are explicitly tagged `{{stub|damage coefficient}}`/
   // `{{stub|gamemode split, missing dmg coeff}}`, quoting only a bare tooltip value with no
   // `coefficient=` param at all — same "wiki hasn't documented the coefficient" gap as Repose, just
   // on brand-new Conduit skills instead of an old stub.
+
+  // Ranger — 25 raw candidate ids (6 shared racial ones already curated under Warrior, not
+  // re-curated here). Verified against the real `visibleSkillsForSlot` (same throwaway-tsx-script
+  // approach as Guardian's Spirit Weapons/Revenant's leg above) — surfaced a fresh instance of that
+  // exact bug: "Mistral" (Galeshot) has 2 API ids sharing one name (76757 GroundTargeted/79324 not);
+  // the wiki's own infobox documents only 76757 (`id = 76757`, `ground target = line`) and a
+  // full-text id search turns up zero hits for 79324 anywhere on the wiki — the app's default
+  // GroundTargeted-collapse signal was picking 79324 (the undocumented stale duplicate) as the
+  // picker's shown id, same shape as Daring Advance's ground-targeted-is-actually-canonical case in
+  // the Elite-slot sweep. Fixed by adding 79324 to `skill-variant-exclusions.json` directly and
+  // re-verified against the real `visibleSkillsForSlot`, which now correctly resolves to 76757 — see
+  // TODO.md for the writeup. 1 excluded as non-player-scaling: Call Lightning (12598) — its own wiki
+  // page's Mechanics section states the damage "uses the [Storm Spirit]'s power (1580) and weapon
+  // strength (2426-2681)", the summoned spirit's own fixed stats, not the player's, same trap as the
+  // turret/pet/minion exclusions elsewhere in this sweep. 6 more left uncurated (Glyph of the Tides,
+  // Glyph of Alignment, Glyph of Equality's damage-dealing casts) — same "Damage fact unreachable via
+  // the current UI" architecture gap as Revenant's Chaotic Release/Elementalist's Tailored Victory
+  // above, just via `glyphFormVariants` instead of `flipSkill`: each Glyph's actually-equippable
+  // canonical id (30238/31322/31746) carries zero facts of its own, since the wiki-sourced
+  // `glyphFormVariants` map (see `skill-variants.ts` signal 5) strips its two context-dependent
+  // "cast while not/while in Celestial Avatar form" ids (which DO carry the real facts, e.g. 31607's
+  // Damage fact for Glyph of Alignment's non-celestial cast) out of the picker entirely, and no
+  // rendering path (`relatedVariantSkills` only follows `flipSkill`/attunement, not
+  // `glyphFormVariants`) stitches those facts back onto the canonical id's tooltip. Note:
+  // `CURATED_HEALING_COEFFICIENTS` already curated 2 of this same family's celestial-form casts
+  // (Glyph of Alignment's 31348, Glyph of Burgeoning's 31888, both Healing-slot) during the 2026-08-02
+  // Healing sweep without flagging this gap — those entries are almost certainly equally unreachable
+  // dead data, worth revisiting alongside a real fix rather than guessing a patch here.
+  // Spike Trap. PvE/WvW+PvP split 0.2/0.01 — WvW value used.
+  12476: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Signet of the Wild. No split. `strikes=4` present -> wiki's 0.8 already totaled.
+  12491: [{ factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' }],
+  // Frost Trap. `strikes=5` present -> wiki coefficients already totaled. PvE 5.0 vs. a
+  // "pvp"-labeled 2.5 that per the page's own `split = pve, wvw pvp` header groups WvW with PvP
+  // (the fact tag's bare `game mode=pvp` label is shorthand for that grouping, same convention seen
+  // elsewhere in this sweep) — WvW value (2.5) used.
+  12492: [{ factText: 'Damage', coefficient: 2.5, weapon: 'unequipped' }],
+  // Lightning Reflexes. PvE/WvW+PvP split 1.0/0.1 — WvW value used.
+  12494: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
+  // Viper's Nest. No split. `strikes=3` present -> wiki's 0.9 already totaled.
+  12496: [{ factText: 'Damage', coefficient: 0.9, weapon: 'unequipped' }],
+  // Flame Trap. No split. Local fact text "Damage per Pulse" (`hit_count: 1` locally, matching the
+  // wiki's own `alt=Damage per pulse` label) — a genuinely per-pulse number, not totaled across its
+  // 5 pulses, unlike Guardian's Symbol of Blades above (whose plain "Damage" fact label would
+  // otherwise understate a 5-pulse total).
+  12499: [{ factText: 'Damage per Pulse', coefficient: 0.3, weapon: 'unequipped' }],
+  // Untamed — Exploding Spores. `strikes=6` present -> wiki coefficients already totaled. PvE 3.498
+  // vs. WvW+PvP grouped 2.64 — WvW value used.
+  63157: [{ factText: 'Damage', coefficient: 2.64, weapon: 'unequipped' }],
+  // Galeshot — Mistral (id fixed, see block comment above). No split. The API duplicates the
+  // "Damage" fact text twice on this id; harmless, `damageLinesForSkill` only checks a same-text
+  // match exists.
+  76757: [{ factText: 'Damage', coefficient: 0.3, weapon: 'unequipped' }],
+  // Galeshot — Wind Shear. PvE/WvW+PvP split 1.0/0.01 — WvW value used.
+  77211: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Galeshot — Piercing Gales. `strikes=5` present -> wiki coefficients already totaled. PvE 3.5 vs.
+  // WvW+PvP grouped 1.75 — WvW value used.
+  77264: [{ factText: 'Damage', coefficient: 1.75, weapon: 'unequipped' }]
 }
 
 export interface DamageLine {

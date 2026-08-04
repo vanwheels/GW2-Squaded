@@ -269,7 +269,36 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         coefficient" bucket as Guardian's Repose. Also surfaced: Call to Anguish's auto-target id
         (the one the picker actually shows) carries a stale local `Damage` fact missing the WvW split
         its GroundTargeted sibling has — harmless for curation since only fact *presence* is needed to
-        key off, not its cached value. **Next up: Ranger's Utility-slot leg.**
+        key off, not its cached value. Ranger done 2026-08-04: 25 raw candidate ids (6 shared racial
+        ones already curated under Warrior, not re-curated), 10 distinct Ranger-only skills curated
+        (Spike Trap, Signet of the Wild, Frost Trap, Lightning Reflexes, Viper's Nest, Flame Trap —
+        the last one a genuine per-pulse fact, not totaled, since its local text literally says
+        "Damage per Pulse"; Untamed's Exploding Spores; Galeshot's Mistral, Wind Shear, Piercing
+        Gales). **Verifying against the real `visibleSkillsForSlot` surfaced a fresh instance of the
+        Guardian Spirit Weapons picker bug**: "Mistral" has 2 API ids sharing one name (76757
+        GroundTargeted/79324 not); the wiki infobox only documents 76757 (`id = 76757`, `ground
+        target = line`) and a wiki full-text id search finds zero hits for 79324 anywhere — the app's
+        default GroundTargeted-collapse signal was silently picking the undocumented stale duplicate
+        (79324) as the picker's shown id. Fixed the same way as Guardian's fix: added 79324 to
+        `skill-variant-exclusions.json` directly, re-verified via a throwaway tsx script that the
+        real `visibleSkillsForSlot` now resolves to 76757. 1 excluded as non-player-scaling: Call
+        Lightning (12598) — its own wiki page's Mechanics section states the damage "uses the [Storm
+        Spirit]'s power (1580) and weapon strength," the summoned spirit's own fixed stats, not the
+        player's, same trap as this sweep's other turret/pet/minion exclusions. 6 more left uncurated
+        (Glyph of the Tides/Alignment/Equality's damage-dealing casts) — a new variant of the
+        "Damage fact unreachable via the current UI" architecture gap already seen with Revenant's
+        Chaotic Release/Elementalist's Tailored Victory, this time via `glyphFormVariants` rather than
+        `flipSkill`: each Glyph's actually-equippable canonical id carries zero facts of its own,
+        since `glyphFormVariants` strips its two context-dependent "cast while not/while in Celestial
+        Avatar form" ids (which carry the real facts) out of the picker entirely, and no rendering
+        path stitches those facts back onto the canonical id's tooltip (`relatedVariantSkills` only
+        follows `flipSkill`/attunement). **Also worth noting**: `CURATED_HEALING_COEFFICIENTS`
+        already curated 2 of this same family's celestial-form casts (Ranger's Glyph of Alignment
+        31348, Glyph of Burgeoning 31888) during the 2026-08-02 Healing sweep without flagging this
+        gap — those entries are almost certainly equally unreachable dead data today, worth
+        revisiting alongside a real fix (e.g. teaching `relatedVariantSkills` to also surface
+        `glyphFormVariants` siblings) rather than leaving them silently inert. See `damage-calc.ts`'s
+        Ranger Utility-slot block comment for the full writeup. **Next up: Thief's Utility-slot leg.**
       - Weapon-slot (919 raw candidates): not started, last category in the sweep order.
 - [ ] Mesmer Troubadour's Heal skill, "Tale of the Second Scion" (id 76695), shows no Healing numbers
       at all in this app (user screenshot comparison, 2026-08-02) — confirmed root cause: the GW2 API
