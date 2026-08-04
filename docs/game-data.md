@@ -401,6 +401,27 @@ Solace"/"Jade Winds") and found two more real, distinguishable patterns:
   itself as non-equippable by finding its categorized sibling Rocket Turret `22574` still present in
   the pool, and `22574` is itself one of the ids `skillVariantExclusions` removes; filtering first
   would silently make `38748` look independently equippable again.
+- **A blind spot in the script above, found manually 2026-08-04** during the `CURATED_DAMAGE_
+  COEFFICIENTS` Utility-slot sweep (Guardian leg): the script only re-checks groups where
+  `visibleSkillsForSlot` still returns >1 id — but Guardian's 3 Spirit Weapons (Sword of Justice,
+  Shield of the Avenger, Hammer of Wisdom) each have 4 raw ids in skills.json, and the *existing*
+  signal 4 (`GroundTargeted` collapse) already narrows each group down to exactly 1 id on its own —
+  `55027`/`55037`/`55040` respectively — so the script never considered them ambiguous and never
+  wiki-checked them. Those 3 picks are wrong: live-verified (wiki infobox `id=` field for all 3 pages
+  lists only the *other* pair — `9168, 44846` / `9182, 41571` / `9125, 46170` — and a wiki full-text
+  search for `55027` returns zero skill-related hits) that `55019/55027`, `55035/55037`,
+  `55040/55053` are stale/defunct ids no longer reachable in-game; every current Spirit Weapon is
+  ground-targeted (per each page's own 2019-04-23 version-history entry: "These skills are now all
+  ground-targeted while the player is on land"), so signal 4's "collapse to the non-ground-targeted
+  id" heuristic — correct for Warrior Banners, wrong here — was quietly picking the dead id instead.
+  This is exactly the scenario `skill-variants.ts`'s own doc comment already describes as the
+  flip-root signal's intended target for these 3 skills (it names `9125`/`46170` as its own Hammer of
+  Wisdom example), confirming `9168`/`9182`/`9125` (the flip-root survivor once the dead pair is
+  excluded) are correct. Fixed by adding all 6 dead ids to `skill-variant-exclusions.json` directly
+  (not re-running the fetch script, since it can't discover this class of gap as built). Worth
+  auditing whether the fetch script should also re-check every group that *signal 4 alone* collapsed
+  to 1, not just groups still >1 after all signals — no other same-shape case found in this session's
+  Guardian Utility-slot sweep, but unconfirmed for the rest of the roster.
 
 ## WvW-vs-PvE fact splits (`wvw-fact-overrides.json`)
 

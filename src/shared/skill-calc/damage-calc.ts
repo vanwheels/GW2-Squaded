@@ -305,7 +305,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
 
   // --- Utility-slot skills (category sweep 2026-08-04, see TODO.md/COMPLETED.md; done
   // profession-by-profession per user request — 220 raw candidates, the largest category swept so
-  // far besides Weapon. Warrior done.
+  // far besides Weapon. Warrior, Guardian done.
   // Racial Utility skills carrying a Damage fact (professions.length === 8, specializationId null —
   // same shared-across-professions shape as Artillery Barrage in the Elite-slot sweep) are curated
   // once here, under Warrior, and referenced (not re-curated) under every later profession they
@@ -364,7 +364,77 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Paragon — "Find Their Weakness!". PvE/WvW+PvP split 2.0/1.0 — WvW value used.
   77040: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
   // Paragon — "On Your Knees!". PvE/WvW+PvP split 1.5/0.8 — WvW value used.
-  77114: [{ factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' }]
+  77114: [{ factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' }],
+
+  // Guardian — 26 raw candidate ids (of which the 6 racial ones above are shared with Warrior, not
+  // re-curated here), 20 distinct Guardian-only skills curated. 3 of the 20 are Guardian's Spirit
+  // Weapons, whose actually-equippable ids required fixing a `skill-variant-exclusions.json` gap
+  // first (see docs/game-data.md's "blind spot" writeup, 2026-08-04) — the app's own picker
+  // resolution was silently landing on a stale/defunct duplicate id for each (`55027`/`55037`/
+  // `55040`) instead of the real one (`9168`/`9182`/`9125`), so those 3 are keyed under the
+  // corrected id, not the id skills.json's raw duplicate-name scan would first suggest.
+  // Bane Signet. PvE/WvW+PvP split 1.0/0.01 — WvW value used.
+  9093: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Signet of Judgment. No split.
+  9150: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Signet of Wrath. No split on the Damage fact itself (other facts on this skill do split by mode).
+  9151: [{ factText: 'Damage', coefficient: 0.25, weapon: 'unequipped' }],
+  // Smite Condition. Two independently-split Damage facts — WvW values used for both.
+  9245: [
+    { factText: 'Damage With No Conditions', coefficient: 0.2, weapon: 'unequipped' },
+    { factText: 'Damage With Condition', coefficient: 0.3, weapon: 'unequipped' }
+  ],
+  // Judge's Intervention. PvE/WvW+PvP split 0.5/0.1 — WvW value used. Wiki's own `weapon=trait skill`
+  // param normalized to `unequipped` per the slot-skill convention.
+  9247: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
+  // Spirit Weapon — Sword of Justice (id fixed, see block comment above). `strikes=4` present -> wiki
+  // coefficient already totaled. 3-way split PvE/WvW/PvP 3.2/1.8/2.88 — WvW value used. The API
+  // duplicates the "Damage" fact text 3 times on this id (stale historical values from past balance
+  // passes); harmless, `damageLinesForSkill` only checks a same-text match exists.
+  9168: [{ factText: 'Damage', coefficient: 1.8, weapon: 'unequipped' }],
+  // Spirit Weapon — Shield of the Avenger (id fixed, see block comment above). No split.
+  9182: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Spirit Weapon — Hammer of Wisdom (id fixed, see block comment above). PvE/WvW+PvP split
+  // 1.2/0.01 — WvW value used.
+  9125: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Dragonhunter — Test of Faith. Two independently-split Damage facts: Initial Damage (PvE 1.4,
+  // WvW+PvP grouped 0.1) and Damage (3-way split PvE 2.8/WvW 1.88/PvP 0.833) — WvW values used for
+  // both.
+  29786: [
+    { factText: 'Initial Damage', coefficient: 0.1, weapon: 'unequipped' },
+    { factText: 'Damage', coefficient: 1.88, weapon: 'unequipped' }
+  ],
+  // Dragonhunter — Procession of Blades. `strikes=10` present -> wiki coefficient already totaled.
+  // PvE+WvW grouped 4.4 vs. a lower PvP-only 2.5 — WvW groups with PvE here, 4.4 used.
+  30364: [{ factText: 'Damage', coefficient: 4.4, weapon: 'unequipped' }],
+  // Dragonhunter — Fragments of Faith. PvE/WvW+PvP split 1.5/1.0 — WvW value used.
+  30553: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Dragonhunter — Light's Judgment. No split.
+  30871: [{ factText: 'Damage', coefficient: 0.1875, weapon: 'unequipped' }],
+  // Firebrand — Flame Surge. PvE/WvW+PvP split 0.7/0.3 — WvW value used.
+  42924: [{ factText: 'Damage', coefficient: 0.3, weapon: 'unequipped' }],
+  // Firebrand — Voice of Truth. PvE/WvW+PvP split 0.7/0.3 on the Damage fact (this skill's other
+  // facts split 3-way PvE/WvW/PvP, but Damage itself groups WvW with PvP) — WvW value used.
+  44008: [{ factText: 'Damage', coefficient: 0.3, weapon: 'unequipped' }],
+  // Willbender — Roiling Light. PvE/WvW+PvP split 0.33/0.1 — WvW value used.
+  62521: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
+  // Willbender — Heel Crack. PvE/WvW+PvP split 0.75/0.01 — WvW value used.
+  62549: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Willbender — Whirling Light. `strikes=4` present -> wiki coefficient already totaled. 3-way split
+  // PvE/WvW/PvP 4.0/2.67/2.3 — WvW value used.
+  62565: [{ factText: 'Damage', coefficient: 2.67, weapon: 'unequipped' }],
+  // Willbender — Flash Combo. `strikes=5` present -> wiki coefficient already totaled. PvE/WvW+PvP
+  // split 4.5/2.0 — WvW value used.
+  62608: [{ factText: 'Damage', coefficient: 2.0, weapon: 'unequipped' }],
+  // Luminary — Effulgent Stance. Two independently-split Damage facts, API-labeled Minimum/Maximum
+  // Damage: Maximum Damage (PvE 4.0/WvW+PvP 2.1) and Minimum Damage (no split, 0.5) — WvW value used
+  // for Maximum.
+  76813: [
+    { factText: 'Maximum Damage', coefficient: 2.1, weapon: 'unequipped' },
+    { factText: 'Minimum Damage', coefficient: 0.5, weapon: 'unequipped' }
+  ],
+  // Luminary — Piercing Stance. PvE/WvW+PvP split 2.0/0.25 — WvW value used.
+  77078: [{ factText: 'Damage', coefficient: 0.25, weapon: 'unequipped' }]
 }
 
 export interface DamageLine {

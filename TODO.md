@@ -231,8 +231,28 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         3 PvE/WvW+PvP split or no split), both Banners (no split), Berserker's Sundering Leap/Wild
         Blow/Shattering Blow (all PvE/WvW+PvP split), Spellbreaker's Break Enchantments (3-way
         PvE/WvW/PvP split, WvW value used), Bladesworn's Dragonspike Mine, and the new Paragon elite
-        spec's "Find Their Weakness!"/"On Your Knees!" (both PvE/WvW+PvP split). **Next up: Guardian's
-        Utility-slot leg.**
+        spec's "Find Their Weakness!"/"On Your Knees!" (both PvE/WvW+PvP split). Guardian done
+        2026-08-04: 26 raw candidate ids (6 shared racial ones already curated under Warrior), 20
+        distinct Guardian-only skills curated — Bane Signet, Signet of Judgment, Signet of Wrath,
+        Smite Condition (2 split facts), Judge's Intervention; Dragonhunter's Test of Faith (2 split
+        facts), Procession of Blades, Fragments of Faith, Light's Judgment; Firebrand's Flame Surge,
+        Voice of Truth; Willbender's Roiling Light, Heel Crack, Whirling Light, Flash Combo;
+        Luminary's Effulgent Stance (2 split facts), Piercing Stance; and all 3 Spirit Weapons (Sword
+        of Justice, Shield of the Avenger, Hammer of Wisdom). **The 3 Spirit Weapons surfaced a real
+        picker bug, not just a curation nuance**: `skill-variant-exclusions.json` never covers a
+        group that the existing in-code signals (specifically the `GroundTargeted` collapse) already
+        narrow to 1 id on their own, since `fetch-skill-duplicate-resolutions.ts` only re-checks
+        groups `visibleSkillsForSlot` still returns >1 for — so it silently landed on a stale/defunct
+        duplicate id for all 3 Spirit Weapons (`55027`/`55037`/`55040`) instead of the real
+        currently-equippable one (`9168`/`9182`/`9125`), confirmed via each skill's wiki infobox
+        `id=` field plus a wiki full-text search turning up zero hits for the stale ids. Fixed by
+        adding the 6 stale ids to `skill-variant-exclusions.json` directly and re-verified against
+        the real (not reimplemented) `visibleSkillsForSlot` via a throwaway tsx script — see
+        docs/game-data.md for the full writeup. Worth auditing whether other professions' Utility/
+        Heal/Elite groups have the same "signal-4-collapsed-before-the-wiki-check-ran" blind spot;
+        none found elsewhere in this leg, but the rest of the roster (Revenant onward for Utility,
+        plus Weapon-slot entirely) hasn't been checked for it yet. **Next up: Revenant's Utility-slot
+        leg.**
       - Weapon-slot (919 raw candidates): not started, last category in the sweep order.
 - [ ] Mesmer Troubadour's Heal skill, "Tale of the Second Scion" (id 76695), shows no Healing numbers
       at all in this app (user screenshot comparison, 2026-08-02) — confirmed root cause: the GW2 API
