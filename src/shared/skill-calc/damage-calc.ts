@@ -242,7 +242,22 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   76993: [
     { factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' },
     { factText: 'Storm Damage', coefficient: 4.8, weapon: 'unequipped' }
-  ]
+  ],
+  // Necromancer — 6 raw candidate ids, 3 distinct new skills curated. 1 raw id, Artillery Barrage
+  // (12343), is the same cross-profession golem-summon skill already curated above under Guardian,
+  // not a new Necromancer entry. 2 more excluded as non-player-scaling: Summon Flesh Golem (10646)
+  // and its chain follow-up Charge (10647) are both `type = minion` skills whose Damage facts scale
+  // off the Flesh Golem's own attributes — the wiki's Minion page confirms minions "only inherit the
+  // player's Condition Damage, Condition Duration, and Boon Duration attributes... All other
+  // attributes, such as health, are determined by the minion type," which by the same logic as the
+  // Heal-slot sweep's Summon Blood Fiend exclusion means Power isn't inherited either.
+  // Plaguelands. No split. Wiki's own `weapon=utility` param normalized to the Elite-slot convention.
+  10549: [{ factText: 'Damage', coefficient: 0.39, weapon: 'unequipped' }],
+  // Reaper — "Chilled to the Bone!". PvE/WvW+PvP split 3.0/0.01 — WvW value used.
+  30105: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Scourge — Ghastly Breach. No split. `strikes=5` present -> wiki's 3.5 already totaled (verified
+  // against API's own hit_count 5 * dmg_multiplier 0.7 = 3.5).
+  42355: [{ factText: 'Damage', coefficient: 3.5, weapon: 'unequipped' }]
 }
 
 export interface DamageLine {

@@ -132,8 +132,18 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         + its own note "does not scale with player stats"; 38750 is its stale duplicate id) and
         Jade Buster Cannon (63374, the Mechanist's auto-triggered mech follow-up to Overclock Signet —
         wiki `weapon=pet|power=1250` override means this is the mech's own fixed Power, not the
-        player's). **Next up: Necromancer (6 candidates).**
-        Remaining after that: Elementalist(8), Mesmer(4).
+        player's). Necromancer done (2026-08-04): 6 raw candidate ids, 3 distinct new skills curated
+        (Plaguelands — no split, wiki's own `weapon=utility` param normalized to the Elite-slot
+        convention; "Chilled to the Bone!" — PvE/WvW+PvP split 3.0/0.01; Ghastly Breach —
+        `strikes=5` present -> wiki's 3.5 already totaled, verified against API's own hit_count 5 *
+        dmg_multiplier 0.7 = 3.5). 1 raw id, Artillery Barrage (12343), is the same cross-profession
+        skill already curated under Guardian. 2 more excluded as non-player-scaling: Summon Flesh
+        Golem (10646) and its chain follow-up Charge (10647), both `type = minion` skills — the
+        wiki's Minion page confirms minions "only inherit the player's Condition Damage, Condition
+        Duration, and Boon Duration attributes... All other attributes, such as health, are
+        determined by the minion type," the same reasoning already applied to the Heal-slot sweep's
+        Summon Blood Fiend exclusion (Power isn't in that inherited list either). **Next up:
+        Elementalist (8 candidates), then Mesmer (4).**
       - New mechanics this sweep surfaced beyond the Healing-sweep's traps (Barrier-mislabeling,
         trait-duplicated formulas): (1) duplicate-name id resolution — the wiki infobox's own `id =`
         field states the canonical equippable id, don't guess from flags/recharge; (2) the Damage
