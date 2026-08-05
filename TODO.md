@@ -4,17 +4,18 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
-- [ ] Loose ends from the `CURATED_BARRIER_COEFFICIENTS` sweep (2026-08-05, see COMPLETED.md for the
-      full writeup): (1) Engineer's Utility Goggles (id 29591) left uncurated — wiki documents no
-      Barrier fact at all for this skill, and its own sibling id (5865, same wiki page) carries no
-      local Barrier fact either, so this app's own `29591` API data is likely stale, worth a live API
-      re-pull to confirm before ever trusting it; (2) Engineer's Hard Light Arena (id 44646) left
-      uncurated — wiki gives a base value with no `coefficient=` param; (3) Elementalist's Lava Skin
-      (id 46447) has an "Initial Barrier" fact left unrepresented — same trait-duplicated-text problem
-      as item below, blocked on the same fix; (4) new flip-architecture-gap instance: Elementalist's
-      Glyph of Elemental Power (attunement-tagged id 34714 carries the only local Barrier fact, but
-      the actually-equipped attunement-agnostic id 5506 carries zero facts at all) — same bucket as
-      Chaotic Release/Tailored Victory/Photon Wall, needs the same eventual fix, not just a data gap.
+- [x] Loose ends from the `CURATED_BARRIER_COEFFICIENTS` sweep — **items 1-3 resolved 2026-08-05, see
+      COMPLETED.md Session 70.** (1) Engineer's Utility Goggles (id 29591): live API re-pull confirmed
+      this app's data is current, not stale — the real finding is a genuine API/wiki mismatch (an
+      orphaned API fact the wiki never documents), left uncurated. (2) Engineer's Hard Light Arena (id
+      44646): confirmed via raw wikitext, no `coefficient=` param exists to curate — left uncurated,
+      unchanged. (3) Elementalist's Lava Skin (id 46447): fixed by adding `BarrierCoefficient
+      .requiresTrait` and extending `barrierLinesForSkill`'s match predicate — both Barrier facts are
+      now curated. Item (4) remains open, restated below:
+      - [ ] Flip-architecture-gap instance: Elementalist's Glyph of Elemental Power (attunement-tagged
+        id 34714 carries the only local Barrier fact, but the actually-equipped attunement-agnostic id
+        5506 carries zero facts at all) — same bucket as Chaotic Release/Tailored Victory/Photon Wall,
+        needs the same eventual fix, not just a data gap.
 - [ ] **Trait-duplicated-fact representation — scoped 2026-08-04, a real gap, small fix.** Several
       Damage/Healing sweep entries (Mesmer's Phantasmal Disenchanter/Phantasmal Defender/Sword of
       Decimation/Rain of Swords/Psychic Force, Necromancer's Reaper shouts' "damage increase" facts,
@@ -31,7 +32,13 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       alone, then add the previously-omitted trait-gated entries. Distinct from the separate
       shared-cross-skill-formula trait-bonus-table item below (Assassin's Reward/Transfusion) — that
       one formula gets reused verbatim across dozens of unrelated skills, this one is a per-skill
-      alternate value, a much narrower fix.
+      alternate value, a much narrower fix. **Proof of concept landed 2026-08-05** (see COMPLETED.md
+      Session 70) — `BarrierCoefficient`/`barrierLinesForSkill` got exactly this fix (`requiresTrait`
+      field + match predicate) to curate Elementalist's Lava Skin's trait-gated "Initial Barrier" fact,
+      confirming the approach works end-to-end. Still open: replicate the same type/matching-logic
+      change in `DamageCoefficient`/`damageLinesForSkill` and `HealingCoefficient`/
+      `healingLinesForSkill`, then add the ~10 wiki-verified trait-gated entries this item's first
+      paragraph names (deliberately kept out of the Barrier-loose-ends session to avoid scope creep).
 - [ ] `skill-variants.ts`'s Elite/Utility/Heal picker filters (`stripNonEquippableSubAbilities`,
       `stripFlipTargets`) don't catch every non-equippable "sub-skill" — found while curating
       `CURATED_DAMAGE_COEFFICIENTS`'s Elementalist Elite-slot entries 2026-08-04. Elementalist's

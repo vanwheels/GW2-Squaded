@@ -26,6 +26,15 @@ export interface BarrierCoefficient {
   factText: string
   baseValue: number
   coefficient: number
+  /**
+   * Set only when the wiki-documented value corresponds to a `requires_trait`-gated fact rather than
+   * the skill's ungated one — needed because a skill can carry two facts sharing the exact same
+   * `factText` (an ungated base value and a trait-boosted override of the same quantity), and without
+   * this, `barrierLinesForSkill`'s fact lookup always resolves to whichever sorts first in
+   * `[...skill.facts, ...skill.traitedFacts]` (always the ungated one) regardless of which value the
+   * curated entry actually means. See Elementalist's Lava Skin below for the motivating case.
+   */
+  requiresTrait?: number
 }
 
 /**
@@ -48,13 +57,18 @@ export interface BarrierCoefficient {
  * table gated by `skill.id`), 3 were stale/non-canonical duplicate ids excluded in favor of their
  * sibling (Warrior's Banner of Defense `14528`, Revenant's Release Potential: Warrior `78895`, and
  * Thief's Dawn's Repose `63227` — see each profession's block comment below for the wiki `id=`
- * cross-check), 2 were left uncurated (Engineer's Utility Goggles `29591` — the wiki documents no
- * Barrier fact for this skill at all, and its own sibling id `5865` shares the same wiki page but
- * carries no local Barrier fact either, strong evidence this app's own `29591` API data is stale;
- * Engineer's Hard Light Arena `44646` — wiki gives a base value with no `coefficient=` param, scaling
- * undocumented), and 1 fact (of Elementalist's Lava Skin's two) was left unrepresented for the same
- * trait-duplicated-text reason already documented in `CURATED_HEALING_COEFFICIENTS` (Signet of
- * Courage, Signet of Malice, etc.) — see that skill's own comment below.
+ * cross-check), and 2 were left uncurated (Engineer's Utility Goggles `29591` — a fresh live
+ * `/v2/skills/29591` pull 2026-08-05 confirmed this app's cached data is current, not stale, so the
+ * real finding is a genuine API/wiki mismatch: the wiki's infobox, mechanics section, and full
+ * version history never mention a Barrier effect on this skill at all despite the API carrying a real
+ * `Barrier` fact (2122) on `29591` only, not its sibling `5865` — treated as an orphaned API artifact
+ * with no current basis, same "leave uncurated" call as Revenant's Energy Expulsion in
+ * `CURATED_HEALING_COEFFICIENTS`; Engineer's Hard Light Arena `44646` — wiki gives a base value with
+ * no `coefficient=` param, scaling undocumented). Elementalist's Lava Skin originally had 1 of its 2
+ * Barrier facts left unrepresented for the trait-duplicated-text reason also documented in
+ * `CURATED_HEALING_COEFFICIENTS` (Signet of Courage, Signet of Malice, etc.) — **fixed 2026-08-05** by
+ * adding `BarrierCoefficient.requiresTrait` (see its own doc comment) and curating the trait-gated
+ * fact directly; see that skill's own comment below.
  *
  * One new architecture gap surfaced this sweep, not seen in the Healing/Damage sweeps: Elementalist's
  * Glyph of Elemental Power (id `34714`, the Earth-attunement-tagged variant carrying the only local
@@ -85,15 +99,16 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   // no game-mode split on either the template or its correction.
   46185: [{ factText: 'Barrier', baseValue: 2123, coefficient: 0.3795 }],
   // Lava Skin (Weaver sword). "Barrier per Pulse" splits PvE (379/0.1) vs PvP+WvW (227/0.115,
-  // coefficient itself differs, not just base) — WvW value used. "Initial Barrier" is NOT curated:
-  // this app's own local data carries two same-text "Initial Barrier" facts (an untraited 650 and a
-  // requires_trait-gated 1018), but the wiki documents only ONE Initial Barrier value (1018, no
-  // split) with no untraited number anywhere on the page — the wiki's documented number corresponds
-  // to the TRAITED fact, not the ungated one this table's `.find()`-by-text lookup would actually
-  // resolve to (same architecture problem already logged as its own TODO item, "Trait-duplicated-fact
-  // representation" — curating 1018 here would silently apply a traited number to every player
-  // regardless of whether they have the trait).
-  46447: [{ factText: 'Barrier per Pulse', baseValue: 227, coefficient: 0.115 }],
+  // coefficient itself differs, not just base) — WvW value used. "Initial Barrier" has two same-text
+  // facts locally (an untraited 650 and a requires_trait-gated 1018, `traitedFacts`' own `overrides`
+  // index confirms 2077/"Elemental Refreshment" replaces the same quantity, not an additive bonus) but
+  // the wiki documents only the TRAITED value (1018/0.2), no untraited number anywhere on the page —
+  // curated via `requiresTrait` (see `BarrierCoefficient`'s doc comment) so this line only shows once
+  // Elemental Refreshment is actually chosen, rather than binding 1018 to every player regardless.
+  46447: [
+    { factText: 'Barrier per Pulse', baseValue: 227, coefficient: 0.115 },
+    { factText: 'Initial Barrier', baseValue: 1018, coefficient: 0.2, requiresTrait: 2077 }
+  ],
   // Fortified Earth (Catalyst Utility). PvE/WvW+PvP base-value split (PvE 3000 vs WvW+PvP 1254, same
   // 0.1 coefficient) — WvW value used.
   62826: [{ factText: 'Barrier', baseValue: 1254, coefficient: 0.1 }],
@@ -322,7 +337,13 @@ export function barrierLinesForSkill(skill: Skill, healingPower: number, activeI
   const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts]
   const lines: BarrierLine[] = []
   for (const entry of entries) {
-    const fact = allFacts.find((f) => f.type === 'AttributeAdjust' && f.target === 'Healing' && f.text === entry.factText)
+    const fact = allFacts.find(
+      (f) =>
+        f.type === 'AttributeAdjust' &&
+        f.target === 'Healing' &&
+        f.text === entry.factText &&
+        (f.requires_trait ?? null) === (entry.requiresTrait ?? null)
+    )
     if (!fact) continue
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
     lines.push({ label: entry.factText, value: Math.round(entry.baseValue + entry.coefficient * healingPower) })

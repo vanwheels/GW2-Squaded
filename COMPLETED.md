@@ -2,6 +2,49 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 70 — Closed out the 3 Barrier-sweep loose ends from Session 69
+
+All 3 items from TODO.md's "Loose ends from the `CURATED_BARRIER_COEFFICIENTS` sweep" investigated;
+1 fixed and curated, 2 confirmed as genuine leave-uncurated cases (not app-side bugs):
+
+- **Engineer's Utility Goggles (id 29591)**: a fresh live `/v2/skills/29591` pull confirmed this app's
+  cached data is current and byte-identical to the API's live response — not stale. The real finding is
+  a genuine, confirmed API/wiki mismatch: fetched the wiki's raw wikitext (infobox facts, Mechanics
+  section, and every version-history entry back to the 2016 release) and none of it ever mentions a
+  Barrier effect on this skill, despite the API carrying a real `Barrier` fact (2122, `target: 'Healing'`
+  — the usual mislabeling) on `29591` only, not its same-wiki-page sibling `5865`. Treated as an orphaned
+  API artifact with no current documented basis — left uncurated, same "genuine unresolved mismatch"
+  call already made for Revenant's Energy Expulsion (29114) in `CURATED_HEALING_COEFFICIENTS`.
+- **Engineer's Hard Light Arena (id 44646)**: confirmed via raw wikitext — the skill-fact template gives
+  a base value (`{{skill fact|barrier|2900|alt=Barrier Applied above 50% Heat}}`) with no `coefficient=`
+  param at all, so there's no Healing-Power scaling documented to curate. Left uncurated, unchanged from
+  Session 69's finding.
+- **Elementalist's Lava Skin (id 46447), "Initial Barrier" fact — fixed.** This was the motivating case
+  for the "Trait-duplicated-fact representation" architecture gap (TODO.md): the skill carries two
+  same-text "Initial Barrier" facts (an untraited 650 in `skill.facts`, and a `requires_trait: 2077`
+  fact worth 1018 in `skill.traitedFacts`, its own `overrides` index confirming it replaces the same
+  quantity rather than adding to it — 2077 is "Elemental Refreshment," an Arcane trait granting "barrier
+  to yourself when using Dual Attack skills," and Lava Skin's own wiki infobox is `type = Dual Attack`),
+  but the wiki only documents the TRAITED value (1018, `coefficient=0.2`) — no untraited number exists
+  anywhere on the page. `barrierLinesForSkill`'s old `.find()`-by-`factText`-alone always resolved to
+  the ungated 650 fact (facts sorts before traitedFacts in the merged lookup array), so there was no way
+  to bind the curated 1018/0.2 to the correct fact without also matching every other skill's untraited
+  fact by coincidence. Fixed by adding an optional `requiresTrait?: number` field to
+  `BarrierCoefficient` and extending `barrierLinesForSkill`'s match predicate to also require
+  `(f.requires_trait ?? null) === (entry.requiresTrait ?? null)` — verified directly via a throwaway
+  tsx script calling `barrierLinesForSkill` with and without trait 2077 in `activeIds`: "Initial Barrier"
+  now only appears once Elemental Refreshment is actually chosen, at the wiki-correct value, and
+  "Barrier per Pulse" (the skill's other, already-curated fact) is unaffected either way. `CURATED_
+  BARRIER_COEFFICIENTS[46447]` now curates both facts.
+
+This fix only touched `barrier-calc.ts` — the identical bug exists in `damage-calc.ts`'s
+`damageLinesForSkill`/`CURATED_DAMAGE_COEFFICIENTS` and `healing-calc.ts`'s `healingLinesForSkill`/
+`CURATED_HEALING_COEFFICIENTS` (same merged-array-`.find()`-by-text shape) but replicating it there was
+kept out of scope for this session — that's the larger, separately-tracked "Trait-duplicated-fact
+representation" TODO item, which also needs ~10 new wiki-verified entries added (Mesmer's Phantasmal
+Disenchanter/Phantasmal Defender/Sword of Decimation/Rain of Swords/Psychic Force, Necromancer's Reaper
+shouts) rather than just the type/matching-logic change. `npm run typecheck` passes clean.
+
 ## Session 69 — Built `CURATED_BARRIER_COEFFICIENTS` + `barrierLinesForSkill`, a new Barrier tooltip line
 
 Scoped 2026-08-04 (product decision to build it, same session as the Weapon-slot Damage sweep pause),
