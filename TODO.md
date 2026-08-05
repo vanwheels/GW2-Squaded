@@ -16,29 +16,26 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         id 34714 carries the only local Barrier fact, but the actually-equipped attunement-agnostic id
         5506 carries zero facts at all) — same bucket as Chaotic Release/Tailored Victory/Photon Wall,
         needs the same eventual fix, not just a data gap.
-- [ ] **Trait-duplicated-fact representation — scoped 2026-08-04, a real gap, small fix.** Several
-      Damage/Healing sweep entries (Mesmer's Phantasmal Disenchanter/Phantasmal Defender/Sword of
-      Decimation/Rain of Swords/Psychic Force, Necromancer's Reaper shouts' "damage increase" facts,
-      and others noted throughout the sweep write-up below) carry an extra same-text fact gated by
-      `requires_trait` representing that trait's own alternate/boosted value — currently unmodeled,
-      not because it's architecturally hard but because `CURATED_DAMAGE_COEFFICIENTS`/
-      `CURATED_HEALING_COEFFICIENTS` entries are keyed by `factText` alone: when two facts share
-      identical text (base + trait-boosted), `damageLinesForSkill`'s `allFacts.find(f => f.text ===
-      entry.factText)` always resolves to whichever sorts first locally (confirmed: always the
-      ungated base fact), so a second entry with the same `factText` can never be reached even if
-      added. `activeIds`-gating itself already works correctly once a fact is actually matched. Fix:
-      add an optional `requiresTrait` field to the curated entry type, match on `(f.text ===
-      entry.factText && (f.requires_trait ?? null) === (entry.requiresTrait ?? null))` instead of text
-      alone, then add the previously-omitted trait-gated entries. Distinct from the separate
-      shared-cross-skill-formula trait-bonus-table item below (Assassin's Reward/Transfusion) — that
-      one formula gets reused verbatim across dozens of unrelated skills, this one is a per-skill
-      alternate value, a much narrower fix. **Proof of concept landed 2026-08-05** (see COMPLETED.md
-      Session 70) — `BarrierCoefficient`/`barrierLinesForSkill` got exactly this fix (`requiresTrait`
-      field + match predicate) to curate Elementalist's Lava Skin's trait-gated "Initial Barrier" fact,
-      confirming the approach works end-to-end. Still open: replicate the same type/matching-logic
-      change in `DamageCoefficient`/`damageLinesForSkill` and `HealingCoefficient`/
-      `healingLinesForSkill`, then add the ~10 wiki-verified trait-gated entries this item's first
-      paragraph names (deliberately kept out of the Barrier-loose-ends session to avoid scope creep).
+- [x] **Trait-duplicated-fact representation — DONE 2026-08-05, see COMPLETED.md Session 71.** All 3
+      curated tables (`BarrierCoefficient`/`DamageCoefficient`/`HealingCoefficient`) now support an
+      optional `requiresTrait` field, matched via `(f.text === entry.factText && (f.requires_trait ??
+      null) === (entry.requiresTrait ?? null))` instead of text alone, so a same-text base + trait-
+      boosted fact pair can finally both be curated. 5 Mesmer `CURATED_DAMAGE_COEFFICIENTS` entries
+      gained their trait-gated variant (Phantasmal Disenchanter/Phantasmal Defender — Empowered
+      Illusions, 682, flat +15%; Sword of Decimation/Rain of Swords/Psychic Force — Infinite Forge,
+      2206, +7% PvE/+10% WvW+PvP), each value computed from the trait's own wiki-quoted `{{skill
+      fact|damage increase|...}}` percentage and cross-confirmed exact against a live API pull's
+      `traited_facts`. **Necromancer's Reaper shouts' "damage increase" facts turned out NOT to be an
+      instance of this problem** — re-investigated and found to be an unrelated, still-unmodeled
+      mechanic (a `type: 'Percent'` melee-range damage bonus, no `requires_trait` gating at all), left
+      as-is; the TODO wording that originally lumped them in with the Mesmer skills was imprecise.
+      `CURATED_HEALING_COEFFICIENTS` got the same type/matching fix for consistency, but no entry uses
+      it yet — the one candidate investigated (Guardian's Signet of Courage / Perfect Inscriptions,
+      579) has a wiki-quoted +20% but the resulting computed value doesn't cleanly reconcile with the
+      live API's own traited number, so it's left uncurated rather than guessed. Distinct from the
+      separate shared-cross-skill-formula trait-bonus-table item below (Assassin's Reward/
+      Transfusion) — that one formula gets reused verbatim across dozens of unrelated skills, this one
+      was a per-skill alternate value.
 - [ ] `skill-variants.ts`'s Elite/Utility/Heal picker filters (`stripNonEquippableSubAbilities`,
       `stripFlipTargets`) don't catch every non-equippable "sub-skill" — found while curating
       `CURATED_DAMAGE_COEFFICIENTS`'s Elementalist Elite-slot entries 2026-08-04. Elementalist's

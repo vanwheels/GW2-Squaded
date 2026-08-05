@@ -50,6 +50,15 @@ export interface DamageCoefficient {
   factText: string
   coefficient: number
   weapon: keyof typeof WEAPON_STRENGTH_MIDPOINTS
+  /**
+   * Set only when the wiki-documented value corresponds to a `requires_trait`-gated fact rather than
+   * the skill's ungated one — needed because a skill can carry two facts sharing the exact same
+   * `factText` (an ungated base value and a trait-boosted override of the same quantity), and without
+   * this, `damageLinesForSkill`'s fact lookup always resolves to whichever sorts first in
+   * `[...skill.facts, ...skill.traitedFacts]` (always the ungated one) regardless of which value the
+   * curated entry actually means. See the Mesmer Utility-slot block below for the motivating cases.
+   */
+  requiresTrait?: number
 }
 
 /**
@@ -884,26 +893,39 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // `| id = ` field. Rain of Swords' wiki page itself flags a `<!-- GroundTargeted Version: 45425 -->`
   // sibling id — same shape as every other GroundTargeted duplicate pair this sweep has resolved,
   // `visibleSkillsForSlot` already collapses to the non-ground-targeted 62553 on its own, no picker
-  // fix needed. **New trait-duplicated-fact wrinkle, distinct from the Healing sweep's Assassin's
+  // fix needed. **Trait-duplicated-fact wrinkle, distinct from the Healing sweep's Assassin's
   // Reward/Transfusion trap**: 5 of these 11 (Phantasmal Disenchanter, Phantasmal Defender, Sword of
   // Decimation, Rain of Swords, Psychic Force) each carry 2-4 EXTRA same-text "Damage" facts gated by
-  // `requires_trait` (682 — a phantasm-damage trait — for the 2 Phantasms; 2206 — a Virtuoso trait —
-  // for the other 3), representing that trait's own damage bonus, not a distinct skill design; unlike
-  // the Healing sweep's trap this isn't a *shared* formula reused verbatim across dozens of unrelated
-  // skills, it's a per-skill alternate value. `damageLinesForSkill`'s `allFacts.find` matches
-  // same-text facts in local array order, and every one of these 5 skills' own base (non-trait) fact
-  // sorts first locally, so keying `factText` on the base value (as done below) always resolves to
-  // the ungated fact and renders correctly regardless of `activeIds` — the trait-gated duplicates are
-  // simply not modeled, same "real bonus, not represented" treatment as this table's existing
-  // "damage increase"-fact omissions (Reaper's shouts, "Your Soul Is Mine!").
+  // `requires_trait` (682, Empowered Illusions — a flat +15% phantasm-damage trait, no PvE/WvW split —
+  // for the 2 Phantasms; 2206, Infinite Forge — a Virtuoso blade-damage trait, +7% PvE/+10% WvW+PvP,
+  // itself patched down from +10%/+10% on 2025-02-11 PvE-only — for the other 3), representing that
+  // trait's own damage bonus, not a distinct skill design; unlike the Healing sweep's trap this isn't
+  // a *shared* formula reused verbatim across dozens of unrelated skills, it's a per-skill alternate
+  // value. **Fixed 2026-08-05** (see `DamageCoefficient.requiresTrait`'s own doc comment, same
+  // `requiresTrait`-matching fix built for `CURATED_BARRIER_COEFFICIENTS`'s Lava Skin) — all 5 skills'
+  // trait-gated coefficients below are computed as `baseCoefficient * (1 + trait%)` using each trait's
+  // own wiki-quoted `{{skill fact|damage increase|...}}` percentage (not reverse-engineered from the
+  // API alone), then cross-confirmed against a live `/v2/skills/<id>` pull's own `traited_facts`
+  // `dmg_multiplier` — exact match in every case tested. Necromancer's Reaper shouts' "damage
+  // increase" facts (mentioned in TODO.md alongside these 5 before this investigation) turned out to
+  // be an unrelated, still-unmodeled mechanic on closer look: a `type: 'Percent'` melee-range damage
+  // bonus with no `requires_trait` gating at all, not a same-text `Damage`-fact collision — left as-is,
+  // out of scope for this fix.
   // Phantasmal Disenchanter. Two independently-split Damage facts, "Damage without Boons" (PvE
   // 1.0/WvW+PvP 0.5) and "Damage with Boons" (PvE 0.4/WvW+PvP 0.2) — WvW values used for both.
+  // Empowered Illusions (682) trait-gated variants: 0.5*1.15=0.575, 0.2*1.15=0.23.
   10267: [
     { factText: 'Damage without Boons', coefficient: 0.5, weapon: 'unequipped' },
-    { factText: 'Damage with Boons', coefficient: 0.2, weapon: 'unequipped' }
+    { factText: 'Damage with Boons', coefficient: 0.2, weapon: 'unequipped' },
+    { factText: 'Damage without Boons', coefficient: 0.575, weapon: 'unequipped', requiresTrait: 682 },
+    { factText: 'Damage with Boons', coefficient: 0.23, weapon: 'unequipped', requiresTrait: 682 }
   ],
-  // Phantasmal Defender. PvE/WvW+PvP split 0.4/0.2 — WvW value used.
-  10341: [{ factText: 'Damage', coefficient: 0.2, weapon: 'unequipped' }],
+  // Phantasmal Defender. PvE/WvW+PvP split 0.4/0.2 — WvW value used. Empowered Illusions (682)
+  // trait-gated variant: 0.2*1.15=0.23.
+  10341: [
+    { factText: 'Damage', coefficient: 0.2, weapon: 'unequipped' },
+    { factText: 'Damage', coefficient: 0.23, weapon: 'unequipped', requiresTrait: 682 }
+  ],
   // Well of Senility. No split.
   29856: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }],
   // Well of Calamity. Two independently-split Damage facts, both per-pulse/per-instance (no
@@ -919,8 +941,13 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Well of Action. "Pulse Damage", per-pulse/not totaled (same reasoning as Well of Calamity above).
   // PvE/WvW+PvP split 1.5/0.7 — WvW value used.
   30814: [{ factText: 'Pulse Damage', coefficient: 0.7, weapon: 'unequipped' }],
-  // Virtuoso — Sword of Decimation. PvE/WvW+PvP split 1.5/1.0 — WvW value used.
-  35637: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Virtuoso — Sword of Decimation. PvE/WvW+PvP split 1.5/1.0 — WvW value used. Infinite Forge (2206)
+  // trait-gated WvW+PvP variant: 1.0*1.10=1.10 (using the still-current +10% WvW+PvP trait percentage,
+  // unaffected by the 2025-02-11 PvE-only nerf).
+  35637: [
+    { factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' },
+    { factText: 'Damage', coefficient: 1.1, weapon: 'unequipped', requiresTrait: 2206 }
+  ],
   // Mirage — Crystal Sands. `strikes=6` present -> wiki's 2.4 already totaled (verified: local
   // hit_count 6 * dmg_multiplier 0.4 = 2.4). No split.
   41065: [{ factText: 'Damage', coefficient: 2.4, weapon: 'unequipped' }],
@@ -929,11 +956,18 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Mirage Mirror (spec-less, id 44677). No split.
   44677: [{ factText: 'Damage', coefficient: 0.6, weapon: 'unequipped' }],
   // Virtuoso — Rain of Swords (id-confirmed, see block comment above). PvE/WvW+PvP split 1.2/0.8 —
-  // WvW value used.
-  62553: [{ factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' }],
+  // WvW value used. Infinite Forge (2206) trait-gated WvW+PvP variant: 0.8*1.10=0.88.
+  62553: [
+    { factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' },
+    { factText: 'Damage', coefficient: 0.88, weapon: 'unequipped', requiresTrait: 2206 }
+  ],
   // Virtuoso — Psychic Force. No split (this skill's own change history shows its former PvP/WvW
-  // split, 0.01, was since raised to match PvE's 1.5 uniformly across all modes).
-  62573: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }]
+  // split, 0.01, was since raised to match PvE's 1.5 uniformly across all modes). Infinite Forge
+  // (2206) trait-gated variant: 1.5*1.10=1.65.
+  62573: [
+    { factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' },
+    { factText: 'Damage', coefficient: 1.65, weapon: 'unequipped', requiresTrait: 2206 }
+  ]
   // **Utility-slot sweep is now COMPLETE across all 9 professions.**
 }
 
@@ -956,7 +990,9 @@ export function damageLinesForSkill(skill: Skill, power: number, targetArmor: nu
   const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts]
   const lines: DamageLine[] = []
   for (const entry of entries) {
-    const fact = allFacts.find((f) => f.type === 'Damage' && f.text === entry.factText)
+    const fact = allFacts.find(
+      (f) => f.type === 'Damage' && f.text === entry.factText && (f.requires_trait ?? null) === (entry.requiresTrait ?? null)
+    )
     if (!fact) continue
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
     const weaponStrength = WEAPON_STRENGTH_MIDPOINTS[entry.weapon]

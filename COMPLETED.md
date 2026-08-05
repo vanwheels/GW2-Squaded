@@ -2,6 +2,57 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 71 — Replicated the `requiresTrait` fix into Damage/Healing, closing the "Trait-duplicated-fact representation" TODO item
+
+Extended Session 70's `barrier-calc.ts` fix (`requiresTrait` field + match-predicate change) into
+`damage-calc.ts` and `healing-calc.ts`, then investigated every candidate the sweeps had flagged for it.
+
+**`CURATED_DAMAGE_COEFFICIENTS` — 5 Mesmer entries fixed and curated**, all previously left
+unrepresented by the Utility-slot sweep (2026-08-04): Phantasmal Disenchanter (id 10267), Phantasmal
+Defender (10341), Sword of Decimation (35637), Rain of Swords (62553), Psychic Force (62573). Added
+`DamageCoefficient.requiresTrait` and taught `damageLinesForSkill`'s match predicate to also compare
+`requires_trait`, mirroring Barrier's fix exactly. 2 traits involved: Empowered Illusions (id 682,
+Domination, Mesmer core) grants a flat, unsplit +15% to Phantasm damage, wiki-quoted via its own
+`{{skill fact|damage increase|15}}`; Infinite Forge (id 2206, Virtuoso Grandmaster) grants +7% PvE/+10%
+WvW+PvP to Blade attacks (itself nerfed from +10%/+10% by a 2025-02-11 PvE-only patch), wiki-quoted via
+`{{skill fact|damage increase|7|game mode=pve}}`/`{{skill fact|damage increase|10|game mode=wvw pvp}}`.
+Every trait-gated coefficient below was computed as `baseCoefficient * (1 + trait%)` using the
+already-curated WvW-correct base coefficient and the trait's own wiki percentage, then independently
+cross-checked against a live `/v2/skills/<id>` pull's `traited_facts[].dmg_multiplier` — **exact match
+in all 5 cases** (e.g. Sword of Decimation: 1.0 * 1.10 = 1.10, live API traited fact also 1.1), giving
+high confidence despite the trait-bonus number not being wiki-quoted on the skill's own page.
+
+**Re-investigated Necromancer's Reaper shouts' "damage increase" facts**, which TODO.md had originally
+lumped in with the Mesmer skills above as the same problem. They're not: pulled each shout's local
+facts (You Are All Weaklings!/Nothing Can Save You!/Suffer!/Rise!, ids 29414/29666/30670/30772) and
+found the "Damage Increase" fact is `type: 'Percent'` (not `type: 'Damage'`), carries no `requires_trait`
+at all, and lives in the base `facts` array only (`traitedFacts: []` for all 4) — it's a melee-range
+conditional bonus (100% at melee range, 50% at max range, per each skill's own description), an
+unrelated and still entirely unmodeled mechanic (this app has no melee-vs-range distance concept). Left
+exactly as documented pre-session; TODO.md's wording corrected to stop conflating the two.
+
+**`CURATED_HEALING_COEFFICIENTS` — got the same type/matching fix, but no entry qualified.** Grepped
+every existing `requires_trait` mention in the file: Rectifier Signet's trait pulse (2298, no wiki
+skill-fact template at all — unchanged, already correctly left uncurated), Signet of the Ether's Blurred
+Inscriptions heal (752, only in Mechanics prose with a non-standard template shape — unchanged), Thief's
+Signet of Malice (not actually trait-gated — its passive/active heals just coincidentally share the
+exact text "Healing" with no `requires_trait` on either side, a same-text collision this fix can't help
+since gating on `requires_trait ?? null` would match both identically — unchanged), and Necromancer's
+Chillblains/Transfusion (778, the already-tracked shared-formula case, out of scope by design —
+unchanged). One genuinely new attempt: Guardian's Signet of Courage (id 30461/68676) — Perfect
+Inscriptions (trait 579) has a clean wiki-quoted `{{skill fact|percent|20}}` and its own Notes table
+even names the skill directly ("Signet of Courage: Passive Healing increased by 20%"), but 202 * 1.2 =
+242.4 doesn't reconcile closely enough with the live API's own traited value (240) to trust — a small,
+unexplained discrepancy, not confidently rounding. Left uncurated rather than guess which of
+baseValue/coefficient the 20% applies to. `HealingCoefficient.requiresTrait` is now in place for
+whenever a future candidate's numbers actually reconcile cleanly.
+
+`npm run typecheck` passes clean; all 5 new Damage entries verified via a throwaway tsx script calling
+`damageLinesForSkill` with and without each trait id in `activeIds` — confirmed the trait-gated line
+only appears once its trait is active, at the expected computed value, and the base line is unaffected
+either way (same dual-display convention `numericFactLines` already uses elsewhere in this codebase for
+base+trait-conditional fact pairs — not a new UI pattern).
+
 ## Session 70 — Closed out the 3 Barrier-sweep loose ends from Session 69
 
 All 3 items from TODO.md's "Loose ends from the `CURATED_BARRIER_COEFFICIENTS` sweep" investigated;

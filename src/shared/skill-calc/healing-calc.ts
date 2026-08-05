@@ -26,6 +26,19 @@ export interface HealingCoefficient {
   factText: string
   baseValue: number
   coefficient: number
+  /**
+   * Set only when the wiki-documented value corresponds to a `requires_trait`-gated fact rather than
+   * the skill's ungated one — needed because a skill can carry two facts sharing the exact same
+   * `factText` (an ungated base value and a trait-boosted override of the same quantity), and without
+   * this, `healingLinesForSkill`'s fact lookup always resolves to whichever sorts first in
+   * `[...skill.facts, ...skill.traitedFacts]` (always the ungated one) regardless of which value the
+   * curated entry actually means. Added 2026-08-05 alongside the same fix in `DamageCoefficient`/
+   * `BarrierCoefficient` — no entry in this table uses it yet (every candidate found so far, e.g.
+   * Signet of Courage's Perfect Inscriptions variant below, failed on missing/unreconcilable wiki
+   * data, not on this matching problem), but it's here so a future clean candidate doesn't need this
+   * plumbing rebuilt from scratch.
+   */
+  requiresTrait?: number
 }
 
 /**
@@ -447,9 +460,17 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Guardian — Signet of Courage (both ids share identical facts — 68676 is a Dragonhunter-tagged
   // duplicate of the same core-Guardian signet). No PvE/WvW split on any of the 3 facts. A 4th fact
   // shares the exact same text ("Passive Healing") as the base passive heal but is the Perfect
-  // Inscriptions trait's (+20%) boosted variant (requires_trait 579) — same identical-text collision
-  // already documented on Thief's Signet of Malice, so only the untraited baseline is curated here;
-  // the trait bonus isn't reflected.
+  // Inscriptions trait's boosted variant (requires_trait 579) — same identical-text collision already
+  // documented on Thief's Signet of Malice. **Re-investigated 2026-08-05** alongside building
+  // `HealingCoefficient.requiresTrait` (the same fix `CURATED_DAMAGE_COEFFICIENTS`'s Mesmer entries and
+  // `CURATED_BARRIER_COEFFICIENTS`'s Lava Skin got) to see if this could finally be curated: Perfect
+  // Inscriptions' own wiki page gives a clean `{{skill fact|percent|20}}` and its Notes table states
+  // "Signet of Courage: Passive Healing increased by 20%," but 202 * 1.2 = 242.4 doesn't reconcile with
+  // the live API's own traited `value` (240) closely enough to trust — a genuine, small, unexplained
+  // mismatch, not confidently attributable to rounding. Left uncurated rather than guessing which of
+  // baseValue/coefficient the 20% applies to, or forcing the API's raw 240 with no wiki-sourced
+  // coefficient to pair it with — same "leave uncurated" bar as this table's other unclear cases
+  // (Blurred Inscriptions above, Rectifier Signet below).
   30461: [
     { factText: 'Passive Healing', baseValue: 202, coefficient: 0.15 },
     { factText: 'Active Heal Pulse', baseValue: 650, coefficient: 0.2 },
@@ -720,7 +741,13 @@ export function healingLinesForSkill(skill: Skill, healingPower: number, activeI
   const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts]
   const lines: HealingLine[] = []
   for (const entry of entries) {
-    const fact = allFacts.find((f) => f.type === 'AttributeAdjust' && f.target === 'Healing' && f.text === entry.factText)
+    const fact = allFacts.find(
+      (f) =>
+        f.type === 'AttributeAdjust' &&
+        f.target === 'Healing' &&
+        f.text === entry.factText &&
+        (f.requires_trait ?? null) === (entry.requiresTrait ?? null)
+    )
     if (!fact) continue
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
     lines.push({ label: entry.factText, value: Math.round(entry.baseValue + entry.coefficient * healingPower) })
