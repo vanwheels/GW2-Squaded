@@ -2,6 +2,55 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 64 — Druid Glyph forms: swap-not-stack fact rendering
+
+Implemented sub-item 2 ("Form-toggle-dependent skills") of the "Flip-skill / facet display" TODO
+item scoped 2026-08-04 — the `Build.activeBundleSkillId`-driven "swap, not stack" toggle read the
+item asked for, reusing the same shape Session 63's Vindicator Aspect-swap toggle just established.
+Sub-item 1 (gw2skills-style stacked icons for genuine flip pairs, e.g. Legendary Stance facets) is
+still open, blocked on the user's reference screenshot for the exact layout. Full writeup in
+`docs/game-data.md`'s "Druid Glyph forms" addendum; summary:
+
+- **The picker-collapse fix (`glyph-form-variants.json`, an earlier session) only hid the 2
+  non-equippable form-variant ids — it never stitched their real facts back onto the canonical id's
+  tooltip**, so every Druid Glyph's tooltip always showed the canonical id's own sparse, generic
+  fact set regardless of which form (normal / Celestial Avatar) was actually active. Flagged as a
+  real architecture gap during the 2026-08-04 Damage sweep (Ranger/Elementalist Utility-slot legs).
+- **`GlyphFormVariantMap`'s value changed from a bare canonical id to `{ canonicalId, form: 'normal'
+  | 'celestial' }`** — the wiki page titles the fetch script already visits ("<name>
+  (non-celestial)" / "<name> (Celestial Avatar)") always said which form each variant was; the
+  script was just discarding that half of the information. `scripts/fetch-glyph-forms.ts` now
+  classifies by title suffix and fails the group (logged, unresolved) on a title matching neither —
+  same fail-safe posture as everywhere else in that script. All 6 known groups still resolve
+  cleanly on a live re-run.
+- **New `skill-calc/glyph-forms.ts`'s `glyphFormFactSourceSkill`**: given a skill and whether the
+  build's Celestial Avatar toggle is on, resolves to the matching form-variant `Skill` to read facts
+  from, or `null` for every non-Glyph skill (fails open, unchanged behavior for everything else).
+- **`SkillsEditor.tsx`'s `skillTooltipContent`** now swaps its *entire* rendered tooltip
+  (description + curated Damage/Healing numeric lines + generic boon/condition facts) to the
+  resolved variant's own when one is found — not just the curated number, since the 2 forms are
+  different underlying skills with different generic fact sets too, not just different values on
+  the same fact.
+- Toggle read is `build.activeBundleSkillId === CELESTIAL_AVATAR_SKILL_ID`, the same field
+  `WeaponSkillBar` already flips on the Celestial Avatar F5 click — that constant is now exported
+  from `bundle-skills.ts` instead of being module-private.
+- `SkillVariantContext` gained `glyphFormVariants`/`celestialAvatarActive` fields; every
+  construction site (`SkillsEditor.tsx` x2, `ProfessionMechanicBar.tsx`, `WeaponSkillBar.tsx`,
+  `PetsEditor.tsx`) now passes them — harmless everywhere a Glyph can never appear (Revenant's
+  Legend bar, the F-bar, pet skills), verified by what `glyphFormFactSourceSkill` actually matches
+  on, not assumed safe.
+- Verified end-to-end via a throwaway script (not committed): all 6 canonical ids resolve to the
+  wiki-correct normal/celestial variant in both toggle states, and `CURATED_HEALING_COEFFICIENTS`'s
+  2 pre-existing celestial-form entries (31348 Glyph of Alignment, 31888 Glyph of Burgeoning,
+  seeded 2026-08-02 before this gap was even known) are confirmed reachable now, not still dead
+  data. `npm run typecheck`/`lint` both clean. Not visually confirmed in a running window (standing
+  Electron-sandbox limitation).
+- **Not done this session**: the 6 non-celestial-form Damage coefficients this gap was blocking
+  (`damage-calc.ts`'s Ranger Utility-slot block comment) still need their own wiki-verification
+  pass — this only removed the architecture blocker. The picker/bar icon also still always shows
+  the canonical id's icon rather than swapping to the celestial-form's distinct one while the
+  toggle is on — a cosmetic gap, not a facts gap, left as a documented known limitation.
+
 ## Session 63 — Vindicator's Aspect-swap toggle (Legendary Alliance Stance)
 
 Implemented the display-side fix the "Legendary Alliance Stance" item under "Profession-mechanic

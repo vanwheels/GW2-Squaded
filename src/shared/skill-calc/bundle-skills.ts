@@ -2,8 +2,10 @@ import type { Build, Environment, Skill, TomeChapter, TomeChaptersByTomeId } fro
 import { resolveSkillBarIds } from '../weapon-calc/weapon-skills'
 import { GUNSABER_WEAPON_BAR_SKILL_IDS } from './gunsaber-skills'
 
-/** Druid's "Celestial Avatar" mechanic-bar (Profession_5) skill id. */
-const CELESTIAL_AVATAR_SKILL_ID = 31869
+/** Druid's "Celestial Avatar" mechanic-bar (Profession_5) skill id. Exported so
+ *  `skill-calc/glyph-forms.ts` can read `Build.activeBundleSkillId` against the same id this file
+ *  uses to swap the weapon bar — a Druid Glyph's real facts depend on the identical toggle. */
+export const CELESTIAL_AVATAR_SKILL_ID = 31869
 
 /**
  * The 5 real Celestial-Avatar-form skills, resolved by `categories.includes('CelestialAvatar')`

@@ -97,7 +97,11 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
     wvwFactOverrides: gameData.wvwFactOverrides,
     durationPercent,
     characterAttributes,
-    targetArmor
+    targetArmor,
+    // No mechanic-bar entry is ever a Druid Glyph — same "harmless, never matched" reasoning as
+    // RevenantSkillsEditor's own variantContext.
+    glyphFormVariants: gameData.glyphFormVariants,
+    celestialAvatarActive: false
   }
   const { open: stolenSkillPickerOpen, openThis: openStolenSkillPicker, close: closeStolenSkillPicker } = usePickerOpen()
   const stolenSkillButtonRef = useRef<HTMLButtonElement>(null)

@@ -41,7 +41,11 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds, co
     wvwFactOverrides: gameData.wvwFactOverrides,
     durationPercent,
     characterAttributes,
-    targetArmor
+    targetArmor,
+    // A pet's own skill is never a Druid Glyph — same "harmless, never matched" reasoning as
+    // RevenantSkillsEditor's own variantContext.
+    glyphFormVariants: gameData.glyphFormVariants,
+    celestialAvatarActive: false
   }
 
   function skillTooltipFor(skillId: number) {

@@ -2,7 +2,7 @@ import type { Build, TomeChapter } from '@shared/types'
 import type { CombatState } from '@shared/gear-calc/combat-state'
 import { boonConditionFactsForSkill, tomeChapterBoonSources } from '@shared/boon-calc/sources'
 import { weaponSkillIdsForPair } from '@shared/weapon-calc/weapon-skills'
-import { bundleCapableSkillIds, isMechanicBarBundleId, resolveActiveBundle } from '@shared/skill-calc/bundle-skills'
+import { bundleCapableSkillIds, CELESTIAL_AVATAR_SKILL_ID, isMechanicBarBundleId, resolveActiveBundle } from '@shared/skill-calc/bundle-skills'
 import { professionMechanicBar } from '@shared/skill-calc/profession-mechanic'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '@shared/skill-calc/untamed-unleash'
 import { formatFactLine } from '@shared/gear-calc/relic-effects-format'
@@ -90,7 +90,12 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
     wvwFactOverrides: gameData.wvwFactOverrides,
     durationPercent,
     characterAttributes,
-    targetArmor
+    targetArmor,
+    // Never matches here either — the weapon bar's own skill ids are never a Glyph's canonical id
+    // — but kept accurate (rather than hardcoded `false`) since this component already knows the
+    // real toggle state.
+    glyphFormVariants: gameData.glyphFormVariants,
+    celestialAvatarActive: build.activeBundleSkillId === CELESTIAL_AVATAR_SKILL_ID
   }
 
   const isUntamed = equippedSpecializationIds.has(UNTAMED_SPEC_ID)

@@ -4,38 +4,39 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
-- [ ] **Flip-skill / facet display — two distinct rendering gaps, scoped 2026-08-04 from user
-      screenshots + gw2skills.net reference.** Both stem from the same root cause repeatedly hit
-      during the Damage sweep: a skill's real Damage/Healing fact lives on a different id than the one
-      the picker shows (`flipSkill` target stripped by `stripFlipTargets`, or `glyphFormVariants`
-      target stripped by its own pre-pass) — `skillFactLines`/`damageLinesForSkill`/
-      `healingLinesForSkill` never follow either link, so the fact is real but unreachable (dead
-      data). Confirmed instances: Revenant's Chaotic Release, Elementalist's Tailored Victory,
-      Engineer's Photon Wall, Thief's Prepare Pitfall/Prepare Thousand Needles (worse — the equipped
-      id has *zero* facts of its own, no fallback), Evoker's 3 Meditations, Ranger's 3 Glyphs (Tides/
-      Alignment/Equality). Only existing precedent for following either link at all is
-      `boon-calc/sources.ts`'s `withFlipChain`, built for boon aggregation, not fact rendering. Two
-      different UI treatments needed, not one:
-      1. **Flip skills/facets (e.g. Legendary Stance facets' on/release pair)**: gw2skills.net's
-         convention — show the base/primary skill in its normal slot, with the flipped skill(s)
-         rendered stacked directly above/below it as their own smaller icon(s), each with its own
-         independent tooltip/description. Always visible together, not a toggle. User will provide a
-         reference screenshot for the exact stacked-icon layout.
-      2. **Form-toggle-dependent skills (Druid's Glyphs)**: confirmed via `skill-variants.ts`'s own
-         doc comment — the picker already collapses each Glyph to one canonical bindable id whose
-         "effect changes automatically with current Celestial Avatar form," but the two forms' actual
-         facts live on the two non-equippable ids `glyphFormVariants` strips out, and nothing stitches
-         them back. Fix: reuse the toggle infrastructure that already exists for exactly this shape —
-         `Build.activeBundleSkillId`/`ProfessionMechanicBar`'s F5 Celestial Avatar toggle already
-         swaps `WeaponSkillBar`'s displayed 1-5 row live (confirmed in code, not just the user's
-         screenshot demo of it); extend the same toggle-read to the Utility slot's Glyph rendering in
-         `SkillsEditor.tsx` so it shows the non-celestial variant's facts when the toggle is off and
-         the celestial variant's when it's on, instead of always showing whichever one the picker
-         happened to collapse to. This is a swap, not a stack — the two forms are never both shown at
-         once.
-      Needs a proper design/implementation pass (data model changes to how `skillFactLines` and
-      friends locate facts, plus new tooltip-rendering UI) — scope further before starting, this is a
-      real feature, not a data-curation fix.
+- [ ] **Flip-skill/facet stacked-icon display — scoped 2026-08-04 from user screenshots +
+      gw2skills.net reference, blocked on the user's reference screenshot.** Sub-item 2 of this
+      pair (Druid Glyphs' form toggle) is DONE — see COMPLETED.md Session 64 and
+      `docs/game-data.md`'s "Druid Glyph forms" addendum. This item is what's left: a skill's real
+      Damage/Healing fact lives on its `flipSkill` target, stripped from the picker by
+      `stripFlipTargets` (e.g. Revenant's Chaotic Release, Elementalist's Tailored Victory,
+      Engineer's Photon Wall, Thief's Prepare Pitfall/Prepare Thousand Needles — worse, the equipped
+      id has *zero* facts of its own, no fallback — Evoker's 3 Meditations). Unlike the Glyph case,
+      the tooltip-level data-plumbing to reach these already exists — `multi-effect.ts`'s
+      `relatedVariantSkills` + `SkillsEditor.tsx`'s `skillTooltipContent` already walk `flipSkill`
+      and render the target's real facts nested in a `tooltip-skill-variant` block below the base
+      skill's own — so curating these flip-target ids into `CURATED_DAMAGE_COEFFICIENTS`/
+      `CURATED_HEALING_COEFFICIENTS` today would already render correctly (see the dedicated
+      curation item below, split out 2026-08-04 since it's independent, screenshot-independent
+      work). What's still missing here is purely the **visual** treatment: gw2skills.net's
+      convention shows the base/primary skill in its normal slot with the flipped skill(s) rendered
+      as their own smaller stacked icon(s) directly above/below it, each with its own independent
+      tooltip — not text nested inside one shared tooltip like today. Always visible together, not
+      a toggle (distinct from the Glyph case, which is a swap). User will provide a reference
+      screenshot for the exact stacked-icon layout before this is built.
+- [ ] **Curate the already-reachable flip-target Damage/Healing coefficients — split out 2026-08-04
+      from the flip-skill display item above, screenshot-independent.** Now that
+      `relatedVariantSkills`/`skillTooltipContent`'s nested-tooltip rendering is confirmed to
+      already work for flip-target facts (see above), these ids just need the same
+      wiki-verification pass as every other `CURATED_DAMAGE_COEFFICIENTS`/
+      `CURATED_HEALING_COEFFICIENTS` entry: Revenant's Chaotic Release (28075, Legendary Dragon
+      Stance elite facet), Elementalist's Tailored Victory (44637, Weave Self's release), Engineer's
+      Holosmith Photon Wall's flip target Launch Wall (40533), Elementalist Evoker's 3 Meditations
+      (Hare's Agility/Toad's Fortitude/Fox's Fury). Thief's Prepare Pitfall/Prepare Thousand Needles
+      are the one exception — their flip targets (Pitfall 56880, Thousand Needles 56898) need a
+      fresh check for whether they carry a Damage fact at all before assuming this applies (the
+      2026-08-04 sweep write-up says the *equipped* id has zero facts, not the flip target — worth
+      re-confirming the flip target actually has one before curating).
 - [ ] **`CURATED_BARRIER_COEFFICIENTS` + Barrier tooltip line — decided 2026-08-04, build it.** User
       confirmed Barrier is important enough to warrant the same treatment as Healing, not just an
       excluded trap. Mirror `healing-calc.ts`'s shape exactly: a `CURATED_BARRIER_COEFFICIENTS` table
@@ -347,19 +348,16 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         Lightning (12598) — its own wiki page's Mechanics section states the damage "uses the [Storm
         Spirit]'s power (1580) and weapon strength," the summoned spirit's own fixed stats, not the
         player's, same trap as this sweep's other turret/pet/minion exclusions. 6 more left uncurated
-        (Glyph of the Tides/Alignment/Equality's damage-dealing casts) — a new variant of the
-        "Damage fact unreachable via the current UI" architecture gap already seen with Revenant's
-        Chaotic Release/Elementalist's Tailored Victory, this time via `glyphFormVariants` rather than
-        `flipSkill`: each Glyph's actually-equippable canonical id carries zero facts of its own,
-        since `glyphFormVariants` strips its two context-dependent "cast while not/while in Celestial
-        Avatar form" ids (which carry the real facts) out of the picker entirely, and no rendering
-        path stitches those facts back onto the canonical id's tooltip (`relatedVariantSkills` only
-        follows `flipSkill`/attunement). **Also worth noting**: `CURATED_HEALING_COEFFICIENTS`
-        already curated 2 of this same family's celestial-form casts (Ranger's Glyph of Alignment
-        31348, Glyph of Burgeoning 31888) during the 2026-08-02 Healing sweep without flagging this
-        gap — those entries are almost certainly equally unreachable dead data today, worth
-        revisiting alongside a real fix (e.g. teaching `relatedVariantSkills` to also surface
-        `glyphFormVariants` siblings) rather than leaving them silently inert. See `damage-calc.ts`'s
+        (Glyph of the Tides/Alignment/Equality's damage-dealing casts) — at the time, a "Damage fact
+        unreachable via the current UI" architecture gap, same family as Revenant's Chaotic
+        Release/Elementalist's Tailored Victory but via `glyphFormVariants` rather than `flipSkill`.
+        **The rendering gap itself is now fixed** (Session 64, COMPLETED.md — `glyph-forms.ts`'s
+        `glyphFormFactSourceSkill` + `SkillsEditor.tsx` now swap in the correct form's real facts
+        based on the build's Celestial Avatar toggle); curating these 6 ids' Damage coefficients is
+        still open, just no longer blocked — see the dedicated curation item near the top of this
+        file. `CURATED_HEALING_COEFFICIENTS`'s 2 pre-existing celestial-form entries (Ranger's Glyph
+        of Alignment 31348, Glyph of Burgeoning 31888, from the 2026-08-02 Healing sweep) are
+        confirmed reachable now too, verified directly rather than assumed. See `damage-calc.ts`'s
         Ranger Utility-slot block comment for the full writeup. Thief done 2026-08-04: 20 raw
         candidate ids (6 shared racial ones already curated under Warrior, not re-curated), 11
         distinct Thief-only skills curated (Scorpion Wire; Daredevil's Impairing Daggers, Reflexive

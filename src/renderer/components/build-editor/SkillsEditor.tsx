@@ -5,6 +5,9 @@ import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
 import type { FactLine } from '@shared/skill-calc/fact-numbers'
 import { relatedVariantSkills } from '@shared/skill-calc/multi-effect'
 import { VINDICATOR_SPEC_ID, vindicatorAspectSkillId } from '@shared/skill-calc/vindicator-aspect'
+import { CELESTIAL_AVATAR_SKILL_ID } from '@shared/skill-calc/bundle-skills'
+import { glyphFormFactSourceSkill } from '@shared/skill-calc/glyph-forms'
+import type { GlyphFormVariantMap } from '@shared/types'
 import { formatBoonDuration } from '@shared/boon-calc/format'
 import { BOON_CONDITION_ICONS } from '@shared/boon-calc/icons'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
@@ -198,6 +201,11 @@ export interface SkillVariantContext {
    *  armor a skill's real Damage/Healing tooltip lines scale against — see `skillFactLines`. */
   characterAttributes: { power: number; healingPower: number }
   targetArmor: number
+  /** Wiki-sourced Druid Glyph normal/celestial form data plus whether the build's Celestial Avatar
+   *  toggle is currently on — see `glyph-forms.ts`'s `glyphFormFactSourceSkill`. Harmless for every
+   *  non-Ranger build: `glyphFormVariants` never matches a non-Glyph skill id. */
+  glyphFormVariants: GlyphFormVariantMap
+  celestialAvatarActive: boolean
 }
 
 /**
@@ -205,15 +213,27 @@ export interface SkillVariantContext {
  * Glyph's per-attunement effect) and activation-chain targets (e.g. a Mantra's charged cast) below
  * its own facts — see `multi-effect.ts`'s doc comment for why these are only shown here, on an
  * already-equipped skill, rather than as extra picker entries.
+ *
+ * A Druid Glyph is different: its 2 forms are a swap, not a stack (see `glyph-forms.ts`), so
+ * rather than appending a `tooltip-skill-variant` block, the *whole* tooltip (description +
+ * facts) is sourced from whichever form's own skill id matches the build's current Celestial
+ * Avatar toggle state — `skill` itself (the canonical id every Glyph collapses to in the picker,
+ * see `skill-variants.ts` signal 5) carries only a generic, low-fact-count description, never the
+ * real per-form numbers.
  */
 export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], activeIds: Set<number>, variantContext: SkillVariantContext) {
   const { power, healingPower } = variantContext.characterAttributes
-  const numericLines = skillFactLines(skill, activeIds, power, healingPower, variantContext.targetArmor)
+  const glyphFormSkill = glyphFormFactSourceSkill(skill, variantContext.celestialAvatarActive, variantContext.glyphFormVariants, variantContext.skillsById)
+  const factSourceSkill = glyphFormSkill ?? skill
+  const numericLines = skillFactLines(factSourceSkill, activeIds, power, healingPower, variantContext.targetArmor)
+  const effectiveFacts = glyphFormSkill
+    ? boonConditionFactsForSkill(glyphFormSkill, activeIds, variantContext.durationPercent, variantContext.wvwFactOverrides.skill[glyphFormSkill.id])
+    : facts
   const variants = relatedVariantSkills(skill, variantContext.skills, variantContext.skillsById)
   return (
     <>
-      <TooltipBody title={skill.name} description={skill.description} />
-      {factsBlock(numericLines, facts)}
+      <TooltipBody title={skill.name} description={factSourceSkill.description} />
+      {factsBlock(numericLines, effectiveFacts)}
       {variants.map((v) => {
         const vNumeric = skillFactLines(v.skill, activeIds, power, healingPower, variantContext.targetArmor)
         const vBoon = boonConditionFactsForSkill(
@@ -285,7 +305,9 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
     wvwFactOverrides: gameData.wvwFactOverrides,
     durationPercent,
     characterAttributes,
-    targetArmor
+    targetArmor,
+    glyphFormVariants: gameData.glyphFormVariants,
+    celestialAvatarActive: build.activeBundleSkillId === CELESTIAL_AVATAR_SKILL_ID
   }
 
   function setUtility(slotIndex: 0 | 1 | 2, skillId: number | null): void {
@@ -435,7 +457,11 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
     wvwFactOverrides: gameData.wvwFactOverrides,
     durationPercent,
     characterAttributes,
-    targetArmor
+    targetArmor,
+    // Revenant never equips a Druid Glyph — `glyphFormFactSourceSkill` simply never matches any
+    // Legend skill id, so this is a harmless empty/false pair, not a meaningful Revenant toggle.
+    glyphFormVariants: gameData.glyphFormVariants,
+    celestialAvatarActive: false
   }
 
   function skillTooltipFor(skillId: number) {

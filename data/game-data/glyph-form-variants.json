@@ -1,14 +1,50 @@
 {
-  "29558": 30238,
-  "30448": 30238,
-  "31348": 31322,
-  "31401": 31746,
-  "31607": 31322,
-  "31658": 31746,
-  "31740": 31582,
-  "31819": 31407,
-  "31867": 31407,
-  "31888": 31582,
-  "55024": 31677,
-  "55046": 31677
+  "29558": {
+    "canonicalId": 30238,
+    "form": "celestial"
+  },
+  "30448": {
+    "canonicalId": 30238,
+    "form": "normal"
+  },
+  "31348": {
+    "canonicalId": 31322,
+    "form": "celestial"
+  },
+  "31401": {
+    "canonicalId": 31746,
+    "form": "celestial"
+  },
+  "31607": {
+    "canonicalId": 31322,
+    "form": "normal"
+  },
+  "31658": {
+    "canonicalId": 31746,
+    "form": "normal"
+  },
+  "31740": {
+    "canonicalId": 31582,
+    "form": "celestial"
+  },
+  "31819": {
+    "canonicalId": 31407,
+    "form": "normal"
+  },
+  "31867": {
+    "canonicalId": 31407,
+    "form": "celestial"
+  },
+  "31888": {
+    "canonicalId": 31582,
+    "form": "normal"
+  },
+  "55024": {
+    "canonicalId": 31677,
+    "form": "celestial"
+  },
+  "55046": {
+    "canonicalId": 31677,
+    "form": "normal"
+  }
 }

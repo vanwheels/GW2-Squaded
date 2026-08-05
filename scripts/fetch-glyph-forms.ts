@@ -22,6 +22,12 @@
  * whole group is left unresolved (fail-safe, not guessed), same posture as every other fetch
  * script in this project.
  *
+ * Each child page title is also classified by its own "(non-celestial)"/"(Celestial Avatar)"
+ * suffix (added 2026-08-04, see `GlyphFormVariantMap`'s doc comment) — a title matching neither
+ * suffix exactly is treated the same as a resolution failure (logged, group left unresolved)
+ * rather than guessed, since the whole point of recording `form` is to know which id to read facts
+ * from when `Build.activeBundleSkillId` says Celestial Avatar is/isn't active.
+ *
  * Run manually via `npm run fetch-glyph-forms`, after `npm run fetch-game-data` (matches wiki page
  * titles against the already-fetched data/game-data/skills.json by name).
  */
@@ -105,9 +111,19 @@ async function main(): Promise<void> {
       continue
     }
 
-    const childIds: number[] = []
+    const childIds: { id: number; form: 'normal' | 'celestial' }[] = []
     let childFetchFailed = false
     for (const childTitle of childTitles) {
+      const form = childTitle.includes('non-celestial')
+        ? 'normal'
+        : childTitle.includes('Celestial Avatar')
+          ? 'celestial'
+          : undefined
+      if (form === undefined) {
+        log.push(`skip (child title matches neither form suffix): "${name}" / "${childTitle}"`)
+        childFetchFailed = true
+        continue
+      }
       let childText: string
       try {
         childText = await fetchRawWikitext(childTitle.replace(/ /g, '_'))
@@ -124,11 +140,11 @@ async function main(): Promise<void> {
         childFetchFailed = true
         continue
       }
-      childIds.push(childId)
+      childIds.push({ id: childId, form })
     }
     if (childFetchFailed) continue
 
-    const resolvedIds = new Set([parentId, ...childIds])
+    const resolvedIds = new Set([parentId, ...childIds.map((c) => c.id)])
     const setsMatch = resolvedIds.size === localIds.size && [...resolvedIds].every((id) => localIds.has(id))
     if (!setsMatch) {
       log.push(
@@ -136,10 +152,15 @@ async function main(): Promise<void> {
       )
       continue
     }
+    const forms = new Set(childIds.map((c) => c.form))
+    if (forms.size !== 2) {
+      log.push(`skip (expected 1 normal + 1 celestial child, got forms [${childIds.map((c) => c.form).join(', ')}]): "${name}"`)
+      continue
+    }
 
-    for (const childId of childIds) result[childId] = parentId
+    for (const child of childIds) result[child.id] = { canonicalId: parentId, form: child.form }
     resolvedGroups++
-    console.log(`  "${name}": canonical id ${parentId}, variants [${childIds.join(', ')}] dropped`)
+    console.log(`  "${name}": canonical id ${parentId}, variants ${childIds.map((c) => `${c.id} (${c.form})`).join(', ')}`)
   }
 
   await writeFile(join(DATA_DIR, 'glyph-form-variants.json'), JSON.stringify(result, null, 2))

@@ -532,19 +532,18 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // page's Mechanics section states the damage "uses the [Storm Spirit]'s power (1580) and weapon
   // strength (2426-2681)", the summoned spirit's own fixed stats, not the player's, same trap as the
   // turret/pet/minion exclusions elsewhere in this sweep. 6 more left uncurated (Glyph of the Tides,
-  // Glyph of Alignment, Glyph of Equality's damage-dealing casts) — same "Damage fact unreachable via
-  // the current UI" architecture gap as Revenant's Chaotic Release/Elementalist's Tailored Victory
-  // above, just via `glyphFormVariants` instead of `flipSkill`: each Glyph's actually-equippable
-  // canonical id (30238/31322/31746) carries zero facts of its own, since the wiki-sourced
-  // `glyphFormVariants` map (see `skill-variants.ts` signal 5) strips its two context-dependent
-  // "cast while not/while in Celestial Avatar form" ids (which DO carry the real facts, e.g. 31607's
-  // Damage fact for Glyph of Alignment's non-celestial cast) out of the picker entirely, and no
-  // rendering path (`relatedVariantSkills` only follows `flipSkill`/attunement, not
-  // `glyphFormVariants`) stitches those facts back onto the canonical id's tooltip. Note:
-  // `CURATED_HEALING_COEFFICIENTS` already curated 2 of this same family's celestial-form casts
-  // (Glyph of Alignment's 31348, Glyph of Burgeoning's 31888, both Healing-slot) during the 2026-08-02
-  // Healing sweep without flagging this gap — those entries are almost certainly equally unreachable
-  // dead data, worth revisiting alongside a real fix rather than guessing a patch here.
+  // Glyph of Alignment, Glyph of Equality's damage-dealing casts) — the non-celestial-form cast's
+  // Damage fact lives on a `glyphFormVariants` variant id (e.g. 31607 for Glyph of Alignment), not
+  // its canonical equippable id (31322), which itself carries only a sparse, generic fact set.
+  // **The rendering gap this used to describe is now fixed** (2026-08-04, `glyph-forms.ts`'s
+  // `glyphFormFactSourceSkill` + `SkillsEditor.tsx`'s `skillTooltipContent` — reads the build's
+  // Celestial Avatar toggle, same field `WeaponSkillBar` already reads, and swaps in whichever
+  // form's real skill/facts match, "swap not stack" unlike `relatedVariantSkills`'s flip-chain
+  // stacking); curating these 6 non-celestial-form ids' Damage coefficients is still open, same
+  // wiki-verification bar as every other entry in this table, just no longer blocked on an
+  // architecture gap. `CURATED_HEALING_COEFFICIENTS`'s 2 existing celestial-form-cast entries
+  // (Glyph of Alignment's 31348, Glyph of Burgeoning's 31888) are confirmed reachable now too —
+  // verified directly against `glyphFormFactSourceSkill`, not assumed.
   // Spike Trap. PvE/WvW+PvP split 0.2/0.01 — WvW value used.
   12476: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
   // Signet of the Wild. No split. `strikes=4` present -> wiki's 0.8 already totaled.

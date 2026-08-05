@@ -204,19 +204,25 @@ export interface ItemStatLegalIds {
 export type EliteSpecSkillMap = Record<number, number>
 
 /**
- * Non-equippable Glyph form-variant skill id -> the canonical id it's actually equipped as.
- * Confirmed live 2026-07-30: Druid's 6 duplicate-named Glyph skills (e.g. "Glyph of Equality")
- * each have 3 API ids — one canonical id a player actually binds (whose effect changes
- * automatically with current Celestial Avatar form, the same "one id, context-dependent effect"
- * shape `Skill.attunement` already models for Elementalist glyphs), plus two purely-descriptive
- * wiki-subpage ids ("<name> (non-celestial)" / "<name> (Celestial Avatar)") that document each
- * form's effect separately but are never independently equippable. No API field distinguishes
- * these (unlike `Skill.attunement`), so it's sourced from the wiki instead — see
- * scripts/fetch-glyph-forms.ts and docs/game-data.md. Ids absent from this map need no
- * substitution (either not a Glyph, or a group the fetch script couldn't unambiguously resolve —
- * fails open, left un-collapsed same as before this existed).
+ * Non-equippable Glyph form-variant skill id -> the canonical id it's actually equipped as, plus
+ * which of the 2 context-dependent forms this variant id documents. Confirmed live 2026-07-30:
+ * Druid's 6 duplicate-named Glyph skills (e.g. "Glyph of Equality") each have 3 API ids — one
+ * canonical id a player actually binds (whose effect changes automatically with current Celestial
+ * Avatar form, the same "one id, context-dependent effect" shape `Skill.attunement` already models
+ * for Elementalist glyphs), plus two purely-descriptive wiki-subpage ids ("<name> (non-celestial)"
+ * / "<name> (Celestial Avatar)") that document each form's effect separately but are never
+ * independently equippable. No API field distinguishes these (unlike `Skill.attunement`), so it's
+ * sourced from the wiki instead — see scripts/fetch-glyph-forms.ts and docs/game-data.md. Ids
+ * absent from this map need no substitution (either not a Glyph, or a group the fetch script
+ * couldn't unambiguously resolve — fails open, left un-collapsed same as before this existed).
+ *
+ * `form` was added 2026-08-04 (previously this map only recorded `canonicalId`, discarding which
+ * form each variant documented) so `SkillsEditor.tsx` can read the build's current Celestial
+ * Avatar toggle state (`Build.activeBundleSkillId`, same field `WeaponSkillBar` reads for its own
+ * F5 toggle) and show that form's real facts on the canonical id's tooltip instead of the
+ * canonical id's own sparse/generic facts — see `skill-calc/glyph-forms.ts`.
  */
-export type GlyphFormVariantMap = Record<number, number>
+export type GlyphFormVariantMap = Record<number, { canonicalId: number; form: 'normal' | 'celestial' }>
 
 /**
  * Skill ids to always exclude from Heal/Utility/Elite pickers, on top of the 6 in-code signals

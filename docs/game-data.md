@@ -910,3 +910,64 @@ same in-game shape, two different data sources:
   `Vulnerability` constant). Verified against Tome of Justice's Epilogue chapter: correctly yields
   Burning (3s) and Might (8s ×5 stacks) — the WvW-tagged values, not the PvE-only 2s/8-stack pair
   sitting right next to them in the same wikitext line.
+
+## Druid Glyph forms: swap-not-stack fact rendering (2026-08-04)
+
+The Druid Glyph form-variant collapse (`glyph-form-variants.json`, see the Session addendum
+above) was a picker fix only — it hid the 2 non-equippable "(non-celestial)"/"(Celestial Avatar)"
+ids from the Heal/Utility/Elite pickers, but left their real facts unreachable: the canonical id a
+player actually equips carries only a sparse, generic fact set (e.g. Glyph of Alignment's
+canonical id 31322 has 3 facts vs. its celestial-form variant 31348's 5), and nothing stitched the
+form-specific facts back onto its tooltip. Flagged as a real gap in TODO.md during the 2026-08-04
+Damage sweep (Ranger/Elementalist Utility-slot legs).
+
+Fixed by treating this the same way `vindicator-aspect.ts`'s Legendary Alliance aspect toggle
+treats its own "whole kit swaps at once" shape — **a swap, not a stack** — rather than
+`relatedVariantSkills`'s flip-chain stacking (used for genuine on/release pairs that are both live
+simultaneously, e.g. a Revenant facet's on/release effect):
+
+- `GlyphFormVariantMap`'s value shape changed from a bare canonical id (`number`) to `{
+  canonicalId: number; form: 'normal' | 'celestial' }` — the fetch script already had this
+  information (each child wiki page's title literally says which form it documents) but was
+  discarding it. `scripts/fetch-glyph-forms.ts` now classifies each child title by its
+  "(non-celestial)"/"(Celestial Avatar)" suffix and fails the whole group (logged, left
+  unresolved) if a title matches neither — same fail-safe posture as every other check in that
+  script. All 6 known groups still resolve cleanly on a live re-run.
+- New `skill-calc/glyph-forms.ts`'s `glyphFormFactSourceSkill(skill, celestialAvatarActive,
+  glyphFormVariants, skillsById)`: given a (possibly-canonical) skill and whether the build's
+  Celestial Avatar toggle is on, returns the matching form-variant `Skill` to actually read facts
+  from, or `null` if `skill` isn't a Glyph group's canonical id at all (every other skill in the
+  game — fails open, same as before this existed).
+- `SkillsEditor.tsx`'s `skillTooltipContent` calls it first; when it resolves, the *entire* tooltip
+  (description, `skillFactLines` numeric lines, `boonConditionFactsForSkill` boon/condition lines)
+  is sourced from the resolved variant instead of the canonical skill's own sparse facts — not just
+  the curated Damage/Healing number, since the two forms are genuinely different underlying skills
+  with different generic facts too (e.g. Glyph of Alignment's non-celestial form debilitates foes,
+  its celestial form heals allies — completely different fact sets, not just different numbers on
+  the same fact).
+- The toggle read is `Build.activeBundleSkillId === CELESTIAL_AVATAR_SKILL_ID` — the exact field
+  `WeaponSkillBar` already flips when the player clicks the Celestial Avatar F5 icon
+  (`bundle-skills.ts`, now exported so `glyph-forms.ts`'s callers can compare against it directly
+  rather than duplicating the constant).
+- `SkillVariantContext` (`SkillsEditor.tsx`) gained `glyphFormVariants`/`celestialAvatarActive`
+  fields; every call site that constructs one now passes them, even ones that can never render a
+  Glyph (Revenant's Legend bar, the profession-mechanic F-bar, `PetsEditor`) — harmless there since
+  `glyphFormFactSourceSkill` only ever matches an actual Glyph canonical id, verified by
+  construction rather than assumed.
+- Verified end-to-end via a throwaway script (not committed) resolving all 6 canonical ids against
+  both toggle states — every one returns the correct normal/celestial variant id matching its own
+  wiki-documented description, e.g. Glyph of Alignment's non-celestial variant (31607, "Inflict
+  bleeding and debilitate nearby foes") vs. celestial variant (31348, "Heal and remove conditions
+  from nearby allies") — and cross-checked against `CURATED_HEALING_COEFFICIENTS`'s 2
+  already-curated celestial-form entries (31348 Glyph of Alignment, 31888 Glyph of Burgeoning,
+  seeded 2026-08-02 before this gap was even known) to confirm they're reachable now, not still
+  dead data.
+
+**Not done as part of this fix**: the 6 non-celestial-form Damage coefficients this gap was
+blocking (Glyph of the Tides/Alignment/Equality, flagged in `damage-calc.ts`'s Ranger Utility-slot
+block comment) still need their own wiki-verification pass before landing in
+`CURATED_DAMAGE_COEFFICIENTS` — this session only removed the architecture blocker, it didn't
+re-run the curation sweep. Same for the picker/bar icon, which still always shows the canonical
+id's own icon (matching the normal-form variant's icon in every case checked) rather than swapping
+to the celestial-form variant's distinct icon while the toggle is on — a cosmetic gap, not a facts
+gap, left as a documented known limitation.
