@@ -28,3 +28,20 @@ export function glyphFormFactSourceSkill(
   }
   return null
 }
+
+/**
+ * The icon to render for `skill`'s equipped-slot button, given the same Celestial Avatar toggle
+ * `glyphFormFactSourceSkill` reads — a Glyph's normal and celestial forms carry genuinely different
+ * icon assets (verified against local `skills.json`: e.g. Glyph of Alignment's celestial-form id
+ * 31348 has a distinct `render.guildwars2.com` icon hash from the canonical/normal-form id), so the
+ * slot button needs its own swap, separate from `skillTooltipContent`'s fact-only swap. Falls back to
+ * `skill.icon` for every non-Glyph skill, same fail-open posture as `glyphFormFactSourceSkill`.
+ */
+export function glyphFormDisplayIcon(
+  skill: Skill,
+  celestialAvatarActive: boolean,
+  glyphFormVariants: GlyphFormVariantMap,
+  skillsById: Map<number, Skill>
+): string {
+  return glyphFormFactSourceSkill(skill, celestialAvatarActive, glyphFormVariants, skillsById)?.icon ?? skill.icon
+}

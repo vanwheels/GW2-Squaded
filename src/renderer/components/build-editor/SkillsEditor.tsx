@@ -6,7 +6,7 @@ import type { FactLine } from '@shared/skill-calc/fact-numbers'
 import { flipTargetSkills, relatedVariantSkills } from '@shared/skill-calc/multi-effect'
 import { VINDICATOR_SPEC_ID, vindicatorAspectSkillId } from '@shared/skill-calc/vindicator-aspect'
 import { CELESTIAL_AVATAR_SKILL_ID } from '@shared/skill-calc/bundle-skills'
-import { glyphFormFactSourceSkill } from '@shared/skill-calc/glyph-forms'
+import { glyphFormDisplayIcon, glyphFormFactSourceSkill } from '@shared/skill-calc/glyph-forms'
 import type { GlyphFormVariantMap } from '@shared/types'
 import { formatBoonDuration } from '@shared/boon-calc/format'
 import { BOON_CONDITION_ICONS } from '@shared/boon-calc/icons'
@@ -397,7 +397,14 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
                     }
                   }}
                 >
-                  {chosen ? <img src={chosen.icon} alt={chosen.name} /> : <span className="skill-slot-placeholder">{label}</span>}
+                  {chosen ? (
+                    <img
+                      src={glyphFormDisplayIcon(chosen, variantContext.celestialAvatarActive, variantContext.glyphFormVariants, skillsById)}
+                      alt={chosen.name}
+                    />
+                  ) : (
+                    <span className="skill-slot-placeholder">{label}</span>
+                  )}
                 </button>
               </Tooltip>
               <FlipSkillStack skill={chosen} activeIds={activeIds} variantContext={variantContext} />

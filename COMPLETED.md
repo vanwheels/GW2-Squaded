@@ -2,6 +2,24 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 68 — Fixed Druid Glyph equipped-slot icon not swapping with Celestial Avatar toggle
+
+User reported (with 2 screenshots) that Glyph of Alignment's tooltip facts correctly swapped between
+Damage (normal form) and Healing (celestial form) when toggling Celestial Avatar, but "the icon isn't
+swapping" — the slot button kept showing the same icon either way. Root cause: `glyph-forms.ts`'s
+`glyphFormFactSourceSkill` (Session 64) only ever got threaded into `skillTooltipContent`'s fact
+lookup, never into the `<img>` render for the equipped slot button in `SkillsEditor.tsx`'s
+`StandardSkillsEditor`, which was still always rendering `chosen.icon` — the canonical/normal-form
+skill's own icon, unconditionally. Confirmed via `skills.json` that the celestial-form variant ids
+really do carry distinct icon assets (different `render.guildwars2.com` hash) from their
+normal-form/canonical counterparts, e.g. Glyph of Alignment's celestial-form id 31348 vs. its
+canonical/normal-form id 31322/31607 — so this was a real gap, not a false report.
+
+Added `glyphFormDisplayIcon` to `glyph-forms.ts` (same resolution as `glyphFormFactSourceSkill`,
+falls back to `skill.icon` for every non-Glyph skill) and wired it into the equipped-slot `<img
+src>` in `SkillsEditor.tsx`. Checked for other equipped-utility-icon render sites (`BuildEditorView.tsx`,
+the picker's own option-list icons) — none exist; the slot button was the only gap. Typecheck clean.
+
 ## Session 67 — Curated Ranger's 3 Druid Glyphs' non-celestial-form Damage coefficients
 
 Landed the TODO item Session 66 split out ("the one piece the flip-target curation pass didn't
