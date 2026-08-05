@@ -499,8 +499,48 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         the usual WvW+PvP grouping, so its WvW value equals PvE; (4) Detonate Cluster's "Small
         Explosion" fact has real hit_count=4 but no wiki `strikes=` param — manually totaled per the
         usual rule. See `damage-calc.ts`'s Thief Weapon-slot block comment for the full writeup.
-        **Next up (not started): Engineer, Necromancer, Elementalist, Mesmer, in that order** — stop
-        after each leg for a check-in, don't chain them.
+        Engineer done 2026-08-05: 106 raw candidate ids (both the profession's 9 real weapon types'
+        Weapon_1-5 entries AND, for the first time this sweep, every Kit's `bundleSkills` — the
+        5-skill bars a Heal/Utility/Elite-slotted Kit swaps in for the weapon bar while active,
+        already fully flip-chain-expanded), 18 confirmed non-damage (Med Kit's entire 7-skill kit plus
+        11 scattered Tool Kit/Flamethrower/Elixir Gun utility skills — no local `Damage`-type fact at
+        all), 1 already seeded (Blunderbuss id 6153), 87 curated this leg, 0 exclusions/gaps. New
+        mechanics this leg surfaced: (1) **`weapon=kit` vs `weapon=unequipped`** — every Kit's own
+        skills use the wiki's `weapon=kit` template param (a new distinct 968.5
+        `WEAPON_STRENGTH_MIDPOINTS` entry) EXCEPT Charrzooka, whose 5 skills all use
+        `weapon=unequipped` (690.5) instead — confirmed individually per skill via curl rather than
+        assumed from the container Kit's identity, since Elite Mortar Kit (also an Elite-slot Kit,
+        same shape as Charrzooka) uses `kit` like every other Kit; no pattern predicts which bucket a
+        Kit falls into from its slot/rarity/spec-gating. (2) Grenade Kit's 5 skills each have 2 ids
+        sharing one name/wiki page — not the usual GroundTargeted-picker-duplicate shape seen
+        elsewhere in this sweep, but a genuine land (GroundTargeted+NoUnderwater) vs. underwater
+        (auto-target) environment split `resolveSkillBarIds`'s own land/water disambiguation correctly
+        resolves — both ids curated identically. (3) Sword's 4 skills (Sun Edge, its flip target Sun
+        Ripper, Refraction Cutter, Radiant Arc) each have a Holosmith-gated id and a spec-less
+        Weaponmaster-Training id; the task's initial assumption that these pairs "likely share one
+        wiki page/values" turned out wrong — each has its own dedicated "(non-holosmith)" wiki page
+        with genuinely different coefficients, not just a naming split, corrected via individual
+        fetches for all 4 non-holosmith pages. (4) Refraction Cutter's Holosmith page (44110) itself
+        under-documents a real PvE/WvW+PvP split on its "Projectile Damage" fact (a 2022-11-29
+        "PvE only" buff apparently never re-split into 2 mode-tagged fact lines on that page), but the
+        local live API still carries both values and the sibling non-holosmith page explicitly
+        documents the identical split — used the well-corroborated WvW value rather than guessing. (5)
+        Two name collisions with pages outside this profession: Mace Smash (Mechanist) collides with
+        Warrior's own already-curated "Mace Smash," resolved via its own otheruses hatnote to "Mace
+        Smash (mechanist)"; Lightning Rod (Spear 3) collides with the Elementalist trait of the same
+        name, whose bare wiki title has no disambiguation hatnote at all (just redirects straight to
+        the trait page) — resolved via an `insource:"73002"` full-text search. (6) 5 multi-stage
+        `flipSkill` chains: Tool Kit 1, Hammer/Scrapper 1, Mace/Mechanist 1 (3 depths each), Rifle 1 (2
+        depths, stays `weapon=rifle` throughout despite the flip target's "Grenade" name), and land
+        Spear's 3 independent chains. (7) Shield's Weapon_4/5 both carry zero Damage fact of their own
+        (same flip-architecture gap as Revenant's Chaotic Release) — their flip targets carry the real
+        facts and are curated directly. (8) One `requires_trait` candidate investigated and rejected:
+        Pry Bar's `requires_trait: 531` (Power Wrench) alternate value is LOWER than its base and
+        Power Wrench's own wiki description is an unrelated elite-recharge-on-dodge effect with no
+        damage bonus at all — not modeled. See `damage-calc.ts`'s new Engineer Weapon-slot block
+        comment for the full writeup.
+        **Next up (not started): Necromancer, Elementalist, Mesmer, in that order** — stop after each
+        leg for a check-in, don't chain them.
 - [ ] Mesmer's Tale of the Second Scion (id 76695) also grants "Scion's Reprieve," a self-buff
       (+15% WvW/PvP Heal Effectiveness on the caster) that neither this skill's Healing tooltip line
       nor any other app mechanism accounts for — a genuinely separate gap from the zero-facts issue

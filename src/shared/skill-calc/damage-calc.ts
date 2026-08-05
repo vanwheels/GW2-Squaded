@@ -43,7 +43,16 @@ export const WEAPON_STRENGTH_MIDPOINTS: Record<string, number> = {
   // weapon skills as damage candidates.
   trident: 1000,
   // Non-weapon-skill damage (utility/trait procs) — the wiki's `weapon=trait skill` template param.
-  unequipped: 690.5
+  unequipped: 690.5,
+  // Engineer Kit weapon-bar skills — the wiki's own `weapon=kit` template param (distinct from
+  // `weapon=unequipped`; NOT every Kit skill uses it, see the Weapon-slot sweep's Engineer leg block
+  // comment below for the per-skill split), confirmed 690.5 is wrong for these: the wiki's Weapon
+  // Strength page states "most bundles, kits, conjures etc. share the same unique weapon strength,
+  // which scales with the rarity of the equipped mainhand weapon" and its own non-weapon table gives
+  // Ascended Bundle a distinct 968.5 midpoint (656/725/690.5 is the separate "Unequipped" row) — this
+  // app displays Ascended/Legendary-tier numbers everywhere else (e.g. `rifle: 1150` above is the
+  // table's Ascended/Legendary Rifle value, not its lower-tier ones), so 968.5 is used here too.
+  kit: 968.5
 }
 
 /**
@@ -2113,8 +2122,370 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Thief — Hooked Spear (Tow Line's flip target, chain depth 1). No split (1.25).
   50379: [{ factText: 'Damage', coefficient: 1.25, weapon: 'spear' }],
   // Thief — Spear 5 (aquatic), Shadow Assault. `strikes=3` present -> wiki totaled, no split (2.4).
-  13068: [{ factText: 'Damage', coefficient: 2.4, weapon: 'spear' }]
-  // Weapon-slot sweep: Warrior, Guardian, Revenant, Ranger, Thief done (5 of 9).
+  13068: [{ factText: 'Damage', coefficient: 2.4, weapon: 'spear' }],
+
+  // --- Engineer done: this leg is the first in the sweep to cover Kit bundle-skills (the 5-skill
+  // bars a Heal/Utility/Elite-slotted Kit swaps in for the weapon bar while active, resolved by
+  // `bundle-skills.ts`'s `resolveActiveBundle`/`weapon-skills.ts`'s `resolveSkillBarIds` off each
+  // Kit's own `Skill.bundleSkills` field — the exact same 5-slot resolver real weapons use). 106 raw
+  // candidate ids (both the profession's 9 real weapon types' Weapon_1-5 entries AND all 9 Kits'
+  // `bundleSkills`, already fully flip-chain-expanded — no further expansion needed this leg), 18
+  // confirmed non-damage (Air Blast, 3 Super Elixir ids, Box of Nails, Magnet, Gear Shield, Box of
+  // Piranhas, Bandage Blast, Elixir Shell, 2 Med Blaster ids, Cleansing Field, Vital Burst, 2
+  // Infusion Bomb ids — Med Kit's entire kit plus a few scattered Tool Kit/Flamethrower/Elixir Gun
+  // utility skills, no local `Damage`-type fact at all), 1 already seeded (Blunderbuss id 6153,
+  // one-per-profession seed block above). That leaves 87 curated below, all wiki-verified, no
+  // uncurated gaps this leg.
+  //
+  // **`weapon=kit` vs `weapon=unequipped` wrinkle (new this leg)**: every Kit's own skills use the
+  // wiki's `weapon=kit` template param (a distinct 968.5 `WEAPON_STRENGTH_MIDPOINTS` entry, added for
+  // this leg — see that map's own comment) EXCEPT Charrzooka, whose 5 skills all use
+  // `weapon=unequipped` (690.5) instead — confirmed individually per skill via curl, not assumed from
+  // the container Kit's own identity, since Elite Mortar Kit (also an Elite-slot Kit, same shape as
+  // Charrzooka) uses `kit` like every other Kit. No pattern found that predicts which bucket a Kit
+  // falls into from its slot/rarity/spec-gating; this was checked per-skill, not inferred.
+  //
+  // **Other new mechanics this leg surfaced**: (1) Grenade Kit's 5 skills each have 2 ids sharing one
+  // name/wiki page — not the usual GroundTargeted-picker-duplicate shape seen elsewhere in this
+  // sweep, but a genuine land (GroundTargeted+NoUnderwater) vs. underwater (auto-target) environment
+  // split `resolveSkillBarIds`'s own land/water disambiguation signal correctly resolves — both ids
+  // curated identically. (2) Sword's 4 skills (Sun Edge, its flip target Sun Ripper, Refraction
+  // Cutter, Radiant Arc) each have a Holosmith-gated id and a spec-less Weaponmaster-Training id; the
+  // task's initial assumption that these pairs "likely share one wiki page/values" turned out WRONG —
+  // each has its own dedicated "(non-holosmith)" wiki page with genuinely different coefficients (not
+  // just a naming split), corrected via individual fetches for all 4 non-holosmith pages. (3)
+  // Refraction Cutter's Holosmith page (44110) itself under-documents a real PvE/WvW+PvP split on its
+  // "Projectile Damage" fact — the page's own version history states a 2022-11-29 "PvE only" buff
+  // that was apparently never re-split into 2 mode-tagged fact lines, but the local live API still
+  // carries both values (0.4/0.275) and the sibling non-holosmith page (71121) explicitly documents
+  // the identical split — used 0.275 (WvW), well-corroborated rather than guessed. (4) Two name
+  // collisions with pages outside this profession: Mace Smash (63077, Mechanist) collides with
+  // Warrior's own "Mace Smash" (already curated, id 14376) — resolved via the Mechanist id's own
+  // otheruses hatnote pointing to "Mace Smash (mechanist)"; Lightning Rod (73002, Spear 3) collides
+  // with the Elementalist trait of the same name, whose bare wiki title has NO disambiguation hatnote
+  // at all (just redirects straight to the trait page) — resolved via an `insource:"73002"` full-text
+  // search turning up "Lightning Rod (engineer spear skill)". (5) 5 multi-stage `flipSkill` chains
+  // this leg: Tool Kit 1 (Smack -> Whack -> Thwack, 3 depths), Hammer/Scrapper 1 (Positive Strike ->
+  // Negative Bash -> Equalizing Blow, 3 depths),
+  // Mace/Mechanist 1 (Mace Strike -> Mace Smash -> Mace Blast, 3 depths), Rifle 1 (Rifle Burst ->
+  // Rifle Burst Grenade, 2 depths, stays `weapon=rifle` throughout despite the "Grenade" name), and
+  // land Spear's 3 independent chains (Puncturing Jab -> Rending Strike -> Amplifying Slice; Lightning
+  // Rod -> Electric Artillery; Devastator -> Focused Devastation) — every stage curated under its own
+  // id per this sweep's established convention. (6) Shield's Weapon_4/5 (Magnetic Shield/Static
+  // Shield) both carry zero Damage fact of their own, same flip-architecture gap as Revenant's Chaotic
+  // Release/Elementalist's Tailored Victory — their flip targets (Magnetic Inversion/Throw Shield)
+  // carry the real Damage facts and are curated directly. (7) One `requires_trait` candidate
+  // investigated and rejected: Pry Bar (Tool Kit 3) carries a `requires_trait: 531` (Power Wrench)
+  // alternate Damage value that's LOWER than its base value — Power Wrench's own wiki description is
+  // an unrelated elite-recharge-on-dodge effect with no damage bonus at all, so this isn't a real flat
+  // bonus and isn't modeled (same documented-limitation bucket as Guardian's Symbolic Avenger) — no
+  // other Engineer Weapon-slot candidate carried any `requires_trait`-gated Damage fact at all.
+  // Engineer — Grenade Kit 1 (land, GroundTargeted), Grenade. PvE+WvW grouped vs. lower PvP
+  // (0.33/0.25) — WvW value used. Shares this same wiki page/values with its underwater auto-target
+  // sibling id 6171 (both genuinely reachable — `resolveSkillBarIds`'s land/water disambiguation
+  // cleanly splits this GroundTargeted+NoUnderwater id from the flagless one).
+  5882: [{ factText: 'Damage', coefficient: 0.33, weapon: 'kit' }],
+  // Engineer — Grenade Kit 1 (underwater, auto-target), Grenade. Same wiki page/values as land id
+  // 5882 above.
+  6171: [{ factText: 'Damage', coefficient: 0.33, weapon: 'kit' }],
+  // Engineer — Grenade Kit 2 (land), Shrapnel Grenade. PvE+WvW grouped vs. lower PvP (0.63/0.567) —
+  // WvW value used. Same land/water dual-id shape as Grenade above.
+  5807: [{ factText: 'Damage', coefficient: 0.63, weapon: 'kit' }],
+  // Engineer — Grenade Kit 2 (underwater), Shrapnel Grenade. Same wiki page/values as land id 5807
+  // above.
+  6170: [{ factText: 'Damage', coefficient: 0.63, weapon: 'kit' }],
+  // Engineer — Grenade Kit 3 (land), Flash Grenade. No split (0.1). Same land/water dual-id shape as
+  // Grenade above.
+  5808: [{ factText: 'Damage', coefficient: 0.1, weapon: 'kit' }],
+  // Engineer — Grenade Kit 3 (underwater), Flash Grenade. Same wiki page/values as land id 5808
+  // above.
+  6169: [{ factText: 'Damage', coefficient: 0.1, weapon: 'kit' }],
+  // Engineer — Grenade Kit 4 (land), Freeze Grenade. PvE/PvP+WvW split (0.75/0.5) — WvW value used.
+  // Same land/water dual-id shape as Grenade above.
+  5809: [{ factText: 'Damage', coefficient: 0.5, weapon: 'kit' }],
+  // Engineer — Grenade Kit 4 (underwater), Freeze Grenade. Same wiki page/values as land id 5809
+  // above.
+  6168: [{ factText: 'Damage', coefficient: 0.5, weapon: 'kit' }],
+  // Engineer — Grenade Kit 5 (land), Poison Grenade. 3-way PvE/WvW/PvP split (0.75/0.5/0.2) — WvW
+  // value used. Same land/water dual-id shape as Grenade above.
+  5806: [{ factText: 'Damage', coefficient: 0.5, weapon: 'kit' }],
+  // Engineer — Grenade Kit 5 (underwater), Poison Grenade. Same wiki page/values as land id 5806
+  // above.
+  6167: [{ factText: 'Damage', coefficient: 0.5, weapon: 'kit' }],
+  // Engineer — Bomb Kit 1, Bomb. 3-way PvE/WvW/PvP split (1.2/0.7/0.9) — WvW value used.
+  5842: [{ factText: 'Damage', coefficient: 0.7, weapon: 'kit' }],
+  // Engineer — Bomb Kit 2, Fire Bomb. No split (0.25).
+  5823: [{ factText: 'Damage', coefficient: 0.25, weapon: 'kit' }],
+  // Engineer — Bomb Kit 3, Galvanic Bomb. 3-way PvE/WvW/PvP split (2.5/1.4/1.7) — WvW value used.
+  5822: [{ factText: 'Damage', coefficient: 1.4, weapon: 'kit' }],
+  // Engineer — Bomb Kit 4, Magnetic Bomb. PvE/WvW+PvP split (1.5/0.01) — steep competitive nerf, WvW
+  // value used.
+  76530: [{ factText: 'Damage', coefficient: 0.01, weapon: 'kit' }],
+  // Engineer — Bomb Kit 5, Big Ol' Bomb. PvE/PvP+WvW split (3.0/0.01) — steep competitive nerf, WvW
+  // value used.
+  5813: [{ factText: 'Damage', coefficient: 0.01, weapon: 'kit' }],
+  // Engineer — Tool Kit 3, Pry Bar. PvE/PvP+WvW split (2.5/2.0) — WvW value used. Local
+  // `traitedFacts` carries a `requires_trait: 531` (Power Wrench) alternate value (2.2, LOWER than
+  // base) — Power Wrench's own wiki description is purely an elite-recharge-on-dodge effect with no
+  // damage bonus at all, and the number doesn't fit any clean `base*(1+bonus)` formula — not a real
+  // flat damage bonus, deliberately NOT modeled as `requiresTrait` (same documented-limitation
+  // bucket as Guardian's Symbolic Avenger).
+  5905: [{ factText: 'Damage', coefficient: 2, weapon: 'kit' }],
+  // Engineer — Tool Kit 1 (chain depth 0), Smack. No split (0.8).
+  5992: [{ factText: 'Damage', coefficient: 0.8, weapon: 'kit' }],
+  // Engineer — Tool Kit 1 (chain depth 1), Whack. No split (0.8).
+  5993: [{ factText: 'Damage', coefficient: 0.8, weapon: 'kit' }],
+  // Engineer — Tool Kit 1 (chain depth 2), Thwack. No split (1.75).
+  5994: [{ factText: 'Damage', coefficient: 1.75, weapon: 'kit' }],
+  // Engineer — Flamethrower 1, Flame Jet. `strikes=10` present -> wiki totaled. 3-way PvE/WvW/PvP
+  // split (2.5/1.2/1.5) — WvW value used.
+  5928: [{ factText: 'Damage', coefficient: 1.2, weapon: 'kit' }],
+  // Engineer — Flamethrower 2, Flame Blast. PvE+PvP grouped vs. WvW-only lower value (1.3/1.1) — WvW
+  // value used.
+  5931: [{ factText: 'Damage', coefficient: 1.1, weapon: 'kit' }],
+  // Engineer — Flamethrower 5, Napalm. `strikes=10` present -> wiki totaled. 3-way PvE/PvP/WvW split
+  // (5.0/2.8/2.4) — WvW value used.
+  5929: [{ factText: 'Damage', coefficient: 2.4, weapon: 'kit' }],
+  // Engineer — Flamethrower 4, Stoke the Flames. No split (0.5).
+  76493: [{ factText: 'Damage', coefficient: 0.5, weapon: 'kit' }],
+  // Engineer — Elixir Gun 1, Tranquilizer Dart. No split (0.4).
+  5934: [{ factText: 'Damage', coefficient: 0.4, weapon: 'kit' }],
+  // Engineer — Elixir Gun 2, Glob Shot. No split (0.75).
+  5935: [{ factText: 'Damage', coefficient: 0.75, weapon: 'kit' }],
+  // Engineer — Elixir Gun 3, Fumigate. `strikes=5` present -> wiki totaled. No split (0.4).
+  5965: [{ factText: 'Damage', coefficient: 0.4, weapon: 'kit' }],
+  // Engineer — Elixir Gun 4, Acid Bomb. Two distinct facts, both PvE+PvP grouped vs. WvW-only lower
+  // value: Damage (0.85/0.7), Initial Damage (1.35/1.0) — WvW values used for both.
+  5936: [
+    { factText: 'Damage', coefficient: 0.7, weapon: 'kit' },
+    { factText: 'Initial Damage', coefficient: 1, weapon: 'kit' }
+  ],
+  // Engineer — Charrzooka 1, Fire Rocket. No split (0.8). Wiki's own `weapon=unequipped` param (NOT
+  // `weapon=kit` — Elite Mortar Kit below, also Elite-slot, uses `kit`; this genuinely differs
+  // per-skill, not by slot type).
+  12345: [{ factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' }],
+  // Engineer — Charrzooka 2, Rocket Spray. No split (0.5). `weapon=unequipped`.
+  12348: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Engineer — Charrzooka 3, Heat Seeker. No split (2.0). `weapon=unequipped`.
+  12349: [{ factText: 'Damage', coefficient: 2, weapon: 'unequipped' }],
+  // Engineer — Charrzooka 4, Rocket Jump. No split (0.1). `weapon=unequipped`.
+  12347: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
+  // Engineer — Charrzooka 5, Fire Rocket Barrage. `strikes=5` present -> wiki totaled. No split
+  // (7.5). `weapon=unequipped`.
+  12346: [{ factText: 'Damage', coefficient: 7.5, weapon: 'unequipped' }],
+  // Engineer — Elite Mortar Kit 1, Mortar Shot. PvE+WvW grouped vs. lower PvP-only value (1.0/0.85)
+  // — WvW value used, equals PvE here. `weapon=kit`.
+  30371: [{ factText: 'Damage', coefficient: 1, weapon: 'kit' }],
+  // Engineer — Elite Mortar Kit 2, Poison Gas Shell. PvE+WvW grouped vs. lower PvP-only value
+  // (1.0/0.5) — WvW value used, equals PvE here. `weapon=kit`. Local API's own fact text is "Initial
+  // Damage" despite the wiki template carrying no `alt=` param — matched on the API's text per this
+  // table's usual rule.
+  30885: [{ factText: 'Initial Damage', coefficient: 1, weapon: 'kit' }],
+  // Engineer — Elite Mortar Kit 3, Endothermic Shell. Same PvE+WvW-grouped shape as Poison Gas Shell
+  // above (1.0/0.5) — WvW value used. `weapon=kit`. Local API fact text "Initial Damage" (same
+  // wiki/API-text mismatch as Poison Gas Shell).
+  30307: [{ factText: 'Initial Damage', coefficient: 1, weapon: 'kit' }],
+  // Engineer — Elite Mortar Kit 4, Flash Shell. Same PvE+WvW-grouped shape as Poison Gas Shell above
+  // (1.0/0.5) — WvW value used. `weapon=kit`. Local API fact text "Initial Damage" (same
+  // wiki/API-text mismatch as Poison Gas Shell).
+  30121: [{ factText: 'Initial Damage', coefficient: 1, weapon: 'kit' }],
+  // Engineer — Pistol 1, Fragmentation Shot. PvE/PvP+WvW split (0.4/0.266) — WvW value used.
+  5827: [{ factText: 'Damage', coefficient: 0.266, weapon: 'pistol' }],
+  // Engineer — Pistol 2, Poison Dart Volley. `strikes=5` present -> wiki totaled. PvE/PvP+WvW split
+  // (2.0/1.0) — WvW value used.
+  5828: [{ factText: 'Damage', coefficient: 1, weapon: 'pistol' }],
+  // Engineer — Pistol 3, Static Shot. PvE/PvP+WvW split (0.4/0.3) — WvW value used.
+  5829: [{ factText: 'Damage', coefficient: 0.3, weapon: 'pistol' }],
+  // Engineer — Pistol 4, Blowtorch. Two independently-split facts: Maximum Damage (PvE/PvP+WvW
+  // 2.0/1.0) and Minimum Damage (PvE/PvP+WvW 1.0/0.33) — WvW values used for both.
+  5831: [
+    { factText: 'Maximum Damage', coefficient: 1, weapon: 'pistol' },
+    { factText: 'Minimum Damage', coefficient: 0.33, weapon: 'pistol' }
+  ],
+  // Engineer — Pistol 5, Glue Shot. PvE/PvP+WvW split (2.5/1.5) — WvW value used.
+  5830: [{ factText: 'Damage', coefficient: 1.5, weapon: 'pistol' }],
+  // Engineer — Rifle 1 (chain depth 0), Rifle Burst. PvE/PvP+WvW split (0.6/0.165) — WvW value used.
+  6003: [{ factText: 'Damage', coefficient: 0.165, weapon: 'rifle' }],
+  // Engineer — Rifle Burst's flip target (chain depth 1), Rifle Burst Grenade. PvE/PvP+WvW split
+  // (0.8/0.22) — WvW value used. Still `weapon=rifle` despite the "Grenade" name — this is Rifle's
+  // own follow-up, not a Kit skill.
+  68079: [{ factText: 'Damage', coefficient: 0.22, weapon: 'rifle' }],
+  // Engineer — Rifle 3, Net Shot. PvE/PvP+WvW split (1.25/0.3) — WvW value used.
+  6004: [{ factText: 'Damage', coefficient: 0.3, weapon: 'rifle' }],
+  // Engineer — Rifle 5, Jump Shot. Two independently-split facts: Leap Damage (PvE/PvP+WvW 0.3/0.1)
+  // and Landing Damage (3-way PvE/WvW/PvP 2.4/1.45/1.74) — WvW values used for both. Wiki's own `id
+  // = 6005, 5817` dual-id note is the usual GroundTargeted-pair shape, not a distinct second skill.
+  6005: [
+    { factText: 'Leap Damage', coefficient: 0.1, weapon: 'rifle' },
+    { factText: 'Landing Damage', coefficient: 1.45, weapon: 'rifle' }
+  ],
+  // Engineer — Rifle 4, Overcharged Shot. PvE/PvP+WvW split (1.0/0.01) — steep competitive nerf, WvW
+  // value used.
+  6154: [{ factText: 'Damage', coefficient: 0.01, weapon: 'rifle' }],
+  // Engineer — Shield's flip target (Static Shield's own follow-up), Throw Shield. No split (0.5).
+  // Static Shield itself (6054) carries no Damage fact — reachable via the stacked flip-icon
+  // treatment, same as this sweep's other flip-architecture-gap skills (e.g. Revenant's Chaotic
+  // Release).
+  6057: [{ factText: 'Damage', coefficient: 0.5, weapon: 'shield' }],
+  // Engineer — Shield's other flip target (Magnetic Shield's own follow-up), Magnetic Inversion. No
+  // split (0.25). Magnetic Shield itself (6053) carries no Damage fact — same reachable-flip-target
+  // treatment as Throw Shield above.
+  6126: [{ factText: 'Damage', coefficient: 0.25, weapon: 'shield' }],
+  // Engineer — Speargun 5, Net Wall. No split (0.2).
+  6145: [{ factText: 'Damage', coefficient: 0.2, weapon: 'harpoon gun' }],
+  // Engineer — Speargun 2, Scatter Mines. `strikes=5` present -> wiki totaled. No split (4.2).
+  6147: [{ factText: 'Damage', coefficient: 4.2, weapon: 'harpoon gun' }],
+  // Engineer — Speargun 1, Homing Torpedo. No split (1.0).
+  6148: [{ factText: 'Damage', coefficient: 1, weapon: 'harpoon gun' }],
+  // Engineer — Speargun 4, Timed Charge. "Explosion Damage" fact, PvE/WvW+PvP split (3.5/1.75) — WvW
+  // value used.
+  6149: [{ factText: 'Explosion Damage', coefficient: 1.75, weapon: 'harpoon gun' }],
+  // Engineer — Speargun 3, Capture Line. No split (0.4).
+  50380: [{ factText: 'Damage', coefficient: 0.4, weapon: 'harpoon gun' }],
+  // Engineer/Scrapper — Hammer 1 (chain depth 0), Positive Strike. PvE/PvP+WvW split (0.7/0.533) —
+  // WvW value used.
+  30501: [{ factText: 'Damage', coefficient: 0.533, weapon: 'hammer' }],
+  // Engineer/Scrapper — Hammer 1 (chain depth 1), Negative Bash. PvE/PvP+WvW split (1.0/0.666) — WvW
+  // value used.
+  29785: [{ factText: 'Damage', coefficient: 0.666, weapon: 'hammer' }],
+  // Engineer/Scrapper — Hammer 1 (chain depth 2), Equalizing Blow. PvE/PvP+WvW split (1.4/0.933) —
+  // WvW value used.
+  30489: [{ factText: 'Damage', coefficient: 0.933, weapon: 'hammer' }],
+  // Engineer/Scrapper — Hammer 4, Shock Shield. `strikes=5` present -> wiki totaled. PvE/PvP+WvW
+  // split (1.25/0.5) — WvW value used.
+  29840: [{ factText: 'Damage', coefficient: 0.5, weapon: 'hammer' }],
+  // Engineer/Scrapper — Hammer 2, Electro-whirl. `strikes=2` present -> wiki totaled. 3-way
+  // PvE/WvW/PvP split (3.0/1.36/1.5) — WvW value used.
+  30088: [{ factText: 'Damage', coefficient: 1.36, weapon: 'hammer' }],
+  // Engineer/Scrapper — Hammer 3, Rocket Charge. `strikes=3` present -> wiki totaled. PvE/PvP+WvW
+  // split (3.6/2.22) — WvW value used.
+  30665: [{ factText: 'Damage', coefficient: 2.22, weapon: 'hammer' }],
+  // Engineer/Scrapper — Hammer 5, Thunderclap. `strikes=5` present -> wiki totaled. PvE/PvP+WvW
+  // split (4.0/2.25) — WvW value used.
+  30713: [{ factText: 'Damage', coefficient: 2.25, weapon: 'hammer' }],
+  // Engineer/Holosmith — Sword 1 (chain depth 0), Sun Edge. PvE/PvP+WvW split (0.88/0.586) — WvW
+  // value used. Also carries a Percent-type "Damage Increase above 50% Heat" fact (20%/10% split),
+  // not weapon-strength-scaled, not modeled here. Spec-less Weaponmaster-Training variant is id
+  // 70514 below — its own dedicated wiki page quotes DIFFERENT numbers (0.96/0.61), not a shared
+  // page as initially assumed — both curated independently.
+  43476: [{ factText: 'Damage', coefficient: 0.586, weapon: 'sword' }],
+  // Engineer/Holosmith — Sword 1 (chain depth 1), Sun Ripper. PvE/PvP+WvW split (0.93/0.62) — WvW
+  // value used. Spec-less variant is id 69906 below, with its own different numbers (see Sun Edge
+  // block comment above).
+  45581: [{ factText: 'Damage', coefficient: 0.62, weapon: 'sword' }],
+  // Engineer (spec-less, Weaponmaster Training) — Sword 1 (chain depth 0), Sun Edge. PvE/PvP+WvW
+  // split (0.96/0.61) — WvW value used. Own dedicated "Sun Edge (non-holosmith)" wiki page with
+  // values distinct from the Holosmith version (id 43476 above) — see that entry's block comment.
+  70514: [{ factText: 'Damage', coefficient: 0.61, weapon: 'sword' }],
+  // Engineer (spec-less, Weaponmaster Training) — Sword 1 (chain depth 1), Sun Ripper. PvE/PvP+WvW
+  // split (1.02/0.65) — WvW value used. Own dedicated "Sun Ripper (non-holosmith)" page, values
+  // distinct from the Holosmith version (id 45581 above).
+  69906: [{ factText: 'Damage', coefficient: 0.65, weapon: 'sword' }],
+  // Engineer/Holosmith — Sword 2, Refraction Cutter. Damage fact PvE/PvP+WvW split (1.4/0.75) — WvW
+  // value used. Projectile Damage fact: the currently-cached wiki page shows only a single un-split
+  // 0.4 (its own version history states a 2022-11-29 change "Increased projectile power coefficient
+  // from 0.275 to 0.4 in PvE only" that was apparently never re-split into two mode-tagged facts on
+  // this page), but the local API still carries 2 separate "Projectile Damage" facts (0.4 and 0.275)
+  // and the sibling non-holosmith page (id 71121 below) explicitly documents this exact same
+  // 0.4/0.275 PvE/WvW+PvP split for the identical fact — WvW value 0.275 used, well-corroborated
+  // despite this page's own incomplete split.
+  44110: [
+    { factText: 'Damage', coefficient: 0.75, weapon: 'sword' },
+    { factText: 'Projectile Damage', coefficient: 0.275, weapon: 'sword' }
+  ],
+  // Engineer (spec-less, Weaponmaster Training) — Sword 2, Refraction Cutter. Damage fact
+  // PvE/PvP+WvW split (1.4/0.75) — WvW value used. Projectile Damage fact PvE/PvP+WvW split
+  // (0.4/0.275) — WvW value used. Own dedicated "Refraction Cutter (non-holosmith)" page — see
+  // Holosmith entry (44110) above for how its incomplete split was corroborated against this page.
+  71121: [
+    { factText: 'Damage', coefficient: 0.75, weapon: 'sword' },
+    { factText: 'Projectile Damage', coefficient: 0.275, weapon: 'sword' }
+  ],
+  // Engineer/Holosmith — Sword 3, Radiant Arc. PvE/WvW+PvP split (2.5/1.65) — WvW value used.
+  // Spec-less variant is id 69565 below, with a different WvW-side number (see that entry).
+  40160: [{ factText: 'Damage', coefficient: 1.65, weapon: 'sword' }],
+  // Engineer (spec-less, Weaponmaster Training) — Sword 3, Radiant Arc. PvE/WvW+PvP split (2.5/1.5)
+  // — WvW value used, differs from the Holosmith version's 1.65 (id 40160 above) despite an
+  // identical PvE side. Own dedicated "Radiant Arc (non-holosmith)" page.
+  69565: [{ factText: 'Damage', coefficient: 1.5, weapon: 'sword' }],
+  // Engineer/Mechanist — Mace 1 (chain depth 0), Mace Strike. PvE/WvW+PvP split (1.0/0.533) — WvW
+  // value used.
+  63186: [{ factText: 'Damage', coefficient: 0.533, weapon: 'mace' }],
+  // Engineer/Mechanist — Mace 1 (chain depth 1), Mace Smash. PvE/WvW+PvP split (1.2/0.6) — WvW value
+  // used. Name collision: the bare "Mace Smash" wiki title is Warrior's own Mace 1 skill (id 14376,
+  // already curated in the Warrior leg) — this id's page is "Mace Smash (mechanist)", found via its
+  // own otheruses hatnote.
+  63077: [{ factText: 'Damage', coefficient: 0.6, weapon: 'mace' }],
+  // Engineer/Mechanist — Mace 1 (chain depth 2), Mace Blast. PvE/WvW+PvP split (1.4/1.0) — WvW value
+  // used.
+  63174: [{ factText: 'Damage', coefficient: 1, weapon: 'mace' }],
+  // Engineer/Mechanist — Mace 2, Energizing Slam. PvE/WvW+PvP split (1.85/1.5) — WvW value used.
+  63169: [{ factText: 'Damage', coefficient: 1.5, weapon: 'mace' }],
+  // Engineer/Mechanist — Mace 3, Rocket Fist Prototype. PvE/WvW+PvP split (1.2/0.01) — steep
+  // competitive nerf, WvW value used.
+  63234: [{ factText: 'Damage', coefficient: 0.01, weapon: 'mace' }],
+  // Engineer — Shortbow 1, Arc Detonator. Shortbow is unlocked by owning Secrets of the Obscure
+  // (wiki's own `requires = SotO` infobox param, confirmed live) rather than gated to an elite spec —
+  // NOT Amalgam-exclusive despite the "one iconic weapon per elite spec" pattern Hammer/Sword/Mace
+  // follow elsewhere in this leg; `specializationId` is null on every Shortbow skill, matching that.
+  // Two distinct facts, neither split by mode: Damage (0.3), Shock Damage (0.2).
+  71873: [
+    { factText: 'Damage', coefficient: 0.3, weapon: 'shortbow' },
+    { factText: 'Shock Damage', coefficient: 0.2, weapon: 'shortbow' }
+  ],
+  // Engineer — Shortbow 2, Essence of Animated Sand. PvE+WvW grouped vs. lower PvP-only value
+  // (1.0/0.6) — WvW value used, equals PvE here.
+  72052: [{ factText: 'Damage', coefficient: 1, weapon: 'shortbow' }],
+  // Engineer — Shortbow 3, Essence of Living Shadows. Same PvE+WvW-grouped shape as Essence of
+  // Animated Sand above (1.0/0.6) — WvW value used.
+  71882: [{ factText: 'Damage', coefficient: 1, weapon: 'shortbow' }],
+  // Engineer — Shortbow 4, Essence of Liquid Wrath. 3-way PvE/WvW/PvP split (1.32/0.75/1.0) — WvW
+  // value used.
+  71870: [{ factText: 'Damage', coefficient: 0.75, weapon: 'shortbow' }],
+  // Engineer — Shortbow 5, Essence of Borrowed Time. PvE/PvP+WvW split (1.5/0.01) — steep competitive
+  // nerf, WvW value used.
+  71888: [{ factText: 'Damage', coefficient: 0.01, weapon: 'shortbow' }],
+  // Engineer — Spear 1 (land, chain depth 0), Puncturing Jab. No split (0.45).
+  72944: [{ factText: 'Damage', coefficient: 0.45, weapon: 'spear' }],
+  // Engineer — Spear 1 (land, chain depth 1), Rending Strike. PvE/WvW+PvP split (0.65/0.45) — WvW
+  // value used.
+  73109: [{ factText: 'Damage', coefficient: 0.45, weapon: 'spear' }],
+  // Engineer — Spear 1 (land, chain depth 2), Amplifying Slice. PvE/WvW+PvP split (0.99/0.65) — WvW
+  // value used.
+  73001: [{ factText: 'Damage', coefficient: 0.65, weapon: 'spear' }],
+  // Engineer — Spear 2 (land), Conduit Surge. Two distinct facts, neither split by mode despite the
+  // infobox's own `split = pve, wvw, pvp` header (only affects the burning facts, not Damage):
+  // Focused Target Damage (1.2), Unfocused Target Damage (1.0).
+  73122: [
+    { factText: 'Focused Target Damage', coefficient: 1.2, weapon: 'spear' },
+    { factText: 'Unfocused Target Damage', coefficient: 1, weapon: 'spear' }
+  ],
+  // Engineer — Spear 3 (land, chain depth 0), Lightning Rod. Two distinct facts, both PvE/WvW+PvP
+  // split: Focused Target Damage (0.3/0.175), plain Damage (0.17/0.125) — WvW values used for both.
+  // Name collision: the bare "Lightning Rod" wiki title redirects straight to the Elementalist trait
+  // (id 1672) with no disambiguation hatnote at all — found via `insource:"73002"` full-text search,
+  // real title "Lightning Rod (engineer spear skill)".
+  73002: [
+    { factText: 'Focused Target Damage', coefficient: 0.175, weapon: 'spear' },
+    { factText: 'Damage', coefficient: 0.125, weapon: 'spear' }
+  ],
+  // Engineer — Spear 3 (land, chain depth 1), Electric Artillery. Two distinct facts, neither split
+  // by mode despite the infobox's own `split = pve, wvw pvp` header (only affects the
+  // burning-duration facts, not Damage): Focused Target Damage (1.5), plain Damage (1.0).
+  73143: [
+    { factText: 'Focused Target Damage', coefficient: 1.5, weapon: 'spear' },
+    { factText: 'Damage', coefficient: 1, weapon: 'spear' }
+  ],
+  // Engineer — Spear 4 (land), Roiling Skies. PvE/PvP+WvW split (2.0/0.01) — steep competitive nerf,
+  // WvW value used.
+  72977: [{ factText: 'Damage', coefficient: 0.01, weapon: 'spear' }],
+  // Engineer — Spear 5 (land, chain depth 0), Devastator. No split (2.0).
+  72974: [{ factText: 'Damage', coefficient: 2, weapon: 'spear' }],
+  // Engineer — Spear 5 (land, chain depth 1), Focused Devastation. `strikes=6` present -> wiki
+  // totaled. PvE/WvW+PvP split (1.2/0.6) — WvW value used.
+  73064: [{ factText: 'Damage', coefficient: 0.6, weapon: 'spear' }],
+
+  // Weapon-slot sweep: Warrior, Guardian, Revenant, Ranger, Thief, Engineer done (6 of 9).
 }
 
 export interface DamageLine {
