@@ -538,9 +538,34 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         Pry Bar's `requires_trait: 531` (Power Wrench) alternate value is LOWER than its base and
         Power Wrench's own wiki description is an unrelated elite-recharge-on-dodge effect with no
         damage bonus at all — not modeled. See `damage-calc.ts`'s new Engineer Weapon-slot block
+        comment for the full writeup. Necromancer done 2026-08-05: 66 raw candidate ids (50 raw
+        `weapons` entries, expanded to 66 via full `flipSkill` chain walks), 1 already seeded (Ghastly
+        Claws id 10528), 5 confirmed non-damage (Soul Grasp, Distress, Sinking Tomb, Wail of Doom,
+        Locust Swarm), 60 curated this leg, 0 exclusions/gaps. New mechanics this leg surfaced: (1)
+        Spear's land/aquatic dual-chain split (Weaponmaster Training land ids sharing the
+        `weapons.Spear` entry with the pre-existing classic aquatic chain) spans all 5 slots, not just
+        the autoattack chain seen in prior legs; (2) 2 name collisions resolved via full-text search
+        rather than an otheruses hatnote on the colliding page itself — Trident 2 "Feast" (id 10624,
+        bare title redirects straight to "Feast (food)" with no hatnote, found via
+        `insource:"10624"` to "Feast (necromancer skill)") and Sword 5's flip target "Consume" (id
+        71926, bare title is a Revenant/Herald skill-*type* disambiguation page, resolved via its own
+        hatnote to "Consume (necromancer)"); (3) Scepter 3's Feast of Corruption (10709) and its
+        Lingering-Curse-trait replacement Devouring Darkness (51647, reached via the same `flipSkill`
+        field this app's chain-walk already treats like any follow-up — a trait-driven whole-skill
+        swap, not a player-triggered flip, curated identically per this sweep's convention) both carry
+        2 separate local-API facts sharing the identical text "Damage" (untagged PvE value + the
+        WvW+PvP-reduced value) instead of the usual single-PvE-value shape — harmless, since this
+        table's lookup only checks fact existence/`requires_trait`, never the fact's own
+        `dmg_multiplier`; (4) Trident 2 Feast's local `flipSkill` points at Crimson Tide's own id
+        (10623, Weapon_1) rather than a genuine follow-up — inert for `resolveSkillBarIds`, whose
+        flip-target-removal only ever compares within one slot's own candidate list; (5) Focus 5
+        Spinal Shivers carries 4 simultaneous alt-labeled Damage facts gated by the caster's own
+        boon-stack count at cast time (not a `requires_trait` gate — no combat-state equivalent in
+        this app), all 4 curated as always-visible separate lines. No `requires_trait`-gated Damage
+        fact found on any candidate this leg. See `damage-calc.ts`'s new Necromancer Weapon-slot block
         comment for the full writeup.
-        **Next up (not started): Necromancer, Elementalist, Mesmer, in that order** — stop after each
-        leg for a check-in, don't chain them.
+        **Next up (not started): Elementalist, Mesmer, in that order** — stop after each leg for a
+        check-in, don't chain them.
 - [ ] Mesmer's Tale of the Second Scion (id 76695) also grants "Scion's Reprieve," a self-buff
       (+15% WvW/PvP Heal Effectiveness on the caster) that neither this skill's Healing tooltip line
       nor any other app mechanism accounts for — a genuinely separate gap from the zero-facts issue

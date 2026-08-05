@@ -2485,7 +2485,223 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // totaled. PvE/WvW+PvP split (1.2/0.6) — WvW value used.
   73064: [{ factText: 'Damage', coefficient: 0.6, weapon: 'spear' }],
 
-  // Weapon-slot sweep: Warrior, Guardian, Revenant, Ranger, Thief, Engineer done (6 of 9).
+  // --- Necromancer done: 66 raw candidate ids (50 raw `weapons` entries, expanded to 66 via full
+  // `flipSkill` chain walks — Revenant/Thief's fuller convention). 1 already seeded (Ghastly Claws
+  // id 10528, one-per-profession seed block above), 5 confirmed non-damage (Soul Grasp, Distress —
+  // Isolate's flip target, Sinking Tomb, Wail of Doom, Locust Swarm), leaving 60 curated below, 0
+  // exclusions/gaps this leg. New mechanics: (1) Spear's land/aquatic dual-chain split (land ids
+  // added by 2025-08-19 Weaponmaster Training, sharing the `weapons.Spear` entry with the
+  // pre-existing classic aquatic autoattack chain, same `NoUnderwater`-flag disambiguation as every
+  // earlier leg's Spear) appears across all 5 slots this time, not just the autoattack chain; (2) 2
+  // name collisions resolved via search rather than an otheruses hatnote on the colliding page
+  // itself: Trident 2 "Feast" (id 10624) — bare title redirects straight to "Feast (food)" with NO
+  // disambiguation hatnote, found via `insource:"10624"` full-text search to "Feast (necromancer
+  // skill)"; Sword 5's flip target "Consume" (id 71926) — bare title is a Revenant/Herald
+  // skill-*type* disambiguation page (not a skill itself), resolved via its own otheruses hatnote to
+  // "Consume (necromancer)"; (3) Scepter 3's Feast of Corruption (10709) and its Lingering-Curse-
+  // trait replacement Devouring Darkness (51647, reached via the same `flipSkill` field this app's
+  // chain-walk already treats like any other follow-up — a trait-driven whole-skill swap rather than
+  // a player-triggered flip, curated identically per this sweep's "every reachable id gets its own
+  // line" rule) both carry 2 separate local-API facts sharing the identical text "Damage" (one at the
+  // untagged PvE value, one at the WvW+PvP-reduced value) instead of the usual single-PvE-value shape
+  // — harmless for this table's lookup, which only checks fact existence/`requires_trait`, never the
+  // fact's own `dmg_multiplier`; (4) Trident 2 Feast's local `flipSkill` points at Crimson Tide's own
+  // id (10623, Weapon_1) rather than a genuine follow-up skill — inert for `resolveSkillBarIds`,
+  // whose flip-target-removal step only ever compares within one slot's own candidate list, and
+  // Crimson Tide is never itself a Weapon_2 candidate; (5) Focus 5 Spinal Shivers carries 4
+  // simultaneous alt-labeled Damage facts gated by the caster's own boon-stack count at cast time
+  // (not a `requires_trait` gate — a pure boon-count check with no combat-state equivalent in this
+  // app), all 4 curated as always-visible separate lines, same multi-fact-per-id shape this table
+  // already supports elsewhere. No `requires_trait`-gated Damage fact found on any candidate this
+  // leg.
+  // Necromancer — Axe 1, Rending Claws. `strikes=2` present -> wiki totaled. PvE/WvW+PvP split
+  // (1.4/0.666) — WvW value used.
+  10561: [{ factText: 'Damage', coefficient: 0.666, weapon: 'axe' }],
+  // Necromancer — Axe 3, Unholy Feast. 3-way PvE/WvW/PvP split (2.5/1.2/1.5) — WvW value used.
+  10701: [{ factText: 'Damage', coefficient: 1.2, weapon: 'axe' }],
+  // Necromancer — Dagger 1 (chain depth 0), Necrotic Slash. `strikes=2` present -> wiki totaled.
+  // PvE/WvW+PvP split (0.9/0.6) — WvW value used.
+  10702: [{ factText: 'Damage', coefficient: 0.6, weapon: 'dagger' }],
+  // Necromancer — Dagger 1 (chain depth 1), Necrotic Stab (flip target). PvE/WvW+PvP split
+  // (0.9/0.466) — WvW value used.
+  10703: [{ factText: 'Damage', coefficient: 0.466, weapon: 'dagger' }],
+  // Necromancer — Dagger 2, Life Siphon. `strikes=9` present -> wiki totaled. PvE/WvW+PvP split
+  // (2.7/2.25) — WvW value used. Separate Percent-type "Damage Increased While Bleeding" fact
+  // (50%/20% split), not weapon-strength-scaled, not modeled here.
+  69302: [{ factText: 'Damage', coefficient: 2.25, weapon: 'dagger' }],
+  // Necromancer — Dagger 3, Dark Pact. PvE/WvW+PvP split (2.4/1.2) — WvW value used.
+  10529: [{ factText: 'Damage', coefficient: 1.2, weapon: 'dagger' }],
+  // Necromancer — Dagger 4, Deathly Swarm. PvE/WvW+PvP split (1.2/0.1) — steep competitive nerf, WvW
+  // value used.
+  10705: [{ factText: 'Damage', coefficient: 0.1, weapon: 'dagger' }],
+  // Necromancer — Dagger 5, Enfeebling Blood (GroundTargeted). PvE/WvW+PvP split (1.5/0.5) — WvW
+  // value used.
+  10706: [{ factText: 'Damage', coefficient: 0.5, weapon: 'dagger' }],
+  // Necromancer — Focus 5, Spinal Shivers. 4 independently PvE/WvW+PvP-split alt-labeled facts (see
+  // block comment above): Damage—Three Boons (4.0/2.625), Damage—Two Boons (3.5/1.875), Damage—One
+  // Boon (3.0/1.125), Damage—No Boons (2.5/0.50) — WvW values used for all 4.
+  10555: [
+    { factText: 'Damage—Three Boons', coefficient: 2.625, weapon: 'focus' },
+    { factText: 'Damage—Two Boons', coefficient: 1.875, weapon: 'focus' },
+    { factText: 'Damage—One Boon', coefficient: 1.125, weapon: 'focus' },
+    { factText: 'Damage—No Boons', coefficient: 0.5, weapon: 'focus' }
+  ],
+  // Necromancer/Reaper — Greatsword 1 (chain depth 0), Dusk Strike. PvE/WvW+PvP split (1.2/0.666) —
+  // WvW value used.
+  29705: [{ factText: 'Damage', coefficient: 0.666, weapon: 'greatsword' }],
+  // Necromancer/Reaper — Greatsword 1 (chain depth 1), Fading Twilight (flip target). PvE/WvW+PvP
+  // split (1.4/0.866) — WvW value used.
+  30799: [{ factText: 'Damage', coefficient: 0.866, weapon: 'greatsword' }],
+  // Necromancer/Reaper — Greatsword 1 (chain depth 2), Chilling Scythe (flip target). PvE/WvW+PvP
+  // split (1.8/1.133) — WvW value used.
+  29867: [{ factText: 'Damage', coefficient: 1.133, weapon: 'greatsword' }],
+  // Necromancer/Reaper — Greatsword 2, Gravedigger. PvE/WvW+PvP split (3.6/1.82) — WvW value used.
+  30163: [{ factText: 'Damage', coefficient: 1.82, weapon: 'greatsword' }],
+  // Necromancer/Reaper — Greatsword 3, Death Spiral. PvE/WvW+PvP split (3.0/1.6) — WvW value used.
+  30860: [{ factText: 'Damage', coefficient: 1.6, weapon: 'greatsword' }],
+  // Necromancer/Reaper — Greatsword 4, Nightfall. PvE/WvW+PvP split (1.15/0.364) — WvW value used.
+  29855: [{ factText: 'Damage', coefficient: 0.364, weapon: 'greatsword' }],
+  // Necromancer/Reaper — Greatsword 5, Grasping Darkness. PvE/WvW+PvP split (1.3/0.01) — steep
+  // competitive nerf, WvW value used.
+  29740: [{ factText: 'Damage', coefficient: 0.01, weapon: 'greatsword' }],
+  // Necromancer — Spear 1 (land, chain depth 0), Dark Slash. PvE/WvW+PvP split (1.2/0.6) — WvW value
+  // used.
+  73012: [{ factText: 'Damage', coefficient: 0.6, weapon: 'spear' }],
+  // Necromancer — Spear 1 (land, chain depth 1), Deadly Slice (flip target). PvE/WvW+PvP split
+  // (1.4/0.8) — WvW value used.
+  73040: [{ factText: 'Damage', coefficient: 0.8, weapon: 'spear' }],
+  // Necromancer — Spear 1 (land, chain depth 2), Sinister Stab (flip target). PvE/WvW+PvP split
+  // (1.8/1.0) — WvW value used.
+  73047: [{ factText: 'Damage', coefficient: 1, weapon: 'spear' }],
+  // Necromancer — Spear 2 (land), Perforate. `strikes=7` present -> wiki totaled. PvE/WvW+PvP split
+  // (3.5/1.2) — WvW value used. Separate Percent-type "damage increase" fact (20%), not modeled.
+  73068: [{ factText: 'Damage', coefficient: 1.2, weapon: 'spear' }],
+  // Necromancer — Spear 3 (land), Addle. PvE/WvW+PvP split (1.9/0.4) — WvW value used.
+  73013: [{ factText: 'Damage', coefficient: 0.4, weapon: 'spear' }],
+  // Necromancer — Spear 4 (land, chain depth 0), Isolate. PvE/WvW+PvP split (2.4/0.5) — WvW value
+  // used. Its flip target, Distress (73116), carries no Damage fact of its own — reachable via the
+  // stacked flip-icon treatment, same as this sweep's other flip-architecture-gap skills (e.g.
+  // Revenant's Chaotic Release).
+  73107: [{ factText: 'Damage', coefficient: 0.5, weapon: 'spear' }],
+  // Necromancer — Spear 5 (land), Extirpate. 3-way PvE/PvP/WvW split (3.8/2.25/2.0) — WvW value used.
+  73007: [{ factText: 'Damage', coefficient: 2, weapon: 'spear' }],
+  // Necromancer — Spear 1 (aquatic, classic chain, chain depth 0), Cruel Strike. No split (1.1).
+  10692: [{ factText: 'Damage', coefficient: 1.1, weapon: 'spear' }],
+  // Necromancer — Spear 1 (aquatic, chain depth 1), Wicked Strike (flip target). No split (1.2).
+  10693: [{ factText: 'Damage', coefficient: 1.2, weapon: 'spear' }],
+  // Necromancer — Spear 1 (aquatic, chain depth 2), Reaper's Scythe (flip target). No split (1.3).
+  10617: [{ factText: 'Damage', coefficient: 1.3, weapon: 'spear' }],
+  // Necromancer — Spear 2 (aquatic), Wicked Spiral. `strikes=6` present -> wiki totaled. No split
+  // (3.996).
+  10694: [{ factText: 'Damage', coefficient: 3.996, weapon: 'spear' }],
+  // Necromancer — Spear 3 (aquatic), Deadly Feast. Wiki's own "life siphon damage" fact template
+  // (not the usual plain "damage" template), but the local API still tags it as a normal Damage-type
+  // fact with text "Damage" — matched on that per this table's usual rule. No split (0.4).
+  10619: [{ factText: 'Damage', coefficient: 0.4, weapon: 'spear' }],
+  // Necromancer — Spear 4 (aquatic), Deadly Catch. No split (0.75).
+  10695: [{ factText: 'Damage', coefficient: 0.75, weapon: 'spear' }],
+  // Necromancer — Spear 5 (aquatic), Dark Spear. Two distinct facts, neither split by mode: Missile
+  // Damage (1.25), plain Damage (1.0).
+  10616: [
+    { factText: 'Missile Damage', coefficient: 1.25, weapon: 'spear' },
+    { factText: 'Damage', coefficient: 1, weapon: 'spear' }
+  ],
+  // Necromancer/Harbinger — Pistol 1, Vicious Shot. PvE/WvW+PvP split (0.65/0.233) — WvW value used.
+  62517: [{ factText: 'Damage', coefficient: 0.233, weapon: 'pistol' }],
+  // Necromancer/Harbinger — Pistol 2, Weeping Shots. `strikes=6` present -> wiki totaled. PvE/WvW+PvP
+  // split (2.4/1.02) — WvW value used.
+  62513: [{ factText: 'Damage', coefficient: 1.02, weapon: 'pistol' }],
+  // Necromancer/Harbinger — Pistol 3, Vile Blast. PvE/WvW+PvP split (1.0/0.01) — steep competitive
+  // nerf, WvW value used.
+  62511: [{ factText: 'Damage', coefficient: 0.01, weapon: 'pistol' }],
+  // Necromancer — Scepter 1 (chain depth 0), Blood Curse. PvE/WvW+PvP split (0.35/0.233) — WvW value
+  // used.
+  10698: [{ factText: 'Damage', coefficient: 0.233, weapon: 'scepter' }],
+  // Necromancer — Scepter 1 (chain depth 1), Rending Curse (flip target). Same PvE/WvW+PvP split
+  // shape as Blood Curse (0.35/0.233), identical numbers — WvW value used.
+  10699: [{ factText: 'Damage', coefficient: 0.233, weapon: 'scepter' }],
+  // Necromancer — Scepter 1 (chain depth 2), Putrid Curse (flip target). PvE/WvW+PvP split
+  // (0.5/0.333) — WvW value used.
+  10552: [{ factText: 'Damage', coefficient: 0.333, weapon: 'scepter' }],
+  // Necromancer — Scepter 2, Grasping Dead (GroundTargeted). PvE/WvW+PvP split (0.8/0.6) — WvW value
+  // used.
+  10532: [{ factText: 'Damage', coefficient: 0.6, weapon: 'scepter' }],
+  // Necromancer — Scepter 3 (chain depth 0), Feast of Corruption. PvE/WvW+PvP split (1.0/0.75) — WvW
+  // value used. Local API carries 2 separate identically-labeled "Damage" facts (see block comment
+  // above) — harmless, this table's lookup only checks existence/`requires_trait`.
+  10709: [{ factText: 'Damage', coefficient: 0.75, weapon: 'scepter' }],
+  // Necromancer — Scepter 3 (chain depth 1), Devouring Darkness — Lingering Curse's trait-driven
+  // full replacement for Feast of Corruption, reached via the same `flipSkill` field (see block
+  // comment above). PvE/WvW+PvP split (1.16/0.928) — WvW value used. Same dual-identical-"Damage"-
+  // fact shape as Feast of Corruption above.
+  51647: [{ factText: 'Damage', coefficient: 0.928, weapon: 'scepter' }],
+  // Necromancer — Staff 1, Necrotic Grasp. PvE/WvW+PvP split (1.0/0.444) — WvW value used.
+  10596: [{ factText: 'Damage', coefficient: 0.444, weapon: 'staff' }],
+  // Necromancer — Staff 2, Mark of Blood (GroundTargeted). PvE/WvW+PvP split (1.5/0.33) — WvW value
+  // used.
+  19117: [{ factText: 'Damage', coefficient: 0.33, weapon: 'staff' }],
+  // Necromancer — Staff 3, Chillblains (GroundTargeted). PvE/WvW+PvP split (1.8/0.55) — WvW value
+  // used.
+  10605: [{ factText: 'Damage', coefficient: 0.55, weapon: 'staff' }],
+  // Necromancer — Staff 4, Putrid Mark (GroundTargeted). No split (1.32).
+  19116: [{ factText: 'Damage', coefficient: 1.32, weapon: 'staff' }],
+  // Necromancer — Staff 5, Reaper's Mark (GroundTargeted). PvE/WvW+PvP split (3.0/0.01) — steep
+  // competitive nerf, WvW value used.
+  19115: [{ factText: 'Damage', coefficient: 0.01, weapon: 'staff' }],
+  // Necromancer — Sword 1 (chain depth 0), Enervation Blade. PvE/WvW+PvP split (1.1/0.6) — WvW value
+  // used.
+  71986: [{ factText: 'Damage', coefficient: 0.6, weapon: 'sword' }],
+  // Necromancer — Sword 1 (chain depth 1), Enervation Echo (flip target). Same PvE/WvW+PvP split
+  // shape as Enervation Blade (1.1/0.6), identical numbers — WvW value used.
+  71850: [{ factText: 'Damage', coefficient: 0.6, weapon: 'sword' }],
+  // Necromancer — Sword 2 (chain depth 0), Ravenous Wave. 3-way PvE/WvW/PvP split (2.0/1.0/1.2) —
+  // WvW value used.
+  71883: [{ factText: 'Damage', coefficient: 1, weapon: 'sword' }],
+  // Necromancer — Sword 2 (chain depth 1), Satiate (flip target). 3-way PvE/WvW/PvP split
+  // (2.0/0.9/1.2) — WvW value used. Separate Percent-type "damage increase" fact (50%/20% split), not
+  // modeled.
+  71914: [{ factText: 'Damage', coefficient: 0.9, weapon: 'sword' }],
+  // Necromancer — Sword 3 (chain depth 0), Path of Gluttony. 3-way PvE/WvW/PvP split
+  // (2.0/0.75/1.25) — WvW value used.
+  71799: [{ factText: 'Damage', coefficient: 0.75, weapon: 'sword' }],
+  // Necromancer — Sword 3 (chain depth 1), Gorge (flip target). Same 3-way split shape as Path of
+  // Gluttony (2.0/0.75/1.25), identical numbers — WvW value used.
+  71871: [{ factText: 'Damage', coefficient: 0.75, weapon: 'sword' }],
+  // Necromancer — Sword 4 (chain depth 0), Hungering Maelstrom (GroundTargeted). 3-way PvE/WvW/PvP
+  // split (2.75/0.8/1.0) — WvW value used.
+  71813: [{ factText: 'Damage', coefficient: 0.8, weapon: 'sword' }],
+  // Necromancer — Sword 4 (chain depth 1), Gormandize (flip target). 3-way PvE/WvW/PvP split
+  // (2.5/1.0/1.33) — WvW value used.
+  72068: [{ factText: 'Damage', coefficient: 1, weapon: 'sword' }],
+  // Necromancer — Sword 5 (chain depth 0), Devouring Visage. PvE/WvW+PvP split (1.5/0.01) — steep
+  // competitive nerf, WvW value used.
+  71998: [{ factText: 'Damage', coefficient: 0.01, weapon: 'sword' }],
+  // Necromancer — Sword 5 (chain depth 1), Consume (flip target). Name collision: the bare "Consume"
+  // wiki title is a Revenant/Herald skill-*type* disambiguation page, not a skill itself — resolved
+  // via its own otheruses hatnote to "Consume (necromancer)". `strikes=5` present -> wiki totaled. No
+  // split (2.5).
+  71926: [{ factText: 'Damage', coefficient: 2.5, weapon: 'sword' }],
+  // Necromancer/Scourge — Torch 4, Harrowing Wave. No split (0.8).
+  45846: [{ factText: 'Damage', coefficient: 0.8, weapon: 'torch' }],
+  // Necromancer/Scourge — Torch 5, Oppressive Collapse. PvE/WvW+PvP split (1.2/0.01) — steep
+  // competitive nerf, WvW value used.
+  44296: [{ factText: 'Damage', coefficient: 0.01, weapon: 'torch' }],
+  // Necromancer — Trident 1, Crimson Tide. `strikes=2` present -> wiki totaled. No split (0.5). Wiki
+  // page also lists a second id (50471) sharing these values — not a raw candidate in this
+  // profession's own `weapons.Trident` entry, so ignored.
+  10623: [{ factText: 'Damage', coefficient: 0.5, weapon: 'trident' }],
+  // Necromancer — Trident 2, Feast. Name collision: the bare "Feast" wiki title redirects straight to
+  // "Feast (food)" with no disambiguation hatnote at all — resolved via an `insource:"10624"`
+  // full-text search to "Feast (necromancer skill)". No split (0.7). Its local `flipSkill` field
+  // points at Crimson Tide's own id (10623, Weapon_1) rather than a genuine follow-up skill — inert
+  // for `resolveSkillBarIds` (see block comment above).
+  10624: [{ factText: 'Damage', coefficient: 0.7, weapon: 'trident' }],
+  // Necromancer — Trident 3, Foul Current. No split (1.75).
+  10625: [{ factText: 'Damage', coefficient: 1.75, weapon: 'trident' }],
+  // Necromancer — Trident 5, Frozen Abyss. No split (3.0).
+  10629: [{ factText: 'Damage', coefficient: 3, weapon: 'trident' }],
+
+  // Weapon-slot sweep: Warrior, Guardian, Revenant, Ranger, Thief, Engineer, Necromancer done (7 of 9).
 }
 
 export interface DamageLine {
