@@ -423,6 +423,26 @@ Solace"/"Jade Winds") and found two more real, distinguishable patterns:
   to 1, not just groups still >1 after all signals — no other same-shape case found in this session's
   Guardian Utility-slot sweep, but unconfirmed for the rest of the roster.
 
+**A structurally-invisible sub-ability, found 2026-08-04 during the same sweep, fixed
+2026-08-05 (`NON_EQUIPPABLE_SKILL_IDS`):** Elementalist's Elite-slot Conjure Fiery Greatsword has an
+auto-triggered passive proc, "Lesser Fiery Eruption" (`44918`), that reached the live picker as if
+it were its own independently-bindable skill — unlike every turret/gadget/elixir sub-ability above,
+it has neither a `toolbeltSkill` link back to its parent (the signal `stripNonEquippableSubAbilities`
+keys off) nor a `flipSkill` link (the signal `stripFlipTargets` keys off), and it's not part of any
+duplicate-name group either, so `skillVariantExclusions` (which only re-derives *still-ambiguous
+duplicate-name groups*) would never regenerate an entry for it — adding it there directly would've
+been silently dropped on the next `fetch-skill-duplicate-resolutions` run. Confirmed via wiki raw
+wikitext: `parent = Conjure Fiery Greatsword` and `[[Category:Lesser skills]]`. A full scan of
+`skills.json` for every `name` starting with `"Lesser "` (37 ids) found this is the only one with a
+Heal/Utility/Elite `slot` today — every other "Lesser "-prefixed id is `slot: ""` (trait/proc-only,
+already outside the picker's candidate filter) or `slot: "Weapon_5"` (Catalyst jade sphere overloads,
+a separate picker) — so this isn't (yet) a name-prefix category worth excluding wholesale, just one
+hand-verified id. Fixed by adding `44918` to a new hardcoded `NON_EQUIPPABLE_SKILL_IDS` constant in
+`skill-variants.ts` (signal 9), applied as a pre-pass alongside `skillVariantExclusions` — same
+"small, documented constant table for a real API gap" pattern as `EXCLUDED_MECHANIC_SKILL_IDS` in
+`profession-mechanic.ts`, chosen specifically because it lives in source rather than a
+script-regenerated JSON file.
+
 ## WvW-vs-PvE fact splits (`wvw-fact-overrides.json`)
 
 `/v2/skills` and `/v2/traits` facts carry no `game mode` tag, and (confirmed by direct

@@ -3,6 +3,28 @@ import type { GlyphFormVariantMap, Skill } from '../types'
 const GROUND_TARGETED_FLAG = 'GroundTargeted'
 
 /**
+ * Skill ids that are structurally indistinguishable from a real equippable Heal/Utility/Elite
+ * skill (non-empty `categories` would normally flag a sub-ability via
+ * `stripNonEquippableSubAbilities`, but these carry `categories: []` with no `toolbeltSkill`/
+ * `flipSkill` link back to an owning skill either) yet are never independently bindable in-game —
+ * a small, hand-verified constant table for a real API gap, same pattern as
+ * `EXCLUDED_MECHANIC_SKILL_IDS` in `profession-mechanic.ts`, not a name-prefix guess (see TODO.md's
+ * own caution that "Lesser" doesn't guarantee non-equippable).
+ *
+ * - **44918 "Lesser Fiery Eruption"** (Elementalist Elite slot): wiki-confirmed (raw wikitext,
+ *   2026-08-05) `parent = Conjure Fiery Greatsword` and `[[Category:Lesser skills]]` — an
+ *   auto-triggered passive proc of the real Elite skill Conjure Fiery Greatsword, not something a
+ *   player binds directly. A full scan of `skills.json` for every `name` starting with "Lesser "
+ *   (37 ids total) found this is the only one with a Heal/Utility/Elite `slot` today — every other
+ *   "Lesser "-prefixed id has `slot: ""` (trait/proc-only, already outside the picker's candidate
+ *   filter) or `slot: "Weapon_5"` (Catalyst jade sphere overloads, a different picker entirely). If
+ *   a future data refresh adds another "Lesser "-prefixed id with a Heal/Utility/Elite slot, it is
+ *   NOT safe to assume it belongs here without the same wiki spot-check — some elite specs have
+ *   legitimately-bound skills named that way.
+ */
+const NON_EQUIPPABLE_SKILL_IDS: ReadonlySet<number> = new Set([44918])
+
+/**
  * `skillsForProfessionAndSlot` returns every skill id matching (profession, slot) with no dedup —
  * for 117 same-name groups (verified live 2026-07-29 across Heal/Utility/Elite) this means the
  * picker shows 2+ visually-identical-looking entries for what's really one in-game skill. This
@@ -79,6 +101,15 @@ const GROUND_TARGETED_FLAG = 'GroundTargeted'
  *    `GroundTargeted` signal, just resolved by a build field instead of always collapsing to one
  *    fixed id.
  *
+ * 9. **`NON_EQUIPPABLE_SKILL_IDS`** (1 id today, see the constant's own doc comment): unlike signal
+ *    6, these carry `categories: []` with no `toolbeltSkill`/`flipSkill` link back to an owning
+ *    equippable skill either, so no existing structural signal catches them — a single-name group
+ *    (not a duplicate), so `skillVariantExclusions` (signal 7, which only ever re-derives *still
+ *    ambiguous duplicate-name groups*, see `fetch-skill-duplicate-resolutions.ts`) would never
+ *    regenerate an entry for one and silently drop it on the next data refresh if added there
+ *    instead. Hardcoded in-source and wiki-verified per id instead, applied as a pre-pass alongside
+ *    `skillVariantExclusions`.
+ *
  * The remaining duplicate-name groups (e.g. Ranger's "Mist Form" duplicate `5554,15795`, listed
  * together on one wiki page with no distinguishing field at all) differ for reasons none of these
  * signals capture — see TODO.md for the specific group names and per-group notes on why each is
@@ -100,7 +131,10 @@ export function visibleSkillsForSlot(
   // sub-ability detection after exclusion would lose that evidence.
   const withoutSubAbilities = stripNonEquippableSubAbilities(candidates)
   const withoutFormVariants = withoutSubAbilities.filter(
-    (s) => !(s.id in glyphFormVariants) && !skillVariantExclusions.has(s.id)
+    (s) =>
+      !(s.id in glyphFormVariants) &&
+      !skillVariantExclusions.has(s.id) &&
+      !NON_EQUIPPABLE_SKILL_IDS.has(s.id)
   )
   const withoutFlipTargets = stripFlipTargets(withoutFormVariants)
 

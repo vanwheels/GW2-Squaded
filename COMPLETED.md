@@ -2,6 +2,35 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 73 — Fixed the skill-variants picker gap: Elementalist's "Lesser Fiery Eruption" was reaching the live Elite picker as its own bindable skill
+
+TODO.md's open item (found 2026-08-04 during the `CURATED_DAMAGE_COEFFICIENTS` Elite-slot sweep)
+flagged that `skill-variants.ts`'s existing filters (`stripNonEquippableSubAbilities`,
+`stripFlipTargets`) don't catch every non-equippable "sub-skill" — Elementalist's Conjure Fiery
+Greatsword has an auto-triggered passive proc, "Lesser Fiery Eruption" (id `44918`), with neither a
+`toolbeltSkill` link back to its parent nor a `flipSkill` link, so neither existing signal recognized
+it as non-equippable.
+
+Verified live via a throwaway tsx script calling the real `visibleSkillsForSlot` (not a
+reimplementation): confirmed `44918` reached the Elementalist Elite picker output before this fix,
+and no longer does after. Confirmed via wiki raw wikitext that `44918` carries `parent = Conjure
+Fiery Greatsword` and `[[Category:Lesser skills]]`. Scanned `skills.json` for every `name` starting
+with `"Lesser "` (37 ids total) and found `44918` is the only one with a Heal/Utility/Elite `slot`
+today — every other "Lesser "-prefixed id is either `slot: ""` (trait/proc-only, already outside the
+picker's candidate filter) or `slot: "Weapon_5"` (Catalyst jade sphere overloads, a separate picker)
+— so this is a one-off today, not a whole name-prefix category worth excluding, matching the TODO's
+own caution that "Lesser" doesn't guarantee non-equippable.
+
+Fixed by adding a new hardcoded, wiki-verified `NON_EQUIPPABLE_SKILL_IDS` constant (signal 9) in
+`skill-variants.ts`, applied as a pre-pass alongside `skillVariantExclusions` — deliberately NOT
+added to `skill-variant-exclusions.json` itself, since that file is regenerated wholesale by
+`fetch-skill-duplicate-resolutions.ts` from *still-ambiguous duplicate-name groups* only; `44918`
+isn't part of any duplicate-name group, so an entry there would be silently dropped on the next
+fetch-script run (same class of landmine as the `itemstat-icons.json` revert risk noted elsewhere).
+Same "small, documented constant table for a real API gap" pattern already used for
+`EXCLUDED_MECHANIC_SKILL_IDS` in `profession-mechanic.ts`. Typecheck and lint both clean. See
+`docs/game-data.md`'s skill-variants section for the full writeup.
+
 ## Session 72 — Closed the last `CURATED_BARRIER_COEFFICIENTS` loose end (Elementalist's Glyph of Elemental Power): not an architecture gap, just an uncurated reachable id
 
 TODO.md's last open Barrier-sweep item described Glyph of Elemental Power (equipped id `5506`, zero

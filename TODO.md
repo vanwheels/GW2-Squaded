@@ -4,23 +4,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
-- [ ] `skill-variants.ts`'s Elite/Utility/Heal picker filters (`stripNonEquippableSubAbilities`,
-      `stripFlipTargets`) don't catch every non-equippable "sub-skill" — found while curating
-      `CURATED_DAMAGE_COEFFICIENTS`'s Elementalist Elite-slot entries 2026-08-04. Elementalist's
-      Lesser Fiery Eruption (id 44918), Conjure Fiery Greatsword's auto-triggered passive proc (wiki
-      `parent = Conjure Fiery Greatsword`, `Category:Lesser skills` — not something a player binds
-      directly), has neither a `toolbeltSkill` link (the signal `stripNonEquippableSubAbilities`
-      keys off) nor a `flipSkill` link from its parent (the signal `stripFlipTargets` keys off), so it
-      likely still shows up in the live Elite picker as if it were its own independently-bindable
-      skill. Needs: (1) live verification in the running app (Electron sandbox limitation — see
-      `electron_sandbox_limitation` memory) that this actually reproduces; (2) if confirmed, a new
-      signal for `skill-variants.ts`, probably wiki-sourced like `skillVariantExclusions` since
-      neither the API's local `skills.json` nor any other structural field marks a "Lesser" skill as
-      non-equippable — worth first checking how many other "Lesser"-titled skills exist across
-      `skills.json` (a quick grep on `name` starting with "Lesser ") to see if this is a one-off or a
-      whole category worth excluding by name-prefix convention (would need wiki spot-checks first —
-      "Lesser" doesn't guarantee non-equippable, e.g. some elite specs have legitimately-bound
-      skills named that way).
 - [ ] **Racial skills should be toggleable (show/hide) in the skill pickers, eventually as a settings
       option** — noted by the user 2026-08-04 while doing the Elite-slot Damage sweep, using
       Artillery Barrage as the example (a Norn racial elite, not a real Guardian/Warrior/etc. skill —
