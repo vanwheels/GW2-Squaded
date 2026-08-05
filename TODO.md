@@ -213,7 +213,7 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         Supply Crate 1.0 PvE vs 0.01 WvW/PvP; (3) transformation skills (Tornado, Lich Form, Rampage,
         etc.) use their own special weapon-strength category from the wiki's Weapon Strength page's
         "non-weapons" table, not the generic `unequipped` (690.5) bucket every other slot skill uses.
-      - **Utility-slot (220 raw candidates): in progress, started 2026-08-04, same
+      - **Utility-slot (220 raw candidates): COMPLETE, swept 2026-08-04, same
         profession-by-profession pacing as Elite-slot.** Warrior done: 21 raw candidate ids, 17
         distinct skills curated. 6 of the 21 are racial Utility skills (`professions.length === 8`,
         `specializationId` null — same shared-across-professions shape as Elite-slot's Artillery
@@ -388,9 +388,34 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         matches the wiki's own documented id in all 3 cases, but the equippable id's local facts are
         sparse and never include the real Damage fact, which the API attaches only to the
         unreachable flip target. See `damage-calc.ts`'s Elementalist Utility-slot block comment for
-        the full writeup. **Next up: Mesmer's Utility-slot leg — the last profession in this
-        category.**
-      - Weapon-slot (919 raw candidates): not started, last category in the sweep order.
+        the full writeup. Mesmer done 2026-08-04, the last profession — **Utility-slot sweep is now
+        COMPLETE across all 9 professions**: 61 raw candidate ids (6 shared racial ones already
+        curated/excluded under Warrior), resolved via the real `visibleSkillsForSlot` run once per
+        Mesmer elite spec (Chronomancer/Mirage/Virtuoso/Troubadour — this app's newest elite spec,
+        released 2025-08-19) plus a spec-less baseline — all 5 runs returned the identical 49-id
+        visible set, no spec-gated duplicate-id groups. 11 Mesmer-only skills curated: Phantasmal
+        Disenchanter (2 independently-split Damage facts, "Damage without Boons"/"Damage with Boons"),
+        Phantasmal Defender, Well of Senility, Well of Calamity (2 independently-split per-pulse
+        facts, "Pulse Damage"/"Final Damage" — Final Damage is a rare *inverted* PvE/WvW split, WvW
+        higher, same reverse-of-usual shape as Arcane Wave/Inspiring Reinforcement), Well of Action,
+        Virtuoso's Sword of Decimation/Rain of Swords/Psychic Force, Mirage's Crystal Sands/Mirage
+        Advance, and spec-less Mirage Mirror. Rain of Swords' wiki page flags a
+        `<!-- GroundTargeted Version: 45425 -->` sibling id, same shape as every other GroundTargeted
+        duplicate pair this sweep resolved — `visibleSkillsForSlot` already collapses to the
+        non-ground-targeted 62553 on its own, no picker fix needed this time. **New trait-duplicated-
+        fact wrinkle, distinct from the Healing sweep's Assassin's Reward/Transfusion shared-formula
+        trap**: 5 of the 11 curated skills (Phantasmal Disenchanter, Phantasmal Defender, Sword of
+        Decimation, Rain of Swords, Psychic Force) each carry 2-4 *extra* same-text "Damage" facts
+        gated by `requires_trait` (a per-skill damage-boosting trait's own alternate value, not a
+        cross-skill shared formula) — `damageLinesForSkill`'s `allFacts.find` matches same-text facts
+        in local array order, and every one of these 5 skills' base (non-trait) fact sorts first
+        locally, so keying on the base value always resolves to the ungated fact regardless of
+        `activeIds`; verified directly via `damageLinesForSkill` with an empty `activeIds` set for all
+        11 entries rather than assuming. The trait-gated duplicates aren't modeled, same "real bonus,
+        not represented" treatment already applied to this table's "damage increase" fact omissions
+        (Reaper's shouts, "Your Soul Is Mine!"). See `damage-calc.ts`'s Mesmer Utility-slot block
+        comment for the full writeup.
+      - Weapon-slot (919 raw candidates): not started, last category in the sweep order — **next up**.
 - [ ] Mesmer Troubadour's Heal skill, "Tale of the Second Scion" (id 76695), shows no Healing numbers
       at all in this app (user screenshot comparison, 2026-08-02) — confirmed root cause: the GW2 API
       returns only 3 facts for this skill (`Recharge`, `Number of Targets`, `Radius`) with **zero**

@@ -799,7 +799,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // lists a second id described as "the damage effect on targets that were hit" — not a distinct
   // equippable skill (absent from `skills.json` under this profession/slot), so not curated
   // separately.
-  62698: [{ factText: 'Damage', coefficient: 0.3, weapon: 'unequipped' }]
+  62698: [{ factText: 'Damage', coefficient: 0.3, weapon: 'unequipped' }],
   // Evoker (this app's newest elite spec, released 2025-08-19) — all 3 Meditations (Hare's Agility,
   // Toad's Fortitude, Fox's Fury) hit a new confirmed-correct instance of the established
   // flip-architecture gap (Chaotic Release/Tailored Victory/Weave Self/Photon Wall/Thief's
@@ -811,6 +811,68 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // never include the skill's real Damage fact(s), which the API instead attaches to the flip
   // target id (76583, 77247, 77282 respectively) that no rendering path stitches back onto the
   // canonical tooltip. All 3 excluded outright, no substitute id to curate under.
+
+  // Mesmer — the last profession in the Utility-slot sweep. 61 raw candidate ids (6 shared racial
+  // ones already curated/excluded under Warrior, not re-curated here) resolved via the real
+  // `visibleSkillsForSlot` (same throwaway-tsx-script verification as every earlier leg), run once
+  // per Mesmer elite spec (Chronomancer/Mirage/Virtuoso/Troubadour — this app's newest elite spec,
+  // released 2025-08-19) plus a spec-less baseline — all 5 runs returned the identical 49-id visible
+  // set, no spec-gated duplicate-id groups this profession's Utility slot. 17 visible ids carry a
+  // Damage fact; 11 Mesmer-only ones curated below, all confirmed via each wiki page's own
+  // `| id = ` field. Rain of Swords' wiki page itself flags a `<!-- GroundTargeted Version: 45425 -->`
+  // sibling id — same shape as every other GroundTargeted duplicate pair this sweep has resolved,
+  // `visibleSkillsForSlot` already collapses to the non-ground-targeted 62553 on its own, no picker
+  // fix needed. **New trait-duplicated-fact wrinkle, distinct from the Healing sweep's Assassin's
+  // Reward/Transfusion trap**: 5 of these 11 (Phantasmal Disenchanter, Phantasmal Defender, Sword of
+  // Decimation, Rain of Swords, Psychic Force) each carry 2-4 EXTRA same-text "Damage" facts gated by
+  // `requires_trait` (682 — a phantasm-damage trait — for the 2 Phantasms; 2206 — a Virtuoso trait —
+  // for the other 3), representing that trait's own damage bonus, not a distinct skill design; unlike
+  // the Healing sweep's trap this isn't a *shared* formula reused verbatim across dozens of unrelated
+  // skills, it's a per-skill alternate value. `damageLinesForSkill`'s `allFacts.find` matches
+  // same-text facts in local array order, and every one of these 5 skills' own base (non-trait) fact
+  // sorts first locally, so keying `factText` on the base value (as done below) always resolves to
+  // the ungated fact and renders correctly regardless of `activeIds` — the trait-gated duplicates are
+  // simply not modeled, same "real bonus, not represented" treatment as this table's existing
+  // "damage increase"-fact omissions (Reaper's shouts, "Your Soul Is Mine!").
+  // Phantasmal Disenchanter. Two independently-split Damage facts, "Damage without Boons" (PvE
+  // 1.0/WvW+PvP 0.5) and "Damage with Boons" (PvE 0.4/WvW+PvP 0.2) — WvW values used for both.
+  10267: [
+    { factText: 'Damage without Boons', coefficient: 0.5, weapon: 'unequipped' },
+    { factText: 'Damage with Boons', coefficient: 0.2, weapon: 'unequipped' }
+  ],
+  // Phantasmal Defender. PvE/WvW+PvP split 0.4/0.2 — WvW value used.
+  10341: [{ factText: 'Damage', coefficient: 0.2, weapon: 'unequipped' }],
+  // Well of Senility. No split.
+  29856: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }],
+  // Well of Calamity. Two independently-split Damage facts, both per-pulse/per-instance (no
+  // `strikes=` param, local `hit_count: 1` on each, same "per pulse, not totaled" shape as Ranger's
+  // Flame Trap rather than Guardian's Symbol of Blades): "Pulse Damage" (PvE 1.3/WvW+PvP 0.75) and
+  // "Final Damage" (PvE 2.1/WvW+PvP 3.0 — a rare *inverted* split, WvW higher than PvE, same reverse-
+  // of-usual shape as this table's existing Arcane Wave/Inspiring Reinforcement entries) — WvW values
+  // used for both.
+  30525: [
+    { factText: 'Pulse Damage', coefficient: 0.75, weapon: 'unequipped' },
+    { factText: 'Final Damage', coefficient: 3.0, weapon: 'unequipped' }
+  ],
+  // Well of Action. "Pulse Damage", per-pulse/not totaled (same reasoning as Well of Calamity above).
+  // PvE/WvW+PvP split 1.5/0.7 — WvW value used.
+  30814: [{ factText: 'Pulse Damage', coefficient: 0.7, weapon: 'unequipped' }],
+  // Virtuoso — Sword of Decimation. PvE/WvW+PvP split 1.5/1.0 — WvW value used.
+  35637: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Mirage — Crystal Sands. `strikes=6` present -> wiki's 2.4 already totaled (verified: local
+  // hit_count 6 * dmg_multiplier 0.4 = 2.4). No split.
+  41065: [{ factText: 'Damage', coefficient: 2.4, weapon: 'unequipped' }],
+  // Mirage — Mirage Advance. No split.
+  42851: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }],
+  // Mirage Mirror (spec-less, id 44677). No split.
+  44677: [{ factText: 'Damage', coefficient: 0.6, weapon: 'unequipped' }],
+  // Virtuoso — Rain of Swords (id-confirmed, see block comment above). PvE/WvW+PvP split 1.2/0.8 —
+  // WvW value used.
+  62553: [{ factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' }],
+  // Virtuoso — Psychic Force. No split (this skill's own change history shows its former PvP/WvW
+  // split, 0.01, was since raised to match PvE's 1.5 uniformly across all modes).
+  62573: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }]
+  // **Utility-slot sweep is now COMPLETE across all 9 professions.**
 }
 
 export interface DamageLine {
