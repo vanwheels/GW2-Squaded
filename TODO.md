@@ -319,7 +319,29 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         wiki page's Damage fact carries a `strikes=` param and both local API `hit_count`s are 1 (not
         5) — confirmed via Well of Sorrow's own Mechanics note, which describes only a 5-pulse
         *condition* order, never a repeated direct-damage strike — so neither needed totaling, unlike
-        Guardian's Symbol of Blades/Ranger's Flame Trap earlier in this sweep. **Next up: Engineer's
+        Guardian's Symbol of Blades/Ranger's Flame Trap earlier in this sweep. Engineer done
+        2026-08-04: 49 raw candidate ids (6 shared racial ones already curated/excluded under
+        Warrior, not re-curated), 43 Engineer-only raw ids resolved via the real
+        `visibleSkillsForSlot` (run once per Engineer elite spec — Scrapper/Holosmith/Mechanist/
+        Amalgam — plus a spec-less baseline, same throwaway-tsx-script verification as earlier legs)
+        down to 17 distinct in-game skills: 11 curated (Personal Battering Ram; Rocket Boots, 2
+        genuinely-ambiguous ids 5910/29522 both curated identically per docs/game-data.md's own prior
+        investigation of that pair; Throw Mine, same dual-id treatment for its Gadgeteer-trait-gated
+        pair 6161/30337; Scrapper's Shredder Gyro; Blast Gyro; Holosmith's Laser Disk; Mechanist's
+        Superconducting Signet, Force Signet; Amalgam's Liquid State, Solid State, Plasmatic State).
+        **New non-player-scaling category found, generalizing what earlier legs had only excluded
+        one skill at a time**: every base turret-*deploy* skill's own Damage fact carries the exact
+        same `power=2389` override — Rifle Turret, Flame Turret, Thumper Turret, Rocket Turret,
+        Harpoon Turret, all 5 excluded — confirmed by the wiki's general "Turret" page itself:
+        "turrets are unaffected by character's stats and cannot critically hit," the same fixed-Power
+        shape already seen on individual turret sub-abilities (Detonate Supply Crate Turrets, Jade
+        Buster Cannon, both Elite-slot) now shown to cover the whole turret family's own attacks, not
+        just their detonate/overcharge follow-ups — worth excluding any future turret-shaped summon
+        skill from any profession the same way without re-deriving this from scratch. 1 more excluded
+        as a new flip-architecture-gap instance: Holosmith's Photon Wall (43739, the actually-
+        equippable id) carries zero Damage fact of its own — the fact lives only on its `flipSkill`
+        target Launch Wall (40533), unreachable via the current UI, same "real fact, dead data" shape
+        as Chaotic Release/Tailored Victory/Weave Self earlier in this sweep. **Next up: Necromancer's
         Utility-slot leg.**
       - Weapon-slot (919 raw candidates): not started, last category in the sweep order.
 - [ ] Mesmer Troubadour's Heal skill, "Tale of the Second Scion" (id 76695), shows no Healing numbers

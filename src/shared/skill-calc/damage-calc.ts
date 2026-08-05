@@ -612,7 +612,70 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   63276: [{ factText: 'Damage', coefficient: 0.222, weapon: 'unequipped' }],
   // Specter — Well of Tears. No split. Same "Number of Impacts" reasoning as Well of Sorrow above
   // — local hit_count: 1 matches the wiki's un-totaled coefficient directly.
-  63294: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }]
+  63294: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+
+  // Engineer — 49 raw candidate ids (6 shared racial ones already curated/excluded under Warrior,
+  // not re-curated here). The 43 Engineer-only raw ids resolved via the real (not reimplemented)
+  // `visibleSkillsForSlot` — same throwaway-tsx-script verification as earlier legs, run once per
+  // Engineer elite spec (Scrapper/Holosmith/Mechanist/Amalgam) plus a spec-less baseline — down to
+  // 17 distinct in-game skills: 11 curated below, 5 excluded as non-player-scaling, 1 excluded as an
+  // unreachable flip-architecture gap.
+  // **New non-player-scaling category found, generalizing a trap this sweep had only seen as
+  // one-off exclusions before**: every base turret-*deploy* skill's own Damage fact carries the
+  // exact same `power=2389` override — Rifle Turret (5818), Flame Turret (5836), Thumper Turret
+  // (5838), Rocket Turret (5912), Harpoon Turret (6093). The wiki's general "Turret" page's own
+  // Mechanics section confirms this isn't per-skill: "Boons and conditions applied by turrets use
+  // the character's attributes, but otherwise turrets are unaffected by character's stats and
+  // cannot critically hit" — the same fixed-Power shape already excluded one skill at a time for
+  // Detonate Supply Crate Turrets (Elite-slot sweep) and Jade Buster Cannon (Elite-slot sweep), now
+  // confirmed to cover the entire turret family's own attacks, not just their detonate/overcharge
+  // sub-abilities. All 5 excluded; worth treating any *other* profession's future turret-shaped
+  // summon the same way if one ever appears.
+  // **New flip-architecture-gap instance**: Holosmith's Photon Wall (43739, the actually-equippable
+  // id per `visibleSkillsForSlot`) carries zero Damage fact of its own (only Recharge/Heat
+  // Threshold/Duration/Blocks Missiles/Reflects Missiles) — its Damage fact lives only on its
+  // `flipSkill` target, Launch Wall (40533), which isn't independently equippable and isn't reached
+  // by `damageLinesForSkill`'s rendering path — same "real fact, dead data" shape as Revenant's
+  // Chaotic Release/Elementalist's Tailored Victory/Weave Self earlier in this sweep. Launch Wall
+  // excluded outright, no substitute id to curate under.
+  // Personal Battering Ram (id fixed via flip-root — wiki's own `id = 5811,29991` confirms both
+  // belong to this one skill; 29991 is the flip target `visibleSkillsForSlot` strips). PvE/WvW+PvP
+  // split 1.25/0.01 — WvW value used.
+  5811: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Rocket Boots. 2 ids remain genuinely ambiguous per docs/game-data.md's own prior investigation
+  // (5910/29522, an old-vs-reworked pair with no distinguishing API field at all, unlike the already-
+  // resolved underwater-sibling pair 50438/50441) — both curated identically, same "can't tell which
+  // the picker shows, so cover both" treatment as this sweep's other unresolvable duplicate pairs
+  // (Jade Winds, Banish Enchantment/Call to Anguish). PvE/WvW+PvP split 1.25/0.5 — WvW value used.
+  5910: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  29522: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Throw Mine. 2 ids remain genuinely ambiguous too — per docs/game-data.md, a Gadgeteer-trait-gated
+  // pair (6161/30337) the wiki documents as both real, not a legacy/environment split; both curated
+  // identically for the same reason as Rocket Boots above. PvE/WvW+PvP split 3.0/0.01 — WvW value
+  // used.
+  6161: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  30337: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Scrapper — Shredder Gyro. `strikes=12` present -> wiki's 4.8 already totaled (verified: local
+  // hit_count 12 * dmg_multiplier 0.4 = 4.8). No split.
+  29921: [{ factText: 'Damage', coefficient: 4.8, weapon: 'unequipped' }],
+  // Scrapper — Blast Gyro. PvE/WvW+PvP split 2.75/0.01 — WvW value used.
+  31248: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Holosmith — Laser Disk. No split.
+  42842: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Mechanist — Superconducting Signet. `strikes=6` present -> wiki's 2.4 already totaled (verified:
+  // local hit_count 6 * dmg_multiplier 0.4 = 2.4). No split.
+  63113: [{ factText: 'Damage', coefficient: 2.4, weapon: 'unequipped' }],
+  // Mechanist — Force Signet. PvE/WvW+PvP split 1.0/0.01 — WvW value used.
+  63253: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Amalgam — Liquid State. `strikes=4` present -> wiki's 0.8 already totaled (verified: local
+  // hit_count 4 * dmg_multiplier 0.2 = 0.8). No split.
+  76908: [{ factText: 'Damage', coefficient: 0.8, weapon: 'unequipped' }],
+  // Amalgam — Solid State. PvE/WvW+PvP split 3.0/0.01 — WvW value used.
+  77069: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Amalgam — Plasmatic State. `strikes=2` present -> wiki coefficients already totaled (verified:
+  // local hit_count 2 * dmg_multiplier 2.25 = 4.5, matching the wiki's PvE side exactly). PvE/WvW+PvP
+  // split 4.5/2.0 — WvW value used.
+  77209: [{ factText: 'Damage', coefficient: 2.0, weapon: 'unequipped' }]
 }
 
 export interface DamageLine {
