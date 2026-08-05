@@ -152,14 +152,15 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // as a stale duplicate (same reasoning as Dragon's Maw/Battle Standard above). PvE/WvW+PvP split
   // (3.0/0.01) — WvW value used.
   76687: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
-  // Revenant — 5 raw candidates, 4 curated. NOT curated: Legendary Dragon Stance's "Facet of Chaos"
-  // (id 27760, the actually-equipped elite-slot id per legends.json) carries zero Damage fact of its
-  // own — the fact lives only on "Chaotic Release" (id 28075, PvE 4.0/WvW 0.01), reachable exclusively
-  // via `flipSkill` (27760 -> 28075, the toggle's "consume" release). `skillFactLines`/`SkillsEditor`
-  // never follow `flipSkill` for Damage-fact rendering (only `boon-calc/sources.ts` does, for its own
-  // boon-aggregation purpose via `withFlipChain`), so curating 28075 here would be dead data no UI
-  // path currently reaches — an architecture gap, not a data gap, same bucket as the Mesmer Troubadour
-  // Heal-skill follow-up in TODO.md. Left uncurated pending that fix rather than added inert.
+  // Revenant — 5 raw candidates, all 5 now curated. Legendary Dragon Stance's "Facet of Chaos" (id
+  // 27760, the actually-equipped elite-slot id per legends.json) carries zero Damage fact of its own
+  // — the fact lives only on its `flipSkill` target "Chaotic Release" (id 28075, the toggle's
+  // "consume" release). This used to be dead data (`skillFactLines`/`SkillsEditor` never followed
+  // `flipSkill` for Damage-fact rendering) but the gw2skills.net-style stacked flip-icon treatment
+  // (2026-08-04, `multi-effect.ts`'s `flipTargetSkills` + `SkillsEditor`'s `FlipSkillStack`) gives the
+  // flip target its own icon + independent tooltip keyed on its own id, so 28075 is now reachable —
+  // curated directly under its own id, not under 27760. PvE/WvW+PvP split 4.0/0.01 — WvW value used.
+  28075: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
   // Revenant/Herald — Jade Winds. 2 API ids share this name (28406/31294); unlike other duplicate-id
   // cases above, the wiki infobox itself lists both together (`id = 28406,31294`) with no resolving
   // field, and this is a previously-documented unresolvable picker duplicate (see TODO.md's Skill
@@ -265,19 +266,21 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // are the Water/Fire Glyph of Elementals' summoned-elemental "command" follow-ups — both wiki pages
   // explicitly note "the direct damage is unaffected by any modifiers such as power or might," the
   // same non-player-scaling exclusion as the Heal/Utility-sweep turret and minion cases, just phrased
-  // as prose instead of a `power=` override this time. Tailored Victory (44637) is Weave Self's
-  // `flipSkill` "release" effect (Weave Self itself, 43638, carries zero Damage fact of its own) —
-  // same "Damage fact unreachable via the current UI, architecture gap not a data gap" bucket as
-  // Revenant's Chaotic Release above, left uncurated pending that fix. Lesser Fiery Eruption (44918)
-  // is Conjure Fiery Greatsword's auto-triggered passive proc (wiki `parent = Conjure Fiery
-  // Greatsword`, `Category:Lesser skills`) — not independently equippable, but unlike Tailored
-  // Victory this one ISN'T caught by `skill-variants.ts`'s existing filters (no `toolbeltSkill`/
-  // `flipSkill` link back to its parent for `stripNonEquippableSubAbilities`/`stripFlipTargets` to
-  // key off), so it likely still leaks into the live Elite picker as if it were its own bindable
-  // skill — see TODO.md for a follow-up on generalizing the "Lesser"-skill exclusion.
+  // as prose instead of a `power=` override this time. Lesser Fiery Eruption (44918) is Conjure Fiery
+  // Greatsword's auto-triggered passive proc (wiki `parent = Conjure Fiery Greatsword`,
+  // `Category:Lesser skills`) — not independently equippable, but unlike Tailored Victory below this
+  // one ISN'T caught by `skill-variants.ts`'s existing filters (no `toolbeltSkill`/`flipSkill` link
+  // back to its parent for `stripNonEquippableSubAbilities`/`stripFlipTargets` to key off), so it
+  // likely still leaks into the live Elite picker as if it were its own bindable skill — see TODO.md
+  // for a follow-up on generalizing the "Lesser"-skill exclusion.
   // Conjure Fiery Greatsword. No split. Wiki's own `weapon=utility` param normalized to `unequipped`
   // per the Elite-slot convention.
   5516: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Tailored Victory, Weave Self's `flipSkill` "release" effect (Weave Self itself, 43638, carries
+  // zero Damage fact of its own) — curated under its own id now that the stacked flip-icon treatment
+  // (see Revenant's Chaotic Release above) gives it a reachable, independent tooltip. PvE/WvW+PvP
+  // split 0.75/0.01 — WvW value used.
+  44637: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
   // Tornado. PvE/WvW+PvP split 1.1/0.01 — WvW value used.
   5534: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
   // Whirlpool (Tornado's underwater replacement — a separately-named id, so it isn't collapsed by
@@ -576,22 +579,41 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   77264: [{ factText: 'Damage', coefficient: 1.75, weapon: 'unequipped' }],
 
   // Thief — 20 raw candidate ids (6 shared racial ones already curated under Warrior, not
-  // re-curated here), 11 distinct Thief-only skills curated. All 9 carry a wiki `weapon=utility`
+  // re-curated here), 14 distinct Thief-only skills curated. All carry a wiki `weapon=utility`
   // param, normalized to `unequipped` per the slot-skill convention (Well of Sorrow/Well of Tears
-  // already use `weapon=unequipped` directly on the wiki). **New "priming" architecture-gap
-  // variant found**: Thief's 2 Preparation skills (Prepare Pitfall id 13057, Prepare Thousand
-  // Needles id 13026) are the *actually-equippable* ids — `skill-variants.ts`'s `stripFlipTargets`
-  // removes their differently-named `flipSkill` targets (Pitfall 56880, Thousand Needles 56898)
-  // from the picker entirely — but unlike every other flip-architecture gap this sweep has hit
-  // (Chaotic Release, Tailored Victory, Weave Self), the equippable id here carries ZERO facts of
-  // its own at all (only Duration/Unblockable), not even a non-Damage placeholder — so there's no
-  // substitute id to curate under either; both Pitfall/Thousand Needles excluded outright, worse
-  // than a partial gap since no id in this pair is both equippable and fact-bearing. Deadeye's
-  // Shadow Flare (41158) hits a related but survivable case: it also has a differently-named
-  // `flipSkill` target (Shadow Swap, 45672, "reactivate to swap places with the orb") stripped by
-  // the same signal, but Shadow Flare itself already carries its own Damage fact (the initial throw)
-  // independent of the swap-back detonation, so it's curated normally below — only Shadow Swap's
-  // own separate Damage fact is the (excluded) unreachable one this time.
+  // already use `weapon=unequipped` directly on the wiki). **"Priming" architecture-gap variant**:
+  // Thief's 2 Preparation skills (Prepare Pitfall id 13057, Prepare Thousand Needles id 13026) are
+  // the *actually-equippable* ids — `skill-variants.ts`'s `stripFlipTargets` removes their
+  // differently-named `flipSkill` targets (Pitfall 56880, Thousand Needles 56898) from the picker
+  // entirely — and unlike every other flip-architecture gap this sweep hit (Chaotic Release,
+  // Tailored Victory, Launch Wall), the equippable id here carries ZERO facts of its own at all (only
+  // Duration/Unblockable), not even a non-Damage placeholder. But the flip targets themselves *do*
+  // carry real Damage facts (re-confirmed directly against local `skills.json`, not assumed from the
+  // earlier sweep's note) and, same as the other flip-gap skills above, are now independently
+  // reachable via their own stacked flip-icon tooltip — curated under 56880/56898 directly.
+  // Prepare Pitfall's flip target, Pitfall. 2 independently-split Damage facts: "Initial Impact
+  // Damage" (PvE/WvW+PvP 1.25/0.01 — WvW used) and "Pulse Damage" (PvE/WvW+PvP 0.5/0.3 — WvW used).
+  // The API represents each split as 2 identical-text facts rather than distinct names, same shape as
+  // Mesmer's Jaunt/Ritualist's Splinter Weapon earlier in this sweep.
+  56880: [
+    { factText: 'Initial Impact Damage', coefficient: 0.01, weapon: 'unequipped' },
+    { factText: 'Pulse Damage', coefficient: 0.3, weapon: 'unequipped' }
+  ],
+  // Prepare Thousand Needles' flip target, Thousand Needles. No split (wiki page has no `split`
+  // param at all). 2 independently-split-by-name Damage facts: "Damage" (the initial impact) and
+  // "Pulsing Damage".
+  56898: [
+    { factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' },
+    { factText: 'Pulsing Damage', coefficient: 0.2, weapon: 'unequipped' }
+  ],
+  // Deadeye's Shadow Flare (41158) hits a related but survivable case: it also has a differently-
+  // named `flipSkill` target (Shadow Swap, 45672, "reactivate to swap places with the orb") stripped
+  // by the same signal, but Shadow Flare itself already carries its own Damage fact (the initial
+  // throw) independent of the swap-back detonation, so it's curated normally below. Shadow Swap's own
+  // separate Damage fact used to be the one excluded unreachable fact in this pair — now curated too,
+  // reachable the same way as Pitfall/Thousand Needles above since Shadow Flare is itself equippable
+  // (`FlipSkillStack` renders Shadow Swap's own icon+tooltip off of it). No split.
+  45672: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
   // Scorpion Wire. PvE/WvW+PvP split 0.5/0.01 — WvW value used.
   13020: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
   // Daredevil — Impairing Daggers. `strikes=3` present -> wiki coefficient already totaled. No
@@ -630,8 +652,8 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // not re-curated here). The 43 Engineer-only raw ids resolved via the real (not reimplemented)
   // `visibleSkillsForSlot` — same throwaway-tsx-script verification as earlier legs, run once per
   // Engineer elite spec (Scrapper/Holosmith/Mechanist/Amalgam) plus a spec-less baseline — down to
-  // 17 distinct in-game skills: 11 curated below, 5 excluded as non-player-scaling, 1 excluded as an
-  // unreachable flip-architecture gap.
+  // 17 distinct in-game skills: 12 curated below (11 plus Launch Wall, now reachable — see below), 5
+  // excluded as non-player-scaling.
   // **New non-player-scaling category found, generalizing a trap this sweep had only seen as
   // one-off exclusions before**: every base turret-*deploy* skill's own Damage fact carries the
   // exact same `power=2389` override — Rifle Turret (5818), Flame Turret (5836), Thumper Turret
@@ -643,13 +665,13 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // confirmed to cover the entire turret family's own attacks, not just their detonate/overcharge
   // sub-abilities. All 5 excluded; worth treating any *other* profession's future turret-shaped
   // summon the same way if one ever appears.
-  // **New flip-architecture-gap instance**: Holosmith's Photon Wall (43739, the actually-equippable
-  // id per `visibleSkillsForSlot`) carries zero Damage fact of its own (only Recharge/Heat
-  // Threshold/Duration/Blocks Missiles/Reflects Missiles) — its Damage fact lives only on its
-  // `flipSkill` target, Launch Wall (40533), which isn't independently equippable and isn't reached
-  // by `damageLinesForSkill`'s rendering path — same "real fact, dead data" shape as Revenant's
-  // Chaotic Release/Elementalist's Tailored Victory/Weave Self earlier in this sweep. Launch Wall
-  // excluded outright, no substitute id to curate under.
+  // Holosmith's Photon Wall (43739, the actually-equippable id per `visibleSkillsForSlot`) carries
+  // zero Damage fact of its own (only Recharge/Heat Threshold/Duration/Blocks Missiles/Reflects
+  // Missiles) — its Damage fact lives only on its `flipSkill` target, Launch Wall (40533). Curated
+  // directly under 40533 now that the stacked flip-icon treatment makes it reachable (same reasoning
+  // as Revenant's Chaotic Release/Elementalist's Tailored Victory above). PvE/WvW+PvP split 1.5/0.5 —
+  // WvW value used.
+  40533: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
   // Personal Battering Ram (id fixed via flip-root — wiki's own `id = 5811,29991` confirms both
   // belong to this one skill; 29991 is the flip target `visibleSkillsForSlot` strips). PvE/WvW+PvP
   // split 1.25/0.01 — WvW value used.
@@ -813,16 +835,30 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // separately.
   62698: [{ factText: 'Damage', coefficient: 0.3, weapon: 'unequipped' }],
   // Evoker (this app's newest elite spec, released 2025-08-19) — all 3 Meditations (Hare's Agility,
-  // Toad's Fortitude, Fox's Fury) hit a new confirmed-correct instance of the established
-  // flip-architecture gap (Chaotic Release/Tailored Victory/Weave Self/Photon Wall/Thief's
-  // Preparation skills): each name has 2 API ids in a `flipSkill` relationship, and unlike Bug #1
-  // above, the app's flip-root selection here exactly matches the wiki's own documented `id =`
-  // field in all 3 cases (Hare's Agility -> 77038, Toad's Fortitude -> 77320, Fox's Fury -> both
-  // 76711 and 77282 per the wiki, 76711 the flip-root/visible one) — but the equippable id's own
-  // local facts are sparse (Recharge/Number only, never zero like the Thief Preparation case) and
-  // never include the skill's real Damage fact(s), which the API instead attaches to the flip
-  // target id (76583, 77247, 77282 respectively) that no rendering path stitches back onto the
-  // canonical tooltip. All 3 excluded outright, no substitute id to curate under.
+  // Toad's Fortitude, Fox's Fury) hit a confirmed-correct instance of the established flip-
+  // architecture gap (Chaotic Release/Tailored Victory/Launch Wall/Thief's Preparation skills): each
+  // name has 2 API ids in a `flipSkill` relationship, and the app's flip-root selection exactly
+  // matches the wiki's own documented `id =` field in all 3 cases (Hare's Agility -> 77038, Toad's
+  // Fortitude -> 77320, Fox's Fury -> both 76711 and 77282 per the wiki, 76711 the flip-root/visible
+  // one) — but the equippable id's own local facts are sparse (Recharge/Number only) and never
+  // include the skill's real Damage fact(s), which the API instead attaches to the flip target id
+  // (76583, 77247, 77282 respectively). Now curated directly under those flip-target ids, same
+  // reachability fix as Chaotic Release/Tailored Victory/Launch Wall above.
+  // Hare's Agility. PvE/WvW+PvP split 0.4/0.5 — a rare *inverted* split (competitive higher than PvE,
+  // same reverse-of-usual shape as this table's Arcane Wave entry) — WvW value 0.5 used. Wiki's own
+  // note: "the tooltip incorrectly uses a coefficient of 1 while the true coefficient is 0.4" (PvE
+  // side).
+  76583: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Toad's Fortitude. PvE/WvW+PvP split 1.5/0.5 — WvW value used.
+  77247: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Fox's Fury. No PvE/WvW/PvP split, but 3 independently-split Damage facts by the caster's own
+  // Might stacks at cast time — the API represents these with an en dash in "10–20 Might", not a
+  // hyphen, matched verbatim.
+  77282: [
+    { factText: 'Damage (over 20 Might)', coefficient: 3.0, weapon: 'unequipped' },
+    { factText: 'Damage (10–20 Might)', coefficient: 2.25, weapon: 'unequipped' },
+    { factText: 'Damage (under 10 Might)', coefficient: 1.5, weapon: 'unequipped' }
+  ],
 
   // Mesmer — the last profession in the Utility-slot sweep. 61 raw candidate ids (6 shared racial
   // ones already curated/excluded under Warrior, not re-curated here) resolved via the real

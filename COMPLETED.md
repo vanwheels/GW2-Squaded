@@ -2,6 +2,50 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 66 — Curated the flip-target Damage coefficients the stacked-icon display unblocked
+
+Landed the TODO item split out 2026-08-04 ("curate the already-reachable flip-target Damage/Healing
+coefficients") — the flip-skill stacked-icon display (Session 65) gives every `flipSkill` target its
+own icon + independently-computed tooltip keyed on its own id (`skillTooltipContent(f.skill, ...)` in
+`FlipSkillStack`, confirmed by reading `SkillsEditor.tsx` directly rather than assuming), so every
+skill the Damage sweep had previously left uncurated as "real fact, dead data no UI path reaches" is
+now reachable. Removed from TODO.md; the one piece this pass didn't cover (Ranger's 3 Glyph forms'
+non-celestial-form casts) got its own new TODO item instead of a dangling reference.
+
+- **9 ids curated in `CURATED_DAMAGE_COEFFICIENTS`** (`damage-calc.ts`), each wiki-verified via raw
+  wikitext (`curl -G ... --data-urlencode`, never WebFetch's summarizing model) and cross-checked
+  against the real local `skills.json` fact set, then spot-run through `damageLinesForSkill` via a
+  throwaway tsx script (not just assumed correct from the wikitext read) before landing:
+  - Revenant's Chaotic Release (28075, Legendary Dragon Stance's elite facet release) — PvE/WvW+PvP
+    split 4.0/0.01, WvW used.
+  - Elementalist's Tailored Victory (44637, Weave Self's release) — split 0.75/0.01, WvW used.
+  - Engineer/Holosmith's Launch Wall (40533, Photon Wall's flip target) — split 1.5/0.5, WvW used.
+  - Elementalist/Evoker's 3 Meditations, curated under their flip-target ids: Hare's Agility (76583,
+    split 0.4/0.5 — a rare *inverted* split, competitive higher than PvE, matching this table's
+    existing Arcane Wave entry), Toad's Fortitude (77247, split 1.5/0.5), Fox's Fury (77282, no
+    PvE/WvW/PvP split but 3 independently-split-by-Might-stacks facts, 3.0/2.25/1.5 — the API's
+    "10–20 Might" fact label uses an en dash, matched verbatim).
+  - Thief's 2 Preparation skills' flip targets, re-confirmed (not assumed from the original sweep
+    note) to actually carry Damage facts before curating: Pitfall (56880, 2 independently-split
+    facts — "Initial Impact Damage" 1.25/0.01, "Pulse Damage" 0.5/0.3, WvW used for both) and
+    Thousand Needles (56898, no split — "Damage" 0.5, "Pulsing Damage" 0.2).
+  - Deadeye's Shadow Swap (45672, Shadow Flare's flip target) — spotted as a related case while
+    verifying the Thief Preparation pair (Shadow Flare, already equippable and curated, has its own
+    `flipSkill` hop to Shadow Swap, which was left excluded in the original sweep); no split, 1.0.
+- None of these 9 ids carry a Healing fact (checked each skill's full fact list directly), so no
+  `CURATED_HEALING_COEFFICIENTS` additions were needed despite the TODO item's title mentioning both
+  tables.
+- **TODO.md's historical Damage-sweep write-up updated in place** everywhere these 9 skills were
+  previously described as excluded/uncurated ("dead data," "no substitute id to curate under," etc.)
+  so a future session resuming the still-open Weapon-slot leg doesn't re-read stale status.
+- **New standalone TODO item added**: Ranger's 3 Glyph forms (Glyph of the Tides/Alignment/Equality)
+  hit the same architecture-gap shape via `glyphFormVariants` rather than `flipSkill`, and the
+  rendering side was fixed back in Session 64, but the actual wiki-coefficient curation for their 3
+  non-celestial-form variant ids was never done and had become a dangling "see the item near the top
+  of this file" reference once the old umbrella item was removed — restored as its own item rather
+  than left broken.
+- Verified with `npm run typecheck` and `npm run lint`, both clean.
+
 ## Session 65 — Flip-skill stacked-icon display
 
 Implemented sub-item 1 ("gw2skills-style stacked icons for genuine flip pairs") of the "Flip-skill /

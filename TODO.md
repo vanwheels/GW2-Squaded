@@ -4,20 +4,21 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
-- [ ] **Curate the already-reachable flip-target Damage/Healing coefficients — split out 2026-08-04
-      from the flip-skill display item, screenshot-independent.** The flip-skill stacked-icon
-      display itself landed Session 65 (COMPLETED.md) — each flip target now gets its own icon +
-      independent tooltip via `multi-effect.ts`'s `flipTargetSkills` and `SkillsEditor.tsx`'s
-      `skillTooltipContent`/`FlipSkillStack`, so these ids just need the same
-      wiki-verification pass as every other `CURATED_DAMAGE_COEFFICIENTS`/
-      `CURATED_HEALING_COEFFICIENTS` entry: Revenant's Chaotic Release (28075, Legendary Dragon
-      Stance elite facet), Elementalist's Tailored Victory (44637, Weave Self's release), Engineer's
-      Holosmith Photon Wall's flip target Launch Wall (40533), Elementalist Evoker's 3 Meditations
-      (Hare's Agility/Toad's Fortitude/Fox's Fury). Thief's Prepare Pitfall/Prepare Thousand Needles
-      are the one exception — their flip targets (Pitfall 56880, Thousand Needles 56898) need a
-      fresh check for whether they carry a Damage fact at all before assuming this applies (the
-      2026-08-04 sweep write-up says the *equipped* id has zero facts, not the flip target — worth
-      re-confirming the flip target actually has one before curating).
+- [ ] **Curate Ranger's 3 Glyph forms' Damage coefficients — the one piece the 2026-08-05 flip-target
+      curation pass didn't cover.** Glyph of the Tides/Glyph of Alignment/Glyph of Equality each have
+      a non-celestial-form cast whose real Damage fact lives on a `glyphFormVariants` variant id (e.g.
+      31607 for Glyph of Alignment), not the canonical equippable id (31322 for Glyph of Alignment),
+      which itself only carries a sparse, generic fact set — same rendering shape as the flip-chain
+      gap (Chaotic Release/Tailored Victory/Launch Wall/Evoker's Meditations/Thief's Preparation
+      skills, all curated 2026-08-05) but via `glyph-forms.ts`'s `glyphFormFactSourceSkill` instead of
+      `flipSkill`. The rendering gap itself has been fixed since Session 64 (`SkillsEditor.tsx`'s
+      `skillTooltipContent` already swaps in the right form's facts based on the build's Celestial
+      Avatar toggle — `CURATED_HEALING_COEFFICIENTS`'s 2 existing celestial-form entries, Glyph of
+      Alignment's 31348 and Glyph of Burgeoning's 31888, are confirmed reachable this way already).
+      Just needs the actual wiki-verification pass for the 3 non-celestial-form ids — Glyph of the
+      Tides and Glyph of Equality's variant ids weren't pinned down when this was scoped, only Glyph
+      of Alignment's (31607) — see `damage-calc.ts`'s Ranger Utility-slot block comment for the
+      original writeup.
 - [ ] **`CURATED_BARRIER_COEFFICIENTS` + Barrier tooltip line — decided 2026-08-04, build it.** User
       confirmed Barrier is important enough to warrant the same treatment as Healing, not just an
       excluded trap. Mirror `healing-calc.ts`'s shape exactly: a `CURATED_BARRIER_COEFFICIENTS` table
@@ -177,16 +178,13 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         follow-ups section below, both curated identically since one wiki page covers both, 3-way
         PvE/WvW/PvP split 3.0/2.0/0.01; Embrace the Darkness id 28287 — 78191 is a stale duplicate, no
         split; Soulcleave's Summit — no split, fact text "Additional Strike Damage" not generic
-        "Damage"; Spear of Archemorus — 3-way split 5.0/2.67/2.33). 1 left uncurated: **Chaotic
-        Release (id 28075)**, Legendary Dragon Stance's elite facet's "release" damage — the
-        equipped elite-slot id (Facet of Chaos, 27760, per `legends.json`) carries zero Damage fact
-        of its own; the fact lives only on 28075, reachable exclusively via that skill's `flipSkill`
-        link. `skillFactLines`/`SkillsEditor.tsx` never follow `flipSkill` for Damage-fact rendering
-        (only `boon-calc/sources.ts`'s `withFlipChain` does, for its own boon-aggregation purpose) —
-        curating 28075 would be dead data no UI path reaches, an architecture gap not a data gap
-        (same bucket as the Mesmer Troubadour Heal-skill follow-up below). Worth checking whether
-        other legends' elite facets have this same on/release fact split when Utility-slot is swept —
-        each legend's 3 utility facets follow the identical toggle+flipSkill shape. Ranger done
+        "Damage"; Spear of Archemorus — 3-way split 5.0/2.67/2.33). Chaotic Release (id 28075),
+        Legendary Dragon Stance's elite facet's "release" damage — the equipped elite-slot id (Facet
+        of Chaos, 27760, per `legends.json`) carries zero Damage fact of its own; the fact lives only
+        on 28075, reachable exclusively via that skill's `flipSkill` link — was left uncurated at the
+        time (an architecture gap, not a data gap) but **curated 2026-08-05** once the flip-skill
+        stacked-icon display (Session 65) made 28075 independently reachable; PvE/WvW+PvP split
+        4.0/0.01, WvW used, see `damage-calc.ts`. Ranger done
         (2026-08-04): 4 raw candidate ids, 3 distinct skills curated (Entangle — `strikes=4` already
         totaled to 0.8, no split; One Wolf Pack — PvE/WvW+PvP split 0.95/0.5; Perfect Storm — 2 API
         ids share this name (76979/79309), only 76979 carries the `GroundTargeted` flag matching the
@@ -232,16 +230,18 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         4 more excluded: Crashing Waves (25492) and Flame Barrage (25499), the Water/Fire Glyph of
         Elementals' summoned-elemental "command" follow-ups — both wiki pages explicitly state "the
         direct damage is unaffected by any modifiers such as power or might," a new phrasing of the
-        same non-player-scaling trap seen elsewhere as a `power=` override; Tailored Victory (44637),
-        Weave Self's `flipSkill` release effect (Weave Self itself, 43638, carries zero Damage fact of
-        its own) — same "Damage fact unreachable via the current UI" architecture gap as Revenant's
-        Chaotic Release above; Lesser Fiery Eruption (44918), Conjure Fiery Greatsword's auto-triggered
-        passive proc (wiki `parent = Conjure Fiery Greatsword`, `Category:Lesser skills`) — not
-        independently equippable, but **unlike Tailored Victory this one isn't caught by
-        `skill-variants.ts`'s existing filters** (no `toolbeltSkill`/`flipSkill` link back to its
-        parent for `stripNonEquippableSubAbilities`/`stripFlipTargets` to key off), so it likely still
-        leaks into the live Elite picker as its own bindable-looking skill — see the new follow-up
-        item below. Mesmer done (2026-08-04), the last profession — **Elite-slot sweep is now
+        same non-player-scaling trap seen elsewhere as a `power=` override; Lesser Fiery Eruption
+        (44918), Conjure Fiery Greatsword's auto-triggered passive proc (wiki `parent = Conjure Fiery
+        Greatsword`, `Category:Lesser skills`) — not independently equippable, and unlike Tailored
+        Victory below **isn't caught by `skill-variants.ts`'s existing filters** (no
+        `toolbeltSkill`/`flipSkill` link back to its parent for
+        `stripNonEquippableSubAbilities`/`stripFlipTargets` to key off), so it likely still leaks into
+        the live Elite picker as its own bindable-looking skill — see the follow-up item below.
+        Tailored Victory (44637), Weave Self's `flipSkill` release effect (Weave Self itself, 43638,
+        carries zero Damage fact of its own) — left uncurated at the time (same architecture gap as
+        Revenant's Chaotic Release above) but **curated 2026-08-05** once 44637 became independently
+        reachable via its own stacked flip icon; PvE/WvW+PvP split 0.75/0.01, WvW used, see
+        `damage-calc.ts`. Mesmer done (2026-08-04), the last profession — **Elite-slot sweep is now
         COMPLETE**: 4 raw candidate ids, 3 distinct new skills curated (Thousand Cuts — `strikes=10`
         already totaled to 5.0, no split; Gravity Well — 2 independently-split Damage facts, Pulse
         Damage PvE/WvW+PvP 1.1/0.01 and Final Damage 2.1/0.01, both steeply nerfed in competitive
@@ -335,8 +335,8 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         **The rendering gap itself is now fixed** (Session 64, COMPLETED.md — `glyph-forms.ts`'s
         `glyphFormFactSourceSkill` + `SkillsEditor.tsx` now swap in the correct form's real facts
         based on the build's Celestial Avatar toggle); curating these 6 ids' Damage coefficients is
-        still open, just no longer blocked — see the dedicated curation item near the top of this
-        file. `CURATED_HEALING_COEFFICIENTS`'s 2 pre-existing celestial-form entries (Ranger's Glyph
+        still open, just no longer blocked — see the dedicated TODO item near the top of this file.
+        `CURATED_HEALING_COEFFICIENTS`'s 2 pre-existing celestial-form entries (Ranger's Glyph
         of Alignment 31348, Glyph of Burgeoning 31888, from the 2026-08-02 Healing sweep) are
         confirmed reachable now too, verified directly rather than assumed. See `damage-calc.ts`'s
         Ranger Utility-slot block comment for the full writeup. Thief done 2026-08-04: 20 raw
@@ -344,18 +344,22 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         distinct Thief-only skills curated (Scorpion Wire; Daredevil's Impairing Daggers, Reflexive
         Strike, Distracting Daggers, Palm Strike — 2 independently-split Damage facts, "Damage" and
         "Second Strike Damage" — Fist Flurry; Deadeye's Shadow Flare, Binding Shadow, Shadow Gust;
-        Specter's Well of Sorrow, Well of Tears). **New "priming" variant of the flip-architecture gap
-        found**: Thief's 2 Preparation skills (Prepare Pitfall id 13057, Prepare Thousand Needles id
-        13026) are the actually-equippable ids per `skill-variants.ts`'s `stripFlipTargets` (which
-        drops their differently-named `flipSkill` targets, Pitfall 56880/Thousand Needles 56898, from
-        the picker), but unlike every earlier flip-gap case (Chaotic Release, Tailored Victory, Weave
-        Self) the equippable id here carries ZERO facts of its own — not even a placeholder — so
-        there's no substitute id to curate under; both Pitfall and Thousand Needles excluded outright,
-        a strictly worse case than a partial gap. Deadeye's Shadow Flare hits a related but survivable
-        version: it also has a differently-named flip target (Shadow Swap, 45672) stripped by the same
-        signal, but Shadow Flare itself already carries its own Damage fact (the initial throw,
-        independent of the swap-back detonation) so it's curated normally; only Shadow Swap's own
-        separate Damage fact is the excluded unreachable one. Also worth noting: Well of Sorrow/Well of
+        Specter's Well of Sorrow, Well of Tears). A "priming" variant of the flip-architecture gap:
+        Thief's 2 Preparation skills (Prepare Pitfall id 13057, Prepare Thousand Needles id 13026) are
+        the actually-equippable ids per `skill-variants.ts`'s `stripFlipTargets` (which drops their
+        differently-named `flipSkill` targets, Pitfall 56880/Thousand Needles 56898, from the picker),
+        and unlike every earlier flip-gap case the equippable id here carries ZERO facts of its own —
+        not even a placeholder — so there was no substitute id to curate under at the time; both left
+        excluded, worse than a partial gap. Deadeye's Shadow Flare hits a related but survivable case:
+        it also has a differently-named flip target (Shadow Swap, 45672) stripped by the same signal,
+        but Shadow Flare itself already carries its own Damage fact (the initial throw, independent of
+        the swap-back detonation) so it's curated normally; Shadow Swap's own separate Damage fact was
+        the other excluded-at-the-time one. **All 3 curated 2026-08-05** once each became independently
+        reachable via its own stacked flip icon: Pitfall (56880, 2 independently-split facts —
+        "Initial Impact Damage" PvE/WvW+PvP 1.25/0.01, "Pulse Damage" 0.5/0.3, WvW used for both),
+        Thousand Needles (56898, no split — "Damage" 0.5, "Pulsing Damage" 0.2), Shadow Swap (45672,
+        no split — 1.0). See `damage-calc.ts`'s Thief Utility-slot block comment. Also worth noting:
+        Well of Sorrow/Well of
         Tears both have a separate "Number of Impacts: 5" fact alongside their Damage fact, but neither
         wiki page's Damage fact carries a `strikes=` param and both local API `hit_count`s are 1 (not
         5) — confirmed via Well of Sorrow's own Mechanics note, which describes only a 5-pulse
@@ -378,11 +382,12 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         shape already seen on individual turret sub-abilities (Detonate Supply Crate Turrets, Jade
         Buster Cannon, both Elite-slot) now shown to cover the whole turret family's own attacks, not
         just their detonate/overcharge follow-ups — worth excluding any future turret-shaped summon
-        skill from any profession the same way without re-deriving this from scratch. 1 more excluded
-        as a new flip-architecture-gap instance: Holosmith's Photon Wall (43739, the actually-
-        equippable id) carries zero Damage fact of its own — the fact lives only on its `flipSkill`
-        target Launch Wall (40533), unreachable via the current UI, same "real fact, dead data" shape
-        as Chaotic Release/Tailored Victory/Weave Self earlier in this sweep. Necromancer done
+        skill from any profession the same way without re-deriving this from scratch. Holosmith's
+        Photon Wall (43739, the actually-equippable id) carries zero Damage fact of its own — the fact
+        lives only on its `flipSkill` target Launch Wall (40533), left uncurated at the time (same
+        architecture gap as Chaotic Release/Tailored Victory above) but **curated 2026-08-05** once
+        40533 became independently reachable via its own stacked flip icon; PvE/WvW+PvP split 1.5/0.5,
+        WvW used, see `damage-calc.ts`. Necromancer done
         2026-08-04: 24 visible ids carry a Damage fact (6 shared racial already curated under
         Warrior, not re-curated), resolved via the real `visibleSkillsForSlot` run once per
         Necromancer elite spec (Reaper/Scourge/Harbinger/Ritualist — this app's newest elite spec,
@@ -422,14 +427,18 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         variants' exact name like Glyph of Lesser Elementals and was unaffected). 13 distinct skills
         curated (Lightning Flash, Arcane Blast, all 4 Signets, Arcane Wave — a rare *inverted*
         PvE/WvW split, 1.4/1.7, WvW higher — Arcane Shield; Tempest's 3 shouts; Weaver's Primordial
-        Stance; Catalyst's Shattering Ice). 3 excluded: Evoker's (this app's newest elite spec,
-        released 2025-08-19) 3 Meditations (Hare's Agility, Toad's Fortitude, Fox's Fury) hit a new
-        *confirmed-correct* instance of the flip-architecture gap (Chaotic Release/Tailored
-        Victory/Weave Self/Photon Wall/Thief's Preparation skills) — the app's flip-root pick exactly
-        matches the wiki's own documented id in all 3 cases, but the equippable id's local facts are
-        sparse and never include the real Damage fact, which the API attaches only to the
-        unreachable flip target. See `damage-calc.ts`'s Elementalist Utility-slot block comment for
-        the full writeup. Mesmer done 2026-08-04, the last profession — **Utility-slot sweep is now
+        Stance; Catalyst's Shattering Ice). Evoker's (this app's newest elite spec, released
+        2025-08-19) 3 Meditations (Hare's Agility, Toad's Fortitude, Fox's Fury) hit a
+        confirmed-correct instance of the flip-architecture gap (Chaotic Release/Tailored
+        Victory/Launch Wall/Thief's Preparation skills) — the app's flip-root pick exactly matches the
+        wiki's own documented id in all 3 cases, but the equippable id's local facts are sparse and
+        never include the real Damage fact, which the API attaches only to the flip target. **All 3
+        curated 2026-08-05** under their flip-target ids (76583/77247/77282) once independently
+        reachable via their own stacked flip icons: Hare's Agility (PvE/WvW+PvP split 0.4/0.5 — a rare
+        *inverted* split like Arcane Wave above, WvW used), Toad's Fortitude (1.5/0.5, WvW used),
+        Fox's Fury (no split, but 3 independently-split-by-Might-stacks facts: 3.0 over 20 Might,
+        2.25 at 10–20 Might, 1.5 under 10 Might). See `damage-calc.ts`'s Elementalist Utility-slot
+        block comment. Mesmer done 2026-08-04, the last profession — **Utility-slot sweep is now
         COMPLETE across all 9 professions**: 61 raw candidate ids (6 shared racial ones already
         curated/excluded under Warrior), resolved via the real `visibleSkillsForSlot` run once per
         Mesmer elite spec (Chronomancer/Mirage/Virtuoso/Troubadour — this app's newest elite spec,
