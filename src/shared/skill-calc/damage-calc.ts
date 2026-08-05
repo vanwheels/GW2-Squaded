@@ -675,7 +675,65 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Amalgam — Plasmatic State. `strikes=2` present -> wiki coefficients already totaled (verified:
   // local hit_count 2 * dmg_multiplier 2.25 = 4.5, matching the wiki's PvE side exactly). PvE/WvW+PvP
   // split 4.5/2.0 — WvW value used.
-  77209: [{ factText: 'Damage', coefficient: 2.0, weapon: 'unequipped' }]
+  77209: [{ factText: 'Damage', coefficient: 2.0, weapon: 'unequipped' }],
+
+  // Necromancer — 24 visible ids carry a Damage fact (6 shared racial ones, already curated under
+  // Warrior, not re-curated here), resolved via the real `visibleSkillsForSlot` run once per
+  // Necromancer elite spec (Reaper/Scourge/Harbinger/Ritualist) plus a spec-less baseline, same
+  // throwaway-tsx-script verification as earlier legs — all 4 spec runs returned the identical 49-id
+  // visible set, so no spec-gated duplicate-id groups exist for this profession's Utility slot. 18
+  // Necromancer-only ids: 14 curated below, 4 excluded as non-player-scaling.
+  // **New minion sub-case of the established non-player-scaling trap**: all 4 of the profession's
+  // base minion-summon skills (Summon Bone Fiend 10533, Summon Bone Minions 10541, Summon Flesh Wurm
+  // 10543, Summon Shadow Fiend 10589) are `type = minion` per their own wiki infobox and each carries
+  // an explicit note stating the summoned minion's own fixed Power at level 80 (e.g. Bone Fiend
+  // "has a base Power of 1,500", Flesh Wurm "~1,650") — the same "minion's own stats, not the
+  // player's" reasoning already applied to Summon Flesh Golem/Charge in the Elite-slot sweep and the
+  // wiki's general Minion page. All 4 excluded outright.
+  // Blood Is Power. No split.
+  10544: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Epidemic. No split. Notes confirm this is a real (non-critable, unblockable) direct strike
+  // alongside the condition-spread effect, not just a condition-application trigger.
+  10606: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
+  // Signet of the Locust. No split. Wiki template names this fact "life siphon damage|alt=Damage",
+  // but the local API fact's own `text` is plain "Damage" — matched on that.
+  10612: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Signet of Spite. No split.
+  10622: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Well of Corruption (id fixed — wiki's own `id = 10545, 10671` confirms 10671 is the
+  // GroundTargeted-collapsed visible id; 10545 is the auto-target duplicate `visibleSkillsForSlot`
+  // strips). `strikes=6` present -> wiki's PvE 3.0 already totaled (verified: local hit_count 6 *
+  // dmg_multiplier 0.5 = 3.0). 3-way PvE/WvW/PvP split 3.0/1.68/2.7 — WvW value used.
+  10671: [{ factText: 'Damage', coefficient: 1.68, weapon: 'unequipped' }],
+  // Well of Suffering (id fixed the same way — wiki's `id = 10546, 10674`, 10674 is the visible id).
+  // `strikes=6` present -> wiki's PvE 6.0 already totaled (verified: local hit_count 6 *
+  // dmg_multiplier 1.0 = 6.0). 3-way PvE/WvW/PvP split 6.0/4.5/5.4 — WvW value used.
+  10674: [{ factText: 'Damage', coefficient: 4.5, weapon: 'unequipped' }],
+  // Reaper — "You Are All Weaklings!". PvE/WvW+PvP split 2.5/0.4 — WvW value used. Separate "damage
+  // increase" facts (PvE 100%/WvW+PvP 50%, melee-range bonus) aren't weapon-strength-scaled Damage
+  // facts and aren't modeled here, same treatment as this table's existing "Your Soul Is Mine!" entry.
+  29414: [{ factText: 'Damage', coefficient: 0.4, weapon: 'unequipped' }],
+  // Reaper — "Nothing Can Save You!". PvE/WvW+PvP split 2.0/0.7 — WvW value used. Same unmodeled
+  // "damage increase" bonus fact as above.
+  29666: [{ factText: 'Damage', coefficient: 0.7, weapon: 'unequipped' }],
+  // Reaper — "Suffer!". PvE/WvW+PvP split 1.5/0.3 — WvW value used. Same unmodeled "damage increase"
+  // bonus fact as above.
+  30670: [{ factText: 'Damage', coefficient: 0.3, weapon: 'unequipped' }],
+  // Reaper — "Rise!". PvE/WvW+PvP split 0.8/0.4 — WvW value used. Same unmodeled "damage increase"
+  // bonus fact as above.
+  30772: [{ factText: 'Damage', coefficient: 0.4, weapon: 'unequipped' }],
+  // Scourge — Trail of Anguish. No split.
+  40274: [{ factText: 'Damage', coefficient: 0.55, weapon: 'unequipped' }],
+  // Scourge — Sand Swell. No split. A separate Barrier fact on this skill is its own healing-side
+  // number (out of scope here, not a Damage fact).
+  42917: [{ factText: 'Damage', coefficient: 1.4, weapon: 'unequipped' }],
+  // Scourge — Desiccate. No split.
+  42935: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Ritualist (this app's newest elite spec, released 2025-08-19) — Splinter Weapon. Genuine 3-way
+  // PvE/WvW/PvP split 0.4/0.25/0.5 (independently split values, not the usual PvE-vs-WvW+PvP-grouped
+  // shape) — WvW value used. API represents the split as 3 separate identical-text "Damage" facts
+  // rather than distinct fact names, same shape as Mesmer's Jaunt earlier in this sweep.
+  76975: [{ factText: 'Damage', coefficient: 0.25, weapon: 'unequipped' }]
 }
 
 export interface DamageLine {

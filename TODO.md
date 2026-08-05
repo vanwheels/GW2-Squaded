@@ -341,8 +341,27 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         as a new flip-architecture-gap instance: Holosmith's Photon Wall (43739, the actually-
         equippable id) carries zero Damage fact of its own — the fact lives only on its `flipSkill`
         target Launch Wall (40533), unreachable via the current UI, same "real fact, dead data" shape
-        as Chaotic Release/Tailored Victory/Weave Self earlier in this sweep. **Next up: Necromancer's
-        Utility-slot leg.**
+        as Chaotic Release/Tailored Victory/Weave Self earlier in this sweep. Necromancer done
+        2026-08-04: 24 visible ids carry a Damage fact (6 shared racial already curated under
+        Warrior, not re-curated), resolved via the real `visibleSkillsForSlot` run once per
+        Necromancer elite spec (Reaper/Scourge/Harbinger/Ritualist — this app's newest elite spec,
+        released 2025-08-19) plus a spec-less baseline; all 4 spec runs returned the identical 49-id
+        visible set, no spec-gated duplicate groups this time. 18 Necromancer-only ids: 14 curated
+        (Blood Is Power, Epidemic, Signet of the Locust, Signet of Spite; Well of Corruption/Well of
+        Suffering, both id-fixed via wiki infobox `id=` the same way as earlier duplicate pairs, both
+        genuine 3-way independent PvE/WvW/PvP splits with `strikes=6` already totaled, WvW value used;
+        Reaper's 4 shouts "You Are All Weaklings!"/"Nothing Can Save You!"/"Suffer!"/"Rise!", all
+        PvE/WvW+PvP split, WvW used, each also carrying an unmodeled "damage increase" melee-range
+        bonus fact same as this table's existing "Your Soul Is Mine!" entry; Scourge's Trail of
+        Anguish/Sand Swell/Desiccate; Ritualist's Splinter Weapon, another genuine 3-way independent
+        split 0.4/0.25/0.5, WvW used, API representing it as 3 identical-text "Damage" facts same
+        shape as Mesmer's Jaunt). **New minion sub-case of the established non-player-scaling trap**:
+        all 4 base minion-summon skills (Summon Bone Fiend, Summon Bone Minions, Summon Flesh Wurm,
+        Summon Shadow Fiend) are wiki `type = minion` and each states the summoned minion's own fixed
+        Power at level 80 (e.g. Bone Fiend "1,500", Flesh Wurm "~1,650") — same "minion's own stats,
+        not the player's" reasoning as Summon Flesh Golem/Charge (Elite-slot sweep); all 4 excluded.
+        **Next up: Elementalist's Utility-slot leg, then Mesmer — the last 2 professions in this
+        category.**
       - Weapon-slot (919 raw candidates): not started, last category in the sweep order.
 - [ ] Mesmer Troubadour's Heal skill, "Tale of the Second Scion" (id 76695), shows no Healing numbers
       at all in this app (user screenshot comparison, 2026-08-02) — confirmed root cause: the GW2 API
