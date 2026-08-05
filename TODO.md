@@ -4,6 +4,87 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
+- [ ] **Full skill-picker duplicate-id audit — bumped ahead of the Weapon-slot Damage sweep per user
+      request 2026-08-04.** The Heal/Utility/Elite Damage sweep found the same picker bug 5 separate
+      times (Guardian's 3 Spirit Weapons, Ranger's Mistral, Elementalist's Lightning Flash/Signet of
+      Water pair, Elementalist's 16 Glyph-variant ids) — always the same root cause:
+      `skill-variant-exclusions.json` (built by `scripts/fetch-skill-duplicate-resolutions.ts`) only
+      re-checks duplicate-name groups that `visibleSkillsForSlot` still returns >1 id for, but an
+      in-code signal (GroundTargeted collapse, attunement collapse) can already narrow a group to 1 id
+      *before* that script ever sees it as ambiguous — so a stale/defunct id can silently win with no
+      wiki cross-check ever running on it. Direction differs per case too (usually the ground-targeted
+      id is canonical, but Elementalist's pair was the reverse) — no shortcut, each hit needs its own
+      wiki infobox check. Do a full audit now, profession by profession, rather than continuing to
+      find these opportunistically during Weapon-slot: for every same-name group in `skills.json`
+      (any slot, not just Heal/Utility/Elite), run the real `visibleSkillsForSlot` (throwaway tsx
+      script, same verification used throughout this sweep) and confirm the id it resolves to matches
+      the wiki infobox's own `id =` field, adding any mismatch straight to
+      `skill-variant-exclusions.json`. Also resolve the 4 still-open groups with no signal at all
+      (Engineer "Throw Mine," Elementalist "Mist Form," Revenant "Protective Solace"/"Jade Winds" —
+      see "Skill picker follow-ups" below) if the audit turns up a distinguishing field for any of
+      them.
+- [ ] **Flip-skill / facet display — two distinct rendering gaps, scoped 2026-08-04 from user
+      screenshots + gw2skills.net reference.** Both stem from the same root cause repeatedly hit
+      during the Damage sweep: a skill's real Damage/Healing fact lives on a different id than the one
+      the picker shows (`flipSkill` target stripped by `stripFlipTargets`, or `glyphFormVariants`
+      target stripped by its own pre-pass) — `skillFactLines`/`damageLinesForSkill`/
+      `healingLinesForSkill` never follow either link, so the fact is real but unreachable (dead
+      data). Confirmed instances: Revenant's Chaotic Release, Elementalist's Tailored Victory,
+      Engineer's Photon Wall, Thief's Prepare Pitfall/Prepare Thousand Needles (worse — the equipped
+      id has *zero* facts of its own, no fallback), Evoker's 3 Meditations, Ranger's 3 Glyphs (Tides/
+      Alignment/Equality). Only existing precedent for following either link at all is
+      `boon-calc/sources.ts`'s `withFlipChain`, built for boon aggregation, not fact rendering. Two
+      different UI treatments needed, not one:
+      1. **Flip skills/facets (e.g. Legendary Stance facets' on/release pair)**: gw2skills.net's
+         convention — show the base/primary skill in its normal slot, with the flipped skill(s)
+         rendered stacked directly above/below it as their own smaller icon(s), each with its own
+         independent tooltip/description. Always visible together, not a toggle. User will provide a
+         reference screenshot for the exact stacked-icon layout.
+      2. **Form-toggle-dependent skills (Druid's Glyphs)**: confirmed via `skill-variants.ts`'s own
+         doc comment — the picker already collapses each Glyph to one canonical bindable id whose
+         "effect changes automatically with current Celestial Avatar form," but the two forms' actual
+         facts live on the two non-equippable ids `glyphFormVariants` strips out, and nothing stitches
+         them back. Fix: reuse the toggle infrastructure that already exists for exactly this shape —
+         `Build.activeBundleSkillId`/`ProfessionMechanicBar`'s F5 Celestial Avatar toggle already
+         swaps `WeaponSkillBar`'s displayed 1-5 row live (confirmed in code, not just the user's
+         screenshot demo of it); extend the same toggle-read to the Utility slot's Glyph rendering in
+         `SkillsEditor.tsx` so it shows the non-celestial variant's facts when the toggle is off and
+         the celestial variant's when it's on, instead of always showing whichever one the picker
+         happened to collapse to. This is a swap, not a stack — the two forms are never both shown at
+         once.
+      Needs a proper design/implementation pass (data model changes to how `skillFactLines` and
+      friends locate facts, plus new tooltip-rendering UI) — scope further before starting, this is a
+      real feature, not a data-curation fix.
+- [ ] **`CURATED_BARRIER_COEFFICIENTS` + Barrier tooltip line — decided 2026-08-04, build it.** User
+      confirmed Barrier is important enough to warrant the same treatment as Healing, not just an
+      excluded trap. Mirror `healing-calc.ts`'s shape exactly: a `CURATED_BARRIER_COEFFICIENTS` table
+      keyed by skill id, a `barrierLinesForSkill` function with the same `base + coefficient *
+      HealingPower` formula and `requires_trait`/`activeIds` gating, and its own tooltip line rendered
+      alongside (not folded into) the Healing line, since Barrier and Health are different resource
+      bars. Seed set already identified from the Healing sweep's exclusions: 17 Utility-slot skills
+      (Barrier Signet, Banner of Defense, "Brace Yourselves!", Bulwark Gyro, Utility Goggles, Serpent
+      Siphon, Imminent Threat, and more — see the Barrier item further below for exact ids) plus
+      Warrior's "We Will Never Yield!" (Elite-slot, id 76562) — all previously excluded from
+      `CURATED_HEALING_COEFFICIENTS` specifically because they were Barrier, not Healing, despite the
+      API mislabeling them `target: 'Healing'`. Each needs its own wiki-coefficient pull, same
+      wikitext-first process as the Healing/Damage sweeps.
+- [ ] **Trait-duplicated-fact representation — scoped 2026-08-04, a real gap, small fix.** Several
+      Damage/Healing sweep entries (Mesmer's Phantasmal Disenchanter/Phantasmal Defender/Sword of
+      Decimation/Rain of Swords/Psychic Force, Necromancer's Reaper shouts' "damage increase" facts,
+      and others noted throughout the sweep write-up below) carry an extra same-text fact gated by
+      `requires_trait` representing that trait's own alternate/boosted value — currently unmodeled,
+      not because it's architecturally hard but because `CURATED_DAMAGE_COEFFICIENTS`/
+      `CURATED_HEALING_COEFFICIENTS` entries are keyed by `factText` alone: when two facts share
+      identical text (base + trait-boosted), `damageLinesForSkill`'s `allFacts.find(f => f.text ===
+      entry.factText)` always resolves to whichever sorts first locally (confirmed: always the
+      ungated base fact), so a second entry with the same `factText` can never be reached even if
+      added. `activeIds`-gating itself already works correctly once a fact is actually matched. Fix:
+      add an optional `requiresTrait` field to the curated entry type, match on `(f.text ===
+      entry.factText && (f.requires_trait ?? null) === (entry.requiresTrait ?? null))` instead of text
+      alone, then add the previously-omitted trait-gated entries. Distinct from the separate
+      shared-cross-skill-formula trait-bonus-table item below (Assassin's Reward/Transfusion) — that
+      one formula gets reused verbatim across dozens of unrelated skills, this one is a per-skill
+      alternate value, a much narrower fix.
 - [ ] `skill-variants.ts`'s Elite/Utility/Heal picker filters (`stripNonEquippableSubAbilities`,
       `stripFlipTargets`) don't catch every non-equippable "sub-skill" — found while curating
       `CURATED_DAMAGE_COEFFICIENTS`'s Elementalist Elite-slot entries 2026-08-04. Elementalist's
@@ -415,7 +496,17 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         not represented" treatment already applied to this table's "damage increase" fact omissions
         (Reaper's shouts, "Your Soul Is Mine!"). See `damage-calc.ts`'s Mesmer Utility-slot block
         comment for the full writeup.
-      - Weapon-slot (919 raw candidates): not started, last category in the sweep order — **next up**.
+      - Weapon-slot (919 raw candidates): not started, last category in the sweep order — **next up**,
+        but paused 2026-08-04 pending the picker-audit and other items above. Once resumed, check
+        every candidate against the trap families this sweep already established rather than
+        rediscovering them one at a time: (1) non-player-scaling (turret/minion/pet/mech fixed-stat
+        overrides — check for a `power=` override, an absent `weapon=`, or explicit "unaffected by
+        stats" prose); (2) Barrier mislabeled as Healing (`target: 'Healing'` API tag on a real
+        Barrier fact); (3) duplicate-name ids (wiki infobox `id=` is canonical, verify direction both
+        ways, don't assume ground-targeted always wins); (4) flip-architecture gap (`flipSkill`/
+        `glyphFormVariants` target carrying the real fact, unreachable from the equipped id); (5)
+        trait-duplicated same-text facts (a per-skill alternate value, not a shared formula — leave
+        unmodeled until the fix above lands, don't just guess a placement).
 - [ ] Mesmer Troubadour's Heal skill, "Tale of the Second Scion" (id 76695), shows no Healing numbers
       at all in this app (user screenshot comparison, 2026-08-02) — confirmed root cause: the GW2 API
       returns only 3 facts for this skill (`Recharge`, `Number of Targets`, `Radius`) with **zero**
@@ -632,6 +723,24 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       - Detecting a patch either way likely means fetching GW2 API's `/v2/build` endpoint (a single
         integer) on launch and comparing to a stored last-known value — that part is small and
         needed regardless of which option is chosen.
+      - **Curation-side change detection — separate question, direction chosen 2026-08-04.** The
+        above is about getting fresh data *to users*; this is about how *we* know a balance patch
+        changed a coefficient we've already curated, so `CURATED_DAMAGE_COEFFICIENTS`/
+        `CURATED_HEALING_COEFFICIENTS`/`skills.json` don't silently go stale after every patch. The
+        official forums are too vague to parse reliably (confirmed via the Renegade trait rework
+        patch as an example — several changes there are prose-only, e.g. "moved the strike damage
+        bonus into Heartpiercer," with no stated number at all). Better source: the wiki's own
+        Game_updates page and its per-patch subpages, which wiki editors already transcribe into
+        precise `"X coefficient from A to B"` deltas per skill/profession — mechanically diffable.
+        Direction: fetch the Game_updates index, find patch pages newer than our last check, pull
+        their raw wikitext, regex for "coefficient from," and cross-reference matched skill names
+        against our curated tables to flag exactly which entries need re-verification — far cheaper
+        than a periodic full resweep. **Known limitation, not solved by this**: prose-only reworks
+        (moving a bonus between traits, changing a trait's own %, anything without an explicit
+        "coefficient from X to Y" line) produce no diffable signal — those still need either a human
+        reading the patch notes or the trait-bonus-table items above/below being kept current enough
+        that a periodic trait re-review would catch drift. Not yet built — this is a direction, not
+        an implementation.
 - [ ] Stretch, deferred 2026-08-01: frame a build's "last updated" (now shown plainly as a relative
       timestamp on its card, see COMPLETED.md) relative to GW2 balance patches instead — e.g. "not
       reviewed since the last patch" — rather than just "3 days ago". Blocked on the same
