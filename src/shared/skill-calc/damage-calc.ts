@@ -38,6 +38,10 @@ export const WEAPON_STRENGTH_MIDPOINTS: Record<string, number> = {
   // (harpoon gun, spear, trident) share this exact same 1000 midpoint.
   spear: 1000,
   'harpoon gun': 1000,
+  // Trident — same 1000 midpoint as every other aquatic weapon (see comment above), added for the
+  // Guardian Weapon-slot leg (2026-08-05), the first profession curated so far with actual Trident
+  // weapon skills as damage candidates.
+  trident: 1000,
   // Non-weapon-skill damage (utility/trait procs) — the wiki's `weapon=trait skill` template param.
   unequipped: 690.5
 }
@@ -83,7 +87,10 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Warrior — Axe 5, Whirling Axe. `strikes=15` present -> wiki coefficient already totaled.
   14399: [{ factText: 'Damage', coefficient: 4.47, weapon: 'axe' }],
   // Guardian — Sword 2, Symbol of Blades. No `strikes=` param despite 5 pulses -> wiki's 0.45 is
-  // per-pulse; totaled here as 0.45 * 5.
+  // per-pulse; totaled here as 0.45 * 5. Also the Weapon-slot sweep's one Guardian Symbol skill that
+  // needed this same manual totaling (see that section's block comment) — every other Guardian
+  // Symbol skill's local `hit_count` is 1, confirming their per-pulse wiki value should NOT be
+  // totaled (same "don't total a variable/uncertain hit count" rule as Warrior's Whirlwind Attack).
   9097: [{ factText: 'Damage', coefficient: 2.25, weapon: 'sword' }],
   // Revenant — Hammer 2, Coalescence of Ruin. Single hit, no split needed.
   28253: [{ factText: 'Damage', coefficient: 0.91, weapon: 'hammer' }],
@@ -1180,8 +1187,204 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   80247: [
     { factText: 'Damage', coefficient: 0.5, weapon: 'sword' },
     { factText: 'Follow-Up Damage', coefficient: 1.25, weapon: 'sword' }
+  ],
+
+  // --- Guardian done: 60 raw candidate ids resolved via the app's own `resolveSkillBarIds`/
+  // `weaponSkillIdsForPair` (brute-forced across every main/off weapon pairing, both environments,
+  // and all 4 elite specs — Dragonhunter, Firebrand, Willbender, Luminary), 54 carry a Damage fact;
+  // 53 curated here (the 54th, Symbol of Blades id 9097, was already seeded 2026-08-02 — see the
+  // one-per-profession seed block above). 6 excluded as non-damage (Shield of Absorption, Zealot's
+  // Flame, Line of Warding, Ring of Warding, Refraction, Empower — block/CC/buff skills with no
+  // Damage fact at all). Surfaced a fresh duplicate-id bug matching the skill-picker duplicate-id
+  // audit's known shape (2026-08-04): Shield's Weapon_4 has 2 identical-fact ids (15834/9087) with
+  // nothing to disambiguate them, and `resolveSkillBarIds`'s `candidates[0]` fallback was picking
+  // 15834 (not the wiki-documented 9087) — 15834 moved to `skill-variant-exclusions.json`, curated
+  // here under 9087. Added a `trident` key to `WEAPON_STRENGTH_MIDPOINTS` (Guardian is the first profession
+  // swept with real Trident weapon-skill damage candidates; 1000 midpoint, same as every other
+  // aquatic weapon type per the wiki's own footnote — see that map's comment).
+  //
+  // Note on Guardian's Symbol family (Symbol of Punishment/Blades/Faith/Swiftness/Resolution/
+  // Spears/Light/Vengeance/Ignition/Luminance): the local API's `traitedFacts` carries an alternate,
+  // higher Damage value on all of these gated by `requires_trait: 649` (Symbolic Avenger). Unlike
+  // every other `requiresTrait` entry elsewhere in this table (a flat, deterministic "if this trait
+  // is chosen, this bonus always applies" bump — e.g. Warrior's Forceful Greatsword), Symbolic
+  // Avenger is a **Minor** Zeal trait granting a *stacking combat buff* ("deal increased damage per
+  // stack [of a buff also named Symbolic Avenger], up to 5 stacks") — its traitedFacts values don't
+  // correspond to a build-choice bonus this app's static loadout model can represent, they're an
+  // API preview assuming some unspecified stack count of a runtime buff (confirmed non-flat: the
+  // traited/base ratio varies per skill — 1.2x, 1.3x — where a real flat-bonus trait like Forceful
+  // Greatsword is a consistent 1.10x everywhere it appears). Deliberately NOT modeled as
+  // `requiresTrait` entries here — same "documented known limitation, not a silent guess" bucket as
+  // Weaver's dual-attunement gap and the Familiar/Legend items. Only the base (untraited) coefficient
+  // is curated for these skills.
+  // Guardian — Greatsword 3, Leap of Faith. PvE/WvW+PvP split (2.0/1.25).
+  9080: [{ factText: 'Damage', coefficient: 1.25, weapon: 'greatsword' }],
+  // Guardian — Greatsword 2, Whirling Wrath. Base Damage PvE/WvW+PvP split (2.45/2.8), strikes=7.
+  // Projectile Damage PvE/WvW+PvP split (0.275/0.1).
+  9081: [
+    { factText: 'Damage', coefficient: 2.8, weapon: 'greatsword' },
+    { factText: 'Projectile Damage', coefficient: 0.1, weapon: 'greatsword' }
+  ],
+  // Guardian — Focus 5, Shield of Wrath. PvE/WvW+PvP split (2.5/1.66).
+  9082: [{ factText: 'Damage', coefficient: 1.66, weapon: 'focus' }],
+  // Guardian — Mace 3, Protector's Strike. PvE/WvW+PvP split (2.0/1.5).
+  9086: [{ factText: 'Damage', coefficient: 1.5, weapon: 'mace' }],
+  // Guardian — Shield 4, Shield of Judgment (id fixed, see block comment above). PvE/WvW+PvP split
+  // (1.0/0.67).
+  9087: [{ factText: 'Damage', coefficient: 0.67, weapon: 'shield' }],
+  // Guardian — Torch 5, Cleansing Flame. strikes=10 present -> wiki totaled. PvE/WvW+PvP split
+  // (4.0/2.8).
+  9088: [{ factText: 'Damage', coefficient: 2.8, weapon: 'torch' }],
+  // Guardian — Scepter 2, Symbol of Punishment. Base Damage 3-way split (0.2/0.28/0.33), uses wvw
+  // (0.28). Symbol Damage 3-way split (0.5/0.28/0.45), uses wvw (0.28).
+  9090: [
+    { factText: 'Damage', coefficient: 0.28, weapon: 'scepter' },
+    { factText: 'Symbol Damage', coefficient: 0.28, weapon: 'scepter' }
+  ],
+  // Guardian — Sword 2, Symbol of Blades. Already curated in the one-per-profession seed above
+  // (id 9097) — local API `hit_count: 5` despite the current wiki page carrying no `strikes=` param
+  // on the fact (an older wiki edit apparently dropped it); seed entry already totals the WvW value
+  // by 5 correctly (0.45*5=2.25), not re-curated here to avoid a duplicate object key.
+  // Guardian — Scepter 1, Orb of Wrath. PvE/WvW+PvP split (0.6/0.444).
+  9098: [{ factText: 'Damage', coefficient: 0.444, weapon: 'scepter' }],
+  // Guardian — Scepter 3, Chains of Light. No split (0.25).
+  9099: [{ factText: 'Damage', coefficient: 0.25, weapon: 'scepter' }],
+  // Guardian — Sword 1, Sword of Wrath. PvE/WvW+PvP split (0.75/0.444). Chain-starter (chain1=Sword
+  // of Wrath).
+  9105: [{ factText: 'Damage', coefficient: 0.444, weapon: 'sword' }],
+  // Guardian — Sword 3, Zealot's Defense. strikes=8 present -> wiki totaled. PvE/WvW+PvP split
+  // (4.8/1.76).
+  9107: [{ factText: 'Damage', coefficient: 1.76, weapon: 'sword' }],
+  // Guardian — Mace 1, True Strike. PvE/WvW+PvP split (0.8/0.533). Chain-starter (chain1=True
+  // Strike).
+  9109: [{ factText: 'Damage', coefficient: 0.533, weapon: 'mace' }],
+  // Guardian — Mace 2, Symbol of Faith. strikes=5 present -> wiki totaled. PvE/WvW+PvP split
+  // (3.25/2.25).
+  9111: [{ factText: 'Damage', coefficient: 2.25, weapon: 'mace' }],
+  // Guardian — Focus 4, Ray of Judgment. strikes=6 present -> wiki totaled. PvE/WvW+PvP split
+  // (4.05/1.26).
+  9112: [{ factText: 'Damage', coefficient: 1.26, weapon: 'focus' }],
+  // Guardian — Staff 1, Bolt of Wrath. PvE/WvW+PvP split (0.65/0.366). Chain-starter (chain1=Bolt of
+  // Wrath).
+  9122: [{ factText: 'Damage', coefficient: 0.366, weapon: 'staff' }],
+  // Guardian — Hammer 4, Banish. PvE/WvW+PvP split (3.0/0.01).
+  9124: [{ factText: 'Damage', coefficient: 0.01, weapon: 'hammer' }],
+  // Guardian — Greatsword 1, Strike. PvE/WvW+PvP split (1.0/0.533). Chain-starter (chain1=Strike).
+  9137: [{ factText: 'Damage', coefficient: 0.533, weapon: 'greatsword' }],
+  // Guardian — Staff 2, Holy Strike. 3-way split (1.8/0.73/1.25), uses wvw (0.73).
+  9140: [{ factText: 'Damage', coefficient: 0.73, weapon: 'staff' }],
+  // Guardian — Staff 3, Symbol of Swiftness. strikes=5 present -> wiki totaled. 3-way split
+  // (2.5/1.25/2.0), uses wvw (1.25).
+  9143: [{ factText: 'Damage', coefficient: 1.25, weapon: 'staff' }],
+  // Guardian — Greatsword 4, Symbol of Resolution. Initial Damage no split (0.8). Symbol Damage
+  // strikes=4 present -> wiki totaled, PvE/WvW+PvP split (2.60/1.60).
+  9146: [
+    { factText: 'Initial Damage', coefficient: 0.8, weapon: 'greatsword' },
+    { factText: 'Symbol Damage', coefficient: 1.6, weapon: 'greatsword' }
+  ],
+  // Guardian — Greatsword 5, Binding Blade. PvE/WvW+PvP split (2.5/0.01).
+  9147: [{ factText: 'Damage', coefficient: 0.01, weapon: 'greatsword' }],
+  // Guardian — Hammer 1, Hammer Swing. PvE/WvW+PvP split (0.8/0.533). Chain-starter
+  // (chain1=Hammer Swing (guardian skill)).
+  9159: [{ factText: 'Damage', coefficient: 0.533, weapon: 'hammer' }],
+  // Guardian — Spear 1 (aquatic autoattack), Spear of Light. No split; Maximum Damage (1.0),
+  // Minimum Damage (0.6).
+  9189: [
+    { factText: 'Maximum Damage', coefficient: 1.0, weapon: 'spear' },
+    { factText: 'Minimum Damage', coefficient: 0.6, weapon: 'spear' }
+  ],
+  // Guardian — Spear 2 (aquatic), Zealot's Flurry. `strikes=8` present -> wiki totaled. No split
+  // (2.4).
+  9190: [{ factText: 'Damage', coefficient: 2.4, weapon: 'spear' }],
+  // Guardian — Spear 3 (aquatic), Brilliance. No split (2.0).
+  9191: [{ factText: 'Damage', coefficient: 2.0, weapon: 'spear' }],
+  // Guardian — Spear 4 (aquatic), Symbol of Spears. No split (0.8).
+  9192: [{ factText: 'Damage', coefficient: 0.8, weapon: 'spear' }],
+  // Guardian — Spear 5 (aquatic), Wrathful Grasp. No split (1.0).
+  9193: [{ factText: 'Damage', coefficient: 1.0, weapon: 'spear' }],
+  // Guardian — Hammer 2, Mighty Blow. 3-way split (2.4/1.82/1.65), uses wvw (1.82).
+  9194: [{ factText: 'Damage', coefficient: 1.82, weapon: 'hammer' }],
+  // Guardian — Trident 1, Light Ball. No split (0.5). Chain-starter (chain1=Light Ball).
+  9205: [{ factText: 'Damage', coefficient: 0.5, weapon: 'trident' }],
+  // Guardian — Trident 5, Weight of Justice. strikes=4 present -> wiki totaled. No split (2.0).
+  9206: [{ factText: 'Damage', coefficient: 2.0, weapon: 'trident' }],
+  // Guardian — Trident 2, Purify. No split (1.25).
+  9207: [{ factText: 'Damage', coefficient: 1.25, weapon: 'trident' }],
+  // Guardian — Trident 3, Symbol of Light. strikes=6 present -> wiki totaled. No split (2.4).
+  9208: [{ factText: 'Damage', coefficient: 2.4, weapon: 'trident' }],
+  // Guardian — Hammer 3, Zealot's Embrace. 3-way split (2.25/1.2/1.0), uses wvw (1.2).
+  9260: [{ factText: 'Damage', coefficient: 1.2, weapon: 'hammer' }],
+  // Guardian — Longbow 3, Deflecting Shot. PvE/WvW+PvP split (1.8/0.01).
+  29630: [{ factText: 'Damage', coefficient: 0.01, weapon: 'longbow' }],
+  // Guardian — Longbow 4, Symbol of Energy. Initial Damage PvE/WvW+PvP split (1.38/0.86). Symbol
+  // Damage PvE/WvW+PvP split (0.5175/0.43).
+  29789: [
+    { factText: 'Initial Damage', coefficient: 0.86, weapon: 'longbow' },
+    { factText: 'Symbol Damage', coefficient: 0.43, weapon: 'longbow' }
+  ],
+  // Guardian — Longbow 2, True Shot. PvE/WvW+PvP split (2.8/1.7).
+  30229: [{ factText: 'Damage', coefficient: 1.7, weapon: 'longbow' }],
+  // Guardian — Longbow 1, Puncture Shot. PvE/WvW+PvP split (1.0/0.566).
+  30471: [{ factText: 'Damage', coefficient: 0.566, weapon: 'longbow' }],
+  // Guardian — Longbow 5, Hunter's Ward. Initial Damage PvE/WvW+PvP split (0.75/0.1). Final Impact
+  // Damage 3-way split (2.5/1.333/1.666), uses wvw (1.333).
+  30628: [
+    { factText: 'Initial Damage', coefficient: 0.1, weapon: 'longbow' },
+    { factText: 'Final Impact Damage', coefficient: 1.333, weapon: 'longbow' }
+  ],
+  // Guardian — Axe 2, Symbol of Vengeance. strikes=5 present -> wiki totaled. PvE/WvW+PvP split
+  // (3.0/2.25).
+  40624: [{ factText: 'Damage', coefficient: 2.25, weapon: 'axe' }],
+  // Guardian — Axe 1, Core Cleave. strikes=2 present -> wiki totaled. PvE/WvW+PvP split
+  // (0.72/0.48). Chain-starter (chain1=Core Cleave).
+  45047: [{ factText: 'Damage', coefficient: 0.48, weapon: 'axe' }],
+  // Guardian — Axe 3 (Firebrand), Blazing Edge. Infobox declares a 3-way split but the Damage fact
+  // itself only tags PvE/WvW+PvP grouped (0.8/0.01) — WvW value used.
+  45402: [{ factText: 'Damage', coefficient: 0.01, weapon: 'axe' }],
+  // Guardian — Sword 4, Executioner's Calling. Base Damage PvE/WvW+PvP grouped split (1.25/0.4).
+  // Secondary Attacks strikes=4 present -> wiki totaled, 3-way split (2.5/1.6/1.32), uses wvw (1.6).
+  62525: [
+    { factText: 'Damage', coefficient: 0.4, weapon: 'sword' },
+    { factText: 'Secondary Attacks', coefficient: 1.6, weapon: 'sword' }
+  ],
+  // Guardian — Sword 5, Advancing Strike. strikes=2 present -> wiki totaled. 3-way split
+  // (3.5/1.0/0.9), uses wvw (1.0).
+  62650: [{ factText: 'Damage', coefficient: 1.0, weapon: 'sword' }],
+  // Guardian — Pistol 5, Jurisdiction. PvE/WvW+PvP split (3.0/0.01).
+  71817: [{ factText: 'Damage', coefficient: 0.01, weapon: 'pistol' }],
+  // Guardian — Pistol 4, Hail of Justice. strikes=5 present -> wiki totaled. No split (1.5).
+  71918: [{ factText: 'Damage', coefficient: 1.5, weapon: 'pistol' }],
+  // Guardian — Pistol 2, Peacekeeper. strikes=5 present -> wiki totaled. No split (1.25).
+  71968: [{ factText: 'Damage', coefficient: 1.25, weapon: 'pistol' }],
+  // Guardian — Pistol 3, Symbol of Ignition. strikes=5 present -> wiki totaled. No split (2.0).
+  71987: [{ factText: 'Damage', coefficient: 2.0, weapon: 'pistol' }],
+  // Guardian — Pistol 1, Through the Heart. PvE/WvW+PvP split (0.6/0.35).
+  72031: [{ factText: 'Damage', coefficient: 0.35, weapon: 'pistol' }],
+  // Guardian — Spear 2 (land, Janthir Wilds Weaponmaster Training kit), Helio Rush. Infobox
+  // declares a 3-way split but the Damage fact itself only tags PvE/WvW+PvP grouped (1.5/0.8) —
+  // WvW value used.
+  72940: [{ factText: 'Damage', coefficient: 0.8, weapon: 'spear' }],
+  // Guardian — Spear 3 (land, Janthir Wilds), Gleaming Disc. Base Damage 3-way split
+  // (1.5/1.0/0.7) — WvW used. Shock-Wave Damage PvE/WvW+PvP split (1.5/1.0).
+  72978: [
+    { factText: 'Damage', coefficient: 1.0, weapon: 'spear' },
+    { factText: 'Shock-Wave Damage', coefficient: 1.0, weapon: 'spear' }
+  ],
+  // Guardian — Spear 1 (land, Janthir Wilds), Daybreaking Slash. PvE/WvW+PvP split (0.7/0.5).
+  73055: [{ factText: 'Damage', coefficient: 0.5, weapon: 'spear' }],
+  // Guardian — Spear 4 (land, Janthir Wilds), Solar Storm. Base Damage 3-way split
+  // (1.5/0.65/0.85) — WvW used. Minimum Damage PvE/WvW+PvP split (0.12/0.10).
+  73094: [
+    { factText: 'Damage', coefficient: 0.65, weapon: 'spear' },
+    { factText: 'Minimum Damage', coefficient: 0.1, weapon: 'spear' }
+  ],
+  // Guardian — Spear 5 (land, Janthir Wilds), Symbol of Luminance. Initial Damage PvE/WvW+PvP split
+  // (1.5/0.01). Symbol Damage PvE/WvW+PvP split (0.5/0.4).
+  73132: [
+    { factText: 'Initial Damage', coefficient: 0.01, weapon: 'spear' },
+    { factText: 'Symbol Damage', coefficient: 0.4, weapon: 'spear' }
   ]
-  // Weapon-slot sweep: Warrior done (1 of 9).
+  // Weapon-slot sweep: Warrior, Guardian done (2 of 9).
 }
 
 export interface DamageLine {

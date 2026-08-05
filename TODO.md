@@ -427,8 +427,29 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         +10% exactly, used as confirmed-correct despite the stale tooltip. Every trap family already
         established in this sweep was checked and none applied to Warrior's weapon skills (no
         non-player-scaling exclusions, no duplicate-id pairs, no flip-architecture gaps). See
-        `damage-calc.ts`'s new Weapon-slot block comment for the full writeup. **Next up (not
-        started): Guardian, Revenant, Ranger, Thief, Engineer, Necromancer, Elementalist, Mesmer, in
+        `damage-calc.ts`'s new Weapon-slot block comment for the full writeup. Guardian done
+        2026-08-05: 60 raw candidates, 54 carry a Damage fact, 53 curated (the 54th, Symbol of Blades
+        id 9097, was already seeded 2026-08-02). Used a Haiku extraction agent this leg per
+        `weapon-sweep-token-efficiency` memory (pre-resolve wiki titles + batch-fetch wikitext myself
+        via curl, hand off only mechanical extraction) — its output needed 2 real fixes on
+        spot-check: 4 skills' "Initial Damage" facts mislabeled as plain "Damage" (would have
+        silently failed to match `damageLinesForSkill`'s lookup), and a hallucinated "(Jade Protocol)"
+        spec label on the 5 land-Spear-kit skills (not a real Guardian elite spec — corrected to
+        "land, Janthir Wilds"). New mechanics this leg surfaced: (1) a fresh duplicate-id bug matching
+        the skill-picker duplicate-id audit's known shape — Shield's Weapon_4 has 2 identical-fact ids
+        (15834/9087) with nothing to disambiguate them; `resolveSkillBarIds`'s fallback was picking
+        the non-wiki-documented 15834, now excluded via `skill-variant-exclusions.json`; (2) a
+        `trident` key added to `WEAPON_STRENGTH_MIDPOINTS` (first profession swept with real Trident
+        damage candidates); (3) Symbol of Blades' local `hit_count: 5` with no matching wiki
+        `strikes=` param (an apparent wiki edit dropped it) — manually totaled, matching how the
+        2026-08-02 seed entry already handled it; every other Guardian Symbol skill's `hit_count` is
+        1, confirming they should NOT be totaled (same rule as Warrior's Whirling Axe/Whirlwind
+        Attack precedent); (4) Guardian's Symbol family also carries a `requires_trait: 649`
+        (Symbolic Avenger) alternate Damage value in the API, deliberately NOT modeled as
+        `requiresTrait` — it's a Minor trait's *stacking combat buff* preview (ratio varies per skill,
+        1.2x-1.3x), not a flat build-choice bonus like every other `requiresTrait` entry in this
+        table. See `damage-calc.ts`'s Guardian Weapon-slot block comment for the full writeup. **Next
+        up (not started): Revenant, Ranger, Thief, Engineer, Necromancer, Elementalist, Mesmer, in
         that order** — stop after each leg for a check-in, don't chain them.
 - [ ] Mesmer's Tale of the Second Scion (id 76695) also grants "Scion's Reprieve," a self-buff
       (+15% WvW/PvP Heal Effectiveness on the caster) that neither this skill's Healing tooltip line
