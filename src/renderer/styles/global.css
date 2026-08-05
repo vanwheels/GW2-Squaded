@@ -1191,6 +1191,17 @@ input[type='text'] {
   border-bottom: 1px solid var(--border);
 }
 
+.boon-summary-row-pair {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.boon-summary-row-pair .boon-summary-row {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
 .boon-summary-row {
   display: flex;
   align-items: center;
@@ -1199,21 +1210,28 @@ input[type='text'] {
 
 .boon-summary-row-label {
   flex: none;
-  width: 88px;
   font-size: 0.7rem;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .boon-summary-row .boon-icon-row {
-  flex-wrap: wrap;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: nowrap;
   justify-content: flex-start;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  padding-bottom: 2px;
 }
 
 .boon-summary-row .boon-icon-row-icon {
-  width: 22px;
-  height: 22px;
+  flex: none;
+  width: 18px;
+  height: 18px;
 }
 
 .boon-source-duration {

@@ -149,6 +149,13 @@ function comboIconItems(sources: ComboSource[]): BoonConditionIconItem[] {
  * `SkillsEditor.tsx`'s `skillTooltipContent`/`skillFactLines`) — a per-skill number read in place,
  * next to the skill it belongs to, was judged easier to read than a separate summary icon once real
  * numbers for many skills started landing.
+ *
+ * Laid out as a 2-column grid (Conditions/Auras, Boons/Miscellaneous, Control/Strip-Corrupt,
+ * Combo Fields/Combo Finishers) rather than 7 stacked single rows, to halve this panel's height and
+ * leave more vertical room for the Skills section below it. Combo Fields/Finishers is the one pair
+ * still sharing a single generic icon each (see `comboIconItems`'s doc comment) rather than being
+ * broken out per `field_type`/`finisher_type` like every other pair here — a proper per-type split
+ * is future work.
  */
 export function BoonConditionSummaryPanel({ build }: Props) {
   const gameData = useGameData()
@@ -168,23 +175,37 @@ export function BoonConditionSummaryPanel({ build }: Props) {
     [build, gameData]
   )
   const comboSources = useMemo(() => computeComboSources(build, gameData), [build, gameData])
+  const [comboFieldItem, comboFinisherItem] = useMemo(() => comboIconItems(comboSources), [comboSources])
 
-  const rows: { label: string; items: BoonConditionIconItem[] }[] = [
-    { label: 'Conditions', items: iconItemsFor(boonConditionGroups, CONDITION_NAMES, BOON_CONDITION_ICONS) },
-    { label: 'Boons', items: iconItemsFor(boonConditionGroups, BOON_NAMES, BOON_CONDITION_ICONS) },
-    { label: 'Control', items: namedFactIconItemsFor(controlGroups, Object.keys(CONTROL_MATCHERS), CONTROL_ICONS) },
-    { label: 'Auras', items: iconItemsFor(auraGroups, AURA_NAMES, AURA_ICONS) },
-    { label: 'Miscellaneous', items: namedFactIconItemsFor(miscGroups, Object.keys(MISCELLANEOUS_MATCHERS), MISCELLANEOUS_ICONS) },
-    { label: 'Strip / Corrupt', items: namedFactIconItemsFor(stripCorruptGroups, Object.keys(BOON_STRIP_CORRUPT_MATCHERS), BOON_STRIP_CORRUPT_ICONS) },
-    { label: 'Combo', items: comboIconItems(comboSources) }
+  const rowPairs: { label: string; items: BoonConditionIconItem[] }[][] = [
+    [
+      { label: 'Conditions', items: iconItemsFor(boonConditionGroups, CONDITION_NAMES, BOON_CONDITION_ICONS) },
+      { label: 'Auras', items: iconItemsFor(auraGroups, AURA_NAMES, AURA_ICONS) }
+    ],
+    [
+      { label: 'Boons', items: iconItemsFor(boonConditionGroups, BOON_NAMES, BOON_CONDITION_ICONS) },
+      { label: 'Misc.', items: namedFactIconItemsFor(miscGroups, Object.keys(MISCELLANEOUS_MATCHERS), MISCELLANEOUS_ICONS) }
+    ],
+    [
+      { label: 'Control', items: namedFactIconItemsFor(controlGroups, Object.keys(CONTROL_MATCHERS), CONTROL_ICONS) },
+      { label: 'Strip / Corrupt', items: namedFactIconItemsFor(stripCorruptGroups, Object.keys(BOON_STRIP_CORRUPT_MATCHERS), BOON_STRIP_CORRUPT_ICONS) }
+    ],
+    [
+      { label: 'Combo Fields', items: [comboFieldItem] },
+      { label: 'Combo Finishers', items: [comboFinisherItem] }
+    ]
   ]
 
   return (
     <div className="boon-summary-panel">
-      {rows.map((row) => (
-        <div className="boon-summary-row" key={row.label}>
-          <span className="boon-summary-row-label">{row.label}</span>
-          <BoonConditionIconRow items={row.items} />
+      {rowPairs.map((pair) => (
+        <div className="boon-summary-row-pair" key={pair.map((row) => row.label).join('|')}>
+          {pair.map((row) => (
+            <div className="boon-summary-row" key={row.label}>
+              <span className="boon-summary-row-label">{row.label}</span>
+              <BoonConditionIconRow items={row.items} />
+            </div>
+          ))}
         </div>
       ))}
     </div>
