@@ -340,7 +340,12 @@ input[type='text'] {
 /* Columns whose last child (`.build-editor-column-pushed`) should sit flush with the bottom —
    `align-items: stretch` on `.build-editor-columns` already equalizes every column's height to the
    tallest one (Equipment); this makes that column a flex column internally so the pushed child's
-   `margin-top: auto` has somewhere to expand into. */
+   `margin-top: auto` has somewhere to expand into. Only Traits (column 1) uses the pushed treatment
+   now — Skills (column 3, BuildEditorView.tsx) deliberately stopped (2026-08-04 user feedback): with
+   flip-skill icons now full-size (see `.skill-slot-flip-icon`), pushing Skills to the bottom would
+   grow the whole row's height instead of just eating the blank space `margin-top: auto` used to
+   leave above it — Skills now sits in normal flow right after the Boons/Conditions divider, and any
+   leftover slack lands below it (out of view) instead. */
 .build-editor-column-stretch {
   display: flex;
   flex-direction: column;
@@ -830,10 +835,13 @@ input[type='text'] {
   gap: 3px;
 }
 
-/* One small icon per `flipSkill` hop (e.g. Chaotic Release, a Mantra's Final Charge), stacked below
-   the base skill's own slot — gw2skills.net's convention: always visible together, not a toggle,
-   each with its own independent tooltip carrying that target's real facts. Sized down from the 48px
-   `skill-slot-button` since these are a secondary readout, not an equally-weighted slot. */
+/* One icon per `flipSkill` hop (e.g. Chaotic Release, a Mantra's Final Charge), stacked below the
+   base skill's own slot — gw2skills.net's convention: always visible together, not a toggle, each
+   with its own independent tooltip carrying that target's real facts. Same 48px footprint as
+   `skill-slot-button` (2026-08-04 user feedback: matching size reads better than a shrunk-down
+   secondary icon) — the column layout costs vertical space instead, offset by the "Skills" section
+   no longer being pushed to the bottom of its 3-column box, see `.build-editor-columns` in
+   BuildEditorView.tsx. */
 .skill-slot-flip-stack {
   display: flex;
   flex-direction: column;
@@ -842,10 +850,10 @@ input[type='text'] {
 
 .skill-slot-flip-icon {
   display: block;
-  width: 26px;
-  height: 26px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
   background: var(--surface);
   overflow: hidden;
   cursor: default;

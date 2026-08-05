@@ -224,17 +224,15 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
         <div className="build-editor-column build-editor-column-fill build-editor-column-stretch">
           <StatsPanel build={draft} combatState={combatState} onCombatStateChange={setCombatState} />
           <BoonConditionSummaryPanel build={draft} />
-          <div className="build-editor-column-pushed">
-            <h3>Skills</h3>
-            <SkillsEditor
-              build={draft}
-              value={draft.skills}
-              onChange={(skills) => setDraft({ ...draft, skills })}
-              onBuildChange={(patch) => setDraft({ ...draft, ...patch })}
-              equippedSpecializationIds={equippedSpecializationIds}
-              combatState={combatState}
-            />
-          </div>
+          <h3>Skills</h3>
+          <SkillsEditor
+            build={draft}
+            value={draft.skills}
+            onChange={(skills) => setDraft({ ...draft, skills })}
+            onBuildChange={(patch) => setDraft({ ...draft, ...patch })}
+            equippedSpecializationIds={equippedSpecializationIds}
+            combatState={combatState}
+          />
         </div>
       </div>
 

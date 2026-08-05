@@ -42,6 +42,14 @@ is now fully done; removed from TODO.md.
   uses `--noEmit`) clobbers `src/preload/index.d.ts` down to a stub and litters ~220 stray
   `.js`/`.d.ts` files across `src/`/`scripts/` — don't run bare `tsc --build` in this repo again,
   `npm run typecheck` is the right command.
+- **Follow-up same session, after the user saw it live**: flip icons resized from 26px to the full
+  48px `skill-slot-button` footprint (matches better than a shrunk secondary icon). To keep that
+  from growing the 3-column row's overall height, the "Skills" section (`BuildEditorView.tsx`)
+  stopped using `.build-editor-column-pushed` (which pushed it flush to the column's bottom via
+  `margin-top: auto`) and now sits in normal flow right after the Boons/Conditions divider — the
+  taller icon stack eats into what used to be blank push-down space above Skills instead of
+  extending past the box; any leftover slack now lands below Skills, out of view. Traits (column 1)
+  still uses the pushed treatment, unaffected.
 
 ## Session 64 — Druid Glyph forms: swap-not-stack fact rendering
 
