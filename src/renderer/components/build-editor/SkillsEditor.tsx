@@ -4,6 +4,7 @@ import { activeTraitIds, boonConditionFactsForSkill, type BoonConditionSource } 
 import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
 import type { FactLine } from '@shared/skill-calc/fact-numbers'
 import { relatedVariantSkills } from '@shared/skill-calc/multi-effect'
+import { VINDICATOR_SPEC_ID, vindicatorAspectSkillId } from '@shared/skill-calc/vindicator-aspect'
 import { formatBoonDuration } from '@shared/boon-calc/format'
 import { BOON_CONDITION_ICONS } from '@shared/boon-calc/icons'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
@@ -35,6 +36,7 @@ interface Props {
         | 'rangerUnleashed'
         | 'familiarId'
         | 'thiefStolenSkillId'
+        | 'vindicatorAspectFlipped'
       >
     >
   ) => void
@@ -454,13 +456,18 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
   if (section === 'bar') {
     const activeLegendId = value.legends[value.activeLegendIndex]
     const activeLegend = activeLegendId !== null ? legendsById.get(activeLegendId) : undefined
+    // Legend7 (Legendary Alliance) only: swap each slot's base ("Aspect of the Archemorus") id for
+    // its "Aspect of Saint Viktor" counterpart when toggled — see `vindicator-aspect.ts`. Every
+    // other Legend ignores `vindicatorAspectFlipped` entirely (ids resolve unchanged).
+    const aspectFlipped = activeLegend?.specializationId === VINDICATOR_SPEC_ID && build.vindicatorAspectFlipped
     return (
       <div className="ingame-skill-bar-utility-skills skill-bar">
         {activeLegend ? (
-          [activeLegend.heal, ...activeLegend.utilities, activeLegend.elite].map((skillId) => {
+          [activeLegend.heal, ...activeLegend.utilities, activeLegend.elite].map((baseSkillId) => {
+            const skillId = vindicatorAspectSkillId(baseSkillId, aspectFlipped, skillsById)
             const skill = skillsById.get(skillId)
             return (
-              <Tooltip key={skillId} content={skillTooltipFor(skillId) ?? <TooltipBody title="Unknown skill" />}>
+              <Tooltip key={baseSkillId} content={skillTooltipFor(skillId) ?? <TooltipBody title="Unknown skill" />}>
                 <button type="button" className="skill-slot-button" disabled>
                   {skill ? <img src={skill.icon} alt={skill.name} /> : <span className="skill-slot-placeholder">?</span>}
                 </button>

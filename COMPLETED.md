@@ -2,6 +2,60 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 63 — Vindicator's Aspect-swap toggle (Legendary Alliance Stance)
+
+Implemented the display-side fix the "Legendary Alliance Stance" item under "Profession-mechanic
+data" flagged as future work: Legend7's heal/utility/elite bar previously always showed the
+"Aspect of the Archemorus" ids with the "Aspect of Saint Viktor" counterparts only visible as a
+stacked tooltip variant (`relatedVariantSkills`' flip-chain walk). Live-verified against the wiki's
+"Alliance Tactics" page (F3, "Swap your Legendary Alliance Stance skills", 3s recharge) that this is
+actually a real in-combat manual toggle swapping all 5 slots at once — the same "hit a button, the
+whole kit's display swaps" shape as a Kit/Tome/Celestial Avatar toggling the weapon bar
+(`Build.activeBundleSkillId`), not an on/release pair like every other Legend's own `flipSkill` link
+(which touches only 1 of 5 slots, and correctly stays a stacked tooltip variant).
+
+- **Alliance Tactics (62729) was a 6th instance of the "real F-button missing from
+  `professionSkills` entirely" API gap** already seen for Guardian Dragonhunter's virtues and
+  Thief Specter's F1/F2 (`profession-mechanic.ts`) — confirmed live it's correctly tagged
+  `specializationId: 69` (Vindicator)/`slot: "Profession_3"` in `/v2/skills` but absent from
+  Revenant's `professionSkills` array, so Vindicator's F3 slot silently showed nothing before this.
+  Hand-injected via a new `VINDICATOR_MECHANIC_SKILLS` constant, same pattern as
+  `DRAGONHUNTER_VIRTUE_SKILLS`/`SPECTER_MECHANIC_SKILLS`.
+- **New `Build.vindicatorAspectFlipped` boolean** (display-only, same "both states always
+  contribute to totals" convention as `rangerUnleashed`/`activeLegendIndex` — boon/condition totals
+  were already correct via `sources.ts`'s `withFlipChain`, fixed in Session 31, well before this
+  toggle existed). Toggled by clicking the newly-surfaced F3 icon in `ProfessionMechanicBar`
+  (5th clickable case there, alongside the Kit/Tome/Celestial-Avatar bundle toggle, Evoker's
+  familiar cycle, and Thief's Stolen Skill picker).
+- **New `skill-calc/vindicator-aspect.ts`**: `VINDICATOR_ASPECT_ARCHEMORUS_IDS` (the 5 canonical
+  `legends.json` ids for Legend7 — `62719` Selfish Spirit, `62832` Nomad's Advance, `62962`
+  Scavenger Burst, `62878` Reaver's Rage, `62942` Spear of Archemorus) and
+  `vindicatorAspectSkillId(baseId, flipped, skillsById)`, a 1-hop `flipSkill` lookup (not a chain
+  walk — the elite's own further hop, `62687` Urn of Saint Viktor -> `62738` Drop Urn of Saint
+  Viktor, is the urn's own follow-up cast, a different kind of link, not a third aspect).
+  `RevenantSkillsEditor`'s `bar` section (`SkillsEditor.tsx`) now resolves each of Legend7's 5 slots
+  through this helper instead of always rendering the raw `legends.json` id.
+- **`relatedVariantSkills` (`multi-effect.ts`) now skips its flip-chain walk for the 5 canonical
+  Archemorus ids specifically** — otherwise the tooltip would double-signal the same swap (once as
+  the toggle button, once as a stacked variant), the exact "stack vs. swap" distinction the
+  `exception_handling_decisions_2026-08-04` memory's flip-skill-display item called for but hadn't
+  been applied to this family yet. Verified the exclusion doesn't break the elite's legitimate
+  further hop: `relatedVariantSkills` on the Archemorus elite id now returns `[]`, while calling it
+  on the Saint Viktor id (once resolved via the toggle) still correctly returns `[Drop Urn of Saint
+  Viktor]`.
+- Narrowed (not resolved) the adjacent open TODO item about Scavenger Burst/Tree Song's other
+  duplicate ids (`62841`/`62793`) — confirmed those aren't part of this Aspect-swap family at all
+  (no `legends.json` reference, no `flipSkill` link to anything), so whatever they are remains a
+  separate, still-open mystery; updated that bullet's framing since it previously (incorrectly)
+  attributed the Aspect mechanic itself to "legend swap mid-cast."
+- Verified via a standalone script (not committed): `professionMechanicBar` surfaces Alliance
+  Tactics as F3 only when Vindicator's specialization id is in the equipped set; all 5 slots'
+  `vindicatorAspectSkillId` outputs match the hand-verified wiki mapping in both toggle states;
+  `relatedVariantSkills`'s exclusion behaves as described above. `npm run typecheck`/`lint`/`build`
+  all clean. Not visually confirmed in a running window (standing Electron-sandbox limitation) —
+  recommend `npm run dev` locally to eyeball a Vindicator/Legend7 build's F3 icon and the
+  heal/utility/elite bar swapping on click.
+
 ## Session 62 — Full skill-picker duplicate-id audit
 
 Built the audit bumped ahead of the Weapon-slot Damage sweep 2026-08-04 (see

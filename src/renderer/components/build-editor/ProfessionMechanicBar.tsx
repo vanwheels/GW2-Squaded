@@ -3,6 +3,7 @@ import type { Build } from '@shared/types'
 import type { CombatState } from '@shared/gear-calc/combat-state'
 import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
 import {
+  ALLIANCE_TACTICS_SKILL_ID,
   CATALYST_SPEC_ID,
   catalystJadeSphereBar,
   CONDUIT_SPEC_ID,
@@ -26,7 +27,9 @@ import { skillTooltipContent, useDurationContext, type SkillVariantContext } fro
 interface Props {
   build: Build
   equippedSpecializationIds: ReadonlySet<number>
-  onBuildChange: (patch: Partial<Pick<Build, 'activeBundleSkillId' | 'familiarId' | 'thiefStolenSkillId'>>) => void
+  onBuildChange: (
+    patch: Partial<Pick<Build, 'activeBundleSkillId' | 'familiarId' | 'thiefStolenSkillId' | 'vindicatorAspectFlipped'>>
+  ) => void
   combatState: CombatState
 }
 
@@ -76,6 +79,13 @@ const THIEF_STOLEN_SKILL_SLOT = 'Profession_2'
  * equipped and Specter isn't — Specter's own F2 "Enter Shadow Shroud" already occupies that slot
  * through the generic resolver and behaves like any other Shroud (clickable bundle toggle, not a
  * picker).
+ *
+ * Vindicator's F3 "Alliance Tactics" (`ALLIANCE_TACTICS_SKILL_ID`) is a fifth clickable case:
+ * clicking it flips `Build.vindicatorAspectFlipped`, which `SkillsEditor`'s `RevenantSkillsEditor`
+ * reads to swap Legend7's displayed heal/utility/elite bar between its two Aspects — same "click
+ * toggles a boolean, both states always contribute to totals" shape as `rangerUnleashed`'s toggle,
+ * not `activeBundleSkillId` (there's nothing to set `activeBundleSkillId` to here — Legend7's
+ * heal/utility/elite bar isn't the weapon bar). See `vindicator-aspect.ts`.
  */
 export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuildChange, combatState }: Props) {
   const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
@@ -157,14 +167,20 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
         const isBundle = isMechanicBarBundleId(entry.skill.id, tomeChapters)
         const isFamiliarSlot = isEvoker && entry.slot === 'Profession_5'
         const isStolenSkillSlot = showStolenSkillPicker && entry.slot === THIEF_STOLEN_SKILL_SLOT
-        const isActive = (isBundle && build.activeBundleSkillId === entry.skill.id) || (isStolenSkillSlot && stolenSkillPickerOpen)
+        const isAllianceTacticsSlot = entry.skill.id === ALLIANCE_TACTICS_SKILL_ID
+        const isActive =
+          (isBundle && build.activeBundleSkillId === entry.skill.id) ||
+          (isStolenSkillSlot && stolenSkillPickerOpen) ||
+          (isAllianceTacticsSlot && build.vindicatorAspectFlipped)
         const onClick = isStolenSkillSlot
           ? toggleStolenSkillPicker
           : isBundle
             ? () => onBuildChange({ activeBundleSkillId: isActive ? null : entry.skill.id })
             : isFamiliarSlot
               ? cycleFamiliar
-              : undefined
+              : isAllianceTacticsSlot
+                ? () => onBuildChange({ vindicatorAspectFlipped: !build.vindicatorAspectFlipped })
+                : undefined
         return (
           <Tooltip key={entry.slot} content={skillTooltipFor(entry.skill.id) ?? <TooltipBody title="Unknown skill" />}>
             <button

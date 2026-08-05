@@ -41,6 +41,7 @@ export function makeBlankBuild(): Build {
     familiarId: null,
     activeAttunement: 'Fire',
     thiefStolenSkillId: null,
+    vindicatorAspectFlipped: false,
     createdAt: now,
     updatedAt: now,
     tags: [],

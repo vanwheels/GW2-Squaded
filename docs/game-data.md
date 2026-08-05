@@ -703,7 +703,22 @@ per the findings below:
   input, which only fed the base ids — fixed via a new `withFlipChain` helper folding each legend
   skill's full flip chain in, which also fixes the same undercounting for every *other* legend's own
   channel-release effect (e.g. Herald's Facet of Chaos -> Chaotic Release), not just this one legend.
-  See TODO.md for the full writeup/verification.
+  See TODO.md for the full writeup/verification. **Display side corrected 2026-08-04**: the
+  "stacked tooltip variant is enough, no separate legend-form concept needed" framing above was
+  right for boon-calc (both aspects always contribute regardless of display) but wrong for display
+  — live-verified against the wiki's "Alliance Tactics" page (F3, "Swap your Legendary Alliance
+  Stance skills", 3s recharge) that this is a real in-combat manual toggle affecting all 5 slots at
+  once, the same "hit a button, the whole kit swaps" shape as a Kit/Tome/Celestial Avatar toggling
+  the weapon bar (`activeBundleSkillId`) — not an on/release pair like every other legend's own
+  `flipSkill` link (1 slot only), which correctly stays a stacked tooltip variant. "Alliance Tactics"
+  itself (62729) turned out to be a 6th instance of the "real F-button missing from
+  `professionSkills` entirely" API gap already seen for Dragonhunter's virtues/Specter's mechanics —
+  hand-injected (`VINDICATOR_MECHANIC_SKILLS`) the same way. Implemented as `Build.
+  vindicatorAspectFlipped` (display-only, doesn't affect boon-calc totals — those were already
+  correct) toggled by clicking the F3 icon; `RevenantSkillsEditor`'s bar resolves each slot through
+  the toggle via `vindicator-aspect.ts`'s `vindicatorAspectSkillId` (a 1-hop `flipSkill` lookup from
+  the canonical Archemorus id), and `relatedVariantSkills` skips stacking that specific hop for the 5
+  canonical ids so the toggle and the tooltip don't both signal the same swap. See COMPLETED.md.
 - **Engineer** — the base Toolbelt (F1-F4) isn't in `professionSkills` at all (confirmed: no base
   ids under those slots, only elite-spec sub-mechanics); it's generated per equipped Heal/Utility
   choice instead, via each `Skill.toolbeltSkill` field (`profession-mechanic.ts`'s

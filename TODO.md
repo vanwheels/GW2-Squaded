@@ -755,14 +755,20 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       Reaver's Rage) each carry a same-spec non-`GroundTargeted` duplicate id whose relationship to
       the kept id isn't understood yet** — found by the full skill-picker duplicate-id audit
       (2026-08-04, see COMPLETED.md Session 62) but deliberately left un-excluded rather than guessed.
-      Scavenger Burst's ground-targeted id (`62962`) has its own `flipSkill` pointing at Tree Song's
-      ground-targeted id (`62941`) — the in-game "legend swap mid-cast changes this skill's name"
-      mechanic — while the plain non-ground duplicates (`62841` Scavenger Burst / `62793` Tree Song)
-      have no such link. Needs a dedicated look at the whole family (including Nomad's Advance, not
-      yet checked for the same shape) before deciding whether the non-ground ids are a second,
-      unrelated legend-swap pairing or genuine stale duplicates — don't just wiki-id=-exclude them
-      like the rest of this audit did, that heuristic already produced false positives for this exact
-      family once (see Session 62's write-up).
+      **Narrowed 2026-08-04 while implementing the Aspect-swap toggle (see COMPLETED.md)**: the
+      canonical `legends.json` ids and their real Aspect-of-Saint-Viktor `flipSkill` targets are now
+      fully mapped and verified (`vindicator-aspect.ts`) — `62962` Scavenger Burst -> `62941` Tree
+      Song, `62832` Nomad's Advance -> `62702` Battle Dance, `62878` Reaver's Rage -> `62796`
+      Awakening, none of which involve `62841`/`62793` at all. So the "legend swap mid-cast changes
+      this skill's name" framing this bullet used to carry was wrong — that's the Aspect toggle
+      (F3 "Alliance Tactics", now implemented), and it's fully accounted for by the ids above. What's
+      still unexplained is only the leftover plain non-ground orphans (`62841` Scavenger Burst /
+      `62793` Tree Song specifically — Nomad's Advance/Reaver's Rage not yet checked for a same-shape
+      orphan) that aren't referenced by `legends.json` and carry no `flipSkill` link to anything.
+      Needs a dedicated look at whether they're genuine stale pre-rework duplicates (matching this
+      audit's usual pattern elsewhere) or something else — don't just wiki-id=-exclude them like the
+      rest of this audit did, that heuristic already produced false positives for this exact family
+      once (see Session 62's write-up).
 - [ ] Known limitation, documented in code (`weapon-calc/weapon-skills.ts`): Weaver's "Dual Attack"
       weapon-skill-3 replacements (e.g. 3 different Fire-tagged ids sharing `specializationId: 56`)
       can't be disambiguated — which one is live depends on Weaver's second active attunement, a

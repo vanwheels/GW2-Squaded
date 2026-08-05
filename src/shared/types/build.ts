@@ -149,6 +149,24 @@ export interface Build {
    */
   rangerUnleashed: boolean
   /**
+   * Revenant Vindicator only (meaningless, always `false`, for every other build): whether the
+   * displayed Heal/Utility/Elite bar shows Legend7 (Legendary Alliance)'s "Aspect of Saint Viktor"
+   * skills instead of its default "Aspect of the Archemorus" ones — live-verified 2026-08-04
+   * against the wiki's own "Alliance Tactics" page (F3, "Swap your Legendary Alliance Stance
+   * skills", 3s recharge): unlike every other Legend's `flipSkill` pairs (an on/release pair
+   * touching one slot, shown stacked in the tooltip — see `relatedVariantSkills`), Legend7's heal +
+   * all 3 utilities + elite each carry a `flipSkill` to a wholly different-named skill
+   * *simultaneously*, the same "hit a button, the whole kit's display swaps" shape as a Kit/Tome/
+   * Celestial Avatar toggling the weapon bar (`activeBundleSkillId`) rather than a stacked variant
+   * — see `skill-calc/vindicator-aspect.ts`. Toggled by clicking the hand-injected "Alliance
+   * Tactics" F3 mechanic-bar icon (`profession-mechanic.ts`'s `VINDICATOR_MECHANIC_SKILLS`).
+   * Display-only, same "both states always contribute" reasoning as every other toggle on this
+   * type — `boon-calc/sources.ts`'s `withFlipChain` already folds both aspects' boon/condition
+   * sources into Legendary-Alliance builds' totals regardless of which is shown here (fixed
+   * Session 31, before this toggle existed).
+   */
+  vindicatorAspectFlipped: boolean
+  /**
    * Elementalist Evoker only (meaningless, always `null`, for every other build): the chosen
    * familiar (`Familiar.id` in game-data.ts — Fox/Otter/Hare/Toad), set by clicking the F5
    * "Familiar" icon in `ProfessionMechanicBar` (cycles through `gameData.familiars` in order).

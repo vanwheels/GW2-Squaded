@@ -134,6 +134,21 @@ const SPECTER_MECHANIC_SKILLS: { id: number; slot: string }[] = [
 ]
 
 /**
+ * Vindicator (specialization id 69): live-verified 2026-08-04 against `/v2/skills` — "Alliance
+ * Tactics" (62729, description "Swap your Legendary Alliance Stance skills.", correctly tagged
+ * `specializationId: 69`/`slot: "Profession_3"`) never appears in Revenant's `professionSkills` at
+ * all, the same real API data gap as Dragonhunter's virtues/Specter's mechanics above. Hand-injected
+ * so the normal per-slot resolver picks it up whenever Vindicator is equipped; without this,
+ * Vindicator's F3 slot (Profession_3 has no other Revenant candidate at all — unlike Conduit's
+ * Cosmic Wisdom, which shares that slot) is simply omitted. `ProfessionMechanicBar` wires this
+ * specific id to toggle `Build.vindicatorAspectFlipped` (see `vindicator-aspect.ts`) rather than
+ * treating it as read-only, the same "clickable, not disabled" treatment as a Kit/Tome/Celestial
+ * Avatar's `activeBundleSkillId` toggle.
+ */
+export const ALLIANCE_TACTICS_SKILL_ID = 62729
+const VINDICATOR_MECHANIC_SKILLS: { id: number; slot: string }[] = [{ id: ALLIANCE_TACTICS_SKILL_ID, slot: 'Profession_3' }]
+
+/**
  * Ranger Soulbeast (specialization id 55): live-verified 2026-07-30 every `Profession_1`-`_4`
  * candidate gated to this spec (e.g. "Swoop"/"Bite"/"Quickening Screech"/"Defy Pain" per pet
  * *family* in `Profession_1`/`_2`; "Spiritual Reprieve"/"Primal Cry" in `Profession_3`; "Eternal
@@ -335,6 +350,7 @@ export function professionMechanicBar(
   const rawSkillRefs: { id: number; slot: string }[] = [...profession.professionSkills]
   if (profession.id === 'Guardian') rawSkillRefs.push(...DRAGONHUNTER_VIRTUE_SKILLS)
   if (profession.id === 'Thief') rawSkillRefs.push(...SPECTER_MECHANIC_SKILLS)
+  if (profession.id === 'Revenant') rawSkillRefs.push(...VINDICATOR_MECHANIC_SKILLS)
   for (const { id, slot } of rawSkillRefs) {
     if (!slot.startsWith('Profession_') || EXCLUDED_MECHANIC_SKILL_IDS.has(id)) continue
     let skill = skillsById.get(id)
