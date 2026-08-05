@@ -30,6 +30,14 @@ export const WEAPON_STRENGTH_MIDPOINTS: Record<string, number> = {
   shortbow: 1000,
   staff: 1100,
   aquatic: 1000,
+  // Spear (land AND underwater, same weapon type/wiki page since the 2025-08-19 Janthir Wilds
+  // "Weaponmaster Training" update added land usability) and Speargun both use the wiki's own
+  // `weapon=spear`/`weapon=harpoon gun` template values verbatim rather than the generic `aquatic`
+  // bucket — kept as separate keys purely to match what each skill's own wikitext literally says,
+  // even though the wiki's Weapon Strength page footnote confirms all 3 aquatic weapon types
+  // (harpoon gun, spear, trident) share this exact same 1000 midpoint.
+  spear: 1000,
+  'harpoon gun': 1000,
   // Non-weapon-skill damage (utility/trait procs) — the wiki's `weapon=trait skill` template param.
   unequipped: 690.5
 }
@@ -967,8 +975,213 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   62573: [
     { factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' },
     { factText: 'Damage', coefficient: 1.65, weapon: 'unequipped', requiresTrait: 2206 }
-  ]
+  ],
   // **Utility-slot sweep is now COMPLETE across all 9 professions.**
+
+  // --- Weapon-slot sweep (started 2026-08-05, see TODO.md/heal-coefficient-curation-strategy memory)
+  // --- Warrior done: 63 raw candidate ids (real, currently-equippable Weapon_1-5 ids resolved via
+  // the app's own `resolveSkillBarIds`/`weaponSkillIdsForPair`, not `visibleSkillsForSlot` — weapon
+  // skills use a completely separate resolution path, see weapon-calc/weapon-skills.ts), 62 curated
+  // here (the 63rd, Whirling Axe id 14399, was already seeded 2026-08-02). Includes both the classic
+  // aquatic-only Spear autoattack chain (Stab/Mariner's Frenzy/Parry/Barbed Pull/Tsunami Slash) and
+  // the new land Spear kit added by the 2025-08-19 Janthir Wilds "Weaponmaster Training" update
+  // (Mighty Throw/Maiming Spear/Disrupting Throw/Spearmarshal's Support/Spear Swipe) — both
+  // land/underwater variants of the same `weapons.Spear` entry, disambiguated the same
+  // `NoUnderwater`-flag way as every other dual-environment weapon. New per-skill trait-duplicated-
+  // fact wrinkle: 6 Spear/Rifle skills (Stab, Mariner's Frenzy, Parry, Barbed Pull, Tsunami Slash,
+  // Fierce Shot) carry a `requires_trait`-gated alternate Damage value — 5 via trait 1338 (Forceful
+  // Greatsword, Strength line; its live tooltip no longer states a percentage since a 2018-12-11
+  // rework replaced the bonus with flat Power, but the live API's `dmg_multiplier` for every gated
+  // fact still empirically matches the old wiki-quoted +10%, `base * 1.10`, exactly — used as
+  // confirmed-correct despite the stale/absent tooltip text) and 1 via trait 1329 (Crack Shot,
+  // Discipline line, current tooltip explicitly still quotes +10% for Fierce Shot specifically).
+  // Chop 1's chain follow-ups (Stab→Jab→Impale is a 3-hit autoattack chain sharing one Weapon_1 bar
+  // slot) aren't independently curated — only the chain-starter id is ever bar-bound/reachable via
+  // the weapon skill bar's tooltip, same as every other multi-hit auto-chain in this app already.
+  // Warrior — Greatsword 1, Greatsword Swing. PvE/WvW+PvP split (0.8/0.469).
+  14356: [{ factText: 'Damage', coefficient: 0.469, weapon: 'greatsword' }],
+  // Warrior — Hammer 1, Hammer Swing. PvE/WvW+PvP split (0.9/0.6).
+  14358: [{ factText: 'Damage', coefficient: 0.6, weapon: 'hammer' }],
+  // Warrior — Hammer 4, Staggering Blow. PvE/WvW+PvP split (1.5/0.01) — steep competitive nerf.
+  14359: [{ factText: 'Damage', coefficient: 0.01, weapon: 'hammer' }],
+  // Warrior — Rifle 5, Rifle Butt. PvE/WvW+PvP split (1.0/0.01) — steep competitive nerf.
+  14360: [{ factText: 'Damage', coefficient: 0.01, weapon: 'rifle' }],
+  // Warrior — Shield 4, Shield Bash. PvE/WvW+PvP split (1.0/0.01) — steep competitive nerf.
+  14361: [{ factText: 'Damage', coefficient: 0.01, weapon: 'shield' }],
+  // Warrior — Sword 1, Sever Artery. PvE/WvW+PvP split (0.8/0.4).
+  14364: [{ factText: 'Damage', coefficient: 0.4, weapon: 'sword' }],
+  // Warrior — Sword 2, Savage Leap. PvE/WvW+PvP split (2.0/1.35).
+  14366: [{ factText: 'Damage', coefficient: 1.35, weapon: 'sword' }],
+  // Warrior — Axe 1, Chop. PvE/WvW+PvP split (0.7/0.47).
+  14369: [{ factText: 'Damage', coefficient: 0.47, weapon: 'axe' }],
+  // Warrior — Mace 1, Mace Smash. PvE/WvW+PvP split (0.8/0.533).
+  14376: [{ factText: 'Damage', coefficient: 0.533, weapon: 'mace' }],
+  // Warrior — Longbow 3, Arcing Arrow. PvE/WvW+PvP split (2.5/1.5).
+  14381: [{ factText: 'Damage', coefficient: 1.5, weapon: 'longbow' }],
+  // Warrior — Hammer 2, Fierce Blow. Base Damage PvE/WvW+PvP split (1.8/1.2); a SEPARATE
+  // always-listed "Damage to Controlled or Defiant Foes" fact also PvE/WvW+PvP split (2.7/1.82) —
+  // not trait-gated, just the API's own dual-mode duplication of a same-named fact.
+  14386: [
+    { factText: 'Damage', coefficient: 1.2, weapon: 'hammer' },
+    { factText: 'Damage to Controlled or Defiant Foes', coefficient: 1.82, weapon: 'hammer' }
+  ],
+  // Warrior — Axe 3, Throw Axe. No split (0.85 applies to all modes; only the health-threshold
+  // damage-increase bonuses split by mode, not modeled here).
+  14398: [{ factText: 'Damage', coefficient: 0.85, weapon: 'axe' }],
+  // Warrior — Sword 5, Riposte. No split.
+  14400: [{ factText: 'Damage', coefficient: 1.0, weapon: 'sword' }],
+  // Warrior — Mace 5, Tremor. PvE/WvW+PvP split (1.25/0.01) — steep competitive nerf.
+  14415: [{ factText: 'Damage', coefficient: 0.01, weapon: 'mace' }],
+  // Warrior — Rifle 2, Volley. `strikes=5` present -> wiki totaled. PvE/WvW+PvP split (4.0/2.5).
+  14416: [{ factText: 'Damage', coefficient: 2.5, weapon: 'rifle' }],
+  // Warrior — Axe 4, Dual Strike. `strikes=2` present -> wiki totaled. Infobox declares
+  // "split = pve, wvw pvp" but the damage fact itself only tags "pve"/"pvp" (2.35/2.0) — WvW groups
+  // with the pvp-tagged value per the infobox's own split declaration.
+  14418: [{ factText: 'Damage', coefficient: 2.0, weapon: 'axe' }],
+  // Warrior — Axe 2, Cyclone Axe. `strikes=2` present -> wiki totaled. PvE/WvW+PvP split (1.76/1.5).
+  14421: [{ factText: 'Damage', coefficient: 1.5, weapon: 'axe' }],
+  // Warrior — Longbow 1, Dual Shot. `strikes=2` present -> wiki totaled. PvE/WvW+PvP split
+  // (1.05/0.586).
+  14431: [{ factText: 'Damage', coefficient: 0.586, weapon: 'longbow' }],
+  // Warrior — Rifle 1, Fierce Shot. PvE/WvW+PvP split (1.0/0.46). Trait 1329 (Crack Shot, Discipline)
+  // gives Fierce Shot its own explicit wiki-quoted +10% damage bonus — trait-gated WvW variant:
+  // 0.46*1.10=0.506 (matches API's own traited `dmg_multiplier` exactly).
+  14432: [
+    { factText: 'Damage', coefficient: 0.46, weapon: 'rifle' },
+    { factText: 'Damage', coefficient: 0.506, weapon: 'rifle', requiresTrait: 1329 }
+  ],
+  // Warrior — Spear 1 (aquatic autoattack), Stab. No split. Trait 1338 (Forceful Greatsword,
+  // Strength) gated variant: 0.8*1.10=0.88 (matches API exactly) — see block comment above re: 1338.
+  14437: [
+    { factText: 'Damage', coefficient: 0.8, weapon: 'spear' },
+    { factText: 'Damage', coefficient: 0.88, weapon: 'spear', requiresTrait: 1338 }
+  ],
+  // Warrior — Spear 2, Mariner's Frenzy. No split. Trait 1338 variants: 0.35*1.10=0.385,
+  // 0.5*1.10=0.55 (both match API exactly).
+  14440: [
+    { factText: 'Damage', coefficient: 0.35, weapon: 'spear' },
+    { factText: 'Final Strike Damage', coefficient: 0.5, weapon: 'spear' },
+    { factText: 'Damage', coefficient: 0.385, weapon: 'spear', requiresTrait: 1338 },
+    { factText: 'Final Strike Damage', coefficient: 0.55, weapon: 'spear', requiresTrait: 1338 }
+  ],
+  // Warrior — Spear 4, Parry. No split. Trait 1338 variant: 2.0*1.10=2.2 (matches API exactly).
+  14441: [
+    { factText: 'Damage', coefficient: 2.0, weapon: 'spear' },
+    { factText: 'Damage', coefficient: 2.2, weapon: 'spear', requiresTrait: 1338 }
+  ],
+  // Warrior — Greatsword 5, Rush. PvE/WvW+PvP split (2.5/1.36).
+  14446: [{ factText: 'Damage', coefficient: 1.36, weapon: 'greatsword' }],
+  // Warrior — Greatsword 3, Whirlwind Attack. PvE/WvW+PvP split (0.665/0.333). Per-hit value
+  // (variable actual hit count depending on target distance/size, API hit_count=1) — not totaled.
+  14447: [{ factText: 'Damage', coefficient: 0.333, weapon: 'greatsword' }],
+  // Warrior — Spear 3, Barbed Pull. No split. Trait 1338 variant: 1.0*1.10=1.1 (matches API exactly).
+  14448: [
+    { factText: 'Damage', coefficient: 1.0, weapon: 'spear' },
+    { factText: 'Damage', coefficient: 1.1, weapon: 'spear', requiresTrait: 1338 }
+  ],
+  // Warrior — Speargun 5, Repeating Shot. `strikes=4` present -> wiki totaled (3.0). No split.
+  14465: [{ factText: 'Damage', coefficient: 3.0, weapon: 'harpoon gun' }],
+  // Warrior — Speargun 2, Puncture Shot (warrior). No split.
+  14466: [{ factText: 'Damage', coefficient: 0.5, weapon: 'harpoon gun' }],
+  // Warrior — Speargun 4, Knot Shot. No split.
+  14467: [{ factText: 'Damage', coefficient: 0.5, weapon: 'harpoon gun' }],
+  // Warrior — Rifle 3, Explosive Shell. PvE/WvW+PvP split (1.6/1.09).
+  14472: [{ factText: 'Damage', coefficient: 1.09, weapon: 'rifle' }],
+  // Warrior — Spear 5, Tsunami Slash. No split. No `strikes=` param despite multiple possible
+  // strikes (API hit_count=1, "Number of Strikes" is a separate variable-hit-count fact) — per-hit
+  // value used as-is, not totaled. Trait 1338 variant: 0.4*1.10=0.44 (matches API exactly).
+  14480: [
+    { factText: 'Damage per Strike', coefficient: 0.4, weapon: 'spear' },
+    { factText: 'Damage per Strike', coefficient: 0.44, weapon: 'spear', requiresTrait: 1338 }
+  ],
+  // Warrior — Speargun 3, Split Shot. No split.
+  14481: [{ factText: 'Damage', coefficient: 0.2, weapon: 'harpoon gun' }],
+  // Warrior — Hammer 3, Hammer Shock. PvE/WvW+PvP split (1.8/1.13).
+  14482: [{ factText: 'Damage', coefficient: 1.13, weapon: 'hammer' }],
+  // Warrior — Sword 4, Impale (warrior sword skill, id 14498 — distinct from the spear-chain
+  // Impale, id 14439, which is not a bar-bound skill). PvE+WvW grouped vs. a lower PvP value
+  // (1.5/1.2) — the PvE+WvW value is used.
+  14498: [{ factText: 'Damage', coefficient: 1.5, weapon: 'sword' }],
+  // Warrior — Mace 3, Pommel Bash. No split.
+  14503: [{ factText: 'Damage', coefficient: 0.4, weapon: 'mace' }],
+  // Warrior — Longbow 5, Pin Down. No split.
+  14504: [{ factText: 'Damage', coefficient: 0.44, weapon: 'longbow' }],
+  // Warrior — Longbow 4, Smoldering Arrow. No split.
+  14505: [{ factText: 'Damage', coefficient: 0.2, weapon: 'longbow' }],
+  // Warrior — Mace 2, Counterblow. PvE/WvW+PvP split (2.0/1.35) — the 2 identical-text base facts
+  // the API exposes are just this same PvE/WvW duplication, not 2 distinct mechanics.
+  14507: [{ factText: 'Damage', coefficient: 1.35, weapon: 'mace' }],
+  // Warrior — Greatsword 4, Bladetrail. PvE/WvW+PvP split (1.5/0.75).
+  14510: [{ factText: 'Damage', coefficient: 0.75, weapon: 'greatsword' }],
+  // Warrior — Hammer 5, Backbreaker. PvE/WvW+PvP split (2.25/0.01) — steep competitive nerf.
+  14511: [{ factText: 'Damage', coefficient: 0.01, weapon: 'hammer' }],
+  // Warrior — Mace 4, Crushing Blow. PvE/WvW+PvP split (2.25/1.75).
+  14518: [{ factText: 'Damage', coefficient: 1.75, weapon: 'mace' }],
+  // Warrior — Longbow 2, Fan of Fire. `strikes=3` present -> wiki totaled (1.32). No split.
+  14519: [{ factText: 'Damage', coefficient: 1.32, weapon: 'longbow' }],
+  // Warrior — Greatsword 2, Hundred Blades. `strikes=8` present -> wiki totaled. 3-way split
+  // pve/wvw/pvp (6.2/2.8/3.2) — WvW value used. Final Strike Damage also 3-way split (1.5/0.8/1.0),
+  // single hit, no totaling — WvW value used.
+  14554: [
+    { factText: 'Damage', coefficient: 2.8, weapon: 'greatsword' },
+    { factText: 'Final Strike Damage', coefficient: 0.8, weapon: 'greatsword' }
+  ],
+  // Warrior/Berserker — Torch 4, Blaze Breaker. `strikes=5` present -> wiki totaled (2.0). No split.
+  29845: [{ factText: 'Damage', coefficient: 2.0, weapon: 'torch' }],
+  // Warrior/Berserker — Torch 5, Flames of War. No split.
+  29940: [{ factText: 'Damage', coefficient: 1.0, weapon: 'torch' }],
+  // Warrior — Rifle 4, Brutal Shot. PvE/WvW+PvP split (1.0/0.4) — the 2 identical-text base facts
+  // are this same duplication, not a distinct mechanic.
+  34296: [{ factText: 'Damage', coefficient: 0.4, weapon: 'rifle' }],
+  // Warrior/Spellbreaker — Dagger 1, Precise Cut. PvE/WvW+PvP split (0.6/0.32).
+  42745: [{ factText: 'Damage', coefficient: 0.32, weapon: 'dagger' }],
+  // Warrior/Spellbreaker — Dagger 4, Wastrel's Ruin. PvE/WvW+PvP split (1.5/1.0).
+  44004: [{ factText: 'Damage', coefficient: 1.0, weapon: 'dagger' }],
+  // Warrior/Spellbreaker — Dagger 3, Disrupting Stab. PvE/WvW+PvP split (1.2/0.4).
+  44937: [{ factText: 'Damage', coefficient: 0.4, weapon: 'dagger' }],
+  // Warrior/Spellbreaker — Dagger 5, Hushblade. PvE/WvW+PvP split (1.5/1.0).
+  45160: [{ factText: 'Damage', coefficient: 1.0, weapon: 'dagger' }],
+  // Warrior/Spellbreaker — Dagger 2, Aura Slicer. 3-way split pve/wvw/pvp (1.8/1.32/1.45) — WvW used.
+  46233: [{ factText: 'Damage', coefficient: 1.32, weapon: 'dagger' }],
+  // Warrior/Bladesworn — Pistol 4, Gunstinger. No split on the damage fact itself.
+  62697: [{ factText: 'Damage', coefficient: 0.9, weapon: 'pistol' }],
+  // Warrior/Bladesworn — Pistol 5, Dragon's Roar. PvE/WvW+PvP split (0.75/0.333) on the per-bullet
+  // value; an ammo-consumption mechanic (up to 6 bullets), not a `strikes=` multi-hit — API
+  // hit_count=1, so not totaled, used per-bullet as-is.
+  62800: [{ factText: 'Damage per Bullet', coefficient: 0.333, weapon: 'pistol' }],
+  // Warrior — Staff 2, Valiant Leap. PvE/WvW+PvP split (1.25/0.75).
+  72002: [{ factText: 'Damage', coefficient: 0.75, weapon: 'staff' }],
+  // Warrior — Staff 1, Balanced Strike. PvE/WvW+PvP split (0.7/0.5).
+  72024: [{ factText: 'Damage', coefficient: 0.5, weapon: 'staff' }],
+  // Warrior — Staff 4, Snap Pull. PvE/WvW+PvP split (1.5/0.01) — steep competitive nerf.
+  72026: [{ factText: 'Damage', coefficient: 0.01, weapon: 'staff' }],
+  // Warrior — Spear 2 (land, Janthir Wilds), Maiming Spear. 3-way split pve/wvw/pvp on both facts:
+  // Initial Strike Damage (1.1/0.7/1.0), Aftershock Damage (0.75/0.3/0.5) — WvW used.
+  72897: [
+    { factText: 'Initial Strike Damage', coefficient: 0.7, weapon: 'spear' },
+    { factText: 'Aftershock Damage', coefficient: 0.3, weapon: 'spear' }
+  ],
+  // Warrior — Spear 1 (land), Mighty Throw. PvE/WvW+PvP split on both facts: Spear Damage
+  // (1.2/0.45), Shard Damage (0.9/0.37) — WvW used.
+  72958: [
+    { factText: 'Spear Damage', coefficient: 0.45, weapon: 'spear' },
+    { factText: 'Shard Damage', coefficient: 0.37, weapon: 'spear' }
+  ],
+  // Warrior — Spear 3 (land), Disrupting Throw. PvE/WvW+PvP split (2.0/1.5).
+  72959: [{ factText: 'Damage', coefficient: 1.5, weapon: 'spear' }],
+  // Warrior — Spear 4 (land), Spearmarshal's Support. `strikes=7` present -> wiki totaled. 3-way
+  // split pve/wvw/pvp (2.8/1.5/1.75) — WvW used.
+  72992: [{ factText: 'Damage', coefficient: 1.5, weapon: 'spear' }],
+  // Warrior — Spear 5 (land), Spear Swipe. PvE/WvW+PvP split (1.5/0.01) — steep competitive nerf.
+  73009: [{ factText: 'Damage', coefficient: 0.01, weapon: 'spear' }],
+  // Warrior — Sword 3, Rend (formerly Final Thrust). Base Damage no split (0.5). Follow-Up Damage
+  // PvE/WvW+PvP split (2.5/1.25) — WvW used. The 2 "Follow-Up Damage" facts are this same PvE/WvW
+  // duplication, not trait-gated (confirmed via live API: no requires_trait on either).
+  80247: [
+    { factText: 'Damage', coefficient: 0.5, weapon: 'sword' },
+    { factText: 'Follow-Up Damage', coefficient: 1.25, weapon: 'sword' }
+  ]
+  // Weapon-slot sweep: Warrior done (1 of 9).
 }
 
 export interface DamageLine {

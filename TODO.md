@@ -403,17 +403,33 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         not represented" treatment already applied to this table's "damage increase" fact omissions
         (Reaper's shouts, "Your Soul Is Mine!"). See `damage-calc.ts`'s Mesmer Utility-slot block
         comment for the full writeup.
-      - Weapon-slot (919 raw candidates): not started, last category in the sweep order — **next up**,
-        but paused 2026-08-04 pending the picker-audit and other items above. Once resumed, check
-        every candidate against the trap families this sweep already established rather than
-        rediscovering them one at a time: (1) non-player-scaling (turret/minion/pet/mech fixed-stat
-        overrides — check for a `power=` override, an absent `weapon=`, or explicit "unaffected by
-        stats" prose); (2) Barrier mislabeled as Healing (`target: 'Healing'` API tag on a real
-        Barrier fact); (3) duplicate-name ids (wiki infobox `id=` is canonical, verify direction both
-        ways, don't assume ground-targeted always wins); (4) flip-architecture gap (`flipSkill`/
-        `glyphFormVariants` target carrying the real fact, unreachable from the equipped id); (5)
-        trait-duplicated same-text facts (a per-skill alternate value, not a shared formula — leave
-        unmodeled until the fix above lands, don't just guess a placement).
+      - **Weapon-slot (919 raw candidates), last category in the sweep order — started 2026-08-05,
+        one profession leg at a time, stopping between legs for a check-in.** Unlike
+        Heal/Elite/Utility, weapon skills resolve via a completely separate mechanism —
+        `weapon-calc/weapon-skills.ts`'s `resolveSkillBarIds`/`weaponSkillIdsForPair`, not
+        `skill-variants.ts`'s `visibleSkillsForSlot` — so the raw candidate count per profession is
+        found by enumerating every `profession.weapons` entry across every land/underwater
+        environment and every elite-spec combo (a throwaway script, same verification-against-the-
+        real-resolver discipline as prior legs' `visibleSkillsForSlot` scans). Warrior done
+        2026-08-05: 63 raw candidates, 62 curated (the 63rd, Whirling Axe id 14399, was already
+        seeded 2026-08-02) — 1 research agent fetched all 61 remaining wiki pages via curl (not
+        WebFetch's summarizing model). New mechanics this leg surfaced: (1) land Spear (added by the
+        2025-08-19 Janthir Wilds "Weaponmaster Training" update) shares its `weapons.Spear` entry
+        with the pre-existing aquatic-only Spear autoattack chain, disambiguated by the same
+        `NoUnderwater`-flag land/water split as every other dual-environment weapon — both are
+        independently curated; (2) Spear and Speargun use the wiki's own `weapon=spear`/`weapon=
+        harpoon gun` template values as distinct `WEAPON_STRENGTH_MIDPOINTS` keys (both 1000,
+        matching the wiki's own "all 3 aquatic types share this range" footnote) rather than the
+        existing generic `aquatic` key; (3) a stale/live-tooltip-text mismatch on trait 1338
+        (Forceful Greatsword) — its live description no longer states a damage percentage since a
+        2018-12-11 rework replaced it with flat Power, but the live API's traited `dmg_multiplier`
+        for every one of its 5 gated Spear/Rifle facts still empirically matches the old wiki-quoted
+        +10% exactly, used as confirmed-correct despite the stale tooltip. Every trap family already
+        established in this sweep was checked and none applied to Warrior's weapon skills (no
+        non-player-scaling exclusions, no duplicate-id pairs, no flip-architecture gaps). See
+        `damage-calc.ts`'s new Weapon-slot block comment for the full writeup. **Next up (not
+        started): Guardian, Revenant, Ranger, Thief, Engineer, Necromancer, Elementalist, Mesmer, in
+        that order** — stop after each leg for a check-in, don't chain them.
 - [ ] Mesmer's Tale of the Second Scion (id 76695) also grants "Scion's Reprieve," a self-buff
       (+15% WvW/PvP Heal Effectiveness on the caster) that neither this skill's Healing tooltip line
       nor any other app mechanism accounts for — a genuinely separate gap from the zero-facts issue
