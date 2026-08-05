@@ -4,19 +4,17 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
-- [ ] **`CURATED_BARRIER_COEFFICIENTS` + Barrier tooltip line — decided 2026-08-04, build it.** User
-      confirmed Barrier is important enough to warrant the same treatment as Healing, not just an
-      excluded trap. Mirror `healing-calc.ts`'s shape exactly: a `CURATED_BARRIER_COEFFICIENTS` table
-      keyed by skill id, a `barrierLinesForSkill` function with the same `base + coefficient *
-      HealingPower` formula and `requires_trait`/`activeIds` gating, and its own tooltip line rendered
-      alongside (not folded into) the Healing line, since Barrier and Health are different resource
-      bars. Seed set already identified from the Healing sweep's exclusions: 17 Utility-slot skills
-      (Barrier Signet, Banner of Defense, "Brace Yourselves!", Bulwark Gyro, Utility Goggles, Serpent
-      Siphon, Imminent Threat, and more — see the Barrier item further below for exact ids) plus
-      Warrior's "We Will Never Yield!" (Elite-slot, id 76562) — all previously excluded from
-      `CURATED_HEALING_COEFFICIENTS` specifically because they were Barrier, not Healing, despite the
-      API mislabeling them `target: 'Healing'`. Each needs its own wiki-coefficient pull, same
-      wikitext-first process as the Healing/Damage sweeps.
+- [ ] Loose ends from the `CURATED_BARRIER_COEFFICIENTS` sweep (2026-08-05, see COMPLETED.md for the
+      full writeup): (1) Engineer's Utility Goggles (id 29591) left uncurated — wiki documents no
+      Barrier fact at all for this skill, and its own sibling id (5865, same wiki page) carries no
+      local Barrier fact either, so this app's own `29591` API data is likely stale, worth a live API
+      re-pull to confirm before ever trusting it; (2) Engineer's Hard Light Arena (id 44646) left
+      uncurated — wiki gives a base value with no `coefficient=` param; (3) Elementalist's Lava Skin
+      (id 46447) has an "Initial Barrier" fact left unrepresented — same trait-duplicated-text problem
+      as item below, blocked on the same fix; (4) new flip-architecture-gap instance: Elementalist's
+      Glyph of Elemental Power (attunement-tagged id 34714 carries the only local Barrier fact, but
+      the actually-equipped attunement-agnostic id 5506 carries zero facts at all) — same bucket as
+      Chaotic Release/Tailored Victory/Photon Wall, needs the same eventual fix, not just a data gap.
 - [ ] **Trait-duplicated-fact representation — scoped 2026-08-04, a real gap, small fix.** Several
       Damage/Healing sweep entries (Mesmer's Phantasmal Disenchanter/Phantasmal Defender/Sword of
       Decimation/Rain of Swords/Psychic Force, Necromancer's Reaper shouts' "damage increase" facts,
@@ -555,25 +553,10 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         and 1290) and the wiki only documents a coefficient for one of them (1290) — since this
         table matches facts by factText alone, curating it risks binding the coefficient to whichever
         fact `Array.find` happens to return first. Left entirely uncurated.
-- [ ] Barrier is an entirely unmodeled resource bar, surfaced clearly by the Utility-skill sweep
-      2026-08-02: of 40 Utility-slot skills the GW2 API tags with a Healing-type `AttributeAdjust`
-      fact, 17 turned out to actually be Barrier facts (the API mislabels Barrier's `target` as
-      "Healing" too, not just genuine heals) — e.g. Barrier Signet, Banner of Defense, "Brace
-      Yourselves!", Bulwark Gyro, Utility Goggles, Serpent Siphon, Imminent Threat, and more. The
-      Elite-skill sweep (also 2026-08-02) hit the same trap once more: Warrior's "We Will Never
-      Yield!" (id 76562) tags its "Minimum Barrier"/"Maximum Barrier" facts as Healing too — same
-      exclusion applied, not curated. Barrier
-      scales off Healing Power with the exact same `base + coefficient * HealingPower` shape as a real
-      heal (confirmed on several of these skills' wiki pages), but this app has no Barrier-amount UI
-      or formula anywhere — `CURATED_HEALING_COEFFICIENTS`/`healingLinesForSkill` only ever renders
-      real Health-restoring heals, and Barrier facts are deliberately excluded from it (same call
-      already made for Necromancer's Sand Flare in the original Heal-slot sweep). Given how common
-      this turned out to be in the Utility category specifically (nearly half the candidates), a
-      genuine `CURATED_BARRIER_COEFFICIENTS`/`barrierLinesForSkill` pair (mirroring
-      `healing-calc.ts`'s shape) displayed as its own tooltip line — not folded into the Healing
-      number, since Barrier and Health are different bars — is probably worth scoping as its own
-      category sweep at some point, now that the Heal/Utility/Elite/Weapon Healing-coefficient sweep
-      itself is complete (see the item above).
+- [x] Barrier resource bar — **DONE 2026-08-05, see COMPLETED.md.** `CURATED_BARRIER_COEFFICIENTS` +
+      `barrierLinesForSkill` (`src/shared/skill-calc/barrier-calc.ts`) built as a full one-pass sweep
+      across every profession/slot (58 raw candidates, 48 curated), wired into `skillFactLines` as its
+      own tooltip line alongside Healing's.
 - [ ] Trait-bonus healing formulas smeared across many skills' own facts, surfaced by the weapon-skill
       sweep 2026-08-02: Thief's Assassin's Reward trait (id 1238, Deadly Arts, "heal yourself for
       each point of initiative spent") shows up as a `requires_trait`-gated Healing fact on ~38

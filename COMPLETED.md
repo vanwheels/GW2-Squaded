@@ -2,6 +2,92 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 69 — Built `CURATED_BARRIER_COEFFICIENTS` + `barrierLinesForSkill`, a new Barrier tooltip line
+
+Scoped 2026-08-04 (product decision to build it, same session as the Weapon-slot Damage sweep pause),
+built 2026-08-05. Barrier scales off
+Healing Power with the exact same `base + coefficient * HealingPower` shape as a real heal, but is a
+different resource bar than Health — this app had no Barrier UI/formula at all until now, and every
+Barrier-mislabeled-as-Healing fact was simply excluded from `CURATED_HEALING_COEFFICIENTS` across the
+whole Healing sweep. Built as `src/shared/skill-calc/barrier-calc.ts`, mirroring `healing-calc.ts`'s
+exact shape (`CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]>`,
+`barrierLinesForSkill` with the same `requires_trait`/`activeIds` gating), wired into
+`skill-fact-lines.ts`'s `skillFactLines` as its own tooltip line — checked before the Healing lookup
+since both match on `AttributeAdjust`/`target: 'Healing'` facts (the API mislabels Barrier's `target`
+too) and are only actually distinguished by `factText`.
+
+Scanned `data/game-data/skills.json` for every skill carrying a Barrier-text `AttributeAdjust` fact
+(regardless of slot, not just Heal/Utility/Elite — Weapon/profession-mechanic/Toolbelt facts included
+too, since those resource-bar sources matter for WvW theorycrafting just as much): 58 distinct skill
+ids, confirmed every single one is tagged `target: 'Healing'` by the API, none `target: 'Barrier'` —
+total confirmation of the mislabeling pattern first spotted in the Utility-slot Healing sweep. Treated
+as one bounded full-category pass (not legged by profession like the still-open Damage Weapon-slot
+sweep) since the total size is comparable to a single Healing sub-category (Utility's 40).
+
+Research was parallelized 8 ways (one agent per profession/pair), each fetching raw wikitext directly
+via curl — same never-paraphrase rule as every prior sweep. 6 of the 8 agents were cut short mid-run by
+an account session-limit error before producing any output; rather than re-queue into the same limit,
+the remaining ~40 skills were researched directly in the orchestrating session via the same curl-raw-
+wikitext method. 2 agents (Engineer, Thief) completed normally and their findings were used as-is.
+
+Before any wiki research, resolved a 7-skill "shared/`professions: []`" bucket directly by fetching
+each skill's own wiki page, since `professions: []` turned out to mean several different things
+requiring individual judgment, not one pattern: 2 (Magnetic Shield, Stone Sheath) are Elementalist's
+Conjure Earth Shield bundle skills (professions field just doesn't get populated for bundle skills) —
+folded into the Elementalist section; 1 (Barrier Burst) is Engineer's Mechanist F3 mech-command skill,
+trait-gated behind "Mech Core: Barrier Engine" — folded into Engineer; 4 (Saint's Shield, Lesser
+Utility Goggles, Lesser Stone Resonance, Call of the Dwarf) are all **trait-only procs with no
+independently-equippable base skill** (each one's wiki infobox literally declares `slot = trait`) — a
+new exclusion family distinct from every previous sweep's non-player-scaling trap, since these ARE
+player-Healing-Power-scaling, they're just never bound to a skill slot at all, so a per-`skill.id`
+table can never be reached for them. Logged as its own family in `barrier-calc.ts`'s top comment
+rather than 4 one-off exclusions.
+
+Also resolved 3 duplicate-id pairs directly via each wiki page's own `id=` infobox field before
+delegating research, to save agent effort: Warrior's Banner of Defense (14528 GroundTargeted/wiki-
+documented-canonical vs. 14570 non-ground) — curated under 14570 anyway, since `skill-variants.ts`'s
+own coded rule collapses every Warrior Banner to the non-ground-targeted id regardless of which one the
+wiki calls canonical, and this app's tooltip lookup only ever reaches whichever id the real picker
+resolves to; Revenant's Release Potential: Warrior (77896 wiki-canonical vs. 78895 stale ground-
+targeted duplicate); Thief's Dawn's Repose (63220 wiki-canonical vs. 63227, an undocumented duplicate
+whose own local facts show a same-text "Minimum Barrier" collision at two different values with no
+"Maximum Barrier" fact at all — a data-quality tell independently confirming it's the one to drop).
+
+Of the 58 raw candidates: **48 distinct skill ids curated**, 4 excluded as the new trait-proc family
+above, 3 excluded as stale/non-canonical duplicate ids (the pairs above), 2 left uncurated (Engineer's
+Utility Goggles — wiki documents no Barrier fact for this skill at all, and its own same-page sibling
+id carries no local Barrier fact either, strong evidence this app's cached `29591` API data is stale;
+Hard Light Arena — wiki gives a base value with no `coefficient=` param), and 1 fact of Elementalist's
+Lava Skin left unrepresented (a trait-duplicated-text collision — the wiki's only documented "Initial
+Barrier" number corresponds to the trait-boosted fact, not the ungated one this table's `factText`
+lookup would actually resolve to, same open architecture gap as `CURATED_HEALING_COEFFICIENTS`'s
+already-tracked "Trait-duplicated-fact representation" TODO item).
+
+New mechanics/traps this sweep surfaced beyond every established Healing/Damage-sweep trap:
+- **WvW as a genuinely standalone third value** (neither grouped with PvE nor PvP) turned out far more
+  common here than in any prior sweep — Bulwark Gyro, Essence of Animated Sand, Effulgent Stance, Sand
+  Flare/Cascade, Sandstorm Shroud, Shadow Sap, Call of Valor all have this shape, vs. only 1-2 isolated
+  instances across the entire Healing sweep. Worth treating as an expected default to check for, not an
+  edge case, on any future Barrier-adjacent curation.
+- **A wiki-documented "the skill fact is wrong" correction**: Molten Burst's page states outright in
+  its own Notes section that the `{{skill fact|barrier|...}}` template value is incorrect and gives the
+  actually-applied number separately — the corrected number was used, not the template's own value, a
+  new twist not seen in any prior sweep (previous "wiki disagrees with itself" cases were all stub/
+  unverified-tag maintenance markers, not an explicit inline correction).
+- **New flip-architecture-gap instance**: Elementalist's Glyph of Elemental Power — unlike
+  `CURATED_HEALING_COEFFICIENTS`'s Glyph of Elemental Harmony (whose attunement-agnostic base id
+  carries its own identical fact directly, so curating it works), this skill's actually-equipped base
+  id carries zero facts at all; only the never-independently-equippable Earth-attunement-tagged variant
+  carries the Barrier fact. Left uncurated rather than defining an entry the tooltip can never reach.
+- **Trait-swapped mechanic-slot skills** confirmed as a real, recurring shape, not a one-off: Engineer's
+  Barrier Burst (Mechanist F3, trait-gated behind "Mech Core: Barrier Engine") and Necromancer's
+  Sandstorm Shroud (Harbinger F5, trait-gated behind "Herald of Sorrow") are both genuine equippable-
+  in-effect skills reachable by choosing a specific trait, not trait-only procs like the 4 exclusions
+  above — curated normally, same treatment as Necromancer's already-curated Desert Shroud.
+
+Typecheck and lint both pass. Not visually spot-checked in the running app (Electron sandbox
+limitation, same as prior sessions).
+
 ## Session 68 — Fixed Druid Glyph equipped-slot icon not swapping with Celestial Avatar toggle
 
 User reported (with 2 screenshots) that Glyph of Alignment's tooltip facts correctly swapped between
