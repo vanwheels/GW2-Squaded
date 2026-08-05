@@ -467,9 +467,25 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         its 3 Damage facts (the older un-split "Damage" total fact predates a 2024-09-10 edit that
         split it into "Initial Attack Damage"/"Pulse Damage" per mode) — its WvW value derived as the
         sum of the other two, an identity confirmed exactly against the PvE numbers. See
-        `damage-calc.ts`'s Revenant Weapon-slot block comment for the full writeup. **Next up (not
-        started): Ranger, Thief, Engineer, Necromancer, Elementalist, Mesmer, in that order** — stop
-        after each leg for a check-in, don't chain them.
+        `damage-calc.ts`'s Revenant Weapon-slot block comment for the full writeup. Ranger done
+        2026-08-05: 62 raw candidates, 56 carry a Damage fact, 6 confirmed non-damage (Counterattack,
+        Call of the Wild, Sublime Conversion, Ancestral Grace, Astral Wisp, Panther's Prowl), 1 already
+        seeded (Maul id 12525 — also fixed a stale slot-label in its comment, Greatsword 5 -> Greatsword
+        2, coefficient itself was always correct), 54 curated this leg, 1 exclusion (Slash/Sword 1, id
+        12471 — wiki's PvE 0.8 is stale, contradicted by both the live and local API's own PvE
+        `dmg_multiplier` of 0.9, no changelog past 2022-06-30, same "stale wiki, not guessed" policy as
+        Revenant's Scorchrazor). New mechanics this leg surfaced: (1) 4 of 5 Untamed Hammer skills live
+        on wiki pages carrying 2 ids apiece (pre-/post- a 2024-03-19 "hammer for all specs" update,
+        identical facts either way); (2) all 5 classic aquatic Spear autoattack-chain skills carry a
+        `requires_trait: 1047` (Bestial Rage) alternate Damage value whose ratio to base varies
+        0.84x-1.1x per skill — the Symbolic-Avenger-shaped stacking-buff preview, not a flat bonus,
+        omitted on all 5; (3) 5 skills are 3-way PvE/WvW/PvP splits (WvW used, as always); (4) 4 skills
+        carry an unmodeled flat "Damage Increase" percentage fact (a `Percent`-type fact, not
+        Damage-type) alongside their real Damage fact(s), not curated; (5) a name collision (id
+        12474/12471, both "Slash," Greatsword 1 vs Sword 1) resolved via each page's own `id =`
+        infobox param and otheruses hatnote. See `damage-calc.ts`'s new Ranger Weapon-slot block
+        comment for the full writeup. **Next up (not started): Thief, Engineer, Necromancer,
+        Elementalist, Mesmer, in that order** — stop after each leg for a check-in, don't chain them.
 - [ ] Mesmer's Tale of the Second Scion (id 76695) also grants "Scion's Reprieve," a self-buff
       (+15% WvW/PvP Heal Effectiveness on the caster) that neither this skill's Healing tooltip line
       nor any other app mechanism accounts for — a genuinely separate gap from the zero-facts issue

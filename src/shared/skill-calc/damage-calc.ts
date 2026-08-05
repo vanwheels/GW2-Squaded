@@ -94,8 +94,10 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   9097: [{ factText: 'Damage', coefficient: 2.25, weapon: 'sword' }],
   // Revenant — Hammer 2, Coalescence of Ruin. Single hit, no split needed.
   28253: [{ factText: 'Damage', coefficient: 0.91, weapon: 'hammer' }],
-  // Ranger — Greatsword 5, Maul. Single hit (the API lists 2 identical `Damage` facts for this id;
-  // both share the same value so matching the first is equivalent).
+  // Ranger — Greatsword 2, Maul (comment previously mislabeled this Greatsword 5; corrected during the
+  // Weapon-slot sweep's Ranger leg, 2026-08-05 — the id/coefficient were always correct). Single hit
+  // (the API lists 2 identical `Damage` facts for this id; both share the same value so matching the
+  // first is equivalent).
   12525: [{ factText: 'Damage', coefficient: 1.5, weapon: 'greatsword' }],
   // Thief — Dagger 4, Dancing Dagger. Single hit, WvW and PvP share one wiki entry.
   13019: [{ factText: 'Damage', coefficient: 0.45, weapon: 'dagger' }],
@@ -1609,8 +1611,196 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   ],
   // Revenant — Spear 5 (land, Janthir Wilds), Abyssal Raze. No split on the Damage fact itself (1.0);
   // only the per-stack damage-increase bonus splits by mode, not modeled here.
-  73059: [{ factText: 'Damage', coefficient: 1.0, weapon: 'spear' }]
-  // Weapon-slot sweep: Warrior, Guardian, Revenant done (3 of 9).
+  73059: [{ factText: 'Damage', coefficient: 1.0, weapon: 'spear' }],
+
+  // --- Ranger done: 62 raw candidate ids resolved via the app's own `resolveSkillBarIds`/
+  // `weaponSkillIdsForPair` (Core plus Druid/Soulbeast/Untamed/Galeshot, both environments, including
+  // both the new land Spear kit and the classic aquatic-only Spear autoattack chain from the
+  // 2025-08-19 "Weaponmaster Training" update), 56 carry a Damage fact — 6 confirmed locally as real
+  // non-damage skills with no Damage-type fact at all (Counterattack, Call of the Wild, Sublime
+  // Conversion, Ancestral Grace, Astral Wisp, Panther's Prowl — buff/heal/CC/leap skills), and 1
+  // already seeded (Maul, id 12525, one-per-profession seed block above — its comment mislabeled the
+  // bar slot as Greatsword 5 instead of Greatsword 2, corrected in place this leg). Of the 55 assigned
+  // for wiki verification, 54 curated here; Slash (Sword 1, id 12471) is the 1 exclusion — its wiki
+  // page quotes PvE 0.8 with no changelog entry past 2022-06-30, but both the live and local API's own
+  // PvE `dmg_multiplier` is 0.9, an undocumented buff the wiki never picked up (ruled out as a
+  // fetch/transcription error: every other candidate this leg's local PvE value matched its
+  // wiki-quoted PvE number exactly) — left uncurated rather than guessed, same policy as Revenant's
+  // Scorchrazor. New wrinkles this leg: (1) 4 of the 5 Untamed Hammer skills (Wild Swing, Overbearing
+  // Smash, Savage Shock Wave, Thump — every one but the chain-starter, Hammer Strike) live on wiki
+  // pages carrying 2 ids apiece (a pre-/post-"hammer for all specs" pair added by a 2024-03-19 update),
+  // identical facts either way, so the app's actual candidate id was simply matched to the right page
+  // by content rather than by a literal id-template search; (2) all 5 classic aquatic Spear
+  // autoattack-chain skills (Stab/Swirling Strike/Surging Maw/Counterstrike/Man O' War) carry a
+  // `requires_trait: 1047` (Bestial Rage, Beastmastery Major) alternate Damage value whose ratio to
+  // base varies per skill — 0.84x (an actual decrease, on Stab) up to 1.1x (on Counterstrike) — the
+  // same "stacking combat buff preview, not a flat bonus" shape as Guardian's Symbolic Avenger,
+  // deliberately omitted on all 5; (3) 5 skills (Falcon's Stoop, Warclaw's Engage, Flourish, Wild
+  // Strikes, Pounce) are 3-way PvE/WvW/PvP splits (WvW used, same as every other 3-way split
+  // elsewhere in this table); (4) 4 skills (Stalker's Strike, Falcon's Stoop, Warclaw's Engage,
+  // Pounce) carry an unmodeled flat "Damage Increase" percentage fact alongside their real Damage
+  // fact(s) — a `Percent`-type fact, not Damage-type, so not curated, same as this table's other
+  // unmodeled conditional-bonus facts; (5) the id 12474/12471 "Slash" name collision (Greatsword 1 vs
+  // Sword 1) resolved cleanly via each page's own `id =` infobox param and otheruses hatnote — 12474
+  // confirmed correct and curated below, 12471 is the exclusion above. See this comment block for the
+  // full writeup; no new `WEAPON_STRENGTH_MIDPOINTS` keys were needed (Ranger's aquatic Speargun kit
+  // reuses the existing `harpoon gun` key).
+  // Ranger — Axe 1, Ricochet. PvE/WvW+PvP split (0.9/0.533).
+  12466: [{ factText: 'Damage', coefficient: 0.533, weapon: 'axe' }],
+  // Ranger — Axe 2, Splitblade. `strikes=5` present -> wiki totaled. PvE/WvW+PvP split (2.5/0.5).
+  12480: [{ factText: 'Damage', coefficient: 0.5, weapon: 'axe' }],
+  // Ranger — Axe 3, Winter's Bite. PvE/WvW+PvP split (1.8/1.0).
+  12490: [{ factText: 'Damage', coefficient: 1.0, weapon: 'axe' }],
+  // Ranger — Axe 4, Path of Scars. PvE/WvW+PvP split (1.2/0.01) — steep competitive nerf.
+  12638: [{ factText: 'Damage', coefficient: 0.01, weapon: 'axe' }],
+  // Ranger — Axe 5, Whirling Defense. `strikes=12` present -> wiki totaled. PvE/WvW+PvP split
+  // (7.92/5.28).
+  12639: [{ factText: 'Damage', coefficient: 5.28, weapon: 'axe' }],
+  // Ranger/Soulbeast — Dagger 1 (chain-starter: Groundwork Gouge -> Leading Swipe -> Serpent Stab).
+  // PvE/WvW+PvP split (0.4/0.32).
+  45426: [{ factText: 'Damage', coefficient: 0.32, weapon: 'dagger' }],
+  // Ranger/Soulbeast — Dagger 2, Double Arc. `strikes=2` present -> wiki totaled. PvE/WvW+PvP split
+  // (1.6/1.0).
+  43536: [{ factText: 'Damage', coefficient: 1.0, weapon: 'dagger' }],
+  // Ranger/Soulbeast — Dagger 3, Instinctive Engage. PvE/WvW+PvP split (2.0/1.0).
+  46123: [{ factText: 'Damage', coefficient: 1.0, weapon: 'dagger' }],
+  // Ranger — Dagger 4, Stalker's Strike. No split (0.6). Also carries a separate "Damage Increase"
+  // fact (a flat +100% conditional buff), not itself a Damage-type fact — not modeled, same as other
+  // legs' unmodeled health-threshold/conditional damage-increase facts.
+  12478: [{ factText: 'Damage', coefficient: 0.6, weapon: 'dagger' }],
+  // Ranger — Dagger 5, Crippling Talon. PvE/WvW+PvP split (0.9/0.5).
+  12477: [{ factText: 'Damage', coefficient: 0.5, weapon: 'dagger' }],
+  // Ranger — Greatsword 1, Slash. Distinct wiki page from Sword 1's identically-named "Slash" (id
+  // 12471, excluded above) — confirmed via each page's own otheruses hatnote. PvE/WvW+PvP split
+  // (0.88/0.5).
+  12474: [{ factText: 'Damage', coefficient: 0.5, weapon: 'greatsword' }],
+  // Ranger — Greatsword 3, Swoop. PvE/WvW+PvP split (2.4/1.0) — the 2 identical-text base facts the
+  // local API exposes are this same PvE/WvW duplication (see Warrior/Guardian/Revenant block
+  // comments), not 2 distinct mechanics.
+  12521: [{ factText: 'Damage', coefficient: 1.0, weapon: 'greatsword' }],
+  // Ranger — Greatsword 5, Hilt Bash. PvE/WvW+PvP split (2.5/0.01) — steep competitive nerf.
+  12475: [{ factText: 'Damage', coefficient: 0.01, weapon: 'greatsword' }],
+  // Ranger/Untamed — Hammer 1, Hammer Strike (chain-starter: Hammer Strike -> Hammer Slam -> Heavy
+  // Smash). PvE/WvW+PvP split (0.8/0.533).
+  63118: [{ factText: 'Damage', coefficient: 0.533, weapon: 'hammer' }],
+  // Ranger — Hammer 2, Wild Swing. PvE/WvW+PvP split (1.5/1.1).
+  69167: [{ factText: 'Damage', coefficient: 1.1, weapon: 'hammer' }],
+  // Ranger — Hammer 3, Overbearing Smash. Base Damage PvE/WvW+PvP split (0.4/0.3). Follow-Up Damage no
+  // split (1.0).
+  69262: [
+    { factText: 'Damage', coefficient: 0.3, weapon: 'hammer' },
+    { factText: 'Follow-Up Damage', coefficient: 1.0, weapon: 'hammer' }
+  ],
+  // Ranger — Hammer 4, Savage Shock Wave. PvE/WvW+PvP split (0.5/0.45).
+  69340: [{ factText: 'Damage', coefficient: 0.45, weapon: 'hammer' }],
+  // Ranger — Hammer 5, Thump. PvE/WvW+PvP split (1.25/0.01) — steep competitive nerf.
+  69212: [{ factText: 'Damage', coefficient: 0.01, weapon: 'hammer' }],
+  // Ranger — Spear 1 (land, Janthir Wilds), Drake's Swipe. PvE/WvW+PvP split (1.1/0.495).
+  72922: [{ factText: 'Damage', coefficient: 0.495, weapon: 'spear' }],
+  // Ranger — Spear 2 (land, Janthir Wilds), Mongoose's Frenzy. `strikes=2` present -> wiki totaled.
+  // PvE/WvW+PvP split (2.5/1.55).
+  73110: [{ factText: 'Damage', coefficient: 1.55, weapon: 'spear' }],
+  // Ranger — Spear 3 (land, Janthir Wilds), Falcon's Stoop. 3-way split pve/wvw/pvp (1.95/1.25/1.15) —
+  // WvW used. Also carries an unmodeled "Damage Increase" (+20%) conditional fact, same as Dagger 4
+  // above.
+  72928: [{ factText: 'Damage', coefficient: 1.25, weapon: 'spear' }],
+  // Ranger — Spear 4 (land, Janthir Wilds), Warclaw's Engage. 3-way split pve/wvw/pvp (2.75/1.4/1.3) —
+  // WvW used. Same unmodeled "Damage Increase" fact as Falcon's Stoop.
+  73020: [{ factText: 'Damage', coefficient: 1.4, weapon: 'spear' }],
+  // Ranger — Spear 1 (aquatic, classic chain), Stab. No split (1.0). Trait 1047 (Bestial Rage) alt
+  // value (0.84) omitted — stacking Might-buff preview, not a flat bonus; see block note above.
+  12553: [{ factText: 'Damage', coefficient: 1.0, weapon: 'spear' }],
+  // Ranger — Spear 2 (aquatic), Swirling Strike. No split (1.75). Trait 1047 alt (1.8375) omitted,
+  // same reasoning.
+  12559: [{ factText: 'Damage', coefficient: 1.75, weapon: 'spear' }],
+  // Ranger — Spear 3 (aquatic), Surging Maw. No split (1.2). Trait 1047 alt (1.26) omitted, same
+  // reasoning.
+  12557: [{ factText: 'Damage', coefficient: 1.2, weapon: 'spear' }],
+  // Ranger — Spear 4 (aquatic), Counterstrike. No split (1.75). Trait 1047 alt (1.925) omitted, same
+  // reasoning.
+  12561: [{ factText: 'Damage', coefficient: 1.75, weapon: 'spear' }],
+  // Ranger — Spear 5 (aquatic), Man O' War. Damage `strikes=7` present -> wiki totaled (2.31); Final
+  // Attack no split (1.25). Trait 1047 alt values on both facts omitted, same reasoning.
+  12552: [
+    { factText: 'Damage', coefficient: 2.31, weapon: 'spear' },
+    { factText: 'Final Attack', coefficient: 1.25, weapon: 'spear' }
+  ],
+  // Ranger — Longbow 1, Long Range Shot. Maximum Damage PvE/WvW+PvP split (1.5/0.6). Minimum Damage
+  // PvE/WvW+PvP split (1.33/0.466).
+  12510: [
+    { factText: 'Maximum Damage', coefficient: 0.6, weapon: 'longbow' },
+    { factText: 'Minimum Damage', coefficient: 0.466, weapon: 'longbow' }
+  ],
+  // Ranger — Longbow 2, Rapid Fire. `strikes=10` present -> wiki totaled. PvE/WvW+PvP split
+  // (6.0/2.75).
+  12509: [{ factText: 'Damage', coefficient: 2.75, weapon: 'longbow' }],
+  // Ranger — Longbow 3, Hunter's Shot. No split (0.4).
+  12573: [{ factText: 'Damage', coefficient: 0.4, weapon: 'longbow' }],
+  // Ranger — Longbow 4, Point-Blank Shot. PvE/WvW+PvP split (0.8/0.01) — steep competitive nerf.
+  12511: [{ factText: 'Damage', coefficient: 0.01, weapon: 'longbow' }],
+  // Ranger — Longbow 5, Barrage. `strikes=12` present -> wiki totaled. PvE/WvW+PvP split (6.0/4.572).
+  12469: [{ factText: 'Damage', coefficient: 4.572, weapon: 'longbow' }],
+  // Ranger — Mace 1, Germinate. PvE/WvW+PvP split (0.9/0.6).
+  72088: [{ factText: 'Damage', coefficient: 0.6, weapon: 'mace' }],
+  // Ranger — Mace 2, Flourish. 3-way split pve/wvw/pvp on both facts: Initial Damage (0.85/0.75/0.6),
+  // Delayed Damage (1.275/1.0/0.9) — WvW used for each.
+  71999: [
+    { factText: 'Initial Damage', coefficient: 0.75, weapon: 'mace' },
+    { factText: 'Delayed Damage', coefficient: 1.0, weapon: 'mace' }
+  ],
+  // Ranger — Mace 3, Oaken Cudgel. PvE/WvW+PvP split (2.0/0.01) — steep competitive nerf.
+  71963: [{ factText: 'Damage', coefficient: 0.01, weapon: 'mace' }],
+  // Ranger — Mace 4, Thistleguard. PvE/WvW+PvP split (1.2/0.8).
+  71903: [{ factText: 'Damage', coefficient: 0.8, weapon: 'mace' }],
+  // Ranger — Mace 5, Wild Strikes. 3-way split pve/wvw/pvp on both facts: Damage (0.85/0.48/0.4),
+  // Final Slam Damage (1.7/0.96/0.8) — WvW used for each.
+  71841: [
+    { factText: 'Damage', coefficient: 0.48, weapon: 'mace' },
+    { factText: 'Final Slam Damage', coefficient: 0.96, weapon: 'mace' }
+  ],
+  // Ranger — Shortbow 1, Crossfire. PvE/WvW+PvP split (0.5/0.266).
+  12470: [{ factText: 'Damage', coefficient: 0.266, weapon: 'shortbow' }],
+  // Ranger — Shortbow 2, Poison Volley. `strikes=5` present -> wiki totaled. PvE/WvW+PvP split
+  // (1.5/1.25).
+  12468: [{ factText: 'Damage', coefficient: 1.25, weapon: 'shortbow' }],
+  // Ranger — Shortbow 3, Quick Shot. No split (0.5).
+  12517: [{ factText: 'Damage', coefficient: 0.5, weapon: 'shortbow' }],
+  // Ranger — Shortbow 4, Crippling Shot. No split (0.8).
+  12507: [{ factText: 'Damage', coefficient: 0.8, weapon: 'shortbow' }],
+  // Ranger — Shortbow 5, Concussion Shot. PvE/WvW+PvP split (0.4/0.01) — steep competitive nerf.
+  12508: [{ factText: 'Damage', coefficient: 0.01, weapon: 'shortbow' }],
+  // Ranger — Speargun 1, Splinter Shot. No split (0.55).
+  12526: [{ factText: 'Damage', coefficient: 0.55, weapon: 'harpoon gun' }],
+  // Ranger — Speargun 2, Coral Shot. No split (1.25).
+  12529: [{ factText: 'Damage', coefficient: 1.25, weapon: 'harpoon gun' }],
+  // Ranger — Speargun 3, Feeding Frenzy. No split. `strikes=11` present -> wiki totaled (4.4).
+  12528: [{ factText: 'Damage', coefficient: 4.4, weapon: 'harpoon gun' }],
+  // Ranger — Speargun 4, Mercy Shot. No split. 3 distinct health-threshold facts, each its own line
+  // (same "always-listed conditional fact" pattern as Elementalist's Fire Grab "Damage vs. Burning").
+  12527: [
+    { factText: 'Base Damage', coefficient: 1.0, weapon: 'harpoon gun' },
+    { factText: 'Less than 66% Health', coefficient: 1.75, weapon: 'harpoon gun' },
+    { factText: 'Less than 33% Health', coefficient: 2.5, weapon: 'harpoon gun' }
+  ],
+  // Ranger — Speargun 5, Ink Blast. No split. `strikes=7` present -> wiki totaled (1.4).
+  12530: [{ factText: 'Damage', coefficient: 1.4, weapon: 'harpoon gun' }],
+  // Ranger/Druid — Staff 1, Solar Beam. PvE/WvW+PvP split (0.3/0.25).
+  31710: [{ factText: 'Damage', coefficient: 0.25, weapon: 'staff' }],
+  // Ranger/Druid — Staff 4, Vine Surge. No split (0.5).
+  31700: [{ factText: 'Damage', coefficient: 0.5, weapon: 'staff' }],
+  // Ranger — Sword 2, Pounce. 3-way split pve/wvw/pvp (2.0/1.7/1.05) — WvW used. Also carries an
+  // unmodeled "Damage Increase" (+20%) conditional fact, same pattern as the land Spear skills above.
+  69203: [{ factText: 'Damage', coefficient: 1.7, weapon: 'sword' }],
+  // Ranger — Sword 3, Serpent's Strike. PvE/WvW+PvP split (3.0/1.5).
+  12482: [{ factText: 'Damage', coefficient: 1.5, weapon: 'sword' }],
+  // Ranger — Torch 4, Throw Torch. No split (0.666).
+  12635: [{ factText: 'Damage', coefficient: 0.666, weapon: 'torch' }],
+  // Ranger — Torch 5, Bonfire. No split. `strikes=9` present -> wiki totaled (0.9).
+  12504: [{ factText: 'Damage', coefficient: 0.9, weapon: 'torch' }],
+  // Ranger — Warhorn 4, Hunter's Call. `strikes=16` present -> wiki totaled. PvE/WvW+PvP split
+  // (2.4/1.92).
+  12620: [{ factText: 'Damage', coefficient: 1.92, weapon: 'warhorn' }]
+  // Weapon-slot sweep: Warrior, Guardian, Revenant, Ranger done (4 of 9).
 }
 
 export interface DamageLine {
