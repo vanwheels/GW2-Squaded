@@ -448,9 +448,28 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         (Symbolic Avenger) alternate Damage value in the API, deliberately NOT modeled as
         `requiresTrait` — it's a Minor trait's *stacking combat buff* preview (ratio varies per skill,
         1.2x-1.3x), not a flat build-choice bonus like every other `requiresTrait` entry in this
-        table. See `damage-calc.ts`'s Guardian Weapon-slot block comment for the full writeup. **Next
-        up (not started): Revenant, Ranger, Thief, Engineer, Necromancer, Elementalist, Mesmer, in
-        that order** — stop after each leg for a check-in, don't chain them.
+        table. See `damage-calc.ts`'s Guardian Weapon-slot block comment for the full writeup.
+        Revenant done 2026-08-05: 68 raw candidates, 59 carry a Damage fact (58 assigned for wiki
+        verification this leg + 1 already-seeded Coalescence of Ruin id 28253), 57 curated (Scorchrazor
+        id 41820 is the 1 exclusion — its wiki page quotes a PvE coefficient that contradicts the live
+        API's own PvE `dmg_multiplier`, and last edited over a year ago, so left uncurated rather than
+        guessed); 9 confirmed non-damage (block/heal/boon/toggle: Crystal Hibernation, Duelist's
+        Preparation, Renewing Wave, Envoy of Exuberance, Imperial Guard, Deactivate Otherworldly Bond,
+        Otherworldly Bond, Detonate Blossoming Aura, Abyssal Blitz). New mechanics this leg surfaced:
+        (1) 3-stage flip chains (chainDepth 0/1/2, not just the 2-stage flips seen in prior legs) on
+        Mace 1, Sword 1, Staff 1, Scepter 1, and Greatsword 1 — every stage independently curated under
+        its own id, per this app's `FlipSkillStack` giving each depth its own always-visible tooltip;
+        (2) a same-name 2-stage flip pair resolved to 2 separate wiki pages (Deathstrike / "Deathstrike
+        (second skill)"), each with its own coefficient; (3) a same-name cross-profession collision
+        (Revenant's Vindicator Greatsword "True Strike," id 62828, vs. Guardian's Mace 1 "True Strike,"
+        id 9109, already curated) resolved via the wiki's own "True Strike (vindicator)" disambiguation
+        page; (4) a skill (Abyssal Blot, id 72954) whose wiki page only tags a WvW/PvP value for 2 of
+        its 3 Damage facts (the older un-split "Damage" total fact predates a 2024-09-10 edit that
+        split it into "Initial Attack Damage"/"Pulse Damage" per mode) — its WvW value derived as the
+        sum of the other two, an identity confirmed exactly against the PvE numbers. See
+        `damage-calc.ts`'s Revenant Weapon-slot block comment for the full writeup. **Next up (not
+        started): Ranger, Thief, Engineer, Necromancer, Elementalist, Mesmer, in that order** — stop
+        after each leg for a check-in, don't chain them.
 - [ ] Mesmer's Tale of the Second Scion (id 76695) also grants "Scion's Reprieve," a self-buff
       (+15% WvW/PvP Heal Effectiveness on the caster) that neither this skill's Healing tooltip line
       nor any other app mechanism accounts for — a genuinely separate gap from the zero-facts issue

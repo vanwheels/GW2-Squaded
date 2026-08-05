@@ -1383,8 +1383,234 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   73132: [
     { factText: 'Initial Damage', coefficient: 0.01, weapon: 'spear' },
     { factText: 'Symbol Damage', coefficient: 0.4, weapon: 'spear' }
-  ]
-  // Weapon-slot sweep: Warrior, Guardian done (2 of 9).
+  ],
+
+  // --- Revenant done: 68 raw candidate ids resolved via the app's own `resolveSkillBarIds`/
+  // `weaponSkillIdsForPair` (Core plus Herald/Renegade/Vindicator, both environments, including the new
+  // land Spear kit added by the 2025-08-19 Janthir Wilds "Weaponmaster Training" update) — 58 assigned
+  // for wiki verification this leg, 9 confirmed locally as real non-damage skills with no Damage-type
+  // fact at all (block/heal/boon/toggle: Crystal Hibernation 28262, Duelist's Preparation 28571,
+  // Renewing Wave 29321, Envoy of Exuberance 29386, Imperial Guard 62921, Deactivate Otherworldly Bond
+  // 71858, Otherworldly Bond 71952, Detonate Blossoming Aura 72109, Abyssal Blitz 72938), and 1 already
+  // seeded (Coalescence of Ruin, id 28253, one-per-profession seed block above). Of the 58, 57 curated
+  // here; Scorchrazor (id 41820) is the 1 exclusion — its wiki page (title "Scorchrazor", last edited
+  // 2025-07-15) quotes a PvE coefficient of 0.3, but both the live and local API's own PvE
+  // `dmg_multiplier` is 1 (every other candidate this leg's local PvE value matches its wiki-quoted PvE
+  // number exactly, ruling out a fetch/transcription error here) — the wiki page is simply stale, and
+  // since its WvW-tagged 0.01 can't be independently trusted either, this one is left uncurated rather
+  // than guessed (same "documented gap, not a silent guess" policy as this table's other known
+  // limitations).
+  //
+  // This leg introduced 3-stage flip chains (chainDepth 0/1/2, not just the 2-stage flips seen so far):
+  // Mace 1 (Misery Swipe -> Anguish Swipe -> Manifest Toxin), Sword 1 (Preparation Thrust -> Brutal
+  // Blade -> Rift Slash), Staff 1 (Rapid Swipe -> Forceful Bash -> Rejuvenating Assault), Scepter 1
+  // (Serene Slash -> Acerbic Cut -> Motivating Whirl), and Greatsword 1 (Mist Swing -> Mist Slash ->
+  // Arcing Mists) — every stage gets its own independently wiki-verified entry below, per this leg's
+  // task instructions (the app's `FlipSkillStack` gives each depth its own always-visible tooltip).
+  // Two Deathstrike ids (27074 "Initial Damage"/stage 1, 28625 "Final Strike Damage"/stage 2) share one
+  // display name but are 2 separate wiki pages ("Deathstrike" and "Deathstrike (second skill)"), each
+  // with its own coefficient — both curated separately below. True Strike (id 62828, Vindicator
+  // Greatsword, flip-target of the excluded Imperial Guard) is a *different* skill from Guardian's
+  // Mace 1 True Strike (id 9109, already curated above) — landed on the wiki's own disambiguated "True
+  // Strike (vindicator)" page via id search, confirmed distinct via its own otheruses hatnote pointing
+  // back at Guardian's page. Unrelenting Assault (26699) confirmed via id search to be the real player
+  // Revenant Sword 3 skill, not one of the several non-player enemy-skill-id collisions sharing its
+  // name in the raw data (Mai Trin's and Zane's versions, both disambiguated on-wiki). 4 ids here
+  // (Manifest Toxin, Unrelenting Assault, Rift Slash, Surge of the Mists) surfaced the same "2 facts
+  // sharing one factText are just the API's own PvE/WvW duplication, not 2 distinct mechanics" pattern
+  // already documented in the Warrior/Guardian blocks above — one curated entry per distinct factText,
+  // not two. Abyssal Blot (72954) needed a similar derivation: its wiki page only tags a WvW/PvP value
+  // for the split-out "Initial Attack Damage"/"Pulse Damage" facts (added in a 2024-09-10 edit), not
+  // for the older un-split "Damage" (5-hit total) fact it still carries in PvE — that fact's WvW value
+  // is derived as Initial Attack Damage + Pulse Damage total (0.01+0.90=0.91), the same identity
+  // confirmed exactly in PvE (0.4+1.6=2.0 matches the wiki's own pve Damage=2.0).
+  // Revenant — Mace 1 (chain depth 0), Misery Swipe. PvE/WvW+PvP split (0.35/0.233).
+  27066: [{ factText: 'Damage', coefficient: 0.233, weapon: 'mace' }],
+  // Revenant — Mace 1 (chain depth 1), Anguish Swipe. PvE/WvW+PvP split (0.4/0.266).
+  26730: [{ factText: 'Damage', coefficient: 0.266, weapon: 'mace' }],
+  // Revenant — Mace 1 (chain depth 2), Manifest Toxin. 2 distinct facts, each PvE/WvW+PvP split: Damage
+  // (0.6/0.4), Chaining Damage (0.3/0.2) — WvW used for each (duplicate-fact pattern, see block comment
+  // above).
+  26666: [
+    { factText: 'Damage', coefficient: 0.4, weapon: 'mace' },
+    { factText: 'Chaining Damage', coefficient: 0.2, weapon: 'mace' }
+  ],
+  // Revenant — Mace 2, Searing Fissure. Initial Strike no split (0.5). Additional Strikes no split; no
+  // `strikes=` param despite 3 additional pulses (API/local hit_count=3, "Pulses" fact=4 total = 1
+  // initial + 3 additional) — per-hit value totaled here: 0.25*3=0.75.
+  28357: [
+    { factText: 'Initial Strike', coefficient: 0.5, weapon: 'mace' },
+    { factText: 'Additional Strikes', coefficient: 0.75, weapon: 'mace' }
+  ],
+  // Revenant — Mace 3, Echoing Eruption. No split (1.0).
+  27964: [{ factText: 'Damage', coefficient: 1.0, weapon: 'mace' }],
+  // Revenant — Sword 1 (chain depth 0), Preparation Thrust. PvE/WvW+PvP split (0.75/0.466).
+  29057: [{ factText: 'Damage', coefficient: 0.466, weapon: 'sword' }],
+  // Revenant — Sword 1 (chain depth 1), Brutal Blade. PvE/WvW+PvP split (0.8/0.535).
+  29256: [{ factText: 'Damage', coefficient: 0.535, weapon: 'sword' }],
+  // Revenant — Sword 1 (chain depth 2), Rift Slash. 2 distinct facts, each PvE/WvW+PvP split: Damage
+  // (0.9/0.7), Rift Damage (0.2175/0.145) — WvW used for each (duplicate-fact pattern, see block
+  // comment above).
+  28964: [
+    { factText: 'Damage', coefficient: 0.7, weapon: 'sword' },
+    { factText: 'Rift Damage', coefficient: 0.145, weapon: 'sword' }
+  ],
+  // Revenant — Sword 2, Chilling Isolation. Base Damage PvE/WvW+PvP split (0.8/0.7). Isolated Damage
+  // PvE/WvW+PvP split (1.6/0.9).
+  29233: [
+    { factText: 'Damage', coefficient: 0.7, weapon: 'sword' },
+    { factText: 'Isolated Damage', coefficient: 0.9, weapon: 'sword' }
+  ],
+  // Revenant — Sword 3, Unrelenting Assault. PvE/WvW+PvP split (0.7865/0.38) — the 2 identical-text
+  // base facts the API exposes are this same duplication (see block comment above).
+  26699: [{ factText: 'Damage', coefficient: 0.38, weapon: 'sword' }],
+  // Revenant — Sword 4, Shackling Wave. Initial Damage PvE/WvW+PvP split (1.2/0.1). Additional Strikes
+  // `strikes=5` present -> wiki totaled, PvE/WvW+PvP split (2.0/1.0).
+  28472: [
+    { factText: 'Initial Damage', coefficient: 0.1, weapon: 'sword' },
+    { factText: 'Additional Strikes', coefficient: 1.0, weapon: 'sword' }
+  ],
+  // Revenant — Sword 5 (chain depth 0), Deathstrike. "Initial Damage" fact; split header declares
+  // pve/wvw+pvp but the fact itself only tags pve/pvp explicitly (0.45/0.1) — wvw groups with the
+  // pvp-tagged value per the header's own split declaration (same reasoning as Warrior's Dual Strike
+  // precedent).
+  27074: [{ factText: 'Initial Damage', coefficient: 0.1, weapon: 'sword' }],
+  // Revenant — Sword 5 (chain depth 1), Deathstrike (second skill, distinct wiki page — see block
+  // comment above). "Final Strike Damage" fact, PvE/WvW+PvP split (2.67/1.7).
+  28625: [{ factText: 'Final Strike Damage', coefficient: 1.7, weapon: 'sword' }],
+  // Revenant — Hammer 1, Hammer Bolt. PvE/WvW+PvP split (0.9/0.5).
+  28549: [{ factText: 'Damage', coefficient: 0.5, weapon: 'hammer' }],
+  // Revenant — Hammer 3, Phase Smash. 3-way split (2.2/1.1/1.36), uses wvw (1.1).
+  27976: [{ factText: 'Damage', coefficient: 1.1, weapon: 'hammer' }],
+  // Revenant — Hammer 4, Field of the Mists. PvE/WvW+PvP split (1.8/1.1).
+  27665: [{ factText: 'Damage', coefficient: 1.1, weapon: 'hammer' }],
+  // Revenant — Hammer 5, Drop the Hammer. PvE/WvW+PvP split (3.2/0.01) — steep competitive nerf.
+  28110: [{ factText: 'Damage', coefficient: 0.01, weapon: 'hammer' }],
+  // Revenant — Axe 4, Frigid Blitz. No split on either fact: Pass-Through Damage (0.15), Final Damage
+  // (1.5).
+  28029: [
+    { factText: 'Pass-Through Damage', coefficient: 0.15, weapon: 'axe' },
+    { factText: 'Final Damage', coefficient: 1.5, weapon: 'axe' }
+  ],
+  // Revenant — Axe 5, Temporal Rift. PvE/WvW+PvP split (0.75/0.01) — steep competitive nerf.
+  28409: [{ factText: 'Damage', coefficient: 0.01, weapon: 'axe' }],
+  // Revenant — Staff 1 (chain depth 0), Rapid Swipe. PvE/WvW+PvP split (0.65/0.433).
+  29180: [{ factText: 'Damage', coefficient: 0.433, weapon: 'staff' }],
+  // Revenant — Staff 1 (chain depth 1), Forceful Bash. PvE/WvW+PvP split (0.75/0.5).
+  29331: [{ factText: 'Damage', coefficient: 0.5, weapon: 'staff' }],
+  // Revenant — Staff 1 (chain depth 2), Rejuvenating Assault. `strikes=2` present -> wiki totaled.
+  // PvE/WvW+PvP split (1.0/0.666).
+  29002: [{ factText: 'Damage', coefficient: 0.666, weapon: 'staff' }],
+  // Revenant — Staff 2, Mender's Rebuke. PvE/WvW+PvP split (1.5/1.09).
+  29145: [{ factText: 'Damage', coefficient: 1.09, weapon: 'staff' }],
+  // Revenant — Staff 3, Warding Rift. PvE/WvW+PvP split (0.4/0.1).
+  29288: [{ factText: 'Damage', coefficient: 0.1, weapon: 'staff' }],
+  // Revenant — Staff 5, Surge of the Mists. `strikes=9` present -> wiki totaled. PvE/WvW+PvP split
+  // (3.24/0.009) — steep competitive nerf; the 2 identical-text base facts the API exposes are this
+  // same duplication (see block comment above).
+  28978: [{ factText: 'Damage', coefficient: 0.009, weapon: 'staff' }],
+  // Revenant/Renegade — Shortbow 1, Shattershot. PvE/WvW+PvP split (0.65/0.44).
+  40497: [{ factText: 'Damage', coefficient: 0.44, weapon: 'shortbow' }],
+  // Revenant/Renegade — Shortbow 2, Bloodbane Path. `strikes=3` present -> wiki totaled. PvE/WvW+PvP
+  // split (1.2/1.5) — WvW higher than PvE here (a real buff, not a typo).
+  40175: [{ factText: 'Damage', coefficient: 1.5, weapon: 'shortbow' }],
+  // Revenant/Renegade — Shortbow 3, Sevenshot. `strikes=7` present -> wiki totaled. PvE/WvW+PvP split
+  // (2.17/1.855).
+  41829: [{ factText: 'Damage', coefficient: 1.855, weapon: 'shortbow' }],
+  // Revenant/Renegade — Shortbow 4, Spiritcrush. No split on either fact. Initial Damage `strikes=1`
+  // present -> wiki totaled (1.25, same as per-hit). Damage `strikes=3` present -> wiki totaled (0.75).
+  43993: [
+    { factText: 'Initial Damage', coefficient: 1.25, weapon: 'shortbow' },
+    { factText: 'Damage', coefficient: 0.75, weapon: 'shortbow' }
+  ],
+  // Revenant/Renegade — Shortbow 5, Scorchrazor — EXCLUDED, see block comment above (wiki page stale,
+  // PvE value contradicts the live API).
+  // Revenant/Vindicator — Greatsword 1 (chain depth 0), Mist Swing. PvE/WvW+PvP split (0.7/0.6).
+  62913: [{ factText: 'Damage', coefficient: 0.6, weapon: 'greatsword' }],
+  // Revenant/Vindicator — Greatsword 1 (chain depth 1), Mist Slash. PvE/WvW+PvP split (0.8/0.6).
+  62688: [{ factText: 'Damage', coefficient: 0.6, weapon: 'greatsword' }],
+  // Revenant/Vindicator — Greatsword 1 (chain depth 2), Arcing Mists. PvE/WvW+PvP split (1.2/0.85).
+  62752: [{ factText: 'Damage', coefficient: 0.85, weapon: 'greatsword' }],
+  // Revenant/Vindicator — Greatsword 2, Mist Unleashed. PvE/WvW+PvP split (1.6/1.36).
+  62692: [{ factText: 'Damage', coefficient: 1.36, weapon: 'greatsword' }],
+  // Revenant/Vindicator — Greatsword 3, Phantom's Onslaught. 3-way split (1.6/1.33/1.18) — uses wvw
+  // (1.33). (Infobox lists the wvw value ahead of pvp; both explicitly tagged, not a duplication.)
+  62895: [{ factText: 'Damage', coefficient: 1.33, weapon: 'greatsword' }],
+  // Revenant/Vindicator — Greatsword 4 (chain depth 1, flip-target of the excluded Imperial Guard),
+  // True Strike — Vindicator's, distinct from Guardian's Mace 1 skill of the same name (see block
+  // comment above). Base Damage PvE/WvW+PvP grouped split (1.5/1.0). Damage per Block 3-way split
+  // (0.5/0.05/0.15) — uses wvw (0.05).
+  62828: [
+    { factText: 'Damage', coefficient: 1.0, weapon: 'greatsword' },
+    { factText: 'Damage per Block', coefficient: 0.05, weapon: 'greatsword' }
+  ],
+  // Revenant/Vindicator — Greatsword 5, Eternity's Requiem. Base Damage PvE/WvW+PvP split (1.0/0.9).
+  // Minimum Damage PvE/WvW+PvP split (0.3/0.1).
+  62929: [
+    { factText: 'Damage', coefficient: 0.9, weapon: 'greatsword' },
+    { factText: 'Minimum Damage', coefficient: 0.1, weapon: 'greatsword' }
+  ],
+  // Revenant — Scepter 1 (chain depth 0), Serene Slash. PvE/WvW+PvP split (0.533/0.475).
+  71933: [{ factText: 'Damage', coefficient: 0.475, weapon: 'scepter' }],
+  // Revenant — Scepter 1 (chain depth 1), Acerbic Cut. PvE/WvW+PvP split (0.533/0.475).
+  71930: [{ factText: 'Damage', coefficient: 0.475, weapon: 'scepter' }],
+  // Revenant — Scepter 1 (chain depth 2), Motivating Whirl. PvE/WvW+PvP split (1.0/0.667).
+  71942: [{ factText: 'Damage', coefficient: 0.667, weapon: 'scepter' }],
+  // Revenant — Scepter 2, Blossoming Aura. Pulsing Damage `strikes=4` present -> wiki totaled,
+  // PvE/WvW+PvP split (1.2/0.8). Final Damage PvE/WvW+PvP split (1.0/0.5).
+  71816: [
+    { factText: 'Pulsing Damage', coefficient: 0.8, weapon: 'scepter' },
+    { factText: 'Final Damage', coefficient: 0.5, weapon: 'scepter' }
+  ],
+  // Revenant — Spear 1 (aquatic autoattack), Spear of Anguish. No split (0.8).
+  28714: [{ factText: 'Damage', coefficient: 0.8, weapon: 'spear' }],
+  // Revenant — Spear 2 (aquatic), Rapid Assault. `strikes=8` present -> wiki totaled. No split (3.0).
+  28915: [{ factText: 'Damage', coefficient: 3.0, weapon: 'spear' }],
+  // Revenant — Spear 3 (aquatic, chain depth 0), Venomous Sphere. No split (0.2).
+  28827: [{ factText: 'Damage', coefficient: 0.2, weapon: 'spear' }],
+  // Revenant — Spear 3 (aquatic, chain depth 1), Frigid Discharge. No split (2.0).
+  28797: [{ factText: 'Damage', coefficient: 2.0, weapon: 'spear' }],
+  // Revenant — Spear 4 (aquatic, chain depth 0), Igniting Brand. No split (1.25).
+  28692: [{ factText: 'Damage', coefficient: 1.25, weapon: 'spear' }],
+  // Revenant — Spear 4 (aquatic, chain depth 1), Devour Brand. No split (1.5).
+  28815: [{ factText: 'Damage', coefficient: 1.5, weapon: 'spear' }],
+  // Revenant — Spear 5 (aquatic), Rift Containment. Wiki's own `strikes=5` param doesn't match its
+  // hit-for-hit math (1.32/5=0.264, not the local per-hit 0.33) — the local API's hit_count=4 is what
+  // actually reconciles (0.33*4=1.32 exactly) — the totaled coefficient itself (1.32) is correct either
+  // way, used as-is. No split.
+  28930: [{ factText: 'Damage', coefficient: 1.32, weapon: 'spear' }],
+  // Revenant — Trident 1, Mistsfire. No split (0.6).
+  50395: [{ factText: 'Damage', coefficient: 0.6, weapon: 'trident' }],
+  // Revenant — Trident 2, Portal Fire. `strikes=8` present -> wiki totaled. No split (2.64).
+  50456: [{ factText: 'Damage', coefficient: 2.64, weapon: 'trident' }],
+  // Revenant — Trident 3, Rift of Pain. No split (0.25).
+  50390: [{ factText: 'Damage', coefficient: 0.25, weapon: 'trident' }],
+  // Revenant — Trident 4, Reckoning Blast. `strikes=2` present -> wiki totaled. No split (0.4).
+  50410: [{ factText: 'Damage', coefficient: 0.4, weapon: 'trident' }],
+  // Revenant — Trident 5, Torrential Mists. `strikes=22` present -> wiki totaled. No split (4.84).
+  50483: [{ factText: 'Damage', coefficient: 4.84, weapon: 'trident' }],
+  // Revenant — Spear 1 (land, Janthir Wilds, chain depth 0), Abyssal Strike (melee half of the
+  // autoattack, separated from the ranged half in a 2024-08-20 update). PvE/WvW+PvP split (0.85/0.45).
+  73015: [{ factText: 'Damage', coefficient: 0.45, weapon: 'spear' }],
+  // Revenant — Spear 1 (land, Janthir Wilds, chain depth 1), Abyssal Fire (ranged half of the
+  // autoattack). 3-way split (0.85/0.45/0.3) — uses wvw (0.45).
+  72931: [{ factText: 'Damage', coefficient: 0.45, weapon: 'spear' }],
+  // Revenant — Spear 2 (land, Janthir Wilds), Abyssal Force. No split (0.8).
+  72972: [{ factText: 'Damage', coefficient: 0.8, weapon: 'spear' }],
+  // Revenant — Spear 4 (land, Janthir Wilds), Abyssal Blot. 3 distinct facts. Initial Attack Damage
+  // PvE (implicit, un-tagged)/WvW+PvP split (0.4/0.01). Pulse Damage `strikes=4` present -> wiki
+  // totaled, PvE(implicit)/WvW/PvP 3-way (1.6/0.9/0.75) — uses wvw (0.9). Damage (the older, un-split
+  // 5-hit total fact) has no wiki-tagged WvW value post-split — derived as Initial Attack Damage +
+  // Pulse Damage total (0.01+0.9=0.91), see block comment above.
+  72954: [
+    { factText: 'Initial Attack Damage', coefficient: 0.01, weapon: 'spear' },
+    { factText: 'Pulse Damage', coefficient: 0.9, weapon: 'spear' },
+    { factText: 'Damage', coefficient: 0.91, weapon: 'spear' }
+  ],
+  // Revenant — Spear 5 (land, Janthir Wilds), Abyssal Raze. No split on the Damage fact itself (1.0);
+  // only the per-stack damage-increase bonus splits by mode, not modeled here.
+  73059: [{ factText: 'Damage', coefficient: 1.0, weapon: 'spear' }]
+  // Weapon-slot sweep: Warrior, Guardian, Revenant done (3 of 9).
 }
 
 export interface DamageLine {
