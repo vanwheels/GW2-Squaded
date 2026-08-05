@@ -2,6 +2,33 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 61 — Synthetic-fact injection for skills the API returns with no usable facts at all
+
+`CURATED_HEALING_COEFFICIENTS`/`CURATED_DAMAGE_COEFFICIENTS` only ever render a number when a real
+matching `Fact` object exists on the skill for the tooltip-line renderers (`skillFactLines`,
+`healingLinesForSkill`) to gate on — the fact's own `value` is never read, it's purely a presence
+check. Mesmer's Tale of the Second Scion (id 76695, Troubadour's Heal skill) has zero
+`AttributeAdjust`/Healing facts in a live API pull, confirmed not a stale-cache issue — no curated
+table entry could ever render, no matter how good the wiki-sourced coefficient was.
+
+Built the fix flagged in TODO.md 2026-08-02: `data/game-data/synthetic-facts.json`, a hand-maintained
+`{ [skillId]: Fact[] }` map merged into each matching skill's `.facts` once, at load time
+(`load-game-data.ts`'s new `withSyntheticFacts`) — same shape/spirit as `wvw-fact-overrides.json` but
+insertion instead of value-override. Once merged, an injected fact is indistinguishable from a real
+API one to every consumer (tooltip rendering, curated-coefficient gating, generic fallback), so no
+special-casing was needed anywhere outside the loader. Documented in docs/game-data.md alongside the
+`wvw-fact-overrides.json` writeup, including when/how to add a future entry.
+
+Pulled Tale of the Second Scion's raw wikitext (`action=raw`, not a summarized fetch) and added the
+first entries: "Self-Healing" (base 3535, no PvE/WvW split) and "Ally Healing" (base 2250,
+coefficient-only split — PvE 1.0, WvW/PvP 0.5, WvW value used). Confirmed via the wiki's own version
+history that this skill's Ally Healing coefficient was nerfed 1.0 → 0.5 in WvW/PvP as recently as
+2026-01-13, a real example of the balance-patch-tracking gap discussed the same session. Left the
+skill's separate "Scion's Reprieve" self-buff (+15%/+20% Heal Effectiveness) unmodeled — this app has
+no general outgoing/incoming-heal-modifier concept yet, a distinct and larger gap, tracked as its own
+new TODO item. `typecheck` and `lint` both pass clean; not visually spot-checked in the running app
+(Electron sandbox limitation, same caveat as every prior session touching these tables).
+
 ## Session 60 — Full Weapon-slot category sweep for `CURATED_HEALING_COEFFICIENTS` (last category)
 
 Completed the category-sweep plan from Sessions 57-59 (Heal → Utility → Elite → Weapon skills).

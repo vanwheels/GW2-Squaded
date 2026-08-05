@@ -1,0 +1,6 @@
+{
+  "76695": [
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Self-Healing", "value": 3535 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Ally Healing", "value": 2250 }
+  ]
+}

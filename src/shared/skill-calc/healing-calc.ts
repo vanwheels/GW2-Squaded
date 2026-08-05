@@ -190,6 +190,16 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   40200: [{ factText: 'Healing', baseValue: 1215, coefficient: 0.2 }],
   // Mesmer — Twin Blade Restoration (Virtuoso). No PvE/WvW split.
   62522: [{ factText: 'Healing', baseValue: 3100, coefficient: 1.0 }],
+  // Mesmer — Tale of the Second Scion (Troubadour). The GW2 API returns zero real Healing facts for
+  // this skill (confirmed via a live /v2/skills/76695 pull, not just this app's cached skills.json)
+  // — resolved 2026-08-04 via data/game-data/synthetic-facts.json, which injects wiki-sourced `Fact`
+  // objects with the matching text/type/target so this table has something to key off (see
+  // docs/game-data.md). "Self-Healing" has no PvE/WvW split. "Ally Healing" has a coefficient-only
+  // split (PvE 1.0, WvW/PvP 0.5, same 2250 base) — WvW value used.
+  76695: [
+    { factText: 'Self-Healing', baseValue: 3535, coefficient: 1.0 },
+    { factText: 'Ally Healing', baseValue: 2250, coefficient: 0.5 }
+  ],
   // Necromancer — Well of Blood (base skill id only; id 10670's near-identical-but-different
   // numbers didn't match either wiki split cleanly, likely a Scourge-context variant — left
   // uncurated rather than guessing). WvW splits used for both facts (PvE 2936/1.0, 664/0.5).

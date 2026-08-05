@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { app } from 'electron'
-import type { GameData } from '@shared/types'
+import type { Fact, GameData, Skill } from '@shared/types'
 
 let cached: GameData | null = null
 
@@ -26,13 +26,32 @@ function readJson<T>(fileName: string): T {
  * data/game-data/ directory, which works unpackaged (dev and local `npm run build`); packaging
  * this as an `extraResources` entry in electron-builder config is still pending (see TODO.md).
  */
+/**
+ * Merges `synthetic-facts.json` into each skill's `.facts` — hand-curated, wiki-sourced `Fact`
+ * objects for skills the GW2 API returns with no real fact of the needed shape at all (e.g. Mesmer's
+ * Tale of the Second Scion, id 76695, has zero `AttributeAdjust`/Healing facts in a live API pull, so
+ * `CURATED_HEALING_COEFFICIENTS` has nothing to key off no matter how good the wiki-sourced
+ * coefficient is — every downstream consumer, `healingLinesForSkill` included, walks `skill.facts`
+ * to decide which lines even exist before a curated table ever gets consulted). Merging here, once,
+ * means every consumer (tooltip rendering, curated-coefficient gating, generic fact fallback) sees
+ * the synthetic fact identically to a real one, with no special-casing anywhere else. See
+ * docs/game-data.md for the full writeup and when to add a new entry.
+ */
+function withSyntheticFacts(skills: Skill[]): Skill[] {
+  const syntheticFacts = readJson<Record<string, Fact[]>>('synthetic-facts.json')
+  return skills.map((skill) => {
+    const extra = syntheticFacts[skill.id]
+    return extra ? { ...skill, facts: [...skill.facts, ...extra] } : skill
+  })
+}
+
 export function loadGameData(): GameData {
   if (!cached) {
     cached = {
       professions: readJson('professions.json'),
       specializations: readJson('specializations.json'),
       traits: readJson('traits.json'),
-      skills: readJson('skills.json'),
+      skills: withSyntheticFacts(readJson('skills.json')),
       itemStats: readJson('itemstats.json'),
       itemStatIcons: readJson('itemstat-icons.json'),
       itemStatLegalIds: readJson('itemstat-legal-ids.json'),

@@ -507,21 +507,13 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         `glyphFormVariants` target carrying the real fact, unreachable from the equipped id); (5)
         trait-duplicated same-text facts (a per-skill alternate value, not a shared formula — leave
         unmodeled until the fix above lands, don't just guess a placement).
-- [ ] Mesmer Troubadour's Heal skill, "Tale of the Second Scion" (id 76695), shows no Healing numbers
-      at all in this app (user screenshot comparison, 2026-08-02) — confirmed root cause: the GW2 API
-      returns only 3 facts for this skill (`Recharge`, `Number of Targets`, `Radius`) with **zero**
-      `AttributeAdjust`/Healing facts, unlike every other Heal-slot skill checked this session. The
-      in-game tooltip and gw2skills.net both show real "Self-Healing"/"Ally Healing" numbers plus a
-      "Scion's Reprieve" buff (+15% Heal Effectiveness) that the API doesn't expose either. This
-      isn't a missing `CURATED_HEALING_COEFFICIENTS` entry — `healingLinesForSkill` only ever renders
-      a number when a matching real API fact exists to gate it (deliberate, see that function's doc
-      comment), and there's no fact here to match against at all. Fixing this needs a new mechanism
-      that doesn't require a backing API fact (e.g. a wiki-only synthetic-fact table, injected the
-      way `wvw-fact-overrides.json` patches values but for facts that don't exist yet) — scoped as
-      its own follow-up rather than folded into the Heal-skill sweep above, since it's an
-      architecture change, not a data-curation one. Likely worth checking whether other very recent
-      (Janthir Wilds-era) skills have the same API gap before building a one-off fix just for this
-      skill.
+- [ ] Mesmer's Tale of the Second Scion (id 76695) also grants "Scion's Reprieve," a self-buff
+      (+15% WvW/PvP Heal Effectiveness on the caster) that neither this skill's Healing tooltip line
+      nor any other app mechanism accounts for — a genuinely separate gap from the zero-facts issue
+      resolved 2026-08-04 (see `synthetic-facts.json`/COMPLETED.md), since the buff isn't itself a
+      Healing fact, it modifies *other* incoming/outgoing heals. This app has no general "outgoing/
+      incoming heal modifier" concept anywhere yet (distinct from the boon/condition uptime system) —
+      needs scoping before fixing, not a one-off patch just for this skill.
 - [ ] Healing-coefficient curation strategy changed 2026-08-02: user explicitly rejected build-by-
       build curation ("the spirit of theorycrafting is scouting all classes for unique optimizations,
       not just through builds") in favor of a full category sweep across all professions before

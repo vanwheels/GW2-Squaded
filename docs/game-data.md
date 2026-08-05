@@ -465,6 +465,35 @@ existed (fail-safe, not silently wrong).
 to skills/traits that had a boon/condition Buff fact in `skills.json`/`traits.json` *at the time
 it was last run* — re-run after `fetch-game-data` if new boon/condition-granting content is added.
 
+## Skills the API returns with no usable facts at all (`synthetic-facts.json`)
+
+`CURATED_DAMAGE_COEFFICIENTS`/`CURATED_HEALING_COEFFICIENTS` (`damage-calc.ts`/`healing-calc.ts`)
+only ever render a number when a real matching `Fact` object exists on the skill to key off (by
+`type`/`target`/`text`) — that fact's own numeric `value` is never read, it's purely a presence
+gate (plus carries `requires_trait` for trait-conditional facts). Every downstream consumer walks
+`skill.facts`/`skill.traitedFacts` to decide which tooltip lines exist at all
+(`skill-fact-lines.ts`'s `skillFactLines`, `fact-numbers.ts`'s `numericFactLines`) — the curated
+tables are consulted per-fact, not iterated independently. So a skill the GW2 API returns with
+*zero* facts of the needed shape has no number to show no matter how good a wiki-sourced
+coefficient is (first hit: Mesmer's Tale of the Second Scion, id 76695, released with Troubadour
+2025-08-19 — a live `/v2/skills/76695` pull returns only `Recharge`/`Number of Targets`/`Radius`,
+confirmed not a stale-cache issue).
+
+`synthetic-facts.json` (hand-maintained, no fetch script — same shape as `wvw-fact-overrides.json`
+but insertion instead of value-override) is `{ [skillId]: Fact[] }`, merged into each matching
+skill's `.facts` array once, at load time, in `load-game-data.ts`'s `withSyntheticFacts`. Once
+merged, the injected fact is indistinguishable from a real API one to every consumer — no
+special-casing needed anywhere else. Add a new entry when a skill has a real wiki-documented
+Healing/Damage coefficient but no live-API fact of the matching `type`/`target`/`text` to gate on:
+pull the raw wikitext (`action=raw`, never a summarized fetch) for the coefficient itself as usual,
+then add a matching `{ type, target, text }` synthetic `Fact` here (its own `value` is cosmetic —
+put the wiki's stated base value for parity with a real fact, but the curated table's `baseValue`
+is what actually renders) plus the normal `CURATED_HEALING_COEFFICIENTS`/`CURATED_DAMAGE_COEFFICIENTS`
+entry. Worth checking for on any other very-recently-released skill (new elite specs in particular)
+that turns up with an empty-seeming Damage/Healing tooltip during a future sweep — Janthir
+Wilds-and-later content has hit real API-coverage gaps more than once during this project's
+curation sweeps (see TODO.md).
+
 ## Gear upgrades and consumables (`runes.json`, `sigils.json`, `infusions.json`, `relics.json`, `food.json`, `utility.json`)
 
 `scripts/fetch-gear-upgrades.ts` (run via `npm run fetch-gear-upgrades`) fetches Superior runes,
