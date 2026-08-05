@@ -360,7 +360,35 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         Summon Shadow Fiend) are wiki `type = minion` and each states the summoned minion's own fixed
         Power at level 80 (e.g. Bone Fiend "1,500", Flesh Wurm "~1,650") — same "minion's own stats,
         not the player's" reasoning as Summon Flesh Golem/Charge (Elite-slot sweep); all 4 excluded.
-        **Next up: Elementalist's Utility-slot leg, then Mesmer — the last 2 professions in this
+        Elementalist done 2026-08-04: 19 visible ids carry a Damage fact after fixing 2 real picker
+        bugs this leg surfaced (6 shared racial ones already curated/excluded under Warrior, not
+        re-curated); all 5 spec runs (baseline + Tempest/Weaver/Catalyst/Evoker) returned the
+        identical visible set. **Bug #1**: Lightning Flash and Signet of Water each have a
+        GroundTargeted duplicate-id pair where, unlike every other such pair in this sweep, the
+        *ground-targeted* id (5536, 5570) is the wiki's own documented canonical one and the
+        auto-target id (50447, 49056) is a confirmed-stale duplicate (zero wiki search hits) — the
+        app's usual auto-target-preferred signal picked the fake side, the reverse of every prior
+        instance of this bug class (Guardian Spirit Weapons, Ranger Mistral). Fixed by adding
+        50447/49056 to `skill-variant-exclusions.json`. **Bug #2**: `skill-variants.ts`'s
+        attunement-collapse signal only fires within a same-named group, but Glyph of Storms and
+        Glyph of Renewal each describe their 4 attunement variants under distinct flavor names (Ice
+        Storm/Firestorm/Lightning Storm/Sandstorm; Renewal of Air/Earth/Fire/Water) rather than
+        reusing the base skill's name, and Glyph of Elemental Power partially does the same for its
+        Air/Fire variants — so 16 non-equippable variant ids were leaking into the Utility picker as
+        singleton groups, 6 of them (the 4 Storms plus Glyph of Elemental Power's Air/Fire variants)
+        carrying a Damage fact that was about to get curated as if independently equippable. Fixed by
+        adding all 16 to `skill-variant-exclusions.json` (Glyph of Elementals, Elite-slot, shares its
+        variants' exact name like Glyph of Lesser Elementals and was unaffected). 13 distinct skills
+        curated (Lightning Flash, Arcane Blast, all 4 Signets, Arcane Wave — a rare *inverted*
+        PvE/WvW split, 1.4/1.7, WvW higher — Arcane Shield; Tempest's 3 shouts; Weaver's Primordial
+        Stance; Catalyst's Shattering Ice). 3 excluded: Evoker's (this app's newest elite spec,
+        released 2025-08-19) 3 Meditations (Hare's Agility, Toad's Fortitude, Fox's Fury) hit a new
+        *confirmed-correct* instance of the flip-architecture gap (Chaotic Release/Tailored
+        Victory/Weave Self/Photon Wall/Thief's Preparation skills) — the app's flip-root pick exactly
+        matches the wiki's own documented id in all 3 cases, but the equippable id's local facts are
+        sparse and never include the real Damage fact, which the API attaches only to the
+        unreachable flip target. See `damage-calc.ts`'s Elementalist Utility-slot block comment for
+        the full writeup. **Next up: Mesmer's Utility-slot leg — the last profession in this
         category.**
       - Weapon-slot (919 raw candidates): not started, last category in the sweep order.
 - [ ] Mesmer Troubadour's Heal skill, "Tale of the Second Scion" (id 76695), shows no Healing numbers

@@ -733,7 +733,84 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // PvE/WvW/PvP split 0.4/0.25/0.5 (independently split values, not the usual PvE-vs-WvW+PvP-grouped
   // shape) — WvW value used. API represents the split as 3 separate identical-text "Damage" facts
   // rather than distinct fact names, same shape as Mesmer's Jaunt earlier in this sweep.
-  76975: [{ factText: 'Damage', coefficient: 0.25, weapon: 'unequipped' }]
+  76975: [{ factText: 'Damage', coefficient: 0.25, weapon: 'unequipped' }],
+
+  // Elementalist — 19 visible ids carry a Damage fact after fixing 2 real picker bugs surfaced by
+  // this leg (see below); 6 are the shared racial ones already curated/excluded under Warrior, not
+  // re-curated here. All 5 spec runs (baseline + Tempest/Weaver/Catalyst/Evoker) returned the
+  // identical visible set, no spec-gated duplicate-id groups for this profession's Utility slot.
+  // **Bug #1 — stale duplicate ids surviving the GroundTargeted-collapse signal**: Lightning Flash
+  // and Signet of Water each have 2 API ids sharing one name, and unlike every other GroundTargeted
+  // pair in this sweep, only ONE side is real — the *ground-targeted* id (5536, 5570) is the wiki's
+  // own documented `id =` field for each skill's page, while the other, auto-target-flagged id
+  // (50447, 49056) returns zero wiki search hits anywhere, the same "confirmed-stale, not just
+  // undocumented" signal used for the Guardian Spirit Weapons/Ranger Mistral picker-bug fixes
+  // earlier in this sweep — except this time the app's default auto-target-preferred signal picked
+  // the *wrong side* of the pair (the fake one), the reverse of every prior instance. Fixed by adding
+  // 50447/49056 to `skill-variant-exclusions.json` directly, re-verified against the real
+  // `visibleSkillsForSlot`. (Arcane Wave's own 5638/22572 GroundTargeted pair is a genuine dual-id
+  // skill per the wiki's `id = 5638, 22572` field documenting both — the existing auto-target pick,
+  // 22572, needed no fix.)
+  // **Bug #2 — differently-named attunement variants leaking into the picker**: `skill-variants.ts`'s
+  // attunement-collapse signal only fires when a group of same-named ids includes a real
+  // attunement-agnostic sibling (e.g. "Glyph of Lesser Elementals" correctly collapses this way,
+  // its 4 attunement variants share its exact name) — but Glyph of Storms (5734) and Glyph of
+  // Renewal (5573) each describe their 4 attunement variants under their own distinct flavor names
+  // (Ice Storm/Firestorm/Lightning Storm/Sandstorm; Renewal of Air/Earth/Fire/Water, the latter with
+  // 2 generations of ids each), and Glyph of Elemental Power (5506) partially does the same (Air/
+  // Fire variants named "Glyph of Elemental Power" but tagged `attunement`, non-null). None of these
+  // 16 ids share their base skill's name, so each lands in the picker as its own singleton group,
+  // bypassing the attunement filter entirely — of them, 4 (Ice Storm/Firestorm/Lightning
+  // Storm/Sandstorm) and 2 (Glyph of Elemental Power's Air/Fire variants, 34637/34736) carry a
+  // Damage fact and were about to be curated as if independently equippable. Fixed the same way as
+  // Bug #1, adding all 16 non-equippable variant ids (the 6 Damage-bearing ones plus the other 10
+  // Renewal/Elemental-Power variants with no Damage fact, for full consistency) to
+  // `skill-variant-exclusions.json`; Glyph of Elementals (Elite-slot, already curated) shares its
+  // variants' exact name like Glyph of Lesser Elementals and was unaffected.
+  // Lightning Flash (id-fixed, see Bug #1). PvE/WvW+PvP split 1.5/0.3 — WvW value used.
+  5536: [{ factText: 'Damage', coefficient: 0.3, weapon: 'unequipped' }],
+  // Arcane Blast. PvE/WvW+PvP split 1.4/0.6 — WvW value used.
+  5539: [{ factText: 'Damage', coefficient: 0.6, weapon: 'unequipped' }],
+  // Signet of Fire. No split.
+  5542: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Signet of Water (id-fixed, see Bug #1). No split (separate Healing fact out of scope here).
+  5570: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Signet of Earth. No split.
+  5571: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Signet of Air. No split.
+  5572: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Arcane Wave (both 5638/22572 real per the wiki's own dual-id field, 22572 is the visible
+  // auto-target one). PvE/WvW+PvP split 1.4/1.7 — a rare *inverted* split, WvW higher than PvE
+  // (same reverse-of-usual shape as this table's existing Inspiring Reinforcement entry) — WvW
+  // value 1.7 used.
+  22572: [{ factText: 'Damage', coefficient: 1.7, weapon: 'unequipped' }],
+  // Arcane Shield. No split.
+  5641: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }],
+  // Tempest — "Flash-Freeze!". PvE/WvW+PvP split 0.7/0.1 — WvW value used.
+  29948: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
+  // Tempest — "Aftershock!". `strikes=2` present -> both PvE 1.5 and WvW+PvP 0.1 already totaled
+  // (verified: wiki's own per-strike values 0.75/0.05 * 2). WvW value used.
+  30432: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
+  // Tempest — "Feel the Burn!". PvE/WvW+PvP split 2.5/0.1 — WvW value used.
+  30662: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
+  // Weaver — Primordial Stance. No split.
+  40183: [{ factText: 'Damage', coefficient: 0.33, weapon: 'unequipped' }],
+  // Catalyst — Shattering Ice. PvE/WvW+PvP split 0.6/0.3 — WvW value used. Wiki's `id = 62698, 62909`
+  // lists a second id described as "the damage effect on targets that were hit" — not a distinct
+  // equippable skill (absent from `skills.json` under this profession/slot), so not curated
+  // separately.
+  62698: [{ factText: 'Damage', coefficient: 0.3, weapon: 'unequipped' }]
+  // Evoker (this app's newest elite spec, released 2025-08-19) — all 3 Meditations (Hare's Agility,
+  // Toad's Fortitude, Fox's Fury) hit a new confirmed-correct instance of the established
+  // flip-architecture gap (Chaotic Release/Tailored Victory/Weave Self/Photon Wall/Thief's
+  // Preparation skills): each name has 2 API ids in a `flipSkill` relationship, and unlike Bug #1
+  // above, the app's flip-root selection here exactly matches the wiki's own documented `id =`
+  // field in all 3 cases (Hare's Agility -> 77038, Toad's Fortitude -> 77320, Fox's Fury -> both
+  // 76711 and 77282 per the wiki, 76711 the flip-root/visible one) — but the equippable id's own
+  // local facts are sparse (Recharge/Number only, never zero like the Thief Preparation case) and
+  // never include the skill's real Damage fact(s), which the API instead attaches to the flip
+  // target id (76583, 77247, 77282 respectively) that no rendering path stitches back onto the
+  // canonical tooltip. All 3 excluded outright, no substitute id to curate under.
 }
 
 export interface DamageLine {
