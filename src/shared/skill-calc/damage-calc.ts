@@ -534,19 +534,19 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // TODO.md for the writeup. 1 excluded as non-player-scaling: Call Lightning (12598) — its own wiki
   // page's Mechanics section states the damage "uses the [Storm Spirit]'s power (1580) and weapon
   // strength (2426-2681)", the summoned spirit's own fixed stats, not the player's, same trap as the
-  // turret/pet/minion exclusions elsewhere in this sweep. 6 more left uncurated (Glyph of the Tides,
-  // Glyph of Alignment, Glyph of Equality's damage-dealing casts) — the non-celestial-form cast's
-  // Damage fact lives on a `glyphFormVariants` variant id (e.g. 31607 for Glyph of Alignment), not
-  // its canonical equippable id (31322), which itself carries only a sparse, generic fact set.
-  // **The rendering gap this used to describe is now fixed** (2026-08-04, `glyph-forms.ts`'s
+  // turret/pet/minion exclusions elsewhere in this sweep. 3 Druid Glyphs' non-celestial-form casts
+  // (Glyph of the Tides, Glyph of Alignment, Glyph of Equality) also curated here, keyed by their
+  // `glyphFormVariants` variant id (e.g. 31607 for Glyph of Alignment), not the canonical equippable
+  // id (31322 for Glyph of Alignment), which itself carries only a sparse, generic fact set — same
+  // "curate under the variant id directly" treatment as Thief's Pitfall/Thousand Needles flip targets
+  // below. The rendering gap this used to be blocked on is fixed (2026-08-04, `glyph-forms.ts`'s
   // `glyphFormFactSourceSkill` + `SkillsEditor.tsx`'s `skillTooltipContent` — reads the build's
-  // Celestial Avatar toggle, same field `WeaponSkillBar` already reads, and swaps in whichever
-  // form's real skill/facts match, "swap not stack" unlike `relatedVariantSkills`'s flip-chain
-  // stacking); curating these 6 non-celestial-form ids' Damage coefficients is still open, same
-  // wiki-verification bar as every other entry in this table, just no longer blocked on an
-  // architecture gap. `CURATED_HEALING_COEFFICIENTS`'s 2 existing celestial-form-cast entries
-  // (Glyph of Alignment's 31348, Glyph of Burgeoning's 31888) are confirmed reachable now too —
-  // verified directly against `glyphFormFactSourceSkill`, not assumed.
+  // Celestial Avatar toggle, same field `WeaponSkillBar` already reads, and swaps in whichever form's
+  // real skill/facts match, "swap not stack" unlike `relatedVariantSkills`'s flip-chain stacking);
+  // wiki-verified each of the 3 non-celestial variant ids directly (search `insource:"<id>"` finds
+  // each one's own page, titled "<Glyph name> (non-celestial)") 2026-08-04.
+  // `CURATED_HEALING_COEFFICIENTS`'s 2 celestial-form-cast entries (Glyph of Alignment's 31348, Glyph
+  // of Burgeoning's 31888) are confirmed reachable the same way.
   // Spike Trap. PvE/WvW+PvP split 0.2/0.01 — WvW value used.
   12476: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
   // Signet of the Wild. No split. `strikes=4` present -> wiki's 0.8 already totaled.
@@ -565,6 +565,20 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // 5 pulses, unlike Guardian's Symbol of Blades above (whose plain "Damage" fact label would
   // otherwise understate a 5-pulse total).
   12499: [{ factText: 'Damage per Pulse', coefficient: 0.3, weapon: 'unequipped' }],
+  // Glyph of the Tides, non-celestial-form cast (id 30448, canonical equippable id 30238 — see
+  // `glyph-forms.ts`). Page's infobox `split` header lists a 3-way pve/wvw/pvp split, but the damage
+  // fact tag itself only splits two ways, `game mode = pve` (1.5) vs. `game mode = pvp wvw` (0.01) —
+  // same "fact tag's own grouping wins over the header" convention as Frost Trap above — WvW value
+  // used.
+  30448: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Glyph of Alignment, non-celestial-form cast (id 31607, canonical equippable id 31322). No split —
+  // the wiki's damage fact tag carries no `game mode=` param at all (only its Bleeding-duration fact
+  // does).
+  31607: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Glyph of Equality, non-celestial-form cast (id 31658, canonical equippable id 31746). Same shape
+  // as Glyph of the Tides above: 3-way `split` header, but the damage fact tag itself splits
+  // `game mode=pve` (1.5) vs. `game mode=wvw pvp` (0.01) — WvW value used.
+  31658: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
   // Untamed — Exploding Spores. `strikes=6` present -> wiki coefficients already totaled. PvE 3.498
   // vs. WvW+PvP grouped 2.64 — WvW value used.
   63157: [{ factText: 'Damage', coefficient: 2.64, weapon: 'unequipped' }],

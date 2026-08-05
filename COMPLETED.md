@@ -2,6 +2,32 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 67 — Curated Ranger's 3 Druid Glyphs' non-celestial-form Damage coefficients
+
+Landed the TODO item Session 66 split out ("the one piece the flip-target curation pass didn't
+cover"). Glyph of the Tides/Glyph of Alignment/Glyph of Equality each have a non-celestial-form cast
+whose real Damage fact lives on a `glyphFormVariants` variant id, not the canonical equippable id
+(which carries only a sparse, generic fact set) — the rendering gap was already fixed (Session 64),
+this just needed the wiki-verification pass. Each variant id has its own wiki page, titled
+`"<Glyph name> (non-celestial)"`, findable via `insource:"<id>"` search; fetched raw wikitext with
+`curl -G ... --data-urlencode` (never WebFetch's summarizing model) and cross-checked the version
+history for each (Tides/Equality's history entries explicitly confirm the "reduced power coefficient
+from 1.5 to 0.01" 2020-02-25 competitive split, corroborating the fact-tag value independent of the
+infobox read):
+
+- Glyph of the Tides, non-celestial cast (id 30448, canonical 30238). Page's `split` header lists a
+  3-way pve/wvw/pvp split, but the damage fact tag itself only splits `game mode = pve` (1.5) vs.
+  `game mode = pvp wvw` (0.01) — WvW value used, same "fact tag's own grouping wins over the header"
+  convention as Frost Trap earlier in the sweep.
+- Glyph of Alignment, non-celestial cast (id 31607, canonical 31322). No split at all — the damage
+  fact tag carries no `game mode=` param (only its Bleeding-duration fact does). Coefficient 0.5.
+- Glyph of Equality, non-celestial cast (id 31658, canonical 31746). Same shape as Tides: 3-way
+  header, `game mode=pve` (1.5) vs. `game mode=wvw pvp` (0.01) fact tag — WvW value used.
+
+All 3 added to `CURATED_DAMAGE_COEFFICIENTS` in `damage-calc.ts`, `factText: 'Damage'`,
+`weapon: 'unequipped'` (matches every other Ranger Utility-slot entry). Typecheck clean. Removed from
+TODO.md.
+
 ## Session 66 — Curated the flip-target Damage coefficients the stacked-icon display unblocked
 
 Landed the TODO item split out 2026-08-04 ("curate the already-reachable flip-target Damage/Healing

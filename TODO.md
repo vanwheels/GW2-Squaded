@@ -4,21 +4,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
-- [ ] **Curate Ranger's 3 Glyph forms' Damage coefficients — the one piece the 2026-08-05 flip-target
-      curation pass didn't cover.** Glyph of the Tides/Glyph of Alignment/Glyph of Equality each have
-      a non-celestial-form cast whose real Damage fact lives on a `glyphFormVariants` variant id (e.g.
-      31607 for Glyph of Alignment), not the canonical equippable id (31322 for Glyph of Alignment),
-      which itself only carries a sparse, generic fact set — same rendering shape as the flip-chain
-      gap (Chaotic Release/Tailored Victory/Launch Wall/Evoker's Meditations/Thief's Preparation
-      skills, all curated 2026-08-05) but via `glyph-forms.ts`'s `glyphFormFactSourceSkill` instead of
-      `flipSkill`. The rendering gap itself has been fixed since Session 64 (`SkillsEditor.tsx`'s
-      `skillTooltipContent` already swaps in the right form's facts based on the build's Celestial
-      Avatar toggle — `CURATED_HEALING_COEFFICIENTS`'s 2 existing celestial-form entries, Glyph of
-      Alignment's 31348 and Glyph of Burgeoning's 31888, are confirmed reachable this way already).
-      Just needs the actual wiki-verification pass for the 3 non-celestial-form ids — Glyph of the
-      Tides and Glyph of Equality's variant ids weren't pinned down when this was scoped, only Glyph
-      of Alignment's (31607) — see `damage-calc.ts`'s Ranger Utility-slot block comment for the
-      original writeup.
 - [ ] **`CURATED_BARRIER_COEFFICIENTS` + Barrier tooltip line — decided 2026-08-04, build it.** User
       confirmed Barrier is important enough to warrant the same treatment as Healing, not just an
       excluded trap. Mirror `healing-calc.ts`'s shape exactly: a `CURATED_BARRIER_COEFFICIENTS` table
