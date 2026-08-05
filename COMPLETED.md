@@ -2,6 +2,61 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 62 — Full skill-picker duplicate-id audit
+
+Built the audit bumped ahead of the Weapon-slot Damage sweep 2026-08-04 (see
+`exception_handling_decisions_2026-08-04` memory). New `scripts/audit-skill-picker-duplicates.ts`
+(`npm run audit-skill-picker-duplicates`) supersedes `fetch-skill-duplicate-resolutions.ts`'s coverage
+gap: that script only wiki-checks a same-name group when `visibleSkillsForSlot` still returns >1 id
+for it, but an in-code signal (GroundTargeted collapse, specialization-match) can already narrow a
+group to exactly 1 id *before* any wiki cross-check runs, so a stale/defunct id can silently win. The
+new script checks every same-name group with >1 raw candidate id across every (profession, slot,
+elite-spec-state) combination — a spec-less baseline plus each profession's 4 elite specs individually
+— and verifies whatever id(s) the real `visibleSkillsForSlot` resolved to against the skill's own wiki
+infobox `id=` field.
+
+**First run found 36 candidate mismatches; about a third turned out to be false positives**, caught by
+hand before writing anything: wiki pages routinely document only a skill's spec-less base id and say
+nothing about a same-name elite-spec rework living under its own id (Dragonhunter's Renewed Focus
+`68666`, Conduit's Call to Anguish `78798`/Banish Enchantment `78587`, etc.) — both real, confirmed via
+live `/v2/skills` pulls (differing `traited_facts`, or a `flipSkill` link from the base id to the
+"missing" one) and in several cases already correctly curated under both ids in
+`CURATED_DAMAGE_COEFFICIENTS`/`CURATED_HEALING_COEFFICIENTS` with a comment explaining why. Reverted
+those 8 ids from exclusion (Renewed Focus, "Feel My Wrath!", Signet of Courage, Pain Absorption,
+Empowering Misery, Banish Enchantment, Call to Anguish ×2) plus 2 more in the same Vindicator
+Legendary-Alliance legend-swap family (Tree Song, Scavenger Burst — `62962`'s own `flipSkill` points at
+Tree Song's `62941`, the in-game "casting Scavenger Burst turns into Tree Song" legend swap; too
+entangled to resolve confidently from data alone, left alone pending a dedicated look).
+
+Hardened the script itself so a future re-run can't silently reintroduce this class of false positive:
+an id is now only auto-excluded when it (1) shares the resolved-good id's own `specializationId`, (2)
+has no `flipSkill` link to/from another id in the same raw group, and (3) isn't already a
+`CURATED_DAMAGE_COEFFICIENTS`/`CURATED_HEALING_COEFFICIENTS` key — anything failing one of those is
+logged as "needs manual review" instead of excluded. Re-running against the final state confirms
+convergence: 0 new bugs, the same 10 ids (the 8 reverted above, corroborated a second way this run) all
+correctly flagged as needing manual review rather than re-excluded.
+
+**28 ids added to `skill-variant-exclusions.json`** (34 → 62 total) for genuine bugs, in 3 evidence
+tiers: (1) confirmed via a dedicated wiki "(underwater)" sibling page carrying the exact excluded id —
+Banner of Strength/Discipline/Tactics/Defense, Battle Standard, Supply Crate (6 ids) — these aren't a
+land ground-target-toggle pair at all, the non-ground id is a different, non-land skill entirely; (2)
+confirmed via a dedicated newest-elite-spec wiki page (`specialization = Galeshot/Evoker` +
+its own `id=`) naming the other id as canonical — Perfect Storm, Elemental Procession, Otter's
+Compassion (3 ids); (3) confirmed via zero wiki full-text search hits anywhere (`insource:"id = N"`),
+matching the original Lightning Flash/Ranger Mistral precedent — Signet of Mercy, Purging Flames,
+Storm/Stone/Frost/Sun Spirit, Spirit of Nature, Water Spirit, Veil, Null Field, Illusion of Life,
+Feedback, Signet of Undeath, Bow of Truth's auto-target pair (a 4th Guardian Spirit Weapon nobody had
+found yet), Embrace the Darkness, Sanctuary (19 ids). Re-keyed 5 `CURATED_DAMAGE_COEFFICIENTS`/
+`CURATED_HEALING_COEFFICIENTS` entries that were pointed at a now-excluded id onto its real sibling
+(Banner of Strength/Discipline, Elemental Blast, Inspiring Reinforcement, Water Spirit) and removed 2
+now-unreachable duplicate entries (Bow of Truth's `46600`/`46750`).
+
+The 4 groups with no signal at all (Engineer "Throw Mine," Elementalist "Mist Form," Revenant
+"Protective Solace"/"Jade Winds") stayed unresolved — this audit's wiki-id= method doesn't apply since
+their own wiki pages list every local id together with no distinguishing field, unchanged from before.
+`typecheck`/`lint` both pass clean; not visually spot-checked in the running app (Electron sandbox
+limitation).
+
 ## Session 61 — Synthetic-fact injection for skills the API returns with no usable facts at all
 
 `CURATED_HEALING_COEFFICIENTS`/`CURATED_DAMAGE_COEFFICIENTS` only ever render a number when a real

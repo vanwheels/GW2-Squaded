@@ -234,9 +234,12 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Necromancer — Resilient Weapon (Ritualist). PvE/WvW split (PvE 1092/0.28 vs WvW 1412/0.2) — WvW
   // value used.
   77259: [{ factText: 'Healing per Second', baseValue: 1412, coefficient: 0.2 }],
-  // Ranger — Water Spirit (both ids share identical facts). WvW split used (PvE was 3002/0.4).
+  // Ranger — Water Spirit. WvW split used (PvE was 3002/0.4). Originally also keyed to 69244 (the id
+  // the picker's GroundTargeted signal picked, sharing identical facts with 21773) — the full
+  // skill-picker duplicate-id audit (2026-08-04) found 69244 isn't the wiki-documented id, same
+  // shape as its 5 sibling Spirits (Storm/Stone/Frost/Sun/Nature), all of which have an identical
+  // unexplained non-ground duplicate; moved to `skill-variant-exclusions.json`.
   21773: [{ factText: 'Healing', baseValue: 1998, coefficient: 0.4 }],
-  69244: [{ factText: 'Healing', baseValue: 1998, coefficient: 0.4 }],
   // Ranger — Troll Unguent. No PvE/WvW split.
   12483: [{ factText: 'Health per second', baseValue: 1062, coefficient: 0.12 }],
   // Ranger — Healing Spring. No PvE/WvW split.
@@ -380,13 +383,16 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // wiki's page doesn't separately document a coefficient for — left uncurated). Per-pulse heal, no
   // PvE/WvW split (only recharge differs by mode).
   9128: [{ factText: 'Healing', baseValue: 522, coefficient: 0.1375 }],
-  // Guardian — Bow of Truth (4 ids: 2 ammo charges x 2 flip-skill halves, all sharing one wiki page
-  // and identical facts). Coefficient splits PvE 0.15 vs "pvp wvw" 0.05 (base value unchanged) — WvW
-  // value used.
+  // Guardian — Bow of Truth (2 flip-skill halves — cast + follow-up — sharing one wiki page and
+  // identical facts). Coefficient splits PvE 0.15 vs "pvp wvw" 0.05 (base value unchanged) — WvW
+  // value used. The wiki infobox's own `id = 9175, 43565` field documents exactly these 2 as
+  // canonical; this app's local data also carried a same-shape auto-target duplicate pair
+  // (46600/46750, identical facts) that the wiki page never documents — moved to
+  // `skill-variant-exclusions.json` by the full skill-picker duplicate-id audit (2026-08-04), same
+  // "4th Spirit Weapon" family as Guardian's already-fixed Sword of Justice/Shield of the
+  // Avenger/Hammer of Wisdom.
   9175: [{ factText: 'Healing', baseValue: 232, coefficient: 0.05 }],
   43565: [{ factText: 'Healing', baseValue: 232, coefficient: 0.05 }],
-  46600: [{ factText: 'Healing', baseValue: 232, coefficient: 0.05 }],
-  46750: [{ factText: 'Healing', baseValue: 232, coefficient: 0.05 }],
   // Guardian — Merciful Intervention. Single heal-on-impact effect split PvE (2344/1.1) vs "pvp wvw"
   // (2024/0.8) — the API flattens this into two identically-labeled "Healing" facts (same shape as
   // Thief's Signet of Malice above), so only the WvW-correct pair is curated here.

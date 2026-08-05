@@ -4,25 +4,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
-- [ ] **Full skill-picker duplicate-id audit — bumped ahead of the Weapon-slot Damage sweep per user
-      request 2026-08-04.** The Heal/Utility/Elite Damage sweep found the same picker bug 5 separate
-      times (Guardian's 3 Spirit Weapons, Ranger's Mistral, Elementalist's Lightning Flash/Signet of
-      Water pair, Elementalist's 16 Glyph-variant ids) — always the same root cause:
-      `skill-variant-exclusions.json` (built by `scripts/fetch-skill-duplicate-resolutions.ts`) only
-      re-checks duplicate-name groups that `visibleSkillsForSlot` still returns >1 id for, but an
-      in-code signal (GroundTargeted collapse, attunement collapse) can already narrow a group to 1 id
-      *before* that script ever sees it as ambiguous — so a stale/defunct id can silently win with no
-      wiki cross-check ever running on it. Direction differs per case too (usually the ground-targeted
-      id is canonical, but Elementalist's pair was the reverse) — no shortcut, each hit needs its own
-      wiki infobox check. Do a full audit now, profession by profession, rather than continuing to
-      find these opportunistically during Weapon-slot: for every same-name group in `skills.json`
-      (any slot, not just Heal/Utility/Elite), run the real `visibleSkillsForSlot` (throwaway tsx
-      script, same verification used throughout this sweep) and confirm the id it resolves to matches
-      the wiki infobox's own `id =` field, adding any mismatch straight to
-      `skill-variant-exclusions.json`. Also resolve the 4 still-open groups with no signal at all
-      (Engineer "Throw Mine," Elementalist "Mist Form," Revenant "Protective Solace"/"Jade Winds" —
-      see "Skill picker follow-ups" below) if the audit turns up a distinguishing field for any of
-      them.
 - [ ] **Flip-skill / facet display — two distinct rendering gaps, scoped 2026-08-04 from user
       screenshots + gw2skills.net reference.** Both stem from the same root cause repeatedly hit
       during the Damage sweep: a skill's real Damage/Healing fact lives on a different id than the one
@@ -770,6 +751,18 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       the picker to know the build's chosen traits, an architecture change), Elementalist "Mist
       Form", Revenant "Protective Solace", Revenant "Jade Winds" (wiki lists all ids together with no
       distinguishing field).
+- [ ] **Vindicator's 3 Legendary Alliance Stance utility skills (Nomad's Advance, Scavenger Burst,
+      Reaver's Rage) each carry a same-spec non-`GroundTargeted` duplicate id whose relationship to
+      the kept id isn't understood yet** — found by the full skill-picker duplicate-id audit
+      (2026-08-04, see COMPLETED.md Session 62) but deliberately left un-excluded rather than guessed.
+      Scavenger Burst's ground-targeted id (`62962`) has its own `flipSkill` pointing at Tree Song's
+      ground-targeted id (`62941`) — the in-game "legend swap mid-cast changes this skill's name"
+      mechanic — while the plain non-ground duplicates (`62841` Scavenger Burst / `62793` Tree Song)
+      have no such link. Needs a dedicated look at the whole family (including Nomad's Advance, not
+      yet checked for the same shape) before deciding whether the non-ground ids are a second,
+      unrelated legend-swap pairing or genuine stale duplicates — don't just wiki-id=-exclude them
+      like the rest of this audit did, that heuristic already produced false positives for this exact
+      family once (see Session 62's write-up).
 - [ ] Known limitation, documented in code (`weapon-calc/weapon-skills.ts`): Weaver's "Dual Attack"
       weapon-skill-3 replacements (e.g. 3 different Fire-tagged ids sharing `specializationId: 56`)
       can't be disambiguated — which one is live depends on Weaver's second active attunement, a

@@ -337,15 +337,19 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Warrior — Bull's Charge. PvE/WvW+PvP split 2.0/0.01 — WvW value used.
   14516: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
   // Warrior — Banner of Discipline. 2 API ids share this name (14407 GroundTargeted/14571 not);
-  // `skill-variants.ts`'s own doc comment names "every Warrior Banner" as a case its GroundTargeted
-  // signal resolves automatically to the non-ground-targeted id, so 14571 (not 14407) is the id this
-  // app's picker actually shows — confirmed both ids carry an identical Damage fact (dmg_multiplier
-  // 0.5) since the two are otherwise-identical ground-target-toggle variants of one in-game skill. No
-  // PvE/WvW split on the Damage fact itself (the wiki's "fury" fact has a split, this doesn't).
-  14571: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
-  // Warrior — Banner of Strength. Same GroundTargeted duplicate-id shape as Banner of Discipline
-  // above (14405 GroundTargeted/14572 not) — 14572 is the canonical id. No split.
-  14572: [{ factText: 'Damage', coefficient: 2.0, weapon: 'unequipped' }],
+  // originally assumed (like every other Warrior Banner) to be a ground-target-toggle pair of one
+  // land skill, so this table keyed off 14571 (the id the picker used to show). The full
+  // skill-picker duplicate-id audit (2026-08-04) found this assumption wrong specifically for
+  // Banners: 14571 is actually "Banner of Discipline (underwater)"'s own dedicated id (confirmed via
+  // wiki full-text search), not a land toggle variant — moved to `skill-variant-exclusions.json` so
+  // the picker no longer shows it, and this entry re-keyed to 14407 (the real land id, confirmed
+  // identical Damage fact, dmg_multiplier 0.5). No PvE/WvW split on the Damage fact itself (the
+  // wiki's "fury" fact has a split, this doesn't).
+  14407: [{ factText: 'Damage', coefficient: 0.5, weapon: 'unequipped' }],
+  // Warrior — Banner of Strength. Same underwater-sibling-id mixup as Banner of Discipline above
+  // (14405 land/14572 "Banner of Strength (underwater)") — re-keyed to 14405, the real land id. No
+  // split.
+  14405: [{ factText: 'Damage', coefficient: 2.0, weapon: 'unequipped' }],
   // Berserker — Sundering Leap. PvE/WvW+PvP split 2.5/2.0 — WvW value used (the page's own
   // `split = pve, wvw, pvp` header is about `recharge pvp` differing, not this Damage fact, which
   // only splits PvE from a WvW+PvP-grouped value).
@@ -461,8 +465,11 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   27107: [{ factText: 'Damage', coefficient: 0.55, weapon: 'unequipped' }],
   // Herald — Elemental Blast. No `strikes=` param despite hitting 3 times; wiki's own note states
   // the per-strike PvE/WvW+PvP split (1.5/0.89) totals to 4.5/2.67 — the already-totaled WvW value
-  // (2.67) used directly per that note rather than re-deriving.
-  51698: [{ factText: 'Damage', coefficient: 2.67, weapon: 'unequipped' }],
+  // (2.67) used directly per that note rather than re-deriving. Originally keyed to 51698 (the id the
+  // picker's GroundTargeted signal picked), but the full skill-picker duplicate-id audit (2026-08-04)
+  // found 51698 isn't the wiki-documented id for this Herald-gated pair (27162 is) — re-keyed to
+  // 27162, 51698 moved to `skill-variant-exclusions.json`.
+  27162: [{ factText: 'Damage', coefficient: 2.67, weapon: 'unequipped' }],
   // Legendary Demon — Banish Enchantment. `strikes=3` present -> wiki coefficient already totaled.
   // PvE/WvW+PvP split 1.2/0.3 — WvW value used. Conduit reworks this skill under a separate id
   // (78587) sharing the same wiki page/values — both curated (see block comment above).
@@ -477,12 +484,18 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   28231: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
   // Legendary Dwarf — Inspiring Reinforcement. PvE+PvP grouped 1.5 vs. a lower WvW-only 0.75 (the
   // reverse of the usual "WvW groups with PvP" pattern seen elsewhere in this table) — WvW value
-  // used.
-  50383: [{ factText: 'Damage', coefficient: 0.75, weapon: 'unequipped' }],
+  // used. Originally keyed to 50383 (the id the picker's GroundTargeted signal picked), but the full
+  // skill-picker duplicate-id audit (2026-08-04) found 50383 isn't the wiki-documented id (28516 is)
+  // — re-keyed to 28516, 50383 moved to `skill-variant-exclusions.json`.
+  28516: [{ factText: 'Damage', coefficient: 0.75, weapon: 'unequipped' }],
   // Vindicator/Legendary Alliance — Nomad's Advance. 3-way split PvE/WvW/PvP 4.0/2.3/2.0 — WvW
   // value used.
   62832: [{ factText: 'Damage', coefficient: 2.3, weapon: 'unequipped' }],
   // Vindicator/Legendary Alliance — Scavenger Burst. PvE/WvW+PvP split 2.25/1.25 — WvW value used.
+  // Note (2026-08-04 skill-picker duplicate-id audit): this skill also has a `62962` id sharing a
+  // `flip_skill` chain with Tree Song's own `62941` (the Vindicator legend-swap that turns "Scavenger
+  // Burst" into "Tree Song" mid-cast) — left un-investigated, not excluded from the picker, pending a
+  // dedicated look at the whole Legendary Alliance legend-swap id family (see TODO.md).
   62841: [{ factText: 'Damage', coefficient: 1.25, weapon: 'unequipped' }],
   // Vindicator/Legendary Alliance — Reaver's Rage. 3-way split PvE/WvW/PvP 2.22/1.25/1.0 — WvW
   // value used.
