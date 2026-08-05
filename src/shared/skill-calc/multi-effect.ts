@@ -8,41 +8,49 @@ export interface SkillVariantEffect {
 }
 
 /**
- * Every "additional effect" a currently-equipped skill has beyond its own base facts — the
- * attunement-specific variants collapsed out of the picker (e.g. Elementalist "Glyph of Lesser
- * Elementals", one row per attunement) plus the activation-chain target(s) collapsed out too
- * (e.g. a Mantra's charged cast, a kit's stow skill, a turret's detonate skill) — see
- * `skill-variants.ts`'s doc comment for why these aren't independently equippable and don't appear
- * in the picker at all. Surfacing them here, on the already-equipped skill's own tooltip, is the
- * confirmed UX (2026-07-30): visible once picked, not offered as extra picker clutter.
+ * The attunement-specific variants collapsed out of the picker (e.g. Elementalist "Glyph of Lesser
+ * Elementals", one row per attunement) — see `skill-variants.ts`'s doc comment for why these aren't
+ * independently equippable and don't appear in the picker at all. Surfacing them here, on the
+ * already-equipped skill's own tooltip, is the confirmed UX (2026-07-30): visible once picked, not
+ * offered as extra picker clutter.
  *
  * Deliberately does NOT include `specializationId`-reworked variants (e.g. Guardian's "Renewed
  * Focus" under Dragonhunter) — those aren't "additional effects" of the same skill, they're a full
  * replacement already resolved to the one correct id by `skill-variants.ts`'s auto-selection, so
  * there's nothing extra to show alongside it.
  *
- * Firebrand mantras add one more hop the API doesn't structurally link at all: after the `flipSkill`
- * chain reaches the regular charge, `MANTRA_FINAL_CHARGE_IDS` (hand-curated, see its own doc comment)
- * appends that mantra's enhanced Final Charge cast too.
- *
- * One deliberate exception to the flip-chain walk: Legend7 (Legendary Alliance)'s 5 canonical
- * "Aspect of the Archemorus" ids (`VINDICATOR_ASPECT_ARCHEMORUS_IDS`) each flip to a wholly
- * different-named "Aspect of Saint Viktor" skill *simultaneously* across all 5 slots — a form
- * toggle (`Build.vindicatorAspectFlipped`, see `vindicator-aspect.ts`), not an on/release pair —
- * so that first hop is skipped here to avoid double-signaling the same swap both as a stacked
- * tooltip variant and as the toggle button. Any further hop past it (e.g. the elite's own
- * "Drop Urn of Saint Viktor" follow-up) still walks normally once the Saint Viktor id itself is
- * the skill passed in here.
+ * Flip/activation-chain targets (a skill's `flipSkill`, e.g. a Mantra's charged cast) used to be
+ * folded in here too, nested as tooltip text below the base skill's own facts. Since the gw2skills.net
+ * -style stacked-icon treatment landed (2026-08-04, see `flipTargetSkills` below and `SkillsEditor`'s
+ * `FlipSkillStack`), those get their own icon + independent tooltip instead — attunement variants are
+ * a genuinely different case (a *documentation* list of per-attunement effects that are never
+ * simultaneously active, not a flip/release pair the player can trigger), so they stay here.
  */
-export function relatedVariantSkills(skill: Skill, allSkills: Skill[], skillsById: Map<number, Skill>): SkillVariantEffect[] {
-  const out: SkillVariantEffect[] = []
-
-  const attunementVariants = allSkills
+export function relatedVariantSkills(skill: Skill, allSkills: Skill[]): SkillVariantEffect[] {
+  return allSkills
     .filter((s) => s.name === skill.name && s.attunement !== null)
     .sort((a, b) => (a.attunement ?? '').localeCompare(b.attunement ?? ''))
-  for (const variant of attunementVariants) {
-    out.push({ label: variant.attunement ?? variant.name, skill: variant })
-  }
+    .map((variant) => ({ label: variant.attunement ?? variant.name, skill: variant }))
+}
+
+/**
+ * The flip/activation-chain targets a skill leads to — its `flipSkill` hop(s) (e.g. Revenant's
+ * Chaotic Release, Elementalist's Tailored Victory) plus, for a Firebrand mantra, the hand-curated
+ * enhanced Final Charge appended after the chain (`MANTRA_FINAL_CHARGE_IDS` — the API never
+ * structurally links that last hop). Rendered by `SkillsEditor`'s `FlipSkillStack` as its own small
+ * stacked icon per target, directly above/below the base skill's normal slot, each with an
+ * independent tooltip — gw2skills.net's convention, and always visible together (not a toggle).
+ *
+ * One deliberate exception: Legend7 (Legendary Alliance)'s 5 canonical "Aspect of the Archemorus"
+ * ids (`VINDICATOR_ASPECT_ARCHEMORUS_IDS`) each flip to a wholly different-named "Aspect of Saint
+ * Viktor" skill *simultaneously* across all 5 slots — a form toggle
+ * (`Build.vindicatorAspectFlipped`, see `vindicator-aspect.ts`), not an on/release pair — so this
+ * returns empty for them rather than double-signaling the same swap as both a stacked icon and the
+ * toggle button. Any further hop past it (e.g. the elite's own "Drop Urn of Saint Viktor"
+ * follow-up) still walks normally once the Saint Viktor id itself is the skill passed in here.
+ */
+export function flipTargetSkills(skill: Skill, skillsById: Map<number, Skill>): SkillVariantEffect[] {
+  const out: SkillVariantEffect[] = []
 
   if (VINDICATOR_ASPECT_ARCHEMORUS_IDS.has(skill.id)) {
     return out

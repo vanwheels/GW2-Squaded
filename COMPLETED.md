@@ -2,6 +2,47 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 65 — Flip-skill stacked-icon display
+
+Implemented sub-item 1 ("gw2skills-style stacked icons for genuine flip pairs") of the "Flip-skill /
+facet display" TODO item scoped 2026-08-04 — the user provided the reference screenshot this item
+was blocked on. Sub-item 2 (Druid Glyph forms' swap-not-stack toggle) landed in Session 64. This item
+is now fully done; removed from TODO.md.
+
+- **`multi-effect.ts` split in two**: `relatedVariantSkills` now only returns attunement variants
+  (documentation-style, never simultaneously active — unchanged shape, just narrower). A new
+  `flipTargetSkills(skill, skillsById)` walks the `flipSkill` chain plus a Firebrand mantra's
+  hand-curated Final Charge hop (`MANTRA_FINAL_CHARGE_IDS`) — the same walk `relatedVariantSkills`
+  used to do inline, extracted so it can drive its own icon stack instead of nested tooltip text.
+  Same Vindicator Aspect exception preserved (Legend7's 5 Archemorus ids return empty — that's a
+  toggle, not a stack, already exposed by its own button).
+- **`SkillsEditor.tsx`'s `skillTooltipContent`** no longer nests a flip target's facts as text inside
+  the base skill's own tooltip — only attunement variants still render that way. Flip targets get
+  their own icon now (see below), each with an independently-computed tooltip via the same
+  `skillTooltipContent`/`boonConditionFactsForSkill` path the base skill uses.
+- **New exported `FlipSkillStack` component** (`SkillsEditor.tsx`): given a skill, renders a small
+  vertical stack of icons — one per `flipTargetSkills` entry — below the base skill's slot, each
+  wrapped in its own `Tooltip`. Renders `null` for the overwhelming majority of skills (no flip
+  target) or an empty slot.
+- **Wired into all 3 places a skill icon renders in the skill bar**: `StandardSkillsEditor`'s
+  Heal/Utility/Elite slots, `RevenantSkillsEditor`'s legend bar, and `WeaponSkillBar`'s weapon-skill
+  row (both the plain weapon-skill branch and the kit/bundle branch — tome chapters skipped, they're
+  a different type with no `flipSkill` field). Each slot's `<Tooltip><button>...</button></Tooltip>`
+  pair is now wrapped in a `.skill-slot-stack` div alongside its `FlipSkillStack`, so `.skill-bar`'s
+  existing flex-row layout keeps working unchanged (a skill with no flip target is a no-op wrapper).
+- **New CSS**: `.skill-slot-stack` (flex column wrapper), `.skill-slot-flip-stack` (the icon column
+  itself), `.skill-slot-flip-icon` (26px, down from the 48px `.skill-slot-button`, plain `--border`
+  treatment — deliberately not `--accent`, which already means "currently selected/open" elsewhere
+  in this bar).
+- Verified with `npm run typecheck` and `npm run lint`, both clean. Not visually verified in the
+  running app (Electron sandbox limitation, see `electron_sandbox_limitation` memory) — worth a
+  live look next session to confirm the stacked icons land close to the reference screenshot's
+  sizing/spacing.
+- Housekeeping: `tsc --build tsconfig.json` (not this repo's `npm run typecheck`, which correctly
+  uses `--noEmit`) clobbers `src/preload/index.d.ts` down to a stub and litters ~220 stray
+  `.js`/`.d.ts` files across `src/`/`scripts/` — don't run bare `tsc --build` in this repo again,
+  `npm run typecheck` is the right command.
+
 ## Session 64 — Druid Glyph forms: swap-not-stack fact rendering
 
 Implemented sub-item 2 ("Form-toggle-dependent skills") of the "Flip-skill / facet display" TODO

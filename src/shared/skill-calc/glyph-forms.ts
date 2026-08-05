@@ -5,7 +5,7 @@ import type { GlyphFormVariantMap, Skill } from '../types'
  * whether the build's Celestial Avatar toggle is currently on (`Build.activeBundleSkillId ===
  * CELESTIAL_AVATAR_SKILL_ID`, see `bundle-skills.ts` — same field `WeaponSkillBar` already reads
  * to swap the weapon-skill row). A "swap, not stack" treatment, same shape as
- * `vindicator-aspect.ts`'s aspect toggle: unlike `relatedVariantSkills`'s flip-chain stacking
+ * `vindicator-aspect.ts`'s aspect toggle: unlike `multi-effect.ts`'s `flipTargetSkills` stacking
  * (used for genuine on/release pairs that are both live at once), a Glyph's normal-form and
  * Celestial-Avatar-form effects are never simultaneously active, so only one should ever render.
  *

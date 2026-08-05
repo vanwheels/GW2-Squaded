@@ -819,6 +819,45 @@ input[type='text'] {
   overflow: hidden;
 }
 
+/* Wraps a skill-slot-button together with its `FlipSkillStack` (see SkillsEditor.tsx) so `.skill-bar`
+   still lays every slot out in one flex row — each slot just becomes a column instead of a bare
+   button. A skill with no flip target renders `FlipSkillStack` as null, so this is a no-op wrapper
+   in the overwhelming majority of slots. */
+.skill-slot-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+/* One small icon per `flipSkill` hop (e.g. Chaotic Release, a Mantra's Final Charge), stacked below
+   the base skill's own slot — gw2skills.net's convention: always visible together, not a toggle,
+   each with its own independent tooltip carrying that target's real facts. Sized down from the 48px
+   `skill-slot-button` since these are a secondary readout, not an equally-weighted slot. */
+.skill-slot-flip-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.skill-slot-flip-icon {
+  display: block;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  overflow: hidden;
+  cursor: default;
+}
+
+.skill-slot-flip-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .skill-slot-button img {
   width: 100%;
   height: 100%;

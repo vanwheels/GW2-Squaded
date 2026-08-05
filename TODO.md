@@ -4,30 +4,11 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
-- [ ] **Flip-skill/facet stacked-icon display — scoped 2026-08-04 from user screenshots +
-      gw2skills.net reference, blocked on the user's reference screenshot.** Sub-item 2 of this
-      pair (Druid Glyphs' form toggle) is DONE — see COMPLETED.md Session 64 and
-      `docs/game-data.md`'s "Druid Glyph forms" addendum. This item is what's left: a skill's real
-      Damage/Healing fact lives on its `flipSkill` target, stripped from the picker by
-      `stripFlipTargets` (e.g. Revenant's Chaotic Release, Elementalist's Tailored Victory,
-      Engineer's Photon Wall, Thief's Prepare Pitfall/Prepare Thousand Needles — worse, the equipped
-      id has *zero* facts of its own, no fallback — Evoker's 3 Meditations). Unlike the Glyph case,
-      the tooltip-level data-plumbing to reach these already exists — `multi-effect.ts`'s
-      `relatedVariantSkills` + `SkillsEditor.tsx`'s `skillTooltipContent` already walk `flipSkill`
-      and render the target's real facts nested in a `tooltip-skill-variant` block below the base
-      skill's own — so curating these flip-target ids into `CURATED_DAMAGE_COEFFICIENTS`/
-      `CURATED_HEALING_COEFFICIENTS` today would already render correctly (see the dedicated
-      curation item below, split out 2026-08-04 since it's independent, screenshot-independent
-      work). What's still missing here is purely the **visual** treatment: gw2skills.net's
-      convention shows the base/primary skill in its normal slot with the flipped skill(s) rendered
-      as their own smaller stacked icon(s) directly above/below it, each with its own independent
-      tooltip — not text nested inside one shared tooltip like today. Always visible together, not
-      a toggle (distinct from the Glyph case, which is a swap). User will provide a reference
-      screenshot for the exact stacked-icon layout before this is built.
 - [ ] **Curate the already-reachable flip-target Damage/Healing coefficients — split out 2026-08-04
-      from the flip-skill display item above, screenshot-independent.** Now that
-      `relatedVariantSkills`/`skillTooltipContent`'s nested-tooltip rendering is confirmed to
-      already work for flip-target facts (see above), these ids just need the same
+      from the flip-skill display item, screenshot-independent.** The flip-skill stacked-icon
+      display itself landed Session 65 (COMPLETED.md) — each flip target now gets its own icon +
+      independent tooltip via `multi-effect.ts`'s `flipTargetSkills` and `SkillsEditor.tsx`'s
+      `skillTooltipContent`/`FlipSkillStack`, so these ids just need the same
       wiki-verification pass as every other `CURATED_DAMAGE_COEFFICIENTS`/
       `CURATED_HEALING_COEFFICIENTS` entry: Revenant's Chaotic Release (28075, Legendary Dragon
       Stance elite facet), Elementalist's Tailored Victory (44637, Weave Self's release), Engineer's

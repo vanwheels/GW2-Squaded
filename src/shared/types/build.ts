@@ -154,7 +154,8 @@ export interface Build {
    * skills instead of its default "Aspect of the Archemorus" ones — live-verified 2026-08-04
    * against the wiki's own "Alliance Tactics" page (F3, "Swap your Legendary Alliance Stance
    * skills", 3s recharge): unlike every other Legend's `flipSkill` pairs (an on/release pair
-   * touching one slot, shown stacked in the tooltip — see `relatedVariantSkills`), Legend7's heal +
+   * touching one slot, shown as a stacked icon — see `multi-effect.ts`'s `flipTargetSkills`),
+   * Legend7's heal +
    * all 3 utilities + elite each carry a `flipSkill` to a wholly different-named skill
    * *simultaneously*, the same "hit a button, the whole kit's display swaps" shape as a Kit/Tome/
    * Celestial Avatar toggling the weapon bar (`activeBundleSkillId`) rather than a stacked variant

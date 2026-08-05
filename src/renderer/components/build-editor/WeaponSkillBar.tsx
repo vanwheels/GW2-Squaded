@@ -9,7 +9,7 @@ import { formatFactLine } from '@shared/gear-calc/relic-effects-format'
 import { isBoonName, isConditionName } from '@shared/boon-calc/constants'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { SkillBarIcon } from './SkillBarIcon'
-import { factsBlock, skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor'
+import { factsBlock, FlipSkillStack, skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor'
 
 interface Props {
   build: Build
@@ -151,11 +151,14 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
             }
             if (slot.kind === 'kit') {
               return (
-                <Tooltip key={i} content={skillTooltipFor(slot.skill.id) ?? <TooltipBody title="Unknown skill" />}>
-                  <button type="button" className="skill-slot-button" disabled>
-                    <img src={slot.skill.icon} alt={slot.skill.name} />
-                  </button>
-                </Tooltip>
+                <div className="skill-slot-stack" key={i}>
+                  <Tooltip content={skillTooltipFor(slot.skill.id) ?? <TooltipBody title="Unknown skill" />}>
+                    <button type="button" className="skill-slot-button" disabled>
+                      <img src={slot.skill.icon} alt={slot.skill.name} />
+                    </button>
+                  </Tooltip>
+                  <FlipSkillStack skill={slot.skill} activeIds={activeIds} variantContext={variantContext} />
+                </div>
               )
             }
             return (
@@ -170,14 +173,14 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
           skillIds.map((skillId, i) => {
             const skill = skillId !== null ? skillsById.get(skillId) : undefined
             return (
-              <Tooltip
-                key={i}
-                content={skill ? (skillTooltipFor(skill.id) ?? <TooltipBody title="Unknown skill" />) : <TooltipBody title="Empty" />}
-              >
-                <button type="button" className="skill-slot-button" disabled>
-                  {skill ? <img src={skill.icon} alt={skill.name} /> : <span className="skill-slot-placeholder">—</span>}
-                </button>
-              </Tooltip>
+              <div className="skill-slot-stack" key={i}>
+                <Tooltip content={skill ? (skillTooltipFor(skill.id) ?? <TooltipBody title="Unknown skill" />) : <TooltipBody title="Empty" />}>
+                  <button type="button" className="skill-slot-button" disabled>
+                    {skill ? <img src={skill.icon} alt={skill.name} /> : <span className="skill-slot-placeholder">—</span>}
+                  </button>
+                </Tooltip>
+                <FlipSkillStack skill={skill} activeIds={activeIds} variantContext={variantContext} />
+              </div>
             )
           })
         ) : (

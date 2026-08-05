@@ -3,7 +3,7 @@ import type { Build, RevenantSkillSelection, Skill, SkillSelection, StandardSkil
 import { activeTraitIds, boonConditionFactsForSkill, type BoonConditionSource } from '@shared/boon-calc/sources'
 import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
 import type { FactLine } from '@shared/skill-calc/fact-numbers'
-import { relatedVariantSkills } from '@shared/skill-calc/multi-effect'
+import { flipTargetSkills, relatedVariantSkills } from '@shared/skill-calc/multi-effect'
 import { VINDICATOR_SPEC_ID, vindicatorAspectSkillId } from '@shared/skill-calc/vindicator-aspect'
 import { CELESTIAL_AVATAR_SKILL_ID } from '@shared/skill-calc/bundle-skills'
 import { glyphFormFactSourceSkill } from '@shared/skill-calc/glyph-forms'
@@ -229,7 +229,7 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
   const effectiveFacts = glyphFormSkill
     ? boonConditionFactsForSkill(glyphFormSkill, activeIds, variantContext.durationPercent, variantContext.wvwFactOverrides.skill[glyphFormSkill.id])
     : facts
-  const variants = relatedVariantSkills(skill, variantContext.skills, variantContext.skillsById)
+  const variants = relatedVariantSkills(skill, variantContext.skills)
   return (
     <>
       <TooltipBody title={skill.name} description={factSourceSkill.description} />
@@ -250,6 +250,42 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
         )
       })}
     </>
+  )
+}
+
+/**
+ * Renders a skill's `flipSkill` chain (see `multi-effect.ts`'s `flipTargetSkills`) as its own
+ * column of small stacked icons below the base skill's normal slot — gw2skills.net's convention:
+ * always visible together (not a toggle), each with its own independent tooltip carrying that
+ * target's real facts (the same `skillTooltipContent`/`boonConditionFactsForSkill` path the base
+ * skill uses), rather than nested text inside one shared tooltip. Renders nothing for a skill with
+ * no flip target (the overwhelming majority) or an empty slot.
+ */
+export function FlipSkillStack({
+  skill,
+  activeIds,
+  variantContext
+}: {
+  skill: Skill | undefined
+  activeIds: Set<number>
+  variantContext: SkillVariantContext
+}) {
+  if (!skill) return null
+  const flips = flipTargetSkills(skill, variantContext.skillsById)
+  if (flips.length === 0) return null
+  return (
+    <div className="skill-slot-flip-stack">
+      {flips.map((f) => {
+        const facts = boonConditionFactsForSkill(f.skill, activeIds, variantContext.durationPercent, variantContext.wvwFactOverrides.skill[f.skill.id])
+        return (
+          <Tooltip key={f.skill.id} content={skillTooltipContent(f.skill, facts, activeIds, variantContext)}>
+            <span className="skill-slot-flip-icon">
+              <img src={f.skill.icon} alt={f.label} />
+            </span>
+          </Tooltip>
+        )
+      })}
+    </div>
   )
 }
 
@@ -344,28 +380,28 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
           const { label, chosenId } = slotConfig(slot)
           const chosen = chosenId !== null ? skillsById.get(chosenId) : undefined
           return (
-            <Tooltip
-              key={slot}
-              content={chosen ? skillTooltipContent(chosen, skillFacts(chosen), activeIds, variantContext) : <TooltipBody title={label} />}
-            >
-              <button
-                ref={(el) => {
-                  slotButtonRefs.current[slot] = el
-                }}
-                type="button"
-                className={open && openSlot === slot ? 'skill-slot-button open' : 'skill-slot-button'}
-                onClick={() => {
-                  if (open && openSlot === slot) {
-                    close()
-                  } else {
-                    setOpenSlot(slot)
-                    openThis()
-                  }
-                }}
-              >
-                {chosen ? <img src={chosen.icon} alt={chosen.name} /> : <span className="skill-slot-placeholder">{label}</span>}
-              </button>
-            </Tooltip>
+            <div className="skill-slot-stack" key={slot}>
+              <Tooltip content={chosen ? skillTooltipContent(chosen, skillFacts(chosen), activeIds, variantContext) : <TooltipBody title={label} />}>
+                <button
+                  ref={(el) => {
+                    slotButtonRefs.current[slot] = el
+                  }}
+                  type="button"
+                  className={open && openSlot === slot ? 'skill-slot-button open' : 'skill-slot-button'}
+                  onClick={() => {
+                    if (open && openSlot === slot) {
+                      close()
+                    } else {
+                      setOpenSlot(slot)
+                      openThis()
+                    }
+                  }}
+                >
+                  {chosen ? <img src={chosen.icon} alt={chosen.name} /> : <span className="skill-slot-placeholder">{label}</span>}
+                </button>
+              </Tooltip>
+              <FlipSkillStack skill={chosen} activeIds={activeIds} variantContext={variantContext} />
+            </div>
           )
         })}
       </div>
@@ -493,11 +529,14 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
             const skillId = vindicatorAspectSkillId(baseSkillId, aspectFlipped, skillsById)
             const skill = skillsById.get(skillId)
             return (
-              <Tooltip key={baseSkillId} content={skillTooltipFor(skillId) ?? <TooltipBody title="Unknown skill" />}>
-                <button type="button" className="skill-slot-button" disabled>
-                  {skill ? <img src={skill.icon} alt={skill.name} /> : <span className="skill-slot-placeholder">?</span>}
-                </button>
-              </Tooltip>
+              <div className="skill-slot-stack" key={baseSkillId}>
+                <Tooltip content={skillTooltipFor(skillId) ?? <TooltipBody title="Unknown skill" />}>
+                  <button type="button" className="skill-slot-button" disabled>
+                    {skill ? <img src={skill.icon} alt={skill.name} /> : <span className="skill-slot-placeholder">?</span>}
+                  </button>
+                </Tooltip>
+                <FlipSkillStack skill={skill} activeIds={activeIds} variantContext={variantContext} />
+              </div>
             )
           })
         ) : (
