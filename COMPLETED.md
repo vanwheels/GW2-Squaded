@@ -2,6 +2,32 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 72 — Closed the last `CURATED_BARRIER_COEFFICIENTS` loose end (Elementalist's Glyph of Elemental Power): not an architecture gap, just an uncurated reachable id
+
+TODO.md's last open Barrier-sweep item described Glyph of Elemental Power (equipped id `5506`, zero
+local facts) as a 4th instance of the flip-architecture gap Sessions 65/68/71 fixed for Chaotic
+Release/Tailored Victory/Photon Wall/Evoker's Meditations — the Earth-attunement-tagged variant `34714`
+that actually carries the Barrier fact looked unreachable from the equipped skill's tooltip the same
+way those flip targets were.
+
+It isn't the same shape. `multi-effect.ts`'s `relatedVariantSkills` already surfaces every attunement
+variant of an equipped Elementalist Glyph as its own tooltip block, independent of the flip-stack
+mechanism — confirmed live via a throwaway tsx script: `relatedVariantSkills(skill 5506, allSkills)`
+returns all 4 attunement variants (Air `34637`, Earth `34714`, Fire `34736`, Water `34772`) by name+
+attunement match, and this exact code path already renders this same skill's Air/Fire variants' curated
+Damage facts (`CURATED_DAMAGE_COEFFICIENTS`, from the 2026-08-04 Damage Utility-slot sweep) — no new UI
+plumbing needed. The Barrier sweep's own doc comment (Session 69) had mis-filed this as unreachable;
+corrected.
+
+Fetched the wiki's `Glyph of Elemental Power (earth)` sub-page directly (raw wikitext, not summarized):
+single `{{skill fact|barrier|2100|coefficient=0.8}}` template, no PvE/WvW split. Added `34714:
+[{ factText: 'Barrier', baseValue: 2100, coefficient: 0.8 }]` to `CURATED_BARRIER_COEFFICIENTS`
+(`barrier-calc.ts`), updated the file's top block comment (candidate count 48 → 49, gap description
+replaced with the resolution), and re-verified via a second throwaway tsx script that
+`barrierLinesForSkill(skill 34714, healingPower 1000, activeIds ∅)` now returns `Barrier: 2900` (2100 +
+0.8 * 1000, correct). `npm run typecheck` passes clean. `CURATED_BARRIER_COEFFICIENTS` now has no open
+loose ends — the TODO item is removed, not deferred.
+
 ## Session 71 — Replicated the `requiresTrait` fix into Damage/Healing, closing the "Trait-duplicated-fact representation" TODO item
 
 Extended Session 70's `barrier-calc.ts` fix (`requiresTrait` field + match-predicate change) into

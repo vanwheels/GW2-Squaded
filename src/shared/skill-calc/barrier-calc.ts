@@ -47,7 +47,9 @@ export interface BarrierCoefficient {
  * "orchestrating session does all file writes" methodology as every prior sweep, raw wikitext only,
  * never a paraphrased fetch.
  *
- * Of the 58 raw candidates: 48 distinct skill ids landed here, 4 were excluded as trait-only procs
+ * Of the 58 raw candidates: 49 distinct skill ids landed here (48 curated in the initial sweep plus
+ * Glyph of Elemental Power's `34714`, added 2026-08-05 once confirmed reachable — see below), 4 were
+ * excluded as trait-only procs
  * with no independently-equippable base skill (Necromancer's Sandstorm Shroud is NOT one of these —
  * it's a real Harbinger Shroud-5 replacement; the 4 genuine trait-proc exclusions are Revenant's
  * Saint's Shield (Vindicator's "Saint of zu Heltzer" trait), Engineer's Lesser Utility Goggles
@@ -70,15 +72,16 @@ export interface BarrierCoefficient {
  * adding `BarrierCoefficient.requiresTrait` (see its own doc comment) and curating the trait-gated
  * fact directly; see that skill's own comment below.
  *
- * One new architecture gap surfaced this sweep, not seen in the Healing/Damage sweeps: Elementalist's
- * Glyph of Elemental Power (id `34714`, the Earth-attunement-tagged variant carrying the only local
- * Barrier fact, value 2100) is never independently equippable — same "attunement-tagged id, not a
- * real pick" shape `skill-variants.ts`'s own doc comment describes for its signal 1 — and unlike
- * `CURATED_HEALING_COEFFICIENTS`'s Glyph of Elemental Harmony entry (whose attunement-agnostic base
- * id `5569` carries its own identical Healing fact directly, so curating it works), this skill's own
- * attunement-agnostic base id `5506` (the one actually equipped and rendered) carries ZERO facts at
- * all — curating `34714` would define an entry this app's tooltip code can never reach. Left
- * uncurated, same bucket as Chaotic Release/Tailored Victory/Photon Wall/Evoker's Meditations.
+ * Elementalist's Glyph of Elemental Power (id `34714`, the Earth-attunement-tagged variant carrying
+ * the only local Barrier fact) looked like a new architecture gap at first — its attunement-agnostic
+ * base id `5506` (the one actually equipped and rendered) carries ZERO facts of its own, the same
+ * "equipped id has nothing to read" shape as Chaotic Release/Tailored Victory/Photon Wall/Evoker's
+ * Meditations. **Turned out not to be one, fixed 2026-08-05**: unlike a `flipSkill` target, an
+ * attunement-tagged variant is already surfaced on the equipped skill's own tooltip by
+ * `multi-effect.ts`'s `relatedVariantSkills` (confirmed live: this exact mechanism already renders
+ * this same skill's Air/Fire variants' curated Damage facts, 34637/34736, in
+ * `CURATED_DAMAGE_COEFFICIENTS`) — no new UI plumbing needed, just curating `34714` directly, which
+ * this table now does. See that entry below for the curated value.
  */
 export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> = {
   // --- Elementalist ---
@@ -93,6 +96,16 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   // Stone Resonance" (id 42913), a Bolstered Elements trait proc — excluded, see this table's own
   // top comment.
   44926: [{ factText: 'Barrier', baseValue: 1069, coefficient: 0.15 }],
+  // Glyph of Elemental Power (Utility) — curated under its Earth-attunement-tagged variant id 34714,
+  // not the equipped attunement-agnostic id 5506 (which carries zero facts of its own). This is NOT
+  // an architecture gap like Chaotic Release/Tailored Victory/Photon Wall/Evoker's Meditations —
+  // `multi-effect.ts`'s `relatedVariantSkills` already surfaces every attunement variant of an
+  // equipped Elementalist Glyph as its own tooltip block (confirmed live in code: this exact
+  // mechanism already renders 34637/34736's curated Damage facts in `CURATED_DAMAGE_COEFFICIENTS`),
+  // so 34714's Barrier fact reaches the tooltip via the Earth-labeled variant block, no fix needed.
+  // The 2026-08-05 Barrier sweep's own top comment mis-filed this as unreachable — corrected here.
+  // No PvE/WvW split (wiki infobox single `{{skill fact|barrier|2100|coefficient=0.8}}` template).
+  34714: [{ factText: 'Barrier', baseValue: 2100, coefficient: 0.8 }],
   // Molten Burst (Weaver dagger/trident). Wiki's own skill-fact template (1418/0.33) is flagged
   // incorrect in the page's own Notes section: "The barrier skill fact is incorrect, the applied
   // barrier is: {{skill fact|barrier|2123|coefficient=0.3795}}" — the corrected value used instead,

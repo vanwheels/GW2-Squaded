@@ -4,38 +4,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
-- [x] Loose ends from the `CURATED_BARRIER_COEFFICIENTS` sweep — **items 1-3 resolved 2026-08-05, see
-      COMPLETED.md Session 70.** (1) Engineer's Utility Goggles (id 29591): live API re-pull confirmed
-      this app's data is current, not stale — the real finding is a genuine API/wiki mismatch (an
-      orphaned API fact the wiki never documents), left uncurated. (2) Engineer's Hard Light Arena (id
-      44646): confirmed via raw wikitext, no `coefficient=` param exists to curate — left uncurated,
-      unchanged. (3) Elementalist's Lava Skin (id 46447): fixed by adding `BarrierCoefficient
-      .requiresTrait` and extending `barrierLinesForSkill`'s match predicate — both Barrier facts are
-      now curated. Item (4) remains open, restated below:
-      - [ ] Flip-architecture-gap instance: Elementalist's Glyph of Elemental Power (attunement-tagged
-        id 34714 carries the only local Barrier fact, but the actually-equipped attunement-agnostic id
-        5506 carries zero facts at all) — same bucket as Chaotic Release/Tailored Victory/Photon Wall,
-        needs the same eventual fix, not just a data gap.
-- [x] **Trait-duplicated-fact representation — DONE 2026-08-05, see COMPLETED.md Session 71.** All 3
-      curated tables (`BarrierCoefficient`/`DamageCoefficient`/`HealingCoefficient`) now support an
-      optional `requiresTrait` field, matched via `(f.text === entry.factText && (f.requires_trait ??
-      null) === (entry.requiresTrait ?? null))` instead of text alone, so a same-text base + trait-
-      boosted fact pair can finally both be curated. 5 Mesmer `CURATED_DAMAGE_COEFFICIENTS` entries
-      gained their trait-gated variant (Phantasmal Disenchanter/Phantasmal Defender — Empowered
-      Illusions, 682, flat +15%; Sword of Decimation/Rain of Swords/Psychic Force — Infinite Forge,
-      2206, +7% PvE/+10% WvW+PvP), each value computed from the trait's own wiki-quoted `{{skill
-      fact|damage increase|...}}` percentage and cross-confirmed exact against a live API pull's
-      `traited_facts`. **Necromancer's Reaper shouts' "damage increase" facts turned out NOT to be an
-      instance of this problem** — re-investigated and found to be an unrelated, still-unmodeled
-      mechanic (a `type: 'Percent'` melee-range damage bonus, no `requires_trait` gating at all), left
-      as-is; the TODO wording that originally lumped them in with the Mesmer skills was imprecise.
-      `CURATED_HEALING_COEFFICIENTS` got the same type/matching fix for consistency, but no entry uses
-      it yet — the one candidate investigated (Guardian's Signet of Courage / Perfect Inscriptions,
-      579) has a wiki-quoted +20% but the resulting computed value doesn't cleanly reconcile with the
-      live API's own traited number, so it's left uncurated rather than guessed. Distinct from the
-      separate shared-cross-skill-formula trait-bonus-table item below (Assassin's Reward/
-      Transfusion) — that one formula gets reused verbatim across dozens of unrelated skills, this one
-      was a per-skill alternate value.
 - [ ] `skill-variants.ts`'s Elite/Utility/Heal picker filters (`stripNonEquippableSubAbilities`,
       `stripFlipTargets`) don't catch every non-equippable "sub-skill" — found while curating
       `CURATED_DAMAGE_COEFFICIENTS`'s Elementalist Elite-slot entries 2026-08-04. Elementalist's
@@ -557,10 +525,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         and 1290) and the wiki only documents a coefficient for one of them (1290) — since this
         table matches facts by factText alone, curating it risks binding the coefficient to whichever
         fact `Array.find` happens to return first. Left entirely uncurated.
-- [x] Barrier resource bar — **DONE 2026-08-05, see COMPLETED.md.** `CURATED_BARRIER_COEFFICIENTS` +
-      `barrierLinesForSkill` (`src/shared/skill-calc/barrier-calc.ts`) built as a full one-pass sweep
-      across every profession/slot (58 raw candidates, 48 curated), wired into `skillFactLines` as its
-      own tooltip line alongside Healing's.
 - [ ] Trait-bonus healing formulas smeared across many skills' own facts, surfaced by the weapon-skill
       sweep 2026-08-02: Thief's Assassin's Reward trait (id 1238, Deadly Arts, "heal yourself for
       each point of initiative spent") shows up as a `requires_trait`-gated Healing fact on ~38
@@ -771,11 +735,6 @@ it alongside.
 - [ ] "Necrotic Traversal" (2nd half of Summon Flesh Wurm's flip-skill chain) is filed under "Other"
       in the skill picker category grouping — should be associated with/grouped near Summon Flesh
       Wurm instead.
-
-## Feature feedback pass (2026-08-01) — scoped 2026-08-01
-
-Feedback list from the user; scoped below with concrete implementation approach and open decisions.
-Nothing here is implemented yet.
 
 ## Nice-to-haves
 
