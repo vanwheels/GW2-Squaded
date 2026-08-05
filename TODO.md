@@ -298,7 +298,29 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         gap — those entries are almost certainly equally unreachable dead data today, worth
         revisiting alongside a real fix (e.g. teaching `relatedVariantSkills` to also surface
         `glyphFormVariants` siblings) rather than leaving them silently inert. See `damage-calc.ts`'s
-        Ranger Utility-slot block comment for the full writeup. **Next up: Thief's Utility-slot leg.**
+        Ranger Utility-slot block comment for the full writeup. Thief done 2026-08-04: 20 raw
+        candidate ids (6 shared racial ones already curated under Warrior, not re-curated), 11
+        distinct Thief-only skills curated (Scorpion Wire; Daredevil's Impairing Daggers, Reflexive
+        Strike, Distracting Daggers, Palm Strike — 2 independently-split Damage facts, "Damage" and
+        "Second Strike Damage" — Fist Flurry; Deadeye's Shadow Flare, Binding Shadow, Shadow Gust;
+        Specter's Well of Sorrow, Well of Tears). **New "priming" variant of the flip-architecture gap
+        found**: Thief's 2 Preparation skills (Prepare Pitfall id 13057, Prepare Thousand Needles id
+        13026) are the actually-equippable ids per `skill-variants.ts`'s `stripFlipTargets` (which
+        drops their differently-named `flipSkill` targets, Pitfall 56880/Thousand Needles 56898, from
+        the picker), but unlike every earlier flip-gap case (Chaotic Release, Tailored Victory, Weave
+        Self) the equippable id here carries ZERO facts of its own — not even a placeholder — so
+        there's no substitute id to curate under; both Pitfall and Thousand Needles excluded outright,
+        a strictly worse case than a partial gap. Deadeye's Shadow Flare hits a related but survivable
+        version: it also has a differently-named flip target (Shadow Swap, 45672) stripped by the same
+        signal, but Shadow Flare itself already carries its own Damage fact (the initial throw,
+        independent of the swap-back detonation) so it's curated normally; only Shadow Swap's own
+        separate Damage fact is the excluded unreachable one. Also worth noting: Well of Sorrow/Well of
+        Tears both have a separate "Number of Impacts: 5" fact alongside their Damage fact, but neither
+        wiki page's Damage fact carries a `strikes=` param and both local API `hit_count`s are 1 (not
+        5) — confirmed via Well of Sorrow's own Mechanics note, which describes only a 5-pulse
+        *condition* order, never a repeated direct-damage strike — so neither needed totaling, unlike
+        Guardian's Symbol of Blades/Ranger's Flame Trap earlier in this sweep. **Next up: Engineer's
+        Utility-slot leg.**
       - Weapon-slot (919 raw candidates): not started, last category in the sweep order.
 - [ ] Mesmer Troubadour's Heal skill, "Tale of the Second Scion" (id 76695), shows no Healing numbers
       at all in this app (user screenshot comparison, 2026-08-02) — confirmed root cause: the GW2 API

@@ -561,7 +561,58 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   77211: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
   // Galeshot — Piercing Gales. `strikes=5` present -> wiki coefficients already totaled. PvE 3.5 vs.
   // WvW+PvP grouped 1.75 — WvW value used.
-  77264: [{ factText: 'Damage', coefficient: 1.75, weapon: 'unequipped' }]
+  77264: [{ factText: 'Damage', coefficient: 1.75, weapon: 'unequipped' }],
+
+  // Thief — 20 raw candidate ids (6 shared racial ones already curated under Warrior, not
+  // re-curated here), 11 distinct Thief-only skills curated. All 9 carry a wiki `weapon=utility`
+  // param, normalized to `unequipped` per the slot-skill convention (Well of Sorrow/Well of Tears
+  // already use `weapon=unequipped` directly on the wiki). **New "priming" architecture-gap
+  // variant found**: Thief's 2 Preparation skills (Prepare Pitfall id 13057, Prepare Thousand
+  // Needles id 13026) are the *actually-equippable* ids — `skill-variants.ts`'s `stripFlipTargets`
+  // removes their differently-named `flipSkill` targets (Pitfall 56880, Thousand Needles 56898)
+  // from the picker entirely — but unlike every other flip-architecture gap this sweep has hit
+  // (Chaotic Release, Tailored Victory, Weave Self), the equippable id here carries ZERO facts of
+  // its own at all (only Duration/Unblockable), not even a non-Damage placeholder — so there's no
+  // substitute id to curate under either; both Pitfall/Thousand Needles excluded outright, worse
+  // than a partial gap since no id in this pair is both equippable and fact-bearing. Deadeye's
+  // Shadow Flare (41158) hits a related but survivable case: it also has a differently-named
+  // `flipSkill` target (Shadow Swap, 45672, "reactivate to swap places with the orb") stripped by
+  // the same signal, but Shadow Flare itself already carries its own Damage fact (the initial throw)
+  // independent of the swap-back detonation, so it's curated normally below — only Shadow Swap's
+  // own separate Damage fact is the (excluded) unreachable one this time.
+  // Scorpion Wire. PvE/WvW+PvP split 0.5/0.01 — WvW value used.
+  13020: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Daredevil — Impairing Daggers. `strikes=3` present -> wiki coefficient already totaled. No
+  // split (the page's `split = pve, wvw pvp` header covers other facts on this skill, not Damage).
+  30369: [{ factText: 'Damage', coefficient: 2.25, weapon: 'unequipped' }],
+  // Daredevil — Reflexive Strike. PvE/WvW+PvP split 0.75/0.01 — WvW value used.
+  30519: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Daredevil — Distracting Daggers. PvE/WvW+PvP split 0.55/0.25 — WvW value used.
+  30568: [{ factText: 'Damage', coefficient: 0.25, weapon: 'unequipped' }],
+  // Daredevil — Palm Strike. Two independently-split Damage facts: "Damage" (PvE/WvW+PvP 1.75/0.01
+  // — WvW used) and "Second Strike Damage" (no split, 3.28).
+  30693: [
+    { factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' },
+    { factText: 'Second Strike Damage', coefficient: 3.28, weapon: 'unequipped' }
+  ],
+  // Daredevil — Fist Flurry. `strikes=5` present -> wiki coefficients already totaled. PvE 3.75 vs.
+  // WvW+PvP grouped 2.5 — WvW value used.
+  30868: [{ factText: 'Damage', coefficient: 2.5, weapon: 'unequipped' }],
+  // Deadeye — Shadow Flare (id fixed, see block comment above). No split on this fact.
+  41158: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }],
+  // Deadeye — Binding Shadow. PvE/WvW+PvP split 1.0/0.01 — WvW value used.
+  41205: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Deadeye — Shadow Gust. PvE/WvW+PvP split 0.4/0.01 — WvW value used.
+  46335: [{ factText: 'Damage', coefficient: 0.01, weapon: 'unequipped' }],
+  // Specter — Well of Sorrow. No split. Wiki's own `weapon=unequipped` param already matches; no
+  // `strikes=` param despite a separate "Number of Impacts: 5" fact — that fact tracks how many
+  // times this well pulses conditions (confirmed by its own Mechanics note, which only describes a
+  // condition-pulse order, never a repeated direct-damage strike), not the Damage fact's hit count,
+  // consistent with the local API's hit_count: 1 exactly matching the wiki's un-totaled coefficient.
+  63276: [{ factText: 'Damage', coefficient: 0.222, weapon: 'unequipped' }],
+  // Specter — Well of Tears. No split. Same "Number of Impacts" reasoning as Well of Sorrow above
+  // — local hit_count: 1 matches the wiki's un-totaled coefficient directly.
+  63294: [{ factText: 'Damage', coefficient: 1.0, weapon: 'unequipped' }]
 }
 
 export interface DamageLine {
