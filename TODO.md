@@ -484,8 +484,23 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         Damage-type) alongside their real Damage fact(s), not curated; (5) a name collision (id
         12474/12471, both "Slash," Greatsword 1 vs Sword 1) resolved via each page's own `id =`
         infobox param and otheruses hatnote. See `damage-calc.ts`'s new Ranger Weapon-slot block
-        comment for the full writeup. **Next up (not started): Thief, Engineer, Necromancer,
-        Elementalist, Mesmer, in that order** — stop after each leg for a check-in, don't chain them.
+        comment for the full writeup. Thief done 2026-08-05: 54 raw candidate ids, expanded via full
+        `flipSkill` chain walks (Revenant's fuller convention, not Warrior/Guardian/Ranger's
+        chain-starter shorthand — Thief's kit has several 2-4 stage chains) to 88 total distinct skill
+        ids; 71 carry a genuine Damage fact (1 already seeded, Dancing Dagger id 13019), 70 curated
+        this leg, 17 confirmed non-damage, no wiki coefficient gaps this leg. New mechanics: (1)
+        **Deadly Aim wrinkle** — 15 of the 70 (every Pistol/Speargun fact plus Flawless Execution's
+        off-hand-pistol fact) carry a `requires_trait: 1299` (Deadly Aim) flat +10% alternate value,
+        curated as `requiresTrait: 1299`, cross-checked against live `traited_facts`; 1 exception
+        (Unload id 13011) whose `traited_facts` don't resolve to a clean `base * 1.10` under either
+        base fact, left without a trait-gated variant rather than guessed; (2) 2 pairs of ids sharing
+        one wiki page/values (Repeater 13111/59526, Spinning Axe 71967/71854), both curated identically
+        each; (3) Rifle 2's Skirmisher's Shot groups PvE with WvW (`split = pve wvw, pvp`) rather than
+        the usual WvW+PvP grouping, so its WvW value equals PvE; (4) Detonate Cluster's "Small
+        Explosion" fact has real hit_count=4 but no wiki `strikes=` param — manually totaled per the
+        usual rule. See `damage-calc.ts`'s Thief Weapon-slot block comment for the full writeup.
+        **Next up (not started): Engineer, Necromancer, Elementalist, Mesmer, in that order** — stop
+        after each leg for a check-in, don't chain them.
 - [ ] Mesmer's Tale of the Second Scion (id 76695) also grants "Scion's Reprieve," a self-buff
       (+15% WvW/PvP Heal Effectiveness on the caster) that neither this skill's Healing tooltip line
       nor any other app mechanism accounts for — a genuinely separate gap from the zero-facts issue
