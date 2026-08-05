@@ -1799,8 +1799,322 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   12504: [{ factText: 'Damage', coefficient: 0.9, weapon: 'torch' }],
   // Ranger — Warhorn 4, Hunter's Call. `strikes=16` present -> wiki totaled. PvE/WvW+PvP split
   // (2.4/1.92).
-  12620: [{ factText: 'Damage', coefficient: 1.92, weapon: 'warhorn' }]
-  // Weapon-slot sweep: Warrior, Guardian, Revenant, Ranger done (4 of 9).
+  12620: [{ factText: 'Damage', coefficient: 1.92, weapon: 'warhorn' }],
+
+  // --- Thief done: 54 raw candidate ids (real, currently-equippable Weapon_1-5 ids resolved via the
+  // app's own `resolveSkillBarIds`/`weaponSkillIdsForPair`, brute-forced across every legal
+  // mainhand/offhand pairing — Axe/Sword/Scepter mainhand-only paired with Dagger/Pistol offhand,
+  // Dagger/Pistol usable in either hand, plus Rifle/Staff/Shortbow/Speargun/Spear two-handed — both
+  // environments, and all 3 elite specs (Daredevil/Deadeye/Specter) plus the spec-less baseline;
+  // `THIEF_DUAL_WIELD_OFFHAND` correctly resolved every Dual Wield Weapon_3 skill per hand-context, one
+  // bar id per mainhand/offhand combo). Unlike every earlier Weapon-slot leg, walked each raw
+  // candidate's full `flipSkill` chain (the same walk `multi-effect.ts`'s `flipTargetSkills` performs
+  // for the live `FlipSkillStack` UI) all the way to its end rather than stopping at the bar-bound
+  // starter — this leg follows Revenant's fuller "every stage independently wiki-verified" convention
+  // rather than Warrior/Guardian/Ranger's "chain-starter only" shorthand, since Thief's kit has several
+  // 2-4 stage `flipSkill` chains well beyond simple 2-3 hit autoattacks (e.g. Rifle 1's Brutal Aim ->
+  // Malicious Death's Judgment -> Death's Judgment burst combo; Staff 1's 4-hit Staff Strike -> Staff
+  // Bash -> Punishing Strikes -> Hook Strike chain). Expanded this way, the 54 raw ids' chains cover 88
+  // total distinct skill ids; 71 carry a genuine Damage-type fact (1 already seeded, Dancing Dagger id
+  // 13019 — one-per-profession seed block above), 70 curated below. 17 confirmed locally as real
+  // non-damage skills with no Damage-type fact at all: Infiltrator's Arrow (13025, Shortbow 5),
+  // Smoke Trail (13078, Ink Shot's flip target), Break Stance (13130, Nine-Tailed Strike's flip
+  // target), Kneel (40600, Rifle 5), Sniper's Cover/Death's Advance x2 (68600/40436/80278, Death's
+  // Retreat's movement-only flip chain), Shadow Bolt/Shadowsquall (63066/63314, Specter Scepter 1's
+  // condition-only autoattack), Triple Threat/Measured Shot/Endless Night (63154/63267/63128, Specter
+  // Scepter 3 paired with Pistol offhand), Twilight Combo (63254, Specter Scepter 3 paired with Dagger
+  // offhand), Recall Axes/Harrowing Storm (71895/71864, Axe 3 paired with Dagger offhand), Orchestrated
+  // Assault (71965, Axe 3 paired with Pistol offhand). Every curated skill below has a PvE/WvW+PvP
+  // split unless noted "no split" — WvW value used per this table's fixed policy — and no
+  // wiki-documented coefficient gaps turned up this leg (unlike Revenant's Scorchrazor/Ranger's Slash).
+  //
+  // **Deadly Aim wrinkle**: 15 of the 70 (every Pistol- and Harpoon Gun-weapon-typed fact — every
+  // Pistol skill, every Speargun skill, and Flawless Execution's off-hand-pistol "Projectile Damage"
+  // fact) carry a `requires_trait: 1299` (Deadly Aim, Critical Strikes Master) alternate Damage value —
+  // confirmed via the trait's own wiki page as a genuine flat +10% ("no longer reduces damage and now
+  // increases damage from pistol and harpoon gun attacks by 10%", 2024-03-19 rework), the same
+  // flat-bonus shape as Warrior's Forceful Greatsword rather than a stacking-buff preview — curated as
+  // `requiresTrait: 1299` variants (`base * 1.10`), cross-checked exactly against each skill's own live
+  // `traited_facts` `dmg_multiplier`. One exception: Unload (13011)'s local `traited_facts` don't
+  // resolve to a clean `base * 1.10` against either of its 2 base facts under any pairing tried — left
+  // without a trait-gated variant rather than guessed.
+  //
+  // Other wrinkles: (1) "Repeater" is 2 separate ids (13111, 59526) sharing one wiki page/values — a
+  // 2-stage ammo-reload loop off Pistol-mainhand-with-Dagger-offhand's Shadow Strike, both curated
+  // identically, same unresolvable-shared-page treatment as Revenant's Jade Winds; (2) Axe 1's
+  // "Spinning Axe" is likewise 2 ids (71967, 71854) sharing one page/values, curated identically;
+  // (3) Rifle 2's Skirmisher's Shot groups PvE with WvW instead of the usual WvW+PvP grouping
+  // (`split = pve wvw, pvp`) — the WvW value used is therefore identical to PvE (1.0), a rarer variant
+  // of the "PvE+WvW grouped" shape already seen a few times elsewhere in this table; (4) a couple of
+  // multi-hit pulsing facts carry no wiki `strikes=` param despite a real multi-hit local `hit_count`
+  // (Detonate Cluster's "Small Explosion", hit_count=4) — manually totaled per this table's usual rule.
+  // Thief — Dagger 1 (chain depth 0), Double Strike. `strikes=2` present -> wiki totaled. PvE/WvW+PvP
+  // split (0.8/0.4).
+  13004: [{ factText: 'Damage', coefficient: 0.4, weapon: 'dagger' }],
+  // Thief — Dagger 1 (chain depth 1), Wild Strike. PvE/WvW+PvP split (0.8/0.433).
+  13087: [{ factText: 'Damage', coefficient: 0.433, weapon: 'dagger' }],
+  // Thief — Dagger 2, Heartseeker. 3 independently-split health-threshold facts (same "always-listed
+  // conditional fact" pattern as Ranger's Speargun Mercy Shot): Above 50% Health (no split, 1.0),
+  // Below 50% Health (PvE/WvW+PvP 1.6/1.5), Below 25% Health (PvE/WvW+PvP 2.2/2.0) — WvW used.
+  13097: [
+    { factText: 'Above 50%', coefficient: 1.0, weapon: 'dagger' },
+    { factText: 'Below 50%', coefficient: 1.5, weapon: 'dagger' },
+    { factText: 'Below 25%', coefficient: 2.0, weapon: 'dagger' }
+  ],
+  // Thief — Dagger 3 (paired with Dagger offhand), Death Blossom. `strikes=3` present -> wiki totaled.
+  // No split (0.63).
+  13006: [{ factText: 'Damage', coefficient: 0.63, weapon: 'dagger' }],
+  // Thief — Dagger 3 (paired with Pistol offhand), Shadow Shot. PvE/WvW+PvP split (1.8/1.3125) — the 2
+  // identical-text base facts the local API exposes are this same duplication (see Warrior/Guardian
+  // block comments above), not 2 distinct mechanics.
+  13040: [{ factText: 'Damage', coefficient: 1.3125, weapon: 'dagger' }],
+  // Thief — Dagger 4, Dancing Dagger. Already curated in the one-per-profession seed above (id 13019).
+  // Thief — Dagger 5, Cloak and Dagger. PvE/WvW+PvP split (1.6/1.25).
+  16432: [{ factText: 'Damage', coefficient: 1.25, weapon: 'dagger' }],
+  // Thief — Pistol 1, Vital Shot. PvE/WvW+PvP split (0.575/0.383). Deadly Aim (1299) trait-gated
+  // variant: 0.383*1.10=0.4213 (matches API exactly).
+  13084: [
+    { factText: 'Damage', coefficient: 0.383, weapon: 'pistol' },
+    { factText: 'Damage', coefficient: 0.4213, weapon: 'pistol', requiresTrait: 1299 }
+  ],
+  // Thief — Pistol 2, Bola Shot. No split (0.25). Deadly Aim (1299) trait-gated variant:
+  // 0.25*1.10=0.275 (matches API exactly).
+  13008: [
+    { factText: 'Damage', coefficient: 0.25, weapon: 'pistol' },
+    { factText: 'Damage', coefficient: 0.275, weapon: 'pistol', requiresTrait: 1299 }
+  ],
+  // Thief — Pistol 3 (paired with Pistol offhand), Unload. `strikes=8` present -> wiki totaled.
+  // PvE/WvW+PvP split (3.36/2.16). Deadly Aim (1299) trait-gated values are present locally
+  // (`traited_facts` 0.297/0.495) but don't resolve to a clean `base * 1.10` against either base
+  // fact — left without a trait-gated variant, see block comment above.
+  13011: [{ factText: 'Damage', coefficient: 2.16, weapon: 'pistol' }],
+  // Thief — Pistol 3 (paired with Dagger offhand), Shadow Strike. 2 distinct facts, neither split by
+  // mode: Damage (dagger, 0.315), Shot Damage (pistol, 1.3125). Deadly Aim (1299) trait-gated variant
+  // on Shot Damage only (pistol-weapon fact): 1.3125*1.10=1.44375 (matches API exactly) — Damage
+  // (dagger) is unaffected, Deadly Aim only boosts pistol/harpoon gun facts.
+  13010: [
+    { factText: 'Damage', coefficient: 0.315, weapon: 'dagger' },
+    { factText: 'Shot Damage', coefficient: 1.3125, weapon: 'pistol' },
+    { factText: 'Shot Damage', coefficient: 1.44375, weapon: 'pistol', requiresTrait: 1299 }
+  ],
+  // Thief — Repeater (Shadow Strike's flip target, 2-stage ammo-reload loop sharing one wiki
+  // page/values under 2 ids — see block comment above). `strikes=5` present -> wiki totaled. No split
+  // (1.5). Deadly Aim (1299) trait-gated variant: 1.5*1.10=1.65 (matches API exactly).
+  13111: [
+    { factText: 'Damage', coefficient: 1.5, weapon: 'pistol' },
+    { factText: 'Damage', coefficient: 1.65, weapon: 'pistol', requiresTrait: 1299 }
+  ],
+  59526: [
+    { factText: 'Damage', coefficient: 1.5, weapon: 'pistol' },
+    { factText: 'Damage', coefficient: 1.65, weapon: 'pistol', requiresTrait: 1299 }
+  ],
+  // Thief — Pistol 4, Head Shot. PvE/WvW+PvP split (1.0/0.25). Deadly Aim (1299) trait-gated variant:
+  // 0.25*1.10=0.275 (matches API exactly).
+  13012: [
+    { factText: 'Damage', coefficient: 0.25, weapon: 'pistol' },
+    { factText: 'Damage', coefficient: 0.275, weapon: 'pistol', requiresTrait: 1299 }
+  ],
+  // Thief — Sneak Attack (Vital Shot's flip target). `strikes=5` present -> wiki totaled. PvE/WvW+PvP
+  // split (1.8/1.5). Deadly Aim (1299) trait-gated variant: 1.5*1.10=1.65 (matches API exactly).
+  13115: [
+    { factText: 'Damage', coefficient: 1.5, weapon: 'pistol' },
+    { factText: 'Damage', coefficient: 1.65, weapon: 'pistol', requiresTrait: 1299 }
+  ],
+  // Thief — Pistol 5, Black Powder. No split (0.25). Deadly Aim (1299) trait-gated variant:
+  // 0.25*1.10=0.275 (matches API exactly).
+  13113: [
+    { factText: 'Damage', coefficient: 0.25, weapon: 'pistol' },
+    { factText: 'Damage', coefficient: 0.275, weapon: 'pistol', requiresTrait: 1299 }
+  ],
+  // Thief — Sword 1 (chain depth 0), Slice (thief sword skill — distinct wiki page from Ranger's
+  // identically-named Sword 1 "Slash"/"Slice" entries elsewhere in this table). PvE/WvW+PvP split
+  // (0.85/0.4). Wiki's own `chain3 = Crippling Strike` field is stale — the local API's `flipSkill`
+  // terminates this chain at Slash (2-hit chain, not 3), trusted over the wiki here per this table's
+  // "trust live API over stale wiki text" policy (same reasoning as Revenant's Scorchrazor/Ranger's
+  // Slash).
+  13009: [{ factText: 'Damage', coefficient: 0.4, weapon: 'sword' }],
+  // Thief — Sword 1 (chain depth 1), Slash (thief sword skill — distinct wiki page from Ranger's
+  // Greatsword 1 "Slash", id 12474, and excluded Sword 1 "Slash", id 12471, elsewhere in this table).
+  // PvE/WvW+PvP split (0.85/0.4).
+  13088: [{ factText: 'Damage', coefficient: 0.4, weapon: 'sword' }],
+  // Thief — Sword 2, Infiltrator's Strike. PvE/WvW+PvP split (1.8/0.5).
+  13015: [{ factText: 'Damage', coefficient: 0.5, weapon: 'sword' }],
+  // Thief — Sword 3 (paired with Dagger offhand), Flanking Strike. PvE/WvW+PvP split (1.0/0.5).
+  13016: [{ factText: 'Damage', coefficient: 0.5, weapon: 'sword' }],
+  // Thief — Larcenous Strike (Flanking Strike's flip target). PvE/WvW+PvP split (2.17/1.4) — the 2
+  // identical-text base facts the local API exposes are this same duplication, not 2 distinct
+  // mechanics.
+  13007: [{ factText: 'Damage', coefficient: 1.4, weapon: 'sword' }],
+  // Thief — Sword 3 (paired with Pistol offhand), Flawless Execution. Damage `strikes=3` present ->
+  // wiki totaled, PvE/WvW+PvP split (1.59/0.9). Final Slash Damage no split (1.25). Projectile Damage
+  // (the off-hand pistol throw) `strikes=6` present -> wiki totaled, PvE/WvW+PvP split (1.5/0.9) —
+  // Deadly Aim (1299) trait-gated variant on this fact only: 0.9*1.10=0.99 (matches API exactly, the
+  // other 2 facts are sword-weapon and unaffected by the pistol-only trait).
+  80244: [
+    { factText: 'Damage', coefficient: 0.9, weapon: 'sword' },
+    { factText: 'Final Slash Damage', coefficient: 1.25, weapon: 'sword' },
+    { factText: 'Projectile Damage', coefficient: 0.9, weapon: 'sword' },
+    { factText: 'Projectile Damage', coefficient: 0.99, weapon: 'sword', requiresTrait: 1299 }
+  ],
+  // Thief — Axe 1 (chain depth 0), Spinning Axe. Shares one wiki page/values with its own flip-target
+  // id (71854, same name) — a 2-hit chain, both ids curated identically, same unresolvable-shared-page
+  // treatment as Revenant's Jade Winds. PvE/WvW+PvP split (0.8/0.35).
+  71967: [{ factText: 'Damage', coefficient: 0.35, weapon: 'axe' }],
+  // Thief — Axe 1 (chain depth 1), Spinning Axe (id-distinct flip target, see above). Same page/values.
+  71854: [{ factText: 'Damage', coefficient: 0.35, weapon: 'axe' }],
+  // Thief — Axe 2, Venomous Volley. `strikes=3` present -> wiki totaled. PvE/WvW+PvP split (1.2/0.9).
+  71852: [{ factText: 'Damage', coefficient: 0.9, weapon: 'axe' }],
+  // Thief/Specter — Scepter 2, Shadow Sap. No split (0.77).
+  63351: [{ factText: 'Damage', coefficient: 0.77, weapon: 'scepter' }],
+  // Thief/Deadeye — Rifle 1, Brutal Aim. PvE/WvW+PvP split (0.75/0.4).
+  41422: [{ factText: 'Damage', coefficient: 0.4, weapon: 'rifle' }],
+  // Thief/Deadeye — Malicious Death's Judgment (Brutal Aim's flip target). Damage PvE/WvW+PvP split
+  // (2.67/1.339). Damage on Untargeted Foes PvE/WvW+PvP split (1.32/0.165) — WvW used for both.
+  44087: [
+    { factText: 'Damage', coefficient: 1.339, weapon: 'rifle' },
+    { factText: 'Damage on Untargeted Foes', coefficient: 0.165, weapon: 'rifle' }
+  ],
+  // Thief/Deadeye — Death's Judgment (Malicious Death's Judgment's own flip target — a 2-stage loop
+  // sharing the exact same wiki-quoted values, same reachable-flip-target treatment as Repeater above).
+  69316: [
+    { factText: 'Damage', coefficient: 1.339, weapon: 'rifle' },
+    { factText: 'Damage on Untargeted Foes', coefficient: 0.165, weapon: 'rifle' }
+  ],
+  // Thief/Deadeye — Rifle 2, Skirmisher's Shot. Rare *inverted* grouping: `split = pve wvw, pvp` groups
+  // PvE with WvW (not the usual WvW+PvP grouping) — WvW value used is therefore identical to PvE (1.0).
+  41494: [{ factText: 'Damage', coefficient: 1.0, weapon: 'rifle' }],
+  // Thief/Deadeye — Spotter's Shot (Skirmisher's Shot's flip target). PvE/WvW+PvP split (1.3/0.4).
+  44591: [{ factText: 'Damage', coefficient: 0.4, weapon: 'rifle' }],
+  // Thief/Deadeye — Rifle 3, Double Tap. `strikes=2` present -> wiki totaled. PvE/WvW+PvP split
+  // (1.4/1.0).
+  43916: [{ factText: 'Damage', coefficient: 1.0, weapon: 'rifle' }],
+  // Thief/Deadeye — Three Round Burst (Double Tap's flip target). `strikes=3` present -> wiki totaled.
+  // PvE/WvW+PvP split (2.25/1.5).
+  44695: [{ factText: 'Damage', coefficient: 1.5, weapon: 'rifle' }],
+  // Thief/Deadeye — Rifle 4, Death's Retreat. No split (0.3). Its own flip chain (Sniper's Cover ->
+  // Death's Advance x2) is movement-only, no Damage fact — see block comment above.
+  41937: [{ factText: 'Damage', coefficient: 0.3, weapon: 'rifle' }],
+  // Thief/Daredevil — Staff 1 (chain depth 0), Staff Strike. PvE/WvW+PvP split (0.85/0.444).
+  30614: [{ factText: 'Damage', coefficient: 0.444, weapon: 'staff' }],
+  // Thief/Daredevil — Staff 1 (chain depth 1), Staff Bash. PvE/WvW+PvP split (0.9/0.444).
+  30135: [{ factText: 'Damage', coefficient: 0.444, weapon: 'staff' }],
+  // Thief/Daredevil — Staff 1 (chain depth 2), Punishing Strikes. `strikes=4` present -> wiki totaled.
+  // PvE/WvW+PvP split (2.1/1.114).
+  30434: [{ factText: 'Damage', coefficient: 1.114, weapon: 'staff' }],
+  // Thief/Daredevil — Staff 1 (chain depth 3), Hook Strike. PvE/WvW+PvP split (0.65/0.01) — steep
+  // competitive nerf.
+  30210: [{ factText: 'Damage', coefficient: 0.01, weapon: 'staff' }],
+  // Thief/Daredevil — Staff 2, Weakening Whirl. `strikes=3` present -> wiki totaled. PvE/WvW+PvP split
+  // (2.22/1.35).
+  29911: [{ factText: 'Damage', coefficient: 1.35, weapon: 'staff' }],
+  // Thief/Daredevil — Staff 3, Debilitating Arc. PvE/WvW+PvP split (1.0/0.5).
+  30520: [{ factText: 'Damage', coefficient: 0.5, weapon: 'staff' }],
+  // Thief/Daredevil — Helmet Breaker (Debilitating Arc's flip target). PvE/WvW+PvP split (1.25/1.1).
+  71802: [{ factText: 'Damage', coefficient: 1.1, weapon: 'staff' }],
+  // Thief/Daredevil — Staff 4, Dust Strike. PvE/WvW+PvP split (1.8/1.05).
+  30775: [{ factText: 'Damage', coefficient: 1.05, weapon: 'staff' }],
+  // Thief/Daredevil — Staff 5, Vault. PvE/WvW+PvP split (2.25/1.82).
+  30597: [{ factText: 'Damage', coefficient: 1.82, weapon: 'staff' }],
+  // Thief — Shortbow 1 (chain depth 0), Trick Shot. PvE/WvW+PvP split (0.55/0.366).
+  13022: [{ factText: 'Damage', coefficient: 0.366, weapon: 'shortbow' }],
+  // Thief — Shortbow 1 (chain depth 1), Surprise Shot. No split (0.6).
+  13129: [{ factText: 'Damage', coefficient: 0.6, weapon: 'shortbow' }],
+  // Thief — Shortbow 2, Cluster Bomb. "Large Explosion" fact, PvE/WvW+PvP split (2.25/1.45).
+  13041: [{ factText: 'Large Explosion', coefficient: 1.45, weapon: 'shortbow' }],
+  // Thief — Detonate Cluster (Cluster Bomb's flip target). "Small Explosion" fact; no wiki `strikes=`
+  // param despite a real local `hit_count: 4` (pulsing) — per-hit PvE/WvW+PvP split (0.5/0.375)
+  // manually totaled by 4: PvE 2.0, WvW+PvP 1.5 used.
+  13043: [{ factText: 'Small Explosion', coefficient: 1.5, weapon: 'shortbow' }],
+  // Thief — Shortbow 3, Disabling Shot. No split (0.5).
+  13083: [{ factText: 'Damage', coefficient: 0.5, weapon: 'shortbow' }],
+  // Thief — Shortbow 4, Choking Gas. No split (0.6).
+  13024: [{ factText: 'Damage', coefficient: 0.6, weapon: 'shortbow' }],
+  // Thief — Speargun 1 (aquatic autoattack, chain depth 0), Piercing Shot. No split (0.55). Deadly Aim
+  // (1299) trait-gated variant: 0.55*1.10=0.605 (matches API exactly).
+  13072: [
+    { factText: 'Damage', coefficient: 0.55, weapon: 'harpoon gun' },
+    { factText: 'Damage', coefficient: 0.605, weapon: 'harpoon gun', requiresTrait: 1299 }
+  ],
+  // Thief — The Ripper (Piercing Shot's flip target, chain depth 1). No split (1.5). Deadly Aim (1299)
+  // trait-gated variant: 1.5*1.10=1.65 (matches API exactly).
+  13126: [
+    { factText: 'Damage', coefficient: 1.5, weapon: 'harpoon gun' },
+    { factText: 'Damage', coefficient: 1.65, weapon: 'harpoon gun', requiresTrait: 1299 }
+  ],
+  // Thief — Speargun 2 (aquatic), Deluge. No split (0.7). Deadly Aim (1299) trait-gated variant:
+  // 0.7*1.10=0.77 (matches API exactly).
+  13073: [
+    { factText: 'Damage', coefficient: 0.7, weapon: 'harpoon gun' },
+    { factText: 'Damage', coefficient: 0.77, weapon: 'harpoon gun', requiresTrait: 1299 }
+  ],
+  // Thief — Speargun 3 (aquatic), Escape. 2 distinct facts, neither split by mode: Missile Damage
+  // (1.33), Damage (0.33). Deadly Aim (1299) trait-gated variants: 1.33*1.10=1.463,
+  // 0.33*1.10=0.363 (both match API exactly).
+  13074: [
+    { factText: 'Missile Damage', coefficient: 1.33, weapon: 'harpoon gun' },
+    { factText: 'Damage', coefficient: 0.33, weapon: 'harpoon gun' },
+    { factText: 'Missile Damage', coefficient: 1.463, weapon: 'harpoon gun', requiresTrait: 1299 },
+    { factText: 'Damage', coefficient: 0.363, weapon: 'harpoon gun', requiresTrait: 1299 }
+  ],
+  // Thief — Speargun 4 (aquatic), Crippling Shot. No split (1.75). Deadly Aim (1299) trait-gated
+  // variant: 1.75*1.10=1.925 (matches API exactly).
+  13075: [
+    { factText: 'Damage', coefficient: 1.75, weapon: 'harpoon gun' },
+    { factText: 'Damage', coefficient: 1.925, weapon: 'harpoon gun', requiresTrait: 1299 }
+  ],
+  // Thief — Speargun 5 (aquatic, chain depth 0), Ink Shot. No split (0.75). Deadly Aim (1299)
+  // trait-gated variant: 0.75*1.10=0.825 (matches API exactly). Its flip target, Smoke Trail, has no
+  // Damage fact — see block comment above.
+  13076: [
+    { factText: 'Damage', coefficient: 0.75, weapon: 'harpoon gun' },
+    { factText: 'Damage', coefficient: 0.825, weapon: 'harpoon gun', requiresTrait: 1299 }
+  ],
+  // Thief — Spear 1 (land, Janthir Wilds, chain depth 0), Barbed Spear. No split (0.375).
+  73145: [{ factText: 'Damage', coefficient: 0.375, weapon: 'spear' }],
+  // Thief — Spear 1 (land, chain depth 1), Ashen Assault. `strikes=6` present -> wiki totaled.
+  // PvE/WvW+PvP split (1.8/1.5).
+  73005: [{ factText: 'Damage', coefficient: 1.5, weapon: 'spear' }],
+  // Thief — Spear 1 (land, chain depth 2), Malicious Ashen Assault (same wiki-quoted values as Ashen
+  // Assault — a 2-stage loop, same reachable-flip-target treatment as Repeater/Death's Judgment above).
+  // `strikes=6` present -> wiki totaled. PvE/WvW+PvP split (1.8/1.5).
+  72924: [{ factText: 'Damage', coefficient: 1.5, weapon: 'spear' }],
+  // Thief — Spear 2 (land), Mantis Sting. PvE/WvW+PvP split (1.0/0.4).
+  73041: [{ factText: 'Damage', coefficient: 0.4, weapon: 'spear' }],
+  // Thief — Entangling Asp (Mantis Sting's flip target). PvE/WvW+PvP split (1.2/0.6).
+  72896: [{ factText: 'Damage', coefficient: 0.6, weapon: 'spear' }],
+  // Thief — Spear 3 (land, chain depth 0), Unsuspecting Strike. PvE/WvW+PvP split (0.8/0.3).
+  72986: [{ factText: 'Damage', coefficient: 0.3, weapon: 'spear' }],
+  // Thief — Vampiric Slash (Unsuspecting Strike's flip target, chain depth 1). PvE/WvW+PvP split
+  // (1.0/0.8).
+  73063: [{ factText: 'Damage', coefficient: 0.8, weapon: 'spear' }],
+  // Thief — Spear 4 (land), Distracting Throw. PvE/WvW+PvP split (0.5/0.25).
+  72927: [{ factText: 'Damage', coefficient: 0.25, weapon: 'spear' }],
+  // Thief — Spear 1 (aquatic, classic chain, chain depth 0), Stab (thief spear skill). No split (1.05).
+  13119: [{ factText: 'Damage', coefficient: 1.05, weapon: 'spear' }],
+  // Thief — Spear 1 (aquatic, chain depth 1), Jab (thief skill). No split (1.15).
+  13120: [{ factText: 'Damage', coefficient: 1.15, weapon: 'spear' }],
+  // Thief — Spear 1 (aquatic, chain depth 2), Poison Tip Strike. No split (1.33).
+  13121: [{ factText: 'Damage', coefficient: 1.33, weapon: 'spear' }],
+  // Thief — Spear 2 (aquatic), Flanking Dive. No split on either fact: Damage (1.75), Damage When
+  // Flanking (2.625).
+  13069: [
+    { factText: 'Damage', coefficient: 1.75, weapon: 'spear' },
+    { factText: 'Damage When Flanking', coefficient: 2.625, weapon: 'spear' }
+  ],
+  // Thief — Spear 3 (aquatic, chain depth 0), Nine-Tailed Strike. `strikes=8` present -> wiki totaled,
+  // no split (2.0). Final Strike Damage no split (0.5). Its flip target, Break Stance, has no Damage
+  // fact — see block comment above.
+  13122: [
+    { factText: 'Damage', coefficient: 2.0, weapon: 'spear' },
+    { factText: 'Final Strike Damage', coefficient: 0.5, weapon: 'spear' }
+  ],
+  // Thief — Spear 4 (aquatic, chain depth 0), Tow Line. No split (0.5).
+  13070: [{ factText: 'Damage', coefficient: 0.5, weapon: 'spear' }],
+  // Thief — Hooked Spear (Tow Line's flip target, chain depth 1). No split (1.25).
+  50379: [{ factText: 'Damage', coefficient: 1.25, weapon: 'spear' }],
+  // Thief — Spear 5 (aquatic), Shadow Assault. `strikes=3` present -> wiki totaled, no split (2.4).
+  13068: [{ factText: 'Damage', coefficient: 2.4, weapon: 'spear' }]
+  // Weapon-slot sweep: Warrior, Guardian, Revenant, Ranger, Thief done (5 of 9).
 }
 
 export interface DamageLine {
