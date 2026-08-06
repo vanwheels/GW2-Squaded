@@ -562,11 +562,17 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // value used.
   62832: [{ factText: 'Damage', coefficient: 2.3, weapon: 'unequipped' }],
   // Vindicator/Legendary Alliance — Scavenger Burst. PvE/WvW+PvP split 2.25/1.25 — WvW value used.
-  // Note (2026-08-04 skill-picker duplicate-id audit): this skill also has a `62962` id sharing a
-  // `flip_skill` chain with Tree Song's own `62941` (the Vindicator legend-swap that turns "Scavenger
-  // Burst" into "Tree Song" mid-cast) — left un-investigated, not excluded from the picker, pending a
-  // dedicated look at the whole Legendary Alliance legend-swap id family (see TODO.md).
-  62841: [{ factText: 'Damage', coefficient: 1.25, weapon: 'unequipped' }],
+  // Re-keyed 2026-08-06 (dedicated Vindicator-orphan investigation, see TODO.md/COMPLETED.md): this
+  // was previously keyed to `62841`, a same-name non-`GroundTargeted` id — but `legends.json`'s own
+  // Legend7 utilities list names `62962` (`GroundTargeted`) as the real skill, and `RevenantSkillsEditor`
+  // renders Revenant's bar straight from `legends.json`'s ids (plus `vindicatorAspectSkillId`'s 1-hop
+  // flip), never through `visibleSkillsForSlot`'s generic picker at all — so `62841` could never
+  // actually render in the live app; this entry was silently dead. `62841`'s own raw `dmg_multiplier`
+  // (2.5) doesn't match the wiki-documented value either, while `62962`'s (2.25 PvE) does, confirming
+  // `62841` is a stale/orphaned id, not a legitimate alternate. `62962`'s own `flipSkill` (`62941`,
+  // Tree Song — the Aspect-of-Saint-Viktor counterpart) is unaffected, already curated separately in
+  // `healing-calc.ts`.
+  62962: [{ factText: 'Damage', coefficient: 1.25, weapon: 'unequipped' }],
   // Vindicator/Legendary Alliance — Reaver's Rage. 3-way split PvE/WvW/PvP 2.22/1.25/1.0 — WvW
   // value used.
   62878: [{ factText: 'Damage', coefficient: 1.25, weapon: 'unequipped' }],

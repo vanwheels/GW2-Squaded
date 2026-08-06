@@ -2,6 +2,52 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 88 — Resolved the Vindicator Legendary Alliance orphan-id TODO item: not a picker bug, a mis-keyed curated coefficient
+
+User asked to work through the "skill picker duplicate id issue"; picked the still-open Vindicator
+orphan thread over the 4 no-signal groups (Throw Mine/Mist Form/Protective Solace/Jade Winds, still
+open).
+
+- **Corrected the TODO bullet's premise first**: a full `skills.json` name-search found Nomad's
+  Advance (`62832`) and Reaver's Rage (`62878`) each have exactly **one** id — no duplicate exists for
+  either, contrary to what the bullet claimed. Only Scavenger Burst (`62841`/`62962`) and Tree Song
+  (`62793`/`62941`) actually have a second id.
+- **The orphans (`62841`, `62793`) are structurally unreachable in the live app**, independent of
+  whatever `visibleSkillsForSlot`'s `GroundTargeted`-collapse signal would resolve them to: traced
+  `SkillsEditor.tsx`'s branch — Revenant always renders via `RevenantSkillsEditor`, which builds its
+  bar directly from `legends.json`'s fixed `heal`/`utilities`/`elite` ids (`62962`/`62941` for this
+  pair) plus `vindicatorAspectSkillId`'s 1-hop flip, and never calls `skillsForProfessionAndSlot`/
+  `visibleSkillsForSlot` at all — that path is exclusively `StandardSkillsEditor`'s, used for every
+  *other* profession. So even though hand-tracing `resolveGroup` confirms it would (incorrectly) pick
+  the non-`GroundTargeted` orphan for this one family — the opposite of every other `GroundTargeted`
+  group, where the non-ground id really is canonical — the real UI never asks. The
+  `audit-skill-picker-duplicates.ts` script flags this family because its synthetic per-(profession,
+  slot) sweep calls `visibleSkillsForSlot` directly with no notion that Revenant bypasses it — a blind
+  spot in the standalone script, not a live bug. Live `/v2/skills/62841` and `/62793` pulls
+  byte-match the local cache (not a stale-cache issue either), and their facts don't cleanly match any
+  single point in the wiki's documented version history for this skill pair (`62841`'s `dmg_multiplier`
+  2.5 never appears in Scavenger Burst's history at all, which only starts at 2021's beta) — consistent
+  with a frozen pre-launch beta leftover, though what they precisely are no longer matters once
+  confirmed unreachable.
+- **The actual bug this investigation found**: `CURATED_DAMAGE_COEFFICIENTS` had a real, wiki-correct
+  entry (`coefficient: 1.25`, matching Scavenger Burst's wiki-documented WvW+PvP value) keyed to the
+  unreachable orphan `62841` instead of `62962` — the id `legends.json`/`RevenantSkillsEditor` actually
+  renders — so live Vindicator builds showed no Damage line for Legend7's first utility skill at all.
+  Re-keyed to `62962` in `damage-calc.ts` (content unchanged, still wiki-correct; confirmed `62962`
+  carries its own single unambiguous `'Damage'` fact for the `factText` matcher to hit). Tree Song's
+  `healing-calc.ts` entry needed no equivalent fix — it already curates *both* `62793` and `62941`
+  defensively, noted at the time as "confirmed byte-identical Healing facts via direct API pulls,"
+  which holds up (unlike Scavenger Burst's Damage facts, which genuinely differ between the two ids —
+  `62841`'s own `dmg_multiplier` doesn't match `62962`'s, another tell that `62841` was never checked
+  against its own raw data during curation, just assumed reachable).
+- Deliberately did **not** add `62841`/`62793` to `skill-variant-exclusions.json` — that file only
+  feeds `visibleSkillsForSlot`, which Revenant never consults, so an entry there would affect nothing
+  live and could misleadingly suggest this family's resolution lives in the picker layer when it
+  doesn't. TODO.md's bullet removed outright (resolved, not deferred) rather than reworded again.
+- `npm run typecheck`/`npm run lint` both clean. Not visually confirmed in a running window (standing
+  Electron-sandbox limitation) — the only observable effect is Legend7's Scavenger Burst utility
+  tooltip now showing a Damage line where before it showed none.
+
 ## Session 87 — Skill-picker "Tale"/"Deception"/"Minion" category miscategorization fix
 
 User asked to work through remaining fix-it items in TODO.md before new features/the Gear

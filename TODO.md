@@ -185,21 +185,6 @@ that before extending either further, and before the tooltip visual-pass item be
       picker to know the build's chosen traits, an architecture change), Elementalist "Mist Form",
       Revenant "Protective Solace", Revenant "Jade Winds" (wiki lists all ids together with no
       distinguishing field).
-- [ ] **Vindicator's 3 Legendary Alliance Stance utility skills (Nomad's Advance, Scavenger Burst,
-      Reaver's Rage) each carry a same-spec non-`GroundTargeted` duplicate id whose relationship to
-      the kept id isn't understood yet** — found by the skill-picker duplicate-id audit
-      (2026-08-04, COMPLETED.md Session 62). Narrowed 2026-08-04: the canonical `legends.json` ids
-      and their real Aspect-of-Saint-Viktor `flipSkill` targets are fully mapped
-      (`vindicator-aspect.ts`) — `62962` Scavenger Burst -> `62941` Tree Song, `62832` Nomad's
-      Advance -> `62702` Battle Dance, `62878` Reaver's Rage -> `62796` Awakening, none involving
-      `62841`/`62793`. So the "legend swap mid-cast" framing this bullet used to carry was wrong —
-      that's the (now-implemented) Aspect toggle, fully accounted for above. What's unexplained is
-      only the leftover plain non-ground orphans (`62841` Scavenger Burst / `62793` Tree Song
-      specifically — Nomad's Advance/Reaver's Rage not yet checked for a same-shape orphan) that
-      aren't referenced by `legends.json` and carry no `flipSkill` link to anything. Needs a
-      dedicated look at whether they're genuine stale pre-rework duplicates or something else — don't
-      wiki-id=-exclude them like the rest of the audit did, that heuristic already false-positived on
-      this exact family once (COMPLETED.md Session 62).
 - [ ] Ranger Profession_4 "Eternal Bond" F-skill stays unresolved — no per-pet data exists for it
       (unlike Soulbeast's F1-F3, which resolve from `soulbeast-beastmode.json`).
 - [ ] Unconfirmed edge case: whether any skill has a distinctly different effect specifically on its
