@@ -186,6 +186,24 @@ export interface Build {
    */
   activeAttunement: 'Fire' | 'Water' | 'Air' | 'Earth'
   /**
+   * Elementalist Weaver only (specialization id 56; `null` for every other build, including every
+   * other Elementalist form): the second, "previous" attunement Weaver tracks alongside
+   * `activeAttunement` ("current") — weapon skills 1-2 come from `activeAttunement`, 4-5 come from
+   * this field, and weapon skill 3 is a "Dual Attack" determined by the unordered pair of the two
+   * (order doesn't matter — Fire+Water and Water+Fire are the same skill; attuning to the same
+   * element twice, e.g. Fire+Fire, gives the normal single-attunement skill 3). Display-only, same
+   * "toggle doesn't gate boon/condition totals" reasoning as `activeAttunement` itself — a real
+   * Weaver reaches every current/previous combo at will, so `boon-calc/sources.ts` unions all of
+   * them into totals regardless of which pair is shown here. Set by a dedicated "Previous
+   * Attunement" toggle row in `WeaponSkillBar.tsx`'s `extras` section (Weaver-only, alongside the
+   * existing F1-F4 row that already sets `activeAttunement`/"current"); defaults to matching
+   * `activeAttunement` when Weaver is newly equipped (current === previous, i.e. a normal-looking
+   * single-attunement bar) and resets to `null` when Weaver is un-equipped, same pattern as
+   * `familiarId`/`thiefStolenSkillId`. See `weapon-calc/weapon-skills.ts`'s `weaverWeaponThreeSkillId`
+   * and `weaponSkillIdsForPair`'s `previousAttunement` param.
+   */
+  weaverPreviousAttunement: 'Fire' | 'Water' | 'Air' | 'Earth' | null
+  /**
    * Thief only (meaningless, always `null`, for every other profession): the manually-chosen F2
    * "Stolen Skill" (`Skill.id`, one of `THIEF_STOLEN_SKILL_IDS` in `thief-stolen-skill.ts`), set by
    * opening the picker on the F2 mechanic-bar icon. Unlike every other `Build` field that mirrors a

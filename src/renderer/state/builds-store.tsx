@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Build } from '@shared/types'
+import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills'
 
 interface BuildsStore {
   builds: Build[]
@@ -13,9 +14,18 @@ interface BuildsStore {
 const BuildsStoreContext = createContext<BuildsStore | null>(null)
 
 /** Backfills fields absent on records saved before they existed — see `Build.tags`/`Build.order`
- *  doc comments. No storage migration; every read goes through this. */
+ *  doc comments. No storage migration; every read goes through this. `weaverPreviousAttunement`
+ *  defaults to matching `activeAttunement` (current === previous, a normal-looking single-attunement
+ *  bar) for a pre-existing Weaver build, `null` otherwise — same defaulting `handleEliteSpecChoose`
+ *  applies when Weaver is newly equipped in the editor, see that field's doc comment. */
 function normalizeBuild(build: Build): Build {
-  return { ...build, tags: build.tags ?? [], order: build.order ?? Date.parse(build.createdAt) }
+  const isWeaver = build.specializations.some((s) => s?.specializationId === WEAVER_SPEC_ID)
+  return {
+    ...build,
+    tags: build.tags ?? [],
+    order: build.order ?? Date.parse(build.createdAt),
+    weaverPreviousAttunement: build.weaverPreviousAttunement ?? (isWeaver ? build.activeAttunement : null)
+  }
 }
 
 export function makeBlankBuild(): Build {
@@ -40,6 +50,7 @@ export function makeBlankBuild(): Build {
     rangerUnleashed: false,
     familiarId: null,
     activeAttunement: 'Fire',
+    weaverPreviousAttunement: null,
     thiefStolenSkillId: null,
     vindicatorAspectFlipped: false,
     createdAt: now,

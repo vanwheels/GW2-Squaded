@@ -110,6 +110,159 @@ const THIEF_DUAL_WIELD_OFFHAND: Record<number, string | null> = {
 }
 
 /**
+ * Elementalist Weaver (specialization id 56). Weaver tracks two simultaneously-active attunements
+ * — "current" (`Build.activeAttunement`, main-hand, weapon skills 1-2) and "previous"
+ * (`Build.weaverPreviousAttunement`, off-hand, weapon skills 4-5) — and weapon skill 3 depends on
+ * *both* (wiki: "Dual Attack", order-independent — Fire+Water and Water+Fire are the same skill;
+ * attuning to the same element twice, e.g. Fire+Fire, gives the normal single-attunement skill 3).
+ */
+export const WEAVER_SPEC_ID = 56
+
+/** Fire > Water > Air > Earth — matches the priority order the GW2 API itself uses when tagging a
+ *  Dual Attack skill's single `attunement` field (see `WEAVER_WEAPON_3_SKILLS`'s doc comment) and
+ *  `ELEMENTALIST_ATTUNEMENT_SLOTS`'/`ELEMENTALIST_ATTUNEMENTS`' existing F1-F4 ordering. Used only
+ *  to canonicalize an unordered attunement pair into one lookup-table key. */
+const WEAVER_ATTUNEMENT_PRIORITY: Record<string, number> = { Fire: 0, Water: 1, Air: 2, Earth: 3 }
+
+/**
+ * Weaver's weapon-skill-3 "Dual Attack" table — hand-verified 2026-08-06 against the wiki's own
+ * Dual Attack skill list, cross-referenced to real ids via `data/game-data/skills.json`/
+ * `professions.json` (not guessed). Resolves the exact ambiguity `resolveSkillBarIds`'s doc comment
+ * above flags as unresolved: every weapon's raw Weapon_3 pool has up to 6 ids sharing
+ * `specializationId: 56` and, per the API's own priority-order tagging convention, up to 3 of them
+ * sharing the same single `attunement` value (e.g. Dagger's "Steam Surge"/"Plasma Burst"/"Ashen
+ * Blast" are all tagged `Fire`, being Fire+Water/Fire+Air/Fire+Earth respectively) — no raw field
+ * distinguishes the *second* attunement, so the actual combo has to be hand-matched by name against
+ * the wiki instead.
+ *
+ * Covers every weapon with a Weapon_3 slot Weaver can wield — not just Weaver's own weapons
+ * (Dagger/Focus/Scepter/Staff/Sword/Warhorn) but also Hammer/Pistol/Spear/Trident, reachable via
+ * Weaponmaster Training; confirmed each still carries its own full 6-combo Dual Attack set. Both the
+ * 6 genuine dual (differing-element) combos *and* the 4 same-element ones are listed explicitly
+ * (rather than leaving same-element to fall through to the generic resolver) because that resolver's
+ * `specializationId`-match step actively picks the *wrong* id once Weaver's spec id is in
+ * `equippedSpecializationIds`: it prefers any spec-56 candidate over the true single-attunement
+ * default, even for a same-element pair, since 2-3 spec-56 Dual Attack ids usually share that
+ * pair's attunement tag too. Same-element ids are the plain pre-existing single-attunement skill for
+ * every weapon except Sword (Weaver-exclusive, no non-Weaver form, so its 4 same-element ids are
+ * themselves spec-56) and Hammer (shares Catalyst's spec-67-tagged single-attunement set — verified
+ * these aren't Weaver-gated in-game, just tagged with the spec that "owns" Hammer's kit).
+ *
+ * Keyed `${weaponType}|${higherPriorityAttunement}+${lowerPriorityAttunement}` (see
+ * `WEAVER_ATTUNEMENT_PRIORITY`) so the two orderings of a differing-element pair collapse to one
+ * entry, matching the wiki's stated order-independence.
+ */
+const WEAVER_WEAPON_3_SKILLS: Record<string, number> = {
+  // Dagger
+  'Dagger|Fire+Water': 42330, // Steam Surge
+  'Dagger|Fire+Air': 44652, // Plasma Burst
+  'Dagger|Fire+Earth': 42379, // Ashen Blast
+  'Dagger|Water+Air': 46140, // Katabatic Wind
+  'Dagger|Water+Earth': 46018, // Mud Slide
+  'Dagger|Air+Earth': 40963, // Grinding Stones
+  'Dagger|Fire+Fire': 5644, // Burning Speed
+  'Dagger|Water+Water': 5487, // Frozen Burst
+  'Dagger|Air+Air': 5527, // Shocking Aura
+  'Dagger|Earth+Earth': 5559, // Earthen Rush
+  // Staff
+  'Staff|Fire+Water': 40332, // Pressure Blast
+  'Staff|Fire+Air': 41125, // Plasma Blast
+  'Staff|Fire+Earth': 43762, // Pyroclastic Blast
+  'Staff|Water+Air': 41184, // Monsoon
+  'Staff|Water+Earth': 44550, // Lahar
+  'Staff|Air+Earth': 42321, // Pile Driver
+  'Staff|Fire+Fire': 5679, // Flame Burst
+  'Staff|Water+Water': 5681, // Geyser
+  'Staff|Air+Air': 5553, // Gust
+  'Staff|Earth+Earth': 5685, // Magnetic Aura
+  // Scepter
+  'Scepter|Fire+Water': 42181, // Fiery Frost
+  'Scepter|Fire+Air': 43576, // Plasma Beam
+  'Scepter|Fire+Earth': 42954, // Fracturing Strike
+  'Scepter|Water+Air': 45742, // Glacial Drift
+  'Scepter|Water+Earth': 46014, // Stone Tide
+  'Scepter|Air+Earth': 40794, // Earthen Synergy
+  'Scepter|Fire+Fire': 5675, // Phoenix
+  'Scepter|Water+Water': 5510, // Water Trident
+  'Scepter|Air+Air': 5694, // Blinding Flash
+  'Scepter|Earth+Earth': 5696, // Dust Devil
+  // Sword
+  'Sword|Fire+Water': 42271, // Twin Strike
+  'Sword|Fire+Air': 43074, // Pyro Vortex
+  'Sword|Fire+Earth': 46447, // Lava Skin
+  'Sword|Water+Air': 42867, // Shearing Edge
+  'Sword|Water+Earth': 40170, // Natural Frenzy
+  'Sword|Air+Earth': 46295, // Gale Strike
+  'Sword|Fire+Fire': 44451, // Cauterizing Strike
+  'Sword|Water+Water': 41167, // Aqua Siphon
+  'Sword|Air+Air': 43803, // Quantum Strike
+  'Sword|Earth+Earth': 40139, // Rust Frenzy
+  // Hammer
+  'Hammer|Fire+Water': 69184, // Dual Orbits: Fire and Water
+  'Hammer|Fire+Air': 69341, // Dual Orbits: Fire and Air
+  'Hammer|Fire+Earth': 69164, // Dual Orbits: Fire and Earth
+  'Hammer|Water+Air': 69211, // Dual Orbits: Water and Air
+  'Hammer|Water+Earth': 69413, // Dual Orbits: Water and Earth
+  'Hammer|Air+Earth': 69246, // Dual Orbits: Air and Earth
+  'Hammer|Fire+Fire': 62758, // Flame Wheel
+  'Hammer|Water+Water': 62834, // Icy Coil
+  'Hammer|Air+Air': 62887, // Crescent Wind
+  'Hammer|Earth+Earth': 62975, // Rocky Loop
+  // Pistol
+  'Pistol|Fire+Water': 71863, // Frostfire Flurry
+  'Pistol|Fire+Air': 71898, // Purblinding Plasma
+  'Pistol|Fire+Earth': 71993, // Molten Meteor
+  'Pistol|Water+Air': 71960, // Flowing Finesse
+  'Pistol|Water+Earth': 72062, // Echoing Erosion
+  'Pistol|Air+Earth': 72023, // Enervating Earth
+  'Pistol|Fire+Fire': 71940, // Searing Salvo
+  'Pistol|Water+Water': 71935, // Frozen Fusillade
+  'Pistol|Air+Air': 71857, // Aerial Agility
+  'Pistol|Earth+Earth': 71842, // Boulder Blast
+  // Spear
+  'Spear|Fire+Water': 72916, // Frostfire Ward
+  'Spear|Fire+Air': 73104, // Galvanize
+  'Spear|Fire+Earth': 72914, // Fiery Impact
+  'Spear|Water+Air': 73052, // Elutriate
+  'Spear|Water+Earth': 73062, // Soothing Burst
+  'Spear|Air+Earth': 72906, // Shale Storm
+  'Spear|Fire+Fire': 73137, // Seethe
+  'Spear|Water+Water': 72967, // Ripple
+  'Spear|Air+Air': 73037, // Energize
+  'Spear|Earth+Earth': 73019, // Harden
+  // Trident
+  'Trident|Fire+Water': 40378, // Hydrothermal Vent
+  'Trident|Fire+Air': 41712, // Plasmic Strike
+  'Trident|Fire+Earth': 46185, // Molten Burst
+  'Trident|Water+Air': 46360, // Absolute Zero
+  'Trident|Water+Earth': 41001, // Elemental Compression
+  'Trident|Air+Earth': 39981, // Sodden Swath
+  'Trident|Fire+Fire': 5566, // Steam
+  'Trident|Water+Water': 5606, // Ice Wall
+  'Trident|Air+Air': 5652, // Air Pocket
+  'Trident|Earth+Earth': 5662 // Magnetic Current
+}
+
+/**
+ * Looks up Weaver's weapon-skill-3 "Dual Attack" (or same-element default) id for a given weapon
+ * type and current+previous attunement pair — see `WEAVER_WEAPON_3_SKILLS`. Order-independent (the
+ * pair is canonicalized before lookup). Returns `null` for a weapon type not in the table (no
+ * Weapon_3 slot, e.g. Focus/Warhorn, or a weapon Weaver can't wield) rather than throwing, so callers
+ * can fall back gracefully.
+ */
+export function weaverWeaponThreeSkillId(
+  weaponType: string,
+  currentAttunement: string,
+  previousAttunement: string
+): number | null {
+  const [first, second] =
+    (WEAVER_ATTUNEMENT_PRIORITY[currentAttunement] ?? 99) <= (WEAVER_ATTUNEMENT_PRIORITY[previousAttunement] ?? 99)
+      ? [currentAttunement, previousAttunement]
+      : [previousAttunement, currentAttunement]
+  return WEAVER_WEAPON_3_SKILLS[`${weaponType}|${first}+${second}`] ?? null
+}
+
+/**
  * Resolves a `Weapon_1`-`Weapon_5`-slotted skill-id list (a weapon type's own `skills`, or an
  * Engineer Kit's `Skill.bundleSkills` — both use the identical slot-naming/land-underwater-
  * duplication shape) down to one id per slot, scoped to the given environment. Most weapons/kits
@@ -142,17 +295,17 @@ const THIEF_DUAL_WIELD_OFFHAND: Record<number, string | null> = {
  *    weapon, not just Weaver's, and resolution falls all the way to the `candidates[0]` fallback
  *    below, always the same fixed skill regardless of attunement (the original shape of the "Staff
  *    skill 4-5 stuck" bug in TODO.md). With the patch, this alone resolves every non-Weaver-gated
- *    slot to exactly 1. For Weaver's per-slot "Dual Attack" replacements specifically (Weapon_3
- *    only): multiple Weaver-gated ids can still share one attunement (Weaver's dual-attunement
- *    system picks between them by which *second* attunement is also active, a combat-state axis
- *    this app's static loadout model has no equivalent for — same shape of gap as the
- *    Familiar/Legend items before they got their own modeling pass) — falls through to the
- *    deterministic first-candidate fallback below for that specific case, a documented known
- *    limitation, not a silent guess.
+ *    slot to exactly 1. Weaver's Weapon_3 "Dual Attack" replacements are the one case this signal
+ *    (and every other signal below it) can't resolve on their own — up to 3 Weaver-gated ids can
+ *    share one `attunement` tag, since it only ever encodes *one* of the combo's two elements (see
+ *    `WEAVER_WEAPON_3_SKILLS`'s doc comment) — so `weaponSkillIdsForPair`'s `previousAttunement`
+ *    param bypasses this function's own Weapon_3 result entirely for Weaver, substituting
+ *    `weaverWeaponThreeSkillId`'s lookup instead; this function's fallback below is never actually
+ *    reached for that slot once Weaver is equipped.
  *
- * Remaining ambiguity (only Slick Shoes/Rocket Boots' old-vs-reworked land pair, per TODO.md, plus
- * Weaver's dual-attack sub-choice above) falls back to the first matching entry — a documented
- * known limitation, not a silent guess presented as correct.
+ * Remaining ambiguity (Slick Shoes/Rocket Boots' old-vs-reworked land pair, per TODO.md) falls back
+ * to the first matching entry — a documented known limitation, not a silent guess presented as
+ * correct.
  */
 export function resolveSkillBarIds(
   candidateSkills: ProfessionWeaponSkillSlot[],
@@ -228,6 +381,16 @@ export function resolveSkillBarIds(
  * `resolveSkillBarIds`'s Thief hand-context signal — each side's resolution needs to know the
  * *other* hand's weapon type, not its own. `attunement` feeds its Elementalist signal (irrelevant,
  * safely ignored via `resolveSkillBarIds`'s own no-op-when-falsy check, for every other profession).
+ *
+ * `previousAttunement` switches to Weaver's dual-attunement resolution (only meaningful — and only
+ * ever passed — when Weaver is equipped, see `Build.weaverPreviousAttunement`'s doc comment): skills
+ * 1-2 still resolve off `attunement` (current, main-hand) as normal, but skills 4-5 resolve off
+ * `previousAttunement` instead (off-hand) — a real Weaver's off-hand slots track whichever
+ * attunement it swapped *out of*, not the currently-displayed one — and skill 3 is looked up
+ * directly via `weaverWeaponThreeSkillId` rather than `resolveSkillBarIds`' own slot-3 resolution,
+ * which is known to pick the wrong id once Weaver's spec id is equipped (see that function's doc
+ * comment). Falls back to `mainIds[2]` if the weapon type isn't in `WEAVER_WEAPON_3_SKILLS` (e.g.
+ * no main weapon chosen yet) rather than showing nothing.
  */
 export function weaponSkillIdsForPair(
   mainWeapon: ProfessionWeapon | undefined,
@@ -237,11 +400,19 @@ export function weaponSkillIdsForPair(
   equippedSpecializationIds: ReadonlySet<number> = new Set(),
   mainWeaponType?: string | null,
   offWeaponType?: string | null,
-  attunement?: string | null
+  attunement?: string | null,
+  previousAttunement?: string | null
 ): (number | null)[] {
   const mainIds = mainWeapon
     ? resolveSkillBarIds(mainWeapon.skills, environment, skillsById, equippedSpecializationIds, offWeaponType, attunement)
     : [null, null, null, null, null]
+  if (previousAttunement && attunement) {
+    const offIds = offWeapon
+      ? resolveSkillBarIds(offWeapon.skills, environment, skillsById, equippedSpecializationIds, mainWeaponType, previousAttunement)
+      : [null, null, null, null, null]
+    const dualAttackId = mainWeaponType ? weaverWeaponThreeSkillId(mainWeaponType, attunement, previousAttunement) : null
+    return [mainIds[0], mainIds[1], dualAttackId ?? mainIds[2], offIds[3], offIds[4]]
+  }
   const offIds = offWeapon
     ? resolveSkillBarIds(offWeapon.skills, environment, skillsById, equippedSpecializationIds, mainWeaponType, attunement)
     : [null, null, null, null, null]

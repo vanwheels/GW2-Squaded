@@ -7,6 +7,7 @@ import { professionMechanicBar } from '@shared/skill-calc/profession-mechanic'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '@shared/skill-calc/untamed-unleash'
 import { formatFactLine } from '@shared/gear-calc/relic-effects-format'
 import { isBoonName, isConditionName } from '@shared/boon-calc/constants'
+import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { SkillBarIcon } from './SkillBarIcon'
 import { factsBlock, FlipSkillStack, skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor'
@@ -15,17 +16,33 @@ interface Props {
   build: Build
   equippedSpecializationIds: ReadonlySet<number>
   onBuildChange: (
-    patch: Partial<Pick<Build, 'environment' | 'activeWeaponSet' | 'activeUnderwaterSet' | 'activeBundleSkillId' | 'rangerUnleashed'>>
+    patch: Partial<
+      Pick<Build, 'environment' | 'activeWeaponSet' | 'activeUnderwaterSet' | 'activeBundleSkillId' | 'rangerUnleashed' | 'weaverPreviousAttunement'>
+    >
   ) => void
   combatState: CombatState
   /** Renders the same underlying weapon-set derivation up to 4 times, split into the pieces the
    *  in-game skill bar keeps visually distinct (see `SkillsEditor`'s grid layout): `extras` is the
    *  editor-only display toggles with no live HUD equivalent (unleashed/bundle — Elementalist's
-   *  attunement toggle lives on `ProfessionMechanicBar`'s F1-F4 row instead, see that component's
-   *  doc comment) shown above the whole bar; `env` is a single combined Land/Underwater toggle icon
-   *  sitting above the weapon-swap icon; `swap` is the weapon-swap cycle icon itself, sitting
-   *  immediately left of the weapon skills; `weapon` is the resulting 1-5 icon row. */
+   *  *current* attunement toggle lives on `ProfessionMechanicBar`'s F1-F4 row instead, see that
+   *  component's doc comment; Weaver's *previous* attunement toggle lives here instead, since it has
+   *  no F-bar equivalent at all — see the `isWeaver` block below) shown above the whole bar;
+   *  `env` is a single combined Land/Underwater toggle icon sitting above the weapon-swap icon;
+   *  `swap` is the weapon-swap cycle icon itself, sitting immediately left of the weapon skills;
+   *  `weapon` is the resulting 1-5 icon row. */
   section: 'extras' | 'env' | 'swap' | 'weapon'
+}
+
+/** Fire/Water/Air/Earth in `ELEMENTALIST_ATTUNEMENT_SLOTS`' order, paired with the base Attunement
+ *  skill ids (5492-5495) `ProfessionMechanicBar`'s F1-F4 row already uses for the *current*
+ *  attunement — reused here for the *previous* attunement row's icons so both rows look identical
+ *  apart from which one they set. */
+const WEAVER_ATTUNEMENTS: readonly ['Fire', 'Water', 'Air', 'Earth'] = ['Fire', 'Water', 'Air', 'Earth']
+const WEAVER_ATTUNEMENT_SKILL_IDS: Record<(typeof WEAVER_ATTUNEMENTS)[number], number> = {
+  Fire: 5492,
+  Water: 5493,
+  Air: 5494,
+  Earth: 5495
 }
 
 /**
@@ -47,6 +64,14 @@ interface Props {
  * comment). Every equipped kit/tome/Shroud/Celestial-Avatar always contributes to boon/condition
  * totals regardless of this toggle (see `Build.activeBundleSkillId`'s doc comment) — this only
  * changes what's shown.
+ *
+ * For a Weaver, an extra "Previous Attunement" toggle row (same 4 Fire/Water/Air/Earth icons as
+ * `ProfessionMechanicBar`'s F1-F4 "current"-attunement row) sets `Build.weaverPreviousAttunement` —
+ * Weaver tracks two attunements at once, current (main-hand, weapon skills 1-2) and previous
+ * (off-hand, weapon skills 4-5), with weapon skill 3 a "Dual Attack" determined by both. See
+ * `Build.weaverPreviousAttunement`'s and `weapon-calc/weapon-skills.ts`'s doc comments for the full
+ * mechanic and how it's resolved; display-only like every toggle here, so `boon-calc/sources.ts`
+ * unions every reachable current/previous pair into totals regardless of what's shown.
  */
 export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange, combatState, section }: Props) {
   const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
@@ -63,6 +88,7 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
   const offWeapon = offType && profession ? profession.weapons[offType] : mainWeapon
 
   const isElementalist = build.profession === 'Elementalist'
+  const isWeaver = equippedSpecializationIds.has(WEAVER_SPEC_ID)
   const baseSkillIds = profession
     ? weaponSkillIdsForPair(
         mainWeapon,
@@ -72,7 +98,8 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
         equippedSpecializationIds,
         mainType ?? null,
         offType ?? null,
-        isElementalist ? build.activeAttunement : null
+        isElementalist ? build.activeAttunement : null,
+        isWeaver ? build.weaverPreviousAttunement : null
       )
     : []
   const hasAnyWeapon = mainWeapon !== undefined || offWeapon !== undefined
@@ -185,10 +212,33 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
   }
 
   if (section === 'extras') {
-    const hasExtras = unleashedId !== null || toggleRowIds.length > 0
+    const hasExtras = unleashedId !== null || toggleRowIds.length > 0 || isWeaver
     if (!hasExtras) return null
     return (
       <div className="ingame-skill-bar-extras">
+        {isWeaver && (
+          <div className="weaver-attunement-toggle-wrap">
+            <div className="skill-picker-header">Previous Attunement (off-hand — weapon skills 4-5, and Dual Attack with Current above)</div>
+            <div className="skill-bar">
+              {WEAVER_ATTUNEMENTS.map((attunement) => {
+                const skill = skillsById.get(WEAVER_ATTUNEMENT_SKILL_IDS[attunement])
+                const isActive = build.weaverPreviousAttunement === attunement
+                return (
+                  <button
+                    key={attunement}
+                    type="button"
+                    className={isActive ? 'skill-slot-button active' : 'skill-slot-button'}
+                    title={`Previous Attunement: ${attunement}`}
+                    onClick={() => onBuildChange({ weaverPreviousAttunement: attunement })}
+                  >
+                    {skill && <img src={skill.icon} alt={attunement} />}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
         {unleashedId !== null && (
           <div className="ingame-skill-bar-swap">
             <button

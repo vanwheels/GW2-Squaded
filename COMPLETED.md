@@ -2,6 +2,53 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 82 — Weaver dual-attunement weapon-skill-3 gap resolved
+
+Closed the long-standing documented limitation (TODO.md's "Skill picker follow-ups" + "Elementalist"
+UI-feedback-pass items, first flagged Session 32): Weaver's weapon-skill-3 "Dual Attack" replacements
+couldn't be disambiguated because the raw GW2 API's `attunement` field on a Dual Attack skill only
+ever encodes *one* of its two elements (e.g. Dagger's "Steam Surge"/"Plasma Burst"/"Ashen Blast" —
+Fire+Water/Fire+Air/Fire+Earth — are all tagged plain `Fire`), and the app had no concept of Weaver's
+second, "previous" attunement axis at all.
+
+- User explained the real mechanic (matches the wiki): Weaver tracks a **current** attunement
+  (weapon skills 1-2) and a **previous** one (weapon skills 4-5) simultaneously; weapon skill 3 is a
+  "Dual Attack" determined by the unordered pair of the two (order-independent — Fire+Water and
+  Water+Fire are the same skill), collapsing to the normal single-attunement skill 3 when attuned to
+  the same element twice.
+- Hand-verified, not guessed: cross-referenced the wiki's own Dual Attack skill table against
+  `data/game-data/skills.json`/`professions.json` to build a complete, real-id mapping — every
+  Weaver-usable weapon with a Weapon_3 slot (Dagger, Staff, Scepter, Sword, Hammer, Pistol, Spear,
+  Trident — the last 4 reachable via Weaponmaster Training, confirmed each still carries its own full
+  6-combo Dual Attack set) × 6 differing-element combos + 4 same-element defaults = 80 entries.
+  Discovered along the way: Sword's 4 same-element ids are themselves Weaver-exclusive (Sword has no
+  non-Weaver form), and Hammer's are Catalyst-spec-tagged but confirmed not actually Catalyst-gated
+  in-game (shared kit, just tagged with the spec that "owns" Hammer). New `WEAVER_WEAPON_3_SKILLS`
+  table + `weaverWeaponThreeSkillId` lookup in `weapon-calc/weapon-skills.ts`, bypassing
+  `resolveSkillBarIds`'s generic per-slot resolution for Weapon_3 specifically — that resolver's
+  `specializationId`-match step was actively picking a *wrong* id once Weaver's spec id was equipped,
+  even for the same-element case, since 2-3 Dual Attack ids usually share that element's tag too.
+- New `Build.weaverPreviousAttunement` field (`null` except when Weaver's equipped), same
+  "display-only, doesn't gate boon/condition totals" pattern as every other build-state toggle.
+  `weaponSkillIdsForPair` gained an optional `previousAttunement` param: when set, skills 1-2 resolve
+  off `attunement` (current) as before, skills 4-5 resolve off `previousAttunement` instead of
+  `attunement`, and skill 3 comes from the new table lookup.
+- New "Previous Attunement" toggle row in `WeaponSkillBar.tsx`'s `extras` section (Weaver-only, same
+  4 Fire/Water/Air/Earth icons as `ProfessionMechanicBar`'s existing F1-F4 "current" row), defaulting
+  to match `activeAttunement` (current === previous) whenever Weaver is newly equipped —
+  `BuildEditorView.tsx`'s profession-change and elite-spec-change handlers, `builds-store.tsx`'s
+  default-build factory, and its `normalizeBuild` backfill (for pre-existing saved Weaver builds)
+  all seed/reset it the same way `familiarId`/`thiefStolenSkillId` already do for their own specs.
+- `boon-calc/sources.ts`'s `weaponSkillIdsForBuild` now loops all 16 current×previous pairs for
+  Weaver (not just 4 single attunements) so boon/condition totals include every reachable Dual Attack
+  skill's facts, same "every reachable state contributes" reasoning already used for the 4-attunement
+  core-Elementalist loop and the land/underwater weapon-set loops — deduplicated (`[...new Set(...)]`)
+  since a differing-element pair's Dual Attack id is reachable via 2 orderings.
+- Verified via a standalone script (not committed): order-independence, 11 hand-picked combos across
+  all 8 weapons resolving to their correct wiki-verified names, and 3 full 5-slot bar resolutions
+  (Dagger/Dagger Fire+Water, Dagger/Dagger Fire+Fire, Staff Air+Earth) spot-checked against known
+  Fire/Water/Earth skill names on slots 1-2/4-5 — all passed. `typecheck`/`lint`/`build` all clean.
+
 ## Session 81 — Hand-curated the "Ascended Gourmet Feast" tier Session 80 flagged as unresolvable
 
 - User spotted, via an in-game screenshot: "Bowl of Fruit Salad with Mint Garnish" still showed its

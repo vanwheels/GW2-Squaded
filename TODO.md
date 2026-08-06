@@ -219,11 +219,6 @@ that before extending either further, and before the tooltip visual-pass item be
       dedicated look at whether they're genuine stale pre-rework duplicates or something else — don't
       wiki-id=-exclude them like the rest of the audit did, that heuristic already false-positived on
       this exact family once (COMPLETED.md Session 62).
-- [ ] Known limitation, documented in code (`weapon-calc/weapon-skills.ts`): Weaver's "Dual Attack"
-      weapon-skill-3 replacements (e.g. 3 different Fire-tagged ids sharing `specializationId: 56`)
-      can't be disambiguated — which one is live depends on Weaver's second active attunement, a
-      combat-state axis this app's static loadout model has no equivalent for. Falls back to the
-      first candidate deterministically.
 - [ ] Ranger Profession_4 "Eternal Bond" F-skill stays unresolved — no per-pet data exists for it
       (unlike Soulbeast's F1-F3, which resolve from `soulbeast-beastmode.json`).
 - [ ] Unconfirmed edge case: whether any skill has a distinctly different effect specifically on its
@@ -240,10 +235,6 @@ below has been implemented yet.
       (Heal/Utility/Elite choices), not to profession specialization, so the Firebrand-style F-icon
       click-toggle pattern doesn't map cleanly onto it. Keep the current text-toggle row for kits
       as-is for now; revisit later.
-
-### Elementalist
-- [ ] Weaver's weapon-skill-3 "Dual Attack" ambiguity — already tracked in "Skill picker follow-ups"
-      above and in `weapon-calc/weapon-skills.ts`; flagged again here as still open, no new action.
 
 ### Mesmer
 - [ ] Troubadour's "Tales" skills and Mirage's "Mirror" skills fall into the generic "Other" category

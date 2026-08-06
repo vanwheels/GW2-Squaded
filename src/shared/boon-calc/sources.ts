@@ -21,7 +21,7 @@ import type {
 } from '../types'
 import { isAuraName, isBoonName, isConditionName } from './constants'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '../gear-calc/attribute-totals'
-import { weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
+import { WEAVER_SPEC_ID, weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
 import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bundle-skills'
 import { professionMechanicBar, RANGER_BEASTMODE_SPEC_ID } from '../skill-calc/profession-mechanic'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash'
@@ -175,7 +175,13 @@ const ELEMENTALIST_ATTUNEMENTS = ['Fire', 'Water', 'Air', 'Earth'] as const
  *
  * For Elementalist, every attunement's own skill set contributes regardless of `Build.
  * activeAttunement` — same "both/all states always contribute" reasoning, since a real
- * Elementalist swaps attunement freely mid-fight (see `Build.activeAttunement`'s doc comment).
+ * Elementalist swaps attunement freely mid-fight (see `Build.activeAttunement`'s doc comment). For
+ * Weaver specifically, every *current+previous attunement pair* contributes (all 16 combinations,
+ * not just the 4 single attunements) — same reasoning, extended to Weaver's second axis, so every
+ * reachable Dual Attack skill's facts are included regardless of `Build.
+ * weaverPreviousAttunement`. Deduplicated (`[...new Set(...)]` below) since a differing-element
+ * pair's Dual Attack id is reachable via 2 orderings (Fire+Water and Water+Fire resolve to the same
+ * id, see `weaverWeaponThreeSkillId`) and would otherwise double-count that skill's sources.
  */
 function weaponSkillIdsForBuild(
   build: Build,
@@ -187,7 +193,13 @@ function weaponSkillIdsForBuild(
   if (!profession) return []
 
   const isUntamed = build.specializations.some((line) => line?.specializationId === UNTAMED_SPEC_ID)
-  const attunements: (string | null)[] = profession.id === 'Elementalist' ? [...ELEMENTALIST_ATTUNEMENTS] : [null]
+  const isWeaver = equippedSpecializationIds.has(WEAVER_SPEC_ID)
+  const attunementPairs: [string | null, string | null][] =
+    profession.id === 'Elementalist'
+      ? isWeaver
+        ? ELEMENTALIST_ATTUNEMENTS.flatMap((current) => ELEMENTALIST_ATTUNEMENTS.map((previous): [string, string] => [current, previous]))
+        : ELEMENTALIST_ATTUNEMENTS.map((a): [string, null] => [a, null])
+      : [[null, null]]
 
   const pairs: [EquipmentSlotKey, EquipmentSlotKey | null][] =
     build.environment === 'land'
@@ -207,7 +219,7 @@ function weaponSkillIdsForBuild(
     const mainWeapon = mainType ? profession.weapons[mainType] : undefined
     const offWeapon = offType ? profession.weapons[offType] : mainWeapon
     if (!mainWeapon && !offWeapon) continue
-    for (const attunement of attunements) {
+    for (const [current, previous] of attunementPairs) {
       for (const id of weaponSkillIdsForPair(
         mainWeapon,
         offWeapon,
@@ -216,7 +228,8 @@ function weaponSkillIdsForBuild(
         equippedSpecializationIds,
         mainType ?? null,
         offType ?? mainType ?? null,
-        attunement
+        current,
+        previous
       )) {
         if (id !== null) ids.push(id)
       }
@@ -226,7 +239,7 @@ function weaponSkillIdsForBuild(
       if (altId !== null) ids.push(altId)
     }
   }
-  return ids
+  return [...new Set(ids)]
 }
 
 /** Every id reachable from `startId` by following `Skill.flipSkill` (its own activated/toggled-off

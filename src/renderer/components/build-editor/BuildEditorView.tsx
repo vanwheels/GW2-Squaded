@@ -10,6 +10,7 @@ import type {
 } from '@shared/types'
 import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar'
 import { SPECTER_SPEC_ID } from '@shared/skill-calc/profession-mechanic'
+import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills'
 import { DEFAULT_COMBAT_STATE, type CombatState } from '@shared/gear-calc/combat-state'
 import { getBuildAutoTags } from '@shared/tags/auto-tags'
 import { useGameData } from '@renderer/state/game-data-store'
@@ -90,6 +91,17 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
       activePetIndex: 0,
       // Familiar is Elementalist Evoker-only, same reasoning as pets above.
       familiarId: profession === 'Elementalist' ? draft.familiarId : null,
+      // Weaver's "previous" attunement is Elementalist Weaver-only, same reasoning as pets above —
+      // landing directly on Weaver via `initialEliteSpecId` (a one-click cross-profession pick, see
+      // this function's own doc comment) defaults it to match `activeAttunement` (current ===
+      // previous) rather than carrying over the old profession's always-null value, same seeding
+      // `handleSpecializationsChange` does below for a same-profession pick.
+      weaverPreviousAttunement:
+        profession === 'Elementalist' && initialEliteSpecId === WEAVER_SPEC_ID
+          ? draft.activeAttunement
+          : profession === 'Elementalist'
+            ? draft.weaverPreviousAttunement
+            : null,
       // Stolen Skill is Thief-only, same reasoning as pets/familiar above.
       thiefStolenSkillId: profession === 'Thief' ? draft.thiefStolenSkillId : null
     })
@@ -139,11 +151,17 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
     }
 
     const familiarId = nextEquippedIds.has(EVOKER_SPECIALIZATION_ID) ? draft.familiarId : null
+    // Weaver's "previous" attunement: cleared when Weaver's dropped, seeded to match
+    // `activeAttunement` (current === previous) when it's newly picked up — see
+    // `Build.weaverPreviousAttunement`'s doc comment.
+    const weaverPreviousAttunement = nextEquippedIds.has(WEAVER_SPEC_ID)
+      ? (draft.weaverPreviousAttunement ?? draft.activeAttunement)
+      : null
     // Specter's own F2 "Enter Shadow Shroud" replaces the manually-picked Stolen Skill slot
     // entirely — see `Build.thiefStolenSkillId`'s doc comment.
     const thiefStolenSkillId = nextEquippedIds.has(SPECTER_SPEC_ID) ? null : draft.thiefStolenSkillId
 
-    setDraft({ ...draft, specializations, skills, equipment, familiarId, thiefStolenSkillId })
+    setDraft({ ...draft, specializations, skills, equipment, familiarId, weaverPreviousAttunement, thiefStolenSkillId })
   }
 
   /** `ProfessionSpecPicker`'s single combined onChoose — an elite spec from a different profession
