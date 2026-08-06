@@ -67,12 +67,10 @@ export function SquadsView() {
     return (
       <SquadCompEditorView
         squadComp={editing.squadComp}
-        isNew={editing.isNew}
-        onSave={async (squadComp) => {
+        onBack={async (squadComp) => {
           await (editing.isNew ? createSquadComp(squadComp) : updateSquadComp(squadComp))
           setEditing(null)
         }}
-        onCancel={() => setEditing(null)}
       />
     )
   }

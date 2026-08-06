@@ -20,8 +20,15 @@ export function App() {
             <NavBar active={activeView} onChange={setActiveView} />
             <main className="app-content">
               <PickerRegistryProvider>
-                {activeView === 'builds' && <BuildsView />}
-                {activeView === 'squads' && <SquadsView />}
+                {/* Builds/Squads stay mounted across tab switches (rather than unmounting like
+                    Settings) so each tab's in-progress editor screen — and its scroll/filter/drag
+                    state — is exactly as you left it when you switch back. */}
+                <div style={{ display: activeView === 'builds' ? 'contents' : 'none' }}>
+                  <BuildsView />
+                </div>
+                <div style={{ display: activeView === 'squads' ? 'contents' : 'none' }}>
+                  <SquadsView />
+                </div>
                 {activeView === 'settings' && <SettingsView />}
               </PickerRegistryProvider>
             </main>

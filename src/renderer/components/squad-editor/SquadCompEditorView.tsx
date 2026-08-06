@@ -12,15 +12,13 @@ import type { BuildDragPayload } from './drag-payload'
 
 interface Props {
   squadComp: SquadComp
-  isNew: boolean
-  onSave: (squadComp: SquadComp) => Promise<void>
-  onCancel: () => void
+  onBack: (squadComp: SquadComp) => Promise<void>
 }
 
 /** WvW's real squad cap is 50 players (10 parties of 5) — see TODO.md. */
 const MAX_PARTIES = 10
 
-export function SquadCompEditorView({ squadComp, isNew, onSave, onCancel }: Props) {
+export function SquadCompEditorView({ squadComp, onBack }: Props) {
   const [draft, setDraft] = useState<SquadComp>(squadComp)
   const [saving, setSaving] = useState(false)
   const { builds } = useBuildsStore()
@@ -109,10 +107,12 @@ export function SquadCompEditorView({ squadComp, isNew, onSave, onCancel }: Prop
     setDraft((prev) => ({ ...prev, parties: prev.parties.filter((_, i) => i !== partyIndex) }))
   }
 
-  async function handleSave(): Promise<void> {
+  /** Saves the current draft, then navigates back — there's no separate Save button; leaving the
+   *  editor is what commits the squad (see the "auto-save on back" behavior this replaced). */
+  async function handleBack(): Promise<void> {
     setSaving(true)
     try {
-      await onSave({ ...draft, updatedAt: new Date().toISOString() })
+      await onBack({ ...draft, updatedAt: new Date().toISOString() })
     } finally {
       setSaving(false)
     }
@@ -121,15 +121,14 @@ export function SquadCompEditorView({ squadComp, isNew, onSave, onCancel }: Prop
   return (
     <section className="squad-editor">
       <div className="view-header">
-        <button onClick={onCancel}>← Back</button>
+        <button onClick={() => void handleBack()} disabled={saving}>
+          {saving ? 'Saving…' : '← Back'}
+        </button>
         <input
           className="build-name-input"
           value={draft.name}
           onChange={(e) => setDraft({ ...draft, name: e.target.value })}
         />
-        <button onClick={() => void handleSave()} disabled={saving}>
-          {saving ? 'Saving…' : isNew ? 'Create squad' : 'Save'}
-        </button>
         <ScreenshotButton targetRef={bodyRef} />
         <SharePanel kind="squadComp" getData={buildSharePayload} />
       </div>

@@ -30,9 +30,7 @@ import { GearOptimizerPanel } from './GearOptimizerPanel'
 
 interface Props {
   build: Build
-  isNew: boolean
-  onSave: (build: Build) => Promise<void>
-  onCancel: () => void
+  onBack: (build: Build) => Promise<void>
 }
 
 const WEAPON_SLOT_KEYS: EquipmentSlotKey[] = ['weaponA1', 'weaponA2', 'weaponB1', 'weaponB2', 'weaponU1', 'weaponU2']
@@ -43,7 +41,7 @@ function clearedEquipment(equipment: Build['equipment']): Build['equipment'] {
   return next
 }
 
-export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
+export function BuildEditorView({ build, onBack }: Props) {
   const [draft, setDraft] = useState<Build>(build)
   const [saving, setSaving] = useState(false)
   const [combatState, setCombatState] = useState<CombatState>(DEFAULT_COMBAT_STATE)
@@ -52,7 +50,7 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
   const { showUnderwater } = useAppSettings()
   const columnsRef = useRef<HTMLDivElement>(null)
 
-  /** Display/calc-only view of `draft` — never passed to `onSave`. See `withUnderwaterSetting`'s
+  /** Display/calc-only view of `draft` — never passed to `onBack`. See `withUnderwaterSetting`'s
    *  doc comment: forces `environment: 'land'` when the Settings underwater toggle is off, so
    *  `StatsPanel`/`BoonConditionSummaryPanel`/`SkillsEditor` (and everything it renders underneath,
    *  `WeaponSkillBar`/`ProfessionMechanicBar`) all behave as if nothing were equipped underwater,
@@ -191,10 +189,12 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
     handleSpecializationsChange(nextSpecializations)
   }
 
-  async function handleSave(): Promise<void> {
+  /** Saves the current draft, then navigates back — there's no separate Save button; leaving the
+   *  editor is what commits the build (see the "auto-save on back" behavior this replaced). */
+  async function handleBack(): Promise<void> {
     setSaving(true)
     try {
-      await onSave({ ...draft, updatedAt: new Date().toISOString() })
+      await onBack({ ...draft, updatedAt: new Date().toISOString() })
     } finally {
       setSaving(false)
     }
@@ -203,15 +203,14 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
   return (
     <section className="build-editor">
       <div className="view-header">
-        <button onClick={onCancel}>← Back</button>
+        <button onClick={() => void handleBack()} disabled={saving}>
+          {saving ? 'Saving…' : '← Back'}
+        </button>
         <input
           className="build-name-input"
           value={draft.name}
           onChange={(e) => setDraft({ ...draft, name: e.target.value })}
         />
-        <button onClick={() => void handleSave()} disabled={saving}>
-          {saving ? 'Saving…' : isNew ? 'Create build' : 'Save'}
-        </button>
         <ScreenshotButton targetRef={columnsRef} />
         <SharePanel kind="build" getData={() => draft} />
       </div>

@@ -50,12 +50,10 @@ export function BuildsView() {
     return (
       <BuildEditorView
         build={editing.build}
-        isNew={editing.isNew}
-        onSave={async (build) => {
+        onBack={async (build) => {
           await (editing.isNew ? createBuild(build) : updateBuild(build))
           setEditing(null)
         }}
-        onCancel={() => setEditing(null)}
       />
     )
   }
