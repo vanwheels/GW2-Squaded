@@ -10,6 +10,9 @@ User-facing release notes. For the detailed development log, see `COMPLETED.md`.
   raw Vitality/Toughness/Precision/Ferocity), pick up to 3 ranked stats to maximize, and it
   searches the full legal gear stat-combo pool — derived from the game's own Legendary Armory
   data — for the best prefix per slot. Optional toggle to also search food/utility choices.
+- **Early stage — not yet reliable.** This is a first pass at the feature and doesn't function
+  correctly yet; treat its suggestions as experimental rather than trustworthy until a
+  follow-up fixes it.
 
 ### Stats accuracy
 - Traits that grant a flat attribute bonus or convert one attribute into another (e.g.

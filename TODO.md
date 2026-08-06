@@ -4,6 +4,13 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Next up
 
+- [ ] **Gear Optimizer doesn't function properly yet** — flagged by the user 2026-08-05 while
+      preparing the 0.2.0 release (shipped anyway, marked "early stage/experimental" in
+      CHANGELOG.md rather than held back, per the user's own framing). No specific failure
+      mode captured yet — next session should reproduce live (Electron sandbox limitation
+      applies, see memory) and narrow down whether it's a search-algorithm bug, a UI wiring
+      issue, or something in the floor/maximize-tier translation before attempting a fix.
+
 - [ ] **Racial skills should be toggleable (show/hide) in the skill pickers, eventually as a settings
       option** — noted by the user 2026-08-04 while doing the Elite-slot Damage sweep, using
       Artillery Barrage as the example (a Norn racial elite, not a real Guardian/Warrior/etc. skill —
