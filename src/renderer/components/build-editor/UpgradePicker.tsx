@@ -80,7 +80,10 @@ interface Props<T extends number | string = number> {
  * tooltip text for every category — runes' bonus lines, sigils'/relics' effect text, food/utility
  * buff text — so a keyword like "Stun" or "Heal" searches the actual tooltip, not just the item
  * name); `#<word>` instead matches only `statKeywords`, the caller-supplied list of stats-panel
- * attribute names (e.g. "Power", "Concentration") this option affects. The `#` mode exists
+ * attribute names (e.g. "Power", "Concentration") this option affects — a *prefix* match on each
+ * name (not substring), so "#power" doesn't also surface "Healing Power" the way a substring
+ * match would (bug found 2026-08-06); "#heal" still reaches "Healing Power" via its own prefix.
+ * The `#` mode exists
  * alongside plain search rather than being subsumed by it because `statKeywords` is resolved
  * through this app's own attribute-name conventions (e.g. a rune bonus's raw "+5% Boon Duration"
  * text resolves to "Concentration", matching the Stats panel) and catches bonuses no substring of
@@ -111,7 +114,7 @@ export function UpgradePicker<T extends number | string = number>({
     statQuery !== null
       ? statQuery === ''
         ? options
-        : options.filter((o) => o.statKeywords?.some((k) => k.toLowerCase().includes(statQuery)))
+        : options.filter((o) => o.statKeywords?.some((k) => k.toLowerCase().startsWith(statQuery)))
       : query
         ? options.filter((o) => o.name.toLowerCase().includes(query) || o.description?.toLowerCase().includes(query))
         : options
