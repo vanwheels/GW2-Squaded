@@ -2,6 +2,41 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 74 — `CURATED_DAMAGE_COEFFICIENTS` full category sweep COMPLETE across all 9 professions (Heal/Elite/Utility/Weapon-slot)
+
+Finished the last leg (Weapon-slot's Mesmer profession) of the sweep started 2026-08-04, closing out
+the whole `CURATED_DAMAGE_COEFFICIENTS` category sweep alongside the earlier `CURATED_HEALING_COEFFICIENTS`
+and `CURATED_BARRIER_COEFFICIENTS` sweeps. Final scope: Heal-slot (7 raw candidates, 5 curated),
+Elite-slot (48 raw, all curated), Utility-slot (220 raw, curated across all 9 professions), Weapon-slot
+(919 raw, by far the largest — swept one profession at a time per explicit user pacing request, landing
+and checking in after each leg rather than chaining background agents leg-to-leg). Full per-profession
+counts, exclusions, and the many wiki/API traps surfaced along the way (duplicate-id picker bugs,
+non-player-scaling turret/pet/minion/spirit exclusions, flip-architecture gaps, trait-duplicated-fact
+collisions, PvE/WvW/PvP split shapes) are preserved permanently in each file's own block comments
+(`damage-calc.ts`, `healing-calc.ts`) rather than restated here — TODO.md's superseded writeup for this
+item has been removed now that the sweep is done.
+
+Mesmer's own Weapon-slot leg (this session): 56 raw candidate ids from `professions.json`'s weapon
+lists, expanded to 77 via full `flipSkill` chain walks, 67 carrying a genuine Damage fact; 1 already
+seeded (Illusionary Wave, re-verified unchanged); 69 curated total after finding 2 more real candidates
+(Mind Spike id `10172`, Mind Pierce id `73095`) that are missing from both `professions.json`'s own
+weapon list *and* unreachable via `flipSkill` — the 2nd-stage skill in each of their 3-stage chains has a
+null `flipSkill` in this app's game-data despite the wiki confirming a real 3rd stage exists, found only
+by cross-checking each fetched chain's own wiki `chain3=` param against the candidate set. New mechanic
+this leg: **Mesmer phantasm weapon strength** — phantasms use their own fixed weapon-strength tier
+(`phantasm high`/`medium`/`low` = 2877.0/2615.5/2553.5, 3 new `WEAPON_STRENGTH_MIDPOINTS` entries sourced
+from the wiki's own `Template:Damage_calculation`, which the public Weapon Strength page omits entirely)
+while still scaling off the caster's own Power, unlike Ranger Spirits/Necromancer minions' non-player-
+scaling case — confirmed by reproducing several skills' own wiki-quoted totals under this table's
+standard formula. Also applied Infinite Forge (2206, Virtuoso's "blade attacks deal more damage" trait,
++7% PvE/+10% WvW+PvP) to every Dagger/Greatsword blade-tagged fact, and Empowered Illusions (682, flat
++15% phantasm damage, already used in the Utility-slot sweep) to this leg's phantasm-summon facts. Left
+a known loose end in TODO.md: the Utility-slot sweep's own Phantasmal Disenchanter/Defender entries used
+`weapon: 'unequipped'` for the same no-`weapon=`-key shape this leg's phantasms exhibit, without the
+back-calculation check that would have caught the real phantasm tier — likely wrong, not revised here
+since it's outside this leg's own scope. Typecheck and lint both clean; verified all 69 ids present with
+no duplicate keys via a throwaway script before committing.
+
 ## Session 73 — Fixed the skill-variants picker gap: Elementalist's "Lesser Fiery Eruption" was reaching the live Elite picker as its own bindable skill
 
 TODO.md's open item (found 2026-08-04 during the `CURATED_DAMAGE_COEFFICIENTS` Elite-slot sweep)

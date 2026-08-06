@@ -61,7 +61,30 @@ export const WEAPON_STRENGTH_MIDPOINTS: Record<string, number> = {
   // Bundle midpoint as `kit` above (the wiki's own "most bundles, kits, conjures etc. share the same
   // unique weapon strength" quote), kept as its own key purely to match what each skill's own wikitext
   // literally says, same "separate key, same value" precedent as `spear`/`harpoon gun`/`trident` above.
-  conjure: 968.5
+  conjure: 968.5,
+  // Mesmer phantasm weapon-slot skills (Phantasmal Berserker/Duelist/Lancer/Mariner/Mage/Warlock/
+  // Whaler/Warden etc., Weapon-slot sweep's Mesmer leg, 2026-08-05) — phantasms use their own fixed
+  // weapon strength, wholly independent of the caster's actual equipped weapon (per the wiki's own
+  // Phantasm page: "Phantasms use their own weapon's weapon strength that is independent of their
+  // owner's equipped weapon," yet ARE still scaled by the caster's own Power, unlike Ranger
+  // Spirits/Necromancer minions' non-player-scaling case — confirmed both via that same page's "unaffected
+  // by their own Might, as they inherit the main stats of the Mesmer itself" and by every value below
+  // reproducing the wiki's own quoted totals under this table's standard `weaponStrength * coefficient *
+  // Power / Armor` formula). 3 tiers, sourced from the wiki's own `Template:Damage_calculation` (the
+  // MediaWiki template `{{skill fact|damage}}` itself expands `weapon=phantasm high/medium/low` into —
+  // NOT the public Weapon Strength page, which omits Phantasms entirely; `pet wyvern` shares the exact
+  // `phantasm medium` value in that same template, unrelated to this profession). Some Phantasmal
+  // skills' own wikitext uses these keys directly (e.g. Phantasmal Berserker's `weapon=phantasm high`);
+  // others instead hardcode an already-computed total with no `weapon=` key at all (e.g. Phantasmal
+  // Warden's `strikes=12|1668|coefficient=1.656`) — for those, the bucket below was confirmed by
+  // reproducing the wiki's own quoted total from the formula (e.g. Warden: 2615.5 * 1000 * 1.656 / 12 /
+  // 2597 ≈ 139/hit * 12 = 1668, exactly matching). **Note**: the Utility-slot sweep's own Phantasmal
+  // Disenchanter/Defender entries (2026-08-04, above) used `unequipped` for this same
+  // no-`weapon=`-key shape without this back-calculation check — likely wrong by this same reasoning,
+  // logged as a known loose end in TODO.md rather than revised here (out of scope for this leg).
+  'phantasm high': 2877.0,
+  'phantasm medium': 2615.5,
+  'phantasm low': 2553.5
 }
 
 /**
@@ -3227,7 +3250,353 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Lightning Hammer — Lightning Hammer 5, Static Field. No split.
   5732: [{ factText: 'Damage', coefficient: 0.5, weapon: 'conjure' }],
 
-  // Weapon-slot sweep: Warrior, Guardian, Revenant, Ranger, Thief, Engineer, Necromancer, Elementalist done (8 of 9).
+  // Mesmer — the last profession in the Weapon-slot sweep, 2026-08-05. 56 raw candidate ids from every
+  // weapon type's own `profession.weapons` entries, expanded to 77 by walking each raw id's own
+  // `flipSkill` chain (same "walk chains, not just the picker-resolved bar id" approach the Revenant leg
+  // established) — 67 of the 77 carry a genuine Damage fact. 1 already seeded (Illusionary Wave 10220,
+  // re-verified unchanged). **2 more real candidates found only by cross-checking each chain's own wiki
+  // `chain1=`/`chain2=`/`chain3=` params against what `flipSkill` actually walks**: Mind Spike (10172,
+  // Sword 1's 3rd chain stage) and Mind Pierce (73095, Spear 1's 3rd chain stage) are both missing from
+  // `professions.json`'s own weapon list AND unreachable via `flipSkill`, because the 2nd-stage skill in
+  // each chain (Mind Gash 10171, Psystrike 73066) has a null `flipSkill` in this app's own game-data
+  // despite the wiki confirming a real 3rd stage exists — a genuine data gap, not a curation choice; both
+  // found by grep'ing every fetched chain skill's own wikitext for a `chain3=` name with no matching
+  // candidate id, then confirmed as real equippable skills via their own wiki `id=` field. 69 total ids
+  // curated below (67 + these 2), 0 exclusions. Fetched all wiki pages directly via `curl` against the
+  // raw-wikitext endpoint (network access from this environment reaches the wiki directly), so no
+  // summarizing intermediary touched any curated number.
+  // **New mechanics this leg**: (1) **Phantasm weapon strength** — see the 3 new `phantasm high/medium/
+  // low` `WEAPON_STRENGTH_MIDPOINTS` entries above for the full writeup; this leg's 10 phantasm-summoning
+  // skills (Warden, Berserker, Duelist, Mariner, Lancer, Warlock, Swordsman, Mage, Whaler use one of
+  // those 3 tiers; Sharpshooter is the one exception, using the caster's own `weapon=rifle` instead of a
+  // phantasm tier — taken as literally as every other skill's wikitext, not "corrected" to match the
+  // other 9). (2) **Infinite Forge (2206)** — a Virtuoso Grandmaster trait, "Blade attacks deal more
+  // damage" (+7% PvE/+10% WvW+PvP, patched down from a flat +10%/+10% on 2025-02-11 PvE-only) — applies
+  // to every Dagger weapon-skill Damage fact (all 3 of Flying Cutter/Bladecall/Unstable Bladestorm carry
+  // the wiki's own `{{skill fact|blade}}` marker) AND, via the separate Psychic Blades trait converting
+  // them into blade attacks too, every Greatsword weapon-skill Damage fact that carries a `| missing
+  // facts = {{skill fact|blade}} <!-- with Psychic Blades -->` note (Mirror Blade, Mind Stab, Phantasmal
+  // Berserker's own Greatsword Damage line, but NOT its Phantasm Damage line, which instead gets (3)
+  // below) — computed the same `requiresTrait`-matching way as the Utility-slot sweep's Empowered
+  // Illusions cases, `baseCoefficient * 1.10` (the WvW+PvP rate, since this table always stores the
+  // WvW+PvP value) rather than the API's own often-stale `dmg_multiplier` (confirmed stale on the PvE
+  // side alone in several cases below — e.g. Mind Stab's local traited PvE multiplier implies the old
+  // flat +10%, not the current +7% — but the WvW-side number this table actually stores matched the
+  // *current* +10% rate in every case checked, API staleness or not). (3) **Empowered Illusions (682)**
+  // — the same flat +15%-phantasm-damage trait already seen in the Utility-slot sweep, gating this leg's
+  // 10 phantasm-summoning skills' own Damage facts (all except Phantasmal Lancer and Sharpshooter — both
+  // confirmed via a live `/v2/skills/<id>` pull to have no `traited_facts` at all, not just a curation
+  // oversight) plus, unexpectedly, the 2 Axe/Dagger duplicate-id pairs below with a `type=phantasm`-
+  // adjacent clone mechanic (Bladecall, Unstable Bladestorm — those get Infinite Forge instead, per (2)
+  // above, not Empowered Illusions; no skill this leg carries both). (4) **Duplicate-id pairs sharing an
+  // identical coefficient**: Lingering Thoughts (45243 base/Mirage, 69344 Troubadour-or-Virtuoso variant
+  // via Weaponmaster Training) and Axes of Symmetry (69385/43761, same split) and Bladecall (62560
+  // Virtuoso/69311 non-Virtuoso) each resolve to the exact same wiki-quoted coefficient(s) regardless of
+  // which id a given build's picker lands on — both ids curated identically rather than picked apart, no
+  // `skill-variant-exclusions.json`-style picker fix needed since the numbers don't actually differ. (5)
+  // **3-way PvE/WvW/PvP splits** (rather than the usual PvE/WvW+PvP-combined): Split Surge, Journey,
+  // Abstraction, Mental Collapse — WvW value used in every case, same policy as every 2-way split. (6)
+  // Two API-invisible "anomaly" Damage facts, confirmed via each skill's own wiki page as real but
+  // explicitly NOT part of the in-game tooltip (and absent from the API's own `facts`/`traitedFacts`, so
+  // curating them would be a no-op): Phantasmal Swordsman's "Phantasm Blurred Frenzy" second hit, and
+  // Phantasmal Mage's own "Torch Strike Damage" self-hit — left uncurated, same treatment as an
+  // unmatched fact anywhere else in this table.
+  // Axe (Mirage weapon skills).
+  // Lacerating Chop — chain 1/3, Axe 1. PvE/WvW+PvP split 0.55/0.366. WvW value used.
+  44791: [{ factText: 'Damage', coefficient: 0.366, weapon: 'axe' }],
+  // Ethereal Chop — chain 2/3. Same split as Lacerating Chop.
+  44840: [{ factText: 'Damage', coefficient: 0.366, weapon: 'axe' }],
+  // Mirror Strikes — chain 3/3. `strikes=2` present -> wiki totaled. Same split shape, WvW 0.732.
+  41164: [{ factText: 'Damage', coefficient: 0.732, weapon: 'axe' }],
+  // Lingering Thoughts — Axe 2. `strikes=3` present -> wiki totaled, 1.2. No PvE/WvW split. Duplicate-id
+  // pair (45243 base/Mirage, 69344 Troubadour/Virtuoso via Weaponmaster Training) — identical coefficient
+  // both ids, both curated.
+  45243: [{ factText: 'Damage', coefficient: 1.2, weapon: 'axe' }],
+  69344: [{ factText: 'Damage', coefficient: 1.2, weapon: 'axe' }],
+  // Axes of Symmetry — Axe 3. PvE/WvW+PvP split 1.75/1.25. WvW value used. Duplicate-id pair (43761
+  // base/Mirage, 69385 Virtuoso/Troubadour) — identical coefficient both ids, both curated.
+  43761: [{ factText: 'Damage', coefficient: 1.25, weapon: 'axe' }],
+  69385: [{ factText: 'Damage', coefficient: 1.25, weapon: 'axe' }],
+  // Dagger (Virtuoso weapon skills).
+  // Flying Cutter — Dagger 1. 2 Damage facts: main (PvE/WvW+PvP split 0.5/0.35) and "Flurry Damage"
+  // (`strikes=3` totaled, 0.6, no split). WvW value used for main. Infinite Forge (2206) trait-gated
+  // variants (both facts carry the `blade` marker): main 0.35*1.10=0.385, flurry 0.6*1.10=0.66.
+  62510: [
+    { factText: 'Damage', coefficient: 0.35, weapon: 'dagger' },
+    { factText: 'Flurry Damage', coefficient: 0.6, weapon: 'dagger' },
+    { factText: 'Damage', coefficient: 0.385, weapon: 'dagger', requiresTrait: 2206 },
+    { factText: 'Flurry Damage', coefficient: 0.66, weapon: 'dagger', requiresTrait: 2206 }
+  ],
+  // Phantom Razor — Ambush replacement for Flying Cutter. `strikes=3` present -> wiki totaled. PvE/WvW+PvP
+  // split 3.0/1.49. WvW value used. No `blade` marker on this one -> no Infinite Forge variant.
+  69389: [{ factText: 'Damage', coefficient: 1.49, weapon: 'dagger' }],
+  // Bladecall — Dagger 2. 2 Damage facts (Outgoing/Returning), PvE/WvW+PvP split 0.25/0.1 (Outgoing) and
+  // 0.25/0.5 (Returning, WvW *higher* than PvE — a rare inverted split). WvW values used. Infinite Forge
+  // (2206) trait-gated variants: Outgoing 0.1*1.10=0.11, Returning 0.5*1.10=0.55. Duplicate-id pair (62560
+  // Virtuoso, 69311 non-Virtuoso via Weaponmaster Training) — identical coefficients both ids, both
+  // curated.
+  62560: [
+    { factText: 'Outgoing Damage', coefficient: 0.1, weapon: 'dagger' },
+    { factText: 'Returning Damage', coefficient: 0.5, weapon: 'dagger' },
+    { factText: 'Outgoing Damage', coefficient: 0.11, weapon: 'dagger', requiresTrait: 2206 },
+    { factText: 'Returning Damage', coefficient: 0.55, weapon: 'dagger', requiresTrait: 2206 }
+  ],
+  69311: [
+    { factText: 'Outgoing Damage', coefficient: 0.1, weapon: 'dagger' },
+    { factText: 'Returning Damage', coefficient: 0.5, weapon: 'dagger' },
+    { factText: 'Outgoing Damage', coefficient: 0.11, weapon: 'dagger', requiresTrait: 2206 },
+    { factText: 'Returning Damage', coefficient: 0.55, weapon: 'dagger', requiresTrait: 2206 }
+  ],
+  // Unstable Bladestorm — Dagger 3. 2 Damage facts ("Storm Damage"/"Blade Damage"), PvE/WvW+PvP split
+  // 0.25/0.40 (Storm, inverted like Bladecall's Returning) and 0.5/0.10 (Blade). WvW values used.
+  // Infinite Forge (2206) trait-gated variants: Storm 0.40*1.10=0.44, Blade 0.10*1.10=0.11.
+  62607: [
+    { factText: 'Storm Damage', coefficient: 0.4, weapon: 'dagger' },
+    { factText: 'Blade Damage', coefficient: 0.1, weapon: 'dagger' },
+    { factText: 'Storm Damage', coefficient: 0.44, weapon: 'dagger', requiresTrait: 2206 },
+    { factText: 'Blade Damage', coefficient: 0.11, weapon: 'dagger', requiresTrait: 2206 }
+  ],
+  // Focus.
+  // Phantasmal Warden — Focus 5. `strikes=12` present -> wiki totaled, no `weapon=` key (raw total
+  // 1668/1212) -> back-calculated to `phantasm medium` (see that key's own doc comment). PvE/WvW+PvP
+  // split 1.656/1.2. WvW value used. Empowered Illusions (682) trait-gated variant: 1.2*1.15=1.38.
+  10282: [
+    { factText: 'Damage', coefficient: 1.2, weapon: 'phantasm medium' },
+    { factText: 'Damage', coefficient: 1.38, weapon: 'phantasm medium', requiresTrait: 682 }
+  ],
+  // Greatsword.
+  // Spatial Surge — Greatsword 1. 2 Damage facts (Maximum/Minimum), both `strikes=3` totaled. PvE/WvW+PvP
+  // split 1.1/0.669 (Maximum) and 0.8/0.45 (Minimum). WvW values used.
+  10219: [
+    { factText: 'Maximum Damage', coefficient: 0.669, weapon: 'greatsword' },
+    { factText: 'Minimum Damage', coefficient: 0.45, weapon: 'greatsword' }
+  ],
+  // Split Surge — Mirage's Ambush replacement for Spatial Surge. `strikes=3` totaled. Rare 3-way split:
+  // PvE 3.1875 / WvW 1.08 / PvP 1.35 (WvW and PvP given as independent values, not combined). WvW used.
+  44241: [{ factText: 'Damage', coefficient: 1.08, weapon: 'greatsword' }],
+  // Mirror Blade — Greatsword 2. 2 Damage facts (Maximum/Minimum Damage), no `strikes=` (single hit each).
+  // PvE/WvW+PvP split 2.5/0.75 (Maximum) and 0.4437/0.1923 (Minimum). WvW values used. Infinite Forge
+  // (2206) trait-gated variant on Maximum Damage only (via Psychic Blades' hidden `blade` conversion,
+  // per the "missing facts" note on this skill's wiki page): 0.75*1.10=0.825.
+  10333: [
+    { factText: 'Maximum Damage', coefficient: 0.75, weapon: 'greatsword' },
+    { factText: 'Minimum Damage', coefficient: 0.1923, weapon: 'greatsword' },
+    { factText: 'Maximum Damage', coefficient: 0.825, weapon: 'greatsword', requiresTrait: 2206 }
+  ],
+  // Mind Stab — Greatsword 3. PvE/WvW+PvP split 1.8/1.0. WvW value used. Infinite Forge (2206) trait-gated
+  // variant (same Psychic Blades hidden-`blade` shape as Mirror Blade): 1.0*1.10=1.1.
+  10218: [
+    { factText: 'Damage', coefficient: 1.0, weapon: 'greatsword' },
+    { factText: 'Damage', coefficient: 1.1, weapon: 'greatsword', requiresTrait: 2206 }
+  ],
+  // Phantasmal Berserker — Greatsword 4. 2 Damage facts: "Phantasm Damage" (`strikes=4` totaled,
+  // `weapon=phantasm high`, PvE/WvW+PvP split 1.2/0.6) and "Greatsword Damage" (the mesmer's own thrown
+  // sword, PvE/WvW+PvP split 1.2/0.4). WvW values used. Empowered Illusions (682) trait-gated variant on
+  // Phantasm Damage: 0.6*1.15=0.69. Infinite Forge (2206) trait-gated variant on Greatsword Damage (same
+  // Psychic Blades hidden-`blade` shape as Mind Stab/Mirror Blade): 0.4*1.10=0.44.
+  10221: [
+    { factText: 'Phantasm Damage', coefficient: 0.6, weapon: 'phantasm high' },
+    { factText: 'Greatsword Damage', coefficient: 0.4, weapon: 'greatsword' },
+    { factText: 'Phantasm Damage', coefficient: 0.69, weapon: 'phantasm high', requiresTrait: 682 },
+    { factText: 'Greatsword Damage', coefficient: 0.44, weapon: 'greatsword', requiresTrait: 2206 }
+  ],
+  // Spear.
+  // Psycut — chain 1/3, Spear 1 (the Mesmer's own Janthir Wilds spear kit). PvE/WvW+PvP split 1.0/0.5.
+  // WvW value used.
+  73154: [{ factText: 'Damage', coefficient: 0.5, weapon: 'spear' }],
+  // Psystrike — chain 2/3. Same split as Psycut.
+  73066: [{ factText: 'Damage', coefficient: 0.5, weapon: 'spear' }],
+  // Mind Pierce — chain 3/3. Missing from `professions.json`'s weapon list AND unreachable via
+  // `flipSkill` (Psystrike's own `flipSkill` is null in this app's game-data despite the wiki confirming
+  // this 3rd stage exists) — found only by cross-checking the chain's own wiki `chain3=` param, see this
+  // leg's own block-comment intro. PvE/WvW+PvP split 1.5/1.0. WvW value used.
+  73095: [{ factText: 'Damage', coefficient: 1.0, weapon: 'spear' }],
+  // Stab — chain 1/3 of the older, non-Mesmer-specific cross-profession spear autoattack (shares Spear 1
+  // with Psycut's chain above; which one a given build's picker resolves to doesn't affect either chain's
+  // own coefficients). No split.
+  10315: [{ factText: 'Damage', coefficient: 0.8, weapon: 'spear' }],
+  // Jab — chain 2/3. No split.
+  10316: [{ factText: 'Damage', coefficient: 0.9, weapon: 'spear' }],
+  // Evasive Strike — chain 3/3. No split.
+  10317: [{ factText: 'Damage', coefficient: 1.0, weapon: 'spear' }],
+  // Mind the Gap — Spear 2. PvE/WvW+PvP split 1.6/1.4. WvW value used. (Skill also has a conditional
+  // "Outer-Edge Damage Increase" +20%/+10% fact — a `Percent`-type bonus, not a distinct Damage fact,
+  // same out-of-scope shape as this table's other unmodeled conditional-hit-location bonuses.)
+  73093: [{ factText: 'Damage', coefficient: 1.4, weapon: 'spear' }],
+  // Feigned Surge — Ambush replacement for Mind the Gap. No split.
+  10318: [{ factText: 'Damage', coefficient: 2.4, weapon: 'spear' }],
+  // Imaginary Inversion — Spear 3. PvE/WvW+PvP split 2.4/1.4. WvW value used.
+  73152: [{ factText: 'Damage', coefficient: 1.4, weapon: 'spear' }],
+  // Phantasmal Mariner — Spear 3 (older cross-profession skill sharing this slot with Imaginary Inversion
+  // above). 3 Damage facts: "Damage" (the phantasm's own 7-strike flurry, `strikes=7` totaled, no
+  // `weapon=` key -> back-calculated to `phantasm low`, no split) 0.7; "Final Strike Damage" (same
+  // phantasm, no split) 0.4; "Evasive Strike Damage" (the mesmer's own initial hit, `weapon=spear`, no
+  // split) 0.8. Empowered Illusions (682) trait-gated variants on the 2 phantasm facts only (confirmed
+  // absent on Evasive Strike Damage, the mesmer's own hit): Damage 0.7*1.15=0.805, Final Strike Damage
+  // 0.4*1.15=0.46.
+  10251: [
+    { factText: 'Damage', coefficient: 0.7, weapon: 'phantasm low' },
+    { factText: 'Final Strike Damage', coefficient: 0.4, weapon: 'phantasm low' },
+    { factText: 'Evasive Strike Damage', coefficient: 0.8, weapon: 'spear' },
+    { factText: 'Damage', coefficient: 0.805, weapon: 'phantasm low', requiresTrait: 682 },
+    { factText: 'Final Strike Damage', coefficient: 0.46, weapon: 'phantasm low', requiresTrait: 682 }
+  ],
+  // Phantasmal Lancer — Spear 4. 2 Damage facts: "Damage" (the mesmer's own initial dash hit, `weapon=
+  // spear`, no split) 1.0; "Phantasm Damage" (`weapon=phantasm high` explicit in this skill's own
+  // wikitext, PvE+WvW/PvP 3-way split 0.6/0.6/0.4 — PvE and WvW share the same value here) 0.6. No
+  // Empowered Illusions (682) variant — confirmed absent both in this app's game-data and via a live
+  // `/v2/skills/72946` pull.
+  72946: [
+    { factText: 'Damage', coefficient: 1.0, weapon: 'spear' },
+    { factText: 'Phantasm Damage', coefficient: 0.6, weapon: 'phantasm high' }
+  ],
+  // Slipstream — Spear 4 (older cross-profession skill sharing this slot with Phantasmal Lancer above).
+  // No split.
+  10325: [{ factText: 'Damage', coefficient: 0.55, weapon: 'spear' }],
+  // Mental Collapse — Spear 5. `strikes=3` totaled. Rare 3-way split: PvE 3.0 / WvW 1.8 / PvP 1.2. WvW
+  // value used.
+  72957: [{ factText: 'Damage', coefficient: 1.8, weapon: 'spear' }],
+  // Vortex — Spear 5 (older cross-profession skill sharing this slot with Mental Collapse above).
+  // `strikes=9` totaled. No split.
+  10255: [{ factText: 'Damage', coefficient: 3.6, weapon: 'spear' }],
+  // Pistol.
+  // Phantasmal Duelist — Pistol 4. 2 Damage facts: "Damage" (the mesmer's own 3-bullet volley,
+  // `strikes=3` totaled, `weapon=pistol`, no split) 0.33; "Illusion Damage" (the phantasm's own 8-strike
+  // volley, `strikes=8` totaled, no `weapon=` key -> back-calculated to `phantasm medium`, PvE/WvW+PvP
+  // split 0.92/0.8) 0.8, WvW value used. Empowered Illusions (682) trait-gated variant on Illusion Damage
+  // only: 0.8*1.15=0.92.
+  10175: [
+    { factText: 'Damage', coefficient: 0.33, weapon: 'pistol' },
+    { factText: 'Illusion Damage', coefficient: 0.8, weapon: 'phantasm medium' },
+    { factText: 'Illusion Damage', coefficient: 0.92, weapon: 'phantasm medium', requiresTrait: 682 }
+  ],
+  // Magic Bullet — Pistol 5. PvE/WvW+PvP split 0.2/0.01. WvW value used.
+  10229: [{ factText: 'Damage', coefficient: 0.01, weapon: 'pistol' }],
+  // Rifle.
+  // Friendly Fire — Rifle 1. PvE/WvW+PvP split 0.5/0.3. WvW value used.
+  71892: [{ factText: 'Damage', coefficient: 0.3, weapon: 'rifle' }],
+  // Effervescence — Mirage's Ambush replacement for Friendly Fire. `strikes=4` totaled. PvE/WvW+PvP split
+  // 2.5/1.2. WvW value used.
+  71800: [{ factText: 'Damage', coefficient: 1.2, weapon: 'rifle' }],
+  // Journey — Rifle 2. Rare 3-way split: PvE 1.5 / WvW 1.1 / PvP 0.87. WvW value used.
+  71897: [{ factText: 'Damage', coefficient: 1.1, weapon: 'rifle' }],
+  // Abstraction — chain 2/2 (Inspiring Imagery, Rifle 3, has no Damage fact of its own). Rare 3-way
+  // split: PvE 1.81 / WvW 1.35 / PvP 1.0. WvW value used.
+  72076: [{ factText: 'Damage', coefficient: 1.35, weapon: 'rifle' }],
+  // Phantasmal Sharpshooter — Rifle 4. PvE/WvW split 1.0/0.01 — unlike this leg's other 9 phantasm
+  // skills, this one's own wikitext uses `weapon=rifle` (the caster's real weapon) rather than one of the
+  // 3 phantasm tiers, taken literally rather than "corrected" to match the others. WvW value used.
+  72007: [{ factText: 'Damage', coefficient: 0.01, weapon: 'rifle' }],
+  // Scepter.
+  // Ether Bolt — chain 1/3, Scepter 1. PvE/WvW+PvP split 0.5/0.333. WvW value used.
+  10289: [{ factText: 'Damage', coefficient: 0.333, weapon: 'scepter' }],
+  // Ether Blast — chain 2/3. Same split as Ether Bolt.
+  10290: [{ factText: 'Damage', coefficient: 0.333, weapon: 'scepter' }],
+  // Ether Clone — chain 3/3. PvE/WvW+PvP split 0.75/0.5. WvW value used.
+  10291: [{ factText: 'Damage', coefficient: 0.5, weapon: 'scepter' }],
+  // Illusionary Counter — chain 1/2, Scepter 2. No split.
+  10276: [{ factText: 'Damage', coefficient: 1.5, weapon: 'scepter' }],
+  // Counterspell — chain 2/2. No split.
+  10314: [{ factText: 'Damage', coefficient: 0.1, weapon: 'scepter' }],
+  // Confusing Images — Scepter 3. `strikes=7` totaled. PvE/WvW+PvP split 5.32/1.785. WvW value used.
+  10168: [{ factText: 'Damage', coefficient: 1.785, weapon: 'scepter' }],
+  // Shield (Chronomancer weapon skills).
+  // Echo of Memory — chain 1/2, Shield 4. No `weapon=` key -> back-calculated to `phantasm medium`.
+  // PvE/WvW+PvP split 0.9/0.45. WvW value used. Empowered Illusions (682) trait-gated variant:
+  // 0.45*1.15=0.5175.
+  30769: [
+    { factText: 'Damage', coefficient: 0.45, weapon: 'phantasm medium' },
+    { factText: 'Damage', coefficient: 0.5175, weapon: 'phantasm medium', requiresTrait: 682 }
+  ],
+  // Deja Vu — chain 2/2. Same split and trait variant as Echo of Memory.
+  29649: [
+    { factText: 'Damage', coefficient: 0.45, weapon: 'phantasm medium' },
+    { factText: 'Damage', coefficient: 0.5175, weapon: 'phantasm medium', requiresTrait: 682 }
+  ],
+  // Tides of Time — Shield 5. PvE/WvW+PvP split 1.5/0.01. WvW value used.
+  30643: [{ factText: 'Damage', coefficient: 0.01, weapon: 'shield' }],
+  // Staff.
+  // Winds of Chaos — Staff 1. PvE/WvW+PvP split 0.3/0.2. WvW value used.
+  10273: [{ factText: 'Damage', coefficient: 0.2, weapon: 'staff' }],
+  // Chaos Vortex — Mirage's Ambush replacement for Winds of Chaos. No split.
+  40184: [{ factText: 'Damage', coefficient: 0.6, weapon: 'staff' }],
+  // Phantasmal Warlock — Staff 3. `strikes=3` totaled, no `weapon=` key -> back-calculated to `phantasm
+  // high` (this skill's own wiki page independently confirms "a weapon strength midpoint of 2877").
+  // PvE/WvW+PvP split 0.45/0.225. WvW value used. Empowered Illusions (682) trait-gated variant:
+  // 0.225*1.15=0.25875.
+  10216: [
+    { factText: 'Damage', coefficient: 0.225, weapon: 'phantasm high' },
+    { factText: 'Damage', coefficient: 0.25875, weapon: 'phantasm high', requiresTrait: 682 }
+  ],
+  // Chaos Storm — Staff 5. No split.
+  10169: [{ factText: 'Damage', coefficient: 0.33, weapon: 'staff' }],
+  // Sword.
+  // Blurred Frenzy — Sword 2. `strikes=8` totaled. PvE/WvW+PvP split 4.5/1.024. WvW value used.
+  10334: [{ factText: 'Damage', coefficient: 1.024, weapon: 'sword' }],
+  // Blade Leap — Sword 3 (post weapon-rework skill, all specs). No split.
+  62568: [{ factText: 'Damage', coefficient: 1.5, weapon: 'sword' }],
+  // Illusionary Leap — Sword 3 (older skill; used by the mesmer's own sword clones rather than the
+  // player directly, per its `categories: ['Clone']` tag, but still scales the same
+  // `weaponStrength * coefficient` way off the equipped sword). No split; near-zero 0.003 on purpose
+  // (this is a CC/clone-summon pick, not a damage skill).
+  10173: [{ factText: 'Damage', coefficient: 0.003, weapon: 'sword' }],
+  // Mind Slash — chain 1/3, Sword 1. PvE/WvW+PvP split 1.0/0.5. WvW value used.
+  10170: [{ factText: 'Damage', coefficient: 0.5, weapon: 'sword' }],
+  // Mind Gash — chain 2/3. Same split as Mind Slash.
+  10171: [{ factText: 'Damage', coefficient: 0.5, weapon: 'sword' }],
+  // Mind Spike — chain 3/3. Missing from `professions.json`'s weapon list AND unreachable via
+  // `flipSkill` (Mind Gash's own `flipSkill` is null in this app's game-data despite the wiki confirming
+  // this 3rd stage exists) — same gap shape as Mind Pierce above, found the same way. 2 independently-
+  // split Damage facts: "Damage without Boons" (PvE/WvW+PvP 2.0/1.333) and "Damage with Boons" (PvE/
+  // WvW+PvP 1.5/0.666). WvW values used for both.
+  10172: [
+    { factText: 'Damage without Boons', coefficient: 1.333, weapon: 'sword' },
+    { factText: 'Damage with Boons', coefficient: 0.666, weapon: 'sword' }
+  ],
+  // Illusionary Riposte — chain 1/2, Sword 4. PvE/WvW+PvP split 2.0/1.0. WvW value used.
+  10280: [{ factText: 'Damage', coefficient: 1.0, weapon: 'sword' }],
+  // Counter Blade — chain 2/2. No split.
+  10358: [{ factText: 'Damage', coefficient: 0.1, weapon: 'sword' }],
+  // Phantasmal Swordsman — Sword 5. 2 Damage facts: "Phantasm Damage" (`weapon=phantasm medium` explicit,
+  // PvE and WvW+PvP share the same 0.5 value here, no real split) and "Sword Strike Damage" (the mesmer's
+  // own melee hit, `weapon=sword`, no split) 0.5. Empowered Illusions (682) trait-gated variant on
+  // Phantasm Damage only: 0.5*1.15=0.575. (A 2nd, undocumented "Phantasm Blurred Frenzy" hit exists per
+  // this skill's own wiki page but isn't in the API's facts at all — see this leg's block-comment intro.)
+  10174: [
+    { factText: 'Phantasm Damage', coefficient: 0.5, weapon: 'phantasm medium' },
+    { factText: 'Sword Strike Damage', coefficient: 0.5, weapon: 'sword' },
+    { factText: 'Phantasm Damage', coefficient: 0.575, weapon: 'phantasm medium', requiresTrait: 682 }
+  ],
+  // Torch.
+  // The Prestige — Torch 4. PvE/WvW+PvP split 1.0/0.5. WvW value used.
+  10285: [{ factText: 'Damage', coefficient: 0.5, weapon: 'torch' }],
+  // Phantasmal Mage — Torch 5. No `weapon=` key -> back-calculated to `phantasm medium`. No split.
+  // Empowered Illusions (682) trait-gated variant: 0.5*1.15=0.575. (This skill's own wiki page also notes
+  // an undocumented "Torch Strike Damage" self-hit from the mesmer, absent from the API — same
+  // out-of-scope shape as Phantasmal Swordsman's extra hit above.)
+  10189: [
+    { factText: 'Damage', coefficient: 0.5, weapon: 'phantasm medium' },
+    { factText: 'Damage', coefficient: 0.575, weapon: 'phantasm medium', requiresTrait: 682 }
+  ],
+  // Trident.
+  // Siren's Call — chain 1/2, Trident 1. No split.
+  10258: [{ factText: 'Damage', coefficient: 0.3, weapon: 'trident' }],
+  // Wave of Panic — Mirage's Ambush replacement for Siren's Call. No split.
+  39959: [{ factText: 'Damage', coefficient: 0.8, weapon: 'trident' }],
+  // Blinding Tide — Trident 2. No split.
+  10259: [{ factText: 'Damage', coefficient: 0.8, weapon: 'trident' }],
+  // Phantasmal Whaler — Trident 4. `strikes=4` totaled, no `weapon=` key -> back-calculated to `phantasm
+  // low`. No split. Empowered Illusions (682) trait-gated variant: 0.6*1.15=0.69.
+  10328: [
+    { factText: 'Damage', coefficient: 0.6, weapon: 'phantasm low' },
+    { factText: 'Damage', coefficient: 0.69, weapon: 'phantasm low', requiresTrait: 682 }
+  ],
+  // Illusion of Drowning — Trident 5. No split.
+  10260: [{ factText: 'Damage', coefficient: 1.28, weapon: 'trident' }],
+
+  // Weapon-slot sweep: Warrior, Guardian, Revenant, Ranger, Thief, Engineer, Necromancer, Elementalist,
+  // Mesmer done (9 of 9). **Weapon-slot sweep is now COMPLETE — the Damage coefficient category sweep
+  // (Heal/Elite/Utility/Weapon-slot) is COMPLETE across all 9 professions.**
 }
 
 export interface DamageLine {
