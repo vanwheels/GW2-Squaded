@@ -30,7 +30,8 @@
         "raw": "Trigger a flame blast with a 240 radius upon critically hitting a foe. <br><c=@reminder>(Cooldown: 5 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -65,7 +66,8 @@
         "raw": "Heal allies within a 360 radius of your target upon landing a critical hit. <br><c=@reminder>(Cooldown: 5 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -100,7 +102,8 @@
         "raw": "Unleash a lightning strike upon critically hitting a foe. <br><c=@reminder>(Cooldown: 3 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -135,7 +138,8 @@
         "raw": "Chill a foe for 2 seconds after striking from its flank or when they are defiant. <c=@reminder>(Cooldown: 10 seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -170,7 +174,8 @@
         "raw": "Inflict bleeding for 6 seconds upon critically hitting a foe. <br><c=@reminder>(Cooldown: 2 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -205,7 +210,8 @@
         "raw": "Gain quickness for 3 seconds upon critically hitting a foe. <br><c=@reminder>(Cooldown: 20 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -240,7 +246,8 @@
         "raw": "Gain might for 10 seconds upon critically hitting a foe. <br><c=@reminder>(Cooldown: 1 Second)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -275,7 +282,8 @@
         "raw": "Inflict 2 stacks of vulnerability for 8 seconds after striking a foe from behind or the flank or when they are defiant. <c=@reminder>(Cooldown: 2 seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -310,7 +318,8 @@
         "raw": "Steal a foe's health upon landing a critical hit. <br><c=@reminder>(Cooldown: 5 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -345,7 +354,8 @@
         "raw": "Remove a condition after striking a foe from its flank or when they are defiant. <br><c=@reminder>(Cooldown: 4 seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -380,7 +390,8 @@
         "raw": "Remove a boon from a foe after striking from its flank or when they are defiant. <br><c=@reminder>(Cooldown: 5 seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -415,7 +426,8 @@
         "raw": "Gain a charge of +10 power each time you kill a foe, five charges if you kill an enemy player. <c=@reminder>(Max 25 stacks; ends on down.)</c> <br><c=@reminder>(Only one attribute-stacking sigil can be active at a time.)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -450,7 +462,8 @@
         "raw": "Gain a charge of +10 condition damage each time you kill a foe, five charges if you kill an enemy player. <c=@reminder>(Max 25 stacks; ends on down.)</c> <br><c=@reminder>(Only one attribute-stacking sigil can be active at a time.)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -485,7 +498,8 @@
         "raw": "Gain a charge of +10 precision each time you kill a foe, five charges if you kill an enemy player. <c=@reminder>(Max 25 stacks; ends on down.)</c> <br><c=@reminder>(Only one attribute-stacking sigil can be active at a time.)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -520,7 +534,8 @@
         "raw": "Gain a charge of +10 healing each time you kill a foe, five charges if you kill an enemy player. <c=@reminder>(Max 25 stacks; ends on down.)</c> <br><c=@reminder>(Only one attribute-stacking sigil can be active at a time.)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -555,7 +570,8 @@
         "raw": "Increase the duration of inflicted torment by 20%.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -590,7 +606,8 @@
         "raw": "Gain a charge that grants a 0.5% increase in healing to other allies each time you kill a foe, five charges if you kill an enemy player. <c=@reminder>(Max 25 stacks; ends on down.)</c><br><c=@reminder>(Only one attribute-stacking sigil can be active at a time.)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -625,7 +642,8 @@
         "raw": "Gain Swiftness (20 Seconds) on Killing a Foe",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -660,7 +678,8 @@
         "raw": "75% chance to gain a random boon on killing an enemy.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -695,7 +714,8 @@
         "raw": "Your endurance is refilled each time you kill a foe.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -730,7 +750,8 @@
         "raw": "Gain health when interrupting a foe. <c=@reminder>(Cooldown: 5 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -765,7 +786,8 @@
         "raw": "Damage nearby foes and chill them for 2 seconds when you swap to this weapon while in combat.<br><c=@reminder>(Cooldown: 9 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -800,7 +822,8 @@
         "raw": "Your next attack after swapping to this weapon while in combat steals some health. <c=@reminder>(Cooldown: 9 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -835,7 +858,8 @@
         "raw": "Critically strike an enemy for 3 seconds after swapping to this weapon in combat. <c=@reminder>(Cooldown: 9 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -870,7 +894,8 @@
         "raw": "Gain 5 stacks of might for 12 seconds when swapping to this weapon in combat. (Cooldown: 9 Seconds)",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -905,7 +930,8 @@
         "raw": "Inflict nearby foes with bleeding for 8 seconds after swapping to this weapon in combat. <br><c=@reminder>(Cooldown: 9 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -940,7 +966,8 @@
         "raw": "Gain 50% of your endurance when you swap to this weapon while in combat. <c=@reminder>(Cooldown: 9 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -975,7 +1002,8 @@
         "raw": "Your next attack will inflict 3 stacks of poison for 8 seconds after swapping to this weapon in combat. <br><c=@reminder>(Cooldown: 9 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1010,7 +1038,8 @@
         "raw": "Increase Inflicted Bleeding Duration: 20%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1045,7 +1074,8 @@
         "raw": "+5% Damage",
         "attribute": "Damage",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1080,7 +1110,8 @@
         "raw": "+7% Critical Chance",
         "attribute": "Critical Chance",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1115,7 +1146,8 @@
         "raw": "Increase Inflicted Vulnerability Duration: 20%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1150,7 +1182,8 @@
         "raw": "Increase Inflicted Burning Duration: 20%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1185,7 +1218,8 @@
         "raw": "Increase Inflicted Cripple Duration: 20%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1220,7 +1254,8 @@
         "raw": "Increase Inflicted Chill Duration: 20%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1255,7 +1290,8 @@
         "raw": "Increase Inflicted Poison Duration: 20%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1290,7 +1326,8 @@
         "raw": "Increase Inflicted Weakness Duration: 20%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1325,7 +1362,8 @@
         "raw": "+30% Stun Duration",
         "attribute": "Stun Duration",
         "value": 30,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1360,13 +1398,15 @@
         "raw": "+7% Strike Damage vs. Undead",
         "attribute": "Strike Damage vs. Undead",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1401,13 +1441,15 @@
         "raw": "+7% Strike Damage vs. Centaurs",
         "attribute": "Strike Damage vs. Centaurs",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1442,13 +1484,15 @@
         "raw": "+7% Strike Damage vs. Grawl",
         "attribute": "Strike Damage vs. Grawl",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1483,13 +1527,15 @@
         "raw": "+7% Strike Damage vs. Icebrood",
         "attribute": "Strike Damage vs. Icebrood",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1524,13 +1570,15 @@
         "raw": "+7% Strike Damage vs. Destroyers",
         "attribute": "Strike Damage vs. Destroyers",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1565,13 +1613,15 @@
         "raw": "+7% Strike Damage vs. Ogres",
         "attribute": "Strike Damage vs. Ogres",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1606,13 +1656,15 @@
         "raw": "+7% Strike Damage vs. Krait",
         "attribute": "Strike Damage vs. Krait",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1647,13 +1699,15 @@
         "raw": "+7% Strike Damage vs. Elementals",
         "attribute": "Strike Damage vs. Elementals",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1688,13 +1742,15 @@
         "raw": "+7% Strike Damage vs. Demons, Kryptis, and Titanspawn.",
         "attribute": "Strike Damage vs. Demons, Kryptis, and Titanspawn",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1729,13 +1785,15 @@
         "raw": "+7% Strike Damage vs. Sons of Svanir",
         "attribute": "Strike Damage vs. Sons of Svanir",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1770,13 +1828,15 @@
         "raw": "+7% Strike Damage vs. Inquest",
         "attribute": "Strike Damage vs. Inquest",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1811,13 +1871,15 @@
         "raw": "+7% Strike Damage vs. Flame Legion",
         "attribute": "Strike Damage vs. Flame Legion",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1852,13 +1914,15 @@
         "raw": "+7% Strike Damage vs. Outlaws",
         "attribute": "Strike Damage vs. Outlaws",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1893,13 +1957,15 @@
         "raw": "+7% Strike Damage vs. Nightmare Court",
         "attribute": "Strike Damage vs. Nightmare Court",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1934,13 +2000,15 @@
         "raw": "+7% Strike Damage vs. Dredge",
         "attribute": "Strike Damage vs. Dredge",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1975,13 +2043,15 @@
         "raw": "+7% Strike Damage vs. Ghosts",
         "attribute": "Strike Damage vs. Ghosts",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2016,7 +2086,8 @@
         "raw": "Gain quickness for 5 seconds after disabling a foe. (Cooldown: 20 Seconds)",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2051,13 +2122,15 @@
         "raw": "+7% Strike Damage vs. Stunned or Knocked-Down Foes",
         "attribute": "Strike Damage vs. Stunned or Knocked-Down Foes",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2092,7 +2165,8 @@
         "raw": "Outgoing damage is increased by 3% with an additional 7% at night.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2127,13 +2201,15 @@
         "raw": "+7% Strike Damage vs. Karka",
         "attribute": "Strike Damage vs. Karka",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2168,7 +2244,8 @@
         "raw": "Transfer a condition upon critically hitting a foe. <br><c=@reminder>(Cooldown: 6 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2203,7 +2280,8 @@
         "raw": "+5% Condition Damage",
         "attribute": "Condition Damage",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2238,7 +2316,8 @@
         "raw": "Heal Nearby Allies on Weapon Swap (360 Radius) <br><c=@reminder>(Cooldown: 9 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2273,7 +2352,8 @@
         "raw": "+10% condition duration.",
         "attribute": "condition duration",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2308,7 +2388,8 @@
         "raw": "Inflict 2 stacks of torment for 5 seconds to enemies around your target upon landing a critical hit. <br><c=@reminder>(Cooldown: 5 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2343,7 +2424,8 @@
         "raw": "Gain a charge of +5 toughness each time you kill a foe, five charges if you kill an enemy player. <c=@reminder>(Max 25 stacks; ends on down.)</c> <br><c=@reminder>(Only one attribute-stacking sigil can be active at a time.)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2378,7 +2460,8 @@
         "raw": "Remove 3 conditions when swapping to this weapon in combat. <c=@reminder>(Cooldown: 9 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2413,7 +2496,8 @@
         "raw": "Gain a charge of +10 ferocity each time you kill a foe, five charges if you kill an enemy player. <c=@reminder>(Max 25 stacks; ends on down.)</c> <br><c=@reminder>(Only one attribute-stacking sigil can be active at a time.)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2448,7 +2532,8 @@
         "raw": "Cripple a foe for 2 seconds after striking from its flank or when they are defiant. <c=@reminder>(Cooldown: 5 seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2483,7 +2568,8 @@
         "raw": "Inflict nearby enemies with 2 stacks of poison for 4 seconds upon landing a critical hit. <br><c=@reminder>(Cooldown: 8 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2518,7 +2604,8 @@
         "raw": "Launch up to 4 blinding snowballs at foes in front of you when you swap to this weapon in combat.<br><c=@reminder>(Cooldown: 9 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2553,7 +2640,8 @@
         "raw": "Steal life when interrupting an enemy. <c=@reminder>(Cooldown against defiant foes: 3 seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2588,7 +2676,8 @@
         "raw": "Gain 5 stacks of might for 10 seconds when interrupting a foe. <c=@reminder>(Cooldown: 3 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2623,7 +2712,8 @@
         "raw": "Gain 5 seconds of swiftness and 1 second of quickness when swapping to this weapon in combat. (Cooldown: 9 Seconds)",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2658,7 +2748,8 @@
         "raw": "+10% Boon Duration",
         "attribute": "Boon Duration",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2693,7 +2784,8 @@
         "raw": "Steal 3 boons when interrupting a foe. <c=@reminder>(Cooldown: 10 seconds) (Cooldown against defiant foes: 3 seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2728,7 +2820,8 @@
         "raw": "Inflict 5 stacks of vulnerability for 10 seconds when interrupting a foe. <c=@reminder>(Cooldown: 3 Seconds)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2763,7 +2856,8 @@
         "raw": "Healing to other allies is increased by 10%.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2798,7 +2892,8 @@
         "raw": "Gain a charge of +9 concentration each time you kill a foe, five charges if you kill an enemy player. <c=@reminder>(Max 25 stacks; ends on down.)</c> <br><c=@reminder>(Only one attribute-stacking sigil can be active at a time.)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2833,7 +2928,8 @@
         "raw": "Recharge all equipped skills by 2 seconds upon killing an enemy. <c=@reminder>Cooldown: 10 seconds</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2868,7 +2964,8 @@
         "raw": "Upon interrupting an enemy, gain up to 250 precision and ferocity for 4 seconds, depending on level. <c=@reminder>(Cooldown: 1 second)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2903,7 +3000,8 @@
         "raw": "Gain a charge of +2 to all stats each time you kill a foe, five charges if you kill an enemy player. <c=@reminder>(Max 25 stacks; ends on down.)</c> <br><c=@reminder>(Only one attribute-stacking sigil can be active at a time.)</c>",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2938,13 +3036,15 @@
         "raw": "+17% Strike Damage vs. Dragon Bash Holograms",
         "attribute": "Strike Damage vs. Dragon Bash Holograms",
         "value": 17,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+3% Strike Damage",
         "attribute": "Strike Damage",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   }

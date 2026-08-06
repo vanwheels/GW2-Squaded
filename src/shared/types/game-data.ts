@@ -499,10 +499,25 @@ export type ConsumableKind = 'Food' | 'Utility'
  * actual buff (if any) lives at `details.{name,duration_ms,apply_count,description}`, a single
  * flattened descriptor — NOT the `Fact[]` shape skills/traits use. `effectName` is the buff's
  * in-game label (e.g. "Nourishment", "Enhancement"); `bonuses` is `description` parsed line-by-
- * line the same way as `Rune.bonuses`. Some catalog entries (e.g. "Feast" reagents meant to be
- * served to a group rather than eaten directly) have no buff at all — `effectName`/`durationMs`/
- * `applyCount` are `null` and `bonuses` is empty for those; `description` falls back to the
- * item's own flavor text in that case.
+ * line the same way as `Rune.bonuses`.
+ *
+ * Some catalog entries — "Feast"/"Tray"/"Pot" reagents that get placed down and shared with a
+ * group (the WvW-standard way most players actually consume Food/Utility — a majority of WvW
+ * squads run these rather than individually-carried items, per the user 2026-08-06) and Utility
+ * "Station" items (see `fetch-gear-upgrades.ts`'s Generic-type bucketing) — have NO buff data of
+ * their own on the API's raw item record (`details` is just `{type: 'Food'|'Generic'}`, nothing
+ * else). Confirmed via the wiki (raw wikitext, e.g. Feast of Rare Veggie Pizzas: "Provides same
+ * effect as Rare Veggie Pizza") that these grant the *identical* buff as a matching individually-
+ * eaten item, just shareable and (usually) longer-lasting. `borrowSharedContainerBonuses` in
+ * `fetch-gear-upgrades.ts` resolves this: for every such item, it looks for exactly one unambiguous
+ * name match (stripping the container word — "Feast of X(s)"/"Tray of X(s)"/"Pot of X" etc. — and
+ * re-singularizing/re-prefixing against every other buffed item's name) and copies that match's
+ * `bonuses` over. `sharedBuffSource` records which item it borrowed from (`null` for an ordinary
+ * item, or one where no unambiguous match was found — these keep `effectName`/`bonuses` empty and
+ * `description` falls back to the item's own raw flavor text, same as before this existed).
+ * `durationMs`/`applyCount` are deliberately NOT borrowed (the shared version's duration usually
+ * differs, e.g. 1 hour vs. the individual item's 30 minutes — wrong to assume equal without a
+ * per-item wiki check) — they stay `null` on a borrowed entry, same as an unmatched one.
  */
 export interface Consumable {
   id: number
@@ -514,6 +529,7 @@ export interface Consumable {
   applyCount: number | null
   description: string
   bonuses: AttributeBonusText[]
+  sharedBuffSource: string | null
 }
 
 export interface GameData {

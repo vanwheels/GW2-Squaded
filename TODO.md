@@ -163,6 +163,21 @@ that before extending either further, and before the tooltip visual-pass item be
       +240) is conditional on a 50% health threshold, not unconditional like Life Attunement — needs
       its own `CombatState`-style toggle (like `furyActive`) rather than the unconditional table.
 
+- [ ] 144 Food catalog entries still have no buff data after `borrowSharedContainerBonuses`
+      (`fetch-gear-upgrades.ts`, added 2026-08-06 — see docs/game-data.md's Food/Utility section).
+      Two different reasons, worth separating before curating further: (1) a distinct "Ascended
+      Gourmet Feast" tier (End of Dragons cuisine — Cilantro Lime Sous-Vide Steak and similar) IS a
+      real stat-granting shareable item, confirmed via the wiki (e.g. "+100 Power +70 Ferocity +10%
+      Karma +5% All Experience Gained +20% Magic Find +20% Gold Find +10% WXP Gained"), but has no
+      separate individually-eaten sibling to borrow a match from at all — needs hand-curation
+      (~30-40 items, each wiki-verified) rather than another naming heuristic; (2) genuinely
+      buff-less items that don't belong being offered as a "Food" pick at all — Mastery-point
+      currency ("Elixir/Draught of X Mastery"), crafting materials ("Gift of Quartz"/"Pile of
+      Golden Sand"), and achievement/collection rewards ("Threat Report: ...") — these came back in
+      the picker when the (wrong) blanket exclusion was reverted 2026-08-06; whether to filter them
+      back out by a narrower, verified rule (not the blanket `effectName === null` check that
+      wrongly caught Feasts too) is an open question, not decided either way yet.
+
 ## Stats panel / boon-condition bar polish
 
 - [ ] Boon tab / Squad tab: distinguish self-only vs. party-wide (up to 5) boon sources. Confirmed

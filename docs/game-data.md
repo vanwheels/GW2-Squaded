@@ -574,16 +574,13 @@ output) and reuses it on subsequent runs unless `--refresh` is passed. Delete `.
   (`relic-effects.json`)" further down this doc.
 - **Food / Utility** — `type: 'Consumable'`, `details.type: 'Food'` or `'Utility'`. The full
   catalog is fetched, not pre-filtered to a "WvW meta" subset, per explicit user direction (see
-  TODO.md). **Real gotcha**: a consumable's actual buff (if any) is NOT a `Fact[]` array like
+  TODO.md) — this deliberately includes shared/placeable items (see below), which the user
+  confirmed 2026-08-06 are what most WvW squads actually run over individually-carried food/
+  utility. **Real gotcha**: a consumable's actual buff (if any) is NOT a `Fact[]` array like
   skills/traits use — it's a single flattened descriptor at
   `details.{name, duration_ms, apply_count, description}`. `description` here is freeform text
   (e.g. `"+100 Power\n+70 Precision\n+10% Experience from Kills"`), parsed line-by-line the same
-  way as rune bonuses. Some catalog entries (~37% of Food, ~4% of Utility, e.g. "Feast" reagents
-  meant to be served to a group rather than eaten directly) have no buff at all —
-  `effectName`/`durationMs`/`applyCount` are `null` and `bonuses` is empty for those;
-  `EquipmentEditor.tsx`'s Food/Utility pickers exclude these (fixed 2026-08-06 — picking one did
-  nothing and its `description` fell back to the item's own raw flavor/usage text, which read as a
-  broken tooltip rather than a legitimate zero-effect choice).
+  way as rune bonuses.
   **Second parsed shape, added 2026-08-06**: `parseAttributeBonusText` now also recognizes "Gain
   `<target>` Equal to N% of Your `<source>`" (e.g. "Gain Power Equal to 3% of Your Precision") —
   the Superior Sharpening Stone / Tuning Crystal formula, confirmed to be the dominant WvW
@@ -593,11 +590,32 @@ output) and reuses it on subsequent runs unless `--refresh` is passed. Delete `.
   rather than the flat/percent shape, and resolved late against the build's final source-attribute
   total by `activeConsumableConversions`/`applyConversions` in `attribute-totals.ts` — same
   resolve-after-everything-else pattern already used for trait `BuffConversion` facts
-  (`trait-attributes.ts`). Regenerating this shape for already-fetched `food.json`/`utility.json`
-  deliberately did NOT re-run `fetch-gear-upgrades --refresh` (that also silently reverts
-  `itemstat-icons.json` — a known gotcha from a prior session, see TODO.md/COMPLETED.md) — a
-  one-off, no-network script instead re-ran the updated `parseAttributeBonusText` over each item's
-  already-stored `bonuses[].raw` text and overwrote just the `bonuses` arrays.
+  (`trait-attributes.ts`).
+  **Shared/placeable items, fixed 2026-08-06**: ~37% of Food ("Feast"/"Tray"/"Pot" reagents — place
+  one, anyone nearby can interact for the buff, rather than eating it yourself) have NO buff data at
+  all on their own raw item record (`details` is just `{type: 'Food'}`) — an earlier pass wrongly
+  read this as "these items do nothing" and filtered them out of `EquipmentEditor.tsx`'s pickers;
+  the user corrected this (most WvW squads run exactly these, not individually-carried items).
+  The wiki confirms these grant the identical buff as a specific individually-eaten item (e.g. "Feast
+  of Rare Veggie Pizzas": *"Provides same effect as Rare Veggie Pizza"*) — `borrowSharedContainerBonuses`
+  in `fetch-gear-upgrades.ts` resolves this by stripping the container word ("Feast of X(s)"/"Tray of
+  X(s)"/"Pot of X"/etc.), re-singularizing, and re-prefixing every plausible individual-item
+  container word ("Bowl of X"/"Plate of X"/"Cup of X"/...) to find the matching buffed item's name —
+  only applied on an unambiguous single match (174/318 Food entries this session; the other 144 stay
+  unmatched — Mastery-point currency items, achievement/collection rewards, and a few `Consumable`s
+  that are directly both the personal AND the shareable version with no separate sibling to borrow
+  from, e.g. Cilantro Lime Sous-Vide Steak). `Consumable.sharedBuffSource` records what was borrowed
+  from (surfaced in the tooltip via `formatConsumableDescription`); `durationMs`/`applyCount` are
+  NOT borrowed (the shared version's duration is usually different and wasn't individually verified).
+  Utility's equivalent — "Station" items (Sharpening Stone Station, Tuning Crystal Station, etc.,
+  14 total) — turned out to need a *different* fix: they're NOT missing buff data (their own raw
+  item record has a complete `details.description`, same shape as an ordinary Utility item) — they
+  were simply never fetched at all, filed under `details.type: 'Generic'` instead of `'Utility'` for
+  reasons the API doesn't explain. `bucketItem` now pulls them in via a name-suffix
+  (`"...Station"`) + description-prefix (`"Utility Station:"`) guard, tight enough to exclude the
+  ~125 other `Generic`-type items that bucket also holds (Guild bank boosts, Fractal potions, Mist-
+  attunement potions — a different consumable category entirely, not a per-character equipment-slot
+  pick).
 
 None of these 6 files are re-derivable from `fetch-game-data.ts` — re-run `fetch-gear-upgrades
 --refresh` separately after a balance patch that might add/change gear-upgrade or consumable

@@ -2,6 +2,66 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 80 — Session 79's tooltip fix was wrong: Feasts/Stations are the real WvW play, not dead weight
+
+- User correction, same day as Session 79: excluding no-buff Food/Utility catalog entries from the
+  pickers was "absolutely the wrong play" — Feasts and Stations are what a *majority* of WvW players
+  actually run for Food/Utility, specifically **because** more than one player can benefit from a
+  single placed item. Session 79 had misread "no buff data on this item's own API record" as "this
+  item does nothing," when the real mechanic is a placed, shareable object that grants the identical
+  buff as an individually-eaten/carried sibling item.
+- Confirmed via the wiki's raw text (not assumed): "Feast of Rare Veggie Pizzas" — *"Provides same
+  effect as Rare Veggie Pizza"*; "Tray of Strawberry Cookies" — *"Same nourishment effect as
+  Strawberry Cookie but lasts for 1 hour."* Same pattern confirmed on 3 sampled items before trusting
+  it as the general mechanic.
+- **Food fix** — new `borrowSharedContainerBonuses` (`fetch-gear-upgrades.ts`): for every Food item
+  with no buff of its own, strips the container word ("Feast of X(s)"/"Tray of X(s)"/"Pot of X"/
+  "Plate of X"/"Pile of X"/"Giant X"/"Complete X"/"Bottle of X"), re-singularizes the trailing plural
+  every plausible way (English pluralization is ambiguous from the suffix alone — "Cookies" could
+  singularize to "Cookie" or "Cooky", only one is real), and re-prefixes every plausible individual-
+  item container word ("", "Bowl of ", "Plate of ", "Cup of ", "Mug of ", "Demitasse of ", "Slice of
+  ", "Piece of ") to build a candidate list, checked against every other Food item's exact name.
+  Deliberately only borrows on an UNAMBIGUOUS match (exactly one candidate hits a real buffed item) —
+  confirmed live this session that all 174 real matches in the current catalog are unambiguous (zero
+  naming collisions), so this costs nothing today but guards against a future patch introducing one.
+  174/318 previously-buffless Food entries now resolve; the other 144 are a mix of Mastery-point
+  currency, achievement/collection rewards, and a distinct "Ascended Gourmet Feast" tier (Cilantro
+  Lime Sous-Vide Steak etc.) that has no separate individual sibling to borrow from at all — flagged
+  in TODO.md for hand-curation rather than force-matched. New `Consumable.sharedBuffSource` records
+  what was borrowed from; surfaced in the tooltip via `formatConsumableDescription` ("(Same effect as
+  X)"). `durationMs`/`applyCount` deliberately NOT borrowed (the shared version's duration usually
+  differs and wasn't individually re-verified per item).
+- **Utility fix — a different root cause entirely**: "Station" items (Sharpening Stone Station,
+  Tuning Crystal Station, Maintenance Oil Station, and 11 more/tiered variants — exactly what the
+  user meant by "Stations") were never missing buff data at all; they simply were never fetched into
+  `utility.json` in the first place. Confirmed against the cached raw item dump
+  (`.cache/items-raw.json`) that they carry a complete `details.{name,duration_ms,apply_count,
+  description}`, identical in shape to an ordinary Utility item — just filed under `details.type:
+  'Generic'` instead of `'Utility'`, for reasons the API doesn't explain. `bucketItem` now also
+  routes `Generic`-type items into the Utility bucket when the name ends in `"Station"` AND the
+  top-level description starts with `"Utility Station:"` — tight enough to exclude the ~125 other
+  unrelated `Generic`-type items that bucket also holds (Guild bank boosts, Fractal potions,
+  Mist-attunement potions — a different consumable category, not a per-character equipment-slot
+  pick). `utility.json` grew from 246 to 260 items.
+- Reverted Session 79's picker exclusion in `EquipmentEditor.tsx` entirely — back to the full,
+  unfiltered catalog for both Food and Utility, matching the original (correct) "not pre-filtered to
+  a WvW meta subset" design intent.
+- Actually ran `npm run fetch-gear-upgrades` this session (using the cached raw item dump, no
+  network) rather than another hand-written one-off reparse script, since the Station fix needed a
+  real re-bucketing pass over the full 73,989-item raw dump, not just a re-parse of already-extracted
+  text. Diffed every output file before committing: `itemstats.json`/`itemstat-legal-ids.json`/
+  `infusions.json`/`relics.json` unchanged; `runes.json`/`sigils.json` only gained the new
+  `sourceAttribute: null` field (pure formatting, zero semantic change — same rune/sigil membership
+  and counts as before); `itemstat-icons.json` reverted from git per the known
+  fetch-gear-upgrades-reverts-it gotcha (see memory). Only `food.json`/`utility.json` carry
+  substantive new content.
+- Verified end-to-end via a standalone `tsx` script (not committed) against the real
+  `computeCharacterStats`: Sharpening Stone Station moves Power 1000→1030 (matches Session 79's
+  already-verified Superior Sharpening Stone number, confirming the Station correctly reuses the
+  same conversion path); Feast of Rare Veggie Pizzas moves Expertise/Condition Damage from 0 to
+  exactly 100/70, matching its borrowed source's own bonuses exactly. `npm run
+  typecheck`/`lint`/`build` all clean.
+
 ## Session 79 — Food/utility bug: Utility's dominant WvW shape wasn't computed at all; tooltip cleanup
 
 - Fixed the bug flagged in TODO.md (user report 2026-08-01, reproduced concretely 2026-08-06).

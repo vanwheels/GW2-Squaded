@@ -178,6 +178,25 @@ function bucketItem(item: RawItem): void {
     foodItems.push(item)
   } else if (item.type === 'Consumable' && detailsType === 'Utility') {
     utilityItems.push(item)
+  } else if (
+    item.type === 'Consumable' &&
+    detailsType === 'Generic' &&
+    item.name.endsWith('Station') &&
+    (item.description ?? '').startsWith('Utility Station:')
+  ) {
+    // "Sharpening Stone Station" / "Tuning Crystal Station" / "Maintenance Oil Station" etc — the
+    // WvW zerg-shared equivalent of the individual Utility items above (place one, anyone nearby
+    // can interact for the same buff — the Utility-slot analog of a Food "Feast"). Per the user
+    // 2026-08-06: these (not the individually-carried items) are what a majority of WvW players
+    // actually use for Food/Utility, since one placed item benefits the whole group. Filed under
+    // `details.type: 'Generic'`, not `'Utility'`, for reasons the API doesn't explain — confirmed
+    // live against the raw item dump that they otherwise carry the exact same
+    // `details.{name,duration_ms,apply_count,description}` shape as an ordinary Utility item, so
+    // `normalizeConsumable(item, 'Utility')` handles them identically once bucketed here. Guarded
+    // on both the name suffix AND the top-level description prefix (not `detailsType ===
+    // 'Generic'` alone) since that bucket also holds ~125 unrelated items — Guild bank boosts,
+    // Fractal potions, Mist-attunement potions — that aren't a per-character equipment-slot pick.
+    utilityItems.push(item)
   } else if (/^Relic of /.test(item.name)) {
     suspectedRelicMisses.push(item)
   }
@@ -277,7 +296,82 @@ function normalizeConsumable(item: RawItem, kind: ConsumableKind): Consumable {
     durationMs: item.details?.duration_ms ?? null,
     applyCount: item.details?.apply_count ?? null,
     description: effectText ?? item.description ?? '',
-    bonuses: effectText ? effectText.split('\n').map(parseAttributeBonusText) : []
+    bonuses: effectText ? effectText.split('\n').map(parseAttributeBonusText) : [],
+    sharedBuffSource: null
+  }
+}
+
+/**
+ * Container word a shared Food item's own buff-less name is prefixed with — "Feast of X(s)",
+ * "Tray of X(s)", "Pot of X", "Giant X Cake", etc. Order doesn't matter (a name starts with at
+ * most one of these). See `Consumable.sharedBuffSource`'s doc comment for why this exists.
+ */
+const SHARED_CONTAINER_PREFIXES = ['Feast of ', 'Tray of ', 'Pot of ', 'Plate of ', 'Pile of ', 'Giant ', 'Complete ', 'Bottle of ']
+
+/** Container word the matching *individually-eaten* item might itself be prefixed with — tried in
+ *  this priority order (empty string, i.e. no prefix at all, first) alongside the bare de-prefixed
+ *  name when resolving a shared item's match. */
+const INDIVIDUAL_CONTAINER_PREFIXES = ['', 'Bowl of ', 'Plate of ', 'Cup of ', 'Mug of ', 'Demitasse of ', 'Slice of ', 'Piece of ']
+
+/** `word` re-singularized, every plausible way — "Cookies" -> "Cookie"/"Cooky" (only one is ever a
+ *  real word; whichever one is an existing item's name wins), "Pizzas" -> "Pizza", "Salad" (already
+ *  singular, e.g. an uncountable dish name) -> unchanged. Deliberately over-generates rather than
+ *  picking one rule, since English pluralization is ambiguous from the suffix alone (a plain
+ *  "s"-strip is right far more often than the "-ies"->"-y" pattern, but both are tried and the
+ *  candidate-matching in `borrowSharedContainerBonuses` below is what actually decides). */
+function singularCandidates(word: string): Set<string> {
+  const out = new Set([word])
+  if (/s$/.test(word)) out.add(word.slice(0, -1))
+  if (/ies$/.test(word)) out.add(`${word.slice(0, -3)}y`)
+  return out
+}
+
+/**
+ * For a shared Food item's name (e.g. "Feast of Rare Veggie Pizzas"), every plausible name for the
+ * individually-eaten item it might share a buff with ("Rare Veggie Pizza", "Bowl of Rare Veggie
+ * Pizzas", "Bowl of Rare Veggie Pizza", ... — every `INDIVIDUAL_CONTAINER_PREFIXES` entry crossed
+ * with every `singularCandidates` form of the last word). Over-generation is intentional and safe:
+ * `borrowSharedContainerBonuses` only actually borrows when EXACTLY ONE candidate matches a real
+ * buffed item's name — any candidate that doesn't exist in the catalog is simply never looked up.
+ */
+function candidateSourceNames(sharedName: string): Set<string> {
+  const candidates = new Set<string>()
+  for (const prefix of SHARED_CONTAINER_PREFIXES) {
+    if (!sharedName.startsWith(prefix)) continue
+    const rest = sharedName.slice(prefix.length)
+    const words = rest.split(' ')
+    const last = words[words.length - 1]
+    for (const lastSingular of singularCandidates(last)) {
+      const restSingular = [...words.slice(0, -1), lastSingular].join(' ')
+      for (const individualPrefix of INDIVIDUAL_CONTAINER_PREFIXES) candidates.add(individualPrefix + restSingular)
+    }
+  }
+  return candidates
+}
+
+/**
+ * Resolves `Consumable.sharedBuffSource` for every buff-less Food item by borrowing a matching
+ * individually-eaten item's `bonuses` (see that field's doc comment for why this is correct, not
+ * guessed — confirmed via the wiki's own "provides same effect as X" phrasing on several sampled
+ * items 2026-08-06). Only applied on an UNAMBIGUOUS match (exactly one `candidateSourceNames`
+ * candidate exists as a real buffed item's name) — confirmed live this session that all 174 actual
+ * matches in the current catalog are unambiguous (zero collisions), so "leave unmatched rather than
+ * guess between 2+ candidates" costs nothing here, but is kept as a safety rail against a future
+ * patch introducing a genuine naming collision. ~144 Food entries stay unmatched after this — a mix
+ * of Mastery-point currency items, achievement/collection rewards, and a distinct "Ascended Gourmet
+ * Feast" tier (e.g. Cilantro Lime Sous-Vide Steak) that IS a real stat-granting shared item but has
+ * no separate individually-eaten sibling to borrow from at all — see TODO.md.
+ */
+function borrowSharedContainerBonuses(items: Consumable[]): void {
+  const buffedByName = new Map(items.filter((i) => i.effectName !== null).map((i) => [i.name, i]))
+  for (const item of items) {
+    if (item.effectName !== null) continue
+    const matches = [...candidateSourceNames(item.name)].filter((name) => buffedByName.has(name))
+    if (matches.length !== 1) continue
+    const source = buffedByName.get(matches[0])!
+    item.effectName = source.effectName
+    item.bonuses = source.bonuses
+    item.sharedBuffSource = source.name
   }
 }
 
@@ -358,6 +452,10 @@ async function main(): Promise<void> {
   const relics = relicItems.map(normalizeRelic)
   const food = foodItems.map((i) => normalizeConsumable(i, 'Food'))
   const utility = utilityItems.map((i) => normalizeConsumable(i, 'Utility'))
+  // Utility "Station" items (bucketed into utilityItems above) already carry their own full buff
+  // data — only Food's "Feast"/"Tray"/"Pot" items need bonus-borrowing (see
+  // `Consumable.sharedBuffSource`'s doc comment).
+  borrowSharedContainerBonuses(food)
 
   const itemStats = JSON.parse(await readFile(join(OUTPUT_DIR, 'itemstats.json'), 'utf-8')) as { name: string }[]
   const itemStatNames = [...new Set(itemStats.map((s) => s.name))]

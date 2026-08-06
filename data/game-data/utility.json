@@ -30,7 +30,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8486,
@@ -63,7 +64,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8487,
@@ -96,7 +98,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8488,
@@ -129,7 +132,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8489,
@@ -162,7 +166,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8490,
@@ -195,7 +200,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8492,
@@ -228,7 +234,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8493,
@@ -261,7 +268,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8532,
@@ -280,7 +288,8 @@
         "isPercent": false,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8536,
@@ -299,7 +308,8 @@
         "isPercent": false,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8538,
@@ -318,7 +328,8 @@
         "isPercent": false,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8542,
@@ -337,7 +348,8 @@
         "isPercent": false,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8637,
@@ -363,7 +375,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8640,
@@ -374,7 +387,8 @@
     "durationMs": null,
     "applyCount": null,
     "description": "You become a Grawl Snowman for 5 min.",
-    "bonuses": []
+    "bonuses": [],
+    "sharedBuffSource": null
   },
   {
     "id": 8651,
@@ -393,7 +407,8 @@
         "isPercent": false,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8690,
@@ -404,7 +419,8 @@
     "durationMs": null,
     "applyCount": null,
     "description": "You gain fireworks",
-    "bonuses": []
+    "bonuses": [],
+    "sharedBuffSource": null
   },
   {
     "id": 8691,
@@ -415,7 +431,8 @@
     "durationMs": null,
     "applyCount": null,
     "description": "You become a cow for 5m",
-    "bonuses": []
+    "bonuses": [],
+    "sharedBuffSource": null
   },
   {
     "id": 8797,
@@ -448,7 +465,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8798,
@@ -481,7 +499,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8804,
@@ -507,7 +526,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8805,
@@ -533,7 +553,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8806,
@@ -559,7 +580,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8807,
@@ -585,7 +607,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8808,
@@ -611,7 +634,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8809,
@@ -637,7 +661,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8810,
@@ -663,7 +688,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8811,
@@ -689,7 +715,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8812,
@@ -715,7 +742,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8813,
@@ -741,7 +769,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8814,
@@ -767,7 +796,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8815,
@@ -793,7 +823,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8816,
@@ -819,7 +850,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8817,
@@ -845,7 +877,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8818,
@@ -871,7 +904,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8819,
@@ -897,7 +931,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8820,
@@ -923,7 +958,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8821,
@@ -942,7 +978,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8822,
@@ -968,7 +1005,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8823,
@@ -994,7 +1032,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8824,
@@ -1020,7 +1059,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8825,
@@ -1046,7 +1086,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8826,
@@ -1072,7 +1113,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8827,
@@ -1098,7 +1140,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8828,
@@ -1124,7 +1167,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8829,
@@ -1150,7 +1194,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8830,
@@ -1176,7 +1221,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8831,
@@ -1202,7 +1248,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8832,
@@ -1228,7 +1275,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8833,
@@ -1254,7 +1302,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8834,
@@ -1287,7 +1336,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8835,
@@ -1320,7 +1370,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8836,
@@ -1353,7 +1404,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8837,
@@ -1386,7 +1438,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8838,
@@ -1419,7 +1472,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8839,
@@ -1452,7 +1506,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8840,
@@ -1478,7 +1533,8 @@
         "isPercent": false,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8841,
@@ -1511,7 +1567,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8842,
@@ -1544,7 +1601,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8843,
@@ -1577,7 +1635,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8844,
@@ -1610,7 +1669,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8845,
@@ -1643,7 +1703,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8846,
@@ -1676,7 +1737,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8847,
@@ -1709,7 +1771,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8848,
@@ -1742,7 +1805,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8849,
@@ -1775,7 +1839,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8850,
@@ -1808,7 +1873,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8851,
@@ -1841,7 +1907,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8852,
@@ -1874,7 +1941,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8853,
@@ -1907,7 +1975,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8854,
@@ -1940,7 +2009,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8855,
@@ -1966,7 +2036,8 @@
         "isPercent": false,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8856,
@@ -1999,7 +2070,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8857,
@@ -2032,7 +2104,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8858,
@@ -2065,7 +2138,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8859,
@@ -2098,7 +2172,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8860,
@@ -2131,7 +2206,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8861,
@@ -2164,7 +2240,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8862,
@@ -2197,7 +2274,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8863,
@@ -2230,7 +2308,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8864,
@@ -2263,7 +2342,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8865,
@@ -2296,7 +2376,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8866,
@@ -2329,7 +2410,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8867,
@@ -2362,7 +2444,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8868,
@@ -2395,7 +2478,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8869,
@@ -2428,7 +2512,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8870,
@@ -2461,7 +2546,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8871,
@@ -2494,7 +2580,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8872,
@@ -2527,7 +2614,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8873,
@@ -2560,7 +2648,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8874,
@@ -2593,7 +2682,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8875,
@@ -2626,7 +2716,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8876,
@@ -2659,7 +2750,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8877,
@@ -2692,7 +2784,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8878,
@@ -2725,7 +2818,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8879,
@@ -2758,7 +2852,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8880,
@@ -2791,7 +2886,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8881,
@@ -2824,7 +2920,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8882,
@@ -2857,7 +2954,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8883,
@@ -2890,7 +2988,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8884,
@@ -2923,7 +3022,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8885,
@@ -2956,7 +3056,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8886,
@@ -2989,7 +3090,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8887,
@@ -3022,7 +3124,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8888,
@@ -3055,7 +3158,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8889,
@@ -3088,7 +3192,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8890,
@@ -3121,7 +3226,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8891,
@@ -3154,7 +3260,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8892,
@@ -3187,7 +3294,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8893,
@@ -3220,7 +3328,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 8897,
@@ -3231,7 +3340,8 @@
     "durationMs": null,
     "applyCount": null,
     "description": "Double-click to transform into a Bandit Highwayman.",
-    "bonuses": []
+    "bonuses": [],
+    "sharedBuffSource": null
   },
   {
     "id": 9431,
@@ -3257,7 +3367,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9433,
@@ -3283,7 +3394,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9436,
@@ -3316,7 +3428,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9438,
@@ -3349,7 +3462,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9440,
@@ -3382,7 +3496,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9443,
@@ -3415,7 +3530,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9452,
@@ -3441,7 +3557,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9453,
@@ -3467,7 +3584,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9456,
@@ -3500,7 +3618,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9458,
@@ -3533,7 +3652,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9460,
@@ -3566,7 +3686,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9461,
@@ -3599,7 +3720,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9464,
@@ -3625,7 +3747,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9467,
@@ -3651,7 +3774,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9469,
@@ -3684,7 +3808,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9472,
@@ -3717,7 +3842,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9473,
@@ -3750,7 +3876,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 9476,
@@ -3783,7 +3910,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 19422,
@@ -3794,7 +3922,8 @@
     "durationMs": null,
     "applyCount": null,
     "description": "Double-click to poison yourself.<br>These would be safer in the hands of an expert.",
-    "bonuses": []
+    "bonuses": [],
+    "sharedBuffSource": null
   },
   {
     "id": 21268,
@@ -3805,7 +3934,8 @@
     "durationMs": null,
     "applyCount": null,
     "description": "Double-click to gain 50% more glory for 1 hour.",
-    "bonuses": []
+    "bonuses": [],
+    "sharedBuffSource": null
   },
   {
     "id": 36091,
@@ -3831,7 +3961,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 36092,
@@ -3864,7 +3995,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 36093,
@@ -3897,7 +4029,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 36094,
@@ -3930,7 +4063,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 36095,
@@ -3956,7 +4090,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 36096,
@@ -3989,7 +4124,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 36447,
@@ -4000,7 +4136,8 @@
     "durationMs": null,
     "applyCount": null,
     "description": "<c=@flavor>Wealth, fame, and power—a recipe for success. One drink gives you what most people can't achieve in a lifetime.</c>",
-    "bonuses": []
+    "bonuses": [],
+    "sharedBuffSource": null
   },
   {
     "id": 42427,
@@ -4033,7 +4170,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 42428,
@@ -4052,7 +4190,8 @@
         "isPercent": false,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 42597,
@@ -4071,7 +4210,8 @@
         "isPercent": false,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 43419,
@@ -4082,7 +4222,8 @@
     "durationMs": null,
     "applyCount": null,
     "description": "You obtain fireworks.",
-    "bonuses": []
+    "bonuses": [],
+    "sharedBuffSource": null
   },
   {
     "id": 43449,
@@ -4115,7 +4256,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 43450,
@@ -4148,7 +4290,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 43451,
@@ -4181,7 +4324,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 43463,
@@ -4207,7 +4351,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 43464,
@@ -4240,7 +4385,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 43465,
@@ -4273,7 +4419,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 43466,
@@ -4306,7 +4453,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 48915,
@@ -4339,7 +4487,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 48916,
@@ -4372,7 +4521,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 48917,
@@ -4405,7 +4555,110 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
+  },
+  {
+    "id": 50018,
+    "name": "Maintenance Oil Station",
+    "icon": "https://render.guildwars2.com/file/43C10FB3C60AFBC9CFD50413170A4D553A0046D8/740204.png",
+    "kind": "Utility",
+    "effectName": "Enhancement",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Concentration Equal to 3% of Your Precision\nGain Concentration Equal to 6% of Your Healing Power\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "Gain Concentration Equal to 3% of Your Precision",
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
+      },
+      {
+        "raw": "Gain Concentration Equal to 6% of Your Healing Power",
+        "attribute": "Concentration",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Healing Power"
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
+  },
+  {
+    "id": 50020,
+    "name": "Sharpening Stone Station",
+    "icon": "https://render.guildwars2.com/file/D95A4ACF44DB63069B1447CC224DC35D16C439AE/740205.png",
+    "kind": "Utility",
+    "effectName": "Enhancement",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Power Equal to 3% of Your Precision\nGain Power Equal to 6% of Your Ferocity\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "Gain Power Equal to 3% of Your Precision",
+        "attribute": "Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
+      },
+      {
+        "raw": "Gain Power Equal to 6% of Your Ferocity",
+        "attribute": "Power",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Ferocity"
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
+  },
+  {
+    "id": 50022,
+    "name": "Tuning Crystal Station",
+    "icon": "https://render.guildwars2.com/file/0BAC7010D371FD0231DC01130B09B5AD42E69BE4/740211.png",
+    "kind": "Utility",
+    "effectName": "Enhancement",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Condition Damage Equal to 3% of Your Precision\nGain Condition Damage Equal to 8% of Your Expertise\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "Gain Condition Damage Equal to 3% of Your Precision",
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
+      },
+      {
+        "raw": "Gain Condition Damage Equal to 8% of Your Expertise",
+        "attribute": "Condition Damage",
+        "value": 8,
+        "isPercent": false,
+        "sourceAttribute": "Expertise"
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 50082,
@@ -4438,7 +4691,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 50083,
@@ -4457,7 +4711,8 @@
         "isPercent": false,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 64108,
@@ -4483,7 +4738,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 64109,
@@ -4509,7 +4765,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 64110,
@@ -4535,7 +4792,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 67183,
@@ -4568,7 +4826,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 67184,
@@ -4601,7 +4860,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 67185,
@@ -4634,7 +4894,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 67367,
@@ -4674,7 +4935,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 67368,
@@ -4714,7 +4976,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 67371,
@@ -4754,7 +5017,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 67522,
@@ -4787,7 +5051,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 67524,
@@ -4820,7 +5085,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 67528,
@@ -4853,7 +5119,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 67529,
@@ -4886,7 +5153,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 67530,
@@ -4919,7 +5187,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 67531,
@@ -4952,7 +5221,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 70845,
@@ -4978,7 +5248,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 70883,
@@ -5004,7 +5275,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 70920,
@@ -5030,7 +5302,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 71071,
@@ -5056,7 +5329,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 71377,
@@ -5082,7 +5356,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 71514,
@@ -5108,7 +5383,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 71691,
@@ -5134,7 +5410,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 71810,
@@ -5160,7 +5437,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 71928,
@@ -5186,7 +5464,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 72048,
@@ -5212,7 +5491,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 72291,
@@ -5238,7 +5518,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 72510,
@@ -5264,7 +5545,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 72532,
@@ -5290,7 +5572,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 72563,
@@ -5316,7 +5599,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 72572,
@@ -5342,7 +5626,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 72807,
@@ -5368,7 +5653,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 72813,
@@ -5394,7 +5680,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 72821,
@@ -5420,7 +5707,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 73006,
@@ -5446,7 +5734,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 73105,
@@ -5472,7 +5761,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 73191,
@@ -5498,7 +5788,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 73286,
@@ -5524,7 +5815,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 73595,
@@ -5550,7 +5842,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 74478,
@@ -5576,7 +5869,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 74634,
@@ -5602,7 +5896,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 74920,
@@ -5628,7 +5923,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 75051,
@@ -5654,7 +5950,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 75060,
@@ -5680,7 +5977,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 75199,
@@ -5706,7 +6004,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 75598,
@@ -5732,7 +6031,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 75610,
@@ -5758,7 +6058,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 75728,
@@ -5784,7 +6085,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 76353,
@@ -5810,7 +6112,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 76478,
@@ -5836,7 +6139,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 76599,
@@ -5862,7 +6166,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 76738,
@@ -5888,7 +6193,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 76833,
@@ -5914,7 +6220,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 76870,
@@ -5940,7 +6247,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 77106,
@@ -5966,7 +6274,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 77128,
@@ -5992,7 +6301,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 77146,
@@ -6018,7 +6328,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 77233,
@@ -6044,7 +6355,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 77567,
@@ -6084,7 +6396,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 77569,
@@ -6124,7 +6437,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 77632,
@@ -6164,7 +6478,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 78116,
@@ -6190,7 +6505,8 @@
         "isPercent": false,
         "sourceAttribute": "Toughness"
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 78219,
@@ -6216,7 +6532,8 @@
         "isPercent": false,
         "sourceAttribute": "Toughness"
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 78305,
@@ -6249,7 +6566,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 78695,
@@ -6275,7 +6593,8 @@
         "isPercent": false,
         "sourceAttribute": "Toughness"
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 81034,
@@ -6308,7 +6627,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 81079,
@@ -6341,7 +6661,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 81157,
@@ -6374,7 +6695,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 84676,
@@ -6385,7 +6707,8 @@
     "durationMs": null,
     "applyCount": null,
     "description": "The aroma of sea breezes and simpler times wafts from the bottle. Use its contents to transform into...something.",
-    "bonuses": []
+    "bonuses": [],
+    "sharedBuffSource": null
   },
   {
     "id": 86016,
@@ -6418,7 +6741,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 86287,
@@ -6451,7 +6775,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 86378,
@@ -6484,7 +6809,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 87329,
@@ -6517,7 +6843,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 87336,
@@ -6550,7 +6877,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 87358,
@@ -6583,7 +6911,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 89157,
@@ -6616,7 +6945,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 89203,
@@ -6649,7 +6979,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 89461,
@@ -6675,7 +7006,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 91285,
@@ -6701,7 +7033,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 91289,
@@ -6734,7 +7067,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 91293,
@@ -6760,7 +7094,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 91336,
@@ -6786,7 +7121,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 91350,
@@ -6819,7 +7155,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 91355,
@@ -6845,7 +7182,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 92865,
@@ -6871,7 +7209,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 93241,
@@ -6897,7 +7236,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 97977,
@@ -6944,7 +7284,56 @@
         "isPercent": false,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
+  },
+  {
+    "id": 98893,
+    "name": "Decade Enhancement Station",
+    "icon": "https://render.guildwars2.com/file/9C0A257380D40A5D6C1D93CA73A317035E06C9C6/2724222.png",
+    "kind": "Utility",
+    "effectName": "Enhancement",
+    "durationMs": 7200000,
+    "applyCount": 1,
+    "description": "+3% to All Attributes\n+10% Magic Find\n+10% Gold from Monsters\n+10% Karma\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "+3% to All Attributes",
+        "attribute": "to All Attributes",
+        "value": 3,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Magic Find",
+        "attribute": "Magic Find",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Gold from Monsters",
+        "attribute": "Gold from Monsters",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 99842,
@@ -6977,7 +7366,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 99845,
@@ -7010,7 +7400,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 101651,
@@ -7057,7 +7448,8 @@
         "isPercent": false,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 101666,
@@ -7097,7 +7489,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 102135,
@@ -7130,7 +7523,8 @@
         "isPercent": true,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 102230,
@@ -7141,7 +7535,327 @@
     "durationMs": null,
     "applyCount": null,
     "description": "Use this item to unlock a table decoration that can change tabletops upon interaction.",
-    "bonuses": []
+    "bonuses": [],
+    "sharedBuffSource": null
+  },
+  {
+    "id": 103838,
+    "name": "Demon-Slaying Station",
+    "icon": "https://render.guildwars2.com/file/D95A4ACF44DB63069B1447CC224DC35D16C439AE/740205.png",
+    "kind": "Utility",
+    "effectName": "Enhancement",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+10% Damage vs. Demons, Kryptis, and Titanspawn\n-10% Damage from Demons, Kryptis, and Titanspawn\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "+10% Damage vs. Demons, Kryptis, and Titanspawn",
+        "attribute": "Damage vs. Demons, Kryptis, and Titanspawn",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "-10% Damage from Demons, Kryptis, and Titanspawn",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
+  },
+  {
+    "id": 103861,
+    "name": "Magnanimous Tuning Crystal Station",
+    "icon": "https://render.guildwars2.com/file/0BAC7010D371FD0231DC01130B09B5AD42E69BE4/740211.png",
+    "kind": "Utility",
+    "effectName": "Enhancement",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Condition Damage Equal to 3% of Your Vitality\nGain Condition Damage Equal to 3% of Your Toughness\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "Gain Condition Damage Equal to 3% of Your Vitality",
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Vitality"
+      },
+      {
+        "raw": "Gain Condition Damage Equal to 3% of Your Toughness",
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
+  },
+  {
+    "id": 103885,
+    "name": "Bountiful Maintenance Oil Station",
+    "icon": "https://render.guildwars2.com/file/43C10FB3C60AFBC9CFD50413170A4D553A0046D8/740204.png",
+    "kind": "Utility",
+    "effectName": "Enhancement",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain 0.6% Increased Healing to Other Allies for Every 100 Healing Power\nGain 0.8% Increased Healing to Other Allies for Every 100 Concentration\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "Gain 0.6% Increased Healing to Other Allies for Every 100 Healing Power",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "Gain 0.8% Increased Healing to Other Allies for Every 100 Concentration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
+  },
+  {
+    "id": 103932,
+    "name": "Karka Toughness Station",
+    "icon": "https://render.guildwars2.com/file/D95A4ACF44DB63069B1447CC224DC35D16C439AE/740205.png",
+    "kind": "Utility",
+    "effectName": "Enhancement",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+150 toughness",
+    "bonuses": [
+      {
+        "raw": "+150 toughness",
+        "attribute": "toughness",
+        "value": 150,
+        "isPercent": false,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
+  },
+  {
+    "id": 104008,
+    "name": "Magnanimous Maintenance Oil Station",
+    "icon": "https://render.guildwars2.com/file/43C10FB3C60AFBC9CFD50413170A4D553A0046D8/740204.png",
+    "kind": "Utility",
+    "effectName": "Enhancement",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Concentration Equal to 3% of Your Vitality\nGain Concentration Equal to 3% of Your Toughness\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "Gain Concentration Equal to 3% of Your Vitality",
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Vitality"
+      },
+      {
+        "raw": "Gain Concentration Equal to 3% of Your Toughness",
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
+  },
+  {
+    "id": 104060,
+    "name": "Toxic Tuning Crystal Station",
+    "icon": "https://render.guildwars2.com/file/0BAC7010D371FD0231DC01130B09B5AD42E69BE4/740211.png",
+    "kind": "Utility",
+    "effectName": "Enhancement",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Condition Damage Equal to 3% of Your Power\nGain Condition Damage Equal to 3% of Your Precision\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "Gain Condition Damage Equal to 3% of Your Power",
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Power"
+      },
+      {
+        "raw": "Gain Condition Damage Equal to 3% of Your Precision",
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
+  },
+  {
+    "id": 105175,
+    "name": "Mists-Infused Magnanimous Maintenance Oil Station",
+    "icon": "https://render.guildwars2.com/file/43C10FB3C60AFBC9CFD50413170A4D553A0046D8/740204.png",
+    "kind": "Utility",
+    "effectName": "Enhancement",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Concentration Equal to 3% of Your Vitality\nGain Concentration Equal to 3% of Your Toughness\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "Gain Concentration Equal to 3% of Your Vitality",
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Vitality"
+      },
+      {
+        "raw": "Gain Concentration Equal to 3% of Your Toughness",
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
+  },
+  {
+    "id": 105186,
+    "name": "Mists-Infused Karka Toughness Station",
+    "icon": "https://render.guildwars2.com/file/D95A4ACF44DB63069B1447CC224DC35D16C439AE/740205.png",
+    "kind": "Utility",
+    "effectName": "Enhancement",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Stats only apply in WvW:\n+150 Toughness",
+    "bonuses": [
+      {
+        "raw": "Stats only apply in WvW:",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+150 Toughness",
+        "attribute": "Toughness",
+        "value": 150,
+        "isPercent": false,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
+  },
+  {
+    "id": 105244,
+    "name": "Mists-Infused Toxic Tuning Crystal Station",
+    "icon": "https://render.guildwars2.com/file/0BAC7010D371FD0231DC01130B09B5AD42E69BE4/740211.png",
+    "kind": "Utility",
+    "effectName": "Enhancement",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Condition Damage Equal to 3% of Your Power\nGain Condition Damage Equal to 3% of Your Precision\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "Gain Condition Damage Equal to 3% of Your Power",
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Power"
+      },
+      {
+        "raw": "Gain Condition Damage Equal to 3% of Your Precision",
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
+  },
+  {
+    "id": 105309,
+    "name": "Mists-Infused Sharpening Stone Station",
+    "icon": "https://render.guildwars2.com/file/D95A4ACF44DB63069B1447CC224DC35D16C439AE/740205.png",
+    "kind": "Utility",
+    "effectName": "Enhancement",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Power Equal to 3% of Your Precision\nGain Power Equal to 6% of Your Ferocity\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "Gain Power Equal to 3% of Your Precision",
+        "attribute": "Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
+      },
+      {
+        "raw": "Gain Power Equal to 6% of Your Ferocity",
+        "attribute": "Power",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Ferocity"
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
   },
   {
     "id": 108829,
@@ -7188,6 +7902,7 @@
         "isPercent": false,
         "sourceAttribute": null
       }
-    ]
+    ],
+    "sharedBuffSource": null
   }
 ]
