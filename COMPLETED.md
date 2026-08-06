@@ -26,9 +26,10 @@ Entries are added as work lands, most recent first.
 - Wired into `computeGearAttributeTotals` (`attribute-totals.ts`) inside the existing per-weapon-slot
   loop, gated by the same `isActiveWeaponSlot`/`weaponEquipped` checks the itemStat and infusion
   contributions already use — a sigil on the currently-stowed weapon set doesn't contribute, same
-  active-set-only treatment as every other per-weapon-slot bonus this function computes (no live
-  confirmation found either way on whether GW2 actually applies passive sigil bonuses from an
-  inactive set; deferred to that existing precedent rather than guessed).
+  active-set-only treatment as every other per-weapon-slot bonus this function computes. Confirmed
+  correct directly by the user right after landing this: inactive weapons do NOT apply their passive
+  sigil bonus in-game — only stacking sigils (e.g. Bloodlust) persist their accrued stacks across a
+  weapon swap, an already-separate mechanic (`STACKING_SIGILS`/`combatStatePoints`).
 - Every inline `gameData` parameter type across the codebase that already listed `runes` needed
   `sigils` added alongside it to keep passing the (unchanged, still just `gameData`) argument at each
   call site: `computeBoonConditionSources`/`sources.ts`, `computeCharacterStats`/`derived-stats.ts`,

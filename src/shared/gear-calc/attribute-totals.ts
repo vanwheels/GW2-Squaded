@@ -331,8 +331,11 @@ export function computeGearAttributeTotals(
       // procs/stacking sigils parse to `{attribute: null}` and `addBonus` no-ops on those. Like
       // the itemStat/infusion contributions above, this only runs for `isActiveWeaponSlot` slots
       // reached this loop iteration — i.e. a sigil on the currently-stowed weapon set (or the
-      // underwater set while on land, etc.) does not contribute, matching how this function
-      // already treats every other per-weapon-slot bonus as active-set-only.
+      // underwater set while on land, etc.) does not contribute. Confirmed correct directly by the
+      // user 2026-08-06: inactive weapons do NOT apply their passive sigil bonus in-game — only
+      // stacking sigils (e.g. Bloodlust) persist their accrued stacks across a weapon swap, which
+      // is a separate mechanic already (`STACKING_SIGILS`/`combatStatePoints` in
+      // `combat-state.ts`), not something this per-slot loop needs to special-case.
       for (const sigilId of slot.sigilIds ?? []) {
         if (sigilId === null) continue
         const sigil = sigilsById.get(sigilId)
