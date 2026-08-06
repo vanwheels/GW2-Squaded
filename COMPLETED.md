@@ -2,6 +2,42 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 81 — Hand-curated the "Ascended Gourmet Feast" tier Session 80 flagged as unresolvable
+
+- User spotted, via an in-game screenshot: "Bowl of Fruit Salad with Mint Garnish" still showed its
+  raw item flavor text ("Double-click to serve Bowls of Fruit Salad with Mint Garnish to anyone
+  nearby...") instead of stat bonuses, guessing correctly that it was the "Ascended" tier flagged in
+  Session 80/TODO.md as needing hand-curation (68 items, not just this one).
+- Confirmed via the raw item dump that this whole tier genuinely has zero buff data anywhere in the
+  API — not on the item itself, and not on any "same stats as" sibling the wiki names either (e.g.
+  "Bowl of Mists-Infused Fruit Salad with Mint Garnish" comes back equally empty) — so
+  `borrowSharedContainerBonuses` structurally can't resolve these; they need the actual numbers from
+  the wiki, hardcoded.
+- Given the stakes of getting exact numbers wrong across 68 items, deliberately did NOT trust a
+  rendered/summarized wiki table (same lesson as [[healing_damage_coefficient_curation]]) — fetched
+  raw wikitext for the "Ascended feast" recipe page and 10 individual item pages, cross-checking the
+  recipe table's stated formula against each item's own literal bonus list before trusting it.
+- The formula: a "food type" (from the recipe's base ingredient, identifiable in the item's own
+  name, e.g. "Sous-Vide Steak") fixes a major/minor attribute pair; a "herb" (e.g. "Mint") fixes one
+  more bonus effect; 5 fixed lines (`+10% Karma`, `+5% All Experience Gained`, `+20% Magic Find`,
+  `+20% Gold Find`, `+10% WXP Gained`) are appended to every one. End of Dragons added 5 more that
+  swap the herb slot for `+150 Fishing Power`, verified individually since they don't fit the
+  12-food-type table. A few names don't spell out their food-type/herb word literally ("Salsa" =
+  Cilantro, "Spiced"/"Peppered" = Peppercorn) — confirmed via each one's own raw wikitext bonus list
+  matching the herb's known effect, not guessed from the name.
+- New `applyAscendedFeastFormula` (`fetch-gear-upgrades.ts`), gated on the item's own `"Gourmet
+  Feast:"` flavor-text prefix (verified to match all and only these 68) so it can never misfire on
+  an unrelated item that happens to share a food-type/herb keyword. Runs after
+  `borrowSharedContainerBonuses`, touching only items still left buffless. All 68 resolved; verified
+  the generated `bonuses`/`description` against the wiki-confirmed text for a sample spanning every
+  category (core food types, all 5 herbs, the "Salsa"/"Spiced"/"Peppered" naming exceptions, and all
+  5 End of Dragons items) before trusting the full run. 76 Food entries remain genuinely buffless
+  (Mastery-point currency, crafting materials, achievement rewards) — TODO.md's open question on
+  filtering those out of the picker is unchanged.
+- Ran the real `npm run fetch-gear-upgrades` (cached raw dump, no network); diffed output before
+  trusting it — only `food.json` changed. Restored `itemstat-icons.json` from git per the known
+  gotcha. `typecheck`/`lint`/`build` all clean.
+
 ## Session 80 — Session 79's tooltip fix was wrong: Feasts/Stations are the real WvW play, not dead weight
 
 - User correction, same day as Session 79: excluding no-buff Food/Utility catalog entries from the

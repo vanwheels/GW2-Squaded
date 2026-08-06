@@ -375,6 +375,98 @@ function borrowSharedContainerBonuses(items: Consumable[]): void {
   }
 }
 
+/**
+ * "Ascended Gourmet Feast" tier consumables (Chef rank 500 + the Gourmet Training collection) — the
+ * one Food family `borrowSharedContainerBonuses` above can't resolve, because unlike "Feast of X"/
+ * "Tray of X" it has no individually-eaten sibling to borrow from at all: confirmed live 2026-08-06
+ * that even a sampled "same stats as" item named on the wiki (e.g. "Bowl of Mists-Infused Fruit
+ * Salad with Mint Garnish") comes back with an equally empty `details: {type: 'Food'}` in the raw
+ * item dump. Every one of the 68 confirmed live follows a fixed formula per the wiki's "Ascended
+ * feast" page, cross-checked against several individual items' own raw wikitext (not a rendered/
+ * summarized table, per [[healing_damage_coefficient_curation]]'s lesson): a "food type" (from the
+ * recipe's base ingredient, e.g. "Sous-Vide Steak") fixes a major/minor attribute pair, and a
+ * "herb" (from the recipe's cultivated herb, e.g. "Mint") fixes one more bonus effect — both
+ * reliably identifiable from the item's own name. End of Dragons added 5 more that swap the herb
+ * slot for a flat "+150 Fishing Power" bonus instead. A few names don't spell out their food-type/
+ * herb word literally ("Salsa" = Cilantro, "Spiced"/"Peppered" = Peppercorn) — each confirmed via
+ * that specific item's own raw wikitext bonus list matching the herb's known effect (not guessed
+ * from the name alone). Gated on the item's own `Gourmet Feast:` flavor-text prefix (verified to
+ * match all and only these 68) so this can never misfire on an unrelated item that happens to share
+ * a food-type/herb keyword.
+ */
+const ASCENDED_FEAST_TYPE_LINES: Record<string, string[]> = {
+  'Beef Carpaccio': ['+100 Concentration', '+70 Power'],
+  'Coq Au Vin': ['+100 Power', '+70 Precision'],
+  'Creme Brulee': ['+100 Concentration', '+70 Healing'],
+  'Cured Meat Flatbread': ['+100 Condition Damage', '+70 Expertise'],
+  'Eggs Benedict': ['+100 Concentration', '+70 Expertise'],
+  'Fruit Salad': ['+100 Healing', '+70 Concentration'],
+  'Poultry Aspic': ['+100 Concentration', '+70 Toughness'],
+  'Sous-Vide Steak': ['+100 Power', '+70 Ferocity'],
+  'Veggie Flatbread': ['+100 Expertise', '+70 Condition Damage']
+}
+
+/** `Truffle Ravioli`/`Oyster Soup`/`Cheesecake` food types don't reduce to a clean name substring
+ *  (Ravioli names read "Clear Truffle and X Ravioli"; Cheesecake's minor slot is proc text, not a
+ *  flat attribute; Oyster Soup has no minor slot at all) — handled ahead of the generic table. */
+function ascendedFeastTypeLines(name: string): string[] | null {
+  if (name.includes('Truffle') && name.includes('Ravioli')) return ['+100 Vitality', '+70 Toughness']
+  if (name.includes('Oyster Soup')) return ['+45 to All Attributes']
+  if (name.includes('Cheesecake')) return ['+100 Concentration', '33% Chance to Gain Might on Critical Hit']
+  for (const [type, lines] of Object.entries(ASCENDED_FEAST_TYPE_LINES)) if (name.includes(type)) return lines
+  return null
+}
+
+const ASCENDED_FEAST_HERB_LINES: Record<string, string> = {
+  Cilantro: '66% Chance to Steal Life on Critical Hit',
+  Clove: '-20% Incoming Condition Duration',
+  Mint: '+10% Outgoing Healing',
+  Peppercorn: '-10% Incoming Damage',
+  Sesame: 'Gain Health Every Second'
+}
+
+function ascendedFeastHerbLine(name: string): string | null {
+  for (const [herb, line] of Object.entries(ASCENDED_FEAST_HERB_LINES)) if (name.includes(herb)) return line
+  if (name.includes('Salsa')) return ASCENDED_FEAST_HERB_LINES.Cilantro
+  if (name.includes('Spiced') || name.includes('Peppered')) return ASCENDED_FEAST_HERB_LINES.Peppercorn
+  return null
+}
+
+/** The 5 End of Dragons ascended feasts: same major/minor pair as their closest core food type
+ *  (matching the dish each is themed after), with `+150 Fishing Power` in the herb bonus's place —
+ *  confirmed individually via each item's own raw wikitext, not inferred from the food-type table. */
+const ASCENDED_FEAST_EOD_LINES: Record<string, string[]> = {
+  'Bowl of Echovald Hotpot': ['+150 Fishing Power', '+100 Condition Damage', '+70 Expertise'],
+  'Bowl of Jade Sea Bounty': ['+150 Fishing Power', '+100 Power', '+70 Ferocity'],
+  'Flight of Sushi': ['+150 Fishing Power', '+45 to All Attributes'],
+  'Plate of Imperial Palace Special': ['+150 Fishing Power', '+100 Healing', '+70 Concentration'],
+  'Plate of Crispy Fish Pancakes': ['+150 Fishing Power', '+100 Vitality', '+70 Toughness']
+}
+
+/** Every Ascended feast, core or End of Dragons, additionally grants these 5 — confirmed identical
+ *  and in this exact order across every raw-wikitext sample fetched. */
+const ASCENDED_FEAST_UNIVERSAL_LINES = ['+10% Karma', '+5% All Experience Gained', '+20% Magic Find', '+20% Gold Find', '+10% WXP Gained']
+
+/** Fills in `bonuses`/`effectName`/`durationMs` for the 68 Ascended Gourmet Feast items described
+ *  above. Must run after `borrowSharedContainerBonuses` (only touches items that fix left
+ *  buffless) but doesn't depend on it. */
+function applyAscendedFeastFormula(items: Consumable[]): void {
+  for (const item of items) {
+    if (item.effectName !== null) continue
+    if (!item.description.startsWith('Gourmet Feast:')) continue
+    const eodLines = ASCENDED_FEAST_EOD_LINES[item.name]
+    const typeLines = eodLines ?? ascendedFeastTypeLines(item.name)
+    const herbLine = eodLines ? null : ascendedFeastHerbLine(item.name)
+    if (!typeLines || (!eodLines && !herbLine)) continue
+    const lines = [...(herbLine ? [herbLine] : []), ...typeLines, ...ASCENDED_FEAST_UNIVERSAL_LINES]
+    item.effectName = 'Nourishment'
+    item.durationMs = 3_600_000
+    item.applyCount = 1
+    item.bonuses = lines.map(parseAttributeBonusText)
+    item.description = lines.join('\n')
+  }
+}
+
 const INSIGNIA_SUFFIX = ' Insignia'
 
 /**
@@ -456,6 +548,9 @@ async function main(): Promise<void> {
   // data — only Food's "Feast"/"Tray"/"Pot" items need bonus-borrowing (see
   // `Consumable.sharedBuffSource`'s doc comment).
   borrowSharedContainerBonuses(food)
+  // Ascended Gourmet Feasts have no sibling to borrow from at all (see `applyAscendedFeastFormula`'s
+  // doc comment) — resolved separately, after borrowing, since it only touches items still buffless.
+  applyAscendedFeastFormula(food)
 
   const itemStats = JSON.parse(await readFile(join(OUTPUT_DIR, 'itemstats.json'), 'utf-8')) as { name: string }[]
   const itemStatNames = [...new Set(itemStats.map((s) => s.name))]

@@ -22394,11 +22394,68 @@
     "name": "Bowl of Fruit Salad with Mint Garnish",
     "icon": "https://render.guildwars2.com/file/1D44545301F3BB1C046898EA08D5906EB369DD0A/2191059.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Bowls of Fruit Salad with Mint Garnish to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+10% Outgoing Healing\n+100 Healing\n+70 Concentration\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+10% Outgoing Healing",
+        "attribute": "Outgoing Healing",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Healing",
+        "attribute": "Healing",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Concentration",
+        "attribute": "Concentration",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22406,11 +22463,68 @@
     "name": "Clove and Veggie Flatbread",
     "icon": "https://render.guildwars2.com/file/07CB5E0E4058BCC85C677149C2D1C8CF0B521F9D/2191026.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Clove and Veggie Flatbreads to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-20% Incoming Condition Duration\n+100 Expertise\n+70 Condition Damage\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-20% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Expertise",
+        "attribute": "Expertise",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22418,11 +22532,68 @@
     "name": "Mint-Pear Cured Meat Flatbread",
     "icon": "https://render.guildwars2.com/file/F56EAF0DD0CFF41CE402282E37F20F4D22501358/2191048.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Mint-Pear and Cured Meat Flatbreads to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+10% Outgoing Healing\n+100 Condition Damage\n+70 Expertise\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+10% Outgoing Healing",
+        "attribute": "Outgoing Healing",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22430,11 +22601,68 @@
     "name": "Plate of Poultry Aspic with Salsa Garnish",
     "icon": "https://render.guildwars2.com/file/C8DA79B5F0940219E1ABBDF5314A35DF91AECC5D/2191066.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Poultry Aspic with Salsa Garnish to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "66% Chance to Steal Life on Critical Hit\n+100 Concentration\n+70 Toughness\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "66% Chance to Steal Life on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Toughness",
+        "attribute": "Toughness",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22442,11 +22670,68 @@
     "name": "Clove-Spiced Eggs Benedict",
     "icon": "https://render.guildwars2.com/file/0968E3FA2BD2E6114A6D7E5D564424D51A4798EF/2191052.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Clove-Spiced Eggs Benedicts to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-20% Incoming Condition Duration\n+100 Concentration\n+70 Expertise\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-20% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22454,11 +22739,68 @@
     "name": "Plate of Coq Au Vin with Salsa",
     "icon": "https://render.guildwars2.com/file/5B0BE79E271153D9350BC3E14034482BEA073C5C/2191039.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Coq Au Vin with Salsa to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "66% Chance to Steal Life on Critical Hit\n+100 Power\n+70 Precision\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "66% Chance to Steal Life on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Power",
+        "attribute": "Power",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Precision",
+        "attribute": "Precision",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22466,11 +22808,68 @@
     "name": "Plate of Sesame-Crusted Coq Au Vin",
     "icon": "https://render.guildwars2.com/file/4A71BF654EFFAF92CA111C5D22DB7177BAE22FD0/2191040.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Sesame-Crusted Coq Au Vin to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Health Every Second\n+100 Power\n+70 Precision\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "Gain Health Every Second",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Power",
+        "attribute": "Power",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Precision",
+        "attribute": "Precision",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22478,11 +22877,61 @@
     "name": "Spherified Peppercorn-Spiced Oyster Soup",
     "icon": "https://render.guildwars2.com/file/683451055925A4C9503B0D52C608086A54D13750/2191077.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Spherified Peppercorn-Spiced Oyster Soup to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-10% Incoming Damage\n+45 to All Attributes\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-10% Incoming Damage",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+45 to All Attributes",
+        "attribute": "to All Attributes",
+        "value": 45,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22490,11 +22939,68 @@
     "name": "Plate of Sesame-Ginger Beef Carpaccio",
     "icon": "https://render.guildwars2.com/file/DBDCBA174AFB1E07570F20BAA6201A35A8FB29C7/2191024.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Sesame-Ginger Beef Carpaccio to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Health Every Second\n+100 Concentration\n+70 Power\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "Gain Health Every Second",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Power",
+        "attribute": "Power",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22502,11 +23008,68 @@
     "name": "Plate of Clove-Spiced Clear Truffle Ravioli",
     "icon": "https://render.guildwars2.com/file/CDE1220B990FB6C1EE0534317A33F66D3478C9EA/2191080.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Clove-Spiced Clear Truffle Ravioli to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-20% Incoming Condition Duration\n+100 Vitality\n+70 Toughness\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-20% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Vitality",
+        "attribute": "Vitality",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Toughness",
+        "attribute": "Toughness",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22514,11 +23077,68 @@
     "name": "Mint and Veggie Flatbread",
     "icon": "https://render.guildwars2.com/file/FCB44856734BE45744C8B10509CF710BBBE13C7B/2191027.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Mint and Veggie Flatbreads to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+10% Outgoing Healing\n+100 Expertise\n+70 Condition Damage\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+10% Outgoing Healing",
+        "attribute": "Outgoing Healing",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Expertise",
+        "attribute": "Expertise",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22526,11 +23146,68 @@
     "name": "Sesame Cheesecake",
     "icon": "https://render.guildwars2.com/file/9A20FB034061FF773033D4A161A6F61DCC5174CD/2191034.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Sesame Cheesecakes to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Health Every Second\n+100 Concentration\n33% Chance to Gain Might on Critical Hit\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "Gain Health Every Second",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "33% Chance to Gain Might on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22538,11 +23215,68 @@
     "name": "Bowl of Sesame Fruit Salad",
     "icon": "https://render.guildwars2.com/file/915278527BBA0F38A8CA7926EE3B0CE2B5B83A58/2191061.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Bowls of Sesame Fruit Salad to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Health Every Second\n+100 Healing\n+70 Concentration\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "Gain Health Every Second",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Healing",
+        "attribute": "Healing",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Concentration",
+        "attribute": "Concentration",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22550,11 +23284,68 @@
     "name": "Peppercorn-Crusted Sous-Vide Steak",
     "icon": "https://render.guildwars2.com/file/EBFB0A55087C48E905D4ED9E6BE549DA6D9560F4/2191071.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Peppercorn-Crusted Sous-Vide Steaks to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-10% Incoming Damage\n+100 Power\n+70 Ferocity\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-10% Incoming Damage",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Power",
+        "attribute": "Power",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Ferocity",
+        "attribute": "Ferocity",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22562,11 +23353,68 @@
     "name": "Plate of Clear Truffle and Cilantro Ravioli",
     "icon": "https://render.guildwars2.com/file/E1ABDA692331B20E9FBD6C04CB2BB7A2B8483ADD/2191079.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Clear Truffle and Cilantro Ravioli to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "66% Chance to Steal Life on Critical Hit\n+100 Vitality\n+70 Toughness\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "66% Chance to Steal Life on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Vitality",
+        "attribute": "Vitality",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Toughness",
+        "attribute": "Toughness",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22574,11 +23422,68 @@
     "name": "Soy-Sesame Sous-Vide Steak",
     "icon": "https://render.guildwars2.com/file/F2BCC85FF89E0BFF07443DC0503780E5134735B6/2191072.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Soy-Sesame Sous-Vide Steaks to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Health Every Second\n+100 Power\n+70 Ferocity\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "Gain Health Every Second",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Power",
+        "attribute": "Power",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Ferocity",
+        "attribute": "Ferocity",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22586,11 +23491,68 @@
     "name": "Bowl of Spiced Fruit Salad",
     "icon": "https://render.guildwars2.com/file/7CEC58DD0758464F3F66EFCF4C9E1152FE1D14E9/2191057.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Bowls of Spiced Fruit Salad to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-10% Incoming Damage\n+100 Healing\n+70 Concentration\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-10% Incoming Damage",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Healing",
+        "attribute": "Healing",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Concentration",
+        "attribute": "Concentration",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22598,11 +23560,68 @@
     "name": "Spiced Pepper Creme Brulee",
     "icon": "https://render.guildwars2.com/file/7408A11A9C3FD4FCE82F51DED3B8E815044A2E69/2191041.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Spiced Pepper Creme Brulees to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-10% Incoming Damage\n+100 Concentration\n+70 Healing\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-10% Incoming Damage",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Healing",
+        "attribute": "Healing",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22610,11 +23629,68 @@
     "name": "Mint Creme Brulee",
     "icon": "https://render.guildwars2.com/file/D9C2BEC72B7D5D9BDD80EF070ABB41970A667307/2191045.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Mint Creme Brulees to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+10% Outgoing Healing\n+100 Concentration\n+70 Healing\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+10% Outgoing Healing",
+        "attribute": "Outgoing Healing",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Healing",
+        "attribute": "Healing",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22622,11 +23698,68 @@
     "name": "Mango Cilantro Creme Brulee",
     "icon": "https://render.guildwars2.com/file/31201665AC2EDD674BCFEA5EF1FDB7B00D6040FA/2191044.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Mango Cilantro Creme Brulees to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "66% Chance to Steal Life on Critical Hit\n+100 Concentration\n+70 Healing\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "66% Chance to Steal Life on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Healing",
+        "attribute": "Healing",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22634,11 +23767,61 @@
     "name": "Spherified Oyster Soup with Mint Garnish",
     "icon": "https://render.guildwars2.com/file/5C50FC1ABC9F9715B9D4027E207BEC6F4C0DB7E1/2191076.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Spherified Oyster Soup with Mint Garnish to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+10% Outgoing Healing\n+45 to All Attributes\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+10% Outgoing Healing",
+        "attribute": "Outgoing Healing",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+45 to All Attributes",
+        "attribute": "to All Attributes",
+        "value": 45,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22646,11 +23829,68 @@
     "name": "Plate of Peppercorn-Spiced Coq Au Vin",
     "icon": "https://render.guildwars2.com/file/E63551700BC25C1F484BDBD422A4960B3269BACC/2191038.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Peppercorn-Spiced Coq Au Vin to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-10% Incoming Damage\n+100 Power\n+70 Precision\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-10% Incoming Damage",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Power",
+        "attribute": "Power",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Precision",
+        "attribute": "Precision",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22658,11 +23898,61 @@
     "name": "Spherified Clove-Spiced Oyster Soup",
     "icon": "https://render.guildwars2.com/file/EC5633F8390F1B3D44EFFB03669ECCB62498DCC4/2191075.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Spherified Clove-Spiced Oyster Soup to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-20% Incoming Condition Duration\n+45 to All Attributes\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-20% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+45 to All Attributes",
+        "attribute": "to All Attributes",
+        "value": 45,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22670,11 +23960,61 @@
     "name": "Spherified Sesame Oyster Soup",
     "icon": "https://render.guildwars2.com/file/FD0F3DD40B4E7CD8030FEDE79E51EBF55D2AA722/2191078.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Spherified Sesame Oyster Soup to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Health Every Second\n+45 to All Attributes\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "Gain Health Every Second",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+45 to All Attributes",
+        "attribute": "to All Attributes",
+        "value": 45,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22682,11 +24022,68 @@
     "name": "Eggs Benedict with Mint-Parsley Sauce",
     "icon": "https://render.guildwars2.com/file/247DFE7FA45A2DF9B24E5515C3BDB96D28ED213B/2191053.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Eggs Benedicts with Mint-Parsley Sauce to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+10% Outgoing Healing\n+100 Concentration\n+70 Expertise\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+10% Outgoing Healing",
+        "attribute": "Outgoing Healing",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22694,11 +24091,68 @@
     "name": "Orange Clove Cheesecake",
     "icon": "https://render.guildwars2.com/file/686DE6010C39502AF203BF07B4E2142E3A1FEB3C/2191032.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Orange Clove Cheesecakes to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-20% Incoming Condition Duration\n+100 Concentration\n33% Chance to Gain Might on Critical Hit\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-20% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "33% Chance to Gain Might on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22706,11 +24160,68 @@
     "name": "Clove-Spiced Creme Brulee",
     "icon": "https://render.guildwars2.com/file/CF64F12FBCADE621B95D1CCCAC05D99A307427A2/2191043.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Clove-Spiced Creme Brulees to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-20% Incoming Condition Duration\n+100 Concentration\n+70 Healing\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-20% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Healing",
+        "attribute": "Healing",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22718,11 +24229,68 @@
     "name": "Bowl of Fruit Salad with Cilantro Garnish",
     "icon": "https://render.guildwars2.com/file/9A19E7B6126064510FE3E8F8BB60F1E23FAA7B3D/2191058.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Bowls of Fruit Salad with Cilantro Garnish to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "66% Chance to Steal Life on Critical Hit\n+100 Healing\n+70 Concentration\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "66% Chance to Steal Life on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Healing",
+        "attribute": "Healing",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Concentration",
+        "attribute": "Concentration",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22730,11 +24298,68 @@
     "name": "Plate of Peppered Clear Truffle Ravioli",
     "icon": "https://render.guildwars2.com/file/256211DC4BB3D55792027F604A4AD90871D7B596/2191082.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Peppered Clear Truffle Ravioli to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-10% Incoming Damage\n+100 Vitality\n+70 Toughness\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-10% Incoming Damage",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Vitality",
+        "attribute": "Vitality",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Toughness",
+        "attribute": "Toughness",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22742,11 +24367,68 @@
     "name": "Peppercorn and Veggie Flatbread",
     "icon": "https://render.guildwars2.com/file/C4FB4B7A4F99042798394CAA083157D04CD33128/2191028.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Peppercorn and Veggie Flatbreads to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-10% Incoming Damage\n+100 Expertise\n+70 Condition Damage\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-10% Incoming Damage",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Expertise",
+        "attribute": "Expertise",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22754,11 +24436,68 @@
     "name": "Plate of Sesame Poultry Aspic",
     "icon": "https://render.guildwars2.com/file/3FA8255214079ED4C83048ED72D437FEECB936A8/2191067.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Sesame Poultry Aspic to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Health Every Second\n+100 Concentration\n+70 Toughness\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "Gain Health Every Second",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Toughness",
+        "attribute": "Toughness",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22766,11 +24505,68 @@
     "name": "Plate of Clove-Spiced Coq Au Vin",
     "icon": "https://render.guildwars2.com/file/CF0A1540AA0D05EE62DF7DDD6CD20968577FD0AD/2191036.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Clove-Spiced Coq Au Vin to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-20% Incoming Condition Duration\n+100 Power\n+70 Precision\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-20% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Power",
+        "attribute": "Power",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Precision",
+        "attribute": "Precision",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22778,11 +24574,68 @@
     "name": "Clove-Spiced Pear and Cured Meat Flatbread",
     "icon": "https://render.guildwars2.com/file/CE437DB26797C84F9127C9D190720311EB614512/2191047.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Clove-Spiced Pear and Cured Meat Flatbreads to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-20% Incoming Condition Duration\n+100 Condition Damage\n+70 Expertise\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-20% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22790,11 +24643,68 @@
     "name": "Mushroom Clove Sous-Vide Steak",
     "icon": "https://render.guildwars2.com/file/B5B94CB366A5BE800FA0290054E312A9F498E752/2191073.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Mushroom Clove Sous-Vide Steaks to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-20% Incoming Condition Duration\n+100 Power\n+70 Ferocity\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-20% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Power",
+        "attribute": "Power",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Ferocity",
+        "attribute": "Ferocity",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22802,11 +24712,68 @@
     "name": "Plate of Peppercorn-Spiced Poultry Aspic",
     "icon": "https://render.guildwars2.com/file/6C73AD27E2CBB23D39D2B0426DCF5168ECE90E3C/2191065.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Peppercorn-Spiced Poultry Aspic to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-10% Incoming Damage\n+100 Concentration\n+70 Toughness\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-10% Incoming Damage",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Toughness",
+        "attribute": "Toughness",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22814,11 +24781,68 @@
     "name": "Plate of Clear Truffle and Mint Ravioli",
     "icon": "https://render.guildwars2.com/file/C877A47075D19F67C931CA0C9BF624939664F66E/2191081.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Clear Truffle and Mint Ravioli to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+10% Outgoing Healing\n+100 Vitality\n+70 Toughness\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+10% Outgoing Healing",
+        "attribute": "Outgoing Healing",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Vitality",
+        "attribute": "Vitality",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Toughness",
+        "attribute": "Toughness",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22826,11 +24850,68 @@
     "name": "Plate of Clear Truffle and Sesame Ravioli",
     "icon": "https://render.guildwars2.com/file/1857D4F319C26B0393CD162C03A4D23C1E549204/2191083.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Clear Truffle and Sesame Ravioli to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Health Every Second\n+100 Vitality\n+70 Toughness\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "Gain Health Every Second",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Vitality",
+        "attribute": "Vitality",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Toughness",
+        "attribute": "Toughness",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22838,11 +24919,68 @@
     "name": "Sous-Vide Steak with Mint-Parsley Sauce",
     "icon": "https://render.guildwars2.com/file/3C79C778073B7ACB06000B6CE9B09668D2443B03/2191070.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Sous-Vide Steaks with Mint-Parsley Sauce to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+10% Outgoing Healing\n+100 Power\n+70 Ferocity\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+10% Outgoing Healing",
+        "attribute": "Outgoing Healing",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Power",
+        "attribute": "Power",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Ferocity",
+        "attribute": "Ferocity",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22850,11 +24988,61 @@
     "name": "Spherified Cilantro Oyster Soup",
     "icon": "https://render.guildwars2.com/file/9B0D0173051264281BBA4F4B10D7514DF54105E2/2191074.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Spherified Cilantro Oyster Soup to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "66% Chance to Steal Life on Critical Hit\n+45 to All Attributes\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "66% Chance to Steal Life on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+45 to All Attributes",
+        "attribute": "to All Attributes",
+        "value": 45,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22862,11 +25050,68 @@
     "name": "Cilantro Lime Sous-Vide Steak",
     "icon": "https://render.guildwars2.com/file/D2C00407A3FFE06251BDE9DC13525FE167ABA3E6/2191069.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Cilantro Lime Sous-Vide Steaks to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "66% Chance to Steal Life on Critical Hit\n+100 Power\n+70 Ferocity\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "66% Chance to Steal Life on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Power",
+        "attribute": "Power",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Ferocity",
+        "attribute": "Ferocity",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22874,11 +25119,68 @@
     "name": "Plate of Clove-Spiced Beef Carpaccio",
     "icon": "https://render.guildwars2.com/file/52F131350853D4A1BE1E054A30E2A6204FDE6191/2191021.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Clove-Spiced Beef Carpaccio to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-20% Incoming Condition Duration\n+100 Concentration\n+70 Power\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-20% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Power",
+        "attribute": "Power",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22886,11 +25188,68 @@
     "name": "Plate of Beef Carpaccio with Mint Garnish",
     "icon": "https://render.guildwars2.com/file/62E3DF4A52B1DE6CF992C8E77A6368D411BC08A1/2191025.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Beef Carpaccio with Mint Garnish to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+10% Outgoing Healing\n+100 Concentration\n+70 Power\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+10% Outgoing Healing",
+        "attribute": "Outgoing Healing",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Power",
+        "attribute": "Power",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22898,11 +25257,68 @@
     "name": "Plate of Coq Au Vin with Mint Garnish",
     "icon": "https://render.guildwars2.com/file/43E17EC338C6BC4FA838C21ABB53656BCF9A9609/2191037.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Coq Au Vin with Mint Garnish to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+10% Outgoing Healing\n+100 Power\n+70 Precision\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+10% Outgoing Healing",
+        "attribute": "Outgoing Healing",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Power",
+        "attribute": "Power",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Precision",
+        "attribute": "Precision",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22910,11 +25326,68 @@
     "name": "Sesame Veggie Flatbread",
     "icon": "https://render.guildwars2.com/file/3DB8FFA23132A05C549AC5A8EA2D7D07C16D4BEA/2191030.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Sesame Veggie Flatbreads to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Health Every Second\n+100 Expertise\n+70 Condition Damage\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "Gain Health Every Second",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Expertise",
+        "attribute": "Expertise",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22922,11 +25395,68 @@
     "name": "Mint Strawberry Cheesecake",
     "icon": "https://render.guildwars2.com/file/BAC0EB915B25A2D94917240E0EB1533A1FA59F04/2191031.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Mint Strawberry Cheesecakes to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+10% Outgoing Healing\n+100 Concentration\n33% Chance to Gain Might on Critical Hit\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+10% Outgoing Healing",
+        "attribute": "Outgoing Healing",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "33% Chance to Gain Might on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22934,11 +25464,68 @@
     "name": "Spiced Peppercorn Cheesecake",
     "icon": "https://render.guildwars2.com/file/3BA6542DDA2737B90CBFAB711E775E9A50301DD7/2191033.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Spiced Peppercorn Cheesecakes to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-10% Incoming Damage\n+100 Concentration\n33% Chance to Gain Might on Critical Hit\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-10% Incoming Damage",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "33% Chance to Gain Might on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22946,11 +25533,68 @@
     "name": "Sesame Creme Brulee",
     "icon": "https://render.guildwars2.com/file/685B53760D01FB0734BF726FBAFB9CCBDC973A44/2191042.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Sesame Creme Brulees to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Health Every Second\n+100 Concentration\n+70 Healing\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "Gain Health Every Second",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Healing",
+        "attribute": "Healing",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22958,11 +25602,68 @@
     "name": "Plate of Clove-Spiced Poultry Aspic",
     "icon": "https://render.guildwars2.com/file/77AE0BEB952DBF35F3323652F99DF5E5BC09081B/2191063.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Clove-Spiced Poultry Aspic to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-20% Incoming Condition Duration\n+100 Concentration\n+70 Toughness\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-20% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Toughness",
+        "attribute": "Toughness",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22970,11 +25671,68 @@
     "name": "Bowl of Fruit Salad with Orange-Clove Syrup",
     "icon": "https://render.guildwars2.com/file/A970FC093D572E5E03E1920AC07F7ED108F31427/2191060.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Bowls of Fruit Salad with Orange-Clove Syrup to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-20% Incoming Condition Duration\n+100 Healing\n+70 Concentration\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-20% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Healing",
+        "attribute": "Healing",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Concentration",
+        "attribute": "Concentration",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22994,11 +25752,68 @@
     "name": "Salsa Eggs Benedict",
     "icon": "https://render.guildwars2.com/file/0C1654600B0E40F9EEC909B8950CD6140FE17FCD/2191055.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Salsa Eggs Benedicts to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "66% Chance to Steal Life on Critical Hit\n+100 Concentration\n+70 Expertise\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "66% Chance to Steal Life on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23006,11 +25821,68 @@
     "name": "Peppered Cured Meat Flatbread",
     "icon": "https://render.guildwars2.com/file/4E3BD999CA176E1AE6DD04CC17FB0A732A0E6A52/2191049.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Peppered Cured Meat Flatbreads to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-10% Incoming Damage\n+100 Condition Damage\n+70 Expertise\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-10% Incoming Damage",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23018,11 +25890,68 @@
     "name": "Strawberry Cilantro Cheesecake",
     "icon": "https://render.guildwars2.com/file/E03521A65C171B4A35E5414DED9630DABA321C1F/2191035.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Strawberry Cilantro Cheesecakes to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "66% Chance to Steal Life on Critical Hit\n+100 Concentration\n33% Chance to Gain Might on Critical Hit\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "66% Chance to Steal Life on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "33% Chance to Gain Might on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23030,11 +25959,68 @@
     "name": "Sesame Eggs Benedict",
     "icon": "https://render.guildwars2.com/file/017DDDA49A1141CEBBF40C26E1C1EF7F429C71A4/2191056.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Sesame Eggs Benedicts to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Health Every Second\n+100 Concentration\n+70 Expertise\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "Gain Health Every Second",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23042,11 +26028,68 @@
     "name": "Plate of Peppercorn-Spiced Beef Carpaccio",
     "icon": "https://render.guildwars2.com/file/780C4F9AC90093E3A3E2A97C5F7D5A2F0C04F4E4/2191022.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Peppercorn-Spiced Beef Carpaccio to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-10% Incoming Damage\n+100 Concentration\n+70 Power\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-10% Incoming Damage",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Power",
+        "attribute": "Power",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23054,11 +26097,68 @@
     "name": "Plate of Beef Carpaccio with Salsa Garnish",
     "icon": "https://render.guildwars2.com/file/012F16A0E3F01C78387747FD7373269D08A2413F/2191023.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Beef Carpaccio with Salsa Garnish to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "66% Chance to Steal Life on Critical Hit\n+100 Concentration\n+70 Power\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "66% Chance to Steal Life on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Power",
+        "attribute": "Power",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23066,11 +26166,68 @@
     "name": "Plate of Poultry Aspic with Mint Garnish",
     "icon": "https://render.guildwars2.com/file/48E5D0084720ED05DBB5641AFF2D7A371F30A3E0/2191064.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Poultry Aspic with Mint Garnish to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+10% Outgoing Healing\n+100 Concentration\n+70 Toughness\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+10% Outgoing Healing",
+        "attribute": "Outgoing Healing",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Toughness",
+        "attribute": "Toughness",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23078,11 +26235,68 @@
     "name": "Peppercorn-Spiced Eggs Benedict",
     "icon": "https://render.guildwars2.com/file/B99C201F48A59862F97D97E65AFA399903CD0919/2191054.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Peppercorn-Spiced Eggs Benedicts to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-10% Incoming Damage\n+100 Concentration\n+70 Expertise\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-10% Incoming Damage",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23090,11 +26304,68 @@
     "name": "Sesame-Asparagus and Cured Meat Flatbread",
     "icon": "https://render.guildwars2.com/file/70FC0F07541C377D3601D44E9939D2EE0A740509/2191046.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Sesame-Asparagus and Cured Meat Flatbreads to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "Gain Health Every Second\n+100 Condition Damage\n+70 Expertise\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "Gain Health Every Second",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23102,11 +26373,68 @@
     "name": "Salsa-Topped Veggie Flatbread",
     "icon": "https://render.guildwars2.com/file/161BD739DCBE0BA737081A079017D6F660BE5642/2191029.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Salsa-Topped Veggie Flatbreads to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "66% Chance to Steal Life on Critical Hit\n+100 Expertise\n+70 Condition Damage\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "66% Chance to Steal Life on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Expertise",
+        "attribute": "Expertise",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23114,11 +26442,68 @@
     "name": "Cilantro and Cured Meat Flatbread",
     "icon": "https://render.guildwars2.com/file/13906DE02D374DBB6A013C5EF76F26FBAFD5A39A/2191050.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Cilantro and Cured Meat Flatbreads to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "66% Chance to Steal Life on Critical Hit\n+100 Condition Damage\n+70 Expertise\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "66% Chance to Steal Life on Critical Hit",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23785,11 +27170,61 @@
     "name": "Flight of Sushi",
     "icon": "https://render.guildwars2.com/file/FCEEA5A40DE043010E14C4B0431D505238F5FE52/2594839.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Flights of Sushi to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+150 Fishing Power\n+45 to All Attributes\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+150 Fishing Power",
+        "attribute": "Fishing Power",
+        "value": 150,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+45 to All Attributes",
+        "attribute": "to All Attributes",
+        "value": 45,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23797,11 +27232,68 @@
     "name": "Bowl of Jade Sea Bounty",
     "icon": "https://render.guildwars2.com/file/9144703DBED77D08C000CC7F9B57BFFBDD23130F/2594823.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Bowls of Jade Sea Bounty to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+150 Fishing Power\n+100 Power\n+70 Ferocity\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+150 Fishing Power",
+        "attribute": "Fishing Power",
+        "value": 150,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Power",
+        "attribute": "Power",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Ferocity",
+        "attribute": "Ferocity",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23843,11 +27335,68 @@
     "name": "Plate of Imperial Palace Special",
     "icon": "https://render.guildwars2.com/file/6FCDE3CAF2509754BE12C3EE19230216EA9511ED/2594822.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Imperial Palace Special to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+150 Fishing Power\n+100 Healing\n+70 Concentration\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+150 Fishing Power",
+        "attribute": "Fishing Power",
+        "value": 150,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Healing",
+        "attribute": "Healing",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Concentration",
+        "attribute": "Concentration",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23855,11 +27404,68 @@
     "name": "Bowl of Echovald Hotpot",
     "icon": "https://render.guildwars2.com/file/38EB2C9C22C112202F30CD98FAB9F3200C08031A/2594821.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Bowls of Echovald Hotpot to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+150 Fishing Power\n+100 Condition Damage\n+70 Expertise\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+150 Fishing Power",
+        "attribute": "Fishing Power",
+        "value": 150,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -23935,11 +27541,68 @@
     "name": "Plate of Crispy Fish Pancakes",
     "icon": "https://render.guildwars2.com/file/256F457CC2FE610D7BB82B51E61C7B72B0D755F2/2594820.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Plates of Crispy Fish Pancakes to anyone nearby. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+150 Fishing Power\n+100 Vitality\n+70 Toughness\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+150 Fishing Power",
+        "attribute": "Fishing Power",
+        "value": 150,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Vitality",
+        "attribute": "Vitality",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Toughness",
+        "attribute": "Toughness",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -24017,11 +27680,68 @@
     "name": "Mists-Infused Peppercorn-Crusted Sous-Vide Steak",
     "icon": "https://render.guildwars2.com/file/EBFB0A55087C48E905D4ED9E6BE549DA6D9560F4/2191071.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Mists-Infused Peppercorn-Crusted Sous-Vide Steaks to anyone nearby. Feast stays active for 5 minutes. Only usable in WvW.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-10% Incoming Damage\n+100 Power\n+70 Ferocity\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-10% Incoming Damage",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Power",
+        "attribute": "Power",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Ferocity",
+        "attribute": "Ferocity",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -24029,11 +27749,61 @@
     "name": "Mists-Infused Spherified Peppercorn-Spiced Oyster Soup",
     "icon": "https://render.guildwars2.com/file/683451055925A4C9503B0D52C608086A54D13750/2191077.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Mists-Infused Spherified Peppercorn-Spiced Oyster Soup to anyone nearby. Feast stays active for 5 minutes. Only usable in WvW.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-10% Incoming Damage\n+45 to All Attributes\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "-10% Incoming Damage",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+45 to All Attributes",
+        "attribute": "to All Attributes",
+        "value": 45,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -24041,11 +27811,68 @@
     "name": "Bowl of Mists-Infused Fruit Salad with Mint Garnish",
     "icon": "https://render.guildwars2.com/file/1D44545301F3BB1C046898EA08D5906EB369DD0A/2191059.png",
     "kind": "Food",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Gourmet Feast: Double-click to serve Bowls of Mists-Infused Fruit Salad with Mint Garnish to anyone nearby. Feast stays active for 5 minutes. Only usable in WvW.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+10% Outgoing Healing\n+100 Healing\n+70 Concentration\n+10% Karma\n+5% All Experience Gained\n+20% Magic Find\n+20% Gold Find\n+10% WXP Gained",
+    "bonuses": [
+      {
+        "raw": "+10% Outgoing Healing",
+        "attribute": "Outgoing Healing",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+100 Healing",
+        "attribute": "Healing",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Concentration",
+        "attribute": "Concentration",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+5% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 5,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Magic Find",
+        "attribute": "Magic Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold Find",
+        "attribute": "Gold Find",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% WXP Gained",
+        "attribute": "WXP Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {

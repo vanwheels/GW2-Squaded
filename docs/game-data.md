@@ -601,12 +601,23 @@ output) and reuses it on subsequent runs unless `--refresh` is passed. Delete `.
   in `fetch-gear-upgrades.ts` resolves this by stripping the container word ("Feast of X(s)"/"Tray of
   X(s)"/"Pot of X"/etc.), re-singularizing, and re-prefixing every plausible individual-item
   container word ("Bowl of X"/"Plate of X"/"Cup of X"/...) to find the matching buffed item's name —
-  only applied on an unambiguous single match (174/318 Food entries this session; the other 144 stay
-  unmatched — Mastery-point currency items, achievement/collection rewards, and a few `Consumable`s
-  that are directly both the personal AND the shareable version with no separate sibling to borrow
-  from, e.g. Cilantro Lime Sous-Vide Steak). `Consumable.sharedBuffSource` records what was borrowed
-  from (surfaced in the tooltip via `formatConsumableDescription`); `durationMs`/`applyCount` are
-  NOT borrowed (the shared version's duration is usually different and wasn't individually verified).
+  only applied on an unambiguous single match (174/318 Food entries this session). `Consumable.
+  sharedBuffSource` records what was borrowed from (surfaced in the tooltip via
+  `formatConsumableDescription`); `durationMs`/`applyCount` are NOT borrowed (the shared version's
+  duration is usually different and wasn't individually verified).
+  **"Ascended Gourmet Feast" tier, fixed 2026-08-06**: of the 144 Food entries still buffless after
+  borrowing, 68 turned out to be a distinct End of Dragons-era tier (e.g. Cilantro Lime Sous-Vide
+  Steak) with NO buff data anywhere in the API and no individually-eaten sibling to borrow from at
+  all — genuinely shareable-only by design. `applyAscendedFeastFormula` in `fetch-gear-upgrades.ts`
+  resolves these instead via the wiki's documented recipe formula: a "food type" (from the item's
+  name, e.g. "Sous-Vide Steak") fixes a major/minor attribute pair, a "herb" (e.g. "Mint") fixes one
+  more bonus effect, and 5 fixed lines (`+10% Karma`/`+5% All Experience Gained`/`+20% Magic Find`/
+  `+20% Gold Find`/`+10% WXP Gained`) are appended to every one — cross-checked against several
+  individual items' raw wikitext (not a rendered/summarized table) before being hardcoded, including
+  the handful of names that don't spell out their food-type/herb word literally ("Salsa" = Cilantro,
+  "Spiced"/"Peppered" = Peppercorn). The remaining 76 are genuinely non-food catalog noise (Mastery-
+  point currency, crafting materials, achievement/collection rewards) — see TODO.md for the open
+  question on filtering those back out of the picker.
   Utility's equivalent — "Station" items (Sharpening Stone Station, Tuning Crystal Station, etc.,
   14 total) — turned out to need a *different* fix: they're NOT missing buff data (their own raw
   item record has a complete `details.description`, same shape as an ordinary Utility item) — they
