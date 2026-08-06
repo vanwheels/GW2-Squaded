@@ -334,12 +334,24 @@ export interface WvwFactOverrides {
  * stage: "Gain protection (3s) when you gain fury", or "+10% Experience from Kills", which isn't
  * a real GW2 combat attribute) — those keep `raw` with `attribute`/`value` both `null` rather
  * than a guessed value. See scripts/fetch-gear-upgrades.ts's `parseAttributeBonusText`.
+ *
+ * `sourceAttribute` is a second, distinct shape: a "Gain <target> Equal to N% of Your <source>"
+ * line (the Superior Sharpening Stone / Tuning Crystal formula — confirmed 2026-08-06 to be the
+ * dominant WvW Utility-consumable shape, ~43% of `utility.json`'s catalog) rather than a flat/
+ * percent bonus. When set, `attribute` holds the target's free-text name, `value` holds the
+ * percent (not a flat point value or a direct-percent bonus), and `sourceAttribute` holds the
+ * source's free-text name — `isPercent` is meaningless for these lines (always `false`). `null`
+ * for every ordinary "+N[%] Attribute" line. Resolved against the *final* source-attribute total
+ * (after gear/base/combat, same convention as `TraitConversion`) by
+ * `activeConsumableConversions`/`applyConversions` in `attribute-totals.ts`, not by `addBonus`
+ * (which no-ops on these — a single-pass point add can't know the source's final value yet).
  */
 export interface AttributeBonusText {
   raw: string
   attribute: string | null
   value: number | null
   isPercent: boolean
+  sourceAttribute: string | null
 }
 
 /**

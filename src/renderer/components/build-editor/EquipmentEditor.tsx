@@ -278,14 +278,23 @@ export function EquipmentEditor({
 
   // Build-level (not per-slot) picks: exactly 1 relic, plus at most 1 food and 1 utility
   // consumable — unlike runes/sigils/infusions, these aren't tied to a specific equipment slot.
-  // Food/utility intentionally list the FULL catalog, not a pre-filtered subset (see TODO.md).
+  // Food/utility intentionally list the FULL catalog, not a pre-filtered "WvW meta" subset (see
+  // TODO.md) — but `effectName === null` entries (confirmed 2026-08-06 to be exactly the ~318
+  // food / 10 utility catalog items with no Nourishment/Enhancement buff at all: "Feast" reagents
+  // meant to be placed down for a group rather than eaten directly, plus a handful of cosmetic
+  // transformation tonics — see `Consumable`'s doc comment in game-data.ts) are excluded here, not
+  // a "meta" judgment call: picking one of these does nothing (no buff to apply) and their
+  // `description` falls back to the item's own flavor/usage text ("Double-click to set out..."),
+  // which read like a broken tooltip rather than a legitimate zero-effect choice.
   const relicOptions: UpgradeOption[] = relics
     .map((r) => ({ id: r.id, name: r.name, icon: r.icon, description: formatRelicDescription(r, relicEffects[r.id]) }))
     .sort(byName)
   const foodOptions: UpgradeOption[] = food
+    .filter((f) => f.effectName !== null)
     .map((f) => ({ id: f.id, name: f.name, icon: f.icon, description: formatConsumableDescription(f) }))
     .sort(byName)
   const utilityOptions: UpgradeOption[] = utility
+    .filter((u) => u.effectName !== null)
     .map((u) => ({ id: u.id, name: u.name, icon: u.icon, description: formatConsumableDescription(u) }))
     .sort(byName)
 

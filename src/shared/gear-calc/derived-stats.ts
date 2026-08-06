@@ -1,6 +1,8 @@
 import type { Build, EquipmentSlotKey, GameData, ProfessionId } from '../types'
 import {
+  activeConsumableConversions,
   addPoints,
+  applyConversions,
   boonDurationPercent,
   computeGearAttributeTotals,
   conditionDurationPercent,
@@ -151,6 +153,8 @@ export function computeCharacterStats(
 ): CharacterStats {
   const gearTotals = computeGearAttributeTotals(build, gameData)
   const traitsById = new Map(gameData.traits.map((t) => [t.id, t]))
+  const foodById = new Map(gameData.food.map((f) => [f.id, f]))
+  const utilityById = new Map(gameData.utility.map((u) => [u.id, u]))
   const combatPoints = combatStatePoints(build, combatState)
 
   // Single unified totals: base + gear/rune/food/utility + combat state, then every active
@@ -164,6 +168,12 @@ export function computeCharacterStats(
   for (const [k, v] of Object.entries(gearTotals.points)) addPoints(totals, k, v)
   for (const [k, v] of Object.entries(combatPoints)) addPoints(totals, k, v)
   totals.bonusPercent = { ...gearTotals.bonusPercent }
+  // Food/utility "Gain X Equal to N% of Your Y" conversions (Superior Sharpening Stone, Tuning
+  // Crystals — the dominant WvW Utility-consumable shape, see `AttributeBonusText`'s doc comment)
+  // resolve against this same base+gear+combat snapshot, before trait bonuses stack on top —
+  // `addBonus` intentionally no-ops on these during `computeGearAttributeTotals` since a
+  // single-pass point add can't see the source attribute's final value yet.
+  applyConversions(totals, activeConsumableConversions(build, foodById, utilityById))
   applyTraitBonuses(totals, build, traitsById)
 
   const attributes: CharacterAttributes = {

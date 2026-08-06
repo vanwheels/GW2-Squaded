@@ -13,19 +13,22 @@
         "raw": "+10% Damage vs. Undead",
         "attribute": "Damage vs. Undead",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Undead",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -43,19 +46,22 @@
         "raw": "+10% Damage vs. Nightmare Court",
         "attribute": "Damage vs. Nightmare Court",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Nightmare Court",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -73,19 +79,22 @@
         "raw": "+10% Damage vs. Sons of Svanir",
         "attribute": "Damage vs. Sons of Svanir",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Sons of Svanir",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -103,19 +112,22 @@
         "raw": "+10% Damage vs. Outlaws",
         "attribute": "Damage vs. Outlaws",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Outlaws",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -133,19 +145,22 @@
         "raw": "+10% Damage vs. Flame Legion",
         "attribute": "Damage vs. Flame Legion",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Flame Legion",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -163,19 +178,22 @@
         "raw": "+10% Damage vs. Inquest",
         "attribute": "Damage vs. Inquest",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Inquest",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -193,19 +211,22 @@
         "raw": "+10% Damage vs. Dredge",
         "attribute": "Damage vs. Dredge",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Dredge",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -223,19 +244,22 @@
         "raw": "+10% Damage vs. Ghosts",
         "attribute": "Damage vs. Ghosts",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Ghosts",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -253,7 +277,8 @@
         "raw": "Your Vitality is increased.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -271,7 +296,8 @@
         "raw": "Your toughness is increased.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -289,7 +315,8 @@
         "raw": "Your power is increased.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -307,7 +334,8 @@
         "raw": "Your attacks are more precise.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -325,13 +353,15 @@
         "raw": "Gain Health Every Second",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -360,7 +390,8 @@
         "raw": "12% Chance to Gain Swiftness on Kill",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -400,19 +431,22 @@
         "raw": "+7% Damage vs. Undead",
         "attribute": "Damage vs. Undead",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Undead",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -430,19 +464,22 @@
         "raw": "+7% Damage vs. Undead",
         "attribute": "Damage vs. Undead",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Undead",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -460,13 +497,15 @@
         "raw": "+3% Damage vs. Flame Legion",
         "attribute": "Damage vs. Flame Legion",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -484,13 +523,15 @@
         "raw": "+3% Damage vs. Centaur",
         "attribute": "Damage vs. Centaur",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -508,13 +549,15 @@
         "raw": "+3% Damage vs. Outlaws",
         "attribute": "Damage vs. Outlaws",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -532,13 +575,15 @@
         "raw": "+3% Damage vs. Nightmare Court",
         "attribute": "Damage vs. Nightmare Court",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -556,13 +601,15 @@
         "raw": "+3% Damage vs. Sons of Svanir",
         "attribute": "Damage vs. Sons of Svanir",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -580,13 +627,15 @@
         "raw": "+3% Damage vs. Destroyers",
         "attribute": "Damage vs. Destroyers",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -604,13 +653,15 @@
         "raw": "+3% Damage vs. Elementals",
         "attribute": "Damage vs. Elementals",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -628,13 +679,15 @@
         "raw": "+3% Damage vs. Demons",
         "attribute": "Damage vs. Demons",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -652,13 +705,15 @@
         "raw": "+3% Damage vs. Inquest",
         "attribute": "Damage vs. Inquest",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -676,13 +731,15 @@
         "raw": "+3% Damage vs. Ogres",
         "attribute": "Damage vs. Ogres",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -700,13 +757,15 @@
         "raw": "+3% Damage vs. Ice Brood",
         "attribute": "Damage vs. Ice Brood",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -724,13 +783,15 @@
         "raw": "+3% Damage vs. Grawl",
         "attribute": "Damage vs. Grawl",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -748,13 +809,15 @@
         "raw": "+3% Damage vs. Krait",
         "attribute": "Damage vs. Krait",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -772,13 +835,15 @@
         "raw": "+3% Damage vs. Dredge",
         "attribute": "Damage vs. Dredge",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -796,13 +861,15 @@
         "raw": "+3% Damage vs. Undead",
         "attribute": "Damage vs. Undead",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -820,13 +887,15 @@
         "raw": "+5% Damage vs. Flame Legion",
         "attribute": "Damage vs. Flame Legion",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -844,13 +913,15 @@
         "raw": "+5% Damage vs. Centaur",
         "attribute": "Damage vs. Centaur",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -868,7 +939,8 @@
         "raw": "+5% damage vs outlaws",
         "attribute": "damage vs outlaws",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -886,13 +958,15 @@
         "raw": "+5% Damage vs. Nightmare Court",
         "attribute": "Damage vs. Nightmare Court",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -910,13 +984,15 @@
         "raw": "+5% Damage vs. Sons of Svanir",
         "attribute": "Damage vs. Sons of Svanir",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -934,13 +1010,15 @@
         "raw": "+5% Damage vs. Destroyers",
         "attribute": "Damage vs. Destroyers",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -958,13 +1036,15 @@
         "raw": "+5% Damage vs. Elementals",
         "attribute": "Damage vs. Elementals",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -982,13 +1062,15 @@
         "raw": "+5% Damage vs. Demons",
         "attribute": "Damage vs. Demons",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1006,13 +1088,15 @@
         "raw": "+5% Damage vs. Inquest",
         "attribute": "Damage vs. Inquest",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1030,13 +1114,15 @@
         "raw": "+5% Damage vs. Ogres",
         "attribute": "Damage vs. Ogres",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1054,13 +1140,15 @@
         "raw": "+5% Damage vs. Ice Brood",
         "attribute": "Damage vs. Ice Brood",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1078,13 +1166,15 @@
         "raw": "+5% Damage vs. Grawl",
         "attribute": "Damage vs. Grawl",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1102,13 +1192,15 @@
         "raw": "+5% Damage vs. Krait",
         "attribute": "Damage vs. Krait",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1126,13 +1218,15 @@
         "raw": "+5% Damage vs. Dredge",
         "attribute": "Damage vs. Dredge",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1150,13 +1244,15 @@
         "raw": "+5% Damage vs. Undead",
         "attribute": "Damage vs. Undead",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1174,19 +1270,22 @@
         "raw": "+7% Damage vs. Flame Legion",
         "attribute": "Damage vs. Flame Legion",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Flame Legion",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1204,19 +1303,22 @@
         "raw": "+7% Damage vs. Centaur",
         "attribute": "Damage vs. Centaur",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Centaur",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1234,19 +1336,22 @@
         "raw": "+7% Damage vs. Outlaws",
         "attribute": "Damage vs. Outlaws",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Outlaws",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1264,19 +1369,22 @@
         "raw": "+7% Damage vs. Nightmare Court",
         "attribute": "Damage vs. Nightmare Court",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Nightmare Court",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1294,19 +1402,22 @@
         "raw": "+7% Damage vs. Sons of Svanir",
         "attribute": "Damage vs. Sons of Svanir",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Sons of Svanir",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1324,19 +1435,22 @@
         "raw": "+7% Damage vs. Destroyers",
         "attribute": "Damage vs. Destroyers",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Destroyers",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1354,13 +1468,15 @@
         "raw": "+7% damage vs elementals",
         "attribute": "damage vs elementals",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% damage from elementals",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1378,19 +1494,22 @@
         "raw": "+7% Damage vs. Demons",
         "attribute": "Damage vs. Demons",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Demons",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1408,19 +1527,22 @@
         "raw": "+7% Damage vs. Inquest",
         "attribute": "Damage vs. Inquest",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Inquest",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1438,19 +1560,22 @@
         "raw": "+7% Damage vs. Ogre",
         "attribute": "Damage vs. Ogre",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Ogre",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1468,19 +1593,22 @@
         "raw": "+7% Damage vs. Ice Brood",
         "attribute": "Damage vs. Ice Brood",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Ice Brood",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1498,19 +1626,22 @@
         "raw": "+7% Damage vs. Grawl",
         "attribute": "Damage vs. Grawl",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Grawl",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1528,19 +1659,22 @@
         "raw": "+7% Damage vs. Krait",
         "attribute": "Damage vs. Krait",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Krait",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1558,19 +1692,22 @@
         "raw": "+7% Damage vs. Dredge",
         "attribute": "Damage vs. Dredge",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Dredge",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1588,19 +1725,22 @@
         "raw": "+7% Damage vs. Undead",
         "attribute": "Damage vs. Undead",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Undead",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1618,19 +1758,22 @@
         "raw": "+8% Damage vs. Flame Legion",
         "attribute": "Damage vs. Flame Legion",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Flame Legion",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1648,19 +1791,22 @@
         "raw": "+8% Damage vs. Centaur",
         "attribute": "Damage vs. Centaur",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Centaur",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1678,19 +1824,22 @@
         "raw": "+8% Damage vs. Outlaws",
         "attribute": "Damage vs. Outlaws",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Outlaws",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1708,19 +1857,22 @@
         "raw": "+8% Damage vs. Nightmare Court",
         "attribute": "Damage vs. Nightmare Court",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Nightmare Court",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1738,19 +1890,22 @@
         "raw": "+8% Damage vs. Sons of Svanir",
         "attribute": "Damage vs. Sons of Svanir",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Sons of Svanir",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1768,19 +1923,22 @@
         "raw": "+8% Damage vs. Destroyers",
         "attribute": "Damage vs. Destroyers",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Destroyers",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1798,13 +1956,15 @@
         "raw": "+8% damage vs elementals",
         "attribute": "damage vs elementals",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% damage from elementals",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1822,19 +1982,22 @@
         "raw": "+8% Damage vs. Demons",
         "attribute": "Damage vs. Demons",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Demons",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1852,19 +2015,22 @@
         "raw": "+8% Damage vs. Inquest",
         "attribute": "Damage vs. Inquest",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Inquest",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1882,19 +2048,22 @@
         "raw": "+8% Damage vs. Ogres",
         "attribute": "Damage vs. Ogres",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Ogres",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1912,19 +2081,22 @@
         "raw": "+8% Damage vs. Ice Brood",
         "attribute": "Damage vs. Ice Brood",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Ice Brood",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1942,19 +2114,22 @@
         "raw": "+8% Damage vs. Grawl",
         "attribute": "Damage vs. Grawl",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Grawl",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -1972,19 +2147,22 @@
         "raw": "+8% Damage vs. Krait",
         "attribute": "Damage vs. Krait",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Krait",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2002,19 +2180,22 @@
         "raw": "+8% Damage vs. Dredge",
         "attribute": "Damage vs. Dredge",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Dredge",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2032,19 +2213,22 @@
         "raw": "+8% Damage vs. Undead",
         "attribute": "Damage vs. Undead",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Undead",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2062,19 +2246,22 @@
         "raw": "+9% Damage vs. Flame Legion",
         "attribute": "Damage vs. Flame Legion",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Flame Legion",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2092,19 +2279,22 @@
         "raw": "+9% Damage vs. Centaur",
         "attribute": "Damage vs. Centaur",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Centaur",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2122,19 +2312,22 @@
         "raw": "+9% Damage vs. Outlaws",
         "attribute": "Damage vs. Outlaws",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Outlaws",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2152,19 +2345,22 @@
         "raw": "+9% Damage vs. Nightmare Court",
         "attribute": "Damage vs. Nightmare Court",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Nightmare Court",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2182,19 +2378,22 @@
         "raw": "+9% Damage vs. Sons of Svanir",
         "attribute": "Damage vs. Sons of Svanir",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Sons of Svanir",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2212,19 +2411,22 @@
         "raw": "+9% Damage vs. Destroyers",
         "attribute": "Damage vs. Destroyers",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Destroyers",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2242,19 +2444,22 @@
         "raw": "+9% Damage vs. Elementals",
         "attribute": "Damage vs. Elementals",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Elementals",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2272,19 +2477,22 @@
         "raw": "+9% Damage vs. Demons, Kryptis, and Titanspawn",
         "attribute": "Damage vs. Demons, Kryptis, and Titanspawn",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Demons, Kryptis, and Titanspawn",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2302,19 +2510,22 @@
         "raw": "+9% Damage vs. Inquest",
         "attribute": "Damage vs. Inquest",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Inquest",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2332,19 +2543,22 @@
         "raw": "+9% Damage vs. Ogres",
         "attribute": "Damage vs. Ogres",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Ogres",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2362,19 +2576,22 @@
         "raw": "+9% Damage vs. Ice Brood",
         "attribute": "Damage vs. Ice Brood",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Ice Brood",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2392,19 +2609,22 @@
         "raw": "+9% Damage vs. Grawl",
         "attribute": "Damage vs. Grawl",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Grawl",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2422,19 +2642,22 @@
         "raw": "+9% Damage vs. Krait",
         "attribute": "Damage vs. Krait",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Krait",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2452,19 +2675,22 @@
         "raw": "+9% Damage vs. Dredge",
         "attribute": "Damage vs. Dredge",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Dredge",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2482,19 +2708,22 @@
         "raw": "+9% Damage vs. Undead",
         "attribute": "Damage vs. Undead",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Undead",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2512,19 +2741,22 @@
         "raw": "+10% Damage vs. Flame Legion",
         "attribute": "Damage vs. Flame Legion",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Flame Legion",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2542,19 +2774,22 @@
         "raw": "+10% Damage vs. Centaur",
         "attribute": "Damage vs. Centaur",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Centaur",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2572,19 +2807,22 @@
         "raw": "+10% Damage vs. Outlaws",
         "attribute": "Damage vs. Outlaws",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Outlaws",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2602,19 +2840,22 @@
         "raw": "+10% Damage vs. Nightmare Court",
         "attribute": "Damage vs. Nightmare Court",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Nightmare Court",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2632,19 +2873,22 @@
         "raw": "+10% Damage vs. Sons of Svanir",
         "attribute": "Damage vs. Sons of Svanir",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Sons of Svanir",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2662,19 +2906,22 @@
         "raw": "+10% Damage vs. Destroyers",
         "attribute": "Damage vs. Destroyers",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Destroyers",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2692,19 +2939,22 @@
         "raw": "+10% Damage vs. Elementals",
         "attribute": "Damage vs. Elementals",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Elementals",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2722,19 +2972,22 @@
         "raw": "+10% Damage vs. Demons, Kryptis, and Titanspawn",
         "attribute": "Damage vs. Demons, Kryptis, and Titanspawn",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Demons, Kryptis, and Titanspawn",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2752,19 +3005,22 @@
         "raw": "+10% Damage vs. Inquest",
         "attribute": "Damage vs. Inquest",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Inquest",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2782,19 +3038,22 @@
         "raw": "+10% Damage vs. Ogres",
         "attribute": "Damage vs. Ogres",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Ogres",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2812,19 +3071,22 @@
         "raw": "+10% Damage vs. Ice Brood",
         "attribute": "Damage vs. Ice Brood",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Ice Brood",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2842,19 +3104,22 @@
         "raw": "+10% Damage vs. Grawl",
         "attribute": "Damage vs. Grawl",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Grawl",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2872,19 +3137,22 @@
         "raw": "+10% Damage vs. Krait",
         "attribute": "Damage vs. Krait",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Krait",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2902,19 +3170,22 @@
         "raw": "+10% Damage vs. Dredge",
         "attribute": "Damage vs. Dredge",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Dredge",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2932,19 +3203,22 @@
         "raw": "+10% Damage vs. Undead",
         "attribute": "Damage vs. Undead",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Undead",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2971,15 +3245,17 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 1% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 1,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -2995,15 +3271,17 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3019,21 +3297,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 1% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 1,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Power Equal to 3% of Your Ferocity",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Ferocity"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3049,21 +3330,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Power Equal to 2% of Your Ferocity",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Ferocity"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3079,21 +3363,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Power Equal to 4% of Your Ferocity",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 4,
+        "isPercent": false,
+        "sourceAttribute": "Ferocity"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3109,21 +3396,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Power Equal to 6% of Your Ferocity",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Ferocity"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3139,15 +3429,17 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 1% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 1,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3163,15 +3455,17 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3187,21 +3481,24 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 1% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 1,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Concentration Equal to 2% of Your Healing Power",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Healing Power"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3217,21 +3514,24 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Concentration Equal to 2% of Your Healing Power",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Healing Power"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3247,21 +3547,24 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Concentration Equal to 4% of Your Healing Power",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 4,
+        "isPercent": false,
+        "sourceAttribute": "Healing Power"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3277,21 +3580,24 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Concentration Equal to 6% of Your Healing Power",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Healing Power"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3307,15 +3613,17 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 1% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 1,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3331,15 +3639,17 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3355,21 +3665,24 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 1% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 1,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Condition Damage Equal to 3% of Your Expertise",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Expertise"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3385,21 +3698,24 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Condition Damage Equal to 3% of Your Expertise",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Expertise"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3415,21 +3731,24 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Condition Damage Equal to 5% of Your Expertise",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 5,
+        "isPercent": false,
+        "sourceAttribute": "Expertise"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3445,21 +3764,24 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Condition Damage Equal to 8% of Your Expertise",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 8,
+        "isPercent": false,
+        "sourceAttribute": "Expertise"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3499,13 +3821,15 @@
         "raw": "+3% Damage vs. Halloween Creatures",
         "attribute": "Damage vs. Halloween Creatures",
         "value": 3,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3523,19 +3847,22 @@
         "raw": "+10% Damage vs. Halloween Creatures",
         "attribute": "Damage vs. Halloween Creatures",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Halloween Creatures",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3553,19 +3880,22 @@
         "raw": "+8% Damage vs. Halloween Creatures",
         "attribute": "Damage vs. Halloween Creatures",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Halloween Creatures",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3583,19 +3913,22 @@
         "raw": "+9% Damage vs. Halloween Creatures",
         "attribute": "Damage vs. Halloween Creatures",
         "value": 9,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-8% Damage from Halloween Creatures",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3613,13 +3946,15 @@
         "raw": "+5% Damage vs. Halloween Creatures",
         "attribute": "Damage vs. Halloween Creatures",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3637,19 +3972,22 @@
         "raw": "+7% Damage vs. Halloween Creatures",
         "attribute": "Damage vs. Halloween Creatures",
         "value": 7,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-4% Damage from Halloween Creatures",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3678,19 +4016,22 @@
         "raw": "+8% Damage vs. Karka",
         "attribute": "Damage vs. Karka",
         "value": 8,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-6% Damage from Karka",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3708,7 +4049,8 @@
         "raw": "+150 toughness",
         "attribute": "toughness",
         "value": 150,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3726,7 +4068,8 @@
         "raw": "Your movement speed is increased by 15% while swimming.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3753,21 +4096,24 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Condition Damage Equal to 8% of Your Expertise",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 8,
+        "isPercent": false,
+        "sourceAttribute": "Expertise"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3783,21 +4129,24 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Concentration Equal to 6% of Your Healing Power",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Healing Power"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3813,21 +4162,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Power Equal to 6% of Your Ferocity",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Ferocity"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3843,15 +4195,17 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3867,21 +4221,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 1% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 1,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Power Equal to 3% of Your Ferocity",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Ferocity"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3897,21 +4254,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Power Equal to 2% of Your Ferocity",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Ferocity"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3927,21 +4287,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Power Equal to 4% of Your Ferocity",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 4,
+        "isPercent": false,
+        "sourceAttribute": "Ferocity"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3957,21 +4320,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 6% of Your Condition Damage",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Condition Damage"
       },
       {
         "raw": "Gain Power Equal to 8% of Your Expertise",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 8,
+        "isPercent": false,
+        "sourceAttribute": "Expertise"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -3987,21 +4353,24 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 3% of Your Power",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Power"
       },
       {
         "raw": "Gain Concentration Equal to 6% of Your Condition Damage",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Condition Damage"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4017,21 +4386,24 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 3% of Your Power",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Power"
       },
       {
         "raw": "Gain Condition Damage Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4049,19 +4421,22 @@
         "raw": "+10% damage vs. Toxic Alliance, Watchwork, Aetherblade, and Molten Alliance",
         "attribute": "damage vs. Toxic Alliance, Watchwork, Aetherblade, and Molten Alliance",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% damage from Toxic Alliance, Watchwork, Aetherblade, and Molten Alliance",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+15% Experience from kills",
         "attribute": "Experience from kills",
         "value": 15,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4079,7 +4454,8 @@
         "raw": "Movement speed increased.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4095,15 +4471,17 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4119,15 +4497,17 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4143,15 +4523,17 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 2% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4167,21 +4549,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Power Equal to 6% of Your Ferocity",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Ferocity"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4197,21 +4582,24 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Concentration Equal to 6% of Your Healing Power",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Healing Power"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4227,21 +4615,24 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Condition Damage Equal to 8% of Your Expertise",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 8,
+        "isPercent": false,
+        "sourceAttribute": "Expertise"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4259,25 +4650,29 @@
         "raw": "Reviving an ally grants Ghoul's Grasp to both you and your revived ally.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "Ghoul's Grasp increases condition damage, precision, and toughness.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+30% Magic Find",
         "attribute": "Magic Find",
         "value": 30,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4295,25 +4690,29 @@
         "raw": "Reviving an ally grants Feline Fury to both you and your revived ally.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "Feline Fury increases all attributes by a small amount.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+30% Magic Find",
         "attribute": "Magic Find",
         "value": 30,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4331,25 +4730,29 @@
         "raw": "Reviving an ally grants Pumpkin Prowess to both you and your revived ally.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "Pumpkin Prowess increases power, toughness, and vitality.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+30% Magic Find",
         "attribute": "Magic Find",
         "value": 30,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4365,21 +4768,24 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 6% of Your Healing Power",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Healing Power"
       },
       {
         "raw": "Gain Condition Damage Equal to 8% of Your Concentration",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 8,
+        "isPercent": false,
+        "sourceAttribute": "Concentration"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4395,21 +4801,24 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Expertise Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Expertise",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from kills",
         "attribute": "Experience from kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4427,19 +4836,22 @@
         "raw": "Gain 0.6% Increased Healing to Other Allies for Every 100 Healing Power",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "Gain 0.8% Increased Healing to Other Allies for Every 100 Concentration",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4455,21 +4867,24 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Healing Power Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Healing Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4485,21 +4900,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Ferocity Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Ferocity",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4515,21 +4933,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 6% of Your Healing Power",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Healing Power"
       },
       {
         "raw": "Gain Power Equal to 8% of Your Concentration",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 8,
+        "isPercent": false,
+        "sourceAttribute": "Concentration"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4547,13 +4968,15 @@
         "raw": "Gain 100 Power When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4571,13 +4994,15 @@
         "raw": "Gain 100 Power When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4595,13 +5020,15 @@
         "raw": "Gain 120 Condition Damage When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4619,13 +5046,15 @@
         "raw": "Gain 160 Condition Damage When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4643,13 +5072,15 @@
         "raw": "Gain 60 Power When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4667,13 +5098,15 @@
         "raw": "Gain 100 Precision When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4691,13 +5124,15 @@
         "raw": "Gain 25% Increased Movement Speed",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4715,13 +5150,15 @@
         "raw": "Gain 160 Precision When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4739,13 +5176,15 @@
         "raw": "Gain 10% Increased Movement Speed",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4763,13 +5202,15 @@
         "raw": "Gain 60 Power When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4787,13 +5228,15 @@
         "raw": "Gain 60 Precision When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4811,13 +5254,15 @@
         "raw": "Gain 200 Condition Damage When Health Is above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4835,13 +5280,15 @@
         "raw": "Gain 25% Increased Movement Speed",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4859,13 +5306,15 @@
         "raw": "Gain 40 Condition Damage When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4883,13 +5332,15 @@
         "raw": "Gain 120 Condition Damage When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4907,13 +5358,15 @@
         "raw": "Gain 160 Power When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4931,13 +5384,15 @@
         "raw": "Gain 60 Condition Damage When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4955,13 +5410,15 @@
         "raw": "Gain 120 Precision When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -4979,13 +5436,15 @@
         "raw": "Gain 40 Power When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5003,13 +5462,15 @@
         "raw": "Gain 160 Power When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5027,13 +5488,15 @@
         "raw": "Gain 200 Power When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5051,13 +5514,15 @@
         "raw": "Gain 40 Power When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5075,13 +5540,15 @@
         "raw": "Gain 40 Precision When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5099,13 +5566,15 @@
         "raw": "Gain 120 Power When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5123,13 +5592,15 @@
         "raw": "Gain 10% Increased Movement Speed",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5147,13 +5618,15 @@
         "raw": "Gain 15% Increased Movement Speed",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5171,13 +5644,15 @@
         "raw": "Gain 100 Condition Damage When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5195,13 +5670,15 @@
         "raw": "Gain 40 Precision When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5219,13 +5696,15 @@
         "raw": "Gain 100 Precision When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5243,13 +5722,15 @@
         "raw": "Gain 60 Condition Damage When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5267,13 +5748,15 @@
         "raw": "Gain 160 Precision When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5291,13 +5774,15 @@
         "raw": "Gain 60 Precision When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5315,13 +5800,15 @@
         "raw": "Gain 40 Condition Damage When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5339,13 +5826,15 @@
         "raw": "Gain 160 Condition Damage When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5363,13 +5852,15 @@
         "raw": "Gain 200 Precision When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5387,13 +5878,15 @@
         "raw": "Gain 200 Condition Damage When Health Is above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5411,13 +5904,15 @@
         "raw": "Gain 200 Precision When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5435,13 +5930,15 @@
         "raw": "Gain 120 Precision When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5459,13 +5956,15 @@
         "raw": "Gain 100 Condition Damage When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5483,13 +5982,15 @@
         "raw": "Gain 120 Power When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5507,13 +6008,15 @@
         "raw": "Gain 200 Power When Health above 90%",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5531,13 +6034,15 @@
         "raw": "Gain 15% Increased Movement Speed",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5553,27 +6058,31 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Condition Damage Equal to 8% of Your Expertise",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 8,
+        "isPercent": false,
+        "sourceAttribute": "Expertise"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Karma Bonus",
         "attribute": "Karma Bonus",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5589,27 +6098,31 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Power Equal to 6% of Your Ferocity",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Ferocity"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Karma Bonus",
         "attribute": "Karma Bonus",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5625,27 +6138,31 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Concentration Equal to 6% of Your Healing Power",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Healing Power"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Karma Bonus",
         "attribute": "Karma Bonus",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5661,15 +6178,17 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 2% of Your Vitality",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Vitality"
       },
       {
         "raw": "Gain Power Equal to 2% of Your Toughness",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
       }
     ]
   },
@@ -5685,15 +6204,17 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 2% of Your Vitality",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Vitality"
       },
       {
         "raw": "Gain Condition Damage Equal to 2% of Your Toughness",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
       }
     ]
   },
@@ -5709,21 +6230,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Power Equal to 6% of Your Ferocity",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Ferocity"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5739,15 +6263,17 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 2% of Your Vitality",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Vitality"
       },
       {
         "raw": "Gain Concentration Equal to 2% of Your Toughness",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 2,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
       }
     ]
   },
@@ -5763,21 +6289,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 3% of Your Vitality",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Vitality"
       },
       {
         "raw": "Gain Power Equal to 3% of Your Toughness",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5793,21 +6322,24 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 3% of Your Vitality",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Vitality"
       },
       {
         "raw": "Gain Condition Damage Equal to 3% of Your Toughness",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5823,21 +6355,24 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 3% of Your Vitality",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Vitality"
       },
       {
         "raw": "Gain Concentration Equal to 3% of Your Toughness",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5864,21 +6399,24 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 3% of Your Toughness",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
       },
       {
         "raw": "Gain Expertise Equal to 3% of Your Toughness",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Expertise",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5894,21 +6432,24 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 3% of Your Toughness",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
       },
       {
         "raw": "Gain Expertise Equal to 3% of Your Toughness",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Expertise",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5924,21 +6465,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 3% of Your Toughness",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
       },
       {
         "raw": "Gain Expertise Equal to 3% of Your Toughness",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Expertise",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Toughness"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5954,21 +6498,24 @@
     "bonuses": [
       {
         "raw": "Gain Healing Power Equal to 8% of Your Concentration",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Healing Power",
+        "value": 8,
+        "isPercent": false,
+        "sourceAttribute": "Concentration"
       },
       {
         "raw": "Gain Concentration Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -5984,21 +6531,24 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 8% of Your Concentration",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 8,
+        "isPercent": false,
+        "sourceAttribute": "Concentration"
       },
       {
         "raw": "Gain Concentration Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6014,21 +6564,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 8% of Your Concentration",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 8,
+        "isPercent": false,
+        "sourceAttribute": "Concentration"
       },
       {
         "raw": "Gain Concentration Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6044,21 +6597,24 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 6% of Your Condition Damage",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Condition Damage"
       },
       {
         "raw": "Gain Concentration Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6074,21 +6630,24 @@
     "bonuses": [
       {
         "raw": "Gain Concentration Equal to 3% of Your Power",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Power"
       },
       {
         "raw": "Gain Concentration Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Concentration",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6106,13 +6665,15 @@
         "raw": "+10% Increased Damage to Branded Foes in Thunderhead Peaks",
         "attribute": "Increased Damage to Branded Foes in Thunderhead Peaks",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6130,13 +6691,15 @@
         "raw": "+5% Damage vs. Branded",
         "attribute": "Damage vs. Branded",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6154,19 +6717,22 @@
         "raw": "+10% Damage vs. Branded",
         "attribute": "Damage vs. Branded",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Branded",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6184,13 +6750,15 @@
         "raw": "+5% Damage vs. Dragon Bash Holograms",
         "attribute": "Damage vs. Dragon Bash Holograms",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6208,13 +6776,15 @@
         "raw": "+5% Damage vs. Toxic Alliance, Watchwork, Aetherblade, and Molten Alliance",
         "attribute": "Damage vs. Toxic Alliance, Watchwork, Aetherblade, and Molten Alliance",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6232,19 +6802,22 @@
         "raw": "+10% Damage vs. Mordrem",
         "attribute": "Damage vs. Mordrem",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "-10% Damage from Mordrem",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6262,13 +6835,15 @@
         "raw": "+5% Damage vs. Mordrem",
         "attribute": "Damage vs. Mordrem",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6284,15 +6859,17 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 1% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 1,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6310,13 +6887,15 @@
         "raw": "Confers True Sight (Feline)",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+20% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 20,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6334,31 +6913,36 @@
         "raw": "+5% Magic Find",
         "attribute": "Magic Find",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+5% Karma",
         "attribute": "Karma",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+5% Gold from Monsters",
         "attribute": "Gold from Monsters",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+5% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "The taste of April Fools.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6376,19 +6960,22 @@
         "raw": "Gain 0.6% Increased Healing to Other Allies for Every 100 Healing Power",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "Gain 0.8% Increased Healing to Other Allies for Every 100 Concentration",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6404,21 +6991,24 @@
     "bonuses": [
       {
         "raw": "Gain Power Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Power Equal to 6% of Your Ferocity",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Power",
+        "value": 6,
+        "isPercent": false,
+        "sourceAttribute": "Ferocity"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6436,31 +7026,36 @@
         "raw": "+5% Magic Find",
         "attribute": "Magic Find",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+5% Karma",
         "attribute": "Karma",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+5% Gold from Monsters",
         "attribute": "Gold from Monsters",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+5% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "Applies dramatically taller field of vision during April Fools.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6478,25 +7073,29 @@
         "raw": "+5% Magic Find",
         "attribute": "Magic Find",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+5% Karma",
         "attribute": "Karma",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+5% Gold from Monsters",
         "attribute": "Gold from Monsters",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+5% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6512,21 +7111,24 @@
     "bonuses": [
       {
         "raw": "Gain Condition Damage Equal to 3% of Your Precision",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 3,
+        "isPercent": false,
+        "sourceAttribute": "Precision"
       },
       {
         "raw": "Gain Condition Damage Equal to 8% of Your Expertise",
-        "attribute": null,
-        "value": null,
-        "isPercent": false
+        "attribute": "Condition Damage",
+        "value": 8,
+        "isPercent": false,
+        "sourceAttribute": "Expertise"
       },
       {
         "raw": "+10% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 10,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       }
     ]
   },
@@ -6555,31 +7157,36 @@
         "raw": "+5% Magic Find",
         "attribute": "Magic Find",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+5% Karma",
         "attribute": "Karma",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+5% Gold from Monsters",
         "attribute": "Gold from Monsters",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "+5% Experience from Kills",
         "attribute": "Experience from Kills",
         "value": 5,
-        "isPercent": true
+        "isPercent": true,
+        "sourceAttribute": null
       },
       {
         "raw": "Applies intensely increased ocularity during April Fools.",
         "attribute": null,
         "value": null,
-        "isPercent": false
+        "isPercent": false,
+        "sourceAttribute": null
       }
     ]
   }

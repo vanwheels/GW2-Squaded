@@ -578,9 +578,26 @@ output) and reuses it on subsequent runs unless `--refresh` is passed. Delete `.
   skills/traits use — it's a single flattened descriptor at
   `details.{name, duration_ms, apply_count, description}`. `description` here is freeform text
   (e.g. `"+100 Power\n+70 Precision\n+10% Experience from Kills"`), parsed line-by-line the same
-  way as rune bonuses. Some catalog entries (~37% of Food, e.g. "Feast" reagents meant to be
-  served to a group rather than eaten directly) have no buff at all — `effectName`/`durationMs`/
-  `applyCount` are `null` and `bonuses` is empty for those.
+  way as rune bonuses. Some catalog entries (~37% of Food, ~4% of Utility, e.g. "Feast" reagents
+  meant to be served to a group rather than eaten directly) have no buff at all —
+  `effectName`/`durationMs`/`applyCount` are `null` and `bonuses` is empty for those;
+  `EquipmentEditor.tsx`'s Food/Utility pickers exclude these (fixed 2026-08-06 — picking one did
+  nothing and its `description` fell back to the item's own raw flavor/usage text, which read as a
+  broken tooltip rather than a legitimate zero-effect choice).
+  **Second parsed shape, added 2026-08-06**: `parseAttributeBonusText` now also recognizes "Gain
+  `<target>` Equal to N% of Your `<source>`" (e.g. "Gain Power Equal to 3% of Your Precision") —
+  the Superior Sharpening Stone / Tuning Crystal formula, confirmed to be the dominant WvW
+  Utility-consumable shape (~43% of the catalog; previously fell through to the generic
+  `"+N[%] Attribute"` regex, matched nothing, and silently contributed 0). Parsed into
+  `AttributeBonusText.sourceAttribute` (see its doc comment in `src/shared/types/game-data.ts`)
+  rather than the flat/percent shape, and resolved late against the build's final source-attribute
+  total by `activeConsumableConversions`/`applyConversions` in `attribute-totals.ts` — same
+  resolve-after-everything-else pattern already used for trait `BuffConversion` facts
+  (`trait-attributes.ts`). Regenerating this shape for already-fetched `food.json`/`utility.json`
+  deliberately did NOT re-run `fetch-gear-upgrades --refresh` (that also silently reverts
+  `itemstat-icons.json` — a known gotcha from a prior session, see TODO.md/COMPLETED.md) — a
+  one-off, no-network script instead re-ran the updated `parseAttributeBonusText` over each item's
+  already-stored `bonuses[].raw` text and overwrote just the `bonuses` arrays.
 
 None of these 6 files are re-derivable from `fetch-game-data.ts` — re-run `fetch-gear-upgrades
 --refresh` separately after a balance patch that might add/change gear-upgrade or consumable

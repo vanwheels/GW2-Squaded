@@ -189,17 +189,31 @@ function bucketItem(item: RawItem): void {
  * with no attribute (e.g. a rune's 6th stage "Gain protection (3s) when you gain fury", or a
  * food's "+10% Experience from Kills") — those fail to parse and keep `raw` only, fail-safe
  * rather than guessed, same philosophy as scripts/fetch-wvw-splits.ts.
+ *
+ * A second recognized shape (added 2026-08-06): "Gain <target> Equal to N% of Your <source>" —
+ * the Superior Sharpening Stone / Tuning Crystal formula, confirmed to be the dominant WvW
+ * Utility-consumable shape (~43% of `utility.json`'s catalog; Food has a handful too, mostly
+ * seasonal). Parsed into `{attribute: target, value: percent, sourceAttribute: source}` rather
+ * than the flat/percent shape above — see `AttributeBonusText`'s doc comment in
+ * `src/shared/types/game-data.ts` for how this is resolved (needs the source attribute's *final*
+ * value, so it can't be applied in a single pass like an ordinary flat bonus).
  */
 function parseAttributeBonusText(raw: string): AttributeBonusText {
-  const match = /^\+(\d+(?:\.\d+)?)(%?)\s+(.+)$/.exec(raw.trim())
-  if (!match) return { raw, attribute: null, value: null, isPercent: false }
+  const trimmed = raw.trim()
+  const conversionMatch = /^Gain (.+?) Equal to (\d+(?:\.\d+)?)% of Your (.+?)\.?$/.exec(trimmed)
+  if (conversionMatch) {
+    const [, targetRaw, percentStr, sourceRaw] = conversionMatch
+    return { raw, attribute: targetRaw, value: Number(percentStr), isPercent: false, sourceAttribute: sourceRaw }
+  }
+  const match = /^\+(\d+(?:\.\d+)?)(%?)\s+(.+)$/.exec(trimmed)
+  if (!match) return { raw, attribute: null, value: null, isPercent: false, sourceAttribute: null }
   const [, valueStr, percentSign, attributeRaw] = match
   // Trailing period observed live on at least one sigil description (Superior Sigil of Malice:
   // "+10% condition duration.", lowercase and punctuated unlike every sibling sigil's "+10% Boon
   // Duration" style) — stripped so the attribute-name lookup in attribute-totals.ts's `addBonus`
   // still matches its alias table exactly.
   const attribute = attributeRaw.replace(/\.$/, '')
-  return { raw, attribute, value: Number(valueStr), isPercent: percentSign === '%' }
+  return { raw, attribute, value: Number(valueStr), isPercent: percentSign === '%', sourceAttribute: null }
 }
 
 function normalizeRune(item: RawItem): Rune {

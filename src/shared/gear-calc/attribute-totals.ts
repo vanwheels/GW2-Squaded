@@ -237,10 +237,26 @@ const PERCENT_BONUS_ALIASES: Record<string, keyof AttributeTotals['bonusPercent'
   'magic find': 'magicFind'
 }
 
+/** Free-text attribute name (case-insensitive, e.g. "Ferocity", "Healing Power") -> the
+ *  `ItemStat`/API attribute key it corresponds to, or `null` if it's not one of the 9 core
+ *  attributes (see `FLAT_ATTRIBUTE_ALIASES`'s doc comment for what's intentionally excluded).
+ *  Exported so `activeConsumableConversions` below can resolve a "Gain X Equal to N% of Your Y"
+ *  line's source/target names through the same table `addBonus` uses for ordinary flat bonuses. */
+export function resolveFlatAttributeKey(name: string): string | null {
+  return FLAT_ATTRIBUTE_ALIASES[name.trim().toLowerCase()] ?? null
+}
+
 /** A `Rune`/`Consumable` bonus line's contribution — exported so `gear-optimize.ts` can fold a
  *  candidate food/utility choice's bonuses into a search option's delta the same way runes/food/
  *  utility already contribute to `computeGearAttributeTotals` below. */
 export function addBonus(totals: AttributeTotals, bonus: AttributeBonusText): void {
+  // A "Gain X Equal to N% of Your Y" conversion line (see `AttributeBonusText`'s doc comment) —
+  // needs the source attribute's *final* value, which isn't known during this single-pass point
+  // add. Handled separately by `activeConsumableConversions`/`applyConversions`, applied once the
+  // rest of the build's totals are assembled (`computeCharacterStats`). A truthy check (not
+  // `!== null`) so this stays backward-compatible with rune/sigil bonus data that predates this
+  // field and simply has no `sourceAttribute` key at all, not an explicit `null`.
+  if (bonus.sourceAttribute) return
   if (bonus.attribute === null || bonus.value === null) return
   const key = bonus.attribute.trim().toLowerCase()
 
@@ -257,6 +273,56 @@ export function addBonus(totals: AttributeTotals, bonus: AttributeBonusText): vo
 
   const attr = FLAT_ATTRIBUTE_ALIASES[key]
   if (attr) addPoints(totals, attr, bonus.value)
+}
+
+/** A resolved source->target percent conversion — same shape as `TraitConversion`
+ *  (`trait-attributes.ts`), reused here (and applied via the same `applyConversions`) so food/
+ *  utility "Gain X Equal to N% of Your Y" bonuses (Superior Sharpening Stone, Tuning Crystals —
+ *  confirmed 2026-08-06 to be the dominant WvW Utility-consumable shape) go through the identical
+ *  resolve-late-against-final-totals path traits already use, rather than a second parallel one. */
+export interface AttributeConversion {
+  source: string
+  target: string
+  percent: number
+}
+
+/** Every source->target conversion from the build's currently-picked food and utility, resolved
+ *  from free text to internal `ItemStat` keys — unresolved (the source attribute's final value
+ *  isn't known until the rest of the totals are assembled), same convention as
+ *  `activeTraitConversions`. A line whose source or target isn't one of the 9 core attributes
+ *  (not currently observed in the data, but not guaranteed to stay that way after a future patch)
+ *  is silently dropped rather than guessed. */
+export function activeConsumableConversions(
+  build: Build,
+  foodById: Map<number, Consumable>,
+  utilityById: Map<number, Consumable>
+): AttributeConversion[] {
+  const conversions: AttributeConversion[] = []
+  const food = build.foodId !== null ? foodById.get(build.foodId) : undefined
+  const utility = build.utilityId !== null ? utilityById.get(build.utilityId) : undefined
+  for (const consumable of [food, utility]) {
+    if (!consumable) continue
+    for (const bonus of consumable.bonuses) {
+      if (!bonus.sourceAttribute || bonus.attribute === null || bonus.value === null) continue
+      const source = resolveFlatAttributeKey(bonus.sourceAttribute)
+      const target = resolveFlatAttributeKey(bonus.attribute)
+      if (source && target) conversions.push({ source, target, percent: bonus.value })
+    }
+  }
+  return conversions
+}
+
+/** Applies a list of source->target percent conversions against `totals`'s *current* snapshot —
+ *  every conversion reads the same pre-application values (not chained/compounding), matching how
+ *  the game itself computes simultaneous conversions. Shared by trait conversions
+ *  (`trait-attributes.ts`) and consumable conversions (`activeConsumableConversions` above); call
+ *  after every other additive contribution this snapshot should reflect is already in `totals`. */
+export function applyConversions(totals: AttributeTotals, conversions: AttributeConversion[]): void {
+  const conversionBonus: Record<string, number> = {}
+  for (const c of conversions) {
+    conversionBonus[c.target] = (conversionBonus[c.target] ?? 0) + ((totals.points[c.source] ?? 0) * c.percent) / 100
+  }
+  for (const [target, bonus] of Object.entries(conversionBonus)) addPoints(totals, target, bonus)
 }
 
 /**

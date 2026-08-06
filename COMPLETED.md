@@ -2,6 +2,57 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 79 — Food/utility bug: Utility's dominant WvW shape wasn't computed at all; tooltip cleanup
+
+- Fixed the bug flagged in TODO.md (user report 2026-08-01, reproduced concretely 2026-08-06).
+  Root cause was Utility-specific, not a food-vs-utility wiring bug as originally suspected: Food
+  items are almost all flat `"+N Attribute"` lines and already worked correctly (verified live:
+  Bowl of Butternut Squash Soup's +80 Precision/+60 Ferocity moved the Stats panel exactly as
+  expected). Utility items are overwhelmingly (~43% of the 246-item catalog — Superior Sharpening
+  Stone, every tier of Tuning Crystal, i.e. the items any real WvW player actually equips) a
+  different shape entirely: `"Gain <target> Equal to N% of Your <source>"`, e.g. "Gain Condition
+  Damage Equal to 3% of Your Precision". `parseAttributeBonusText` only recognized `"+N[%]
+  Attribute"`, so every one of these lines fell through to `{attribute: null, value: null}` and
+  silently contributed nothing — from the user's perspective, picking almost any realistic Utility
+  item visibly did nothing to the Stats panel.
+- `AttributeBonusText` (`game-data.ts`) gained `sourceAttribute: string | null`.
+  `parseAttributeBonusText` (`fetch-gear-upgrades.ts`) now recognizes the "Gain X Equal to N% of
+  Your Y" shape and parses it into `{attribute: target, value: percent, sourceAttribute: source}`.
+  Regenerated `data/game-data/food.json`/`utility.json`'s `bonuses` arrays with a one-off,
+  no-network script that re-ran the updated parser over each item's already-stored `bonuses[].raw`
+  text — deliberately did NOT re-run `fetch-gear-upgrades --refresh` (silently reverts
+  `itemstat-icons.json`, see memory/TODO.md). 109 Utility bonus lines now parse as conversions; 0
+  Food lines do (Food's own "Gain " lines are all non-conversion procs — "Gain Health Every
+  Second", "Gain Might When Using a Heal Skill" — correctly still unmapped).
+- This needed the *final* source-attribute value (after base/gear/rune/food/utility/combat), which
+  a single-pass `addBonus` call can't see — same problem `trait-attributes.ts`'s `BuffConversion`
+  facts (e.g. Life Attunement) already solved. Extracted that solution into a shared, reusable
+  shape instead of writing a second parallel one: `AttributeConversion`/`applyConversions` now live
+  in `attribute-totals.ts`, and `trait-attributes.ts`'s `TraitConversion` extends the shared
+  interface. New `activeConsumableConversions(build, foodById, utilityById)` resolves the build's
+  current food/utility picks' conversion lines (via a new exported `resolveFlatAttributeKey`, the
+  same alias table `addBonus` already used) into that shape. `addBonus` itself now no-ops on a
+  bonus with a truthy `sourceAttribute` (a truthy check, not `!== null`, so it stays
+  backward-compatible with rune/sigil bonus data that predates this field entirely). Wired into
+  `computeCharacterStats` (`derived-stats.ts`): conversions apply against the base+gear+combat
+  snapshot, before trait bonuses stack on top.
+- **Tooltip pass** (second half of the ask): the Food/Utility pickers (`EquipmentEditor.tsx`) were
+  still listing catalog entries with no buff at all (`effectName === null` — ~318 Food "Feast"
+  reagents meant to be placed down for a group rather than eaten directly, ~10 Utility cosmetic
+  transformation tonics; confirmed `effectName === null` is exactly equivalent to `bonuses.length
+  === 0`, not merely correlated). Picking one of these did nothing (no buff to apply) and its
+  `formatConsumableDescription` fell back to the item's own raw flavor/usage text ("Double-click to
+  set out a Tray of Chocolate Bananas...") rather than a Nourishment/Enhancement buff tooltip —
+  read exactly like "displaying the item's tooltip instead of the buff's," which was the reported
+  symptom. Both `foodOptions`/`utilityOptions` now filter these out; genuine buff items were
+  already using the correct buff-sourced `description` since Session 53, no further tooltip work
+  needed there.
+- Verified end-to-end (not just unit-level) via a standalone `tsx` script (not committed) that
+  calls the real `computeCharacterStats` against the real committed game-data JSON: Superior
+  Sharpening Stone ("Gain Power Equal to 3% of Your Precision" + "...6% of Your Ferocity") on an
+  otherwise-empty build moved Power from 1000 to 1030, matching hand math exactly (3% of base 1000
+  Precision). `npm run typecheck`/`lint`/`build` all clean.
+
 ## Session 78 — Sigils weren't factored into the Stats panel
 
 - Fixed the bug flagged in TODO.md (user report 2026-08-01, reproduced concretely 2026-08-06 with

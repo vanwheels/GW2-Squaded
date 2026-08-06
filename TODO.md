@@ -11,15 +11,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       search-algorithm bug, a UI wiring issue, or something in the floor/maximize-tier translation
       before attempting a fix.
 
-- [ ] Food and utility aren't factored into the Stats panel (user report, 2026-08-01) — surprising,
-      since the code path looks wired correctly: `EquipmentEditor.tsx` already has the
-      build-level Food/Utility picker, `computeGearAttributeTotals` already reads both ids and
-      applies `Consumable.bonuses`, and `food.json`/`utility.json` carry populated bonuses
-      (spot-checked). Reproduce live with a food that has a clear flat bonus (e.g. Healing Power)
-      before assuming missing modeling; likely candidates if it really doesn't move: `StatsPanel`
-      reading a stale `build` reference vs. the Equipment editor's in-progress draft, or a
-      bonus-attribute-name mismatch between `addBonus`'s expected keys and the actual data.
-
 ## Scoped features, not yet built
 
 - [ ] Gear Optimizer: make rune and infusion choice searchable (currently `optimizeGear` treats

@@ -1,5 +1,5 @@
 import type { Build, Trait } from '../types'
-import { addPoints, emptyTotals, type AttributeTotals } from './attribute-totals'
+import { addPoints, applyConversions, emptyTotals, type AttributeConversion, type AttributeTotals } from './attribute-totals'
 
 /**
  * Traits can grant a flat attribute bonus (`AttributeAdjust` fact) or convert a percentage of one
@@ -25,11 +25,8 @@ export interface TraitFlatBonus {
   value: number
 }
 
-export interface TraitConversion {
+export interface TraitConversion extends AttributeConversion {
   traitId: number
-  source: string
-  target: string
-  percent: number
 }
 
 const CURATED_FLAT_BONUSES: TraitFlatBonus[] = [
@@ -91,10 +88,5 @@ export function applyTraitBonuses(totals: AttributeTotals, build: Build, traitsB
   const flat = activeTraitFlatBonuses(build, traitsById)
   for (const [k, v] of Object.entries(flat.points)) addPoints(totals, k, v)
 
-  const conversions = activeTraitConversions(build, traitsById)
-  const conversionBonus: Record<string, number> = {}
-  for (const c of conversions) {
-    conversionBonus[c.target] = (conversionBonus[c.target] ?? 0) + ((totals.points[c.source] ?? 0) * c.percent) / 100
-  }
-  for (const [target, bonus] of Object.entries(conversionBonus)) addPoints(totals, target, bonus)
+  applyConversions(totals, activeTraitConversions(build, traitsById))
 }
