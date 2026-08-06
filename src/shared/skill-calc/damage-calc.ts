@@ -52,7 +52,16 @@ export const WEAPON_STRENGTH_MIDPOINTS: Record<string, number> = {
   // Ascended Bundle a distinct 968.5 midpoint (656/725/690.5 is the separate "Unequipped" row) — this
   // app displays Ascended/Legendary-tier numbers everywhere else (e.g. `rifle: 1150` above is the
   // table's Ascended/Legendary Rifle value, not its lower-tier ones), so 968.5 is used here too.
-  kit: 968.5
+  kit: 968.5,
+  // Elementalist Conjure weapon-bar skills (Conjure Fiery Greatsword/Flame Axe/Earth Shield/Frost
+  // Bow/Lightning Hammer — the same `Skill.bundleSkills`-swap shape as Engineer's Kits, see
+  // `bundle-skills.ts`) — the wiki's own `weapon=conjure` template param, confirmed via the Weapon-slot
+  // sweep's Elementalist leg (2026-08-05): every one of the 5 Conjures' skills uses this param
+  // (unlike Engineer's Kits, no `weapon=unequipped` exception was found this leg). Same 968.5 Ascended
+  // Bundle midpoint as `kit` above (the wiki's own "most bundles, kits, conjures etc. share the same
+  // unique weapon strength" quote), kept as its own key purely to match what each skill's own wikitext
+  // literally says, same "separate key, same value" precedent as `spear`/`harpoon gun`/`trident` above.
+  conjure: 968.5
 }
 
 /**
@@ -2701,7 +2710,524 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Necromancer — Trident 5, Frozen Abyss. No split (3.0).
   10629: [{ factText: 'Damage', coefficient: 3, weapon: 'trident' }],
 
-  // Weapon-slot sweep: Warrior, Guardian, Revenant, Ranger, Thief, Engineer, Necromancer done (7 of 9).
+  // Elementalist done 2026-08-05: 251 raw candidate ids (200 from every weapon type's own
+  // `profession.weapons` entries — the profession's 4-attunement skill variety makes this the largest
+  // Weapon-slot raw count so far — plus, new this leg, 25 from the 5 Conjure weapons' `bundleSkills`
+  // (Fiery Greatsword/Flame Axe/Earth Shield/Frost Bow/Lightning Hammer — the same `Skill.bundleSkills`
+  // Utility/Elite-slot-toggle shape as Engineer's Kits, resolved by the same `bundle-skills.ts`/
+  // `resolveSkillBarIds`, so included in this sweep exactly like Kits were for Engineer's leg), all
+  // expanded via full `flipSkill` chain walks). 198 carry a genuine Damage fact, 1 already seeded
+  // (Fire Grab id 5557, one-per-profession seed block above — re-verified against the current wiki,
+  // unchanged), 53 confirmed non-damage (auras, heals, blinds, buffs — no local `Damage`-type fact at
+  // all), 197 curated this leg, 0 exclusions/gaps. Fetched all 198 pages directly via `curl` against
+  // the wiki's raw-wikitext endpoint (`index.php?action=raw&title=...`, `--data-urlencode` handling
+  // punctuation/spaces) rather than delegating — network access from this environment turned out to
+  // reach the wiki directly, so no summarizing intermediary (WebFetch or an extraction agent) touched
+  // any number that landed in this table.
+  //
+  // New mechanics this leg surfaced: (1) **Conjure weapons get their own `weapon=conjure`
+  // `WEAPON_STRENGTH_MIDPOINTS` key** (968.5, same Ascended-Bundle midpoint as Engineer's `kit` — see
+  // that map's own comment) — every one of the 5 Conjures' skills used this param with no
+  // `weapon=unequipped` exception found (unlike Engineer's Charrzooka carve-out last leg). (2) **12
+  // name collisions**, the most of any leg so far, resolved via a mix of otheruses hatnotes and
+  // `insource:"<id>"` full-text search: dagger Ring of Fire / Conjure Flame Axe's own same-named Ring
+  // of Fire and Burning Retreat both collide with unrelated pages (a real-world region, and Staff's own
+  // core "Burning Retreat") and resolve to "(elementalist skill)"/"(Lava Axe skill)" disambiguation
+  // titles; Conjure Lightning Hammer's Static Field/Thunderclap collide with Staff's own core skills of
+  // the same name and resolve to "(Lightning Hammer skill)"; Impale/Steam/Magnetic Shield resolve via
+  // their own bare-title disambiguation pages to "(elementalist skill)"; Searing Slash/Call Lightning
+  // (both Weaver-gated Sword 1 Fire/Air) collide with a Firebrand axe skill and 3 other "Call Lightning"
+  // pets/specs, resolved to "(weaver)"; Flame Spear's bare title is a weapon *skin* page, resolved via
+  // `insource` to "(elementalist spear skill)"; Monsoon's bare title is also a weapon skin, resolved via
+  // its own hatnote to "(weaver skill)". (3) A duplicate-fact-lines shape not seen in prior legs:
+  // Weaver's 6 "Dual Orbits: X and Y" Hammer-3 dual-attacks each list the identical Damage template
+  // twice in a row on their own wiki page (2 circling projectiles, same coefficient each) — harmless,
+  // folds into one curated line same as any other single-value fact. (4) A near-zero-PvE-on-purpose
+  // family: Weaver's 6 Dual Orbits skills plus Icy Coil/Crescent Wind/Rocky Loop/Flame Wheel (their
+  // Hammer-3 single-attunement siblings) all carry a PvE coefficient of 0.001 (not a typo — these are
+  // primarily support/combo-field skills in PvE, with the real strike damage a WvW/PvP-only design
+  // choice) against a much larger WvW value (0.15) — the *opposite* of every other split seen in this
+  // sweep so far, confirmed by using this table's normal "always take the WvW-tagged value" rule rather
+  // than assuming PvE is always higher. (5) One skill (Flame Burst, Staff 3 Fire, id 5679) lists its
+  // `game mode` variants in reverse order on the page itself (WvW/PvP fact before the PvE fact) — the
+  // curation script matches on the `game mode` param's own text rather than position, so this didn't
+  // silently invert the chosen value, but it's the first leg where wiki authors wrote the 2 variants in
+  // non-canonical order. (6) Zero `requires_trait`-gated Damage facts found on any candidate this leg
+  // (same as Necromancer's). (7) Zero skills needed manual hit-count totaling — every local
+  // `hit_count > 1` candidate this leg already had a matching wiki `strikes=` param giving an
+  // already-totaled coefficient, unlike Warrior/Guardian's one-off manual-totaling cases.
+  // Dagger — Dagger 1 (Water), Vapor Blade. No split.
+  15716: [{ factText: 'Damage', coefficient: 0.33, weapon: 'dagger' }],
+  // Dagger — Dagger 1 (Air), Lightning Whip. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (1.5/0.84) — WvW value used.
+  5489: [{ factText: 'Damage', coefficient: 0.84, weapon: 'dagger' }],
+  // Dagger — Dagger 1 (Earth), Impale. PvE/PvP+WvW split (0.77/0.513) — WvW value used.
+  15717: [{ factText: 'Damage', coefficient: 0.513, weapon: 'dagger' }],
+  // Dagger — Dagger 1 (Fire), Dragon's Claw. PvE/PvP+WvW split (0.45/0.25) — WvW value used.
+  15718: [{ factText: 'Damage per Projectile', coefficient: 0.25, weapon: 'dagger' }],
+  // Dagger — Dagger 2 (Water), Cone of Cold. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (2.4/1.2) — WvW value used.
+  5537: [{ factText: 'Damage', coefficient: 1.2, weapon: 'dagger' }],
+  // Dagger — Dagger 2 (Air), Convergence. 3-way PvE/PvP/WvW split (2.4/1.35/1.1) — WvW value used.
+  5646: [{ factText: 'Damage', coefficient: 1.1, weapon: 'dagger' }],
+  // Dagger — Dagger 2 (Earth), Ring of Earth. PvE/PvP+WvW split (0.33/0.1) — WvW value used. 2 Damage facts (Initial Damage/Final Impact Damage).
+  5525: [
+    { factText: 'Initial Damage', coefficient: 0.1, weapon: 'dagger' },
+    { factText: 'Final Impact Damage', coefficient: 1.25, weapon: 'dagger' }
+  ],
+  // Dagger — Dagger 2 (Fire), Drake's Breath. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (4.2/1.76) — WvW value used.
+  5496: [{ factText: 'Damage', coefficient: 1.76, weapon: 'dagger' }],
+  // Dagger — Dagger 3 (Water), Mud Slide. PvE/PvP+WvW split (0.15/0.01) — WvW value used.
+  46018: [{ factText: 'Damage', coefficient: 0.01, weapon: 'dagger' }],
+  // Dagger — Dagger 3 (Water), Katabatic Wind. No split. 2 Damage facts (Initial Damage/Delayed Damage).
+  46140: [
+    { factText: 'Initial Damage', coefficient: 0.2, weapon: 'dagger' },
+    { factText: 'Delayed Damage', coefficient: 2.0, weapon: 'dagger' }
+  ],
+  // Dagger — Dagger 3 (Water), Frozen Burst. No split.
+  5487: [{ factText: 'Damage', coefficient: 0.4, weapon: 'dagger' }],
+  // Dagger — Dagger 3 (Air), Grinding Stones. `strikes=` present -> wiki totaled. No split.
+  40963: [{ factText: 'Damage', coefficient: 1.65, weapon: 'dagger' }],
+  // Dagger — Dagger 3 (Air), Transmute Lightning. PvE/PvP+WvW split (1.5/0.01) — WvW value used.
+  51662: [{ factText: 'Damage', coefficient: 0.01, weapon: 'dagger' }],
+  // Dagger — Dagger 3 (Earth), Earthen Rush. PvE/PvP+WvW split (2.3/0.4) — WvW value used.
+  5559: [{ factText: 'Damage', coefficient: 0.4, weapon: 'dagger' }],
+  // Dagger — Dagger 3 (Fire), Ashen Blast. No split. 2 Damage facts (Initial Strike/Secondary Strike).
+  42379: [
+    { factText: 'Initial Strike', coefficient: 0.2, weapon: 'dagger' },
+    { factText: 'Secondary Strike', coefficient: 2.0, weapon: 'dagger' }
+  ],
+  // Dagger — Dagger 3 (Fire), Plasma Burst. No split.
+  44652: [{ factText: 'Damage', coefficient: 2.0, weapon: 'dagger' }],
+  // Dagger — Dagger 3 (Fire), Steam Surge. PvE/PvP+WvW split (1.75/1.25) — WvW value used.
+  42330: [{ factText: 'Damage', coefficient: 1.25, weapon: 'dagger' }],
+  // Dagger — Dagger 3 (Fire), Burning Speed. 3-way PvE/PvP/WvW split (3.0/2.0/1.7) — WvW value used. 2 Damage facts (Blast Damage/Fire Wall Damage).
+  5644: [
+    { factText: 'Blast Damage', coefficient: 1.7, weapon: 'dagger' },
+    { factText: 'Fire Wall Damage', coefficient: 0.2, weapon: 'dagger' }
+  ],
+  // Dagger — Dagger 4, Ring of Fire. 3-way PvE/PvP/WvW split (2.0/1.2/1.0) — WvW value used.
+  5691: [{ factText: 'Damage', coefficient: 1.0, weapon: 'dagger' }],
+  // Dagger — Dagger 4, Ride the Lightning. PvE/PvP+WvW split (1.5/0.6) — WvW value used.
+  5529: [{ factText: 'Damage', coefficient: 0.6, weapon: 'dagger' }],
+  // Dagger — Dagger 4, Earthquake. PvE/PvP+WvW split (3.0/0.01) — WvW value used.
+  5690: [{ factText: 'Damage', coefficient: 0.01, weapon: 'dagger' }],
+  // Dagger — Dagger 4, Transmute Frost. PvE/PvP+WvW split (0.5/0.1) — WvW value used.
+  51646: [{ factText: 'Damage', coefficient: 0.1, weapon: 'dagger' }],
+  // Dagger — Dagger 5, Churning Earth. PvE/PvP+WvW split (3.0/1.6) — WvW value used.
+  5522: [{ factText: 'Damage', coefficient: 1.6, weapon: 'dagger' }],
+  // Focus — Focus 4, Flamewall. No split.
+  5497: [{ factText: 'Damage', coefficient: 0.1, weapon: 'focus' }],
+  // Focus — Focus 4, Freezing Gust. No split.
+  5556: [{ factText: 'Damage', coefficient: 0.25, weapon: 'focus' }],
+  // Focus — Focus 4, Magnetic Wave. PvE/PvP+WvW split (1.0/0.25) — WvW value used.
+  5555: [{ factText: 'Damage', coefficient: 0.25, weapon: 'focus' }],
+  // Focus — Focus 5, Comet. No split.
+  5490: [{ factText: 'Damage', coefficient: 0.75, weapon: 'focus' }],
+  // Focus — Focus 5, Transmute Fire. No split.
+  51711: [{ factText: 'Damage', coefficient: 1.0, weapon: 'focus' }],
+  // Hammer — Hammer 1 (Water), Stream Strike. PvE/PvP+WvW split (0.575/0.53) — WvW value used.
+  62865: [{ factText: 'Damage', coefficient: 0.53, weapon: 'hammer' }],
+  // Hammer — Hammer 1 (Water), Water Rush. PvE/PvP+WvW split (0.575/0.6) — WvW value used.
+  62694: [{ factText: 'Damage', coefficient: 0.6, weapon: 'hammer' }],
+  // Hammer — Hammer 1 (Water), Chilling Crack. PvE/PvP+WvW split (1.38/0.8) — WvW value used.
+  62862: [{ factText: 'Damage', coefficient: 0.8, weapon: 'hammer' }],
+  // Hammer — Hammer 1 (Air), Wind Slam. PvE/PvP+WvW split (1.035/0.6) — WvW value used.
+  62747: [{ factText: 'Damage', coefficient: 0.6, weapon: 'hammer' }],
+  // Hammer — Hammer 1 (Earth), Stonestrike. PvE/PvP+WvW split (1.035/0.7) — WvW value used.
+  62683: [{ factText: 'Damage', coefficient: 0.7, weapon: 'hammer' }],
+  // Hammer — Hammer 1 (Fire), Singeing Strike. PvE/PvP+WvW split (0.69/0.50) — WvW value used.
+  62925: [{ factText: 'Damage', coefficient: 0.50, weapon: 'hammer' }],
+  // Hammer — Hammer 2 (Water), Rain of Blows. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (2.3/1.2) — WvW value used.
+  62958: [{ factText: 'Damage', coefficient: 1.2, weapon: 'hammer' }],
+  // Hammer — Hammer 2 (Air), Hurricane of Pain. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (4.95/2.7) — WvW value used.
+  62812: [{ factText: 'Damage', coefficient: 2.7, weapon: 'hammer' }],
+  // Hammer — Hammer 2 (Earth), Whirling Stones. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (4.2/1.705) — WvW value used.
+  62976: [{ factText: 'Damage', coefficient: 1.705, weapon: 'hammer' }],
+  // Hammer — Hammer 2 (Fire), Surging Flames. PvE/PvP+WvW split (2.07/1.36) — WvW value used.
+  62884: [{ factText: 'Damage', coefficient: 1.36, weapon: 'hammer' }],
+  // Hammer — Hammer 3 (Water), Dual Orbits: Fire and Water. PvE/PvP+WvW split (0.001/0.15) — WvW value used.
+  69184: [{ factText: 'Damage', coefficient: 0.15, weapon: 'hammer' }],
+  // Hammer — Hammer 3 (Water), Icy Coil. PvE/PvP+WvW split (0.001/0.15) — WvW value used.
+  62834: [{ factText: 'Damage', coefficient: 0.15, weapon: 'hammer' }],
+  // Hammer — Hammer 3 (Air), Dual Orbits: Water and Air. PvE/PvP+WvW split (0.001/0.15) — WvW value used.
+  69211: [{ factText: 'Damage', coefficient: 0.15, weapon: 'hammer' }],
+  // Hammer — Hammer 3 (Air), Dual Orbits: Fire and Air. PvE/PvP+WvW split (0.001/0.15) — WvW value used.
+  69341: [{ factText: 'Damage', coefficient: 0.15, weapon: 'hammer' }],
+  // Hammer — Hammer 3 (Air), Crescent Wind. PvE/PvP+WvW split (0.001/0.15) — WvW value used.
+  62887: [{ factText: 'Damage', coefficient: 0.15, weapon: 'hammer' }],
+  // Hammer — Hammer 3 (Earth), Dual Orbits: Air and Earth. PvE/PvP+WvW split (0.001/0.15) — WvW value used.
+  69246: [{ factText: 'Damage', coefficient: 0.15, weapon: 'hammer' }],
+  // Hammer — Hammer 3 (Earth), Dual Orbits: Water and Earth. PvE/PvP+WvW split (0.001/0.15) — WvW value used.
+  69413: [{ factText: 'Damage', coefficient: 0.15, weapon: 'hammer' }],
+  // Hammer — Hammer 3 (Earth), Dual Orbits: Fire and Earth. PvE/PvP+WvW split (0.001/0.15) — WvW value used.
+  69164: [{ factText: 'Damage', coefficient: 0.15, weapon: 'hammer' }],
+  // Hammer — Hammer 3 (Earth), Rocky Loop. PvE/PvP+WvW split (0.001/0.15) — WvW value used.
+  62975: [{ factText: 'Damage', coefficient: 0.15, weapon: 'hammer' }],
+  // Hammer — Hammer 3 (Fire), Flame Wheel. PvE/PvP+WvW split (0.001/0.15) — WvW value used.
+  62758: [{ factText: 'Damage', coefficient: 0.15, weapon: 'hammer' }],
+  // Hammer — Hammer 4, Triple Sear. PvE/PvP+WvW split (1.0/0.6) — WvW value used.
+  62807: [{ factText: 'Damage', coefficient: 0.6, weapon: 'hammer' }],
+  // Hammer — Hammer 4, Crashing Font. PvE/PvP+WvW split (1.438/1.0) — WvW value used.
+  62948: [{ factText: 'Damage', coefficient: 1.0, weapon: 'hammer' }],
+  // Hammer — Hammer 4, Wind Storm. PvE/PvP+WvW split (0.3/0.01) — WvW value used.
+  62947: [{ factText: 'Damage', coefficient: 0.01, weapon: 'hammer' }],
+  // Hammer — Hammer 5, Molten End. PvE/PvP+WvW split (2.8/1.7) — WvW value used.
+  62910: [{ factText: 'Damage', coefficient: 1.7, weapon: 'hammer' }],
+  // Hammer — Hammer 5, Cleansing Typhoon. PvE/PvP+WvW split (1.725/1.36) — WvW value used.
+  62843: [{ factText: 'Damage', coefficient: 1.36, weapon: 'hammer' }],
+  // Hammer — Hammer 5, Shock Blast. PvE/PvP+WvW split (0.575/0.5) — WvW value used. 2 Damage facts (Passthrough Damage/Explosion Damage).
+  62716: [
+    { factText: 'Passthrough Damage', coefficient: 0.5, weapon: 'hammer' },
+    { factText: 'Explosion Damage', coefficient: 0.01, weapon: 'hammer' }
+  ],
+  // Hammer — Hammer 5, Ground Pound. PvE/PvP+WvW split (2.8/0.91) — WvW value used.
+  62778: [{ factText: 'Damage', coefficient: 0.91, weapon: 'hammer' }],
+  // Spear — Spear 1 (Water), Restorative Spear. No split.
+  72966: [{ factText: 'Damage', coefficient: 1.0, weapon: 'spear' }],
+  // Spear — Spear 1 (Air), Lightning Javelin. PvE/PvP+WvW split (1.3/1.1) — WvW value used.
+  73124: [{ factText: 'Damage', coefficient: 1.1, weapon: 'spear' }],
+  // Spear — Spear 1 (Earth), Stone Strike. PvE/PvP+WvW split (1.2/0.4) — WvW value used.
+  72910: [{ factText: 'Damage', coefficient: 0.4, weapon: 'spear' }],
+  // Spear — Spear 1 (Fire), Flame Spear. PvE/PvP+WvW split (1.5/1.25) — WvW value used.
+  73088: [{ factText: 'Damage', coefficient: 1.25, weapon: 'spear' }],
+  // Spear — Spear 2 (Water), Ice Beam. `strikes=` present -> wiki totaled. 3-way PvE/PvP/WvW split (2.1/1.35/1.2) — WvW value used.
+  73061: [{ factText: 'Damage', coefficient: 1.2, weapon: 'spear' }],
+  // Spear — Spear 2 (Air), Fulgor. 3-way PvE/PvP/WvW split (0.4/0.3/0.25) — WvW value used.
+  73091: [{ factText: 'Damage', coefficient: 0.25, weapon: 'spear' }],
+  // Spear — Spear 2 (Earth), Earthen Spear. 3-way PvE/PvP/WvW split (3.0/1.45/2.2) — WvW value used.
+  72905: [{ factText: 'Damage', coefficient: 2.2, weapon: 'spear' }],
+  // Spear — Spear 2 (Fire), Blazing Barrage. 3-way PvE/PvP/WvW split (2.6/1.5/0.935) — WvW value used.
+  73080: [{ factText: 'Damage', coefficient: 0.935, weapon: 'spear' }],
+  // Spear — Spear 4, Meteor. 3-way PvE/PvP/WvW split (2.7/1.35/1.2) — WvW value used.
+  72988: [{ factText: 'Damage', coefficient: 1.2, weapon: 'spear' }],
+  // Spear — Spear 4, Undertow. PvE/PvP+WvW split (1.7/0.01) — WvW value used.
+  73148: [{ factText: 'Damage', coefficient: 0.01, weapon: 'spear' }],
+  // Spear — Spear 4, Twister. PvE/PvP+WvW split (1.84/0.01) — WvW value used.
+  72998: [{ factText: 'Damage', coefficient: 0.01, weapon: 'spear' }],
+  // Spear — Spear 4, Fissure. 3-way PvE/PvP/WvW split (2.7/1.5/1.0) — WvW value used.
+  73010: [{ factText: 'Damage', coefficient: 1.0, weapon: 'spear' }],
+  // Spear — Spear 5, Lesser Volcano. `strikes=` present -> wiki totaled. No split. 2 Damage facts (Damage/Minimum Damage).
+  72995: [
+    { factText: 'Damage', coefficient: 3.778, weapon: 'spear' },
+    { factText: 'Minimum Damage', coefficient: 0.05, weapon: 'spear' }
+  ],
+  // Spear — Spear 5, Lesser Jökulhlaup. No split.
+  73105: [{ factText: 'Damage', coefficient: 1.5, weapon: 'spear' }],
+  // Spear — Spear 5, Lesser Derecho. PvE/PvP+WvW split (2.0/1.0) — WvW value used.
+  73060: [{ factText: 'Damage', coefficient: 1.0, weapon: 'spear' }],
+  // Spear — Spear 5, Lesser Haboob. PvE/PvP+WvW split (1.75/0.6) — WvW value used.
+  72935: [{ factText: 'Damage', coefficient: 0.6, weapon: 'spear' }],
+  // Pistol — Pistol 1 (Water), Soothing Splash. PvE/PvP+WvW split (0.4/0.266) — WvW value used.
+  72033: [{ factText: 'Damage', coefficient: 0.266, weapon: 'pistol' }],
+  // Pistol — Pistol 1 (Air), Electric Exposure. PvE/PvP+WvW split (0.33/0.25) — WvW value used.
+  71904: [{ factText: 'Damage', coefficient: 0.25, weapon: 'pistol' }],
+  // Pistol — Pistol 1 (Earth), Piercing Pebble. PvE/PvP+WvW split (0.35/0.23) — WvW value used.
+  71893: [{ factText: 'Damage', coefficient: 0.23, weapon: 'pistol' }],
+  // Pistol — Pistol 1 (Fire), Scorching Shot. No split.
+  71929: [{ factText: 'Damage', coefficient: 0.3, weapon: 'pistol' }],
+  // Scepter — Scepter 1 (Water), Ice Shards. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (1.2/0.48) — WvW value used.
+  5693: [{ factText: 'Damage', coefficient: 0.48, weapon: 'scepter' }],
+  // Scepter — Scepter 1 (Air), Arc Lightning. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (1.05/0.3) — WvW value used. 3 Damage facts (Stage 1 Damage/Stage 2 Damage/Stage 3 Damage).
+  5526: [
+    { factText: 'Stage 1 Damage', coefficient: 0.3, weapon: 'scepter' },
+    { factText: 'Stage 2 Damage', coefficient: 0.6, weapon: 'scepter' },
+    { factText: 'Stage 3 Damage', coefficient: 1.2, weapon: 'scepter' }
+  ],
+  // Scepter — Scepter 1 (Earth), Stone Shards. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (1.5/0.3) — WvW value used.
+  5500: [{ factText: 'Damage', coefficient: 0.3, weapon: 'scepter' }],
+  // Scepter — Scepter 1 (Fire), Flamestrike. PvE/PvP+WvW split (0.5/0.185) — WvW value used. 2 Damage facts (Damage/Secondary Strike).
+  5508: [
+    { factText: 'Damage', coefficient: 0.185, weapon: 'scepter' },
+    { factText: 'Secondary Strike', coefficient: 0.28, weapon: 'scepter' }
+  ],
+  // Scepter — Scepter 2 (Water), Shatterstone. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (1.6/1.2) — WvW value used.
+  5538: [{ factText: 'Damage', coefficient: 1.2, weapon: 'scepter' }],
+  // Scepter — Scepter 2 (Air), Lightning Strike. PvE/PvP+WvW split (1.2/0.6) — WvW value used.
+  5561: [{ factText: 'Damage', coefficient: 0.6, weapon: 'scepter' }],
+  // Scepter — Scepter 2 (Earth), Hurl. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (2.2/1.3) — WvW value used.
+  5780: [{ factText: 'Damage', coefficient: 1.3, weapon: 'scepter' }],
+  // Scepter — Scepter 2 (Fire), Dragon's Tooth. PvE/PvP+WvW split (2.25/1.33) — WvW value used.
+  5692: [{ factText: 'Damage', coefficient: 1.33, weapon: 'scepter' }],
+  // Scepter — Scepter 3 (Water), Stone Tide. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (2.4/1.2) — WvW value used.
+  46014: [{ factText: 'Damage', coefficient: 1.2, weapon: 'scepter' }],
+  // Scepter — Scepter 3 (Water), Glacial Drift. PvE/PvP+WvW split (2.0/1.0) — WvW value used.
+  45742: [{ factText: 'Damage', coefficient: 1.0, weapon: 'scepter' }],
+  // Scepter — Scepter 3 (Water), Water Trident. PvE/PvP+WvW split (1.6/1.25) — WvW value used.
+  5510: [{ factText: 'Damage', coefficient: 1.25, weapon: 'scepter' }],
+  // Scepter — Scepter 3 (Air), Earthen Synergy. PvE/PvP+WvW split (1.4/0.01) — WvW value used. 2 Damage facts (Initial Damage/Secondary Damage).
+  40794: [
+    { factText: 'Initial Damage', coefficient: 0.01, weapon: 'scepter' },
+    { factText: 'Secondary Damage', coefficient: 0.01, weapon: 'scepter' }
+  ],
+  // Scepter — Scepter 3 (Earth), Dust Devil. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (1.2/0.6) — WvW value used.
+  5696: [{ factText: 'Damage', coefficient: 0.6, weapon: 'scepter' }],
+  // Scepter — Scepter 3 (Fire), Fracturing Strike. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (2.4/1.54) — WvW value used.
+  42954: [{ factText: 'Damage', coefficient: 1.54, weapon: 'scepter' }],
+  // Scepter — Scepter 3 (Fire), Plasma Beam. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (2.75/2.2) — WvW value used.
+  43576: [{ factText: 'Damage', coefficient: 2.2, weapon: 'scepter' }],
+  // Scepter — Scepter 3 (Fire), Fiery Frost. No split.
+  42181: [{ factText: 'Damage', coefficient: 1.1, weapon: 'scepter' }],
+  // Scepter — Scepter 3 (Fire), Phoenix. PvE/PvP+WvW split (0.75/0.4) — WvW value used. 2 Damage facts (Damage/Explosion Damage).
+  5675: [
+    { factText: 'Damage', coefficient: 0.4, weapon: 'scepter' },
+    { factText: 'Explosion Damage', coefficient: 1.5, weapon: 'scepter' }
+  ],
+  // Staff — Staff 1 (Water), Water Blast. PvE/PvP+WvW split (0.3/0.2) — WvW value used.
+  5549: [{ factText: 'Damage', coefficient: 0.2, weapon: 'staff' }],
+  // Staff — Staff 1 (Air), Chain Lightning. PvE/PvP+WvW split (0.8/0.44) — WvW value used.
+  5518: [{ factText: 'Damage', coefficient: 0.44, weapon: 'staff' }],
+  // Staff — Staff 1 (Earth), Stoning. PvE/PvP+WvW split (1.2/0.333) — WvW value used.
+  5519: [{ factText: 'Damage', coefficient: 0.333, weapon: 'staff' }],
+  // Staff — Staff 1 (Fire), Fireball. PvE/PvP+WvW split (1.4/0.666) — WvW value used.
+  5491: [{ factText: 'Damage', coefficient: 0.666, weapon: 'staff' }],
+  // Staff — Staff 2 (Water), Ice Spike. PvE/PvP+WvW split (1.5/1.13) — WvW value used.
+  5550: [{ factText: 'Damage', coefficient: 1.13, weapon: 'staff' }],
+  // Staff — Staff 2 (Air), Lightning Surge. PvE/PvP+WvW split (1.8/1.13) — WvW value used.
+  5552: [{ factText: 'Damage', coefficient: 1.13, weapon: 'staff' }],
+  // Staff — Staff 2 (Earth), Eruption. PvE/PvP+WvW split (1.5/1.25) — WvW value used.
+  5528: [{ factText: 'Damage', coefficient: 1.25, weapon: 'staff' }],
+  // Staff — Staff 2 (Fire), Lava Font. PvE/PvP+WvW split (0.525/0.454) — WvW value used.
+  5548: [{ factText: 'Damage', coefficient: 0.454, weapon: 'staff' }],
+  // Staff — Staff 3 (Water), Lahar. `strikes=` present -> wiki totaled. No split.
+  44550: [{ factText: 'Damage', coefficient: 1.25, weapon: 'staff' }],
+  // Staff — Staff 3 (Water), Monsoon. PvE/PvP+WvW split (0.25/0.02) — WvW value used.
+  41184: [{ factText: 'Damage', coefficient: 0.02, weapon: 'staff' }],
+  // Staff — Staff 3 (Air), Pile Driver. PvE/PvP+WvW split (2.1/1.6) — WvW value used.
+  42321: [{ factText: 'Damage', coefficient: 1.6, weapon: 'staff' }],
+  // Staff — Staff 3 (Earth), Transmute Earth. PvE/PvP+WvW split (1.0/0.1) — WvW value used.
+  51684: [{ factText: 'Damage', coefficient: 0.1, weapon: 'staff' }],
+  // Staff — Staff 3 (Fire), Pyroclastic Blast. No split. 2 Damage facts (Impact Damage/Pulse Damage).
+  43762: [
+    { factText: 'Impact Damage', coefficient: 0.8, weapon: 'staff' },
+    { factText: 'Pulse Damage', coefficient: 0.4, weapon: 'staff' }
+  ],
+  // Staff — Staff 3 (Fire), Plasma Blast. No split.
+  41125: [{ factText: 'Damage', coefficient: 1.66, weapon: 'staff' }],
+  // Staff — Staff 3 (Fire), Pressure Blast. PvE/PvP+WvW split (2.0/1.33) — WvW value used.
+  40332: [{ factText: 'Damage', coefficient: 1.33, weapon: 'staff' }],
+  // Staff — Staff 3 (Fire), Flame Burst. PvE/PvP+WvW split (1.0/0.1) — WvW value used.
+  5679: [{ factText: 'Damage', coefficient: 0.1, weapon: 'staff' }],
+  // Staff — Staff 4, Burning Retreat. No split.
+  5680: [{ factText: 'Damage', coefficient: 0.2, weapon: 'staff' }],
+  // Staff — Staff 5, Meteor Shower. 3-way PvE/PvP/WvW split (1.6/1.1/0.88) — WvW value used. 2 Damage facts (Damage/Minimum Damage).
+  5501: [
+    { factText: 'Damage', coefficient: 0.88, weapon: 'staff' },
+    { factText: 'Minimum Damage', coefficient: 0.176, weapon: 'staff' }
+  ],
+  // Staff — Staff 5, Static Field. PvE/PvP+WvW split (0.5/0.01) — WvW value used.
+  5671: [{ factText: 'Damage', coefficient: 0.01, weapon: 'staff' }],
+  // Staff — Staff 5, Shock Wave. PvE/PvP+WvW split (2.5/0.5) — WvW value used.
+  5686: [{ factText: 'Damage', coefficient: 0.5, weapon: 'staff' }],
+  // Sword — Sword 1 (Water), Seiche. PvE/PvP+WvW split (0.8/0.22) — WvW value used.
+  41052: [{ factText: 'Damage', coefficient: 0.22, weapon: 'sword' }],
+  // Sword — Sword 1 (Water), Clapotis. PvE/PvP+WvW split (0.9/0.3) — WvW value used.
+  45983: [{ factText: 'Damage', coefficient: 0.3, weapon: 'sword' }],
+  // Sword — Sword 1 (Water), Breaking Wave. PvE/PvP+WvW split (1.1/0.44) — WvW value used.
+  43199: [{ factText: 'Damage', coefficient: 0.44, weapon: 'sword' }],
+  // Sword — Sword 1 (Air), Charged Strike. PvE/PvP+WvW split (0.9/0.513) — WvW value used.
+  44681: [{ factText: 'Damage', coefficient: 0.513, weapon: 'sword' }],
+  // Sword — Sword 1 (Air), Polaric Slash. PvE/PvP+WvW split (1.0/0.587) — WvW value used.
+  45259: [{ factText: 'Damage', coefficient: 0.587, weapon: 'sword' }],
+  // Sword — Sword 1 (Air), Call Lightning. PvE/PvP+WvW split (1.2/0.8) — WvW value used. 2 Damage facts (Primary Strike Damage/Lightning Strike Damage).
+  45216: [
+    { factText: 'Primary Strike Damage', coefficient: 0.8, weapon: 'sword' },
+    { factText: 'Lightning Strike Damage', coefficient: 0.2, weapon: 'sword' }
+  ],
+  // Sword — Sword 1 (Earth), Crystal Slash. PvE/PvP+WvW split (0.8/0.44) — WvW value used.
+  43616: [{ factText: 'Damage', coefficient: 0.44, weapon: 'sword' }],
+  // Sword — Sword 1 (Earth), Crystalline Strike. PvE/PvP+WvW split (0.9/0.513) — WvW value used.
+  43080: [{ factText: 'Damage', coefficient: 0.513, weapon: 'sword' }],
+  // Sword — Sword 1 (Earth), Crystalline Sunder. PvE/PvP+WvW split (1.4/0.666) — WvW value used.
+  46024: [{ factText: 'Damage', coefficient: 0.666, weapon: 'sword' }],
+  // Sword — Sword 1 (Fire), Fire Strike. PvE/PvP+WvW split (1.0/0.44) — WvW value used.
+  39964: [{ factText: 'Damage', coefficient: 0.44, weapon: 'sword' }],
+  // Sword — Sword 1 (Fire), Fire Swipe. PvE/PvP+WvW split (1.1/0.513) — WvW value used.
+  40326: [{ factText: 'Damage', coefficient: 0.513, weapon: 'sword' }],
+  // Sword — Sword 1 (Fire), Searing Slash. PvE/PvP+WvW split (1.8/0.833) — WvW value used.
+  43657: [{ factText: 'Damage', coefficient: 0.833, weapon: 'sword' }],
+  // Sword — Sword 2 (Water), Riptide. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (0.66/0.2) — WvW value used.
+  44405: [{ factText: 'Damage', coefficient: 0.2, weapon: 'sword' }],
+  // Sword — Sword 2 (Air), Polaric Leap. PvE/PvP+WvW split (0.66/0.33) — WvW value used.
+  44998: [{ factText: 'Damage', coefficient: 0.33, weapon: 'sword' }],
+  // Sword — Sword 2 (Earth), Earthen Vortex. PvE/PvP+WvW split (1.8/1.25) — WvW value used.
+  40709: [{ factText: 'Damage', coefficient: 1.25, weapon: 'sword' }],
+  // Sword — Sword 2 (Fire), Flame Uprising. PvE/PvP+WvW split (2.0/1.25) — WvW value used. 2 Damage facts (Initial Damage/Field Damage).
+  45313: [
+    { factText: 'Initial Damage', coefficient: 1.25, weapon: 'sword' },
+    { factText: 'Field Damage', coefficient: 0.4, weapon: 'sword' }
+  ],
+  // Sword — Sword 3 (Water), Shearing Edge. PvE/PvP+WvW split (1.8/1.0) — WvW value used.
+  42867: [{ factText: 'Damage', coefficient: 1.0, weapon: 'sword' }],
+  // Sword — Sword 3 (Water), Natural Frenzy. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (3.52/2.36) — WvW value used.
+  40170: [{ factText: 'Damage', coefficient: 2.36, weapon: 'sword' }],
+  // Sword — Sword 3 (Water), Aqua Siphon. No split.
+  41167: [{ factText: 'Damage', coefficient: 0.75, weapon: 'sword' }],
+  // Sword — Sword 3 (Air), Gale Strike. PvE/PvP+WvW split (0.275/0.01) — WvW value used.
+  46295: [{ factText: 'Damage', coefficient: 0.01, weapon: 'sword' }],
+  // Sword — Sword 3 (Air), Quantum Strike. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (0.5/0.1) — WvW value used. 2 Damage facts (Initial Attack/Lightning Strike Damage).
+  43803: [
+    { factText: 'Initial Attack', coefficient: 0.1, weapon: 'sword' },
+    { factText: 'Lightning Strike Damage', coefficient: 2.0, weapon: 'sword' }
+  ],
+  // Sword — Sword 3 (Earth), Rust Frenzy. `strikes=` present -> wiki totaled. PvE/PvP+WvW split (2.64/2.0) — WvW value used.
+  40139: [{ factText: 'Damage', coefficient: 2.0, weapon: 'sword' }],
+  // Sword — Sword 3 (Fire), Twin Strike. PvE/PvP+WvW split (1.0/0.5) — WvW value used. 2 Damage facts (Initial Strike/Second Strike).
+  42271: [
+    { factText: 'Initial Strike', coefficient: 0.5, weapon: 'sword' },
+    { factText: 'Second Strike', coefficient: 1.0, weapon: 'sword' }
+  ],
+  // Sword — Sword 3 (Fire), Pyro Vortex. No split. 2 Damage facts (Initial Strike/Damage).
+  43074: [
+    { factText: 'Initial Strike', coefficient: 1.0, weapon: 'sword' },
+    { factText: 'Damage', coefficient: 0.33, weapon: 'sword' }
+  ],
+  // Sword — Sword 3 (Fire), Lava Skin. No split.
+  46447: [{ factText: 'Damage', coefficient: 0.33, weapon: 'sword' }],
+  // Sword — Sword 3 (Fire), Cauterizing Strike. PvE/PvP+WvW split (2.91/1.8) — WvW value used. 2 Damage facts (Damage vs. Burning/Damage).
+  44451: [
+    { factText: 'Damage vs. Burning', coefficient: 1.8, weapon: 'sword' },
+    { factText: 'Damage', coefficient: 1.0, weapon: 'sword' }
+  ],
+  // Trident — Trident 1 (Water), Water Missile. No split.
+  5604: [{ factText: 'Damage', coefficient: 0.8, weapon: 'trident' }],
+  // Trident — Trident 1 (Air), Forked Lightning. No split.
+  5656: [{ factText: 'Damage', coefficient: 0.4, weapon: 'trident' }],
+  // Trident — Trident 1 (Earth), Rock Blade. `strikes=` present -> wiki totaled. No split.
+  5657: [{ factText: 'Damage', coefficient: 0.45, weapon: 'trident' }],
+  // Trident — Trident 1 (Fire), Magma Orb. No split. 2 Damage facts (Damage/Explosion Damage).
+  5598: [
+    { factText: 'Damage', coefficient: 0.4, weapon: 'trident' },
+    { factText: 'Explosion Damage', coefficient: 0.4, weapon: 'trident' }
+  ],
+  // Trident — Trident 2 (Water), Ice Globe. No split. 2 Damage facts (Projectile Dmg/Detonation Damage).
+  5605: [
+    { factText: 'Projectile Dmg', coefficient: 1.0, weapon: 'trident' },
+    { factText: 'Detonation Damage', coefficient: 2.0, weapon: 'trident' }
+  ],
+  // Trident — Trident 2 (Air), Electrocute. PvE/PvP+WvW split (2.4/1.2) — WvW value used.
+  5655: [{ factText: 'Damage', coefficient: 1.2, weapon: 'trident' }],
+  // Trident — Trident 2 (Earth), Rock Spray. No split.
+  5658: [{ factText: 'Damage', coefficient: 1.666, weapon: 'trident' }],
+  // Trident — Trident 2 (Fire), Boil. No split.
+  5597: [{ factText: 'Damage', coefficient: 0.5, weapon: 'trident' }],
+  // Trident — Trident 3 (Water), Absolute Zero. No split.
+  46360: [{ factText: 'Damage', coefficient: 0.77, weapon: 'trident' }],
+  // Trident — Trident 3 (Water), Elemental Compression. No split.
+  41001: [{ factText: 'Damage', coefficient: 1.25, weapon: 'trident' }],
+  // Trident — Trident 3 (Water), Ice Wall. No split.
+  5606: [{ factText: 'Damage', coefficient: 2.0, weapon: 'trident' }],
+  // Trident — Trident 3 (Air), Sodden Swath. `strikes=` present -> wiki totaled. No split.
+  39981: [{ factText: 'Damage', coefficient: 1.32, weapon: 'trident' }],
+  // Trident — Trident 3 (Air), Air Pocket. No split.
+  5652: [{ factText: 'Damage', coefficient: 0.7802, weapon: 'trident' }],
+  // Trident — Trident 3 (Earth), Magnetic Current. No split.
+  5662: [{ factText: 'Damage', coefficient: 0.5, weapon: 'trident' }],
+  // Trident — Trident 3 (Fire), Hydrothermal Vent. No split.
+  40378: [{ factText: 'Damage', coefficient: 0.5, weapon: 'trident' }],
+  // Trident — Trident 3 (Fire), Plasmic Strike. No split.
+  41712: [{ factText: 'Damage', coefficient: 1.33, weapon: 'trident' }],
+  // Trident — Trident 3 (Fire), Molten Burst. No split.
+  46185: [{ factText: 'Damage', coefficient: 1.33, weapon: 'trident' }],
+  // Trident — Trident 3 (Fire), Steam. `strikes=` present -> wiki totaled. No split.
+  5566: [{ factText: 'Damage', coefficient: 1.65, weapon: 'trident' }],
+  // Trident — Trident 4, Lava Chains. No split.
+  5599: [{ factText: 'Damage', coefficient: 0.5, weapon: 'trident' }],
+  // Trident — Trident 4, Undercurrent. No split.
+  5748: [{ factText: 'Damage', coefficient: 1.0, weapon: 'trident' }],
+  // Trident — Trident 4, Air Bubble. `strikes=` present -> wiki totaled. No split.
+  5648: [{ factText: 'Damage', coefficient: 1.65, weapon: 'trident' }],
+  // Trident — Trident 4, Rock Anchor. `strikes=` present -> wiki totaled. No split.
+  5659: [{ factText: 'Damage', coefficient: 1.98, weapon: 'trident' }],
+  // Trident — Trident 5, Heat Wave. No split.
+  5600: [{ factText: 'Damage', coefficient: 0.75, weapon: 'trident' }],
+  // Trident — Trident 5, Tidal Wave. No split. 2 Damage facts (Maximum Damage/Base Damage).
+  5607: [
+    { factText: 'Maximum Damage', coefficient: 4.675, weapon: 'trident' },
+    { factText: 'Base Damage', coefficient: 1.0, weapon: 'trident' }
+  ],
+  // Trident — Trident 5, Lightning Cage. No split.
+  5650: [{ factText: 'Damage', coefficient: 1.0, weapon: 'trident' }],
+  // Trident — Trident 5, Murky Water. `strikes=` present -> wiki totaled. No split.
+  5661: [{ factText: 'Damage', coefficient: 1.75, weapon: 'trident' }],
+  // Warhorn — Warhorn 4, Tidal Surge. PvE/PvP+WvW split (1.0/0.01) — WvW value used.
+  30864: [{ factText: 'Damage', coefficient: 0.01, weapon: 'warhorn' }],
+  // Warhorn — Warhorn 4, Cyclone. PvE/PvP+WvW split (0.9/0.01) — WvW value used.
+  30008: [{ factText: 'Damage', coefficient: 0.01, weapon: 'warhorn' }],
+  // Warhorn — Warhorn 5, Wildfire. PvE/PvP+WvW split (0.44/0.5) — WvW value used.
+  29533: [{ factText: 'Damage', coefficient: 0.5, weapon: 'warhorn' }],
+  // Warhorn — Warhorn 5, Lightning Orb. PvE/PvP+WvW split (0.8/1.0) — WvW value used. 2 Damage facts (Damage/Minimum Damage).
+  30795: [
+    { factText: 'Damage', coefficient: 1.0, weapon: 'warhorn' },
+    { factText: 'Minimum Damage', coefficient: 0.05, weapon: 'warhorn' }
+  ],
+  // Warhorn — Warhorn 5, Dust Storm. No split.
+  30336: [{ factText: 'Damage', coefficient: 0.3, weapon: 'warhorn' }],
+  // Fiery Greatsword — Fiery Greatsword 1, Flame Wave. No split.
+  5532: [{ factText: 'Damage', coefficient: 0.65, weapon: 'conjure' }],
+  // Fiery Greatsword — Fiery Greatsword 3, Fiery Whirl. No split.
+  5697: [{ factText: 'Damage', coefficient: 0.688, weapon: 'conjure' }],
+  // Fiery Greatsword — Fiery Greatsword 4, Fiery Rush. No split. 2 Damage facts (Damage/Fire Wall Damage).
+  5517: [
+    { factText: 'Damage', coefficient: 2.0, weapon: 'conjure' },
+    { factText: 'Fire Wall Damage', coefficient: 0.2, weapon: 'conjure' }
+  ],
+  // Fiery Greatsword — Fiery Greatsword 5, Firestorm. No split.
+  5531: [{ factText: 'Damage', coefficient: 0.65, weapon: 'conjure' }],
+  // Flame Axe — Flame Axe 1, Lava Axe. No split.
+  5541: [{ factText: 'Damage', coefficient: 0.8, weapon: 'conjure' }],
+  // Flame Axe — Flame Axe 1, Double Lava Axe. No split.
+  40229: [{ factText: 'Damage', coefficient: 0.8, weapon: 'conjure' }],
+  // Flame Axe — Flame Axe 2, Explosive Lava Axe. No split.
+  5593: [{ factText: 'Damage', coefficient: 1.55, weapon: 'conjure' }],
+  // Flame Axe — Flame Axe 3, Burning Retreat. No split.
+  5717: [{ factText: 'Damage', coefficient: 0.2, weapon: 'conjure' }],
+  // Flame Axe — Flame Axe 4, Ring of Fire. No split.
+  5718: [{ factText: 'Damage', coefficient: 0.5, weapon: 'conjure' }],
+  // Flame Axe — Flame Axe 5, Flame Leap. No split.
+  5719: [{ factText: 'Damage', coefficient: 1.5, weapon: 'conjure' }],
+  // Earth Shield — Earth Shield 1, Shield Smack. No split.
+  5621: [{ factText: 'Damage', coefficient: 0.7, weapon: 'conjure' }],
+  // Earth Shield — Earth Shield 1, Shield Smash. No split.
+  21646: [{ factText: 'Damage', coefficient: 0.7, weapon: 'conjure' }],
+  // Earth Shield — Earth Shield 1, Crippling Shield. No split.
+  5746: [{ factText: 'Damage', coefficient: 0.75, weapon: 'conjure' }],
+  // Earth Shield — Earth Shield 2, Stone Sheath. No split.
+  21647: [{ factText: 'Damage', coefficient: 0.8, weapon: 'conjure' }],
+  // Earth Shield — Earth Shield 3, Magnetic Surge. No split.
+  5547: [{ factText: 'Damage', coefficient: 1.0, weapon: 'conjure' }],
+  // Earth Shield — Earth Shield 4, Magnetic Shield. No split.
+  5747: [{ factText: 'Damage', coefficient: 0.4, weapon: 'conjure' }],
+  // Frost Bow — Frost Bow 1, Water Arrow. No split.
+  5595: [{ factText: 'Damage', coefficient: 0.3, weapon: 'conjure' }],
+  // Frost Bow — Frost Bow 2, Frost Volley. `strikes=` present -> wiki totaled. No split.
+  5720: [{ factText: 'Damage', coefficient: 2.5, weapon: 'conjure' }],
+  // Frost Bow — Frost Bow 3, Frost Fan. `strikes=` present -> wiki totaled. No split.
+  5568: [{ factText: 'Damage', coefficient: 1.75, weapon: 'conjure' }],
+  // Frost Bow — Frost Bow 4, Frost Storm. No split. 2 Damage facts (Damage/Minimum Damage).
+  5723: [
+    { factText: 'Damage', coefficient: 0.7, weapon: 'conjure' },
+    { factText: 'Minimum Damage', coefficient: 0.14, weapon: 'conjure' }
+  ],
+  // Frost Bow — Frost Bow 5, Deep Freeze. No split.
+  5721: [{ factText: 'Damage', coefficient: 0.8, weapon: 'conjure' }],
+  // Lightning Hammer — Lightning Hammer 1, Lightning Swing. No split.
+  5726: [{ factText: 'Damage', coefficient: 1.0, weapon: 'conjure' }],
+  // Lightning Hammer — Lightning Hammer 1, Static Swing. No split.
+  5727: [{ factText: 'Damage', coefficient: 1.0, weapon: 'conjure' }],
+  // Lightning Hammer — Lightning Hammer 1, Thunderclap. No split.
+  5728: [{ factText: 'Damage', coefficient: 1.5, weapon: 'conjure' }],
+  // Lightning Hammer — Lightning Hammer 2, Lightning Leap. No split.
+  5625: [{ factText: 'Damage', coefficient: 1.0, weapon: 'conjure' }],
+  // Lightning Hammer — Lightning Hammer 3, Wind Blast. No split.
+  5733: [{ factText: 'Damage', coefficient: 0.33, weapon: 'conjure' }],
+  // Lightning Hammer — Lightning Hammer 4, Invoke Lightning. No split. 2 Damage facts (Damage/Minimum Damage).
+  5725: [
+    { factText: 'Damage', coefficient: 0.825, weapon: 'conjure' },
+    { factText: 'Minimum Damage', coefficient: 0.24, weapon: 'conjure' }
+  ],
+  // Lightning Hammer — Lightning Hammer 5, Static Field. No split.
+  5732: [{ factText: 'Damage', coefficient: 0.5, weapon: 'conjure' }],
+
+  // Weapon-slot sweep: Warrior, Guardian, Revenant, Ranger, Thief, Engineer, Necromancer, Elementalist done (8 of 9).
 }
 
 export interface DamageLine {

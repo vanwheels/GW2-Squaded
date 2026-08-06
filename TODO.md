@@ -563,9 +563,33 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         boon-stack count at cast time (not a `requires_trait` gate — no combat-state equivalent in
         this app), all 4 curated as always-visible separate lines. No `requires_trait`-gated Damage
         fact found on any candidate this leg. See `damage-calc.ts`'s new Necromancer Weapon-slot block
-        comment for the full writeup.
-        **Next up (not started): Elementalist, Mesmer, in that order** — stop after each leg for a
-        check-in, don't chain them.
+        comment for the full writeup. Elementalist done 2026-08-05: 251 raw candidate ids (200 from
+        every weapon type's own `profession.weapons` entries — the profession's 4-attunement variety
+        makes this the largest Weapon-slot raw count of the sweep — plus, new this leg, 25 from the 5
+        Conjure weapons' `bundleSkills`, the same `Skill.bundleSkills` toggle shape as Engineer's Kits,
+        included for the same reason). 198 carry a genuine Damage fact, 1 already seeded (Fire Grab id
+        5557, re-verified unchanged), 53 confirmed non-damage, 197 curated this leg, 0 exclusions/gaps.
+        Fetched all 198 wiki pages directly via `curl` against the raw-wikitext endpoint rather than
+        delegating (network access from this environment reaches the wiki directly), so no summarizing
+        intermediary touched any curated number. New mechanics: (1) Conjure weapons get their own
+        `weapon=conjure` `WEAPON_STRENGTH_MIDPOINTS` key (968.5, same Ascended-Bundle midpoint as
+        Engineer's `kit`); (2) 12 name collisions, the most of any leg, resolved via otheruses hatnotes
+        and `insource:"<id>"` search (dagger Ring of Fire vs. a real-world region; both Conjure Flame
+        Axe's Ring of Fire and Burning Retreat vs. Staff's own core skills of the same name; Conjure
+        Lightning Hammer's Static Field/Thunderclap likewise; Impale/Steam/Magnetic Shield's own
+        bare-title disambiguation pages; Weaver's Searing Slash/Call Lightning vs. Firebrand/pet/spec
+        skills of the same name; Flame Spear/Monsoon's bare titles being weapon *skins*, not the
+        skills); (3) Weaver's 6 "Dual Orbits: X and Y" Hammer-3 dual-attacks each list their Damage
+        template twice (2 circling projectiles, same value) — harmless, folds into one line; (4) a
+        near-zero-PvE-on-purpose family: Weaver's 6 Dual Orbits skills plus 4 Hammer-3 single-attunement
+        siblings all carry PvE 0.001 against a much larger WvW 0.15 — the opposite of every other split
+        this sweep, correctly resolved by always taking the WvW-tagged value regardless of which is
+        larger; (5) one skill (Flame Burst, Staff 3) lists its WvW/PvP variant before its PvE variant on
+        the page — didn't matter since the curation script matches on the `game mode` text, not
+        position; (6) zero `requires_trait`-gated facts and zero manual hit-count totaling needed this
+        leg (every multi-hit candidate already had a matching wiki `strikes=` param). See
+        `damage-calc.ts`'s new Elementalist Weapon-slot block comment for the full writeup.
+        **Next up (not started): Mesmer, the last profession in this sweep.**
 - [ ] Mesmer's Tale of the Second Scion (id 76695) also grants "Scion's Reprieve," a self-buff
       (+15% WvW/PvP Heal Effectiveness on the caster) that neither this skill's Healing tooltip line
       nor any other app mechanism accounts for — a genuinely separate gap from the zero-facts issue
