@@ -191,17 +191,6 @@ that before extending either further, and before the tooltip visual-pass item be
       last charge before recharging (vs. every charge being identical) — no concrete example found
       to verify against; revisit if one surfaces.
 
-## Skill bar UI/UX feedback pass (2026-07-31)
-
-Large feedback pass from a full skill-bar walkthrough (screenshots per profession/general). Nothing
-below has been implemented yet.
-
-### Engineer
-- [ ] Edge case, explicitly deferred: Engineer's weapon-skill kit-swap is tied to `Skills`
-      (Heal/Utility/Elite choices), not to profession specialization, so the Firebrand-style F-icon
-      click-toggle pattern doesn't map cleanly onto it. Keep the current text-toggle row for kits
-      as-is for now; revisit later.
-
 ## Nice-to-haves
 
 - [ ] "Favorites" pin for the squad editor's per-slot build-assignment picker specifically (the

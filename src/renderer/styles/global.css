@@ -1056,25 +1056,6 @@ input[type='text'] {
   letter-spacing: 0.04em;
 }
 
-.legend-bar-toggle {
-  display: flex;
-  gap: 6px;
-}
-
-.legend-toggle-button {
-  padding: 4px 10px;
-  font-size: 0.72rem;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--muted);
-}
-
-.legend-toggle-button.active {
-  border-color: var(--accent);
-  color: var(--text);
-}
-
 .skill-slot-button:disabled {
   opacity: 1;
   cursor: default;

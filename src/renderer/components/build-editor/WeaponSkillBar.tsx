@@ -45,11 +45,16 @@ interface Props {
  *
  * When the build has any equipped Engineer Kit, an extra toggle row lets the displayed 1-5 bar be
  * swapped to that kit's own 5 skills instead, matching the real in-game "kit replaces your weapon
- * skills while active" mechanic (Firebrand Tomes, Necromancer Shroud, and Druid's Celestial Avatar
- * toggle via their own F-bar icon in `ProfessionMechanicBar` instead — see that component's doc
- * comment). Every equipped kit/tome/Shroud/Celestial-Avatar always contributes to boon/condition
- * totals regardless of this toggle (see `Build.activeBundleSkillId`'s doc comment) — this only
- * changes what's shown.
+ * skills while active" mechanic. Rendered as the same `skill-slot-button` icon (kit's own icon,
+ * tooltip on hover, accent border while active, click the active one again to revert to Weapon)
+ * that Firebrand Tomes/Necromancer Shroud/Druid's Celestial Avatar use on their own F-bar icon in
+ * `ProfessionMechanicBar` — but kept as this separate row rather than folded into that bar,
+ * confirmed 2026-08-06: unlike those, a Kit has no fixed F-slot of its own to click. Its Toolbelt
+ * skill (a DIFFERENT skill, e.g. Grenade Kit's own "Grenade Barrage") already occupies whichever
+ * F-slot the equipped Heal/Utility choice maps to (see `engineerToolbeltBar`), so repurposing that
+ * icon as the kit-swap click target would show the wrong icon for the wrong action. Every equipped
+ * kit/tome/Shroud/Celestial-Avatar always contributes to boon/condition totals regardless of this
+ * toggle (see `Build.activeBundleSkillId`'s doc comment) — this only changes what's shown.
  *
  * For a Weaver, `Build.weaverPreviousAttunement` — the second, "previous" attunement Weaver tracks
  * alongside `activeAttunement` ("current") — has no toggle of its own here at all: clicking
@@ -226,25 +231,29 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
         )}
 
         {toggleRowIds.length > 0 && (
-          <div className="legend-bar-toggle">
-            <button
-              type="button"
-              className={activeBundleId === null ? 'legend-toggle-button active' : 'legend-toggle-button'}
-              onClick={() => onBuildChange({ activeBundleSkillId: null })}
-            >
-              Weapon
-            </button>
+          <div className="skill-bar">
+            <Tooltip content={<TooltipBody title="Weapon" />}>
+              <button
+                type="button"
+                className={activeBundleId === null ? 'skill-slot-button active' : 'skill-slot-button'}
+                onClick={() => onBuildChange({ activeBundleSkillId: null })}
+              >
+                <span className="skill-slot-placeholder">Weapon</span>
+              </button>
+            </Tooltip>
             {toggleRowIds.map((id) => {
               const skill = skillsById.get(id)
+              const isActive = activeBundleId === id
               return (
-                <button
-                  key={id}
-                  type="button"
-                  className={activeBundleId === id ? 'legend-toggle-button active' : 'legend-toggle-button'}
-                  onClick={() => onBuildChange({ activeBundleSkillId: id })}
-                >
-                  {skill?.name ?? `#${id}`}
-                </button>
+                <Tooltip key={id} content={skill ? (skillTooltipFor(skill.id) ?? <TooltipBody title={skill.name} />) : <TooltipBody title={`#${id}`} />}>
+                  <button
+                    type="button"
+                    className={isActive ? 'skill-slot-button active' : 'skill-slot-button'}
+                    onClick={() => onBuildChange({ activeBundleSkillId: isActive ? null : id })}
+                  >
+                    {skill ? <img src={skill.icon} alt={skill.name} /> : <span className="skill-slot-placeholder">{`#${id}`}</span>}
+                  </button>
+                </Tooltip>
               )
             })}
           </div>

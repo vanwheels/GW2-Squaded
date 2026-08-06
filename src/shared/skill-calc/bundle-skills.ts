@@ -112,8 +112,9 @@ const GUNSABER_SLOT_SKILLS: Record<number, number[]> = {
  * Necromancer's Shroud id under the same condition (`Profession_1`/`_5`, resolved by
  * `professionMechanicBar` same as Tomes' `Profession_1`-`3`). These are the ids capable of being
  * toggled into `Build.activeBundleSkillId`; used both to validate/clear that field and to list
- * toggle candidates in the UI (though Tomes and Shroud toggle via their own F-bar icon now, see
- * `ProfessionMechanicBar` — only Kits and Celestial Avatar still use the separate toggle row).
+ * toggle candidates in the UI (though Tomes, Shroud, Celestial Avatar, and Gunsaber all toggle via
+ * their own F-bar icon now, see `ProfessionMechanicBar` — only Kits still use the separate toggle
+ * row, since a Kit has no fixed F-slot of its own; see `WeaponSkillBar`'s doc comment for why).
  */
 export function bundleCapableSkillIds(
   build: Build,

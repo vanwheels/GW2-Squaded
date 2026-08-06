@@ -2,6 +2,40 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 89 — Closed out the last item from the 2026-07-31 skill-bar feedback pass: Engineer Kit toggle row
+
+User asked to work through the "Engineer issues"; several were scattered across TODO.md (skill-bar
+kit-swap edge case, Hematic Focus's Fury crit-chance value, the Throw Mine duplicate-id picker gap,
+and two parked Healing-coefficient exceptions) — picked the skill-bar kit-swap edge case, the last
+remaining profession from the 2026-07-31 skill-bar UI/UX feedback pass (every other profession's
+section was already resolved in Sessions 35-40).
+
+- **Confirmed the deferred reasoning was correct, not just re-read it**: traced why Firebrand
+  Tomes/Necromancer Shroud/Druid's Celestial Avatar/Bladesworn's Gunsaber could all migrate to a
+  clickable F-bar icon in `ProfessionMechanicBar` (Sessions 35-36) but Engineer Kits couldn't —
+  those 4 each have a *fixed* F-slot baked into their spec (Firebrand always has F1-F3 Tomes), while
+  a Kit is just whatever the player equipped in Heal/Utility1-3, occupying 0-4 different positions
+  depending on loadout. Worse, the F-slot a Kit's loadout choice maps to is already showing a
+  DIFFERENT skill — that slot's Toolbelt skill (`engineerToolbeltBar`, e.g. Grenade Kit's own
+  "Grenade Barrage") — so repurposing that icon as the kit-swap click target would show the wrong
+  icon for the wrong action, a real game-accuracy regression. The true in-game click target (the
+  equipped Utility skill's own icon) is already claimed in this app for reopening the Heal/Utility
+  picker, so overloading it with a second click meaning would conflict too. No architecture change
+  taken.
+- **What WAS a real, self-contained gap**: the kit-toggle row (`WeaponSkillBar.tsx`'s `toggleRowIds`)
+  still rendered plain text pills ("Weapon"/"Grenade Kit"/"Elixir Gun", `.legend-toggle-button` — a
+  stale name left over from before Revenant's own Legend toggle was replaced with an icon-based
+  picker) while every other bundle toggle in the app now shows as an accent-bordered icon button.
+  Converted it to reuse the same `.skill-slot-button` icon treatment (kit's own icon, tooltip on
+  hover, accent border while active) as the F-bar bundle icons, and added the same "click the active
+  one again to revert to Weapon" behavior those already have (previously only the separate "Weapon"
+  button could revert). Removed the now-dead `.legend-bar-toggle`/`.legend-toggle-button` CSS.
+- Fixed a stale doc comment in `bundle-skills.ts` that still said "only Kits and Celestial Avatar
+  still use the separate toggle row" — Celestial Avatar migrated to the F-bar in Session 36; only
+  Kits remain, for the structural reason above (not an oversight).
+- `npm run typecheck`/`npm run lint` both clean (no test runner in this project). Not visually
+  spot-checked in the running app (Electron sandbox limitation).
+
 ## Session 88 — Resolved the Vindicator Legendary Alliance orphan-id TODO item: not a picker bug, a mis-keyed curated coefficient
 
 User asked to work through the "skill picker duplicate id issue"; picked the still-open Vindicator
