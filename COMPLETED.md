@@ -2,6 +2,20 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 77 — v0.2.0 release
+
+- Bumped `package.json`/`package-lock.json` to 0.2.0 and wrote `CHANGELOG.md`, covering all
+  four releases to date (0.1.0/0.1.1/0.1.2 pulled from their existing GitHub release notes;
+  0.2.0 summarizing the ~70 commits since 0.1.2 — Gear Optimizer, trait-granted stat bonuses,
+  real Healing/Damage/Barrier tooltip numbers, the full curated-coefficient sweep across all 9
+  professions, flip-skill stacked icons, toggle-form display fixes, the Builds/Squads card-grid
+  rework, and the skill-picker duplicate-id audit). `npm run typecheck`/`npm run lint` both
+  clean before tagging.
+- Published via the pre-created-draft-release workaround: `gh release create` a draft first so
+  `electron-builder --win --publish always`'s concurrent asset uploads find it instead of
+  racing to create duplicates (hit the duplicate-release failure mode publishing 0.1.0; not
+  re-litigated here).
+
 ## Session 76 — Fixed 2 bugs surfaced by the Session 75 mechanic-bar consolidation: Evoker's F5 empty, Catalyst's Jade Sphere tooltip duplicating
 
 - Evoker's F5 "Familiar" button was rendering nothing until a familiar was ever chosen

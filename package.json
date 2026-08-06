@@ -1,6 +1,6 @@
 {
   "name": "gw2-squaded",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "private": true,
   "description": "Guild Wars 2 WvW build editor, squad composition builder, and boon/condition uptime calculator.",
   "author": "",
