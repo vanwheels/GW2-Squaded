@@ -2,6 +2,30 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 76 — Fixed 2 bugs surfaced by the Session 75 mechanic-bar consolidation: Evoker's F5 empty, Catalyst's Jade Sphere tooltip duplicating
+
+- Evoker's F5 "Familiar" button was rendering nothing until a familiar was ever chosen
+  (`Build.familiarId` starts `null`, and `evokerFamiliarBar` returns no entry at all for a `null`
+  id) — with the old standalone `EvokerFamiliarSelect` picker row already removed (Session before
+  last), there was no way left to make the *first* pick at all. Fixed by rendering a bare
+  "Familiar" placeholder button in that gap (`ProfessionMechanicBar.tsx`), same pattern already
+  used for Thief's Stolen Skill slot, wired to the same `cycleFamiliar` click handler (which
+  already handled a `null` `familiarId` correctly — `findIndex` returns -1, `(-1+1) % length`
+  lands on the first familiar).
+- Catalyst's F5 "Deploy Jade Sphere" tooltip was repeating the current attunement's facts several
+  times over instead of showing them once. Root cause: `ProfessionMechanicBar`'s tooltips were
+  built via `SkillsEditor`'s shared `skillTooltipContent`, which also appends
+  `relatedVariantSkills` — every other skill sharing the same name with a non-null `attunement`,
+  designed for a genuinely-picked skill like a Glyph whose per-attunement effects the player can't
+  otherwise see. Every entry in this bar is already the one currently-relevant form, so that block
+  was always redundant here — and actively broken for Jade Sphere specifically, since Catalyst's
+  raw ~24-candidate pool (see `CATALYST_SPEC_ID`'s doc comment) has several near-identical orphaned
+  duplicate ids per attunement, all matched and rendered by name alone. Fixed by giving
+  `ProfessionMechanicBar` its own plain title+description+facts tooltip builder instead of reusing
+  `skillTooltipContent` — nothing in this bar is ever a genuinely-picked multi-form skill (Druid
+  Glyphs only ever appear in the Heal/Utility/Elite picker), so dropping the variant block is safe
+  bar-wide, not just a Catalyst-specific patch. Typecheck and lint both clean.
+
 ## Session 75 — Elementalist attunement toggle merged into the F1-F4 profession-mechanic row
 
 Removed the standalone Fire/Water/Air/Earth attunement-toggle row `WeaponSkillBar.tsx`'s `extras`

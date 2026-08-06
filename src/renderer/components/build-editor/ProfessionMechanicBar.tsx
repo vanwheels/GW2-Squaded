@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import type { Build } from '@shared/types'
 import type { CombatState } from '@shared/gear-calc/combat-state'
 import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
+import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
 import {
   ALLIANCE_TACTICS_SKILL_ID,
   CATALYST_SPEC_ID,
@@ -23,7 +24,7 @@ import { THIEF_STOLEN_SKILL_IDS, thiefStolenSkillBar } from '@shared/skill-calc/
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
 import { usePickerOpen } from '@renderer/state/picker-registry'
-import { skillTooltipContent, useDurationContext, type SkillVariantContext } from './SkillsEditor'
+import { factsBlock, useDurationContext } from './SkillsEditor'
 
 interface Props {
   build: Build
@@ -71,6 +72,11 @@ const THIEF_STOLEN_SKILL_SLOT = 'Profession_2'
  * to the next familiar in `gameData.familiars` order — replacing the standalone
  * `EvokerFamiliarSelect` picker row entirely (confirmed 2026-08-01; `Build.familiarId` itself is
  * unchanged, still also feeding the Heal-skill icon variant, see that field's own doc comment).
+ * `evokerFamiliarBar` returns no entry at all until a familiar is chosen (`Build.familiarId` starts
+ * `null` and stays that way until this F5 button is clicked at least once) — a bare "Familiar"
+ * placeholder button is rendered instead in that gap (own click handler, same `cycleFamiliar`) so
+ * Evoker always has something to click; fixed 2026-08-05, previously the slot was just empty with no
+ * way to ever set a familiar from this bar.
  *
  * Thief's F2 is a fourth, distinct case: unlike every button above, there's no way to derive
  * "the current Stolen Skill" from the build at all (see `thief-stolen-skill.ts`), so clicking the
@@ -95,23 +101,23 @@ const THIEF_STOLEN_SKILL_SLOT = 'Profession_2'
  * whose only difference is the *displayed* icon/tooltip (the Overload variant, swapped in by
  * `professionMechanicBar` itself), never which Attunement the click actually sets. Confirmed
  * 2026-08-05 that the standalone row was pure duplication, so it was removed in favor of this one.
+ *
+ * Unlike every other tooltip in the app, this bar's own `skillTooltipFor` deliberately builds a
+ * plain title+description+facts tooltip rather than reusing `SkillsEditor`'s
+ * `skillTooltipContent` — that helper also appends `relatedVariantSkills` (every other skill
+ * sharing this one's name with a non-null `attunement`), meant for a genuinely-picked skill like a
+ * Glyph whose per-attunement effects the player can't otherwise see. Every entry rendered here is
+ * already the one currently-relevant form (this bar has no separate "generic, attunement-agnostic"
+ * id the way a Glyph's picker slot does), so that block is pure noise at best — and actively wrong
+ * for Catalyst's Jade Sphere specifically, live-verified 2026-08-05: `CATALYST_SPEC_ID`'s raw
+ * ~24-candidate pool has multiple near-identical orphaned duplicate ids per attunement (see that
+ * constant's own doc comment), so `relatedVariantSkills` matching by name alone rendered the same
+ * attunement's facts repeated several times over instead of once each.
  */
 export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuildChange, combatState }: Props) {
   const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
   const { professions, skillsById, tomeChapters, familiars } = gameData
   const profession = professions.find((p) => p.id === build.profession)
-  const variantContext: SkillVariantContext = {
-    skills: gameData.skills,
-    skillsById,
-    wvwFactOverrides: gameData.wvwFactOverrides,
-    durationPercent,
-    characterAttributes,
-    targetArmor,
-    // No mechanic-bar entry is ever a Druid Glyph — same "harmless, never matched" reasoning as
-    // RevenantSkillsEditor's own variantContext.
-    glyphFormVariants: gameData.glyphFormVariants,
-    celestialAvatarActive: false
-  }
   const { open: stolenSkillPickerOpen, openThis: openStolenSkillPicker, close: closeStolenSkillPicker } = usePickerOpen()
   const stolenSkillButtonRef = useRef<HTMLButtonElement>(null)
 
@@ -135,7 +141,13 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
     const skill = skillsById.get(skillId)
     if (!skill) return null
     const facts = boonConditionFactsForSkill(skill, activeIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
-    return skillTooltipContent(skill, facts, activeIds, variantContext)
+    const numericLines = skillFactLines(skill, activeIds, characterAttributes.power, characterAttributes.healingPower, targetArmor)
+    return (
+      <>
+        <TooltipBody title={skill.name} description={skill.description} />
+        {factsBlock(numericLines, facts)}
+      </>
+    )
   }
 
   if (!profession) return null
@@ -212,6 +224,13 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
           </Tooltip>
         )
       })}
+      {isEvoker && !entries.some((e) => e.slot === 'Profession_5') && (
+        <Tooltip content={<TooltipBody title="Familiar" />}>
+          <button type="button" className="skill-slot-button" onClick={cycleFamiliar}>
+            <span className="skill-slot-placeholder">Familiar</span>
+          </button>
+        </Tooltip>
+      )}
       {showStolenSkillPicker && !entries.some((e) => e.slot === THIEF_STOLEN_SKILL_SLOT) && (
         <Tooltip content={<TooltipBody title="Stolen Skill" />}>
           <button

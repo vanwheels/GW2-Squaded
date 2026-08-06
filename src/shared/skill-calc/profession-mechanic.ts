@@ -587,7 +587,9 @@ export function catalystJadeSphereBar(build: Build, profession: Profession, skil
  * Elementalist Evoker's Familiar (F5), per the build's currently-chosen familiar
  * (`Build.familiarId`) — see `EVOKER_FAMILIAR_SKILL_BY_ELEMENT`'s doc comment above. Returns empty
  * (slot omitted entirely) when no familiar is chosen yet, same as every other bar here that reads
- * an unset build-state field.
+ * an unset build-state field — `ProfessionMechanicBar.tsx` renders its own bare "Familiar"
+ * placeholder button in that gap instead (see that component's doc comment) so there's still
+ * something to click to make the first pick, same as Thief's Stolen Skill placeholder.
  */
 export function evokerFamiliarBar(build: Build, skillsById: Map<number, Skill>, familiars: Familiar[]): ProfessionMechanicBarEntry[] {
   if (build.familiarId === null) return []
