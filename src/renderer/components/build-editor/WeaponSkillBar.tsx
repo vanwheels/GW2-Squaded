@@ -15,26 +15,18 @@ interface Props {
   build: Build
   equippedSpecializationIds: ReadonlySet<number>
   onBuildChange: (
-    patch: Partial<
-      Pick<Build, 'environment' | 'activeWeaponSet' | 'activeUnderwaterSet' | 'activeBundleSkillId' | 'rangerUnleashed' | 'activeAttunement'>
-    >
+    patch: Partial<Pick<Build, 'environment' | 'activeWeaponSet' | 'activeUnderwaterSet' | 'activeBundleSkillId' | 'rangerUnleashed'>>
   ) => void
   combatState: CombatState
   /** Renders the same underlying weapon-set derivation up to 4 times, split into the pieces the
    *  in-game skill bar keeps visually distinct (see `SkillsEditor`'s grid layout): `extras` is the
-   *  editor-only display toggles with no live HUD equivalent (attunement/unleashed/bundle) shown
-   *  above the whole bar; `env` is a single combined Land/Underwater toggle icon sitting above the
-   *  weapon-swap icon; `swap` is the weapon-swap cycle icon itself, sitting immediately left of the
-   *  weapon skills; `weapon` is the resulting 1-5 icon row. */
+   *  editor-only display toggles with no live HUD equivalent (unleashed/bundle — Elementalist's
+   *  attunement toggle lives on `ProfessionMechanicBar`'s F1-F4 row instead, see that component's
+   *  doc comment) shown above the whole bar; `env` is a single combined Land/Underwater toggle icon
+   *  sitting above the weapon-swap icon; `swap` is the weapon-swap cycle icon itself, sitting
+   *  immediately left of the weapon skills; `weapon` is the resulting 1-5 icon row. */
   section: 'extras' | 'env' | 'swap' | 'weapon'
 }
-
-const ATTUNEMENTS = ['Fire', 'Water', 'Air', 'Earth'] as const
-
-/** Base Attunement skill ids (Fire/Water/Air/Earth), used purely for their icons in the editor's
- *  own attunement-toggle row below — see that row's doc comment for why it can't literally reuse
- *  `ProfessionMechanicBar`'s read-only F1-F4 rendering of these same 4 ids. */
-const ATTUNEMENT_SKILL_IDS: Record<(typeof ATTUNEMENTS)[number], number> = { Fire: 5492, Water: 5493, Air: 5494, Earth: 5495 }
 
 /**
  * The weapon-derived half of the skill bar: an ENVIRONMENT toggle (land/underwater) and, within
@@ -193,33 +185,10 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
   }
 
   if (section === 'extras') {
-    const hasExtras = isElementalist || unleashedId !== null || toggleRowIds.length > 0
+    const hasExtras = unleashedId !== null || toggleRowIds.length > 0
     if (!hasExtras) return null
     return (
       <div className="ingame-skill-bar-extras">
-        {isElementalist && (
-          <div className="skill-bar">
-            {ATTUNEMENTS.map((attunement) => {
-              const skill = skillsById.get(ATTUNEMENT_SKILL_IDS[attunement])
-              const isActive = build.activeAttunement === attunement
-              return (
-                <Tooltip
-                  key={attunement}
-                  content={skill ? (skillTooltipFor(skill.id) ?? <TooltipBody title={attunement} />) : <TooltipBody title={attunement} />}
-                >
-                  <button
-                    type="button"
-                    className={isActive ? 'skill-slot-button active' : 'skill-slot-button'}
-                    onClick={() => onBuildChange({ activeAttunement: attunement })}
-                  >
-                    {skill ? <img src={skill.icon} alt={skill.name} /> : <span className="skill-slot-placeholder">{attunement}</span>}
-                  </button>
-                </Tooltip>
-              )
-            })}
-          </div>
-        )}
-
         {unleashedId !== null && (
           <div className="ingame-skill-bar-swap">
             <button

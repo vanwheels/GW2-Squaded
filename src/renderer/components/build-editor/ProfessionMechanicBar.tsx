@@ -8,6 +8,7 @@ import {
   catalystJadeSphereBar,
   CONDUIT_SPEC_ID,
   conduitReleasePotentialBar,
+  ELEMENTALIST_ATTUNEMENT_SLOTS,
   engineerToolbeltBar,
   evokerFamiliarBar,
   professionMechanicBar,
@@ -28,7 +29,7 @@ interface Props {
   build: Build
   equippedSpecializationIds: ReadonlySet<number>
   onBuildChange: (
-    patch: Partial<Pick<Build, 'activeBundleSkillId' | 'familiarId' | 'thiefStolenSkillId' | 'vindicatorAspectFlipped'>>
+    patch: Partial<Pick<Build, 'activeBundleSkillId' | 'familiarId' | 'thiefStolenSkillId' | 'vindicatorAspectFlipped' | 'activeAttunement'>>
   ) => void
   combatState: CombatState
 }
@@ -86,6 +87,14 @@ const THIEF_STOLEN_SKILL_SLOT = 'Profession_2'
  * toggles a boolean, both states always contribute to totals" shape as `rangerUnleashed`'s toggle,
  * not `activeBundleSkillId` (there's nothing to set `activeBundleSkillId` to here — Legend7's
  * heal/utility/elite bar isn't the weapon bar). See `vindicator-aspect.ts`.
+ *
+ * Elementalist's F1-F4 (`ELEMENTALIST_ATTUNEMENT_SLOTS`) is a sixth clickable case: clicking sets
+ * `Build.activeAttunement` to that slot's Fire/Water/Air/Earth, exactly like the dedicated
+ * attunement-toggle row `WeaponSkillBar.tsx`'s `extras` section used to render above the whole bar
+ * — the two were functionally identical (same 4 ids/icons, same click target) even under Tempest,
+ * whose only difference is the *displayed* icon/tooltip (the Overload variant, swapped in by
+ * `professionMechanicBar` itself), never which Attunement the click actually sets. Confirmed
+ * 2026-08-05 that the standalone row was pure duplication, so it was removed in favor of this one.
  */
 export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuildChange, combatState }: Props) {
   const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
@@ -172,10 +181,12 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
         const isFamiliarSlot = isEvoker && entry.slot === 'Profession_5'
         const isStolenSkillSlot = showStolenSkillPicker && entry.slot === THIEF_STOLEN_SKILL_SLOT
         const isAllianceTacticsSlot = entry.skill.id === ALLIANCE_TACTICS_SKILL_ID
+        const attunement = build.profession === 'Elementalist' ? ELEMENTALIST_ATTUNEMENT_SLOTS[entry.slot] : undefined
         const isActive =
           (isBundle && build.activeBundleSkillId === entry.skill.id) ||
           (isStolenSkillSlot && stolenSkillPickerOpen) ||
-          (isAllianceTacticsSlot && build.vindicatorAspectFlipped)
+          (isAllianceTacticsSlot && build.vindicatorAspectFlipped) ||
+          (attunement !== undefined && build.activeAttunement === attunement)
         const onClick = isStolenSkillSlot
           ? toggleStolenSkillPicker
           : isBundle
@@ -184,7 +195,9 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
               ? cycleFamiliar
               : isAllianceTacticsSlot
                 ? () => onBuildChange({ vindicatorAspectFlipped: !build.vindicatorAspectFlipped })
-                : undefined
+                : attunement !== undefined
+                  ? () => onBuildChange({ activeAttunement: attunement })
+                  : undefined
         return (
           <Tooltip key={entry.slot} content={skillTooltipFor(entry.skill.id) ?? <TooltipBody title="Unknown skill" />}>
             <button

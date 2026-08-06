@@ -2,6 +2,22 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 75 — Elementalist attunement toggle merged into the F1-F4 profession-mechanic row
+
+Removed the standalone Fire/Water/Air/Earth attunement-toggle row `WeaponSkillBar.tsx`'s `extras`
+section used to render above the whole skill bar for every Elementalist form — it was pure
+duplication of the profession-mechanic bar's own F1-F4 icons (`ProfessionMechanicBar.tsx`), which
+already show the same 4 Attunement ids (read-only) directly below it. `ProfessionMechanicBar`'s F1-F4
+buttons are now clickable for Elementalist, setting `Build.activeAttunement` (new
+`ELEMENTALIST_ATTUNEMENT_SLOTS` map in `profession-mechanic.ts`, keying off the fixed
+Profession_1-4 -> Fire/Water/Air/Earth slot order) and showing the `active` state — same "click sets
+a display-only build field, both/all states still contribute to totals" shape as every other clickable
+mechanic-bar entry (bundle toggles, Vindicator's Alliance Tactics, Evoker's familiar cycle). Works
+unchanged under Tempest, whose F1-F4 icons already swap to the Overload variant for display
+(`professionMechanicBar`'s own `TEMPEST_SPEC_ID` branch) — clicking still sets the underlying
+Attunement, since the slot->Attunement mapping is independent of which icon is shown. Typecheck and
+lint clean.
+
 ## Session 74 — `CURATED_DAMAGE_COEFFICIENTS` full category sweep COMPLETE across all 9 professions (Heal/Elite/Utility/Weapon-slot)
 
 Finished the last leg (Weapon-slot's Mesmer profession) of the sweep started 2026-08-04, closing out

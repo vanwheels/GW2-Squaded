@@ -710,8 +710,9 @@ input[type='text'] {
   gap: 8px;
 }
 
-/* Editor-only display toggles with no HUD equivalent (attunement/unleashed/bundle) — shown above
-   the whole in-game-style bar rather than crowding the weapon-swap column. */
+/* Editor-only display toggles with no HUD equivalent (unleashed/bundle — Elementalist's attunement
+   toggle lives on the profession-mechanic F1-F4 row instead) — shown above the whole in-game-style
+   bar rather than crowding the weapon-swap column. */
 .ingame-skill-bar-extras {
   display: flex;
   flex-direction: column;

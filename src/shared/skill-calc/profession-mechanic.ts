@@ -253,6 +253,23 @@ const NECRO_SHROUD_SPEC_OVERRIDE: Record<number, number> = {
 export const TEMPEST_SPEC_ID = 48
 
 /**
+ * Maps the profession-mechanic bar's fixed F1-F4 slots to the Attunement each one swaps to, true
+ * for every Elementalist form (base game, Tempest, Catalyst, Weaver, Evoker, ...) — F1-F4 always
+ * resolves to the base Fire/Water/Air/Earth Attunement ids (5492-5495) in this exact slot order
+ * (see `EXCLUDED_MECHANIC_SKILL_IDS`'s Evoker-elite-spec-rework-exclusion comment above); Tempest's
+ * own Overload swap just above only changes the displayed icon/tooltip, never which slot maps to
+ * which Attunement. `ProfessionMechanicBar.tsx` uses this to know which `Build.activeAttunement`
+ * value clicking a given F-bar entry should set — replacing the old dedicated attunement-toggle row
+ * above the whole bar, since the two did the exact same thing (confirmed 2026-08-05).
+ */
+export const ELEMENTALIST_ATTUNEMENT_SLOTS: Record<string, 'Fire' | 'Water' | 'Air' | 'Earth'> = {
+  Profession_1: 'Fire',
+  Profession_2: 'Water',
+  Profession_3: 'Air',
+  Profession_4: 'Earth'
+}
+
+/**
  * Elementalist Catalyst (specialization id 67): live-verified 2026-08-01 Catalyst's Profession_5
  * "Deploy Jade Sphere" isn't a single fixed id the way a normal per-spec F5 is — the API returns
  * ~24 raw candidates for the slot, an older set of 3 ids per attunement (a clean
