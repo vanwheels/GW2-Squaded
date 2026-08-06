@@ -33,10 +33,10 @@ export interface HealingCoefficient {
    * this, `healingLinesForSkill`'s fact lookup always resolves to whichever sorts first in
    * `[...skill.facts, ...skill.traitedFacts]` (always the ungated one) regardless of which value the
    * curated entry actually means. Added 2026-08-05 alongside the same fix in `DamageCoefficient`/
-   * `BarrierCoefficient` — no entry in this table uses it yet (every candidate found so far, e.g.
-   * Signet of Courage's Perfect Inscriptions variant below, failed on missing/unreconcilable wiki
-   * data, not on this matching problem), but it's here so a future clean candidate doesn't need this
-   * plumbing rebuilt from scratch.
+   * `BarrierCoefficient`. First used 2026-08-05 for Necromancer's Chillblains (id 10605, see its own
+   * entry below) — every other candidate found before that (e.g. Signet of Courage's Perfect
+   * Inscriptions variant below) failed on missing/unreconcilable wiki data, not on this matching
+   * problem.
    */
   requiresTrait?: number
 }
@@ -518,10 +518,14 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // per-skill design, so it doesn't belong in a per-skill coefficient table (same reasoning already
   // used below to leave Signet of Courage's Perfect Inscriptions-boosted variant uncurated) and none
   // of those 38 are listed here either; a generalized trait-bonus table (like
-  // `FURY_CRIT_CHANCE_TRAIT_BONUSES`) would be the right home for it if ever built. A third, one-off
-  // case of the same shape: Necromancer's Chillblains (id 10605) has no unconditional Healing fact at
-  // all — its only Healing fact requires trait 778 (Transfusion) — so it's excluded here too, not
-  // listed as an uncurated research gap below.
+  // `FURY_CRIT_CHANCE_TRAIT_BONUSES`) would be the right home for it if ever built, but that shape
+  // needs per-skill initiative-cost data this app doesn't model anywhere yet (see TODO.md, investigated
+  // 2026-08-05 while curating Chillblains below) — deferred, not curated. A third, one-off case that
+  // looked like the same shape but wasn't: Necromancer's Chillblains (id 10605) has no unconditional
+  // Healing fact at all — its only Healing fact requires trait 778 (Transfusion) — but unlike Assassin's
+  // Reward, Transfusion's own wiki page documents this exact fact as a real per-skill design (its
+  // "Chillblains additional effects" bullet), so it's curated below via `requiresTrait` instead of
+  // excluded.
   //
   // Of the remaining 55 genuine candidates, 49 landed in the table (research done in parallel via one
   // agent per profession, each fetching raw wikitext directly, same methodology as every prior sweep).
@@ -651,6 +655,14 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
     { factText: 'Healing', baseValue: 1610, coefficient: 0.1 },
     { factText: 'Empowered Healing', baseValue: 2890, coefficient: 0.1 }
   ],
+  // Necromancer — Chillblains (Staff 3). **Curated 2026-08-05** (previously excluded as the
+  // Transfusion trap, see this table's Weapon-slot intro comment above) — this skill carries no
+  // unconditional Healing fact at all, only one gated behind trait 778 (Transfusion), so it's a
+  // `requiresTrait` entry like `CURATED_DAMAGE_COEFFICIENTS`'s Mesmer phantasm-trait fixes rather than
+  // a shared-formula duplicate: Transfusion's own wiki page documents this exact fact under its
+  // "Chillblains additional effects" bullet (1302/0.5 pve+wvw grouped, matching this app's API value
+  // exactly), so it's a genuine per-skill design, not the Assassin's Reward shape (see below).
+  10605: [{ factText: 'Healing', baseValue: 1302, coefficient: 0.5, requiresTrait: 778 }],
   // Necromancer — Locust Swarm. 4 API facts: an untraited PvE/WvW+PvP pair (37/55, same 0.08
   // coefficient) plus a second pair gated behind trait 799 (Banshee's Wail) at 55/83 — only the
   // untraited baseline is curated here, same reasoning as Signet of Courage's traited variant below;

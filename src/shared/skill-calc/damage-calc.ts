@@ -79,9 +79,9 @@ export const WEAPON_STRENGTH_MIDPOINTS: Record<string, number> = {
   // Warden's `strikes=12|1668|coefficient=1.656`) — for those, the bucket below was confirmed by
   // reproducing the wiki's own quoted total from the formula (e.g. Warden: 2615.5 * 1000 * 1.656 / 12 /
   // 2597 ≈ 139/hit * 12 = 1668, exactly matching). **Note**: the Utility-slot sweep's own Phantasmal
-  // Disenchanter/Defender entries (2026-08-04, above) used `unequipped` for this same
-  // no-`weapon=`-key shape without this back-calculation check — likely wrong by this same reasoning,
-  // logged as a known loose end in TODO.md rather than revised here (out of scope for this leg).
+  // Disenchanter/Defender entries (2026-08-04, above) originally used `unequipped` for this same
+  // no-`weapon=`-key shape without this back-calculation check — corrected 2026-08-05, see those two
+  // entries' own comments for the re-derivation (phantasm medium/low respectively).
   'phantasm high': 2877.0,
   'phantasm medium': 2615.5,
   'phantasm low': 2553.5
@@ -971,18 +971,27 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // out of scope for this fix.
   // Phantasmal Disenchanter. Two independently-split Damage facts, "Damage without Boons" (PvE
   // 1.0/WvW+PvP 0.5) and "Damage with Boons" (PvE 0.4/WvW+PvP 0.2) — WvW values used for both.
-  // Empowered Illusions (682) trait-gated variants: 0.5*1.15=0.575, 0.2*1.15=0.23.
+  // Empowered Illusions (682) trait-gated variants: 0.5*1.15=0.575, 0.2*1.15=0.23. **Corrected
+  // 2026-08-05** (was `weapon: 'unequipped'`, logged as a loose end by the Weapon-slot sweep's
+  // Mesmer leg): a fresh wiki pull gives raw totals alongside the coefficients (1007/504 PvE|WvW for
+  // "without Boons", 403/201 for "with Boons") — back-calculating 1007 = WS * 1.0 * 1000/2597 gives
+  // WS ≈ 2615.5, exactly `phantasm medium`, confirmed by the "with Boons" pair too (403 ≈ 2615.5 *
+  // 0.4 * 1000/2597). Coefficients unchanged, only the weapon-strength bucket was wrong.
   10267: [
-    { factText: 'Damage without Boons', coefficient: 0.5, weapon: 'unequipped' },
-    { factText: 'Damage with Boons', coefficient: 0.2, weapon: 'unequipped' },
-    { factText: 'Damage without Boons', coefficient: 0.575, weapon: 'unequipped', requiresTrait: 682 },
-    { factText: 'Damage with Boons', coefficient: 0.23, weapon: 'unequipped', requiresTrait: 682 }
+    { factText: 'Damage without Boons', coefficient: 0.5, weapon: 'phantasm medium' },
+    { factText: 'Damage with Boons', coefficient: 0.2, weapon: 'phantasm medium' },
+    { factText: 'Damage without Boons', coefficient: 0.575, weapon: 'phantasm medium', requiresTrait: 682 },
+    { factText: 'Damage with Boons', coefficient: 0.23, weapon: 'phantasm medium', requiresTrait: 682 }
   ],
   // Phantasmal Defender. PvE/WvW+PvP split 0.4/0.2 — WvW value used. Empowered Illusions (682)
-  // trait-gated variant: 0.2*1.15=0.23.
+  // trait-gated variant: 0.2*1.15=0.23. **Corrected 2026-08-05** (was `weapon: 'unequipped'`, same
+  // loose end as Disenchanter above): this skill's own wiki page carries a documented `{{Bug}}`
+  // note — "the tooltip uses a weapon strength of 2553.5" — exactly `phantasm low`, independently
+  // confirmed by back-calculating the raw PvE total (393 ≈ 2553.5 * 0.4 * 1000/2597). Coefficients
+  // unchanged, only the weapon-strength bucket was wrong.
   10341: [
-    { factText: 'Damage', coefficient: 0.2, weapon: 'unequipped' },
-    { factText: 'Damage', coefficient: 0.23, weapon: 'unequipped', requiresTrait: 682 }
+    { factText: 'Damage', coefficient: 0.2, weapon: 'phantasm low' },
+    { factText: 'Damage', coefficient: 0.23, weapon: 'phantasm low', requiresTrait: 682 }
   ],
   // Well of Senility. No split.
   29856: [{ factText: 'Damage', coefficient: 1.5, weapon: 'unequipped' }],

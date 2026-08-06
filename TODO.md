@@ -87,15 +87,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       wiki-verification pass (condition-per-stack-per-second base values are a separate,
       well-documented wiki constant table, not skill-specific coefficients) before extending
       `CURATED_DAMAGE_COEFFICIENTS` to cover one.
-- [ ] The Weapon-slot Damage sweep's Mesmer leg (2026-08-05) found that the Utility-slot sweep's
-      earlier Phantasmal Disenchanter/Phantasmal Defender entries in `CURATED_DAMAGE_COEFFICIENTS`
-      (2026-08-04) use `weapon: 'unequipped'` for a Damage fact with no wiki `weapon=` key (just a
-      raw totaled number) — the Mesmer Weapon-slot leg's equivalent shape (Phantasmal Warden, Mariner,
-      Mage, Whaler, Warlock) was instead back-calculated against the wiki's own quoted total to find
-      the real `phantasm high/medium/low` tier (2877.0/2615.5/2553.5, see `WEAPON_STRENGTH_MIDPOINTS`),
-      which the Utility-slot entries never got. Both Disenchanter and Defender are very likely using
-      the wrong weapon-strength constant (690.5 instead of one of the phantasm tiers) as a result —
-      worth re-deriving and fixing the same way, but out of scope for the leg that found it.
 - [ ] Mesmer's Tale of the Second Scion (id 76695) also grants "Scion's Reprieve," a self-buff
       (+15% WvW/PvP Heal Effectiveness on the caster) that neither this skill's Healing tooltip line
       nor any other app mechanism accounts for — a genuinely separate gap from the zero-facts issue
@@ -190,19 +181,26 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         and 1290) and the wiki only documents a coefficient for one of them (1290) — since this
         table matches facts by factText alone, curating it risks binding the coefficient to whichever
         fact `Array.find` happens to return first. Left entirely uncurated.
-- [ ] Trait-bonus healing formulas smeared across many skills' own facts, surfaced by the weapon-skill
-      sweep 2026-08-02: Thief's Assassin's Reward trait (id 1238, Deadly Arts, "heal yourself for
-      each point of initiative spent") shows up as a `requires_trait`-gated Healing fact on ~38
-      different weapon skills (nearly every initiative-costing one), and Necromancer's Transfusion
-      trait (id 778) does the same to Chillblains (id 10605). Neither is curated in
-      `CURATED_HEALING_COEFFICIENTS` — a shared trait formula duplicated per-skill by the API isn't a
-      per-skill design, same reasoning already used to leave Signet of Courage's Perfect
-      Inscriptions-boosted variant unreflected. If this app ever wants to show these, the right shape
-      is a small generic trait-bonus table (like `FURY_CRIT_CHANCE_TRAIT_BONUSES`) — one entry per
-      trait with its own wiki-verified per-point coefficient, applied to whichever skill's
-      requires_trait-gated fact matches, rather than 38+ near-duplicate per-skill entries. Worth
-      checking whether other professions have an equivalent "heal on X while this trait is active"
-      trait before scoping — Assassin's Reward/Transfusion may not be the only two.
+- [ ] Necromancer's Transfusion trait (id 778) case **resolved 2026-08-05**: Chillblains (id 10605)
+      turned out to be a genuine per-skill design after all, not a shared-formula duplicate — curated
+      directly in `CURATED_HEALING_COEFFICIENTS` via `requiresTrait` (baseValue 1302, coefficient 0.5,
+      wiki-confirmed on Transfusion's own page). Thief's Assassin's Reward trait (id 1238, Deadly Arts,
+      "heal yourself for each point of initiative spent") is a different, genuinely harder shape —
+      investigated 2026-08-05: its ~38 `requires_trait`-gated Healing facts (nearly every initiative-
+      costing Thief weapon skill) each carry a different resolved value/coefficient (151, 302, 453,
+      604... — non-uniform multiples, e.g. Larcenous Strike alone shows two different traited values
+      302 and 151 with no obvious disambiguator), consistent with each being `0.085 * that skill's own
+      initiative cost` per the trait's own wiki fact (`151 base / 0.085 coefficient` per point). **This
+      app has no initiative-cost field modeled anywhere in `src/shared/types` or `skills.json`** — a
+      generic per-point trait-bonus table (the shape originally proposed here, like
+      `FURY_CRIT_CHANCE_TRAIT_BONUSES`) can't be applied at render time without it, so this needs new
+      data modeling (per-skill initiative cost, not currently fetched/stored) before it can work,
+      not just a small curated table. The alternative — curating all ~38 skills individually with their
+      own resolved value/coefficient straight from the API, skipping the generic-formula idea — is
+      possible but wasn't done in this session (out of scope, larger than the "small fix" this item was
+      originally framed as). Worth checking whether other professions have an equivalent "heal on X
+      while this trait is active" trait before scoping further — Assassin's Reward may not be the only
+      one blocked this way.
 - [ ] Follow-up to the tooltip-overhaul items above, noted 2026-08-02, updated 2026-08-02: trait
       and food/utility tooltips now carry real structured content (traits: `numericFactLines` lines
       appended below the description via `factsBlock`, same as skills; food/utility:
