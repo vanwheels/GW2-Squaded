@@ -88,6 +88,21 @@ export interface EquipmentSlot {
 export type Environment = 'land' | 'underwater'
 
 /**
+ * Returns `build` unchanged, or a shallow copy forced to `environment: 'land'` — the single seam
+ * every display/calc call site uses to respect the Settings "Show underwater equipment & skills"
+ * toggle (`useAppSettings().showUnderwater`, off by default) without needing its own
+ * underwater-awareness: since `environment`'s doc comment above already says it alone scopes both
+ * the weapon-skill bar and the boon/condition calculator's weapon-derived sources, forcing it to
+ * `'land'` here reproduces "nothing equipped underwater" everywhere that matters, even for a build
+ * that was saved with `environment: 'underwater'` before the toggle was turned off. Never use this
+ * on a build about to be persisted (`onSave`/`onSaveBuild` etc.) — display/calc only, or a real
+ * underwater build's own environment gets silently clobbered on save.
+ */
+export function withUnderwaterSetting(build: Build, showUnderwater: boolean): Build {
+  return showUnderwater ? build : { ...build, environment: 'land' }
+}
+
+/**
  * A theoretical stat build: profession + specialization/trait choices + skills +
  * equipment stat selections. Comparable in scope to a gw2skills.net build link.
  */
@@ -194,9 +209,12 @@ export interface Build {
    * element twice, e.g. Fire+Fire, gives the normal single-attunement skill 3). Display-only, same
    * "toggle doesn't gate boon/condition totals" reasoning as `activeAttunement` itself — a real
    * Weaver reaches every current/previous combo at will, so `boon-calc/sources.ts` unions all of
-   * them into totals regardless of which pair is shown here. Set by a dedicated "Previous
-   * Attunement" toggle row in `WeaponSkillBar.tsx`'s `extras` section (Weaver-only, alongside the
-   * existing F1-F4 row that already sets `activeAttunement`/"current"); defaults to matching
+   * them into totals regardless of which pair is shown here. Has no toggle of its own: set as a
+   * side effect of clicking `ProfessionMechanicBar`'s existing F1-F4 row that sets
+   * `activeAttunement`/"current" — every click there also demotes whatever `activeAttunement` was
+   * a moment ago into this field, modeling "attuning always pushes your current element to
+   * previous" (confirmed 2026-08-06; an earlier dedicated "Previous Attunement" toggle row in
+   * `WeaponSkillBar.tsx`'s `extras` section was removed in favor of this). Defaults to matching
    * `activeAttunement` when Weaver is newly equipped (current === previous, i.e. a normal-looking
    * single-attunement bar) and resets to `null` when Weaver is un-equipped, same pattern as
    * `familiarId`/`thiefStolenSkillId`. See `weapon-calc/weapon-skills.ts`'s `weaverWeaponThreeSkillId`

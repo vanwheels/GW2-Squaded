@@ -13,6 +13,7 @@ import {
 import { formatConsumableDescription, formatItemStatName } from '@shared/gear-calc/format-description'
 import { formatRelicDescription } from '@shared/gear-calc/relic-effects-format'
 import { useGameData } from '@renderer/state/game-data-store'
+import { useAppSettings } from '@renderer/state/app-settings-store'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
 import { SkillBarIcon } from './SkillBarIcon'
 
@@ -188,6 +189,7 @@ export function EquipmentEditor({
 }: Props) {
   const { itemStats, itemStatIcons, itemStatLegalIds, professions, runes, sigils, infusions, relics, relicEffects, food, utility } =
     useGameData()
+  const { showUnderwater } = useAppSettings()
   // Two entirely separate deduped lists, never merged — see `dedupedStatsForCategory`'s doc
   // comment on why mixing armor/weapon and trinket combos here was a real bug.
   const armorWeaponStats = dedupedStatsForCategory(itemStats, itemStatLegalIds.armorWeapon).sort((a, b) => a.name.localeCompare(b.name))
@@ -196,8 +198,13 @@ export function EquipmentEditor({
   const profession = professions.find((p) => p.id === professionId)
   // Weapon panel toggle (2026-07-31): land Set A/B and the underwater sets share screen real
   // estate poorly side by side, so only one is shown at a time — defaults to land since that's
-  // relevant to every build, unlike underwater gear which many builds never touch.
+  // relevant to every build, unlike underwater gear which many builds never touch. When the
+  // Settings "Show underwater equipment & skills" toggle is off, the underwater panel and its
+  // switch button are hidden entirely — `effectiveWeaponMode` below forces the land view
+  // regardless of this local state, so a stale `'underwater'` pick from before the toggle was
+  // turned off can't leave the panel stuck showing nothing.
   const [weaponMode, setWeaponMode] = useState<'land' | 'underwater'>('land')
+  const effectiveWeaponMode = showUnderwater ? weaponMode : 'land'
   // Copy/paste (2026-07-30): a template value per category, held only in local UI state (not part
   // of the build) — pick a value here, then drag it onto any matching slot, or use "Apply to All"
   // to fill every eligible slot at once. See `applyStatToAll`/`applyRuneToAll`/`applySigilToAll`/
@@ -729,18 +736,20 @@ export function EquipmentEditor({
         <div className="gear-panel gear-panel-weapon">
           <div className="gear-panel-weapon-header">
             <h4 className="gear-panel-title">Weapon</h4>
-            <div className="weapon-mode-toggle">
-              <button
-                type="button"
-                className={weaponMode === 'land' ? 'skill-bar-icon-button env-land active' : 'skill-bar-icon-button env-water active'}
-                title={weaponMode === 'land' ? 'Switch to Underwater' : 'Switch to Land'}
-                onClick={() => setWeaponMode(weaponMode === 'land' ? 'underwater' : 'land')}
-              >
-                <SkillBarIcon kind={weaponMode === 'land' ? 'land' : 'water'} />
-              </button>
-            </div>
+            {showUnderwater && (
+              <div className="weapon-mode-toggle">
+                <button
+                  type="button"
+                  className={weaponMode === 'land' ? 'skill-bar-icon-button env-land active' : 'skill-bar-icon-button env-water active'}
+                  title={weaponMode === 'land' ? 'Switch to Underwater' : 'Switch to Land'}
+                  onClick={() => setWeaponMode(weaponMode === 'land' ? 'underwater' : 'land')}
+                >
+                  <SkillBarIcon kind={weaponMode === 'land' ? 'land' : 'water'} />
+                </button>
+              </div>
+            )}
           </div>
-          {weaponMode === 'land' ? (
+          {effectiveWeaponMode === 'land' ? (
             <div className="gear-weapon-row">
               <div className="gear-weapon-set">
                 <h5>Weapon I</h5>

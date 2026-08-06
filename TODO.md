@@ -259,11 +259,6 @@ below has been implemented yet.
       still a distinct nice-to-have if wanted.
 - [ ] "Favorites" marker for food/utility consumables, to pin preferred choices to the top of the
       selection list (currently the full unfiltered catalog, by design).
-- [ ] Settings toggle for underwater weapons/skills, defaulted **off**. Noted 2026-07-31: underwater
-      isn't frequently used in WvW and normally shouldn't factor into boon/condition output. When
-      off, the Underwater weapon-set editor and its skill bar should stay hidden, and `sources.ts`'s
-      boon/condition calculator should skip underwater skill ids the same way it would if nothing
-      were equipped there.
 - [ ] More curated fury-crit-chance traits in `combat-state.ts`'s `FURY_CRIT_CHANCE_TRAIT_BONUSES`
       (seeded 2026-08-01 with only Revenant's Roiling Mists, for the Gear Optimizer's Critical
       Chance metric). A `traits.json` scan found 6 more with the same "extra crit chance while under

@@ -21,6 +21,7 @@ import {
 import { EVOKER_SPECIALIZATION_ID } from '@shared/skill-calc/familiar'
 import { isMechanicBarBundleId } from '@shared/skill-calc/bundle-skills'
 import { THIEF_STOLEN_SKILL_IDS, thiefStolenSkillBar } from '@shared/skill-calc/thief-stolen-skill'
+import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
 import { usePickerOpen } from '@renderer/state/picker-registry'
@@ -30,7 +31,12 @@ interface Props {
   build: Build
   equippedSpecializationIds: ReadonlySet<number>
   onBuildChange: (
-    patch: Partial<Pick<Build, 'activeBundleSkillId' | 'familiarId' | 'thiefStolenSkillId' | 'vindicatorAspectFlipped' | 'activeAttunement'>>
+    patch: Partial<
+      Pick<
+        Build,
+        'activeBundleSkillId' | 'familiarId' | 'thiefStolenSkillId' | 'vindicatorAspectFlipped' | 'activeAttunement' | 'weaverPreviousAttunement'
+      >
+    >
   ) => void
   combatState: CombatState
 }
@@ -102,6 +108,17 @@ const THIEF_STOLEN_SKILL_SLOT = 'Profession_2'
  * `professionMechanicBar` itself), never which Attunement the click actually sets. Confirmed
  * 2026-08-05 that the standalone row was pure duplication, so it was removed in favor of this one.
  *
+ * For Weaver specifically (specialization id `WEAVER_SPEC_ID`), this same click also carries
+ * `Build.weaverPreviousAttunement` along for free: every click sets `activeAttunement` to the
+ * clicked slot *and* `weaverPreviousAttunement` to whatever `activeAttunement` was a moment ago —
+ * modeling the real "attuning always demotes your current element to previous" mechanic without a
+ * separate toggle. This includes re-clicking the already-active slot (current and previous both end
+ * up on the same element, e.g. Water/Water) — not reachable in a real fight, where you can't attune
+ * into the element you're already in, but useful here to preview the plain single-attunement weapon
+ * skill 3 rather than a Dual Attack. Confirmed 2026-08-06: replaced the earlier dedicated "Previous
+ * Attunement" toggle row in `WeaponSkillBar.tsx`'s `extras` section, which is now gone — see
+ * `Build.weaverPreviousAttunement`'s doc comment.
+ *
  * Unlike every other tooltip in the app, this bar's own `skillTooltipFor` deliberately builds a
  * plain title+description+facts tooltip rather than reusing `SkillsEditor`'s
  * `skillTooltipContent` — that helper also appends `relatedVariantSkills` (every other skill
@@ -152,6 +169,7 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
 
   if (!profession) return null
 
+  const isWeaver = equippedSpecializationIds.has(WEAVER_SPEC_ID)
   const isLand = build.environment === 'land'
   const mainKey = isLand ? (build.activeWeaponSet === 'A' ? 'weaponA1' : 'weaponB1') : build.activeUnderwaterSet === 'U1' ? 'weaponU1' : 'weaponU2'
   const mainHandWeaponType = build.equipment[mainKey]?.weaponType ?? null
@@ -208,7 +226,12 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
               : isAllianceTacticsSlot
                 ? () => onBuildChange({ vindicatorAspectFlipped: !build.vindicatorAspectFlipped })
                 : attunement !== undefined
-                  ? () => onBuildChange({ activeAttunement: attunement })
+                  ? () =>
+                      onBuildChange(
+                        isWeaver
+                          ? { activeAttunement: attunement, weaverPreviousAttunement: build.activeAttunement }
+                          : { activeAttunement: attunement }
+                      )
                   : undefined
         return (
           <Tooltip key={entry.slot} content={skillTooltipFor(entry.skill.id) ?? <TooltipBody title="Unknown skill" />}>

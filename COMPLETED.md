@@ -2,6 +2,44 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 83 — Settings toggle for underwater equipment/skills
+
+Built the first of two Settings toggles requested 2026-08-06 (racial skills is the other, tracked
+separately in TODO.md) — this one matches the spec already noted in TODO.md 2026-07-31: off by
+default, hides underwater editing UI, and the boon/condition calculator treats underwater weapon
+skills as unequipped while it's off.
+
+- New `AppSettingsProvider`/`useAppSettings` (`src/renderer/state/app-settings-store.tsx`) — plain
+  `localStorage`-backed context, not `gw2Storage`'s IPC/SQLite path, since this is a per-install
+  display preference, not build/squad data. Wraps the whole app in `App.tsx` (outermost provider).
+- `SettingsView.tsx` gained a "Display" panel with the checkbox.
+- New `Build.withUnderwaterSetting(build, showUnderwater)` (`shared/types/build.ts`) — the single
+  seam every read site uses: returns `build` unchanged when the toggle is on, else a shallow copy
+  forced to `environment: 'land'`. Never used on a build about to be saved (would silently clobber a
+  real underwater build's own environment) — display/calc only.
+- `BuildEditorView.tsx` computes one `displayBuild = withUnderwaterSetting(draft, showUnderwater)`
+  and passes it (not `draft`) to `StatsPanel`/`BoonConditionSummaryPanel`/`SkillsEditor` — cascades
+  automatically into `WeaponSkillBar`/`ProfessionMechanicBar` (they just forward whatever `build`
+  prop they're given), so every one of `sources.ts`'s `environment`-branching functions
+  (`weaponSkillIdsForBuild` inside `computeBoonConditionSources`/`computeAuraSources`/
+  `computeComboSources`/`computeNamedFactSources`) and `computeGearAttributeTotals`'s
+  `isActiveWeaponSlot` already treat underwater as unequipped, with no per-function threading
+  needed. Edits still flow through the real `draft` (`onBuildChange` closes over it, not
+  `displayBuild`), so this is a pure read-side mask — an existing build saved with
+  `environment: 'underwater'` isn't mutated, just displayed/calculated as if it were land.
+- `WeaponSkillBar.tsx`'s `env` section (the Land/Underwater switch icon) and
+  `EquipmentEditor.tsx`'s weapon-panel toggle button both hide outright when the setting is off
+  (`EquipmentEditor` also forces its own local `weaponMode` state to `'land'` via a computed
+  `effectiveWeaponMode`, so a stale `'underwater'` pick from before the toggle was flipped off can't
+  leave the panel showing nothing).
+- Squad editor: `PartyRow.tsx` builds one `effectiveBuildsById` (same `withUnderwaterSetting` map)
+  and feeds it to every `computePartyXSummary` call AND each `SlotTile`'s `build` prop — covers
+  `SlotTile.tsx`'s own `computeBoonConditionSources`/etc. calls without touching that file at all.
+- Deliberately left untouched: `GearOptimizerPanel.tsx` still reads raw `draft` (already flagged
+  separately in TODO.md as early-stage/experimental — not worth compounding scope here).
+- Verified via `npm run typecheck` and `npm run lint` (both clean) — Electron sandbox limitation
+  means no live screenshot verification this session, see memory.
+
 ## Session 82 — Weaver dual-attunement weapon-skill-3 gap resolved
 
 Closed the long-standing documented limitation (TODO.md's "Skill picker follow-ups" + "Elementalist"

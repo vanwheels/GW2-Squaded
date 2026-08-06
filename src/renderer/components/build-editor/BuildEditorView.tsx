@@ -13,8 +13,10 @@ import { SPECTER_SPEC_ID } from '@shared/skill-calc/profession-mechanic'
 import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills'
 import { DEFAULT_COMBAT_STATE, type CombatState } from '@shared/gear-calc/combat-state'
 import { getBuildAutoTags } from '@shared/tags/auto-tags'
+import { withUnderwaterSetting } from '@shared/types/build'
 import { useGameData } from '@renderer/state/game-data-store'
 import { useBuildsStore } from '@renderer/state/builds-store'
+import { useAppSettings } from '@renderer/state/app-settings-store'
 import { SharePanel } from '@renderer/components/common/SharePanel'
 import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
 import { TagInput } from '@renderer/components/common/TagInput'
@@ -47,7 +49,17 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
   const [combatState, setCombatState] = useState<CombatState>(DEFAULT_COMBAT_STATE)
   const { eliteSpecSkills, legends, professions, specializationsById } = useGameData()
   const { builds } = useBuildsStore()
+  const { showUnderwater } = useAppSettings()
   const columnsRef = useRef<HTMLDivElement>(null)
+
+  /** Display/calc-only view of `draft` — never passed to `onSave`. See `withUnderwaterSetting`'s
+   *  doc comment: forces `environment: 'land'` when the Settings underwater toggle is off, so
+   *  `StatsPanel`/`BoonConditionSummaryPanel`/`SkillsEditor` (and everything it renders underneath,
+   *  `WeaponSkillBar`/`ProfessionMechanicBar`) all behave as if nothing were equipped underwater,
+   *  regardless of what `draft.environment` actually holds. Edits still flow through the real
+   *  `draft` below (`onBuildChange`/`setDraft` close over `draft`, not this), so this is purely a
+   *  read-side mask. */
+  const displayBuild = useMemo(() => withUnderwaterSetting(draft, showUnderwater), [draft, showUnderwater])
 
   const autoTags = useMemo(
     () => getBuildAutoTags(draft, { professions, specializationsById }),
@@ -240,11 +252,11 @@ export function BuildEditorView({ build, isNew, onSave, onCancel }: Props) {
           />
         </div>
         <div className="build-editor-column build-editor-column-fill build-editor-column-stretch">
-          <StatsPanel build={draft} combatState={combatState} onCombatStateChange={setCombatState} />
-          <BoonConditionSummaryPanel build={draft} />
+          <StatsPanel build={displayBuild} combatState={combatState} onCombatStateChange={setCombatState} />
+          <BoonConditionSummaryPanel build={displayBuild} />
           <h3>Skills</h3>
           <SkillsEditor
-            build={draft}
+            build={displayBuild}
             value={draft.skills}
             onChange={(skills) => setDraft({ ...draft, skills })}
             onBuildChange={(patch) => setDraft({ ...draft, ...patch })}

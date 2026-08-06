@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import type { Build, GhostPick, Party } from '@shared/types'
+import { withUnderwaterSetting } from '@shared/types/build'
 import { useGameData } from '@renderer/state/game-data-store'
+import { useAppSettings } from '@renderer/state/app-settings-store'
 import { TooltipBody } from '@renderer/components/common/Tooltip'
 import {
   computePartyAuraSummary,
@@ -133,40 +135,50 @@ export function PartyRow({
   canRemove
 }: Props) {
   const gameData = useGameData()
+  const { showUnderwater } = useAppSettings()
   const [expanded, setExpanded] = useState(false)
 
+  /** Display/calc-only view of `buildsById` — see `withUnderwaterSetting`'s doc comment. Feeds
+   *  every `computePartyXSummary` call below AND each `SlotTile`'s own `build` prop, so the whole
+   *  party summary (and every per-slot tooltip) treats underwater weapon skills as unequipped
+   *  whenever the Settings toggle is off, matching the single-build editor's `displayBuild`. */
+  const effectiveBuildsById = useMemo(
+    () => (showUnderwater ? buildsById : new Map([...buildsById].map(([id, b]) => [id, withUnderwaterSetting(b, false)]))),
+    [buildsById, showUnderwater]
+  )
+
   const summary = useMemo(
-    () => computePartyBoonConditionSummary(party, buildsById, gameData),
-    [party, buildsById, gameData]
+    () => computePartyBoonConditionSummary(party, effectiveBuildsById, gameData),
+    [party, effectiveBuildsById, gameData]
   )
   const boonItems = useMemo(() => toIconItems(summary.filter((e) => !e.isCondition), party), [summary, party])
   const conditionItems = useMemo(() => toIconItems(summary.filter((e) => e.isCondition), party), [summary, party])
 
-  const auraSummary = useMemo(() => computePartyAuraSummary(party, buildsById, gameData), [party, buildsById, gameData])
+  const auraSummary = useMemo(() => computePartyAuraSummary(party, effectiveBuildsById, gameData), [party, effectiveBuildsById, gameData])
   const auraItems = useMemo(() => toAuraIconItems(auraSummary, party), [auraSummary, party])
 
   const controlSummary = useMemo(
-    () => computePartyNamedFactSummary(party, buildsById, gameData, CONTROL_MATCHERS),
-    [party, buildsById, gameData]
+    () => computePartyNamedFactSummary(party, effectiveBuildsById, gameData, CONTROL_MATCHERS),
+    [party, effectiveBuildsById, gameData]
   )
   const controlItems = useMemo(() => toNamedFactIconItems(controlSummary, party, CONTROL_ICONS), [controlSummary, party])
 
   const miscSummary = useMemo(
-    () => computePartyNamedFactSummary(party, buildsById, gameData, MISCELLANEOUS_MATCHERS),
-    [party, buildsById, gameData]
+    () => computePartyNamedFactSummary(party, effectiveBuildsById, gameData, MISCELLANEOUS_MATCHERS),
+    [party, effectiveBuildsById, gameData]
   )
   const miscItems = useMemo(() => toNamedFactIconItems(miscSummary, party, MISCELLANEOUS_ICONS), [miscSummary, party])
 
   const stripCorruptSummary = useMemo(
-    () => computePartyNamedFactSummary(party, buildsById, gameData, BOON_STRIP_CORRUPT_MATCHERS),
-    [party, buildsById, gameData]
+    () => computePartyNamedFactSummary(party, effectiveBuildsById, gameData, BOON_STRIP_CORRUPT_MATCHERS),
+    [party, effectiveBuildsById, gameData]
   )
   const stripCorruptItems = useMemo(
     () => toNamedFactIconItems(stripCorruptSummary, party, BOON_STRIP_CORRUPT_ICONS),
     [stripCorruptSummary, party]
   )
 
-  const comboSummary = useMemo(() => computePartyComboSummary(party, buildsById, gameData), [party, buildsById, gameData])
+  const comboSummary = useMemo(() => computePartyComboSummary(party, effectiveBuildsById, gameData), [party, effectiveBuildsById, gameData])
   const comboItems = useMemo(() => toComboIconItems(comboSummary, party), [comboSummary, party])
 
   return (
@@ -193,7 +205,7 @@ export function PartyRow({
             <SlotTile
               key={slotIndex}
               slot={slot}
-              build={slot.buildId !== null ? buildsById.get(slot.buildId) : undefined}
+              build={slot.buildId !== null ? effectiveBuildsById.get(slot.buildId) : undefined}
               builds={builds}
               showSummary={expanded}
               partyIndex={partyIndex}

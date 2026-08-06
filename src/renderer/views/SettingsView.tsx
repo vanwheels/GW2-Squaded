@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import type { UpdateStatus } from '@shared/updater/updater-provider'
+import { useAppSettings } from '@renderer/state/app-settings-store'
 
 export function SettingsView() {
   const [version, setVersion] = useState('')
   const [supported, setSupported] = useState(false)
   const [status, setStatus] = useState<UpdateStatus>({ state: 'idle' })
+  const { showUnderwater, setShowUnderwater } = useAppSettings()
 
   useEffect(() => {
     void window.gw2Updater.getAppVersion().then(setVersion)
@@ -19,6 +21,24 @@ export function SettingsView() {
       </div>
 
       <div className="settings-panel">
+        <h3>Display</h3>
+        <label className="settings-toggle-row">
+          <input
+            type="checkbox"
+            checked={showUnderwater}
+            onChange={(e) => setShowUnderwater(e.target.checked)}
+          />
+          <span>Show underwater equipment &amp; skills</span>
+        </label>
+        <p className="muted">
+          When off, the Equipment tab's underwater weapon panel and the in-game skill bar's
+          land/underwater toggle stay hidden, and underwater weapon skills are excluded from
+          boon/condition totals — same as if nothing were equipped underwater. Off by default since
+          underwater combat rarely comes up in WvW.
+        </p>
+      </div>
+
+      <div className="settings-panel settings-panel-spaced">
         <h3>Updates</h3>
         <p className="muted">Current version: {version || '—'}</p>
         {supported ? (
