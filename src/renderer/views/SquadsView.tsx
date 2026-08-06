@@ -5,6 +5,7 @@ import { useSquadCompsStore, makeBlankSquadComp } from '@renderer/state/squad-co
 import { useBuildsStore } from '@renderer/state/builds-store'
 import { useTagFilter } from '@renderer/state/use-tag-filter'
 import { reorderBefore } from '@renderer/lib/reorder'
+import { sortFavoritesFirst, middleClickToggle } from '@renderer/lib/favorites'
 import { formatRelativeTime } from '@renderer/lib/format-relative-time'
 import { SquadCompEditorView } from '@renderer/components/squad-editor/SquadCompEditorView'
 import { ImportFromLinkButton } from '@renderer/components/common/ImportFromLinkButton'
@@ -63,6 +64,11 @@ export function SquadsView() {
     if (order !== squadComp.order) void updateSquadComp({ ...squadComp, order })
   }
 
+  /** Not a content edit (same reasoning as `order`) — doesn't bump `updatedAt`. */
+  function toggleFavorite(squadComp: SquadComp): void {
+    void updateSquadComp({ ...squadComp, favorite: !squadComp.favorite })
+  }
+
   if (editing) {
     return (
       <SquadCompEditorView
@@ -103,7 +109,7 @@ export function SquadsView() {
             <p className="empty-state">No squads match your search/filter.</p>
           ) : (
             <ul className="record-list" onDragOver={(e) => e.preventDefault()} onDrop={() => handleDrop(null)}>
-              {filtered.map((squadComp) => {
+              {sortFavoritesFirst(filtered, (squadComp) => squadComp.favorite).map((squadComp) => {
                 const className = [
                   dragId === squadComp.id ? 'record-card-dragging' : null,
                   dropTargetId === squadComp.id ? 'record-card-drop-target' : null
@@ -115,6 +121,8 @@ export function SquadsView() {
                     key={squadComp.id}
                     className={className || undefined}
                     draggable
+                    title={squadComp.favorite ? 'Middle-click to unfavorite' : 'Middle-click to favorite'}
+                    {...middleClickToggle(() => toggleFavorite(squadComp))}
                     onDragStart={() => setDragId(squadComp.id)}
                     onDragEnd={() => {
                       setDragId(null)
@@ -131,6 +139,9 @@ export function SquadsView() {
                       handleDrop(squadComp.id)
                     }}
                   >
+                    <span className={squadComp.favorite ? 'favorite-star is-favorite' : 'favorite-star favorite-star-hint'}>
+                      {squadComp.favorite ? '★' : '☆'}
+                    </span>
                     <button className="record-open" onClick={() => setEditing({ squadComp, isNew: false })}>
                       <span className="record-open-text">
                         <strong>{squadComp.name}</strong>

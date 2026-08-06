@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
 import { usePickerOpen } from '@renderer/state/picker-registry'
+import { middleClickToggle, sortFavoritesFirst } from '@renderer/lib/favorites'
 import { readGearDragData, setGearDragData } from './gear-drag-payload'
 
 export interface UpgradeOption<T extends number | string = number> {
@@ -46,6 +47,16 @@ interface Props<T extends number | string = number> {
   /** Art shown in place of the "?" empty-slot glyph when nothing is chosen yet — used for weapon
    *  stat-prefix slots to preview the selected weapon type's silhouette before a stat is picked. */
   emptyIcon?: string
+  /**
+   * Opts this picker's popover grid into the Favorites feature (2026-08-06): when both are set, a
+   * favorited option sorts ahead of every non-favorited one and shows a gold star badge, and
+   * middle-clicking any option toggles its favorite status without choosing it. Deliberately only
+   * wired up for the Food/Utility pickers (`EquipmentEditor`) so far — favorite state for those is
+   * per-install (`useFavoriteConsumables`), not tied to a saved `Build`/`SquadComp` record the way
+   * `Build.favorite`/`SquadComp.favorite` are for the Builds/Squads card grids.
+   */
+  isFavorite?: (id: T) => boolean
+  onToggleFavorite?: (id: T) => void
 }
 
 /**
@@ -66,7 +77,9 @@ export function UpgradePicker<T extends number | string = number>({
   rarity,
   dragCategory,
   cornerIcon,
-  emptyIcon
+  emptyIcon,
+  isFavorite,
+  onToggleFavorite
 }: Props<T>) {
   const { open, openThis, close } = usePickerOpen()
   const [search, setSearch] = useState('')
@@ -74,6 +87,7 @@ export function UpgradePicker<T extends number | string = number>({
   const chosen = chosenId !== null ? options.find((o) => o.id === chosenId) : undefined
   const query = search.trim().toLowerCase()
   const filtered = query ? options.filter((o) => o.name.toLowerCase().includes(query)) : options
+  const ordered = isFavorite ? sortFavoritesFirst(filtered, (o) => isFavorite(o.id)) : filtered
 
   function choose(id: T | null): void {
     onChoose(id)
@@ -157,18 +171,27 @@ export function UpgradePicker<T extends number | string = number>({
             <span className="skill-option-none">—</span>
             <span className="skill-option-name">None</span>
           </button>
-          {filtered.map((o) => (
-            <Tooltip key={o.id} content={<TooltipBody title={o.name} description={o.description} />}>
-              <button
-                type="button"
-                className={chosenId === o.id ? 'skill-option-button chosen' : 'skill-option-button'}
-                onClick={() => choose(o.id)}
-              >
-                {o.icon ? <img src={o.icon} alt={o.name} /> : <span className="skill-option-none">?</span>}
-                <span className="skill-option-name">{o.name}</span>
-              </button>
-            </Tooltip>
-          ))}
+          {ordered.map((o) => {
+            const favorited = isFavorite?.(o.id) ?? false
+            return (
+              <Tooltip key={o.id} content={<TooltipBody title={o.name} description={o.description} />}>
+                <button
+                  type="button"
+                  className={chosenId === o.id ? 'skill-option-button chosen' : 'skill-option-button'}
+                  onClick={() => choose(o.id)}
+                  {...(onToggleFavorite ? middleClickToggle(() => onToggleFavorite(o.id)) : undefined)}
+                >
+                  {onToggleFavorite && (
+                    <span className={favorited ? 'favorite-star is-favorite' : 'favorite-star favorite-star-hint'}>
+                      {favorited ? '★' : '☆'}
+                    </span>
+                  )}
+                  {o.icon ? <img src={o.icon} alt={o.name} /> : <span className="skill-option-none">?</span>}
+                  <span className="skill-option-name">{o.name}</span>
+                </button>
+              </Tooltip>
+            )
+          })}
         </div>
       </FloatingPanel>
     </div>

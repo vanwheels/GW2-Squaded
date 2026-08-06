@@ -23,7 +23,12 @@ export function makeBlankParty(): Party {
 /** Backfills fields absent on records saved before they existed — see `SquadComp.tags`/
  *  `SquadComp.order` doc comments. No storage migration; every read goes through this. */
 function normalizeSquadComp(squadComp: SquadComp): SquadComp {
-  return { ...squadComp, tags: squadComp.tags ?? [], order: squadComp.order ?? Date.parse(squadComp.createdAt) }
+  return {
+    ...squadComp,
+    tags: squadComp.tags ?? [],
+    order: squadComp.order ?? Date.parse(squadComp.createdAt),
+    favorite: squadComp.favorite ?? false
+  }
 }
 
 export function makeBlankSquadComp(): SquadComp {
@@ -36,7 +41,8 @@ export function makeBlankSquadComp(): SquadComp {
     createdAt: now,
     updatedAt: now,
     tags: [],
-    order: Date.now()
+    order: Date.now(),
+    favorite: false
   }
 }
 

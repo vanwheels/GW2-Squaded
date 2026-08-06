@@ -45,4 +45,7 @@ export interface SquadComp {
   /** Manual sort position for the Squads card grid's drag-to-reorder (`SquadsView`) — same
    *  scheme as `Build.order`, see its doc comment. */
   order: number
+  /** Pins this squad to the top of the Squads card grid — same scheme as `Build.favorite`, see its
+   *  doc comment. */
+  favorite: boolean
 }

@@ -6,6 +6,7 @@ import { useBuildsStore, makeBlankBuild } from '@renderer/state/builds-store'
 import { useGameData } from '@renderer/state/game-data-store'
 import { useTagFilter } from '@renderer/state/use-tag-filter'
 import { reorderBefore } from '@renderer/lib/reorder'
+import { sortFavoritesFirst, middleClickToggle } from '@renderer/lib/favorites'
 import { formatRelativeTime } from '@renderer/lib/format-relative-time'
 import { BuildEditorView } from '@renderer/components/build-editor/BuildEditorView'
 import { ImportFromLinkButton } from '@renderer/components/common/ImportFromLinkButton'
@@ -44,6 +45,11 @@ export function BuildsView() {
     if (!build) return
     const order = reorderBefore(filtered, draggedId, beforeId)
     if (order !== build.order) void updateBuild({ ...build, order })
+  }
+
+  /** Not a content edit (same reasoning as `order`) — doesn't bump `updatedAt`. */
+  function toggleFavorite(build: Build): void {
+    void updateBuild({ ...build, favorite: !build.favorite })
   }
 
   if (editing) {
@@ -87,7 +93,7 @@ export function BuildsView() {
             <p className="empty-state">No builds match your search/filter.</p>
           ) : (
             <ul className="record-list" onDragOver={(e) => e.preventDefault()} onDrop={() => handleDrop(null)}>
-              {filtered.map((build) => {
+              {sortFavoritesFirst(filtered, (build) => build.favorite).map((build) => {
                 const profession = professions.find((p) => p.id === build.profession)
                 const className = [
                   dragId === build.id ? 'record-card-dragging' : null,
@@ -100,6 +106,8 @@ export function BuildsView() {
                     key={build.id}
                     className={className || undefined}
                     draggable
+                    title={build.favorite ? 'Middle-click to unfavorite' : 'Middle-click to favorite'}
+                    {...middleClickToggle(() => toggleFavorite(build))}
                     onDragStart={() => setDragId(build.id)}
                     onDragEnd={() => {
                       setDragId(null)
@@ -116,6 +124,9 @@ export function BuildsView() {
                       handleDrop(build.id)
                     }}
                   >
+                    <span className={build.favorite ? 'favorite-star is-favorite' : 'favorite-star favorite-star-hint'}>
+                      {build.favorite ? '★' : '☆'}
+                    </span>
                     <button className="record-open" onClick={() => setEditing({ build, isNew: false })}>
                       {profession && <img className="record-open-icon" src={profession.icon} alt="" draggable={false} />}
                       <span className="record-open-text">

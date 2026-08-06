@@ -14,6 +14,7 @@ import { formatConsumableDescription, formatItemStatName } from '@shared/gear-ca
 import { formatRelicDescription } from '@shared/gear-calc/relic-effects-format'
 import { useGameData } from '@renderer/state/game-data-store'
 import { useAppSettings } from '@renderer/state/app-settings-store'
+import { useFavoriteConsumables } from '@renderer/state/favorite-consumables-store'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
 import { SkillBarIcon } from './SkillBarIcon'
 
@@ -190,6 +191,7 @@ export function EquipmentEditor({
   const { itemStats, itemStatIcons, itemStatLegalIds, professions, runes, sigils, infusions, relics, relicEffects, food, utility } =
     useGameData()
   const { showUnderwater } = useAppSettings()
+  const { isFoodFavorite, isUtilityFavorite, toggleFoodFavorite, toggleUtilityFavorite } = useFavoriteConsumables()
   // Two entirely separate deduped lists, never merged — see `dedupedStatsForCategory`'s doc
   // comment on why mixing armor/weapon and trinket combos here was a real bug.
   const armorWeaponStats = dedupedStatsForCategory(itemStats, itemStatLegalIds.armorWeapon).sort((a, b) => a.name.localeCompare(b.name))
@@ -681,7 +683,8 @@ export function EquipmentEditor({
     chosenId: number | null,
     onChoose: (id: number | null) => void,
     rarity?: 'fine',
-    emptyIcon?: string
+    emptyIcon?: string,
+    favorites?: { isFavorite: (id: number) => boolean; onToggleFavorite: (id: number) => void }
   ) {
     return (
       <div className="gear-slot" key={label}>
@@ -693,6 +696,8 @@ export function EquipmentEditor({
           variant="slot"
           rarity={rarity}
           emptyIcon={emptyIcon}
+          isFavorite={favorites?.isFavorite}
+          onToggleFavorite={favorites?.onToggleFavorite}
         />
         <label className="gear-slot-body">
           <span className="gear-slot-label">{label}</span>
@@ -729,8 +734,24 @@ export function EquipmentEditor({
               'fine',
               'icons/weapon-placeholder/relic.png'
             )}
-            {renderOtherSlot('Food', foodOptions, consumables.foodId, (id) => onConsumablesChange({ ...consumables, foodId: id }))}
-            {renderOtherSlot('Utility', utilityOptions, consumables.utilityId, (id) => onConsumablesChange({ ...consumables, utilityId: id }))}
+            {renderOtherSlot(
+              'Food',
+              foodOptions,
+              consumables.foodId,
+              (id) => onConsumablesChange({ ...consumables, foodId: id }),
+              undefined,
+              undefined,
+              { isFavorite: isFoodFavorite, onToggleFavorite: toggleFoodFavorite }
+            )}
+            {renderOtherSlot(
+              'Utility',
+              utilityOptions,
+              consumables.utilityId,
+              (id) => onConsumablesChange({ ...consumables, utilityId: id }),
+              undefined,
+              undefined,
+              { isFavorite: isUtilityFavorite, onToggleFavorite: toggleUtilityFavorite }
+            )}
           </div>
         </div>
         <div className="gear-panel gear-panel-weapon">

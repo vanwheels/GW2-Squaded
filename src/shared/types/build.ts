@@ -255,4 +255,14 @@ export interface Build {
    * other build's fields.
    */
   order: number
+  /**
+   * Pins this build to the top of the Builds card grid (`BuildsView`), ahead of every non-favorite
+   * card regardless of `order` — toggled via middle-click on the card, independent of dragging
+   * (favorites keep their own relative `order` among themselves, same as non-favorites do among
+   * theirs; see `renderer/lib/favorites.ts`'s `sortFavoritesFirst`). Not a content edit, so toggling
+   * doesn't bump `updatedAt`, same reasoning as `order`. Absent on records saved before this field
+   * existed — read paths backfill `favorite ?? false`, no storage migration. See
+   * `SquadComp.favorite`.
+   */
+  favorite: boolean
 }
