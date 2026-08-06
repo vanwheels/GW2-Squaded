@@ -150,12 +150,6 @@ that before extending either further, and before the tooltip visual-pass item be
       +240) is conditional on a 50% health threshold, not unconditional like Life Attunement — needs
       its own `CombatState`-style toggle (like `furyActive`) rather than the unconditional table.
 
-- [x] The 68-item "Ascended Gourmet Feast" tier (End of Dragons cuisine — Cilantro Lime Sous-Vide
-      Steak and similar) had no buff data anywhere in the API and no individually-eaten sibling to
-      borrow from — `applyAscendedFeastFormula` (`fetch-gear-upgrades.ts`, added 2026-08-06) resolves
-      all 68 via the wiki's documented recipe formula (food-type -> major/minor pair, herb -> bonus
-      effect), cross-checked against multiple items' raw wikitext, not a summarized table.
-
 - [ ] 76 Food catalog entries still have no buff data after `borrowSharedContainerBonuses` +
       `applyAscendedFeastFormula` (`fetch-gear-upgrades.ts`) — genuinely buff-less items that don't
       belong being offered as a "Food" pick at all: Mastery-point currency ("Elixir/Draught of X
@@ -222,19 +216,6 @@ below has been implemented yet.
       (Heal/Utility/Elite choices), not to profession specialization, so the Firebrand-style F-icon
       click-toggle pattern doesn't map cleanly onto it. Keep the current text-toggle row for kits
       as-is for now; revisit later.
-
-### Mesmer
-- [ ] Troubadour's "Tales" skills and Mirage's "Mirror" skills fall into the generic "Other" category
-      bucket in the skill picker (`groupSkillsByCategory` in `SkillsEditor.tsx`, driven by
-      `skill.categories[0]`) instead of their own "Tales"/"Mirror" headers — and this leaks into other
-      Mesmer specs' pickers too, not just Troubadour/Mirage's. Needs investigation into why the
-      category grouping isn't picking up the right `categories[0]` for these, and why it's
-      cross-contaminating unrelated specs.
-
-### Necromancer
-- [ ] "Necrotic Traversal" (2nd half of Summon Flesh Wurm's flip-skill chain) is filed under "Other"
-      in the skill picker category grouping — should be associated with/grouped near Summon Flesh
-      Wurm instead.
 
 ## Nice-to-haves
 

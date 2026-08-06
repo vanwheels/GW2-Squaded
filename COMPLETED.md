@@ -2,6 +2,30 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 87 — Skill-picker "Tale"/"Deception"/"Minion" category miscategorization fix
+
+User asked to work through remaining fix-it items in TODO.md before new features/the Gear
+Optimizer bug; picked the two skill-bar-feedback-pass category-grouping bugs to start.
+
+- Root cause (confirmed against raw `skills.json`, not guessed): Troubadour's 6 "Tale of..."
+  skills, Mirage's "Mirage Mirror"/"Mirage Retreat", and Necromancer's "Necrotic Traversal" all
+  come back from the GW2 API with an empty `categories` array, so `groupSkillsByCategory` (driven
+  by `categories[0]`) dumped them into the catch-all uncategorized bucket — not a bug in the
+  grouping logic itself, a real data gap. "Leaks into other Mesmer specs' pickers too" from the
+  original report matches: every Mesmer spec's uncategorized bucket is a shared catch-all, so this
+  wasn't unique to Troubadour/Mirage's own pickers.
+- New `src/shared/skill-calc/skill-category-overrides.ts` — small curated id→category override
+  table, `skillPickerCategory()`, following this codebase's usual per-entry-verified curation
+  style rather than a blanket guess: Tale skills get `"Tale"` (no sibling to borrow from, but
+  every description literally starts "Tale.", same self-naming convention as Celestial Avatar's
+  skills); Mirage Mirror/Retreat get `"Deception"` (verified: every *other* Mirage Heal/Utility/
+  Elite skill is already tagged `["Deception"]`, a real sibling tag, not a guess); Necrotic
+  Traversal gets `"Minion"` (matches Summon Flesh Wurm's own category, satisfying the original
+  ask to group it near its source skill despite no `flipSkill`/`bundleSkills` link existing in the
+  raw data to resolve it automatically).
+- `SkillsEditor.tsx`'s `groupSkillsByCategory` now calls `skillPickerCategory()` instead of reading
+  `categories[0]` directly. `npm run typecheck`/`npm run lint` both clean.
+
 ## Session 86 — v0.3.0 release
 
 - Bumped `package.json`/`package-lock.json` to 0.3.0 and wrote `CHANGELOG.md`, covering the 14

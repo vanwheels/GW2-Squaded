@@ -6,6 +6,7 @@ import type { FactLine } from '@shared/skill-calc/fact-numbers'
 import { flipTargetSkills, relatedVariantSkills } from '@shared/skill-calc/multi-effect'
 import { VINDICATOR_SPEC_ID, vindicatorAspectSkillId } from '@shared/skill-calc/vindicator-aspect'
 import { CELESTIAL_AVATAR_SKILL_ID } from '@shared/skill-calc/bundle-skills'
+import { skillPickerCategory } from '@shared/skill-calc/skill-category-overrides'
 import { glyphFormDisplayIcon, glyphFormFactSourceSkill } from '@shared/skill-calc/glyph-forms'
 import type { GlyphFormVariantMap } from '@shared/types'
 import { isRacialSkill } from '@shared/skill-calc/racial-skills'
@@ -296,13 +297,16 @@ export function FlipSkillStack({
  * "Signet") — matches gw2skills' picker, which sorts skills into columns by the profession
  * mechanic they belong to instead of one long flat grid. A skill with no category (a real chunk of
  * them, e.g. Guardian's "Shelter") falls into an uncategorized bucket, always shown last so the
- * meaningful groupings stay up front.
+ * meaningful groupings stay up front. `skillPickerCategory` applies a small curated override table
+ * first, for the handful of skills the API itself returns with an empty `categories` array despite
+ * clearly belonging to a named mechanic family (Troubadour's Tales, Mirage's Mirror/Retreat) — see
+ * that function's doc comment.
  */
 function groupSkillsByCategory(skills: Skill[]): { category: string | null; skills: Skill[] }[] {
   const order: (string | null)[] = []
   const bySkillCategory = new Map<string | null, Skill[]>()
   for (const skill of skills) {
-    const category = skill.categories[0] ?? null
+    const category = skillPickerCategory(skill)
     if (!bySkillCategory.has(category)) {
       bySkillCategory.set(category, [])
       order.push(category)
