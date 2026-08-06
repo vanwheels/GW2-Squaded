@@ -10,6 +10,14 @@ export interface UpgradeOption<T extends number | string = number> {
   name: string
   icon: string
   description?: string
+  /**
+   * Stats-panel display names (e.g. "Power", "Ferocity", "Concentration" — see
+   * `ATTRIBUTE_DISPLAY_NAME` in `attribute-totals.ts`) this option affects, searched by the
+   * picker's "#<stat>" filter syntax (2026-08-06, see `UpgradePicker`'s class doc comment). Omit
+   * for categories with no attribute data at all (relics) — a "#" search on those just matches
+   * nothing, which is correct since relic effects are procs, not stat levers.
+   */
+  statKeywords?: string[]
 }
 
 interface Props<T extends number | string = number> {
@@ -66,6 +74,18 @@ interface Props<T extends number | string = number> {
  * existing skill/legend pickers, just parameterized over a generic `{id, name, icon}` option shape
  * instead of `Skill`/`Legend`. `T` defaults to `number` (every gear-upgrade category's item id);
  * the squad editor instantiates it with `string` (build ids are UUIDs).
+ *
+ * Search box (2026-08-06) supports two modes, both against the same input, disambiguated by a
+ * leading `#`: plain text matches `name` OR `description` (the latter already holds the full
+ * tooltip text for every category — runes' bonus lines, sigils'/relics' effect text, food/utility
+ * buff text — so a keyword like "Stun" or "Heal" searches the actual tooltip, not just the item
+ * name); `#<word>` instead matches only `statKeywords`, the caller-supplied list of stats-panel
+ * attribute names (e.g. "Power", "Concentration") this option affects. The `#` mode exists
+ * alongside plain search rather than being subsumed by it because `statKeywords` is resolved
+ * through this app's own attribute-name conventions (e.g. a rune bonus's raw "+5% Boon Duration"
+ * text resolves to "Concentration", matching the Stats panel) and catches bonuses no substring of
+ * the tooltip text would ever reveal (e.g. a "+N to All Stats" rune affects Power without the word
+ * "Power" appearing anywhere in its text) — see `bonusStatDisplayNames` in `attribute-totals.ts`.
  */
 export function UpgradePicker<T extends number | string = number>({
   label,
@@ -86,7 +106,15 @@ export function UpgradePicker<T extends number | string = number>({
   const buttonRef = useRef<HTMLButtonElement>(null)
   const chosen = chosenId !== null ? options.find((o) => o.id === chosenId) : undefined
   const query = search.trim().toLowerCase()
-  const filtered = query ? options.filter((o) => o.name.toLowerCase().includes(query)) : options
+  const statQuery = query.startsWith('#') ? query.slice(1).trim() : null
+  const filtered =
+    statQuery !== null
+      ? statQuery === ''
+        ? options
+        : options.filter((o) => o.statKeywords?.some((k) => k.toLowerCase().includes(statQuery)))
+      : query
+        ? options.filter((o) => o.name.toLowerCase().includes(query) || o.description?.toLowerCase().includes(query))
+        : options
   const ordered = isFavorite ? sortFavoritesFirst(filtered, (o) => isFavorite(o.id)) : filtered
 
   function choose(id: T | null): void {
@@ -156,7 +184,7 @@ export function UpgradePicker<T extends number | string = number>({
           <input
             type="text"
             className="upgrade-picker-search"
-            placeholder="Search…"
+            placeholder="Search… (#stat for Power, Ferocity, …)"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             autoFocus

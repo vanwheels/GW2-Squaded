@@ -2,6 +2,38 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 85 — Stat/keyword search in the gear-upgrade pickers
+
+Feature request 2026-08-06: search by stat (e.g. "which stat prefixes affect Power") for gear stat
+prefixes/food/utility/runes, and tooltip-text keyword search (e.g. "Stun", "Heal") for relics/
+sigils. Landed as one shared-engine change rather than 6 separate ones — every one of these
+categories already renders through `UpgradePicker`'s one search box.
+
+- `UpgradePicker.tsx`'s search box now has two modes on the same input: plain text matches `name`
+  OR `description` (description already carries the full tooltip text for every category — runes'
+  bonus lines, sigils'/relics' effect text, food/utility buff text — so this alone satisfies the
+  relic/sigil keyword-search ask, no separate wiring needed there); a leading `#` (e.g. "#power")
+  instead matches only the new `UpgradeOption.statKeywords` field.
+- `attribute-totals.ts` gained `bonusStatDisplayNames(bonus)` — resolves one `AttributeBonusText`
+  line to the stats-panel display name(s) it affects (mirrors `addBonus`'s alias resolution: flat/
+  percent single-attribute, "+N to All Stats", and — new — a "Gain X Equal to N% of Your Y"
+  conversion line's *both* target and source names). This is why `#` needed to be a distinct mode
+  from plain-text search rather than folded into it: a rune's raw bonus text says "Boon Duration"
+  where the Stats panel (and this app's own `ATTRIBUTE_DISPLAY_NAME` convention) says
+  "Concentration", and a "+N to All Stats" rune (e.g. Divinity) affects Power without the word
+  "Power" appearing in its text at all — no substring search over tooltip text catches either case.
+- `EquipmentEditor.tsx` wires `statKeywords` per category: stat prefixes/`templateStatOptions` from
+  `ItemStat.attributes` directly (already resolved via `ATTRIBUTE_DISPLAY_NAME`); runes/food/
+  utility/sigils via a new local `bonusesStatKeywords(bonuses)` (deduped `bonusStatDisplayNames`
+  across every bonus line); infusions from their single flat `attribute` field. Relics get no
+  `statKeywords` at all (deliberate — relic effects are procs, not stat levers; `#` search on them
+  correctly matches nothing, per the request's own scoping).
+- Infusions (8 items) fall under the picker's existing `options.length > 12` threshold for even
+  showing a search box — no separate exclusion needed, the "#" feature just never surfaces there in
+  practice.
+- Verified via `npm run typecheck` and `npm run lint` (both clean) — Electron sandbox limitation
+  (see memory) means this wasn't visually smoke-tested live.
+
 ## Session 84 — Settings toggle for racial skills
 
 Second of the two toggles requested 2026-08-06 (underwater was Session 83). TODO.md had flagged

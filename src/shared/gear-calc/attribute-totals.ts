@@ -275,6 +275,49 @@ export function addBonus(totals: AttributeTotals, bonus: AttributeBonusText): vo
   if (attr) addPoints(totals, attr, bonus.value)
 }
 
+/** `AttributeTotals.bonusPercent` key -> the player-facing name it's searched/shown under —
+ *  `boonDuration`/`conditionDuration` reuse the same rename `ATTRIBUTE_DISPLAY_NAME` applies to
+ *  their flat-attribute counterparts (`BoonDuration`/`ConditionDuration`) so a rune/food/utility
+ *  bonus line resolves to the identical stats-panel wording regardless of whether it happened to
+ *  be phrased as a flat point value or a direct percent in the API's own text. Magic Find isn't
+ *  one of the 9 core combat attributes `computeCharacterStats` tracks, but it's still a real
+ *  "#<stat>" search term a food/utility bonus line can resolve to. */
+const BONUS_PERCENT_DISPLAY_NAME: Record<keyof AttributeTotals['bonusPercent'], string> = {
+  boonDuration: 'Concentration',
+  conditionDuration: 'Expertise',
+  magicFind: 'Magic Find'
+}
+
+/**
+ * Every stats-panel display name (see `ATTRIBUTE_DISPLAY_NAME`) one `Rune`/`Sigil`/`Consumable`
+ * bonus line affects — the data `UpgradePicker`'s "#<stat>" search filter matches against (see
+ * `EquipmentEditor.tsx`'s `*Options` builders). Mirrors `addBonus`'s alias resolution (same three
+ * shapes: flat/percent single-attribute, "to all stats", and a conversion line) but collects
+ * display names instead of mutating a running total, and — unlike `addBonus` — also surfaces a
+ * "Gain X Equal to N% of Your Y" conversion line's resolvable target *and* source names, since a
+ * player searching "#power" reasonably expects a Superior Sharpening Stone-style line that grants
+ * Power from Precision to show up alongside plain flat-Power bonuses.
+ */
+export function bonusStatDisplayNames(bonus: AttributeBonusText): string[] {
+  if (bonus.sourceAttribute) {
+    const names: string[] = []
+    const target = bonus.attribute ? resolveFlatAttributeKey(bonus.attribute) : null
+    const source = resolveFlatAttributeKey(bonus.sourceAttribute)
+    if (target) names.push(ATTRIBUTE_DISPLAY_NAME[target])
+    if (source) names.push(ATTRIBUTE_DISPLAY_NAME[source])
+    return names
+  }
+  if (bonus.attribute === null || bonus.value === null) return []
+  const key = bonus.attribute.trim().toLowerCase()
+  if (bonus.isPercent) {
+    const percentKey = PERCENT_BONUS_ALIASES[key]
+    return percentKey ? [BONUS_PERCENT_DISPLAY_NAME[percentKey]] : []
+  }
+  if (ALL_STATS_ALIASES.has(key)) return ALL_CORE_ATTRIBUTE_KEYS.map((attr) => ATTRIBUTE_DISPLAY_NAME[attr])
+  const attr = FLAT_ATTRIBUTE_ALIASES[key]
+  return attr ? [ATTRIBUTE_DISPLAY_NAME[attr]] : []
+}
+
 /** A resolved source->target percent conversion — same shape as `TraitConversion`
  *  (`trait-attributes.ts`), reused here (and applied via the same `applyConversions`) so food/
  *  utility "Gain X Equal to N% of Your Y" bonuses (Superior Sharpening Stone, Tuning Crystals —

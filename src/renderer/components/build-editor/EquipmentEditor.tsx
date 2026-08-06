@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import type { Build, EquipmentSlot, EquipmentSlotKey, ItemStat, ProfessionId, ProfessionWeapon } from '@shared/types'
+import type { AttributeBonusText, Build, EquipmentSlot, EquipmentSlotKey, ItemStat, ProfessionId, ProfessionWeapon } from '@shared/types'
 import { armorTrinketInfusionCapacity, resizeUpgradeIds, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from '@shared/gear-calc/upgrade-slots'
 import {
   ATTRIBUTE_DISPLAY_NAME,
+  bonusStatDisplayNames,
   itemStatCategoryForSlot,
   resolveItemStatId,
   SLOT_ADJUSTMENT_KEY,
@@ -172,6 +173,13 @@ function byName(a: UpgradeOption, b: UpgradeOption): number {
   return a.name.localeCompare(b.name)
 }
 
+/** Deduped stats-panel display names across every bonus line of a Rune/Sigil/Consumable — see
+ *  `bonusStatDisplayNames`'s doc comment for the resolution rules, and `UpgradeOption.statKeywords`
+ *  for how the picker's "#<stat>" search filter consumes this. */
+function bonusesStatKeywords(bonuses: AttributeBonusText[]): string[] {
+  return Array.from(new Set(bonuses.flatMap(bonusStatDisplayNames)))
+}
+
 interface CopyPasteTemplates {
   stat: number | null
   rune: number | null
@@ -243,7 +251,8 @@ export function EquipmentEditor({
       const description = stat.attributes
         .map((a) => `+${Math.round(contribution.points[a.attribute] ?? 0)} ${ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute}`)
         .join('\n')
-      return { id: stat.id, name: formatItemStatName(stat.name), icon: itemStatIcons[stat.name] ?? '', description }
+      const statKeywords = stat.attributes.map((a) => ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute)
+      return { id: stat.id, name: formatItemStatName(stat.name), icon: itemStatIcons[stat.name] ?? '', description, statKeywords }
     })
   }
 
@@ -263,25 +272,36 @@ export function EquipmentEditor({
   // single slot context to compute a numeric breakdown against, so it lists attribute names only.
   const templateStatOptions: UpgradeOption[] = Array.from(new Map([...armorWeaponStats, ...trinketStats].map((s) => [s.name, s])).values())
     .sort((a, b) => a.name.localeCompare(b.name))
-    .map((stat) => ({
-      id: stat.id,
-      name: formatItemStatName(stat.name),
-      icon: itemStatIcons[stat.name] ?? '',
-      description: stat.attributes.map((a) => ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute).join(' / ')
-    }))
+    .map((stat) => {
+      const statKeywords = stat.attributes.map((a) => ATTRIBUTE_DISPLAY_NAME[a.attribute] ?? a.attribute)
+      return {
+        id: stat.id,
+        name: formatItemStatName(stat.name),
+        icon: itemStatIcons[stat.name] ?? '',
+        description: statKeywords.join(' / '),
+        statKeywords
+      }
+    })
 
   const runeOptions: UpgradeOption[] = runes
-    .map((r) => ({ id: r.id, name: r.name, icon: r.icon, description: r.bonuses.map((b) => b.raw).join('\n') }))
+    .map((r) => ({
+      id: r.id,
+      name: r.name,
+      icon: r.icon,
+      description: r.bonuses.map((b) => b.raw).join('\n'),
+      statKeywords: bonusesStatKeywords(r.bonuses)
+    }))
     .sort(byName)
   const sigilOptions: UpgradeOption[] = sigils
-    .map((s) => ({ id: s.id, name: s.name, icon: s.icon, description: s.description }))
+    .map((s) => ({ id: s.id, name: s.name, icon: s.icon, description: s.description, statKeywords: bonusesStatKeywords(s.bonuses) }))
     .sort(byName)
   const infusionOptions: UpgradeOption[] = infusions
     .map((i) => ({
       id: i.id,
       name: i.name,
       icon: i.icon,
-      description: i.attribute && i.value !== null ? `+${i.value} ${i.attribute}` : i.description
+      description: i.attribute && i.value !== null ? `+${i.value} ${i.attribute}` : i.description,
+      statKeywords: i.attribute ? [ATTRIBUTE_DISPLAY_NAME[i.attribute] ?? i.attribute] : []
     }))
     .sort(byName)
 
@@ -298,10 +318,22 @@ export function EquipmentEditor({
     .map((r) => ({ id: r.id, name: r.name, icon: r.icon, description: formatRelicDescription(r, relicEffects[r.id]) }))
     .sort(byName)
   const foodOptions: UpgradeOption[] = food
-    .map((f) => ({ id: f.id, name: f.name, icon: f.icon, description: formatConsumableDescription(f) }))
+    .map((f) => ({
+      id: f.id,
+      name: f.name,
+      icon: f.icon,
+      description: formatConsumableDescription(f),
+      statKeywords: bonusesStatKeywords(f.bonuses)
+    }))
     .sort(byName)
   const utilityOptions: UpgradeOption[] = utility
-    .map((u) => ({ id: u.id, name: u.name, icon: u.icon, description: formatConsumableDescription(u) }))
+    .map((u) => ({
+      id: u.id,
+      name: u.name,
+      icon: u.icon,
+      description: formatConsumableDescription(u),
+      statKeywords: bonusesStatKeywords(u.bonuses)
+    }))
     .sort(byName)
 
   function setItemStat(key: EquipmentSlotKey, itemStatId: number | null): void {
