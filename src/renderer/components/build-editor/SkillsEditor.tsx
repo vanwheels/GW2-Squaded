@@ -8,11 +8,13 @@ import { VINDICATOR_SPEC_ID, vindicatorAspectSkillId } from '@shared/skill-calc/
 import { CELESTIAL_AVATAR_SKILL_ID } from '@shared/skill-calc/bundle-skills'
 import { glyphFormDisplayIcon, glyphFormFactSourceSkill } from '@shared/skill-calc/glyph-forms'
 import type { GlyphFormVariantMap } from '@shared/types'
+import { isRacialSkill } from '@shared/skill-calc/racial-skills'
 import { formatBoonDuration } from '@shared/boon-calc/format'
 import { BOON_CONDITION_ICONS } from '@shared/boon-calc/icons'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { computeCharacterStats } from '@shared/gear-calc/derived-stats'
 import { DEFAULT_COMBAT_STATE, TARGET_ARMOR_VALUES, type CombatState } from '@shared/gear-calc/combat-state'
+import { useAppSettings } from '@renderer/state/app-settings-store'
 import { useGameData } from '@renderer/state/game-data-store'
 import { usePickerOpen } from '@renderer/state/picker-registry'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
@@ -323,13 +325,18 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
   const profession = build.profession
   const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
   const { skillsById, skillsForProfessionAndSlot } = gameData
+  const { showRacialSkills } = useAppSettings()
   const { open, openThis, close } = usePickerOpen()
   const [openSlot, setOpenSlot] = useState<SlotId | null>(null)
   const slotButtonRefs = useRef<Partial<Record<SlotId, HTMLButtonElement | null>>>({})
 
-  const healOptions = skillsForProfessionAndSlot(profession, 'Heal', equippedSpecializationIds, build.familiarId)
-  const utilityOptions = skillsForProfessionAndSlot(profession, 'Utility', equippedSpecializationIds)
-  const eliteOptions = skillsForProfessionAndSlot(profession, 'Elite', equippedSpecializationIds)
+  // Racial skills are filtered from the *option list* only — an already-equipped racial skill
+  // (chosen before the setting was turned off) still resolves fine via `skillsById` and renders
+  // normally, same as `showUnderwater` never strips a saved build's data.
+  const filterRacial = (options: Skill[]): Skill[] => (showRacialSkills ? options : options.filter((s) => !isRacialSkill(s)))
+  const healOptions = filterRacial(skillsForProfessionAndSlot(profession, 'Heal', equippedSpecializationIds, build.familiarId))
+  const utilityOptions = filterRacial(skillsForProfessionAndSlot(profession, 'Utility', equippedSpecializationIds))
+  const eliteOptions = filterRacial(skillsForProfessionAndSlot(profession, 'Elite', equippedSpecializationIds))
 
   function skillFacts(skill: Skill): BoonConditionSource[] {
     return boonConditionFactsForSkill(skill, activeIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])

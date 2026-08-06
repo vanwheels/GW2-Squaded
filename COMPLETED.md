@@ -2,6 +2,30 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 84 — Settings toggle for racial skills
+
+Second of the two toggles requested 2026-08-06 (underwater was Session 83). TODO.md had flagged
+this as new scope requiring a `race` data model — turned out not to be true: racial skills already
+carry one exact, verifiable signature in the existing `skills.json` (no new data needed).
+
+- `src/shared/skill-calc/racial-skills.ts` — new `isRacialSkill(skill)`. Confirmed via a full
+  `skills.json` scan (2026-08-06): grouping every `specializationId: null` skill by its exact
+  `professions` set yields exactly one group matching "all 8 professions except Revenant" (36 ids —
+  every Human/Charr/Asura/Norn/Sylvari Heal/Utility/Elite skill, including "Release the X" flip
+  targets), and no other group in that profession-count range at all — a single boolean check, no
+  hand-curated id list, no false positives to guard against.
+- `app-settings-store.tsx` gained `showRacialSkills` (off by default, same reasoning as
+  `showUnderwater`: racial skills don't see competitive WvW use). `SettingsView.tsx`'s Display panel
+  gained the matching checkbox.
+- `SkillsEditor.tsx`'s `StandardSkillsEditor` filters `isRacialSkill` matches out of the Heal/
+  Utility/Elite picker's option list only when the setting is off — an already-equipped racial
+  skill from before the toggle was flipped off still resolves via `skillsById` and renders normally
+  in the bar/tooltip, same non-destructive pattern as `showUnderwater`.
+- Revenant's Legend-based skill bar needs no equivalent change — Legends have fixed skill sets and
+  the racial-skill profession set already excludes Revenant (accurate to the game: Revenant can't
+  use racial skills either).
+- Verified via `npm run typecheck` and `npm run lint` (both clean).
+
 ## Session 83 — Settings toggle for underwater equipment/skills
 
 Built the first of two Settings toggles requested 2026-08-06 (racial skills is the other, tracked

@@ -23,19 +23,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       (`Infusion.attribute`/`.value`); (3) a "optimize runes/infusions" toggle in
       `GearOptimizerPanel.tsx`, parallel to the existing "optimize food/utility" checkbox.
 
-- [ ] Racial skills should be toggleable (show/hide) in the skill pickers, eventually a Settings
-      option — noted 2026-08-04. This app has **no race concept modeled at all** (no `race` field
-      anywhere in `src/shared/types`, no race data under `data/game-data/`) — new scope, not a tweak
-      to existing filtering. Likely full set, found via a Mesmer Elite-slot scan
-      (`specializationId: null` + a `professions` array spanning most/all professions): Artillery
-      Barrage, Summon 7-Series/D-Series Golem, Summon Power Suit, Charrzooka, Warband Support (Charr);
-      Hounds of Balthazar, Reaper of Grenth, Avatar/Remove Avatar of Melandru (Human); Become/Release
-      Bear, Wolf, Snow Leopard, Raven (Norn); Summon Druid Spirit, Summon Sylvan Hound, Take Root
-      (Sylvari); Mistfire Wolf (Asura?) — worth a full `skills.json` scan to confirm the complete set
-      against the wiki's own Racial skill category before implementing. Needs scoping first: (1)
-      where the toggle lives (no Settings panel exists yet); (2) default state (show or hide); (3)
-      whether the Gear Optimizer needs to respect the same toggle, not just the picker UI.
-
 - [ ] Automatic game-data refresh mechanism (balance patches) — manual refresh only for now.
       Decided 2026-07-31: check for updates on app launch, prompt the user to refresh (not a silent
       background refresh) — user stays in control. `data/game-data/meta.json` only records

@@ -9,10 +9,18 @@ interface AppSettings {
    *  nothing were equipped underwater, even for a build saved with `environment: 'underwater'`
    *  before the toggle was turned off. */
   showUnderwater: boolean
+  /** Off by default, same reasoning as `showUnderwater`: racial skills (Human/Charr/Asura/Norn/
+   *  Sylvari Heal/Utility/Elite skills) are never part of a competitive WvW build, just extra
+   *  picker clutter for the overwhelming majority of users. When off, `isRacialSkill`-matching
+   *  skills are dropped from the Heal/Utility/Elite picker's option list only — an already-chosen
+   *  racial skill (from before the toggle was turned off) still renders normally in the bar/
+   *  tooltip, same as `showUnderwater` never strips a saved build's data. */
+  showRacialSkills: boolean
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
-  showUnderwater: false
+  showUnderwater: false,
+  showRacialSkills: false
 }
 
 const STORAGE_KEY = 'gw2squaded.appSettings'
@@ -29,6 +37,7 @@ function loadSettings(): AppSettings {
 
 interface AppSettingsValue extends AppSettings {
   setShowUnderwater: (value: boolean) => void
+  setShowRacialSkills: (value: boolean) => void
 }
 
 const AppSettingsContext = createContext<AppSettingsValue | null>(null)
@@ -49,7 +58,8 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
 
   const value: AppSettingsValue = {
     ...settings,
-    setShowUnderwater: (showUnderwater) => setSettings((current) => ({ ...current, showUnderwater }))
+    setShowUnderwater: (showUnderwater) => setSettings((current) => ({ ...current, showUnderwater })),
+    setShowRacialSkills: (showRacialSkills) => setSettings((current) => ({ ...current, showRacialSkills }))
   }
 
   return <AppSettingsContext.Provider value={value}>{children}</AppSettingsContext.Provider>

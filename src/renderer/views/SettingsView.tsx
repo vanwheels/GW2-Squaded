@@ -6,7 +6,7 @@ export function SettingsView() {
   const [version, setVersion] = useState('')
   const [supported, setSupported] = useState(false)
   const [status, setStatus] = useState<UpdateStatus>({ state: 'idle' })
-  const { showUnderwater, setShowUnderwater } = useAppSettings()
+  const { showUnderwater, setShowUnderwater, showRacialSkills, setShowRacialSkills } = useAppSettings()
 
   useEffect(() => {
     void window.gw2Updater.getAppVersion().then(setVersion)
@@ -35,6 +35,18 @@ export function SettingsView() {
           land/underwater toggle stay hidden, and underwater weapon skills are excluded from
           boon/condition totals — same as if nothing were equipped underwater. Off by default since
           underwater combat rarely comes up in WvW.
+        </p>
+        <label className="settings-toggle-row">
+          <input
+            type="checkbox"
+            checked={showRacialSkills}
+            onChange={(e) => setShowRacialSkills(e.target.checked)}
+          />
+          <span>Show racial skills</span>
+        </label>
+        <p className="muted">
+          When off, Human/Charr/Asura/Norn/Sylvari racial skills are hidden from the Heal/Utility/
+          Elite pickers. Off by default since racial skills rarely see competitive WvW use.
         </p>
       </div>
 
