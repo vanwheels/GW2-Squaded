@@ -540,10 +540,21 @@ output) and reuses it on subsequent runs unless `--refresh` is passed. Delete `.
   list has to be kept, not derived.
 - **Sigils** — `type: 'UpgradeComponent'`, `details.type: 'Sigil'`, name starts with
   `"Superior Sigil of"`. Effect text comes from `details.infix_upgrade.buff.description` (too
-  varied — procs, on-crit/on-swap triggers — to model as a flat bonus like runes).
+  varied — procs, on-crit/on-swap triggers — to model fully structurally like runes). Also parsed
+  line-by-line into `bonuses: AttributeBonusText[]` using the same `parseAttributeBonusText` regex
+  as Rune/Consumable bonus lines (fixed 2026-08-06, prior gap: sigils had no structural bonuses at
+  all, so a "stat sigil" like Superior Sigil of Concentration's `"+10% Boon Duration"` never
+  reached the Stats panel) — this only actually captures the handful of pure-stat sigils; every
+  proc/on-crit/on-swap/on-kill line fails the regex and stays `{attribute: null}`, correctly
+  display-only. One live quirk found doing this: Superior Sigil of Malice's description is
+  `"+10% condition duration."` — lowercase and period-terminated, unlike every sibling sigil's
+  `"+N% Attribute"` styling — so `parseAttributeBonusText` strips a trailing period off the
+  captured attribute name before it's used as an alias-table lookup key.
   `details.flags` on a sigil is the list of weapon *type* names it applies to (e.g.
   `"Greatsword"`, `"Dagger"`) — a different vocabulary than `WeaponFlag` in
-  `src/shared/types/game-data.ts` (which is hand/two-hand/aquatic, not weapon type).
+  `src/shared/types/game-data.ts` (which is hand/two-hand/aquatic, not weapon type). Stacking
+  sigils (Bloodlust, Corruption, Bounty, etc.) are a separate mechanic entirely, unaffected by this
+  — see `STACKING_SIGILS` in `combat-state.ts`.
 - **Infusions** — `type: 'UpgradeComponent'`, name includes `"WvW Infusion"`. **Real gotcha**:
   infusions do NOT have `details.type === 'Infusion'` — that field is `'Default'` for every
   infusion (WvW and Agony alike, confirmed against a live Agony infusion too).

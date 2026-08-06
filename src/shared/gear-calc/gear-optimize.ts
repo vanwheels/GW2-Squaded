@@ -259,7 +259,7 @@ export interface OptimizerFloor {
 
 export interface OptimizerInput {
   build: Build
-  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'professions' | 'infusions' | 'runes' | 'food' | 'utility' | 'traits'>
+  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'professions' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility' | 'traits'>
   combatState: CombatState
   floors: OptimizerFloor[]
   /**

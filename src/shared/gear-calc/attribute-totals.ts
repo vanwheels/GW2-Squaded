@@ -1,4 +1,4 @@
-import type { AttributeBonusText, Build, Consumable, EquipmentSlotKey, GameData, ItemStat, ItemStatLegalIds, Rune } from '../types'
+import type { AttributeBonusText, Build, Consumable, EquipmentSlotKey, GameData, ItemStat, ItemStatLegalIds, Rune, Sigil } from '../types'
 import { RUNE_SLOT_KEYS } from './upgrade-slots'
 
 /**
@@ -285,11 +285,12 @@ function addRuneBonuses(totals: AttributeTotals, build: Build, runesById: Map<nu
  */
 export function computeGearAttributeTotals(
   build: Build,
-  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'food' | 'utility'>
+  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility'>
 ): AttributeTotals {
   const statsById = new Map<number, ItemStat>(gameData.itemStats.map((s) => [s.id, s]))
   const infusionsById = new Map(gameData.infusions.map((i) => [i.id, i]))
   const runesById = new Map(gameData.runes.map((r) => [r.id, r]))
+  const sigilsById = new Map<number, Sigil>(gameData.sigils.map((s) => [s.id, s]))
   const foodById = new Map<number, Consumable>(gameData.food.map((f) => [f.id, f]))
   const utilityById = new Map<number, Consumable>(gameData.utility.map((u) => [u.id, u]))
   const totals = emptyTotals()
@@ -324,6 +325,19 @@ export function computeGearAttributeTotals(
         const infusion = infusionsById.get(infusionId)
         if (!infusion?.attribute || infusion.value === null) continue
         addPoints(totals, infusion.attribute, infusion.value)
+      }
+
+      // Only the handful of "stat sigils" (see `Sigil.bonuses` doc comment) contribute here —
+      // procs/stacking sigils parse to `{attribute: null}` and `addBonus` no-ops on those. Like
+      // the itemStat/infusion contributions above, this only runs for `isActiveWeaponSlot` slots
+      // reached this loop iteration — i.e. a sigil on the currently-stowed weapon set (or the
+      // underwater set while on land, etc.) does not contribute, matching how this function
+      // already treats every other per-weapon-slot bonus as active-set-only.
+      for (const sigilId of slot.sigilIds ?? []) {
+        if (sigilId === null) continue
+        const sigil = sigilsById.get(sigilId)
+        if (!sigil) continue
+        for (const bonus of sigil.bonuses) addBonus(totals, bonus)
       }
     }
   }

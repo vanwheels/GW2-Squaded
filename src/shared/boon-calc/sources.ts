@@ -10,6 +10,7 @@ import type {
   Pet,
   Profession,
   Rune,
+  Sigil,
   Skill,
   SoulbeastBeastmodeMap,
   TomeChapter,
@@ -408,6 +409,7 @@ export function computeBoonConditionSources(
     itemStatLegalIds: ItemStatLegalIds
     infusions: Infusion[]
     runes: Rune[]
+    sigils: Sigil[]
     food: Consumable[]
     utility: Consumable[]
     wvwFactOverrides: WvwFactOverrides

@@ -2,6 +2,40 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 78 — Sigils weren't factored into the Stats panel
+
+- Fixed the bug flagged in TODO.md (user report 2026-08-01, reproduced concretely 2026-08-06 with
+  Superior Sigil of Concentration's "+10% Boon Duration" not moving the panel). Root cause: the
+  `Sigil` type had no structural `bonuses` field at all — only free-text `description`, unlike
+  Rune/Consumable — so `computeGearAttributeTotals` had nothing to read for sigils except the 8
+  on-kill stacking sigils' separate `STACKING_SIGILS` mechanic (`combat-state.ts`, a live-simulation
+  input, not a static gear bonus).
+- `Sigil` gained `bonuses: AttributeBonusText[]`, parsed line-by-line from `description` using the
+  exact same `parseAttributeBonusText` regex Rune/Consumable bonus lines already use (both in
+  `scripts/fetch-gear-upgrades.ts`'s `normalizeSigil` for future refetches, and applied directly to
+  the committed `data/game-data/sigils.json` without hitting the live API — that fetch is a slow
+  ~74k-item bulk pull with side effects on other files, see memory). Of 81 sigils, only 6 lines even
+  match the "+N[%] Attribute" shape at all, and only 2 map to a tracked core attribute: Superior
+  Sigil of Concentration ("+10% Boon Duration") and Superior Sigil of Malice ("+10% condition
+  duration.") — the other 4 (Force/Damage, Accuracy/Crit Chance, Paralyzation/Stun Duration,
+  Bursting's percent-based Condition Damage) parse but don't match any tracked attribute alias, so
+  they correctly stay display-only, same as before. Malice's description turned out to be a live API
+  quirk — lowercase and period-terminated, unlike every sibling sigil's `"+N% Attribute"` styling —
+  so `parseAttributeBonusText` now strips a trailing period off the captured attribute name before
+  the alias-table lookup.
+- Wired into `computeGearAttributeTotals` (`attribute-totals.ts`) inside the existing per-weapon-slot
+  loop, gated by the same `isActiveWeaponSlot`/`weaponEquipped` checks the itemStat and infusion
+  contributions already use — a sigil on the currently-stowed weapon set doesn't contribute, same
+  active-set-only treatment as every other per-weapon-slot bonus this function computes (no live
+  confirmation found either way on whether GW2 actually applies passive sigil bonuses from an
+  inactive set; deferred to that existing precedent rather than guessed).
+- Every inline `gameData` parameter type across the codebase that already listed `runes` needed
+  `sigils` added alongside it to keep passing the (unchanged, still just `gameData`) argument at each
+  call site: `computeBoonConditionSources`/`sources.ts`, `computeCharacterStats`/`derived-stats.ts`,
+  `optimizeGear`/`gear-optimize.ts` (both `Pick<GameData, …>` signatures), and
+  `computePartyBoonConditionSummary`/`party-summary.ts`'s own inline object type. `npm run
+  typecheck`/`npm run lint` both clean.
+
 ## Session 77 — v0.2.0 release
 
 - Bumped `package.json`/`package-lock.json` to 0.2.0 and wrote `CHANGELOG.md`, covering all

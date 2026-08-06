@@ -358,9 +358,17 @@ export interface Rune {
 
 /**
  * A Superior sigil. Sigil effects (procs, on-crit/on-swap triggers, flat passive bonuses) are
- * too varied to model structurally — kept as the API's own description text. `weaponTypes` is
- * the list of weapon type names (e.g. `"Greatsword"`, `"Dagger"`) this sigil can be applied to —
- * a different vocabulary than `WeaponFlag` (which is hand/two-hand/aquatic, not weapon type).
+ * too varied to model structurally in general — kept as the API's own `description` text.
+ * `bonuses` is a best-effort structured parse of that same text, one entry per line, using the
+ * identical "+N[%] Attribute" pattern Rune/Consumable bonus lines use (see
+ * `scripts/fetch-gear-upgrades.ts`'s `parseAttributeBonusText`) — this only actually captures the
+ * small set of "stat sigils" whose whole effect is a flat/percent attribute bonus (e.g. Superior
+ * Sigil of Concentration: "+10% Boon Duration"); on-crit/on-swap/on-kill procs and stacking
+ * sigils (see `STACKING_SIGILS` in `combat-state.ts` — those need live stack-count simulation,
+ * not a static bonus) fail to parse and come back as `{attribute: null}`, correctly left
+ * display-only rather than guessed. `weaponTypes` is the list of weapon type names (e.g.
+ * `"Greatsword"`, `"Dagger"`) this sigil can be applied to — a different vocabulary than
+ * `WeaponFlag` (which is hand/two-hand/aquatic, not weapon type).
  */
 export interface Sigil {
   id: number
@@ -368,6 +376,7 @@ export interface Sigil {
   icon: string
   description: string
   weaponTypes: string[]
+  bonuses: AttributeBonusText[]
 }
 
 /**

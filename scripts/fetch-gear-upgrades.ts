@@ -193,7 +193,12 @@ function bucketItem(item: RawItem): void {
 function parseAttributeBonusText(raw: string): AttributeBonusText {
   const match = /^\+(\d+(?:\.\d+)?)(%?)\s+(.+)$/.exec(raw.trim())
   if (!match) return { raw, attribute: null, value: null, isPercent: false }
-  const [, valueStr, percentSign, attribute] = match
+  const [, valueStr, percentSign, attributeRaw] = match
+  // Trailing period observed live on at least one sigil description (Superior Sigil of Malice:
+  // "+10% condition duration.", lowercase and punctuated unlike every sibling sigil's "+10% Boon
+  // Duration" style) — stripped so the attribute-name lookup in attribute-totals.ts's `addBonus`
+  // still matches its alias table exactly.
+  const attribute = attributeRaw.replace(/\.$/, '')
   return { raw, attribute, value: Number(valueStr), isPercent: percentSign === '%' }
 }
 
@@ -207,12 +212,19 @@ function normalizeRune(item: RawItem): Rune {
 }
 
 function normalizeSigil(item: RawItem): Sigil {
+  const description = item.details?.infix_upgrade?.buff?.description ?? ''
   return {
     id: item.id,
     name: item.name,
     icon: item.icon ?? '',
-    description: item.details?.infix_upgrade?.buff?.description ?? '',
-    weaponTypes: item.details?.flags ?? []
+    description,
+    weaponTypes: item.details?.flags ?? [],
+    // Same line-by-line parse as normalizeConsumable below: most sigil effects are procs/flavor
+    // text with no attribute (fail safely to `{attribute: null}`, kept display-only), but a
+    // handful of "stat sigils" (e.g. Superior Sigil of Concentration: "+10% Boon Duration") are a
+    // flat/percent attribute bonus in the exact same "+N[%] Attribute" shape Rune/Consumable
+    // bonus lines use, so they parse the same way with no extra modeling.
+    bonuses: description ? description.split('\n').map(parseAttributeBonusText) : []
   }
 }
 

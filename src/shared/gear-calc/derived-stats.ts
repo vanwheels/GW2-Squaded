@@ -146,7 +146,7 @@ export interface CharacterStats {
 
 export function computeCharacterStats(
   build: Build,
-  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'food' | 'utility' | 'traits'>,
+  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility' | 'traits'>,
   combatState: CombatState = DEFAULT_COMBAT_STATE
 ): CharacterStats {
   const gearTotals = computeGearAttributeTotals(build, gameData)

@@ -10,6 +10,7 @@ import type {
   Pet,
   Profession,
   Rune,
+  Sigil,
   Skill,
   SoulbeastBeastmodeMap,
   TomeChaptersByTomeId,
@@ -97,6 +98,7 @@ export function computePartyBoonConditionSummary(
     itemStatLegalIds: ItemStatLegalIds
     infusions: Infusion[]
     runes: Rune[]
+    sigils: Sigil[]
     food: Consumable[]
     utility: Consumable[]
     wvwFactOverrides: WvwFactOverrides
