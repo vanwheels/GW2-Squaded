@@ -238,14 +238,11 @@ below has been implemented yet.
 
 ## Nice-to-haves
 
-- [ ] "Favorites" pin for frequently-used builds in the squad editor's build sidebar; the
-      build-picker option's description only shows the profession name today, not a fuller
-      spec/gear summary. Partially addressed 2026-08-01 by manual drag-to-reorder on the Builds
-      view (`BuildsView.tsx`, `Build.order` — the sidebar follows that order), but that's a full
-      custom ordering the user arranges by hand, not a lightweight "pin to top" independent of it —
-      still a distinct nice-to-have if wanted.
-- [ ] "Favorites" marker for food/utility consumables, to pin preferred choices to the top of the
-      selection list (currently the full unfiltered catalog, by design).
+- [ ] "Favorites" pin for the squad editor's per-slot build-assignment picker specifically (the
+      dropdown that assigns a build to a squad slot). The general Builds/Squads card-grid views
+      and the Food/Utility pickers got a Favorites feature 2026-08-06 (middle-click to pin, gold
+      star badge — `renderer/lib/favorites.ts`), but that pass explicitly left the squad-slot
+      build-assignment picker unwired.
 - [ ] More curated fury-crit-chance traits in `combat-state.ts`'s `FURY_CRIT_CHANCE_TRAIT_BONUSES`
       (seeded 2026-08-01 with only Revenant's Roiling Mists, for the Gear Optimizer's Critical
       Chance metric). A `traits.json` scan found 6 more with the same "extra crit chance while under

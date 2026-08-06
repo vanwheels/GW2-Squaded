@@ -2,6 +2,49 @@
 
 User-facing release notes. For the detailed development log, see `COMPLETED.md`.
 
+## 0.3.0 — 2026-08-06
+
+### Favorites
+- Middle-click any build/squad card, or any Food/Utility option in the gear picker, to pin it to
+  the top with a gold star badge. Builds/Squads favorites are saved with the build; Food/Utility
+  favorites are a per-install preference and sort ahead of the rest of that picker's list.
+
+### Faster editing workflow
+- The Build/Squad editors no longer have a separate Save button — leaving the editor now saves
+  your changes automatically.
+- Switching tabs no longer resets the Builds/Squads views: in-progress edits, scroll position,
+  and filters are preserved when you come back.
+
+### Settings
+- New Display toggles (off by default) to show underwater equipment/skills and racial skills in
+  the build editor, for players who want them. When off, underwater skills are treated as
+  unequipped in Stats/boon-condition totals, and existing underwater builds are unaffected.
+
+### Search
+- The gear-upgrade pickers (stat prefixes, runes, sigils, relics, food, utility) now support
+  keyword search: plain text matches an item's name or full tooltip text (e.g. searching "Stun"
+  finds sigils/relics that apply it); prefixing with `#` (e.g. `#power`) searches by which stat
+  it affects instead, including "+N to All Stats" and conversion effects like "Gain Condition
+  Damage Equal to 3% of Your Precision".
+
+### Weaver
+- Weapon skill 3 ("Dual Attack") now correctly reflects Weaver's dual-attunement mechanic —
+  the skill it resolves to depends on both your current *and* previous attunement, with a new
+  "Previous Attunement" toggle next to the skill bar. Boon/condition totals now account for
+  every reachable Dual Attack skill.
+
+### Bug fixes
+- Fixed sigils not contributing to the Stats panel (e.g. Superior Sigil of Concentration's +10%
+  Boon Duration wasn't being counted). Passive sigil bonuses only apply from your active weapon
+  set, matching in-game behavior.
+- Fixed most Utility consumables (Superior Sharpening Stone, Tuning Crystals, and other "Gain X
+  Equal to N% of Your Y" items — the shape most WvW players actually use) silently doing nothing
+  to the Stats panel.
+- Feast/Station items (shareable, placed consumables — the majority WvW Food/Utility choice) now
+  correctly show their real buff instead of raw flavor text, including the full "Ascended Gourmet
+  Feast" tier hand-curated from wiki data.
+- Fixed `#stat` search matching substrings across unrelated attribute names.
+
 ## 0.2.0 — 2026-08-05
 
 ### Gear Optimizer

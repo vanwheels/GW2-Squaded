@@ -2,6 +2,21 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 86 — v0.3.0 release
+
+- Bumped `package.json`/`package-lock.json` to 0.3.0 and wrote `CHANGELOG.md`, covering the 14
+  commits since 0.2.0: Favorites (middle-click pin for builds/squads/food/utility), auto-save on
+  editor back-navigation + Builds/Squads staying mounted across tab switches, Settings toggles for
+  underwater and racial skills, Weaver's dual-attunement weapon-skill-3 fix, `#stat`/keyword
+  search in the gear-upgrade pickers, sigils now counting toward the Stats panel, the Utility
+  "Gain X Equal to N% of Your Y" conversion-parsing bug fix, and the Feast/Station
+  shared-buff-resolution fix (including the hand-curated Ascended Gourmet Feast tier).
+  `npm run typecheck`/`npm run lint` both clean before tagging.
+- Judgment call on version bump: minor (0.3.0) rather than patch, given the mix of new
+  user-facing features (Favorites, 2 Settings toggles, keyword search) alongside the bug fixes,
+  matching the 0.2.0 precedent of minor-bumping for a commit batch of this size/shape.
+- Published via the same pre-created-draft-release workaround as 0.2.0 (see [[electron_builder_github_publish_race]]).
+
 ## Session 85 — Stat/keyword search in the gear-upgrade pickers
 
 Feature request 2026-08-06: search by stat (e.g. "which stat prefixes affect Power") for gear stat
