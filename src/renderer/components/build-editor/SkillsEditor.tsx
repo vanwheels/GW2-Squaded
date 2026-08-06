@@ -338,9 +338,15 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
   // (chosen before the setting was turned off) still resolves fine via `skillsById` and renders
   // normally, same as `showUnderwater` never strips a saved build's data.
   const filterRacial = (options: Skill[]): Skill[] => (showRacialSkills ? options : options.filter((s) => !isRacialSkill(s)))
-  const healOptions = filterRacial(skillsForProfessionAndSlot(profession, 'Heal', equippedSpecializationIds, build.familiarId))
-  const utilityOptions = filterRacial(skillsForProfessionAndSlot(profession, 'Utility', equippedSpecializationIds))
-  const eliteOptions = filterRacial(skillsForProfessionAndSlot(profession, 'Elite', equippedSpecializationIds))
+  const healOptions = filterRacial(
+    skillsForProfessionAndSlot(profession, 'Heal', equippedSpecializationIds, build.familiarId, activeIds)
+  )
+  const utilityOptions = filterRacial(
+    skillsForProfessionAndSlot(profession, 'Utility', equippedSpecializationIds, null, activeIds)
+  )
+  const eliteOptions = filterRacial(
+    skillsForProfessionAndSlot(profession, 'Elite', equippedSpecializationIds, null, activeIds)
+  )
 
   function skillFacts(skill: Skill): BoonConditionSource[] {
     return boonConditionFactsForSkill(skill, activeIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])

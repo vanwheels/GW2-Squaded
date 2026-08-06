@@ -1048,3 +1048,57 @@ re-run the curation sweep. Same for the picker/bar icon, which still always show
 id's own icon (matching the normal-form variant's icon in every case checked) rather than swapping
 to the celestial-form variant's distinct icon while the toggle is on — a cosmetic gap, not a facts
 gap, left as a documented known limitation.
+
+## Session 90 (2026-08-06) — Closed out the last 4 "no resolving signal" duplicate-name groups
+
+Picked up where the earlier wiki-page-membership pass (above) left Throw Mine/Mist Form/Protective
+Solace/Jade Winds untouched. Re-investigated all 4 from scratch with fresh raw-wikitext and direct
+`/v2/skills` pulls (not reused from the earlier pass) rather than assuming the prior "no signal"
+conclusion still held — it didn't, for 2 of the 4:
+
+- **Protective Solace (`26821`/`29310`) and Jade Winds (`28406`/`31294`) were never live picker
+  bugs at all.** Both are Revenant skills, and `SkillsEditor.tsx`'s `RevenantSkillsEditor` builds
+  its bar directly from `legends.json`'s fixed `heal`/`utilities`/`elite` ids — it never calls
+  `skillsForProfessionAndSlot`/`visibleSkillsForSlot` — so a second same-name id can never actually
+  surface as a picker duplicate for this profession, only in the standalone audit script's synthetic
+  per-(profession, slot) sweep (the exact blind spot Session 88's Vindicator investigation already
+  documented, just not cross-checked against these 2 groups at the time). `legends.json` references
+  `26821` (Legend6) and `28406` (Legend2) — confirming those are the live ids and `29310`/`31294` are
+  structurally-unreachable orphans, same shape as the Vindicator `62841`/`62793` pair. Checked both
+  orphan ids against every curated coefficient table: Jade Winds' damage curation already keys both
+  ids identically (`2.0`, harmless dead data for `31294`); Protective Solace isn't curated anywhere
+  (no Damage/Healing/Barrier/boon entry references either id) — nothing to fix in either case.
+- **Mist Form (`5554`/`15795`) is a real PvE/WvW/PvP recharge split** (wiki: `recharge = 30`,
+  `recharge wvw = 60`, `recharge pvp = 75`), not 2 different skills — the earlier pass's "no
+  distinguishing field" was true only in the narrow sense that the wiki's own `id=` field lists both
+  together (it does, since `split = pve, wvw, pvp` skills always do). `5554` carries the PvE recharge
+  (30) and a `traitedFacts` entry for Soothing Disruption's Stability grant (`requires_trait: 364`);
+  `15795` carries the WvW/PvP recharge (60) but is missing that `traitedFacts` entry — a real API
+  completeness gap on the secondary id, not a documented mechanical difference. Since `Recharge`
+  facts are cosmetic-only in this app (`fact-numbers.ts`'s `factLine` never feeds any calc) while
+  `traitedFacts` feeds real boon-calc totals, added `15795` to a new `INCOMPLETE_DATA_DUPLICATE_
+  SKILL_IDS` constant in `skill-variants.ts` (same shape as `NON_EQUIPPABLE_SKILL_IDS`) so the
+  picker always resolves to `5554` — trading a cosmetically-wrong PvE-mode recharge number for never
+  silently losing the Stability contribution.
+- **Throw Mine (`6161`/`30337`) is a genuine Gadgeteer-trait-gated pair**, confirming rather than
+  overturning the earlier pass's conclusion — but this time backed by a real structural diff, not
+  just the wiki's prose: a direct `/v2/skills?ids=6161,30337` pull shows `30337`'s `description`
+  documents Gadgeteer's actual "a second mine is planted at your location" effect (`6161`'s doesn't),
+  and the two ids' `flip_skill` targets differ (`6162` vs `29473` — the post-detonation skill must
+  itself describe 1 vs. 2 mines). Resolving this needed the picker to know the build's actual chosen
+  traits, which `visibleSkillsForSlot` never had access to — the architecture change the earlier pass
+  flagged but didn't attempt. Turned out to be small: `StandardSkillsEditor` (`SkillsEditor.tsx`)
+  already computes `activeIds` (`activeTraitIds(build, gameData.traits)`, a `Set<number>` of every
+  currently-active major+minor trait id) for tooltip fact-gating — the exact value needed. Threaded
+  it through as a new optional `chosenTraitIds` parameter: `skillsForProfessionAndSlot` ->
+  `visibleSkillsForSlot` -> `resolveGroup`, defaulting to an empty set everywhere else (harmless for
+  every other call site, including both standalone scripts, which now correctly resolve Throw Mine
+  to its base id `6161` under the "nothing equipped" baseline every other group is evaluated
+  against). New `GADGETEER_GATED_SKILL_IDS`/`GADGETEER_TRAIT_ID` constants in `skill-variants.ts`
+  resolve to `30337` when trait `1679` (Gadgeteer, specialization 21/Explosives) is active, `6161`
+  otherwise.
+
+All 4 groups from the TODO.md bullet are now resolved; the bullet itself was removed.
+`npm run typecheck`/`npm run lint` clean. Not visually spot-checked in the running app (Electron
+sandbox limitation) — verify live that equipping Gadgeteer swaps the Throw Mine picker entry to
+`30337`.

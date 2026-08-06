@@ -2,6 +2,40 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 90 — Closed out the last 4 "no resolving signal" duplicate-name skill groups
+
+User asked to work through the remaining duplicate-named skill groups (TODO.md's "4 duplicate-named
+Heal/Utility/Elite skill groups still show duplicate entries" bullet: Throw Mine, Mist Form,
+Protective Solace, Jade Winds). Re-investigated all 4 with fresh wiki/API pulls rather than trusting
+the earlier "no signal found" conclusion, and it turned out wrong for half of them.
+
+- **Protective Solace/Jade Winds were never live picker bugs**: both are Revenant skills, and
+  `RevenantSkillsEditor` builds its bar from `legends.json`'s fixed ids, never calling
+  `visibleSkillsForSlot` at all — the second id of each pair is a structurally-unreachable orphan,
+  same shape as Session 88's Vindicator finding. Confirmed no curated coefficient is mis-keyed to
+  either orphan (Jade Winds' damage curation already covers both ids identically; Protective Solace
+  isn't curated anywhere). No code change needed for these two.
+- **Mist Form is a real PvE/WvW/PvP recharge split** (30/60/75, confirmed via raw wikitext), not an
+  unresolvable duplicate — but the WvW-recharge id (`15795`) is missing a `traitedFacts` entry
+  (Soothing Disruption's Stability grant) its sibling `5554` has, a real API data gap. Since
+  `Recharge` facts are cosmetic-only in this app (never read by any calc) while `traitedFacts` feeds
+  real boon-calc totals, added `15795` to a new `INCOMPLETE_DATA_DUPLICATE_SKILL_IDS` constant in
+  `skill-variants.ts` so the picker always resolves to `5554` instead — trading a cosmetically-wrong
+  displayed recharge for never silently losing the Stability contribution.
+- **Throw Mine is a confirmed Gadgeteer-trait-gated pair** — this time backed by a real structural
+  diff (differing `description` and `flip_skill` target between `6161`/`30337`), not just wiki
+  prose. Resolving it needed the picker to know the build's chosen traits, which turned out to
+  already exist nearby: `StandardSkillsEditor` already computes `activeIds` for tooltip fact-gating.
+  Threaded it through as a new `chosenTraitIds` parameter (`skillsForProfessionAndSlot` ->
+  `visibleSkillsForSlot` -> `resolveGroup`, defaulted to empty everywhere else, so both standalone
+  scripts and every other call site are unaffected) plus new `GADGETEER_GATED_SKILL_IDS`/
+  `GADGETEER_TRAIT_ID` constants that resolve to `30337` when trait `1679` is active, `6161`
+  otherwise.
+- Removed the now-resolved TODO.md bullet; full writeup in `docs/game-data.md`'s Session 90 entry.
+  `npm run typecheck`/`npm run lint` both clean. Not visually spot-checked in the running app
+  (Electron sandbox limitation) — worth confirming live that equipping Gadgeteer swaps the Throw
+  Mine picker entry.
+
 ## Session 89 — Closed out the last item from the 2026-07-31 skill-bar feedback pass: Engineer Kit toggle row
 
 User asked to work through the "Engineer issues"; several were scattered across TODO.md (skill-bar

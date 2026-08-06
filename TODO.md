@@ -180,11 +180,6 @@ that before extending either further, and before the tooltip visual-pass item be
 
 ## Skill picker follow-ups
 
-- [ ] 4 duplicate-named Heal/Utility/Elite skill groups still show duplicate entries with no
-      resolving signal found yet: Engineer "Throw Mine" (Gadgeteer-trait-gated — would need the
-      picker to know the build's chosen traits, an architecture change), Elementalist "Mist Form",
-      Revenant "Protective Solace", Revenant "Jade Winds" (wiki lists all ids together with no
-      distinguishing field).
 - [ ] Ranger Profession_4 "Eternal Bond" F-skill stays unresolved — no per-pet data exists for it
       (unlike Soulbeast's F1-F3, which resolve from `soulbeast-beastmode.json`).
 - [ ] Unconfirmed edge case: whether any skill has a distinctly different effect specifically on its

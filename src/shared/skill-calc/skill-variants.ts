@@ -25,6 +25,38 @@ const GROUND_TARGETED_FLAG = 'GroundTargeted'
 const NON_EQUIPPABLE_SKILL_IDS: ReadonlySet<number> = new Set([44918])
 
 /**
+ * Duplicate-name skill ids to drop in favor of a same-name sibling with strictly more complete
+ * data — same "small, hand-verified constant table" pattern as `NON_EQUIPPABLE_SKILL_IDS`.
+ *
+ * - **15795 "Mist Form"** (Elementalist Utility slot, sibling `5554`): wiki-confirmed (raw
+ *   wikitext, 2026-08-06) this is one skill with a real `recharge`/`recharge wvw`/`recharge pvp`
+ *   split (30/60/75) exposed as 2 separate API ids — not 2 different skills, unlike every other
+ *   still-unresolved group below. `5554` carries the PvE recharge (30) AND a `traitedFacts` entry
+ *   (Soothing Disruption's Stability grant, `requires_trait: 364`); `15795` carries the WvW/PvP
+ *   recharge (60) but is missing that `traitedFacts` entry entirely — a real API data gap, not a
+ *   documented mechanical difference (the wiki doesn't say Soothing Disruption stops applying in
+ *   WvW/PvP). `Recharge` facts are purely cosmetic tooltip text in this app (see `factLine` in
+ *   `fact-numbers.ts` — never read by any calc), while `traitedFacts` feeds real boon-calc totals
+ *   (`boon-calc/sources.ts` gates on `requires_trait`), so keeping `5554` avoids ever silently
+ *   dropping a real Stability contribution to trade for a cosmetically-more-accurate recharge
+ *   number. Net effect: this app's Mist Form tooltip shows the PvE recharge (30s) rather than the
+ *   WvW one (60s) — a known, deliberate, cosmetic-only inaccuracy.
+ */
+const INCOMPLETE_DATA_DUPLICATE_SKILL_IDS: ReadonlySet<number> = new Set([15795])
+
+/** Engineer trait "Gadgeteer" (specialization 21, Explosives) — see `GADGETEER_GATED_SKILL_IDS`. */
+const GADGETEER_TRAIT_ID = 1679
+
+/**
+ * The Engineer "Throw Mine" id (`30337`) that's live only while Gadgeteer is chosen — confirmed via
+ * a direct `/v2/skills` diff (2026-08-06): its `description` documents Gadgeteer's real "a second
+ * mine is planted at your location" effect (`6161`'s doesn't), and its `flipSkill` points to a
+ * different "Detonate" id than `6161`'s (the post-activation skill must itself describe 1 vs. 2
+ * mines) — real, structurally-backed evidence, not a guess from the description text alone.
+ */
+const GADGETEER_GATED_SKILL_IDS: ReadonlySet<number> = new Set([30337])
+
+/**
  * `skillsForProfessionAndSlot` returns every skill id matching (profession, slot) with no dedup —
  * for 117 same-name groups (verified live 2026-07-29 across Heal/Utility/Elite) this means the
  * picker shows 2+ visually-identical-looking entries for what's really one in-game skill. This
@@ -110,10 +142,30 @@ const NON_EQUIPPABLE_SKILL_IDS: ReadonlySet<number> = new Set([44918])
  *    instead. Hardcoded in-source and wiki-verified per id instead, applied as a pre-pass alongside
  *    `skillVariantExclusions`.
  *
- * The remaining duplicate-name groups (e.g. Ranger's "Mist Form" duplicate `5554,15795`, listed
- * together on one wiki page with no distinguishing field at all) differ for reasons none of these
- * signals capture — see TODO.md for the specific group names and per-group notes on why each is
- * still unresolved.
+ * 10. **`INCOMPLETE_DATA_DUPLICATE_SKILL_IDS`** (1 id today, see the constant's own doc comment):
+ *     a same-name duplicate id dropped in favor of a sibling with strictly more complete data
+ *     (currently just Elementalist "Mist Form"'s `15795`, missing a `traitedFacts` entry its
+ *     sibling `5554` has) — same "small hand-verified constant table" shape as signal 9, applied
+ *     alongside it.
+ *
+ * 11. **`GADGETEER_GATED_SKILL_IDS`** (Engineer "Throw Mine" only — 1 group, ids `6161`/`30337`):
+ *     confirmed via a direct API diff (2026-08-06, not just the wiki text) these aren't the same
+ *     "no distinguishing field" shape as signal 10's `INCOMPLETE_DATA_DUPLICATE_SKILL_IDS` — every
+ *     other fact is identical, but `30337`'s `description` documents the Gadgeteer trait's real
+ *     "a second mine is planted" effect and its `flipSkill` points to a different id than `6161`'s
+ *     (the two ids' post-activation "Detonate" skill must itself describe 1 vs. 2 mines) — real,
+ *     structurally-backed evidence this is a genuine trait-gated pair, confirming rather than
+ *     overturning the prior session's wiki-text-only conclusion. Resolved by `chosenTraitIds` (the
+ *     build's own currently-selected major trait ids, threaded down from `Build.specializations`
+ *     the same way `selectedFamiliarId` is): picks `30337` when Gadgeteer (`1679`) is chosen,
+ *     `6161` otherwise.
+ *
+ * The remaining duplicate-name groups (Elementalist "Mist Form" now resolved via signal 10 above;
+ * Revenant "Protective Solace"/"Jade Winds" turned out not to be live picker bugs at all —
+ * `RevenantSkillsEditor` builds its bar directly from `legends.json`'s fixed ids and never calls
+ * this function, so their second ids are structurally unreachable orphans, same shape as the
+ * Vindicator `62841`/`62793` finding — see TODO.md) have no groups left unresolved as of
+ * 2026-08-06.
  */
 export function visibleSkillsForSlot(
   candidates: Skill[],
@@ -121,7 +173,8 @@ export function visibleSkillsForSlot(
   glyphFormVariants: GlyphFormVariantMap = {},
   skillVariantExclusions: ReadonlySet<number> = new Set(),
   familiarIdBySkillId: ReadonlyMap<number, string> = new Map(),
-  selectedFamiliarId: string | null = null
+  selectedFamiliarId: string | null = null,
+  chosenTraitIds: ReadonlySet<number> = new Set()
 ): Skill[] {
   // stripNonEquippableSubAbilities runs on the *full* candidate set before the exclusion filters
   // below — it identifies a sub-ability by the presence of its categorized parent (e.g. "Detonate
@@ -134,7 +187,8 @@ export function visibleSkillsForSlot(
     (s) =>
       !(s.id in glyphFormVariants) &&
       !skillVariantExclusions.has(s.id) &&
-      !NON_EQUIPPABLE_SKILL_IDS.has(s.id)
+      !NON_EQUIPPABLE_SKILL_IDS.has(s.id) &&
+      !INCOMPLETE_DATA_DUPLICATE_SKILL_IDS.has(s.id)
   )
   const withoutFlipTargets = stripFlipTargets(withoutFormVariants)
 
@@ -150,7 +204,9 @@ export function visibleSkillsForSlot(
 
   const out: Skill[] = []
   for (const name of groupOrder) {
-    out.push(...resolveGroup(groups.get(name)!, equippedSpecializationIds, familiarIdBySkillId, selectedFamiliarId))
+    out.push(
+      ...resolveGroup(groups.get(name)!, equippedSpecializationIds, familiarIdBySkillId, selectedFamiliarId, chosenTraitIds)
+    )
   }
   return out
 }
@@ -194,7 +250,8 @@ function resolveGroup(
   group: Skill[],
   equippedSpecializationIds: ReadonlySet<number>,
   familiarIdBySkillId: ReadonlyMap<number, string> = new Map(),
-  selectedFamiliarId: string | null = null
+  selectedFamiliarId: string | null = null,
+  chosenTraitIds: ReadonlySet<number> = new Set()
 ): Skill[] {
   if (group.length === 1) return group
 
@@ -227,6 +284,13 @@ function resolveGroup(
   if (autoTarget.length === 1 && groundTarget.length >= 1) {
     return autoTarget
   }
+
+  if (remaining.some((s) => GADGETEER_GATED_SKILL_IDS.has(s.id))) {
+    const wantGadgeteerVariant = chosenTraitIds.has(GADGETEER_TRAIT_ID)
+    const gadgeteerMatched = remaining.filter((s) => GADGETEER_GATED_SKILL_IDS.has(s.id) === wantGadgeteerVariant)
+    if (gadgeteerMatched.length > 0) remaining = gadgeteerMatched
+  }
+  if (remaining.length === 1) return remaining
 
   return remaining
 }

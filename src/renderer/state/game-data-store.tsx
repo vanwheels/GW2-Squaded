@@ -38,7 +38,8 @@ export interface GameDataStore extends GameData {
     profession: ProfessionId,
     slot: 'Heal' | 'Utility' | 'Elite',
     equippedSpecializationIds: ReadonlySet<number>,
-    selectedFamiliarId?: string | null
+    selectedFamiliarId?: string | null,
+    chosenTraitIds?: ReadonlySet<number>
   ) => Skill[]
   /** Legends available given the currently-equipped specialization lines: the 4 core legends
    *  always, plus any elite-spec-gated legend whose specialization is equipped. */
@@ -133,7 +134,13 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
         gameData.traits
           .filter((t) => t.specializationId === specializationId && t.slot === 'Minor')
           .sort((a, b) => a.tier - b.tier),
-      skillsForProfessionAndSlot: (profession, slot, equippedSpecializationIds, selectedFamiliarId = null) =>
+      skillsForProfessionAndSlot: (
+        profession,
+        slot,
+        equippedSpecializationIds,
+        selectedFamiliarId = null,
+        chosenTraitIds = new Set()
+      ) =>
         visibleSkillsForSlot(
           gameData.skills.filter((s) => {
             if (s.slot !== slot || !s.professions.includes(profession)) return false
@@ -144,7 +151,8 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
           gameData.glyphFormVariants,
           skillVariantExclusionIds,
           familiarIdBySkillId,
-          selectedFamiliarId
+          selectedFamiliarId,
+          chosenTraitIds
         ),
       legendsForSpecializations: (equippedSpecializationIds) =>
         gameData.legends.filter(
