@@ -171,6 +171,19 @@ type TargetCountOverride = number | 'self'
  * facts — so Unleashed Thump/Relentless Whirl's own self-only Might/Fury/Stability facts are curated
  * independently (self) rather than assumed party-wide from the trait's existence, while Solar
  * Brilliance's own explicit "healing nearby allies" wording makes it party-wide on its own merits.
+ *
+ * Mesmer leg (8th leg, 2026-08-07): 22 skills + 12 traits, no exclusions needed. A rescan with a fixed
+ * extraction script (the prior scan's brace-matcher grabbed the TYPE annotation's `{ skill: ...; trait:
+ * ... }` braces instead of the object literal that follows `=`, so it never actually excluded any
+ * already-curated id) found the true remaining pool was Mesmer (34), not Guardian (39) as the previous
+ * session's rescan had claimed — picked Mesmer instead as the genuinely smaller leg. Two skills needed
+ * a wiki raw-wikitext check to settle a same-shape-as-Heat-Wave ambiguity (self-scaling buff alongside
+ * an unrelated ally-facing heal, both undifferentiated in the description): Effervescence's Vigor has
+ * no `allied targets` wiki fact and its stack count matches the skill's own hit count (self-only), while
+ * Journey's Regeneration does carry an explicit `allied targets|5` fact (party-wide) — same wording
+ * ("damaging enemies and healing allies"), opposite answers. Also confirmed Time Warp's two ids (10311,
+ * 10377) share one wiki-documented ally cap of 5 despite 10377's own game-data Number-of-Targets fact
+ * reading 10 — that fact is the enemy-facing/shared count, not the true ally cap.
  */
 const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> } = {
   skill: {
@@ -656,7 +669,50 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     // allies when you use Bluster or Hawkeye") — explicit party-wide.
     77211: 'self', // Wind Shear. No allies wording in description, Notes, or version history — the
     // "around you" phrasing and lack of any allies mention matches the established self-only tell.
-    77319: 5 // Bluster. Same Cloudburst (2425) gate as Hawkeye above — explicit party-wide.
+    77319: 5, // Bluster. Same Cloudburst (2425) gate as Hawkeye above — explicit party-wide.
+
+    // --- Group A sweep (2026-08-07), Mesmer leg (8th leg): 22 skills, no exclusions needed. Rescanning
+    // with a fixed extraction script (the prior session's script matched the TYPE annotation's braces
+    // instead of the object literal's, so it silently treated every earlier leg as still-uncurated —
+    // fixed here by locating the `= {` after the const name before brace-matching) showed the true
+    // remaining pool was Mesmer (34), not Guardian (39) as the prior session's rescan claimed — Mesmer
+    // picked instead as the genuinely smaller leg.
+    10169: 5, // Chaos Storm. "applies random conditions to foes and boons to allies" — same shared
+    // Number-of-Targets(5) template as Lesser Chaos Storm (13733, already curated above).
+    10211: 5, // Mantra of Pain. "Grant might to nearby allies when this spell is fully charged."
+    10237: 5, // Mantra of Concentration. "grant stability to nearby allies...boons to nearby allies."
+    10238: 5, // Power Break. "Break stuns on yourself and grant stability to nearby allies."
+    10311: 5, // Time Warp. "granting you and your allies quickness" — wiki confirms `targets|5` shared
+    // by both this id and its split id 10377 below, despite 10377's own Number-of-Targets fact reading
+    // 10 in this app's game-data (an enemy-facing count, not the true ally cap).
+    10331: 'self', // Chaos Armor. "Chaos aura grants YOU a random boon" — first-person, self-only; the
+    // foe-facing confuse/blind is unrelated to the boon line.
+    10377: 5, // Time Warp (split id). Same wiki-confirmed ally cap of 5 as 10311 above.
+    29526: 5, // Well of Precognition. "gives allies the ability to see the future...allies within the
+    // well regain endurance" — explicit party-wide (Aegis/Stability).
+    30643: 5, // Tides of Time. "Grant boons to nearby allies..." — own "Ally Boon Radius" fact backs it.
+    30814: 5, // Well of Action. "time snaps back, granting boons to allies."
+    40184: 5, // Chaos Vortex. "Allies near you gain boons" — own "Ally Boon Radius" fact backs it.
+    44241: 'self', // Split Surge. No allies wording anywhere; wiki confirms Might is granted "to the
+    // user" on hit — self-only, matching Vulnerability's separate foe-facing reach.
+    62522: 'self', // Twin Blade Restoration. "If the first blade hits, you gain aegis" — first-person,
+    // self-only.
+    62573: 'self', // Psychic Force. No allies wording anywhere (self-buff Fury/Might scaling with the
+    // channel) — self-only per the established "no allies wording anywhere" tell.
+    71800: 'self', // Effervescence. "damaging enemies and healing allies" but the Vigor fact itself has
+    // no allies wording and its stack count (4) matches the skill's own hit count — same self-scaling-
+    // buff-alongside-an-unrelated-ally-facing-heal shape as the code's own Heat Wave precedent (Vigor to
+    // self, Burning to foes); wiki's raw wikitext confirms only a bare `targets|5` fact, no `allied
+    // targets` fact, unlike Journey below.
+    71897: 5, // Journey. "damaging enemies and healing allies" — wiki raw wikitext confirms an explicit
+    // `allied targets|5` fact backing the Regeneration line, unlike Effervescence above.
+    72005: 5, // Inspiring Imagery. "granting boons to nearby allies."
+    72008: 5, // Singularity Shot. "granting resistance and barrier to allies."
+    72946: 'self', // Phantasmal Lancer. No allies wording anywhere — self-only (the tracked Swiftness
+    // fact is a self-buff for the dash, unrelated to the foe-facing crip/immobilize/boon-strip effects).
+    73066: 'self', // Psystrike. "Gain might per target struck" — first-person, self-only.
+    73093: 'self', // Mind the Gap. "If you are empowered, gain might" — first-person, self-only.
+    73154: 'self' // Psycut. "Gain might per target struck" — first-person, self-only (same as Psystrike).
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -730,7 +786,30 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     2271: 5, // Let Loose (Untamed). "Unleashed Ambush skills grant boons to nearby allies." A separate,
     // unconditioned bonus on top of whichever ambush skill is used — not a `requires_trait` gate on
     // those skills' own facts (see Unleashed Thump/Relentless Whirl's own self-only entries above).
-    2408: 5 // Flock Together (Beastmastery). "Beast skills grant quickness around the ranger."
+    2408: 5, // Flock Together (Beastmastery). "Beast skills grant quickness around the ranger."
+
+    // --- Group A sweep (2026-08-07), Mesmer leg (8th leg): all 12 explicitly say "nearby allies"/
+    // "allies" in their own description, each with its own Radius/Number-of-Targets(5) fact backing it.
+    666: 5, // Metaphysical Rejuvenation (Chaos). "Grant regeneration to nearby allies when you use a
+    // healing skill."
+    668: 5, // Chaotic Transference (Chaos). "Gaining chaos aura grants boons to nearby allies."
+    675: 5, // Illusionary Defense (Chaos). "Grant protection to nearby allies when you use Shatter skill 2."
+    707: 5, // Master Fencer (Domination). "Grant fury to yourself and nearby allies when you critically
+    // strike an enemy."
+    1687: 5, // Bountiful Disillusionment (Chaos). "Grant an additional boon to nearby allies based on
+    // which Shatter skill you use."
+    1852: 5, // Inspiring Distortion (Chaos). "Grant aegis to other nearby allies whenever you give
+    // yourself distortion or use Shatter skill 4."
+    1942: 5, // Stretched Time (Chronomancer). "Nearby allies gain boons for each clone you shatter.
+    // Grant boons to nearby allies when you summon a phantasm."
+    1980: 5, // Temporal Enchanter (Chronomancer). "When you cast a glamour, allies near the glamour gain
+    // resistance and superspeed."
+    2005: 5, // Mental Defense (Chronomancer). "Shatter skill 4 grants boons and breaks allies out of
+    // stuns" — own Radius(600)/Number-of-Targets(5) fact confirms the standard 5.
+    2022: 5, // Seize the Moment (Chronomancer). "You and nearby allies gain quickness for each clone you
+    // shatter. Grant quickness to nearby allies when you summon a phantasm."
+    2174: 5, // Mirage Mantle (Mirage). "Ambush skills you use grant boons to nearby allies."
+    2326: 5 // Raconteur (Troubadour). "Tales heal and grant protection to nearby allies."
   }
 }
 
