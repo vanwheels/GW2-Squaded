@@ -14,7 +14,7 @@ import {
   type ComboSource,
   type NamedFactGroup
 } from '@shared/boon-calc/sources'
-import { formatBoonDuration } from '@shared/boon-calc/format'
+import { formatBoonDuration, formatTargetCount } from '@shared/boon-calc/format'
 import { BOON_NAMES, CONDITION_NAMES, AURA_NAMES } from '@shared/boon-calc/constants'
 import {
   BOON_CONDITION_ICONS,
@@ -52,6 +52,9 @@ function iconItemsFor(groups: BoonConditionGroup[], names: readonly string[], ic
                 <span className="tooltip-fact-label">
                   <img className="tooltip-fact-icon" src={s.sourceIcon} alt="" />
                   <span>{s.sourceName}</span>
+                  {s.category === 'boon' && s.targetCount !== null && (
+                    <span className="boon-source-target">{formatTargetCount(s.targetCount)}</span>
+                  )}
                 </span>
                 <span className="boon-source-duration">
                   {formatBoonDuration(s.scaledDurationSeconds)}s

@@ -46,6 +46,34 @@ export interface BoonConditionSource {
   scaledDurationSeconds: number
   applyCount: number
   requiresTraitId: number | null
+  /**
+   * How many allies this source's facts say it can reach at once — read straight from the GW2
+   * API's own `type: "Number", text: "Number of Allied Targets"` fact when the skill/trait carries
+   * one (see `resolveTargetCount`). `null` means "unknown," not "self-only": a full scan of
+   * data/game-data/skills.json this session found the API omits ANY target-count fact
+   * (`"Number of Allied Targets"` or the enemy-facing `"Number of Targets"`) on plenty of genuinely
+   * party-wide effects (Engineer's Healing Turret, Guardian's Symbol of Protection, Warrior's
+   * "Guard!", Mesmer's Lesser Chaos Storm — all pulse a boon to nearby allies with zero Number fact
+   * of any kind), so absence can't be read as "self-only" the way an earlier pass assumed. The
+   * enemy-facing `"Number of Targets"` fact is deliberately never used as a fallback either — it's
+   * ambiguous on skills that hit foes AND self simultaneously (e.g. Heat Wave: Vigor to self,
+   * Burning to up to 5 foes) vs. a handful that reuse the same label for an ally count instead
+   * (Healing Rain, Healing Seed). Resolved once per skill/trait's flat facts array and applied
+   * uniformly to every `BoonConditionSource` `extractFromFacts` emits from that call — a skill with
+   * both a self-only buff and an ally-only buff in the same facts array can't be bound per-buff-line
+   * without a positional heuristic (no concrete example of that shape found so far). See TODO.md for
+   * the open curation-sweep item this leaves (the ~276 skills with an ambiguous "Number of Targets"
+   * only reading).
+   */
+  targetCount: number | null
+}
+
+/** The only reliable "this reaches up to N allies" signal in the API's fact data — see
+ *  `BoonConditionSource.targetCount`'s doc comment for why nothing else (the enemy-facing "Number
+ *  of Targets" fact, or the absence of any Number fact at all) is trustworthy enough to use here. */
+function resolveTargetCount(facts: Fact[]): number | null {
+  const alliedFact = facts.find((f) => f.type === 'Number' && f.text === 'Number of Allied Targets' && typeof f.value === 'number')
+  return typeof alliedFact?.value === 'number' ? alliedFact.value : null
 }
 
 /**
@@ -100,7 +128,9 @@ function extractFromFacts(
 ): BoonConditionSource[] {
   const out: BoonConditionSource[] = []
   const emittedOverriddenStatuses = new Set<string>()
-  for (const fact of [...facts, ...traitedFacts]) {
+  const combinedFacts = [...facts, ...traitedFacts]
+  const targetCount = resolveTargetCount(combinedFacts)
+  for (const fact of combinedFacts) {
     if (fact.type !== 'Buff' || typeof fact.status !== 'string' || typeof fact.duration !== 'number') {
       continue
     }
@@ -135,7 +165,8 @@ function extractFromFacts(
       baseDurationSeconds: baseDuration,
       scaledDurationSeconds: baseDuration * (1 + percent / 100),
       applyCount: fact.apply_count ?? 1,
-      requiresTraitId: fact.requires_trait ?? null
+      requiresTraitId: fact.requires_trait ?? null,
+      targetCount
     })
   }
   return out
@@ -377,6 +408,14 @@ function bundleContributionsForBuild(
  */
 export function tomeChapterBoonSources(chapter: TomeChapter, durationPercent: { boon: number; condition: number }): BoonConditionSource[] {
   const out: BoonConditionSource[] = []
+  // `targetCount`: the wiki's own "allied targets" fact line, present on 7 of the 15 chapters —
+  // absent on the other 8, which is `null`/"unknown" rather than "self-only" for the same reason
+  // `BoonConditionSource.targetCount`'s doc comment gives for the API-sourced case (one of those 8,
+  // Firebrand's "Chapter 4: Shining River", is confirmed party-wide by its own description despite
+  // carrying no target-count fact at all).
+  const alliedTargetsFact = chapter.facts.find((f) => f.label === 'allied targets')
+  const parsedTargetCount = alliedTargetsFact ? Number(alliedTargetsFact.values[0]) : NaN
+  const targetCount = Number.isFinite(parsedTargetCount) ? parsedTargetCount : null
   for (const fact of chapter.facts) {
     const status = fact.label.charAt(0).toUpperCase() + fact.label.slice(1)
     const isBoon = isBoonName(status)
@@ -397,7 +436,8 @@ export function tomeChapterBoonSources(chapter: TomeChapter, durationPercent: { 
       baseDurationSeconds: duration,
       scaledDurationSeconds: duration * (1 + percent / 100),
       applyCount: fact.params.stacks ? Number(fact.params.stacks) : 1,
-      requiresTraitId: null
+      requiresTraitId: null,
+      targetCount
     })
   }
   return out

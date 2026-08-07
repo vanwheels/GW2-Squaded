@@ -5,3 +5,8 @@ export function formatBoonDuration(seconds: number): string {
 export function formatBoonPercent(percent: number): string {
   return Number.isInteger(percent) ? String(percent) : percent.toFixed(1)
 }
+
+/** `null` (unknown reach, see `BoonConditionSource.targetCount`'s doc comment) renders nothing. */
+export function formatTargetCount(targetCount: number | null): string | null {
+  return targetCount === null ? null : `Up to ${targetCount}`
+}

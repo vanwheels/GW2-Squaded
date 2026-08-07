@@ -26,6 +26,9 @@ export interface PartyBoonConditionContribution {
   sourceIcon: string
   scaledDurationSeconds: number
   applyCount: number
+  /** See `BoonConditionSource.targetCount`'s doc comment — `null` means unknown reach, not
+   *  self-only. Only meaningful when `PartyBoonConditionEntry.isCondition` is false. */
+  targetCount: number | null
 }
 
 export interface PartyBoonConditionEntry {
@@ -128,7 +131,8 @@ export function computePartyBoonConditionSummary(
         sourceName: source.sourceName,
         sourceIcon: source.sourceIcon,
         scaledDurationSeconds: source.scaledDurationSeconds,
-        applyCount: source.applyCount
+        applyCount: source.applyCount,
+        targetCount: source.targetCount
       })
     }
   })

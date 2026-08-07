@@ -161,19 +161,25 @@ that before extending either further, and before the tooltip visual-pass item be
 
 ## Stats panel / boon-condition bar polish
 
-- [ ] Boon tab / Squad tab: distinguish self-only vs. party-wide (up to 5) boon sources. Confirmed
-      2026-08-01 the raw API data (already in `data/game-data/skills.json`) carries this signal: a
-      skill's `facts` array includes a `type: "Number"` fact with `text: "Number of Targets"` or
-      `"Number of Allied Targets"` alongside its `Buff` facts when it hits allies; purely self-targeted
-      buffs (e.g. Signet of Fury/Might's passive) carry no such fact. `Fact`
-      (`src/shared/types/game-data.ts`) already round-trips this via its index signature, but
-      `extractFromFacts` (`src/shared/boon-calc/sources.ts`) currently ignores `Number` facts
-      entirely — would need a `targetCount: number | null` added to `BoonConditionSource`. Known
-      caveats: (1) a skill with both a self-only and an ally-only buff in the same flat facts array
-      can't be bound per-buff-line without a positional heuristic (no concrete example found yet);
-      (2) no WvW-override table exists for target count the way `wvwFactOverrides` exists for
-      duration; (3) stationary sources (banners/wells/spirits) haven't been spot-checked for the same
-      fact shape.
+- [ ] Curation sweep: resolve the ~276 skills whose only target-count signal is the ambiguous
+      `"Number of Targets"` fact (no `"Number of Allied Targets"`), so `BoonConditionSource.
+      targetCount` (`src/shared/boon-calc/sources.ts`, landed 2026-08-06 — see COMPLETED.md) can
+      show a badge for them instead of `null`/nothing. Confirmed via a full scan of
+      `data/game-data/skills.json` this session that this fact is genuinely ambiguous, not just
+      theoretically: some skills mean "self-only boon + N enemies hit separately" (Heat Wave: Vigor
+      to self, Burning to 5 foes; also Convergence, Lightning Leap), others reuse the same label to
+      mean an ally count on a pure support skill (Healing Rain, Healing Seed — Regeneration to up to
+      5 allies, no enemies involved). Also unresolved: ~25+ skills with a boon + a Radius fact but
+      **no** Number fact of any kind that are nonetheless confirmed party-wide by their own
+      description/kit (Engineer's Healing Turret, Guardian's Symbol of Protection, Warrior's
+      "Guard!", Mesmer's Lesser Chaos Storm, Ranger's Purification/Procession of Blades, Engineer's
+      Slick Shoes) — `targetCount` currently reads `null` for these too (correctly avoids the wrong
+      "self-only" label an earlier pass would have given them, but still shows no badge at all).
+      Needs a curated override table shaped like `wvwFactOverrides` (wiki-verified per skill), same
+      pacing as the Healing/Damage coefficient sweeps — not attempted this session, scope declined
+      in favor of shipping the unambiguous 88-skill (+7-Tome-chapter) signal first. Stationary
+      sources (banners/wells/spirits) fall into this same ambiguous/no-fact bucket and haven't been
+      separately spot-checked.
 - [ ] Minor, unconfirmed: possible Ascended-vs-Exotic filter tabs on the itemstat-combo picker — no
       screenshot exists confirming this is real; leave as-is unless it resurfaces with a concrete
       example.

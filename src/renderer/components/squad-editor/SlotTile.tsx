@@ -23,7 +23,7 @@ import {
   CONTROL_ICONS,
   MISCELLANEOUS_ICONS
 } from '@shared/boon-calc/icons'
-import { formatBoonDuration } from '@shared/boon-calc/format'
+import { formatBoonDuration, formatTargetCount } from '@shared/boon-calc/format'
 import type { AuraName, BoonName, ConditionName } from '@shared/boon-calc/constants'
 import { BoonConditionIconRow, type BoonConditionIconItem } from './BoonConditionIconRow'
 import { readBuildDragData, setBuildDragData, type BuildDragPayload } from './drag-payload'
@@ -154,7 +154,10 @@ export function SlotTile({
           <TooltipBody
             title={g.name}
             description={g.sources
-              .map((s) => `${s.sourceName}: ${formatBoonDuration(s.scaledDurationSeconds)}s`)
+              .map((s) => {
+                const target = s.category === 'boon' ? formatTargetCount(s.targetCount) : null
+                return `${s.sourceName}: ${formatBoonDuration(s.scaledDurationSeconds)}s${target ? ` (${target})` : ''}`
+              })
               .join('\n')}
           />
         )

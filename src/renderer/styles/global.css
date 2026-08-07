@@ -1265,6 +1265,16 @@ input[type='text'] {
   white-space: nowrap;
 }
 
+.boon-source-target {
+  color: var(--muted);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
+.boon-source-target::before {
+  content: '· ';
+}
+
 .tooltip-popup {
   position: fixed;
   z-index: 1000;

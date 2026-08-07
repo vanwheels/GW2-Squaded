@@ -10,7 +10,7 @@ import { skillPickerCategory } from '@shared/skill-calc/skill-category-overrides
 import { glyphFormDisplayIcon, glyphFormFactSourceSkill } from '@shared/skill-calc/glyph-forms'
 import type { GlyphFormVariantMap } from '@shared/types'
 import { isRacialSkill } from '@shared/skill-calc/racial-skills'
-import { formatBoonDuration } from '@shared/boon-calc/format'
+import { formatBoonDuration, formatTargetCount } from '@shared/boon-calc/format'
 import { BOON_CONDITION_ICONS } from '@shared/boon-calc/icons'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { computeCharacterStats } from '@shared/gear-calc/derived-stats'
@@ -182,6 +182,9 @@ export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSou
                   <img className="tooltip-fact-icon" src={BOON_CONDITION_ICONS_BY_NAME[f.boonOrConditionName]} alt="" />
                 )}
                 <span>{f.boonOrConditionName}</span>
+                {f.category === 'boon' && f.targetCount !== null && (
+                  <span className="boon-source-target">{formatTargetCount(f.targetCount)}</span>
+                )}
               </span>
               <span className="boon-source-duration">
                 {formatBoonDuration(f.scaledDurationSeconds)}s

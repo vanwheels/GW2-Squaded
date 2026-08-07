@@ -27,7 +27,7 @@ import {
   CONTROL_ICONS,
   MISCELLANEOUS_ICONS
 } from '@shared/boon-calc/icons'
-import { formatBoonDuration } from '@shared/boon-calc/format'
+import { formatBoonDuration, formatTargetCount } from '@shared/boon-calc/format'
 import type { AuraName, BoonName, ConditionName } from '@shared/boon-calc/constants'
 import { SlotTile } from './SlotTile'
 import { BoonConditionIconRow, type BoonConditionIconItem } from './BoonConditionIconRow'
@@ -63,7 +63,10 @@ function toIconItems(entries: PartyBoonConditionEntry[], party: Party): BoonCond
       <TooltipBody
         title={entry.name}
         description={entry.contributions
-          .map((c) => `${contributionLabel(party, c.buildName, c.slotIndex)}: ${c.sourceName} — ${formatBoonDuration(c.scaledDurationSeconds)}s`)
+          .map((c) => {
+            const target = !entry.isCondition ? formatTargetCount(c.targetCount) : null
+            return `${contributionLabel(party, c.buildName, c.slotIndex)}: ${c.sourceName} — ${formatBoonDuration(c.scaledDurationSeconds)}s${target ? ` (${target})` : ''}`
+          })
           .join('\n')}
       />
     )

@@ -2,6 +2,43 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 94 — Boon tab / Squad tab: self vs. party-wide boon target counts
+
+Picked up the TODO item to distinguish self-only vs. party-wide boon sources. The TODO's own
+premise (absence of a target-count fact ⇒ self-only) didn't survive a full scan of
+`data/game-data/skills.json`: 25+ skills with a boon and a Radius fact but **no** Number fact of
+any kind turned out to be confirmed party-wide by their own kit/description (Engineer's Healing
+Turret, Guardian's Symbol of Protection, Warrior's "Guard!", Mesmer's Lesser Chaos Storm, and
+more) — the API simply omits the target-count fact inconsistently, it doesn't reserve omission for
+truly self-only skills. The enemy-facing `"Number of Targets"` fact (276 boon-bearing skills) is
+similarly unusable as a fallback — confirmed real counterexamples on both sides (self-only boon +
+separately-counted enemies on Heat Wave/Convergence/Lightning Leap, vs. the same label actually
+meaning an ally count on Healing Rain/Healing Seed).
+
+Given that, shipped only what the API states unambiguously: `BoonConditionSource.targetCount`
+(`src/shared/boon-calc/sources.ts`) reads the explicit `type: "Number", text: "Number of Allied
+Targets"` fact (88 skills) — `null` for everything else, meaning "unknown," never "self." Firebrand
+Tome chapters get the same treatment from the wiki's own `"allied targets"` fact line
+(`tomeChapterBoonSources`, 7 of 15 chapters). Resolved once per skill/trait's flat facts array and
+applied uniformly to every boon emitted from that call (same known per-buff-line-binding limit
+already documented on `BoonConditionSource`).
+
+Wired into every existing boon-source display for consistency: the build editor's Boon tab
+(`BoonConditionSummaryPanel.tsx`), in-skill-bar/picker tooltips (`SkillsEditor.tsx`'s
+`factsBlock`), and both squad-editor surfaces (`SlotTile.tsx`'s per-build summary,
+`PartyRow.tsx`'s party-wide aggregate — `PartyBoonConditionContribution` gained the same
+`targetCount` field). New shared `formatTargetCount` (`src/shared/boon-calc/format.ts`) renders
+`"Up to N"` or nothing. Gated to `category === 'boon'` (`!entry.isCondition` in the party-summary
+path) everywhere — conditions/auras never show it, out of scope for this pass. `npm run typecheck`
+and `npm run lint` both clean; no test suite exists for this repo (Electron sandbox limitation —
+not spot-checked live).
+
+Left as a follow-up curation sweep (logged in TODO.md): resolving the ambiguous 276-skill
+"Number of Targets"-only bucket and the 25+-skill no-Number-fact-but-confirmed-party-wide bucket
+needs a wiki-verified override table shaped like `wvwFactOverrides`, same pacing as the
+Healing/Damage coefficient sweeps — explicitly scoped out of this pass per a direct question to the
+user (chose "leave unresolved for now" over "default ambiguous to self" or a full sweep up front).
+
 ## Session 93 — Closed both `fetch-wvw-splits.ts` follow-ups from Session 92
 
 Picked up the two open items logged at the end of the "WvW-fact-override follow-ups" section.
