@@ -127,6 +127,33 @@ type TargetCountOverride = number | 'self'
  * benefits," meaning only the ONE ally who steps on and triggers the mark receives Vigor, not up to
  * 5 simultaneously. Same same-source per-buff-line conflict as Well of Power above — left out.
  *
+ * Also NOT covered: Revenant's Pain Absorption (ids 27322, 78505). Its own description states
+ * "Grant resistance to yourself and nearby allies. Absorb conditions from those allies, gaining
+ * resolution and additional resistance per condition" — the API backs this with THREE separate
+ * unconditioned Resistance/Resolution `Buff` facts of different durations (party-wide base
+ * Resistance at 3s, a self-only "additional resistance per condition" bonus Resistance at 1s, and a
+ * self-only Resolution at 5s), i.e. the very same "Resistance" status appears twice on one source
+ * with two different reaches. Same same-status per-buff-line conflict as Well of Power above — left
+ * out (a fourth Resistance fact, trait-gated on Demonic Defiance/1789, is separately confirmed
+ * self-only — see that trait's own "gain resistance" first-person text — but doesn't rescue the
+ * base-vs-bonus conflict on the unconditioned facts).
+ *
+ * Also NOT covered: Revenant's Gladiator's Defense (skill 77291). Wiki confirms its boons (Weakness
+ * is a condition, ignore; Resolution/Resistance are the tracked boons) are self-only by default, but
+ * its "Resonance" note states that when Legendary Dwarf Stance is equipped the SAME boons are
+ * "also granted to allies in a radius around you" — an explicit `Additional Allies Affected: 4` fact
+ * confirms the expanded reach. This is a legend-equipped conditional, not a `requires_trait` gate the
+ * fact data can express, and — like Tome of Courage/Phoenix Protocol above — flips between fully
+ * self-only and fully party-wide depending on player choice with no positional split available;
+ * left out rather than picking one state to always show.
+ *
+ * Revenant leg (6th leg, 2026-08-06): 33 skills + 6 traits curated (2 skills excluded as above), plus
+ * 2 leftover "no profession tag" skills (Invoke Torment 59591, Lesser Chilblains 76506) that a fresh
+ * rescan turned up outside the original no-profession-tag leg's scan — Lesser Chilblains repeats the
+ * Necromancer leg's Transfusion (trait 778) one-ally mark-trigger mechanic exactly (targetCount 1,
+ * not 5 or 'self'), confirming that pattern generalizes beyond the base Chillblains/Reaper's Mark
+ * pair it was first found on.
+ *
  * Warrior leg (4th, 2026-08-06): 23 skills + 1 trait, no exclusions needed. Confirmed the same
  * first-person-phrasing tell as the Necromancer leg, extended to a subset (Sundering Leap, Wild
  * Blow, Shattering Blow, Gunstinger, Crushing Blow) where the boon doesn't appear in the skill's own
@@ -496,8 +523,67 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     // allies," Chain Reaction "grant additional might to allies" — explicit party-wide.
     76493: 'self', // Stoke the Flames (Flamethrower 4, Holosmith-era kit). "...as you grant yourself
     // boons" — first-person, self-only.
-    77069: 'self' // Solid State (Stance, Mechanist, ground-targeted). "Gain stability and increase your
+    77069: 'self', // Solid State (Stance, Mechanist, ground-targeted). "Gain stability and increase your
     // outgoing stun durations for a duration" — first-person, self-only.
+
+    // --- Group A sweep (2026-08-06), Revenant leg (6th leg): 33 skills (2 more, Pain Absorption and
+    // Gladiator's Defense, excluded — see this table's top comment). Recurring pattern: every Facet
+    // (Strength/Elements/Light/Chaos/Darkness) states "grant nearby allies X" directly in its own
+    // description — party-wide. Recurring self-only pattern: Legendary Demon Stance's Resistance
+    // (Banish Enchantment, Call to Anguish, Embrace the Darkness) only exists via Demonic Defiance
+    // (trait 1789, "Gain resistance...when you use a Legendary Demon skill" — first-person) with no
+    // unconditioned boon of the skill's own, so all four resolve to self-only from the gating trait's
+    // text alone, same "check the gating trait's own text first" shortcut as the Thief/Engineer legs.
+    26644: 5, // Facet of Strength. "...grant nearby allies might."
+    27014: 5, // Facet of Elements. "...grant nearby allies swiftness."
+    27220: 5, // Facet of Light. "...grant nearby allies regeneration."
+    27760: 5, // Facet of Chaos. "...grant nearby allies protection."
+    28379: 5, // Facet of Darkness. "...grant nearby allies fury."
+    28516: 5, // Inspiring Reinforcement. "...granting stability to allies."
+    50383: 5, // Inspiring Reinforcement (split id) — same as 28516.
+    29386: 5, // Envoy of Exuberance. "...heals allies and grants boons" (Protection/Aegis).
+    50390: 5, // Rift of Pain. "Allies in the affected area gain beneficial effects" (Protection).
+    51675: 5, // True Nature (Legendary Dragon F2). "Grant stability to nearby allies" — own
+    // Radius(600)/Number-of-Targets(5); the Core Value trait (1806) only raises apply_count on the
+    // same party-wide Stability, no self/party conflict.
+    62702: 5, // Battle Dance. "...granting boons to allies" (Resistance/Regeneration).
+    62738: 5, // Drop Urn of Saint Viktor. "Grant boons and heals allies" (Regeneration/Protection/
+    // Resistance).
+    62796: 5, // Awakening. "Break stun on nearby allies and grant protection" — explicit party-wide.
+    62941: 5, // Tree Song. "Grant regeneration...from allies in the targeted area."
+    27505: 'self', // Banish Enchantment. Only boon is Demonic Defiance's (1789) self-only Resistance.
+    78587: 'self', // Banish Enchantment (split id) — same.
+    27917: 'self', // Call to Anguish. Only boon is Demonic Defiance's (1789) self-only Resistance.
+    31100: 'self', // Call to Anguish (split id) — same.
+    78203: 'self', // Call to Anguish (split id) — same.
+    78798: 'self', // Call to Anguish (split id) — same.
+    27665: 'self', // Field of the Mists. Wiki version history: "This skill now grants aegis to the
+    // user on activation" — no allies wording, self-only.
+    27964: 'self', // Echoing Eruption. Not in own description at all; wiki version history: "This
+    // skill now also grants might to the user" (singular) — self-only, undocumented-proc pattern.
+    28287: 'self', // Embrace the Darkness. Only boon is Demonic Defiance's (1789) self-only Resistance
+    // (Torment is a foe-facing condition, unrelated).
+    78191: 'self', // Embrace the Darkness (split id) — same.
+    31294: 'self', // Jade Winds. Might only via Notoriety (trait 1765, "Gain might when using a
+    // legendary stance skill" — first-person) — self-only.
+    51698: 'self', // Elemental Blast. Quickness only via Draconic Echo (trait 1772, entirely
+    // self-focused "you"/"your" text, no allies wording) — self-only.
+    51714: 'self', // True Nature (Legendary Renegade F2 variant). "Gain might for each condition
+    // transferred" — first-person, self-only.
+    62719: 'self', // Selfish Spirit. "healing and empowering yourself for each enemy struck" —
+    // first-person, self-only.
+    62832: 'self', // Nomad's Advance. "gaining might for each target struck" — first-person, self-only.
+    62878: 'self', // Reaver's Rage. "gaining stability for each target struck" — first-person, self-only.
+    62895: 'self', // Phantom's Onslaught. No allies wording in description or wiki page — self-only,
+    // same undocumented-proc pattern as Echoing Eruption above.
+    62962: 'self', // Scavenger Burst. "gaining boons and endurance for each foe struck" — first-person,
+    // self-only.
+
+    // Leftover "no profession tag" skills a fresh rescan turned up outside the original leg's scan.
+    59591: 'self', // Invoke Torment. Resistance only via Fiendish Tenacity (trait 1720, "Resistance
+    // heals you every interval" — first-person) — self-only.
+    76506: 1 // Lesser Chilblains. Protection only via Transfusion (trait 778) — same one-ally
+    // mark-trigger mechanic as the base Chillblains/Reaper's Mark pair in the Necromancer leg.
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -546,7 +632,19 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     // count.
     2296: 5, // Mech Arms: High-Impact Drivers (Mechanist). "Your mech's attacks now generate might for
     // allies within a radius" — explicit party-wide.
-    2387: 5 // New Genes (Amalgam). "Morph skills grant boons to allies" — explicit party-wide.
+    2387: 5, // New Genes (Amalgam). "Morph skills grant boons to allies" — explicit party-wide.
+
+    // --- Group A sweep (2026-08-06), Revenant leg (6th leg): all 6 explicitly say "nearby allies"/
+    // "allies" in their own description, each with its own Number-of-Targets(5) fact backing it up.
+    1738: 5, // Shared Empowerment (Herald). "When applying a boon to an ally, also apply might to
+    // nearby allies."
+    1786: 5, // Assassin's Presence (Vindicator). "...grant fury to yourself and nearby allies each
+    // interval."
+    2228: 5, // Redemptor's Sermon (Salvation). "...heal allies in the area and grant them protection."
+    2248: 5, // Amnesty of Shing Jea (Alliance). "...grants...to nearby allies" (Might/Regeneration).
+    2255: 5, // Song of Arboreum (Alliance). "...grants its endurance and vigor to nearby allies."
+    2355: 5 // Shared Wisdom (Alliance). "Grant boons to allies whenever you use a Legendary Entity
+    // Skill."
   }
 }
 

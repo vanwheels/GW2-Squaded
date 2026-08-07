@@ -2,6 +2,41 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 102 — Revenant leg of the Group A target-count sweep
+
+Sixth leg of the Group A (ambiguous `"Number of Targets"`) target-count curation sweep
+(`TARGET_COUNT_OVERRIDES` in `src/shared/boon-calc/sources.ts`) — Revenant, the next-smallest
+remaining per-profession bucket per a fresh live rescan (35 skills + 6 traits). 33 skills + 6 traits
+resolved (14 skills + 6 traits party-wide, 18 skills self-only); 2 more excluded as genuine
+per-source conflicts the table's one-value-per-source shape can't express (see below). Also folded
+in 2 leftover "no profession tag" skills (Invoke Torment, Lesser Chilblains) a fresh rescan turned up
+outside the original no-profession-tag leg's scan.
+
+Recurring party-wide pattern: every Facet (Strength/Elements/Light/Chaos/Darkness) states "grant
+nearby allies X" directly in its own description. Recurring self-only pattern: Legendary Demon
+Stance's Resistance (Banish Enchantment, Call to Anguish, Embrace the Darkness, all split ids) only
+exists via Demonic Defiance (trait 1789, "Gain resistance...when you use a Legendary Demon skill" —
+first-person) with no unconditioned boon of the skill's own — resolved from the gating trait's own
+text alone, same shortcut as the Thief/Engineer legs' trait-gated clusters. Lesser Chilblains repeats
+the Necromancer leg's Transfusion (trait 778) one-ally mark-trigger mechanic exactly (`targetCount`
+1, not 5 or `'self'`), confirming that pattern generalizes past the original Chillblains/Reaper's
+Mark pair.
+
+Two new exclusions added to the table's growing "genuine conflict, left out" list: Pain Absorption
+(27322/78505) carries THREE separate unconditioned Resistance/Resolution `Buff` facts of different
+durations on one source — the same "Resistance" status both party-wide (base, 3s) and self-only
+("additional resistance per condition" bonus, 1s) — the exact same-status per-buff-line conflict as
+Well of Power. Gladiator's Defense (77291) is self-only by default but its wiki-documented "Resonance"
+note makes its boons party-wide when Legendary Dwarf Stance is equipped specifically — a legend-choice
+conditional, not a `requires_trait` gate, so (like Tome of Courage/Phoenix Protocol) it flips between
+fully self-only and fully party-wide with no positional split available.
+
+Live rescan (fresh Node scan against `data/game-data/{skills,traits}.json`, filtered to already-
+curated/excluded ids) confirms the remaining per-profession pool: Ranger 43, Guardian 49, Mesmer 54,
+Elementalist 72 — Ranger is next-smallest.
+
+`npm run typecheck` and a scoped `eslint` pass on the changed file both clean.
+
 ## Session 101 — Engineer leg of the Group A target-count sweep
 
 Fifth leg of the Group A (ambiguous `"Number of Targets"`) target-count curation sweep

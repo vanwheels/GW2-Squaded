@@ -186,11 +186,13 @@ that before extending either further, and before the tooltip visual-pass item be
       bullet. Fourth leg — Warrior (23 skills + 1 trait, no exclusions needed) — done 2026-08-06
       (Session 100). Fifth leg — Engineer (35 skills + 4 traits; 2 more, Holo Leap and Corona Burst,
       were the already-known dead Holosmith `Downed_`-slot ids from the bullet below and were dropped
-      without research) — done 2026-08-06 (Session 101). Remaining legs are per-profession, smallest
-      first per the user's stated preference: Revenant, Ranger, Guardian, Mesmer, Elementalist (plus a
-      handful of multi-profession "shared skill" and no-profession-tag stragglers a fresh scan turned
-      up — one such shared skill, Channeled Agony, turned up via Engineer's own leg and was resolved
-      there rather than deferred).
+      without research) — done 2026-08-06 (Session 101). Sixth leg — Revenant (33 skills + 6 traits;
+      2 more, Pain Absorption and Gladiator's Defense, turned out to be genuine per-source conflicts
+      and were deliberately left out, see the table's top comment) plus 2 leftover no-profession-tag
+      stragglers (Invoke Torment, Lesser Chilblains) — done 2026-08-06 (Session 102). Remaining legs
+      are per-profession, smallest first per a live rescan: Ranger (43), Guardian (49), Mesmer (54),
+      Elementalist (72) — Ranger is next-smallest. Re-run the scan rather than trusting these numbers
+      once another leg lands.
       Stationary sources (banners/wells/spirits) fall into this same ambiguous/no-fact bucket and
       haven't been separately spot-checked.
 - [ ] **Scan-methodology fix for all remaining legs**: `Build` has no downed-skill concept at all, and
@@ -215,7 +217,12 @@ that before extending either further, and before the tooltip visual-pass item be
       specific traits are also chosen. Willbender's Phoenix Protocol (trait 2195): its Alacrity/
       Regeneration/Resolution are self-only unless Battle Presence (trait 554) is also chosen. Needs
       a per-buff-line (not per-source) target-count model to resolve correctly — scoping, not a
-      one-off patch.
+      one-off patch. Two more shapes of the same underlying gap turned up in the Revenant leg
+      (Session 102): Pain Absorption (27322/78505) mixes party-wide and self-only under the SAME
+      status ("Resistance" twice, different reach) rather than two different statuses; Gladiator's
+      Defense (77291) flips self-only vs. party-wide based on which LEGEND is equipped, not which
+      trait is chosen — neither is expressible by `requires_trait` gating either, widening what the
+      eventual fix needs to cover beyond just "per-trait."
 - [ ] Minor, unconfirmed: possible Ascended-vs-Exotic filter tabs on the itemstat-combo picker — no
       screenshot exists confirming this is real; leave as-is unless it resurfaces with a concrete
       example.
