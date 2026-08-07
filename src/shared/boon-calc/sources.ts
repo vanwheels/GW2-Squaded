@@ -49,31 +49,149 @@ export interface BoonConditionSource {
   /**
    * How many allies this source's facts say it can reach at once — read straight from the GW2
    * API's own `type: "Number", text: "Number of Allied Targets"` fact when the skill/trait carries
-   * one (see `resolveTargetCount`). `null` means "unknown," not "self-only": a full scan of
-   * data/game-data/skills.json this session found the API omits ANY target-count fact
-   * (`"Number of Allied Targets"` or the enemy-facing `"Number of Targets"`) on plenty of genuinely
-   * party-wide effects (Engineer's Healing Turret, Guardian's Symbol of Protection, Warrior's
-   * "Guard!", Mesmer's Lesser Chaos Storm — all pulse a boon to nearby allies with zero Number fact
-   * of any kind), so absence can't be read as "self-only" the way an earlier pass assumed. The
-   * enemy-facing `"Number of Targets"` fact is deliberately never used as a fallback either — it's
+   * one, else `TARGET_COUNT_OVERRIDES`' curated decision, else `null` (see `resolveTargetCount`).
+   * `null` means "unknown," not "self-only": a full scan of data/game-data/skills.json this session
+   * found the API omits ANY target-count fact (`"Number of Allied Targets"` or the enemy-facing
+   * `"Number of Targets"`) on plenty of genuinely party-wide effects (Engineer's Healing Turret,
+   * Mesmer's Lesser Chaos Storm, Elementalist's Tidal Surge/Infusion Bomb — all pulse a boon to
+   * nearby allies with zero Number fact of any kind), so absence can't be read as "self-only" the
+   * way an earlier pass assumed — `TARGET_COUNT_OVERRIDES` now covers every such source a 2026-08-06
+   * sweep found (see its own doc comment; NOT every candidate turned out party-wide on inspection —
+   * e.g. Ranger's "Guard!" has a Radius fact but its Might is confirmed self-only by the wiki, a
+   * radius alone isn't sufficient evidence any more than a Number fact's absence is). The enemy-
+   * facing `"Number of Targets"` fact is deliberately never used as a fallback either — it's
    * ambiguous on skills that hit foes AND self simultaneously (e.g. Heat Wave: Vigor to self,
    * Burning to up to 5 foes) vs. a handful that reuse the same label for an ally count instead
-   * (Healing Rain, Healing Seed). Resolved once per skill/trait's flat facts array and applied
-   * uniformly to every `BoonConditionSource` `extractFromFacts` emits from that call — a skill with
-   * both a self-only buff and an ally-only buff in the same facts array can't be bound per-buff-line
-   * without a positional heuristic (no concrete example of that shape found so far). See TODO.md for
-   * the open curation-sweep item this leaves (the ~276 skills with an ambiguous "Number of Targets"
-   * only reading).
+   * (Healing Rain, Healing Seed, and — confirmed this sweep — Healing Turret's id 5857 variant).
+   * Resolved once per skill/trait's flat facts array and applied uniformly to every
+   * `BoonConditionSource` `extractFromFacts` emits from that call — a skill with both a self-only
+   * buff and an ally-only buff in the same facts array can't be bound per-buff-line without a
+   * positional heuristic. Concrete examples of that exact shape turned up this sweep (Guardian's
+   * Tome of Courage, Willbender's Phoenix Protocol — both mix self-only and party-wide boons
+   * depending on which OTHER trait is chosen) but were left unresolved rather than mis-curated; see
+   * `TARGET_COUNT_OVERRIDES`' doc comment. See TODO.md for the still-open, much larger curation-sweep
+   * item this leaves (the ~399 skills/traits with an ambiguous "Number of Targets"-only reading).
    */
   targetCount: number | null
 }
 
+/** A wiki-confirmed decision for a source with no target-count fact of its own (`resolveTargetCount`
+ *  would otherwise return `null`): a number is the confirmed ally count to show instead; `'self'`
+ *  documents "confirmed self-only, `null` is correct" so a future sweep doesn't re-research it. */
+type TargetCountOverride = number | 'self'
+
+/**
+ * Curation sweep (2026-08-06) of every skill/trait that grants a tracked boon (`BOON_NAMES`) with a
+ * `Radius` fact but no `Number` fact of any kind — the bucket `BoonConditionSource.targetCount`'s doc
+ * comment calls out by name (Healing Turret, Symbol of Protection, "Guard!", etc.). Each entry below
+ * was checked against its own wiki page (and, where the boon is trait-gated, the gating trait's own
+ * page) rather than assumed from the `Radius` fact's mere presence — several skills here have a
+ * `Radius` fact for an unrelated area (a trap's foe-trigger zone, a gadget's knockdown puddle, a
+ * teleport's landing circle) while the boon itself is actually self-only, and would have been
+ * mis-curated as party-wide by that heuristic alone. Where the wiki doesn't state an explicit ally
+ * cap, 5 is used — GW2's standard "nearby allies" pulse cap, confirmed explicitly on enough sources
+ * in this same sweep (Healing Turret, Phalanx Strength, Tidal Surge, Chaos Storm) to treat as the
+ * default for the rest rather than a guess.
+ *
+ * Deliberately NOT covered here: the much larger ~399-entry "ambiguous `Number of Targets`" bucket
+ * (the OTHER half of the same TODO.md item) — that fact's ambiguity (enemy-hit count on some skills,
+ * reused as an ally count on others, e.g. Healing Rain) needs its own separate sweep, not this one.
+ * Also NOT covered: Tome of Courage (ids 42259/42371/68646/68650) and the Willbender's Phoenix
+ * Protocol (trait 2195) — both found to have a genuine mix of self-only and party-wide boons in the
+ * SAME facts array depending on which OTHER trait is chosen (Guardian's Inspired Virtue/Indomitable
+ * Courage; Willbender's Battle Presence), which this table's one-value-per-source shape can't express
+ * (`targetCount` is computed once per source and applied uniformly to every boon line it emits — see
+ * `BoonConditionSource.targetCount`'s doc comment on why a positional/per-buff-line split isn't
+ * implemented). Concrete real-world example of the gap that doc comment says wasn't found yet — see
+ * TODO.md.
+ */
+const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> } = {
+  skill: {
+    // Lightning Flash (Elementalist cantrip). Resistance only exists with Soothing Disruption
+    // ("Cantrips grant boons") traited — that trait's own page states no radius/ally wording, and
+    // unlike every confirmed party-wide entry below, no Radius fact is gated to the Resistance fact
+    // itself (the skill's own Radius(120) is the teleport landing circle, unrelated). Self-only.
+    5536: 'self',
+    // Healing Turret (Engineer heal, this specific id has no local Number fact — a sibling id 5857
+    // does carry one, itself part of the separate ambiguous-fact bucket this sweep excludes).
+    // Wiki confirms "regenerates you and your allies," Radius(480) tied directly to the Regeneration
+    // fact, and an explicit "Number of Targets: 5" on the tooltip.
+    6140: 5,
+    // "Guard!" (Ranger pet command). Wiki confirms the pet's damage-redirect ("guard") effect reaches
+    // 5 allies via Radius(600), but the Might itself is explicitly self-only: "Gain might when your
+    // pet receives damage" — granted to the ranger, not the guarded allies. Same for Lesser "Guard!".
+    12632: 'self',
+    69183: 'self',
+    // Lesser Chaos Storm (Mesmer phantasm proc). Description states outright: "applies random
+    // conditions to foes and boons to allies." The full Chaos Storm's own wiki page confirms a single
+    // "Number of Targets: 5" fact shared between foes and allies (no separate allied-only count).
+    13733: 5,
+    // Bandage Self (Engineer heal). Protection is gated on Expert Examination (1999), whose own page
+    // confirms "grants protection to nearby allies" — wiki notes this specific grant actually comes
+    // from the associated toolbelt skill's use, not Bandage Self itself, but the API attaches the
+    // fact to this skill id regardless, so the party-wide reach is what would display if it renders.
+    29772: 5,
+    // Infusing Terror (Necromancer Reaper Shroud). Wiki confirms Stability is granted "upon initial
+    // activation of the shroud" to the necromancer only; Radius(360) is the separate fear pulse on
+    // foes when the skill is reactivated, unrelated to the Stability grant. Self-only.
+    29958: 'self',
+    // Purification / Procession of Blades / Light's Judgment (Guardian traps). All three share the
+    // same "Boon on Trap Trigger" tooltip template with no allies wording — wiki confirms Purification
+    // and Procession of Blades are self-only ("benefits only the activating player" / no ally
+    // mention); Light's Judgment follows the same template and is treated the same way. Their Trigger/
+    // Attack Radius facts are the trap's foe-detection and damage area, unrelated to the boon.
+    30025: 'self',
+    30364: 'self',
+    30871: 'self',
+    // Slick Shoes (Engineer gadget, both ids). Wiki: "the stability benefit is granted to the
+    // engineer performing the action, not to nearby allies" — Radius is the oil-slick knockdown puddle
+    // behind the engineer, unrelated to Stability.
+    30828: 'self',
+    50472: 'self',
+    // Tidal Surge (Elementalist water). Wiki confirms "the user and 4 other allies" (5 total) via the
+    // Healing Radius(360) fact, which is tied directly to the Regeneration/heal.
+    30864: 5,
+    // Infusion Bomb (Engineer bomb, both ids). Description states outright "grants boons to nearby
+    // allies when it explodes," Radius(300) tied directly to the boon pulse. No explicit wiki count —
+    // 5 used (see table doc comment).
+    50444: 5,
+    58104: 5,
+    // Transmute Fire (Elementalist fire aura proc). Description states outright "damaging enemies and
+    // benefiting allies" — Might goes to allies (Burning to foes), Radius(240) tied to the explosion.
+    51711: 5
+  },
+  trait: {
+    // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
+    // and each one's OWN description explicitly says "nearby allies" (or "yourself and nearby
+    // allies") — no ambiguity to resolve, just the missing count. Phalanx Strength is the one with an
+    // explicit wiki count ("applies to 4 other targets", i.e. 5 total); the rest use 5 by the same
+    // default (see table doc comment).
+    677: 5, // Master of Manipulation (Mesmer) — "Manipulations grant aegis to yourself and nearby allies."
+    965: 5, // Spirited Arrival (Ranger) — "Grant boons to nearby allies when swapping pets."
+    1697: 5, // Invigorating Bond (Ranger) — "Beast skills heal allies around the ranger."
+    1711: 5, // Phalanx Strength (Warrior) — wiki: "Applies to 4 other targets" (5 total).
+    1948: 5, // Hardy Conduit (Elementalist) — "Overloads grant protection to nearby allies."
+    1952: 5, // Gale Song (Elementalist) — "Grant protection to nearby allies when you use a healing skill."
+    1999: 5, // Expert Examination (Engineer) — see skill 29772's comment above.
+    2042: 5, // Heat the Soul (Warrior) — "Grant boons to nearby allies when you hit an enemy with a Burst skill."
+    2052: 5, // Kinetic Accelerators (Engineer) — "Grant boons to nearby allies when you...combo a field..."
+    2105: 5, // Stoic Demeanor (Guardian) — "Grant boons to nearby allies when you disable, immobilize, or slow an enemy."
+    2154: 5, // Endless Enmity (Revenant) — "Grant fury to yourself and nearby allies when you critically strike a foe."
+    2237: 5 // River's Flow (Elementalist) — "Grant boons to nearby allies and gain positive flow when swapping to the gunsaber."
+    // Phoenix Protocol (trait 2195, Willbender) deliberately excluded — see this table's top comment.
+  }
+}
+
 /** The only reliable "this reaches up to N allies" signal in the API's fact data — see
  *  `BoonConditionSource.targetCount`'s doc comment for why nothing else (the enemy-facing "Number
- *  of Targets" fact, or the absence of any Number fact at all) is trustworthy enough to use here. */
-function resolveTargetCount(facts: Fact[]): number | null {
+ *  of Targets" fact, or the absence of any Number fact at all) is trustworthy enough to use here.
+ *  Falls back to `TARGET_COUNT_OVERRIDES` (a curated, wiki-verified per-source decision) when the
+ *  fact data itself has no signal at all. */
+function resolveTargetCount(facts: Fact[], sourceKind: 'skill' | 'trait', sourceId: number): number | null {
   const alliedFact = facts.find((f) => f.type === 'Number' && f.text === 'Number of Allied Targets' && typeof f.value === 'number')
-  return typeof alliedFact?.value === 'number' ? alliedFact.value : null
+  if (typeof alliedFact?.value === 'number') return alliedFact.value
+  const override = TARGET_COUNT_OVERRIDES[sourceKind][sourceId]
+  return typeof override === 'number' ? override : null
 }
 
 /**
@@ -129,7 +247,7 @@ function extractFromFacts(
   const out: BoonConditionSource[] = []
   const emittedOverriddenStatuses = new Set<string>()
   const combinedFacts = [...facts, ...traitedFacts]
-  const targetCount = resolveTargetCount(combinedFacts)
+  const targetCount = resolveTargetCount(combinedFacts, sourceKind, sourceId)
   for (const fact of combinedFacts) {
     if (fact.type !== 'Buff' || typeof fact.status !== 'string' || typeof fact.duration !== 'number') {
       continue

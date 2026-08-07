@@ -2,6 +2,42 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 95 — Curated the no-Number-fact-but-confirmed-party-wide bucket from Session 94's TODO
+
+Picked up the smaller of Session 94's two follow-up buckets: sources with a tracked boon (`BOON_NAMES`)
+and a `Radius` fact but no `Number` fact of any kind. A fresh scan (fixing the prior session's own
+count — `Radius` facts use `type: "Distance"`, not `type: "Radius"`) found 33 real candidates (20
+skills + 13 traits), not the ~25 Session 94 estimated from a handful of examples.
+
+Wiki-verified every one individually rather than trusting the `Radius` fact's presence — several
+turned out to be false positives, self-only boons that merely happen to share a facts array with an
+unrelated `Radius` (a trap's foe-trigger zone, a gadget's knockdown puddle, a teleport's landing
+circle, Ranger's "Guard!" pet-guard radius vs. its actually-self-only Might): Lightning Flash,
+"Guard!"/Lesser "Guard!", Infusing Terror, Purification, Procession of Blades, Light's Judgment, and
+both Slick Shoes ids confirmed self-only. The remaining 21 (7 skills, incl. both Infusion Bomb ids,
+Healing Turret, Lesser Chaos Storm, Tidal Surge, Transmute Fire, Bandage Self; 12 traits, e.g. Phalanx
+Strength, Master of Manipulation, Heat the Soul) confirmed genuinely party-wide, mostly at the
+game's standard "nearby allies" cap of 5 (explicit on the wiki for Healing Turret/Phalanx
+Strength/Tidal Surge/Chaos Storm; used as the documented default elsewhere none stated a number).
+
+New `TARGET_COUNT_OVERRIDES` table in `src/shared/boon-calc/sources.ts` (shaped like the existing
+curated-coefficient tables, e.g. `CURATED_BARRIER_COEFFICIENTS`) holds the decision — a number for
+confirmed party-wide, `'self'` to document a confirmed self-only source so a future sweep doesn't
+re-research it. `resolveTargetCount` now falls back to it only when the fact data has no signal of
+its own; the "Number of Allied Targets"/ambiguous-fact fact-reading logic is unchanged.
+
+Found two concrete examples of the "self-only and party-wide boon in the same facts array" gap
+`BoonConditionSource.targetCount`'s doc comment previously said had no known instance: Guardian's Tome
+of Courage (Aegis stays self unless Inspired Virtue/Indomitable Courage are also chosen; Stability/
+Protection are party-wide only via those traits) and Willbender's Phoenix Protocol trait (self-only
+unless Battle Presence is also traited). Left both out of the override table rather than force a
+wrong uniform value — logged in TODO.md and in the table's own doc comment. `npm run typecheck` and
+`npm run lint` both clean; not spot-checked live (Electron sandbox limitation).
+
+The other, much larger bucket from Session 94 — the ~399 (not 276; corrected count) skills/traits
+with only the ambiguous enemy-facing `"Number of Targets"` fact — is still untouched, left for its own
+future sweep per the user's explicit pacing choice this session.
+
 ## Session 94 — Boon tab / Squad tab: self vs. party-wide boon target counts
 
 Picked up the TODO item to distinguish self-only vs. party-wide boon sources. The TODO's own

@@ -161,25 +161,32 @@ that before extending either further, and before the tooltip visual-pass item be
 
 ## Stats panel / boon-condition bar polish
 
-- [ ] Curation sweep: resolve the ~276 skills whose only target-count signal is the ambiguous
-      `"Number of Targets"` fact (no `"Number of Allied Targets"`), so `BoonConditionSource.
-      targetCount` (`src/shared/boon-calc/sources.ts`, landed 2026-08-06 — see COMPLETED.md) can
-      show a badge for them instead of `null`/nothing. Confirmed via a full scan of
-      `data/game-data/skills.json` this session that this fact is genuinely ambiguous, not just
-      theoretically: some skills mean "self-only boon + N enemies hit separately" (Heat Wave: Vigor
-      to self, Burning to 5 foes; also Convergence, Lightning Leap), others reuse the same label to
-      mean an ally count on a pure support skill (Healing Rain, Healing Seed — Regeneration to up to
-      5 allies, no enemies involved). Also unresolved: ~25+ skills with a boon + a Radius fact but
-      **no** Number fact of any kind that are nonetheless confirmed party-wide by their own
-      description/kit (Engineer's Healing Turret, Guardian's Symbol of Protection, Warrior's
-      "Guard!", Mesmer's Lesser Chaos Storm, Ranger's Purification/Procession of Blades, Engineer's
-      Slick Shoes) — `targetCount` currently reads `null` for these too (correctly avoids the wrong
-      "self-only" label an earlier pass would have given them, but still shows no badge at all).
-      Needs a curated override table shaped like `wvwFactOverrides` (wiki-verified per skill), same
-      pacing as the Healing/Damage coefficient sweeps — not attempted this session, scope declined
-      in favor of shipping the unambiguous 88-skill (+7-Tome-chapter) signal first. Stationary
-      sources (banners/wells/spirits) fall into this same ambiguous/no-fact bucket and haven't been
-      separately spot-checked.
+- [ ] Curation sweep: resolve the ~399 skills/traits (357 skills + 42 traits — corrected count from a
+      2026-08-06 rescan; not the ~276 estimated 2026-08-05) whose only target-count signal is the
+      ambiguous `"Number of Targets"` fact (no `"Number of Allied Targets"`), so
+      `BoonConditionSource.targetCount` (`src/shared/boon-calc/sources.ts`) can show a badge for them
+      instead of `null`/nothing. Confirmed via a full scan of `data/game-data/skills.json` that this
+      fact is genuinely ambiguous, not just theoretically: some skills mean "self-only boon + N
+      enemies hit separately" (Heat Wave: Vigor to self, Burning to 5 foes; also Convergence,
+      Lightning Leap), others reuse the same label to mean an ally count on a pure support skill
+      (Healing Rain, Healing Seed, Healing Turret's id-5857 variant — Regeneration to up to 5 allies,
+      no enemies involved; the equivalent id-6140 variant with no Number fact at all is already
+      curated, see below). Needs a curated override table shaped like `wvwFactOverrides`
+      (wiki-verified per skill), same pacing as the Healing/Damage coefficient sweeps. The smaller
+      sibling bucket — boon + Radius fact but no Number fact of any kind — was swept 2026-08-06 (see
+      COMPLETED.md, `TARGET_COUNT_OVERRIDES` in `sources.ts`); this larger bucket is still untouched.
+      Stationary sources (banners/wells/spirits) fall into this same ambiguous/no-fact bucket and
+      haven't been separately spot-checked.
+- [ ] Two concrete examples turned up 2026-08-06 of a gap `BoonConditionSource.targetCount`'s doc
+      comment previously said had no known instance: a skill/trait whose facts array mixes a
+      self-only boon and a party-wide boon, distinguishable only by which OTHER trait is chosen —
+      not expressible by `TARGET_COUNT_OVERRIDES`' one-value-per-source shape. Guardian's Tome of
+      Courage (ids 42259/42371/68646/68650): its base Aegis proc is self-only, but Stability
+      (Indomitable Courage) and Protection (Inspired Virtue) become party-wide only when those
+      specific traits are also chosen. Willbender's Phoenix Protocol (trait 2195): its Alacrity/
+      Regeneration/Resolution are self-only unless Battle Presence (trait 554) is also chosen. Needs
+      a per-buff-line (not per-source) target-count model to resolve correctly — scoping, not a
+      one-off patch.
 - [ ] Minor, unconfirmed: possible Ascended-vs-Exotic filter tabs on the itemstat-combo picker — no
       screenshot exists confirming this is real; leave as-is unless it resurfaces with a concrete
       example.
