@@ -99,6 +99,7 @@ function extractFromFacts(
   classify: (status: string) => BoonConditionCategory | null = classifyBoonCondition
 ): BoonConditionSource[] {
   const out: BoonConditionSource[] = []
+  const emittedOverriddenStatuses = new Set<string>()
   for (const fact of [...facts, ...traitedFacts]) {
     if (fact.type !== 'Buff' || typeof fact.status !== 'string' || typeof fact.duration !== 'number') {
       continue
@@ -108,6 +109,17 @@ function extractFromFacts(
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
 
     const wvwOverride = wvwOverrides?.[fact.status]
+    if (wvwOverride !== undefined) {
+      // A curated override means the API bakes this status's per-game-mode values into multiple
+      // raw facts with no discriminator (see fetch-wvw-splits.ts's "Multiple Buff facts sharing
+      // one status" doc comment) — those facts represent the SAME application seen in different
+      // modes, not separate simultaneous applications, so only the first is ever emitted. This is
+      // distinct from the common case of a real multi-hit/multi-pulse skill genuinely applying the
+      // same status more than once per cast (no override present there), which must still emit one
+      // row per hit.
+      if (emittedOverriddenStatuses.has(fact.status)) continue
+      emittedOverriddenStatuses.add(fact.status)
+    }
     if (wvwOverride === 'omit') continue
     const baseDuration = typeof wvwOverride === 'number' ? wvwOverride : fact.duration
 

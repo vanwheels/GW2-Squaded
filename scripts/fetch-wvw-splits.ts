@@ -17,11 +17,27 @@
  *
  * Wikitext fact-template parsing is inherently a bit fragile (naive `|`-splitting can misparse a
  * `[[Link|text]]` pipe embedded in a later field), so every parsed value is cross-validated
- * against the already-fetched API duration before being trusted — see `validateAndBuildOverride`.
- * Anything ambiguous (multiple Buff facts sharing a status on one id, multiple same-game-mode
- * fact lines for one boon on one page, a parsed PvE value that doesn't match the API's) is
- * skipped and logged rather than guessed, same fail-safe philosophy as
- * scripts/fetch-elite-spec-skills.ts.
+ * against the already-fetched API duration before being trusted — see `resolveOverride`.
+ * Anything ambiguous (multiple same-game-mode fact lines for one boon on one page, a parsed PvE
+ * value that doesn't match any of the API's) is skipped and logged rather than guessed, same
+ * fail-safe philosophy as scripts/fetch-elite-spec-skills.ts.
+ *
+ * **Multiple Buff facts sharing one status on one id** (`statusCounts.get(boonName) > 1`): live-
+ * verified 2026-08-06 while investigating Firebrand Mantra final-charge skills (Overwhelming
+ * Celerity, Flame Surge/Rush, ...) — most of the time this is a genuine multi-hit/multi-pulse
+ * mechanic (a 4-shot volley applying Bleeding on each hit; ~550 skills/traits in the local data fit
+ * this shape) where showing every application separately is correct and this script must NOT touch
+ * it. But a handful are actually one PvE/PvP/WvW-specific value per raw fact with no discriminator
+ * at all (confirmed via raw wikitext, e.g. Overwhelming Celerity's Might: `{{skill fact|might|10|
+ * game mode=pve}}{{skill fact|might|6|game mode=pvp wvw}}` maps 1:1 onto its 2 raw API Might
+ * facts). `resolveOverride` only resolves this shape when the wiki's PvE-tagged AND WvW-tagged
+ * values can BOTH be found among that status's actual raw API durations (not just one of the two,
+ * unlike the single-fact case below) — this catches cases where the locally-cached API data has
+ * drifted from the wiki's current numbers (e.g. Potent Haste's Quickness: wiki says pve=2.5/
+ * wvw=1, but the cached API facts are {3, 1} — 2.5 doesn't appear anywhere in that set, so it's
+ * skipped rather than trusting the coincidental wvw-side match). `sources.ts`'s `extractFromFacts`
+ * is what actually collapses the raw duplicate facts down to the single overridden row at read
+ * time — this script only decides which value that row should show.
  *
  * Run manually via `npm run fetch-wvw-splits`, after `npm run fetch-game-data` (matches wiki page
  * titles against the already-fetched data/game-data/{skills,traits}.json by name).
@@ -46,6 +62,14 @@ function sleep(ms: number): Promise<void> {
 }
 
 const NAME_BY_LOWER = new Map<string, string>([...BOON_NAMES, ...CONDITION_NAMES].map((n) => [n.toLowerCase(), n]))
+/** Shorthand/alternate names the wiki's `{{skill fact|...}}`/`{{trait fact|...}}` templates use
+ *  for a boon/condition instead of its canonical API `Fact.status` string (found live 2026-08-06 on
+ *  Firebrand Mantra pages — "Blind" for Blinded, "immobilized" for Immobile). Without these, a
+ *  wikitext line using the alt name is silently dropped by `parseFactLines` (not in `NAME_BY_LOWER`
+ *  at all) rather than logged, so the boon/condition it splits ends up looking simply unsplit —
+ *  add more here if a future page turns up another alias, rather than guessing at others upfront. */
+const WIKI_NAME_ALIASES: Record<string, string> = { blind: 'Blinded', immobilized: 'Immobile' }
+for (const [alias, canonical] of Object.entries(WIKI_NAME_ALIASES)) NAME_BY_LOWER.set(alias, canonical)
 
 /** Wiki article titles for shout-style skills keep surrounding quote marks the API's skill.name
  *  drops (or vice versa) — try both forms, same helper as fetch-elite-spec-skills.ts. */
@@ -134,22 +158,24 @@ interface CandidateObject {
   id: number
   name: string
   statusCounts: Map<string, number> // boon/condition name -> count of Buff facts with that status
-  statusDuration: Map<string, number> // boon/condition name -> that fact's API duration (only set when count===1)
+  statusDurations: Map<string, number[]> // boon/condition name -> every one of those facts' own API durations, in order
 }
 
 function collectCandidates(objects: (Skill | Trait)[], kind: 'skill' | 'trait'): Map<string, CandidateObject[]> {
   const byName = new Map<string, CandidateObject[]>()
   for (const obj of objects) {
     const statusCounts = new Map<string, number>()
-    const statusDuration = new Map<string, number>()
+    const statusDurations = new Map<string, number[]>()
     for (const fact of [...obj.facts, ...obj.traitedFacts]) {
       if (fact.type !== 'Buff' || typeof fact.status !== 'string' || typeof fact.duration !== 'number') continue
       if (!NAME_BY_LOWER.has(fact.status.toLowerCase())) continue
       statusCounts.set(fact.status, (statusCounts.get(fact.status) ?? 0) + 1)
-      statusDuration.set(fact.status, fact.duration)
+      const durations = statusDurations.get(fact.status) ?? []
+      durations.push(fact.duration)
+      statusDurations.set(fact.status, durations)
     }
     if (statusCounts.size === 0) continue
-    const candidate: CandidateObject = { kind, id: obj.id, name: obj.name, statusCounts, statusDuration }
+    const candidate: CandidateObject = { kind, id: obj.id, name: obj.name, statusCounts, statusDurations }
     const list = byName.get(obj.name) ?? []
     list.push(candidate)
     byName.set(obj.name, list)
@@ -158,6 +184,10 @@ function collectCandidates(objects: (Skill | Trait)[], kind: 'skill' | 'trait'):
 }
 
 const EPSILON = 0.01
+
+function containsWithinEpsilon(durations: number[], target: number): boolean {
+  return durations.some((d) => Math.abs(d - target) <= EPSILON)
+}
 
 /** Given all parsed wiki fact-lines for one boon/condition name on one page, decides whether
  *  there's a clean, unambiguous game-mode split and what the WvW override should be. Returns
@@ -169,10 +199,9 @@ function resolveOverride(
   pageTitle: string,
   log: string[]
 ): WvwFactOverride | undefined {
-  if ((candidate.statusCounts.get(boonName) ?? 0) !== 1) {
-    log.push(`skip (cardinality): ${candidate.kind} ${candidate.id} "${pageTitle}" has ${candidate.statusCounts.get(boonName)} "${boonName}" Buff facts, not 1`)
-    return undefined
-  }
+  const factCount = candidate.statusCounts.get(boonName) ?? 0
+  const apiDurations = candidate.statusDurations.get(boonName) ?? []
+
   const withMode = lines.filter((l) => l.gameModeTokens !== null)
   const withoutMode = lines.filter((l) => l.gameModeTokens === null)
   if (withMode.length === 0) return undefined // not actually split for this boon, nothing to do
@@ -182,14 +211,54 @@ function resolveOverride(
     return undefined
   }
 
+  // Bucket by explicit 'pve'/'wvw' token, not "wvw" vs "everything else" — a genuine 3-way split
+  // (pve/wvw/pvp each their own separate {{skill fact}} line, e.g. Echo of Truth's Crippled: pve=4,
+  // wvw=2, pvp=1) was previously miscounted as 2 "PvE-side" lines (the pve AND the pvp-only lines
+  // both fell into the "not wvw" bucket), always tripping this ambiguity check even though it's
+  // perfectly resolvable — live-verified 2026-08-06, ~80 pages hit this across the full dataset. A
+  // pvp-only line (tagged neither 'pve' nor 'wvw') is outside this app's PvE-default/WvW-override
+  // model and is simply ignored, not counted toward either bucket.
   const wvwLines = withMode.filter((l) => l.gameModeTokens!.includes('wvw'))
-  const pveLines = withMode.filter((l) => !l.gameModeTokens!.includes('wvw'))
+  const pveLines = withMode.filter((l) => l.gameModeTokens!.includes('pve'))
   if (wvwLines.length > 1 || pveLines.length > 1) {
     log.push(`skip (ambiguous multi-entry): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName}`)
     return undefined
   }
 
-  const apiDuration = candidate.statusDuration.get(boonName)!
+  if (factCount > 1) {
+    // Multiple raw Buff facts share this status with no discriminator — see this file's own top
+    // comment ("Multiple Buff facts sharing one status on one id"). Only resolvable when BOTH the
+    // wiki's PvE-tagged AND WvW-tagged values can be found among the actual raw API durations
+    // (not just one of the two) — requiring both catches locally-cached API data that's drifted
+    // from the wiki's current numbers, where trusting a single coincidental match would silently
+    // apply the wrong override. `sources.ts`'s `extractFromFacts` collapses every raw fact for
+    // this status down to one row using this override at read time, once it exists.
+    if (pveLines.length !== 1) {
+      log.push(`skip (cardinality ${factCount}, no clean single pve line): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName}`)
+      return undefined
+    }
+    if (!containsWithinEpsilon(apiDurations, pveLines[0].duration)) {
+      log.push(
+        `skip (cardinality ${factCount}, validation mismatch): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName} — API=[${apiDurations.join(', ')}], parsed PvE=${pveLines[0].duration}`
+      )
+      return undefined
+    }
+    if (wvwLines.length === 0) return 'omit'
+    if (!containsWithinEpsilon(apiDurations, wvwLines[0].duration)) {
+      log.push(
+        `skip (cardinality ${factCount}, validation mismatch): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName} — API=[${apiDurations.join(', ')}], parsed WvW=${wvwLines[0].duration}`
+      )
+      return undefined
+    }
+    return wvwLines[0].duration
+  }
+
+  if (factCount === 0) {
+    log.push(`skip (no matching Buff fact on object): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName}`)
+    return undefined
+  }
+
+  const apiDuration = apiDurations[0]
 
   if (pveLines.length === 1 && wvwLines.length === 1) {
     if (Math.abs(apiDuration - pveLines[0].duration) > EPSILON) {

@@ -178,11 +178,17 @@ that before extending either further, and before the tooltip visual-pass item be
       screenshot exists confirming this is real; leave as-is unless it resurfaces with a concrete
       example.
 
-## Skill picker follow-ups
+## WvW-fact-override follow-ups (`fetch-wvw-splits.ts`)
 
-- [ ] Unconfirmed edge case: whether any skill has a distinctly different effect specifically on its
-      last charge before recharging (vs. every charge being identical) — no concrete example found
-      to verify against; revisit if one surfaces.
+- [ ] Overwhelming Celerity's Quickness (skill 41988) stays un-curated: the wiki's current WvW
+      value (2.5s) doesn't appear anywhere in the cached API's raw duration set (`[5, 4, 3]`) for
+      that status, so the tooltip still shows all 3 raw values stacked. Likely the cached API data
+      just hasn't caught up to the 2025-04-15 balance patch yet for this specific fact — re-check
+      after the next `fetch-game-data`+`fetch-wvw-splits` refresh.
+- [ ] 2 traits (Martial Cadence's Quickness, Kinetic Accelerators' Fury) have a boon documented on
+      the wiki under a `game mode=pvp`-only tag with no separate pve/wvw line at all — conservatively
+      left un-curated (no safe way to tell whether that implies omit-in-WvW or something else)
+      rather than guessed. Very low priority; only 2 known instances.
 
 ## Nice-to-haves
 

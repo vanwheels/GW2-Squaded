@@ -2,6 +2,65 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 92 — Firebrand Mantra tooltip found the real "last charge" example, and a real boon-calc over-counting bug
+
+User's screenshots of Firebrand's Rejuvenating Respite/Overwhelming Celerity ("Final Charge" mantra
+attacks) confirmed the TODO.md "unconfirmed last-charge edge case" is real (Firebrand Mantras'
+final charge grants extra boons no earlier charge does — already displayed correctly), but also
+surfaced a genuine, previously-undiscovered bug: the same tooltips showed some boons duplicated
+2-3x at different durations (e.g. "Quickness: 9.62s / 7.69s / 5.77s").
+
+**Root cause (verified against the live API, not assumed):** `/v2/skills`' `facts` array has no
+`game mode` tag. For most skills that's harmless (one value = the only value), but a handful of
+ids — confirmed via raw wikitext — bake 2-3 raw Buff facts for the SAME status into the array, one
+per PvE/PvP/WvW value, with nothing distinguishing them. `extractFromFacts` (`boon-calc/sources.ts`)
+walked every Buff fact unconditionally, so these ids showed (and *counted*, in the real boon-uptime
+calculator, not just the tooltip) each mode's value as if it were a separate simultaneous
+application from one cast.
+
+**Scope check before fixing anything:** a full local scan found this same "N facts, same status"
+shape on ~550 other skill/trait ids — but confirmed (by wiki-checking a sample) that the vast
+majority are genuine multi-hit/multi-pulse mechanics (a 4-shot volley applying Bleeding on each
+hit) where showing every application separately is correct, not a bug. Firebrand's Mantra
+final-charge/charge-attack family (12 ids: 6 mantras × normal-charge + final-charge) is a confirmed,
+narrow exception — user chose to fix just this family this session, not attempt the full 550.
+
+- **Fix, `sources.ts`:** `extractFromFacts` now collapses same-status facts to a single emitted row
+  whenever a curated `wvwFactOverrides` entry exists for that status — since an override only ever
+  gets curated for a genuine mode-split, never a real multi-hit skill (see below). Every other
+  (uncurated) duplicate-status skill is completely unaffected — still emits one row per raw fact,
+  unchanged.
+- **Fix, `fetch-wvw-splits.ts`:** extended `resolveOverride`/`collectCandidates` to resolve the
+  `factCount > 1` case at all (previously an unconditional skip) — only when BOTH the wiki's
+  PvE-tagged and WvW-tagged values for that status can be found among the id's actual raw API
+  durations, which doubles as protection against curating a stale/mismatched value (Overwhelming
+  Celerity's Quickness correctly stays un-curated: wiki's current WvW value 2.5 isn't in the cached
+  API's `[5, 4, 3]` at all — likely the API just hasn't caught up to a 2025-04-15 balance patch).
+  Also fixed a real pre-existing bug the investigation surfaced: wiki lines were bucketed "wvw" vs.
+  "not wvw" instead of explicit "pve" vs. "wvw" tokens, so any genuine 3-way pve/wvw/pvp split (3
+  separate fact lines, common on these Mantra pages) always tripped the "ambiguous multi-entry"
+  check even when perfectly resolvable. Also added 2 wiki-shorthand aliases ("Blind"->Blinded,
+  "immobilized"->Immobile) found missing while tracing why 2 of the 12 pages weren't resolving.
+- **Re-ran `fetch-wvw-splits`** (full ~1100-page sweep — this script is specifically designed to be
+  safely re-run after a balance patch, its whole documented purpose). Diffed the full output
+  before/after: 97 skills + 60 traits gained entries, 13 skills + 14 traits gained additional keys
+  on an already-curated id, **zero previously-curated values changed or were removed** except 2
+  traits (Martial Cadence/Kinetic Accelerators) that lost an accidentally-correct `'omit'` the old,
+  looser bucketing had produced for a `game mode=pvp`-only line with no pve/wvw line at all — the
+  new code correctly declines to guess there instead of trusting a coincidence; logged as a known,
+  very-low-priority gap in TODO.md rather than special-cased for 2 ids.
+- End result for the 12 Mantra-family ids: Overwhelming Celerity's Might, Flame Surge/Rush's
+  Burning, Echo of Truth's Crippled/Weakness/Blinded, and Voice of Truth's Vulnerability/Immobile/
+  Weakness/Blinded all now collapse to one correct WvW-scaled row instead of showing duplicates.
+  Rejuvenating Respite/Potent Haste/Opening Passage/Clarified Conclusion's boons turned out to have
+  no real split at all (verified against the wiki) — their only remaining oddity is a duplicated
+  "Charge Recovery" cosmetic field (10s/12s, sometimes a 3rd "18s") the wiki doesn't document a
+  split for at all; left alone since it's Time-type (never read by boon-calc, cosmetic only) and
+  genuinely unexplained — not worth guessing at.
+- `npm run typecheck`/`npm run lint` both clean. Verified end-to-end with a standalone script
+  reproducing `extractFromFacts`' new logic against the real post-refetch data before trusting it.
+  Not visually spot-checked in the running app (Electron sandbox limitation).
+
 ## Session 91 — Resolved the last "Skill picker follow-ups" item: Ranger's Eternal Bond (Profession_4)
 
 User asked to finish the "skill picker follow-ups" TODO section. Re-checked the "Eternal Bond"

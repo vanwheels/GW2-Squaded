@@ -453,6 +453,36 @@ side by side with no way to tell which applies where (e.g. Restoring Reprieve's 
 Protection+Resolution — PvE only — right alongside Aegis — WvW/PvP only) — so reading the API
 facts directly, un-adjusted, overstates what a WvW-focused build actually gets.
 
+**A rarer, more severe shape of the same gap (found 2026-08-06, Firebrand Mantra final-charge
+skills):** some ids bake 2-3 raw Buff facts for the SAME status into the array with no
+discriminator at all — e.g. Overwhelming Celerity's Might has 2 separate `duration: 10` and
+`duration: 6` facts, not one. Reading these un-deduplicated (the pre-fix behavior) showed the boon
+2-3x over in both the tooltip AND the real boon-uptime math, as if one skill use granted Quickness
+three separate times. `collectCandidates`/`resolveOverride` in `fetch-wvw-splits.ts` now handle
+this (`factCount > 1` branch) — only resolvable when BOTH the wiki's PvE-tagged and WvW-tagged
+values for that status can be found among the id's actual raw API durations, which also catches
+cases where the cached API data has drifted from the wiki's current numbers (Overwhelming
+Celerity's own Quickness fails this validation and stays un-curated: API has `[5, 4, 3]`, current
+wiki WvW value is `2.5` — not present in that set at all, so it's skipped and logged rather than
+trusted). `sources.ts`'s `extractFromFacts` is what actually collapses the raw duplicate facts to
+one row at read time, once a status has a curated override — every other (uncurated) same-status
+duplicate keeps emitting one row per raw fact unchanged, since the overwhelming majority of the
+~550 skill/trait ids with this shape are genuine multi-hit/multi-pulse mechanics (a 4-shot volley
+applying Bleeding on each hit) where that's correct, not a mode-split at all.
+
+Same session: fixed a real pre-existing bug in the wiki-line game-mode bucketing this whole
+mechanism depends on — a line tagged `game mode=pvp` only (neither `pve` nor `wvw`) was being
+counted as a "PvE" line (the old bucket was "not wvw", not "explicitly pve"), so any genuine 3-way
+pve/wvw/pvp split (3 separate `{{skill fact}}` lines, one per mode — common on Firebrand Mantra
+pages) always tripped the "more than one PvE-tagged line" ambiguity check even when perfectly
+resolvable. Fixed to bucket by explicit `pve`/`wvw` token presence, pvp-only lines simply ignored.
+This alone newly resolved 97 skills + 60 traits across the full dataset on re-run (156 vs. the
+prior 210 log lines skipped), all purely additive — no previously-curated value changed, confirmed
+by diffing the full file before/after. One rare residual: a status appearing ONLY under a
+`game mode=pvp`-only line (2 traits: Martial Cadence's Quickness, Kinetic Accelerators' Fury) has
+no explicit pve/wvw line to resolve from at all — conservatively left un-curated (logged as
+"skip (unhandled combination)") rather than assuming pvp-only implies omit-in-WvW.
+
 `scripts/fetch-wvw-splits.ts` (run via `npm run fetch-wvw-splits`, after `fetch-game-data`)
 sources the actual split from the wiki: `Category:Split skills` (1664 pages) / `Category:Split
 traits` (545 pages) are real, maintained lists of pages with a `{{skill fact|...|game
