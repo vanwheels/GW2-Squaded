@@ -288,13 +288,24 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     76800: 5,
 
     // --- Group A sweep (2026-08-06), Necromancer leg (3rd leg, smallest remaining profession per
-    // user's stated order): 21 skills. Well of Power (10609, 10673) and Mark of Blood (19117)
-    // deliberately excluded — see this table's top comment (genuine per-buff-line self/party-wide
-    // splits). Recurring pattern found across this leg: whenever the skill's own description phrases
-    // the grant in first person ("Gain X," referring to the necromancer) rather than "to allies"/
-    // "protects allies," the boon is confirmed self-only even when a Radius/Number-of-Targets fact is
-    // present alongside it (that fact governs the skill's separate foe-facing damage/condition
-    // component, not the boon).
+    // user's stated order): 18 skills (3 more — Plague Blast/Dhuumfire/Life Reap — were resolved but
+    // then dropped, see below). Well of Power (10609, 10673) and Mark of Blood (19117) deliberately
+    // excluded — see this table's top comment (genuine per-buff-line self/party-wide splits).
+    // Recurring pattern found across this leg: whenever the skill's own description phrases the grant
+    // in first person ("Gain X," referring to the necromancer) rather than "to allies"/"protects
+    // allies," the boon is confirmed self-only even when a Radius/Number-of-Targets fact is present
+    // alongside it (that fact governs the skill's separate foe-facing damage/condition component, not
+    // the boon).
+    //
+    // NOT included despite matching the sweep's boon-fact filter: Plague Blast (10690), its flip
+    // Dhuumfire (24287), and Life Reap (30278) — all three carry `slot: "Downed_1"` in the raw API
+    // data. `Build` has no downed-skill concept at all, and neither `skillIdsForBuild` nor
+    // `bundleContributionsForBuild` (see `NECRO_SHROUD_SLOT_SKILLS` in `bundle-skills.ts`, which
+    // deliberately omits 30278 as a non-entry-point Reaper Shroud chain id) ever produce these three
+    // ids for any build — `resolveTargetCount` can never be called with them, so curating an answer
+    // would be dead weight. Contrast with 29958 (Infusing Terror) above, also raw-labeled `Downed_3`
+    // but genuinely reachable as Reaper Shroud slot 3's real entry point in that same map — not every
+    // `Downed_`-slotted id is unreachable, only ones absent from a bundle-slot mapping.
     10527: 5, // Well of Blood (Necromancer heal). Wiki: "Conjure a well of blood to heal allies" —
     // Regeneration only, no caster-exclusive component (unlike Well of Power) — party-wide per its
     // own Number-of-Targets(5)/Radius(240).
@@ -307,13 +318,8 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     10619: 'self', // Deadly Feast. "Gain swiftness and summon a swarm of vampiric shrimp that siphon
     // health from nearby foes" — Swiftness is the caster's own, the Radius/Number-of-Targets facts
     // govern the shrimp's foe-siphon range instead.
-    10690: 'self', // Plague Blast (Downed_1 skill). Might only via Reaper's Might (trait 913,
-    // "Shroud skill 1 grants might") — a downed-state self-skill, no allies present. Flip skill of
-    // 24287 below (same id-pair pattern as other split/variant entries in this table).
     19115: 1, // Reaper's Mark (Necromancer staff mark). Stability only via Transfusion (trait 778) —
     // same one-ally-who-triggers mechanic as Chillblains above.
-    24287: 'self', // Dhuumfire (Downed_1 skill, flip of 10690) — same Reaper's Might-gated Might,
-    // same self-only downed-state reasoning.
     29414: 'self', // "You Are All Weaklings!" (Reaper shout). Wiki infobox description: "Damage foes
     // around you, and gain boons... gain boons per foe struck" — first-person "gain," caster-only;
     // the Number-of-Targets(5)/Radius facts scale how many foes struck, not an ally count.
@@ -325,9 +331,6 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     30105: 'self', // "Chilled to the Bone!" (Reaper elite shout). Same self-buff-scaling-with-foes-
     // struck pattern as "You Are All Weaklings!" above — wiki infobox: "Gain boons for each foe you
     // freeze," all four boons (Stability/Might/Fury/Quickness) are the caster's own.
-    30278: 'self', // Life Reap (Downed_1 skill, Reaper's downed Shroud replacement). Quickness only
-    // via Reaper's Onslaught (trait 2021, "Gain ferocity and quickness while in Reaper's Shroud") —
-    // self-only, matches the other Downed_1 entries in this leg.
     40274: 5, // Trail of Anguish (Scourge punishment). Wiki: "Grant boons to allies passing through
     // it" — Swiftness/Stability party-wide; its Number-of-Targets(10) fact governs the trail's
     // separate burning-on-enemies effect, not the ally count, so the standard 5 default is used.

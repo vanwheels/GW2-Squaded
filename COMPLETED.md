@@ -2,6 +2,38 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 99 — Fixed 3 unreachable Downed_-slot entries from Session 98's Necromancer leg
+
+The user asked, right after Session 98 landed, whether downed-state skills are excluded from the boon/
+condition tables — a question that turned up a real defect. `Build` has no downed-skill concept at all
+(no field for it anywhere in `src/shared/types`), and neither `skillIdsForBuild` nor
+`bundleContributionsForBuild` (`sources.ts`) ever produce a `slot: "Downed_*"` skill id for any build
+UNLESS that id is also a genuine bundle-slot entry point — e.g. Necromancer Reaper Shroud reuses the
+`Downed_1`-`Downed_4` labels in the raw API data for its real weapon-bar skills
+(`NECRO_SHROUD_SLOT_SKILLS` in `bundle-skills.ts`).
+
+3 of Session 98's 21 "resolved" skill ids — Plague Blast (10690), its flip Dhuumfire (24287), and Life
+Reap (30278) — all carry `slot: "Downed_1"` and are NOT in `NECRO_SHROUD_SLOT_SKILLS` (that map
+deliberately omits 30278 as a non-entry-point Shroud chain id, per `bundle-skills.ts`'s own comment).
+`resolveTargetCount` can never actually be called with these three ids for any real build, so curating
+an answer for them was dead weight — harmless (never read) but not real progress on the sweep. Removed
+from `TARGET_COUNT_OVERRIDES`, and the leg's comment block corrected to 18 skills (not 21), with a note
+explaining why (and contrasting with 29958/Infusing Terror, also raw-labeled `Downed_3` but genuinely
+reachable as Reaper Shroud slot 3's real entry point in the same map — not every `Downed_`-slotted id is
+dead, only ones absent from a bundle-slot mapping).
+
+A full-game re-scan for this same shape (boon fact + ambiguous Number fact + `Downed_*` slot) found
+exactly 2 more sitting in the still-open pool, unaffected by any leg yet: Engineer's Holo Leap (42965)
+and Corona Burst (44530), both real Holosmith downed skills. Left untouched (Engineer's leg hasn't
+started) but flagged in TODO.md so that leg's scan drops them immediately instead of researching a wiki
+answer that could never be displayed. Remaining pool re-estimated at ~243 (~205 skills + 38 traits, down
+from the previously-stated ~265 — netting a correction of +3 from Necromancer's overcount against -2 from
+excluding the newly-found dead Engineer ids from the baseline all remaining legs draw from, plus 5 total
+dead ids retroactively subtracted from the original ~318 count now that the exclusion rule is applied
+across the whole game rather than per-leg).
+
+`npm run typecheck` and `npm run lint` both clean.
+
 ## Session 98 — Necromancer leg of the Group A target-count sweep
 
 Third leg of Session 96's per-profession split (smallest-first, per the user's stated pacing
