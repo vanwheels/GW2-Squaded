@@ -159,6 +159,18 @@ type TargetCountOverride = number | 'self'
  * Blow, Shattering Blow, Gunstinger, Crushing Blow) where the boon doesn't appear in the skill's own
  * description text at all — checked each one's wiki page too, none states allies wording either, so
  * "no allies wording anywhere" was treated as equally reliable as explicit first-person phrasing.
+ *
+ * Ranger leg (7th leg, 2026-08-06/07): 37 skills + 6 traits, no exclusions needed. New recurring
+ * pattern: several skills grant their tracked boon specifically "to your pet" (Precision Swipe,
+ * Feeding Frenzy, Ancestral Grace's Protection line) — wiki-confirmed self-only for all three, since
+ * a pet is a fixed companion, never one of the squad allies this app tracks (consistent with the
+ * pre-existing "Guard!"/Lesser "Guard!" self-only entries above, which cover the reverse case: boon
+ * granted to the ranger FROM the pet's action). Also confirmed Untamed's Let Loose (trait 2271,
+ * "Unleashed Ambush skills grant boons to nearby allies") is a separate unconditioned bonus layered
+ * on top of any Unleashed Ambush skill use, NOT a `requires_trait` gate on those skills' own Buff
+ * facts — so Unleashed Thump/Relentless Whirl's own self-only Might/Fury/Stability facts are curated
+ * independently (self) rather than assumed party-wide from the trait's existence, while Solar
+ * Brilliance's own explicit "healing nearby allies" wording makes it party-wide on its own merits.
  */
 const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> } = {
   skill: {
@@ -582,8 +594,69 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     // Leftover "no profession tag" skills a fresh rescan turned up outside the original leg's scan.
     59591: 'self', // Invoke Torment. Resistance only via Fiendish Tenacity (trait 1720, "Resistance
     // heals you every interval" — first-person) — self-only.
-    76506: 1 // Lesser Chilblains. Protection only via Transfusion (trait 778) — same one-ally
+    76506: 1, // Lesser Chilblains. Protection only via Transfusion (trait 778) — same one-ally
     // mark-trigger mechanic as the base Chillblains/Reaper's Mark pair in the Necromancer leg.
+
+    // --- Group A sweep (2026-08-06/07), Ranger leg (7th leg): 37 skills. New recurring pattern this
+    // leg: several skills grant their boon specifically "to your pet" (a fixed companion, never a
+    // squad member the app tracks) rather than to the ranger or nearby allies — wiki-confirmed
+    // self-only for all three found (Precision Swipe, Feeding Frenzy, Ancestral Grace's Protection
+    // line specifically — its Regeneration-adjacent heal line targets allies but isn't a tracked boon).
+    12473: 'self', // Precision Swipe. Wiki: "Grants the pet a stack of might for each foe hit. While
+    // in Beastmode, grants might to the player" — never reaches other squad members either way.
+    12489: 5, // Healing Spring. "Place a trap that grants regeneration...on allies."
+    12493: 5, // Storm Spirit. "...granting boons to nearby allies" (Fury).
+    12494: 'self', // Lightning Reflexes. "gaining vigor" — first-person, self-only.
+    12495: 5, // Stone Spirit. "...granting boons to nearby allies" (Aegis/Protection).
+    12497: 5, // Frost Spirit. "...granting boons to nearby allies" (Resistance/Resolution).
+    12498: 5, // Sun Spirit. "...granting boons to nearby allies" (Might).
+    12528: 'self', // Feeding Frenzy. Wiki: "Apply fury to your pet" — pet-only, same as Precision Swipe.
+    12621: 5, // Call of the Wild. "Grant fury, might, and swiftness to yourself and nearby allies."
+    12639: 'self', // Whirling Defense. No allies wording in description, Notes, or version history —
+    // self-only per the established "no allies wording anywhere" tell.
+    21773: 5, // Water Spirit. Same spirit-shake template as Storm/Stone/Frost/Sun Spirit above.
+    31401: 5, // Glyph of Equality (stun-break form). Wiki: "break stun for allies," version history
+    // confirms Stability itself also reaches "nearby allies" (Radius 600/Number 5).
+    31503: 5, // Natural Convergence (Celestial Avatar). Version history: "...grants might to nearby
+    // allies every pulse" (2023-06-27) — Stability shares the same unconditioned pulse/Radius/Number
+    // facts with no differentiating text, so treated as the same reach.
+    31535: 'self', // Ancestral Grace. Wiki explicit: "grant protection to your pet" — pet-only; the
+    // heal on the same skill goes to nearby allies but Regeneration isn't one of its tracked facts.
+    31658: 5, // Glyph of Equality (daze form). Same Stability/Radius(300+)/Number(5) template as
+    // 31401 above — wiki confirms both forms reach "nearby allies."
+    31894: 5, // Rejuvenating Tides. Version history: "This skill now grants might to nearby allies in
+    // addition to its previous effects" (2023-06-27); heal itself already explicit "nearby allies."
+    32253: 5, // Rejuvenating Tides (split id) — same as 31894.
+    34070: 5, // Natural Convergence (split id) — same as 31503.
+    43186: 5, // Healing Cloud. "regenerate you and your allies" — explicit party-wide.
+    63073: 'self', // Savage Shock Wave. Version history: "This skill now grants protection to the
+    // user" (2022-11-29) — explicit self-only.
+    63208: 'self', // Unleashed Thump. "gaining boons for each target struck" — first-person, self-only
+    // (Let Loose trait 2271's own party-wide Might/Quickness grant is a separate, unconditioned bonus
+    // on ANY Unleashed Ambush skill use, not a gate on this skill's own Might/Fury facts).
+    63438: 'self', // Relentless Whirl. No allies wording in description or Notes — self-only.
+    69175: 5, // Solar Brilliance. "healing nearby allies and damaging nearby enemies" — explicit
+    // party-wide (Protection); unlike Relentless Whirl/Unleashed Thump above, this Unleashed Ambush
+    // skill's own description states allies directly.
+    69203: 'self', // Pounce. "Gain vigor if an enemy is struck" — first-person, self-only.
+    69244: 5, // Water Spirit (split id) — same as 21773.
+    69340: 'self', // Savage Shock Wave (split id) — same as 63073.
+    69349: 5, // Sun Spirit (split id) — same as 12498.
+    69351: 5, // Storm Spirit (split id) — same as 12493.
+    69378: 5, // Stone Spirit (split id) — same as 12495.
+    69379: 5, // Frost Spirit (split id) — same as 12497.
+    71903: 'self', // Thistleguard. "gaining stability for a brief duration" — first-person, self-only.
+    71963: 5, // Oaken Cudgel. "grant nearby allies protection" — explicit party-wide, own Boon
+    // Radius(360) fact backs it.
+    71999: 5, // Flourish. "healing nearby enemies and healing nearby allies" — Regeneration explicit
+    // party-wide (Nature's Strength/Force of Nature on the same skill aren't tracked boons).
+    73087: 'self', // Cheetah's Strike. "gaining swiftness if you strike an enemy" — first-person,
+    // self-only.
+    76664: 5, // Hawkeye. All boon facts gated by Cloudburst (trait 2425, "grant boons to nearby
+    // allies when you use Bluster or Hawkeye") — explicit party-wide.
+    77211: 'self', // Wind Shear. No allies wording in description, Notes, or version history — the
+    // "around you" phrasing and lack of any allies mention matches the established self-only tell.
+    77319: 5 // Bluster. Same Cloudburst (2425) gate as Hawkeye above — explicit party-wide.
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -643,8 +716,21 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     2228: 5, // Redemptor's Sermon (Salvation). "...heal allies in the area and grant them protection."
     2248: 5, // Amnesty of Shing Jea (Alliance). "...grants...to nearby allies" (Might/Regeneration).
     2255: 5, // Song of Arboreum (Alliance). "...grants its endurance and vigor to nearby allies."
-    2355: 5 // Shared Wisdom (Alliance). "Grant boons to allies whenever you use a Legendary Entity
+    2355: 5, // Shared Wisdom (Alliance). "Grant boons to allies whenever you use a Legendary Entity
     // Skill."
+
+    // --- Group A sweep (2026-08-06/07), Ranger leg (7th leg): all 6 explicitly say "nearby allies"/
+    // "around the ranger" in their own description, each with its own Number-of-Targets(5) fact.
+    978: 5, // Wellspring (Druidic Clarity). "Grant regeneration to nearby allies when you use a
+    // healing skill."
+    1016: 5, // Fang and Claw (Beastmastery). "Beast skills grant fury around the ranger."
+    1055: 5, // Rejuvenation (Beastmastery). "Beast skills grant regeneration around the ranger."
+    2016: 5, // Verdant Etching (Druid). "Glyphs heal nearby allies. While in celestial avatar form,
+    // grant protection instead."
+    2271: 5, // Let Loose (Untamed). "Unleashed Ambush skills grant boons to nearby allies." A separate,
+    // unconditioned bonus on top of whichever ambush skill is used — not a `requires_trait` gate on
+    // those skills' own facts (see Unleashed Thump/Relentless Whirl's own self-only entries above).
+    2408: 5 // Flock Together (Beastmastery). "Beast skills grant quickness around the ranger."
   }
 }
 

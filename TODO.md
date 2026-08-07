@@ -189,10 +189,11 @@ that before extending either further, and before the tooltip visual-pass item be
       without research) — done 2026-08-06 (Session 101). Sixth leg — Revenant (33 skills + 6 traits;
       2 more, Pain Absorption and Gladiator's Defense, turned out to be genuine per-source conflicts
       and were deliberately left out, see the table's top comment) plus 2 leftover no-profession-tag
-      stragglers (Invoke Torment, Lesser Chilblains) — done 2026-08-06 (Session 102). Remaining legs
-      are per-profession, smallest first per a live rescan: Ranger (43), Guardian (49), Mesmer (54),
-      Elementalist (72) — Ranger is next-smallest. Re-run the scan rather than trusting these numbers
-      once another leg lands.
+      stragglers (Invoke Torment, Lesser Chilblains) — done 2026-08-06 (Session 102). Seventh leg —
+      Ranger (37 skills + 6 traits, no exclusions needed) — done 2026-08-07 (Session 103). Remaining
+      legs are per-profession, smallest first per a live rescan: Guardian (50), Mesmer (54),
+      Elementalist (72) — Guardian is next-smallest. Re-run the scan rather than trusting these
+      numbers once another leg lands.
       Stationary sources (banners/wells/spirits) fall into this same ambiguous/no-fact bucket and
       haven't been separately spot-checked.
 - [ ] **Scan-methodology fix for all remaining legs**: `Build` has no downed-skill concept at all, and

@@ -2,6 +2,42 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 103 — Ranger leg of the Group A target-count sweep
+
+Seventh leg of the Group A (ambiguous `"Number of Targets"`) target-count curation sweep
+(`TARGET_COUNT_OVERRIDES` in `src/shared/boon-calc/sources.ts`) — Ranger, the next-smallest
+remaining per-profession bucket per a fresh live rescan (37 skills + 6 traits, matching the prior
+leg's rescan estimate exactly). All 43 resolved, no exclusions needed: 24 skills + 6 traits
+party-wide, 13 skills self-only.
+
+New recurring pattern this leg: several skills grant their tracked boon specifically "to your pet"
+(a fixed companion, never a squad member this app tracks) rather than to the ranger or nearby
+allies — wiki-confirmed self-only for all three found (Precision Swipe's Might, Feeding Frenzy's
+Fury, and specifically Ancestral Grace's Protection line — its separate heal line does reach nearby
+allies but Regeneration isn't one of its tracked facts). This is the mirror image of the pre-existing
+"Guard!"/Lesser "Guard!" self-only entries from an earlier leg (boon granted to the ranger FROM the
+pet's action, rather than TO the pet).
+
+Also confirmed a trap to avoid: Untamed's Let Loose (trait 2271, "Unleashed Ambush skills grant
+boons to nearby allies") is a separate, unconditioned bonus layered on top of any Unleashed Ambush
+skill use — not a `requires_trait` gate on those skills' own Buff facts. Assuming it gated Unleashed
+Thump/Relentless Whirl's own Might/Fury/Stability would have mis-curated them party-wide; both
+resolved self-only on their own textual merits instead (first-person phrasing / no allies wording
+anywhere), while Solar Brilliance — also an Unleashed Ambush skill — resolved party-wide on its own
+explicit "healing nearby allies" wording, unrelated to the trait.
+
+Several skills needed a wiki version-history check rather than a current-description read: Savage
+Shock Wave ("This skill now grants protection to the user," self-only), Natural Convergence/
+Rejuvenating Tides ("...grants might to nearby allies," party-wide despite the base description
+never mentioning allies at all), and Glyph of Equality (both id forms confirmed party-wide via
+version history despite ambiguous current wording).
+
+Live rescan (fresh Node scan against `data/game-data/{skills,traits}.json`, filtered to already-
+curated/excluded ids) confirms the remaining per-profession pool: Guardian 50, Mesmer 54,
+Elementalist 72 — Guardian is next-smallest.
+
+`npm run typecheck` and a scoped `eslint` pass on the changed file both clean.
+
 ## Session 102 — Revenant leg of the Group A target-count sweep
 
 Sixth leg of the Group A (ambiguous `"Number of Targets"`) target-count curation sweep
