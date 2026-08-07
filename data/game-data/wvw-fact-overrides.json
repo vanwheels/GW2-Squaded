@@ -521,7 +521,8 @@
       "Burning": 1
     },
     "41988": {
-      "Might": 6
+      "Might": 6,
+      "Quickness": 2.5
     },
     "42271": {
       "Burning": 8
@@ -549,6 +550,9 @@
     },
     "42935": {
       "Might": 6
+    },
+    "42983": {
+      "Quickness": 1
     },
     "43630": {
       "Burning": 2
@@ -1162,7 +1166,8 @@
       "Quickness": 3
     },
     "1667": {
-      "Stability": 3
+      "Stability": 3,
+      "Quickness": "omit"
     },
     "1688": {
       "Weakness": 3
@@ -1296,7 +1301,8 @@
     },
     "2052": {
       "Quickness": "omit",
-      "Might": 5
+      "Might": 5,
+      "Fury": "omit"
     },
     "2062": {
       "Quickness": 2

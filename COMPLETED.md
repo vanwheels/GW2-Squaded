@@ -2,6 +2,47 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 93 — Closed both `fetch-wvw-splits.ts` follow-ups from Session 92
+
+Picked up the two open items logged at the end of the "WvW-fact-override follow-ups" section.
+Both turned out to be resolvable — the prior session's "genuinely unexplained" verdict on the first
+one held up against its own evidence, but a look at the raw wikitext (not just the summary already
+in TODO.md) turned up the missing piece.
+
+**Overwhelming Celerity (41988) / Potent Haste (42983) Quickness — the GW2 API rounds half-second
+Buff durations up to the next whole second.** Live-refetched both pages' raw wikitext and version
+history: Potent Haste's PvE Quickness has been wiki-documented as 2.5s since 2018-12-11 (untouched
+since — matches the prior session's "stable, not a caching lag" finding), yet `/v2/skills` returns
+`{3, 1}` for its Quickness facts today — `3` standing in for that `2.5`, `1` matching the wiki's
+WvW/PvP value exactly. Overwhelming Celerity's WvW Quickness was nerfed from 4s to 2.5s by the
+2025-04-15 patch (per its own version-history table), yet `/v2/skills` returns `{5, 4, 3}` — again
+`3` standing in for the `2.5`, with PvE (5) and PvP (4, unused by this app) matching exactly. Same
+substitution on two skills with unrelated patch histories rules out coincidence — the "3"s that
+"don't match ANY value in either skill's documented version history" (Session 92's finding) aren't
+a real duration at all, they're the API's rounding of a value the wiki has always gotten right.
+Since `resolveOverride`'s design deliberately requires a wiki value to appear verbatim in the raw
+API set before trusting it (and rightly so — that's what caught the actual drift bugs elsewhere),
+neither skill's true WvW value can ever pass that check on its own. Added a small
+`MANUAL_OVERRIDES` layer to `fetch-wvw-splits.ts`, merged into the automated result after the sweep
+(survives re-runs, unlike a hand-edit of the generated JSON) — `Quickness: 2.5` for 41988,
+`Quickness: 1` for 42983 (the latter needed even though `1` already matches raw API data, just to
+collapse the `{3, 1}` duplicate-fact pair down to one displayed row).
+
+**Martial Cadence's Quickness (trait 1667) / Kinetic Accelerators' Fury (trait 2052) — pvp-only tag
+means omit, not "unknown."** Both traits' raw wikitext tags the boon in question `game mode=pvp`
+with no separate pve/wvw line — Martial Cadence's own version history confirms why: *"This trait
+now grants stability instead of quickness in WvW only"* (2025-04-15), i.e. the WvW variant grants a
+different boon entirely, not a reduced/omitted Quickness. `resolveOverride` already had the
+symmetric case solved (a *pve*-only tag with no wvw line resolves to `'omit'` — that's exactly how
+Kinetic Accelerators' own Quickness auto-resolved last sweep) but had no branch for "every tagged
+line exists, none of them pve or wvw" — it fell through to `unhandled combination` and got skipped.
+Added that branch (this app never displays PvP, so pvp-only and pve-only-without-wvw both mean
+"omit here"). Re-ran the full ~1100-page sweep with both fixes in place: diff against the previous
+`wvw-fact-overrides.json` is exactly these 4 additions (`41988.Quickness`, `42983.Quickness`,
+`1667.Quickness`, `2052.Fury`) — nothing else in the existing 444 entries shifted, so the new
+`'omit'` branch didn't have unintended reach beyond the 2 known cases. `npm run typecheck` and
+`npm run lint` both clean.
+
 ## Session 92 — Firebrand Mantra tooltip found the real "last charge" example, and a real boon-calc over-counting bug
 
 User's screenshots of Firebrand's Rejuvenating Respite/Overwhelming Celerity ("Final Charge" mantra

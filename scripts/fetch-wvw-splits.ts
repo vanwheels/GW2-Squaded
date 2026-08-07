@@ -290,8 +290,64 @@ function resolveOverride(
     return undefined // API already reflects the sole (WvW-tagged) value — nothing to override
   }
 
+  // Every game-mode-tagged line exists, but none of them is 'pve' or 'wvw' — i.e. every line is
+  // pvp-only (or some other mode this app doesn't model). Symmetric with the pve-only/no-wvw-line
+  // case above (factCount===1, pveLines===1, wvwLines===0 -> 'omit'): this app only ever displays
+  // PvE-baseline-plus-WvW-override, never PvP, so a fact documented as applying in NEITHER of those
+  // two modes doesn't apply here either. Live-verified 2026-08-06 on Martial Cadence (trait 1667,
+  // Quickness tagged `pvp` only — its own version history confirms the WvW variant swapped to
+  // Stability instead as of the 2025-04-15 patch, a different Buff entirely, not "omit"'s usual
+  // "doesn't apply outside PvE") and Kinetic Accelerators (trait 2052, Fury tagged `pvp` only, no
+  // pve/wvw counterpart at all).
+  if (pveLines.length === 0 && wvwLines.length === 0) {
+    return 'omit'
+  }
+
   log.push(`skip (unhandled combination): ${candidate.kind} ${candidate.id} "${pageTitle}" / ${boonName}`)
   return undefined
+}
+
+/**
+ * Hand-curated exceptions merged in after the automated sweep, for cases the wiki-vs-API
+ * cross-validation can never confidently pass on its own. Currently just one root cause:
+ *
+ * **The GW2 API rounds a half-second (X.5s) Buff duration up to the next whole second**,
+ * live-reconfirmed 2026-08-06 on two Firebrand Mantra of Potence skills with unrelated patch
+ * histories (so not a shared one-off drift, but a real API quirk): Potent Haste's PvE Quickness
+ * has been wiki-documented as 2.5s since 2018-12-11 (untouched since), yet `/v2/skills` returns
+ * {3, 1} for its Quickness facts — `3` standing in for that `2.5`, `1` matching the wiki's WvW/PvP
+ * value exactly. Overwhelming Celerity's WvW Quickness was nerfed from 4s to 2.5s by the
+ * 2025-04-15 patch (wiki version history), yet `/v2/skills` returns {5, 4, 3} — again `3` standing
+ * in for the `2.5`, with the PvE (5) and PvP (4, unused by this app) values matching exactly. Since
+ * `resolveOverride`'s whole design is "only trust a wiki value that's independently confirmed
+ * present in the raw API set" (see this file's top comment), neither skill's WvW value can ever
+ * pass that check — the API itself has never carried a literal `2.5` for either. Curated here
+ * instead of loosening the general validation (which exists to catch genuine wiki/API drift, not
+ * to paper over this specific rounding quirk).
+ */
+const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>; trait: Record<number, Record<string, WvwFactOverride>> } = {
+  skill: {
+    41988: { Quickness: 2.5 }, // Overwhelming Celerity — WvW value per 2025-04-15 patch notes
+    42983: { Quickness: 1 } // Potent Haste — WvW value unchanged since 2020-02-25; entry exists to
+    // collapse the {3, 1} duplicate-fact pair down to one row (see extractFromFacts in sources.ts)
+  },
+  trait: {}
+}
+
+function applyManualOverrides(result: WvwFactOverrides, log: string[]): void {
+  for (const kind of ['skill', 'trait'] as const) {
+    for (const [idStr, overrides] of Object.entries(MANUAL_OVERRIDES[kind])) {
+      const id = Number(idStr)
+      const existing = result[kind][id] ?? {}
+      for (const [boonName, value] of Object.entries(overrides)) {
+        if (existing[boonName] !== undefined && existing[boonName] !== value) {
+          log.push(`manual override REPLACES automated result: ${kind} ${id} / ${boonName} — automated=${existing[boonName]}, manual=${value}`)
+        }
+        existing[boonName] = value
+      }
+      result[kind][id] = existing
+    }
+  }
 }
 
 async function main(): Promise<void> {
@@ -380,6 +436,8 @@ async function main(): Promise<void> {
     if (fetched % 50 === 0) console.log(`  [${fetched}/${totalPages}] pages fetched...`)
     await sleep(REQUEST_DELAY_MS)
   }
+
+  applyManualOverrides(result, log)
 
   await writeFile(join(DATA_DIR, 'wvw-fact-overrides.json'), JSON.stringify(result, null, 2))
 
