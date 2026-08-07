@@ -190,10 +190,13 @@ that before extending either further, and before the tooltip visual-pass item be
       2 more, Pain Absorption and Gladiator's Defense, turned out to be genuine per-source conflicts
       and were deliberately left out, see the table's top comment) plus 2 leftover no-profession-tag
       stragglers (Invoke Torment, Lesser Chilblains) — done 2026-08-06 (Session 102). Seventh leg —
-      Ranger (37 skills + 6 traits, no exclusions needed) — done 2026-08-07 (Session 103). Remaining
-      legs are per-profession, smallest first per a live rescan: Guardian (50), Mesmer (54),
-      Elementalist (72) — Guardian is next-smallest. Re-run the scan rather than trusting these
-      numbers once another leg lands.
+      Ranger (37 skills + 6 traits, no exclusions needed) — done 2026-08-07 (Session 103). Eighth
+      leg — Mesmer (22 skills + 12 traits, no exclusions needed; also fixed a scan-script bug that
+      had been silently including already-curated ids, which flipped the smallest-remaining-leg pick
+      from Guardian to Mesmer) — done 2026-08-07 (Session 104). Ninth leg — Guardian (45 skills + 3
+      traits; 1 more, Holy Reckoning, turned out to be a genuine per-buff-line self/party-wide split —
+      see the next bullet — and was deliberately left out) — done 2026-08-07 (Session 105). Only
+      Elementalist remains. Re-run the scan rather than trusting a stale count before curating it.
       Stationary sources (banners/wells/spirits) fall into this same ambiguous/no-fact bucket and
       haven't been separately spot-checked.
 - [ ] **Scan-methodology fix for all remaining legs**: `Build` has no downed-skill concept at all, and
@@ -223,7 +226,12 @@ that before extending either further, and before the tooltip visual-pass item be
       status ("Resistance" twice, different reach) rather than two different statuses; Gladiator's
       Defense (77291) flips self-only vs. party-wide based on which LEGEND is equipped, not which
       trait is chosen — neither is expressible by `requires_trait` gating either, widening what the
-      eventual fix needs to cover beyond just "per-trait."
+      eventual fix needs to cover beyond just "per-trait." A fourth shape turned up in the Guardian
+      leg (Session 105): Holy Reckoning (trait 2210) mixes a party-wide Might line ("Triggered virtue
+      effects...now grant might to allies") and a self-only Fury line ("Gain fury when activating
+      Rushing Justice") under ONE trait with no `requires_trait` distinguishing them at all — both
+      lines share a single Radius(360)/Number-of-Targets(5) fact, so even the per-`requires_trait`
+      version of a fix wouldn't resolve this one; needs true per-buff-line granularity.
 - [ ] Minor, unconfirmed: possible Ascended-vs-Exotic filter tabs on the itemstat-combo picker — no
       screenshot exists confirming this is real; leave as-is unless it resurfaces with a concrete
       example.

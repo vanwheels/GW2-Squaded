@@ -2,6 +2,64 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 105 — Guardian leg of the Group A target-count sweep
+
+Ninth leg of the Group A ambiguous-target-count sweep — Guardian, the last per-profession bucket
+before Elementalist. 45 skills + 3 traits resolved (40 skills + 3 traits party-wide, 5 skills
+self-only); 1 trait (Holy Reckoning, 2210) deliberately excluded — see TODO.md's per-buff-line-split
+gap bullet.
+
+New recurring pattern this leg: the wiki's own "Symbol" skill-type page states a blanket rule —
+every Symbol "delivers a boon to allies that stand on it," except Symbol of Ignition by name. Used to
+resolve every "Symbol of X" skill as party-wide even where the individual skill's own tooltip has no
+"allies" wording at all (Symbol of Spears, Symbol of Vengeance), and to confirm Symbol of Ignition as
+the sole self-only exception on that page's say-so alone, without needing per-skill version-history
+digging.
+
+Also confirmed three `requires_trait` gates whose own wording made every fact behind them
+unconditionally party-wide: Inspired Virtue (trait 621, "Virtues apply boons to allies when
+activated") gates Virtue of Justice/Virtue of Resolve/Wings of Resolve's boon facts — those facts only
+exist in the trait-gated form, so no self-only baseline competes with it; Shimmering Stances (trait
+2410, "Stances grant protection to affected allies") gates the Luminary spec's Resolute Stance/Daring
+Advance/Stalwart Stance/Valorous Stance; Resplendent Weaponry (trait 2330, "Grant boons to nearby
+allies when you equip a radiant weapon") gates Luminous Staff/Radiant Bulwark/Dazzling Hammer's bonus
+Might/Fury/Alacrity. Same trait-gate-carries-the-reach pattern as prior legs' Specter/Ritualist wells.
+
+Two traps (Test of Faith, Dragon's Maw) share Guardian's "on Trap Trigger" self-reward phrasing with
+no allies wording anywhere on either wiki page — resolved self-only, same "no allies wording
+anywhere" tell used throughout this sweep (also applied to Roiling Light's "gaining resistance,"
+first-person with no allies wording).
+
+Holy Reckoning (trait 2210) excluded: its Might line is party-wide ("grant might to allies") but its
+Fury line is self-only ("Gain fury when activating Rushing Justice"), sharing one
+Radius(360)/Number-of-Targets(5) fact with no `requires_trait` split between the two lines — the same
+per-buff-line gap `TARGET_COUNT_OVERRIDES` already can't express (Guardian's Tome of Courage,
+Willbender's Phoenix Protocol, Revenant's Pain Absorption/Gladiator's Defense), now with a fourth
+shape (no distinguishing gate of ANY kind, not even a legend/trait choice).
+
+`npm run typecheck` and a scoped `eslint` pass on the changed file both clean. Only Elementalist
+remains in the Group A sweep.
+
+## Session 104 — Mesmer leg of the Group A target-count sweep
+
+Eighth leg of the Group A ambiguous-target-count sweep. 22 skills + 12 traits resolved, no exclusions
+needed. Fixed a scan-script bug carried over from prior sessions: the brace-matcher was grabbing the
+`TARGET_COUNT_OVERRIDES` type annotation's braces instead of the object literal after `=`, so it never
+actually excluded already-curated ids from its candidate pool. The corrected rescan found Mesmer (34
+remaining) was smaller than Guardian (39), not the other way around as the prior session's rescan had
+claimed, so Mesmer was picked instead as the smaller leg.
+
+Two skills needed a wiki raw-wikitext check to resolve a same-shape-as-Heat-Wave ambiguity:
+Effervescence's Vigor is self-only (no `allied targets` wiki fact, its stack count matches the skill's
+own hit count) while Journey's Regeneration is party-wide (explicit `allied targets|5` wiki fact),
+despite both skills using identical "damaging enemies and healing allies" phrasing. Also confirmed
+Time Warp's two ids (10311, 10377) share one wiki-documented ally cap of 5 despite 10377's own
+game-data Number-of-Targets fact reading 10 — that fact is the enemy-facing/shared count, not the true
+ally cap.
+
+(This session's commit, 6fd0f6e, landed without a COMPLETED.md/TODO.md update at the time — logged
+retroactively during the following Guardian-leg session.)
+
 ## Session 103 — Ranger leg of the Group A target-count sweep
 
 Seventh leg of the Group A (ambiguous `"Number of Targets"`) target-count curation sweep

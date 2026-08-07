@@ -184,6 +184,24 @@ type TargetCountOverride = number | 'self'
  * ("damaging enemies and healing allies"), opposite answers. Also confirmed Time Warp's two ids (10311,
  * 10377) share one wiki-documented ally cap of 5 despite 10377's own game-data Number-of-Targets fact
  * reading 10 — that fact is the enemy-facing/shared count, not the true ally cap.
+ *
+ * Guardian leg (9th leg, 2026-08-07): 45 skills + 3 traits resolved, 1 trait (Holy Reckoning, 2210)
+ * excluded — a new instance of the mixed self/party-wide-under-one-source gap this table can't
+ * express (see this table's top comment): its Might line ("Triggered virtue effects...now grant
+ * might to allies") is party-wide, but its Fury line ("Gain fury when activating Rushing Justice") is
+ * self-only, and both share the same single Radius(360)/Number-of-Targets(5) fact with no
+ * `requires_trait` split distinguishing them. New recurring pattern this leg: the wiki's own "Symbol"
+ * skill-type page states a blanket rule — "delivers a boon to allies that stand on it," except
+ * Symbol of Ignition by name — used to resolve every Symbol skill's boon as party-wide even where the
+ * skill's own tooltip omits "allies" wording entirely (Symbol of Spears, Symbol of Vengeance), and to
+ * confirm Symbol of Ignition as the sole self-only exception on that page's say-so alone. Also
+ * confirmed Inspired Virtue (trait 621, "Virtues apply boons to allies when activated") gates Virtue
+ * of Justice/Virtue of Resolve/Wings of Resolve's boon facts party-wide via `requires_trait`, and
+ * Shimmering Stances (trait 2410)/Resplendent Weaponry (trait 2330) do the same for the Luminary
+ * spec's Stance/weapon skills — same trait-gate-carries-the-reach pattern as prior legs' Specter/
+ * Ritualist wells. Guardian's two traps (Test of Faith, Dragon's Maw) share the established "on Trap
+ * Trigger" self-reward phrasing with no allies wording anywhere on either wiki page — resolved
+ * self-only, same "no allies wording anywhere" tell used throughout this sweep.
  */
 const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> } = {
   skill: {
@@ -712,7 +730,88 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     // fact is a self-buff for the dash, unrelated to the foe-facing crip/immobilize/boon-strip effects).
     73066: 'self', // Psystrike. "Gain might per target struck" — first-person, self-only.
     73093: 'self', // Mind the Gap. "If you are empowered, gain might" — first-person, self-only.
-    73154: 'self' // Psycut. "Gain might per target struck" — first-person, self-only (same as Psystrike).
+    73154: 'self', // Psycut. "Gain might per target struck" — first-person, self-only (same as Psystrike).
+
+    // --- Group A sweep (2026-08-07), Guardian leg (9th leg): 45 skills. All "Symbol of X" entries
+    // resolved via the wiki's blanket "Symbol" skill-type rule (see this table's top comment), even
+    // where the individual skill's own tooltip has no "allies" wording (Symbol of Spears, Symbol of
+    // Vengeance) — Symbol of Ignition is that page's one named exception, self-only. Virtue of
+    // Justice/Resolve and Wings of Resolve's boon facts only exist gated behind Inspired Virtue
+    // (trait 621, "Virtues apply boons to allies when activated") — unconditionally party-wide per
+    // that trait's own wording whenever the fact is present. Resolute Stance/Daring Advance/Stalwart
+    // Stance/Valorous Stance similarly gate their Protection line behind Shimmering Stances (trait
+    // 2410, "Stances grant protection to affected allies"), and Luminous Staff/Radiant Bulwark/
+    // Dazzling Hammer gate their bonus Might/Fury/Alacrity behind Resplendent Weaponry (trait 2330,
+    // "Grant boons to nearby allies when you equip a radiant weapon") — both unconditionally
+    // party-wide the same way. Test of Faith and Dragon's Maw are both traps whose boon is granted
+    // "on Trap Trigger" with no allies wording anywhere on either wiki page — self-only, same tell as
+    // Roiling Light's "gaining resistance" (first-person, no allies wording).
+    9084: 5, // "Advance!" Own description: "Grant aegis and swiftness to up to five nearby allies."
+    9086: 5, // Protector's Strike. "granting boons to nearby allies."
+    9087: 5, // Shield of Judgment. "giving protection and aegis to you and up to five allies."
+    9090: 5, // Symbol of Punishment. "grants might to nearby allies" — also a Symbol (see leg note).
+    9097: 5, // Symbol of Blades. "damages nearby enemies and benefits allies" — Symbol.
+    9111: 5, // Symbol of Faith. "regenerates allies" — Symbol.
+    9115: 5, // Virtue of Justice. Might only exists via Inspired Virtue (trait 621) — party-wide.
+    9118: 5, // Virtue of Courage. Own unconditioned Aegis fact: "grant aegis to yourself and nearby
+    // allies."
+    9120: 5, // Virtue of Resolve. Regeneration only exists via Inspired Virtue (trait 621) —
+    // party-wide (the unconditioned healing line is "heal yourself and nearby allies" but that's an
+    // AttributeAdjust fact, not a tracked boon).
+    9143: 5, // Symbol of Swiftness. "granting swiftness to allies" — Symbol.
+    9146: 5, // Symbol of Resolution. "granting resolution to allies" — Symbol.
+    9150: 5, // Signet of Judgment. "Grant resolution and protection to nearby allies."
+    9182: 5, // Shield of the Avenger. Wiki version history: "This skill now grants protection to
+    // allies within its dome" (2025-06-24).
+    9192: 5, // Symbol of Spears. No "allies" wording in its own tooltip, but the wiki's "Symbol"
+    // skill-type page states every Symbol delivers its boon to allies except Symbol of Ignition —
+    // party-wide.
+    9209: 5, // Refraction. "grants resolution to allies."
+    9250: 5, // Virtue of Resolve (split id) — same Inspired Virtue-gated Regeneration as 9120.
+    9253: 5, // Hallowed Ground. "granting stability to allies inside."
+    9265: 5, // Empower. "Channel healing and might to nearby allies."
+    9268: 5, // Virtue of Courage (split id) — same unconditioned Aegis as 9118.
+    15834: 5, // Shield of Judgment (split id) — same as 9087.
+    29786: 'self', // Test of Faith. Trap; Protection applied "on Trap Trigger" with no allies wording
+    // anywhere on the wiki page — self-only.
+    29789: 5, // Symbol of Energy. No "allies" wording in its own tooltip — party-wide per the Symbol
+    // page's blanket rule (see 9192).
+    30029: 5, // Shield of Courage. Unconditioned Aegis: "Grant aegis to nearby allies."
+    30039: 5, // Shield of Courage (split id) — same as 30029.
+    30083: 5, // Wings of Resolve. Same Inspired Virtue-gated Regeneration as Virtue of Resolve above.
+    30225: 5, // Wings of Resolve (split id) — same as 30083.
+    30273: 'self', // Dragon's Maw. Trap; Might applied "on Trap Trigger" with no allies wording
+    // anywhere on the wiki page — self-only, same shape as Test of Faith.
+    30286: 5, // Wings of Resolve (split id) — same as 30083.
+    30461: 5, // Signet of Courage. Wiki: "Now also channels protection, resolution, and stability on
+    // allies in the radius" (2022-06-28).
+    30783: 5, // Wings of Resolve (split id) — same as 30083.
+    40624: 5, // Symbol of Vengeance. No "allies" wording in its own tooltip — party-wide per the
+    // Symbol page's blanket rule (see 9192).
+    62521: 'self', // Roiling Light. "gaining resistance" — first-person, no allies wording — self-only.
+    68676: 5, // Signet of Courage (split id) — same as 30461.
+    68686: 'self', // Dragon's Maw (split id) — same as 30273.
+    71987: 'self', // Symbol of Ignition. The wiki's "Symbol" skill-type page names this skill as its
+    // one exception to the "delivers a boon to allies" rule — self-only Might.
+    76572: 5, // Glaring Burst (Regeneration variant, Luminous Staff). No damage/foe facts at all on
+    // this skill — its own Number-of-Targets(5) fact has nothing else to describe but the ally reach,
+    // consistent with every other Luminary-spec support skill this leg.
+    76621: 5, // Resolute Stance. Protection only exists via Shimmering Stances (trait 2410) —
+    // party-wide.
+    76687: 5, // Daring Advance. Same Shimmering Stances-gated Protection as Resolute Stance.
+    76708: 5, // Luminous Staff. Own unconditioned Resolution/Protection: "granting boons to allies";
+    // bonus Might/Fury/Alacrity via Resplendent Weaponry (trait 2330) — both party-wide.
+    77197: 5, // Radiant Bulwark. Own unconditioned Aegis: "Grants aegis to nearby allies on
+    // activation"; bonus Might/Fury/Alacrity via Resplendent Weaponry (trait 2330) — both party-wide.
+    77198: 5, // Daring Advance (split id) — same as 76687.
+    77300: 5, // Valorous Stance. Own unconditioned Stability/Protection: "grant boons to nearby
+    // allies"; additional Protection via Shimmering Stances (trait 2410) — both party-wide.
+    77321: 5, // Stalwart Stance. Own unconditioned Aegis ("Break stun for nearby allies"); additional
+    // Protection via Shimmering Stances (trait 2410) — both party-wide.
+    77339: 5, // Dazzling Hammer. Own unconditioned Might/Fury: "granting boons to nearby allies";
+    // additional Might/Fury/Alacrity via Resplendent Weaponry (trait 2330) — both party-wide.
+    78730: 5 // Glaring Burst (Resolution variant, Radiant Bulwark) — same no-foe-facts reasoning as
+    // 76572.
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -809,7 +908,15 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     2022: 5, // Seize the Moment (Chronomancer). "You and nearby allies gain quickness for each clone you
     // shatter. Grant quickness to nearby allies when you summon a phantasm."
     2174: 5, // Mirage Mantle (Mirage). "Ambush skills you use grant boons to nearby allies."
-    2326: 5 // Raconteur (Troubadour). "Tales heal and grant protection to nearby allies."
+    2326: 5, // Raconteur (Troubadour). "Tales heal and grant protection to nearby allies."
+
+    // --- Group A sweep (2026-08-07), Guardian leg (9th leg): 3 traits resolved. Holy Reckoning
+    // (trait 2210) deliberately excluded — see this table's top comment.
+    562: 5, // Empowering Might (Honor). "Grant might to nearby allies when you critically strike."
+    586: 5, // Monk's Focus (Valor). "Meditation skills heal you and grant fury to nearby allies" (also
+    // grants Resolution to allies as of 2024-06-25).
+    612: 5 // Indomitable Courage (Virtues). "The active effect of Virtue skill 3...grants stability to
+    // nearby allies."
   }
 }
 
