@@ -126,6 +126,12 @@ type TargetCountOverride = number | 'self'
  * description is "Marks can be triggered by allies to heal them and provide them with additional
  * benefits," meaning only the ONE ally who steps on and triggers the mark receives Vigor, not up to
  * 5 simultaneously. Same same-source per-buff-line conflict as Well of Power above — left out.
+ *
+ * Warrior leg (4th, 2026-08-06): 23 skills + 1 trait, no exclusions needed. Confirmed the same
+ * first-person-phrasing tell as the Necromancer leg, extended to a subset (Sundering Leap, Wild
+ * Blow, Shattering Blow, Gunstinger, Crushing Blow) where the boon doesn't appear in the skill's own
+ * description text at all — checked each one's wiki page too, none states allies wording either, so
+ * "no allies wording anywhere" was treated as equally reliable as explicit first-person phrasing.
  */
 const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> } = {
   skill: {
@@ -342,9 +348,75 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     // own Might Radius(360) fact — no explicit ally cap stated, default 5.
     44663: 'self', // Desert Shroud (Scourge shade). Fury only via Furious Demise (trait 803, "Gain
     // fury when entering shroud") — self-only.
-    73007: 'self' // Extirpate (Necromancer spear). "Gain soul shards and might for each target
+    73007: 'self', // Extirpate (Necromancer spear). "Gain soul shards and might for each target
     // struck" — first-person "gain," same self-buff-scaling-with-foes-struck pattern as this leg's
     // two shouts.
+
+    // --- Group A sweep (2026-08-06), Warrior leg (4th leg, smallest remaining profession per
+    // user's stated order): 23 skills + 1 trait. Recurring pattern (same as the Necromancer leg):
+    // when the skill's own description grants the boon in first person ("gain X"/"gaining X",
+    // referring to the warrior) or doesn't mention allies at all, the boon is self-only even with
+    // an adjacent enemy-facing Number-of-Targets/Radius fact; when the description explicitly says
+    // "allies" (or "yourself and allies"), it's party-wide. Several self-only entries here (Sundering
+    // Leap, Wild Blow, Shattering Blow, Gunstinger, Crushing Blow) don't mention the boon in their
+    // own description text at all — undocumented tooltip-only procs, same as Nightfall in the
+    // Necromancer leg — but no wiki page for any of them states allies either, so the pattern still
+    // applies rather than being left ambiguous.
+    14375: 'self', // Arcing Slice (Warrior Greatsword burst, base). "...deliver a circular attack to
+    // foes around you, and gain fury" — first-person, self-only; Number-of-Targets(5) is the
+    // enemy hit count for the damage/Fury-per-hit stacking, not an ally count.
+    14545: 'self', // Arcing Slice (split/PvP id) — same self-only Fury as 14375.
+    14546: 'self', // Arcing Slice (split id) — same.
+    14547: 'self', // Arcing Slice (split id) — same.
+    42707: 'self', // Arcing Slice (Berserker-traited variant, requires_trait 1657) — same self-only
+    // Fury as the base skill above.
+    14388: 'self', // Stomp (Physical utility). "Gain stability...Gain stability for each enemy
+    // struck" — first-person, self-only.
+    14393: 5, // Charge (Warhorn 4). "Grant boons and remove movement-impairing conditions from
+    // allies" — explicit party-wide, own Radius(600)/Number-of-Targets(5).
+    14394: 5, // Call of Valor (Warhorn 5). "Removes conditions from allies and grants them vigor" —
+    // explicit party-wide, own Radius(600)/Number-of-Targets(5).
+    14403: 5, // "For Great Justice!" (shout). "Grant fury and might to yourself and allies" —
+    // explicit party-wide, own Radius(600)/Number-of-Targets(5).
+    14418: 'self', // Dual Strike (weapon skill). "Gain quickness for each strike that hits" —
+    // first-person, self-only; Number-of-Targets(3) is the enemy pierce/hit count.
+    14421: 'self', // Cyclone Axe (Axe 5). "Gain fury for each foe hit" — first-person, self-only.
+    14518: 'self', // Crushing Blow (weapon skill). "...leaving them vulnerable and gaining might" —
+    // no allies wording anywhere on the skill or its wiki page; same self-buff-on-hit pattern as
+    // Cyclone Axe/Dual Strike above.
+    29613: 'self', // Sundering Leap (Berserker Rage skill). Aegis isn't mentioned in the skill's own
+    // description at all ("Leap to a location, dealing damage and inflicting conditions on all foes
+    // in the area"); the wiki's Notes section says only "This skill grants Aegis at the beginning of
+    // the cast" with no allies wording — self-only, undocumented-in-description proc (same shape as
+    // Necromancer's Nightfall in the previous leg).
+    29941: 'self', // Wild Blow (Berserker Rage skill). Wiki: "Gain fury and extend the duration of
+    // berserk mode if this attack hits" — first-person, self-only.
+    30074: 'self', // Shattering Blow (Berserker Rage skill). Stability isn't mentioned in the
+    // description ("Summon a rock that blocks attacks, then shatter it...") and the wiki has no
+    // allies wording for it either — self-only, same undocumented-proc pattern as Sundering Leap
+    // (the skill's own "Rock Guard" block buff, not a tracked boon, is unambiguously self already).
+    41919: 'self', // Imminent Threat (Spellbreaker meditation). "Taunt nearby foes, gaining
+    // adrenaline and barrier for each affected foe" — first-person "gaining," self-only; Resolution
+    // rides along with the same self-only grant, no allies wording anywhere.
+    44165: 'self', // Full Counter (Spellbreaker burst). "Absorb the next attack against you and
+    // counterattack all foes around you" — no allies wording; Stability is the counter's own
+    // self-only defensive proc, same as every other self-buff-on-defensive-skill in this leg.
+    62697: 'self', // Gunstinger (Bladesworn Gunsaber 4). "Quickly step forward to strike your foe
+    // while reloading your gun" — no allies wording on the skill or its wiki page; Aegis is a
+    // self-only dash proc, Number-of-Targets(3) is the enemy hit count.
+    71860: 5, // Line Breaker (Bladesworn Gunsaber 3). "...heal nearby allies and grant them boons
+    // while debilitating nearby enemies" — explicit party-wide (Protection/Aegis), own
+    // Radius(300)/Number-of-Targets(5).
+    71875: 5, // Rampart Splitter (Berserker primal burst). "...inspiring nearby allies, healing and
+    // granting regeneration to them" — explicit party-wide, own Radius(360)/Number-of-Targets(5).
+    72002: 5, // Valiant Leap (Bladesworn Gunsaber 2). "Leap to the targeted location, empowering
+    // allies and damaging enemies" — explicit party-wide (Might/Fury), own Healing Radius(300)/
+    // Number-of-Targets(5).
+    76934: 5, // "Brace Yourselves!" (Paragon command shout). "Apply barrier to yourself and allies
+    // around you...Apply barrier again to allies" — explicit party-wide (Protection rides the same
+    // grant), own Radius(360)/Number-of-Targets(5).
+    77040: 5 // "Find Their Weakness!" (Paragon command shout). "Echo. Apply might to allies..." —
+    // explicit party-wide, own Radius(360)/Number-of-Targets(5).
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -377,8 +449,12 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     // now also granted to allies as well."
 
     // --- Group A sweep (2026-08-06), Necromancer leg:
-    2405: 5 // Empowering Spirits (Ritualist). "Grant boons to nearby allies when you summon a
+    2405: 5, // Empowering Spirits (Ritualist). "Grant boons to nearby allies when you summon a
     // spirit" — own Radius(300)/Number-of-Targets(5) fact confirms the standard 5.
+
+    // --- Group A sweep (2026-08-06), Warrior leg:
+    1482: 5 // Empower Allies (Tactics). "...grant might to yourself and nearby allies each
+    // interval" — explicit party-wide, own Radius(600)/Number-of-Targets(5).
   }
 }
 

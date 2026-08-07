@@ -183,7 +183,10 @@ that before extending either further, and before the tooltip visual-pass item be
       deliberately left out, see the table's top comment) — done 2026-08-06 (Session 98), corrected
       2026-08-06 (Session 99) after 3 of the original 21 candidates (Plague Blast, Dhuumfire, Life
       Reap) turned out to be `Downed_`-slotted skills the app can never actually reach — see the next
-      bullet. Remaining legs are per-profession, smallest first per the user's stated preference.
+      bullet. Fourth leg — Warrior (23 skills + 1 trait, no exclusions needed) — done 2026-08-06
+      (Session 100). Remaining legs are per-profession, smallest first per the user's stated
+      preference: Engineer, Revenant, Ranger, Guardian, Mesmer, Elementalist (plus a handful of
+      multi-profession "shared skill" and no-profession-tag stragglers a fresh scan turned up).
       Stationary sources (banners/wells/spirits) fall into this same ambiguous/no-fact bucket and
       haven't been separately spot-checked.
 - [ ] **Scan-methodology fix for all remaining legs**: `Build` has no downed-skill concept at all, and

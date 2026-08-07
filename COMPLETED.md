@@ -2,6 +2,27 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 100 — Warrior leg of the Group A target-count sweep
+
+Fourth leg of the Group A (ambiguous `"Number of Targets"`) target-count curation sweep
+(`TARGET_COUNT_OVERRIDES` in `src/shared/boon-calc/sources.ts`) — Warrior, the smallest remaining
+per-profession bucket (23 skills + 1 trait). No exclusions needed this leg (no dead `Downed_*` ids,
+no genuine per-buff-line splits).
+
+Confirmed the same first-person-phrasing tell from the Necromancer leg still holds, and extended it
+one step further: 5 skills (Sundering Leap, Wild Blow, Shattering Blow, Gunstinger, Crushing Blow)
+don't even mention their boon in the skill's own description text — undocumented tooltip-only procs.
+Each one's wiki page was checked individually and none states allies wording either, so "no allies
+wording anywhere, on the skill OR its wiki page" was treated as an equally reliable self-only signal
+as an explicit first-person "gain X." The rest split cleanly: 15 self-only skills (5 Arcing Slice
+duplicate/split ids sharing one pattern, Stomp, Dual Strike, Cyclone Axe, Crushing Blow, Imminent
+Threat, Full Counter, plus the 5 undocumented-proc skills above), 8 skills + 1 trait party-wide
+(Charge, Call of Valor, "For Great Justice!", Line Breaker, Rampart Splitter, Valiant Leap, "Brace
+Yourselves!", "Find Their Weakness!", Empower Allies trait) — all explicit "to allies"/"yourself and
+allies" wording, defaulted to 5 per the table's standard.
+
+`npm run typecheck` and `npm run lint` (scoped to the changed file) both clean.
+
 ## Session 99 — Fixed 3 unreachable Downed_-slot entries from Session 98's Necromancer leg
 
 The user asked, right after Session 98 landed, whether downed-state skills are excluded from the boon/
