@@ -34,9 +34,13 @@ narrow exception — user chose to fix just this family this session, not attemp
   `factCount > 1` case at all (previously an unconditional skip) — only when BOTH the wiki's
   PvE-tagged and WvW-tagged values for that status can be found among the id's actual raw API
   durations, which doubles as protection against curating a stale/mismatched value (Overwhelming
-  Celerity's Quickness correctly stays un-curated: wiki's current WvW value 2.5 isn't in the cached
-  API's `[5, 4, 3]` at all — likely the API just hasn't caught up to a 2025-04-15 balance patch).
-  Also fixed a real pre-existing bug the investigation surfaced: wiki lines were bucketed "wvw" vs.
+  Celerity's and Potent Haste's Quickness both correctly stay un-curated: neither's wiki-current
+  WvW value appears in its cached API duration set at all). Initially assumed this meant the cached
+  API data just hadn't caught up to a recent balance patch — checked that against the wiki's own
+  edit-history API afterward and it doesn't hold up (both pages' facts have been stable 15+ months,
+  since well before this session), so the real cause is genuinely unexplained; corrected in
+  TODO.md rather than left as a wrong guess. Also fixed a real pre-existing bug the investigation
+  surfaced: wiki lines were bucketed "wvw" vs.
   "not wvw" instead of explicit "pve" vs. "wvw" tokens, so any genuine 3-way pve/wvw/pvp split (3
   separate fact lines, common on these Mantra pages) always tripped the "ambiguous multi-entry"
   check even when perfectly resolvable. Also added 2 wiki-shorthand aliases ("Blind"->Blinded,

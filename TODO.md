@@ -180,11 +180,17 @@ that before extending either further, and before the tooltip visual-pass item be
 
 ## WvW-fact-override follow-ups (`fetch-wvw-splits.ts`)
 
-- [ ] Overwhelming Celerity's Quickness (skill 41988) stays un-curated: the wiki's current WvW
-      value (2.5s) doesn't appear anywhere in the cached API's raw duration set (`[5, 4, 3]`) for
-      that status, so the tooltip still shows all 3 raw values stacked. Likely the cached API data
-      just hasn't caught up to the 2025-04-15 balance patch yet for this specific fact — re-check
-      after the next `fetch-game-data`+`fetch-wvw-splits` refresh.
+- [ ] Overwhelming Celerity's Quickness (skill 41988) and Potent Haste's Quickness (skill 42983,
+      the same mantra's normal-charge sibling) both stay un-curated: the wiki's current WvW-tagged
+      value (2.5s/1s respectively) doesn't appear anywhere in the cached API's raw duration set
+      (`[5, 4, 3]` / `[3, 1]`) for that status, so their tooltips still show duplicated Quickness
+      values. **Not simply API lag** — checked 2026-08-06 via the wiki's own edit history API
+      (`prop=revisions`): both pages' facts have been stable since 2025-04-15 and 2023-06-06
+      respectively, 15+ months with zero edits, so "hasn't caught up to a recent patch" doesn't
+      hold up. The "3"/"3" extra raw API values don't match ANY value in either skill's documented
+      version history at any point, so the actual cause is genuinely unexplained — not guessed at
+      further this session; revisit if a concrete lead surfaces (e.g. an undocumented mode, a
+      leftover pre-rework fact the wiki never bothered to record, or an actual API bug).
 - [ ] 2 traits (Martial Cadence's Quickness, Kinetic Accelerators' Fury) have a boon documented on
       the wiki under a `game mode=pvp`-only tag with no separate pve/wvw line at all — conservatively
       left un-curated (no safe way to tell whether that implies omit-in-WvW or something else)
