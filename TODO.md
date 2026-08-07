@@ -176,10 +176,11 @@ that before extending either further, and before the tooltip visual-pass item be
       but no Number fact of any kind — was swept 2026-08-06 (see COMPLETED.md Session 95,
       `TARGET_COUNT_OVERRIDES` in `sources.ts`). This larger bucket's first leg (the 30 skills with no
       `professions` tag — pet/mount/racial/trait-proc skills) was swept 2026-08-06 too (Session 96,
-      same table); remaining legs are per-profession, smallest first per the user's stated preference:
-      Thief (14 skills + 3 traits), Necromancer (21 + 1), then the rest. Stationary sources (banners/
-      wells/spirits) fall into this same ambiguous/no-fact bucket and haven't been separately
-      spot-checked.
+      same table). Second leg — Thief (18 skills + 3 traits; one more, Pitfall, turned out to be a
+      confirmed wiki tooltip bug and was deliberately left out, see the table's top comment) — also
+      done 2026-08-06 (Session 97). Remaining legs are per-profession, smallest first per the user's
+      stated preference: Necromancer (21 + 1) next, then the rest. Stationary sources (banners/wells/
+      spirits) fall into this same ambiguous/no-fact bucket and haven't been separately spot-checked.
 - [ ] Two concrete examples turned up 2026-08-06 of a gap `BoonConditionSource.targetCount`'s doc
       comment previously said had no known instance: a skill/trait whose facts array mixes a
       self-only boon and a party-wide boon, distinguishable only by which OTHER trait is chosen —

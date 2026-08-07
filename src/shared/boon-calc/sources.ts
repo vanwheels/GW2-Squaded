@@ -104,6 +104,14 @@ type TargetCountOverride = number | 'self'
  * `BoonConditionSource.targetCount`'s doc comment on why a positional/per-buff-line split isn't
  * implemented). Concrete real-world example of the gap that doc comment says wasn't found yet — see
  * TODO.md.
+ *
+ * Also NOT covered: Thief's Pitfall (skill 56880). Its Might `Buff` fact only exists in
+ * `traitedFacts` gated on Even the Odds (trait 1169) — Even the Odds' own description ("Apply
+ * vulnerability when you steal. Apply conditions when you hit with a stealth attack.") has nothing
+ * to do with Might, and the wiki flags this exact combination as a confirmed tooltip bug ("If the
+ * Even the Odds trait is active, the tooltip will falsely display granting Might 5"). Since the
+ * grant itself isn't real, neither `'self'` nor a number would be a correct answer — left out
+ * entirely rather than curating a boon that doesn't actually happen.
  */
 const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> } = {
   skill: {
@@ -213,7 +221,57 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     77164: 5, // Sovereign of Light (Guardian Willbender trait proc, Radiant Forge; id-matched). Wiki:
     // "Luminary skills detonate light aura, damaging enemies and healing allies" — Resolution bundled
     // with the same allies-only heal.
-    79336: 5 // Lesser Symbol of Blades (Guardian trait proc). Wiki: "grant boons to allies."
+    79336: 5, // Lesser Symbol of Blades (Guardian trait proc). Wiki: "grant boons to allies."
+
+    // --- Group A sweep (2026-08-06), Thief leg (2nd leg, smallest profession per user's stated
+    // order): 18 skills (some ids are the same-named skill's PvE/underwater or split variant).
+    // Infiltrator's Strike/Skirmisher's Shot/Spotter's Shot: all three read "grants you a boon(s)"
+    // in both the API description and the wiki, with the Number-of-Targets fact matching the skill's
+    // own enemy pierce/hit count (Pierces fact present on the latter two) — self-only. Spotter's
+    // Shot here (44591, Deadeye rifle) is distinct from the unrelated Siege Turtle skill of the same
+    // name already curated above (65528).
+    13015: 'self', // Infiltrator's Strike (Thief sword). Wiki: "grants you Swiftness" — self-only.
+    41494: 'self', // Skirmisher's Shot (Thief Deadeye rifle). API/wiki: "grants you a boon" — self-only.
+    44591: 'self', // Spotter's Shot (Thief Deadeye rifle, id 44591 — not Siege Turtle's 65528).
+    // API/wiki: "grants you boons" — self-only.
+
+    // Specter shroud weapon skills: Shadestep (trait 2289, "Shadow Shroud skills provide additional
+    // supportive effects to nearby allies and your tethered ally") gates most of these Buff facts via
+    // `requires_trait`; trait 2289's own facts carry the shared Radius(360)/Number-of-Targets(5) that
+    // governs every boon line it lists. Haunt Shot's Might is the one exception — unconditional in
+    // its own base facts, matching its own description ("granting might to nearby allies and your
+    // tethered ally") with no Shadestep requirement at all.
+    63362: 5, // Haunt Shot (Specter pistol 1, unconditional). Wiki/API: "nearby allies and your
+    // tethered ally" gain Might.
+    63107: 5, // Grasping Shadows (Specter scepter 2, PvE). Alacrity/Regeneration only exist via
+    // Shadestep's traitedFacts — party-wide per trait 2289's Number(5)/Radius(360).
+    63167: 5, // Grasping Shadows (same skill, PvP/WvW split id) — same Shadestep-gated Alacrity/
+    // Regeneration as 63107.
+    63220: 5, // Dawn's Repose (Specter dagger 3, PvE). Protection only exists via Shadestep's
+    // traitedFacts — party-wide per trait 2289.
+    63227: 5, // Dawn's Repose (same skill, underwater/split id) — same Shadestep-gated Protection.
+    63249: 5, // Mind Shock (Specter dagger 5). Stability is unconditional and its own description
+    // says "Nearby allies and your tethered ally gain stability"; Aegis is additionally gated on
+    // Shadestep. Both party-wide.
+
+    // Specter wells: Traversing Dusk (trait 2285, "Wells grant resistance on their initial impact")
+    // gates every well's Resistance `Buff` fact via `requires_trait`; trait 2285's own facts carry
+    // the shared Radius(360)/Number-of-Targets(5). Well of Bounty is the one exception — its full
+    // boon kit (Stability/Might/Fury/Vigor/Regeneration) is unconditional, with its own explicit
+    // Radius(240)/Number-of-Targets(5) confirming "create a well that grants boons to allies."
+    63230: 5, // Well of Silence. Resistance only via Traversing Dusk — party-wide per trait 2285.
+    63275: 5, // Shadowfall (Specter elite well) — same Traversing Dusk-gated Resistance.
+    63276: 5, // Well of Sorrow — same Traversing Dusk-gated Resistance.
+    63292: 5, // Well of Gloom (Specter heal) — same Traversing Dusk-gated Resistance.
+    63294: 5, // Well of Tears — same Traversing Dusk-gated Resistance.
+    63323: 5, // Well of Bounty (unconditional kit) — wiki: "create a well that grants boons to
+    // allies," own Number-of-Targets(5) fact.
+
+    // Holo-Dancer Decoy (a "Defensive Artifact" gizmo skill, both ids — one Weapon_1, one
+    // Profession_2 — same description on both). Wiki confirms "grants boons to nearby allies" (up
+    // to 5 during the active phase) and "granting additional boons to allies" on self-destruct.
+    76674: 5,
+    76800: 5
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -232,8 +290,18 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     2052: 5, // Kinetic Accelerators (Engineer) — "Grant boons to nearby allies when you...combo a field..."
     2105: 5, // Stoic Demeanor (Guardian) — "Grant boons to nearby allies when you disable, immobilize, or slow an enemy."
     2154: 5, // Endless Enmity (Revenant) — "Grant fury to yourself and nearby allies when you critically strike a foe."
-    2237: 5 // River's Flow (Elementalist) — "Grant boons to nearby allies and gain positive flow when swapping to the gunsaber."
+    2237: 5, // River's Flow (Elementalist) — "Grant boons to nearby allies and gain positive flow when swapping to the gunsaber."
     // Phoenix Protocol (trait 2195, Willbender) deliberately excluded — see this table's top comment.
+
+    // --- Group A sweep (2026-08-06), Thief leg: all three explicitly say "nearby allies"/"allies" in
+    // their own description, each with its own Radius/Number-of-Targets(5) fact backing it up.
+    1210: 5, // Unrelenting Strikes (Critical Strikes). "Grant fury to yourself and nearby allies when
+    // you critically strike an enemy."
+    2285: 5, // Traversing Dusk (Specter). "Heal allies in the area around you when you shadowstep...
+    // Wells grant resistance on their initial impact" — also gates every Specter well's Resistance
+    // (see the skill table above).
+    2393: 5 // Possessive Hoarder (Antiquary). "Artifacts grant boons to allies when used...Barrier...
+    // now also granted to allies as well."
   }
 }
 

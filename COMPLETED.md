@@ -2,6 +2,37 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 97 — Thief leg of the Group A target-count sweep
+
+Second leg of Session 96's per-profession split. A fresh scan (single-profession `professions: ["Thief"]`
+skills plus Thief-elite-spec-locked ones, excluding the small multi-profession "shared skill" bucket
+Session 96 also left aside) found 18 skill ids + 3 trait ids — more than the ~14+3 rough estimate from
+Session 96's exploratory pass, mostly because several are the same skill's PvE/underwater/split-mode
+id pairs (Grasping Shadows, Dawn's Repose, Holo-Dancer Decoy each have 2 ids).
+
+Three (Infiltrator's Strike, Skirmisher's Shot, Spotter's Shot id 44591) confirmed self-only — both the
+API's own description ("grants you a boon(s)") and the wiki agree, with the ambiguous Number fact
+matching the skill's own enemy pierce/hit count instead. Fourteen confirmed party-wide, mostly Specter
+kit pieces: Shadestep (trait 2289) and Traversing Dusk (trait 2285) each gate a cluster of shroud-skill/
+well Buff facts via `requires_trait`, and each gating trait's own facts carry an explicit
+Radius(360)/Number-of-Targets(5) that resolved every skill in its cluster at once, rather than needing
+a separate wiki lookup per skill. Well of Bounty and Haunt Shot were the two unconditional exceptions in
+that same kit, each with its own explicit Number-of-Targets(5). Holo-Dancer Decoy (both ids) confirmed
+party-wide via its own wiki page. The three traits (Unrelenting Strikes, Traversing Dusk, Possessive
+Hoarder) all read "nearby allies"/"allies" directly in their own description with a backing Number fact.
+
+One skill (Pitfall, 56880) turned out to be neither self nor party-wide: its Might fact only exists in
+`traitedFacts` gated on Even the Odds (trait 1169), a trait whose own description has nothing to do with
+Might — the wiki flags this exact combination as a confirmed tooltip bug, not a real effect. Left out of
+the table entirely (documented in its top comment) rather than force a wrong answer either way.
+
+All resolved entries added to the existing `TARGET_COUNT_OVERRIDES` table in `sources.ts` under a new
+"Thief leg" comment block (skill and trait sub-tables). `npm run typecheck` and `npm run lint` both
+clean; not spot-checked live (Electron sandbox limitation).
+
+Necromancer (21 skills + 1 trait, per the prior estimate) is next per the user's smallest-first pacing
+preference; the rest of the ~270 remaining candidates stay split per-profession after that.
+
 ## Session 96 — First leg of the Group A (ambiguous "Number of Targets") target-count sweep
 
 Started the much larger bucket Session 95 left untouched: sources whose only target-count signal is
