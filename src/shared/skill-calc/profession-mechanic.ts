@@ -149,21 +149,25 @@ export const ALLIANCE_TACTICS_SKILL_ID = 62729
 const VINDICATOR_MECHANIC_SKILLS: { id: number; slot: string }[] = [{ id: ALLIANCE_TACTICS_SKILL_ID, slot: 'Profession_3' }]
 
 /**
- * Ranger Soulbeast (specialization id 55): live-verified 2026-07-30 every `Profession_1`-`_4`
+ * Ranger Soulbeast (specialization id 55): live-verified 2026-07-30 every `Profession_1`-`_3`
  * candidate gated to this spec (e.g. "Swoop"/"Bite"/"Quickening Screech"/"Defy Pain" per pet
- * *family* in `Profession_1`/`_2`; "Spiritual Reprieve"/"Primal Cry" in `Profession_3`; "Eternal
- * Bond" — a contextual "merge with your other pet" alternate — in `Profession_4`) can't be picked
- * by this resolver's normal per-spec logic — none of them is a single fixed id, since the real
- * skill depends on which pet the build has merged with, not just which specialization is equipped.
- * `Profession_1`-`_3` are resolved separately instead, by `soulbeastBeastmodeBar` (below) reading
- * `data/game-data/soulbeast-beastmode.json`; `Profession_4` ("Eternal Bond", a contextual "merge
- * with your other pet" alternate) has no such per-pet data and stays genuinely unresolved. All 4
- * stay excluded here either way so this resolver's own per-spec fallback doesn't pick a wrong one.
- * `Profession_5` ("Beastmode", the actual merge-with-pet toggle button) is the one exception — a
- * single clean id, not excluded. Excluded by spec id rather than individually listing ~65 ids.
+ * *family* in `Profession_1`/`_2`; "Spiritual Reprieve"/"Primal Cry" in `Profession_3`) can't be
+ * picked by this resolver's normal per-spec logic — none of them is a single fixed id, since the
+ * real skill depends on which pet the build has merged with, not just which specialization is
+ * equipped. Resolved separately instead, by `soulbeastBeastmodeBar` (below) reading
+ * `data/game-data/soulbeast-beastmode.json`. Excluded by spec id rather than individually listing
+ * ~60 ids. `Profession_4` ("Eternal Bond") and `Profession_5` ("Beastmode", the actual
+ * merge-with-pet toggle button) are NOT excluded: live-verified 2026-08-06 each has exactly one
+ * candidate id in the raw data (`Eternal Bond` 59554 is the *only* `Profession_4` entry across all
+ * of Ranger's `professionSkills`, not just Soulbeast's) — despite its tooltip text ("Meld with
+ * your other pet") describing pet-dependent behavior, the skill id/icon/name itself doesn't vary
+ * by pet, so the generic single-candidate resolver (`resolveMechanicSlot`, candidates.length === 1)
+ * already picks it correctly, gated to only show when Soulbeast is equipped by the resolver's own
+ * step 5 (chosen.specializationId 55 not in equippedSpecializationIds -> slot dropped). No per-pet
+ * data needed, unlike `Profession_1`-`_3`.
  */
 export const RANGER_BEASTMODE_SPEC_ID = 55
-const RANGER_BEASTMODE_EXCLUDED_SLOTS = new Set(['Profession_1', 'Profession_2', 'Profession_3', 'Profession_4'])
+const RANGER_BEASTMODE_EXCLUDED_SLOTS = new Set(['Profession_1', 'Profession_2', 'Profession_3'])
 
 /**
  * Revenant Conduit (specialization id 79): live-verified against the wiki 2026-07-31 — Conduit's
@@ -513,10 +517,12 @@ export function engineerToolbeltBar(build: Build, skillsById: Map<number, Skill>
 
 /**
  * Ranger Soulbeast's Beastmode F1-F3, per the currently-active equipped pet: `RANGER_BEASTMODE_
- * EXCLUDED_SLOTS` above deliberately drops every Profession_1-4 candidate whenever it's gated to
+ * EXCLUDED_SLOTS` above deliberately drops every Profession_1-3 candidate whenever it's gated to
  * Soulbeast's specialization id (55), since none of those candidates are a single fixed pick — the
  * real skill depends on which pet is merged with (F1/F2, by the pet's *family*) or its archetype
- * (F3), neither of which `professionMechanicBar`'s per-spec resolver has any way to know. Sourced
+ * (F3), neither of which `professionMechanicBar`'s per-spec resolver has any way to know. F4
+ * ("Eternal Bond") and F5 ("Beastmode") aren't excluded — see `RANGER_BEASTMODE_EXCLUDED_SLOTS`'s
+ * doc comment for why the generic resolver already handles both correctly. Sourced
  * from `data/game-data/soulbeast-beastmode.json` (see `scripts/fetch-soulbeast-beastmode.ts`),
  * keyed by `Pet.id` rather than by name/family — no per-pet-family concept exists anywhere else in
  * this app, so the wiki-sourced fetch script resolves family/archetype down to a flat per-pet

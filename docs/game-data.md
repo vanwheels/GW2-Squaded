@@ -819,14 +819,17 @@ per the findings below:
   ("Unleash Ranger"/"Unleash Pet") is a single toggle skill (the 2 ids are each other's `flip_skill`
   target) rather than 2 independent picks — both excluded here since the toggle is instead surfaced
   as `Build.rangerUnleashed`, a `WeaponSkillBar.tsx` display toggle (landed in the weapon-selection
-  session), not as a mechanic-bar button. Soulbeast's own
-  `Profession_1`-`_4` (F1/F2 per merged pet *family*, F3 per pet *archetype*, F4 "Eternal Bond" a
-  contextual alternate) stay excluded from this generic per-spec resolver — none of them is a single
-  fixed id, so `EXCLUDED_MECHANIC_SKILL_IDS`/`RANGER_BEASTMODE_EXCLUDED_SLOTS` still drop all 4 here
-  — but F1-F3 are resolved separately by the dedicated `soulbeastBeastmodeBar` (see "Soulbeast's
-  Beastmode F1-F3" below); `Profession_4` has no per-pet data and stays genuinely unresolved.
-  `Profession_5` ("Beastmode", the actual merge-with-pet toggle button) is the one clean single id
-  from the generic resolver, not excluded. Also found and excluded "Worldly Impact" (`Profession_3`,
+  session), not as a mechanic-bar button. Soulbeast's own `Profession_1`-`_3` (F1/F2 per merged pet
+  *family*, F3 per pet *archetype*) stay excluded from this generic per-spec resolver — none of
+  them is a single fixed id, so `EXCLUDED_MECHANIC_SKILL_IDS`/`RANGER_BEASTMODE_EXCLUDED_SLOTS`
+  still drop those 3 here — resolved separately instead by the dedicated `soulbeastBeastmodeBar`
+  (see "Soulbeast's Beastmode F1-F3" below). `Profession_4` ("Eternal Bond") and `Profession_5`
+  ("Beastmode", the actual merge-with-pet toggle button) are NOT excluded: resolved 2026-08-06 —
+  despite its tooltip text describing pet-dependent behavior ("Meld with your other pet"), Eternal
+  Bond is a single fixed id (59554, the *only* `Profession_4` candidate across all of Ranger's
+  `professionSkills`), so the generic resolver's own single-candidate/spec-gating logic already
+  picks it correctly with no per-pet data needed, same as F5. Also found and excluded "Worldly
+  Impact" (`Profession_3`,
   one of its 2 legacy duplicate ids) — a Beastmode skill (description starts "Beast.", like every
   other Soulbeast id) whose `specialization` field is missing entirely in the raw API data on one of
   its 2 ids, a real gap rather than a base-game core F3 (confirmed by re-fetching live, not a

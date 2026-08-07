@@ -2,6 +2,37 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 91 — Resolved the last "Skill picker follow-ups" item: Ranger's Eternal Bond (Profession_4)
+
+User asked to finish the "skill picker follow-ups" TODO section. Re-checked the "Eternal Bond"
+bullet's premise (F4 "stays unresolved — no per-pet data exists for it") against the raw data rather
+than trusting the earlier note: it turned out to already be a clean single-candidate case, no
+per-pet table needed at all.
+
+- `data/game-data/skills.json` has exactly one skill named "Eternal Bond" (id 59554), and it's the
+  *only* `Profession_4` entry in all of Ranger's `professionSkills` — not just Soulbeast's. Its
+  tooltip ("Meld with your other pet. This counts as swapping pets.") describes pet-dependent
+  in-game behavior, but the skill id/name/icon itself never varies by pet — unlike F1-F3, which are
+  genuinely different named skills per pet family/archetype and do need
+  `soulbeast-beastmode.json`'s per-pet table.
+  `profession-mechanic.ts`'s `resolveMechanicSlot` already special-cases the single-candidate case
+  (returns it immediately), and the generic resolver's step 5 already drops a chosen skill's slot
+  entirely when its `specializationId` isn't in the build's equipped specs — so Eternal Bond was
+  already resolvable by the *existing* generic per-spec resolver, correctly gated to only show when
+  Soulbeast (spec 55) is equipped. It just needed to stop being unconditionally excluded.
+- Fix: removed `'Profession_4'` from `RANGER_BEASTMODE_EXCLUDED_SLOTS` in `profession-mechanic.ts`
+  (was `['Profession_1', 'Profession_2', 'Profession_3', 'Profession_4']`, now just the first 3).
+  Updated both of that file's doc comments (`RANGER_BEASTMODE_EXCLUDED_SLOTS` and
+  `soulbeastBeastmodeBar`) plus `docs/game-data.md`'s Ranger section to match. No changes needed to
+  `ProfessionMechanicBar.tsx` — `soulbeastBeastmodeBar`'s F1-F3 entries are already prepended ahead
+  of the generic resolver's own entries, so F4 now lands between F3 and F5 in the rendered bar with
+  no ordering change needed.
+- Removed the resolved bullet from TODO.md's "Skill picker follow-ups" section, leaving only the
+  unconfirmed last-charge-effect edge case (no concrete example exists yet to investigate against).
+  `npm run typecheck`/`npm run lint` both clean. Not visually spot-checked in the running app
+  (Electron sandbox limitation) — worth confirming live that equipping Soulbeast shows an "Eternal
+  Bond" F4 button on the mechanic bar.
+
 ## Session 90 — Closed out the last 4 "no resolving signal" duplicate-name skill groups
 
 User asked to work through the remaining duplicate-named skill groups (TODO.md's "4 duplicate-named
