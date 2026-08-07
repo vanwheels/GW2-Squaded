@@ -158,7 +158,62 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     58104: 5,
     // Transmute Fire (Elementalist fire aura proc). Description states outright "damaging enemies and
     // benefiting allies" — Might goes to allies (Burning to foes), Radius(240) tied to the explosion.
-    51711: 5
+    51711: 5,
+
+    // --- Group A sweep (2026-08-06), "no profession tag" bucket: pet/mount/racial/trait-proc skills
+    // whose only target-count signal is the ambiguous enemy-facing "Number of Targets" fact (see
+    // TODO.md for the ~290 remaining per-profession candidates this leaves).
+    1139: 5, // Healing Seed (Sylvari racial elite). Wiki: "gives nearby allies regeneration."
+    5625: 'self', // Lightning Leap (Lightning Hammer bundle, Elementalist conjure). Wiki: quickness is
+    // "granted to the caster only" on hit — the Number(3) fact is the enemy hit count, not allies.
+    5747: 'self', // Magnetic Shield (Conjure Earth Shield bundle, Elementalist). Wiki: "gaining
+    // protection...for each foe pulled" — self-only, scales with foes hit like Lightning Leap above.
+    12376: 5, // Roar of the Forest (Ranger pet, Krytan Drakehound). Wiki: "Imbue allies with protection."
+    12390: 10, // Howl (Become the Wolf, Norn racial elite transform). Wiki: "giving allies fury and
+    // regeneration," explicit Number(10) fact, id-matched to skill 12390.
+    12658: 5, // Mighty Roar (Ranger pet, Jungle Stalker). Wiki: "Give extreme might to nearby allies."
+    12712: 5, // Furious Screech (Ranger pet, Red Moa). Wiki: "grant fury to nearby allies."
+    12713: 5, // Protecting Screech (Ranger pet, Blue Moa). Wiki: "grant protection to nearby allies."
+    12717: 5, // Regenerate (Ranger pet, Fern Hound; id-matched). Wiki: "grant regeneration to nearby allies."
+    13677: 5, // Lesser Symbol of Resolution (Guardian trait proc). Wiki: "granting resolution to allies."
+    13684: 5, // Lesser Symbol of Protection (Guardian trait proc, Protector's Restoration). Wiki: "gives
+    // protection to you and your allies."
+    13849: 5, // Lesser Well of Blood (Necromancer trait proc). Wiki: "heal nearby allies" — Regeneration
+    // shares the same allies-only well as the heal.
+    13918: 5, // Lesser Mark of Blood (Necromancer trait proc). Wiki: "grants regeneration to allies."
+    14268: 'self', // Reckless Impact, wiki page "Reckless Dodge" (Warrior trait proc; id-matched). Wiki:
+    // "Gain might for each foe struck" — self-only.
+    22521: 'self', // Lesser Cleansing Fire (Elementalist trait proc, Burning Fire; id-matched). Wiki:
+    // might goes "to the elementalist using it, not allies."
+    29449: 5, // Lesser Call of the Wild (Ranger trait proc, Call of the Wild). Wiki: "Grant fury, might,
+    // and swiftness to yourself and nearby allies."
+    29560: 'self', // Spiteful Spirit, wiki page "Spite" trait skill (Necromancer; id-matched). Wiki:
+    // "Gain resolution for each foe you strike" — self-only.
+    46854: 'self', // Call of the Assassin (Revenant trait proc, Song of the Mists; id-matched). Wiki:
+    // "gaining quickness. Gain additional quickness for each foe you hit" — self-only.
+    62689: 5, // Saint's Shield, wiki page "Saint of zu Heltzer" (Guardian trait proc; id-matched). Wiki:
+    // "applies alacrity to allies affected by your dodge" (PvE only, still party-wide when it applies).
+    62839: 5, // Water Sphere (Elementalist Catalyst trait proc, Depth of Elements; id-matched). Wiki:
+    // "boons to allies within range based on your active attunement."
+    62842: 5, // Air Sphere (same Depth of Elements proc family as Water Sphere above; id-matched).
+    62881: 5, // Earth Sphere (same Depth of Elements proc family; id-matched).
+    62949: 5, // Fire Sphere (same Depth of Elements proc family; id-matched).
+    63141: 5, // Barrier Burst (Engineer Mechanist, mech skill). Wiki: "Pulse a barrier and boons to all
+    // nearby allies."
+    63293: 5, // Crisis Zone (Engineer Mechanist, mech skill). Wiki: "grants boons to itself and nearby
+    // allies."
+    65418: 5, // Hunker Down (Ranger Siege Turtle mount; id-matched). Wiki: "shields allies from incoming
+    // projectiles and grants protection."
+    65528: 'self', // Spotter's Shot (Siege Turtle "The Sniper" passenger skill) — distinct from Thief's
+    // skill 44591 of the same name (separate, not-yet-curated candidate). Wiki gives no "allies"
+    // wording for Fury/Vigor here, unlike every confirmed party-wide entry above; self-only pending
+    // stronger evidence.
+    76681: 5, // Seismic Impact (Elementalist Evoker familiar mechanic; id-matched). Wiki: "Allies in the
+    // area gain protection."
+    77164: 5, // Sovereign of Light (Guardian Willbender trait proc, Radiant Forge; id-matched). Wiki:
+    // "Luminary skills detonate light aura, damaging enemies and healing allies" — Resolution bundled
+    // with the same allies-only heal.
+    79336: 5 // Lesser Symbol of Blades (Guardian trait proc). Wiki: "grant boons to allies."
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,

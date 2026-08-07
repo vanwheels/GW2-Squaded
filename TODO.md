@@ -161,22 +161,25 @@ that before extending either further, and before the tooltip visual-pass item be
 
 ## Stats panel / boon-condition bar polish
 
-- [ ] Curation sweep: resolve the ~399 skills/traits (357 skills + 42 traits — corrected count from a
-      2026-08-06 rescan; not the ~276 estimated 2026-08-05) whose only target-count signal is the
+- [ ] Curation sweep: resolve the remaining ~288 skills/traits (246 skills + 42 traits, plus a small
+      multi-profession "shared skill" bucket not yet broken out) whose only target-count signal is the
       ambiguous `"Number of Targets"` fact (no `"Number of Allied Targets"`), so
       `BoonConditionSource.targetCount` (`src/shared/boon-calc/sources.ts`) can show a badge for them
       instead of `null`/nothing. Confirmed via a full scan of `data/game-data/skills.json` that this
       fact is genuinely ambiguous, not just theoretically: some skills mean "self-only boon + N
       enemies hit separately" (Heat Wave: Vigor to self, Burning to 5 foes; also Convergence,
       Lightning Leap), others reuse the same label to mean an ally count on a pure support skill
-      (Healing Rain, Healing Seed, Healing Turret's id-5857 variant — Regeneration to up to 5 allies,
-      no enemies involved; the equivalent id-6140 variant with no Number fact at all is already
-      curated, see below). Needs a curated override table shaped like `wvwFactOverrides`
-      (wiki-verified per skill), same pacing as the Healing/Damage coefficient sweeps. The smaller
-      sibling bucket — boon + Radius fact but no Number fact of any kind — was swept 2026-08-06 (see
-      COMPLETED.md, `TARGET_COUNT_OVERRIDES` in `sources.ts`); this larger bucket is still untouched.
-      Stationary sources (banners/wells/spirits) fall into this same ambiguous/no-fact bucket and
-      haven't been separately spot-checked.
+      (Healing Rain, Healing Turret's id-5857 variant — Regeneration to up to 5 allies, no enemies
+      involved; the equivalent id-6140 variant with no Number fact at all is already curated, see
+      below). Curated table shaped like `wvwFactOverrides` (wiki-verified per skill/trait), same
+      pacing as the Healing/Damage coefficient sweeps. The smaller sibling bucket — boon + Radius fact
+      but no Number fact of any kind — was swept 2026-08-06 (see COMPLETED.md Session 95,
+      `TARGET_COUNT_OVERRIDES` in `sources.ts`). This larger bucket's first leg (the 30 skills with no
+      `professions` tag — pet/mount/racial/trait-proc skills) was swept 2026-08-06 too (Session 96,
+      same table); remaining legs are per-profession, smallest first per the user's stated preference:
+      Thief (14 skills + 3 traits), Necromancer (21 + 1), then the rest. Stationary sources (banners/
+      wells/spirits) fall into this same ambiguous/no-fact bucket and haven't been separately
+      spot-checked.
 - [ ] Two concrete examples turned up 2026-08-06 of a gap `BoonConditionSource.targetCount`'s doc
       comment previously said had no known instance: a skill/trait whose facts array mixes a
       self-only boon and a party-wide boon, distinguishable only by which OTHER trait is chosen —

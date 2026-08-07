@@ -2,6 +2,32 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 96 — First leg of the Group A (ambiguous "Number of Targets") target-count sweep
+
+Started the much larger bucket Session 95 left untouched: sources whose only target-count signal is
+the ambiguous enemy-facing `"Number of Targets"` fact (no `"Number of Allied Targets"`, no bare-Radius
+signal). A scan filtered to sources that actually emit a tracked boon (`BOON_NAMES`) found 318 real
+candidates (276 skills + 42 traits) — down from the raw ~399, confirming Session 95's note that not
+every raw candidate matters. Asked the user which slice to tackle first given the 10x size vs. Session
+95; they picked the smallest self-contained one: the 30 skills with no `professions` tag at all (pet/
+mount/racial/trait-proc skills — Ranger pet F2s, racial elites, Mechanist mech skills, Catalyst sphere
+procs, etc.).
+
+Wiki-verified all 30 individually, resolving several by exact API `id` match on the wiki infobox (title
+search often redirected to a same-named but wrong page, e.g. "Reckless Impact" → wiki's "Reckless
+Dodge", "Spiteful Spirit" → wiki's "Spite" trait page — id match confirmed which page was actually
+right). 23 confirmed party-wide (mostly 5, one 10 — Norn racial "Howl"/Become the Wolf); 7 confirmed
+self-only despite the Radius/Number facts (Lightning Leap, Magnetic Shield, Reckless Impact, Lesser
+Cleansing Fire, Spiteful Spirit, Call of the Assassin, and Siege Turtle's "Spotter's Shot" — the last of
+these has no "allies" wording anywhere on the wiki, unlike every confirmed entry, so treated as
+self-only pending stronger evidence rather than assumed party-wide from the Radius fact alone). All 30
+added to `TARGET_COUNT_OVERRIDES` in `src/shared/boon-calc/sources.ts` under a new "Group A sweep"
+comment block. `npm run typecheck` and lint both clean; not spot-checked live (Electron sandbox
+limitation).
+
+288 candidates remain: 246 skills (276 minus this leg's 30) + 42 traits, split per-profession (plus a
+small multi-profession "shared skill" bucket) for future legs — see TODO.md.
+
 ## Session 95 — Curated the no-Number-fact-but-confirmed-party-wide bucket from Session 94's TODO
 
 Picked up the smaller of Session 94's two follow-up buckets: sources with a tracked boon (`BOON_NAMES`)
