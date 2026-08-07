@@ -112,6 +112,20 @@ type TargetCountOverride = number | 'self'
  * Even the Odds trait is active, the tooltip will falsely display granting Might 5"). Since the
  * grant itself isn't real, neither `'self'` nor a number would be a correct answer — left out
  * entirely rather than curating a boon that doesn't actually happen.
+ *
+ * Also NOT covered: Necromancer's Well of Power (ids 10609, 10673). A genuine per-buff-line split,
+ * same shape as Tome of Courage/Phoenix Protocol above — the wiki's own notes are explicit: "Only
+ * the stability and stun break are exclusively applied to the caster upon cast," while "[o]ne stack
+ * of Might is applied to allies in range every pulse." Stability self-only, Might party-wide(5), same
+ * source, no positional split available — left out entirely rather than mis-applying one number to
+ * both boon lines.
+ *
+ * Also NOT covered: Necromancer's Mark of Blood (skill 19117). Its base, unconditioned Regeneration
+ * is confirmed party-wide ("grants regeneration to allies," own Radius(240)/Number-of-Targets(5)) —
+ * but the Transfusion-trait-gated (778) Vigor is a different mechanic entirely: Transfusion's own
+ * description is "Marks can be triggered by allies to heal them and provide them with additional
+ * benefits," meaning only the ONE ally who steps on and triggers the mark receives Vigor, not up to
+ * 5 simultaneously. Same same-source per-buff-line conflict as Well of Power above — left out.
  */
 const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> } = {
   skill: {
@@ -271,7 +285,63 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     // Profession_2 — same description on both). Wiki confirms "grants boons to nearby allies" (up
     // to 5 during the active phase) and "granting additional boons to allies" on self-destruct.
     76674: 5,
-    76800: 5
+    76800: 5,
+
+    // --- Group A sweep (2026-08-06), Necromancer leg (3rd leg, smallest remaining profession per
+    // user's stated order): 21 skills. Well of Power (10609, 10673) and Mark of Blood (19117)
+    // deliberately excluded — see this table's top comment (genuine per-buff-line self/party-wide
+    // splits). Recurring pattern found across this leg: whenever the skill's own description phrases
+    // the grant in first person ("Gain X," referring to the necromancer) rather than "to allies"/
+    // "protects allies," the boon is confirmed self-only even when a Radius/Number-of-Targets fact is
+    // present alongside it (that fact governs the skill's separate foe-facing damage/condition
+    // component, not the boon).
+    10527: 5, // Well of Blood (Necromancer heal). Wiki: "Conjure a well of blood to heal allies" —
+    // Regeneration only, no caster-exclusive component (unlike Well of Power) — party-wide per its
+    // own Number-of-Targets(5)/Radius(240).
+    10605: 1, // Chillblains (Necromancer staff mark). Protection only exists via Transfusion
+    // (trait 778, "Marks can be triggered by allies to heal them and provide them with additional
+    // benefits") — exactly the ONE ally who triggers the mark, not a radius pulse. No other boon on
+    // this source, so unlike Mark of Blood there's no per-buff-line conflict to exclude over.
+    10608: 5, // Spectral Ring. Wiki: "protects allies and inflicts fear on foes," confirmed radius
+    // 180 (undocumented in the API facts). No explicit ally cap stated — default 5.
+    10619: 'self', // Deadly Feast. "Gain swiftness and summon a swarm of vampiric shrimp that siphon
+    // health from nearby foes" — Swiftness is the caster's own, the Radius/Number-of-Targets facts
+    // govern the shrimp's foe-siphon range instead.
+    10690: 'self', // Plague Blast (Downed_1 skill). Might only via Reaper's Might (trait 913,
+    // "Shroud skill 1 grants might") — a downed-state self-skill, no allies present. Flip skill of
+    // 24287 below (same id-pair pattern as other split/variant entries in this table).
+    19115: 1, // Reaper's Mark (Necromancer staff mark). Stability only via Transfusion (trait 778) —
+    // same one-ally-who-triggers mechanic as Chillblains above.
+    24287: 'self', // Dhuumfire (Downed_1 skill, flip of 10690) — same Reaper's Might-gated Might,
+    // same self-only downed-state reasoning.
+    29414: 'self', // "You Are All Weaklings!" (Reaper shout). Wiki infobox description: "Damage foes
+    // around you, and gain boons... gain boons per foe struck" — first-person "gain," caster-only;
+    // the Number-of-Targets(5)/Radius facts scale how many foes struck, not an ally count.
+    29740: 'self', // Grasping Darkness (Reaper GS). "Gain quickness if you strike a foe and gain life
+    // force for each struck foe" — self-only, no allies mentioned.
+    29855: 'self', // Nightfall (Reaper GS). Wiki version history: the skill "now also grants
+    // protection to the necromancer" — Protection is self-only despite no explicit self/ally wording
+    // in the current description.
+    30105: 'self', // "Chilled to the Bone!" (Reaper elite shout). Same self-buff-scaling-with-foes-
+    // struck pattern as "You Are All Weaklings!" above — wiki infobox: "Gain boons for each foe you
+    // freeze," all four boons (Stability/Might/Fury/Quickness) are the caster's own.
+    30278: 'self', // Life Reap (Downed_1 skill, Reaper's downed Shroud replacement). Quickness only
+    // via Reaper's Onslaught (trait 2021, "Gain ferocity and quickness while in Reaper's Shroud") —
+    // self-only, matches the other Downed_1 entries in this leg.
+    40274: 5, // Trail of Anguish (Scourge punishment). Wiki: "Grant boons to allies passing through
+    // it" — Swiftness/Stability party-wide; its Number-of-Targets(10) fact governs the trail's
+    // separate burning-on-enemies effect, not the ally count, so the standard 5 default is used.
+    41615: 5, // Serpent Siphon (Scourge punishment). Wiki: "granting barrier and boons to nearby
+    // allies" — Aegis/Regeneration party-wide per its own Number-of-Targets(5)/Radius(240).
+    42935: 5, // Desiccate (Scourge punishment). Wiki: "grant boons to nearby allies" — Might/Fury
+    // party-wide per its own Number-of-Targets(5)/Radius(300).
+    44296: 5, // Oppressive Collapse (Scourge). Wiki: "Grant might to allies near your target" via its
+    // own Might Radius(360) fact — no explicit ally cap stated, default 5.
+    44663: 'self', // Desert Shroud (Scourge shade). Fury only via Furious Demise (trait 803, "Gain
+    // fury when entering shroud") — self-only.
+    73007: 'self' // Extirpate (Necromancer spear). "Gain soul shards and might for each target
+    // struck" — first-person "gain," same self-buff-scaling-with-foes-struck pattern as this leg's
+    // two shouts.
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -300,8 +370,12 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     2285: 5, // Traversing Dusk (Specter). "Heal allies in the area around you when you shadowstep...
     // Wells grant resistance on their initial impact" — also gates every Specter well's Resistance
     // (see the skill table above).
-    2393: 5 // Possessive Hoarder (Antiquary). "Artifacts grant boons to allies when used...Barrier...
+    2393: 5, // Possessive Hoarder (Antiquary). "Artifacts grant boons to allies when used...Barrier...
     // now also granted to allies as well."
+
+    // --- Group A sweep (2026-08-06), Necromancer leg:
+    2405: 5 // Empowering Spirits (Ritualist). "Grant boons to nearby allies when you summon a
+    // spirit" — own Radius(300)/Number-of-Targets(5) fact confirms the standard 5.
   }
 }
 

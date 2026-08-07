@@ -2,6 +2,49 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 98 — Necromancer leg of the Group A target-count sweep
+
+Third leg of Session 96's per-profession split (smallest-first, per the user's stated pacing
+preference). A fresh scan (single-profession `professions: ["Necromancer"]` skills plus
+Necromancer-elite-spec-locked ones — Reaper/Scourge/Harbinger/Ritualist — excluding the shared-skill
+bucket) found exactly the 21 skill ids + 1 trait id estimated in Session 97's leftover note.
+
+A clean pattern emerged across this leg: whenever a skill's own description phrases the grant in first
+person ("Gain swiftness," "gain boons for each foe struck") rather than "to allies"/"protects allies,"
+the boon turned out self-only every time, even when a Radius/Number-of-Targets fact sat right next to it
+governing a separate foe-facing effect instead (the shrimp-siphon range on Deadly Feast, the struck-foe
+count on the two elite shouts). Ten skills confirmed self-only this way: Deadly Feast, the two Downed_1
+skills sharing Reaper's Might's gating (Plague Blast/Dhuumfire), both Reaper elite shouts ("You Are All
+Weaklings!", "Chilled to the Bone!" — wiki infobox confirms "gain boons for each foe you freeze," not an
+ally grant), Grasping Darkness, Nightfall (confirmed self via the wiki's own version-history note, since
+the current description doesn't mention Protection at all), Life Reap, Desert Shroud, and Extirpate.
+
+Two skills (Chillblains, Reaper's Mark) resolved to a third case the existing `number | 'self'` type
+already covers cleanly: their boon only exists via Transfusion (trait 778, "Marks can be triggered by
+allies to heal them and provide them with additional benefits") — exactly the ONE ally who steps on and
+triggers the mark, not a radius pulse to several at once. `1` is the accurate answer, not `'self'` or the
+default `5`.
+
+Seven skills + 1 trait confirmed party-wide with an explicit "(to) allies" reading in their own
+description (Well of Blood, Spectral Ring, Trail of Anguish, Serpent Siphon, Desiccate, Oppressive
+Collapse, and trait 2405 Empowering Spirits) — all defaulted to 5 (the confirmed-elsewhere-in-this-sweep
+"nearby allies" standard) except where a Number-of-Targets fact already matched.
+
+Two skills (Well of Power, ids 10609/10673) and one more (Mark of Blood, 19117) turned out to be genuine
+per-buff-line self/party-wide splits — the same shape as Guardian's Tome of Courage and Willbender's
+Phoenix Protocol already flagged as an unsupported case: Well of Power's wiki notes are explicit that
+"the stability and stun break are only applied to the caster," while its Might pulses to allies; Mark of
+Blood's base Regeneration is confirmed party-wide but its Transfusion-gated Vigor is the same
+one-ally-only mechanic as Chillblains. `TARGET_COUNT_OVERRIDES` computes one value per source and applies
+it to every boon line that source emits, so neither can be expressed — left out of the table entirely,
+documented in its top comment alongside the two existing exceptions.
+
+All resolved entries added to `TARGET_COUNT_OVERRIDES` in `sources.ts` under a new "Necromancer leg"
+comment block (skill and trait sub-tables). `npm run typecheck` and `npm run lint` both clean; not
+spot-checked live (Electron sandbox limitation).
+
+~265 candidates remain, split per-profession, smallest next, per the user's stated pacing preference.
+
 ## Session 97 — Thief leg of the Group A target-count sweep
 
 Second leg of Session 96's per-profession split. A fresh scan (single-profession `professions: ["Thief"]`

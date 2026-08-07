@@ -161,7 +161,7 @@ that before extending either further, and before the tooltip visual-pass item be
 
 ## Stats panel / boon-condition bar polish
 
-- [ ] Curation sweep: resolve the remaining ~288 skills/traits (246 skills + 42 traits, plus a small
+- [ ] Curation sweep: resolve the remaining ~265 skills/traits (~225 skills + 41 traits, plus a small
       multi-profession "shared skill" bucket not yet broken out) whose only target-count signal is the
       ambiguous `"Number of Targets"` fact (no `"Number of Allied Targets"`), so
       `BoonConditionSource.targetCount` (`src/shared/boon-calc/sources.ts`) can show a badge for them
@@ -178,9 +178,12 @@ that before extending either further, and before the tooltip visual-pass item be
       `professions` tag — pet/mount/racial/trait-proc skills) was swept 2026-08-06 too (Session 96,
       same table). Second leg — Thief (18 skills + 3 traits; one more, Pitfall, turned out to be a
       confirmed wiki tooltip bug and was deliberately left out, see the table's top comment) — also
-      done 2026-08-06 (Session 97). Remaining legs are per-profession, smallest first per the user's
-      stated preference: Necromancer (21 + 1) next, then the rest. Stationary sources (banners/wells/
-      spirits) fall into this same ambiguous/no-fact bucket and haven't been separately spot-checked.
+      done 2026-08-06 (Session 97). Third leg — Necromancer (21 skills + 1 trait; 2 more, Well of
+      Power and Mark of Blood, turned out to be genuine per-buff-line self/party-wide splits and were
+      deliberately left out, see the table's top comment) — done 2026-08-06 (Session 98). Remaining
+      legs are per-profession, smallest first per the user's stated preference. Stationary sources
+      (banners/wells/spirits) fall into this same ambiguous/no-fact bucket and haven't been separately
+      spot-checked.
 - [ ] Two concrete examples turned up 2026-08-06 of a gap `BoonConditionSource.targetCount`'s doc
       comment previously said had no known instance: a skill/trait whose facts array mixes a
       self-only boon and a party-wide boon, distinguishable only by which OTHER trait is chosen —
