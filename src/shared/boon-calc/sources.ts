@@ -415,8 +415,89 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     76934: 5, // "Brace Yourselves!" (Paragon command shout). "Apply barrier to yourself and allies
     // around you...Apply barrier again to allies" — explicit party-wide (Protection rides the same
     // grant), own Radius(360)/Number-of-Targets(5).
-    77040: 5 // "Find Their Weakness!" (Paragon command shout). "Echo. Apply might to allies..." —
+    77040: 5, // "Find Their Weakness!" (Paragon command shout). "Echo. Apply might to allies..." —
     // explicit party-wide, own Radius(360)/Number-of-Targets(5).
+
+    // --- Group A sweep (2026-08-06), Engineer leg (5th leg): 35 skills. Same first-person/no-allies-
+    // wording-anywhere self-only tell as the Necromancer/Warrior legs, plus turret overcharge boons
+    // gated by Experimental Turrets (trait 1678, "Turrets... grant boons to allies around them") which
+    // resolve party-wide even when the base turret skill's own description doesn't mention a boon at
+    // all. 2 candidates the scan turned up — Holo Leap (42965) and Corona Burst (44530), both
+    // Downed_-slotted Holosmith skills — were dropped per TODO.md's standing instruction rather than
+    // researched (this app has no downed-skill concept, so they're unreachable regardless of being
+    // real GW2 skills).
+    5836: 5, // Flame Turret. Own description never mentions a boon; Might only exists via Experimental
+    // Turrets (trait 1678, gates the fact) — that trait's text is explicit "allies," party-wide.
+    5838: 5, // Thumper Turret. Same Experimental-Turrets-gated Protection as Flame Turret above.
+    5857: 5, // Healing Turret. "...heals you briefly, then regenerates you and your allies" — explicit
+    // party-wide Regeneration.
+    5912: 5, // Rocket Turret. Same Experimental-Turrets-gated Resolution as Flame Turret above.
+    5936: 5, // Acid Bomb (Elixir Gun 4). Own description doesn't mention Might — only exists via HGH
+    // (trait 473). Wiki version history confirms directly: "Fixed a bug that prevented HGH from
+    // properly functioning with this skill and granting might to nearby allies" — explicit party-wide.
+    5937: 5, // Super Elixir (Elixir Gun 5, ground-targeted variant). "...healing allies on impact..." —
+    // explicit party-wide.
+    5966: 5, // Healing Mist (Elixir Gun toolbelt). "...granting regeneration to yourself and allies" —
+    // explicit party-wide.
+    5967: 5, // Toss Elixir B (ground-targeted variant). "...granting stability and one of the following
+    // boons to allies..." — explicit party-wide.
+    5978: 5, // Toss Elixir H (ground-targeted variant). "...grant protection, regeneration, and vigor
+    // to allies" — explicit party-wide.
+    5980: 5, // Cleansing Burst (Healing Turret's own overcharge chain skill, not the toolbelt). Own
+    // description doesn't say "allies," but the wiki version history confirms Automated Medical
+    // Response (an explicit "nearby allies" trait, see below) affects this skill's Regeneration too,
+    // consistent with parent Healing Turret's own explicit party-wide heal/regen — party-wide.
+    6088: 5, // Detonate Elixir U (toolbelt). "...grant allies superspeed and break them out of stun" —
+    // explicit party-wide (Quickness represents superspeed).
+    6092: 5, // Toss Elixir B (non-ground-targeted split id) — same explicit "to allies" wording as 5967.
+    6102: 5, // Super Elixir (non-ground-targeted split id) — same explicit "healing allies" as 5937.
+    6118: 5, // Toss Elixir H (non-ground-targeted split id) — same explicit "to allies" wording as 5978.
+    6153: 5, // Blunderbuss (Rifle 2). "...You and nearby allies gain might" — explicit party-wide.
+    6176: 5, // Regenerating Mist (toolbelt). "...regenerate nearby allies" — explicit party-wide.
+    6180: 'self', // Rumble (Thumper Turret toolbelt). Wiki has no allies wording anywhere on the page;
+    // Stability is a plain self-buff-on-stunbreak proc, same shape as every other undocumented-proc
+    // self-only entry in this table.
+    12320: 'self', // Pain Inverter (Utility). "Apply confusion to nearby foes. You gain resolution" —
+    // first-person, self-only; Number-of-Targets(5) is the enemy hit count for the Confusion.
+    12338: 5, // Battle Roar (Utility). "...giving might and fury to nearby allies" — explicit
+    // party-wide.
+    12354: 5, // Invigorating Roar (Battle Roar's toolbelt). "...removing weakness and vulnerability
+    // from allies and granting vigor" — wiki Notes confirm directly: "This ability's Vigor gain does
+    // apply to allies" — explicit party-wide.
+    12377: 5, // Blessing of Dwayna (toolbelt). "...restore health and grant regeneration to allies at
+    // target location" — explicit party-wide.
+    12435: 5, // Roar (Warhorn 4). "Roar, giving allies might" — explicit party-wide; its own
+    // Number-of-Targets(10) is higher than the table's standard default, but that fact is still the
+    // enemy-facing count per the table's doc comment, so the standard 5 is used regardless.
+    12440: 5, // Healing Seed (Heal, ground-targeted). "...periodically gives nearby allies
+    // regeneration" — explicit party-wide.
+    30032: 5, // Elixir Shell (Mortar Kit 5, ground-targeted). "...heals allies in the target area" —
+    // explicit party-wide.
+    30489: 'self', // Equalizing Blow (Hammer chain finisher, Scrapper). Wiki Notes: "Might is applied
+    // for each enemy struck" — self-buff-scaling-with-hits pattern, same as Warrior's Cyclone Axe;
+    // no allies wording anywhere.
+    30501: 'self', // Positive Strike (Hammer chain, Scrapper). "...while empowering yourself" —
+    // first-person, self-only.
+    37873: 'self', // Channeled Agony (multi-profession shared Weapon_5 skill, Engineer included).
+    // "Steel yourself and channel a burst of spectral agony to foes within range" — no allies wording
+    // on the skill or its wiki page; Stability is a plain self-buff-on-cast proc.
+    40160: 'self', // Radiant Arc (Gunsaber 3, Bladesworn — shared with Engineer's own weapon-skill
+    // pool). "...Gain quickness based on your heat level" — first-person, self-only.
+    45732: 5, // Particle Accelerator (toolbelt, Holosmith). "Allies the bolt passes through are
+    // granted swiftness" — explicit party-wide.
+    63169: 5, // Energizing Slam (Hammer 2, Mechanist). "...granting barrier and boons to allies" —
+    // explicit party-wide (Vigor/Regeneration both ride the same "boons to allies" grant).
+    69565: 'self', // Radiant Arc (split id, no traited variants). "...Gain quickness" — same self-only
+    // first-person Quickness as 40160.
+    71870: 5, // Essence of Liquid Wrath (Short Bow 4, Mechanist). "...granting boons to allies on the
+    // initial detonation..." plus its Chain Reaction text ("grant an additional boon to allies") —
+    // explicit party-wide.
+    72052: 5, // Essence of Animated Sand (Short Bow 2, Mechanist). "...granting barrier and might to
+    // allies," Chain Reaction "grant additional might to allies" — explicit party-wide.
+    76493: 'self', // Stoke the Flames (Flamethrower 4, Holosmith-era kit). "...as you grant yourself
+    // boons" — first-person, self-only.
+    77069: 'self' // Solid State (Stance, Mechanist, ground-targeted). "Gain stability and increase your
+    // outgoing stun durations for a duration" — first-person, self-only.
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -453,8 +534,19 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     // spirit" — own Radius(300)/Number-of-Targets(5) fact confirms the standard 5.
 
     // --- Group A sweep (2026-08-06), Warrior leg:
-    1482: 5 // Empower Allies (Tactics). "...grant might to yourself and nearby allies each
+    1482: 5, // Empower Allies (Tactics). "...grant might to yourself and nearby allies each
     // interval" — explicit party-wide, own Radius(600)/Number-of-Targets(5).
+
+    // --- Group A sweep (2026-08-06), Engineer leg:
+    1901: 5, // Automated Medical Response (Alchemy). "Grant regeneration to nearby allies when you use
+    // a healing skill's associated tool belt skill" — explicit party-wide.
+    1923: 'self', // No Scope (Firearms). "Critical hits on foes within the range threshold have a
+    // chance to grant fury. Fury grants you ferocity" — first-person throughout, self-only; the
+    // Number-of-Targets(5)/Boon Radius(360) facts describe the crit-eligible foe area, not an ally
+    // count.
+    2296: 5, // Mech Arms: High-Impact Drivers (Mechanist). "Your mech's attacks now generate might for
+    // allies within a radius" — explicit party-wide.
+    2387: 5 // New Genes (Amalgam). "Morph skills grant boons to allies" — explicit party-wide.
   }
 }
 

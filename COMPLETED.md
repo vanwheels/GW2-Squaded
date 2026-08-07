@@ -2,6 +2,32 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 101 — Engineer leg of the Group A target-count sweep
+
+Fifth leg of the Group A (ambiguous `"Number of Targets"`) target-count curation sweep
+(`TARGET_COUNT_OVERRIDES` in `src/shared/boon-calc/sources.ts`) — Engineer, the next-smallest
+remaining per-profession bucket. 35 skills + 4 traits resolved: 26 skills + 3 traits party-wide, 9
+skills + 1 trait self-only. Dropped 2 candidates the scan turned up without researching them —
+Holo Leap (42965) and Corona Burst (44530), both `Downed_`-slotted Holosmith skills — per the
+standing TODO.md instruction (this app has no downed-skill concept, so they're unreachable
+regardless of being real GW2 skills).
+
+Same first-person/no-allies-wording-anywhere self-only tell as the Necromancer/Warrior legs, plus
+one new recurring shape: turret overcharge boons gated by the Experimental Turrets trait (1678,
+"Turrets... grant boons to allies around them") resolve party-wide even when the base turret
+skill's own description never mentions a boon at all (Flame/Thumper/Rocket Turret). Cleansing Burst
+(Healing Turret's own overcharge chain skill) had no "allies" wording of its own either, but its
+wiki version history confirms Automated Medical Response — an explicit "nearby allies" trait —
+affects it, consistent with parent Healing Turret's own explicit party-wide heal; treated as
+party-wide on that basis. HGH's Might (gated onto Acid Bomb) was resolved the same way: the trait's
+own description has no allies wording, but Acid Bomb's wiki version history states directly "Fixed
+a bug that prevented HGH from properly functioning with this skill and granting might to nearby
+allies." One multi-profession shared skill (Channeled Agony, 37873, a Weapon_5 skill shared across
+all 9 professions) turned up via the Engineer profession-tag filter and was resolved here rather
+than deferred to the not-yet-broken-out shared-skill bucket — self-only, no allies wording found.
+
+`npm run typecheck` and a scoped `eslint` pass on the changed file both clean.
+
 ## Session 100 — Warrior leg of the Group A target-count sweep
 
 Fourth leg of the Group A (ambiguous `"Number of Targets"`) target-count curation sweep
