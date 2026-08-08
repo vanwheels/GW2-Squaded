@@ -6,10 +6,23 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 - [ ] **Gear Optimizer doesn't function properly yet** — flagged by the user 2026-08-05 while
       preparing the 0.2.0 release (shipped anyway, marked "early stage/experimental" in
-      CHANGELOG.md rather than held back). No specific failure mode captured yet — reproduce live
-      (Electron sandbox limitation applies, see memory) and narrow down whether it's a
-      search-algorithm bug, a UI wiring issue, or something in the floor/maximize-tier translation
-      before attempting a fix.
+      CHANGELOG.md rather than held back). No specific failure mode was captured at the time.
+      2026-08-07: since live UI reproduction isn't possible (Electron sandbox limitation), built a
+      standalone repro script (loads real `data/game-data/*.json`, calls `optimizeGear` directly,
+      cross-checks its reported `metricValues` against `computeCharacterStats` — the function
+      `StatsPanel` actually renders from — for the exact same resulting build) and found and fixed
+      one concrete, reproducible bug: `optimizeGear`'s final re-derivation reimplemented
+      `computeCharacterStats`'s accumulation by hand and silently dropped its
+      `applyConversions(activeConsumableConversions(...))` step, so any build with a "Gain X Equal
+      to N% of Your Y" food/utility item (Superior Sharpening Stone, Tuning Crystals, etc. — 69 WvW
+      utility items alone carry this shape, confirmed elsewhere in this codebase as "the dominant
+      WvW Utility-consumable shape") would show an optimizer result that understated the converted
+      stat versus what the Stats panel computes for that identical build (reproduced a ~100-Power
+      understatement on a test Guardian). Fixed in `gear-optimize.ts` — see COMPLETED.md. Left open
+      rather than closed: this is confirmed real and fixed, but wasn't necessarily the only issue
+      behind the original "doesn't function properly" report, and the fix itself is still unverified
+      in the live running app — re-close (or re-open with a fresh failure mode) after an actual
+      in-app check.
 
 ## Scoped features, not yet built
 

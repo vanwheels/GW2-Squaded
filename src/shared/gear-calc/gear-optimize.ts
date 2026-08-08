@@ -1,7 +1,9 @@
 import type { Build, Consumable, EquipmentSlot, EquipmentSlotKey, GameData, ItemStat, Trait } from '../types'
 import {
+  activeConsumableConversions,
   addBonus,
   addPoints,
+  applyConversions,
   boonDurationPercent,
   conditionDurationPercent,
   computeGearAttributeTotals,
@@ -533,18 +535,22 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
   const gearTotals = computeGearAttributeTotals(fixedBuild, gameData)
   const combatPoints = combatStatePoints(build, combatState)
   const traitsById = new Map(gameData.traits.map((t: Trait) => [t.id, t]))
+  const foodById = new Map(gameData.food.map((f) => [f.id, f]))
+  const utilityById = new Map(gameData.utility.map((u) => [u.id, u]))
 
   // Baseline includes active traits' FLAT bonuses (gear-independent, e.g. Revenant/Salvation's
   // "Life Attunement": +120 Healing Power) — safe to fix once like runes/relic. It deliberately
   // does NOT include trait attribute *conversions* (e.g. that same trait's 7% Healing->
-  // Concentration): a conversion's source attribute (Healing here) can itself be a searched
-  // metric, so its true value isn't known until after the search picks gear — folding it into a
-  // pre-search baseline would use an artificially low source value and understate the bonus. The
-  // search itself is therefore a slight underestimate of the true achievable value whenever a
-  // floor/target's metric is boosted by a conversion sourced from another searched metric (a real
-  // but narrow limitation — see TODO.md); the final `metricValues` below are NOT affected, since
-  // those are re-derived from the actual resulting build via `applyTraitBonuses` (full accuracy,
-  // conversions included).
+  // Concentration) OR food/utility "Gain X Equal to N% of Your Y" conversions (e.g. Superior
+  // Sharpening Stone's Power from Precision/Ferocity — confirmed the dominant WvW Utility-consumable
+  // shape, see `activeConsumableConversions`'s doc comment): either conversion's source attribute
+  // can itself be a searched metric, so its true value isn't known until after the search picks
+  // gear — folding it into a pre-search baseline would use an artificially low source value and
+  // understate the bonus. The search itself is therefore a slight underestimate of the true
+  // achievable value whenever a floor/target's metric is boosted by a conversion sourced from
+  // another searched metric (a real but narrow limitation — see TODO.md); the final `metricValues`
+  // below are NOT affected, since those are re-derived from the actual resulting build via
+  // `applyTraitBonuses`/`applyConversions` (full accuracy, conversions included).
   const baseline = emptyTotals()
   for (const [k, v] of Object.entries(BASE_ATTRIBUTES)) addPoints(baseline, k, v)
   for (const [k, v] of Object.entries(gearTotals.points)) addPoints(baseline, k, v)
@@ -626,13 +632,22 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
   // (rather than summing `baseline + chosen deltas` by hand) so the reported `metricValues` are
   // guaranteed to match what the Stats panel would show for this exact build, with zero
   // duplicated math to drift out of sync. Unlike `baseline` above, this applies FULL trait
-  // bonuses (flat + conversions) since every attribute is now fully known.
+  // bonuses (flat + conversions) AND food/utility conversions since every attribute is now fully
+  // known — mirrors `computeCharacterStats`'s own ordering (`applyConversions` before
+  // `applyTraitBonuses`) exactly; previously this block reimplemented that function's accumulation
+  // by hand and silently dropped the `applyConversions` step, so any build with a "Gain X Equal to
+  // N% of Your Y" food/utility item (Superior Sharpening Stone, Tuning Crystals, etc. — 69 WvW
+  // utility items alone carry this shape) would show a `metricValues`/`build` that understated the
+  // converted stat versus what the Stats panel computes for the identical resulting build (found
+  // 2026-08-07 diagnosing the "doesn't function properly" bug report — reproduced a ~100-Power
+  // understatement on a Guardian with Superior Sharpening Stone equipped).
   const finalGearTotals = computeGearAttributeTotals(resultBuild, gameData)
   const finalTotals = emptyTotals()
   for (const [k, v] of Object.entries(BASE_ATTRIBUTES)) addPoints(finalTotals, k, v)
   for (const [k, v] of Object.entries(finalGearTotals.points)) addPoints(finalTotals, k, v)
   for (const [k, v] of Object.entries(combatPoints)) addPoints(finalTotals, k, v)
   finalTotals.bonusPercent = { ...finalGearTotals.bonusPercent }
+  applyConversions(finalTotals, activeConsumableConversions(resultBuild, foodById, utilityById))
   applyTraitBonuses(finalTotals, build, traitsById)
 
   const metricValues: Partial<Record<OptimizerMetricId, number>> = {}

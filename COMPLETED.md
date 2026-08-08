@@ -2,6 +2,41 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 108 — Gear Optimizer bug hunt: found and fixed a real food/utility conversion bug
+
+First real diagnosis pass on the "Gear Optimizer doesn't function properly" bug (flagged
+2026-08-05, no failure mode captured at the time). Live UI reproduction isn't possible here
+(Electron sandbox limitation), so built a standalone Node repro script instead: loaded the real
+`data/game-data/*.json` files directly (same shape `loadGameData` produces, without Electron),
+constructed a realistic `Build`, and called `optimizeGear` with a range of scenarios (floor-only,
+maximize-only, multi-tier lexicographic, infeasible floors, food/utility fixed vs. searched).
+
+Found one genuine, reproducible bug: `optimizeGear`'s final re-derivation step (which its own doc
+comment claims re-derives totals "via the same canonical function `StatsPanel` uses") actually
+reimplements `computeCharacterStats`'s accumulation by hand, and silently omitted its
+`applyConversions(activeConsumableConversions(...))` step — the "Gain X Equal to N% of Your Y"
+food/utility conversion mechanic (Superior Sharpening Stone, Tuning Crystals, etc.). Confirmed via
+a direct A/B: ran `optimizeGear` on a Guardian with Superior Sharpening Stone equipped as a fixed
+utility, then fed the exact same `result.build` into `computeCharacterStats` — the optimizer
+reported Power 2384.05 while the Stats panel's own function computed 2485.62 for the identical
+build, a ~100-point silent understatement. 69 WvW utility items alone carry this conversion shape,
+so this wasn't an edge case.
+
+Fixed by adding the missing `activeConsumableConversions`/`applyConversions` call to the final
+re-derivation block, matching `computeCharacterStats`'s own ordering (conversions before trait
+bonuses). Re-ran the repro script post-fix: optimizer-reported and `computeCharacterStats`-derived
+Power now match exactly for the same test case, and every other scenario (floors, multi-tier
+targets, infeasibility, Armor-only maximize) still produces sane, self-consistent results.
+Deliberately did NOT extend the fix to the pre-search baseline or the search's own delta scoring —
+that already has a documented, intentional limitation for trait conversions (a conversion's source
+attribute can itself be a searched metric, so a pre-search value would understate it); the doc
+comment was updated to note food/utility conversions share the same limitation, consistent with how
+trait conversions were already handled.
+
+Left the TODO.md bug open rather than closed: this is a confirmed, fixed, real bug, but wasn't
+necessarily the only issue behind the original report, and — sandbox limitation still applying —
+the fix itself hasn't been visually confirmed in the actual running app yet.
+
 ## Session 107 — Stationary-sources spot-check for the target-count sweep
 
 Follow-up flagged at the close of the Group A sweep (Session 106): banners/wells/spirits weren't
