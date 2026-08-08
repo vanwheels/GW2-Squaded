@@ -2,6 +2,45 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 115 — Wiki-extraction pipeline step 3: empty-API-facts red-flag scan
+
+Built `scripts/scan-empty-effect-facts.ts` (`npm run scan-empty-effect-facts`), the "does this page
+even carry the template we need" half of TODO.md step 3, sizing the "some skills' real effects live
+entirely outside the API's `facts` array" bug (Otherworldly Bond, flagged 2026-08-07). Two passes,
+console-report only (no data file written): pass 1 is a local, no-network heuristic over
+`skills.json` — a skill is a candidate if it's actually player-equippable (`professions.length > 0`,
+excluding ~2200 monster/NPC/environment skills the raw API also returns), its `facts`/`traitedFacts`
+carry nothing beyond the purely positional/timing types (`Range`/`Recharge`/`Distance`/`Radius`), and
+its description is substantive (>=60 chars after stripping wiki markup). Pass 2 resolves each
+candidate's wiki page (a simplified 2-tier version of `fetch-skill-coefficients.ts`'s
+`resolveSkillPage` — direct title + MediaWiki-search fallback, each self-verified against the page's
+own `| id = N` field; no sibling-attribution tier needed for a report script) and checks whether its
+`{{skill fact|LABEL|...}}` templates include any LABEL beyond that same meta set.
+
+Pass 1 alone found 73 candidates, but spot-checking showed it's dominated by a real, well-understood
+non-bug pattern (kit-equip/legend-stance/shroud-toggle skills with a genuine, sometimes-long
+description but no further numeric effect — their sub-skills carry the facts, not the toggle).
+Rather than hand-pattern-matching description text to filter these out, pass 2 does it automatically
+and more reliably: those toggle skills' wiki pages *also* carry nothing beyond Range/Recharge — the
+wiki agreeing with the API is strong evidence there's genuinely nothing more to model, a much better
+signal than description length alone.
+
+Final run: **43 ids / 37 unique skill names DO have a non-meta wiki template the local API data
+omits** (the actionable, Otherworldly-Bond-shaped findings — confirmed live for id 71952 itself: 15+
+enemy-target/ally-target/vulnerability/crippled/slow/might/fury/duration/interval lines fully
+describing the tether mechanic), 26 confirmed non-issues (the toggle pattern above, plus "X:
+Backfired" cooldown-placeholder skills), 4 unresolved (no wiki page found/verified). Notable clusters
+in the 37: all 5 Deadeye "Elixir of ___" skills (10-24 wiki fact lines apiece, the single biggest
+gap), 9 Catalyst Hammer Dual Attacks, Vindicator's downed-state skill kit, Willbender's virtue
+skills, Bladesworn's Shadowsquall pair. Full findings recorded in TODO.md's "empty-API-facts" bug
+entry, including the profession/skill breakdown.
+
+Deliberately not done in this pass: no actual `Fact` data was generated or curated for any of the 37
+— this script only locates and sizes the gap. Modeling any of them needs per-skill `Fact`-shape
+design (dual ally/enemy-target branches, elixir stacking tiers, etc.), scoped as its own follow-up
+item in TODO.md, not started. The target-count/Condition-Cleanse self-vs-party half of step 3 is
+also still unstarted — this session only closed the empty-API-facts half.
+
 ## Session 114 — Wiki-extraction pipeline: shared raw-wikitext cache (TODO.md step 2)
 
 Built `scripts/lib/wiki-cache.ts`: a shared on-disk cache (`.cache/wiki-pages.json`, already

@@ -49,17 +49,36 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       nothing describing the actual tether mechanic (different effect on an ally target vs. an enemy
       target, strengthening over time). This app's tooltip only ever renders `skill.facts`/
       `traitedFacts`, so a skill like this shows flavor text and nothing else, with no indication
-      anything is missing. Not confirmed to be Otherworldly-Bond-specific — no full-game scan done
-      yet for "substantive description, empty or near-empty facts array" as a red flag (same shape of
-      scan that sized the `PrefixedBuff` gap above). User's concern 2026-08-07: this may not be a
-      one-off, and the app has been trusting API facts as complete ground truth more than it
-      should — gw2skills.net (further along in this same problem space) maintains its own separate,
-      hand-curated data pipeline specifically because the official API has real content gaps, but even
-      they lag official patches meaningfully (their site only reflected the 7-14-2026 balance patch as
-      of 8-6-2026, over 3 weeks late). Building an equivalent hand-curated layer here would fix
-      completeness but hands this app the same lag/maintenance burden gw2skills already carries.
-      Before committing to a full curation sweep: run the red-flag scan first to size how big this
-      actually is, same scan-first approach as the `PrefixedBuff` bug above.
+      anything is missing. User's concern 2026-08-07: this may not be a one-off, and the app has been
+      trusting API facts as complete ground truth more than it should — gw2skills.net (further along
+      in this same problem space) maintains its own separate, hand-curated data pipeline specifically
+      because the official API has real content gaps, but even they lag official patches meaningfully
+      (their site only reflected the 7-14-2026 balance patch as of 8-6-2026, over 3 weeks late).
+      Building an equivalent hand-curated layer here would fix completeness but hands this app the
+      same lag/maintenance burden gw2skills already carries.
+
+      **Red-flag scan DONE 2026-08-08** (see COMPLETED.md Session 115): built
+      `scripts/scan-empty-effect-facts.ts` (`npm run scan-empty-effect-facts`) — confirms this is NOT
+      an Otherworldly-Bond one-off. Pass 1 (local): of 4702 total skills, 73 player-equippable ones
+      have a substantive description (>=60 chars) but zero facts beyond
+      Range/Recharge/Distance/Radius. Pass 2 (wiki): resolved each candidate's wiki page and checked
+      for a structured `{{skill fact|...}}` template beyond that same meta set — **43 ids / 37 unique
+      skill names DO have one** (the wiki documents real mechanic data this app's local API data
+      omits entirely, same shape as Otherworldly Bond itself — confirmed live in its own template
+      dump: 15+ enemy-target/ally-target/vulnerability/crippled/slow/might/fury/duration/interval
+      lines fully describing the tether), 26 confirmed non-issues (kit-equip/legend-stance/shroud
+      toggles and "X: Backfired" placeholder skills — the wiki agrees with the API there's nothing
+      more to model), 4 unresolved (no wiki page found/verified, needs a manual look). Notable
+      clusters in the 37: all 5 Deadeye "Elixir of ___" skills (Bliss/Risk/Ambition/Anguish/Promise,
+      each 2-3 ids for base+elite-spec variants, 10-24 wiki fact lines apiece — the biggest single
+      gap), 9 Catalyst Hammer Dual Attacks (Frostfire Flurry/Ward, Flowing Finesse, Dazing Discharge,
+      Molten Meteor, Shattering Stone, Echoing Erosion, Shale Storm, Elutriate, Galvanize), Vindicator
+      downed-state skills (Voracious Arc/Cut/Dive, Devouring Cut, Anguish), Willbender virtue skills
+      (Radiant Resolve/Justice), Bladesworn's Shadowsquall/Malicious Shadowsquall, and Otherworldly
+      Bond itself. **Not yet fixed** — this scan only locates and sizes the gap (37 skills' worth);
+      actually modeling any of these requires per-skill `Fact`-shape design work beyond a flat
+      coefficient table (dual ally/enemy-target branches, elixir stacking tiers, etc.) — scoped as its
+      own follow-up curation item, not started.
 
 - [ ] **Skill tooltips never show a skill's own Misc/Control/Strip-Corrupt/Combo/Aura facts** —
       flagged by the user 2026-08-07, concrete example: skills that apply Superspeed correctly show
@@ -267,9 +286,16 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
          got). The `revisionId` each entry stores isn't consulted by anything yet — that's step 4
          below (Game_updates diffing), not built.
       3. Extend the same skeleton to the still-open gap types: target-count/Condition-Cleanse
-         self-vs-party wording, and a "does this page even carry the template we need" check for the
-         empty-API-facts problem (fails safe into an exception list instead of trying to parse prose
-         — mirrors relics' existing name-collision exception handling in `fetch-relic-effects.ts`).
+         self-vs-party wording (not started), and a "does this page even carry the template we need"
+         check for the empty-API-facts problem. **Empty-API-facts half DONE 2026-08-08** (see
+         COMPLETED.md Session 115 and this file's own "empty-API-facts" bug entry above): built
+         `scripts/scan-empty-effect-facts.ts` — rather than a hand-maintained exception list (the
+         relics-style approach originally proposed here), it's a live per-candidate presence check
+         (does the wiki page's own `{{skill fact}}` templates include a label beyond
+         Range/Recharge/Distance/Radius) that sorts every local red-flag candidate into "wiki has more
+         than the API" (actionable, 43 ids) vs. "wiki agrees with the API" (confirmed non-issue, 26)
+         vs. unresolved (4) — a live classifier, not a static exception list, since the two buckets
+         will shift as the API/wiki both change over time.
       4. Wire it to the not-yet-built "Curation-side change detection" mechanism in the Automatic
          game-data refresh item above (Game_updates page diffing) — once that exists, re-running
          these fetch scripts only needs to touch pages it flags as changed, not a periodic full
