@@ -2,6 +2,61 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 120 — Wire wiki-pipeline output to data/game-data/ (audit-trail)
+
+Picked up the wiki-extraction pipeline where Session 119 left off. Asked the user which of 3
+open follow-ups to do next (data-file output for the damage/target-count pilots; step 4
+change-detection wiring; curating the 35 empty-facts skills) — user picked data-file output.
+
+That option itself had a real design fork: `CURATED_DAMAGE_COEFFICIENTS`
+(`src/shared/skill-calc/damage-calc.ts`) and `TARGET_COUNT_OVERRIDES`
+(`src/shared/boon-calc/sources.ts`) are hand-typed TS literals the running app already computes
+from directly — unlike `relic-effects.json` and friends, there was no existing "generated JSON
+file the app reads" pattern for these two fact types to slot into. Asked the user to choose among
+3 shapes: (a) audit-trail only (a verification-status file per fact type, doesn't change app
+behavior), (b) persist just the open gaps as a curation backlog, (c) convert the curated tables
+themselves into generated JSON with hand-curated judgment calls layered on top. User picked (a),
+the lowest-risk option — the curated tables still carry entries the scripts honestly can't
+auto-resolve (12 MISSING / 43 SKIP / 11 UNRESOLVED COLLISION for damage coefficients alone), so
+promoting wiki-derived data to the app's source of truth wasn't safe yet.
+
+**Built:**
+- `scripts/lib/wiki-verification.ts` — shared writer for both scripts. `WikiVerificationEntry`
+  (sourceKind, id, name, optional factText, status bucket, curated/wiki values, wiki
+  title+revisionId, optional detail) + `WikiVerificationFile` wrapper (sourceTable, script,
+  generatedAt, totalEntries, a `summary` computed from the entries, and the entries themselves).
+  `writeVerificationFile(filename, meta, entries)` computes the summary and writes to
+  `data/game-data/<filename>`.
+- `scripts/lib/wiki-cache.ts` gained `getWikiRevisionId(title)` — the on-disk cache (built Session
+  114) already stored each page's MediaWiki revision id but never exposed it to callers; this reads
+  it from the in-memory cache for a title already fetched via `fetchWikiPage` in the same run,
+  without changing that function's existing return type (every caller destructures it as a bare
+  string).
+- `fetch-skill-coefficients.ts` and `fetch-target-counts.ts` both now push one
+  `WikiVerificationEntry` at every decision point they already had (match, known-gap, mismatch,
+  missing, skip, not-found, unresolved-collision, plus the requiresTrait/off-by-one/ambiguous/self
+  variants each script has of its own) and call `writeVerificationFile` once at the end of `main()`,
+  right after `flushWikiCache()`. No change to either script's actual comparison logic — this is a
+  pure output-wiring addition, verified by re-running both against a fresh-ish cache and confirming
+  the console numbers are byte-identical to the last-recorded run: damage coefficients (MATCH
+  984/1052, MISMATCH 0, MISSING 12, SKIP 43, UNRESOLVED COLLISION 11) and target counts (MATCH 114,
+  OFF-BY-ONE 1, MISSING 255, UNRESOLVED COLLISION 9).
+- One granularity wrinkle, not a bug: the damage-coefficient script's console counters are
+  per-skill (one `unresolvedCollisions.push` per candidate id), but `WikiVerificationEntry` is
+  per-curated-value (one record per factText) — so a skill with 2 factText entries that hits
+  unresolved-collision contributes 2 records, not 1. Confirmed the JSON's own `summary` still
+  reconciles exactly against `totalEntries` (1052 and 379 respectively), just at finer grain than
+  the console log. `target-count-verification.json` doesn't have this wrinkle — one curated value
+  per candidate there, so console and JSON counts match 1:1.
+- `docs/game-data.md`: added the 2 new filenames to "Output files" flagged as **not** app-runtime
+  data (every other file in that list is), plus a new "Wiki-verification audit trail" section
+  explaining why they exist, what writes them, and that the hand-curated tables remain the sole
+  source of truth — these files change zero app behavior.
+
+`npx tsc`/`npx eslint` clean. Not wired into any change-detection mechanism yet (that's TODO.md's
+still-separate step 4) — this only makes the diff persist across sessions instead of scrolling off
+a terminal.
+
 ## Session 119 — Wire CONDITION_CLEANSE_TARGETS into the UI
 
 TODO.md's Condition Cleanse item's last remaining piece: `CONDITION_CLEANSE_TARGETS` (built Session

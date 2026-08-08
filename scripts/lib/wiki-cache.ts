@@ -73,6 +73,18 @@ interface WikiQueryResponse {
 }
 
 /**
+ * Returns the MediaWiki revision id for a title already fetched via `fetchWikiPage` in this
+ * process (undefined otherwise — this never triggers a fetch of its own). Used by callers that
+ * want to record which exact wiki revision a value was verified against (e.g. the
+ * wiki-verification audit trail in `scripts/lib/wiki-verification.ts`) without changing
+ * `fetchWikiPage`'s own return type, which every existing caller already destructures as a bare
+ * string.
+ */
+export function getWikiRevisionId(title: string): number | undefined {
+  return cache?.[title]?.revisionId
+}
+
+/**
  * Returns a wiki page's raw wikitext, transparently caching across every script that calls it
  * (see module doc comment). Returns null for a nonexistent page — same contract every prior
  * per-script `fetchRawWikitext` used for its 404 case, so callers don't need to change.

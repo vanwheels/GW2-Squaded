@@ -318,8 +318,10 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
          MISSING 12 (was 15), SKIP 43 (was 44), UNRESOLVED COLLISION 11 (was 22). Remaining residual
          in all 3 buckets individually spot-checked and characterized as genuinely irreducible without
          either free-text wiki prose parsing or a fundamentally different signal — recommended as the
-         documented judgment tail, not chased further this session. Still not done: output written to
-         `data/game-data/` (still console-only).
+         documented judgment tail, not chased further this session. **Output-writing DONE
+         2026-08-08** (see COMPLETED.md Session 120 and the new "wire output to data/game-data/"
+         bullet at the end of this section) — writes `data/game-data/skill-coefficient-verification.json`,
+         an audit trail only, not consumed by the app.
       2. **DONE 2026-08-08** (see COMPLETED.md Session 114): built `scripts/lib/wiki-cache.ts`, a
          shared on-disk raw-wikitext cache (`.cache/wiki-pages.json`, gitignored) keyed by exact
          title + MediaWiki's own revision id, fetched together in one `action=query`
@@ -372,7 +374,10 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
          MATCH 114, OFF-BY-ONE 1** (the known Phalanx Strength "N other targets" convention),
          **MISSING 255** (no wiki evidence either way, relying on the sweep's documented default-5/
          self assumption), UNRESOLVED COLLISION 9. Fully corroborates the 2026-08-06/07 sweep
-         wherever the wiki has evidence to check it against — no data file written, validation only.
+         wherever the wiki has evidence to check it against. **Output-writing DONE 2026-08-08**
+         (see COMPLETED.md Session 120) — writes `data/game-data/target-count-verification.json`,
+         an audit trail only, not consumed by the app; see the new "wire output to data/game-data/"
+         bullet at the end of this section.
          **Condition Cleanse half DONE 2026-08-08** (this bullet's other named gap type): built
          `scripts/fetch-condition-cleanse.ts` as a first-draft classifier (proposes a classification
          rather than diffing an existing table, a different shape than this bullet's other two legs —
@@ -384,6 +389,29 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
          these fetch scripts only needs to touch pages it flags as changed, not a periodic full
          re-sweep. This is the actual "update only via the wiki's patch notes" end state the user
          asked about 2026-08-07.
+
+      **"Wire output to data/game-data/" DONE 2026-08-08** (see COMPLETED.md Session 120): the
+      damage-coefficient and target-count pilots were both console-only up to this point — this
+      writes what they already compute into `data/game-data/skill-coefficient-verification.json` /
+      `target-count-verification.json` so a future session reads a file instead of re-running the
+      script. User-scoped explicitly as **audit-trail only** (offered against 2 other shapes: a
+      curation-queue file of just the open gaps, or converting the curated tables themselves into
+      generated JSON — the user picked audit-trail as the lowest-risk option, since the curated
+      tables still have unresolved judgment-call entries a full auto-generation would have had to
+      paper over). `CURATED_DAMAGE_COEFFICIENTS`/`TARGET_COUNT_OVERRIDES` remain the only thing the
+      running app computes from — these files change zero app behavior, they're a persisted version
+      of the same diff both scripts already printed to console. Shared writer:
+      `scripts/lib/wiki-verification.ts` (`WikiVerificationEntry`/`writeVerificationFile`, one
+      record per curated value checked, not per candidate id — a multi-factText skill produces
+      multiple records). `scripts/lib/wiki-cache.ts` gained `getWikiRevisionId(title)` so each
+      record can cite the exact wiki revision it was checked against (the cache already stored this
+      per TODO.md step 2, just hadn't been exposed to callers). Both scripts re-run clean against a
+      fresh cache and reproduce their last-recorded numbers exactly (damage: MATCH 984/1052,
+      MISMATCH 0, MISSING 12, SKIP 43, UNRESOLVED COLLISION 11; target-count: MATCH 114, OFF-BY-ONE
+      1, MISSING 255, UNRESOLVED COLLISION 9) — this was a pure output-wiring change, not a logic
+      change. Documented as a deliberate architecture exception in `docs/game-data.md`'s "Wiki-
+      verification audit trail" section, since it's the only pair of files in `data/game-data/` the
+      app does NOT read at runtime. `npx tsc`/`npx eslint` clean.
 
       Known hard limit: some skills' real effects (Otherworldly Bond above) live in wiki prose, not
       any structured template at all — no regex script fixes that; those stay a small hand-curated

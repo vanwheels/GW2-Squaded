@@ -49,13 +49,22 @@
  *    separately (OFF-BY-ONE) rather than silently treated as a match or a mismatch.
  *
  * Run manually via `npm run fetch-target-counts`, after `npm run fetch-game-data`.
+ *
+ * Writes `data/game-data/target-count-verification.json` at the end of every run (TODO.md's
+ * "wire output to data/game-data/" step, 2026-08-08) via `scripts/lib/wiki-verification.ts` — one
+ * record per curated candidate, capturing its outcome bucket + the wiki title/revision it was
+ * checked against. This is an audit trail only: `TARGET_COUNT_OVERRIDES` itself remains the sole
+ * source of truth the running app computes from, this file changes no app behavior. See that
+ * module's own doc comment for why it lives in `data/game-data/` despite not being app-runtime
+ * data.
  */
 import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Skill, Trait } from '../src/shared/types/game-data'
 import { TARGET_COUNT_OVERRIDES, type TargetCountOverride } from '../src/shared/boon-calc/sources'
-import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
+import { fetchWikiPage, flushWikiCache, getWikiRevisionId } from './lib/wiki-cache'
+import { writeVerificationFile, type WikiVerificationEntry } from './lib/wiki-verification'
 
 const WIKI_API = 'https://wiki.guildwars2.com/api.php'
 // Same gotcha as every other fetch-*.ts script: the wiki returns 403 for Node's default User-Agent.
@@ -271,12 +280,14 @@ async function main(): Promise<void> {
   const disambiguatedLog: string[] = []
   const siblingLog: string[] = []
   const missingFactsHits: string[] = []
+  const records: WikiVerificationEntry[] = []
 
   let processed = 0
   for (const c of candidates) {
     const entity = c.sourceKind === 'skill' ? skillsById.get(c.id) : traitsById.get(c.id)
     if (!entity) {
       notFound.push(`${c.sourceKind} id ${c.id} not found in local game-data (curated=${c.curated})`)
+      records.push({ sourceKind: c.sourceKind, id: c.id, name: c.name, status: 'not-found', curatedValue: c.curated, detail: 'not found in local game-data' })
       processed++
       continue
     }
@@ -288,6 +299,7 @@ async function main(): Promise<void> {
       resolution = await resolvePage(entity.name, c.id, c.sourceKind, c.curated, entityById, curatedTable)
     } catch (err) {
       notFound.push(`fetch error: ${c.sourceKind} ${c.id} "${entity.name}" — ${(err as Error).message}`)
+      records.push({ sourceKind: c.sourceKind, id: c.id, name: entity.name, status: 'not-found', curatedValue: c.curated, detail: `fetch error: ${(err as Error).message}` })
       processed++
       if (processed % 50 === 0) console.log(`  [${processed}/${candidates.length}] checked...`)
       continue
@@ -295,12 +307,14 @@ async function main(): Promise<void> {
 
     if (resolution.status === 'not-found') {
       notFound.push(`no wiki page found for: ${c.sourceKind} ${c.id} "${entity.name}" (tried: ${titleVariants(entity.name).join(', ')})`)
+      records.push({ sourceKind: c.sourceKind, id: c.id, name: entity.name, status: 'not-found', curatedValue: c.curated, detail: `no wiki page found (tried: ${titleVariants(entity.name).join(', ')})` })
       processed++
       if (processed % 50 === 0) console.log(`  [${processed}/${candidates.length}] checked...`)
       continue
     }
     if (resolution.status === 'unresolved-collision') {
       unresolvedCollisions.push(`${c.sourceKind} ${c.id} "${entity.name}" — ${resolution.note}`)
+      records.push({ sourceKind: c.sourceKind, id: c.id, name: entity.name, status: 'unresolved-collision', curatedValue: c.curated, detail: resolution.note })
       processed++
       if (processed % 50 === 0) console.log(`  [${processed}/${candidates.length}] checked...`)
       continue
@@ -312,6 +326,8 @@ async function main(): Promise<void> {
       siblingCount++
       siblingLog.push(`${c.sourceKind} ${c.id} "${entity.name}" — attributed to "${resolution.title}" via a sibling id TARGET_COUNT_OVERRIDES already asserts an identical curated value for`)
     }
+    const wikiTitle = resolution.title
+    const wikiRevisionId = getWikiRevisionId(resolution.title)
 
     const parsed = parseTargetFacts(resolution.wikitext)
     // A bare (unlabeled) 'targets' template inside missing facts= is only trusted as an ally count
@@ -337,6 +353,7 @@ async function main(): Promise<void> {
     if (c.curated === 'self') {
       if (distinctValues.length === 0) {
         matchSelf++
+        records.push({ sourceKind: c.sourceKind, id: c.id, name: entity.name, status: 'match', curatedValue: 'self', wikiTitle, wikiRevisionId })
       } else {
         selfButHasAllyFact.push(
           `${c.sourceKind} ${c.id} "${entity.name}" — curated 'self' but wiki has an ally-labeled targets` +
@@ -344,6 +361,11 @@ async function main(): Promise<void> {
             ` source, per this table's own documented per-buff-line-conflict exclusions — needs a human read,` +
             ` not auto-corrected here)`
         )
+        records.push({
+          sourceKind: c.sourceKind, id: c.id, name: entity.name, status: 'mismatch', curatedValue: 'self',
+          wikiValue: distinctValues.join('/'), wikiTitle, wikiRevisionId,
+          detail: 'may describe a different boon on the same multi-boon source — needs a human read'
+        })
       }
       processed++
       if (processed % 50 === 0) console.log(`  [${processed}/${candidates.length}] checked...`)
@@ -352,17 +374,22 @@ async function main(): Promise<void> {
 
     if (distinctValues.length === 0) {
       missing.push(`${c.sourceKind} ${c.id} "${entity.name}" — no ally-labeled targets fact found on wiki (curated=${c.curated})`)
+      records.push({ sourceKind: c.sourceKind, id: c.id, name: entity.name, status: 'missing', curatedValue: c.curated, wikiTitle, wikiRevisionId })
     } else if (distinctValues.length > 1) {
       ambiguous.push(`${c.sourceKind} ${c.id} "${entity.name}" — multiple conflicting ally-count values found: ${distinctValues.join(', ')} (curated=${c.curated})`)
+      records.push({ sourceKind: c.sourceKind, id: c.id, name: entity.name, status: 'ambiguous', curatedValue: c.curated, wikiValue: distinctValues.join(', '), wikiTitle, wikiRevisionId })
     } else {
       const wikiValue = distinctValues[0]
       if (wikiValue === c.curated) {
         matchNumber++
+        records.push({ sourceKind: c.sourceKind, id: c.id, name: entity.name, status: 'match', curatedValue: c.curated, wikiValue, wikiTitle, wikiRevisionId })
       } else if (wikiValue === c.curated - 1) {
         offByOne++
         offByOneLog.push(`${c.sourceKind} ${c.id} "${entity.name}" — curated=${c.curated}, wiki-derived=${wikiValue} (curated - 1)`)
+        records.push({ sourceKind: c.sourceKind, id: c.id, name: entity.name, status: 'off-by-one', curatedValue: c.curated, wikiValue, wikiTitle, wikiRevisionId })
       } else {
         mismatches.push(`${c.sourceKind} ${c.id} "${entity.name}" — curated=${c.curated}, wiki-derived=${wikiValue}`)
+        records.push({ sourceKind: c.sourceKind, id: c.id, name: entity.name, status: 'mismatch', curatedValue: c.curated, wikiValue, wikiTitle, wikiRevisionId })
       }
     }
 
@@ -402,6 +429,12 @@ async function main(): Promise<void> {
   section("Used a 'missing facts=' bare targets hit (informational — spot-check these)", missingFactsHits)
 
   await flushWikiCache()
+  await writeVerificationFile(
+    'target-count-verification.json',
+    { sourceTable: 'TARGET_COUNT_OVERRIDES', script: 'fetch-target-counts.ts' },
+    records
+  )
+  console.log(`\nWrote ${records.length} verification records to data/game-data/target-count-verification.json`)
 }
 
 main().catch((err) => {

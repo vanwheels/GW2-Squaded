@@ -76,13 +76,22 @@
  * pipeline step 2, 2026-08-08) — a shared on-disk cache keyed by title + revision id, so a page
  * this script already fetched isn't re-fetched from scratch by the next gap-type sweep touching
  * the same page. See that module's doc comment for the caching contract.
+ *
+ * Writes `data/game-data/skill-coefficient-verification.json` at the end of every run (TODO.md's
+ * "wire output to data/game-data/" step, 2026-08-08) via `scripts/lib/wiki-verification.ts` — one
+ * record per curated coefficient entry, capturing its outcome bucket + the wiki title/revision it
+ * was checked against. This is an audit trail only: `CURATED_DAMAGE_COEFFICIENTS` itself remains
+ * the sole source of truth the running app computes from, this file changes no app behavior. See
+ * that module's own doc comment for why it lives in `data/game-data/` despite not being
+ * app-runtime data.
  */
 import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Fact, Skill, Trait } from '../src/shared/types/game-data'
 import { CURATED_DAMAGE_COEFFICIENTS, type DamageCoefficient } from '../src/shared/skill-calc/damage-calc'
-import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
+import { fetchWikiPage, flushWikiCache, getWikiRevisionId } from './lib/wiki-cache'
+import { writeVerificationFile, type WikiVerificationEntry } from './lib/wiki-verification'
 
 const WIKI_API = 'https://wiki.guildwars2.com/api.php'
 // Same gotcha as every other fetch-*.ts script: the wiki returns 403 for Node's default User-Agent.
@@ -375,6 +384,7 @@ async function main(): Promise<void> {
   const traitSkips: string[] = []
   let knownGapCount = 0
   const knownGapLog: string[] = []
+  const records: WikiVerificationEntry[] = []
 
   let processed = 0
   for (const id of candidateIds) {
@@ -383,6 +393,9 @@ async function main(): Promise<void> {
 
     if (!skill) {
       notFound.push(`skill id ${id} not found in local skills.json (curated ${curatedEntries.length} entries)`)
+      for (const entry of curatedEntries) {
+        records.push({ sourceKind: 'skill', id, name: `(unknown skill ${id})`, factText: entry.factText, status: 'not-found', curatedValue: entry.coefficient, detail: 'not found in local skills.json' })
+      }
       processed++
       continue
     }
@@ -392,6 +405,9 @@ async function main(): Promise<void> {
       resolution = await resolveSkillPage(skill, skillsById)
     } catch (err) {
       notFound.push(`fetch error: skill ${id} "${skill.name}" — ${(err as Error).message}`)
+      for (const entry of curatedEntries) {
+        records.push({ sourceKind: 'skill', id, name: skill.name, factText: entry.factText, status: 'not-found', curatedValue: entry.coefficient, detail: `fetch error: ${(err as Error).message}` })
+      }
       processed++
       if (processed % 50 === 0) console.log(`  [${processed}/${candidateIds.length}] skills checked...`)
       continue
@@ -399,12 +415,18 @@ async function main(): Promise<void> {
 
     if (resolution.status === 'not-found') {
       notFound.push(`no wiki page found for: skill ${id} "${skill.name}" (tried: ${titleVariants(skill.name).join(', ')})`)
+      for (const entry of curatedEntries) {
+        records.push({ sourceKind: 'skill', id, name: skill.name, factText: entry.factText, status: 'not-found', curatedValue: entry.coefficient, detail: `no wiki page found (tried: ${titleVariants(skill.name).join(', ')})` })
+      }
       processed++
       if (processed % 50 === 0) console.log(`  [${processed}/${candidateIds.length}] skills checked...`)
       continue
     }
     if (resolution.status === 'unresolved-collision') {
       unresolvedCollisions.push(`skill ${id} "${skill.name}" — ${resolution.note}`)
+      for (const entry of curatedEntries) {
+        records.push({ sourceKind: 'skill', id, name: skill.name, factText: entry.factText, status: 'unresolved-collision', curatedValue: entry.coefficient, detail: resolution.note })
+      }
       processed++
       if (processed % 50 === 0) console.log(`  [${processed}/${candidateIds.length}] skills checked...`)
       continue
@@ -416,6 +438,8 @@ async function main(): Promise<void> {
       siblingCount++
       siblingLog.push(`skill ${id} "${skill.name}" — attributed to "${resolution.title}" via a sibling id CURATED_DAMAGE_COEFFICIENTS already asserts identical values for (see curatedEntriesEqual)`)
     }
+    const wikiTitle = resolution.title
+    const wikiRevisionId = getWikiRevisionId(resolution.title)
 
     const parsed = parseDamageFactLines(resolution.wikitext)
     // Case/whitespace-normalized key: the wiki's own `alt=` text and the local API's curated
@@ -443,15 +467,30 @@ async function main(): Promise<void> {
             `SKIP (requiresTrait, unvalidatable shape): skill ${id} "${skill.name}" / "${entry.factText}"` +
               ` requiresTrait=${entry.requiresTrait} (${trait?.name ?? 'trait not found'})`
           )
+          records.push({
+            sourceKind: 'skill', id, name: skill.name, factText: entry.factText, status: 'skip',
+            curatedValue: entry.coefficient, wikiTitle, wikiRevisionId,
+            detail: `requiresTrait=${entry.requiresTrait} (${trait?.name ?? 'trait not found'}) — unvalidatable shape`
+          })
           continue
         }
         if (Math.abs(validated.expected - entry.coefficient) <= EPSILON) {
           traitMatchCount++
+          records.push({
+            sourceKind: 'skill', id, name: skill.name, factText: entry.factText, status: 'match',
+            curatedValue: entry.coefficient, wikiValue: validated.expected, wikiTitle, wikiRevisionId,
+            detail: `requiresTrait=${entry.requiresTrait} (${trait?.name}), base*${1 + validated.percent / 100}`
+          })
         } else {
           traitMismatches.push(
             `MISMATCH (requiresTrait): skill ${id} "${skill.name}" / "${entry.factText}" requiresTrait=${entry.requiresTrait}` +
               ` (${trait?.name}) — curated=${entry.coefficient}, expected(base*${1 + validated.percent / 100})=${validated.expected}`
           )
+          records.push({
+            sourceKind: 'skill', id, name: skill.name, factText: entry.factText, status: 'mismatch',
+            curatedValue: entry.coefficient, wikiValue: validated.expected, wikiTitle, wikiRevisionId,
+            detail: `requiresTrait=${entry.requiresTrait} (${trait?.name}), expected base*${1 + validated.percent / 100}`
+          })
         }
         continue
       }
@@ -459,12 +498,21 @@ async function main(): Promise<void> {
       const lines = byFactText.get(normalizeFactText(entry.factText))
       if (!lines || lines.length === 0) {
         missing.push(`MISSING: skill ${id} "${skill.name}" / "${entry.factText}" — no {{skill fact|damage}} line parsed for this factText`)
+        records.push({
+          sourceKind: 'skill', id, name: skill.name, factText: entry.factText, status: 'missing',
+          curatedValue: entry.coefficient, wikiTitle, wikiRevisionId,
+          detail: 'no {{skill fact|damage}} line parsed for this factText'
+        })
         continue
       }
 
       const resolved = resolveWvwLine(lines)
       if (resolved.status !== 'ok') {
         skips.push(`SKIP (${resolved.status}): skill ${id} "${skill.name}" / "${entry.factText}"`)
+        records.push({
+          sourceKind: 'skill', id, name: skill.name, factText: entry.factText, status: 'skip',
+          curatedValue: entry.coefficient, wikiTitle, wikiRevisionId, detail: resolved.status
+        })
         continue
       }
       const line = resolved.line
@@ -482,16 +530,29 @@ async function main(): Promise<void> {
 
       if (Math.abs(total - entry.coefficient) <= EPSILON) {
         matchCount++
+        records.push({
+          sourceKind: 'skill', id, name: skill.name, factText: entry.factText, status: 'match',
+          curatedValue: entry.coefficient, wikiValue: total, wikiTitle, wikiRevisionId
+        })
       } else {
         const knownGap = KNOWN_WIKI_GAPS[id]
         if (knownGap && knownGap.factText === entry.factText) {
           knownGapCount++
           knownGapLog.push(`skill ${id} "${skill.name}" / "${entry.factText}" — curated=${entry.coefficient} corroborated: ${knownGap.reason}`)
+          records.push({
+            sourceKind: 'skill', id, name: skill.name, factText: entry.factText, status: 'known-gap',
+            curatedValue: entry.coefficient, wikiValue: total, wikiTitle, wikiRevisionId, detail: knownGap.reason
+          })
         } else {
           mismatches.push(
             `MISMATCH: skill ${id} "${skill.name}" / "${entry.factText}" — curated=${entry.coefficient}, wiki-derived=${total}` +
               ` (raw wiki coefficient=${line.coefficient}, strikes=${line.strikes ?? 'n/a'})`
           )
+          records.push({
+            sourceKind: 'skill', id, name: skill.name, factText: entry.factText, status: 'mismatch',
+            curatedValue: entry.coefficient, wikiValue: total, wikiTitle, wikiRevisionId,
+            detail: `raw wiki coefficient=${line.coefficient}, strikes=${line.strikes ?? 'n/a'}`
+          })
         }
       }
     }
@@ -556,6 +617,12 @@ async function main(): Promise<void> {
   }
 
   await flushWikiCache()
+  await writeVerificationFile(
+    'skill-coefficient-verification.json',
+    { sourceTable: 'CURATED_DAMAGE_COEFFICIENTS', script: 'fetch-skill-coefficients.ts' },
+    records
+  )
+  console.log(`\nWrote ${records.length} verification records to data/game-data/skill-coefficient-verification.json`)
 }
 
 main().catch((err) => {

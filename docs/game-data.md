@@ -98,6 +98,8 @@ needing to run the fetch script immediately:
 - `familiars.json` — Elementalist Evoker familiars; see below
 - `meta.json` — just `{ fetchedAt }`, so the app/UI can eventually surface "game data last
   updated on ..." somewhere.
+- `skill-coefficient-verification.json` / `target-count-verification.json` — **not read by the
+  app at runtime**, unlike every file above. See "Wiki-verification audit trail" below.
 
 ## Revenant legends (`legends.json`)
 
@@ -1135,3 +1137,29 @@ All 4 groups from the TODO.md bullet are now resolved; the bullet itself was rem
 `npm run typecheck`/`npm run lint` clean. Not visually spot-checked in the running app (Electron
 sandbox limitation) — verify live that equipping Gadgeteer swaps the Throw Mine picker entry to
 `30337`.
+
+## Wiki-verification audit trail (`skill-coefficient-verification.json`, `target-count-verification.json`)
+
+Two files that look like every other entry in "Output files" above but aren't: they are **not**
+read by the app at runtime, and never will be by design. Every other file in `data/game-data/`
+exists so the app can compute something from it; these two exist so a *future dev session* has
+somewhere to look instead of re-running a script and re-reading a console dump.
+
+Written by `scripts/fetch-skill-coefficients.ts` and `scripts/fetch-target-counts.ts`
+respectively (both `npm run fetch-skill-coefficients` / `npm run fetch-target-counts`), via the
+shared writer in `scripts/lib/wiki-verification.ts`. Each run re-derives every value in a
+hand-curated table (`CURATED_DAMAGE_COEFFICIENTS` in `src/shared/skill-calc/damage-calc.ts`, or
+`TARGET_COUNT_OVERRIDES` in `src/shared/boon-calc/sources.ts`) from live wiki wikitext and diffs
+it against the curated value, same as the console report both scripts already printed before this
+existed — the JSON file just persists that diff instead of throwing it away when the terminal
+scrolls past it. Shape: one record per curated value checked (a damage-coefficient candidate with
+2 factText entries produces 2 records, not 1), each carrying an outcome bucket (`match`,
+`mismatch`, `missing`, `skip`, `unresolved-collision`, ...), the curated vs. wiki-derived value,
+and the wiki page title + MediaWiki revision id it was checked against.
+
+**The hand-curated tables remain the sole source of truth the running app computes from.** These
+files change no app behavior — they exist purely as a queue: a `mismatch` entry means "this
+curated value and the live wiki now disagree, a human should look," which is exactly the
+change-detection problem TODO.md's still-unbuilt step 4 (Game_updates page diffing) is meant to
+eventually automate. Until that exists, re-running either script and diffing the new JSON against
+the previous commit's version is the manual equivalent.

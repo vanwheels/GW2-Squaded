@@ -1,0 +1,3421 @@
+{
+  "sourceTable": "TARGET_COUNT_OVERRIDES",
+  "script": "fetch-target-counts.ts",
+  "generatedAt": "2026-08-08T20:00:45.747Z",
+  "totalEntries": 379,
+  "summary": {
+    "missing": 255,
+    "match": 114,
+    "unresolved-collision": 9,
+    "off-by-one": 1
+  },
+  "entries": [
+    {
+      "sourceKind": "skill",
+      "id": 1139,
+      "name": "Healing Seed",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Healing Seed (stolen skill)",
+      "wikiRevisionId": 2874933
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5534,
+      "name": "Tornado",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Tornado",
+      "wikiRevisionId": 2998630
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5535,
+      "name": "Cleansing Fire",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Cleansing Fire",
+      "wikiRevisionId": 2998627
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5536,
+      "name": "Lightning Flash",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Lightning Flash",
+      "wikiRevisionId": 3140019
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5551,
+      "name": "Healing Rain",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Healing Rain",
+      "wikiRevisionId": 2932412
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5600,
+      "name": "Heat Wave",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Heat Wave",
+      "wikiRevisionId": 3085526
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5602,
+      "name": "Whirlpool",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Whirlpool",
+      "wikiRevisionId": 2767626
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5625,
+      "name": "Lightning Leap",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Lightning Leap",
+      "wikiRevisionId": 2623649
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5646,
+      "name": "Convergence",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Convergence (elementalist skill)",
+      "wikiRevisionId": 3169773
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5675,
+      "name": "Phoenix",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Phoenix",
+      "wikiRevisionId": 3021012
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5682,
+      "name": "Windborne Speed",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Windborne Speed",
+      "wikiRevisionId": 2715749
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5687,
+      "name": "Updraft",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Updraft",
+      "wikiRevisionId": 3012678
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5747,
+      "name": "Magnetic Shield",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Magnetic Shield (elementalist skill)",
+      "wikiRevisionId": 2618586
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5748,
+      "name": "Undercurrent",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Undercurrent",
+      "wikiRevisionId": 2837751
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5836,
+      "name": "Flame Turret",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Flame Turret",
+      "wikiRevisionId": 3172734
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5838,
+      "name": "Thumper Turret",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Thumper Turret",
+      "wikiRevisionId": 3172742
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5857,
+      "name": "Healing Turret",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Healing Turret",
+      "wikiRevisionId": 3172740
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5912,
+      "name": "Rocket Turret",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Rocket Turret",
+      "wikiRevisionId": 3172758
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5936,
+      "name": "Acid Bomb",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Acid Bomb",
+      "wikiRevisionId": 3110849
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5937,
+      "name": "Super Elixir",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Super Elixir",
+      "wikiRevisionId": 2956317
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5966,
+      "name": "Healing Mist",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Healing Mist",
+      "wikiRevisionId": 3171236
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5967,
+      "name": "Toss Elixir B",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Toss Elixir B",
+      "wikiRevisionId": 2767658
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5978,
+      "name": "Toss Elixir H",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Toss Elixir H",
+      "wikiRevisionId": 2690121
+    },
+    {
+      "sourceKind": "skill",
+      "id": 5980,
+      "name": "Cleansing Burst",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Cleansing Burst",
+      "wikiRevisionId": 3172714
+    },
+    {
+      "sourceKind": "skill",
+      "id": 6088,
+      "name": "Detonate Elixir U",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Detonate Elixir U",
+      "wikiRevisionId": 2358777
+    },
+    {
+      "sourceKind": "skill",
+      "id": 6092,
+      "name": "Toss Elixir B",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Toss Elixir B",
+      "wikiRevisionId": 2767658
+    },
+    {
+      "sourceKind": "skill",
+      "id": 6102,
+      "name": "Super Elixir",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Super Elixir (underwater)",
+      "wikiRevisionId": 2786664
+    },
+    {
+      "sourceKind": "skill",
+      "id": 6118,
+      "name": "Toss Elixir H",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Toss Elixir H",
+      "wikiRevisionId": 2690121
+    },
+    {
+      "sourceKind": "skill",
+      "id": 6140,
+      "name": "Healing Turret",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Healing Turret",
+      "wikiRevisionId": 3172740
+    },
+    {
+      "sourceKind": "skill",
+      "id": 6153,
+      "name": "Blunderbuss",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Blunderbuss",
+      "wikiRevisionId": 2956306
+    },
+    {
+      "sourceKind": "skill",
+      "id": 6176,
+      "name": "Regenerating Mist",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Regenerating Mist",
+      "wikiRevisionId": 3116309
+    },
+    {
+      "sourceKind": "skill",
+      "id": 6180,
+      "name": "Rumble",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Rumble",
+      "wikiRevisionId": 2361721
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9084,
+      "name": "\"Advance!\"",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "\"Advance!\"",
+      "wikiRevisionId": 2882899
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9086,
+      "name": "Protector's Strike",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Protector's Strike",
+      "wikiRevisionId": 2843762
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9087,
+      "name": "Shield of Judgment",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Shield of Judgment",
+      "wikiRevisionId": 2843771
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9090,
+      "name": "Symbol of Punishment",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Symbol of Punishment",
+      "wikiRevisionId": 3109684
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9097,
+      "name": "Symbol of Blades",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Symbol of Blades",
+      "wikiRevisionId": 3033056
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9111,
+      "name": "Symbol of Faith",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Symbol of Faith",
+      "wikiRevisionId": 2882234
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9115,
+      "name": "Virtue of Justice",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Virtue of Justice",
+      "wikiRevisionId": 3055640
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9118,
+      "name": "Virtue of Courage",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Virtue of Courage",
+      "wikiRevisionId": 3095134
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9120,
+      "name": "Virtue of Resolve",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Virtue of Resolve",
+      "wikiRevisionId": 2842724
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9143,
+      "name": "Symbol of Swiftness",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Symbol of Swiftness",
+      "wikiRevisionId": 3171271
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9146,
+      "name": "Symbol of Resolution",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Symbol of Resolution",
+      "wikiRevisionId": 2989854
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9150,
+      "name": "Signet of Judgment",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Signet of Judgment",
+      "wikiRevisionId": 3036829
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9182,
+      "name": "Shield of the Avenger",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Shield of the Avenger",
+      "wikiRevisionId": 2989126
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9192,
+      "name": "Symbol of Spears",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Symbol of Spears",
+      "wikiRevisionId": 2933091
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9209,
+      "name": "Refraction",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Refraction",
+      "wikiRevisionId": 2843934
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9250,
+      "name": "Virtue of Resolve",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Virtue of Resolve/history",
+      "wikiRevisionId": 2570905
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9253,
+      "name": "Hallowed Ground",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Hallowed Ground",
+      "wikiRevisionId": 2843942
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9265,
+      "name": "Empower",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Empower",
+      "wikiRevisionId": 3041741
+    },
+    {
+      "sourceKind": "skill",
+      "id": 9268,
+      "name": "Virtue of Courage",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Virtue of Courage",
+      "wikiRevisionId": 3095134
+    },
+    {
+      "sourceKind": "skill",
+      "id": 10169,
+      "name": "Chaos Storm",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Chaos Storm",
+      "wikiRevisionId": 3169630
+    },
+    {
+      "sourceKind": "skill",
+      "id": 10211,
+      "name": "Mantra of Pain",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Mantra of Pain",
+      "wikiRevisionId": 2800702
+    },
+    {
+      "sourceKind": "skill",
+      "id": 10237,
+      "name": "Mantra of Concentration",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Mantra of Concentration",
+      "wikiRevisionId": 2809964
+    },
+    {
+      "sourceKind": "skill",
+      "id": 10238,
+      "name": "Power Break",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Power Break",
+      "wikiRevisionId": 2810308
+    },
+    {
+      "sourceKind": "skill",
+      "id": 10311,
+      "name": "Time Warp",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Time Warp",
+      "wikiRevisionId": 2956404
+    },
+    {
+      "sourceKind": "skill",
+      "id": 10331,
+      "name": "Chaos Armor",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Chaos Armor",
+      "wikiRevisionId": 3169628
+    },
+    {
+      "sourceKind": "skill",
+      "id": 10377,
+      "name": "Time Warp",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Time Warp",
+      "wikiRevisionId": 2956404
+    },
+    {
+      "sourceKind": "skill",
+      "id": 10527,
+      "name": "Well of Blood",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Well of Blood",
+      "wikiRevisionId": 2768357
+    },
+    {
+      "sourceKind": "skill",
+      "id": 10605,
+      "name": "Chillblains",
+      "status": "missing",
+      "curatedValue": 1,
+      "wikiTitle": "Chillblains",
+      "wikiRevisionId": 2998599
+    },
+    {
+      "sourceKind": "skill",
+      "id": 10608,
+      "name": "Spectral Ring",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Spectral Ring",
+      "wikiRevisionId": 3105890
+    },
+    {
+      "sourceKind": "skill",
+      "id": 10619,
+      "name": "Deadly Feast",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Deadly Feast",
+      "wikiRevisionId": 2837645
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12320,
+      "name": "Pain Inverter",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Pain Inverter",
+      "wikiRevisionId": 2676007
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12338,
+      "name": "Battle Roar",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Battle Roar",
+      "wikiRevisionId": 2649705
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12354,
+      "name": "Invigorating Roar",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Invigorating Roar",
+      "wikiRevisionId": 2126221
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12376,
+      "name": "Roar of the Forest",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Roar of the Forest",
+      "wikiRevisionId": 2361667
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12377,
+      "name": "Blessing of Dwayna",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Blessing of Dwayna",
+      "wikiRevisionId": 2633229
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12390,
+      "name": "Howl",
+      "status": "unresolved-collision",
+      "curatedValue": 10,
+      "detail": "tried [Howl, \"Howl\"] and 20 search candidate(s), none had id=12390 (or an equivalent sibling)"
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12435,
+      "name": "Roar",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Roar",
+      "wikiRevisionId": 2608063
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12440,
+      "name": "Healing Seed",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Healing Seed",
+      "wikiRevisionId": 2649715
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12473,
+      "name": "Precision Swipe",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Precision Swipe",
+      "wikiRevisionId": 2556525
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12489,
+      "name": "Healing Spring",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Healing Spring",
+      "wikiRevisionId": 2961098
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12493,
+      "name": "Storm Spirit",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Storm Spirit",
+      "wikiRevisionId": 3080072
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12494,
+      "name": "Lightning Reflexes",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Lightning Reflexes",
+      "wikiRevisionId": 2969593
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12495,
+      "name": "Stone Spirit",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Stone Spirit",
+      "wikiRevisionId": 3080071
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12497,
+      "name": "Frost Spirit",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Frost Spirit",
+      "wikiRevisionId": 3080069
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12498,
+      "name": "Sun Spirit",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Sun Spirit",
+      "wikiRevisionId": 3080073
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12528,
+      "name": "Feeding Frenzy",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Feeding Frenzy (ranger skill)",
+      "wikiRevisionId": 2837700
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12621,
+      "name": "Call of the Wild",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Call of the Wild",
+      "wikiRevisionId": 2763929
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12632,
+      "name": "\"Guard!\"",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "\"Guard!\"",
+      "wikiRevisionId": 3141151
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12639,
+      "name": "Whirling Defense",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Whirling Defense",
+      "wikiRevisionId": 3168800
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12658,
+      "name": "Mighty Roar",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Mighty Roar",
+      "wikiRevisionId": 2774180
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12712,
+      "name": "Furious Screech",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Furious Screech",
+      "wikiRevisionId": 2774386
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12713,
+      "name": "Protecting Screech",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Protecting Screech",
+      "wikiRevisionId": 2774195
+    },
+    {
+      "sourceKind": "skill",
+      "id": 12717,
+      "name": "Regenerate",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Regenerate (fern hound)",
+      "wikiRevisionId": 2990269
+    },
+    {
+      "sourceKind": "skill",
+      "id": 13015,
+      "name": "Infiltrator's Strike",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Infiltrator's Strike",
+      "wikiRevisionId": 2828892
+    },
+    {
+      "sourceKind": "skill",
+      "id": 13677,
+      "name": "Lesser Symbol of Resolution",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Lesser Symbol of Resolution",
+      "wikiRevisionId": 3081708
+    },
+    {
+      "sourceKind": "skill",
+      "id": 13684,
+      "name": "Lesser Symbol of Protection",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Lesser Symbol of Protection",
+      "wikiRevisionId": 3116554
+    },
+    {
+      "sourceKind": "skill",
+      "id": 13733,
+      "name": "Lesser Chaos Storm",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Lesser Chaos Storm",
+      "wikiRevisionId": 3172076
+    },
+    {
+      "sourceKind": "skill",
+      "id": 13849,
+      "name": "Lesser Well of Blood",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Lesser Well of Blood",
+      "wikiRevisionId": 2707784
+    },
+    {
+      "sourceKind": "skill",
+      "id": 13918,
+      "name": "Lesser Mark of Blood",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Lesser Mark of Blood",
+      "wikiRevisionId": 3029003
+    },
+    {
+      "sourceKind": "skill",
+      "id": 14268,
+      "name": "Reckless Impact",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Reckless Impact",
+      "wikiRevisionId": 2840170
+    },
+    {
+      "sourceKind": "skill",
+      "id": 14375,
+      "name": "Arcing Slice",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Arcing Slice",
+      "wikiRevisionId": 3143929
+    },
+    {
+      "sourceKind": "skill",
+      "id": 14388,
+      "name": "Stomp",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Stomp",
+      "wikiRevisionId": 2840185
+    },
+    {
+      "sourceKind": "skill",
+      "id": 14393,
+      "name": "Charge",
+      "status": "unresolved-collision",
+      "curatedValue": 5,
+      "detail": "tried [Charge, \"Charge\"] and 20 search candidate(s), none had id=14393 (or an equivalent sibling)"
+    },
+    {
+      "sourceKind": "skill",
+      "id": 14394,
+      "name": "Call of Valor",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Call of Valor",
+      "wikiRevisionId": 2804334
+    },
+    {
+      "sourceKind": "skill",
+      "id": 14403,
+      "name": "\"For Great Justice!\"",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "\"For Great Justice!\"",
+      "wikiRevisionId": 2691156
+    },
+    {
+      "sourceKind": "skill",
+      "id": 14418,
+      "name": "Dual Strike",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Dual Strike",
+      "wikiRevisionId": 2359003
+    },
+    {
+      "sourceKind": "skill",
+      "id": 14421,
+      "name": "Cyclone Axe",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Cyclone Axe",
+      "wikiRevisionId": 2989694
+    },
+    {
+      "sourceKind": "skill",
+      "id": 14518,
+      "name": "Crushing Blow",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Crushing Blow",
+      "wikiRevisionId": 2768619
+    },
+    {
+      "sourceKind": "skill",
+      "id": 14545,
+      "name": "Arcing Slice",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Arcing Slice",
+      "wikiRevisionId": 3143929
+    },
+    {
+      "sourceKind": "skill",
+      "id": 14546,
+      "name": "Arcing Slice",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Arcing Slice",
+      "wikiRevisionId": 3143929
+    },
+    {
+      "sourceKind": "skill",
+      "id": 14547,
+      "name": "Arcing Slice",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Arcing Slice",
+      "wikiRevisionId": 3143929
+    },
+    {
+      "sourceKind": "skill",
+      "id": 15834,
+      "name": "Shield of Judgment",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Shield of Judgment",
+      "wikiRevisionId": 2843771
+    },
+    {
+      "sourceKind": "skill",
+      "id": 19115,
+      "name": "Reaper's Mark",
+      "status": "missing",
+      "curatedValue": 1,
+      "wikiTitle": "Reaper's Mark",
+      "wikiRevisionId": 2585323
+    },
+    {
+      "sourceKind": "skill",
+      "id": 21773,
+      "name": "Water Spirit",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Water Spirit",
+      "wikiRevisionId": 3080070
+    },
+    {
+      "sourceKind": "skill",
+      "id": 22521,
+      "name": "Lesser Cleansing Fire",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Lesser Cleansing Fire",
+      "wikiRevisionId": 2655907
+    },
+    {
+      "sourceKind": "skill",
+      "id": 25498,
+      "name": "Stomp",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Stomp (Glyph of Elementals skill)",
+      "wikiRevisionId": 2695068
+    },
+    {
+      "sourceKind": "skill",
+      "id": 26644,
+      "name": "Facet of Strength",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Facet of Strength",
+      "wikiRevisionId": 2649957
+    },
+    {
+      "sourceKind": "skill",
+      "id": 27014,
+      "name": "Facet of Elements",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Facet of Elements",
+      "wikiRevisionId": 2649978
+    },
+    {
+      "sourceKind": "skill",
+      "id": 27220,
+      "name": "Facet of Light",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Facet of Light",
+      "wikiRevisionId": 2649964
+    },
+    {
+      "sourceKind": "skill",
+      "id": 27505,
+      "name": "Banish Enchantment",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Banish Enchantment",
+      "wikiRevisionId": 3153647
+    },
+    {
+      "sourceKind": "skill",
+      "id": 27665,
+      "name": "Field of the Mists",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Field of the Mists",
+      "wikiRevisionId": 2880971
+    },
+    {
+      "sourceKind": "skill",
+      "id": 27760,
+      "name": "Facet of Chaos",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Facet of Chaos",
+      "wikiRevisionId": 3029307
+    },
+    {
+      "sourceKind": "skill",
+      "id": 27917,
+      "name": "Call to Anguish",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Call to Anguish",
+      "wikiRevisionId": 3115031
+    },
+    {
+      "sourceKind": "skill",
+      "id": 27964,
+      "name": "Echoing Eruption",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Echoing Eruption",
+      "wikiRevisionId": 3128924
+    },
+    {
+      "sourceKind": "skill",
+      "id": 28287,
+      "name": "Embrace the Darkness",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Embrace the Darkness",
+      "wikiRevisionId": 3128925
+    },
+    {
+      "sourceKind": "skill",
+      "id": 28379,
+      "name": "Facet of Darkness",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Facet of Darkness",
+      "wikiRevisionId": 2807390
+    },
+    {
+      "sourceKind": "skill",
+      "id": 28516,
+      "name": "Inspiring Reinforcement",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Inspiring Reinforcement",
+      "wikiRevisionId": 2932334
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29386,
+      "name": "Envoy of Exuberance",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Envoy of Exuberance",
+      "wikiRevisionId": 2776823
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29414,
+      "name": "\"You Are All Weaklings!\"",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "\"You Are All Weaklings!\"",
+      "wikiRevisionId": 2710378
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29449,
+      "name": "Lesser Call of the Wild",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Lesser Call of the Wild",
+      "wikiRevisionId": 2569686
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29453,
+      "name": "Sand Squall",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Sand Squall",
+      "wikiRevisionId": 2439098
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29526,
+      "name": "Well of Precognition",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Well of Precognition",
+      "wikiRevisionId": 3094062
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29560,
+      "name": "Spiteful Spirit",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Spiteful Spirit (trait skill)",
+      "wikiRevisionId": 3128965
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29613,
+      "name": "Sundering Leap",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Sundering Leap",
+      "wikiRevisionId": 2790359
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29719,
+      "name": "Overload Air",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Overload Air",
+      "wikiRevisionId": 2942915
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29740,
+      "name": "Grasping Darkness",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Grasping Darkness",
+      "wikiRevisionId": 3092298
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29772,
+      "name": "Bandage Self",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Bandage Self",
+      "wikiRevisionId": 2633219
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29786,
+      "name": "Test of Faith",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Test of Faith",
+      "wikiRevisionId": 3171275
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29789,
+      "name": "Symbol of Energy",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Symbol of Energy",
+      "wikiRevisionId": 3171269
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29855,
+      "name": "Nightfall",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Nightfall",
+      "wikiRevisionId": 3130991
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29941,
+      "name": "Wild Blow",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Wild Blow",
+      "wikiRevisionId": 2811856
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29948,
+      "name": "\"Flash-Freeze!\"",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "\"Flash-Freeze!\"",
+      "wikiRevisionId": 3021360
+    },
+    {
+      "sourceKind": "skill",
+      "id": 29958,
+      "name": "Infusing Terror",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Infusing Terror",
+      "wikiRevisionId": 3128980
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30025,
+      "name": "Purification",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Purification",
+      "wikiRevisionId": 3171266
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30029,
+      "name": "Shield of Courage",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Shield of Courage",
+      "wikiRevisionId": 3128715
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30032,
+      "name": "Elixir Shell",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Elixir Shell",
+      "wikiRevisionId": 2690111
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30039,
+      "name": "Shield of Courage",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Shield of Courage",
+      "wikiRevisionId": 3128715
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30047,
+      "name": "\"Eye of the Storm!\"",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "\"Eye of the Storm!\"",
+      "wikiRevisionId": 2649983
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30074,
+      "name": "Shattering Blow",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Shattering Blow",
+      "wikiRevisionId": 2655684
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30083,
+      "name": "Wings of Resolve",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Wings of Resolve",
+      "wikiRevisionId": 3171277
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30105,
+      "name": "\"Chilled to the Bone!\"",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "\"Chilled to the Bone!\"",
+      "wikiRevisionId": 2967006
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30225,
+      "name": "Wings of Resolve",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Wings of Resolve",
+      "wikiRevisionId": 3171277
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30273,
+      "name": "Dragon's Maw",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Dragon's Maw",
+      "wikiRevisionId": 3171260
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30286,
+      "name": "Wings of Resolve",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Wings of Resolve",
+      "wikiRevisionId": 3171277
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30336,
+      "name": "Dust Storm",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Dust Storm",
+      "wikiRevisionId": 2938136
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30364,
+      "name": "Procession of Blades",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Procession of Blades",
+      "wikiRevisionId": 3171264
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30432,
+      "name": "\"Aftershock!\"",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "\"Aftershock!\"",
+      "wikiRevisionId": 2649982
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30461,
+      "name": "Signet of Courage",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Signet of Courage",
+      "wikiRevisionId": 2882252
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30489,
+      "name": "Equalizing Blow",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Equalizing Blow",
+      "wikiRevisionId": 2359169
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30501,
+      "name": "Positive Strike",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Positive Strike",
+      "wikiRevisionId": 2629594
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30643,
+      "name": "Tides of Time",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Tides of Time",
+      "wikiRevisionId": 3135553
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30662,
+      "name": "\"Feel the Burn!\"",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "\"Feel the Burn!\"",
+      "wikiRevisionId": 3021359
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30783,
+      "name": "Wings of Resolve",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Wings of Resolve",
+      "wikiRevisionId": 3171277
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30814,
+      "name": "Well of Action",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Well of Action",
+      "wikiRevisionId": 2764818
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30828,
+      "name": "Slick Shoes",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Slick Shoes",
+      "wikiRevisionId": 3170241
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30864,
+      "name": "Tidal Surge",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Tidal Surge",
+      "wikiRevisionId": 2932391
+    },
+    {
+      "sourceKind": "skill",
+      "id": 30871,
+      "name": "Light's Judgment",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Light's Judgment",
+      "wikiRevisionId": 3147607
+    },
+    {
+      "sourceKind": "skill",
+      "id": 31100,
+      "name": "Call to Anguish",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Call to Anguish (underwater)",
+      "wikiRevisionId": 3007421
+    },
+    {
+      "sourceKind": "skill",
+      "id": 31248,
+      "name": "Blast Gyro",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Blast Gyro",
+      "wikiRevisionId": 2776618
+    },
+    {
+      "sourceKind": "skill",
+      "id": 31294,
+      "name": "Jade Winds",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Jade Winds",
+      "wikiRevisionId": 2932370
+    },
+    {
+      "sourceKind": "skill",
+      "id": 31401,
+      "name": "Glyph of Equality",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Glyph of Equality (Celestial Avatar)",
+      "wikiRevisionId": 3170404
+    },
+    {
+      "sourceKind": "skill",
+      "id": 31503,
+      "name": "Natural Convergence",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Natural Convergence",
+      "wikiRevisionId": 3098786
+    },
+    {
+      "sourceKind": "skill",
+      "id": 31535,
+      "name": "Ancestral Grace",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Ancestral Grace",
+      "wikiRevisionId": 2631497
+    },
+    {
+      "sourceKind": "skill",
+      "id": 31658,
+      "name": "Glyph of Equality",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Glyph of Equality (non-celestial)",
+      "wikiRevisionId": 3170407
+    },
+    {
+      "sourceKind": "skill",
+      "id": 31894,
+      "name": "Rejuvenating Tides",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Rejuvenating Tides",
+      "wikiRevisionId": 3171136
+    },
+    {
+      "sourceKind": "skill",
+      "id": 32253,
+      "name": "Rejuvenating Tides",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Rejuvenating Tides (underwater)",
+      "wikiRevisionId": 2590170
+    },
+    {
+      "sourceKind": "skill",
+      "id": 34070,
+      "name": "Natural Convergence",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Natural Convergence (underwater)",
+      "wikiRevisionId": 2841435
+    },
+    {
+      "sourceKind": "skill",
+      "id": 37873,
+      "name": "Channeled Agony",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Channeled Agony",
+      "wikiRevisionId": 2882048
+    },
+    {
+      "sourceKind": "skill",
+      "id": 40160,
+      "name": "Radiant Arc",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Radiant Arc",
+      "wikiRevisionId": 3128687
+    },
+    {
+      "sourceKind": "skill",
+      "id": 40184,
+      "name": "Chaos Vortex",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Chaos Vortex",
+      "wikiRevisionId": 2989952
+    },
+    {
+      "sourceKind": "skill",
+      "id": 40274,
+      "name": "Trail of Anguish",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Trail of Anguish",
+      "wikiRevisionId": 2940396
+    },
+    {
+      "sourceKind": "skill",
+      "id": 40332,
+      "name": "Pressure Blast",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Pressure Blast",
+      "wikiRevisionId": 3171070
+    },
+    {
+      "sourceKind": "skill",
+      "id": 40624,
+      "name": "Symbol of Vengeance",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Symbol of Vengeance",
+      "wikiRevisionId": 3171273
+    },
+    {
+      "sourceKind": "skill",
+      "id": 40963,
+      "name": "Grinding Stones",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Grinding Stones",
+      "wikiRevisionId": 3170893
+    },
+    {
+      "sourceKind": "skill",
+      "id": 41494,
+      "name": "Skirmisher's Shot",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Skirmisher's Shot",
+      "wikiRevisionId": 2792654
+    },
+    {
+      "sourceKind": "skill",
+      "id": 41615,
+      "name": "Serpent Siphon",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Serpent Siphon",
+      "wikiRevisionId": 2932298
+    },
+    {
+      "sourceKind": "skill",
+      "id": 41919,
+      "name": "Imminent Threat",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Imminent Threat",
+      "wikiRevisionId": 2932809
+    },
+    {
+      "sourceKind": "skill",
+      "id": 42707,
+      "name": "Arcing Slice",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Arcing Slice",
+      "wikiRevisionId": 3143929
+    },
+    {
+      "sourceKind": "skill",
+      "id": 42935,
+      "name": "Desiccate",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Desiccate",
+      "wikiRevisionId": 2691319
+    },
+    {
+      "sourceKind": "skill",
+      "id": 43186,
+      "name": "Healing Cloud",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Healing Cloud (soulbeast)",
+      "wikiRevisionId": 2364401
+    },
+    {
+      "sourceKind": "skill",
+      "id": 44165,
+      "name": "Full Counter",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Full Counter",
+      "wikiRevisionId": 3154946
+    },
+    {
+      "sourceKind": "skill",
+      "id": 44241,
+      "name": "Split Surge",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Split Surge",
+      "wikiRevisionId": 2994740
+    },
+    {
+      "sourceKind": "skill",
+      "id": 44296,
+      "name": "Oppressive Collapse",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Oppressive Collapse",
+      "wikiRevisionId": 3169156
+    },
+    {
+      "sourceKind": "skill",
+      "id": 44550,
+      "name": "Lahar",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Lahar",
+      "wikiRevisionId": 3170888
+    },
+    {
+      "sourceKind": "skill",
+      "id": 44591,
+      "name": "Spotter's Shot",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Spotter's Shot",
+      "wikiRevisionId": 2967121
+    },
+    {
+      "sourceKind": "skill",
+      "id": 44663,
+      "name": "Desert Shroud",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Desert Shroud",
+      "wikiRevisionId": 2747807
+    },
+    {
+      "sourceKind": "skill",
+      "id": 45732,
+      "name": "Particle Accelerator",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Particle Accelerator",
+      "wikiRevisionId": 2840072
+    },
+    {
+      "sourceKind": "skill",
+      "id": 45742,
+      "name": "Glacial Drift",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Glacial Drift",
+      "wikiRevisionId": 3171610
+    },
+    {
+      "sourceKind": "skill",
+      "id": 46140,
+      "name": "Katabatic Wind",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Katabatic Wind",
+      "wikiRevisionId": 3171605
+    },
+    {
+      "sourceKind": "skill",
+      "id": 46185,
+      "name": "Molten Burst",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Molten Burst",
+      "wikiRevisionId": 2837742
+    },
+    {
+      "sourceKind": "skill",
+      "id": 46447,
+      "name": "Lava Skin",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Lava Skin",
+      "wikiRevisionId": 3036049
+    },
+    {
+      "sourceKind": "skill",
+      "id": 46854,
+      "name": "Call of the Assassin",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Call of the Assassin",
+      "wikiRevisionId": 2363556
+    },
+    {
+      "sourceKind": "skill",
+      "id": 50383,
+      "name": "Inspiring Reinforcement",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Inspiring Reinforcement (underwater)",
+      "wikiRevisionId": 3017827
+    },
+    {
+      "sourceKind": "skill",
+      "id": 50390,
+      "name": "Rift of Pain",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Rift of Pain",
+      "wikiRevisionId": 3094107
+    },
+    {
+      "sourceKind": "skill",
+      "id": 50444,
+      "name": "Infusion Bomb",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Infusion Bomb",
+      "wikiRevisionId": 2811045
+    },
+    {
+      "sourceKind": "skill",
+      "id": 50472,
+      "name": "Slick Shoes",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Slick Shoes",
+      "wikiRevisionId": 3170241
+    },
+    {
+      "sourceKind": "skill",
+      "id": 51646,
+      "name": "Transmute Frost",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Transmute Frost",
+      "wikiRevisionId": 2990413
+    },
+    {
+      "sourceKind": "skill",
+      "id": 51675,
+      "name": "True Nature",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "True Nature (dwarf)",
+      "wikiRevisionId": 2818628
+    },
+    {
+      "sourceKind": "skill",
+      "id": 51684,
+      "name": "Transmute Earth",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Transmute Earth",
+      "wikiRevisionId": 2655402
+    },
+    {
+      "sourceKind": "skill",
+      "id": 51698,
+      "name": "Elemental Blast",
+      "status": "unresolved-collision",
+      "curatedValue": "self",
+      "detail": "tried [Elemental Blast, \"Elemental Blast\"] and 20 search candidate(s), none had id=51698 (or an equivalent sibling)"
+    },
+    {
+      "sourceKind": "skill",
+      "id": 51711,
+      "name": "Transmute Fire",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Transmute Fire",
+      "wikiRevisionId": 2645492
+    },
+    {
+      "sourceKind": "skill",
+      "id": 51714,
+      "name": "True Nature",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "True Nature (demon)",
+      "wikiRevisionId": 2818626
+    },
+    {
+      "sourceKind": "skill",
+      "id": 58104,
+      "name": "Infusion Bomb",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Infusion Bomb",
+      "wikiRevisionId": 2811045
+    },
+    {
+      "sourceKind": "skill",
+      "id": 59591,
+      "name": "Invoke Torment",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Invoke Torment",
+      "wikiRevisionId": 2627953
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62521,
+      "name": "Roiling Light",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Roiling Light",
+      "wikiRevisionId": 2866795
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62522,
+      "name": "Twin Blade Restoration",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Twin Blade Restoration",
+      "wikiRevisionId": 2790314
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62573,
+      "name": "Psychic Force",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Psychic Force",
+      "wikiRevisionId": 3171680
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62689,
+      "name": "Saint's Shield",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Saint's Shield",
+      "wikiRevisionId": 2991440
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62697,
+      "name": "Gunstinger",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Gunstinger",
+      "wikiRevisionId": 2923690
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62702,
+      "name": "Battle Dance",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Battle Dance",
+      "wikiRevisionId": 3158844
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62719,
+      "name": "Selfish Spirit",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Selfish Spirit",
+      "wikiRevisionId": 3158850
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62723,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (water)",
+      "wikiRevisionId": 2970642
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62738,
+      "name": "Drop Urn of Saint Viktor",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Drop Urn of Saint Viktor",
+      "wikiRevisionId": 3158848
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62796,
+      "name": "Awakening",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Awakening",
+      "wikiRevisionId": 3158846
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62813,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (fire)",
+      "wikiRevisionId": 2970640
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62832,
+      "name": "Nomad's Advance",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Nomad's Advance",
+      "wikiRevisionId": 3158851
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62837,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (earth)",
+      "wikiRevisionId": 2970645
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62839,
+      "name": "Water Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Water Sphere",
+      "wikiRevisionId": 2776061
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62842,
+      "name": "Air Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Air Sphere",
+      "wikiRevisionId": 2776062
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62878,
+      "name": "Reaver's Rage",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Reaver's Rage",
+      "wikiRevisionId": 3158853
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62881,
+      "name": "Earth Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Earth Sphere",
+      "wikiRevisionId": 2776063
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62895,
+      "name": "Phantom's Onslaught",
+      "status": "unresolved-collision",
+      "curatedValue": "self",
+      "detail": "tried [Phantom's Onslaught, \"Phantom's Onslaught\"] and 20 search candidate(s), none had id=62895 (or an equivalent sibling)"
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62910,
+      "name": "Molten End",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Molten End",
+      "wikiRevisionId": 3169709
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62940,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62941,
+      "name": "Tree Song",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Tree Song",
+      "wikiRevisionId": 3158845
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62949,
+      "name": "Fire Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Fire Sphere",
+      "wikiRevisionId": 2776060
+    },
+    {
+      "sourceKind": "skill",
+      "id": 62962,
+      "name": "Scavenger Burst",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Scavenger Burst",
+      "wikiRevisionId": 3158852
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63073,
+      "name": "Savage Shock Wave",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Savage Shock Wave",
+      "wikiRevisionId": 2811726
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63107,
+      "name": "Grasping Shadows",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Grasping Shadows (underwater)",
+      "wikiRevisionId": 2816326
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63141,
+      "name": "Barrier Burst",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Barrier Burst",
+      "wikiRevisionId": 2882226
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63167,
+      "name": "Grasping Shadows",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Grasping Shadows",
+      "wikiRevisionId": 3128637
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63169,
+      "name": "Energizing Slam",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Energizing Slam",
+      "wikiRevisionId": 3171237
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63208,
+      "name": "Unleashed Thump",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Unleashed Thump",
+      "wikiRevisionId": 2811903
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63220,
+      "name": "Dawn's Repose",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Dawn's Repose",
+      "wikiRevisionId": 3129492
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63227,
+      "name": "Dawn's Repose",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Dawn's Repose (underwater)",
+      "wikiRevisionId": 2478790
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63230,
+      "name": "Well of Silence",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Well of Silence",
+      "wikiRevisionId": 2840246
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63249,
+      "name": "Mind Shock",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Mind Shock",
+      "wikiRevisionId": 3119407
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63275,
+      "name": "Shadowfall",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Shadowfall",
+      "wikiRevisionId": 2836474
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63276,
+      "name": "Well of Sorrow",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Well of Sorrow",
+      "wikiRevisionId": 3128642
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63292,
+      "name": "Well of Gloom",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Well of Gloom",
+      "wikiRevisionId": 2768616
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63293,
+      "name": "Crisis Zone",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Crisis Zone",
+      "wikiRevisionId": 2932059
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63294,
+      "name": "Well of Tears",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Well of Tears",
+      "wikiRevisionId": 2874752
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63323,
+      "name": "Well of Bounty",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Well of Bounty",
+      "wikiRevisionId": 2989840
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63362,
+      "name": "Haunt Shot",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Haunt Shot",
+      "wikiRevisionId": 3129491
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63396,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63416,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63438,
+      "name": "Relentless Whirl",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Relentless Whirl",
+      "wikiRevisionId": 2857069
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63439,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63454,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63458,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63459,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63461,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 63472,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 65418,
+      "name": "Hunker Down",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Hunker Down (turtle)",
+      "wikiRevisionId": 2806767
+    },
+    {
+      "sourceKind": "skill",
+      "id": 65528,
+      "name": "Spotter's Shot",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Spotter's Shot (The Sniper)",
+      "wikiRevisionId": 2776066
+    },
+    {
+      "sourceKind": "skill",
+      "id": 68676,
+      "name": "Signet of Courage",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Signet of Courage",
+      "wikiRevisionId": 2882252
+    },
+    {
+      "sourceKind": "skill",
+      "id": 68686,
+      "name": "Dragon's Maw",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Dragon's Maw",
+      "wikiRevisionId": 3171260
+    },
+    {
+      "sourceKind": "skill",
+      "id": 69175,
+      "name": "Solar Brilliance",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Solar Brilliance",
+      "wikiRevisionId": 2840442
+    },
+    {
+      "sourceKind": "skill",
+      "id": 69183,
+      "name": "Lesser \"Guard!\"",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Lesser \"Guard!\"",
+      "wikiRevisionId": 2693480
+    },
+    {
+      "sourceKind": "skill",
+      "id": 69203,
+      "name": "Pounce",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Pounce",
+      "wikiRevisionId": 3025393
+    },
+    {
+      "sourceKind": "skill",
+      "id": 69244,
+      "name": "Water Spirit",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Water Spirit",
+      "wikiRevisionId": 3080070
+    },
+    {
+      "sourceKind": "skill",
+      "id": 69340,
+      "name": "Savage Shock Wave",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Savage Shock Wave",
+      "wikiRevisionId": 2811726
+    },
+    {
+      "sourceKind": "skill",
+      "id": 69349,
+      "name": "Sun Spirit",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Sun Spirit",
+      "wikiRevisionId": 3080073
+    },
+    {
+      "sourceKind": "skill",
+      "id": 69351,
+      "name": "Storm Spirit",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Storm Spirit",
+      "wikiRevisionId": 3080072
+    },
+    {
+      "sourceKind": "skill",
+      "id": 69378,
+      "name": "Stone Spirit",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Stone Spirit",
+      "wikiRevisionId": 3080071
+    },
+    {
+      "sourceKind": "skill",
+      "id": 69379,
+      "name": "Frost Spirit",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Frost Spirit",
+      "wikiRevisionId": 3080069
+    },
+    {
+      "sourceKind": "skill",
+      "id": 69565,
+      "name": "Radiant Arc",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Radiant Arc (non-holosmith)",
+      "wikiRevisionId": 3081550
+    },
+    {
+      "sourceKind": "skill",
+      "id": 71800,
+      "name": "Effervescence",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Effervescence",
+      "wikiRevisionId": 2827755
+    },
+    {
+      "sourceKind": "skill",
+      "id": 71860,
+      "name": "Line Breaker",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Line Breaker",
+      "wikiRevisionId": 3095173
+    },
+    {
+      "sourceKind": "skill",
+      "id": 71870,
+      "name": "Essence of Liquid Wrath",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Essence of Liquid Wrath",
+      "wikiRevisionId": 3072622
+    },
+    {
+      "sourceKind": "skill",
+      "id": 71875,
+      "name": "Rampart Splitter",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Rampart Splitter",
+      "wikiRevisionId": 2812309
+    },
+    {
+      "sourceKind": "skill",
+      "id": 71897,
+      "name": "Journey",
+      "status": "match",
+      "curatedValue": 5,
+      "wikiValue": 5,
+      "wikiTitle": "Journey",
+      "wikiRevisionId": 3022008
+    },
+    {
+      "sourceKind": "skill",
+      "id": 71903,
+      "name": "Thistleguard",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Thistleguard",
+      "wikiRevisionId": 3081608
+    },
+    {
+      "sourceKind": "skill",
+      "id": 71963,
+      "name": "Oaken Cudgel",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Oaken Cudgel",
+      "wikiRevisionId": 3081607
+    },
+    {
+      "sourceKind": "skill",
+      "id": 71987,
+      "name": "Symbol of Ignition",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Symbol of Ignition",
+      "wikiRevisionId": 3067408
+    },
+    {
+      "sourceKind": "skill",
+      "id": 71999,
+      "name": "Flourish",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Flourish",
+      "wikiRevisionId": 3081606
+    },
+    {
+      "sourceKind": "skill",
+      "id": 72002,
+      "name": "Valiant Leap",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Valiant Leap",
+      "wikiRevisionId": 3081065
+    },
+    {
+      "sourceKind": "skill",
+      "id": 72005,
+      "name": "Inspiring Imagery",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Inspiring Imagery",
+      "wikiRevisionId": 3161978
+    },
+    {
+      "sourceKind": "skill",
+      "id": 72008,
+      "name": "Singularity Shot",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Singularity Shot",
+      "wikiRevisionId": 2956402
+    },
+    {
+      "sourceKind": "skill",
+      "id": 72052,
+      "name": "Essence of Animated Sand",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Essence of Animated Sand",
+      "wikiRevisionId": 3154825
+    },
+    {
+      "sourceKind": "skill",
+      "id": 72946,
+      "name": "Phantasmal Lancer",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Phantasmal Lancer",
+      "wikiRevisionId": 3159698
+    },
+    {
+      "sourceKind": "skill",
+      "id": 73007,
+      "name": "Extirpate",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Extirpate",
+      "wikiRevisionId": 3178442
+    },
+    {
+      "sourceKind": "skill",
+      "id": 73066,
+      "name": "Psystrike",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Psystrike",
+      "wikiRevisionId": 3021094
+    },
+    {
+      "sourceKind": "skill",
+      "id": 73087,
+      "name": "Cheetah's Strike",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Cheetah's Strike",
+      "wikiRevisionId": 3021031
+    },
+    {
+      "sourceKind": "skill",
+      "id": 73093,
+      "name": "Mind the Gap",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Mind the Gap",
+      "wikiRevisionId": 3128587
+    },
+    {
+      "sourceKind": "skill",
+      "id": 73154,
+      "name": "Psycut",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Psycut",
+      "wikiRevisionId": 3021093
+    },
+    {
+      "sourceKind": "skill",
+      "id": 75391,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 75392,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 75394,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 75395,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 75399,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 75405,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 75406,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 75407,
+      "name": "Deploy Jade Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Deploy Jade Sphere (air)",
+      "wikiRevisionId": 2970643
+    },
+    {
+      "sourceKind": "skill",
+      "id": 76493,
+      "name": "Stoke the Flames",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Stoke the Flames",
+      "wikiRevisionId": 3128692
+    },
+    {
+      "sourceKind": "skill",
+      "id": 76506,
+      "name": "Lesser Chilblains",
+      "status": "missing",
+      "curatedValue": 1,
+      "wikiTitle": "Lesser Chilblains",
+      "wikiRevisionId": 3135442
+    },
+    {
+      "sourceKind": "skill",
+      "id": 76563,
+      "name": "Otter's Compassion",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Otter's Compassion",
+      "wikiRevisionId": 3101995
+    },
+    {
+      "sourceKind": "skill",
+      "id": 76572,
+      "name": "Glaring Burst",
+      "status": "unresolved-collision",
+      "curatedValue": 5,
+      "detail": "tried [Glaring Burst, \"Glaring Burst\"] and 20 search candidate(s), none had id=76572 (or an equivalent sibling)"
+    },
+    {
+      "sourceKind": "skill",
+      "id": 76621,
+      "name": "Resolute Stance",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Resolute Stance",
+      "wikiRevisionId": 3102002
+    },
+    {
+      "sourceKind": "skill",
+      "id": 76664,
+      "name": "Hawkeye",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Hawkeye",
+      "wikiRevisionId": 3081430
+    },
+    {
+      "sourceKind": "skill",
+      "id": 76674,
+      "name": "Holo-Dancer Decoy",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Holo-Dancer Decoy",
+      "wikiRevisionId": 3128759
+    },
+    {
+      "sourceKind": "skill",
+      "id": 76681,
+      "name": "Seismic Impact",
+      "status": "unresolved-collision",
+      "curatedValue": 5,
+      "detail": "tried [Seismic Impact, \"Seismic Impact\"] and 20 search candidate(s), none had id=76681 (or an equivalent sibling)"
+    },
+    {
+      "sourceKind": "skill",
+      "id": 76687,
+      "name": "Daring Advance",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Daring Advance",
+      "wikiRevisionId": 3128755
+    },
+    {
+      "sourceKind": "skill",
+      "id": 76707,
+      "name": "Seismic Impact",
+      "status": "unresolved-collision",
+      "curatedValue": 5,
+      "detail": "tried [Seismic Impact, \"Seismic Impact\"] and 20 search candidate(s), none had id=76707 (or an equivalent sibling)"
+    },
+    {
+      "sourceKind": "skill",
+      "id": 76708,
+      "name": "Luminous Staff",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Luminous Staff",
+      "wikiRevisionId": 3128730
+    },
+    {
+      "sourceKind": "skill",
+      "id": 76800,
+      "name": "Holo-Dancer Decoy",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Holo-Dancer Decoy",
+      "wikiRevisionId": 3128759
+    },
+    {
+      "sourceKind": "skill",
+      "id": 76934,
+      "name": "\"Brace Yourselves!\"",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "\"Brace Yourselves!\"",
+      "wikiRevisionId": 3101977
+    },
+    {
+      "sourceKind": "skill",
+      "id": 77040,
+      "name": "\"Find Their Weakness!\"",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "\"Find Their Weakness!\"",
+      "wikiRevisionId": 3101984
+    },
+    {
+      "sourceKind": "skill",
+      "id": 77069,
+      "name": "Solid State",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Solid State",
+      "wikiRevisionId": 3102004
+    },
+    {
+      "sourceKind": "skill",
+      "id": 77164,
+      "name": "Sovereign of Light",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Sovereign of Light (trait skill)",
+      "wikiRevisionId": 3128758
+    },
+    {
+      "sourceKind": "skill",
+      "id": 77197,
+      "name": "Radiant Bulwark",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Radiant Bulwark",
+      "wikiRevisionId": 3128734
+    },
+    {
+      "sourceKind": "skill",
+      "id": 77198,
+      "name": "Daring Advance",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Daring Advance",
+      "wikiRevisionId": 3128755
+    },
+    {
+      "sourceKind": "skill",
+      "id": 77211,
+      "name": "Wind Shear",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Wind Shear",
+      "wikiRevisionId": 3102023
+    },
+    {
+      "sourceKind": "skill",
+      "id": 77247,
+      "name": "Toad's Fortitude",
+      "status": "unresolved-collision",
+      "curatedValue": 5,
+      "detail": "tried [Toad's Fortitude, \"Toad's Fortitude\"] and 20 search candidate(s), none had id=77247 (or an equivalent sibling)"
+    },
+    {
+      "sourceKind": "skill",
+      "id": 77300,
+      "name": "Valorous Stance",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Valorous Stance",
+      "wikiRevisionId": 3102017
+    },
+    {
+      "sourceKind": "skill",
+      "id": 77319,
+      "name": "Bluster",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Bluster",
+      "wikiRevisionId": 3086290
+    },
+    {
+      "sourceKind": "skill",
+      "id": 77321,
+      "name": "Stalwart Stance",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Stalwart Stance",
+      "wikiRevisionId": 3102007
+    },
+    {
+      "sourceKind": "skill",
+      "id": 77339,
+      "name": "Dazzling Hammer",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Dazzling Hammer",
+      "wikiRevisionId": 3128725
+    },
+    {
+      "sourceKind": "skill",
+      "id": 78191,
+      "name": "Embrace the Darkness",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Embrace the Darkness",
+      "wikiRevisionId": 3128925
+    },
+    {
+      "sourceKind": "skill",
+      "id": 78203,
+      "name": "Call to Anguish",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Call to Anguish",
+      "wikiRevisionId": 3115031
+    },
+    {
+      "sourceKind": "skill",
+      "id": 78587,
+      "name": "Banish Enchantment",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Banish Enchantment",
+      "wikiRevisionId": 3153647
+    },
+    {
+      "sourceKind": "skill",
+      "id": 78730,
+      "name": "Glaring Burst",
+      "status": "unresolved-collision",
+      "curatedValue": 5,
+      "detail": "tried [Glaring Burst, \"Glaring Burst\"] and 20 search candidate(s), none had id=78730 (or an equivalent sibling)"
+    },
+    {
+      "sourceKind": "skill",
+      "id": 78798,
+      "name": "Call to Anguish",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Call to Anguish",
+      "wikiRevisionId": 3115031
+    },
+    {
+      "sourceKind": "skill",
+      "id": 79336,
+      "name": "Lesser Symbol of Blades",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Lesser Symbol of Blades",
+      "wikiRevisionId": 3104113
+    },
+    {
+      "sourceKind": "trait",
+      "id": 214,
+      "name": "Raging Storm",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "Raging Storm",
+      "wikiRevisionId": 2589553
+    },
+    {
+      "sourceKind": "trait",
+      "id": 281,
+      "name": "Rock Solid",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Rock Solid",
+      "wikiRevisionId": 3115412
+    },
+    {
+      "sourceKind": "trait",
+      "id": 562,
+      "name": "Empowering Might",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Empowering Might",
+      "wikiRevisionId": 2631067
+    },
+    {
+      "sourceKind": "trait",
+      "id": 586,
+      "name": "Monk's Focus",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Monk's Focus",
+      "wikiRevisionId": 2881385
+    },
+    {
+      "sourceKind": "trait",
+      "id": 612,
+      "name": "Indomitable Courage",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Indomitable Courage",
+      "wikiRevisionId": 2900843
+    },
+    {
+      "sourceKind": "trait",
+      "id": 666,
+      "name": "Metaphysical Rejuvenation",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Metaphysical Rejuvenation",
+      "wikiRevisionId": 2790310
+    },
+    {
+      "sourceKind": "trait",
+      "id": 668,
+      "name": "Chaotic Transference",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Chaotic Transference",
+      "wikiRevisionId": 2818595
+    },
+    {
+      "sourceKind": "trait",
+      "id": 675,
+      "name": "Illusionary Defense",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Illusionary Defense",
+      "wikiRevisionId": 3135573
+    },
+    {
+      "sourceKind": "trait",
+      "id": 677,
+      "name": "Master of Manipulation",
+      "status": "match",
+      "curatedValue": 5,
+      "wikiValue": 5,
+      "wikiTitle": "Master of Manipulation",
+      "wikiRevisionId": 2962183
+    },
+    {
+      "sourceKind": "trait",
+      "id": 707,
+      "name": "Master Fencer",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Master Fencer",
+      "wikiRevisionId": 2938117
+    },
+    {
+      "sourceKind": "trait",
+      "id": 965,
+      "name": "Spirited Arrival",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Spirited Arrival",
+      "wikiRevisionId": 3004435
+    },
+    {
+      "sourceKind": "trait",
+      "id": 978,
+      "name": "Wellspring",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Wellspring",
+      "wikiRevisionId": 3155790
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1016,
+      "name": "Fang and Claw",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Fang and Claw",
+      "wikiRevisionId": 3098904
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1055,
+      "name": "Rejuvenation",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Rejuvenation",
+      "wikiRevisionId": 2691126
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1210,
+      "name": "Unrelenting Strikes",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Unrelenting Strikes",
+      "wikiRevisionId": 2631216
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1482,
+      "name": "Empower Allies",
+      "status": "match",
+      "curatedValue": 5,
+      "wikiValue": 5,
+      "wikiTitle": "Empower Allies",
+      "wikiRevisionId": 2837206
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1687,
+      "name": "Bountiful Disillusionment",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Bountiful Disillusionment",
+      "wikiRevisionId": 3086861
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1697,
+      "name": "Invigorating Bond",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Invigorating Bond",
+      "wikiRevisionId": 2818692
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1711,
+      "name": "Phalanx Strength",
+      "status": "off-by-one",
+      "curatedValue": 5,
+      "wikiValue": 4,
+      "wikiTitle": "Phalanx Strength",
+      "wikiRevisionId": 3073187
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1738,
+      "name": "Shared Empowerment",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Shared Empowerment",
+      "wikiRevisionId": 2932345
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1786,
+      "name": "Assassin's Presence",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Assassin's Presence",
+      "wikiRevisionId": 2631135
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1852,
+      "name": "Inspiring Distortion",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Inspiring Distortion",
+      "wikiRevisionId": 2793263
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1891,
+      "name": "Tempestuous Aria",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Tempestuous Aria",
+      "wikiRevisionId": 2810667
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1901,
+      "name": "Automated Medical Response",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Automated Medical Response",
+      "wikiRevisionId": 3117856
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1923,
+      "name": "No Scope",
+      "status": "match",
+      "curatedValue": "self",
+      "wikiTitle": "No Scope",
+      "wikiRevisionId": 2657369
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1942,
+      "name": "Stretched Time",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Stretched Time",
+      "wikiRevisionId": 2932153
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1948,
+      "name": "Hardy Conduit",
+      "status": "match",
+      "curatedValue": 5,
+      "wikiValue": 5,
+      "wikiTitle": "Hardy Conduit",
+      "wikiRevisionId": 2967832
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1952,
+      "name": "Gale Song",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Gale Song",
+      "wikiRevisionId": 2795465
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1980,
+      "name": "Temporal Enchanter",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Temporal Enchanter",
+      "wikiRevisionId": 2938108
+    },
+    {
+      "sourceKind": "trait",
+      "id": 1999,
+      "name": "Expert Examination",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Expert Examination",
+      "wikiRevisionId": 2809697
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2005,
+      "name": "Mental Defense",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Mental Defense",
+      "wikiRevisionId": 3080962
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2016,
+      "name": "Verdant Etching",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Verdant Etching",
+      "wikiRevisionId": 3171100
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2022,
+      "name": "Seize the Moment",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Seize the Moment",
+      "wikiRevisionId": 3107769
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2033,
+      "name": "Lucid Singularity",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Lucid Singularity",
+      "wikiRevisionId": 2942913
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2042,
+      "name": "Heat the Soul",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Heat the Soul",
+      "wikiRevisionId": 2989720
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2052,
+      "name": "Kinetic Accelerators",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Kinetic Accelerators",
+      "wikiRevisionId": 3154859
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2105,
+      "name": "Stoic Demeanor",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Stoic Demeanor",
+      "wikiRevisionId": 2932526
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2154,
+      "name": "Endless Enmity",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Endless Enmity",
+      "wikiRevisionId": 2655443
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2174,
+      "name": "Mirage Mantle",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Mirage Mantle",
+      "wikiRevisionId": 3107770
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2228,
+      "name": "Redemptor's Sermon",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Redemptor's Sermon",
+      "wikiRevisionId": 3089961
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2234,
+      "name": "Spectacular Sphere",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Spectacular Sphere",
+      "wikiRevisionId": 3128114
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2237,
+      "name": "River's Flow",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "River's Flow",
+      "wikiRevisionId": 3171918
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2248,
+      "name": "Amnesty of Shing Jea",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Amnesty of Shing Jea",
+      "wikiRevisionId": 2932523
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2255,
+      "name": "Song of Arboreum",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Song of Arboreum",
+      "wikiRevisionId": 2786641
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2271,
+      "name": "Let Loose",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Let Loose",
+      "wikiRevisionId": 2834522
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2285,
+      "name": "Traversing Dusk",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Traversing Dusk",
+      "wikiRevisionId": 3065828
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2296,
+      "name": "Mech Arms: High-Impact Drivers",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Mech Arms: High-Impact Drivers",
+      "wikiRevisionId": 2747471
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2326,
+      "name": "Raconteur",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Raconteur",
+      "wikiRevisionId": 3093639
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2355,
+      "name": "Shared Wisdom",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Shared Wisdom",
+      "wikiRevisionId": 3101726
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2387,
+      "name": "New Genes",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "New Genes",
+      "wikiRevisionId": 3129113
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2393,
+      "name": "Possessive Hoarder",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Possessive Hoarder",
+      "wikiRevisionId": 3154942
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2405,
+      "name": "Empowering Spirits",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Empowering Spirits",
+      "wikiRevisionId": 3128987
+    },
+    {
+      "sourceKind": "trait",
+      "id": 2408,
+      "name": "Flock Together",
+      "status": "missing",
+      "curatedValue": 5,
+      "wikiTitle": "Flock Together",
+      "wikiRevisionId": 3047057
+    }
+  ]
+}
