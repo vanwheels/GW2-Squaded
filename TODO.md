@@ -159,7 +159,7 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         traits, changing a trait's own %) produce no diffable signal — still needs a human read or
         a periodic trait re-review. Not yet built — direction only.
 
-- [ ] Condition Cleanse count as a tracked stat, folded into the existing Strip/Corrupt row (relabel
+- [x] Condition Cleanse count as a tracked stat, folded into the existing Strip/Corrupt row (relabel
       "Strips / Corrupts / Cleanses", not a new row) — scoped 2026-08-07. Data shape confirmed same
       as `Strip`/`Corrupt`'s existing `BOON_STRIP_CORRUPT_MATCHERS` pattern: `type: "Number"`,
       `text: "Conditions Removed"`, `value: N`. User-confirmed 2026-08-07 this needs the same
@@ -198,13 +198,14 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       The ~11-distinct-trait estimate for the trait-gated cluster turned out to collapse further to 8
       once resolved from local `requires_trait` grouping instead of wiki lookups (which also
       resolved 27 of the 30 UNRESOLVED COLLISION entries for free — see COMPLETED.md for the full
-      method). **Still not done**: this is data-only — `NamedFactSource`
-      (`computeNamedFactSources`'s own output shape, what the Strip/Corrupt row actually renders) has
-      no `targetCount` field the way `BoonConditionSource` does, so nothing reads this table yet.
-      Wiring it in — extend `NamedFactSource`/`computeNamedFactSources` with a resolved target count
-      (parallel to `resolveTargetCount`), add a `Cleanse` matcher to
-      `BOON_STRIP_CORRUPT_MATCHERS`, relabel the row "Strips / Corrupts / Cleanses" per this item's
-      original scoping — is a separate follow-up, not started.
+      method).
+
+      **Wired into the UI 2026-08-08** (see COMPLETED.md Session 119), closing this item out:
+      `NamedFactSource`/`computeNamedFactSources` gained a `targetCount` field/optional
+      `targetCountTables` param (parallel to `resolveTargetCount`/`TARGET_COUNT_OVERRIDES`), a
+      `Cleanse` matcher was added to `BOON_STRIP_CORRUPT_MATCHERS`, and the row is relabeled "Strips /
+      Corrupts / Cleanses" in the build editor and both squad-editor views (per-slot and party-wide).
+      Not verified visually in the running app (Electron sandbox limitation) — otherwise done.
 
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around
@@ -372,11 +373,12 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
          **MISSING 255** (no wiki evidence either way, relying on the sweep's documented default-5/
          self assumption), UNRESOLVED COLLISION 9. Fully corroborates the 2026-08-06/07 sweep
          wherever the wiki has evidence to check it against — no data file written, validation only.
-         Condition Cleanse (this bullet's other named gap type) has a first-draft classifier now
-         (`scripts/fetch-condition-cleanse.ts`, 2026-08-08) — see this file's own Condition Cleanse
-         item below for the live-run numbers. No curated table has been written into `sources.ts`
-         yet — this script proposes a classification, it doesn't diff against an existing one (there
-         isn't one), so it's a different shape than this bullet's other two DONE legs.
+         **Condition Cleanse half DONE 2026-08-08** (this bullet's other named gap type): built
+         `scripts/fetch-condition-cleanse.ts` as a first-draft classifier (proposes a classification
+         rather than diffing an existing table, a different shape than this bullet's other two legs —
+         see this file's own Condition Cleanse item below for the live-run numbers), then curated
+         `CONDITION_CLEANSE_TARGETS` from its output (see COMPLETED.md Sessions 117/119) and wired it
+         into the Strip/Corrupt row — that item is now fully closed out, not just data-only.
       4. Wire it to the not-yet-built "Curation-side change detection" mechanism in the Automatic
          game-data refresh item above (Game_updates page diffing) — once that exists, re-running
          these fetch scripts only needs to touch pages it flags as changed, not a periodic full

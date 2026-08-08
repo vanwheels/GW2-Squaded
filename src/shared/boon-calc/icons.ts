@@ -72,13 +72,15 @@ export const MISCELLANEOUS_ICONS: Record<string, string> = {
   Barrier: 'https://render.guildwars2.com/file/357922487919E8E84B914EAC13D5796DDDC42D14/1770209.png'
 }
 
-/** The API has no dedicated Strip/Corrupt icon — both read a `Number`-type fact that reuses the
- *  same generic icon every other `Number` fact without a more specific one does (confirmed via
- *  scan). Distinguished by row label instead (see `BoonConditionSummaryPanel`), same as
- *  `COMBO_ICONS`'s Field/Finisher not having per-type icons. */
+/** The API has no dedicated Strip/Corrupt/Cleanse icon — all three read a `Number`-type fact that
+ *  reuses the same generic icon every other `Number` fact without a more specific one does
+ *  (confirmed via scan — Cleanse's "Conditions Removed" facts carry this exact same icon too, e.g.
+ *  Healing Seed). Distinguished by name in the tooltip instead (see `BoonConditionSummaryPanel`),
+ *  same as `COMBO_ICONS`'s Field/Finisher not having per-type icons. */
 export const BOON_STRIP_CORRUPT_ICONS: Record<string, string> = {
   Strip: 'https://render.guildwars2.com/file/9352ED3244417304995F26CB01AE76BB7E547052/156661.png',
-  Corrupt: 'https://render.guildwars2.com/file/9352ED3244417304995F26CB01AE76BB7E547052/156661.png'
+  Corrupt: 'https://render.guildwars2.com/file/9352ED3244417304995F26CB01AE76BB7E547052/156661.png',
+  Cleanse: 'https://render.guildwars2.com/file/9352ED3244417304995F26CB01AE76BB7E547052/156661.png'
 }
 
 /** Every `Damage`-type fact shares this one icon across every skill (confirmed via a scan of

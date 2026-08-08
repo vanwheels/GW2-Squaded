@@ -17,7 +17,8 @@ import {
 import {
   BOON_STRIP_CORRUPT_MATCHERS,
   CONTROL_MATCHERS,
-  MISCELLANEOUS_MATCHERS
+  MISCELLANEOUS_MATCHERS,
+  NAMED_FACT_TARGET_COUNT_TABLES
 } from '@shared/boon-calc/sources'
 import {
   AURA_ICONS,
@@ -96,7 +97,10 @@ function toNamedFactIconItems(entries: PartyNamedFactEntry[], party: Party, icon
       <TooltipBody
         title={entry.name}
         description={entry.contributions
-          .map((c) => `${contributionLabel(party, c.buildName, c.slotIndex)}: ${c.sourceName}${c.detail ? ` — ${c.detail}` : ''}`)
+          .map((c) => {
+            const target = formatTargetCount(c.targetCount)
+            return `${contributionLabel(party, c.buildName, c.slotIndex)}: ${c.sourceName}${c.detail ? ` — ${c.detail}` : ''}${target ? ` (${target})` : ''}`
+          })
           .join('\n')}
       />
     )
@@ -120,7 +124,7 @@ function toComboIconItems(entries: PartyComboEntry[], party: Party): BoonConditi
 
 /**
  * One party ("Line") — 5 `SlotTile`s plus a party-wide Boons/Conditions/Control/Auras/
- * Miscellaneous/Strip-Corrupt/Combo presence summary (always visible, see
+ * Miscellaneous/Strips-Corrupts-Cleanses/Combo presence summary (always visible, see
  * `computePartyBoonConditionSummary`'s doc comment for why it's presence-only, not a merged
  * uptime %). The expand/collapse toggle only affects each slot's own per-build summary rows
  * (`SlotTile`'s `showSummary`) — it's ephemeral UI state, not persisted on the squad comp.
@@ -173,7 +177,7 @@ export function PartyRow({
   const miscItems = useMemo(() => toNamedFactIconItems(miscSummary, party, MISCELLANEOUS_ICONS), [miscSummary, party])
 
   const stripCorruptSummary = useMemo(
-    () => computePartyNamedFactSummary(party, effectiveBuildsById, gameData, BOON_STRIP_CORRUPT_MATCHERS),
+    () => computePartyNamedFactSummary(party, effectiveBuildsById, gameData, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES),
     [party, effectiveBuildsById, gameData]
   )
   const stripCorruptItems = useMemo(
@@ -231,7 +235,7 @@ export function PartyRow({
               <BoonConditionIconRow items={controlItems} emptyLabel="—" />
             </div>
             <div className="party-summary-group">
-              <span className="party-summary-label muted">Strip / Corrupt</span>
+              <span className="party-summary-label muted">Strips / Corrupts / Cleanses</span>
               <BoonConditionIconRow items={stripCorruptItems} emptyLabel="—" />
             </div>
             <div className="party-summary-group">

@@ -4,6 +4,7 @@ import {
   BOON_STRIP_CORRUPT_MATCHERS,
   CONTROL_MATCHERS,
   MISCELLANEOUS_MATCHERS,
+  NAMED_FACT_TARGET_COUNT_TABLES,
   computeAuraSources,
   computeBoonConditionSources,
   computeComboSources,
@@ -72,9 +73,11 @@ function iconItemsFor(groups: BoonConditionGroup[], names: readonly string[], ic
 }
 
 /** Same "always show every name, grey out unproduced ones" treatment as `iconItemsFor`, for
- *  `computeNamedFactSources`' output (Control/Miscellaneous/Strip&Corrupt) instead of
+ *  `computeNamedFactSources`' output (Control/Miscellaneous/Strip/Corrupt/Cleanse) instead of
  *  `computeBoonConditionSources`'/`computeAuraSources`' — a different source shape (`detail` is a
- *  free-form magnitude string, not a scaled duration), so the tooltip line is built differently. */
+ *  free-form magnitude string, not a scaled duration), so the tooltip line is built differently.
+ *  `targetCount` (only ever populated for `Cleanse`, see `NamedFactSource.targetCount`'s doc
+ *  comment) renders the same "Up to N" badge `iconItemsFor` shows for boons. */
 function namedFactIconItemsFor(groups: NamedFactGroup[], names: readonly string[], icons: Record<string, string>): BoonConditionIconItem[] {
   const groupByName = new Map(groups.map((g) => [g.name, g]))
   return names.map((name) => {
@@ -92,6 +95,7 @@ function namedFactIconItemsFor(groups: NamedFactGroup[], names: readonly string[
                 <span className="tooltip-fact-label">
                   <img className="tooltip-fact-icon" src={s.sourceIcon} alt="" />
                   <span>{s.sourceName}</span>
+                  {s.targetCount !== null && <span className="boon-source-target">{formatTargetCount(s.targetCount)}</span>}
                 </span>
                 {s.detail && <span className="boon-source-duration">{s.detail}</span>}
               </li>
@@ -147,13 +151,14 @@ function comboIconItems(sources: ComboSource[]): BoonConditionIconItem[] {
  * gw2skills.net-style "Conditions / Boons / Control / Auras / Combo" summary, relocated here
  * (beneath `StatsPanel`, in the build editor's right column) from the icon rows that used to sit
  * inline in the Skills bar itself (see COMPLETED.md), plus 1 row gw2skills doesn't have at all
- * (Strip/Corrupt — see `BOON_STRIP_CORRUPT_MATCHERS`). Healing/Damage briefly lived here as their
- * own aggregated rows (Sessions 54-55) but moved into each skill's own tooltip instead (see
- * `SkillsEditor.tsx`'s `skillTooltipContent`/`skillFactLines`) — a per-skill number read in place,
- * next to the skill it belongs to, was judged easier to read than a separate summary icon once real
- * numbers for many skills started landing.
+ * ("Strips / Corrupts / Cleanses" — see `BOON_STRIP_CORRUPT_MATCHERS`; Cleanse folded into this
+ * row rather than a separate one, per TODO.md's Condition Cleanse item). Healing/Damage briefly
+ * lived here as their own aggregated rows (Sessions 54-55) but moved into each skill's own tooltip
+ * instead (see `SkillsEditor.tsx`'s `skillTooltipContent`/`skillFactLines`) — a per-skill number
+ * read in place, next to the skill it belongs to, was judged easier to read than a separate summary
+ * icon once real numbers for many skills started landing.
  *
- * Laid out as a 2-column grid (Conditions/Auras, Boons/Miscellaneous, Control/Strip-Corrupt,
+ * Laid out as a 2-column grid (Conditions/Auras, Boons/Miscellaneous, Control/Strips-Corrupts-Cleanses,
  * Combo Fields/Combo Finishers) rather than 7 stacked single rows, to halve this panel's height and
  * leave more vertical room for the Skills section below it. Combo Fields/Finishers is the one pair
  * still sharing a single generic icon each (see `comboIconItems`'s doc comment) rather than being
@@ -174,7 +179,7 @@ export function BoonConditionSummaryPanel({ build }: Props) {
     [build, gameData]
   )
   const stripCorruptGroups = useMemo(
-    () => groupNamedFactSources(computeNamedFactSources(build, gameData, BOON_STRIP_CORRUPT_MATCHERS)),
+    () => groupNamedFactSources(computeNamedFactSources(build, gameData, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES)),
     [build, gameData]
   )
   const comboSources = useMemo(() => computeComboSources(build, gameData), [build, gameData])
@@ -191,7 +196,10 @@ export function BoonConditionSummaryPanel({ build }: Props) {
     ],
     [
       { label: 'Control', items: namedFactIconItemsFor(controlGroups, Object.keys(CONTROL_MATCHERS), CONTROL_ICONS) },
-      { label: 'Strip / Corrupt', items: namedFactIconItemsFor(stripCorruptGroups, Object.keys(BOON_STRIP_CORRUPT_MATCHERS), BOON_STRIP_CORRUPT_ICONS) }
+      {
+        label: 'Strips / Corrupts / Cleanses',
+        items: namedFactIconItemsFor(stripCorruptGroups, Object.keys(BOON_STRIP_CORRUPT_MATCHERS), BOON_STRIP_CORRUPT_ICONS)
+      }
     ],
     [
       { label: 'Combo Fields', items: [comboFieldItem] },

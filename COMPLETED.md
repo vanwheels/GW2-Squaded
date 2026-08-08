@@ -2,6 +2,42 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 119 — Wire CONDITION_CLEANSE_TARGETS into the UI
+
+TODO.md's Condition Cleanse item's last remaining piece: `CONDITION_CLEANSE_TARGETS` (built Session
+117) was data-only until now — nothing read it. Wired end to end:
+- `BOON_STRIP_CORRUPT_MATCHERS` (`src/shared/boon-calc/sources.ts`) gained a third matcher,
+  `Cleanse` (`type: 'Number'` facts matching `/condition.*remov|remov.*condition/i`, the same regex
+  `scripts/fetch-condition-cleanse.ts` used to build its candidate list).
+- `NamedFactSource` gained a `targetCount: number | null` field, mirroring
+  `BoonConditionSource.targetCount`. `resolveTargetCount` was split into a generic
+  `resolveTargetCountFrom(facts, sourceKind, sourceId, overrides)` (parametrized over which curated
+  override table to fall back to) plus a thin `TARGET_COUNT_OVERRIDES`-bound wrapper kept for every
+  existing boon/condition caller. `namedFactsFrom`/`computeNamedFactSources` both gained an optional
+  `targetCountTables` param (`Record<matcherName, overrideTable>`) — only matcher names present in
+  that map get a resolved `targetCount`; every other name (Control, Miscellaneous, Strip, Corrupt)
+  stays `null`, since only Cleanse was ever scoped to need this. A new exported constant,
+  `NAMED_FACT_TARGET_COUNT_TABLES = { Cleanse: CONDITION_CLEANSE_TARGETS }`, is what callers pass.
+- Icon: no new icon needed — confirmed via a live scan of `skills.json` that `Conditions Removed`
+  facts (e.g. Healing Seed) carry the exact same generic `Number`-fact icon (156661) Strip/Corrupt
+  already reuses, so `BOON_STRIP_CORRUPT_ICONS` just gained a `Cleanse` entry pointing at the same
+  URL.
+- UI: the Strip/Corrupt row is relabeled "Strips / Corrupts / Cleanses" everywhere it's rendered —
+  the build editor's `BoonConditionSummaryPanel`, the squad editor's per-slot `SlotTile` summary, and
+  the party-wide `PartyRow` summary (which also needed `PartyNamedFactContribution` in
+  `party-summary.ts` to gain the same `targetCount` field and `computePartyNamedFactSummary` to gain
+  the same `targetCountTables` passthrough, since the squad views run their own separate aggregation
+  path from the single-build editor). All three now render the boon row's existing "Up to N" badge
+  (`formatTargetCount`) next to the source name whenever `targetCount !== null`, i.e. only for
+  `Cleanse` entries with a curated party-count, exactly like it already worked for boons.
+  `'self'`-classified entries in `CONDITION_CLEANSE_TARGETS` correctly produce no badge (same
+  convention `TARGET_COUNT_OVERRIDES` already established: self is the unmarked default, only an
+  explicit party reach gets a number).
+Verified via `npm run typecheck`/`npm run lint`, both clean (one pre-existing, unrelated
+`scripts/fetch-target-counts.ts` typecheck error confirmed via `git stash` to predate this session).
+Not verified visually in the running app (Electron sandbox limitation, same standing caveat as every
+other UI change this project has made).
+
 ## Session 118 — Migrate remaining fetch-*.ts scripts to the shared wiki-cache
 
 TODO.md's "Wiki-sourced data pipeline" step 2 remainder: `scripts/lib/wiki-cache.ts` (built Session

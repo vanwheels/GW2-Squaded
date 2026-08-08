@@ -7,6 +7,7 @@ import {
   BOON_STRIP_CORRUPT_MATCHERS,
   CONTROL_MATCHERS,
   MISCELLANEOUS_MATCHERS,
+  NAMED_FACT_TARGET_COUNT_TABLES,
   computeAuraSources,
   computeBoonConditionSources,
   computeComboSources,
@@ -61,7 +62,7 @@ function decodeGhostId(id: string): GhostPick {
  * widened to accept string build ids, exactly like the rune/sigil/relic pickers) plus, when empty,
  * an editable free-text role label (`SquadSlot.placeholderLabel`) and, when a build is assigned and
  * the party row's toggle is expanded, that build's Boons/Conditions/Control/Auras/Miscellaneous/
- * Strip-Corrupt/Combo icon summary (same categories as the build editor's `BoonConditionSummaryPanel`,
+ * Strips-Corrupts-Cleanses/Combo icon summary (same categories as the build editor's `BoonConditionSummaryPanel`,
  * but only showing icons this build actually produces — no "always render every name, grey out
  * unproduced ones" treatment, since a slot tile is too narrow for that).
  *
@@ -140,7 +141,7 @@ export function SlotTile({
   const controlGroups = build ? groupNamedFactSources(computeNamedFactSources(build, gameData, CONTROL_MATCHERS)) : []
   const miscGroups = build ? groupNamedFactSources(computeNamedFactSources(build, gameData, MISCELLANEOUS_MATCHERS)) : []
   const stripCorruptGroups = build
-    ? groupNamedFactSources(computeNamedFactSources(build, gameData, BOON_STRIP_CORRUPT_MATCHERS))
+    ? groupNamedFactSources(computeNamedFactSources(build, gameData, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES))
     : []
   const comboSources = build ? computeComboSources(build, gameData) : []
 
@@ -182,7 +183,12 @@ export function SlotTile({
       tooltip: (
         <TooltipBody
           title={g.name}
-          description={g.sources.map((s) => `${s.sourceName}${s.detail ? `: ${s.detail}` : ''}`).join('\n')}
+          description={g.sources
+            .map((s) => {
+              const target = formatTargetCount(s.targetCount)
+              return `${s.sourceName}${s.detail ? `: ${s.detail}` : ''}${target ? ` (${target})` : ''}`
+            })
+            .join('\n')}
         />
       )
     }))

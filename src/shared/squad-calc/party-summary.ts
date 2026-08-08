@@ -17,7 +17,13 @@ import type {
   Trait,
   WvwFactOverrides
 } from '../types'
-import { computeAuraSources, computeBoonConditionSources, computeComboSources, computeNamedFactSources } from '../boon-calc/sources'
+import {
+  computeAuraSources,
+  computeBoonConditionSources,
+  computeComboSources,
+  computeNamedFactSources,
+  type TargetCountOverride
+} from '../boon-calc/sources'
 
 export interface PartyBoonConditionContribution {
   slotIndex: number
@@ -57,6 +63,9 @@ export interface PartyNamedFactContribution {
   sourceName: string
   sourceIcon: string
   detail: string | null
+  /** See `NamedFactSource.targetCount`'s doc comment — `null` for every matcher name without a
+   *  curated target-count table (currently everything except `Cleanse`). */
+  targetCount: number | null
 }
 
 export interface PartyNamedFactEntry {
@@ -183,10 +192,12 @@ export function computePartyAuraSummary(
   return [...map.values()].sort((a, b) => a.name.localeCompare(b.name))
 }
 
-/** Control/Miscellaneous/Strip&Corrupt counterpart to `computePartyBoonConditionSummary` — same
- *  presence-union-with-attribution contract, generic over a `computeNamedFactSources` matcher table
- *  (`CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/`BOON_STRIP_CORRUPT_MATCHERS`) so one function
- *  covers all three rows, mirroring `computeNamedFactSources` itself being matcher-generic. */
+/** Control/Miscellaneous/Strip&Corrupt&Cleanse counterpart to `computePartyBoonConditionSummary` —
+ *  same presence-union-with-attribution contract, generic over a `computeNamedFactSources` matcher
+ *  table (`CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/`BOON_STRIP_CORRUPT_MATCHERS`) so one function
+ *  covers all three rows, mirroring `computeNamedFactSources` itself being matcher-generic.
+ *  `targetCountTables` is forwarded straight through to `computeNamedFactSources` — pass
+ *  `NAMED_FACT_TARGET_COUNT_TABLES` for `BOON_STRIP_CORRUPT_MATCHERS`, omit it otherwise. */
 export function computePartyNamedFactSummary(
   party: Party,
   buildsById: Map<string, Build>,
@@ -199,7 +210,8 @@ export function computePartyNamedFactSummary(
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
   },
-  matchers: Record<string, (fact: Fact) => boolean>
+  matchers: Record<string, (fact: Fact) => boolean>,
+  targetCountTables?: Record<string, { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> }>
 ): PartyNamedFactEntry[] {
   const map = new Map<string, PartyNamedFactEntry>()
 
@@ -208,7 +220,7 @@ export function computePartyNamedFactSummary(
     const build = buildsById.get(slot.buildId)
     if (!build) return
 
-    for (const source of computeNamedFactSources(build, gameData, matchers)) {
+    for (const source of computeNamedFactSources(build, gameData, matchers, targetCountTables)) {
       let entry = map.get(source.name)
       if (!entry) {
         entry = { name: source.name, contributions: [] }
@@ -219,7 +231,8 @@ export function computePartyNamedFactSummary(
         buildName: build.name,
         sourceName: source.sourceName,
         sourceIcon: source.sourceIcon,
-        detail: source.detail
+        detail: source.detail,
+        targetCount: source.targetCount
       })
     }
   })

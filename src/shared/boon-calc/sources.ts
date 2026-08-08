@@ -1099,13 +1099,25 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
 /** The only reliable "this reaches up to N allies" signal in the API's fact data — see
  *  `BoonConditionSource.targetCount`'s doc comment for why nothing else (the enemy-facing "Number
  *  of Targets" fact, or the absence of any Number fact at all) is trustworthy enough to use here.
- *  Falls back to `TARGET_COUNT_OVERRIDES` (a curated, wiki-verified per-source decision) when the
- *  fact data itself has no signal at all. */
-function resolveTargetCount(facts: Fact[], sourceKind: 'skill' | 'trait', sourceId: number): number | null {
+ *  Falls back to `overrides` (a curated, wiki-verified per-source decision, same `skill`/`trait`
+ *  shape as `TARGET_COUNT_OVERRIDES`/`CONDITION_CLEANSE_TARGETS`) when the fact data itself has no
+ *  signal at all. */
+function resolveTargetCountFrom(
+  facts: Fact[],
+  sourceKind: 'skill' | 'trait',
+  sourceId: number,
+  overrides: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> }
+): number | null {
   const alliedFact = facts.find((f) => f.type === 'Number' && f.text === 'Number of Allied Targets' && typeof f.value === 'number')
   if (typeof alliedFact?.value === 'number') return alliedFact.value
-  const override = TARGET_COUNT_OVERRIDES[sourceKind][sourceId]
+  const override = overrides[sourceKind][sourceId]
   return typeof override === 'number' ? override : null
+}
+
+/** `resolveTargetCountFrom` against `TARGET_COUNT_OVERRIDES` specifically — the boon/condition
+ *  case every existing caller uses. */
+function resolveTargetCount(facts: Fact[], sourceKind: 'skill' | 'trait', sourceId: number): number | null {
+  return resolveTargetCountFrom(facts, sourceKind, sourceId, TARGET_COUNT_OVERRIDES)
 }
 
 /**
@@ -1114,10 +1126,10 @@ function resolveTargetCount(facts: Fact[], sourceKind: 'skill' | 'trait', source
  * Cleanses") — a bare `Conditions Removed` fact never itself says WHO gets cleansed, same ambiguity
  * `TARGET_COUNT_OVERRIDES` above resolves for boons, so this reuses that table's exact shape
  * (`TargetCountOverride`, `skill`/`trait` split) and default-5 convention rather than inventing a
- * new one. NOT yet wired to anything — `NamedFactSource` (the Strip/Corrupt row's own data shape,
- * `computeNamedFactSources`) has no `targetCount` field the way `BoonConditionSource` does, so this
- * table is data-only for now, ready for a future session to thread through the same way
- * `resolveTargetCount` threads `TARGET_COUNT_OVERRIDES` into `extractFromFacts`. See TODO.md.
+ * new one. Wired into the Strip/Corrupt row's `Cleanse` matcher via `NAMED_FACT_TARGET_COUNT_TABLES`
+ * (see `BOON_STRIP_CORRUPT_MATCHERS` below) — `NamedFactSource.targetCount` resolves through
+ * `resolveTargetCountFrom` the same way `BoonConditionSource.targetCount` resolves through
+ * `TARGET_COUNT_OVERRIDES`.
  *
  * Built 2026-08-08 from `scripts/fetch-condition-cleanse.ts`'s first-draft classifier output (235
  * candidates: 193 skill, 42 trait) plus a manual review pass, NOT a straight copy of that script's
@@ -2121,6 +2133,11 @@ export interface NamedFactSource {
   /** Human-readable magnitude when the underlying fact carries one (duration in seconds, a
    *  distance, or a plain count) — `null` for presence-only facts (e.g. Breaks Stun). */
   detail: string | null
+  /** Same "up to N allies" resolution `BoonConditionSource.targetCount` does (own "Number of
+   *  Allied Targets" fact, else a curated override table), only actually populated for matcher
+   *  names present in `NAMED_FACT_TARGET_COUNT_TABLES` (currently just `Cleanse`) — `null` for
+   *  every other name (Control/Miscellaneous/Strip/Corrupt), which have no such table. */
+  targetCount: number | null
 }
 
 function namedFactDetail(fact: Fact): string | null {
@@ -2131,7 +2148,9 @@ function namedFactDetail(fact: Fact): string | null {
 }
 
 /** At most one entry per matcher name per source (a skill/trait with 2 facts both matching e.g.
- *  "Barrier" shouldn't produce 2 identical tooltip lines). */
+ *  "Barrier" shouldn't produce 2 identical tooltip lines). `targetCountTables` is keyed by matcher
+ *  name (e.g. `Cleanse`) — only names present there get a resolved `targetCount`, everything else
+ *  gets `null` (see `NamedFactSource.targetCount`'s doc comment). */
 function namedFactsFrom(
   facts: Fact[],
   traitedFacts: Fact[],
@@ -2140,15 +2159,19 @@ function namedFactsFrom(
   sourceId: number,
   sourceName: string,
   sourceIcon: string,
-  matchers: Record<string, (fact: Fact) => boolean>
+  matchers: Record<string, (fact: Fact) => boolean>,
+  targetCountTables?: Record<string, { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> }>
 ): NamedFactSource[] {
   const out: NamedFactSource[] = []
   const matchedNames = new Set<string>()
-  for (const fact of [...facts, ...traitedFacts]) {
+  const combinedFacts = [...facts, ...traitedFacts]
+  for (const fact of combinedFacts) {
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
     for (const [name, match] of Object.entries(matchers)) {
       if (matchedNames.has(name) || !match(fact)) continue
-      out.push({ sourceKind, sourceId, sourceName, sourceIcon, name, detail: namedFactDetail(fact) })
+      const table = targetCountTables?.[name]
+      const targetCount = table ? resolveTargetCountFrom(combinedFacts, sourceKind, sourceId, table) : null
+      out.push({ sourceKind, sourceId, sourceName, sourceIcon, name, detail: namedFactDetail(fact), targetCount })
       matchedNames.add(name)
     }
   }
@@ -2193,16 +2216,31 @@ export const MISCELLANEOUS_MATCHERS: Record<string, (fact: Fact) => boolean> = {
 }
 
 /**
- * Boon Strip/Corrupt — not part of gw2skills' own reference bar, added on request (strip = remove
- * an enemy's boon; corrupt = convert it into a condition instead). Both read `type: 'Number'` facts
- * — e.g. Corrupt Boon's "Boons Converted", Spectral-Grasp-style pulls' "Boons Removed"/"Boons
- * Stolen" — confirmed exhaustive label sets via a full scan of every `Number` fact's `text` this
- * session; deliberately excludes the much larger "Conditions Removed"-family labels (a build's own
- * condition-cleanse on itself/allies — an unrelated concept, not a strip/corrupt of an enemy boon).
+ * Boon Strip/Corrupt/Cleanse — not part of gw2skills' own reference bar, added on request (strip =
+ * remove an enemy's boon; corrupt = convert it into a condition instead; cleanse = remove a
+ * condition from self/allies, TODO.md's "Condition Cleanse" item, folded into this row rather than
+ * a separate one per that item's scoping). All three read `type: 'Number'` facts — e.g. Corrupt
+ * Boon's "Boons Converted", Spectral-Grasp-style pulls' "Boons Removed"/"Boons Stolen", Healing
+ * Seed's "Conditions Removed" — confirmed exhaustive label sets via a full scan of every `Number`
+ * fact's `text` (Strip/Corrupt) and `scripts/fetch-condition-cleanse.ts`'s 235-candidate sweep
+ * (Cleanse, see `CONDITION_CLEANSE_TARGETS` above).
  */
 export const BOON_STRIP_CORRUPT_MATCHERS: Record<string, (fact: Fact) => boolean> = {
   Strip: (f) => f.type === 'Number' && typeof f.text === 'string' && /boons? (removed|stolen)/i.test(f.text),
-  Corrupt: (f) => f.type === 'Number' && typeof f.text === 'string' && /boons? converted/i.test(f.text)
+  Corrupt: (f) => f.type === 'Number' && typeof f.text === 'string' && /boons? converted/i.test(f.text),
+  Cleanse: (f) => f.type === 'Number' && typeof f.text === 'string' && /condition.*remov|remov.*condition/i.test(f.text)
+}
+
+/** Matcher names in `BOON_STRIP_CORRUPT_MATCHERS` (or any other matcher table) that have a
+ *  curated wiki-verified target-count table to resolve `NamedFactSource.targetCount` from — passed
+ *  to `computeNamedFactSources` alongside the matcher table itself. Only `Cleanse` has one today;
+ *  Strip/Corrupt (how many enemies a boon is stripped/corrupted from) and every Control/
+ *  Miscellaneous name were never scoped for this and stay `null`. */
+export const NAMED_FACT_TARGET_COUNT_TABLES: Record<
+  string,
+  { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> }
+> = {
+  Cleanse: CONDITION_CLEANSE_TARGETS
 }
 
 /**
@@ -2211,7 +2249,9 @@ export const BOON_STRIP_CORRUPT_MATCHERS: Record<string, (fact: Fact) => boolean
  * each read a mix of fact `type`s (`Time`/`Distance`/`Number`/`StunBreak`/`NoData`/`AttributeAdjust`),
  * so each is defined as a small `name -> (fact) => boolean` matcher table (`CONTROL_MATCHERS` etc.,
  * above) instead of a single classify function. Same skill/trait-walking rules as
- * `computeAuraSources`/`computeComboSources`; call once per matcher table.
+ * `computeAuraSources`/`computeComboSources`; call once per matcher table. `targetCountTables` is
+ * optional and forwarded straight to `namedFactsFrom` — pass `NAMED_FACT_TARGET_COUNT_TABLES` for
+ * `BOON_STRIP_CORRUPT_MATCHERS`, omit it for `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`.
  */
 export function computeNamedFactSources(
   build: Build,
@@ -2224,7 +2264,8 @@ export function computeNamedFactSources(
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
   },
-  matchers: Record<string, (fact: Fact) => boolean>
+  matchers: Record<string, (fact: Fact) => boolean>,
+  targetCountTables?: Record<string, { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> }>
 ): NamedFactSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
   const out: NamedFactSource[] = []
@@ -2233,7 +2274,9 @@ export function computeNamedFactSources(
   for (const id of skillIds) {
     const skill = skillsById.get(id)
     if (!skill) continue
-    out.push(...namedFactsFrom(skill.facts, skill.traitedFacts, activeIds, 'skill', skill.id, skill.name, skill.icon, matchers))
+    out.push(
+      ...namedFactsFrom(skill.facts, skill.traitedFacts, activeIds, 'skill', skill.id, skill.name, skill.icon, matchers, targetCountTables)
+    )
   }
 
   for (const line of build.specializations) {
@@ -2243,7 +2286,9 @@ export function computeNamedFactSources(
       const isMinor = trait.slot === 'Minor'
       const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id)
       if (!isMinor && !isChosenMajor) continue
-      out.push(...namedFactsFrom(trait.facts, trait.traitedFacts, activeIds, 'trait', trait.id, trait.name, trait.icon, matchers))
+      out.push(
+        ...namedFactsFrom(trait.facts, trait.traitedFacts, activeIds, 'trait', trait.id, trait.name, trait.icon, matchers, targetCountTables)
+      )
     }
   }
 
