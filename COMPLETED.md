@@ -2,6 +2,54 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 117 — CONDITION_CLEANSE_TARGETS curated table
+
+Built `CONDITION_CLEANSE_TARGETS` (`src/shared/boon-calc/sources.ts`), turning Session
+117-precursor's `fetch-condition-cleanse.ts` first-draft classifier output into an actual curated
+table — same shape as `TARGET_COUNT_OVERRIDES` (`skill`/`trait` split, `TargetCountOverride` =
+`number | 'self'`), reusing that table's default-5-nearby-allies convention rather than inventing a
+new one. Data-only for now: `NamedFactSource` (the Strip/Corrupt row's own shape) has no
+`targetCount` field the way `BoonConditionSource` does, so nothing reads this table yet — wiring it
+in (and relabeling the row "Strips / Corrupts / Cleanses" per TODO.md's original scoping) is a
+separate follow-up.
+
+Re-ran the classifier fresh (235 candidates: 193 skill, 42 trait) rather than trusting the prior
+session's console output verbatim, then did a full manual review pass rather than a straight
+copy — several real corrections came out of it:
+- **A classifier bug caught by hand**: `classifyDescription` treats "nearby" alone as ally-evidence,
+  which misreads "cure conditions and damage nearby **foes**" (zero ally wording) as PARTY. Found by
+  re-reading every one of the script's own 53 PARTY-NO-COUNT entries against real skill knowledge —
+  5 were actually self-only (Smite Condition, The Prestige, Flames of War, Cleansing Typhoon,
+  Hungering Darkness) and flipped.
+- **`requires_trait`-gated facts resolved from local `skills.json` grouping, not wiki lookups**: the
+  script's own TRAIT-GATED bucket (75 raw skill ids) correctly flags the base skill's own wiki
+  description as untrustworthy for these (a Warrior burst skill's page says nothing about
+  conditions) but was going to need ~11 separate granting-trait wiki lookups to resolve. Grouping
+  candidates by their own `requires_trait` value in local data instead resolved this to only 8 real
+  traits (Cleansing Ire alone gates 66 ids — every burst skill across every Warrior weapon, all
+  tiers/splits) AND incidentally resolved 27 of the script's 30 UNRESOLVED COLLISION entries for
+  free (18 more Cleansing-Ire split ids, 3 Restorative-Illusions-gated Mesmer shatter-skill split
+  ids, 4 same-name sibling ids of an already-classified base skill) — no wiki fetch needed for any of
+  them.
+- **Reused this file's own existing precedent** rather than re-deriving: Transfusion's established
+  "one ally per mark trigger" mechanic (`TARGET_COUNT_OVERRIDES`'s own Chillblains/Reaper's
+  Mark/Lesser Chilblains comments) applies identically to Putrid Mark's cleanse (`targetCount: 1`,
+  not the usual default 5); Hardening Persistence and Core Value's cleanse verdicts were corroborated
+  against those same traits' already-curated boon-reach entries in `TARGET_COUNT_OVERRIDES` rather
+  than guessed fresh.
+- **3 targeted wiki lookups** (Blurred Inscriptions, Transfusion, Meticulous Custodian — the traits
+  local data alone couldn't settle) resolved 2 of 3 cleanly (self, party respectively); the third
+  (Meticulous Custodian, gating Zephyrite Sun Crystal) turned up a genuine two-different-mechanics
+  ambiguity on the skill's own page and was left uncurated.
+
+Final: **211 curated** (178 skill + 33 trait) + **24 documented exclusions** (15 skill + 9 trait,
+same "skip+log rather than guess" rule as every other sweep — mixed self/party-on-one-source shapes
+like Virtue of Resolve/Wings of Resolve/Diamond Skin, "rides on a different effect's own reach"
+traits like Cleansing Water/Anticorrosion Plating, and a few genuinely ambiguous descriptions) =
+**235/235 candidates accounted for**, verified by script (zero missing, zero duplicate keys).
+Full reasoning and the exception list are in the table's own doc comment in `sources.ts` — not
+duplicated here. `npx tsc --noEmit` and `npx eslint` both clean on the file.
+
 ## Session 116 — Wiki-extraction pipeline step 3: target-count self-vs-party leg
 
 Built `scripts/fetch-target-counts.ts` (`npm run fetch-target-counts`), closing the other half of

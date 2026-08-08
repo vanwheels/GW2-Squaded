@@ -188,10 +188,23 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       only ~11 distinct granting traits, e.g. Warrior's Cleansing Ire alone explains 30 of the 75
       raw ids, so the real remaining curation burden is much smaller than the raw count suggests).
       Console-report only, same as every other fetch-*.ts pilot — does not write `sources.ts` or any
-      data file. Not yet done: actually building `CONDITION_CLEANSE_TARGETS` (or folding into
-      `TARGET_COUNT_OVERRIDES`'s own shape) from this output, resolving the ~11 trait-gated roots'
-      own pages, and reviewing the UNCLEAR/UNRESOLVED COLLISION/no-condition-mention tails — next
-      leg, not started.
+      data file.
+
+      **`CONDITION_CLEANSE_TARGETS` built 2026-08-08** (see COMPLETED.md Session 117): all 235
+      candidates resolved — 211 curated (178 skill + 33 trait, same `skill`/`trait`-split shape as
+      `TARGET_COUNT_OVERRIDES`, same default-5 convention) + 24 documented exclusions (mixed
+      self/party-on-one-source shapes, "rides on a different effect's own reach" traits, and a few
+      genuinely ambiguous descriptions — full list in the table's own doc comment in `sources.ts`).
+      The ~11-distinct-trait estimate for the trait-gated cluster turned out to collapse further to 8
+      once resolved from local `requires_trait` grouping instead of wiki lookups (which also
+      resolved 27 of the 30 UNRESOLVED COLLISION entries for free — see COMPLETED.md for the full
+      method). **Still not done**: this is data-only — `NamedFactSource`
+      (`computeNamedFactSources`'s own output shape, what the Strip/Corrupt row actually renders) has
+      no `targetCount` field the way `BoonConditionSource` does, so nothing reads this table yet.
+      Wiring it in — extend `NamedFactSource`/`computeNamedFactSources` with a resolved target count
+      (parallel to `resolveTargetCount`), add a `Cleanse` matcher to
+      `BOON_STRIP_CORRUPT_MATCHERS`, relabel the row "Strips / Corrupts / Cleanses" per this item's
+      original scoping — is a separate follow-up, not started.
 
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around

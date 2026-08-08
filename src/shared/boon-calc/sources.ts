@@ -1109,6 +1109,424 @@ function resolveTargetCount(facts: Fact[], sourceKind: 'skill' | 'trait', source
 }
 
 /**
+ * Curated self-vs-party classification for TODO.md's Condition Cleanse item (folding a "Conditions
+ * Removed"-family `Number` fact into the Strip/Corrupt row, relabeled "Strips / Corrupts /
+ * Cleanses") — a bare `Conditions Removed` fact never itself says WHO gets cleansed, same ambiguity
+ * `TARGET_COUNT_OVERRIDES` above resolves for boons, so this reuses that table's exact shape
+ * (`TargetCountOverride`, `skill`/`trait` split) and default-5 convention rather than inventing a
+ * new one. NOT yet wired to anything — `NamedFactSource` (the Strip/Corrupt row's own data shape,
+ * `computeNamedFactSources`) has no `targetCount` field the way `BoonConditionSource` does, so this
+ * table is data-only for now, ready for a future session to thread through the same way
+ * `resolveTargetCount` threads `TARGET_COUNT_OVERRIDES` into `extractFromFacts`. See TODO.md.
+ *
+ * Built 2026-08-08 from `scripts/fetch-condition-cleanse.ts`'s first-draft classifier output (235
+ * candidates: 193 skill, 42 trait) plus a manual review pass, NOT a straight copy of that script's
+ * verdicts — several corrections came out of the review:
+ *  - The script's `classifyDescription` treats any of "allies/ally/party/squad/**nearby**" as
+ *    ally-evidence. That's wrong when "nearby" modifies "foes," not "allies" (e.g. "Cure conditions
+ *    and damage **nearby foes**" has zero ally wording but still flagged PARTY) — caught by hand on
+ *    every one of the script's own PARTY-NO-COUNT entries, corrected below (Smite Condition, The
+ *    Prestige, Flames of War, Cleansing Typhoon, Hungering Darkness are the 5 flipped to self).
+ *  - `requires_trait`-gated cleanse facts (the script's own TRAIT-GATED bucket, 75 raw skill ids)
+ *    are resolved here straight from each candidate's own `facts`/`traitedFacts` in local
+ *    `skills.json` (which trait id actually gates it) rather than from a wiki lookup on the base
+ *    skill's own page — the base page's description is exactly the signal the script itself flags
+ *    as untrustworthy for these (a shatter skill's own page says nothing about conditions; the
+ *    GRANTING trait's page is the real source of truth). This local grouping happened to also
+ *    resolve most of the script's own 30-entry UNRESOLVED COLLISION bucket for free: 18 of those are
+ *    just other adrenaline-tier/PvP-split ids of the same Cleansing-Ire-gated Warrior burst skills
+ *    already covered by the trait grouping, 3 more are Restorative-Illusions-gated Mesmer
+ *    shatter-skill split ids, and the remaining 4 are same-name sibling ids of an already-classified
+ *    base skill (Purging Flames/Null Field/Tree Song/Buoyant Deluge split ids) — same
+ *    sibling-id-attribution tier `fetch-skill-coefficients.ts`/`fetch-target-counts.ts` already use.
+ *  - Where a `requires_trait`-gated cleanse fact's granting trait ALSO carries an ordinary
+ *    (non-cleanse) tracked boon this app already curated a `targetCount` for in
+ *    `TARGET_COUNT_OVERRIDES` above, that existing curation is trusted as corroboration rather than
+ *    re-derived from scratch (Hardening Persistence's own Envoy of Exuberance entry above is already
+ *    party-wide(5); Core Value's own comment above already establishes it doesn't create a
+ *    self/party conflict on True Nature) — consistent, not coincidental, since both tables describe
+ *    the same trait's real in-game reach.
+ *
+ * Granting-trait groups (the 75-raw-id TRAIT-GATED bucket, now resolved to 8 real traits — smaller
+ * than the ~11 the script's own raw-id count suggested, since 3 of those "distinct traits" turned
+ * out to be the same handful once local `requires_trait` data replaced wiki-guessed groupings):
+ *  - **Cleansing Ire** (Warrior, trait 1649): "Remove a condition when you hit with a burst skill,
+ *    then remove an additional condition for every bar of adrenaline spent" — wiki-confirmed
+ *    self-only, no allies wording at all. Gates 66 skill ids (every burst skill across every
+ *    Warrior weapon, all its PvP/WvW-split/tier variants) — by far the largest single cluster,
+ *    matching the TODO.md note this alone explains most of the original 75-id count.
+ *  - **Restorative Illusions** (Mesmer, trait 1866): own description "Heal and cleanse conditions
+ *    from yourself and nearby allies when you use a Shatter skill" — explicit party-wide, gates 23
+ *    skill ids (every shatter skill/Virtuoso blade-consuming skill/Harmonic-instrument-family skill
+ *    that destroys clones or consumes blades).
+ *  - **Absolute Resolve** (Guardian, trait 610): own description "Activating Virtue skill 2 removes
+ *    conditions from nearby allies" — explicit party-wide, no explicit count on its own page (same
+ *    default-5 convention as the rest of this table). Gates Tome of Resolve's 4 ids cleanly (its
+ *    only cleanse fact). Deliberately does NOT resolve Virtue of Resolve/Wings of Resolve below —
+ *    see EXCLUDED.
+ *  - **Transfusion** (Necromancer, trait 778): already characterized in `TARGET_COUNT_OVERRIDES`'
+ *    own comments above (Chillblains/Reaper's Mark/Lesser Chilblains) as a "one ally per mark
+ *    trigger" mechanic, NOT the usual up-to-5 pulse — reused verbatim here for Putrid Mark's own
+ *    Transfusion-gated cleanse fact (`targetCount: 1`, not 5).
+ *  - **Blurred Inscriptions** (Mesmer, trait 752): "Signets have improved active effects..." —
+ *    wiki-confirmed self-only for the condition removal specifically ("removes conditions" with no
+ *    allies wording, unlike its other per-signet effects). Gates Signet of Midnight's 1 id.
+ *  - **Shrouded Removal** (Necromancer/Scourge, trait 1922 — itself already self-only in the table
+ *    below): "Lose a condition when you enter shroud... Gain carapace when removing conditions from
+ *    yourself" — explicit first-person, self-only. Gates Desert Shroud/Sandstorm Shroud's 2 ids.
+ *  - **Hardening Persistence** (Revenant/Glint, trait 1730): own description doesn't itself say
+ *    who's cleansed ("Shield skills remove conditions"), but both skills it gates (Crystal
+ *    Hibernation, Envoy of Exuberance) are already-party-wide Glint shield support skills — Envoy of
+ *    Exuberance's own Protection/Aegis is already curated party-wide(5) in `TARGET_COUNT_OVERRIDES`
+ *    above, no self/party conflict — trusted as the same reach for the cleanse extension. Party-wide
+ *    (5) for the trait's own entry and both gated skills.
+ *  - **Core Value** (Ranger/Druid, trait 1806): only raises `apply_count` on True Nature's own
+ *    already-party-wide (per its own description) cleanse — same "no conflict" shape
+ *    `TARGET_COUNT_OVERRIDES`' own comment already documents for this exact trait/skill pair's
+ *    Stability. No separate table entry needed (True Nature's own party-wide reading already covers
+ *    it); noted here only so a future reviewer doesn't wonder why Core Value itself isn't listed.
+ *  - **Meticulous Custodian** (Engineer, trait 2431): EXCLUDED, see below — genuinely ambiguous
+ *    which of two different cleanse mechanics on Zephyrite Sun Crystal it gates.
+ *
+ * EXCLUDED (left uncurated, same "skip+log rather than guess" rule as every other sweep in this
+ * codebase) — a source's own wiki description is either genuinely ambiguous, or mixes two different
+ * reaches on the same source with no `requires_trait` (or other) split available:
+ *  - Guardian's Virtue of Resolve (9120, 9250) and Willbender's Wings of Resolve (30083, 30225,
+ *    30286, 30783): each carries BOTH an unconditioned self-only periodic cleanse (the virtue's own
+ *    passive) AND an Absolute-Resolve-gated party-wide cleanse (activating virtue skill 2) — same
+ *    "mixed self/party on one source" shape `TARGET_COUNT_OVERRIDES`' own top comment documents for
+ *    Tome of Courage/Phoenix Protocol/Holy Reckoning, not resolvable with one value.
+ *  - Specter's Grasping Shadows (63107, 63167): its OWN cleanse line ("cleanse conditions from
+ *    yourself while healing and cleansing your tethered ally") is explicitly self + one specific
+ *    tethered ally, NOT the party-wide "nearby allies and your tethered ally" reach its
+ *    Shadestep-gated Alacrity/Regeneration (already curated party-wide(5) in `TARGET_COUNT_OVERRIDES`
+ *    above) gets — a real self+1 shape neither `'self'` nor a flat party number fits cleanly.
+ *  - Engineer's Zephyrite Sun Crystal (76733, 76895): its own description names two different
+ *    cleanse mechanics ("removing conditions from allies around you" on landing, PLUS "whenever you
+ *    use a weapon skill that costs initiative, remove conditions from yourself" afterward) and it's
+ *    unclear which one the wiki's `Meticulous Custodian`-referencing "artifact" framing actually
+ *    gates — genuinely ambiguous which fact the local `requires_trait` value binds to.
+ *  - Revenant's Energy Expulsion (29114): already a documented Healing-sweep exception elsewhere in
+ *    TODO.md (a live API pull returns a totally different fact set than the wiki's current
+ *    description) — same unresolved API/wiki mismatch applies here, not re-litigated.
+ *  - Guardian's Repose (62669): wiki page is tagged stub (also a documented Healing-sweep exception)
+ *    — no reliable description to classify from.
+ *  - Elementalist's Glyph of Elemental Power (34772, water variant): base description ("differs by
+ *    attunement") doesn't itself describe the cleanse; unclear if it's self or party without a
+ *    dedicated look at the water-specific sub-effect.
+ *  - Mesmer's Abstraction (72076): "debilitating enemies and bolstering allies" doesn't say which of
+ *    those two effects is the cleanse.
+ *  - Engineer's Cleansing Burst (5980, Healing Turret overcharge): genuinely unclear from either the
+ *    API facts or the wiki description whether the overcharge's own cleanse reaches allies the way
+ *    the turret's passive water-field pulses do, or is caster-only.
+ *  - Catalyst's Joy of Movement (trait 2402): "Squalls remove movement-impairing conditions and a
+ *    damaging condition" doesn't say whether the jade sphere's squalls reach nearby allies (the way
+ *    its other pulses do) or are self-only.
+ *  - Ranger's trait 362 (Cleansing Water: "cleanse conditions from allies you grant regeneration
+ *    to"), 472 (Anticorrosion Plating: "cleanse conditions from them" — singular "an ally," per
+ *    Protection granted, not a flat pulse), Thief's 1293 (Shadow's Embrace: base self, extends to
+ *    "stealth you grant to allies" conditionally), Warrior's 1667 (Martial Cadence: rides on
+ *    Soldier's Focus's own reach), Scourge's 2167 (Abrasive Grit: "removes conditions afflicting
+ *    them" per barrier granted, singular), Guardian's 2376 (Wielder's Boon: rides on "weapon
+ *    spells'" own reach), Revenant's 2433 (Calming Tongue: rides on Chant of Recuperation's own
+ *    reach) — 6 traits whose own cleanse explicitly rides on a DIFFERENT skill's/effect's reach
+ *    rather than pulsing a fixed count of its own; the count is "however many that other effect
+ *    already reaches," not a number this table can express without also modeling that other effect.
+ *  - Elementalist's Diamond Skin (trait 1508): "Remove conditions from yourself when you...combo a
+ *    field with a leap finisher. Remove conditions from nearby allies when you...combo...with a
+ *    blast finisher" — self for one finisher type, party for another, same one-source-two-reaches
+ *    shape as the Virtue of Resolve pair above.
+ */
+export const CONDITION_CLEANSE_TARGETS: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> } = {
+  skill: {
+    // --- Self-only, explicit "from Self"/"yourself" wiki wording, no allies mention ---
+    5965: 'self', // Fumigate
+    9088: 'self', // Cleansing Flame
+    10207: 'self', // Mantra of Resolve
+    5507: 'self', // Ether Renewal
+    5675: 'self', // Phoenix
+    9158: 'self', // Signet of Resolve
+    10176: 'self', // Ether Feast
+    14401: 'self', // Mending
+    27372: 'self', // Soothing Stone
+    43845: 'self', // Cauterize
+    62522: 'self', // Twin Blade Restoration
+    63111: 'self', // Shift Signet
+    72967: 'self', // Ripple
+    77243: 'self', // Hex-Eater Vortex
+
+    // --- Self-only, corrected from the classifier's own PARTY-NO-COUNT bucket: each description's
+    // only "nearby"/"allies"-looking word actually modifies FOES, not allies (a real classifier
+    // false-positive, caught by hand — see this table's own top doc comment). ---
+    9245: 'self', // Smite Condition (Guardian focus). "Cure conditions and damage nearby foes" — the
+    // cleanse is caster-only; "nearby" modifies foes.
+    10285: 'self', // The Prestige (Thief). "...losing conditions" is first-person/self; "blinding
+    // nearby foes" is the unrelated other half of the skill.
+    29940: 'self', // Flames of War (Warrior). "Cleanse conditions and become a mobile fire field that
+    // burns nearby foes" — self cleanse, foe-facing burn.
+    62843: 'self', // Cleansing Typhoon. "Strike nearby foes, cleansing a condition for each target
+    // struck" — self cleanse scaled by foes hit, not an ally pulse.
+
+    // --- Self-only, no condition mention in the base description at all but confirmed self via a
+    // targeted look (see this table's top doc comment's EXCLUDED section for the ones that stayed
+    // genuinely unresolved instead). ---
+    45449: 'self', // Jaunt (Thief). Shadowstep + lose a condition, self.
+    71903: 'self', // Thistleguard (Ranger). "Envelop YOURSELF in thorns."
+    77271: 'self', // Soothing Breeze (Ranger). "Heal...you and your pet" — self+pet, treated as self
+    // (a pet is never one of this app's tracked party allies, same convention
+    // `TARGET_COUNT_OVERRIDES` already uses elsewhere for pet-only boon grants).
+
+    // --- Self-only, from the classifier's UNCLEAR bucket, resolved by hand (well-established
+    // personal-signet/personal-utility shape, no allies wording anywhere on the page). ---
+    5535: 'self', // Cleansing Fire (Elementalist torch)
+    5865: 'self', // Utility Goggles (Engineer toolkit)
+    29591: 'self', // Utility Goggles (split id)
+    14479: 'self', // Signet of Stamina (Warrior)
+    41937: 'self', // Death's Retreat (Thief)
+    43701: 'self', // Photosynthesize (Ranger/Soulbeast)
+    43745: 'self', // Sight beyond Sight (Ranger)
+    44948: 'self', // Bear Stance (Ranger/Soulbeast). "Heal yourself and your pet" — self+pet, same
+    // pet convention as Soothing Breeze above.
+    62827: 'self', // Soothing Water (Elementalist/Weaver)
+    73152: 'self', // Imaginary Inversion (Mesmer)
+
+    // --- Cleansing Ire (trait 1649, Warrior — see this table's top doc comment): wiki-confirmed
+    // self-only ("remove a condition when you hit with a burst skill..."). Every burst skill across
+    // every Warrior weapon that carries a Cleansing-Ire-gated cleanse fact, including every
+    // adrenaline-tier/PvP-WvW-split id (the local `requires_trait` grouping this table uses resolves
+    // these directly, without needing each split id's own wiki page — see top doc comment). ---
+    14422: 'self', // Eviscerate
+    14423: 'self', // Eviscerate
+    14424: 'self', // Eviscerate
+    43566: 'self', // Eviscerate (split id)
+    14425: 'self', // Skull Crack
+    14426: 'self', // Skull Crack
+    14427: 'self', // Skull Crack
+    41110: 'self', // Skull Crack (split id)
+    14469: 'self', // Forceful Shot
+    14470: 'self', // Forceful Shot
+    14471: 'self', // Forceful Shot
+    41330: 'self', // Forceful Shot (split id)
+    14473: 'self', // Kill Shot
+    14474: 'self', // Kill Shot
+    14475: 'self', // Kill Shot
+    42041: 'self', // Kill Shot (split id)
+    14512: 'self', // Earthshaker
+    14513: 'self', // Earthshaker
+    14514: 'self', // Earthshaker
+    40601: 'self', // Earthshaker (split id)
+    14520: 'self', // Combustive Shot
+    14521: 'self', // Combustive Shot
+    14522: 'self', // Combustive Shot
+    42803: 'self', // Combustive Shot (split id)
+    14545: 'self', // Arcing Slice
+    14546: 'self', // Arcing Slice
+    14547: 'self', // Arcing Slice
+    42707: 'self', // Arcing Slice (split id)
+    14549: 'self', // Whirling Strike
+    14550: 'self', // Whirling Strike
+    14551: 'self', // Whirling Strike
+    41746: 'self', // Whirling Strike (split id)
+    29644: 'self', // Gun Flame
+    29679: 'self', // Skull Grinder
+    39972: 'self', // Silencer
+    41283: 'self', // Boon Crusher
+    41543: 'self', // Wounding Strike
+    43488: 'self', // Fleeting Stability
+    44397: 'self', // Dissonance
+    46044: 'self', // Magehunter Strike
+    29852: 'self', // Arc Divider
+    29923: 'self', // Scorched Earth
+    30682: 'self', // Flaming Flurry
+    30851: 'self', // Decapitate
+    30879: 'self', // Rupturing Smash
+    30989: 'self', // Burning Shackles
+    31048: 'self', // Wild Whirl
+    44165: 'self', // Full Counter
+    45252: 'self', // Breaching Strike
+    69245: 'self', // Breaching Strike (split id)
+    69297: 'self', // Breaching Strike (split id)
+    69392: 'self', // Breaching Strike (split id)
+    69433: 'self', // Breaching Strike (split id)
+    69290: 'self', // Slicing Maelstrom
+    71875: 'self', // Rampart Splitter
+    71922: 'self', // Path to Victory
+    71932: 'self', // Path to Victory
+    71950: 'self', // Path to Victory
+    72029: 'self', // Path to Victory
+    72089: 'self', // Path to Victory
+    72911: 'self', // Harrier's Toss
+    73006: 'self', // Harrier's Toss
+    73014: 'self', // Harrier's Toss
+    73024: 'self', // Harrier's Toss
+    73042: 'self', // Harrier's Toss
+    73103: 'self', // Wild Throw
+
+    // --- Blurred Inscriptions (trait 752, Mesmer): wiki-confirmed self-only. ---
+    10234: 'self', // Signet of Midnight
+
+    // --- Shrouded Removal (trait 1922, Necromancer/Scourge — itself already self-only below): both
+    // gated skills inherit the trait's own self-only reach. ---
+    44663: 'self', // Desert Shroud
+    54870: 'self', // Sandstorm Shroud
+
+    // --- Party-wide(5), directly wiki-parsed `allied targets`/`targets` count (the script's own
+    // HIGH-CONFIDENCE PARTY bucket — an actual wiki fact, not this table's own default). ---
+    9112: 5, // Ray of Judgment
+    42864: 5, // Opening Passage
+    44626: 5, // Spiritual Reprieve
+    55046: 5, // Glyph of the Stars
+    73094: 5, // Solar Storm
+    76811: 5, // Buoyant Deluge
+    76935: 5, // Buoyant Deluge (split id, sibling-attributed)
+
+    // --- Party-wide(5), explicit "allies" wording in the base description but no dedicated wiki
+    // count template — same default-5 "nearby allies" pulse convention `TARGET_COUNT_OVERRIDES`
+    // above already establishes and documents. ---
+    5551: 5, // Healing Rain
+    5558: 5, // Cleansing Wave
+    5570: 5, // Signet of Water
+    9187: 5, // Purging Flames
+    31159: 5, // Purging Flames (split id, sibling-attributed)
+    9207: 5, // Purify
+    9234: 5, // Purifying Blast
+    10203: 5, // Null Field
+    50440: 5, // Null Field (split id, sibling-attributed)
+    10209: 5, // Power Cleanse
+    12489: 5, // Healing Spring
+    12600: 5, // Cold Snap
+    13062: 5, // Signet of Agility
+    14372: 5, // "Shake It Off!"
+    14394: 5, // Call of Valor
+    25492: 5, // Crashing Waves
+    29197: 5, // Purifying Essence
+    29321: 5, // Renewing Wave
+    29535: 5, // "Wash the Pain Away!"
+    29739: 5, // Purge Gyro
+    30305: 5, // Well of Eternity
+    31348: 5, // Glyph of Alignment
+    31406: 5, // Seed of Life
+    32242: 5, // Seed of Life (underwater id)
+    49045: 5, // Cleansing Field
+    51696: 5, // True Nature (dragon)
+    51713: 5, // True Nature (centaur). Core Value (trait 1806) only raises its apply_count, same
+    // no-conflict shape as its Stability in `TARGET_COUNT_OVERRIDES` above — see top doc comment.
+    62941: 5, // Tree Song
+    62793: 5, // Tree Song (split id, sibling-attributed)
+    71882: 5, // Essence of Living Shadows
+    76563: 5, // Otter's Compassion
+    76621: 5, // Resolute Stance
+    76755: 5, // "We Shall Return!"
+    77136: 5, // Restorative Glow
+    5937: 5, // Super Elixir
+    6102: 5, // Super Elixir (underwater id)
+    29415: 5, // Overload Water
+    29716: 5, // Med Pack Drop. Own API "Number of Allied Targets: 5" fact — not actually a default,
+    // an already-known count (see TODO.md's Condition Cleanse item history).
+    30588: 5, // Med Pack Drop (underwater id)
+    31401: 5, // Glyph of Equality (Celestial Avatar)
+    77022: 5, // Weapon of Remedy (Revenant). "Grant this to nearby allies for a reduced duration."
+
+    // --- Restorative Illusions (trait 1866, Mesmer — see this table's top doc comment):
+    // wiki-confirmed party-wide, no dedicated count -> default 5. Every shatter/blade-consuming/
+    // instrument-family skill it gates, including its own split ids resolved via local
+    // `requires_trait` grouping (see top doc comment). ---
+    10190: 5, // Cry of Frustration
+    10191: 5, // Mind Wrack
+    49068: 5, // Mind Wrack (split id)
+    10192: 5, // Distortion
+    10287: 5, // Diversion
+    29830: 5, // Continuum Split
+    56873: 5, // Time Sink
+    56925: 5, // Split Second (split id)
+    56930: 5, // Split Second
+    56928: 5, // Rewinder
+    62586: 5, // Bladesong Harmony (split id)
+    62597: 5, // Bladeturn Requiem
+    62602: 5, // Bladesong Dissonance
+    62616: 5, // Bladesong Sorrow
+    62617: 5, // Bladesong Harmony
+    68273: 5, // Bladesong Distortion
+    76552: 5, // Lively Lute
+    77306: 5, // Lively Lute (split id)
+    76746: 5, // Flustering Flute
+    76931: 5, // Crescendo
+    76960: 5, // Harmonious Harp
+    77077: 5, // Harmonious Harp
+    77079: 5, // Deafening Drum
+
+    // --- Absolute Resolve (trait 610, Guardian — see this table's top doc comment): its only
+    // unconditioned-on-Virtue-of-Resolve gate, Tome of Resolve, all 4 ids. ---
+    41780: 5, // Tome of Resolve
+    45023: 5, // Tome of Resolve (split id)
+    68648: 5, // Tome of Resolve (split id)
+    68649: 5, // Tome of Resolve (split id)
+
+    // --- Hardening Persistence (trait 1730, Revenant/Glint — see this table's top doc comment):
+    // party-wide via corroborating already-curated Envoy of Exuberance boon reach. ---
+    28262: 5, // Crystal Hibernation
+    29386: 5, // Envoy of Exuberance
+
+    // --- Transfusion (trait 778, Necromancer): the established "one ally per mark trigger"
+    // mechanic (see `TARGET_COUNT_OVERRIDES`' own comments on Chillblains/Reaper's Mark/Lesser
+    // Chilblains above) — party, but count 1, not the usual default 5. ---
+    19116: 1 // Putrid Mark
+  },
+  trait: {
+    // --- Self-only, explicit first-person "yourself"/"you" wiki wording, no allies mention. ---
+    413: 'self', // Compounding Chemicals
+    1054: 'self', // Evasive Purity
+    1100: 'self', // Empathic Bond. "Remove conditions when you swap pets" — the pet is the trigger,
+    // not the target; the cleanse itself is first-person/self.
+    1237: 'self', // Pain Response
+    1703: 'self', // Don't Stop
+    1709: 'self', // Brawler's Recovery
+    1876: 'self', // Blood Renewal
+    1922: 'self', // Shrouded Removal
+    1960: 'self', // Wandering Mind
+    2023: 'self', // Escapist's Fortitude
+    2090: 'self', // Woven Stride
+    2113: 'self', // Elusive Mind
+    2168: 'self', // Resolute Counter
+    2423: 'self', // Card Swap
+    2287: 'self', // Cleansing Unleash (Ranger/Untamed). "Remove conditions when you or your pet
+    // unleash" — pet only names the trigger, same convention as Empathic Bond above.
+
+    // --- Self-only, corrected: classifier read the word "ally" inside "tethered ally" as
+    // ally-evidence, but this trait's own cleanse line names only "yourself." ---
+    2300: 'self', // Hungering Darkness (Necromancer/Harbinger). "...cleanse conditions from
+    // yourself" — the "your tethered ally" wording elsewhere in the description is a DIFFERENT
+    // mechanic (transferring conditions TO the tethered ally), not who gets cleansed.
+
+    // --- Self-only, from the classifier's UNCLEAR bucket, resolved by hand (well-established
+    // personal-trait shape, no allies wording anywhere on the page). ---
+    588: 'self', // Strength of the Fallen
+    1286: 'self', // Trickster (Thief)
+    1699: 'self', // Wilderness Knowledge (Ranger)
+    1732: 'self', // Cleansing Channel (Revenant)
+    1908: 'self', // Hunter's Fortification (Ranger)
+    1872: 'self', // Mechanized Deployment (Engineer/Mechanist). "Tool belt skills remove
+    // conditions" — tool belt skills are a personal (non-shareable) mechanic.
+    2416: 'self', // Ethereal Purification (Mesmer/Virtuoso)
+
+    // --- Party-wide(5), directly wiki-parsed `allied targets` count. ---
+    1868: 5, // Druidic Clarity
+    2299: 5, // Shallow Grave
+
+    // --- Party-wide(5), explicit "allies" wording, no dedicated wiki count -> default 5. ---
+    358: 5, // Cleansing Wave
+    610: 5, // Absolute Resolve
+    1134: 5, // Cover of Shadow
+    1822: 5, // Eluding Nullification
+    1866: 5, // Restorative Illusions
+    2384: 5, // Spirits' Remedy
+    2401: 5, // Purging Light
+    1730: 5 // Hardening Persistence (Revenant/Glint). Own description doesn't name a target, but
+    // both skills it gates are already-party-wide Glint shield-support skills — see top doc comment.
+  }
+}
+
+/**
  * Trait ids currently "active" for a build: every minor trait of an equipped
  * specialization line (auto-granted) plus every chosen major trait. Used to
  * gate `Fact.requires_trait` — some facts (on skills AND traits) only apply
