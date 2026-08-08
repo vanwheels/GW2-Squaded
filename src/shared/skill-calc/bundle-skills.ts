@@ -92,7 +92,11 @@ const SPECTER_SHROUD_SLOT_SKILLS: Record<number, number[]> = {
 /** Every entry-skill id that toggles the weapon-skill row into a fixed 5-skill Shroud bundle —
  *  Necromancer's 4 Shroud variants plus Specter's — keyed the same way; merged into one lookup
  *  since every caller below treats them identically. */
-const SHROUD_SLOT_SKILLS: Record<number, number[]> = { ...NECRO_SHROUD_SLOT_SKILLS, ...SPECTER_SHROUD_SLOT_SKILLS }
+/** Exported so `scripts/scan-empty-effect-facts.ts` (and anything else needing "is this
+ *  `Downed_*`-slotted id actually reachable" without a full `Build` in hand) can check membership
+ *  without re-deriving this hand-verified table — see this file's own doc comment above for why
+ *  `slot: "Downed_*"` alone doesn't mean unreachable for Necromancer's 4 Shroud variants. */
+export const SHROUD_SLOT_SKILLS: Record<number, number[]> = { ...NECRO_SHROUD_SLOT_SKILLS, ...SPECTER_SHROUD_SLOT_SKILLS }
 
 /** Bladesworn's "Unsheathe Gunsaber" id (Warrior's Profession_1 F1 button — see
  *  `profession-mechanic.ts`'s Warrior weapon-type-filter carve-out for why it survives that

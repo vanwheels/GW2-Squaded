@@ -9,13 +9,14 @@ even carry the template we need" half of TODO.md step 3, sizing the "some skills
 entirely outside the API's `facts` array" bug (Otherworldly Bond, flagged 2026-08-07). Two passes,
 console-report only (no data file written): pass 1 is a local, no-network heuristic over
 `skills.json` — a skill is a candidate if it's actually player-equippable (`professions.length > 0`,
-excluding ~2200 monster/NPC/environment skills the raw API also returns), its `facts`/`traitedFacts`
-carry nothing beyond the purely positional/timing types (`Range`/`Recharge`/`Distance`/`Radius`), and
-its description is substantive (>=60 chars after stripping wiki markup). Pass 2 resolves each
-candidate's wiki page (a simplified 2-tier version of `fetch-skill-coefficients.ts`'s
-`resolveSkillPage` — direct title + MediaWiki-search fallback, each self-verified against the page's
-own `| id = N` field; no sibling-attribution tier needed for a report script) and checks whether its
-`{{skill fact|LABEL|...}}` templates include any LABEL beyond that same meta set.
+excluding ~2200 monster/NPC/environment skills the raw API also returns) AND reachable in a build
+this app can construct, its `facts`/`traitedFacts` carry nothing beyond the purely positional/timing
+types (`Range`/`Recharge`/`Distance`/`Radius`), and its description is substantive (>=60 chars after
+stripping wiki markup). Pass 2 resolves each candidate's wiki page (a simplified 2-tier version of
+`fetch-skill-coefficients.ts`'s `resolveSkillPage` — direct title + MediaWiki-search fallback, each
+self-verified against the page's own `| id = N` field; no sibling-attribution tier needed for a
+report script) and checks whether its `{{skill fact|LABEL|...}}` templates include any LABEL beyond
+that same meta set.
 
 Pass 1 alone found 73 candidates, but spot-checking showed it's dominated by a real, well-understood
 non-bug pattern (kit-equip/legend-stance/shroud-toggle skills with a genuine, sometimes-long
@@ -25,17 +26,33 @@ and more reliably: those toggle skills' wiki pages *also* carry nothing beyond R
 wiki agreeing with the API is strong evidence there's genuinely nothing more to model, a much better
 signal than description length alone.
 
-Final run: **43 ids / 37 unique skill names DO have a non-meta wiki template the local API data
+**Bug caught by the user, fixed same session**: the first version's "player-equippable" check was
+only `professions.length > 0`, which let 2 genuinely unreachable `slot: "Downed_*"` ids (Bandage,
+Voracious Dive) into the "actionable" bucket — the user correctly flagged that this app has no
+downed-skill concept at all (already an established rule elsewhere, see `sources.ts`'s own note on
+the same question for the target-count sweep) and asked whether the write-up's "Vindicator
+downed-state skills" claim was even right. It wasn't, on two counts: the skills in question are
+Necromancer (Harbinger/Ritualist), not Revenant/Vindicator, and 3 of the 5 flagged ids turned out to
+be real, *reachable* Shroud weapon-bar skills (Necromancer's 4 Shroud variants reuse the Downed-bar's
+own slot labels for real skills — an already-documented quirk, `bundle-skills.ts`'s own doc comment)
+that only look downed-only from the raw `slot` field alone. Fixed by exporting
+`bundle-skills.ts`'s `SHROUD_SLOT_SKILLS` and excluding any `Downed_*`-slotted candidate not in it.
+Net effect: only the 2 truly-unreachable ids dropped (73 -> 71 candidates); the 3 real Shroud skills
+(Voracious Arc, Devouring Cut, Anguish) correctly stayed in as genuine findings. Separately, spot-
+checking the "notable clusters" writeup with `specializations.json` (rather than guessing from skill
+names) also caught several wrong elite-spec/weapon attributions in the same draft (Deadeye ->
+Harbinger, "9 Catalyst Hammer" -> 11 Weaver Pistol/Spear, Willbender -> Luminary) — all corrected in
+TODO.md.
+
+Final run: **41 ids / 35 unique skill names DO have a non-meta wiki template the local API data
 omits** (the actionable, Otherworldly-Bond-shaped findings — confirmed live for id 71952 itself: 15+
 enemy-target/ally-target/vulnerability/crippled/slow/might/fury/duration/interval lines fully
 describing the tether mechanic), 26 confirmed non-issues (the toggle pattern above, plus "X:
-Backfired" cooldown-placeholder skills), 4 unresolved (no wiki page found/verified). Notable clusters
-in the 37: all 5 Deadeye "Elixir of ___" skills (10-24 wiki fact lines apiece, the single biggest
-gap), 9 Catalyst Hammer Dual Attacks, Vindicator's downed-state skill kit, Willbender's virtue
-skills, Bladesworn's Shadowsquall pair. Full findings recorded in TODO.md's "empty-API-facts" bug
-entry, including the profession/skill breakdown.
+Backfired" cooldown-placeholder skills), 4 unresolved (no wiki page found/verified). Full, verified
+findings (every attribution checked against `skills.json`/`specializations.json`, not assumed from
+naming) recorded in TODO.md's "empty-API-facts" bug entry.
 
-Deliberately not done in this pass: no actual `Fact` data was generated or curated for any of the 37
+Deliberately not done in this pass: no actual `Fact` data was generated or curated for any of the 35
 — this script only locates and sizes the gap. Modeling any of them needs per-skill `Fact`-shape
 design (dual ally/enemy-target branches, elixir stacking tiers, etc.), scoped as its own follow-up
 item in TODO.md, not started. The target-count/Condition-Cleanse self-vs-party half of step 3 is

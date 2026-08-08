@@ -9,9 +9,16 @@
  * 1. **Local candidate selection** (no network): a skill is a candidate if it's actually
  *    equippable by a player profession (`professions.length > 0` — excludes the ~2200 monster/NPC/
  *    environment-hazard skills the raw API also returns, e.g. raid-boss mechanics, which this app
- *    never shows a player), its own `facts`/`traitedFacts` carry NO fact type beyond the purely
+ *    never shows a player) AND actually reachable in a build this app can construct — a raw
+ *    `slot: "Downed_*"` id is dropped unless it's also a real Shroud weapon-bar entry (Necromancer's
+ *    4 Shroud variants reuse the Downed-bar's own slot labels for their real skills — see
+ *    `bundle-skills.ts`'s own doc comment for the confirmed live cross-reference — checked via that
+ *    file's exported `SHROUD_SLOT_SKILLS`), since this app has no downed-skill concept at all
+ *    (`Build` never produces a genuine downed-state id, confirmed elsewhere in `sources.ts`) and a
+ *    truly unreachable id isn't a real gap no matter how empty its facts are. Remaining candidates
+ *    need their own `facts`/`traitedFacts` to carry NO fact type beyond the purely
  *    positional/timing ones (`Range`/`Recharge`/`Distance`/`Radius` — real numbers, but numbers
- *    that don't describe what the skill actually DOES), and its `description` is long enough
+ *    that don't describe what the skill actually DOES), and a `description` long enough
  *    (`MIN_DESCRIPTION_LENGTH`, stripped of wiki-style `<c=...>` markup) to plausibly be describing
  *    a real mechanic rather than a one-line flavor label. This over-selects on purpose — see below.
  * 2. **Wiki structured-template check** (the actual "does this page carry the template we need"
@@ -20,7 +27,7 @@
  *    `resolveSkillPage`, simplified — no sibling-attribution tier, this script doesn't need one)
  *    and check whether the page's own `{{skill fact|LABEL|...}}` invocations include any LABEL
  *    beyond the same meta set. A skill with a substantive description AND zero non-meta wiki
- *    templates either either genuinely has no further numeric effect to model (most of pass 1's
+ *    templates either genuinely has no further numeric effect to model (most of pass 1's
  *    candidates turn out to be this — see below) or is a genuine "wiki only has prose" case; a
  *    skill where the wiki DOES carry non-meta templates the local API omits is the real,
  *    actionable Otherworldly-Bond-shaped finding this scan exists to surface.
@@ -50,6 +57,7 @@ import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Fact, Skill } from '../src/shared/types/game-data'
+import { SHROUD_SLOT_SKILLS } from '../src/shared/skill-calc/bundle-skills'
 import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
 
 const WIKI_API = 'https://wiki.guildwars2.com/api.php'
@@ -166,10 +174,17 @@ interface Candidate {
   descLen: number
 }
 
+/** Every id reachable via a Shroud weapon-bar slot (see `bundle-skills.ts`'s own doc comment) — the
+ *  one documented exception to "a `Downed_*`-slotted id is unreachable" (this app has no
+ *  downed-skill concept at all, see `boon-calc/sources.ts`'s own note on the same reachability
+ *  question for the target-count sweep). */
+const REACHABLE_SHROUD_IDS = new Set(Object.values(SHROUD_SLOT_SKILLS).flat())
+
 function selectCandidates(skills: Skill[]): Candidate[] {
   const out: Candidate[] = []
   for (const skill of skills) {
     if (skill.professions.length === 0) continue
+    if (skill.slot.startsWith('Downed_') && !REACHABLE_SHROUD_IDS.has(skill.id)) continue
     const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts]
     const contentFacts = allFacts.filter((f) => !META_ONLY_FACT_TYPES.has(f.type))
     if (contentFacts.length > 0) continue

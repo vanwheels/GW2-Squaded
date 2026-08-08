@@ -59,26 +59,38 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
       **Red-flag scan DONE 2026-08-08** (see COMPLETED.md Session 115): built
       `scripts/scan-empty-effect-facts.ts` (`npm run scan-empty-effect-facts`) — confirms this is NOT
-      an Otherworldly-Bond one-off. Pass 1 (local): of 4702 total skills, 73 player-equippable ones
-      have a substantive description (>=60 chars) but zero facts beyond
-      Range/Recharge/Distance/Radius. Pass 2 (wiki): resolved each candidate's wiki page and checked
-      for a structured `{{skill fact|...}}` template beyond that same meta set — **43 ids / 37 unique
-      skill names DO have one** (the wiki documents real mechanic data this app's local API data
-      omits entirely, same shape as Otherworldly Bond itself — confirmed live in its own template
+      an Otherworldly-Bond one-off. Pass 1 (local): of 4702 total skills, 71 player-equippable AND
+      reachable ones (a raw `slot: "Downed_*"` id is excluded unless it's also a real Necromancer
+      Shroud weapon-bar entry — see `bundle-skills.ts`'s exported `SHROUD_SLOT_SKILLS` — since this
+      app has no downed-skill concept at all and an unreachable id isn't a real gap; caught and fixed
+      2026-08-08 after the user correctly flagged an initial draft of this scan miscounting 2 genuine
+      dead downed-only ids as "actionable") have a substantive description (>=60 chars) but zero facts
+      beyond Range/Recharge/Distance/Radius. Pass 2 (wiki): resolved each candidate's wiki page and
+      checked for a structured `{{skill fact|...}}` template beyond that same meta set — **41 ids / 35
+      unique skill names DO have one** (the wiki documents real mechanic data this app's local API
+      data omits entirely, same shape as Otherworldly Bond itself — confirmed live in its own template
       dump: 15+ enemy-target/ally-target/vulnerability/crippled/slow/might/fury/duration/interval
       lines fully describing the tether), 26 confirmed non-issues (kit-equip/legend-stance/shroud
       toggles and "X: Backfired" placeholder skills — the wiki agrees with the API there's nothing
       more to model), 4 unresolved (no wiki page found/verified, needs a manual look). Notable
-      clusters in the 37: all 5 Deadeye "Elixir of ___" skills (Bliss/Risk/Ambition/Anguish/Promise,
-      each 2-3 ids for base+elite-spec variants, 10-24 wiki fact lines apiece — the biggest single
-      gap), 9 Catalyst Hammer Dual Attacks (Frostfire Flurry/Ward, Flowing Finesse, Dazing Discharge,
-      Molten Meteor, Shattering Stone, Echoing Erosion, Shale Storm, Elutriate, Galvanize), Vindicator
-      downed-state skills (Voracious Arc/Cut/Dive, Devouring Cut, Anguish), Willbender virtue skills
-      (Radiant Resolve/Justice), Bladesworn's Shadowsquall/Malicious Shadowsquall, and Otherworldly
-      Bond itself. **Not yet fixed** — this scan only locates and sizes the gap (37 skills' worth);
-      actually modeling any of these requires per-skill `Fact`-shape design work beyond a flat
-      coefficient table (dual ally/enemy-target branches, elixir stacking tiers, etc.) — scoped as its
-      own follow-up curation item, not started.
+      clusters in the 35, every attribution verified directly against `skills.json`/
+      `specializations.json` (not assumed from naming): all 5 Necromancer/**Harbinger** "Elixir of
+      ___" skills (Bliss/Risk/Ambition/Anguish/Promise, each 2 ids — a `GroundTargeted`/non-`GroundTargeted`
+      duplicate pair, same shape as this app's other documented duplicate-skill-id cases —
+      10-24 wiki fact lines apiece — the biggest single gap) plus Harbinger Shroud's own Voracious Arc
+      and Devouring Cut (both real Shroud weapon-bar skills, reachable despite their raw `Downed_*`
+      slot label — see above); Necromancer/**Ritualist**'s Summon Spirits and Anguish (same Shroud-slot
+      shape); 11 Elementalist/**Weaver** Pistol (7, Weapon_2/3) and Spear (4, Weapon_3) Dual Attacks
+      (Raging Ricochet, Dazing Discharge, Shattering Stone, Frostfire Flurry, Flowing Finesse, Molten
+      Meteor, Echoing Erosion, Shale Storm, Frostfire Ward, Elutriate, Galvanize); Guardian/**Luminary**'s
+      virtue skills (Radiant Resolve/Justice); Thief's Shadowsquall (**Specter**) and Malicious
+      Shadowsquall (**Deadeye**) pair; Warrior/**Bladesworn**'s Unsheathe Gunsaber; Revenant's
+      Otherworldly Bond (core), Icerazor's Ire (**Renegade**), Twin Moon Sweep (**Conduit**), and
+      Legendary Demon Stance (core); Ranger/**Untamed**'s Unleash Ranger/Unleash Pet; and Mesmer/
+      **Troubadour**'s Tale of the Tortured Mastermind. **Not yet fixed** — this scan only locates and
+      sizes the gap (35 skills' worth); actually modeling any of these requires per-skill `Fact`-shape
+      design work beyond a flat coefficient table (dual ally/enemy-target branches, elixir stacking
+      tiers, etc.) — scoped as its own follow-up curation item, not started.
 
 - [ ] **Skill tooltips never show a skill's own Misc/Control/Strip-Corrupt/Combo/Aura facts** —
       flagged by the user 2026-08-07, concrete example: skills that apply Superspeed correctly show
