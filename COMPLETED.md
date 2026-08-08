@@ -2,6 +2,39 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 109 — Weapon autoattack-chain boon/condition gap (Revenant Scepter report)
+
+User-reported live gap: Revenant Scepter's boon/condition applications weren't showing anywhere in
+the app. Traced to the actual root cause rather than patching the symptom: the GW2 API only lists
+each weapon slot's *chain-starting* skill id in `/v2/professions` (e.g. Scepter Weapon_1 is "Serene
+Slash," 71933) — the chain's later hits, where a boon/condition fact often actually lives (Scepter's
+own 2nd hit "Acerbic Cut," 71930, carries the Might; 3rd hit "Motivating Whirl" carries a Barrier),
+are only reachable via `Skill.flipSkill`, which the raw API confirmed dual-purposes for both a
+channel's release effect AND an autoattack chain's next hit (`next_chain` and `flip_skill` carry the
+identical value on every sampled chain skill, e.g. Warrior Greatsword's "Greatsword Swing" 14356 →
+`next_chain: 14373` / `flip_skill: 14373`).
+
+`sources.ts` already had a `withFlipChain` walker (used for Revenant's heal/utility/elite/swap ids)
+but never applied it to weapon-derived skill ids at all — `weaponSkillIdsForBuild` just used
+`weaponSkillIdsForPair`'s raw per-slot id directly. A full scan found 126 weapon-slot
+chain-continuation skills across every profession carry a `Buff` fact their chain's starting skill
+doesn't — this was never Revenant- or Scepter-specific, just first noticed there. Fixed by walking
+`withFlipChain` on every id `weaponSkillIdsForBuild` resolves. Verified via a standalone repro
+script (real game data, a bare Revenant/Scepter build, `computeBoonConditionSources`) that Acerbic
+Cut's Might now surfaces; typecheck/lint clean.
+
+Also confirmed (not a bug): Guardian Staff's Symbol of Swiftness — the skill's own flavor
+*description* text doesn't mention granting Superspeed, but the underlying Fact data does, and this
+app's Misc./boon-bar rendering already reads from Facts, not description text, so it was already
+showing correctly. No action needed; noted here only so a future session doesn't re-investigate.
+
+Separately flagged, NOT fixed this session (logged in TODO.md pending a scoping decision — too big
+to fold into this fix): a second, distinct, likely-larger gap in the same "Revenant boon tooltip"
+report. Revenant/Salvation's Serene Rejuvenation (minor trait) adds boons to Legendary Centaur's own
+skills via a `type: "PrefixedBuff"` fact shape `extractFromFacts` has never modeled at all (only
+`type: "Buff"` is recognized) — a full scan found 263 trait facts + 117 skill facts of this shape
+project-wide, all currently invisible.
+
 ## Session 108 — Gear Optimizer bug hunt: found and fixed a real food/utility conversion bug
 
 First real diagnosis pass on the "Gear Optimizer doesn't function properly" bug (flagged

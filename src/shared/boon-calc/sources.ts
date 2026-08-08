@@ -1254,6 +1254,18 @@ const ELEMENTALIST_ATTUNEMENTS = ['Fire', 'Water', 'Air', 'Earth'] as const
  * weaverPreviousAttunement`. Deduplicated (`[...new Set(...)]` below) since a differing-element
  * pair's Dual Attack id is reachable via 2 orderings (Fire+Water and Water+Fire resolve to the same
  * id, see `weaverWeaponThreeSkillId`) and would otherwise double-count that skill's sources.
+ *
+ * Every resolved id also gets walked through its own `withFlipChain` (fixed 2026-08-07 — see
+ * TODO.md/COMPLETED.md): the GW2 API dual-purposes `Skill.flipSkill` to mean BOTH "this channel's
+ * release/toggled-off effect" (already handled for Revenant's heal/utility/elite/swap ids, see
+ * `skillIdsForBuild` below) AND "the next hit in this autoattack chain" — confirmed live against
+ * the raw API (e.g. Warrior Greatsword's "Greatsword Swing" 14356 carries `next_chain: 14373` AND
+ * `flip_skill: 14373`, the identical value). Without this, a chain's 2nd/3rd hit (where GW2 often
+ * puts the actual boon/condition — e.g. Revenant Scepter's "Acerbic Cut," not its own first-hit
+ * "Serene Slash," carries the autoattack's Might) was never reachable from the equipped weapon's
+ * `professions.json` slot list at all (that list only has the chain's starting id per slot) — a
+ * scan found 126 weapon-slot chain-continuation skills across every profession carry a `Buff` fact
+ * their chain's starting skill doesn't.
  */
 function weaponSkillIdsForBuild(
   build: Build,
@@ -1303,7 +1315,7 @@ function weaponSkillIdsForBuild(
         current,
         previous
       )) {
-        if (id !== null) ids.push(id)
+        if (id !== null) ids.push(...withFlipChain(id, skillsById))
       }
     }
     if (isUntamed && mainType && mainWeapon) {
