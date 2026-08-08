@@ -239,10 +239,19 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
          **Step "investigate the 3 mismatches" DONE 2026-08-08** (see COMPLETED.md Session 112): all
          3 curated values were already correct — every one traced to the same shape (the specific
          wiki page this id fetches under-documents a split/multiplier a related source, a sibling
-         id's page or the page's own Notes prose, documents completely) — added a 3-entry
-         `KNOWN_WIKI_GAPS` table so they don't re-surface as false MISMATCHes. Re-run: **MISMATCH is
-         now 0**. Still not done: output written to `data/game-data/` (still console-only), the 15
-         MISSING / 44 SKIP / 22 unresolved-collision entries not investigated.
+         id's page or the page's own Notes prose, documents completely) — added a `KNOWN_WIKI_GAPS`
+         table so they don't re-surface as false MISMATCHes.
+         **Step "investigate MISSING/SKIP/UNRESOLVED" DONE 2026-08-08** (see COMPLETED.md Session
+         113): comma-separated `id=` list parsing, case/whitespace-normalized factText matching, and
+         a last-resort sibling-id-attribution tier (using `CURATED_DAMAGE_COEFFICIENTS`'s own
+         already-verified equality, NOT the API's PvE-only `dmg_multiplier` — an earlier attempt at
+         the latter produced 2 live false positives, caught and fixed before landing). Final re-run:
+         MATCH 950 (wiki) + 30 (requiresTrait) + 4 (known wiki gap) = 984/1052, **MISMATCH 0**,
+         MISSING 12 (was 15), SKIP 43 (was 44), UNRESOLVED COLLISION 11 (was 22). Remaining residual
+         in all 3 buckets individually spot-checked and characterized as genuinely irreducible without
+         either free-text wiki prose parsing or a fundamentally different signal — recommended as the
+         documented judgment tail, not chased further this session. Still not done: output written to
+         `data/game-data/` (still console-only).
       2. Persist the raw-wikitext cache itself (keyed by page + revision id), not just each script's
          parsed result — today each sweep type has independently re-fetched the same pages; a shared
          cache stops the next gap-type sweep from re-paying that cost for pages already visited.

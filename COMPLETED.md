@@ -2,6 +2,50 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 113 — Wiki-extraction pipeline: shrunk MISSING/SKIP/UNRESOLVED, caught a self-introduced bug
+
+User asked what to do about the pilot's remaining MISSING (15) / SKIP (44) / UNRESOLVED COLLISION
+(22) buckets. Investigated all 3 rather than assuming they're irreducible; found 3 more general,
+safe fixes:
+
+- **Comma-separated `id=` list parsing** (`parseInfoboxSkillIds`, same shape `fetch-relic-effects.ts`
+  already uses for relics): several skill pages document a comma-separated id LIST (e.g. "Jade
+  Winds" -> `28406,31294`), which the previous single-number regex only ever captured the first
+  value of. Alone, this resolved 11 of the 22 unresolved collisions directly.
+- **Case/whitespace-normalized factText matching**: the wiki's own `alt=` text and the curated
+  table's factText occasionally differ only by casing (e.g. wiki "Final strike damage" vs. curated
+  "Final Strike Damage," found on Hundred Blades/14554) — normalizing both sides before the lookup
+  fixed 3 of the 15 MISSING entries.
+- **Sibling-id attribution** (last-resort tier in `resolveSkillPage`, only after every exact-id check
+  — direct title AND every search candidate — has failed): some wiki pages' own id= field lists only
+  ONE of two ids the curated table deliberately gives identical values to (e.g. Grenade Kit's land id
+  5882 vs. underwater sibling 6171, whose shared page only lists 5882). First attempt compared the
+  *local API's* `dmg_multiplier` for equivalence — **caught its own live false positive** before
+  landing: Static Field (5732, Lightning Hammer) got wrongly attributed to the unrelated core-Staff
+  Static Field's page, and Radiant Arc (69565) to its Holosmith-gated sibling's page — both share one
+  PvE dmg_multiplier (a value that's PvE-only per `DamageCoefficient`'s own doc comment) while
+  differing in WvW, the exact case damage-calc.ts's own Radiant Arc comment already warns about
+  ("note the shared identical PvE side"). Also caught a tier-ordering bug: consulting the sibling
+  signal inside the *first* title-fetch loop let a coincidental match short-circuit before the search
+  fallback ever ran, stealing a resolution that was otherwise findable exactly (Burning Retreat
+  5717 briefly regressed this way). Fixed by (a) requiring sibling equivalence via
+  `CURATED_DAMAGE_COEFFICIENTS`'s own already-human-verified equality instead of the API, and (b)
+  strictly deferring the sibling tier until after both exact-id tiers are exhausted. Net: 9 of the
+  22 originally-unresolved collisions cleared (comma-list + sibling combined), including the newly
+  legitimate case this surfaced — 78798 "Call to Anguish" (Conduit's rework, same known wiki gap as
+  its sibling 31100) — added to `KNOWN_WIKI_GAPS` alongside it.
+
+Final re-run: MATCH 950 (wiki) + 30 (requiresTrait) + 4 (known wiki gap) = 984/1052, MISMATCH 0,
+MISSING 12 (was 15), SKIP 43 (23 ambiguous wiki + 20 requiresTrait, was 44), UNRESOLVED COLLISION 11
+(was 22). The residual in all 3 buckets was individually spot-checked and characterized as
+genuinely-irreducible without either (a) parsing free-text wiki prose generally (risky to
+generalize) or (b) a fundamentally different signal than "one skill's own wiki page" — e.g. the
+"Slash" collision (12474/13088) shares its bare wiki title with 36 other same-named skills across
+every profession, and `Effulgent Stance`'s Min/Max Damage split exists only in the local API's own
+fact labels, never in wiki text at all. Recommended leaving these as the documented judgment tail
+rather than chasing further — diminishing returns, and TODO.md's own "shrinking, not eliminating,
+the agent-judgment tail" framing already anticipated a residual like this.
+
 ## Session 112 — Wiki-extraction pipeline: closed the last 3 MISMATCH entries
 
 Follow-up to Session 111, investigating the 3 remaining MISMATCH entries it deliberately left
