@@ -536,16 +536,37 @@ confirmed not a stale-cache issue).
 but insertion instead of value-override) is `{ [skillId]: Fact[] }`, merged into each matching
 skill's `.facts` array once, at load time, in `load-game-data.ts`'s `withSyntheticFacts`. Once
 merged, the injected fact is indistinguishable from a real API one to every consumer — no
-special-casing needed anywhere else. Add a new entry when a skill has a real wiki-documented
-Healing/Damage coefficient but no live-API fact of the matching `type`/`target`/`text` to gate on:
-pull the raw wikitext (`action=raw`, never a summarized fetch) for the coefficient itself as usual,
-then add a matching `{ type, target, text }` synthetic `Fact` here (its own `value` is cosmetic —
-put the wiki's stated base value for parity with a real fact, but the curated table's `baseValue`
-is what actually renders) plus the normal `CURATED_HEALING_COEFFICIENTS`/`CURATED_DAMAGE_COEFFICIENTS`
-entry. Worth checking for on any other very-recently-released skill (new elite specs in particular)
-that turns up with an empty-seeming Damage/Healing tooltip during a future sweep — Janthir
-Wilds-and-later content has hit real API-coverage gaps more than once during this project's
-curation sweeps (see TODO.md).
+special-casing needed anywhere else.
+
+Two cases warrant a new entry:
+1. A skill has a real wiki-documented Healing/Damage coefficient but no live-API fact of the
+   matching `type`/`target`/`text` to gate on: pull the raw wikitext (`action=raw`, never a
+   summarized fetch) for the coefficient itself as usual, then add a matching `{ type, target,
+   text }` synthetic `Fact` here (its own `value` is cosmetic — put the wiki's stated base value for
+   parity with a real fact, but the curated table's `baseValue` is what actually renders) plus the
+   normal `CURATED_HEALING_COEFFICIENTS`/`CURATED_DAMAGE_COEFFICIENTS` entry. Worth checking for on
+   any other very-recently-released skill (new elite specs in particular) that turns up with an
+   empty-seeming Damage/Healing tooltip during a future sweep — Janthir Wilds-and-later content has
+   hit real API-coverage gaps more than once during this project's curation sweeps (see TODO.md).
+2. TODO.md's "some skills' real effects live entirely outside the GW2 API's `facts` array" bug —
+   `scripts/scan-empty-effect-facts.ts` finds candidates (a skill with a substantive description but
+   zero facts beyond Range/Recharge/Distance/Radius, where the live wiki page carries a structured
+   `{{skill fact|...}}` template the local API omits entirely). Here a synthetic `Buff` fact
+   (`status`/`duration`/`apply_count`, the same shape a real API Buff fact uses) is the usual shape
+   — it flows through `extractFromFacts`/`boonConditionFactsForSkill` exactly like a real one, so it
+   shows up in both the skill's own tooltip and the whole-build boon/condition bar automatically.
+   **Not every finding in that scan's list is actually curatable this way** — spot-checked
+   2026-08-08 while curating the first entries: a wiki `{{skill fact|effect|<Name>}}` template with
+   no accompanying number (e.g. profession-mechanic toggles like Unleash Ranger/Unsheathe Gunsaber
+   naming an internal state-flag effect such as "Unleashed"/"Gunsaber Mode") isn't a boon/condition
+   and isn't rendered by any current fact-line path (`factLine` has no `NoData`/generic-text case at
+   all — that's TODO.md's separate, not-yet-fixed "tooltips never show Misc/Control facts" bug) —
+   curating one would be a silent no-op, not a real fix, so these are documented exclusions in
+   TODO.md rather than synthetic-facts.json entries. Similarly, a skill whose real mechanic is a
+   *single random pick* from a list of possible boons/conditions (e.g. the human racial skill Prayer
+   to Lyssa) can't be modeled as ordinary `Buff` facts either — adding all N possible outcomes as
+   simultaneous `Buff` facts would misrepresent every cast as granting all of them at once,
+   overcounting boon uptime; left as an honest, documented skip instead of a wrong answer.
 
 ## Gear upgrades and consumables (`runes.json`, `sigils.json`, `infusions.json`, `relics.json`, `food.json`, `utility.json`)
 

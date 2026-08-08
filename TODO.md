@@ -92,6 +92,44 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       design work beyond a flat coefficient table (dual ally/enemy-target branches, elixir stacking
       tiers, etc.) — scoped as its own follow-up curation item, not started.
 
+      **Curation started 2026-08-08** (see COMPLETED.md's latest session): reused
+      `synthetic-facts.json`'s existing insertion mechanism (already built for the Healing/Damage
+      coefficient case, see docs/game-data.md) — it's type-agnostic, so a `Buff` fact injected here
+      flows through the boon/condition calculator exactly like a real API one, with zero new
+      plumbing. First entry curated: **Detonate Elixir H (6119)** — Protection 2s/Regeneration
+      4s/Swiftness 4s to allies, straight off the wiki's `{{skill fact|...}}` values, verified
+      reachable (underwater-only Engineer Toolbelt skill, same "underwater ids are real, already
+      curated elsewhere" precedent as `damage-calc.ts`'s Grenade Kit underwater ids).
+
+      **4 findings reclassified as non-actionable** (spot-checked while curating, not part of the
+      original 35/41 count's own miscounting — the scan's pass 2 correctly found a wiki template,
+      but the template itself isn't renderable app data): **Legendary Demon Stance (28494)**,
+      **Unsheathe Gunsaber (62745)**, **Unleash Ranger (63147)**, **Unleash Pet (63344)** — each
+      wiki page's only non-meta template is a bare `{{skill fact|effect|<InternalStateFlagName>}}`
+      (e.g. "Unleashed", "Gunsaber Mode") with no accompanying number, naming an internal
+      state-tracking effect other skills reference, not a boon/condition or numeric value. No
+      current fact-rendering path (`factLine` has no generic/`NoData` case — that's this file's own
+      separate "tooltips never show Misc/Control facts" bug below) would even display a synthetic
+      fact here, so curating one would be a silent no-op. Full reasoning in docs/game-data.md's
+      synthetic-facts.json section.
+
+      **1 finding is an honest skip, not curated**: **Prayer to Lyssa (12362)** — the human racial
+      elixir-equivalent grants ONE random boon (from 8 choices) to self and inflicts ONE random
+      condition (from 9 choices) on the target foe per cast, each with its own wiki-documented
+      duration. Can't be modeled as ordinary `Buff` facts: adding all 17 as simultaneous facts would
+      make every cast look like it grants all 17 at once, overcounting boon uptime — actively wrong,
+      not just incomplete. Left undone rather than curated wrong; would need either a dedicated
+      "random pick from N" `Fact` shape (new type, new consumer logic) or acceptance that this one
+      stays flavor-text-only.
+
+      **Remaining scope**: 36 of the original 41 ids (Elixir of ___ cluster — 5 names/10 ids;
+      Weaver Pistol/Spear Dual Attacks — 11 names; Otherworldly Bond's escalating-tier tether
+      mechanic; Shadowsquall/Malicious Shadowsquall; Icerazor's Ire; Voracious Arc/Devouring Cut;
+      Summon Spirits/Anguish; Twin Moon Sweep; Tale of the Tortured Mastermind; Radiant
+      Resolve/Radiant Justice; the 4 unresolved-collision ids) still need per-skill curation —
+      recommended one cluster at a time, checking in between, same as every other leg of this
+      pipeline.
+
 - [ ] **Skill tooltips never show a skill's own Misc/Control/Strip-Corrupt/Combo/Aura facts** —
       flagged by the user 2026-08-07, concrete example: skills that apply Superspeed correctly show
       up in the boon/condition bar's "Misc." row but the same skill's own tooltip shows nothing for

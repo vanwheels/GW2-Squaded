@@ -28,13 +28,21 @@ function readJson<T>(fileName: string): T {
  */
 /**
  * Merges `synthetic-facts.json` into each skill's `.facts` — hand-curated, wiki-sourced `Fact`
- * objects for skills the GW2 API returns with no real fact of the needed shape at all (e.g. Mesmer's
- * Tale of the Second Scion, id 76695, has zero `AttributeAdjust`/Healing facts in a live API pull, so
- * `CURATED_HEALING_COEFFICIENTS` has nothing to key off no matter how good the wiki-sourced
- * coefficient is — every downstream consumer, `healingLinesForSkill` included, walks `skill.facts`
- * to decide which lines even exist before a curated table ever gets consulted). Merging here, once,
- * means every consumer (tooltip rendering, curated-coefficient gating, generic fact fallback) sees
- * the synthetic fact identically to a real one, with no special-casing anywhere else. See
+ * objects for skills the GW2 API returns with no real fact of the needed shape at all. Two use
+ * cases share this one file/mechanism: (1) a skill has a real wiki-documented Healing/Damage
+ * coefficient but no live-API fact of the matching `type`/`target`/`text` to key
+ * `CURATED_HEALING_COEFFICIENTS`/`CURATED_DAMAGE_COEFFICIENTS` off at all (first hit: Mesmer's Tale
+ * of the Second Scion, id 76695 — a live API pull returns zero `AttributeAdjust`/Healing facts); (2)
+ * TODO.md's "some skills' real effects live entirely outside the GW2 API's `facts` array" bug
+ * (`scripts/scan-empty-effect-facts.ts`'s 35-skill findings, e.g. Engineer's Detonate Elixir H
+ * granting Protection/Regeneration/Swiftness with zero API facts beyond Range/Recharge) — there a
+ * synthetic `Buff` fact (`status`/`duration`/`apply_count`, same shape a real API Buff fact uses)
+ * flows through `extractFromFacts`/`boonConditionFactsForSkill` exactly like a real one, showing up
+ * in both the skill's own tooltip and the whole-build boon/condition bar with no extra plumbing.
+ * Every downstream consumer walks `skill.facts` to decide which lines/boons even exist before any
+ * curated table or classifier ever runs — merging here, once, means every consumer (tooltip
+ * rendering, curated-coefficient gating, generic fact fallback, boon-bar aggregation) sees the
+ * synthetic fact identically to a real one, with no special-casing anywhere else. See
  * docs/game-data.md for the full writeup and when to add a new entry.
  */
 function withSyntheticFacts(skills: Skill[]): Skill[] {

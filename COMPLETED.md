@@ -2,6 +2,63 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 123 — Empty-effect-facts curation: first leg (Detonate Elixir H + 2 exclusion classes)
+
+Started curating the 35-skill/41-id backlog from Session 115's `scan-empty-effect-facts.ts` scan
+(TODO.md's "some skills' real effects live entirely outside the GW2 API's `facts` array" bug — the
+one remaining item from the whole wiki-extraction pipeline thread). Re-ran the scan fresh first to
+confirm the exact id list and per-skill wiki fact labels rather than trusting the 9-day-old writeup
+from memory.
+
+**Found the injection point already exists**: `synthetic-facts.json` + `load-game-data.ts`'s
+`withSyntheticFacts`, built during the earlier Damage/Healing coefficient pipeline for one skill
+(Tale of the Second Scion, id 76695) but actually type-agnostic — any `Fact` shape merged there is
+indistinguishable from a real API fact to every downstream consumer, including `Buff` facts, which
+flow straight through `extractFromFacts`/`boonConditionFactsForSkill` into both the skill's own
+tooltip and the whole-build boon/condition bar with zero new code. Confirmed this is the right
+mechanism for the empty-effect-facts case too, not a separate design — extended the doc comment in
+both `load-game-data.ts` and `docs/game-data.md` to cover the new use case rather than writing a
+duplicate mechanism.
+
+**Curated 1 skill**: **Detonate Elixir H (6119)**, Engineer's underwater-only Elixir-H Toolbelt
+skill — live API returns only Range/Recharge, wiki documents Protection 2s/Regeneration
+4s/Swiftness 4s to allies on detonation. Added as 3 synthetic `Buff` facts. Verified reachability
+concern before trusting it (underwater-only skills are a known "is this even a real gap" question,
+same shape as the earlier Downed_*-slot false positive Session 115 caught) — confirmed underwater
+ids are already treated as reachable/curated elsewhere in this app (`damage-calc.ts`'s Grenade Kit
+underwater ids), so this one's genuine.
+
+**Found and documented 2 exclusion classes while spot-checking, not part of the original count's own
+error but a refinement of which of the 41 are actually actionable**:
+- **4 ids are wiki-template false positives for "actionable"**: Legendary Demon Stance (28494),
+  Unsheathe Gunsaber (62745), Unleash Ranger (63147), Unleash Pet (63344) — each profession-mechanic
+  toggle's only non-meta wiki template is a bare `{{skill fact|effect|<InternalStateFlagName>}}`
+  (e.g. "Unleashed", "Gunsaber Mode") with no accompanying number. That's an internal state-flag
+  name other skills reference, not a boon/condition or numeric value — and critically, no current
+  fact-rendering path would even display a synthetic fact here (`factLine` has no generic/`NoData`
+  case at all, a separate already-tracked TODO.md bug), so curating one would be a silent no-op, not
+  a real fix. Confirmed via live wikitext fetch for all 4 (plus Prayer to Lyssa, below) rather than
+  assumed from the scan's summary line.
+- **1 id is an honest skip**: Prayer to Lyssa (12362) grants ONE random boon (of 8) to self and ONE
+  random condition (of 9) to the target foe per cast, each with its own wiki duration. Modeling all
+  17 as simultaneous `Buff` facts would misrepresent every cast as granting all of them at once —
+  overcounting boon uptime, actively wrong rather than just incomplete. Left uncurated rather than
+  curated wrong; would need a dedicated "random pick from N" `Fact` shape to do properly, out of
+  scope for this pass.
+
+`npx tsc`/`npx eslint` both clean. Full reasoning for both exclusion classes lives in
+docs/game-data.md's synthetic-facts.json section and TODO.md's own updated bug entry, not
+duplicated here.
+
+**Not done**: the other 36 ids (Elixir of ___ cluster — 5 names/10 ids, the single biggest and
+richest remaining win; Weaver Pistol/Spear Dual Attacks — 11 names; Otherworldly Bond's own
+escalating-tier tether mechanic, genuinely the hardest shape in the whole list since it ramps
+through 3 time-gated tiers rather than a flat grant; Shadowsquall/Malicious Shadowsquall; Icerazor's
+Ire; Voracious Arc/Devouring Cut; Summon Spirits/Anguish; Twin Moon Sweep; Tale of the Tortured
+Mastermind; Radiant Resolve/Radiant Justice; 4 unresolved-collision ids needing a manual wiki look)
+are still unstarted. Deliberately stopped after one small, fully-verified leg rather than chaining
+into a cluster — this is judgment-heavy per-skill design work, not a mechanical sweep.
+
 ## Session 122 — Balance-patch detection extended to target-count/Condition-Cleanse reach
 
 Picked up TODO.md's own note that the "Wiki-sourced data pipeline" section's top-level checkbox

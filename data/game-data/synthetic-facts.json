@@ -2,5 +2,10 @@
   "76695": [
     { "type": "AttributeAdjust", "target": "Healing", "text": "Self-Healing", "value": 3535 },
     { "type": "AttributeAdjust", "target": "Healing", "text": "Ally Healing", "value": 2250 }
+  ],
+  "6119": [
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 2 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 4 }
   ]
 }
