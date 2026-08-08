@@ -2,6 +2,51 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 118 — Migrate remaining fetch-*.ts scripts to the shared wiki-cache
+
+TODO.md's "Wiki-sourced data pipeline" step 2 remainder: `scripts/lib/wiki-cache.ts` (built Session
+114, wired into `fetch-skill-coefficients.ts` only) is now wired into every other script that
+defined its own inline `fetchRawWikitext` — `fetch-wvw-splits.ts`, `fetch-relic-effects.ts`,
+`fetch-glyph-forms.ts`, `fetch-tome-chapters.ts`, `fetch-skill-duplicate-resolutions.ts`, and
+`fetch-soulbeast-beastmode.ts`. Each script's own local `fetchRawWikitext`/`WIKI_INDEX`/manual
+per-page `sleep(REQUEST_DELAY_MS)` was removed in favor of `fetchWikiPage`/`flushWikiCache`; each
+script's *other* wiki API calls unrelated to raw-wikitext fetching (category-member listings in
+`fetch-wvw-splits.ts`, MediaWiki search in `fetch-soulbeast-beastmode.ts`) were left as-is, since
+those aren't page-content fetches the cache covers. `fetchWikiPage` returns `string | null` for a
+missing page rather than throwing (unlike the old `fetchRawWikitext`, which threw on any non-ok
+response including 404) — every call site was updated to branch on `=== null` as an explicit
+"page not found" skip/log line instead of relying on a catch block for that case.
+`fetch-elite-spec-skills.ts` and `fetch-gear-upgrades.ts` were named in TODO.md's original scoping
+as still needing this migration too, but turned out not to: the former only ever calls the
+`categorymembers` generator query (no raw wikitext fetch at all), and the latter is pure GW2-API
+data with no wiki calls whatsoever — both left untouched.
+
+Verified every migrated script's behavior is unchanged, not just that it typechecks/lints clean:
+ran each one against the shared on-disk cache (a mix of warm-from-prior-sessions and cold-for-these-
+scripts) and diffed its regenerated output file against the git-committed version.
+`fetch-glyph-forms.ts`, `fetch-tome-chapters.ts`, and `fetch-soulbeast-beastmode.ts` reproduced
+byte-identical output. The other three surfaced real diffs, each individually root-caused as
+pre-existing staleness rather than a migration regression:
+- `fetch-wvw-splits.ts`: lost skill 5862 (Elixir U)'s `"Vigor": 6` override. Live wiki content
+  drift, not a bug — Elixir U's page now documents `wvw=4` for its Quickness/Stability/Vigor lines
+  (a real balance change since this table was last generated), and `resolveOverride`'s existing
+  API-duration cross-check correctly refuses to trust a wiki value (4) absent from the locally-
+  cached API's own durations (still `[6, 7]`, since `data/game-data/skills.json` hasn't been
+  refreshed via `fetch-game-data` to see the same change) — this is exactly the staleness-detection
+  behavior the wiki pipeline is meant to have, not a regression. Left unresolved (needs a
+  `fetch-game-data` refresh first, out of scope for a migration pass).
+- `fetch-relic-effects.ts` (204 -> 122 ids) and `fetch-skill-duplicate-resolutions.ts` (63 -> 9
+  excluded ids): both confirmed unrelated to the migration by checking out each script's exact
+  pre-migration version from git and running it standalone (unmodified except for an output-
+  filename change to avoid clobbering) — both reproduced the new, smaller counts identically,
+  proving the shrink was already latent in the current input data, just never re-generated since.
+  `relics.json` has held only 122 entries since a much older commit (6db4ef7) — the committed
+  204-id `relic-effects.json` predates that shrink and was never regenerated after. Similarly,
+  `skill-variants.ts`'s own in-code dedup signals (attunement/specialization/flip-root/ground-
+  target/glyph-form/turret-sub-ability) have grown since `skill-variant-exclusions.json` was last
+  generated and now already resolve most of the groups that file used to need a wiki-curated
+  exclusion for — neither script had been re-run in a while, independent of this session's work.
+
 ## Session 117 — CONDITION_CLEANSE_TARGETS curated table
 
 Built `CONDITION_CLEANSE_TARGETS` (`src/shared/boon-calc/sources.ts`), turning Session

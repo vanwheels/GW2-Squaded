@@ -41,8 +41,8 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Pet, Skill, SoulbeastBeastmodeMap } from '../src/shared/types/game-data'
+import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
 
-const WIKI_INDEX = 'https://wiki.guildwars2.com/index.php'
 const WIKI_API = 'https://wiki.guildwars2.com/api.php'
 const REQUEST_DELAY_MS = 150
 const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)'
@@ -59,13 +59,6 @@ const ARCHETYPE_TABLE_TO_FAMILY_TABLE_NAME: Record<string, string> = { Ursine: '
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-async function fetchRawWikitext(title: string): Promise<string> {
-  const url = `${WIKI_INDEX}?title=${encodeURIComponent(title.replace(/ /g, '_'))}&action=raw`
-  const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
-  if (!response.ok) throw new Error(`Wiki raw fetch failed for "${title}": ${response.status} ${response.statusText}`)
-  return response.text()
 }
 
 async function searchWikiTitles(query: string): Promise<string[]> {
@@ -204,8 +197,8 @@ async function main(): Promise<void> {
   const log: string[] = []
 
   console.log('Fetching Soulbeast wiki page...')
-  const raw = await fetchRawWikitext('Soulbeast')
-  await sleep(REQUEST_DELAY_MS)
+  const raw = await fetchWikiPage('Soulbeast')
+  if (raw === null) throw new Error('Wiki page not found for "Soulbeast"')
 
   const familyTable = parsePetFamilyTable(section(raw, '== Pet Family ==', '== Pet Archetypes =='))
   const { f3Titles, familyRows } = parseArchetypeTable(section(raw, '== Pet Archetypes ==', '== Lore =='))
@@ -226,15 +219,19 @@ async function main(): Promise<void> {
     } else if (candidates.length === 0) {
       log.push(`no local candidate for "${title}" (bare "${bareName}") slot ${slot}`)
     } else {
-      let text: string
+      let text: string | null
       try {
-        text = await fetchRawWikitext(title)
+        text = await fetchWikiPage(title.replace(/ /g, '_'))
       } catch (err) {
         log.push(`fetch failed for ambiguous title "${title}": ${(err as Error).message}`)
         titleIdCache.set(`${title}|${slot}`, undefined)
         return undefined
       }
-      await sleep(REQUEST_DELAY_MS)
+      if (text === null) {
+        log.push(`page not found for ambiguous title "${title}"`)
+        titleIdCache.set(`${title}|${slot}`, undefined)
+        return undefined
+      }
       const pageId = parseInfoboxId(text)
       if (pageId === undefined || !candidates.some((c) => c.id === pageId)) {
         log.push(`ambiguous title "${title}" unresolved — page id ${pageId ?? 'missing'}, local candidates [${candidates.map((c) => c.id).join(', ')}]`)
@@ -320,13 +317,13 @@ async function main(): Promise<void> {
     let matchedPet: string | undefined
     let matchedSlot: number | undefined
     for (const title of titles) {
-      let text: string
+      let text: string | null
       try {
-        text = await fetchRawWikitext(title)
+        text = await fetchWikiPage(title.replace(/ /g, '_'))
       } catch {
         continue
       }
-      await sleep(REQUEST_DELAY_MS)
+      if (text === null) continue
       if (parseInfoboxId(text) !== skill.id) continue
       const pet = parseInfoboxField(text, 'pet')
       const mechanicSlot = parseInfoboxField(text, 'mechanic slot')
@@ -358,14 +355,17 @@ async function main(): Promise<void> {
   for (const pet of pets) {
     const existing = speciesData.get(pet.name)
     if (existing && existing.archetype === undefined) {
-      let text: string
+      let text: string | null
       try {
-        text = await fetchRawWikitext(pet.name)
+        text = await fetchWikiPage(pet.name.replace(/ /g, '_'))
       } catch (err) {
         log.push(`new pet "${pet.name}": infobox fetch failed — ${(err as Error).message}`)
         continue
       }
-      await sleep(REQUEST_DELAY_MS)
+      if (text === null) {
+        log.push(`new pet "${pet.name}": infobox page not found`)
+        continue
+      }
       const archetypeField = parseInfoboxField(text, 'archetype')
       const archetype = ARCHETYPES.find((a) => a.toLowerCase() === archetypeField?.toLowerCase())
       if (!archetype) {
@@ -390,6 +390,7 @@ async function main(): Promise<void> {
     resolvedCount++
   }
 
+  await flushWikiCache()
   await writeFile(join(DATA_DIR, 'soulbeast-beastmode.json'), JSON.stringify(result, null, 2))
   console.log(`\nDone. ${resolvedCount}/${pets.length} pets resolved, written to soulbeast-beastmode.json.`)
   if (log.length > 0) {

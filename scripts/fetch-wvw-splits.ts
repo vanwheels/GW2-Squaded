@@ -47,9 +47,9 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Skill, Trait, WvwFactOverride, WvwFactOverrides } from '../src/shared/types/game-data'
 import { BOON_NAMES, CONDITION_NAMES } from '../src/shared/boon-calc/constants'
+import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
 
 const WIKI_API = 'https://wiki.guildwars2.com/api.php'
-const WIKI_INDEX = 'https://wiki.guildwars2.com/index.php'
 const REQUEST_DELAY_MS = 150
 // Same gotcha as fetch-elite-spec-skills.ts: the wiki returns 403 for Node's default User-Agent.
 const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)'
@@ -105,13 +105,6 @@ async function fetchCategoryMembers(category: string): Promise<Set<string>> {
     }
   }
   return titles
-}
-
-async function fetchRawWikitext(title: string): Promise<string> {
-  const url = `${WIKI_INDEX}?title=${encodeURIComponent(title)}&action=raw`
-  const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
-  if (!response.ok) throw new Error(`Wiki raw fetch failed for "${title}": ${response.status} ${response.statusText}`)
-  return response.text()
 }
 
 interface ParsedFactLine {
@@ -397,11 +390,15 @@ async function main(): Promise<void> {
     if (!candidates || candidates.length !== 1) return // ambiguous name, already logged above
     const candidate = candidates[0]
 
-    let wikitext: string
+    let wikitext: string | null
     try {
-      wikitext = await fetchRawWikitext(name)
+      wikitext = await fetchWikiPage(name)
     } catch (err) {
       log.push(`skip (fetch error): ${candidate.kind} ${candidate.id} "${name}" — ${(err as Error).message}`)
+      return
+    }
+    if (wikitext === null) {
+      log.push(`skip (page not found): ${candidate.kind} ${candidate.id} "${name}"`)
       return
     }
 
@@ -428,16 +425,15 @@ async function main(): Promise<void> {
     await processPage(name, skillsByName, result.skill)
     fetched++
     if (fetched % 50 === 0) console.log(`  [${fetched}/${totalPages}] pages fetched...`)
-    await sleep(REQUEST_DELAY_MS)
   }
   for (const name of traitPages) {
     await processPage(name, traitsByName, result.trait)
     fetched++
     if (fetched % 50 === 0) console.log(`  [${fetched}/${totalPages}] pages fetched...`)
-    await sleep(REQUEST_DELAY_MS)
   }
 
   applyManualOverrides(result, log)
+  await flushWikiCache()
 
   await writeFile(join(DATA_DIR, 'wvw-fact-overrides.json'), JSON.stringify(result, null, 2))
 

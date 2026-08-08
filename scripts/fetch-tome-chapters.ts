@@ -25,10 +25,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { RelicFactLine, Skill, TomeChapter, TomeChaptersByTomeId } from '../src/shared/types/game-data'
-
-const WIKI_INDEX = 'https://wiki.guildwars2.com/index.php'
-const REQUEST_DELAY_MS = 150
-const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)'
+import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA_DIR = join(__dirname, '..', 'data', 'game-data')
@@ -37,17 +34,6 @@ const DATA_DIR = join(__dirname, '..', 'data', 'game-data')
  *  than hardcoding either, so a name match failure surfaces as a loud error instead of silently
  *  using a stale id if a future balance patch ever renames one. */
 const TOME_NAMES = ['Tome of Justice', 'Tome of Resolve', 'Tome of Courage']
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-async function fetchRawWikitext(title: string): Promise<string> {
-  const url = `${WIKI_INDEX}?title=${encodeURIComponent(title)}&action=raw`
-  const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
-  if (!response.ok) throw new Error(`Wiki raw fetch failed for "${title}": ${response.status} ${response.statusText}`)
-  return response.text()
-}
 
 // Same pipe-protection/balance-check approach as fetch-relic-effects.ts, duplicated rather than
 // imported since these are standalone `tsx`-run scripts with no shared script-lib module today.
@@ -149,8 +135,8 @@ async function main(): Promise<void> {
       continue
     }
 
-    const tomePage = await fetchRawWikitext(tomeName.replace(/ /g, '_'))
-    await sleep(REQUEST_DELAY_MS)
+    const tomePage = await fetchWikiPage(tomeName.replace(/ /g, '_'))
+    if (tomePage === null) throw new Error(`Wiki page not found for tome "${tomeName}"`)
     const chapterNames = parseChapterNames(tomePage)
     if (chapterNames.length !== 5) {
       log.push(`warn (expected 5 chapters, found ${chapterNames.length}): "${tomeName}" — ${chapterNames.join(', ')}`)
@@ -158,18 +144,20 @@ async function main(): Promise<void> {
 
     const chapters: TomeChapter[] = []
     for (const chapterName of chapterNames) {
-      let text: string
+      let text: string | null
       try {
-        text = await fetchRawWikitext(chapterName.replace(/ /g, '_'))
+        text = await fetchWikiPage(chapterName.replace(/ /g, '_'))
       } catch (err) {
         log.push(`skip (fetch error): "${chapterName}" — ${(err as Error).message}`)
-        await sleep(REQUEST_DELAY_MS)
+        continue
+      }
+      if (text === null) {
+        log.push(`skip (page not found): "${chapterName}"`)
         continue
       }
       const infobox = extractInfobox(text)
       if (!infobox) {
         log.push(`skip (no Skill infobox found): "${chapterName}"`)
-        await sleep(REQUEST_DELAY_MS)
         continue
       }
 
@@ -200,7 +188,6 @@ async function main(): Promise<void> {
         facts
       })
       totalChapters++
-      await sleep(REQUEST_DELAY_MS)
     }
 
     chapters.sort((a, b) => a.slotIndex - b.slotIndex)
@@ -208,6 +195,7 @@ async function main(): Promise<void> {
     console.log(`${tomeName} (id ${tomeSkill.id}): ${chapters.length} chapters`)
   }
 
+  await flushWikiCache()
   await writeFile(join(DATA_DIR, 'tome-chapters.json'), JSON.stringify(result, null, 2))
 
   console.log(`\nDone. tome-chapters.json written: ${totalChapters} chapters total, ${chaptersWithFacts} with parsed facts.`)

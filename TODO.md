@@ -328,10 +328,31 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
          Re-run against a fresh empty cache reproduced the exact prior numbers (MATCH 984/1052,
          MISMATCH 0, MISSING 12, SKIP 43, UNRESOLVED COLLISION 11) in 5m41s (1148 pages, all real
          fetches); a second immediate re-run — same 984/0/12/43/11 — dropped to 33s, entirely cache
-         hits. Still not wired into the other fetch-*.ts scripts (fetch-wvw-splits.ts,
-         fetch-relic-effects.ts, fetch-glyph-forms.ts, etc.) — each still has its own inline
-         `fetchRawWikitext`; migrating those is unstarted, not blocked (same swap this script just
-         got). The `revisionId` each entry stores isn't consulted by anything yet — that's step 4
+         hits. **Remaining fetch-*.ts scripts migrated 2026-08-08** (see COMPLETED.md Session 118):
+         `fetch-wvw-splits.ts`, `fetch-relic-effects.ts`, `fetch-glyph-forms.ts`,
+         `fetch-tome-chapters.ts`, `fetch-skill-duplicate-resolutions.ts`, and
+         `fetch-soulbeast-beastmode.ts` — every remaining script with its own inline
+         `fetchRawWikitext` — all swapped to `fetchWikiPage`/`flushWikiCache`, each script's own
+         non-wiki-cache API calls (category-member listings, MediaWiki search) left untouched. Every
+         migrated script's output verified against its own pre-migration behavior (either byte-
+         identical regenerated output, or — for `fetch-wvw-splits.ts`/`fetch-relic-effects.ts`/
+         `fetch-skill-duplicate-resolutions.ts` — a live re-run surfacing genuine pre-existing
+         staleness in the *committed data files* themselves, confirmed unrelated to this migration
+         by running the untouched pre-migration script standalone and reproducing the identical
+         result). `fetch-elite-spec-skills.ts` and `fetch-gear-upgrades.ts` were named here
+         previously but turned out not to need this migration at all: the former never fetches raw
+         wikitext (category-member queries only), the latter is pure GW2-API, no wiki calls.
+         **Genuine data drift found along the way, not migration bugs**: `wvw-fact-overrides.json`
+         lost skill 5862 (Elixir U)'s `Vigor: 6` override — the live wiki now documents wvw=4 for its
+         Quickness/Stability/Vigor lines (a real balance change since this table was last generated;
+         the locally-cached API duration is still 6/7, so `data/game-data/skills.json` itself needs a
+         `fetch-game-data` refresh before this can re-resolve — not done here, out of scope for a
+         migration pass). `relic-effects.json` (204 -> 122 ids) and `skill-variant-exclusions.json`
+         (63 -> 9 excluded ids) both turned out to have been stale for a while independent of this
+         session — `relics.json` has held only 122 entries since a much older commit (6db4ef7), and
+         `skill-variants.ts`'s own in-code dedup signals have grown to already resolve most of the
+         groups the exclusions file used to cover — neither script had been re-run since. The
+         `revisionId` each cache entry stores still isn't consulted by anything yet — that's step 4
          below (Game_updates diffing), not built.
       3. Extend the same skeleton to the still-open gap types: target-count/Condition-Cleanse
          self-vs-party wording (not started), and a "does this page even carry the template we need"

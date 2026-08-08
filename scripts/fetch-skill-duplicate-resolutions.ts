@@ -27,24 +27,10 @@ import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { visibleSkillsForSlot } from '../src/shared/skill-calc/skill-variants'
 import type { GlyphFormVariantMap, ProfessionId, Skill, SkillVariantExclusions } from '../src/shared/types/game-data'
-
-const WIKI_INDEX = 'https://wiki.guildwars2.com/index.php'
-const REQUEST_DELAY_MS = 150
-const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)'
+import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA_DIR = join(__dirname, '..', 'data', 'game-data')
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-async function fetchRawWikitext(title: string): Promise<string> {
-  const url = `${WIKI_INDEX}?title=${encodeURIComponent(title)}&action=raw`
-  const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
-  if (!response.ok) throw new Error(`Wiki raw fetch failed for "${title}": ${response.status} ${response.statusText}`)
-  return response.text()
-}
 
 /** Parses a `{{Skill infobox}}` `id=` field into every listed id, e.g.
  *  `5910, 29522` -> [5910, 29522], `79323 <!-- fire -->,  76634 <!-- water-->` -> [79323, 76634]. */
@@ -110,15 +96,17 @@ async function main(): Promise<void> {
   let partiallyResolvedGroups = 0
 
   for (const { name, ids } of ambiguousGroups) {
-    let text: string
+    let text: string | null
     try {
-      text = await fetchRawWikitext(name.replace(/ /g, '_'))
+      text = await fetchWikiPage(name.replace(/ /g, '_'))
     } catch (err) {
       log.push(`skip (fetch error): "${name}" [${ids.join(', ')}] — ${(err as Error).message}`)
-      await sleep(REQUEST_DELAY_MS)
       continue
     }
-    await sleep(REQUEST_DELAY_MS)
+    if (text === null) {
+      log.push(`skip (page not found): "${name}" [${ids.join(', ')}]`)
+      continue
+    }
 
     const wikiIds = new Set(parseInfoboxIds(text))
     if (wikiIds.size === 0) {
@@ -149,6 +137,7 @@ async function main(): Promise<void> {
   }
 
   const result: SkillVariantExclusions = [...excludeIds].sort((a, b) => a - b)
+  await flushWikiCache()
   await writeFile(join(DATA_DIR, 'skill-variant-exclusions.json'), JSON.stringify(result, null, 2))
 
   console.log(

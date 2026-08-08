@@ -32,34 +32,19 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Relic, RelicEffect, RelicEffectsById, RelicFactLine } from '../src/shared/types/game-data'
-
-const WIKI_INDEX = 'https://wiki.guildwars2.com/index.php'
-const REQUEST_DELAY_MS = 150
-const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)'
+import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA_DIR = join(__dirname, '..', 'data', 'game-data')
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-async function fetchRawWikitext(title: string): Promise<string> {
-  const url = `${WIKI_INDEX}?title=${encodeURIComponent(title)}&action=raw`
-  const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
-  if (!response.ok) throw new Error(`Wiki raw fetch failed for "${title}": ${response.status} ${response.statusText}`)
-  return response.text()
-}
-
 /** A handful of relic names collide with an unrelated page (disambiguation pages, e.g. "Relic of
  *  Dwayna" also names a back item) — the actual relic article lives at "<name> (relic)" instead. */
 async function fetchRelicPage(name: string): Promise<string | undefined> {
-  const direct = await fetchRawWikitext(name)
-  if (!/\{\{disambig/i.test(direct) && /\{\{Relic infobox/i.test(direct)) return direct
-  await sleep(REQUEST_DELAY_MS)
+  const direct = await fetchWikiPage(name)
+  if (direct !== null && !/\{\{disambig/i.test(direct) && /\{\{Relic infobox/i.test(direct)) return direct
   try {
-    const disambiguated = await fetchRawWikitext(`${name} (relic)`)
-    if (/\{\{Relic infobox/i.test(disambiguated)) return disambiguated
+    const disambiguated = await fetchWikiPage(`${name} (relic)`)
+    if (disambiguated !== null && /\{\{Relic infobox/i.test(disambiguated)) return disambiguated
   } catch {
     // fall through to undefined below
   }
@@ -181,19 +166,16 @@ async function main(): Promise<void> {
       text = await fetchRelicPage(name)
     } catch (err) {
       log.push(`skip (fetch error): "${name}" — ${(err as Error).message}`)
-      await sleep(REQUEST_DELAY_MS)
       continue
     }
     if (!text) {
       log.push(`skip (no Relic infobox found, incl. "(relic)" disambiguation retry): "${name}"`)
-      await sleep(REQUEST_DELAY_MS)
       continue
     }
 
     const infoboxMatch = /\{\{Relic infobox([\s\S]*?)\n\}\}/.exec(text)
     if (!infoboxMatch) {
       log.push(`skip (Relic infobox template not closed as expected): "${name}"`)
-      await sleep(REQUEST_DELAY_MS)
       continue
     }
     const infobox = infoboxMatch[1]
@@ -208,7 +190,6 @@ async function main(): Promise<void> {
       targetIds = relicsForName.filter((r) => listedIds.has(r.id)).map((r) => r.id)
       if (targetIds.length === 0) {
         log.push(`skip (differing descriptions across ids, and none match the wiki's own id= list): "${name}"`)
-        await sleep(REQUEST_DELAY_MS)
         continue
       }
       idSubsetResolutions++
@@ -230,9 +211,9 @@ async function main(): Promise<void> {
     for (const id of targetIds) result[id] = effect
 
     if (i % 20 === 0) console.log(`[${i}/${names.length}] ${name}`)
-    await sleep(REQUEST_DELAY_MS)
   }
 
+  await flushWikiCache()
   await writeFile(join(DATA_DIR, 'relic-effects.json'), JSON.stringify(result, null, 2))
 
   console.log(

@@ -35,24 +35,10 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { GlyphFormVariantMap, Skill } from '../src/shared/types/game-data'
-
-const WIKI_INDEX = 'https://wiki.guildwars2.com/index.php'
-const REQUEST_DELAY_MS = 150
-const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)'
+import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA_DIR = join(__dirname, '..', 'data', 'game-data')
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
-async function fetchRawWikitext(title: string): Promise<string> {
-  const url = `${WIKI_INDEX}?title=${encodeURIComponent(title)}&action=raw`
-  const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
-  if (!response.ok) throw new Error(`Wiki raw fetch failed for "${title}": ${response.status} ${response.statusText}`)
-  return response.text()
-}
 
 function parseInfoboxId(text: string): number | undefined {
   const match = /\|\s*id\s*=\s*(\d+)/.exec(text)
@@ -87,15 +73,17 @@ async function main(): Promise<void> {
   for (const [name, members] of duplicateGroups) {
     const localIds = new Set(members.map((m) => m.id))
 
-    let parentText: string
+    let parentText: string | null
     try {
-      parentText = await fetchRawWikitext(name.replace(/ /g, '_'))
+      parentText = await fetchWikiPage(name.replace(/ /g, '_'))
     } catch (err) {
       log.push(`skip (parent fetch error): "${name}" — ${(err as Error).message}`)
-      await sleep(REQUEST_DELAY_MS)
       continue
     }
-    await sleep(REQUEST_DELAY_MS)
+    if (parentText === null) {
+      log.push(`skip (parent page not found): "${name}"`)
+      continue
+    }
 
     const parentId = parseInfoboxId(parentText)
     if (parentId === undefined || !localIds.has(parentId)) {
@@ -124,16 +112,19 @@ async function main(): Promise<void> {
         childFetchFailed = true
         continue
       }
-      let childText: string
+      let childText: string | null
       try {
-        childText = await fetchRawWikitext(childTitle.replace(/ /g, '_'))
+        childText = await fetchWikiPage(childTitle.replace(/ /g, '_'))
       } catch (err) {
         log.push(`skip (child fetch error): "${name}" / "${childTitle}" — ${(err as Error).message}`)
         childFetchFailed = true
-        await sleep(REQUEST_DELAY_MS)
         continue
       }
-      await sleep(REQUEST_DELAY_MS)
+      if (childText === null) {
+        log.push(`skip (child page not found): "${name}" / "${childTitle}"`)
+        childFetchFailed = true
+        continue
+      }
       const childId = parseInfoboxId(childText)
       if (childId === undefined) {
         log.push(`skip (no id= found): "${name}" / "${childTitle}"`)
@@ -163,6 +154,7 @@ async function main(): Promise<void> {
     console.log(`  "${name}": canonical id ${parentId}, variants ${childIds.map((c) => `${c.id} (${c.form})`).join(', ')}`)
   }
 
+  await flushWikiCache()
   await writeFile(join(DATA_DIR, 'glyph-form-variants.json'), JSON.stringify(result, null, 2))
 
   console.log(
