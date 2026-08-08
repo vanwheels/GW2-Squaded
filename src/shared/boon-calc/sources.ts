@@ -82,7 +82,7 @@ export interface BoonConditionSource {
 /** A wiki-confirmed decision for a source with no target-count fact of its own (`resolveTargetCount`
  *  would otherwise return `null`): a number is the confirmed ally count to show instead; `'self'`
  *  documents "confirmed self-only, `null` is correct" so a future sweep doesn't re-research it. */
-type TargetCountOverride = number | 'self'
+export type TargetCountOverride = number | 'self'
 
 /**
  * Curation sweep (2026-08-06) of every skill/trait that grants a tracked boon (`BOON_NAMES`) with a
@@ -258,7 +258,10 @@ type TargetCountOverride = number | 'self'
  * Agility→Fury, Toad's Fortitude→Stability, plus three non-Elementalist-relevant others), all capped
  * at 5 within a 360 radius.
  */
-const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> } = {
+// Exported for scripts/fetch-target-counts.ts (the wiki-extraction pipeline's target-count leg,
+// TODO.md's "Wiki-sourced data pipeline" step 3) — same shape as damage-calc.ts's own
+// CURATED_DAMAGE_COEFFICIENTS export for its pilot script.
+export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> } = {
   skill: {
     // Lightning Flash (Elementalist cantrip). Resistance only exists with Soothing Disruption
     // ("Cantrips grant boons") traited — that trait's own page states no radius/ally wording, and

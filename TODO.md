@@ -307,7 +307,16 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
          Range/Recharge/Distance/Radius) that sorts every local red-flag candidate into "wiki has more
          than the API" (actionable, 43 ids) vs. "wiki agrees with the API" (confirmed non-issue, 26)
          vs. unresolved (4) — a live classifier, not a static exception list, since the two buckets
-         will shift as the API/wiki both change over time.
+         will shift as the API/wiki both change over time. **Target-count half of this bullet DONE
+         2026-08-08** (see COMPLETED.md Session 116): built `scripts/fetch-target-counts.ts`,
+         diffing `TARGET_COUNT_OVERRIDES` (now exported from `sources.ts`) against live wiki
+         wikitext across all 379 curated entries (326 skill + 53 trait) — **MISMATCH 0, AMBIGUOUS 0,
+         MATCH 114, OFF-BY-ONE 1** (the known Phalanx Strength "N other targets" convention),
+         **MISSING 255** (no wiki evidence either way, relying on the sweep's documented default-5/
+         self assumption), UNRESOLVED COLLISION 9. Fully corroborates the 2026-08-06/07 sweep
+         wherever the wiki has evidence to check it against — no data file written, validation only.
+         Condition Cleanse (this bullet's other named gap type) is still unstarted — no curated
+         table for it exists yet to diff against (see this file's own Condition Cleanse item below).
       4. Wire it to the not-yet-built "Curation-side change detection" mechanism in the Automatic
          game-data refresh item above (Game_updates page diffing) — once that exists, re-running
          these fetch scripts only needs to touch pages it flags as changed, not a periodic full

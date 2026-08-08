@@ -27,6 +27,7 @@
     "fetch-skill-duplicate-resolutions": "tsx scripts/fetch-skill-duplicate-resolutions.ts",
     "fetch-soulbeast-beastmode": "tsx scripts/fetch-soulbeast-beastmode.ts",
     "fetch-skill-coefficients": "tsx scripts/fetch-skill-coefficients.ts",
+    "fetch-target-counts": "tsx scripts/fetch-target-counts.ts",
     "scan-empty-effect-facts": "tsx scripts/scan-empty-effect-facts.ts",
     "audit-skill-picker-duplicates": "tsx scripts/audit-skill-picker-duplicates.ts",
     "lint": "eslint .",

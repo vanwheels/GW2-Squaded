@@ -2,6 +2,42 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 116 — Wiki-extraction pipeline step 3: target-count self-vs-party leg
+
+Built `scripts/fetch-target-counts.ts` (`npm run fetch-target-counts`), closing the other half of
+step 3 that Session 115 left open — validates the 2026-08-06/07 conversational sweep that produced
+`TARGET_COUNT_OVERRIDES` (`src/shared/boon-calc/sources.ts`, now exported for this script, same as
+`damage-calc.ts`'s `CURATED_DAMAGE_COEFFICIENTS`) against live wiki wikitext, same pilot/diff shape
+as `fetch-skill-coefficients.ts`'s damage pilot. Console-report only, no data file touched.
+
+Wiki shape confirmed live: the enemy-facing count uses `{{skill fact|targets|N}}` (never trusted,
+ambiguous on skills that hit both foes and allies); the ally-facing count uses either a dedicated
+`{{skill fact|allied targets|N}}` template or the generic `targets` template with an `alt=` naming
+it explicitly. Trait pages add a third shape found live on Phalanx Strength (trait 1711, the one
+curated entry with an explicit wiki count): the infobox's own `| missing facts = {{skill
+fact|targets|N}}` field, used by the wiki to flag values the API omits — trusted as an ally count
+for TRAIT candidates only, after live-testing the same trust on skill candidates produced 2 false
+positives (Lightning Flash's `targets|1` is consistent with self-only, not evidence against it;
+"Guard!"'s `targets|5` sits next to an unrelated `effect` template) and was narrowed accordingly.
+
+Candidate-page resolution reused `fetch-skill-coefficients.ts`'s two exact tiers (direct title +
+`| id = N` self-verification, then MediaWiki search-API fallback) plus its sibling-attribution
+third tier, needed here too: the two-tier version left 44/379 candidates as an unresolved
+collision, and several were the exact same multi-id-page shape that tier exists for (`Deploy Jade
+Sphere`'s 20 element/tier variants sharing one page; Herald/Conduit's `Call to Anguish` pair) —
+`curatedValuesEqual` mirrors `curatedEntriesEqual`, keyed on `TARGET_COUNT_OVERRIDES`'s simpler
+`number | 'self'` value. Sibling tier resolved 35 of the 44, leaving 9 genuinely unresolved (same
+order of magnitude as the damage pilot's own 11-entry residual).
+
+Final run (379 candidates — 326 skill, 53 trait): **MATCH 4 (numeric) + 110 (self-only, no ally
+fact) = 114, MISMATCH 0, AMBIGUOUS 0, OFF-BY-ONE 1** (Phalanx Strength itself — wiki's own "4 other
+targets" convention the curated table's comment already documents), **MISSING 255** (no wiki
+evidence either way — the sweep's documented default-5/self assumption, unverifiable but not
+contradicted), UNRESOLVED COLLISION 9. Zero real mismatches and zero real self-vs-party
+contradictions across the whole table — the 2026-08-06/07 sweep is corroborated everywhere the wiki
+has evidence to check it against. Condition Cleanse (step 3's originally-paired item, no curated
+table built yet) is still unstarted — this script only covers target-count.
+
 ## Session 115 — Wiki-extraction pipeline step 3: empty-API-facts red-flag scan
 
 Built `scripts/scan-empty-effect-facts.ts` (`npm run scan-empty-effect-facts`), the "does this page
