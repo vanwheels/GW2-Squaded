@@ -43,6 +43,40 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       in the live running app — re-close (or re-open with a fresh failure mode) after an actual
       in-app check.
 
+- [ ] **Some skills' real effects live entirely outside the GW2 API's `facts` array** — flagged by
+      the user 2026-08-07, concrete example: Revenant Scepter 3 "Otherworldly Bond" (id 71952) and
+      its flip target "Deactivate Otherworldly Bond" (71858) both carry only Range/Recharge facts —
+      nothing describing the actual tether mechanic (different effect on an ally target vs. an enemy
+      target, strengthening over time). This app's tooltip only ever renders `skill.facts`/
+      `traitedFacts`, so a skill like this shows flavor text and nothing else, with no indication
+      anything is missing. Not confirmed to be Otherworldly-Bond-specific — no full-game scan done
+      yet for "substantive description, empty or near-empty facts array" as a red flag (same shape of
+      scan that sized the `PrefixedBuff` gap above). User's concern 2026-08-07: this may not be a
+      one-off, and the app has been trusting API facts as complete ground truth more than it
+      should — gw2skills.net (further along in this same problem space) maintains its own separate,
+      hand-curated data pipeline specifically because the official API has real content gaps, but even
+      they lag official patches meaningfully (their site only reflected the 7-14-2026 balance patch as
+      of 8-6-2026, over 3 weeks late). Building an equivalent hand-curated layer here would fix
+      completeness but hands this app the same lag/maintenance burden gw2skills already carries.
+      Before committing to a full curation sweep: run the red-flag scan first to size how big this
+      actually is, same scan-first approach as the `PrefixedBuff` bug above.
+
+- [ ] **Skill tooltips never show a skill's own Misc/Control/Strip-Corrupt/Combo/Aura facts** —
+      flagged by the user 2026-08-07, concrete example: skills that apply Superspeed correctly show
+      up in the boon/condition bar's "Misc." row but the same skill's own tooltip shows nothing for
+      it. Root cause confirmed in `SkillsEditor.tsx`'s `skillTooltipContent`/`factsBlock`: a skill
+      tooltip only ever renders `factLine`'s generic numeric lines (`fact-numbers.ts` — has no
+      `case 'Buff':` at all) and `boonConditionFactsForSkill`'s output, which is hardcoded to only
+      ever produce `category: 'boon'|'condition'`. Every other category — Misc (Stealth/Superspeed/
+      Evade), Control, Strip/Corrupt, Combo Field/Finisher, and **Auras** — only exists via a separate
+      whole-build aggregation path (`computeNamedFactSources`/`computeAuraSources`/
+      `computeComboSources` in `boon-calc/sources.ts`) that feeds only `BoonConditionSummaryPanel`,
+      never the per-skill tooltip. Auras are silently missing from tooltips too even though the user
+      didn't name them specifically — same hole. Fix shape: a per-skill counterpart to
+      `computeNamedFactSources` (run the same matchers directly against one skill's `facts`/
+      `traitedFacts` instead of walking the whole build) threaded into `factsBlock`, parallel to how
+      boon/condition facts already render there.
+
 ## Scoped features, not yet built
 
 - [ ] Gear Optimizer: make rune and infusion choice searchable (currently `optimizeGear` treats
@@ -68,6 +102,21 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       - **Option B — piggyback on the auto-updater**: "new data" just means "new app version" —
         reuse the Settings-tab update flow already shipped (`src/main/updater/auto-updater.ts`).
         Simpler, but a data-only fix still requires a full version bump/release.
+      - **Option C — static-publish the generated JSON, chosen 2026-08-07**: not a real queryable
+        API (no query logic, no auth, no rate limiting to design) — whenever
+        `scripts/fetch-*.ts`/the wiki-extraction pipeline (see "Wiki-sourced data pipeline" section
+        below) regenerates `data/game-data/*.json`, publish that blob somewhere fetchable and have
+        the app pull it on the same launch-time "check for updates, prompt the user" flow already
+        decided above, instead of requiring a new app binary for a data-only fix. Reuses
+        already-running infra rather than standing up anything new: either a new endpoint on the
+        existing `worker/` (Cloudflare Worker, currently just the build-share KV store) or simply the
+        public repo's raw GitHub content URL (already public to support electron-updater). Chosen
+        specifically because it decouples data-freshness
+        from release cadence for both desktop (GitHub Releases lag) and the still-scoped Capacitor
+        mobile port (App Store/Play Store review lag is worse) — solves Option A/B's shared weakness
+        without their downsides: the app stays local-first/offline-capable (still reads its local
+        cache when there's no network; this only changes how that cache gets refreshed), and there's
+        no new ops burden (no server logic, no uptime/auth surface — a static blob, not a live API).
       - **Curation-side change detection** (separate question, direction chosen 2026-08-04): how
         *we* learn a patch changed a coefficient we've already curated, so the curated tables don't
         silently go stale. Official forums are too vague to parse reliably (confirmed via the
@@ -78,6 +127,46 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
         against curated tables. **Known limitation**: prose-only reworks (moving a bonus between
         traits, changing a trait's own %) produce no diffable signal — still needs a human read or
         a periodic trait re-review. Not yet built — direction only.
+
+- [ ] Condition Cleanse count as a tracked stat, folded into the existing Strip/Corrupt row (relabel
+      "Strips / Corrupts / Cleanses", not a new row) — scoped 2026-08-07. Data shape confirmed same
+      as `Strip`/`Corrupt`'s existing `BOON_STRIP_CORRUPT_MATCHERS` pattern: `type: "Number"`,
+      `text: "Conditions Removed"`, `value: N`. User-confirmed 2026-08-07 this needs the same
+      self-vs-party split the boon target-count sweep needed for ambiguous `"Number of Targets"`
+      facts — a `"Conditions Removed"` fact alone doesn't say who it cleanses from, and at least one
+      variant text (`"Initial Self Conditions Removed"`) already hints at a self-only case existing
+      alongside a party-wide default. Likely needs its own `TARGET_COUNT_OVERRIDES`-style curated
+      table (wiki-verified per skill/trait) rather than a blanket matcher, same pacing/rigor as that
+      sweep — not a quick matcher add.
+
+- [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
+      flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around
+      dodging). Splits into two different problems on investigation:
+      1. Trait procs already modeled as ordinary facts on the trait itself (e.g. Guardian's Selfless
+         Daring, "the end of your dodge roll heals nearby allies" — real `AttributeAdjust`+Number(5)+
+         Radius facts) likely already flow into totals today, since this app treats any chosen
+         trait/skill with real facts as always-contributing regardless of its specific trigger
+         condition — not a calc gap, just nothing labels it "from dodging" anywhere in the UI.
+      2. Whole alternate dodge-replacement mechanics (Vindicator's Legendary Alliance dodge, Mirage's
+         Mirage Cloak) have no skill id in `skills.json` at all and nothing in `src` references them
+         by name — the GW2 API doesn't expose the dodge button as an activatable skill the way it
+         does weapon/utility skills. Same "API gives nothing to render" shape as the Otherworldly Bond
+         bug above, not a wiring bug — would need hand-curated content.
+      Also flagging: relics can grant dodge-triggered effects too (e.g. Relic of Rivers, "alacrity
+      and regeneration at the end of your dodge roll") with only flavor text — same empty-facts
+      problem again. User's proposed UI treatment once data exists: a small visual indicator above the
+      skill bar (not a real skill slot) with its own custom tooltip for whatever a build's dodge
+      grants beyond the normal evade frames.
+
+- [ ] Elementalist Glyph tooltips should swap to show only the currently-selected attunement's
+      version, the same "swap not stack" treatment Druid Glyphs already get for Celestial Avatar
+      (`glyph-forms.ts`) — flagged by the user 2026-08-07. Partially handled today, just not the way
+      requested: `multi-effect.ts`'s `relatedVariantSkills` currently lists *all 4* attunement
+      variants stacked in the tooltip as a documentation list, rather than swapping to the one
+      matching `Build.activeAttunement` (already tracked, already player-toggleable via the F1-F4
+      mechanic bar). Should be a close structural parallel to `glyph-forms.ts`'s
+      `glyphFormFactSourceSkill`/`glyphFormDisplayIcon`, keyed on `activeAttunement` instead of
+      `celestialAvatarActive`, rather than a new concept.
 
 - [ ] Discord bot (client of the backend API) — scoped 2026-08-01: `worker/src/index.ts` is
       currently just an anonymous KV blob store (`POST /shares` create, `GET /shares/:id` fetch) —
@@ -99,6 +188,67 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       timestamp) relative to GW2 balance patches instead — e.g. "not reviewed since the last patch."
       Blocked on the same `/v2/build`-polling mechanism the item above needs; revisit once that's
       decided rather than building a second parallel patch-tracking path.
+
+## Wiki-sourced data pipeline (infrastructure)
+
+- [ ] Extend the existing script-based wiki-extraction pattern (`fetch-relic-effects.ts`,
+      `fetch-wvw-splits.ts`, `fetch-elite-spec-skills.ts`, `fetch-glyph-forms.ts`,
+      `fetch-gear-upgrades.ts` — all: category-narrow candidates, fetch raw wikitext, regex-parse its
+      `{{skill fact|...}}`-style templates, cross-validate against local API data where one exists,
+      skip+log anything ambiguous rather than guess) to the fact types that have instead been
+      curated via token-heavy conversational sweeps so far: `CURATED_HEALING_COEFFICIENTS`/
+      `CURATED_DAMAGE_COEFFICIENTS`/`CURATED_BARRIER_COEFFICIENTS`, the target-count self-vs-party
+      sweep, and the new Condition Cleanse self-vs-party need above. Scoped 2026-08-07, out of a
+      discussion prompted by the Otherworldly Bond/incomplete-API-facts bug above and the user's
+      concern about full-sweep token cost (a direct conversational sweep the way Healing/Damage were
+      done "devours tokens" and isn't sustainable as a recurring pattern).
+
+      Evidence this is worth doing: this file's own "remaining exceptions" lists for the
+      Healing/Damage sweeps are almost entirely phrased as "no `coefficient=` param on wiki" / "wiki
+      `coefficient=` value disagrees with API" — a structured wikitext template field, the same shape
+      `fetch-wvw-splits.ts` already parses mechanically for a different field (`game mode=`). Most of
+      both all-9-profession sweeps was very likely reading that one template field by eye when it
+      could have been scripted; the genuinely judgment-requiring residual (conflicting values, stub
+      pages, missing params) is the comparatively short exception list already in this file.
+
+      Proposed approach:
+      1. **DONE 2026-08-07** (see COMPLETED.md Session 110): piloted on one fact type,
+         `scripts/fetch-skill-coefficients.ts` (`npm run fetch-skill-coefficients`), on the
+         `fetch-wvw-splits.ts` skeleton as proposed. Diffed its live-wiki-derived output against all
+         1052 entries in the hand-curated `CURATED_DAMAGE_COEFFICIENTS` (888 skills): 912 MATCH / 63
+         MISMATCH / 54 MISSING / 23 SKIP / 0 NOT FOUND. Approach validated — spot-checking a sample of
+         the MISMATCH/MISSING rows found real explanations in 3 known shapes, not parser bugs: (a)
+         genuine wiki value drift since the sweep curated it (real balance-patch changes — this is
+         exactly the staleness detection the pipeline is for), (b) the table's own `requiresTrait`
+         duplicate-factText cases (two curated rows sharing one factText, e.g. skill 13075 Crippling
+         Shot base 1.75 vs Deadly-Aim-gated 1.925) which this pilot doesn't yet disambiguate — flagged
+         as a known gap, not fixed here, (c) wiki name collisions/disambiguation pages (e.g. "Maul" is
+         a disambig page; "Uppercut"'s wiki-derived value silently matched the *other* skill the
+         original curator's own comment had explicitly warned about, id 14487) — the same exception
+         category `fetch-relic-effects.ts` already handles for relics, not yet built for skills.
+         **Not yet done, deliberately** (see [[pacing_large_sweeps]]): no name-collision exception
+         list, no `requiresTrait` disambiguation, no output written to `data/game-data/` — this pilot
+         only prints a console diff report, it doesn't feed the app yet. That's steps 2-4 below.
+      2. Persist the raw-wikitext cache itself (keyed by page + revision id), not just each script's
+         parsed result — today each sweep type has independently re-fetched the same pages; a shared
+         cache stops the next gap-type sweep from re-paying that cost for pages already visited.
+      3. Extend the same skeleton to the still-open gap types: target-count/Condition-Cleanse
+         self-vs-party wording, and a "does this page even carry the template we need" check for the
+         empty-API-facts problem (fails safe into an exception list instead of trying to parse prose
+         — mirrors relics' existing name-collision exception handling in `fetch-relic-effects.ts`).
+      4. Wire it to the not-yet-built "Curation-side change detection" mechanism in the Automatic
+         game-data refresh item above (Game_updates page diffing) — once that exists, re-running
+         these fetch scripts only needs to touch pages it flags as changed, not a periodic full
+         re-sweep. This is the actual "update only via the wiki's patch notes" end state the user
+         asked about 2026-08-07.
+
+      Known hard limit: some skills' real effects (Otherworldly Bond above) live in wiki prose, not
+      any structured template at all — no regex script fixes that; those stay a small hand-curated
+      exception list, same shape as relics' existing 7 name-collision cases. The goal is shrinking
+      the agent-judgment tail, not eliminating it. Also note: this is all still local flat-file data
+      generation (scripts writing into `data/game-data/*.json`, same architecture already in place)
+      — not standing up a hosted service/API of our own, no ops burden, same as gw2skills' actual
+      infra would imply.
 
 ## Coefficient curation — remaining exceptions
 

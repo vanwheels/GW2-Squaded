@@ -26,6 +26,7 @@
     "fetch-glyph-forms": "tsx scripts/fetch-glyph-forms.ts",
     "fetch-skill-duplicate-resolutions": "tsx scripts/fetch-skill-duplicate-resolutions.ts",
     "fetch-soulbeast-beastmode": "tsx scripts/fetch-soulbeast-beastmode.ts",
+    "fetch-skill-coefficients": "tsx scripts/fetch-skill-coefficients.ts",
     "audit-skill-picker-duplicates": "tsx scripts/audit-skill-picker-duplicates.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json"

@@ -2,6 +2,40 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 110 — Wiki-extraction pipeline pilot: fetch-skill-coefficients.ts
+
+Built and validated the pilot script scoped in TODO.md's "Wiki-sourced data pipeline" section,
+step 1 — the concrete next step [[wiki_pipeline_pilot_next]] flagged for this session, ahead of
+starting any new conversational curation sweep the old (token-heavy) way.
+
+`scripts/fetch-skill-coefficients.ts` (`npm run fetch-skill-coefficients`), built on the
+`fetch-wvw-splits.ts` skeleton: fetches each candidate skill's raw wikitext, regex-parses every
+`{{skill fact|damage|...}}` invocation (`coefficient=`, `alt=` for factText, `strikes=`,
+`game mode=`), resolves the WvW-tagged value using the same game-mode-bucketing logic
+`fetch-wvw-splits.ts` already uses for boon/condition splits (fail-safe skip+log on anything
+ambiguous), totals it correctly (a `strikes=N` param means the coefficient is already totaled;
+without one, a `hit_count > 1` fact is a pulsing effect and the wiki value is per-hit, multiplied
+by the API's own `hit_count` before comparing — mirrors `damage-calc.ts`'s own documented
+convention exactly). Parser was smoke-tested standalone against 3 known pages (Whirling Axe,
+Perfect Storm, Rifle Burst) before committing to a full run.
+
+Candidate set was deliberately every id already in `CURATED_DAMAGE_COEFFICIENTS` (888 skills, 1052
+entries), not new ground — the point of a pilot is diffing against work already paid for and
+independently verified, not extending coverage yet. Full run: 912 MATCH / 63 MISMATCH / 54 MISSING
+/ 23 SKIP / 0 NOT FOUND. Spot-checked a sample of the non-matches and confirmed 3 explainable
+shapes rather than parser bugs — see TODO.md's own updated entry for the specific examples
+(genuine wiki drift since the sweep curated it, the curated table's own `requiresTrait`
+duplicate-factText rows this pilot doesn't yet disambiguate, and wiki name-collision/disambiguation
+pages the same shape as relics' existing exception list). Approach validated: a scripted
+`coefficient=` extraction really does reproduce the hand-curated sweep's work on the cases that
+have no special shape, and the pilot's own diff output is what surfaced the exceptions rather than
+silently trusting a wrong parse.
+
+Deliberately stopped here per [[pacing_large_sweeps]] rather than chaining into the remaining 3
+steps (persisting a shared wikitext cache, building the name-collision/requiresTrait exception
+handling, extending to Healing/Barrier/target-count/Condition-Cleanse) — this pilot only prints a
+console report, it writes nothing to `data/game-data/` and isn't wired into the app yet.
+
 ## Session 109 — Weapon autoattack-chain boon/condition gap (Revenant Scepter report)
 
 User-reported live gap: Revenant Scepter's boon/condition applications weren't showing anywhere in
