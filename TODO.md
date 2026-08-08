@@ -384,11 +384,44 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
          see this file's own Condition Cleanse item below for the live-run numbers), then curated
          `CONDITION_CLEANSE_TARGETS` from its output (see COMPLETED.md Sessions 117/119) and wired it
          into the Strip/Corrupt row — that item is now fully closed out, not just data-only.
-      4. Wire it to the not-yet-built "Curation-side change detection" mechanism in the Automatic
-         game-data refresh item above (Game_updates page diffing) — once that exists, re-running
-         these fetch scripts only needs to touch pages it flags as changed, not a periodic full
-         re-sweep. This is the actual "update only via the wiki's patch notes" end state the user
-         asked about 2026-08-07.
+      4. **DONE 2026-08-08** (see COMPLETED.md Session 121): built
+         `scripts/fetch-balance-patch-changes.ts` (`npm run fetch-balance-patch-changes`) — the
+         "Curation-side change detection" direction from the Automatic game-data refresh item above,
+         via `Category:Balance updates` (59 dated patch pages, 2022-present) rather than a
+         watermark/only-touch-changed-pages mechanism: cheap enough to re-walk in full every run
+         (cache-backed like every other fetch-*.ts script) and gives the OLD value too, not just
+         today's, so it can tell "curated table already reflects this patch" (match) apart from
+         "curated table still has the pre-patch number" (stale) — the two coefficient sweeps above
+         can only ever compare against today's wiki, not the history. Covers the 3
+         coefficient-shaped tables via the patch notes' `"<field> from A to B[ in <mode>]"` prose;
+         target-count/Condition-Cleanse's own tables use the same shape but aren't wired up this
+         pass. Live run against all 3 curated coefficient tables: 636 (skill, table, field) groups
+         resolved, 274 MATCH, 4 STALE (all 4 corroborated as false positives — see below — 0
+         genuinely-actionable staleness found), 29 MISMATCH (a patch whose value was superseded by a
+         later one outside the tracked category — expected, not alarming), rest unresolved
+         collisions/ambiguous multi-factText skills/not-curated/not-a-skill. Two real bugs caught and
+         fixed before trusting the first pass's output (same "verify before reporting" instinct as
+         every prior pilot in this pipeline): (a) multi-hit skills' patch notes state a PER-STRIKE
+         value while the curated table stores the totaled-across-hits value (the same convention
+         `fetch-skill-coefficients.ts` already handles) — added the same hit_count multiplication,
+         which alone cut false MISMATCHes from 87 to 40; (b) a regex tail-boundary bug treated a
+         decimal point (e.g. "0.2") inside a compound "X and Y" sentence as the sentence's own
+         ending period, truncating the mode-suffix search — fixed by only terminating on a period NOT
+         followed by a digit, which correctly reclassified the two initially-reported "genuine stale"
+         hits (Effulgent Stance, Resilient Weapon) as PvE-only changes that don't touch the
+         WvW-curated value at all. Also added: cross-corroboration against the existing
+         `skill-coefficient-verification.json` (today's live-wiki value) for the damage table only —
+         a `stale`/`mismatch` outcome whose id/factText is already a live-wiki `match` there is
+         flagged as a likely false positive (a later patch outside `Category:Balance updates`
+         reverted/superseded this one) rather than presented as actionable; this is what caught
+         Swoop/Reaver's Rage/Meteor/Falcon's Stoop as non-issues. Writes
+         `data/game-data/balance-patch-verification.json` (audit-trail only, see `docs/game-data.md`).
+         `npx tsc`/`npx eslint` clean. **Known limitation, unchanged from the original scoping**:
+         prose-only reworks with no "from A to B" phrasing produce no signal — still needs a periodic
+         human read. **Not built**: the "only touch pages flagged as changed" efficiency angle from
+         this bullet's original wording — deliberately skipped since the wiki-cache (step 2) already
+         makes a full re-sweep cheap (cache hits, not fresh fetches) on every run after the first;
+         this script's actual value-add is the dated old-vs-new diff itself, not fetch-count savings.
 
       **"Wire output to data/game-data/" DONE 2026-08-08** (see COMPLETED.md Session 120): the
       damage-coefficient and target-count pilots were both console-only up to this point — this

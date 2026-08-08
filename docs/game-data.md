@@ -98,8 +98,9 @@ needing to run the fetch script immediately:
 - `familiars.json` — Elementalist Evoker familiars; see below
 - `meta.json` — just `{ fetchedAt }`, so the app/UI can eventually surface "game data last
   updated on ..." somewhere.
-- `skill-coefficient-verification.json` / `target-count-verification.json` — **not read by the
-  app at runtime**, unlike every file above. See "Wiki-verification audit trail" below.
+- `skill-coefficient-verification.json` / `target-count-verification.json` /
+  `balance-patch-verification.json` — **not read by the app at runtime**, unlike every file above.
+  See "Wiki-verification audit trail" below.
 
 ## Revenant legends (`legends.json`)
 
@@ -1138,28 +1139,41 @@ All 4 groups from the TODO.md bullet are now resolved; the bullet itself was rem
 sandbox limitation) — verify live that equipping Gadgeteer swaps the Throw Mine picker entry to
 `30337`.
 
-## Wiki-verification audit trail (`skill-coefficient-verification.json`, `target-count-verification.json`)
+## Wiki-verification audit trail (`skill-coefficient-verification.json`, `target-count-verification.json`, `balance-patch-verification.json`)
 
-Two files that look like every other entry in "Output files" above but aren't: they are **not**
+Files that look like every other entry in "Output files" above but aren't: they are **not**
 read by the app at runtime, and never will be by design. Every other file in `data/game-data/`
-exists so the app can compute something from it; these two exist so a *future dev session* has
+exists so the app can compute something from it; these exist so a *future dev session* has
 somewhere to look instead of re-running a script and re-reading a console dump.
 
-Written by `scripts/fetch-skill-coefficients.ts` and `scripts/fetch-target-counts.ts`
-respectively (both `npm run fetch-skill-coefficients` / `npm run fetch-target-counts`), via the
-shared writer in `scripts/lib/wiki-verification.ts`. Each run re-derives every value in a
-hand-curated table (`CURATED_DAMAGE_COEFFICIENTS` in `src/shared/skill-calc/damage-calc.ts`, or
-`TARGET_COUNT_OVERRIDES` in `src/shared/boon-calc/sources.ts`) from live wiki wikitext and diffs
-it against the curated value, same as the console report both scripts already printed before this
-existed — the JSON file just persists that diff instead of throwing it away when the terminal
-scrolls past it. Shape: one record per curated value checked (a damage-coefficient candidate with
-2 factText entries produces 2 records, not 1), each carrying an outcome bucket (`match`,
-`mismatch`, `missing`, `skip`, `unresolved-collision`, ...), the curated vs. wiki-derived value,
-and the wiki page title + MediaWiki revision id it was checked against.
+`skill-coefficient-verification.json`/`target-count-verification.json` are written by
+`scripts/fetch-skill-coefficients.ts`/`scripts/fetch-target-counts.ts` (`npm run
+fetch-skill-coefficients` / `npm run fetch-target-counts`), via the shared writer in
+`scripts/lib/wiki-verification.ts`. Each run re-derives every value in a hand-curated table
+(`CURATED_DAMAGE_COEFFICIENTS` in `src/shared/skill-calc/damage-calc.ts`, or
+`TARGET_COUNT_OVERRIDES` in `src/shared/boon-calc/sources.ts`) from live wiki wikitext (the
+skill/trait's own current page) and diffs it against the curated value. Shape: one record per
+curated value checked (a damage-coefficient candidate with 2 factText entries produces 2 records,
+not 1), each carrying an outcome bucket (`match`, `mismatch`, `missing`, `skip`,
+`unresolved-collision`, ...), the curated vs. wiki-derived value, and the wiki page title +
+MediaWiki revision id it was checked against.
+
+`balance-patch-verification.json` is written by `scripts/fetch-balance-patch-changes.ts` (`npm run
+fetch-balance-patch-changes`) — TODO.md's wiki-extraction pipeline step 4, "Curation-side change
+detection." Different source and different question than the two files above: instead of asking
+"does the curated value agree with the wiki *today*," it walks the wiki's own dated
+`Category:Balance updates` patch-note history (59 pages, 2022-present) and asks "does the curated
+value already reflect the most recent patch that touched it" — giving a `stale` bucket (curated
+value is still the pre-patch number) distinct from an undifferentiated `mismatch`. Only covers the
+3 coefficient-shaped tables (`CURATED_DAMAGE_COEFFICIENTS`/`CURATED_HEALING_COEFFICIENTS`/
+`CURATED_BARRIER_COEFFICIENTS`) via the patch notes' `"<field> from A to B"` prose — target-count/
+Condition-Cleanse's own curated tables use the same "from A to B" shape on the wiki but aren't
+wired up yet, same scripting effort would apply. See the script's own module doc comment for the
+full method (mode-relevance filtering, per-hit vs. totaled-value handling, and cross-corroboration
+against `skill-coefficient-verification.json` to catch a patch superseded by a later one outside
+the Balance-updates category) and its documented limitation (prose-only reworks with no "from A to
+B" phrasing produce no signal — still needs a periodic human read).
 
 **The hand-curated tables remain the sole source of truth the running app computes from.** These
-files change no app behavior — they exist purely as a queue: a `mismatch` entry means "this
-curated value and the live wiki now disagree, a human should look," which is exactly the
-change-detection problem TODO.md's still-unbuilt step 4 (Game_updates page diffing) is meant to
-eventually automate. Until that exists, re-running either script and diffing the new JSON against
-the previous commit's version is the manual equivalent.
+files change no app behavior — they exist purely as a queue: a `mismatch`/`stale` entry means "a
+human should look," not an auto-applied fix.

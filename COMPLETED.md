@@ -2,6 +2,89 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 121 — Wiki-extraction pipeline step 4: balance-patch change detection
+
+Picked up the wiki-extraction pipeline's last open step. User said "tackle step 4" directly (no
+menu of options needed this time — TODO.md's own step 4 wording already scoped it: wire the
+change-detection mechanism via the wiki's `Game_updates` page history).
+
+**Research before writing any code**: the aggregate `Game updates` page and monthly `Game
+updates/<Month Year>` pages both turned out to be pure template transclusions (semantic-MediaWiki
+queries), not raw diffable prose. The real content lives on dated `Game updates/YYYY-MM-DD`
+subpages, and `Category:Balance updates` turned out to be exactly the right scoped index of them —
+59 pages, 2022-present, each a real balance patch (confirmed live via the MediaWiki
+`list=categorymembers` API, paginated the same way `fetch-elite-spec-skills.ts` already does).
+Surveyed all 59 pages' raw wikitext for exact label phrasings before writing any regex (933 "X
+coefficient from A to B" occurrences alone) rather than guessing the shape.
+
+**Built** `scripts/fetch-balance-patch-changes.ts` (`npm run fetch-balance-patch-changes`):
+- Parses `{{game update icon|Title}}`/`{{skill icon|...}}`/`{{simple icon|...}}`/`{{trait
+  icon|...}}` markers (first positional param = the exact current wiki page title — no
+  name-collision search-API machinery needed here, unlike `fetch-skill-coefficients.ts`, since the
+  patch note already names the exact page) plus `"<label> from A to B[ in <mode>[ only]]"` clauses
+  for 7 known label phrasings across the 3 coefficient tables (power/heal/barrier coefficient,
+  heal/barrier attribute scaling, base heal/barrier).
+- Mode-relevance filtering: curated tables store the WvW-verified value, so a "PvE only"/"PvP only"
+  clause (no WvW) can't move it and is excluded from comparison rather than treated as a mismatch.
+- Groups by (skill, table, field); only the chronologically LATEST patch per group is compared
+  against today's curated value — an older patch's value being neither old-nor-new is expected once
+  a later patch changed the same thing again, not itself a red flag.
+- Resolves a title to a skill id via a single direct `| id = N` fetch (comma-list pages
+  disambiguated only when exactly one listed id has any curated entry in the relevant table).
+
+**Two real bugs caught and fixed before trusting the first run's output** (same instinct as every
+prior pilot in this pipeline — see `wiki_pipeline_pilot_next` memory for the pattern):
+1. Multi-hit skills' patch notes state the PER-STRIKE coefficient ("Reduced power coefficient per
+   strike from 0.24 to 0.16") while `CURATED_DAMAGE_COEFFICIENTS` stores the value already totaled
+   across hits — the exact convention `fetch-skill-coefficients.ts` already handles for the live
+   wiki page case. Added the same `hit_count` multiplication (from the skill's own local API fact),
+   which alone cut false MISMATCHes from 87 to 40.
+2. A regex bug: the tail-boundary pattern used to find a trailing "in <mode>" clause stopped at the
+   first literal `.` character — including the decimal point inside a number like "0.2" when two
+   changes were joined by "and" in one sentence ("Reduced the base barrier from 3,973 to 2,245 and
+   increased the healing power coefficient from 0.2 to 1.0 in PvE only."). This truncated the tail
+   before it ever saw "in PvE only," misclassifying a PvE-only change as WvW-relevant. Caught by
+   spot-checking the first run's 2 "STALE, needs re-curation" hits (Effulgent Stance, Resilient
+   Weapon) against raw wikitext before reporting them — both were false positives from this bug, not
+   real staleness. Fixed by only terminating the tail on a period NOT followed by a digit. Also found
+   a related mislabeling bug the same fix surfaced: "healing power coefficient" (a real, distinct
+   phrase for Healing-Power-scaling skills) contains "power coefficient" as a literal substring,
+   which the damage-table label was matching without an exclusion — added a negative lookbehind.
+3. Added cross-corroboration against the existing `skill-coefficient-verification.json` (damage
+   table only, since Healing/Barrier have no live-wiki sweep yet): a `stale`/`mismatch` outcome whose
+   (id, factText) is already a live-wiki `match` in that file is flagged as a likely false positive —
+   the flagged patch's change was probably reverted or superseded by a later patch outside `Category:
+   Balance updates` (that category isn't a guaranteed-complete list, just the wiki's own best index
+   of major patches). This is what caught Swoop/Reaver's Rage/Meteor/Falcon's Stoop as non-issues
+   rather than presenting them as 4 "needs re-curation" items.
+
+**Final verified run** (against all 3 coefficient tables): 636 (skill, table, field) groups
+resolved from 1310 parsed change clauses across 59 patches. 274 MATCH, **4 STALE — all 4
+corroborated as false positives, 0 genuinely-actionable staleness found** (a good outcome: the
+existing curated tables really are current), 29 MISMATCH (mostly live-wiki-corroborated as
+"superseded by a later patch," the handful without corroboration are Healing-table entries with no
+live sweep to cross-check against — an honest residual, not chased further), 140 not-curated, 95
+not-a-skill, 64 ambiguous-multiple-entries (patch note doesn't say which of a skill's several
+factText facts it means), 20 ambiguous-multiple-ids, 10 title-not-found. Writes
+`data/game-data/balance-patch-verification.json` (audit-trail only, same "not read by the app"
+contract as the other 2 verification files — see `docs/game-data.md`'s updated "Wiki-verification
+audit trail" section). `npx tsc`/`npx eslint` clean (one pre-existing unrelated `fetch-target-
+counts.ts` unused-param warning confirmed present on `main` before this session, not touched).
+
+**Known limitation, unchanged from the original scoping**: prose-only reworks with no "from A to B"
+phrasing produce no diffable signal — still needs a periodic human read. **Deliberately not built**:
+the "only touch pages flagged as changed" efficiency angle from TODO.md's original step-4 wording —
+skipped since the wiki-cache (step 2) already makes a full re-sweep cheap (cache hits after the
+first run) on every subsequent run; this script's real value-add is the dated old-vs-new diff
+itself, not fetch-count savings. Target-count/Condition-Cleanse's own curated tables use the same
+"from A to B" prose shape but aren't wired into this script — same scripting effort would apply,
+not done this pass.
+
+TODO.md's "Wiki-sourced data pipeline" section step 4 now marked done — steps 1-4 are all complete.
+The section's own top-level checkbox stays unchecked: target-count/Condition-Cleanse's curated
+tables were never wired into a balance-patch change-detector (this session's script only covers the
+3 coefficient tables), so the section's full "extend to every fact type" scope isn't 100% closed.
+
 ## Session 120 — Wire wiki-pipeline output to data/game-data/ (audit-trail)
 
 Picked up the wiki-extraction pipeline where Session 119 left off. Asked the user which of 3
