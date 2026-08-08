@@ -170,6 +170,29 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       table (wiki-verified per skill/trait) rather than a blanket matcher, same pacing/rigor as that
       sweep — not a quick matcher add.
 
+      **First-draft classifier built 2026-08-08**: `scripts/fetch-condition-cleanse.ts`
+      (`npm run fetch-condition-cleanse`) — same `resolvePage`/wiki-cache skeleton as
+      `fetch-target-counts.ts`, but BUILDS a first classification rather than validating an existing
+      table (none exists yet). Candidates: every equippable+reachable skill/trait carrying a
+      `Number` fact matching `/condition.*remov|remov.*condition/i` (235 total: 193 skill, 42
+      trait). Classifies primarily off the wiki infobox's own `description=` prose, restricted to
+      the sentence(s) that actually mention "condition" (an earlier draft read unrelated "you"/
+      "yourself" mentions elsewhere in the description as self-only evidence and produced confirmed
+      wrong verdicts — e.g. Med Pack Drop misread as self-only despite its own `Number of Allied
+      Targets: 5` fact — fixed before trusting any output). Live run (2026-08-08): 34 HIGH-CONFIDENCE
+      SELF, 8 HIGH-CONFIDENCE PARTY (with a wiki-derived count), 53 PARTY-but-no-count-on-page
+      (party certain, count needs the default-5 convention or a manual look), 1 self+pet (not a
+      clean fit — Empathic Bond), 21 UNCLEAR, 13 description-never-mentions-conditions (needs a
+      Notes-section/manual read), 30 UNRESOLVED COLLISION, and 75 skill ids gated behind
+      `requires_trait` (base skill description can't be trusted for these — but they collapse to
+      only ~11 distinct granting traits, e.g. Warrior's Cleansing Ire alone explains 30 of the 75
+      raw ids, so the real remaining curation burden is much smaller than the raw count suggests).
+      Console-report only, same as every other fetch-*.ts pilot — does not write `sources.ts` or any
+      data file. Not yet done: actually building `CONDITION_CLEANSE_TARGETS` (or folding into
+      `TARGET_COUNT_OVERRIDES`'s own shape) from this output, resolving the ~11 trait-gated roots'
+      own pages, and reviewing the UNCLEAR/UNRESOLVED COLLISION/no-condition-mention tails — next
+      leg, not started.
+
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around
       dodging). Splits into two different problems on investigation:
@@ -315,8 +338,11 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
          **MISSING 255** (no wiki evidence either way, relying on the sweep's documented default-5/
          self assumption), UNRESOLVED COLLISION 9. Fully corroborates the 2026-08-06/07 sweep
          wherever the wiki has evidence to check it against — no data file written, validation only.
-         Condition Cleanse (this bullet's other named gap type) is still unstarted — no curated
-         table for it exists yet to diff against (see this file's own Condition Cleanse item below).
+         Condition Cleanse (this bullet's other named gap type) has a first-draft classifier now
+         (`scripts/fetch-condition-cleanse.ts`, 2026-08-08) — see this file's own Condition Cleanse
+         item below for the live-run numbers. No curated table has been written into `sources.ts`
+         yet — this script proposes a classification, it doesn't diff against an existing one (there
+         isn't one), so it's a different shape than this bullet's other two DONE legs.
       4. Wire it to the not-yet-built "Curation-side change detection" mechanism in the Automatic
          game-data refresh item above (Game_updates page diffing) — once that exists, re-running
          these fetch scripts only needs to touch pages it flags as changed, not a periodic full

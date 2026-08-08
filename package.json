@@ -29,6 +29,7 @@
     "fetch-skill-coefficients": "tsx scripts/fetch-skill-coefficients.ts",
     "fetch-target-counts": "tsx scripts/fetch-target-counts.ts",
     "scan-empty-effect-facts": "tsx scripts/scan-empty-effect-facts.ts",
+    "fetch-condition-cleanse": "tsx scripts/fetch-condition-cleanse.ts",
     "audit-skill-picker-duplicates": "tsx scripts/audit-skill-picker-duplicates.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json"
