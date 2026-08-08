@@ -226,9 +226,19 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
          a disambig page; "Uppercut"'s wiki-derived value silently matched the *other* skill the
          original curator's own comment had explicitly warned about, id 14487) — the same exception
          category `fetch-relic-effects.ts` already handles for relics, not yet built for skills.
-         **Not yet done, deliberately** (see [[pacing_large_sweeps]]): no name-collision exception
-         list, no `requiresTrait` disambiguation, no output written to `data/game-data/` — this pilot
-         only prints a console diff report, it doesn't feed the app yet. That's steps 2-4 below.
+         **Step 2a DONE 2026-08-08** (see COMPLETED.md Session 111): built name-collision resolution
+         (every fetched page cross-checked against its own `| id = N` field; a mismatch or
+         `{{disambig}}` page triggers a MediaWiki search-API fallback that verifies each candidate
+         title's `id=` before accepting it — generalizes past any single fixed suffix, unlike relics'
+         hand-maintained list) and `requiresTrait` disambiguation (trait-gated entries validated as
+         `sibling base * (1 + trait's own Damage-Increase%)`, read from the trait's own data, only
+         where that shape is unambiguous — otherwise an honest separately-bucketed skip). Re-run:
+         MATCH 935 (wiki) + 30 (requiresTrait) = 965, MISMATCH 3 (wiki) + 0 (requiresTrait), MISSING
+         15, SKIP 23 (ambiguous wiki) + 21 (requiresTrait shape doesn't fit), UNRESOLVED COLLISION 22
+         skills (50 skills' pages needed and got the search-API fallback along the way). Still not
+         done: output written to `data/game-data/` (still console-only), the 3 remaining MISMATCH
+         entries not yet investigated (Elemental Blast 27162, Call to Anguish 31100, Refraction
+         Cutter 44110 — flagged, not chased this session per [[pacing_large_sweeps]]).
       2. Persist the raw-wikitext cache itself (keyed by page + revision id), not just each script's
          parsed result — today each sweep type has independently re-fetched the same pages; a shared
          cache stops the next gap-type sweep from re-paying that cost for pages already visited.

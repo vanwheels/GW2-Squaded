@@ -13,26 +13,56 @@
  * Same skeleton as fetch-wvw-splits.ts: fetch raw wikitext per candidate page, regex-parse its
  * `{{skill fact|damage|...}}` invocations, cross-validate against locally-cached API data
  * (`Fact.dmg_multiplier`/`Fact.hit_count`), fail safe into a logged skip on anything ambiguous
- * rather than guess. Two differences from that script:
+ * rather than guess. Differences from that script:
  *  - No `Category:...` membership fetch needed for candidate selection — the candidate set here
  *    is simply every id already a key in `CURATED_DAMAGE_COEFFICIENTS`, since the point is
- *    diffing against that table, not discovering new ground yet (that's step 3 in TODO.md's plan,
- *    once this pilot itself is validated).
+ *    diffing against that table, not discovering new ground yet (that's step 3 in TODO.md's plan).
  *  - Cross-validation target is a *coefficient total*, not a single duration: a wiki `strikes=N`
  *    param means the parsed `coefficient=` is already totaled across N hits (matches the API's
  *    `hit_count`); without `strikes=`, a `hit_count > 1` fact is a pulsing effect and the wiki
  *    coefficient is PER-HIT, so this script multiplies by the API's own `hit_count` before
  *    comparing — see `damage-calc.ts`'s own `DamageCoefficient` doc comment, this mirrors it.
+ *  - **Name-collision resolution** (built 2026-08-08, TODO.md step 2a): many skill names collide
+ *    with an unrelated page of the same title (e.g. bare "Crippling Shot" resolves to a Ranger
+ *    short-bow skill; the Thief harpoon-gun skill this app actually curated lives at "Crippling
+ *    Shot (thief harpoon gun skill)") or land on a `{{disambig}}` list page (e.g. "Maul", 6+
+ *    same-named skills across professions/pets). Rather than a hand-maintained exception list
+ *    (`fetch-relic-effects.ts`'s approach, viable there because relics only ever needed a fixed
+ *    "(relic)" suffix retry), this verifies every fetched page against the `| id = N` field every
+ *    `{{Skill infobox}}` carries: a match confirms the page is really the target skill; a mismatch
+ *    (or missing `id=`, or a `{{disambig}}` page) triggers a MediaWiki search-API fallback that
+ *    tries every returned candidate title until one's own `id=` matches. This generalizes past any
+ *    single fixed suffix pattern (candidates found live: "(thief harpoon gun skill)", "(ranger
+ *    greatsword skill)", "(warrior rampage skill)", ...) and self-verifies rather than trusting a
+ *    guessed title. Falls back to an honest `unresolved-collision` skip (not a silent wrong-page
+ *    parse) if no candidate's `id=` matches.
+ *  - **`requiresTrait` disambiguation** (built 2026-08-08, TODO.md step 2a): a curated skill can
+ *    carry two entries sharing one `factText` — an ungated base value and a value gated behind a
+ *    specific trait (`DamageCoefficient.requiresTrait`, see that type's own doc comment) — which
+ *    the wiki's skill page itself never documents as a second fact line (the bonus lives on the
+ *    *trait's* page, not restated per affected skill). Comparing both curated entries against the
+ *    same single wiki-parsed line therefore always false-MISMATCHes the trait-gated one. Since
+ *    `CURATED_DAMAGE_COEFFICIENTS`'s own value is WvW-verified (deliberately NOT the API's PvE-only
+ *    `dmg_multiplier`, per that type's doc comment), the API can't directly re-verify it either —
+ *    but where the trait's own data carries exactly one unambiguous `type: 'Percent', text:
+ *    'Damage Increase'` fact (confirmed live for Deadly Aim/1299 "+10%" and Empowered
+ *    Illusions/682 "+15%|"), the curated table's own convention documented inline (e.g. id 13084's
+ *    comment: "0.383*1.10=0.4213") is `requiresTrait entry = sibling base entry * (1 + percent/100)`
+ *    — self-consistent within the curated table, checkable without the wiki at all. Other
+ *    `requiresTrait` ids found live (2206 has two competing Damage Increase facts; 1329/1338 have
+ *    none, an Attribute/Might-proc shape instead) don't fit this one clean pattern — rather than
+ *    guess which applies, those are left as an honest, separately-bucketed skip.
  *
  * Run manually via `npm run fetch-skill-coefficients`, after `npm run fetch-game-data`.
  */
 import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Skill } from '../src/shared/types/game-data'
-import { CURATED_DAMAGE_COEFFICIENTS } from '../src/shared/skill-calc/damage-calc'
+import type { Fact, Skill, Trait } from '../src/shared/types/game-data'
+import { CURATED_DAMAGE_COEFFICIENTS, type DamageCoefficient } from '../src/shared/skill-calc/damage-calc'
 
 const WIKI_INDEX = 'https://wiki.guildwars2.com/index.php'
+const WIKI_API = 'https://wiki.guildwars2.com/api.php'
 const REQUEST_DELAY_MS = 150
 // Same gotcha as every other fetch-*.ts script: the wiki returns 403 for Node's default User-Agent.
 const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)'
@@ -59,13 +89,66 @@ async function fetchRawWikitext(title: string): Promise<string | null> {
   return response.text()
 }
 
-/** Tries every title spelling variant in turn, returning the first page that exists. */
-async function fetchFirstAvailable(titles: string[]): Promise<string | null> {
-  for (const title of titles) {
+/** MediaWiki full-text search — used only as a name-collision fallback (see module doc comment),
+ *  not for primary candidate discovery (that's still `CURATED_DAMAGE_COEFFICIENTS`'s own ids). */
+async function searchCandidateTitles(query: string): Promise<string[]> {
+  const url = `${WIKI_API}?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&srlimit=20`
+  const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
+  if (!response.ok) return []
+  const json = (await response.json()) as { query?: { search?: { title: string }[] } }
+  return (json.query?.search ?? []).map((s) => s.title)
+}
+
+/** Extracts a `{{Skill infobox}}`'s `| id = N` field — every real skill page carries one, and it's
+ *  the ground truth this script cross-checks a fetched page's title against (see module doc
+ *  comment's "Name-collision resolution" section). */
+function parseInfoboxSkillId(wikitext: string): number | null {
+  const match = /\|\s*id\s*=\s*(\d+)/.exec(wikitext)
+  return match ? Number(match[1]) : null
+}
+
+type PageResolution =
+  | { status: 'ok'; wikitext: string; title: string; method: 'direct' | 'disambiguated' }
+  | { status: 'not-found' }
+  | { status: 'unresolved-collision'; note: string }
+
+/** Resolves the correct wiki page for a candidate skill, self-verifying via `| id = N` rather than
+ *  trusting title-string matching alone (see module doc comment). */
+async function resolveSkillPage(skill: Skill): Promise<PageResolution> {
+  const triedTitles: string[] = []
+  let anyPageFound = false
+
+  for (const title of titleVariants(skill.name)) {
+    triedTitles.push(title)
     const text = await fetchRawWikitext(title)
-    if (text !== null) return text
+    await sleep(REQUEST_DELAY_MS)
+    if (text === null) continue
+    anyPageFound = true
+    if (/\{\{\s*disambig/i.test(text)) continue // explicit disambiguation list page — needs search fallback
+    const pageId = parseInfoboxSkillId(text)
+    if (pageId === skill.id) return { status: 'ok', wikitext: text, title, method: 'direct' }
+    // Wrong id (or no infobox id field at all) — this title landed on an unrelated same-named
+    // page. Fall through to the search-based fallback rather than trusting it.
   }
-  return null
+
+  // Search-API fallback: try every candidate MediaWiki's own search returns for this skill's name,
+  // verifying each one's `| id = N` before accepting it.
+  const candidates = await searchCandidateTitles(skill.name)
+  for (const candidate of candidates) {
+    if (triedTitles.includes(candidate)) continue
+    const text = await fetchRawWikitext(candidate)
+    await sleep(REQUEST_DELAY_MS)
+    if (text === null) continue
+    anyPageFound = true
+    const pageId = parseInfoboxSkillId(text)
+    if (pageId === skill.id) return { status: 'ok', wikitext: text, title: candidate, method: 'disambiguated' }
+  }
+
+  if (!anyPageFound) return { status: 'not-found' }
+  return {
+    status: 'unresolved-collision',
+    note: `tried [${triedTitles.join(', ')}] and ${candidates.length} search candidate(s), none had id=${skill.id}`
+  }
 }
 
 interface ParsedDamageFact {
@@ -139,9 +222,30 @@ function resolveWvwLine(lines: ParsedDamageFact[]): ResolveResult {
 
 const EPSILON = 0.005
 
+/** Validates a `requiresTrait`-gated curated entry against its sibling base entry (same factText,
+ *  no `requiresTrait`) in the same skill's curated array, using the trait's own flat "Damage
+ *  Increase" Percent fact where that shape is unambiguous — see module doc comment. Returns null
+ *  (an honest "can't auto-validate this shape") rather than guessing when it isn't. */
+function validateRequiresTraitEntry(
+  entry: DamageCoefficient,
+  siblingEntries: DamageCoefficient[],
+  trait: Trait | undefined
+): { expected: number; percent: number } | null {
+  if (!trait) return null
+  const baseEntry = siblingEntries.find((e) => e.factText === entry.factText && e.requiresTrait === undefined)
+  if (!baseEntry) return null
+  const damageIncreaseFacts = trait.facts.filter((f: Fact) => f.type === 'Percent' && f.text === 'Damage Increase')
+  if (damageIncreaseFacts.length !== 1) return null // 0 = wrong shape, >1 = ambiguous which applies
+  const percent = damageIncreaseFacts[0].percent as number
+  if (typeof percent !== 'number') return null
+  return { expected: baseEntry.coefficient * (1 + percent / 100), percent }
+}
+
 async function main(): Promise<void> {
   const skills = JSON.parse(await readFile(join(DATA_DIR, 'skills.json'), 'utf-8')) as Skill[]
+  const traits = JSON.parse(await readFile(join(DATA_DIR, 'traits.json'), 'utf-8')) as Trait[]
   const skillsById = new Map(skills.map((s) => [s.id, s]))
+  const traitsById = new Map(traits.map((t) => [t.id, t]))
 
   const candidateIds = Object.keys(CURATED_DAMAGE_COEFFICIENTS).map(Number)
   const totalEntries = candidateIds.reduce((sum, id) => sum + CURATED_DAMAGE_COEFFICIENTS[id].length, 0)
@@ -151,10 +255,16 @@ async function main(): Promise<void> {
   )
 
   let matchCount = 0
+  let disambiguatedCount = 0
+  let traitMatchCount = 0
   const mismatches: string[] = []
   const missing: string[] = []
   const skips: string[] = []
   const notFound: string[] = []
+  const unresolvedCollisions: string[] = []
+  const disambiguatedLog: string[] = []
+  const traitMismatches: string[] = []
+  const traitSkips: string[] = []
 
   let processed = 0
   for (const id of candidateIds) {
@@ -167,25 +277,34 @@ async function main(): Promise<void> {
       continue
     }
 
-    let wikitext: string | null
+    let resolution: PageResolution
     try {
-      wikitext = await fetchFirstAvailable(titleVariants(skill.name))
+      resolution = await resolveSkillPage(skill)
     } catch (err) {
       notFound.push(`fetch error: skill ${id} "${skill.name}" — ${(err as Error).message}`)
       processed++
       if (processed % 50 === 0) console.log(`  [${processed}/${candidateIds.length}] skills checked...`)
-      await sleep(REQUEST_DELAY_MS)
-      continue
-    }
-    if (wikitext === null) {
-      notFound.push(`no wiki page found for: skill ${id} "${skill.name}" (tried: ${titleVariants(skill.name).join(', ')})`)
-      processed++
-      if (processed % 50 === 0) console.log(`  [${processed}/${candidateIds.length}] skills checked...`)
-      await sleep(REQUEST_DELAY_MS)
       continue
     }
 
-    const parsed = parseDamageFactLines(wikitext)
+    if (resolution.status === 'not-found') {
+      notFound.push(`no wiki page found for: skill ${id} "${skill.name}" (tried: ${titleVariants(skill.name).join(', ')})`)
+      processed++
+      if (processed % 50 === 0) console.log(`  [${processed}/${candidateIds.length}] skills checked...`)
+      continue
+    }
+    if (resolution.status === 'unresolved-collision') {
+      unresolvedCollisions.push(`skill ${id} "${skill.name}" — ${resolution.note}`)
+      processed++
+      if (processed % 50 === 0) console.log(`  [${processed}/${candidateIds.length}] skills checked...`)
+      continue
+    }
+    if (resolution.method === 'disambiguated') {
+      disambiguatedCount++
+      disambiguatedLog.push(`skill ${id} "${skill.name}" — resolved via search to "${resolution.title}"`)
+    }
+
+    const parsed = parseDamageFactLines(resolution.wikitext)
     const byFactText = new Map<string, ParsedDamageFact[]>()
     for (const p of parsed) {
       const list = byFactText.get(p.factText) ?? []
@@ -194,6 +313,30 @@ async function main(): Promise<void> {
     }
 
     for (const entry of curatedEntries) {
+      if (entry.requiresTrait !== undefined) {
+        // Trait-gated variant — the wiki skill page never restates this as its own fact line (the
+        // bonus lives on the trait's page instead), so validate against the sibling base entry +
+        // the trait's own data rather than a wiki-parsed line. See module doc comment.
+        const trait = traitsById.get(entry.requiresTrait)
+        const validated = validateRequiresTraitEntry(entry, curatedEntries, trait)
+        if (!validated) {
+          traitSkips.push(
+            `SKIP (requiresTrait, unvalidatable shape): skill ${id} "${skill.name}" / "${entry.factText}"` +
+              ` requiresTrait=${entry.requiresTrait} (${trait?.name ?? 'trait not found'})`
+          )
+          continue
+        }
+        if (Math.abs(validated.expected - entry.coefficient) <= EPSILON) {
+          traitMatchCount++
+        } else {
+          traitMismatches.push(
+            `MISMATCH (requiresTrait): skill ${id} "${skill.name}" / "${entry.factText}" requiresTrait=${entry.requiresTrait}` +
+              ` (${trait?.name}) — curated=${entry.coefficient}, expected(base*${1 + validated.percent / 100})=${validated.expected}`
+          )
+        }
+        continue
+      }
+
       const lines = byFactText.get(entry.factText)
       if (!lines || lines.length === 0) {
         missing.push(`MISSING: skill ${id} "${skill.name}" / "${entry.factText}" — no {{skill fact|damage}} line parsed for this factText`)
@@ -211,7 +354,9 @@ async function main(): Promise<void> {
       if (line.strikes !== null) {
         total = line.coefficient // wiki's own strikes= param means this is already the totaled value
       } else {
-        const apiFact = [...skill.facts, ...skill.traitedFacts].find((f) => f.type === 'Damage' && f.text === entry.factText)
+        // Restricted to the skill's base (non-traited) facts — a requiresTrait sibling sharing the
+        // same factText could otherwise contribute the wrong hit_count to this ungated entry.
+        const apiFact = skill.facts.find((f) => f.type === 'Damage' && f.text === entry.factText)
         const hitCount = typeof apiFact?.hit_count === 'number' ? apiFact.hit_count : 1
         total = line.coefficient * hitCount // pulsing effect, no strikes= — wiki value is per-hit
       }
@@ -228,31 +373,51 @@ async function main(): Promise<void> {
 
     processed++
     if (processed % 50 === 0) console.log(`  [${processed}/${candidateIds.length}] skills checked...`)
-    await sleep(REQUEST_DELAY_MS)
   }
 
   console.log(`\nDone. ${processed}/${candidateIds.length} skills checked.`)
-  console.log(`  MATCH:    ${matchCount}`)
-  console.log(`  MISMATCH: ${mismatches.length}`)
-  console.log(`  MISSING:  ${missing.length}`)
-  console.log(`  SKIP:     ${skips.length}`)
-  console.log(`  NOT FOUND (page/skill lookup failed): ${notFound.length}`)
+  console.log(`  MATCH (wiki):             ${matchCount}`)
+  console.log(`  MATCH (requiresTrait):    ${traitMatchCount}`)
+  console.log(`  MISMATCH (wiki):          ${mismatches.length}`)
+  console.log(`  MISMATCH (requiresTrait): ${traitMismatches.length}`)
+  console.log(`  MISSING:                  ${missing.length}`)
+  console.log(`  SKIP (ambiguous wiki):    ${skips.length}`)
+  console.log(`  SKIP (requiresTrait):     ${traitSkips.length}`)
+  console.log(`  NOT FOUND:                ${notFound.length}`)
+  console.log(`  UNRESOLVED COLLISION:     ${unresolvedCollisions.length}`)
+  console.log(`  (of which resolved via search-API disambiguation: ${disambiguatedCount})`)
 
   if (mismatches.length > 0) {
     console.log(`\n--- MISMATCH (curated value disagrees with a re-derived wiki value) ---`)
     for (const line of mismatches) console.log(`  - ${line}`)
+  }
+  if (traitMismatches.length > 0) {
+    console.log(`\n--- MISMATCH (requiresTrait: curated value disagrees with base*trait% derivation) ---`)
+    for (const line of traitMismatches) console.log(`  - ${line}`)
   }
   if (missing.length > 0) {
     console.log(`\n--- MISSING (wiki page had no matching damage line for this curated factText) ---`)
     for (const line of missing) console.log(`  - ${line}`)
   }
   if (skips.length > 0) {
-    console.log(`\n--- SKIP (ambiguous — needs a human read) ---`)
+    console.log(`\n--- SKIP (ambiguous wiki line — needs a human read) ---`)
     for (const line of skips) console.log(`  - ${line}`)
+  }
+  if (traitSkips.length > 0) {
+    console.log(`\n--- SKIP (requiresTrait shape doesn't fit the base*trait% pattern — needs a human read) ---`)
+    for (const line of traitSkips) console.log(`  - ${line}`)
   }
   if (notFound.length > 0) {
     console.log(`\n--- NOT FOUND ---`)
     for (const line of notFound) console.log(`  - ${line}`)
+  }
+  if (unresolvedCollisions.length > 0) {
+    console.log(`\n--- UNRESOLVED COLLISION (no candidate page's id= matched — needs a human read) ---`)
+    for (const line of unresolvedCollisions) console.log(`  - ${line}`)
+  }
+  if (disambiguatedLog.length > 0) {
+    console.log(`\n--- Resolved via search-API disambiguation (informational, not an error) ---`)
+    for (const line of disambiguatedLog) console.log(`  - ${line}`)
   }
 }
 

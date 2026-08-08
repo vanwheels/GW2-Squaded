@@ -2,6 +2,44 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 111 — Wiki-extraction pipeline: name-collision + requiresTrait handling
+
+Follow-up to Session 110's pilot, picking option (a) of the 3 choices flagged in
+[[wiki_pipeline_pilot_next]]: made `fetch-skill-coefficients.ts` production-ready for the two known
+gap shapes rather than extending to a new fact type or building the shared cache first.
+
+**Name-collision resolution**: every fetched wiki page is now cross-checked against its own
+`{{Skill infobox}}`'s `| id = N` field instead of trusted by title match alone. A mismatch (or an
+explicit `{{disambig}}` list page, e.g. "Maul") triggers a MediaWiki search-API fallback that tries
+each candidate title in turn until one's own `id=` actually matches the target skill — no fixed
+suffix pattern assumed (live examples found: "(thief harpoon gun skill)", "(ranger greatsword
+skill)", "(non-holosmith)", "(underwater)", ...). Chosen over a hand-maintained exception list
+(`fetch-relic-effects.ts`'s approach) because there's no single fixed disambiguation suffix for
+skills the way relics have "(relic)". Self-verifying, so it degrades safely: an honest
+`unresolved-collision` skip when no candidate's `id=` matches, never a silent wrong-page parse.
+
+**`requiresTrait` disambiguation**: a curated skill can carry two entries sharing one `factText` (an
+ungated base value and a trait-boosted override), which the wiki's skill page never restates as a
+second fact line — the bonus lives on the *trait's* page. These are now validated as `sibling base
+coefficient × (1 + trait's own Damage-Increase%)`, reading the percent straight from the trait's own
+`facts` data (matches the curated table's own documented convention, e.g. id 13084's comment
+"0.383*1.10=0.4213") wherever that shape is unambiguous — confirmed clean for Deadly Aim (1299, +10%)
+and Empowered Illusions (682, +15%). Other `requiresTrait` ids found live (Infinite Forge/2206 has
+two competing Damage-Increase facts; Crack Shot/1329 and Forceful Greatsword/1338 have none, a
+different Might/attribute-proc shape instead) don't fit this one pattern — rather than guess, those
+are a separately-bucketed, clearly-labeled skip.
+
+Re-ran the full 1052-entry diff after both fixes: MATCH 935 (wiki) + 30 (requiresTrait) = 965,
+MISMATCH 3 (wiki) + 0 (requiresTrait), MISSING 15, SKIP 23 (ambiguous wiki) + 21 (requiresTrait,
+unvalidatable shape), UNRESOLVED COLLISION 22 skills (down from the prior run's blended 63
+MISMATCH/54 MISSING, which conflated real gaps with the two shapes just fixed — 50 skills'
+pages were resolved via the search-API fallback along the way, confirming the mechanism carries real
+weight, not just edge cases). The remaining 3 MISMATCH entries (Elemental Blast 27162, Call to
+Anguish 31100, Refraction Cutter 44110) are flagged but not yet investigated — genuinely small enough
+now for a human read, deliberately left for a future session rather than chased immediately
+(pacing — see [[pacing_large_sweeps]]). Still doesn't write to `data/game-data/`; still prints a
+console report only, per TODO.md's own step numbering (this was step "2a", not step 2/3/4).
+
 ## Session 110 — Wiki-extraction pipeline pilot: fetch-skill-coefficients.ts
 
 Built and validated the pilot script scoped in TODO.md's "Wiki-sourced data pipeline" section,
