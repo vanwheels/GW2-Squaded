@@ -2,6 +2,46 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 112 — Wiki-extraction pipeline: closed the last 3 MISMATCH entries
+
+Follow-up to Session 111, investigating the 3 remaining MISMATCH entries it deliberately left
+unchased (Elemental Blast 27162, Call to Anguish 31100, Refraction Cutter 44110). User offered to
+help; resolved all 3 without needing that, via cross-referencing the app's own existing
+architecture docs against live wiki data — no domain-knowledge gap remained once traced. **All 3
+curated values were already correct** — every one is the same shape: the specific wiki page
+`fetch-skill-coefficients.ts` fetches for that id under-documents a split/multiplier that a related
+source documents completely, which the original curator had already correctly cross-referenced by
+hand:
+
+- **Elemental Blast (27162)**: no `strikes=` param on the Damage fact line, and the local API's own
+  `hit_count` is (incorrectly) 1 — but the wiki page's own free-text Notes section states outright
+  "This skill hits three times, for a total 4.5 coefficient in PvE and 2.67 in WvW and PvP," exactly
+  matching the curated value. Prose, not a template field — confirmed by direct fetch rather than
+  parsed generally.
+- **Call to Anguish (31100)**: this id's own wiki page ("Call to Anguish (underwater)") documents
+  only a single un-split value (1.2). Initially looked like a genuinely deeper issue — is 31100
+  really an underwater variant, contradicting the curated comment's "auto-target land variant"
+  framing? Cross-checked against `skill-variants.ts`'s own documented "signal 4" (the
+  `GroundTargeted` ground-target-vs-auto-target client toggle collapses to one canonical id,
+  confirmed same flag pattern as the already-verified Grenade Kit land/underwater pair) — the app's
+  own architecture already treats this id as functionally identical to its GroundTargeted sibling
+  (27917), whose own separate wiki page has the complete split (1.2/0.01) the curated value
+  correctly uses.
+- **Refraction Cutter (44110)**: this id's own Holosmith-specific wiki page documents only a single
+  un-split "Projectile Damage" value (0.4) — version history shows a 2022-11-29 PvE-only buff
+  apparently never re-split into 2 mode-tagged lines on this specific page. Sibling non-holosmith id
+  71121's separate page has the full split (0.4/0.275), corroborated by the local API's own traited
+  `dmg_multiplier` — already correctly cross-referenced by the original curator.
+
+Added a 3-entry `KNOWN_WIKI_GAPS` table to `fetch-skill-coefficients.ts` (same "small hand-verified
+exception list" shape used elsewhere in this codebase, e.g. `skill-variants.ts`'s several constant
+tables) so these don't re-surface as false MISMATCHes on future re-runs — each entry documents its
+corroborating source inline rather than silently overriding. Re-ran the full 1052-entry diff:
+**MISMATCH is now 0** (wiki and requiresTrait both), MATCH 935 (wiki) + 30 (requiresTrait) + 3
+(known wiki gap) = 968. Remaining open buckets unchanged from Session 111: 15 MISSING, 44 SKIP (23
+ambiguous wiki + 21 requiresTrait unvalidatable-shape), 22 unresolved collisions — none investigated
+this session, still console-only.
+
 ## Session 111 — Wiki-extraction pipeline: name-collision + requiresTrait handling
 
 Follow-up to Session 110's pilot, picking option (a) of the 3 choices flagged in

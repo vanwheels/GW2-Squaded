@@ -235,10 +235,14 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
          where that shape is unambiguous — otherwise an honest separately-bucketed skip). Re-run:
          MATCH 935 (wiki) + 30 (requiresTrait) = 965, MISMATCH 3 (wiki) + 0 (requiresTrait), MISSING
          15, SKIP 23 (ambiguous wiki) + 21 (requiresTrait shape doesn't fit), UNRESOLVED COLLISION 22
-         skills (50 skills' pages needed and got the search-API fallback along the way). Still not
-         done: output written to `data/game-data/` (still console-only), the 3 remaining MISMATCH
-         entries not yet investigated (Elemental Blast 27162, Call to Anguish 31100, Refraction
-         Cutter 44110 — flagged, not chased this session per [[pacing_large_sweeps]]).
+         skills (50 skills' pages needed and got the search-API fallback along the way).
+         **Step "investigate the 3 mismatches" DONE 2026-08-08** (see COMPLETED.md Session 112): all
+         3 curated values were already correct — every one traced to the same shape (the specific
+         wiki page this id fetches under-documents a split/multiplier a related source, a sibling
+         id's page or the page's own Notes prose, documents completely) — added a 3-entry
+         `KNOWN_WIKI_GAPS` table so they don't re-surface as false MISMATCHes. Re-run: **MISMATCH is
+         now 0**. Still not done: output written to `data/game-data/` (still console-only), the 15
+         MISSING / 44 SKIP / 22 unresolved-collision entries not investigated.
       2. Persist the raw-wikitext cache itself (keyed by page + revision id), not just each script's
          parsed result — today each sweep type has independently re-fetched the same pages; a shared
          cache stops the next gap-type sweep from re-paying that cost for pages already visited.

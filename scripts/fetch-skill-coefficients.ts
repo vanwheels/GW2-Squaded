@@ -222,6 +222,51 @@ function resolveWvwLine(lines: ParsedDamageFact[]): ResolveResult {
 
 const EPSILON = 0.005
 
+/**
+ * Small hand-verified table (2026-08-08, all 3 entries — see COMPLETED.md's Session 112 for the
+ * investigation) for the 3 cases the full run's own MISMATCH list surfaced, each traced to the
+ * SAME shape: the id's own wiki page under-documents a real split/multiplier that a related source
+ * — a sibling wiki page for the same ability under a different id, or the page's own free-text
+ * Notes section — documents completely, and which the original curator had already correctly
+ * cross-referenced. Not a parser bug or a curation error in any of the 3 — this exists purely to
+ * suppress a known false-positive MISMATCH the general single-page parser can't resolve on its own.
+ */
+interface KnownWikiGap {
+  factText: string
+  reason: string
+}
+const KNOWN_WIKI_GAPS: Record<number, KnownWikiGap> = {
+  // Herald — Elemental Blast. Own Damage fact line carries no `strikes=`, and the local API's own
+  // `hit_count` is (incorrectly) 1, not 3 — but the wiki page's own Notes section states outright:
+  // "This skill hits three times, for a total 4.5 coefficient in PvE and 2.67 in WvW and PvP,"
+  // exactly matching the curated value (0.89 per-hit * 3 = 2.67). Free-text prose, not a
+  // template field — not safe to regex-parse in general, hand-verified instead.
+  27162: {
+    factText: 'Damage',
+    reason: 'wiki Notes section states "hits three times, for a total 4.5 coefficient in PvE and 2.67 in WvW and PvP" (2026-08-08); no strikes= param, and local API hit_count is 1'
+  },
+  // Legendary Demon — Call to Anguish, auto-target id (see damage-calc.ts's own block comment).
+  // This id's own wiki page ("Call to Anguish (underwater)") documents only a single un-split
+  // coefficient (1.2, the PvE value). `skill-variants.ts`'s own documented "signal 4" treats this
+  // id as functionally identical to its GroundTargeted sibling (27917, same profession/slot/flags
+  // pattern as the confirmed Grenade Kit land/underwater pair) for this app's purposes — that
+  // sibling's own separate wiki page has the complete PvE/WvW+PvP split (1.2/0.01), which the
+  // curated value already uses.
+  31100: {
+    factText: 'Damage',
+    reason: 'own wiki page ("Call to Anguish (underwater)") has only a single un-split value (1.2); GroundTargeted sibling id 27917 (treated as functionally identical per skill-variants.ts signal 4) has the full split (1.2/0.01) on its own page'
+  },
+  // Sword/Holosmith — Refraction Cutter. This id's own Holosmith-specific wiki page documents only
+  // a single un-split "Projectile Damage" coefficient (0.4) — the page's own version history notes
+  // a 2022-11-29 PvE-only buff apparently never re-split into 2 mode-tagged fact lines. Sibling
+  // non-holosmith id 71121's separate wiki page has the full split (0.4/0.275), corroborated by the
+  // local API's own traited `dmg_multiplier` (0.275) — see damage-calc.ts's own block comment.
+  44110: {
+    factText: 'Projectile Damage',
+    reason: "own Holosmith-specific wiki page has only a single un-split value (0.4, a 2022-11-29 PvE-only buff never re-split); sibling non-holosmith id 71121's page has the full split (0.4/0.275), corroborated by local API dmg_multiplier"
+  }
+}
+
 /** Validates a `requiresTrait`-gated curated entry against its sibling base entry (same factText,
  *  no `requiresTrait`) in the same skill's curated array, using the trait's own flat "Damage
  *  Increase" Percent fact where that shape is unambiguous — see module doc comment. Returns null
@@ -265,6 +310,8 @@ async function main(): Promise<void> {
   const disambiguatedLog: string[] = []
   const traitMismatches: string[] = []
   const traitSkips: string[] = []
+  let knownGapCount = 0
+  const knownGapLog: string[] = []
 
   let processed = 0
   for (const id of candidateIds) {
@@ -364,10 +411,16 @@ async function main(): Promise<void> {
       if (Math.abs(total - entry.coefficient) <= EPSILON) {
         matchCount++
       } else {
-        mismatches.push(
-          `MISMATCH: skill ${id} "${skill.name}" / "${entry.factText}" — curated=${entry.coefficient}, wiki-derived=${total}` +
-            ` (raw wiki coefficient=${line.coefficient}, strikes=${line.strikes ?? 'n/a'})`
-        )
+        const knownGap = KNOWN_WIKI_GAPS[id]
+        if (knownGap && knownGap.factText === entry.factText) {
+          knownGapCount++
+          knownGapLog.push(`skill ${id} "${skill.name}" / "${entry.factText}" — curated=${entry.coefficient} corroborated: ${knownGap.reason}`)
+        } else {
+          mismatches.push(
+            `MISMATCH: skill ${id} "${skill.name}" / "${entry.factText}" — curated=${entry.coefficient}, wiki-derived=${total}` +
+              ` (raw wiki coefficient=${line.coefficient}, strikes=${line.strikes ?? 'n/a'})`
+          )
+        }
       }
     }
 
@@ -378,6 +431,7 @@ async function main(): Promise<void> {
   console.log(`\nDone. ${processed}/${candidateIds.length} skills checked.`)
   console.log(`  MATCH (wiki):             ${matchCount}`)
   console.log(`  MATCH (requiresTrait):    ${traitMatchCount}`)
+  console.log(`  MATCH (known wiki gap):   ${knownGapCount}`)
   console.log(`  MISMATCH (wiki):          ${mismatches.length}`)
   console.log(`  MISMATCH (requiresTrait): ${traitMismatches.length}`)
   console.log(`  MISSING:                  ${missing.length}`)
@@ -390,6 +444,10 @@ async function main(): Promise<void> {
   if (mismatches.length > 0) {
     console.log(`\n--- MISMATCH (curated value disagrees with a re-derived wiki value) ---`)
     for (const line of mismatches) console.log(`  - ${line}`)
+  }
+  if (knownGapLog.length > 0) {
+    console.log(`\n--- MATCH via known wiki gap (this page under-documents; corroborated elsewhere) ---`)
+    for (const line of knownGapLog) console.log(`  - ${line}`)
   }
   if (traitMismatches.length > 0) {
     console.log(`\n--- MISMATCH (requiresTrait: curated value disagrees with base*trait% derivation) ---`)
