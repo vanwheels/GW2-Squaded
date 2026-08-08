@@ -202,8 +202,14 @@ that before extending either further, and before the tooltip visual-pass item be
       comment on `BoonConditionSource.targetCount` misidentified Heat Wave as a self-only-Vigor
       example, but a fresh wiki fetch showed it's actually party-wide (reused-Number-fact shape) —
       corrected in both that comment and this bullet.
-      Stationary sources (banners/wells/spirits) fall into this same ambiguous/no-fact bucket and
-      haven't been separately spot-checked.
+      Stationary-sources spot-check done 2026-08-07 (Session 107): cross-referenced every skill tagged
+      with the API's own `Turret`/`SpiritWeapon`/`Well`/`Spirit`/`Banner` categories (not name-matching,
+      which missed Sea Swell as a false positive and would've missed anything not literally named
+      "Well"/"Spirit") against the curated table. Banners turned out to be a non-issue — they all carry
+      their own direct "Number of Allied Targets" fact, so `resolveTargetCount` already handles them
+      without an override. Wells/Spirits were already fully covered by the profession legs above. One
+      genuine gap found: Engineer's Blast Gyro (31248, miscategorized "Well" but actually a
+      delayed-explosion gadget) — now curated self-only.
 - [ ] **Scan-methodology fix for all remaining legs**: `Build` has no downed-skill concept at all, and
       neither `skillIdsForBuild` nor `bundleContributionsForBuild` (`sources.ts`) ever produce a
       `slot: "Downed_*"` skill id UNLESS that id is also a real bundle-slot entry point (e.g.

@@ -624,6 +624,20 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     77069: 'self', // Solid State (Stance, Mechanist, ground-targeted). "Gain stability and increase your
     // outgoing stun durations for a duration" — first-person, self-only.
 
+    // --- Stationary-sources spot-check (2026-08-07), follow-up to the completed Group A sweep:
+    // cross-referenced every skill tagged with the API's own `Turret`/`SpiritWeapon`/`Well`/`Spirit`/
+    // `Banner` categories against this table. Banners (Warrior) all carry their own direct
+    // "Number of Allied Targets" fact, so `resolveTargetCount` already handles them correctly with no
+    // override needed — not a gap. Wells/Spirits were already fully covered by the profession legs
+    // above (Necromancer/Mesmer/Thief/Ranger), aside from Well of Power's already-documented
+    // per-buff-line exclusion (this table's top comment). One genuine gap turned up: Blast Gyro, below
+    // — miscategorized as `Well` in the API but actually a delayed-explosion gadget, not a pulsing well.
+    31248: 'self', // Blast Gyro (Engineer, categorized "Well" but really a timed-blast gadget). Wiki raw
+    // wikitext has no allies wording anywhere on the Might facts or the skill description ("Unleash a
+    // blast gyro to begin a countdown to a tremendous blast") — same "no allies wording anywhere"
+    // self-only tell used throughout this sweep; the Might comes from the skill's own
+    // Combo-Field(Fire)+Combo-Finisher(Blast) self-combo, not a party-wide grant.
+
     // --- Group A sweep (2026-08-06), Revenant leg (6th leg): 33 skills (2 more, Pain Absorption and
     // Gladiator's Defense, excluded — see this table's top comment). Recurring pattern: every Facet
     // (Strength/Elements/Light/Chaos/Darkness) states "grant nearby allies X" directly in its own

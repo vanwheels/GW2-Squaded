@@ -2,6 +2,23 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 107 — Stationary-sources spot-check for the target-count sweep
+
+Follow-up flagged at the close of the Group A sweep (Session 106): banners/wells/spirits weren't
+separately spot-checked against the ambiguous-target-count bucket. Used the API's own `categories`
+field (`Turret`/`SpiritWeapon`/`Well`/`Spirit`/`Banner`) to build the candidate list rather than
+name-matching — name-matching alone would have produced a false positive (Sea Swell matches `/well/i`
+via "Swell") and would miss anything not literally named "Well"/"Spirit".
+
+Result: mostly a non-issue. Warrior's Banners all carry their own direct "Number of Allied Targets"
+fact, so `resolveTargetCount` already resolves them correctly without needing a table entry — no gap
+there at all. Wells and Spirits were already fully covered by the Necromancer/Mesmer/Thief/Ranger
+profession legs (Well of Power's exclusion was already documented from before). One genuine gap
+found: Engineer's **Blast Gyro** (31248) — the API categorizes it "Well" but it's actually a
+delayed-explosion gadget (fire combo field + its own blast finisher), not a pulsing well. Wiki raw
+wikitext has no allies wording anywhere on its Might facts or description — curated self-only,
+consistent with the sweep's established "no allies wording anywhere" tell.
+
 ## Session 106 — Elementalist leg of the Group A target-count sweep (final leg)
 
 Tenth and final leg of the Group A ambiguous-target-count sweep, closing the sweep out entirely. 51
