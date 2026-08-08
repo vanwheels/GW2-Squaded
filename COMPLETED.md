@@ -2,6 +2,49 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 106 — Elementalist leg of the Group A target-count sweep (final leg)
+
+Tenth and final leg of the Group A ambiguous-target-count sweep, closing the sweep out entirely. 51
+skills + 5 traits resolved (2 skills deliberately excluded — see below). 20 of the 51 skills are all
+"Deploy Jade Sphere" (the Catalyst's jade-sphere-element profession mechanic, one id per element/tier
+variant), sharing one description — "granting boons to allies in its radius based on its element" —
+and one shared "Number of Targets: 5" fact reused as the ally count, the same reused-label shape as
+Healing Rain/Heat Wave.
+
+Corrected a stale claim discovered while curating Heat Wave (5600): this file's own doc comment on
+`BoonConditionSource.targetCount` named Heat Wave as an example of a self-only Vigor grant ambiguous
+against its enemy-facing target count, but a fresh wiki fetch found the opposite — "grants vigor to
+allies" is accurate, backed by a single shared `targets|5` wiki fact. Re-curated it as party-wide and
+swapped the doc comment's illustrative self-only example for a real one (Grinding Stones' Stability).
+Same fix applied to the analogous example in TODO.md.
+
+Elementalist's three Shouts ("Flash-Freeze!", "Aftershock!", "Feel the Burn!") each name only ONE of
+their boons explicitly as ally-facing in the skill's own description (Frost/Magnetic/Fire Aura
+respectively), leaving their other boons undescribed — wiki-checked each and confirmed a shout's boons
+always share one party-wide reach, the standard GW2 shout mechanic. Six Dual-Attack/utility hammer
+skills grant Stability/Regeneration with zero allies wording in their own description; wiki-checked
+each individually and found five self-only (Grinding Stones, Lahar, Glacial Drift, Katabatic Wind,
+Molten Burst, Lava Skin) — Katabatic Wind's wiki page notably cites an explicit version-history
+bug-fix ("caused this skill to grant an improper version of the regeneration boon to allies") as
+direct proof the boon was never intended for allies — and one party-wide (Transmute Earth, via an
+explicit "Boon Radius(600)" fact distinct from its "Attack Radius(240)").
+
+Two new per-buff-line self/party-wide-split exclusions, extending the gap this table already can't
+express (Guardian's Tome of Courage/Holy Reckoning, Revenant's Pain Absorption/Gladiator's Defense):
+**Overload Earth** (29618) mixes a self-only base Stability with a party-wide base Protection, both
+unconditioned on one source with no gate of any kind distinguishing them. **Hare's Agility** (76583)
+mixes a self-only base Swiftness with a party-wide Fury added specifically by Altruistic Aspect (trait
+2415, "Meditation skills grant boons to allies") when traited — confirmed via that trait's own wiki
+page as a real, documented per-meditation bonus-boon table (Otter's Compassion→Regeneration, Hare's
+Agility→Fury, Toad's Fortitude→Stability), not a tooltip bug — but still an unsplittable conflict once
+traited. By contrast, Otter's Compassion and Toad's Fortitude (also Altruistic-Aspect-affected
+meditations, both curated normally) have base boons that are ALREADY party-wide by their own
+description, so the trait's added boon shares rather than conflicts with the base reach.
+
+`npm run typecheck` and a scoped `eslint` pass on the changed file both clean. This closes out the
+entire Group A sweep (10 legs across 2026-08-06/07) — see TODO.md for the remaining, separately-scoped
+per-buff-line target-count model gap this sweep's exclusions kept surfacing.
+
 ## Session 105 — Guardian leg of the Group A target-count sweep
 
 Ninth leg of the Group A ambiguous-target-count sweep — Guardian, the last per-profession bucket

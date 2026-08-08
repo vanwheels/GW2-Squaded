@@ -60,9 +60,13 @@ export interface BoonConditionSource {
    * e.g. Ranger's "Guard!" has a Radius fact but its Might is confirmed self-only by the wiki, a
    * radius alone isn't sufficient evidence any more than a Number fact's absence is). The enemy-
    * facing `"Number of Targets"` fact is deliberately never used as a fallback either — it's
-   * ambiguous on skills that hit foes AND self simultaneously (e.g. Heat Wave: Vigor to self,
-   * Burning to up to 5 foes) vs. a handful that reuse the same label for an ally count instead
-   * (Healing Rain, Healing Seed, and — confirmed this sweep — Healing Turret's id 5857 variant).
+   * ambiguous on skills that hit foes AND self simultaneously (e.g. Elementalist's Grinding Stones:
+   * Stability to self only, damage to up to 3 foes, both sharing one "Number of Targets" fact) vs. a
+   * handful that reuse the same label for an ally count instead (Healing Rain, Healing Seed, Heat
+   * Wave, and — confirmed this sweep — Healing Turret's id 5857 variant). [Note: an earlier version
+   * of this comment misidentified Heat Wave as belonging to the first ("ambiguous, self-only")
+   * group — the Elementalist leg (2026-08-07) wiki-confirmed it actually belongs to the second
+   * ("reused as ally count") group instead, and it's now curated as party-wide in the table below.]
    * Resolved once per skill/trait's flat facts array and applied uniformly to every
    * `BoonConditionSource` `extractFromFacts` emits from that call — a skill with both a self-only
    * buff and an ally-only buff in the same facts array can't be bound per-buff-line without a
@@ -202,6 +206,57 @@ type TargetCountOverride = number | 'self'
  * Ritualist wells. Guardian's two traps (Test of Faith, Dragon's Maw) share the established "on Trap
  * Trigger" self-reward phrasing with no allies wording anywhere on either wiki page — resolved
  * self-only, same "no allies wording anywhere" tell used throughout this sweep.
+ *
+ * Also NOT covered: Elementalist's Overload Earth (skill 29618). Wiki confirms its base (untraited)
+ * Stability is self-only ("Initial Stability... as a personal effect") while its base Protection is
+ * party-wide ("the protection is granted to self too," despite the description saying "other
+ * allies") — two different-reach boons on ONE source with no `requires_trait` (or any other) gate
+ * distinguishing them, sharing the same Radius(240)/Number-of-Targets(5) fact. Same shape as Holy
+ * Reckoning above — left out rather than picking one reach for both.
+ *
+ * Also NOT covered: Elementalist's Hare's Agility (skill 76583). Its base Swiftness is self-only
+ * (wiki: "applies only to the caster," matching the skill's own first-person "Gain endurance and
+ * swiftness"); Altruistic Aspect (trait 2415, "Meditation skills grant boons to allies") separately
+ * confirms it adds Fury to up to 5 nearby allies specifically for this skill when traited — a real,
+ * documented addition, not an undocumented quirk, but still a self-only base boon and a party-wide
+ * trait-gated boon sharing one source with no way to split them. Contrast with Otter's Compassion
+ * and Toad's Fortitude below, the other two Altruistic-Aspect-affected meditations this leg — both
+ * curated normally because their OWN base boons are already party-wide by their own description, so
+ * the trait's added boon (Regeneration / Stability respectively) shares the same reach rather than
+ * conflicting with it.
+ *
+ * Elementalist leg (10th and final leg of the Group A sweep, 2026-08-07): 51 skills + 5 traits
+ * resolved (2 skills excluded, above), closing out Group A entirely — see TODO.md. 20 of the 51
+ * skills are all "Deploy Jade Sphere" (the Catalyst's jade-sphere-element profession mechanic, ids
+ * 62723/62813/62837/62940/63396/63416/63439/63454/63458/63459/63461/63472/75391/75392/75394/75395/
+ * 75399/75405/75406/75407) sharing one description across every element/tier variant — "granting
+ * boons to allies in its radius based on its element" — and one shared "Number of Targets: 5" fact
+ * reused as the ally count (same reused-label shape as Healing Rain/Heat Wave). Corrected a stale
+ * claim in this table's top doc comment: Heat Wave (5600) was named there as an example of a
+ * self-only Vigor grant, but this leg's wiki fetch found the opposite — "grants vigor to allies" is
+ * accurate, backed by a single shared "targets|5" wiki fact — now curated party-wide, with the doc
+ * comment's illustrative example swapped for a real self-only one (Grinding Stones). Two Cantrips
+ * (Tornado, Cleansing Fire) gate a bonus boon behind Soothing Disruption (trait 364, "Cantrips grant
+ * boons") — same trait already resolved self-only for Lightning Flash (5536, this table's first
+ * entry) since the trait's own page has no allies/radius wording; both new cantrips follow the same
+ * self-only precedent. Elementalist's three Shouts ("Flash-Freeze!", "Aftershock!", "Feel the
+ * Burn!") each name only ONE of their boons explicitly as ally-facing in the skill's own description
+ * (Frost/Magnetic/Fire Aura respectively) while leaving their other boons (Regeneration; Protection
+ * and Aegis; Might and Fury) undescribed — wiki-checked each and confirmed all of a shout's boons
+ * share the one party-wide reach, the standard GW2 shout mechanic. Six Dual-Attack/utility hammer
+ * skills (Grinding Stones, Lahar, Glacial Drift, Katabatic Wind, Molten Burst, Lava Skin) all grant
+ * Stability/Regeneration with zero allies wording in their own description — wiki-checked each
+ * individually and confirmed self-only for five of them, with Katabatic Wind's wiki page notably
+ * citing an explicit version-history bug-fix ("caused this skill to grant an improper version of the
+ * regeneration boon to allies") as direct proof the boon was never intended for allies. The sixth,
+ * Transmute Earth, is the one exception — wiki confirms its Stability reaches nearby allies via an
+ * explicit "Boon Radius(600)" fact distinct from its "Attack Radius(240)," a good corroborating
+ * signal for distinguishing a real ally-reach radius from an unrelated foe-facing one. Otter's
+ * Compassion, Toad's Fortitude, and Hare's Agility (excluded, above) are Evocation-specialization
+ * meditations, each gaining a bonus boon from Altruistic Aspect (trait 2415) — its own wiki page
+ * documents it as a fixed per-meditation bonus-boon table (Otter's Compassion→Regeneration, Hare's
+ * Agility→Fury, Toad's Fortitude→Stability, plus three non-Elementalist-relevant others), all capped
+ * at 5 within a 360 radius.
  */
 const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> } = {
   skill: {
@@ -810,8 +865,97 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     // Protection via Shimmering Stances (trait 2410) — both party-wide.
     77339: 5, // Dazzling Hammer. Own unconditioned Might/Fury: "granting boons to nearby allies";
     // additional Might/Fury/Alacrity via Resplendent Weaponry (trait 2330) — both party-wide.
-    78730: 5 // Glaring Burst (Resolution variant, Radiant Bulwark) — same no-foe-facts reasoning as
+    78730: 5, // Glaring Burst (Resolution variant, Radiant Bulwark) — same no-foe-facts reasoning as
     // 76572.
+
+    // --- Group A sweep (2026-08-07), Elementalist leg (10th and final leg): 51 skills resolved (2
+    // excluded, see this table's top comment: Overload Earth 29618, Hare's Agility 76583).
+    5534: 'self', // Tornado (Cantrip). "Gain stability..." — first-person self-only; Protection only
+    // exists via Soothing Disruption (trait 364, "Cantrips grant boons") — same self-only gate
+    // already resolved for Lightning Flash (5536) above.
+    5535: 'self', // Cleansing Fire (Cantrip). "Gain might for each condition removed" — first-person
+    // self-only; Fury via the same Soothing Disruption (364) gate as Tornado above.
+    5551: 5, // Healing Rain. "granting regeneration to allies" — explicit party-wide, reuses the
+    // enemy-facing Number-of-Targets(5) fact as the ally count.
+    5600: 5, // Heat Wave (Trident 5). Wiki: "Each burns foes and grants vigor to allies," a single
+    // shared "targets|5" wiki fact governing both — party-wide (see top comment's correction).
+    5602: 'self', // Whirlpool (Cantrip). Stability is the caster's own shape-shift; no allies wording
+    // anywhere.
+    5646: 'self', // Convergence. "gain fury for each foe struck" — first-person self-only.
+    5675: 'self', // Phoenix. "granting you vigor" — first-person self-only.
+    5682: 5, // Windborne Speed. "You and nearby allies gain swiftness" — explicit party-wide, own
+    // Number-of-Targets(5).
+    5687: 'self', // Updraft. "Gain swiftness from a gust of wind" — first-person self-only.
+    5748: 5, // Undercurrent. "damage foes and regenerate allies" — explicit party-wide.
+    25498: 5, // Stomp (Elemental elite pet command). "granting protection to allies and crippling
+    // foes" — explicit party-wide.
+    29453: 5, // Sand Squall. "Apply protection to you and your allies" — explicit party-wide.
+    29719: 5, // Overload Air. Wiki: "imbue your allies with electricity," Fury applied "in a 360
+    // radius around the elementalist" with no separate ally cap stated — default 5.
+    29948: 5, // "Flash-Freeze!" (Shout). Wiki confirms Regeneration reaches nearby allies alongside
+    // the skill's own explicit "Frost Aura to allies in range" wording — standard shout reach.
+    30047: 5, // "Eye of the Storm!" (Shout). "massively increasing speed and breaking stun for nearby
+    // allies" — explicit party-wide (covers Superspeed/Swiftness/Stability together).
+    30336: 5, // Dust Storm. "Grant boons to nearby allies" — explicit party-wide (Resistance).
+    30432: 5, // "Aftershock!" (Shout). Wiki confirms Protection and Aegis reach nearby allies
+    // alongside the skill's own explicit "Magnetic Aura to allies" wording — standard shout reach.
+    30662: 5, // "Feel the Burn!" (Shout). Wiki confirms Might and Fury reach allies alongside the
+    // skill's own explicit "Fire Aura to allies" wording — standard shout reach; Tempestuous Aria
+    // (trait 1891) adds more of the same party-wide Might on top, no conflict.
+    40332: 5, // Pressure Blast (Trident 4, dual attack). "healing allies and damaging foes" —
+    // explicit party-wide, separate Ally Healing/Self Healing facts both present (standard "nearby
+    // allies including self" reach).
+    40963: 'self', // Grinding Stones (Hammer). Wiki confirms Stability applies "only to the caster" —
+    // no allies wording anywhere.
+    44550: 'self', // Lahar (Hammer). Wiki confirms Stability applies "only to the caster" — no
+    // allies wording anywhere.
+    45742: 'self', // Glacial Drift (Hammer). Wiki confirms Stability applies "only to the caster" —
+    // no allies wording anywhere.
+    46140: 'self', // Katabatic Wind (Hammer). Wiki confirms Regeneration applies "only to the
+    // caster" — a version-history note explicitly states this boon was never intended for allies.
+    46185: 'self', // Molten Burst (Hammer). "Gain a shield of earth" — first-person self-only; wiki
+    // confirms Stability is the caster's own.
+    46447: 'self', // Lava Skin (Hammer, dual attack). "Cover yourself in an increasing barrier" —
+    // first-person self-only, no allies wording anywhere.
+    51646: 5, // Transmute Frost. "healing allies and damaging foes" — explicit party-wide.
+    51684: 5, // Transmute Earth. Wiki confirms Stability reaches allies via its own explicit "Boon
+    // Radius(600)" fact, distinct from the "Attack Radius(240)" — party-wide.
+    62910: 'self', // Molten End (Catalyst hammer). "gain offensive boons" — first-person self-only
+    // (Might/Fury).
+    76563: 5, // Otter's Compassion (Evocation meditation). "granting them boons" — explicit
+    // party-wide (Resolution/Vigor); Regeneration bonus via Altruistic Aspect (trait 2415) shares
+    // the same party-wide reach — no conflict (contrast with Hare's Agility, excluded above).
+    76707: 5, // Seismic Impact (Evoker toad familiar). "Allies in the area gain protection" —
+    // explicit party-wide.
+    77247: 5, // Toad's Fortitude (Evocation meditation). "Grant protection to nearby allies" —
+    // explicit party-wide (Protection); Resistance ("grants resistance to allies") and Stability
+    // bonus via Altruistic Aspect (trait 2415) share the same party-wide reach — no conflict.
+
+    // Deploy Jade Sphere (Catalyst profession mechanic, one id per element/tier variant). Shared
+    // description across every variant: "granting boons to allies in its radius based on its
+    // element" — party-wide, reusing the shared "Number of Targets: 5" fact as the ally count (same
+    // reused-label shape as Healing Rain/Heat Wave above). Element→boon: Water→Resolution,
+    // Fire→Might, Earth(Poison field)→Protection, Air(Lightning field)→Fury+Quickness.
+    62723: 5,
+    62813: 5,
+    62837: 5,
+    62940: 5,
+    63396: 5,
+    63416: 5,
+    63439: 5,
+    63454: 5,
+    63458: 5,
+    63459: 5,
+    63461: 5,
+    63472: 5,
+    75391: 5,
+    75392: 5,
+    75394: 5,
+    75395: 5,
+    75399: 5,
+    75405: 5,
+    75406: 5,
+    75407: 5
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -915,8 +1059,23 @@ const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trai
     562: 5, // Empowering Might (Honor). "Grant might to nearby allies when you critically strike."
     586: 5, // Monk's Focus (Valor). "Meditation skills heal you and grant fury to nearby allies" (also
     // grants Resolution to allies as of 2024-06-25).
-    612: 5 // Indomitable Courage (Virtues). "The active effect of Virtue skill 3...grants stability to
+    612: 5, // Indomitable Courage (Virtues). "The active effect of Virtue skill 3...grants stability to
     // nearby allies."
+
+    // --- Group A sweep (2026-08-07), Elementalist leg (10th and final leg): 5 traits resolved, no
+    // exclusions.
+    214: 'self', // Raging Storm (Air). "Critically striking a foe grants fury" — first-person
+    // self-only despite its own Radius(360)/Number-of-Targets(5) fact, same "radius alone isn't
+    // sufficient evidence" tell as Ranger's "Guard!".
+    281: 5, // Rock Solid (Earth). "Grant stability to nearby allies when attuning to earth" —
+    // explicit party-wide.
+    1891: 5, // Tempestuous Aria (Tempest). "Using a shout grants allies might" — explicit
+    // party-wide.
+    2033: 5, // Lucid Singularity (Tempest). "Apply boons to nearby allies while channeling
+    // overloads..." — explicit party-wide (Alacrity/Might).
+    2234: 5 // Spectacular Sphere (Catalyst). "...grants quickness and an additional boon based on
+    // your current attunement to nearby allies when activated" — explicit party-wide (Swiftness/
+    // Quickness/Might/Vigor/Fury/Aegis/Resistance, depending on attunement).
   }
 }
 

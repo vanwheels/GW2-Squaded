@@ -161,13 +161,12 @@ that before extending either further, and before the tooltip visual-pass item be
 
 ## Stats panel / boon-condition bar polish
 
-- [ ] Curation sweep: resolve the remaining ~243 skills/traits (~205 skills + 38 traits, plus a small
-      multi-profession "shared skill" bucket not yet broken out) whose only target-count signal is the
-      ambiguous `"Number of Targets"` fact (no `"Number of Allied Targets"`), so
+- [x] Curation sweep: resolve every skill/trait whose only target-count signal is the ambiguous
+      `"Number of Targets"` fact (no `"Number of Allied Targets"`), so
       `BoonConditionSource.targetCount` (`src/shared/boon-calc/sources.ts`) can show a badge for them
       instead of `null`/nothing. Confirmed via a full scan of `data/game-data/skills.json` that this
       fact is genuinely ambiguous, not just theoretically: some skills mean "self-only boon + N
-      enemies hit separately" (Heat Wave: Vigor to self, Burning to 5 foes; also Convergence,
+      enemies hit separately" (Grinding Stones: Stability to self, damage to 3 foes; also Convergence,
       Lightning Leap), others reuse the same label to mean an ally count on a pure support skill
       (Healing Rain, Healing Turret's id-5857 variant — Regeneration to up to 5 allies, no enemies
       involved; the equivalent id-6140 variant with no Number fact at all is already curated, see
@@ -195,8 +194,14 @@ that before extending either further, and before the tooltip visual-pass item be
       had been silently including already-curated ids, which flipped the smallest-remaining-leg pick
       from Guardian to Mesmer) — done 2026-08-07 (Session 104). Ninth leg — Guardian (45 skills + 3
       traits; 1 more, Holy Reckoning, turned out to be a genuine per-buff-line self/party-wide split —
-      see the next bullet — and was deliberately left out) — done 2026-08-07 (Session 105). Only
-      Elementalist remains. Re-run the scan rather than trusting a stale count before curating it.
+      see the next bullet — and was deliberately left out) — done 2026-08-07 (Session 105). Tenth and
+      final leg — Elementalist (51 skills + 5 traits; 2 more, Overload Earth and Hare's Agility,
+      turned out to be genuine per-buff-line self/party-wide splits — see the next bullet — and were
+      deliberately left out) — done 2026-08-07 (Session 106), closing out this sweep entirely. This
+      leg also caught and fixed a stale claim elsewhere in this codebase: an earlier session's doc
+      comment on `BoonConditionSource.targetCount` misidentified Heat Wave as a self-only-Vigor
+      example, but a fresh wiki fetch showed it's actually party-wide (reused-Number-fact shape) —
+      corrected in both that comment and this bullet.
       Stationary sources (banners/wells/spirits) fall into this same ambiguous/no-fact bucket and
       haven't been separately spot-checked.
 - [ ] **Scan-methodology fix for all remaining legs**: `Build` has no downed-skill concept at all, and
@@ -231,7 +236,13 @@ that before extending either further, and before the tooltip visual-pass item be
       effects...now grant might to allies") and a self-only Fury line ("Gain fury when activating
       Rushing Justice") under ONE trait with no `requires_trait` distinguishing them at all — both
       lines share a single Radius(360)/Number-of-Targets(5) fact, so even the per-`requires_trait`
-      version of a fix wouldn't resolve this one; needs true per-buff-line granularity.
+      version of a fix wouldn't resolve this one; needs true per-buff-line granularity. Two more
+      turned up in the Elementalist leg (Session 106): Overload Earth (skill 29618) mixes a self-only
+      base Stability with a party-wide base Protection, both unconditioned (no gate at all, of any
+      kind) on one source. Hare's Agility (skill 76583) mixes a self-only base Swiftness with a
+      party-wide Fury added by Altruistic Aspect (trait 2415) specifically when traited — a
+      documented, real addition (unlike a tooltip bug), but still an unsplittable per-source conflict
+      once traited.
 - [ ] Minor, unconfirmed: possible Ascended-vs-Exotic filter tabs on the itemstat-combo picker — no
       screenshot exists confirming this is real; leave as-is unless it resurfaces with a concrete
       example.
