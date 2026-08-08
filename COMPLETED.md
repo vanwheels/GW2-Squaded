@@ -2,6 +2,36 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 114 — Wiki-extraction pipeline: shared raw-wikitext cache (TODO.md step 2)
+
+Built `scripts/lib/wiki-cache.ts`: a shared on-disk cache (`.cache/wiki-pages.json`, already
+gitignored alongside `fetch-gear-upgrades.ts`'s item dump) that every `fetch-*.ts` wiki-extraction
+script can call instead of hand-rolling its own `fetchRawWikitext`. Keyed by exact title +
+MediaWiki's own revision id, both fetched in one `action=query&prop=revisions&rvprop=ids|content`
+call rather than the old `action=raw`-only shape (which has no way to ask for a revision id in the
+same request). `fetchWikiPage(title)` returns cached wikitext immediately on a hit (no network
+call, no rate-limit sleep); a real fetch pays the existing 150ms delay, now centralized in the
+library rather than duplicated at every call site. `flushWikiCache()` batches all writes from one
+run into a single disk write, called once at the end of `main()`.
+
+Wired into `fetch-skill-coefficients.ts` — removed its local `fetchRawWikitext`/`sleep`/
+`REQUEST_DELAY_MS`, both call sites in `resolveSkillPage` swapped to `fetchWikiPage`. Validated by
+deleting the cache and re-running from scratch: exact same numbers as the last recorded run
+(Session 113) — MATCH 950 (wiki) + 30 (requiresTrait) + 4 (known wiki gap) = 984/1052, MISMATCH 0,
+MISSING 12, SKIP 43, UNRESOLVED COLLISION 11 — across 1148 real page fetches in 5m41s. Re-ran
+immediately after with the now-populated cache: identical numbers again, in 33s (all cache hits,
+zero network calls). Confirms both correctness (the API-based `prop=revisions` fetch path returns
+the same content the old `action=raw` path did) and the caching payoff the step was built for.
+
+Not done in this pass: the other fetch-*.ts scripts (`fetch-wvw-splits.ts`,
+`fetch-relic-effects.ts`, `fetch-glyph-forms.ts`, `fetch-elite-spec-skills.ts`,
+`fetch-tome-chapters.ts`, `fetch-soulbeast-beastmode.ts`, `fetch-skill-duplicate-resolutions.ts`)
+still each carry their own inline `fetchRawWikitext` — migrating them to the shared cache is
+straightforward (same swap this script just got) but unstarted, left for whenever those scripts
+are next touched rather than a blanket refactor pass. The stored `revisionId` also isn't consulted
+by anything yet — TODO.md step 4 (wiring to Game_updates-page change detection) is what will
+actually use it to decide "this page changed, refetch" vs. "unchanged, trust the cache."
+
 ## Session 113 — Wiki-extraction pipeline: shrunk MISSING/SKIP/UNRESOLVED, caught a self-introduced bug
 
 User asked what to do about the pilot's remaining MISSING (15) / SKIP (44) / UNRESOLVED COLLISION

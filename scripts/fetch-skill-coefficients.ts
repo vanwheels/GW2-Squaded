@@ -71,39 +71,31 @@
  *    log line still shows the curated entry's original casing.
  *
  * Run manually via `npm run fetch-skill-coefficients`, after `npm run fetch-game-data`.
+ *
+ * Raw wikitext fetching is delegated to `scripts/lib/wiki-cache.ts` (TODO.md's wiki-extraction
+ * pipeline step 2, 2026-08-08) — a shared on-disk cache keyed by title + revision id, so a page
+ * this script already fetched isn't re-fetched from scratch by the next gap-type sweep touching
+ * the same page. See that module's doc comment for the caching contract.
  */
 import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Fact, Skill, Trait } from '../src/shared/types/game-data'
 import { CURATED_DAMAGE_COEFFICIENTS, type DamageCoefficient } from '../src/shared/skill-calc/damage-calc'
+import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
 
-const WIKI_INDEX = 'https://wiki.guildwars2.com/index.php'
 const WIKI_API = 'https://wiki.guildwars2.com/api.php'
-const REQUEST_DELAY_MS = 150
 // Same gotcha as every other fetch-*.ts script: the wiki returns 403 for Node's default User-Agent.
 const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const DATA_DIR = join(__dirname, '..', 'data', 'game-data')
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
-
 /** Wiki article titles for shout-style skills keep surrounding quote marks the API's skill.name
  *  drops (or vice versa) — try both forms, same helper as fetch-wvw-splits.ts. */
 function titleVariants(title: string): string[] {
   const unquoted = title.replace(/^"(.*)"$/, '$1')
   return unquoted === title ? [title, `"${title}"`] : [title, unquoted]
-}
-
-async function fetchRawWikitext(title: string): Promise<string | null> {
-  const url = `${WIKI_INDEX}?title=${encodeURIComponent(title)}&action=raw`
-  const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
-  if (response.status === 404) return null
-  if (!response.ok) throw new Error(`Wiki raw fetch failed for "${title}": ${response.status} ${response.statusText}`)
-  return response.text()
 }
 
 /** MediaWiki full-text search — used only as a name-collision fallback (see module doc comment),
@@ -171,8 +163,7 @@ async function resolveSkillPage(skill: Skill, skillsById: Map<number, Skill>): P
 
   for (const title of titleVariants(skill.name)) {
     triedTitles.push(title)
-    const text = await fetchRawWikitext(title)
-    await sleep(REQUEST_DELAY_MS)
+    const text = await fetchWikiPage(title)
     if (text === null) continue
     anyPageFound = true
     if (/\{\{\s*disambig/i.test(text)) continue // explicit disambiguation list page — needs search fallback
@@ -186,8 +177,7 @@ async function resolveSkillPage(skill: Skill, skillsById: Map<number, Skill>): P
   const candidates = await searchCandidateTitles(skill.name)
   for (const candidate of candidates) {
     if (triedTitles.includes(candidate)) continue
-    const text = await fetchRawWikitext(candidate)
-    await sleep(REQUEST_DELAY_MS)
+    const text = await fetchWikiPage(candidate)
     if (text === null) continue
     anyPageFound = true
     const ids = parseInfoboxSkillIds(text)
@@ -564,6 +554,8 @@ async function main(): Promise<void> {
     console.log(`\n--- Resolved via sibling-id attribution (informational, not an error) ---`)
     for (const line of siblingLog) console.log(`  - ${line}`)
   }
+
+  await flushWikiCache()
 }
 
 main().catch((err) => {

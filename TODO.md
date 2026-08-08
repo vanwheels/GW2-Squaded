@@ -252,9 +252,20 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
          either free-text wiki prose parsing or a fundamentally different signal — recommended as the
          documented judgment tail, not chased further this session. Still not done: output written to
          `data/game-data/` (still console-only).
-      2. Persist the raw-wikitext cache itself (keyed by page + revision id), not just each script's
-         parsed result — today each sweep type has independently re-fetched the same pages; a shared
-         cache stops the next gap-type sweep from re-paying that cost for pages already visited.
+      2. **DONE 2026-08-08** (see COMPLETED.md Session 114): built `scripts/lib/wiki-cache.ts`, a
+         shared on-disk raw-wikitext cache (`.cache/wiki-pages.json`, gitignored) keyed by exact
+         title + MediaWiki's own revision id, fetched together in one `action=query`
+         (`prop=revisions`, `rvprop=ids|content`) call rather than the old two-call
+         `action=raw`-for-content shape. Wired into `fetch-skill-coefficients.ts` (its own
+         `fetchRawWikitext` + manual `sleep` removed in favor of `fetchWikiPage`/`flushWikiCache`).
+         Re-run against a fresh empty cache reproduced the exact prior numbers (MATCH 984/1052,
+         MISMATCH 0, MISSING 12, SKIP 43, UNRESOLVED COLLISION 11) in 5m41s (1148 pages, all real
+         fetches); a second immediate re-run — same 984/0/12/43/11 — dropped to 33s, entirely cache
+         hits. Still not wired into the other fetch-*.ts scripts (fetch-wvw-splits.ts,
+         fetch-relic-effects.ts, fetch-glyph-forms.ts, etc.) — each still has its own inline
+         `fetchRawWikitext`; migrating those is unstarted, not blocked (same swap this script just
+         got). The `revisionId` each entry stores isn't consulted by anything yet — that's step 4
+         below (Game_updates diffing), not built.
       3. Extend the same skeleton to the still-open gap types: target-count/Condition-Cleanse
          self-vs-party wording, and a "does this page even carry the template we need" check for the
          empty-API-facts problem (fails safe into an exception list instead of trying to parse prose
