@@ -1,7 +1,7 @@
 {
   "script": "fetch-balance-patch-changes.ts",
   "sourceCategory": "Category:Balance updates",
-  "generatedAt": "2026-08-08T20:23:01.855Z",
+  "generatedAt": "2026-08-08T21:14:16.065Z",
   "patchPagesScanned": 59,
   "totalChangeClausesParsed": 1310,
   "wvwRelevantClauses": 790,
@@ -9145,6 +9145,39 @@
       "curatedFactText": "Damage",
       "curatedValue": 0.6,
       "outcome": "match"
+    }
+  ],
+  "reachTotalChangeClausesParsed": 2,
+  "reachGroupsCompared": 2,
+  "reachSummary": {
+    "not-curated": 2
+  },
+  "reachEntries": [
+    {
+      "wikiTitle": "Heat Sync",
+      "latestPatchDate": "2020-02-25",
+      "patchTitle": "Game updates/2020-02-25",
+      "oldValue": 10,
+      "newValue": 5,
+      "priorPatches": 0,
+      "sourceKind": "skill",
+      "sourceId": 29548,
+      "sourceName": "Heat Sync",
+      "outcome": "not-curated",
+      "detail": "not present in TARGET_COUNT_OVERRIDES or CONDITION_CLEANSE_TARGETS"
+    },
+    {
+      "wikiTitle": "Grace of the Land",
+      "latestPatchDate": "2020-02-25",
+      "patchTitle": "Game updates/2020-02-25",
+      "oldValue": 10,
+      "newValue": 5,
+      "priorPatches": 0,
+      "sourceKind": "trait",
+      "sourceId": 2001,
+      "sourceName": "Grace of the Land",
+      "outcome": "not-curated",
+      "detail": "not present in TARGET_COUNT_OVERRIDES or CONDITION_CLEANSE_TARGETS"
     }
   ]
 }

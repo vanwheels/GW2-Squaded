@@ -49,14 +49,41 @@
  * `data/game-data/balance-patch-verification.json` (same "audit trail only, not consumed by the
  * app" contract as `skill-coefficient-verification.json`/`target-count-verification.json` — see
  * `docs/game-data.md`'s "Wiki-verification audit trail" section).
+ *
+ * **Extended 2026-08-08 to cover `TARGET_COUNT_OVERRIDES`/`CONDITION_CLEANSE_TARGETS`** (TODO.md's
+ * own note that this bullet's checkbox stays unchecked until this happens). Deliberately a SEPARATE
+ * code path (`processReachGroups`/`ReachOutcomeEntry`) rather than folding into `KNOWN_LABELS`
+ * above — those two tables store a single `TargetCountOverride` (`number | 'self'`) per
+ * (sourceKind, id), not an array of `{factText, coefficient}` entries keyed by damage/heal/barrier
+ * fact text, and cover BOTH skills and traits (the 3 coefficient tables are skill-only). The wiki
+ * phrasing surveyed live (2026-08-08, grepping the already-cached 59 patch pages for `from A to B`
+ * clauses near "target"/"condition" wording) is "(maximum) number of allied targets (affected) from
+ * A to B" — confirmed on Heat Sync, Grace of the Land, and a 2021-05-11 patch changing both a base
+ * value and (in the same line) a trait's own bonus. Deliberately NOT covered: the bare "number of
+ * targets from A to B" (no "allied") — same ambiguity `fetch-target-counts.ts`'s own doc comment
+ * already establishes (a skill can hit foes and allies off the same enemy-facing template, e.g.
+ * Grinding Stones), so a prose change to that count can't be assumed to be the ally-reach value
+ * these two tables track; and "(number of) conditions removed from A to B" — that's the MAGNITUDE
+ * of the Number fact itself (how many condition stacks/types get cleared), a completely different
+ * field than what `CONDITION_CLEANSE_TARGETS` curates (WHO gets cleansed — self vs. an ally count),
+ * despite the superficial word overlap. Only the unambiguous "allied targets" reach phrasing is
+ * trusted here, same "fail into an honest skip rather than guess" discipline as every other script
+ * in this pipeline. Because the prose alone never says which of the two tables (boon-reach vs.
+ * cleanse-reach) a change belongs to, a resolved id is checked against BOTH — most ids only have an
+ * entry in one, but a source curated in both (theoretically possible, not yet observed live) gets
+ * one `ReachOutcomeEntry` per table rather than picking one arbitrarily. A curated `'self'` value
+ * has no number to compare against; a patch showing a numeric allied-target change on a `'self'`
+ * entry is a genuine contradiction (not just "neither old nor new"), bucketed as its own
+ * `self-conflict` outcome rather than an undifferentiated `mismatch`.
  */
 import { readFile, writeFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import type { Skill } from '../src/shared/types/game-data'
+import type { Skill, Trait } from '../src/shared/types/game-data'
 import { CURATED_DAMAGE_COEFFICIENTS } from '../src/shared/skill-calc/damage-calc'
 import { CURATED_HEALING_COEFFICIENTS } from '../src/shared/skill-calc/healing-calc'
 import { CURATED_BARRIER_COEFFICIENTS } from '../src/shared/skill-calc/barrier-calc'
+import { TARGET_COUNT_OVERRIDES, CONDITION_CLEANSE_TARGETS, type TargetCountOverride } from '../src/shared/boon-calc/sources'
 import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
 
 const WIKI_API = 'https://wiki.guildwars2.com/api.php'
@@ -225,6 +252,158 @@ function normalizeFactText(s: string): string {
   return s.trim().toLowerCase().replace(/\s+/g, ' ')
 }
 
+// --- Reach extension (TARGET_COUNT_OVERRIDES / CONDITION_CLEANSE_TARGETS) — see module doc comment
+// for why this is a separate code path from the coefficient-table machinery above. ---
+
+type ReachTableKind = 'targetCount' | 'cleanseCount'
+
+const REACH_TABLE_NAMES: Record<ReachTableKind, string> = {
+  targetCount: 'TARGET_COUNT_OVERRIDES',
+  cleanseCount: 'CONDITION_CLEANSE_TARGETS'
+}
+
+interface RawReachChange {
+  patchDate: string
+  patchTitle: string
+  wikiTitle: string
+  oldValue: number
+  newValue: number
+  modeTokens: string[] | null
+}
+
+/** Live-surveyed phrasing (2026-08-08, see module doc comment): "(maximum) number of allied targets
+ *  (affected) from A to B". Deliberately excludes the bare "number of targets" (no "allied") and
+ *  "conditions removed" (a different field entirely) — see module doc comment for why. Same
+ *  decimal-tolerant tail-boundary handling as `parseChangeClauses`'s regex. */
+const REACH_LABEL_RE = /(?:maximum\s+)?number of allied targets(?:\s+affected)?\s+from\s+([\d,]+(?:\.\d+)?)\s+to\s+([\d,]+(?:\.\d+)?)((?:[^.]|\.(?=\d))*)\.(?!\d)/gi
+
+function parseReachClauses(description: string): Omit<RawReachChange, 'patchDate' | 'patchTitle' | 'wikiTitle'>[] {
+  const out: Omit<RawReachChange, 'patchDate' | 'patchTitle' | 'wikiTitle'>[] = []
+  for (const m of description.matchAll(REACH_LABEL_RE)) {
+    const oldValue = Number(m[1].replace(/,/g, ''))
+    const newValue = Number(m[2].replace(/,/g, ''))
+    if (Number.isNaN(oldValue) || Number.isNaN(newValue)) continue
+    out.push({ oldValue, newValue, modeTokens: parseModeTokens(m[3]) })
+  }
+  return out
+}
+
+type ReachOutcome =
+  | 'match'
+  | 'stale'
+  | 'mismatch'
+  | 'self-conflict' // curated 'self' but the patch shows a numeric allied-target reach change — contradicts the curation
+  | 'not-curated' // resolved to a real skill/trait, but neither table has an entry for it
+  | 'not-a-skill-or-trait' // id resolved via infobox, but isn't in local skills.json or traits.json
+  | 'ambiguous-multiple-ids' // page's own id= lists >1 id, and not exactly one has curated reach data to disambiguate with
+  | 'title-not-found' // no wiki page (or no id=) at this exact title
+
+interface ReachOutcomeEntry {
+  wikiTitle: string
+  curatedTable?: ReachTableKind // set only for match/stale/mismatch/self-conflict — which of the two tables this entry checks
+  sourceKind?: 'skill' | 'trait'
+  sourceId?: number
+  sourceName?: string
+  latestPatchDate: string
+  patchTitle: string
+  oldValue: number
+  newValue: number
+  priorPatches: number
+  curatedValue?: TargetCountOverride
+  outcome: ReachOutcome
+  detail?: string
+}
+
+const EPS_REACH = 0.01 // reach counts are always integers on the wiki; a tight epsilon just guards float noise
+
+/** Groups the raw reach clauses by wikiTitle (only one field this leg tracks, unlike the
+ *  table/field-keyed coefficient grouping above), keeps only the most recent patch per group, then
+ *  resolves each group's title to a skill/trait id and checks it against BOTH
+ *  `TARGET_COUNT_OVERRIDES` and `CONDITION_CLEANSE_TARGETS` (see module doc comment for why both —
+ *  the prose alone never says which table a reach change belongs to). */
+async function processReachGroups(reachRawChanges: RawReachChange[], skillsById: Map<number, Skill>, traitsById: Map<number, Trait>): Promise<ReachOutcomeEntry[]> {
+  const wvwRelevant = reachRawChanges.filter((c) => c.modeTokens === null || c.modeTokens.includes('WVW'))
+  const groups = new Map<string, RawReachChange[]>()
+  for (const c of wvwRelevant) {
+    const list = groups.get(c.wikiTitle) ?? []
+    list.push(c)
+    groups.set(c.wikiTitle, list)
+  }
+
+  const outcomes: ReachOutcomeEntry[] = []
+  for (const list of groups.values()) {
+    list.sort((a, b) => a.patchDate.localeCompare(b.patchDate))
+    const latest = list[list.length - 1]
+    const priorPatches = list.length - 1
+    const base = { wikiTitle: latest.wikiTitle, latestPatchDate: latest.patchDate, patchTitle: latest.patchTitle, oldValue: latest.oldValue, newValue: latest.newValue, priorPatches }
+
+    const text = await fetchWikiPage(latest.wikiTitle)
+    if (!text) {
+      outcomes.push({ ...base, outcome: 'title-not-found', detail: 'no wiki page at this exact title (patch-icon title may have since been renamed/merged)' })
+      continue
+    }
+    const ids = parseInfoboxIds(text)
+
+    const kindOf = (id: number): 'skill' | 'trait' | undefined => (skillsById.has(id) ? 'skill' : traitsById.has(id) ? 'trait' : undefined)
+    const hasCuratedReach = (id: number): boolean => {
+      const kind = kindOf(id)
+      if (!kind) return false
+      return TARGET_COUNT_OVERRIDES[kind][id] !== undefined || CONDITION_CLEANSE_TARGETS[kind][id] !== undefined
+    }
+
+    let resolvedId: number | undefined
+    if (ids.length === 1) {
+      resolvedId = ids[0]
+    } else if (ids.length > 1) {
+      const withEntries = ids.filter(hasCuratedReach)
+      if (withEntries.length === 1) resolvedId = withEntries[0]
+    }
+    if (resolvedId === undefined) {
+      outcomes.push({
+        ...base,
+        outcome: ids.length === 0 ? 'title-not-found' : 'ambiguous-multiple-ids',
+        detail: ids.length === 0 ? 'page has no id= field' : `page id= lists [${ids.join(', ')}], not exactly one has curated reach data`
+      })
+      continue
+    }
+
+    const kind = kindOf(resolvedId)
+    if (!kind) {
+      outcomes.push({ ...base, sourceId: resolvedId, outcome: 'not-a-skill-or-trait', detail: `id ${resolvedId} not in local skills.json or traits.json` })
+      continue
+    }
+    const sourceName = kind === 'skill' ? skillsById.get(resolvedId)!.name : traitsById.get(resolvedId)!.name
+
+    const perTable: { table: ReachTableKind; curated: TargetCountOverride | undefined }[] = [
+      { table: 'targetCount', curated: TARGET_COUNT_OVERRIDES[kind][resolvedId] },
+      { table: 'cleanseCount', curated: CONDITION_CLEANSE_TARGETS[kind][resolvedId] }
+    ]
+    const curatedHits = perTable.filter((p): p is { table: ReachTableKind; curated: TargetCountOverride } => p.curated !== undefined)
+
+    if (curatedHits.length === 0) {
+      outcomes.push({ ...base, sourceKind: kind, sourceId: resolvedId, sourceName, outcome: 'not-curated', detail: 'not present in TARGET_COUNT_OVERRIDES or CONDITION_CLEANSE_TARGETS' })
+      continue
+    }
+
+    for (const hit of curatedHits) {
+      let outcome: ReachOutcome
+      let detail: string | undefined
+      if (hit.curated === 'self') {
+        outcome = 'self-conflict'
+        detail = `curated 'self' (self-only) but patch shows a numeric allied-target reach change ${latest.oldValue} -> ${latest.newValue}`
+      } else if (Math.abs(hit.curated - latest.newValue) <= EPS_REACH) {
+        outcome = 'match'
+      } else if (Math.abs(hit.curated - latest.oldValue) <= EPS_REACH) {
+        outcome = 'stale'
+      } else {
+        outcome = 'mismatch'
+      }
+      outcomes.push({ ...base, curatedTable: hit.table, sourceKind: kind, sourceId: resolvedId, sourceName, curatedValue: hit.curated, outcome, detail })
+    }
+  }
+  return outcomes
+}
+
 /** For a `perHit`-phrased damage clause, the local API's own `hit_count` on the matching Damage fact
  *  — same lookup `fetch-skill-coefficients.ts`'s main loop does before comparing a non-`strikes=`
  *  wiki line to the curated (totaled) value. Falls back to 1 (no-op multiplier) when no matching
@@ -324,6 +503,8 @@ const EPS_BASE_VALUE = 0.5
 async function main(): Promise<void> {
   const skills = JSON.parse(await readFile(join(DATA_DIR, 'skills.json'), 'utf-8')) as Skill[]
   const skillsById = new Map(skills.map((s) => [s.id, s]))
+  const traits = JSON.parse(await readFile(join(DATA_DIR, 'traits.json'), 'utf-8')) as Trait[]
+  const traitsById = new Map(traits.map((t) => [t.id, t]))
   const liveDamageVerification = await loadLiveDamageVerification()
 
   console.log('Fetching Category:Balance updates page list...')
@@ -331,6 +512,7 @@ async function main(): Promise<void> {
   console.log(`Found ${patchTitles.length} dated balance-update patch pages (2022-present).`)
 
   const rawChanges: RawChange[] = []
+  const reachRawChanges: RawReachChange[] = []
   let scanned = 0
   for (const patchTitle of patchTitles) {
     const text = await fetchWikiPage(patchTitle)
@@ -345,6 +527,9 @@ async function main(): Promise<void> {
       if (!extracted) continue
       for (const clause of parseChangeClauses(extracted.description)) {
         rawChanges.push({ patchDate, patchTitle, wikiTitle: extracted.title, ...clause })
+      }
+      for (const clause of parseReachClauses(extracted.description)) {
+        reachRawChanges.push({ patchDate, patchTitle, wikiTitle: extracted.title, ...clause })
       }
     }
     if (scanned % 10 === 0) console.log(`  [${scanned}/${patchTitles.length}] patch pages scanned...`)
@@ -503,6 +688,54 @@ async function main(): Promise<void> {
     for (const o of notFound) console.log(`  - "${o.wikiTitle}" (patch ${o.latestPatchDate}): ${o.detail}`)
   }
 
+  // --- Reach extension (TARGET_COUNT_OVERRIDES / CONDITION_CLEANSE_TARGETS) ---
+  console.log(`\nParsed ${reachRawChanges.length} allied-target-reach change clauses across ${patchTitles.length} patches.`)
+  const reachOutcomes = await processReachGroups(reachRawChanges, skillsById, traitsById)
+  const reachCounts: Partial<Record<ReachOutcome, number>> = {}
+  for (const o of reachOutcomes) reachCounts[o.outcome] = (reachCounts[o.outcome] ?? 0) + 1
+
+  console.log(`\nDone. ${reachOutcomes.length} reach records checked (some wikiTitles produce 2 — one per curated table).`)
+  console.log(`  MATCH:                       ${reachCounts.match ?? 0}`)
+  console.log(`  STALE (needs re-curation!):  ${reachCounts.stale ?? 0}`)
+  console.log(`  MISMATCH (neither old/new):  ${reachCounts.mismatch ?? 0}`)
+  console.log(`  SELF-CONFLICT:               ${reachCounts['self-conflict'] ?? 0}`)
+  console.log(`  not-curated:                 ${reachCounts['not-curated'] ?? 0}`)
+  console.log(`  not-a-skill-or-trait:        ${reachCounts['not-a-skill-or-trait'] ?? 0}`)
+  console.log(`  ambiguous-multiple-ids:      ${reachCounts['ambiguous-multiple-ids'] ?? 0}`)
+  console.log(`  title-not-found:             ${reachCounts['title-not-found'] ?? 0}`)
+
+  const reachStale = reachOutcomes.filter((o) => o.outcome === 'stale')
+  if (reachStale.length > 0) {
+    console.log(`\n--- REACH STALE (needs re-curation) ---`)
+    for (const o of reachStale) {
+      console.log(`  - ${o.sourceName} (id ${o.sourceId}, ${o.sourceKind}) / ${REACH_TABLE_NAMES[o.curatedTable as ReachTableKind]}: curated=${o.curatedValue}, patch ${o.latestPatchDate} changed ${o.oldValue} -> ${o.newValue}`)
+    }
+  }
+  const reachSelfConflict = reachOutcomes.filter((o) => o.outcome === 'self-conflict')
+  if (reachSelfConflict.length > 0) {
+    console.log(`\n--- REACH SELF-CONFLICT (curated 'self' but patch shows a numeric allied-target change) ---`)
+    for (const o of reachSelfConflict) {
+      console.log(`  - ${o.sourceName} (id ${o.sourceId}, ${o.sourceKind}) / ${REACH_TABLE_NAMES[o.curatedTable as ReachTableKind]}: ${o.detail}`)
+    }
+  }
+  const reachMismatch = reachOutcomes.filter((o) => o.outcome === 'mismatch')
+  if (reachMismatch.length > 0) {
+    console.log(`\n--- REACH MISMATCH (curated value is neither this patch's old nor new value) ---`)
+    for (const o of reachMismatch) {
+      console.log(`  - ${o.sourceName} (id ${o.sourceId}, ${o.sourceKind}) / ${REACH_TABLE_NAMES[o.curatedTable as ReachTableKind]}: curated=${o.curatedValue}, patch ${o.latestPatchDate} changed ${o.oldValue} -> ${o.newValue}`)
+    }
+  }
+  const reachAmbiguous = reachOutcomes.filter((o) => o.outcome === 'ambiguous-multiple-ids')
+  if (reachAmbiguous.length > 0) {
+    console.log(`\n--- REACH AMBIGUOUS (couldn't pick a single id automatically) ---`)
+    for (const o of reachAmbiguous) console.log(`  - "${o.wikiTitle}", patch ${o.latestPatchDate}: ${o.detail}`)
+  }
+  const reachNotFound = reachOutcomes.filter((o) => o.outcome === 'title-not-found')
+  if (reachNotFound.length > 0) {
+    console.log(`\n--- REACH TITLE NOT FOUND ---`)
+    for (const o of reachNotFound) console.log(`  - "${o.wikiTitle}" (patch ${o.latestPatchDate}): ${o.detail}`)
+  }
+
   await flushWikiCache()
 
   const file = {
@@ -514,10 +747,14 @@ async function main(): Promise<void> {
     wvwRelevantClauses: wvwRelevant.length,
     groupsCompared: outcomes.length,
     summary: counts,
-    entries: outcomes
+    entries: outcomes,
+    reachTotalChangeClausesParsed: reachRawChanges.length,
+    reachGroupsCompared: reachOutcomes.length,
+    reachSummary: reachCounts,
+    reachEntries: reachOutcomes
   }
   await writeFile(join(DATA_DIR, 'balance-patch-verification.json'), JSON.stringify(file, null, 2))
-  console.log(`\nWrote ${outcomes.length} verification records to data/game-data/balance-patch-verification.json`)
+  console.log(`\nWrote ${outcomes.length} coefficient + ${reachOutcomes.length} reach verification records to data/game-data/balance-patch-verification.json`)
 }
 
 main().catch((err) => {

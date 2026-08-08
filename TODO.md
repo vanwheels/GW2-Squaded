@@ -259,7 +259,7 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Wiki-sourced data pipeline (infrastructure)
 
-- [ ] Extend the existing script-based wiki-extraction pattern (`fetch-relic-effects.ts`,
+- [x] Extend the existing script-based wiki-extraction pattern (`fetch-relic-effects.ts`,
       `fetch-wvw-splits.ts`, `fetch-elite-spec-skills.ts`, `fetch-glyph-forms.ts`,
       `fetch-gear-upgrades.ts` — all: category-narrow candidates, fetch raw wikitext, regex-parse its
       `{{skill fact|...}}`-style templates, cross-validate against local API data where one exists,
@@ -422,6 +422,21 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
          this bullet's original wording — deliberately skipped since the wiki-cache (step 2) already
          makes a full re-sweep cheap (cache hits, not fresh fetches) on every run after the first;
          this script's actual value-add is the dated old-vs-new diff itself, not fetch-count savings.
+         **Extended 2026-08-08 to `TARGET_COUNT_OVERRIDES`/`CONDITION_CLEANSE_TARGETS`** (see
+         COMPLETED.md Session 122): a second code path (`processReachGroups`) in the same script,
+         parsing the "(maximum) number of allied targets (affected) from A to B" phrasing — the
+         unambiguous shape confirmed live; deliberately excludes the bare "number of targets" (foe/
+         ally-ambiguous, same reasoning `fetch-target-counts.ts` already documents) and "conditions
+         removed from A to B" (a different field — cleanse magnitude, not who gets cleansed). Checks
+         a resolved id against both tables since the prose never says which one a change belongs to.
+         Live run: only 2 marker-attributed clauses found across all 59 patches, both `not-curated`
+         (both skills carry their own direct API fact, never needed an override) — 0 MATCH/STALE/
+         MISMATCH/SELF-CONFLICT, a small but clean result, not a parsing bug (most entries in these
+         two tables exist precisely because no source — API or wiki — states a numeric count for
+         them, so patches rarely phrase a change numerically for the same sources either). Writes
+         into the same `balance-patch-verification.json` (new `reachEntries` et al. alongside the
+         existing coefficient fields). This closes out the section's own top-level checkbox — all 4
+         numbered steps plus both named sub-extensions are now done.
 
       **"Wire output to data/game-data/" DONE 2026-08-08** (see COMPLETED.md Session 120): the
       damage-coefficient and target-count pilots were both console-only up to this point — this

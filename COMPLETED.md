@@ -2,6 +2,52 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 122 — Balance-patch detection extended to target-count/Condition-Cleanse reach
+
+Picked up TODO.md's own note that the "Wiki-sourced data pipeline" section's top-level checkbox
+stays unchecked until `fetch-balance-patch-changes.ts` also covers `TARGET_COUNT_OVERRIDES`/
+`CONDITION_CLEANSE_TARGETS` (previously only the 3 coefficient tables). User picked this over
+curating the 35 empty-facts skills when offered the choice.
+
+**Investigated the wiki phrasing first** (same discipline as every prior leg — survey before
+regexing): grepped the already-cached 59 `Category:Balance updates` pages for `from A to B` clauses
+near "target"/"condition" wording. Found the unambiguous shape is "(maximum) number of allied
+targets (affected) from A to B" (confirmed on Heat Sync, Grace of the Land, a 2021-05-11 Banner
+trait change). Deliberately did NOT wire up two look-alike shapes:
+- The bare "number of targets from A to B" (no "allied") — same enemy-vs-ally ambiguity
+  `fetch-target-counts.ts`'s own doc comment already established for live wiki pages (a skill can
+  hit foes and allies off one shared template, e.g. Grinding Stones) — a patch changing this count
+  can't be assumed to be the ally-reach value these two tables track.
+- "(number of) conditions removed from A to B" — despite the word overlap with Condition Cleanse,
+  this is the MAGNITUDE of the `Conditions Removed` fact (how many stacks/types get cleared), a
+  completely different field than what `CONDITION_CLEANSE_TARGETS` curates (WHO gets cleansed —
+  self vs. an ally count). Out of scope for this "self-vs-party wording" item.
+
+**Built** a second code path in `fetch-balance-patch-changes.ts` (`processReachGroups`/
+`ReachOutcomeEntry`/`parseReachClauses`), kept separate from the existing coefficient-table
+machinery rather than forced through it: `TARGET_COUNT_OVERRIDES`/`CONDITION_CLEANSE_TARGETS` store
+a single `TargetCountOverride` (`number | 'self'`) per (sourceKind, id) — no factText array, and
+cover both skills AND traits (the 3 coefficient tables are skill-only, so id resolution now checks
+`traits.json` too). Reuses the existing per-line scan pass (no extra wiki fetches) — every line
+already visited for `parseChangeClauses` is also passed through `parseReachClauses`. Since the
+prose alone never says whether a reach change belongs to the boon-reach table or the cleanse-reach
+table, a resolved id is checked against BOTH; a curated `'self'` value has no number to compare, so
+a patch showing a numeric allied-target change on a `'self'` entry gets its own `self-conflict`
+outcome rather than being silently forced into `match`/`stale`/`mismatch`.
+
+**Live run**: only 2 icon-marker-attributed "allied targets from A to B" clauses found across all
+59 patches (Heat Sync 2020-02-25 10->5, Grace of the Land 2020-02-25 10->5) — both correctly
+resolved (skill vs. trait) and both `not-curated` (neither table has an entry for them, since both
+carry their own direct API `Number of Allied Targets` fact and never needed an override — expected,
+not a bug). Zero MATCH/STALE/MISMATCH/SELF-CONFLICT. Low yield is real, not a parsing bug — most
+`TARGET_COUNT_OVERRIDES`/`CONDITION_CLEANSE_TARGETS` entries exist specifically because neither the
+API nor the wiki state a target count for them at all, so patch notes for those same skills rarely
+phrase a change as a numeric "from A to B" either. `npx tsc`/`npx eslint` clean. Output written to
+the same `data/game-data/balance-patch-verification.json` (new `reachTotalChangeClausesParsed`/
+`reachGroupsCompared`/`reachSummary`/`reachEntries` fields alongside the existing coefficient ones —
+same file, not a new one). TODO.md's "Wiki-sourced data pipeline" top-level checkbox now checked
+off — all 4 numbered steps done.
+
 ## Session 121 — Wiki-extraction pipeline step 4: balance-patch change detection
 
 Picked up the wiki-extraction pipeline's last open step. User said "tackle step 4" directly (no
