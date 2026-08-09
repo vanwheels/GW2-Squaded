@@ -2,6 +2,56 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 125 — Empty-effect-facts curation: Weaver Pistol/Spear Dual Attacks cluster
+
+Third leg of the 35-skill/41-id empty-effect-facts backlog. User picked this cluster next (per
+Session 124's own note — the other big remaining cluster after the Elixirs).
+
+**Fetched live wikitext for all 11 names/ids** (7 Pistol Weapon_2/3, 4 Spear Weapon_3), confirmed all
+11 against `skills.json` (each carries only Range/Recharge in the local API, matching the empty-facts
+scan) and each name/profession/spec attribution against `specializations.json` directly (all
+Elementalist/Weaver, per TODO.md's own prior verification).
+
+**Found a real shape difference from the Elixir cluster, not just more of the same**: every one of
+these 11 skills interleaves an elemental-bullet generate/consume mechanic (wiki's own `{{skill
+fact|text|When Consuming a(n) X Bullet}}` sections) — the bonus only lands on the cast that consumes a
+bullet, not every cast, and bullet availability depends on the surrounding rotation (other pistol
+skills in that attunement also produce bullets). This app's `Fact` type has no way to express "only on
+some casts, state-dependent" — modeling it as an unconditional flat `Buff` fact would silently
+overcount uptime, the same failure shape as Prayer to Lyssa's already-documented honest skip (a
+different root cause than the Elixir cluster's `resolveTargetCount`-is-per-skill architecture limit,
+new judgment call this session, not previously written down).
+
+**Only 4 of the 11 had a self-target boon/aura on the unconditional BASE cast** (not gated behind a
+bullet consume) — those 4 got curated as `Buff` facts, PvE base values:
+- **Raging Ricochet** (71828): Might 6s, 1 stack — the wiki's own unconditional "gain might for each
+  target struck" base line, separate from its own bullet-consume bonus (excluded)
+- **Flowing Finesse** (71960): Regeneration 5s (unsplit) + Stability 5s PvE/3s WvW — WvW split added
+  to `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` and directly to `wvw-fact-overrides.json`, same escape
+  hatch the Elixir cluster used (candidate discovery never reaches these ids — no real API Buff fact
+  to start from)
+- **Frostfire Ward** (72916): Frost Aura 3s + Fire Aura 3s
+- **Galvanize** (73104): Might 6s/3 stacks + Superspeed 3s
+
+**The other 7 (Dazing Discharge, Shattering Stone, Frostfire Flurry, Molten Meteor, Echoing Erosion,
+Shale Storm, Elutriate) have nothing curatable under this bug's mechanism**: their only non-foe-facing
+effects are either the bullet-consume-gated bonuses excluded above, an unnamed internal-state
+`{{skill fact|effect|<Name> (effect)}}` template naming no recognized boon/condition/aura (same
+silent-no-op shape as the already-documented Legendary Demon Stance/Unsheathe Gunsaber exclusion
+class — no current fact-rendering path would even display it), or a different fact type entirely
+(Echoing Erosion's on-consume Healing/Barrier `AttributeAdjust` facts; Elutriate/Frostfire Ward's
+"Conditions Removed" Cleanse-shaped `Number` fact) belonging to already-swept separate pipelines
+(`CURATED_HEALING_COEFFICIENTS`/`CURATED_BARRIER_COEFFICIENTS`, `CONDITION_CLEANSE_TARGETS`), not this
+one. Every foe-facing condition (burning/bleeding/vulnerability/cripple/chilled/daze) excluded for the
+same `resolveTargetCount`-per-skill reason as the Elixir cluster's own foe-facing exclusions.
+
+`npx tsc`/`npx eslint` clean. Verified all 4 curated skills' merged facts + the WvW override resolve
+to the exact expected PvE/WvW numbers via a standalone script before trusting it. Full write-up in
+TODO.md's own updated bug entry. **Remaining**: 15 of the original 41 ids (Otherworldly Bond's
+escalating-tier tether mechanic; Shadowsquall/Malicious Shadowsquall; Icerazor's Ire; Voracious
+Arc/Devouring Cut; Summon Spirits/Anguish; Twin Moon Sweep; Tale of the Tortured Mastermind; Radiant
+Resolve/Radiant Justice; 4 unresolved-collision ids).
+
 ## Session 124 — Empty-effect-facts curation: Elixir of ___ cluster (Necromancer/Harbinger)
 
 Second leg of the 35-skill/41-id empty-effect-facts backlog (Session 123 did the first leg). User

@@ -336,7 +336,12 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     62530: { Might: 6 }, // Elixir of Risk (GroundTargeted id) — PvE 10s, WvW/PvP 6s
     68105: { Might: 6 }, // Elixir of Risk (canonical id)
     62662: { Quickness: 4 }, // Elixir of Anguish (GroundTargeted id) — PvE 5s, WvW/PvP 4s
-    68113: { Quickness: 4 } // Elixir of Anguish (canonical id)
+    68113: { Quickness: 4 }, // Elixir of Anguish (canonical id)
+
+    // Weaver Pistol/Spear Dual Attacks cluster (Elementalist/Weaver, empty-effect-facts curation,
+    // see synthetic-facts.json) — same root cause as the Elixir cluster above (zero real API Buff
+    // facts, so this script's candidate discovery never reaches these ids).
+    71960: { Stability: 3 } // Flowing Finesse — PvE 5s, WvW/PvP 3s (Regeneration 5s is unsplit)
   },
   trait: {}
 }

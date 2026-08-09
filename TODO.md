@@ -145,14 +145,45 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       — none are `Buff` facts, so none of this bug's `synthetic-facts.json` mechanism applies to them.
       `npx tsc`/`npx eslint` clean.
 
-      **Remaining scope**: 26 of the original 41 ids (Weaver Pistol/Spear Dual Attacks — 11 names;
-      Otherworldly Bond's escalating-tier tether mechanic; Shadowsquall/Malicious Shadowsquall;
-      Icerazor's Ire; Voracious Arc/Devouring Cut; Summon Spirits/Anguish; Twin Moon Sweep; Tale of
-      the Tortured Mastermind; Radiant Resolve/Radiant Justice; the 4 unresolved-collision ids) still
-      need per-skill curation — recommended one cluster at a time, checking in between, same as every
-      other leg of this pipeline. Also worth a follow-up look at whether the elixirs' skipped
-      foe-facing condition facts are curatable another way (e.g. a per-fact rather than per-source
-      target count in `sources.ts`) — not attempted here, scope creep beyond this leg.
+      **Weaver Pistol/Spear Dual Attacks cluster curated 2026-08-09** (see COMPLETED.md's latest
+      session): all 11 names / 11 ids (7 Pistol Weapon_2/3, 4 Spear Weapon_3), verified against
+      `specializations.json`. Unlike the Elixir cluster, most of this cluster's own effects turned out
+      NOT curatable — every skill here interleaves an elemental-bullet generate/consume mechanic
+      (`{{skill fact|text|When Consuming a(n) X Bullet}}`) this app's `Fact` type has no way to
+      express: the bonus only lands on the cast that consumes a bullet, not every cast, and bullet
+      availability depends on the wider rotation (other pistol skills in that attunement also produce
+      bullets) — modeling it as an unconditional flat `Buff` fact would silently overcount, the same
+      failure shape as Prayer to Lyssa's honest skip (see synthetic-facts.json's own doc comment), not
+      merely the Elixir cluster's target-count architecture limit. Only **4 of the 11 skills** had a
+      self-target boon/aura granted unconditionally on the BASE cast (not gated behind a bullet
+      consume), so only those 4 got curated: **Raging Ricochet** (71828, Might 6s, 1 stack — "gain
+      might for each target struck," the wiki's own unconditional base line); **Flowing Finesse**
+      (71960, Regeneration 5s + Stability 5s PvE/3s WvW — WvW split added to
+      `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` + `wvw-fact-overrides.json` directly, same escape
+      hatch the Elixir cluster used); **Frostfire Ward** (72916, Frost Aura 3s + Fire Aura 3s);
+      **Galvanize** (73104, Might 6s/3 stacks + Superspeed 3s). The other 7 (Dazing Discharge,
+      Shattering Stone, Frostfire Flurry, Molten Meteor, Echoing Erosion, Shale Storm, Elutriate) have
+      nothing curatable under this bug's mechanism at all — their only non-foe-facing effects are
+      either the bullet-consume-gated bonuses excluded above, an unnamed internal-state `{{skill
+      fact|effect|<Name> (effect)}}` template with no recognized boon/condition/aura name (same
+      silent-no-op shape as the already-documented Legendary Demon Stance/Unsheathe Gunsaber
+      exclusion class), or an `AttributeAdjust` Healing/Barrier fact (Echoing Erosion's on-consume
+      heal/barrier) or a Cleanse-shaped `Number` fact (Elutriate/Frostfire Ward's "Conditions
+      Removed") — both different fact types belonging to their own already-swept pipelines
+      (`CURATED_HEALING_COEFFICIENTS`/`CURATED_BARRIER_COEFFICIENTS`, `CONDITION_CLEANSE_TARGETS`),
+      not this bug. Every foe-facing condition (burning/bleeding/vulnerability/cripple/chilled/daze)
+      excluded for the same `resolveTargetCount`-is-per-skill reason as the Elixir cluster. `npx tsc`/
+      `npx eslint` clean, merged output spot-verified via a standalone script.
+
+      **Remaining scope**: 15 of the original 41 ids (Otherworldly Bond's escalating-tier tether
+      mechanic; Shadowsquall/Malicious Shadowsquall; Icerazor's Ire; Voracious Arc/Devouring Cut;
+      Summon Spirits/Anguish; Twin Moon Sweep; Tale of the Tortured Mastermind; Radiant Resolve/
+      Radiant Justice; the 4 unresolved-collision ids) still need per-skill curation — recommended one
+      cluster at a time, checking in between, same as every other leg of this pipeline. Also worth a
+      follow-up look at whether the elixirs' skipped foe-facing condition facts, and this cluster's
+      skipped bullet-consume-gated bonuses, are curatable another way (e.g. a per-fact rather than
+      per-source target count in `sources.ts`, or a new "conditional" `Fact` shape) — not attempted
+      here, scope creep beyond this leg.
 
 - [ ] **Skill tooltips never show a skill's own Misc/Control/Strip-Corrupt/Combo/Aura facts** —
       flagged by the user 2026-08-07, concrete example: skills that apply Superspeed correctly show

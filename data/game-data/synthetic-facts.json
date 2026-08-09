@@ -55,5 +55,18 @@
     { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5 }
   ],
   "62667": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 8 }],
-  "68081": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 8 }]
+  "68081": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 8 }],
+  "71828": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6 }],
+  "71960": [
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 5 }
+  ],
+  "72916": [
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 3 },
+    { "type": "Buff", "status": "Fire Aura", "text": "Apply Buff/Condition", "duration": 3 }
+  ],
+  "73104": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3 },
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3 }
+  ]
 }
