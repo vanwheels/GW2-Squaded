@@ -2,6 +2,46 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 126 — Empty-effect-facts curation: Shadowsquall/Malicious Shadowsquall cluster
+
+Fourth leg of the 35-skill/41-id empty-effect-facts backlog. Picked the next cluster off the
+Session 125 remaining-scope list, skipping Otherworldly Bond itself (documented as the hardest, not
+a good next pick).
+
+**Thief's Specter/Deadeye scepter Stealth Attack pair** (Shadowsquall 63314, Malicious Shadowsquall
+69173 — verified against `specializations.json`, 71/58). Fetched raw wikitext for both (`action=raw`,
+not a summarized fetch — an initial WebFetch pass came back paraphrased/lossy and was discarded in
+favor of `curl`). Both skills split into an enemy-target branch (poison condition) and an ally-target
+branch (heal + Regeneration) — same `resolveTargetCount`-is-per-skill conflict the Elixir cluster
+already hit, so only the ally-target Regeneration got curated; the enemy-target poison stays excluded
+(foe-facing condition, not this bug's territory).
+
+Both pages give an identical `{{skill fact|regeneration|2.5}}` + `{{skill fact|Number of Impacts|8}}`
+pair (each page's own "anomaly" note flags "applies Regeneration 8 times, but there is a hard limit of
+5 stacks on a single target") — curated at face value as duration 2.5/apply_count 8, the same
+multi-hit apply_count convention already used elsewhere in `synthetic-facts.json`; the wiki's own
+noted stack cap is an unmodeled simplification, not a parsing gap.
+
+The two ids differ in reach, both requiring a **new shape for this curation effort**: a synthetic
+`Number of Allied Targets` fact alongside the synthetic Buff fact (previously only Buff facts had been
+added) —
+- **Shadowsquall** (63314): base wiki page's own `{{skill fact|allied targets|5}}` (secondary allies
+  at reduced 50% effectiveness in a 240 radius around the primary target) → `Number of Allied
+  Targets: 5`. The primary-full/50%-secondary split itself isn't representable (no per-recipient
+  `Fact` shape exists) — modeled as a flat 5-target reach at the primary's full value.
+- **Malicious Shadowsquall** (69173): its own page explicitly states it, unlike base Shadowsquall,
+  "does not apply its effects to allies around your main target" — single-recipient, but that
+  recipient is the targeted ally, not necessarily the caster → `Number of Allied Targets: 1` rather
+  than the implicit self-only default, reusing `TARGET_COUNT_OVERRIDES`' existing Transfusion
+  precedent for "one recipient, not self."
+
+`npx tsc`/`npx eslint` clean. Merged output spot-verified via a standalone script (both ids' `.facts`
+correctly show the injected Regeneration Buff fact and Number-of-Allied-Targets fact alongside the
+real API Range fact). Full write-up in TODO.md's own updated bug entry. **Remaining**: 13 of the
+original 41 ids (Otherworldly Bond's escalating-tier tether mechanic; Icerazor's Ire; Voracious
+Arc/Devouring Cut; Summon Spirits/Anguish; Twin Moon Sweep; Tale of the Tortured Mastermind; Radiant
+Resolve/Radiant Justice; 4 unresolved-collision ids).
+
 ## Session 125 — Empty-effect-facts curation: Weaver Pistol/Spear Dual Attacks cluster
 
 Third leg of the 35-skill/41-id empty-effect-facts backlog. User picked this cluster next (per

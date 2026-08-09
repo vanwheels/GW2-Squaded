@@ -175,15 +175,42 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       excluded for the same `resolveTargetCount`-is-per-skill reason as the Elixir cluster. `npx tsc`/
       `npx eslint` clean, merged output spot-verified via a standalone script.
 
-      **Remaining scope**: 15 of the original 41 ids (Otherworldly Bond's escalating-tier tether
-      mechanic; Shadowsquall/Malicious Shadowsquall; Icerazor's Ire; Voracious Arc/Devouring Cut;
-      Summon Spirits/Anguish; Twin Moon Sweep; Tale of the Tortured Mastermind; Radiant Resolve/
-      Radiant Justice; the 4 unresolved-collision ids) still need per-skill curation — recommended one
-      cluster at a time, checking in between, same as every other leg of this pipeline. Also worth a
-      follow-up look at whether the elixirs' skipped foe-facing condition facts, and this cluster's
-      skipped bullet-consume-gated bonuses, are curatable another way (e.g. a per-fact rather than
-      per-source target count in `sources.ts`, or a new "conditional" `Fact` shape) — not attempted
-      here, scope creep beyond this leg.
+      **Shadowsquall/Malicious Shadowsquall cluster curated 2026-08-09** (Thief's Specter/Deadeye
+      scepter Stealth Attack pair, ids 63314/69173 — verified against `specializations.json`, 71/58).
+      Both skills split into an enemy-target branch (poison condition) and an ally-target branch
+      (heal + Regeneration boon) — same `resolveTargetCount`-is-per-skill conflict as the Elixir
+      cluster, so **only the ally-target Regeneration was curated**; the enemy-target poison stays
+      excluded (foe-facing condition, separate already-swept pipeline concern, not this bug). Both
+      wiki pages give an identical `{{skill fact|regeneration|2.5}}` + `{{skill fact|Number of
+      Impacts|8}}` pair (also flagged in each page's own "anomaly" note: "applies Regeneration 8
+      times, but there is a hard limit of 5 stacks on a single target") — curated at face value as
+      duration 2.5/apply_count 8, matching every other multi-hit apply_count precedent already in
+      `synthetic-facts.json` (e.g. 62655's Might apply_count 25); the wiki's own noted 5-stack cap is
+      a known unmodeled simplification, not a parsing gap, same as every other multi-hit skill this
+      pipeline curates. The two ids differ in reach: base Shadowsquall's own `{{skill fact|allied
+      targets|5}}` (secondary allies at reduced 50% effectiveness within a 240 radius around the
+      primary target) got a synthetic `Number of Allied Targets: 5` fact alongside the Buff fact — the
+      first case in this curation effort needing a synthetic target-count fact, not just a synthetic
+      Buff fact, since `resolveTargetCount` reads that label directly off the (now-merged) facts
+      array; the primary-full/50%-secondary split itself isn't representable (no per-recipient `Fact`
+      shape exists), so it's modeled as a flat 5-target reach at the primary's full value, an
+      unmodeled simplification like the apply-count cap above, not a wrong answer. Malicious
+      Shadowsquall's own wiki page explicitly states (unlike base Shadowsquall) it "does not apply its
+      effects to allies around your main target" — single-recipient, but that recipient is the
+      targeted ally, not necessarily the caster, so it got `Number of Allied Targets: 1` rather than
+      the implicit self-only default, the same `targetCount: 1`-not-`'self'` distinction
+      `TARGET_COUNT_OVERRIDES`' own Transfusion entries already established for one-recipient-but-not-
+      self mechanics. `npx tsc`/`npx eslint` clean, merged output spot-verified via a standalone
+      script.
+
+      **Remaining scope**: 13 of the original 41 ids (Otherworldly Bond's escalating-tier tether
+      mechanic; Icerazor's Ire; Voracious Arc/Devouring Cut; Summon Spirits/Anguish; Twin Moon Sweep;
+      Tale of the Tortured Mastermind; Radiant Resolve/Radiant Justice; the 4 unresolved-collision ids)
+      still need per-skill curation — recommended one cluster at a time, checking in between, same as
+      every other leg of this pipeline. Also worth a follow-up look at whether the elixirs' skipped
+      foe-facing condition facts, and the Weaver cluster's skipped bullet-consume-gated bonuses, are
+      curatable another way (e.g. a per-fact rather than per-source target count in `sources.ts`, or a
+      new "conditional" `Fact` shape) — not attempted here, scope creep beyond this leg.
 
 - [ ] **Skill tooltips never show a skill's own Misc/Control/Strip-Corrupt/Combo/Aura facts** —
       flagged by the user 2026-08-07, concrete example: skills that apply Superspeed correctly show

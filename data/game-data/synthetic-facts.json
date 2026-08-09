@@ -68,5 +68,13 @@
   "73104": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3 },
     { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3 }
+  ],
+  "63314": [
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 2.5, "apply_count": 8 },
+    { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
+  ],
+  "69173": [
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 2.5, "apply_count": 8 },
+    { "type": "Number", "text": "Number of Allied Targets", "value": 1 }
   ]
 }
