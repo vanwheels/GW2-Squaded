@@ -122,13 +122,37 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       "random pick from N" `Fact` shape (new type, new consumer logic) or acceptance that this one
       stays flavor-text-only.
 
-      **Remaining scope**: 36 of the original 41 ids (Elixir of ___ cluster — 5 names/10 ids;
-      Weaver Pistol/Spear Dual Attacks — 11 names; Otherworldly Bond's escalating-tier tether
-      mechanic; Shadowsquall/Malicious Shadowsquall; Icerazor's Ire; Voracious Arc/Devouring Cut;
-      Summon Spirits/Anguish; Twin Moon Sweep; Tale of the Tortured Mastermind; Radiant
-      Resolve/Radiant Justice; the 4 unresolved-collision ids) still need per-skill curation —
-      recommended one cluster at a time, checking in between, same as every other leg of this
-      pipeline.
+      **Elixir of ___ cluster curated 2026-08-09** (see COMPLETED.md's latest session): all 5
+      Necromancer/Harbinger elixirs (Bliss/Risk/Ambition/Anguish/Promise, 10 ids — both the
+      GroundTargeted and canonical id of each pair, since the wiki page's own `id=` list covers both
+      identically) — self-cast boon `Buff` facts only, straight off each page's "Self Effects on
+      Cast" wiki values (PvE base): Bliss Resolution 5s; Risk Might 10s/10 stacks + Fury 10s;
+      Ambition (Elite) all 12 boons at 5s (Might 25 stacks, Stability 5 stacks); Anguish Swiftness
+      10s + Quickness 5s; Promise Regeneration 8s. Where PvE and WvW values genuinely differ (Risk's
+      Might 10s->6s, Anguish's Quickness 5s->4s) added entries to `fetch-wvw-splits.ts`'s
+      `MANUAL_OVERRIDES` (that script's own established escape hatch for skills its automated sweep
+      can't reach, since candidate discovery starts from a real API Buff fact these skills never
+      had) plus the matching `data/game-data/wvw-fact-overrides.json` entries directly, so the fix is
+      live without a wiki re-fetch. **Deliberately excluded the foe-facing condition facts** (each
+      elixir's "toss at impact area" line — Weakness/Torment/Bleeding/Burning/Confusion/Poison/
+      Cripple): `resolveTargetCount` in `sources.ts` computes ONE target count per skill, shared
+      across every Buff fact on it — mixing self-only boon facts with 5-foe condition facts on the
+      same id would force one wrong answer or the other (self-boons reading as party-wide, or
+      foe-conditions collapsing to self-only), unlike Chaos Storm's boons-to-allies/conditions-to-foes
+      case, which works because BOTH sides share the same target count (5) by wiki design. Also
+      skipped (separate, already-swept pipelines, not this bug): damage coefficients, target-count/
+      radius facts, life force, Boons-Converted-to-Conditions (corrupt), Conditions-Removed (cleanse)
+      — none are `Buff` facts, so none of this bug's `synthetic-facts.json` mechanism applies to them.
+      `npx tsc`/`npx eslint` clean.
+
+      **Remaining scope**: 26 of the original 41 ids (Weaver Pistol/Spear Dual Attacks — 11 names;
+      Otherworldly Bond's escalating-tier tether mechanic; Shadowsquall/Malicious Shadowsquall;
+      Icerazor's Ire; Voracious Arc/Devouring Cut; Summon Spirits/Anguish; Twin Moon Sweep; Tale of
+      the Tortured Mastermind; Radiant Resolve/Radiant Justice; the 4 unresolved-collision ids) still
+      need per-skill curation — recommended one cluster at a time, checking in between, same as every
+      other leg of this pipeline. Also worth a follow-up look at whether the elixirs' skipped
+      foe-facing condition facts are curatable another way (e.g. a per-fact rather than per-source
+      target count in `sources.ts`) — not attempted here, scope creep beyond this leg.
 
 - [ ] **Skill tooltips never show a skill's own Misc/Control/Strip-Corrupt/Combo/Aura facts** —
       flagged by the user 2026-08-07, concrete example: skills that apply Superspeed correctly show

@@ -686,6 +686,9 @@
     "62521": {
       "Blinded": 3
     },
+    "62530": {
+      "Might": 6
+    },
     "62565": {
       "Weakness": 1.5,
       "Burning": 2
@@ -693,6 +696,9 @@
     "62573": {
       "Fury": 7,
       "Might": 6
+    },
+    "62662": {
+      "Quickness": 4
     },
     "62689": {
       "Alacrity": "omit"
@@ -788,6 +794,12 @@
       "Slow": 1,
       "Confusion": 2,
       "Burning": 2
+    },
+    "68105": {
+      "Might": 6
+    },
+    "68113": {
+      "Quickness": 4
     },
     "69175": {
       "Protection": 3

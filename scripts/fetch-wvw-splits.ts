@@ -321,8 +321,22 @@ function resolveOverride(
 const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>; trait: Record<number, Record<string, WvwFactOverride>> } = {
   skill: {
     41988: { Quickness: 2.5 }, // Overwhelming Celerity — WvW value per 2025-04-15 patch notes
-    42983: { Quickness: 1 } // Potent Haste — WvW value unchanged since 2020-02-25; entry exists to
+    42983: { Quickness: 1 }, // Potent Haste — WvW value unchanged since 2020-02-25; entry exists to
     // collapse the {3, 1} duplicate-fact pair down to one row (see extractFromFacts in sources.ts)
+
+    // Elixir of ___ cluster (Necromancer/Harbinger, empty-effect-facts curation, see
+    // synthetic-facts.json): these skills have zero real API Buff facts, so this script's own
+    // candidate discovery (which starts from an existing Buff fact's status) never considers them
+    // — a different root cause than the rounding quirk above, but the same "can't pass the
+    // automated cross-validation" outcome. Both members of each GroundTargeted/non-GroundTargeted
+    // duplicate pair get an entry since the wiki page (and its `id=` list) covers both ids
+    // identically. Wiki-confirmed pve-vs-wvw split; every other boon this cluster grants shares one
+    // value across pve+wvw (only pvp differs, which this app doesn't model — see WvwFactOverrides'
+    // doc comment).
+    62530: { Might: 6 }, // Elixir of Risk (GroundTargeted id) — PvE 10s, WvW/PvP 6s
+    68105: { Might: 6 }, // Elixir of Risk (canonical id)
+    62662: { Quickness: 4 }, // Elixir of Anguish (GroundTargeted id) — PvE 5s, WvW/PvP 4s
+    68113: { Quickness: 4 } // Elixir of Anguish (canonical id)
   },
   trait: {}
 }

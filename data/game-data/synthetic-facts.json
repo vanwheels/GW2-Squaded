@@ -7,5 +7,53 @@
     { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 2 },
     { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4 },
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 4 }
-  ]
+  ],
+  "62514": [{ "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 5 }],
+  "68132": [{ "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 5 }],
+  "62530": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 10 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 10 }
+  ],
+  "68105": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 10 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 10 }
+  ],
+  "62655": [
+    { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 25 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 5 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 5 }
+  ],
+  "68090": [
+    { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 25 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 5 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 5 }
+  ],
+  "62662": [
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 10 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5 }
+  ],
+  "68113": [
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 10 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5 }
+  ],
+  "62667": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 8 }],
+  "68081": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 8 }]
 }

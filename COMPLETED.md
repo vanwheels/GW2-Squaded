@@ -2,6 +2,60 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 124 — Empty-effect-facts curation: Elixir of ___ cluster (Necromancer/Harbinger)
+
+Second leg of the 35-skill/41-id empty-effect-facts backlog (Session 123 did the first leg). User
+picked the Elixir cluster explicitly — the single biggest/richest remaining win per Session 123's
+own note.
+
+**Curated all 5 elixirs, both ids of each GroundTargeted/non-GroundTargeted pair (10 ids)**: fetched
+live wikitext for all 5 pages directly (not summarized), confirmed via `skills.json`/`skill-variants.ts`
+that each pair really is mechanically identical per the wiki's own shared `id=` list (the collapse
+logic keeps the non-GroundTargeted id as canonical for the picker, but both ids get the fact so
+neither is a silent gap regardless of which one any given code path resolves through). Added
+self-cast boon `Buff` facts only, off each page's "Self Effects on Cast" section, PvE base values:
+- **Elixir of Bliss** (62514/68132): Resolution 5s
+- **Elixir of Risk** (62530/68105): Might 10s/10 stacks, Fury 10s
+- **Elixir of Ambition** (62655/68090, Elite): all 12 boons at 5s (Might 25 stacks, Stability 5
+  stacks) — the wiki's own `| missing facts =` block spelled these out individually already, more
+  reliable than parsing the vague single "Gain All Boons for Base Duration" line
+- **Elixir of Anguish** (62662/68113): Swiftness 10s, Quickness 5s
+- **Elixir of Promise** (62667/68081, Heal): Regeneration 8s
+
+**WvW splits**: PvE and WvW share the same value for every boon here except two (Risk's Might
+10s->6s, Anguish's Quickness 5s->4s — both wiki-confirmed, the wiki's own `pve wvw` combined tag on
+every other line rules out further splits). Added both to `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES`
+table (that script's existing escape hatch for skills its automated candidate-discovery sweep can't
+reach — it starts from a real API Buff fact, which these skills never had before this session) *and*
+directly to the committed `wvw-fact-overrides.json`, so the correction is live now rather than
+waiting on a future full wiki re-fetch to pick up the `MANUAL_OVERRIDES` entry.
+
+**Deliberately did NOT curate the foe-facing condition facts** (each elixir's damage-impact-area
+line: Weakness/Torment on Risk, Bleeding/Burning/Confusion/Poison/Torment on Ambition, Cripple on
+Anguish, Poison on Promise). Root cause: `resolveTargetCount` in `sources.ts` computes exactly one
+target count per *skill*, applied to every `Buff` fact on it — there's no per-fact self-vs-foe split.
+Adding both the self-only boon facts and the 5-foe condition facts to the same skill id would force
+one side to read wrong (either the self-boons show as reaching 5 allies, or the foe-conditions
+collapse to self-only). This differs from Chaos Storm's already-curated boons-to-allies/
+conditions-to-foes case, which only works because the wiki gives both sides the *same* target count
+(5) by design — these elixirs don't. Left as a documented gap rather than curated wrong, plus a
+TODO.md note that a per-fact (not per-source) target-count model in `sources.ts` might resolve this
+properly some day — not attempted here, out of scope for this leg.
+
+**Also out of scope, separate already-swept pipelines**: damage coefficients, target-count/radius
+facts, life force generation, Boons-Converted-to-Conditions (corrupt), Conditions-Removed (cleanse)
+— none of these are `Buff` facts, so `synthetic-facts.json`'s mechanism doesn't apply; they belong to
+`CURATED_DAMAGE_COEFFICIENTS`/`TARGET_COUNT_OVERRIDES`/`CONDITION_CLEANSE_TARGETS` instead, which
+already completed their own full sweeps earlier in this pipeline.
+
+`npx tsc`/`npx eslint` clean. Verified the merged facts + WvW overrides resolve to the exact expected
+PvE/WvW numbers via a standalone script before considering this done, same "verify before trusting
+the output" discipline as every other leg of this pipeline. Full write-up in TODO.md's own updated
+bug entry. **Remaining**: 26 of the original 41 ids (Weaver Pistol/Spear Dual Attacks next, per
+Session 123's own note — 11 names, the other big cluster; Otherworldly Bond; Shadowsquall/Malicious
+Shadowsquall; Icerazor's Ire; Voracious Arc/Devouring Cut; Summon Spirits/Anguish; Twin Moon Sweep;
+Tale of the Tortured Mastermind; Radiant Resolve/Radiant Justice; 4 unresolved-collision ids).
+
 ## Session 123 — Empty-effect-facts curation: first leg (Detonate Elixir H + 2 exclusion classes)
 
 Started curating the 35-skill/41-id backlog from Session 115's `scan-empty-effect-facts.ts` scan
