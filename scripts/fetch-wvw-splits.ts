@@ -354,7 +354,25 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // cast, 72359 = "Band Together"-enhanced cast (same wiki page, `id = 40485, <!-- enhanced -->
     // 72359`) — both share every fact above; 72359 alone adds an unsplit Chilled 1.5s.
     40485: { Immobilize: 1.5 },
-    72359: { Immobilize: 1.5 }
+    72359: { Immobilize: 1.5 },
+
+    // Fox's Fury (Elementalist/Evoker meditation, empty-effect-facts curation, see
+    // synthetic-facts.json) — same zero-real-API-Buff-facts root cause for the base cast (76711).
+    // Wiki: unconditional self+ally Might (10s/8 stacks pve, 8s/6 stacks wvw+pvp) and Fury (10s pve,
+    // 8s wvw+pvp) on every cast. 76711 carries exactly one Might fact and one Fury fact, so both get
+    // a normal duration override here (stack-count change 8->6 still isn't expressible — same
+    // `apply_count` architecture limit as Icerazor's Ire above; left at the PvE stack count).
+    // The Fire-attuned enhanced cast (77282, which DOES already carry real API facts for
+    // Fury/Burning/Damage/StunBreak — only Might was missing there) additionally grants a separate
+    // "Fox Bonus" Might application (10s/3 stacks pve). Deliberately did NOT give 77282's Might an
+    // override entry even though the wiki also splits its duration: `extractFromFacts` collapses
+    // EVERY fact sharing one status once an override for that status exists (built for the common
+    // case of one application appearing twice as pve/wvw API-duplicate facts, not two genuinely
+    // different simultaneous applications) — adding one here silently dropped the Fox Bonus stack
+    // entirely rather than just mis-showing its duration, caught by spot-verifying the merged
+    // output before trusting it. Left both of 77282's Might facts at PvE duration (10s), documented
+    // gap, not modeled wrong.
+    76711: { Might: 8, Fury: 8 }
   },
   trait: {}
 }

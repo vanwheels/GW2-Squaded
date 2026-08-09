@@ -95,5 +95,15 @@
     { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 5 },
     { "type": "Buff", "status": "Immobilize", "text": "Apply Buff/Condition", "duration": 2 },
     { "type": "Buff", "status": "Chilled", "text": "Apply Buff/Condition", "duration": 1.5 }
+  ],
+  "76711": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 8 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 10 },
+    { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
+  ],
+  "77282": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 8 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 3 },
+    { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
   ]
 }

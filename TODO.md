@@ -252,25 +252,42 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       resolves the 2nd of the original 3 unresolved-collision ids. `npx tsc`/`npx eslint` clean, merged
       output spot-verified via a standalone script.
 
-      **New candidate found on re-scan 2026-08-09, not yet curated**: `Fox's Fury` (76711, Elementalist/
-      **Evoker** base Meditation, flips to the already-damage-coefficient-curated 77282) — desc "Grant
-      boons to nearby allies, then inflict burning..." with wiki facts `[damage, burning, might, fury,
-      targets, stun break]`; the base unconditional ally-grant (might/fury) looks curatable same-shape
-      as Detonate Elixir H, not yet investigated in detail. Missed by every earlier write-up of "the 41
-      ids" — re-running `scan-empty-effect-facts.ts` fresh is what surfaced it, worth doing again before
-      declaring this item done.
+      **Fox's Fury cluster curated 2026-08-09**: `76711` (Elementalist/Evoker base Meditation cast) had
+      zero real API facts at all; its Fire-attuned enhanced cast `77282` (same wiki page, `id = 76711,
+      77282`, already had a curated Damage coefficient from the earlier pipeline leg) turned out to also
+      be silently missing its own Might fact even though it DOES carry real Fury/Burning/Damage/StunBreak
+      facts — a partial gap this scan's all-zero-facts heuristic can't catch, found only by cross-checking
+      the sibling id per this cluster's own established "curate every id sharing the page" precedent
+      (Icerazor's Ire). Curated: 76711 gets unconditional Might (10s/8 stacks pve, wvw+pvp duration
+      override 8s) + Fury (10s pve, wvw+pvp override 8s) + a synthetic `Number of Allied Targets`=5 (the
+      wiki's own `targets` fact — unambiguous here since the skill's only foe-facing effect, Burning, is
+      single-target, no competing enemy count on the same id); 77282 gets the same base Might plus a
+      separate "Fox Bonus" Might (10s/3 stacks pve, only when Fire-attuned) and the same targetCount=5.
+      Skipped (own already-swept pipeline): both ids' Damage coefficients. Skipped (architecture limit,
+      same as the Elixir cluster): nothing here actually conflicts, since Burning's foe-target is already
+      real API data, not something this synthetic-facts pass touches. **New architecture-limit shape
+      found**: giving 77282's Might a WvW duration override would have been safe in isolation but
+      `extractFromFacts` collapses EVERY fact sharing a status once ANY override exists for that status
+      (built for the common "same application appears twice as a pve/wvw API-duplicate-fact pair" case) —
+      since 77282 has TWO genuinely different simultaneous Might applications (base + Fox Bonus), adding
+      an override there silently dropped the Fox Bonus stack entirely rather than just showing the wrong
+      duration. Caught by spot-verifying the actual merged `boonConditionFactsForSkill` output before
+      trusting it (per this pipeline's standard practice), not just typecheck/lint. Reverted: 77282's
+      Might stays unsplit at PvE duration (10s both applications), documented gap, not modeled wrong;
+      76711's Might/Fury (only one fact each, no collision) got the override cleanly. `npx tsc`/
+      `npx eslint` clean.
 
-      **Remaining scope**: 9 of the original 41 ids, plus the newly-found Fox's Fury above (Otherworldly
-      Bond's escalating-tier tether mechanic — still deferred, still hardest; Twin Moon Sweep (2 ids,
-      76968/77001); Tale of the Tortured Mastermind (77066); Radiant Resolve/Radiant Justice
-      (78604/78837, plus the 3rd still-unresolved id, Radiant Resolve's own other flip id 78514 — same
-      `id=`-list-sibling shape Icerazor's Ire just resolved, likely resolves the same way); Fox's Fury
-      (76711)) still need per-skill curation — recommended one cluster at a time, checking in between,
-      same as every other leg of this pipeline. Also worth a follow-up look at whether the elixirs'
-      skipped foe-facing condition facts, the Weaver cluster's skipped bullet-consume-gated bonuses, and
-      now this cluster's skipped apply-count-only WvW splits, are curatable another way (e.g. new
-      "conditional"/game-mode-aware-stacks `Fact` shapes) — not attempted here, scope creep beyond this
-      leg.
+      **Remaining scope**: 9 of the original 41 ids (Otherworldly Bond's escalating-tier tether mechanic —
+      still deferred, still hardest; Twin Moon Sweep (2 ids, 76968/77001); Tale of the Tortured
+      Mastermind (77066); Radiant Resolve/Radiant Justice (78604/78837, plus the 3rd still-unresolved id,
+      Radiant Resolve's own other flip id 78514 — same `id=`-list-sibling shape Icerazor's Ire already
+      resolved, likely resolves the same way)) still need per-skill curation — recommended one cluster at
+      a time, checking in between, same as every other leg of this pipeline. Also worth a follow-up look
+      at whether the elixirs' skipped foe-facing condition facts, the Weaver cluster's skipped
+      bullet-consume-gated bonuses, this cluster's/Icerazor's Ire's skipped apply-count-only WvW splits,
+      and now Fox's Fury's skipped same-status-collapse-on-override case, are curatable another way (e.g.
+      new "conditional"/game-mode-aware-stacks `Fact` shapes, or a per-application not per-status override
+      key) — not attempted here, scope creep beyond this leg.
 
 - [ ] **Multiple same-status Buff facts on one skill render as unlabeled duplicate rows** — flagged
       by the user 2026-08-09 looking at Icerazor's Ire's tooltip (2 separate Vulnerability
