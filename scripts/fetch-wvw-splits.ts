@@ -341,7 +341,20 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // Weaver Pistol/Spear Dual Attacks cluster (Elementalist/Weaver, empty-effect-facts curation,
     // see synthetic-facts.json) — same root cause as the Elixir cluster above (zero real API Buff
     // facts, so this script's candidate discovery never reaches these ids).
-    71960: { Stability: 3 } // Flowing Finesse — PvE 5s, WvW/PvP 3s (Regeneration 5s is unsplit)
+    71960: { Stability: 3 }, // Flowing Finesse — PvE 5s, WvW/PvP 3s (Regeneration 5s is unsplit)
+
+    // Icerazor's Ire (Revenant/Renegade, empty-effect-facts curation, see synthetic-facts.json) —
+    // same zero-API-facts root cause. Only Immobilize's split fits this override mechanism (a plain
+    // duration change, 2s pve -> 1.5s wvw/pvp). The wiki ALSO splits this skill's Torment and
+    // "Initial Vulnerability" facts, but only by STACK COUNT (Torment 3->2, Vulnerability 10->6)
+    // with duration unchanged (6s/8s in both modes) — WvwFactOverride only overrides `duration`,
+    // never `apply_count`, so that half can't be expressed here; left at the PvE stack counts in
+    // synthetic-facts.json (documented gap, not modeled wrong). The skill's OTHER Vulnerability fact
+    // (on-hit, 5 stacks/8s, unsplit per the wiki) correctly gets no override at all. 40485 = base
+    // cast, 72359 = "Band Together"-enhanced cast (same wiki page, `id = 40485, <!-- enhanced -->
+    // 72359`) — both share every fact above; 72359 alone adds an unsplit Chilled 1.5s.
+    40485: { Immobilize: 1.5 },
+    72359: { Immobilize: 1.5 }
   },
   trait: {}
 }

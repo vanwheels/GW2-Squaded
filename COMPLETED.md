@@ -2,6 +2,55 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 128 — Empty-effect-facts curation: Icerazor's Ire cluster + 2 unresolved ids resolved
+
+Sixth leg of the 35-skill/41-id empty-effect-facts backlog. Re-ran `scan-empty-effect-facts.ts` fresh
+first to confirm the exact remaining scope before picking a cluster (good thing — it surfaced a new
+candidate, see below).
+
+**Icerazor's Ire (Revenant/Renegade legendary utility)** — one wiki page, `id = 40485, <!-- enhanced
+--> 72359`: 40485 is the base cast, 72359 the "Band Together"-enhanced cast (that inline HTML comment
+is the disambiguator). Curated both foe-facing: "Initial Vulnerability" 8s/10 stacks (on-summon),
+Torment 6s/3 stacks, a second on-hit Vulnerability 8s/5 stacks (from the skill's 3-projectile attack —
+same status name as the first, but a genuinely separate application per the wiki's own two distinct
+`{{skill fact}}` lines, not a duplicate to collapse), and Immobilize 2s. 72359 alone adds an unsplit
+Chilled 1.5s.
+
+**New architecture-limit shape found**: `WvwFactOverride`/`MANUAL_OVERRIDES` only ever overrides a
+Buff fact's `duration` (`baseDuration = typeof wvwOverride === 'number' ? wvwOverride : fact.duration`
+in `sources.ts`) — never `apply_count`. Every split curated anywhere in this pipeline so far happened
+to be a duration change, so this never came up before. This skill's wiki page splits Torment and
+Initial-Vulnerability by STACK COUNT only (duration identical both modes: Torment 3->2, Vulnerability
+10->6), which the mechanism has no way to express — left at the PvE stack counts in
+`synthetic-facts.json` (an honest gap, not modeled wrong). Immobilize's own split (2s pve -> 1.5s
+wvw/pvp) IS a plain duration change, so that one got a real `MANUAL_OVERRIDES` entry (in both
+`fetch-wvw-splits.ts` and the committed `wvw-fact-overrides.json` directly, same "no re-fetch needed"
+shortcut prior legs used).
+
+**2 of the original 3 unresolved-collision ids resolved, no curation needed for either**:
+- **72359** — same wiki page as 40485 (see above), just the enhanced-cast id; already curated above.
+- **46409 "Legendary Renegade Stance"** — its wiki page (`id = 41858`, the OTHER id of this
+  Legend-swap flip pair) carries no facts template at all, flavor description only. Same "internal
+  state-flag effect, no number, no display path renders it anyway" exclusion class already
+  established for Legendary Demon Stance/Unsheathe Gunsaber/Unleash Ranger/Unleash Pet — documented,
+  not curated.
+
+**New candidate found by the fresh scan, NOT investigated/curated this leg**: `Fox's Fury` (76711,
+Elementalist/**Evoker** base Meditation skill — distinct from its own flip skill 77282, which already
+has a curated damage coefficient from an earlier pipeline leg). Wiki facts:
+`[damage, burning, might, fury, targets, stun break]`; description opens "Grant boons to nearby
+allies, then inflict burning..." — the unconditional might/fury ally-grant looks same-shape as
+Detonate Elixir H, worth a look next. This id was absent from every prior write-up of "the 41 ids" in
+this backlog — missed until this session's fresh re-scan, not a new API change.
+
+`npx tsc`/`npx eslint` clean. Merged output spot-verified via a standalone script (both curated ids'
+`.facts` show the injected condition Buff facts alongside the real API Range/Recharge/Radius facts,
+plus the correct `wvwFactOverrides.skill[40485/72359].Immobilize = 1.5`). Full write-up in TODO.md's
+own updated bug entry. **Remaining**: 9 of the original 41 ids, plus Fox's Fury (Otherworldly Bond;
+Twin Moon Sweep, 2 ids; Tale of the Tortured Mastermind; Radiant Resolve/Radiant Justice, plus Radiant
+Resolve's own 3rd unresolved flip-id 78514 — likely the same same-page-sibling shape Icerazor's Ire
+just resolved; Fox's Fury).
+
 ## Session 127 — Empty-effect-facts curation: Necromancer Shroud cluster (Voracious Arc/Devouring
 Cut/Anguish)
 

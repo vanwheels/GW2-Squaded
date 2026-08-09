@@ -82,5 +82,18 @@
   "76864": [
     { "type": "Buff", "status": "Crippled", "text": "Apply Buff/Condition", "duration": 4 },
     { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 8 }
+  ],
+  "40485": [
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 10 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 5 },
+    { "type": "Buff", "status": "Immobilize", "text": "Apply Buff/Condition", "duration": 2 }
+  ],
+  "72359": [
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 10 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 5 },
+    { "type": "Buff", "status": "Immobilize", "text": "Apply Buff/Condition", "duration": 2 },
+    { "type": "Buff", "status": "Chilled", "text": "Apply Buff/Condition", "duration": 1.5 }
   ]
 }

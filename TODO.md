@@ -232,14 +232,45 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       a Buff/condition grant). `npx tsc`/`npx eslint` clean, merged output spot-verified via a
       standalone script.
 
-      **Remaining scope**: 10 of the original 41 ids (Otherworldly Bond's escalating-tier tether
-      mechanic; Icerazor's Ire; Twin Moon Sweep; Tale of the Tortured Mastermind; Radiant Resolve/
-      Radiant Justice; the 3 still-unresolved ids — Legendary Renegade Stance 46409, Icerazor's Ire
-      72359, Radiant Resolve 78514) still need per-skill curation — recommended one cluster at a time,
-      checking in between, same as every other leg of this pipeline. Also worth a follow-up look at
-      whether the elixirs' skipped foe-facing condition facts, and the Weaver cluster's skipped
-      bullet-consume-gated bonuses, are curatable another way (e.g. a new "conditional" `Fact` shape) —
-      not attempted here, scope creep beyond this leg.
+      **Icerazor's Ire cluster curated 2026-08-09** (see COMPLETED.md's latest session): Revenant/
+      Renegade legendary-utility skill, `id = 40485, <!-- enhanced --> 72359` on one wiki page — 40485
+      is the base cast, 72359 the "Band Together"-enhanced cast (same page's own inline comment), which
+      also resolves 72359 out of the unresolved bucket. Curated both foe-facing: "Initial Vulnerability"
+      8s/10 stacks (on-summon), Torment 6s/3 stacks, a second on-hit Vulnerability 8s/5 stacks (from the
+      3-projectile attack — same status, genuinely a separate application, not a duplicate), Immobilize
+      2s; 72359 alone adds an unsplit Chilled 1.5s. **New architecture-limit shape found**:
+      `WvwFactOverride` (`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES`) only ever overrides a Buff fact's
+      `duration`, never `apply_count` — every prior curated split in this pipeline happened to be a
+      duration change. This skill's wiki page splits Torment/Initial-Vulnerability by STACK COUNT only
+      (duration unchanged both modes: Torment 3->2, Vulnerability 10->6), which the mechanism can't
+      express at all — left at the PvE stack counts (documented gap, not modeled wrong). Immobilize's
+      split (2s pve -> 1.5s wvw/pvp) IS a plain duration change, so that one got a real override.
+      **Also resolved (documentation only, no curation needed)**: **Legendary Renegade Stance (46409)**
+      — its wiki page (`id = 41858`, the OTHER id of this flip pair) has no facts template at all, same
+      "internal state-flag effect, no number, no current display path" exclusion class already
+      established for Legendary Demon Stance/Unsheathe Gunsaber/Unleash Ranger/Unleash Pet. This
+      resolves the 2nd of the original 3 unresolved-collision ids. `npx tsc`/`npx eslint` clean, merged
+      output spot-verified via a standalone script.
+
+      **New candidate found on re-scan 2026-08-09, not yet curated**: `Fox's Fury` (76711, Elementalist/
+      **Evoker** base Meditation, flips to the already-damage-coefficient-curated 77282) — desc "Grant
+      boons to nearby allies, then inflict burning..." with wiki facts `[damage, burning, might, fury,
+      targets, stun break]`; the base unconditional ally-grant (might/fury) looks curatable same-shape
+      as Detonate Elixir H, not yet investigated in detail. Missed by every earlier write-up of "the 41
+      ids" — re-running `scan-empty-effect-facts.ts` fresh is what surfaced it, worth doing again before
+      declaring this item done.
+
+      **Remaining scope**: 9 of the original 41 ids, plus the newly-found Fox's Fury above (Otherworldly
+      Bond's escalating-tier tether mechanic — still deferred, still hardest; Twin Moon Sweep (2 ids,
+      76968/77001); Tale of the Tortured Mastermind (77066); Radiant Resolve/Radiant Justice
+      (78604/78837, plus the 3rd still-unresolved id, Radiant Resolve's own other flip id 78514 — same
+      `id=`-list-sibling shape Icerazor's Ire just resolved, likely resolves the same way); Fox's Fury
+      (76711)) still need per-skill curation — recommended one cluster at a time, checking in between,
+      same as every other leg of this pipeline. Also worth a follow-up look at whether the elixirs'
+      skipped foe-facing condition facts, the Weaver cluster's skipped bullet-consume-gated bonuses, and
+      now this cluster's skipped apply-count-only WvW splits, are curatable another way (e.g. new
+      "conditional"/game-mode-aware-stacks `Fact` shapes) — not attempted here, scope creep beyond this
+      leg.
 
 - [ ] **Skill tooltips never show a skill's own Misc/Control/Strip-Corrupt/Combo/Aura facts** —
       flagged by the user 2026-08-07, concrete example: skills that apply Superspeed correctly show
