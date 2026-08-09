@@ -272,6 +272,23 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       "conditional"/game-mode-aware-stacks `Fact` shapes) — not attempted here, scope creep beyond this
       leg.
 
+- [ ] **Multiple same-status Buff facts on one skill render as unlabeled duplicate rows** — flagged
+      by the user 2026-08-09 looking at Icerazor's Ire's tooltip (2 separate Vulnerability
+      applications, 8s×10 on-summon + 8s×5 on-hit, both just labeled "Vulnerability" with no way to
+      tell them apart). **Confirmed NOT specific to this skill or to synthetic-facts curation** — a
+      full scan of `data/game-data/skills.json` found 214 real-API skills with this exact shape
+      already (e.g. Skull Fear applies Fear 3 separate times, Blowtorch applies Burning 4 times), all
+      already rendering the same way today. Root cause: `extractFromFacts`
+      (`src/shared/boon-calc/sources.ts`) builds `BoonConditionSource` from only
+      `status`/`duration`/`apply_count`/`requires_trait` — never `fact.description` (which the real
+      API does populate, but with a generic per-status blurb, not a per-instance qualifier like the
+      wiki's own `alt=` labels) — and `factsBlock` (`SkillsEditor.tsx`) renders only
+      `f.boonOrConditionName`. No field exists anywhere in the pipeline to carry a per-instance label
+      like "on summon" vs "on hit". User picked "leave as-is for now" when asked about scope (options
+      were: leave as-is / add an optional label field populated only where hand-curated / a fully
+      automatic generic label for all 214+ skills at once) — this entry is that future design pass,
+      not started.
+
 - [ ] **Skill tooltips never show a skill's own Misc/Control/Strip-Corrupt/Combo/Aura facts** —
       flagged by the user 2026-08-07, concrete example: skills that apply Superspeed correctly show
       up in the boon/condition bar's "Misc." row but the same skill's own tooltip shows nothing for
