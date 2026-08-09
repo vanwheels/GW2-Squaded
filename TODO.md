@@ -203,14 +203,43 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       self mechanics. `npx tsc`/`npx eslint` clean, merged output spot-verified via a standalone
       script.
 
-      **Remaining scope**: 13 of the original 41 ids (Otherworldly Bond's escalating-tier tether
-      mechanic; Icerazor's Ire; Voracious Arc/Devouring Cut; Summon Spirits/Anguish; Twin Moon Sweep;
-      Tale of the Tortured Mastermind; Radiant Resolve/Radiant Justice; the 4 unresolved-collision ids)
-      still need per-skill curation — recommended one cluster at a time, checking in between, same as
-      every other leg of this pipeline. Also worth a follow-up look at whether the elixirs' skipped
-      foe-facing condition facts, and the Weaver cluster's skipped bullet-consume-gated bonuses, are
-      curatable another way (e.g. a per-fact rather than per-source target count in `sources.ts`, or a
-      new "conditional" `Fact` shape) — not attempted here, scope creep beyond this leg.
+      **Necromancer Shroud cluster curated 2026-08-09** (see COMPLETED.md's latest session): Harbinger
+      Shroud's **Voracious Arc** (62539) and **Devouring Cut** (62672), plus Ritualist's Shroud's
+      **Anguish** (76864) — all 3 confirmed reachable via `SHROUD_SLOT_SKILLS` in `bundle-skills.ts`
+      (raw `Downed_*` slot labels, same shape as the already-curated Elixir cluster's own Shroud ids).
+      Unlike every prior cluster, these are **pure foe-facing condition** skills with no competing
+      self/ally boon fact on the same id, so the usual `resolveTargetCount`-is-per-skill exclusion
+      reason never applies here — but a different rule ended up mattering instead:
+      `PartyBoonConditionContribution.targetCount`'s own doc comment states it's "only meaningful when
+      `isCondition` is false," i.e. never consulted for conditions at all. That makes a synthetic
+      `Number of Allied Targets` fact (the shape Shadowsquall's cluster introduced) pure dead weight
+      for a foe-only skill — skipped here, unlike Shadowsquall's ally-reach case. Curated: Voracious
+      Arc's Torment 7s/5 stacks and Devouring Cut's Torment 5s/5 stacks (each wiki page's own single
+      `{{skill fact|torment|...|stacks=5}}` line, no `game mode=` split present on that specific fact
+      despite each skill's damage-coefficient fact splitting pve/wvw+pvp two lines above it — taken at
+      face value, no WvW override added, consistent with this pipeline's "only split what the wiki
+      itself splits" rule); Anguish's Crippled 4s + Vulnerability 10s/8 stacks (its own "Ritualist
+      Attack" line — the player's direct mark-cast, not the summoned spirit's own subsequent attack).
+      **Summon Spirits (76607, its `id=` list's own second id 77191) has nothing curatable**: every one
+      of its facts describes what the 3 summoned spirits' own follow-up attacks do (damage, daze,
+      barrier-field duration), not a boon/condition the caster grants directly — same "no Buff-shaped
+      fact exists at all" non-actionable shape as the Weaver cluster's 7 excluded skills, not a
+      target-count conflict. This also resolves 77191 out of the original 4-unresolved bucket: its wiki
+      page exists (shared with 76607, confirmed via the infobox's own `id = 76607, 77191` line) but a
+      title-only search missed it — not a genuinely missing page, and nothing to curate there either
+      way. Also skipped (own already-swept pipelines): both skills' damage coefficients, and Voracious
+      Arc/Devouring Cut's Blight-threshold "damage increase" facts (a conditional damage modifier, not
+      a Buff/condition grant). `npx tsc`/`npx eslint` clean, merged output spot-verified via a
+      standalone script.
+
+      **Remaining scope**: 10 of the original 41 ids (Otherworldly Bond's escalating-tier tether
+      mechanic; Icerazor's Ire; Twin Moon Sweep; Tale of the Tortured Mastermind; Radiant Resolve/
+      Radiant Justice; the 3 still-unresolved ids — Legendary Renegade Stance 46409, Icerazor's Ire
+      72359, Radiant Resolve 78514) still need per-skill curation — recommended one cluster at a time,
+      checking in between, same as every other leg of this pipeline. Also worth a follow-up look at
+      whether the elixirs' skipped foe-facing condition facts, and the Weaver cluster's skipped
+      bullet-consume-gated bonuses, are curatable another way (e.g. a new "conditional" `Fact` shape) —
+      not attempted here, scope creep beyond this leg.
 
 - [ ] **Skill tooltips never show a skill's own Misc/Control/Strip-Corrupt/Combo/Aura facts** —
       flagged by the user 2026-08-07, concrete example: skills that apply Superspeed correctly show

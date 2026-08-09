@@ -76,5 +76,11 @@
   "69173": [
     { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 2.5, "apply_count": 8 },
     { "type": "Number", "text": "Number of Allied Targets", "value": 1 }
+  ],
+  "62539": [{ "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 7, "apply_count": 5 }],
+  "62672": [{ "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 5 }],
+  "76864": [
+    { "type": "Buff", "status": "Crippled", "text": "Apply Buff/Condition", "duration": 4 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 8 }
   ]
 }

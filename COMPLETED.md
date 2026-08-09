@@ -2,6 +2,39 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 127 — Empty-effect-facts curation: Necromancer Shroud cluster (Voracious Arc/Devouring
+Cut/Anguish)
+
+Fifth leg of the 35-skill/41-id empty-effect-facts backlog. Picked the next cluster off the Session
+126 remaining-scope list, again skipping Otherworldly Bond.
+
+**Harbinger Shroud's Voracious Arc (62539)/Devouring Cut (62672) + Ritualist's Shroud's Anguish
+(76864)** — all 3 confirmed reachable despite raw `Downed_*` slot labels via `SHROUD_SLOT_SKILLS` in
+`bundle-skills.ts`, same shape as the Elixir cluster's own Shroud ids. Unlike every prior cluster,
+these are pure foe-facing condition skills with no competing self/ally boon on the same id, so the
+usual `resolveTargetCount`-per-skill exclusion never applied — but a different rule mattered instead:
+`targetCount` is documented as "only meaningful when `isCondition` is false," so a synthetic
+`Number of Allied Targets` fact (Shadowsquall's own new shape) would be dead weight on a foe-only
+skill. Skipped it here.
+
+Curated: Voracious Arc Torment 7s/5 stacks, Devouring Cut Torment 5s/5 stacks (each wiki page's single
+un-split torment fact line, taken at face value — no WvW override, unlike each skill's own
+separately-split damage-coefficient fact just above it), and Anguish's Crippled 4s + Vulnerability
+10s/8 stacks (its direct mark-cast line, not the summoned spirit's own follow-up attack).
+
+**Summon Spirits (76607/77191) has nothing curatable**: every fact on its page describes the 3
+summoned spirits' own attacks (damage/daze/barrier duration), not a caster-granted boon/condition —
+same "no Buff-shaped fact exists" non-actionable shape as 7 of the Weaver cluster's skills. This also
+resolves 77191 out of the original 4-unresolved bucket: its page exists (shared with 76607 via the
+infobox's own `id = 76607, 77191` line), a title search just missed it — confirmed non-actionable
+either way, not a real gap.
+
+`npx tsc`/`npx eslint` clean. Merged output spot-verified via a standalone script (all 3 curated ids'
+`.facts` show the injected condition Buff facts alongside the real API Range/Recharge facts). Full
+write-up in TODO.md's own updated bug entry. **Remaining**: 10 of the original 41 ids (Otherworldly
+Bond; Icerazor's Ire; Twin Moon Sweep; Tale of the Tortured Mastermind; Radiant Resolve/Radiant
+Justice; 3 still-unresolved ids).
+
 ## Session 126 — Empty-effect-facts curation: Shadowsquall/Malicious Shadowsquall cluster
 
 Fourth leg of the 35-skill/41-id empty-effect-facts backlog. Picked the next cluster off the
