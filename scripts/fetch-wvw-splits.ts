@@ -372,7 +372,16 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // entirely rather than just mis-showing its duration, caught by spot-verifying the merged
     // output before trusting it. Left both of 77282's Might facts at PvE duration (10s), documented
     // gap, not modeled wrong.
-    76711: { Might: 8, Fury: 8 }
+    76711: { Might: 8, Fury: 8 },
+
+    // Radiant Justice (Guardian/Luminary virtue, empty-effect-facts curation, see
+    // synthetic-facts.json) — same zero-real-API-Buff-facts root cause. The Activate cast's
+    // self Quickness splits PvE 3s -> WvW/PvP 2s; the passive proc's Burning (every 5 attacks)
+    // shares one value across PvE+WvW (2s, only PvP differs to 4s, unmodeled per this app's WvW
+    // focus) so gets no override. The "Empowered Hammer" bonus (damage + Vulnerability) is
+    // conditional on the NEXT Dazzling Hammer cast, not unconditional on this cast — excluded,
+    // same bullet-consume-gated-bonus shape as the Weaver Pistol/Spear cluster.
+    78837: { Quickness: 2 }
   },
   trait: {}
 }

@@ -107,5 +107,24 @@
     { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
   ],
   "76968": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 2 }],
-  "77001": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 2 }]
+  "77001": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 2 }],
+  "77066": [
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 4 },
+    { "type": "Buff", "status": "Weakness", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 10 },
+    { "type": "Number", "text": "Boons Removed", "value": 3 },
+    { "type": "Time", "text": "Daze", "duration": 3 }
+  ],
+  "78604": [
+    { "type": "Buff", "status": "Light Aura", "text": "Apply Buff/Condition", "duration": 4 },
+    { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
+  ],
+  "78514": [
+    { "type": "Buff", "status": "Light Aura", "text": "Apply Buff/Condition", "duration": 4 },
+    { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
+  ],
+  "78837": [
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3 },
+    { "type": "Buff", "status": "Burning", "text": "Apply Buff/Condition", "duration": 2 }
+  ]
 }

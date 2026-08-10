@@ -488,6 +488,9 @@
     "40184": {
       "Might": 8
     },
+    "40485": {
+      "Immobilize": 1.5
+    },
     "40497": {
       "Bleeding": 4
     },
@@ -843,12 +846,6 @@
     "71960": {
       "Stability": 3
     },
-    "40485": {
-      "Immobilize": 1.5
-    },
-    "72359": {
-      "Immobilize": 1.5
-    },
     "71963": {
       "Protection": 3
     },
@@ -874,6 +871,9 @@
     },
     "72076": {
       "Weakness": "omit"
+    },
+    "72359": {
+      "Immobilize": 1.5
     },
     "72915": {
       "Fury": 1
@@ -934,6 +934,10 @@
       "Poisoned": 8,
       "Protection": 3
     },
+    "76711": {
+      "Might": 8,
+      "Fury": 8
+    },
     "76752": {
       "Protection": 4
     },
@@ -943,10 +947,6 @@
     "77247": {
       "Bleeding": 10,
       "Protection": 3
-    },
-    "76711": {
-      "Might": 8,
-      "Fury": 8
     },
     "77282": {
       "Fury": 8
@@ -958,6 +958,9 @@
     "78501": {
       "Resistance": 1,
       "Regeneration": 3
+    },
+    "78837": {
+      "Quickness": 2
     },
     "78845": {
       "Immobile": 1

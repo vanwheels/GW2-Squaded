@@ -296,17 +296,66 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       `npx tsc` for this leg. `npx tsc`/`npx eslint` clean, merged output spot-verified via a standalone
       script.
 
-      **Remaining scope**: 7 of the original 41 ids (Otherworldly Bond's escalating-tier tether mechanic —
-      still deferred, still hardest; Tale of the Tortured Mastermind (77066); Radiant Resolve/Radiant
-      Justice (78604/78837, plus the 3rd still-unresolved id, Radiant Resolve's own other flip id 78514 —
-      same `id=`-list-sibling shape Icerazor's Ire already resolved, likely resolves the same way)) still
-      need per-skill curation — recommended one cluster at a time, checking in between, same as every
-      other leg of this pipeline. Also worth a follow-up look at whether the elixirs' skipped foe-facing
-      condition facts, the Weaver cluster's skipped bullet-consume-gated bonuses, this cluster's/
-      Icerazor's Ire's skipped apply-count-only WvW splits, Fox's Fury's skipped same-status-collapse-
-      on-override case, and now Twin Moon Sweep's skipped legend-gated Resonance blocks, are curatable
-      another way (e.g. new "conditional"/game-mode-aware-stacks `Fact` shapes, or a per-application not
-      per-status override key) — not attempted here, scope creep beyond this leg.
+      **Tale of the Tortured Mastermind cluster curated 2026-08-09**: Mesmer/Troubadour utility Tale,
+      id 77066, a 4-hit attack whose wiki page tags 3 of its non-damage facts by which specific hit
+      applies them (`alt=First-Hit Weakness`/`Second-Hit Vulnerability`/`Third-Hit Boons Removed`/
+      `Fourth-Hit Daze`) plus an untagged Torment fact the skill's own 2025-10-28 patch note says now
+      "always applies on hit" (i.e. all 4 hits, matching the page's own `Number of Hits|4` meta fact —
+      same apply_count-matches-hit-count inference Shadowsquall's cluster established). Curated:
+      Torment 8s/apply_count 4, Weakness 5s (single, first hit only), Vulnerability 4s/apply_count 10
+      (single hit, stacks=10), plus **2 new fact-type shapes never curated by this bug before**: a
+      `Number`-typed "Boons Removed": 3 (feeds the existing `BOON_STRIP_CORRUPT_MATCHERS` Strip row,
+      no new matcher/plumbing needed — it already regexes on `/boons? (removed|stolen)/i`) and a
+      `Time`-typed Daze: 3s (feeds `CONTROL_MATCHERS`, confirmed via a full scan of real API Daze facts
+      that `{ type: 'Time', text: 'Daze', duration }` is the live shape). **New architecture limit
+      found**: `computeNamedFactSources`/`namedFactsFrom` (what actually reads Control/Strip/Corrupt
+      facts) takes no `wvwOverrides` param at all, unlike `extractFromFacts`'s Buff-fact path — so the
+      wiki's own Daze split (3s pve -> 2s wvw/pvp) can't be expressed here even though the mechanism
+      exists for Buff facts; left at the PvE value, documented gap, not modeled wrong. Damage
+      (already-swept pipeline) skipped as always. `npx tsc`/`npx eslint` clean, spot-verified via a
+      standalone script (confirmed the Strip/Control matchers actually fire on the synthetic facts,
+      not just that the JSON parses).
+
+      **Radiant Resolve / Radiant Justice cluster curated 2026-08-09, resolves the last unresolved-
+      collision id too**: Guardian/Luminary virtue mechanic skills. **Radiant Resolve (78604)**: local
+      `skills.json` confirmed `flipSkill: 78514` — a real flip pair (not a same-page-sibling like
+      Icerazor's Ire), both ids otherwise byte-identical (facts/description/specialization), so 78514
+      is resolved out of the unresolved-collision bucket and curated identically. Wiki: "Heal yourself
+      and nearby allies while granting light aura" — curated Light Aura 4s (an aura, not a boon/
+      condition, so it flows through `computeAuraSources`'s copy of `extractFromFacts` rather than
+      `boonConditionFactsForSkill` — same shape already proven by Frostfire Ward's Frost/Fire Aura
+      entries) plus a synthetic `Number of Allied Targets`: 5 (`targets|5` is unambiguous here, this
+      skill's only other effect is the self-only passive heal-over-time tick, no competing foe count).
+      Skipped: the Healing coefficient (own already-swept pipeline, and this id apparently isn't in
+      `CURATED_HEALING_COEFFICIENTS` at all yet — flagging, not fixing, out of scope here), Self
+      Condition Removal (Cleanse pipeline), and the "Empowered Staff" Regeneration bonus (conditional
+      on your NEXT Luminous Staff cast, not unconditional on this cast — same bullet-consume-gated-
+      bonus exclusion shape as the Weaver cluster). **Radiant Justice (78837)**: curated self Quickness
+      3s (PvE) with a WvW/PvP override to 2s (`fetch-wvw-splits.ts` `MANUAL_OVERRIDES` +
+      `wvw-fact-overrides.json` directly, same escape hatch as every prior cluster) AND the passive
+      virtue proc's foe-facing Burning 2s (pve+wvw value; only PvP differs to 4s, unmodeled per this
+      app's WvW focus) — **the first time this pipeline has curated a self-boon and a foe-condition on
+      the same id since the Elixir cluster's own documented exclusion of that shape**. Verified safe
+      rather than assumed: neither fact needs an explicit target-count override (Quickness has no
+      described party reach at all — self-only per its own description; foe conditions ignore
+      `targetCount` entirely per the Necromancer Shroud cluster's own established finding), so
+      `resolveTargetCount`'s one-shared-value-per-skill mechanism stays `null` for both with no
+      collision — spot-verified via a standalone script producing both rows correctly (Quickness
+      isCondition=false, Burning isCondition=true, no dropped/collapsed entries) before trusting it,
+      not just typecheck/lint. Skipped: damage coefficient (own pipeline) and the "Empowered Hammer"
+      Vulnerability bonus (conditional on your NEXT Dazzling Hammer cast, same exclusion shape as
+      Radiant Resolve's own Empowered Staff bonus above). `npx tsc`/`npx eslint` clean.
+
+      **Remaining scope**: Otherworldly Bond (71952/71858) — its escalating-tier tether mechanic, still
+      deferred, still the hardest and last of the original 41 ids. This closes out every other id in
+      that original count. Also worth a follow-up look at whether the elixirs' skipped foe-facing
+      condition facts, the Weaver cluster's skipped bullet-consume-gated bonuses, Icerazor's Ire's/Fox's
+      Fury's skipped apply-count-only and same-status-collapse-on-override cases, Twin Moon Sweep's
+      skipped legend-gated Resonance blocks, and now this leg's skipped Control/Strip-fact WvW-override
+      gap and un-curated Radiant Resolve healing coefficient, are curatable another way (e.g. new
+      "conditional"/game-mode-aware-stacks `Fact` shapes, a per-application not per-status override key,
+      or threading `wvwOverrides` through `namedFactsFrom` too) — not attempted here, scope creep beyond
+      this leg.
 
 - [ ] **Multiple same-status Buff facts on one skill render as unlabeled duplicate rows** — flagged
       by the user 2026-08-09 looking at Icerazor's Ire's tooltip (2 separate Vulnerability
