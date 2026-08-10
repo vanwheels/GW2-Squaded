@@ -265,14 +265,26 @@ export type TargetCountOverride = number | 'self'
  * predates that fix). Scoped to boon-classified facts only — `SkillsEditor.tsx` only ever renders
  * `targetCount` when `category === 'boon'`, so `PrefixedBuff` condition facts (e.g. Arcane
  * Precision's crit-triggered conditions) have no consumer for a curated value and are out of scope
- * by design, not overlooked. 35 distinct sources (119 boon-fact lines) found across 8 professions.
+ * by design, not overlooked.
  *
- * Elementalist leg (1st leg, 2026-08-09): 10 skills + 7 traits, all confirmed self-only — every
- * source is an attunement/combo-based personal buff (Glyph of Elemental Harmony's heal, Inscription
- * riding on the Glyph of (Lesser) Elementals variants, Elemental Celerity, Unravel, Arcane Lightning,
- * Soothing Disruption, Elemental Lockdown, Swift Revenge, Elemental Synergy, Enhanced Potency) with
- * "Gain X" (first-person) wording throughout and no "allies" wording found anywhere across the whole
- * leg — no exclusions needed. See the skill/trait tables' own leg comment for per-source detail.
+ * Original estimate (2026-08-09) was 35 distinct sources across 8 professions; that discovery pass
+ * undercounted (method unrecorded, likely an eyeballed subset rather than an exhaustive scan).
+ * 2026-08-10 correction: a programmatic re-scan (every `type === 'PrefixedBuff'` fact with an
+ * `isBoonName` status on both `skills.json`/`traits.json`, filtered against the *actual* top-level
+ * keys already present in `TARGET_COUNT_OVERRIDES` rather than a text-presence check — several ids
+ * only appeared in other sources' comments as a gate reference, e.g. trait 621/1678/778/2289, and a
+ * naive "is this id anywhere in the file" check misreads that as already curated) found the true
+ * total is 45 distinct sources across 9 professions (Thief wasn't in the original 8 at all). See
+ * TODO.md for the corrected per-profession remaining count.
+ *
+ * Elementalist leg (1st leg, 2026-08-09 + correction 2026-08-10): 10 skills + 10 traits, all
+ * confirmed self-only except the 3 the original pass missed (Elemental Attunement, Familiar's
+ * Blessing, Altruistic Aspect — all party-wide(5), each wiki page's own `{{skill fact|targets|5}}`).
+ * Every other source is an attunement/combo-based personal buff (Glyph of Elemental Harmony's heal,
+ * Inscription riding on the Glyph of (Lesser) Elementals variants, Elemental Celerity, Unravel,
+ * Arcane Lightning, Soothing Disruption, Elemental Lockdown, Swift Revenge, Elemental Synergy,
+ * Enhanced Potency) with "Gain X" (first-person) wording throughout. See the skill/trait tables' own
+ * leg comment for per-source detail. Leg now fully closed — 20/20 Elementalist sources curated.
  */
 // Exported for scripts/fetch-target-counts.ts (the wiki-extraction pipeline's target-count leg,
 // TODO.md's "Wiki-sourced data pipeline" step 3) — same shape as damage-calc.ts's own
@@ -1155,9 +1167,20 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
     // their elements" — "grant you," self-only.
     2233: 'self', // Elemental Synergy (Catalyst). Wiki: "Gain a bonus effect when you finish a combo"
     // — Fire/Water/Air/Earth bonuses (Might/self-heal/Endurance/Stability) all first-person.
-    2382: 'self' // Enhanced Potency (Evoker minor). Wiki: "Improve a boon based on your familiar" —
+    2382: 'self', // Enhanced Potency (Evoker minor). Wiki: "Improve a boon based on your familiar" —
     // strengthens the elementalist's own existing Might/Regeneration/Fury/Protection from familiar
     // skills (Ignite/Splash/Zap/Calcify), no ally wording.
+
+    // --- PrefixedBuff target-count sweep, Elementalist leg correction (2026-08-10): the leg's
+    // original discovery pass missed these 3 — all genuinely party-wide, unlike every other
+    // Elementalist source above. Each wiki page's own `{{skill fact|targets|5}}` confirms the
+    // standard 5.
+    264: 5, // Elemental Attunement (Arcane minor). Wiki: "Grant a boon to nearby allies when changing
+    // attunements" — explicit targets=5, radius=240.
+    2380: 5, // Familiar's Blessing (Evoker). Wiki: "Grant boons to nearby allies when you use a
+    // familiar skill" — explicit targets=5, radius=300.
+    2415: 5 // Altruistic Aspect (Evoker). Wiki: "Meditation skills grant boons to allies" — explicit
+    // targets=5, radius=360.
   }
 }
 

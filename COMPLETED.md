@@ -2,6 +2,29 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 135 — `PrefixedBuff` target-count sweep, corrected the backlog count + closed out Elementalist
+
+Resuming the sweep, re-ran the discovery scan per [[prefixedbuff_target_count_sweep]]'s own
+"how to apply" note and found it had drifted more than expected: the original 35-source/8-profession
+estimate undercounted. Root cause: that earlier pass (no discovery script was committed, so its exact
+method is lost) apparently treated "this id appears anywhere in `sources.ts`" as "already curated" —
+several trait ids (621, 1678, 778, 2289, ...) are referenced in *other* sources' comments as the gate
+that gives them their target count, but never actually got their own top-level
+`TARGET_COUNT_OVERRIDES` entry for their own tooltip rendering (`boonConditionFactsForTrait` resolves
+each trait's own facts independently of any skill it gates). A programmatic re-scan — every
+`type === 'PrefixedBuff'` fact with an `isBoonName` status across `skills.json`/`traits.json`, checked
+against the real top-level keys in the `TARGET_COUNT_OVERRIDES` object literal — found the true total
+is 45 distinct sources across 9 professions (Thief wasn't in the original 8 at all).
+
+The re-scan also caught 3 sources inside the already-"done" Elementalist leg that the original pass
+missed entirely: Elemental Attunement (264), Familiar's Blessing (2380), Altruistic Aspect (2415) —
+all genuinely party-wide, unlike every other Elementalist source in that leg. Each one's own wiki page
+carries an explicit `{{skill fact|targets|5}}`, so all three are curated `5`. Elementalist is now
+fully closed (20/20 sources). Updated `TARGET_COUNT_OVERRIDES`' doc comment in
+`src/shared/boon-calc/sources.ts` to record the corrected total and the discovery-scan lesson, and
+TODO.md's per-profession remaining count (25 now: Revenant(7), Ranger(8), Guardian(4), Mesmer(2),
+Necromancer(1), Warrior(1), Engineer(1), Thief(1)) for the next leg (Revenant).
+
 ## Session 134 — `PrefixedBuff` target-count sweep, Elementalist leg (1st of the backlog)
 
 Started the TODO.md follow-up Session 133 left open. First, scoped it down from the original
