@@ -18,6 +18,19 @@ export type ProfessionId = string // e.g. "Guardian", "Warrior"
  * even though it isn't typed. `status`/`duration`/`apply_count` are what a
  * `type: 'Buff'` fact uses; `requires_trait` gates a fact (base or traited)
  * behind a specific trait being chosen, on either skills or traits.
+ *
+ * `type: 'PrefixedBuff'` is the API's shape for "trait/skill X adds a boon
+ * specifically to skill/effect Y's own application" (e.g. Revenant/Salvation's
+ * Serene Rejuvenation, "Legendary Centaur skills apply boons in an area") — it
+ * carries the exact same `status`/`duration`/`apply_count`/`requires_trait`
+ * fields as an ordinary `Buff` fact, PLUS a nested `prefix` naming the specific
+ * other effect it rides on. `prefix.status` is a display name only, NOT a
+ * resolvable id — a scan of data/game-data/{traits,skills}.json found names
+ * like "Natural Harmony" matching 2+ distinct skill ids with no discriminator
+ * to pick one, so `extractFromFacts` (boon-calc/sources.ts) treats a
+ * `PrefixedBuff` fact's boon/condition the same as an ordinary `Buff` fact
+ * (same source-level attribution to the trait/skill that grants it) and never
+ * tries to resolve `prefix.status` to a specific skill id.
  */
 export interface Fact {
   type: string
@@ -29,6 +42,8 @@ export interface Fact {
   apply_count?: number
   requires_trait?: number
   overrides?: number
+  /** `type: 'PrefixedBuff'` only — see this interface's doc comment. */
+  prefix?: { text?: string; icon?: string; status?: string; description?: string }
   [key: string]: unknown
 }
 

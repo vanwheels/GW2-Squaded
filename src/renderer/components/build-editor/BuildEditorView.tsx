@@ -235,6 +235,7 @@ export function BuildEditorView({ build, onBack }: Props) {
             <h3>Traits</h3>
             <TraitsEditor
               profession={draft.profession}
+              build={displayBuild}
               value={draft.specializations}
               onChange={handleSpecializationsChange}
             />

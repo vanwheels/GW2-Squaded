@@ -2,6 +2,55 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 133 — `PrefixedBuff` facts now surface everywhere (boon bar, all tooltips)
+
+Fixed the TODO.md bug flagged 2026-08-07: `extractFromFacts` (`boon-calc/sources.ts`) only ever
+recognized `type: "Buff"`, so every `type: "PrefixedBuff"` fact — the API's shape for "trait/skill X
+adds a boon specifically to skill Y's own application" (e.g. Revenant/Salvation's minor trait Serene
+Rejuvenation, "Legendary Centaur skills apply boons in an area") — was silently skipped everywhere,
+including the whole-build boon bar.
+
+Scoping pass (the 3 questions the TODO entry left open, checked against real data before touching
+`extractFromFacts`):
+- **Does `prefix.status` reliably resolve to one already-modeled skill id?** No — a scan of
+  `data/game-data/{traits,skills}.json` found names like "Natural Harmony" matching 2+ distinct skill
+  ids with no discriminator to pick one. So source attribution stays at the trait/skill that grants
+  the fact (unchanged from `Buff` handling), never resolving `prefix.status` to a specific id.
+- **Gated the same way as ordinary `Buff` facts (`requires_trait`)?** Yes — same field, same shape
+  (38/301 trait facts and 34/151 skill facts carry `requires_trait`, current data).
+- **Do target-count/duration-scaling rules apply identically?** Yes, for free — `resolveTargetCount`
+  already scans the combined facts array for a separate `type: "Number"` fact regardless of the
+  triggering fact's own type, and `wvwOverrides`/duration-% scaling are keyed by `fact.status`, not
+  `fact.type`. Un-curated `PrefixedBuff` sources just get `targetCount: null` ("unknown reach"), same
+  as any other source `TARGET_COUNT_OVERRIDES` hasn't covered yet — logged as a new, much smaller
+  TODO.md follow-up (452 facts, if a wiki-verified sweep is ever wanted) rather than blocking this
+  fix.
+
+Also confirmed 8 malformed `PrefixedBuff` facts (missing a top-level `status`, e.g. Transfusion,
+Rapid Regeneration — these describe a triggering condition via `prefix` with the actual effect text
+only in `description`, not a real boon/condition grant) already get skipped by the pre-existing
+`typeof fact.status !== 'string'` guard — no special-casing needed.
+
+Fix: widened `extractFromFacts`'s type guard to accept `'PrefixedBuff'` alongside `'Buff'`. Since
+every consumer (whole-build boon bar, skill/aura/combo tooltips) already funnels through this one
+function, this alone fixed all of them except one: `TraitsEditor.tsx`'s own trait-picker tooltip,
+found during this pass to hardcode `factsBlock(numericFactLines(...), [])` — an empty boon-facts
+array for *every* trait, `PrefixedBuff` or plain `Buff` alike (a pre-existing gap independent of this
+bug, called out but deliberately left out of Session 132's tooltip work). Since the original bug
+report specifically named "tooltip or boon bar" as both missing, closed this too: added
+`boonConditionFactsForTrait` (trait counterpart to `boonConditionFactsForSkill`) to `sources.ts`,
+threaded a `build` prop into `TraitsEditor` (only needed for gear-derived boon/condition duration %,
+computed the same way `SkillsEditor.tsx`'s `useDurationContext` does) from `BuildEditorView.tsx`, and
+wired both the minor- and major-trait tooltips to call it.
+
+Also added a typed `prefix?: { text?, icon?, status?, description? }` field to the `Fact` interface
+(`types/game-data.ts`) — previously only reachable through the interface's untyped index signature.
+
+Verified via a standalone repro script (real game data, a bare Revenant/Ventari/Salvation build,
+`computeBoonConditionSources` + `boonConditionFactsForTrait` called directly): all 5 of Serene
+Rejuvenation's boons (Vigor, Regeneration, Swiftness, Resistance×2) now appear on both paths, where
+before the fix all 5 were silently dropped. Typecheck/lint clean.
+
 ## Session 132 — Skill tooltips now render Misc/Control/Strip-Corrupt/Combo/Aura facts
 
 Fixed the TODO.md bug flagged 2026-08-07: skill tooltips only ever rendered `factLine`'s numeric

@@ -4,24 +4,17 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Bugs
 
-- [ ] **`PrefixedBuff`-type facts are completely unmodeled** — flagged by the user 2026-08-07 via a
-      concrete live example: Revenant/Salvation's minor trait Serene Rejuvenation ("Legendary
-      Centaur skills apply boons in an area") grants Vigor/Regeneration/Swiftness/Resistance×2 on
-      top of Ventari's own Natural Harmony/Purifying Essence/Protective Solace/Energy Expulsion
-      skills — but none of those bonus boons show up anywhere in the app (tooltip or boon bar). Root
-      cause: the GW2 API expresses "trait/skill X adds a boon specifically to skill Y's own effect"
-      as a `type: "PrefixedBuff"` fact (same `status`/`duration`/`apply_count` shape as an ordinary
-      `type: "Buff"` fact, PLUS a nested `prefix: { status, description }` naming which specific
-      other effect it rides on) — `extractFromFacts` (`boon-calc/sources.ts`) only ever checks
-      `fact.type !== 'Buff'`, so every `PrefixedBuff` fact is silently skipped, everywhere that
-      function is used (tooltips, boon bar, skill picker). This is NOT Revenant/Salvation-specific —
-      a full scan of `data/game-data/{traits,skills}.json` found 263 trait facts + 117 skill facts
-      of this shape project-wide, completely unhandled. Bigger than a one-line fix: needs a scoping
-      pass (does `prefix.status` reliably resolve to a specific already-modeled skill id for correct
-      source attribution, or only a display name? are any of these gated the same way regular Buff
-      facts are, e.g. `requires_trait`? do the target-count/duration-scaling rules already built for
-      `Buff` facts apply identically?) before extending `extractFromFacts` — likely its own
-      multi-leg sweep, similar in shape to the Healing/Damage coefficient sweeps, not a quick patch.
+- [ ] **`PrefixedBuff`-sourced boons have no curated target-count** — follow-up left open by fixing
+      the `PrefixedBuff` extraction bug itself (2026-08-09, see COMPLETED.md): `extractFromFacts`
+      now emits a `PrefixedBuff` fact's boon/condition exactly like an ordinary `Buff` fact, but
+      since `prefix.status` doesn't reliably resolve to one already-modeled skill id (a scan found
+      names like "Natural Harmony" matching 2+ distinct skill ids with no discriminator), these
+      sources fall back to `TARGET_COUNT_OVERRIDES`/`resolveTargetCount`'s normal "no signal found"
+      behavior — `targetCount: null` ("unknown reach") — same as any other un-curated source, not a
+      regression. 452 facts total (301 trait + 151 skill, current data — up from TODO.md's stale
+      263+117 count, presumably a game-data refresh since the original scan) would need the same
+      wiki-verified per-source sweep `TARGET_COUNT_OVERRIDES`' Group A/B legs already did for
+      ordinary `Buff` sources, if/when that's wanted — not required to ship the extraction fix.
 
 - [ ] **Gear Optimizer doesn't function properly yet** — flagged by the user 2026-08-05 while
       preparing the 0.2.0 release (shipped anyway, marked "early stage/experimental" in

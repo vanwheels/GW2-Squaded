@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
-import type { ProfessionId, Specialization, Trait, TraitLineSelection, TraitLineSlots } from '@shared/types'
+import type { Build, ProfessionId, Specialization, Trait, TraitLineSelection, TraitLineSlots, WvwFactOverride } from '@shared/types'
 import { numericFactLines } from '@shared/skill-calc/fact-numbers'
+import { boonConditionFactsForTrait } from '@shared/boon-calc/sources'
+import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
@@ -8,6 +10,10 @@ import { factsBlock } from './SkillsEditor'
 
 interface Props {
   profession: ProfessionId
+  /** Needed only to derive gear-sourced boon/condition duration % for this editor's own trait
+   *  tooltips (`boonConditionFactsForTrait`) — `value`/`onChange` below remain the source of truth
+   *  for which specs/traits are actually chosen. */
+  build: Build
   value: TraitLineSlots
   onChange: (value: TraitLineSlots) => void
 }
@@ -101,8 +107,14 @@ interface TraitLineRowProps {
   majorTraitsForSpecialization: (specializationId: number) => Trait[]
   /** All currently-active trait ids across every line (minors auto-active once their spec is
    *  equipped, majors once chosen) — gates a trait's own `requires_trait`-conditioned facts the
-   *  same way `numericFactLines` gates skill facts, see `SkillsEditor.tsx`'s `useDurationContext`. */
-  activeIds: ReadonlySet<number>
+   *  same way `numericFactLines` gates skill facts, see `SkillsEditor.tsx`'s `useDurationContext`.
+   *  Typed as the mutable `Set` (not `ReadonlySet`) `boonConditionFactsForTrait` expects, same as
+   *  every other `activeIds` consumer in `boon-calc/sources.ts`. */
+  activeIds: Set<number>
+  /** Gear-derived boon/condition duration % — see `SkillsEditor.tsx`'s `useDurationContext`, whose
+   *  shape this mirrors (computed once per render in the parent, reused across every trait shown). */
+  durationPercent: { boon: number; condition: number }
+  wvwFactOverridesByTraitId: Record<number, Record<string, WvwFactOverride>>
 }
 
 function TraitLineRow({
@@ -113,7 +125,9 @@ function TraitLineRow({
   onTraitChoice,
   minorTraitsForSpecialization,
   majorTraitsForSpecialization,
-  activeIds
+  activeIds,
+  durationPercent,
+  wvwFactOverridesByTraitId
 }: TraitLineRowProps) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const minorRefs = useRef<(HTMLDivElement | null)[]>([null, null, null])
@@ -165,7 +179,10 @@ function TraitLineRow({
                     content={
                       <>
                         <TooltipBody title={minor.name} description={minor.description} />
-                        {factsBlock(numericFactLines(minor.facts, minor.traitedFacts, activeIds), [])}
+                        {factsBlock(
+                          numericFactLines(minor.facts, minor.traitedFacts, activeIds),
+                          boonConditionFactsForTrait(minor, activeIds, durationPercent, wvwFactOverridesByTraitId[minor.id])
+                        )}
                       </>
                     }
                   >
@@ -186,7 +203,10 @@ function TraitLineRow({
                       content={
                         <>
                           <TooltipBody title={t.name} description={t.description} />
-                          {factsBlock(numericFactLines(t.facts, t.traitedFacts, activeIds), [])}
+                          {factsBlock(
+                            numericFactLines(t.facts, t.traitedFacts, activeIds),
+                            boonConditionFactsForTrait(t, activeIds, durationPercent, wvwFactOverridesByTraitId[t.id])
+                          )}
                         </>
                       }
                     >
@@ -224,9 +244,18 @@ function TraitLineRow({
  * button" pattern already used for skills/runes/sigils/etc., now applied here and to weapon-type
  * selection in `EquipmentEditor`).
  */
-export function TraitsEditor({ profession, value, onChange }: Props) {
-  const { specializationsForProfession, specializationsById, majorTraitsForSpecialization, minorTraitsForSpecialization } =
-    useGameData()
+export function TraitsEditor({ profession, build, value, onChange }: Props) {
+  const gameData = useGameData()
+  const { specializationsForProfession, specializationsById, majorTraitsForSpecialization, minorTraitsForSpecialization } = gameData
+
+  // Gear-derived boon/condition duration % for this editor's own trait tooltips
+  // (`boonConditionFactsForTrait`) — same shape/computation as `SkillsEditor.tsx`'s
+  // `useDurationContext`, just inlined here since this editor doesn't need the rest of that hook's
+  // return value (character attributes, target armor — nothing a trait tooltip's boon facts use).
+  const durationPercent = useMemo(() => {
+    const totals = computeGearAttributeTotals(build, gameData)
+    return { boon: boonDurationPercent(totals), condition: conditionDurationPercent(totals) }
+  }, [build, gameData])
 
   const specs = specializationsForProfession(profession)
   const lines = value
@@ -258,8 +287,10 @@ export function TraitsEditor({ profession, value, onChange }: Props) {
   const usedSpecIds = new Set(lines.filter((l): l is TraitLineSelection => l !== null).map((l) => l.specializationId))
 
   // Mirrors `boon-calc/sources.ts`'s `activeTraitIds`, scoped to this editor's own `TraitLineSlots`
-  // value rather than a full `Build` (which `TraitsEditor` doesn't have — it's only ever handed
-  // `build.specializations` directly).
+  // value (`lines`) directly rather than routing through `activeTraitIds(build, ...)` — `build` is
+  // only threaded through now for `durationPercent` above; `lines` (== `build.specializations` at
+  // every call site) stays the source of truth for trait activity, unchanged from before `build`
+  // was added to this component's props.
   const activeIds = useMemo(() => {
     const ids = new Set<number>()
     for (const line of lines) {
@@ -293,6 +324,8 @@ export function TraitsEditor({ profession, value, onChange }: Props) {
             minorTraitsForSpecialization={minorTraitsForSpecialization}
             majorTraitsForSpecialization={majorTraitsForSpecialization}
             activeIds={activeIds}
+            durationPercent={durationPercent}
+            wvwFactOverridesByTraitId={gameData.wvwFactOverrides.trait}
           />
         )
       })}

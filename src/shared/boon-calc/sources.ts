@@ -1593,7 +1593,11 @@ function extractFromFacts(
   const combinedFacts = [...facts, ...traitedFacts]
   const targetCount = resolveTargetCount(combinedFacts, sourceKind, sourceId)
   for (const fact of combinedFacts) {
-    if (fact.type !== 'Buff' || typeof fact.status !== 'string' || typeof fact.duration !== 'number') {
+    // `PrefixedBuff` (e.g. Revenant/Salvation's Serene Rejuvenation, "Legendary Centaur skills
+    // apply boons in an area") carries the identical status/duration/apply_count/requires_trait
+    // shape as `Buff`, just with an extra `prefix` naming the specific effect it rides on — see
+    // `Fact`'s doc comment for why `prefix.status` isn't used for source attribution here.
+    if ((fact.type !== 'Buff' && fact.type !== 'PrefixedBuff') || typeof fact.status !== 'string' || typeof fact.duration !== 'number') {
       continue
     }
     const category = classify(fact.status)
@@ -1656,6 +1660,34 @@ export function boonConditionFactsForSkill(
     skill.id,
     skill.name,
     skill.icon,
+    durationPercent,
+    wvwOverride
+  )
+}
+
+/**
+ * `boonConditionFactsForSkill`'s trait counterpart — a trait's own boon/condition facts (including
+ * `PrefixedBuff` ones, e.g. Serene Rejuvenation's Legendary-Centaur-skill boons), for the trait
+ * picker's own tooltip. Didn't exist before: `computeBoonConditionSources` already walks every
+ * equipped trait's facts for the build-wide boon bar, but the trait picker (`TraitsEditor.tsx`)
+ * only ever passed an empty boon-facts array to its own tooltip (`factsBlock(..., [])`), so a
+ * trait's boon/condition grants — `PrefixedBuff` or plain `Buff` alike — never showed there even
+ * though the aggregate boon bar had them right.
+ */
+export function boonConditionFactsForTrait(
+  trait: Trait,
+  activeIds: Set<number>,
+  durationPercent: { boon: number; condition: number },
+  wvwOverride: Record<string, WvwFactOverride> | undefined
+): BoonConditionSource[] {
+  return extractFromFacts(
+    trait.facts,
+    trait.traitedFacts,
+    activeIds,
+    'trait',
+    trait.id,
+    trait.name,
+    trait.icon,
     durationPercent,
     wvwOverride
   )
