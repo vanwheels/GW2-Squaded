@@ -2,6 +2,74 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 130 — Empty-effect-facts curation: Twin Moon Sweep cluster
+
+Eighth leg of the 35-skill/41-id empty-effect-facts backlog. Picked the next item off Session 129's
+remaining-scope list.
+
+**Twin Moon Sweep (Revenant/Conduit elite, ids 76968/77001 — one wiki page, `id = 76968, 77001`, the
+same GroundTargeted/non-GroundTargeted duplicate-id pair shape as the Elixir cluster)**: the skill's
+own base cast grants an unconditional self Might (8s/2 stacks, no `game mode=` split present on that
+line) alongside a foe-facing bleeding condition and a "Number of Targets per Scythe" reach fact — only
+the Might got curated, same `resolveTargetCount`-is-per-skill conflict (self boon vs. foe condition on
+one id) as the Elixir/Shadowsquall clusters, plus bleeding/damage belong to already-swept pipelines
+regardless.
+
+**New architecture-limit shape found, NOT curated**: the page's real bulk is four mutually-exclusive
+"Resonance" bonus blocks (each gated on "if [[Legendary X Stance]] is equipped in the other legend
+slot" — Assassin: damage increase + immobilize; Demon: bonus strike damage + confusion; Centaur: heal +
+condition cleanse to allies; Dwarf: stability/resistance/resolution + stun) all living on the SAME
+skill id with no separate id per stance the way Fox's Fury's Fire-attuned bonus got its own id
+(77282). Unlike Fox's Fury's single always-curatable conditional bonus, adding all 4 branches as
+simultaneous `Buff` facts would show every cast granting all four legends' bonuses at once — only one
+can ever be true for a given build, so this is the same "would overcount" shape as Prayer to Lyssa's
+random-pick, an honest skip rather than a wrong answer. No existing `Fact`/gating field (parallel to
+`requires_trait`) can express "requires this specific legend in the other slot" — would need a new
+gating shape to model at all, same scale of follow-up as the already-noted PrefixedBuff/dodge-roll
+gaps, not attempted here.
+
+Also fixed a small pre-existing, unrelated `noUnusedLocals` typecheck failure in
+`fetch-target-counts.ts` (an unused `sourceKind` parameter left over from Session 116) found while
+verifying `npx tsc` was clean for this leg — prefixed with `_` rather than removed, since the caller
+still needs to pass it for the function's own documented 3-tier-resolution shape.
+
+`npx tsc`/`npx eslint` clean. Merged output spot-verified via a standalone script (both ids' `.facts`
+show the injected Might Buff alongside the real API Range/Recharge facts, no duration split applied
+since the wiki page's Might line carries no `game mode=` tag). Full write-up in TODO.md's own updated
+bug entry. **Remaining**: 7 of the original 41 ids (Otherworldly Bond; Tale of the Tortured Mastermind;
+Radiant Resolve/Radiant Justice, plus Radiant Resolve's own 3rd unresolved flip-id 78514).
+
+## Session 129 — Empty-effect-facts curation: Fox's Fury cluster
+
+Seventh leg of the 35-skill/41-id empty-effect-facts backlog. Picked up the candidate Session 128's
+fresh re-scan surfaced (missed from every prior write-up of "the 41 ids" until that re-scan, not a new
+API change).
+
+**Fox's Fury (Elementalist/Evoker meditation, ids 76711/77282 — one wiki page)**: 76711 (base cast) had
+zero real API facts at all; its Fire-attuned enhanced cast 77282 (already had a curated Damage
+coefficient from an earlier pipeline leg) turned out to also be silently missing its own Might fact
+even though it DOES carry real Fury/Burning/Damage/StunBreak facts — a partial gap this scan's
+all-zero-facts heuristic can't catch on its own, found only by cross-checking the sibling id per the
+Icerazor's Ire cluster's "curate every id sharing the page" precedent. Curated: 76711 gets unconditional
+Might (10s/8 stacks pve, wvw+pvp duration override 8s) + Fury (10s pve, wvw+pvp override 8s) + a
+synthetic `Number of Allied Targets`=5 (the wiki's own `targets` fact — unambiguous here since the
+skill's only foe-facing effect, Burning, is single-target); 77282 gets the same base Might plus a
+separate "Fox Bonus" Might (10s/3 stacks pve, only while Fire-attuned) and the same targetCount=5.
+
+**New architecture-limit shape found**: giving 77282's Might a WvW duration override would have been
+safe in isolation, but `extractFromFacts` collapses EVERY fact sharing a status once ANY override
+exists for that status (built for the common "same application appears twice as a pve/wvw
+API-duplicate-fact pair" case) — since 77282 has TWO genuinely different simultaneous Might
+applications (base + Fox Bonus), adding an override there silently dropped the Fox Bonus stack
+entirely rather than just showing the wrong duration. Caught by spot-verifying the actual merged
+`boonConditionFactsForSkill` output before trusting it, not just typecheck/lint. Reverted: 77282's
+Might stays unsplit at PvE duration (10s both applications), a documented gap, not modeled wrong;
+76711's Might/Fury (only one fact each, no collision) got the override cleanly.
+
+`npx tsc`/`npx eslint` clean. Full write-up in TODO.md's own updated bug entry. **Remaining**: 9 of the
+original 41 ids (Otherworldly Bond; Twin Moon Sweep, 2 ids; Tale of the Tortured Mastermind; Radiant
+Resolve/Radiant Justice, plus Radiant Resolve's own 3rd unresolved flip-id 78514).
+
 ## Session 128 — Empty-effect-facts curation: Icerazor's Ire cluster + 2 unresolved ids resolved
 
 Sixth leg of the 35-skill/41-id empty-effect-facts backlog. Re-ran `scan-empty-effect-facts.ts` fresh

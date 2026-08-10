@@ -122,7 +122,7 @@ type PageResolution =
 async function resolvePage(
   name: string,
   id: number,
-  sourceKind: SourceKind,
+  _sourceKind: SourceKind,
   curated: TargetCountOverride,
   entityById: Map<number, { name: string }>,
   curatedTable: Record<number, TargetCountOverride>

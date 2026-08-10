@@ -105,5 +105,7 @@
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 8 },
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 3 },
     { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
-  ]
+  ],
+  "76968": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 2 }],
+  "77001": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 2 }]
 }

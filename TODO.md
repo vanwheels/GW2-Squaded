@@ -277,17 +277,36 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       76711's Might/Fury (only one fact each, no collision) got the override cleanly. `npx tsc`/
       `npx eslint` clean.
 
-      **Remaining scope**: 9 of the original 41 ids (Otherworldly Bond's escalating-tier tether mechanic —
-      still deferred, still hardest; Twin Moon Sweep (2 ids, 76968/77001); Tale of the Tortured
-      Mastermind (77066); Radiant Resolve/Radiant Justice (78604/78837, plus the 3rd still-unresolved id,
-      Radiant Resolve's own other flip id 78514 — same `id=`-list-sibling shape Icerazor's Ire already
-      resolved, likely resolves the same way)) still need per-skill curation — recommended one cluster at
-      a time, checking in between, same as every other leg of this pipeline. Also worth a follow-up look
-      at whether the elixirs' skipped foe-facing condition facts, the Weaver cluster's skipped
-      bullet-consume-gated bonuses, this cluster's/Icerazor's Ire's skipped apply-count-only WvW splits,
-      and now Fox's Fury's skipped same-status-collapse-on-override case, are curatable another way (e.g.
-      new "conditional"/game-mode-aware-stacks `Fact` shapes, or a per-application not per-status override
-      key) — not attempted here, scope creep beyond this leg.
+      **Twin Moon Sweep cluster curated 2026-08-09** (see COMPLETED.md's latest session): Revenant/
+      Conduit elite, ids 76968/77001 — one wiki page (`id = 76968, 77001`, the same GroundTargeted/
+      non-GroundTargeted duplicate-id pair shape as the Elixir cluster). The base cast's only
+      unconditional self effect is Might (8s/2 stacks, no `game mode=` split on that line) — curated on
+      both ids. Everything else on the page is foe-facing (bleeding condition, damage — already-swept
+      pipelines, plus the same `resolveTargetCount`-is-per-skill conflict as the Elixir/Shadowsquall
+      clusters) or one of **four mutually-exclusive "Resonance" bonus blocks**, each gated on "if
+      Legendary [Assassin/Demon/Centaur/Dwarf] Stance is equipped in the other legend slot" — unlike Fox's
+      Fury's single conditional bonus (which lives on its own separate id, 77282), all four branches share
+      this ONE id with no id-level discriminator, and only one can ever be true for a given build.
+      Curating all four as simultaneous `Buff` facts would show every cast granting all four legends'
+      bonuses at once — same "would overcount" shape as Prayer to Lyssa's random-pick, left as an honest,
+      documented skip. No existing gating field (parallel to `requires_trait`) can express "requires this
+      specific legend in the other slot" — would need a new gating shape to model at all. Also fixed an
+      unrelated pre-existing `noUnusedLocals` typecheck failure in `fetch-target-counts.ts` (leftover
+      unused `sourceKind` parameter from the original target-count sweep) found while verifying a clean
+      `npx tsc` for this leg. `npx tsc`/`npx eslint` clean, merged output spot-verified via a standalone
+      script.
+
+      **Remaining scope**: 7 of the original 41 ids (Otherworldly Bond's escalating-tier tether mechanic —
+      still deferred, still hardest; Tale of the Tortured Mastermind (77066); Radiant Resolve/Radiant
+      Justice (78604/78837, plus the 3rd still-unresolved id, Radiant Resolve's own other flip id 78514 —
+      same `id=`-list-sibling shape Icerazor's Ire already resolved, likely resolves the same way)) still
+      need per-skill curation — recommended one cluster at a time, checking in between, same as every
+      other leg of this pipeline. Also worth a follow-up look at whether the elixirs' skipped foe-facing
+      condition facts, the Weaver cluster's skipped bullet-consume-gated bonuses, this cluster's/
+      Icerazor's Ire's skipped apply-count-only WvW splits, Fox's Fury's skipped same-status-collapse-
+      on-override case, and now Twin Moon Sweep's skipped legend-gated Resonance blocks, are curatable
+      another way (e.g. new "conditional"/game-mode-aware-stacks `Fact` shapes, or a per-application not
+      per-status override key) — not attempted here, scope creep beyond this leg.
 
 - [ ] **Multiple same-status Buff facts on one skill render as unlabeled duplicate rows** — flagged
       by the user 2026-08-09 looking at Icerazor's Ire's tooltip (2 separate Vulnerability
