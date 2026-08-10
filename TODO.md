@@ -403,21 +403,18 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       automatic generic label for all 214+ skills at once) — this entry is that future design pass,
       not started.
 
-- [ ] **Skill tooltips never show a skill's own Misc/Control/Strip-Corrupt/Combo/Aura facts** —
-      flagged by the user 2026-08-07, concrete example: skills that apply Superspeed correctly show
-      up in the boon/condition bar's "Misc." row but the same skill's own tooltip shows nothing for
-      it. Root cause confirmed in `SkillsEditor.tsx`'s `skillTooltipContent`/`factsBlock`: a skill
-      tooltip only ever renders `factLine`'s generic numeric lines (`fact-numbers.ts` — has no
-      `case 'Buff':` at all) and `boonConditionFactsForSkill`'s output, which is hardcoded to only
-      ever produce `category: 'boon'|'condition'`. Every other category — Misc (Stealth/Superspeed/
-      Evade), Control, Strip/Corrupt, Combo Field/Finisher, and **Auras** — only exists via a separate
-      whole-build aggregation path (`computeNamedFactSources`/`computeAuraSources`/
-      `computeComboSources` in `boon-calc/sources.ts`) that feeds only `BoonConditionSummaryPanel`,
-      never the per-skill tooltip. Auras are silently missing from tooltips too even though the user
-      didn't name them specifically — same hole. Fix shape: a per-skill counterpart to
-      `computeNamedFactSources` (run the same matchers directly against one skill's `facts`/
-      `traitedFacts` instead of walking the whole build) threaded into `factsBlock`, parallel to how
-      boon/condition facts already render there.
+- [x] **Skill tooltips never show a skill's own Misc/Control/Strip-Corrupt/Combo/Aura facts** — fixed
+      2026-08-09 (see COMPLETED.md Session 132): added `auraFactsForSkill`/`namedFactsForSkill`/
+      `comboFactsForSkill` (per-skill counterparts to `computeAuraSources`/`computeNamedFactSources`/
+      `computeComboSources`, same pattern as the existing `boonConditionFactsForSkill`), threaded into
+      `factsBlock`/`skillTooltipContent` and `ProfessionMechanicBar`'s own inline tooltip builder;
+      `WeaponSkillBar.tsx`/`PetsEditor.tsx` picked up the fix for free (already route through
+      `skillTooltipContent`). Deliberately left out: `TraitsEditor.tsx`'s trait tooltips (a separate,
+      larger, pre-existing gap — they don't show boon/condition facts at all today, not part of this
+      bug's own scope) and `WeaponSkillBar.tsx`'s Firebrand Tome chapter tooltips (different data
+      shape, confirmed to carry no aura facts anyway). `npx tsc`/`npx eslint` clean, spot-verified via
+      a standalone script against 5 real skills (one per category, including a `requires_trait`-gated
+      case). Not verified visually in the running app (Electron sandbox limitation).
 
 ## Scoped features, not yet built
 

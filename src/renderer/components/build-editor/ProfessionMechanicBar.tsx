@@ -25,7 +25,7 @@ import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
 import { usePickerOpen } from '@renderer/state/picker-registry'
-import { factsBlock, useDurationContext } from './SkillsEditor'
+import { factsBlock, skillNamedFacts, useDurationContext } from './SkillsEditor'
 
 interface Props {
   build: Build
@@ -159,10 +159,11 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
     if (!skill) return null
     const facts = boonConditionFactsForSkill(skill, activeIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
     const numericLines = skillFactLines(skill, activeIds, characterAttributes.power, characterAttributes.healingPower, targetArmor)
+    const namedFacts = skillNamedFacts(skill, activeIds, gameData.wvwFactOverrides.skill[skill.id])
     return (
       <>
         <TooltipBody title={skill.name} description={skill.description} />
-        {factsBlock(numericLines, facts)}
+        {factsBlock(numericLines, facts, namedFacts)}
       </>
     )
   }

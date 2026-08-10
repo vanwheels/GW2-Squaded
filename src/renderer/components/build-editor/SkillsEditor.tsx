@@ -1,6 +1,19 @@
 import { useMemo, useRef, useState } from 'react'
-import type { Build, RevenantSkillSelection, Skill, SkillSelection, StandardSkillSelection, WvwFactOverrides } from '@shared/types'
-import { activeTraitIds, boonConditionFactsForSkill, type BoonConditionSource } from '@shared/boon-calc/sources'
+import type { Build, RevenantSkillSelection, Skill, SkillSelection, StandardSkillSelection, WvwFactOverride, WvwFactOverrides } from '@shared/types'
+import {
+  activeTraitIds,
+  auraFactsForSkill,
+  BOON_STRIP_CORRUPT_MATCHERS,
+  boonConditionFactsForSkill,
+  CONTROL_MATCHERS,
+  comboFactsForSkill,
+  MISCELLANEOUS_MATCHERS,
+  NAMED_FACT_TARGET_COUNT_TABLES,
+  namedFactsForSkill,
+  type BoonConditionSource,
+  type ComboSource,
+  type NamedFactSource
+} from '@shared/boon-calc/sources'
 import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
 import type { FactLine } from '@shared/skill-calc/fact-numbers'
 import { flipTargetSkills, relatedVariantSkills } from '@shared/skill-calc/multi-effect'
@@ -11,7 +24,7 @@ import { glyphFormDisplayIcon, glyphFormFactSourceSkill } from '@shared/skill-ca
 import type { GlyphFormVariantMap } from '@shared/types'
 import { isRacialSkill } from '@shared/skill-calc/racial-skills'
 import { formatBoonDuration, formatTargetCount } from '@shared/boon-calc/format'
-import { BOON_CONDITION_ICONS } from '@shared/boon-calc/icons'
+import { AURA_ICONS, BOON_CONDITION_ICONS, BOON_STRIP_CORRUPT_ICONS, COMBO_ICONS, CONTROL_ICONS, MISCELLANEOUS_ICONS } from '@shared/boon-calc/icons'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { computeCharacterStats } from '@shared/gear-calc/derived-stats'
 import { DEFAULT_COMBAT_STATE, TARGET_ARMOR_VALUES, type CombatState } from '@shared/gear-calc/combat-state'
@@ -159,8 +172,25 @@ export function useDurationContext(build: Build, combatState: CombatState = DEFA
 }
 
 const BOON_CONDITION_ICONS_BY_NAME: Record<string, string> = BOON_CONDITION_ICONS
+const AURA_ICONS_BY_NAME: Record<string, string> = AURA_ICONS
+/** Control/Miscellaneous/Strip-Corrupt-Cleanse names never collide (confirmed by each matcher
+ *  table's own doc comment in sources.ts — 3 disjoint, hand-verified label sets), so one merged
+ *  icon lookup covers every `NamedFactSource.name` a skill tooltip can produce. */
+const NAMED_FACT_ICONS_BY_NAME: Record<string, string> = { ...CONTROL_ICONS, ...MISCELLANEOUS_ICONS, ...BOON_STRIP_CORRUPT_ICONS }
 
-export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSource[]) {
+/** Optional extra fact categories `factsBlock` renders below the boon/condition list — everything
+ *  `computeAuraSources`/`computeNamedFactSources`/`computeComboSources` cover for a whole build,
+ *  now available per-skill too (see `auraFactsForSkill`/`namedFactsForSkill`/`comboFactsForSkill`).
+ *  Optional/defaulted so every pre-existing `factsBlock` call site (trait tooltips, which don't
+ *  compute any of these) keeps compiling unchanged. */
+export interface SkillNamedFacts {
+  auraFacts?: BoonConditionSource[]
+  namedFactSources?: NamedFactSource[]
+  comboFacts?: ComboSource[]
+}
+
+export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSource[], namedFacts: SkillNamedFacts = {}) {
+  const { auraFacts = [], namedFactSources = [], comboFacts = [] } = namedFacts
   return (
     <>
       {numericLines.length > 0 && (
@@ -194,8 +224,71 @@ export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSou
           ))}
         </ul>
       )}
+      {auraFacts.length > 0 && (
+        <ul className="tooltip-boon-facts">
+          {auraFacts.map((f, i) => (
+            <li key={i}>
+              <span className="tooltip-fact-label">
+                {AURA_ICONS_BY_NAME[f.boonOrConditionName] && (
+                  <img className="tooltip-fact-icon" src={AURA_ICONS_BY_NAME[f.boonOrConditionName]} alt="" />
+                )}
+                <span>{f.boonOrConditionName}</span>
+              </span>
+              <span className="boon-source-duration">
+                {formatBoonDuration(f.scaledDurationSeconds)}s
+                {f.applyCount > 1 ? ` × ${f.applyCount}` : ''}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {namedFactSources.length > 0 && (
+        <ul className="tooltip-boon-facts">
+          {namedFactSources.map((f, i) => (
+            <li key={i}>
+              <span className="tooltip-fact-label">
+                {NAMED_FACT_ICONS_BY_NAME[f.name] && <img className="tooltip-fact-icon" src={NAMED_FACT_ICONS_BY_NAME[f.name]} alt="" />}
+                <span>{f.name}</span>
+                {f.targetCount !== null && <span className="boon-source-target">{formatTargetCount(f.targetCount)}</span>}
+              </span>
+              {f.detail && <span className="boon-source-duration">{f.detail}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+      {comboFacts.length > 0 && (
+        <ul className="tooltip-boon-facts">
+          {comboFacts.map((f, i) => (
+            <li key={i}>
+              <span className="tooltip-fact-label">
+                <img className="tooltip-fact-icon" src={COMBO_ICONS[f.kind]} alt="" />
+                <span>Combo {f.kind === 'field' ? 'Field' : 'Finisher'}</span>
+              </span>
+              <span className="boon-source-duration">{f.fieldType ?? f.finisherType}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </>
   )
+}
+
+/** Every non-boon/condition category a single skill's tooltip should show — Auras plus the 3
+ *  `computeNamedFactSources` matcher tables (Control/Miscellaneous/Strip-Corrupt-Cleanse) plus
+ *  Combo Field/Finisher, all bundled into one `SkillNamedFacts` for `factsBlock`. Shared by
+ *  `skillTooltipContent` (base skill + each variant) and `ProfessionMechanicBar`'s own inline
+ *  tooltip builder, which deliberately doesn't call `skillTooltipContent` itself (see that
+ *  component's doc comment) but still needs the same fact categories. */
+export function skillNamedFacts(skill: Skill, activeIds: Set<number>, wvwOverride: Record<string, WvwFactOverride> | undefined): SkillNamedFacts {
+  return {
+    auraFacts: auraFactsForSkill(skill, activeIds, wvwOverride),
+    namedFactSources: [
+      ...namedFactsForSkill(skill, activeIds, CONTROL_MATCHERS),
+      ...namedFactsForSkill(skill, activeIds, MISCELLANEOUS_MATCHERS),
+      ...namedFactsForSkill(skill, activeIds, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES)
+    ],
+    comboFacts: comboFactsForSkill(skill, activeIds)
+  }
 }
 
 export interface SkillVariantContext {
@@ -235,11 +328,12 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
   const effectiveFacts = glyphFormSkill
     ? boonConditionFactsForSkill(glyphFormSkill, activeIds, variantContext.durationPercent, variantContext.wvwFactOverrides.skill[glyphFormSkill.id])
     : facts
+  const effectiveNamedFacts = skillNamedFacts(factSourceSkill, activeIds, variantContext.wvwFactOverrides.skill[factSourceSkill.id])
   const variants = relatedVariantSkills(skill, variantContext.skills)
   return (
     <>
       <TooltipBody title={skill.name} description={factSourceSkill.description} />
-      {factsBlock(numericLines, effectiveFacts)}
+      {factsBlock(numericLines, effectiveFacts, effectiveNamedFacts)}
       {variants.map((v) => {
         const vNumeric = skillFactLines(v.skill, activeIds, power, healingPower, variantContext.targetArmor)
         const vBoon = boonConditionFactsForSkill(
@@ -248,10 +342,11 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
           variantContext.durationPercent,
           variantContext.wvwFactOverrides.skill[v.skill.id]
         )
+        const vNamedFacts = skillNamedFacts(v.skill, activeIds, variantContext.wvwFactOverrides.skill[v.skill.id])
         return (
           <div className="tooltip-skill-variant" key={v.skill.id}>
             <TooltipBody title={v.label} description={v.skill.description !== skill.description ? v.skill.description : undefined} />
-            {factsBlock(vNumeric, vBoon)}
+            {factsBlock(vNumeric, vBoon, vNamedFacts)}
           </div>
         )
       })}

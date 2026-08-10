@@ -2124,6 +2124,34 @@ export function computeAuraSources(
   return out
 }
 
+/**
+ * Aura facts a single skill grants — per-skill counterpart to `computeAuraSources`, same
+ * "`activeIds` is the caller's responsibility to compute once and reuse" convention as
+ * `boonConditionFactsForSkill` (which this mirrors exactly, just classified against `AURA_NAMES`
+ * instead of `BOON_NAMES`/`CONDITION_NAMES` — see `classifyAura`). Not duration-scaled, same as
+ * `computeAuraSources` (see `BoonConditionSource.scaledDurationSeconds`'s doc comment) — auras have
+ * no gear-derived duration-% concept, so `{ boon: 0, condition: 0 }` is passed rather than a real
+ * `durationPercent`.
+ */
+export function auraFactsForSkill(
+  skill: Skill,
+  activeIds: Set<number>,
+  wvwOverride: Record<string, WvwFactOverride> | undefined
+): BoonConditionSource[] {
+  return extractFromFacts(
+    skill.facts,
+    skill.traitedFacts,
+    activeIds,
+    'skill',
+    skill.id,
+    skill.name,
+    skill.icon,
+    { boon: 0, condition: 0 },
+    wvwOverride,
+    classifyAura
+  )
+}
+
 export interface NamedFactSource {
   sourceKind: 'skill' | 'trait'
   sourceId: number
@@ -2295,6 +2323,24 @@ export function computeNamedFactSources(
   return out
 }
 
+/**
+ * Named facts (Control/Miscellaneous/Strip-Corrupt-Cleanse) a single skill grants — per-skill
+ * counterpart to `computeNamedFactSources`, same "`activeIds` is the caller's responsibility"
+ * convention as `boonConditionFactsForSkill`/`auraFactsForSkill`. Call once per matcher table
+ * (`CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/`BOON_STRIP_CORRUPT_MATCHERS`), same as the
+ * whole-build version — `namedFactsFrom` takes no `wvwOverrides` param at all (unlike
+ * `extractFromFacts`'s Buff-fact path), a known architecture limit documented on
+ * `computeNamedFactSources` itself, so there's no override to thread through here either.
+ */
+export function namedFactsForSkill(
+  skill: Skill,
+  activeIds: Set<number>,
+  matchers: Record<string, (fact: Fact) => boolean>,
+  targetCountTables?: Record<string, { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> }>
+): NamedFactSource[] {
+  return namedFactsFrom(skill.facts, skill.traitedFacts, activeIds, 'skill', skill.id, skill.name, skill.icon, matchers, targetCountTables)
+}
+
 export interface NamedFactGroup {
   name: string
   sources: NamedFactSource[]
@@ -2390,6 +2436,15 @@ export function computeComboSources(
   }
 
   return out
+}
+
+/**
+ * Combo Field/Finisher facts a single skill grants — per-skill counterpart to
+ * `computeComboSources`, same "`activeIds` is the caller's responsibility" convention as
+ * `boonConditionFactsForSkill`/`auraFactsForSkill`/`namedFactsForSkill`.
+ */
+export function comboFactsForSkill(skill: Skill, activeIds: Set<number>): ComboSource[] {
+  return comboFactsFrom(skill.facts, skill.traitedFacts, activeIds, 'skill', skill.id, skill.name, skill.icon)
 }
 
 export interface BoonConditionGroup {

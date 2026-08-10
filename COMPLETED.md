@@ -2,6 +2,62 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 132 — Skill tooltips now render Misc/Control/Strip-Corrupt/Combo/Aura facts
+
+Fixed the TODO.md bug flagged 2026-08-07: skill tooltips only ever rendered `factLine`'s numeric
+lines and `boonConditionFactsForSkill`'s boon/condition output (hardcoded to `category:
+'boon'|'condition'` only) — every other category (Misc: Stealth/Superspeed/Evade/Breaks Stun/Barrier;
+Control: Stun/Daze/Knockdown/Knockback/Launch/Pull; Strip/Corrupt/Cleanse; Combo Field/Finisher;
+Auras) only existed via the whole-build aggregation path (`computeNamedFactSources`/
+`computeAuraSources`/`computeComboSources` in `boon-calc/sources.ts`) feeding
+`BoonConditionSummaryPanel`, never the per-skill tooltip — e.g. a skill granting Superspeed showed up
+correctly in the boon bar's Misc. row but nothing on its own tooltip.
+
+Fix shape: exactly the "per-skill counterpart to `computeNamedFactSources`" the TODO entry already
+proposed, mirroring the existing `boonConditionFactsForSkill` pattern (which already does this for
+boons/conditions). Added 3 new exported per-skill functions to `sources.ts`, each just calling the
+existing single-source helper (`extractFromFacts`/`namedFactsFrom`/`comboFactsFrom`) directly instead
+of walking the whole build — no new fact-matching logic, reuses every matcher table
+(`CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/`BOON_STRIP_CORRUPT_MATCHERS`) and icon set
+(`AURA_ICONS`/`CONTROL_ICONS`/`MISCELLANEOUS_ICONS`/`BOON_STRIP_CORRUPT_ICONS`/`COMBO_ICONS`) already
+built for `BoonConditionSummaryPanel`:
+- `auraFactsForSkill` — same `extractFromFacts`+`classifyAura` call `computeAuraSources` makes per
+  source, not duration-scaled (auras have no gear-derived duration-% concept, matching
+  `computeAuraSources`'s own `{ boon: 0, condition: 0 }`).
+- `namedFactsForSkill` — thin wrapper around the not-yet-exported `namedFactsFrom`, called once per
+  matcher table exactly like `computeNamedFactSources` does.
+- `comboFactsForSkill` — thin wrapper around the not-yet-exported `comboFactsFrom`.
+
+Wired into `SkillsEditor.tsx`: `factsBlock` gained an optional third `SkillNamedFacts` parameter
+(auraFacts/namedFactSources/comboFacts, all defaulted to `[]` so trait tooltips — which call
+`factsBlock` with only 2 args and don't compute any of this — keep compiling unchanged, since this
+bug was scoped to skill tooltips specifically). Added 3 new render blocks reusing the exact same
+`tooltip-boon-facts`/`tooltip-fact-label`/`boon-source-duration`/`boon-source-target` CSS classes the
+existing boon-facts block already uses (no new CSS needed). A new `skillNamedFacts(skill, activeIds,
+wvwOverride)` helper bundles all 3 matcher-table calls into one `SkillNamedFacts`, exported and reused
+by `skillTooltipContent` (for both the base skill and its `relatedVariantSkills` entries) and by
+`ProfessionMechanicBar`'s own inline tooltip builder (which deliberately doesn't call
+`skillTooltipContent` itself, see that component's existing doc comment, but still needed the same fix).
+`WeaponSkillBar.tsx`/`PetsEditor.tsx` needed no changes at all — both already route through
+`skillTooltipContent`, so they picked up the fix for free.
+
+Deliberately out of scope: `TraitsEditor.tsx`'s trait tooltips already don't render boon/condition
+facts at all today (`factsBlock(numericFactLines(...), [])`, hardcoded empty array) — a separate,
+larger, undocumented gap this bug's own TODO.md entry never mentioned (it's titled "Skill tooltips,"
+not "Trait tooltips"). Left untouched rather than silently expanding scope; worth its own TODO.md entry
+if it matters later. `WeaponSkillBar.tsx`'s `tomeChapterTooltip` (Firebrand Tome chapters) also
+untouched — a genuinely different data shape (`TomeChapter.facts`, not `Skill.facts`/`Fact[]`), and
+`computeAuraSources`'s own doc comment already confirms tome data carries no aura facts at all.
+
+Verified via a standalone script (not just typecheck/lint, per this codebase's standard practice):
+ran all 3 new functions directly against real `data/game-data/skills.json` entries for 5 known cases —
+Windborne Speed (Superspeed/Misc), Shocking Aura (Stun/Control), Signet of Restoration's `requires_trait`
+-gated Frost Aura (Aura — confirmed gating correctly returns empty with no active traits, then the real
+entry once the gating trait id is included), Throw Gunk (Ethereal Combo Field), Throw Mine (Strip) — all
+produced the expected non-empty output with correct fields. `npx tsc`/`npx eslint` clean across the
+whole project. Not verified visually in the running app (Electron sandbox limitation, same caveat as
+every other UI change in this codebase).
+
 ## Session 131 — Empty-effect-facts curation: Otherworldly Bond resolved (honest skip), closes the
 original 41-id backlog
 
