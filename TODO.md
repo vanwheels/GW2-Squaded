@@ -11,10 +11,15 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       names like "Natural Harmony" matching 2+ distinct skill ids with no discriminator), these
       sources fall back to `TARGET_COUNT_OVERRIDES`/`resolveTargetCount`'s normal "no signal found"
       behavior — `targetCount: null` ("unknown reach") — same as any other un-curated source, not a
-      regression. 452 facts total (301 trait + 151 skill, current data — up from TODO.md's stale
-      263+117 count, presumably a game-data refresh since the original scan) would need the same
-      wiki-verified per-source sweep `TARGET_COUNT_OVERRIDES`' Group A/B legs already did for
-      ordinary `Buff` sources, if/when that's wanted — not required to ship the extraction fix.
+      regression. 2026-08-09: scoped this down from the original 452-fact estimate — `targetCount`
+      is only ever rendered for boon-classified facts (`SkillsEditor.tsx` gates the tooltip badge on
+      `category === 'boon'`), so `PrefixedBuff` condition facts (e.g. Arcane Precision's crit
+      conditions) are out of scope by design. The real backlog is 35 distinct skill/trait sources
+      (119 boon-fact lines) across 8 professions — see `TARGET_COUNT_OVERRIDES`' own doc comment
+      ("PrefixedBuff target-count sweep") in `src/shared/boon-calc/sources.ts`. Elementalist leg (17
+      sources) done this session, all self-only. 18 sources remain: Revenant(5), Guardian(2),
+      Mesmer(2), Ranger(6), Necromancer(1), Warrior(1), Engineer(1) — same wiki-verified per-source
+      sweep pattern as Group A/B, continue leg by leg if/when wanted.
 
 - [ ] **Gear Optimizer doesn't function properly yet** — flagged by the user 2026-08-05 while
       preparing the 0.2.0 release (shipped anyway, marked "early stage/experimental" in

@@ -2,6 +2,26 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 134 — `PrefixedBuff` target-count sweep, Elementalist leg (1st of the backlog)
+
+Started the TODO.md follow-up Session 133 left open. First, scoped it down from the original
+452-fact estimate: `targetCount` is only ever rendered for boon-classified facts
+(`SkillsEditor.tsx` gates the tooltip badge on `category === 'boon'`), so `PrefixedBuff` condition
+facts (e.g. Arcane Precision's crit-triggered conditions) have no consumer for a curated value and
+are out of scope by design. The real backlog is 35 distinct skill/trait sources (119 boon-fact
+lines) across 8 professions — much smaller than the original raw-fact count suggested.
+
+Curated the Elementalist leg (10 skills + 7 traits, largest of the 8 professions): all confirmed
+self-only via wiki wikitext. Every source is an attunement/combo-based personal buff — Glyph of
+Elemental Harmony's heal, Inscription (trait 229) riding on the Glyph of (Lesser) Elementals
+variants, Elemental Celerity, Unravel, Arcane Lightning, Soothing Disruption, Elemental Lockdown,
+Swift Revenge, Elemental Synergy, Enhanced Potency — each with first-person "Gain X" wording and no
+"allies" wording found anywhere across the whole leg, so no exclusions were needed. Added to
+`TARGET_COUNT_OVERRIDES` in `src/shared/boon-calc/sources.ts` (both the skill and trait tables, plus
+a new doc-comment section distinguishing this sweep from the pre-existing Group A/B one). 18 sources
+remain across Revenant/Guardian/Mesmer/Ranger/Necromancer/Warrior/Engineer — logged in TODO.md for a
+future leg.
+
 ## Session 133 — `PrefixedBuff` facts now surface everywhere (boon bar, all tooltips)
 
 Fixed the TODO.md bug flagged 2026-08-07: `extractFromFacts` (`boon-calc/sources.ts`) only ever

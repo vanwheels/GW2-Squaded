@@ -257,6 +257,22 @@ export type TargetCountOverride = number | 'self'
  * documents it as a fixed per-meditation bonus-boon table (Otter's Compassion→Regeneration, Hare's
  * Agility→Fury, Toad's Fortitude→Stability, plus three non-Elementalist-relevant others), all capped
  * at 5 within a 360 radius.
+ *
+ * --- PrefixedBuff target-count sweep (2026-08-09) ---
+ * A second, separate sweep from Group A above: the TODO.md follow-up left open by Session 133's
+ * `PrefixedBuff` extraction fix (`extractFromFacts` now emits a `PrefixedBuff` fact's boon exactly
+ * like an ordinary `Buff` fact, but `PrefixedBuff` sources were never in scope for Group A, which
+ * predates that fix). Scoped to boon-classified facts only — `SkillsEditor.tsx` only ever renders
+ * `targetCount` when `category === 'boon'`, so `PrefixedBuff` condition facts (e.g. Arcane
+ * Precision's crit-triggered conditions) have no consumer for a curated value and are out of scope
+ * by design, not overlooked. 35 distinct sources (119 boon-fact lines) found across 8 professions.
+ *
+ * Elementalist leg (1st leg, 2026-08-09): 10 skills + 7 traits, all confirmed self-only — every
+ * source is an attunement/combo-based personal buff (Glyph of Elemental Harmony's heal, Inscription
+ * riding on the Glyph of (Lesser) Elementals variants, Elemental Celerity, Unravel, Arcane Lightning,
+ * Soothing Disruption, Elemental Lockdown, Swift Revenge, Elemental Synergy, Enhanced Potency) with
+ * "Gain X" (first-person) wording throughout and no "allies" wording found anywhere across the whole
+ * leg — no exclusions needed. See the skill/trait tables' own leg comment for per-source detail.
  */
 // Exported for scripts/fetch-target-counts.ts (the wiki-extraction pipeline's target-count leg,
 // TODO.md's "Wiki-sourced data pipeline" step 3) — same shape as damage-calc.ts's own
@@ -972,7 +988,32 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
     75399: 5,
     75405: 5,
     75406: 5,
-    75407: 5
+    75407: 5,
+
+    // --- PrefixedBuff target-count sweep (2026-08-09), Elementalist leg (1st leg): the TODO.md
+    // follow-up left open by the Session 133 `PrefixedBuff` extraction fix. This leg's sources are
+    // every attunement-based boon grant on Elementalist (`Glyph of Elemental Harmony`'s heal,
+    // `Inscription`'s glyph-boon effect riding on `Glyph of (Lesser) Elementals`, `Elemental
+    // Celerity`, `Unravel`) — all confirmed self-only: every source's own wiki description phrases
+    // the grant "Gain X" (first-person, the elementalist), never "nearby allies"/"to allies," unlike
+    // every confirmed party-wide entry above. Only boon-classified facts are curated here — condition
+    // facts riding the same `PrefixedBuff` shape (e.g. Arcane Precision's crit conditions) never
+    // render `targetCount` at all (`SkillsEditor.tsx` gates the tooltip badge on `category === 'boon'`),
+    // so they're out of scope for this sweep, not overlooked.
+    5569: 'self', // Glyph of Elemental Harmony (heal). Wiki: "Heal yourself and gain a boon based on
+    // your attunement."
+    25486: 'self', // Glyph of Lesser Elementals (fire variant) — Might gated by Inscription (trait
+    // 229 below); Inscription's own description: "Gain boons upon casting a glyph based on your
+    // attunement."
+    25487: 'self', // Glyph of Lesser Elementals (water variant) — Regeneration, same Inscription gate.
+    25489: 'self', // Glyph of Elementals (earth variant, elite) — Protection, same Inscription gate.
+    25490: 'self', // Glyph of Elementals (air variant, elite) — Swiftness, same Inscription gate.
+    25491: 'self', // Glyph of Elementals (water variant, elite) — Regeneration, same Inscription gate.
+    25495: 'self', // Glyph of Lesser Elementals (air variant) — Swiftness, same Inscription gate.
+    25497: 'self', // Glyph of Lesser Elementals (earth variant) — Protection, same Inscription gate.
+    62725: 'self', // Elemental Celerity (Catalyst elite). Wiki: "gain a boon based on its element" —
+    // no allies wording on any of Might/Vigor/Fury/Protection.
+    80231: 'self' // Unravel (Weaver mechanic). Wiki: "Gain boons based on your primary attunement."
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -1090,9 +1131,33 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
     // party-wide.
     2033: 5, // Lucid Singularity (Tempest). "Apply boons to nearby allies while channeling
     // overloads..." — explicit party-wide (Alacrity/Might).
-    2234: 5 // Spectacular Sphere (Catalyst). "...grants quickness and an additional boon based on
+    2234: 5, // Spectacular Sphere (Catalyst). "...grants quickness and an additional boon based on
     // your current attunement to nearby allies when activated" — explicit party-wide (Swiftness/
     // Quickness/Might/Vigor/Fury/Aegis/Resistance, depending on attunement).
+
+    // --- PrefixedBuff target-count sweep (2026-08-09), Elementalist leg (1st leg) — see the skill
+    // table's matching comment above for this leg's scope/reasoning. All 7 traits confirmed
+    // self-only from their own wiki wording (no "allies" anywhere).
+    229: 'self', // Inscription (Air). Wiki: "Gain boons upon casting a glyph based on your
+    // attunement. Gain resistance when attuning to air." — also gates the Glyph skill entries above.
+    263: 'self', // Arcane Lightning (Arcane). Wiki: each linked Arcane skill's bonus is worded as a
+    // personal effect (Arcane Brilliance "grants Protection at the end of its animation," Arcane
+    // Shield "grants stability...when the shield is destroyed," Arcane Echo "grants Quickness when
+    // cast") — no ally wording on any of them.
+    364: 'self', // Soothing Disruption (Water). Wiki: "Cantrips grant boons" — every linked cantrip's
+    // bonus (Vigor/Fury/Stability/Resistance/Aegis/Protection/Regeneration) is a personal on-cast
+    // buff, no ally wording; corroborates skill 5536's (Lightning Flash) existing self-only entry
+    // above, gated by this same trait.
+    1673: 'self', // Elemental Lockdown (Arcane). Wiki: "When you disable a foe, gain a boon based
+    // upon your current attunement... Does not activate per target" — explicitly self, one buff per
+    // disable regardless of how many foes.
+    2061: 'self', // Swift Revenge (Weaver). Wiki: "Dual Attacks grant you additional bonuses based on
+    // their elements" — "grant you," self-only.
+    2233: 'self', // Elemental Synergy (Catalyst). Wiki: "Gain a bonus effect when you finish a combo"
+    // — Fire/Water/Air/Earth bonuses (Might/self-heal/Endurance/Stability) all first-person.
+    2382: 'self' // Enhanced Potency (Evoker minor). Wiki: "Improve a boon based on your familiar" —
+    // strengthens the elementalist's own existing Might/Regeneration/Fury/Protection from familiar
+    // skills (Ignite/Splash/Zap/Calcify), no ally wording.
   }
 }
 
