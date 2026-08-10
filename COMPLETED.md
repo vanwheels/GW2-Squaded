@@ -2,6 +2,33 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 136 — `PrefixedBuff` target-count sweep, Revenant leg (2nd of the backlog)
+
+Continued the sweep per [[prefixedbuff_target_count_sweep]]'s "how to apply" note: re-ran the
+discovery scan (a small Node script against `skills.json`/`traits.json`, bounded strictly to the
+`TARGET_COUNT_OVERRIDES` export so it can't be confused with the differently-shaped
+`CONDITION_CLEANSE_TARGETS` export) and confirmed the logged 25-source/8-profession count still held,
+Revenant(7) largest.
+
+Curated all 7 Revenant sources — 1 skill + 6 traits, mixed self/party-wide unlike the all-self
+Elementalist leg:
+- **Party-wide**: Spirit Boon (1774, party 5 — its own facts carry an explicit "Number of Allied
+  Targets: 5"/Radius(240)); Serene Rejuvenation (1814, party 5 — corroborated via its 3 linked
+  Legendary Centaur skills' own "Number of Targets: 5" facts, since the trait itself has no direct
+  Number fact); Bold Reversal (2133, party 5 — the boons it adds ride on Heroic Command/Orders from
+  Above, both already explicit party-5 on their own facts); Found Purpose (2352, party 4 — its own
+  facts carry an explicit "Number of Allied Targets: 4"/Range(360)).
+- **Self-only**: Ancient Echo (55029 — wiki: "All four effects only affect the caster"); Reaver's
+  Curse (2259 — no ally wording anywhere, corroborated against the structurally-parallel self-only
+  "Forerunner of Death" Death Drop variant, skill 62693); Numinous Gift (2440 — no Number/Radius fact
+  at all, first-person "Gain might... when you use Cosmic Wisdom"; its party-wide counterpart is the
+  separate Found Purpose trait id above, so no per-line conflict).
+
+Added to `TARGET_COUNT_OVERRIDES` in `src/shared/boon-calc/sources.ts` plus a new leg section in its
+doc comment. Revenant is now fully closed (7/7). 18 sources remain across Ranger(8)/Guardian(4)/
+Mesmer(2)/Necromancer(1)/Warrior(1)/Engineer(1)/Thief(1) — logged in TODO.md for the next leg
+(Ranger, largest remaining).
+
 ## Session 135 — `PrefixedBuff` target-count sweep, corrected the backlog count + closed out Elementalist
 
 Resuming the sweep, re-ran the discovery scan per [[prefixedbuff_target_count_sweep]]'s own

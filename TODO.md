@@ -21,10 +21,13 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       reference in a comment as already curated) found the true total is 45 distinct sources across 9
       professions (Thief wasn't in the original 8 at all). Elementalist leg is now fully closed (20/20
       — the 3 the original pass missed, all party-wide(5), fixed this session alongside the re-scan).
-      25 sources remain: Revenant(7), Ranger(8), Guardian(4), Mesmer(2), Necromancer(1), Warrior(1),
-      Engineer(1), Thief(1) — see `TARGET_COUNT_OVERRIDES`' own doc comment ("PrefixedBuff
+      Revenant leg (2nd leg) is also now fully closed (7/7 — mixed self/party-wide, each corroborated
+      by an explicit "Number of Allied Targets" fact in the chain; see `TARGET_COUNT_OVERRIDES`' own
+      doc comment for detail). 18 sources remain: Ranger(8), Guardian(4), Mesmer(2), Necromancer(1),
+      Warrior(1), Engineer(1), Thief(1) — see `TARGET_COUNT_OVERRIDES`' own doc comment ("PrefixedBuff
       target-count sweep") in `src/shared/boon-calc/sources.ts` for the corrected accounting. Same
-      wiki-verified per-source sweep pattern as Group A/B, continue leg by leg (Revenant next).
+      wiki-verified per-source sweep pattern as Group A/B, continue leg by leg (Ranger next, largest
+      remaining at 8).
 
 - [ ] **Gear Optimizer doesn't function properly yet** — flagged by the user 2026-08-05 while
       preparing the 0.2.0 release (shipped anyway, marked "early stage/experimental" in

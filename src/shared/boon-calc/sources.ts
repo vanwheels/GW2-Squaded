@@ -285,6 +285,16 @@ export type TargetCountOverride = number | 'self'
  * Arcane Lightning, Soothing Disruption, Elemental Lockdown, Swift Revenge, Elemental Synergy,
  * Enhanced Potency) with "Gain X" (first-person) wording throughout. See the skill/trait tables' own
  * leg comment for per-source detail. Leg now fully closed — 20/20 Elementalist sources curated.
+ *
+ * Revenant leg (2nd leg, 2026-08-10): 1 skill + 6 traits, mixed self/party-wide (unlike the all-self
+ * Elementalist leg) — party-wide entries are each corroborated by an explicit "Number of Allied
+ * Targets" fact somewhere in the chain (Spirit Boon(5)/Bold Reversal(5)/Found Purpose(4) on the
+ * source's own facts; Serene Rejuvenation(5) via its 3 linked Legendary Centaur skills' own facts).
+ * Self-only: Ancient Echo (wiki: "All four effects only affect the caster"), Reaver's Curse (no ally
+ * wording, corroborated against the structurally-parallel self-only Death Drop variant), Numinous
+ * Gift (no Number/Radius fact at all; its party-wide counterpart is the separate Found Purpose id).
+ * Leg now fully closed — 7/7 Revenant sources curated. 18 sources remain across 7 professions:
+ * Ranger(8), Guardian(4), Mesmer(2), Necromancer(1), Warrior(1), Engineer(1), Thief(1).
  */
 // Exported for scripts/fetch-target-counts.ts (the wiki-extraction pipeline's target-count leg,
 // TODO.md's "Wiki-sourced data pipeline" step 3) — same shape as damage-calc.ts's own
@@ -1025,7 +1035,14 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
     25497: 'self', // Glyph of Lesser Elementals (earth variant) — Protection, same Inscription gate.
     62725: 'self', // Elemental Celerity (Catalyst elite). Wiki: "gain a boon based on its element" —
     // no allies wording on any of Might/Vigor/Fury/Protection.
-    80231: 'self' // Unravel (Weaver mechanic). Wiki: "Gain boons based on your primary attunement."
+    80231: 'self', // Unravel (Weaver mechanic). Wiki: "Gain boons based on your primary attunement."
+
+    // --- PrefixedBuff target-count sweep, Revenant leg (2nd leg, 2026-08-10) — see the sweep's top
+    // doc comment for scope/method. Confirmed self-only from the API's own fact data (no Number-of-
+    // Allied-Targets/Radius signal, and the structurally parallel Death Drop buff variants are all
+    // first-person "outgoing ... increased," no ally wording).
+    55029: 'self' // Ancient Echo (Herald mechanic, all 4 legend-bond effects). Wiki: "All four effects
+    // only affect the caster."
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -1179,8 +1196,35 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
     // attunements" — explicit targets=5, radius=240.
     2380: 5, // Familiar's Blessing (Evoker). Wiki: "Grant boons to nearby allies when you use a
     // familiar skill" — explicit targets=5, radius=300.
-    2415: 5 // Altruistic Aspect (Evoker). Wiki: "Meditation skills grant boons to allies" — explicit
+    2415: 5, // Altruistic Aspect (Evoker). Wiki: "Meditation skills grant boons to allies" — explicit
     // targets=5, radius=360.
+
+    // --- PrefixedBuff target-count sweep, Revenant leg (2nd leg, 2026-08-10): 7 sources, mixed
+    // self/party-wide (unlike the all-self Elementalist leg). Party-wide ones are each corroborated
+    // by an explicit "Number of Allied Targets" fact either on the trait itself or on the specific
+    // linked skill(s) whose use grants the boon — same corroboration pattern as Hardening Persistence
+    // above. Self-only ones have no such fact anywhere in the chain and their own wording is
+    // first-person.
+    1774: 5, // Spirit Boon (Invocation). Own facts: explicit "Number of Allied Targets: 5",
+    // Radius(240) — "Invoking a legend grants boons to nearby allies based on the legend invoked."
+    1814: 5, // Serene Rejuvenation (Salvation). Wiki: "Increase healing to other allies. Legendary
+    // Centaur skills apply boons in an area." Corroborated by its 3 linked Centaur skills' own API
+    // facts: Natural Harmony, Purifying Essence, and Energy Expulsion each carry "Number of Targets:
+    // 5", Radius(240) — Protective Solace shares the same Radius(240) template.
+    2133: 5, // Bold Reversal (Renegade). "Your Citadel Order skills are improved" — the added
+    // Swiftness/Protection ride on Heroic Command and Orders from Above, both already explicit
+    // "Number of Allied Targets: 5" on their own API facts (radius 300/240 respectively).
+    2259: 'self', // Reaver's Curse (Vindicator). "Energy Meld's cooldown is reduced and it increases
+    // the effectiveness of your NEXT DODGE" — no ally wording. Its Might (via the "Vassals of the
+    // Empire" Death Drop variant) is structurally identical to the API-confirmed self-only
+    // "Forerunner of Death" Death Drop variant (skill 62693): a personal on-landing buff, distinct
+    // from that same skill's foe-facing Number of Targets(5)/Vulnerability.
+    2352: 4, // Found Purpose (Conduit). Own facts: explicit "Number of Allied Targets: 4", Range(360)
+    // — "Triggering Numinous Gift grants boons to allies in an area around you."
+    2440: 'self' // Numinous Gift (Conduit minor). Own facts have no Number/Radius fact at all —
+    // "Gain might and additional boons when you use Cosmic Wisdom" (first-person). The party-wide
+    // version of this same effect is Found Purpose (2352) above, a separate trait id with its own
+    // independent fact array — no per-line conflict, each renders its own tooltip from its own facts.
   }
 }
 
