@@ -43,7 +43,7 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       in the live running app — re-close (or re-open with a fresh failure mode) after an actual
       in-app check.
 
-- [ ] **Some skills' real effects live entirely outside the GW2 API's `facts` array** — flagged by
+- [x] **Some skills' real effects live entirely outside the GW2 API's `facts` array** — flagged by
       the user 2026-08-07, concrete example: Revenant Scepter 3 "Otherworldly Bond" (id 71952) and
       its flip target "Deactivate Otherworldly Bond" (71858) both carry only Range/Recharge facts —
       nothing describing the actual tether mechanic (different effect on an ally target vs. an enemy
@@ -346,16 +346,45 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       Vulnerability bonus (conditional on your NEXT Dazzling Hammer cast, same exclusion shape as
       Radiant Resolve's own Empowered Staff bonus above). `npx tsc`/`npx eslint` clean.
 
-      **Remaining scope**: Otherworldly Bond (71952/71858) — its escalating-tier tether mechanic, still
-      deferred, still the hardest and last of the original 41 ids. This closes out every other id in
-      that original count. Also worth a follow-up look at whether the elixirs' skipped foe-facing
-      condition facts, the Weaver cluster's skipped bullet-consume-gated bonuses, Icerazor's Ire's/Fox's
-      Fury's skipped apply-count-only and same-status-collapse-on-override cases, Twin Moon Sweep's
-      skipped legend-gated Resonance blocks, and now this leg's skipped Control/Strip-fact WvW-override
-      gap and un-curated Radiant Resolve healing coefficient, are curatable another way (e.g. new
-      "conditional"/game-mode-aware-stacks `Fact` shapes, a per-application not per-status override key,
-      or threading `wvwOverrides` through `namedFactsFrom` too) — not attempted here, scope creep beyond
-      this leg.
+      **Otherworldly Bond (71952/71858) resolved 2026-08-10 — honest skip, not curated, closing out
+      the original 41 ids**: fetched the live wiki page fresh rather than trusting the seed report's
+      2026-08-07 summary. Full mechanic: a targeted (ally OR enemy, player's choice per cast) tether
+      that escalates over 3 time tiers while it survives (0-2s / 2-4s / 4-6s, broken early by range or
+      weapon-swap, max 7s) — enemy branch stacks Vulnerability (ticking every `interval=1`) then adds
+      Cripple at 2s then Slow at 4s; ally branch stacks Might (same ticking shape) to the linked ally
+      **and** nearby allies (`allied targets=3`, radius 360) then adds more Might then Fury, unlocking a
+      further chain skill (`Otherworldly Attraction`) at the 4-6s mark. Confirmed **not curatable
+      without misrepresenting it**, for two independent reasons, either alone sufficient: (1) the
+      enemy-branch and ally-branch facts are mutually exclusive per-cast (the player picks the target
+      type), sharing one skill id with no discriminator field — the same "would show every cast
+      granting every branch's effects simultaneously" overcount shape as Twin Moon Sweep's four
+      legend-gated Resonance blocks, actually a *stronger* case since the branch here is a live
+      per-cast player choice, not even a static per-build legend selection a future gating field could
+      resolve; (2) confirmed via the wiki template's own grammar (cross-checked against Icerazor's Ire
+      and Anguish's already-curated `stacks=N` pages) that Otherworldly Bond's Vulnerability/Might
+      facts carry **no `stacks=` parameter at all** — unlike every other multi-application skill this
+      pipeline has curated, these are genuinely open-ended ticks (repeats every `interval=1`) tied to
+      how long the tether survives, not a fixed per-cast total this app's `duration`/`apply_count` Buff
+      shape can represent honestly. Between the two, curating any single branch/tier would either
+      overcount (wrong branch) or silently understate (picking only the guaranteed first tick while
+      ignoring the escalation entirely). **Deactivate Otherworldly Bond (71858)** has nothing to curate
+      either way — its only effect is disabling the tether, no wiki facts beyond Range. The tether's own
+      follow-up chain skills (`Otherworldly Attraction`, ids 71827 ally-side/71880 enemy-side) already
+      carry real, complete API facts today (Barrier/Number-of-Allied-Targets and a Vulnerability Buff
+      fact respectively) — not part of this bug, no action needed. `npx tsc`/`npx eslint` clean (no
+      code/data change, documentation-only close-out).
+
+      **This closes out every id in the original 41** (35 unique skill names). Follow-up ideas for
+      later, not part of this bug's own remaining scope: the elixirs' skipped foe-facing condition
+      facts, the Weaver cluster's skipped bullet-consume-gated bonuses, Icerazor's Ire's/Fox's Fury's
+      skipped apply-count-only and same-status-collapse-on-override cases, Twin Moon Sweep's skipped
+      legend-gated Resonance blocks, Tale of the Tortured Mastermind's skipped Control/Strip-fact
+      WvW-override gap, Radiant Resolve's un-curated healing coefficient, and now Otherworldly Bond's
+      own per-cast-target-choice/open-ended-tick shape above — all would need new `Fact`-model
+      capabilities (a "conditional"/gated grant shape, a per-application not per-status override key,
+      `wvwOverrides` threaded through `namedFactsFrom` too) that don't exist yet. None attempted here —
+      real scope creep beyond curating existing facts onto existing shapes, a separate future item if
+      ever prioritized.
 
 - [ ] **Multiple same-status Buff facts on one skill render as unlabeled duplicate rows** — flagged
       by the user 2026-08-09 looking at Icerazor's Ire's tooltip (2 separate Vulnerability

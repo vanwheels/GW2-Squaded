@@ -2,6 +2,59 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 131 — Empty-effect-facts curation: Otherworldly Bond resolved (honest skip), closes the
+original 41-id backlog
+
+Last leg of the 35-skill/41-id empty-effect-facts backlog (TODO.md's "Some skills' real effects live
+entirely outside the GW2 API's `facts` array" bug) — the very skill that started the whole
+investigation back on 2026-08-07, deliberately deferred every prior session as "still the hardest."
+(Note: the prior leg, Tale of the Tortured Mastermind + Radiant Resolve/Justice, commit `acfd89e`,
+landed without its own COMPLETED.md write-up — its reasoning lives in TODO.md's own bug entry instead,
+not duplicated here.)
+
+Fetched Otherworldly Bond (71952) and Deactivate Otherworldly Bond (71858)'s live wiki pages fresh
+rather than trusting the 2026-08-07 seed report's summary. Full mechanic: a scepter-3 tether the
+player casts at either an ally or an enemy (their choice), escalating over 3 time tiers while it
+survives (0-2s / 2-4s / 4-6s, broken early by leaving range or swapping weapons, max 7s total).
+Enemy branch: Vulnerability ticking every `interval=1`, then Cripple added at 2s, then Slow at 4s.
+Ally branch: Might ticking the same way to the linked ally *and* nearby allies (`allied targets=3`,
+360 radius), then more Might, then Fury — unlocking a follow-up chain skill
+(`Otherworldly Attraction`) at the 4-6s mark.
+
+**Concluded not curatable without misrepresenting it**, for two independent reasons:
+
+1. The enemy-branch and ally-branch facts are mutually exclusive per cast (target-type is the
+   player's choice at cast time), sharing one skill id with no discriminator field — the same
+   "curating both would show every cast granting everything simultaneously" overcount shape as Twin
+   Moon Sweep's four legend-gated Resonance blocks (Session 130), actually a *stronger* case since the
+   branch here is a live per-cast choice, not even a static per-build legend selection a future gating
+   field could resolve.
+2. Cross-checked the wiki template's own grammar against Icerazor's Ire's and Anguish's already-curated
+   `stacks=N` pages (fetched both fresh to compare) and confirmed Otherworldly Bond's
+   Vulnerability/Might facts carry **no `stacks=` parameter at all**, unlike every other multi-
+   application skill this pipeline has curated — these are genuinely open-ended ticks tied to how long
+   the tether survives, not a fixed per-cast total this app's `duration`/`apply_count` Buff shape can
+   represent honestly.
+
+Either reason alone would be sufficient; together they rule out curating any single branch or tier —
+picking one would either overcount (wrong branch for a given player) or understate (only the
+guaranteed first tick, silently dropping the escalation the skill is built around). Left as an honest,
+fully-documented skip, same treatment as Prayer to Lyssa's random-pick and Twin Moon Sweep's Resonance
+blocks.
+
+**Deactivate Otherworldly Bond (71858)**: nothing to curate — "Disable the tether," no wiki facts
+beyond Range.
+
+**Also checked (no action needed)**: the tether's own follow-up chain skills, `Otherworldly Attraction`
+(71827 ally-release, granting Barrier; 71880 enemy-release, applying Vulnerability) already carry real,
+complete API facts today — never part of this bug's candidate set, confirmed working as-is.
+
+No code or data change — documentation-only close-out. `npx tsc`/`npx eslint` clean (nothing touched).
+TODO.md's bug entry flipped to `[x]`: **this closes every id in the original 41 (35 unique skill
+names)**. Follow-up `Fact`-model capability gaps found along the way by every prior leg (conditional/
+gated grants, per-application WvW overrides, `wvwOverrides` threaded through `namedFactsFrom`, etc.)
+are catalogued in TODO.md's own entry as a separate, not-yet-scoped future item — none attempted here.
+
 ## Session 130 — Empty-effect-facts curation: Twin Moon Sweep cluster
 
 Eighth leg of the 35-skill/41-id empty-effect-facts backlog. Picked the next item off Session 129's
