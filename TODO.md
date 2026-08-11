@@ -23,11 +23,14 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       — the 3 the original pass missed, all party-wide(5), fixed this session alongside the re-scan).
       Revenant leg (2nd leg) is also now fully closed (7/7 — mixed self/party-wide, each corroborated
       by an explicit "Number of Allied Targets" fact in the chain; see `TARGET_COUNT_OVERRIDES`' own
-      doc comment for detail). 18 sources remain: Ranger(8), Guardian(4), Mesmer(2), Necromancer(1),
-      Warrior(1), Engineer(1), Thief(1) — see `TARGET_COUNT_OVERRIDES`' own doc comment ("PrefixedBuff
-      target-count sweep") in `src/shared/boon-calc/sources.ts` for the corrected accounting. Same
-      wiki-verified per-source sweep pattern as Group A/B, continue leg by leg (Ranger next, largest
-      remaining at 8).
+      doc comment for detail). Ranger leg (3rd leg) is also now fully closed (8/8, 2026-08-10): 6
+      Untamed cantrips self-only (Unleash Ranger F2's two states never spread to other squad members),
+      Enhancing Impact (Untamed minor) same self-only reasoning, Cloudburst (Soulbeast) party-wide(5)
+      via its own explicit Number/Radius facts. 10 sources remain: Guardian(4), Mesmer(2),
+      Necromancer(1), Warrior(1), Engineer(1), Thief(1) — see `TARGET_COUNT_OVERRIDES`' own doc comment
+      ("PrefixedBuff target-count sweep") in `src/shared/boon-calc/sources.ts` for the corrected
+      accounting. Same wiki-verified per-source sweep pattern as Group A/B, continue leg by leg
+      (Guardian next, largest remaining at 4).
 
 - [ ] **Gear Optimizer doesn't function properly yet** — flagged by the user 2026-08-05 while
       preparing the 0.2.0 release (shipped anyway, marked "early stage/experimental" in

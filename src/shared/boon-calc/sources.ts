@@ -293,8 +293,16 @@ export type TargetCountOverride = number | 'self'
  * Self-only: Ancient Echo (wiki: "All four effects only affect the caster"), Reaver's Curse (no ally
  * wording, corroborated against the structurally-parallel self-only Death Drop variant), Numinous
  * Gift (no Number/Radius fact at all; its party-wide counterpart is the separate Found Purpose id).
- * Leg now fully closed — 7/7 Revenant sources curated. 18 sources remain across 7 professions:
- * Ranger(8), Guardian(4), Mesmer(2), Necromancer(1), Warrior(1), Engineer(1), Thief(1).
+ * Leg now fully closed — 7/7 Revenant sources curated.
+ *
+ * Ranger leg (3rd leg, 2026-08-10): 6 skills + 2 traits, all 6 Untamed cantrips self-only (gated by
+ * the Unleash Ranger F2 mechanic's two mutually-exclusive states — "Unleashed"/"Pet Unleashed" —
+ * neither of which spreads to other squad members; no ally wording on any of the 6 wiki pages and no
+ * Number-of-Allied-Targets/Radius fact tied to either PrefixedBuff variant on any of them). Enhancing
+ * Impact (Untamed minor) same self-only reasoning ("grants YOU boons"). Cloudburst (Soulbeast) is
+ * party-wide(5), corroborated by its own explicit "Number of Targets: 5"/Radius(480) facts and wiki
+ * wording ("nearby allies"). Leg now fully closed — 8/8 Ranger sources curated. 10 sources remain
+ * across 6 professions: Guardian(4), Mesmer(2), Necromancer(1), Warrior(1), Engineer(1), Thief(1).
  */
 // Exported for scripts/fetch-target-counts.ts (the wiki-extraction pipeline's target-count leg,
 // TODO.md's "Wiki-sourced data pipeline" step 3) — same shape as damage-calc.ts's own
@@ -1041,8 +1049,25 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
     // doc comment for scope/method. Confirmed self-only from the API's own fact data (no Number-of-
     // Allied-Targets/Radius signal, and the structurally parallel Death Drop buff variants are all
     // first-person "outgoing ... increased," no ally wording).
-    55029: 'self' // Ancient Echo (Herald mechanic, all 4 legend-bond effects). Wiki: "All four effects
+    55029: 'self', // Ancient Echo (Herald mechanic, all 4 legend-bond effects). Wiki: "All four effects
     // only affect the caster."
+
+    // --- PrefixedBuff target-count sweep, Ranger leg (3rd leg, 2026-08-10) — see the sweep's top doc
+    // comment for scope/method. 6 Untamed cantrips, all confirmed self-only: each carries two
+    // PrefixedBuff variants gated by the Unleash Ranger F2 mechanic's two mutually-exclusive states
+    // ("Unleashed" = ranger fights alone, pet stowed; "Pet Unleashed" = pet is out and active), but
+    // neither state spreads the boon to other squad members — no ally wording on any wiki page, and
+    // no Number-of-Allied-Targets/Radius fact tied to either PrefixedBuff variant on any of them
+    // (the one Number/Radius fact each carries, where present, is for an enemy-facing effect: Nature's
+    // Binding's cage targets, Unnatural Traversal's vulnerability radius). Same "self, regardless of
+    // whether a pet also benefits" precedent as Guard!/Lesser Guard! above (12632/69183).
+    63130: 'self', // Nature's Binding (Cantrip). Quickness (Unleashed)/Resistance (Pet Unleashed).
+    63157: 'self', // Exploding Spores (Cantrip). Might (Unleashed)/Protection (Pet Unleashed).
+    63163: 'self', // Forest's Fortification (Cantrip). Vigor (Pet Unleashed) — wiki notes the pet is
+    // also affected, but that's not a squad ally.
+    63195: 'self', // Unnatural Traversal (Cantrip). Quickness (Unleashed)/Regeneration (Pet Unleashed).
+    63256: 'self', // Mutate Conditions (Cantrip). Fury (Unleashed)/Vigor (Pet Unleashed).
+    63319: 'self' // Perilous Gift (Cantrip). Stability (Pet Unleashed).
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -1221,10 +1246,18 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
     // from that same skill's foe-facing Number of Targets(5)/Vulnerability.
     2352: 4, // Found Purpose (Conduit). Own facts: explicit "Number of Allied Targets: 4", Range(360)
     // — "Triggering Numinous Gift grants boons to allies in an area around you."
-    2440: 'self' // Numinous Gift (Conduit minor). Own facts have no Number/Radius fact at all —
+    2440: 'self', // Numinous Gift (Conduit minor). Own facts have no Number/Radius fact at all —
     // "Gain might and additional boons when you use Cosmic Wisdom" (first-person). The party-wide
     // version of this same effect is Found Purpose (2352) above, a separate trait id with its own
     // independent fact array — no per-line conflict, each renders its own tooltip from its own facts.
+
+    // --- PrefixedBuff target-count sweep, Ranger leg (3rd leg, 2026-08-10): 2 traits, mirrors the
+    // Revenant leg's mixed self/party-wide shape.
+    2263: 'self', // Enhancing Impact (Untamed minor). Quickness (Unleashed)/Stability (Pet Unleashed).
+    // Own description: "Disabling a foe grants YOU boons" (first-person) — same Unleash Ranger
+    // self-only reasoning as the skill leg above.
+    2425: 5 // Cloudburst (Soulbeast). Own facts: explicit "Number of Targets: 5", Radius(480) — wiki:
+    // "these boons apply to nearby allies" when using Bluster or Hawkeye.
   }
 }
 
