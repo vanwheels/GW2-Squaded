@@ -2,6 +2,35 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 139 — `PrefixedBuff` target-count sweep, final leg — sweep closed (45/45)
+
+Closed out the sweep in one combined leg per the user's request, since only 6 sources across 5
+professions remained (Mesmer(2)/Necromancer(1)/Warrior(1)/Engineer(1)/Thief(1) — each too small to
+warrant its own single/double-source leg). Re-ran the discovery scan first per
+[[prefixedbuff_target_count_sweep]]'s "how to apply" note and confirmed the logged 6-source count
+still held before curating.
+
+- **Party-wide(5)**: Experimental Turrets (Engineer trait 1678 — wiki: "Turrets... grant boons to
+  allies around them," own Boon-Radius(600) fact but no explicit Number fact, same "no explicit ally
+  cap stated, default 5" convention used elsewhere in the table); Life of the Party (Mesmer trait 2367
+  — wiki: "Lively Lute and Crescendo grant boons to affected allies," own Radius facts (600/360) but
+  no explicit Number fact, same default-5 convention); Shadestep (Thief trait 2289 — own facts already
+  carry an explicit "Number of Targets: 5"/Radius(360)); Roaring Reveille (Warrior trait 1471 — gates
+  Charge (14393)/Call of Valor (14394), both already curated party-wide(5), same gate-reuse pattern as
+  Guardian's Inspired Virtue/Legendary Lore).
+- **Party, count 1**: Transfusion (Necromancer trait 778 — own description: "Marks can be triggered by
+  allies to heal them," the established "one ally per mark trigger" mechanic already curated for all 4
+  of its gated skill ids — Chillblains/Reaper's Mark/Lesser Chilblains/Putrid Mark).
+- **Self-only**: Auspicious Anguish (Mesmer trait 673 — "Convert damaging conditions to boons whenever
+  you gain Distortion or become disabled," first-person throughout, no ally wording anywhere on the
+  page).
+
+Added all 6 to `TARGET_COUNT_OVERRIDES` in `src/shared/boon-calc/sources.ts` plus a closing leg
+section in its doc comment; updated the sweep's top doc comment to record the final 45/45 total.
+Re-ran the discovery scan (widened to all 9 professions this time) afterward and confirmed zero
+uncurated `PrefixedBuff` boon sources remain anywhere. `tsc --noEmit` clean. Sweep fully closed —
+removed its TODO.md entry.
+
 ## Session 136 — `PrefixedBuff` target-count sweep, Revenant leg (2nd of the backlog)
 
 Continued the sweep per [[prefixedbuff_target_count_sweep]]'s "how to apply" note: re-ran the

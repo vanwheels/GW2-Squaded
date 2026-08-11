@@ -4,40 +4,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Bugs
 
-- [ ] **`PrefixedBuff`-sourced boons have no curated target-count** — follow-up left open by fixing
-      the `PrefixedBuff` extraction bug itself (2026-08-09, see COMPLETED.md): `extractFromFacts`
-      now emits a `PrefixedBuff` fact's boon/condition exactly like an ordinary `Buff` fact, but
-      since `prefix.status` doesn't reliably resolve to one already-modeled skill id (a scan found
-      names like "Natural Harmony" matching 2+ distinct skill ids with no discriminator), these
-      sources fall back to `TARGET_COUNT_OVERRIDES`/`resolveTargetCount`'s normal "no signal found"
-      behavior — `targetCount: null` ("unknown reach") — same as any other un-curated source, not a
-      regression. 2026-08-09: scoped this down from the original 452-fact estimate — `targetCount`
-      is only ever rendered for boon-classified facts (`SkillsEditor.tsx` gates the tooltip badge on
-      `category === 'boon'`), so `PrefixedBuff` condition facts (e.g. Arcane Precision's crit
-      conditions) are out of scope by design. 2026-08-10: the original "35 sources/8 professions"
-      estimate undercounted — a programmatic re-scan (every `type === 'PrefixedBuff'` fact with an
-      `isBoonName` status, filtered against the actual top-level keys in `TARGET_COUNT_OVERRIDES`
-      rather than a text-presence check, which misreads ids that only appear as another source's gate
-      reference in a comment as already curated) found the true total is 45 distinct sources across 9
-      professions (Thief wasn't in the original 8 at all). Elementalist leg is now fully closed (20/20
-      — the 3 the original pass missed, all party-wide(5), fixed this session alongside the re-scan).
-      Revenant leg (2nd leg) is also now fully closed (7/7 — mixed self/party-wide, each corroborated
-      by an explicit "Number of Allied Targets" fact in the chain; see `TARGET_COUNT_OVERRIDES`' own
-      doc comment for detail). Ranger leg (3rd leg) is also now fully closed (8/8, 2026-08-10): 6
-      Untamed cantrips self-only (Unleash Ranger F2's two states never spread to other squad members),
-      Enhancing Impact (Untamed minor) same self-only reasoning, Cloudburst (Soulbeast) party-wide(5)
-      via its own explicit Number/Radius facts. Guardian leg (4th leg) is also now fully closed (4/4,
-      2026-08-10): Glaring Burst (skill) and Inspired Virtue/Legendary Lore (traits) party-wide(5),
-      Zealous Scepter self-only. Re-scanning ahead of this leg also caught a genuine miss in the
-      already-"closed" Elementalist leg: 5 more Glyph of Elemental Power ids
-      (5506/34637/34714/34736/34772), same self-only Inscription-gated reasoning as the already-
-      curated Glyph of (Lesser) Elementals sibling skill — fixed alongside the Guardian leg, true
-      Elementalist total is now 25/25. 6 sources remain: Mesmer(2), Necromancer(1), Warrior(1),
-      Engineer(1), Thief(1) — see `TARGET_COUNT_OVERRIDES`' own doc comment ("PrefixedBuff
-      target-count sweep") in `src/shared/boon-calc/sources.ts` for the corrected accounting. Same
-      wiki-verified per-source sweep pattern as Group A/B, continue leg by leg (Mesmer next, largest
-      remaining at 2).
-
 - [ ] **Gear Optimizer doesn't function properly yet** — flagged by the user 2026-08-05 while
       preparing the 0.2.0 release (shipped anyway, marked "early stage/experimental" in
       CHANGELOG.md rather than held back). No specific failure mode was captured at the time.

@@ -315,8 +315,18 @@ export type TargetCountOverride = number | 'self'
  * own already-curated party-wide(5) boon facts), Legendary Lore (2116, Firebrand's Tome-skill analog
  * of Inspired Virtue, same boon set — vague on its own wording but a documented tooltip-bug note
  * explicitly names "allies" as the affected reach). Self-only: Zealous Scepter (1925, "Gain might...",
- * first-person, no Number/Radius fact). Leg now fully closed — 4/4 Guardian sources curated. 6 sources
- * remain across 5 professions: Mesmer(2), Necromancer(1), Warrior(1), Engineer(1), Thief(1).
+ * first-person, no Number/Radius fact). Leg now fully closed — 4/4 Guardian sources curated.
+ *
+ * Final leg (2026-08-10): the last 6 sources across 5 professions, combined into a single leg since
+ * each remaining profession had only 1-2 sources left. Party-wide(5): Experimental Turrets (Engineer
+ * 1678, ally-facing Radius(600) fact but no explicit Number fact — default-5 convention), Life of the
+ * Party (Mesmer 2367, explicit "grant boons to affected allies" wording, same default-5 convention),
+ * Shadestep (Thief 2289, own explicit Number-of-Targets(5)/Radius(360) facts), Roaring Reveille
+ * (Warrior 1471, gates the already-curated party-wide(5) Charge/Call of Valor skills). Party, count 1:
+ * Transfusion (Necromancer 778, the established "one ally per mark trigger" mechanic already curated
+ * for its 4 gated skill ids). Self-only: Auspicious Anguish (Mesmer 673, "Convert damaging conditions
+ * to boons whenever you gain Distortion or become disabled" — first-person throughout, no ally
+ * wording anywhere). Sweep now fully closed — 45/45 sources curated across all 9 professions.
  */
 // Exported for scripts/fetch-target-counts.ts (the wiki-extraction pipeline's target-count leg,
 // TODO.md's "Wiki-sourced data pipeline" step 3) — same shape as damage-calc.ts's own
@@ -1307,11 +1317,37 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
     1925: 'self', // Zealous Scepter (Zeal). Wiki: "Gain might when your Virtue skill 1 passive effect
     // triggers; gain more might while wielding a scepter" — first-person, no ally wording, no
     // Number/Radius fact of its own.
-    2116: 5 // Legendary Lore (Firebrand). Wiki: "Tome skills gain bonuses..." — vague on its own, but
+    2116: 5, // Legendary Lore (Firebrand). Wiki: "Tome skills gain bonuses..." — vague on its own, but
     // a documented bug note confirms the ally reach explicitly ("Chapter 1: Searing Spell only grants
     // 1 stack of Might instead of 2 stacks to allies. It works as intended on self"). Firebrand's
     // Tome-skill analog of Inspired Virtue above, same boon set (Might/Regeneration/Protection) —
     // same party-wide(5) default-count convention as the rest of this table.
+
+    // --- PrefixedBuff target-count sweep, final leg (2026-08-10): the last 6 sources across 5
+    // professions, small enough to combine into one leg rather than five single-source legs (see
+    // TODO.md/the sweep's top doc comment for the corrected accounting). Closes the sweep — 45/45.
+    1678: 5, // Experimental Turrets (Engineer, Inventions Master). Wiki: "Turrets... grant boons to
+    // allies around them on a regular interval" — own Boon-Radius(600) fact but no explicit
+    // Number-of-Targets fact, same "no explicit ally cap stated, default 5" convention as Oppressive
+    // Collapse (44296)/Spectral Ring (10608) in the skill table above.
+    673: 'self', // Auspicious Anguish (Mesmer, Chaos Master). Wiki: "Convert damaging conditions to
+    // boons whenever you gain Distortion or become disabled" — first-person throughout, no ally
+    // wording or Number/Radius fact anywhere on the page; the converted boons are the mesmer's own.
+    2367: 5, // Life of the Party (Mesmer, Virtuoso). Wiki: "Lively Lute and Crescendo grant boons to
+    // affected allies" — explicit ally wording, own Radius facts (600 for Lively Lute, 360 for
+    // Crescendo) but no explicit Number-of-Targets fact, same default-5 convention as Experimental
+    // Turrets above.
+    778: 1, // Transfusion (Necromancer, Blood Magic). Own description: "Marks can be triggered by
+    // allies to heal them and provide them with additional benefits" — the established "one ally per
+    // mark trigger" mechanic already curated for all 4 of this trait's gated skill ids (Chillblains
+    // 10605, Reaper's Mark 19115, Lesser Chilblains 76506 above, Putrid Mark 19116 in
+    // `CONDITION_CLEANSE_TARGETS`), reused verbatim for the trait's own tooltip.
+    2289: 5, // Shadestep (Thief, Specter). Own facts: explicit "Number of Targets: 5", Radius(360) —
+    // wiki: "Shadow Shroud skills provide additional supportive effects to nearby allies and your
+    // tethered ally."
+    1471: 5 // Roaring Reveille (Warrior, Tactics Adept). Wiki: "Warhorn skills apply additional boons."
+    // Gates Charge (14393)/Call of Valor (14394), both already curated party-wide(5) above — same
+    // gate-reuse pattern as Inspired Virtue/Legendary Lore gating their own Virtue/Tome skills.
   }
 }
 
