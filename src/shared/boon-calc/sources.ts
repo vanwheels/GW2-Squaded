@@ -285,6 +285,11 @@ export type TargetCountOverride = number | 'self'
  * Arcane Lightning, Soothing Disruption, Elemental Lockdown, Swift Revenge, Elemental Synergy,
  * Enhanced Potency) with "Gain X" (first-person) wording throughout. See the skill/trait tables' own
  * leg comment for per-source detail. Leg now fully closed — 20/20 Elementalist sources curated.
+ * Second correction (2026-08-10, found re-scanning ahead of the Guardian leg): 5 more Glyph of
+ * Elemental Power ids (5506/34637/34714/34736/34772) the original scan missed entirely — same
+ * Inscription-gated self-only reasoning as the already-curated Glyph of (Lesser) Elementals sibling
+ * skill. True Elementalist total is 25/25, not 20/20; TODO.md's/this comment's earlier per-leg counts
+ * are left as historical record rather than renumbered.
  *
  * Revenant leg (2nd leg, 2026-08-10): 1 skill + 6 traits, mixed self/party-wide (unlike the all-self
  * Elementalist leg) — party-wide entries are each corroborated by an explicit "Number of Allied
@@ -301,8 +306,17 @@ export type TargetCountOverride = number | 'self'
  * Number-of-Allied-Targets/Radius fact tied to either PrefixedBuff variant on any of them). Enhancing
  * Impact (Untamed minor) same self-only reasoning ("grants YOU boons"). Cloudburst (Soulbeast) is
  * party-wide(5), corroborated by its own explicit "Number of Targets: 5"/Radius(480) facts and wiki
- * wording ("nearby allies"). Leg now fully closed — 8/8 Ranger sources curated. 10 sources remain
- * across 6 professions: Guardian(4), Mesmer(2), Necromancer(1), Warrior(1), Engineer(1), Thief(1).
+ * wording ("nearby allies"). Leg now fully closed — 8/8 Ranger sources curated.
+ *
+ * Guardian leg (4th leg, 2026-08-10): 1 skill + 3 traits, mixed self/party-wide. Party-wide: Glaring
+ * Burst (76982, own explicit "Number of Targets: 5"/Radius(240), 2 of its 4 weapon-variant boon facts
+ * wiki-confirmed ally-facing), Inspired Virtue (621, own explicit "Number of Targets: 5"/Radius(1200)
+ * facts, "Virtues apply boons to allies when activated" — gates Virtue of Justice/Resolve/Courage's
+ * own already-curated party-wide(5) boon facts), Legendary Lore (2116, Firebrand's Tome-skill analog
+ * of Inspired Virtue, same boon set — vague on its own wording but a documented tooltip-bug note
+ * explicitly names "allies" as the affected reach). Self-only: Zealous Scepter (1925, "Gain might...",
+ * first-person, no Number/Radius fact). Leg now fully closed — 4/4 Guardian sources curated. 6 sources
+ * remain across 5 professions: Mesmer(2), Necromancer(1), Warrior(1), Engineer(1), Thief(1).
  */
 // Exported for scripts/fetch-target-counts.ts (the wiki-extraction pipeline's target-count leg,
 // TODO.md's "Wiki-sourced data pipeline" step 3) — same shape as damage-calc.ts's own
@@ -1045,6 +1059,20 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
     // no allies wording on any of Might/Vigor/Fury/Protection.
     80231: 'self', // Unravel (Weaver mechanic). Wiki: "Gain boons based on your primary attunement."
 
+    // Elementalist leg correction (2026-08-10, found while re-scanning ahead of the Guardian leg):
+    // 5 more Glyph of Elemental Power ids the original leg's scan missed — same Inscription (229)
+    // gate/reasoning as the Glyph of (Lesser) Elementals variants above, just a sibling skill whose
+    // base (untraited) tooltip grants unrelated non-boon effects per attunement (Fire: burning,
+    // Water: condition removal, Air: daze, Earth: barrier — confirmed via the wiki's own raw
+    // wikitext), with Inscription layering ITS OWN boon on top the same "Gain boons upon casting a
+    // glyph based on your attunement" way. Self-only, same precedent.
+    5506: 'self', // Glyph of Elemental Power (base id) — Might(Fire)/Regeneration(Water)/
+    // Swiftness(Air)/Protection(Earth), all Inscription-gated.
+    34637: 'self', // Glyph of Elemental Power (air-attunement palette variant) — Swiftness.
+    34714: 'self', // Glyph of Elemental Power (earth-attunement palette variant) — Protection.
+    34736: 'self', // Glyph of Elemental Power (fire-attunement palette variant) — Might.
+    34772: 'self', // Glyph of Elemental Power (water-attunement palette variant) — Regeneration.
+
     // --- PrefixedBuff target-count sweep, Revenant leg (2nd leg, 2026-08-10) — see the sweep's top
     // doc comment for scope/method. Confirmed self-only from the API's own fact data (no Number-of-
     // Allied-Targets/Radius signal, and the structurally parallel Death Drop buff variants are all
@@ -1067,7 +1095,17 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
     // also affected, but that's not a squad ally.
     63195: 'self', // Unnatural Traversal (Cantrip). Quickness (Unleashed)/Regeneration (Pet Unleashed).
     63256: 'self', // Mutate Conditions (Cantrip). Fury (Unleashed)/Vigor (Pet Unleashed).
-    63319: 'self' // Perilous Gift (Cantrip). Stability (Pet Unleashed).
+    63319: 'self', // Perilous Gift (Cantrip). Stability (Pet Unleashed).
+
+    // --- PrefixedBuff target-count sweep, Guardian leg (4th leg, 2026-08-10) — see the sweep's top
+    // doc comment for scope/method. See the matching trait table entry below (Inspired Virtue, 621)
+    // for the other 3 Guardian sources this leg.
+    76982: 5 // Glaring Burst (Luminous/radiant weapon mechanic). Own facts: explicit "Number of
+    // Targets: 5", Radius(240). Two of its 4 weapon-variant PrefixedBuff facts are boon-classified —
+    // Radiant Bulwark's Resolution ("Grants aegis to nearby allies on activation") and Luminous
+    // Staff's Regeneration ("granting boons to allies and creating a symbol") — both explicitly ally-
+    // facing per the wiki; the other 2 variants (Gleaming Blade's Vulnerability, Dazzling Hammer's
+    // Damage Increase) aren't boons and are out of this sweep's scope.
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -1256,8 +1294,24 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
     2263: 'self', // Enhancing Impact (Untamed minor). Quickness (Unleashed)/Stability (Pet Unleashed).
     // Own description: "Disabling a foe grants YOU boons" (first-person) — same Unleash Ranger
     // self-only reasoning as the skill leg above.
-    2425: 5 // Cloudburst (Soulbeast). Own facts: explicit "Number of Targets: 5", Radius(480) — wiki:
+    2425: 5, // Cloudburst (Soulbeast). Own facts: explicit "Number of Targets: 5", Radius(480) — wiki:
     // "these boons apply to nearby allies" when using Bluster or Hawkeye.
+
+    // --- PrefixedBuff target-count sweep, Guardian leg (4th leg, 2026-08-10): 3 traits, mirrors the
+    // Revenant/Ranger legs' mixed self/party-wide shape. See the skill table's Guardian entry above
+    // for the matching skill-side source.
+    621: 5, // Inspired Virtue (Zeal). Own facts: explicit "Number of Targets: 5", Radius(1200, though
+    // the wiki flags the in-game value as actually 600 except on Willbender) — "Virtues apply boons
+    // to allies when activated." Gates Virtue of Justice/Resolve/Courage's own Might/Regeneration
+    // boon facts (already curated party-wide(5) above, e.g. 9115/9120/9250).
+    1925: 'self', // Zealous Scepter (Zeal). Wiki: "Gain might when your Virtue skill 1 passive effect
+    // triggers; gain more might while wielding a scepter" — first-person, no ally wording, no
+    // Number/Radius fact of its own.
+    2116: 5 // Legendary Lore (Firebrand). Wiki: "Tome skills gain bonuses..." — vague on its own, but
+    // a documented bug note confirms the ally reach explicitly ("Chapter 1: Searing Spell only grants
+    // 1 stack of Might instead of 2 stacks to allies. It works as intended on self"). Firebrand's
+    // Tome-skill analog of Inspired Virtue above, same boon set (Might/Regeneration/Protection) —
+    // same party-wide(5) default-count convention as the rest of this table.
   }
 }
 

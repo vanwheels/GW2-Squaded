@@ -26,11 +26,17 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       doc comment for detail). Ranger leg (3rd leg) is also now fully closed (8/8, 2026-08-10): 6
       Untamed cantrips self-only (Unleash Ranger F2's two states never spread to other squad members),
       Enhancing Impact (Untamed minor) same self-only reasoning, Cloudburst (Soulbeast) party-wide(5)
-      via its own explicit Number/Radius facts. 10 sources remain: Guardian(4), Mesmer(2),
-      Necromancer(1), Warrior(1), Engineer(1), Thief(1) — see `TARGET_COUNT_OVERRIDES`' own doc comment
-      ("PrefixedBuff target-count sweep") in `src/shared/boon-calc/sources.ts` for the corrected
-      accounting. Same wiki-verified per-source sweep pattern as Group A/B, continue leg by leg
-      (Guardian next, largest remaining at 4).
+      via its own explicit Number/Radius facts. Guardian leg (4th leg) is also now fully closed (4/4,
+      2026-08-10): Glaring Burst (skill) and Inspired Virtue/Legendary Lore (traits) party-wide(5),
+      Zealous Scepter self-only. Re-scanning ahead of this leg also caught a genuine miss in the
+      already-"closed" Elementalist leg: 5 more Glyph of Elemental Power ids
+      (5506/34637/34714/34736/34772), same self-only Inscription-gated reasoning as the already-
+      curated Glyph of (Lesser) Elementals sibling skill — fixed alongside the Guardian leg, true
+      Elementalist total is now 25/25. 6 sources remain: Mesmer(2), Necromancer(1), Warrior(1),
+      Engineer(1), Thief(1) — see `TARGET_COUNT_OVERRIDES`' own doc comment ("PrefixedBuff
+      target-count sweep") in `src/shared/boon-calc/sources.ts` for the corrected accounting. Same
+      wiki-verified per-source sweep pattern as Group A/B, continue leg by leg (Mesmer next, largest
+      remaining at 2).
 
 - [ ] **Gear Optimizer doesn't function properly yet** — flagged by the user 2026-08-05 while
       preparing the 0.2.0 release (shipped anyway, marked "early stage/experimental" in
