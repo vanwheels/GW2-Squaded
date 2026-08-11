@@ -203,15 +203,17 @@ that before extending either further, and before the tooltip visual-pass item be
       heal-modifier concept yet (distinct from the boon/condition uptime system); needs scoping, not
       a one-off patch for this skill.
 
-- [ ] Dedicated visual pass over every tooltip type (traits, skills, gear stat prefixes, runes,
-      sigils, relics, food/utility, infusions) so they read as one coherent design instead of
-      whatever shape each grew into. Content work already landed (skills: `skillFactLines`; traits/
-      food/utility: `numericFactLines`/`formatConsumableDescription`) — this is styling only. Target
-      look: in-game GW2/gw2skills.net conventions (rarity-colored name header, icon next to title, a
-      divider, stat lines as a tidy list rather than a wrapped paragraph, muted flavor text vs.
-      bright numeric bonuses). Starting point: `Tooltip.tsx`'s `TooltipBody` + `global.css`'s
-      `.tooltip-*` rules already give skills a semi-structured layout — extend that shared vocabulary
-      rather than inventing new one-off styling per content type.
+- [ ] Dedicated visual pass over every tooltip type — icon-next-to-title and rarity-colored name
+      header now landed (Session 141, visually confirmed live) for traits, skills, gear stat
+      prefixes, runes, sigils, relics, and infusions, via `TooltipBody`'s new `icon`/`rarity` props
+      in `Tooltip.tsx` + `.tooltip-header`/`.tooltip-icon`/`.tooltip-title.rarity-*` in
+      `global.css`. Divider, tidy-list stat lines, and muted-vs-bright text were already in place
+      from earlier work. Still open: **food/utility** — no icon-header work needed (already
+      inherited via the shared `UpgradePicker`), but their real GW2 rarity varies per item (unlike
+      every other category's single fixed tier), so they still render title-only, no rarity color.
+      Needs each food/utility item's actual rarity plumbed from game data into `UpgradePicker`'s
+      per-option tooltip (not just its single fixed `rarity` prop) before extending
+      `.tooltip-title.rarity-*` to them.
 
 - [ ] Curate more trait attribute bonuses (`trait-attributes.ts`). Only Revenant/Salvation's "Life
       Attunement" is curated so far (+120 Healing Power, 7% Healing→Concentration, found via a

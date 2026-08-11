@@ -2,6 +2,33 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 141 — Tooltip visual pass: icon-in-header + rarity-colored titles (traits/skills/gear upgrades)
+
+First slice of the "dedicated visual pass over every tooltip type" TODO item. Visually confirmed
+live in `npm run dev` (traits/skills screenshots looked right; gear stat prefixes/relics/runes/
+sigils/infusions approved after a rarity-mapping correction mid-session).
+
+- **Icon next to title**: `Tooltip.tsx`'s `TooltipBody` gained an optional `icon` prop, rendered
+  in a new `.tooltip-header` flex row ahead of the title (24px circular icon matching the app's
+  existing trait-icon styling, 18px inside `.tooltip-skill-variant` sub-entries). Wired for
+  traits/skills directly (`TraitsEditor.tsx`, the shared `skillTooltipContent` in
+  `SkillsEditor.tsx` — which `WeaponSkillBar`/`ProfessionMechanicBar`/`PetsEditor` all reuse, so
+  they picked it up for free) and generically for every `UpgradePicker`-backed category (stat
+  prefixes, runes, sigils, infusions, relics, food, utility, squad build-assignment) since that's
+  one shared component.
+- **Rarity-colored tooltip title**: `TooltipBody` gained a matching `rarity` prop
+  (`'ascended' | 'exotic' | 'rare' | 'fine'`), colored via new `.tooltip-title.rarity-*` CSS
+  classes reusing the existing `--rarity-*` custom properties (added `--rarity-exotic`/
+  `--rarity-rare` alongside the prior `--rarity-ascended`/`--rarity-fine`). `UpgradePicker`'s
+  `rarity` prop (previously only driving badge border color) now drives both.
+- **Corrected rarity mapping** (live user correction, confirmed real GW2 rarity, not the
+  scoping-note guess a prior session made): gear stat prefixes stay Ascended; relics/runes/sigils
+  are **Exotic** (previously relics were wired to Fine, runes/sigils were unstyled); WvW infusions
+  are **Fine** (a first pass briefly wired them to Rare mid-session before the correction landed).
+  Food/utility rarity varies per item and isn't wired to a fixed `rarity` prop — still open, see
+  TODO.md.
+- `npm run typecheck`/`lint` clean throughout.
+
 ## Session 140 — Favorites pin for the squad editor's build-assignment picker
 
 Closed the last item left unwired from the 2026-08-06 Favorites feature (commit `f162583`): the squad

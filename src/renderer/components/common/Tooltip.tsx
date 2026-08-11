@@ -79,19 +79,31 @@ export function Tooltip({ content, children, className, style }: Props) {
 interface TooltipBodyProps {
   title: string
   description?: string
+  /** Icon URL shown beside the title, matching the in-game/gw2skills.net tooltip header
+   *  convention. Omit for entries with no icon of their own (empty slots, "Unknown skill"
+   *  placeholders, tome chapters). */
+  icon?: string
+  /** GW2 item-rarity color for the title text, same fixed-rarity-per-category scoping as
+   *  `UpgradePicker`'s badge-border `rarity` prop (see that prop's doc comment) — omit for
+   *  categories with no single confirmed rarity (traits/skills have none at all; runes/sigils/
+   *  food/utility are handled elsewhere). */
+  rarity?: 'ascended' | 'exotic' | 'rare' | 'fine'
 }
 
 /**
- * Common "bold name + muted description" shape shared by trait/skill/boon tooltips.
+ * Common "icon + bold name + muted description" shape shared by trait/skill/boon tooltips.
  * `description` is stripped of raw GW2 API markup (`<c=@abilitytype>`/`<c=@reminder>` color
  * tags, `<br>`) here so every caller gets clean text for free rather than each needing its own
  * `stripGw2Markup` call.
  */
-export function TooltipBody({ title, description }: TooltipBodyProps) {
+export function TooltipBody({ title, description, icon, rarity }: TooltipBodyProps) {
   const clean = description ? stripGw2Markup(description) : undefined
   return (
     <>
-      <div className="tooltip-title">{title}</div>
+      <div className="tooltip-header">
+        {icon && <img className="tooltip-icon" src={icon} alt="" />}
+        <div className={rarity ? `tooltip-title rarity-${rarity}` : 'tooltip-title'}>{title}</div>
+      </div>
       {clean && <div className="tooltip-description">{clean}</div>}
     </>
   )

@@ -9,9 +9,14 @@
   /* GW2's own skill/trait tooltip title color (gold) — distinct from --accent (used for
      destructive/warning UI elsewhere), matching the in-game and gw2skills.net tooltip look. */
   --tooltip-title: #e5c988;
-  /* GW2's own item-rarity colors (Ascended pink/magenta, Fine blue) — see TODO.md's
-     item-rarity-color-coding item for which slot categories use which tier and why. */
+  /* GW2's own item-rarity colors (Ascended pink/magenta, Exotic orange, Rare yellow, Fine blue)
+     — see TODO.md's item-rarity-color-coding item for which slot categories use which tier and
+     why: gear stat prefixes are always Ascended, relics/runes/sigils are always Exotic, WvW
+     infusions are always Fine (confirmed live 2026-08-11) — Rare is kept defined but currently
+     unused pending food/utility, whose rarity actually varies per item. */
   --rarity-ascended: #fb3e8d;
+  --rarity-exotic: #ffa405;
+  --rarity-rare: #fcd00b;
   --rarity-fine: #62a4da;
   /* Land/Underwater environment icon colors (see SkillBarIcon) — distinct from --accent so both
      states stay readable side by side at a glance. */
@@ -643,10 +648,22 @@ input[type='text'] {
 
 /* Item-rarity border: Ascended for the armor/weapon/trinket stat-combo picked in a slot (this
    app always assumes Ascended/Legendary stat budgets, see attribute-totals.ts's RARITY const),
-   Fine for WvW infusions and relics (their real, single, native GW2 rarity — see TODO.md). */
+   Exotic for relics/runes/sigils, Fine for WvW infusions (their real, single, native GW2 rarity,
+   confirmed live 2026-08-11 — see TODO.md). Rare is kept defined but currently unused; food/
+   utility rarity varies per item and isn't wired up yet. */
 .upgrade-badge.rarity-ascended,
 .skill-slot-button.rarity-ascended {
   border-color: var(--rarity-ascended);
+}
+
+.upgrade-badge.rarity-exotic,
+.skill-slot-button.rarity-exotic {
+  border-color: var(--rarity-exotic);
+}
+
+.upgrade-badge.rarity-rare,
+.skill-slot-button.rarity-rare {
+  border-color: var(--rarity-rare);
 }
 
 .upgrade-badge.rarity-fine,
@@ -1290,9 +1307,42 @@ input[type='text'] {
   line-height: 1.4;
 }
 
+.tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tooltip-icon {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  object-fit: cover;
+}
+
 .tooltip-title {
   font-weight: 600;
   color: var(--tooltip-title);
+}
+
+/* Rarity-colored tooltip name header (gw2skills.net convention) — mirrors the badge-border
+   classes above, same fixed-rarity-per-category scoping (see that comment). */
+.tooltip-title.rarity-ascended {
+  color: var(--rarity-ascended);
+}
+
+.tooltip-title.rarity-exotic {
+  color: var(--rarity-exotic);
+}
+
+.tooltip-title.rarity-rare {
+  color: var(--rarity-rare);
+}
+
+.tooltip-title.rarity-fine {
+  color: var(--rarity-fine);
 }
 
 .tooltip-description {
@@ -1340,6 +1390,11 @@ input[type='text'] {
 
 .tooltip-skill-variant .tooltip-title {
   font-size: 0.85em;
+}
+
+.tooltip-skill-variant .tooltip-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .tooltip-boon-facts li {

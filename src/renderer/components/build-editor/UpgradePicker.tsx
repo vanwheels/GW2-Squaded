@@ -33,11 +33,12 @@ interface Props<T extends number | string = number> {
    *  step down (`md`), everything else unchanged (`sm`, the default). No effect on `slot` variant,
    *  which is always the fixed 48px skill-bar size. */
   size?: 'sm' | 'md' | 'lg'
-  /** GW2 item-rarity border color for the chosen item, when this category has a single fixed
-   *  rarity (e.g. every WvW infusion is Fine tier, every relic is Exotic-tier-but-shown-as-Fine —
-   *  see TODO.md's item-rarity-color-coding scoping notes). Omit for categories with no single
-   *  confirmed rarity (runes/sigils/food/utility). */
-  rarity?: 'ascended' | 'fine'
+  /** GW2 item-rarity border/tooltip-title color for the chosen item, when this category has a
+   *  single fixed rarity: every gear stat-prefix combo is Ascended, every relic/rune/sigil is
+   *  Exotic, every WvW infusion is Fine (confirmed live 2026-08-11 — see TODO.md's
+   *  item-rarity-color-coding scoping notes). Omit for categories with no single confirmed
+   *  rarity (food/utility, whose real rarity varies per item). */
+  rarity?: 'ascended' | 'exotic' | 'rare' | 'fine'
   /**
    * Opts this picker into the copy/paste feature (2026-07-30): when set, a chosen value can be
    * dragged out of this button, and the button accepts drops from any other picker sharing the
@@ -154,7 +155,13 @@ export function UpgradePicker<T extends number | string = number>({
   return (
     <div className="upgrade-slot">
       <Tooltip
-        content={chosen ? <TooltipBody title={chosen.name} description={chosen.description} /> : <TooltipBody title={label} />}
+        content={
+          chosen ? (
+            <TooltipBody title={chosen.name} description={chosen.description} icon={chosen.icon} rarity={rarity} />
+          ) : (
+            <TooltipBody title={label} />
+          )
+        }
       >
         <button
           ref={buttonRef}
@@ -206,7 +213,7 @@ export function UpgradePicker<T extends number | string = number>({
           {ordered.map((o) => {
             const favorited = isFavorite?.(o.id) ?? false
             return (
-              <Tooltip key={o.id} content={<TooltipBody title={o.name} description={o.description} />}>
+              <Tooltip key={o.id} content={<TooltipBody title={o.name} description={o.description} icon={o.icon} rarity={rarity} />}>
                 <button
                   type="button"
                   className={chosenId === o.id ? 'skill-option-button chosen' : 'skill-option-button'}

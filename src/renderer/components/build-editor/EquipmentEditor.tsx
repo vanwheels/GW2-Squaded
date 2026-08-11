@@ -465,6 +465,7 @@ export function EquipmentEditor({
             options={sigilOptions}
             chosenId={id}
             onChoose={(sigilId) => setSigil(key, capacity, i, sigilId)}
+            rarity="exotic"
             dragCategory="sigil"
             size="lg"
           />
@@ -496,6 +497,7 @@ export function EquipmentEditor({
               options={runeOptions}
               chosenId={value[key]?.runeId ?? null}
               onChoose={(id) => setRune(key, id)}
+              rarity="exotic"
               dragCategory="rune"
               size="lg"
             />
@@ -714,7 +716,7 @@ export function EquipmentEditor({
     options: UpgradeOption[],
     chosenId: number | null,
     onChoose: (id: number | null) => void,
-    rarity?: 'fine',
+    rarity?: 'exotic' | 'rare' | 'fine',
     emptyIcon?: string,
     favorites?: { isFavorite: (id: number) => boolean; onToggleFavorite: (id: number) => void }
   ) {
@@ -763,7 +765,7 @@ export function EquipmentEditor({
               relicOptions,
               consumables.relicId,
               (id) => onConsumablesChange({ ...consumables, relicId: id }),
-              'fine',
+              'exotic',
               'icons/weapon-placeholder/relic.png'
             )}
             {renderOtherSlot(

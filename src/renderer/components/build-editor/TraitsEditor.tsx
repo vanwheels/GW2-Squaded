@@ -178,7 +178,7 @@ function TraitLineRow({
                   <Tooltip
                     content={
                       <>
-                        <TooltipBody title={minor.name} description={minor.description} />
+                        <TooltipBody title={minor.name} description={minor.description} icon={minor.icon} />
                         {factsBlock(
                           numericFactLines(minor.facts, minor.traitedFacts, activeIds),
                           boonConditionFactsForTrait(minor, activeIds, durationPercent, wvwFactOverridesByTraitId[minor.id])
@@ -202,7 +202,7 @@ function TraitLineRow({
                       key={t.id}
                       content={
                         <>
-                          <TooltipBody title={t.name} description={t.description} />
+                          <TooltipBody title={t.name} description={t.description} icon={t.icon} />
                           {factsBlock(
                             numericFactLines(t.facts, t.traitedFacts, activeIds),
                             boonConditionFactsForTrait(t, activeIds, durationPercent, wvwFactOverridesByTraitId[t.id])

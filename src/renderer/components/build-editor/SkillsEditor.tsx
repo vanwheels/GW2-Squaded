@@ -329,7 +329,7 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
   const variants = relatedVariantSkills(skill, variantContext.skills)
   return (
     <>
-      <TooltipBody title={skill.name} description={factSourceSkill.description} />
+      <TooltipBody title={skill.name} description={factSourceSkill.description} icon={skill.icon} />
       {factsBlock(numericLines, effectiveFacts, effectiveNamedFacts)}
       {variants.map((v) => {
         const vNumeric = skillFactLines(v.skill, activeIds, power, healingPower, variantContext.targetArmor)
@@ -342,7 +342,7 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
         const vNamedFacts = skillNamedFacts(v.skill, activeIds, variantContext.wvwFactOverrides.skill[v.skill.id])
         return (
           <div className="tooltip-skill-variant" key={v.skill.id}>
-            <TooltipBody title={v.label} description={v.skill.description !== skill.description ? v.skill.description : undefined} />
+            <TooltipBody title={v.label} description={v.skill.description !== skill.description ? v.skill.description : undefined} icon={v.skill.icon} />
             {factsBlock(vNumeric, vBoon, vNamedFacts)}
           </div>
         )
