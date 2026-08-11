@@ -482,6 +482,17 @@ export function conditionDurationPercent(totals: AttributeTotals): number {
   return (totals.points.ConditionDuration ?? 0) / DURATION_POINTS_PER_PERCENT + totals.bonusPercent.conditionDuration
 }
 
+/** `computeGearAttributeTotals` + `boonDurationPercent`/`conditionDurationPercent`, bundled for the
+ *  two call sites (`SkillsEditor.tsx`'s `useDurationContext`, `TraitsEditor.tsx`'s own tooltip prep)
+ *  that only need the duration-% pair, not the full `AttributeTotals`. */
+export function boonConditionDurationPercent(
+  build: Build,
+  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility'>
+): { boon: number; condition: number } {
+  const totals = computeGearAttributeTotals(build, gameData)
+  return { boon: boonDurationPercent(totals), condition: conditionDurationPercent(totals) }
+}
+
 /**
  * Magic Find has no equippable core-attribute form in GW2 (no `ItemStat` combo grants it) — every
  * point comes from rune/food/utility bonus text already expressed as a direct percentage, so

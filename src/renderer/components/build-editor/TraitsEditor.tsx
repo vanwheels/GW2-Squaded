@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import type { Build, ProfessionId, Specialization, Trait, TraitLineSelection, TraitLineSlots, WvwFactOverride } from '@shared/types'
 import { numericFactLines } from '@shared/skill-calc/fact-numbers'
 import { boonConditionFactsForTrait } from '@shared/boon-calc/sources'
-import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
+import { boonConditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
@@ -249,13 +249,10 @@ export function TraitsEditor({ profession, build, value, onChange }: Props) {
   const { specializationsForProfession, specializationsById, majorTraitsForSpecialization, minorTraitsForSpecialization } = gameData
 
   // Gear-derived boon/condition duration % for this editor's own trait tooltips
-  // (`boonConditionFactsForTrait`) — same shape/computation as `SkillsEditor.tsx`'s
-  // `useDurationContext`, just inlined here since this editor doesn't need the rest of that hook's
-  // return value (character attributes, target armor — nothing a trait tooltip's boon facts use).
-  const durationPercent = useMemo(() => {
-    const totals = computeGearAttributeTotals(build, gameData)
-    return { boon: boonDurationPercent(totals), condition: conditionDurationPercent(totals) }
-  }, [build, gameData])
+  // (`boonConditionFactsForTrait`) — same `boonConditionDurationPercent` helper `SkillsEditor.tsx`'s
+  // `useDurationContext` calls, used directly here since this editor doesn't need the rest of that
+  // hook's return value (character attributes, target armor — nothing a trait tooltip's boon facts use).
+  const durationPercent = useMemo(() => boonConditionDurationPercent(build, gameData), [build, gameData])
 
   const specs = specializationsForProfession(profession)
   const lines = value

@@ -25,7 +25,7 @@ import type { GlyphFormVariantMap } from '@shared/types'
 import { isRacialSkill } from '@shared/skill-calc/racial-skills'
 import { formatBoonDuration, formatTargetCount } from '@shared/boon-calc/format'
 import { AURA_ICONS, BOON_CONDITION_ICONS, BOON_STRIP_CORRUPT_ICONS, COMBO_ICONS, CONTROL_ICONS, MISCELLANEOUS_ICONS } from '@shared/boon-calc/icons'
-import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '@shared/gear-calc/attribute-totals'
+import { boonConditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { computeCharacterStats } from '@shared/gear-calc/derived-stats'
 import { DEFAULT_COMBAT_STATE, TARGET_ARMOR_VALUES, type CombatState } from '@shared/gear-calc/combat-state'
 import { useAppSettings } from '@renderer/state/app-settings-store'
@@ -162,10 +162,7 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
 export function useDurationContext(build: Build, combatState: CombatState = DEFAULT_COMBAT_STATE) {
   const gameData = useGameData()
   const activeIds = useMemo(() => activeTraitIds(build, gameData.traits), [build, gameData.traits])
-  const durationPercent = useMemo(() => {
-    const totals = computeGearAttributeTotals(build, gameData)
-    return { boon: boonDurationPercent(totals), condition: conditionDurationPercent(totals) }
-  }, [build, gameData])
+  const durationPercent = useMemo(() => boonConditionDurationPercent(build, gameData), [build, gameData])
   const characterAttributes = useMemo(() => computeCharacterStats(build, gameData, combatState).attributes, [build, gameData, combatState])
   const targetArmor = TARGET_ARMOR_VALUES[combatState.targetArmorClass]
   return { gameData, activeIds, durationPercent, characterAttributes, targetArmor }
