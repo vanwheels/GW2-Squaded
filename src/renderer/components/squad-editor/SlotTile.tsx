@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Build, GhostPick, SquadSlot } from '@shared/types'
 import { useGameData } from '@renderer/state/game-data-store'
+import { useBuildsStore } from '@renderer/state/builds-store'
 import { TooltipBody } from '@renderer/components/common/Tooltip'
 import { UpgradePicker, type UpgradeOption } from '@renderer/components/build-editor/UpgradePicker'
 import {
@@ -85,6 +86,7 @@ export function SlotTile({
   onDropBuild
 }: Props) {
   const gameData = useGameData()
+  const { updateBuild } = useBuildsStore()
   const [dragOver, setDragOver] = useState(false)
 
   function eliteSpecIconFor(build: Build): string | undefined {
@@ -129,6 +131,21 @@ export function SlotTile({
     } else {
       onAssign(id)
     }
+  }
+
+  /** Favorite status for this picker reuses `Build.favorite` directly (the same field the
+   *  Builds/Squads card grids toggle) rather than a separate per-install store like the
+   *  Food/Utility pickers' `useFavoriteConsumables` — a build's favorite status is build data,
+   *  already persisted and already visible elsewhere, so there's nothing install-specific to add.
+   *  Ghost options (ids starting with `GHOST_PREFIX`) aren't real builds and can't be favorited. */
+  function isBuildFavorite(id: string): boolean {
+    return !id.startsWith(GHOST_PREFIX) && (builds.find((b) => b.id === id)?.favorite ?? false)
+  }
+
+  function toggleBuildFavorite(id: string): void {
+    if (id.startsWith(GHOST_PREFIX)) return
+    const b = builds.find((b) => b.id === id)
+    if (b) void updateBuild({ ...b, favorite: !b.favorite })
   }
 
   const ghostProfession = slot.ghostPick ? gameData.professions.find((p) => p.id === slot.ghostPick?.profession) : undefined
@@ -240,6 +257,8 @@ export function SlotTile({
         chosenId={chosenId}
         onChoose={handleChoose}
         variant="slot"
+        isFavorite={isBuildFavorite}
+        onToggleFavorite={toggleBuildFavorite}
       />
       {build ? (
         <div className="slot-tile-name">{build.name}</div>

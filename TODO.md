@@ -268,11 +268,6 @@ that before extending either further, and before the tooltip visual-pass item be
 
 ## Nice-to-haves
 
-- [ ] "Favorites" pin for the squad editor's per-slot build-assignment picker specifically (the
-      dropdown that assigns a build to a squad slot). The general Builds/Squads card-grid views
-      and the Food/Utility pickers got a Favorites feature 2026-08-06 (middle-click to pin, gold
-      star badge — `renderer/lib/favorites.ts`), but that pass explicitly left the squad-slot
-      build-assignment picker unwired.
 - [ ] More curated fury-crit-chance traits in `combat-state.ts`'s `FURY_CRIT_CHANCE_TRAIT_BONUSES`
       (seeded 2026-08-01 with only Revenant's Roiling Mists, for the Gear Optimizer's Critical
       Chance metric). A `traits.json` scan found 6 more with the same "extra crit chance while under

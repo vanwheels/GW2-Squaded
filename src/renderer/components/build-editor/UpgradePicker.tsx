@@ -58,10 +58,11 @@ interface Props<T extends number | string = number> {
   /**
    * Opts this picker's popover grid into the Favorites feature (2026-08-06): when both are set, a
    * favorited option sorts ahead of every non-favorited one and shows a gold star badge, and
-   * middle-clicking any option toggles its favorite status without choosing it. Deliberately only
-   * wired up for the Food/Utility pickers (`EquipmentEditor`) so far — favorite state for those is
-   * per-install (`useFavoriteConsumables`), not tied to a saved `Build`/`SquadComp` record the way
-   * `Build.favorite`/`SquadComp.favorite` are for the Builds/Squads card grids.
+   * middle-clicking any option toggles its favorite status without choosing it. Wired up for the
+   * Food/Utility pickers (`EquipmentEditor`, backed by the per-install `useFavoriteConsumables`
+   * store) and the squad editor's per-slot build-assignment picker (`SlotTile`, backed directly by
+   * `Build.favorite` — the same field the Builds card grid toggles, since a build's favorite status
+   * is build data already, not install-specific). Not wired up for runes/sigils/infusions/relics.
    */
   isFavorite?: (id: T) => boolean
   onToggleFavorite?: (id: T) => void

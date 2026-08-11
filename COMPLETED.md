@@ -2,6 +2,22 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 140 — Favorites pin for the squad editor's build-assignment picker
+
+Closed the last item left unwired from the 2026-08-06 Favorites feature (commit `f162583`): the squad
+editor's per-slot build-assignment picker (`SlotTile`'s `UpgradePicker` instance) now supports
+middle-click-to-favorite and sorts favorited builds first, gold star badge included — same
+interaction as the Builds/Squads card grids and the Food/Utility pickers.
+
+Reused `Build.favorite` directly (already persisted, already visible on the Builds card grid)
+rather than adding a new per-install store like the Food/Utility pickers'
+`useFavoriteConsumables` — a build's favorite status is build data, not install-specific, so
+there was nothing new to store. `SlotTile` now pulls `updateBuild` from `useBuildsStore` (already
+in scope two levels up in `SquadCompEditorView`) and passes `isFavorite`/`onToggleFavorite`
+callbacks through to `UpgradePicker`, gated so ghost-pick options (profession/elite-spec
+placeholders with no real `Build` behind them) can't be favorited. No CSS changes needed — the
+existing `.favorite-star`/`.skill-option-button` rules already cover the `slot` variant.
+
 ## Session 139 — `PrefixedBuff` target-count sweep, final leg — sweep closed (45/45)
 
 Closed out the sweep in one combined leg per the user's request, since only 6 sources across 5
