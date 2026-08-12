@@ -126,5 +126,24 @@
   "78837": [
     { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3 },
     { "type": "Buff", "status": "Burning", "text": "Apply Buff/Condition", "duration": 2 }
+  ],
+  "42949": [{ "type": "Buff", "status": "Bleeding", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 4 }],
+  "72363": [
+    { "type": "Buff", "status": "Bleeding", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 4 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3 }
+  ],
+  "41220": [
+    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 1 },
+    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3 },
+    { "type": "Time", "text": "Daze", "duration": 2 },
+    { "type": "Number", "text": "Bonus Defiance Break", "value": 400 }
+  ],
+  "72366": [
+    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 1 },
+    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3 },
+    { "type": "Time", "text": "Daze", "duration": 2 },
+    { "type": "Number", "text": "Bonus Defiance Break", "value": 400 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 4 }
   ]
 }

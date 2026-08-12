@@ -381,7 +381,34 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // focus) so gets no override. The "Empowered Hammer" bonus (damage + Vulnerability) is
     // conditional on the NEXT Dazzling Hammer cast, not unconditional on this cast — excluded,
     // same bullet-consume-gated-bonus shape as the Weaver Pistol/Spear cluster.
-    78837: { Quickness: 2 }
+    78837: { Quickness: 2 },
+
+    // Razorclaw's Rage / Darkrazor's Daring (Revenant/Renegade legendary-stance utilities,
+    // Renegade-tooltip-gaps curation 2026-08-12, see synthetic-facts.json) — same zero-real-API-
+    // Buff-facts root cause as Icerazor's Ire above (40485/72359), same wiki page shape too: `id =
+    // <base>, <!-- enhanced --> <enhanced>` for the "Band Together"-enhanced cast.
+    // Razorclaw's Rage (42949 base / 72363 enhanced): wiki splits Bleeding only by STACK COUNT
+    // (4 pve -> 3 wvw/pvp, duration unchanged at 8s both modes) — like Icerazor's Ire's Torment/
+    // Vulnerability, WvwFactOverride only overrides `duration` so this can't be expressed; left at
+    // the PvE stack count, documented gap not modeled wrong. Enhanced-only Torment (6s/3stacks) is
+    // unsplit. Also NOT curated at all (neither here nor in synthetic-facts.json): the wiki's own
+    // Damage coefficient (2.0 pve/1.5 wvw+pvp, same as Icerazor's Ire's uncurated Damage), and the
+    // "Razorclaw's Rage (effect)" ally-attack-enhancing buff + its dependent "Enhance Bleeding" —
+    // neither is a recognized boon/condition name (`classifyBoonCondition` would return null) and
+    // `factLine` has no generic-Buff-text case, so curating either would be a silent no-op, same
+    // "empty-effect-facts scan, not every finding is curatable" shape documented in
+    // docs/game-data.md (Unleashed/Gunsaber Mode toggles, Prayer to Lyssa).
+    // Darkrazor's Daring (41220 base / 72366 enhanced): wiki has TWO simultaneous Stability facts
+    // (a 1s unsplit one, plus a separate 6s pve/4s wvw+pvp 3-stack one) — same "two genuinely
+    // different simultaneous applications sharing one status" shape Fox's Fury's 77282 Might hit
+    // above (extractFromFacts collapses EVERY fact sharing a status once ANY override for that
+    // status exists, so overriding here would silently drop the 3-stack group application instead
+    // of just mis-showing its duration) — deliberately left BOTH Stability facts at their PvE
+    // duration, documented gap. Daze (2s) is unsplit. "Bonus Defiance Break" (400, pve-tagged only)
+    // is a Number fact, not a boon/condition — no override mechanism applies to it regardless.
+    // Enhanced-only Resistance (4s) is unsplit; enhanced-only Protection is a single fact with a
+    // clean split (no duplicate-status collision), so it gets a normal override below.
+    72366: { Protection: 3 }
   },
   trait: {}
 }

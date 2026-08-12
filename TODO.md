@@ -75,18 +75,24 @@ fixed (weapon-clearing bug fix + `Percent` fact rendering + Kalla's Fervor comba
 Spirit-Boon-style legend-icon attribution, this same session). The remaining 2 are hand-curation
 sweeps, not code fixes, and weren't started:
 
-- [ ] **Legendary Renegade Stance skills are missing on-cast effects the wiki documents** — e.g.
-      Darkrazor's Daring (ids 41220 base / 72366 flip) is supposed to Stun on initial cast and grant
-      Stability, neither of which shows in its tooltip. Confirmed NOT a renderer bug: the live GW2
-      API's own `facts` array for this skill has only `Range`/`Recharge`/`StunBreak`/`Number of
-      Targets`/`Number of Allied Targets`/`Radius` — no Stun/Stability fact of any kind — so
-      `extractFromFacts`/`factLine` have nothing to render. Same "API withholds facts for an
-      internal-cast Legendary-Stance skill" shape as other already-documented gaps in this family.
-      Fix via `synthetic-facts.json` (see `docs/game-data.md`'s "Skills the API returns with no
-      usable facts at all" section) — hand-add the wiki-documented Stun/Stability (etc.) facts per
-      skill. Scope this as a full sweep of all 24 Legendary Stance heal/utility/elite skill ids
-      (`legends.json`'s `heal`/`elite`/`utilities` arrays across all 8 legends), not just this one
-      skill — Darkrazor's Daring was only the example the user happened to check.
+- [x] **Legendary Renegade Stance skills are missing on-cast effects the wiki documents** — Renegade
+      leg DONE 2026-08-12: Darkrazor's Daring (41220 base / 72366 "Band Together"-enhanced) now has
+      Daze/Stability(x2)/Bonus Defiance Break, plus Resistance/Protection on the enhanced cast;
+      Razorclaw's Rage (42949/72363) now has Bleeding/enhanced-Torment. Icerazor's Ire (40485/72359)
+      was already done by an earlier sweep. Added via `synthetic-facts.json` (see
+      `docs/game-data.md`'s "Skills the API returns with no usable facts at all" section) +
+      `fetch-wvw-splits.ts` `MANUAL_OVERRIDES` for the one cleanly-splittable status (72366's
+      Protection). Deliberately NOT curated, same family, documented in `fetch-wvw-splits.ts`'s
+      comment: both skills' wiki Damage coefficients (no CURATED_DAMAGE_COEFFICIENTS entry, matching
+      Icerazor's Ire's own precedent), Razorclaw's Rage's "(effect)" ally-buff + dependent "Enhance
+      Bleeding" (not a recognized boon/condition name, `factLine` has no generic-text case — same
+      Unleashed/Gunsaber-Mode-shaped skip as `docs/game-data.md` already documents), and
+      Darkrazor's Daring's WvW-split Stability durations (two simultaneous same-status Buff facts —
+      overriding either would collapse-drop the other, same failure mode Fox's Fury's Might hit).
+      Remaining legs (Dragon/Assassin/Dwarf/Demon/Centaur/Alliance/Entity Stances, ~19 more skill
+      ids across `legends.json`'s `heal`/`elite`/`utilities`) not started — check each against
+      `synthetic-facts.json` and the wiki before assuming a gap; several may already be fully
+      API-covered like Renegade's own heal/elite were.
 
 - [ ] **Trait-granted boons don't show up on the skill that actually triggers them** — flagged for
       Notoriety and Rapid Flow (both Revenant/Invocation minor traits). Both already carry their own
