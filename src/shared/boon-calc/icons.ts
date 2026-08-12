@@ -88,6 +88,13 @@ export const BOON_STRIP_CORRUPT_ICONS: Record<string, string> = {
  *  input the "Damage" numbers on skill tooltips scale against, see `damage-calc.ts`). */
 export const DAMAGE_ICON = 'https://render.guildwars2.com/file/61AA4919C4A7990903241B680A69530121E994C7/156657.png'
 
+/** The Revealed debuff's own icon — not in `BOON_CONDITION_ICONS` since Revealed is neither a
+ *  boon nor a condition (it's a unique "you cannot stealth" effect), same reasoning `Stealth`/
+ *  `Superspeed`/`Evade` get their own `MISCELLANEOUS_ICONS` entries rather than living there.
+ *  Pulled from Revealed Training's own `Buff`-type fact in traits.json (id 1704, status
+ *  "Revealed") — used for `CombatStatePanel`'s `revealedActive` toggle. */
+export const REVEALED_ICON = 'https://render.guildwars2.com/file/62BFF65D1CE99B1B2B0928152BCC596EAC0D372B/102887.png'
+
 /** The API exposes exactly one icon per Combo Field fact and one per Combo Finisher fact,
  *  regardless of `field_type`/`finisher_type` (confirmed via a scan of data/game-data/skills.json)
  *  — unlike boons/conditions/auras, there's no per-type icon to look up here. */

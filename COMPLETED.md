@@ -2,6 +2,32 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 155 — Conditional trait-attribute bonuses, leg 7: Revealed-state-gated flat bonuses
+
+Picks up TODO.md's checklist at the "Revealed-state-gated flat bonuses" family: traits whose flat
+attribute bonus only applies while the Revealed debuff ("you cannot stealth") is active. Only one
+candidate turned up — Thief-only, as the checklist expected. **Revealed Training** (Thief/Deadly
+Arts, Major Grandmaster, id 1704): its unconditional "Base Power" half was already curated in the
+"Weapon-equipped-gated" leg's flat-bonus sweep (`trait-attributes.ts`); this leg curates its excluded
+"Power while Revealed" half. Re-confirmed via raw wikitext (`?action=raw`) 2026-08-12: genuine 2-way
+split, pve 120 / wvw+pvp 150 — WvW value 150 used.
+
+Same shape as the Fury/mechanic-active legs: needed a genuinely new `CombatState.revealedActive`
+boolean (Revealed has no persisted `Build` field to key off, unlike the weapon-equipped/attunement
+legs). Added `combat-state.ts`'s `REVEALED_ATTRIBUTE_TRAIT_BONUSES`/`revealedAttributeTraitBonus`
+(single-target `{ target, value }` shape, mirroring `FURY_ATTRIBUTE_TRAIT_BONUSES` since there's only
+one entry so far), wired into `combatStatePoints`. `gear-optimize.ts` needed no changes, same as every
+prior ephemeral-`CombatState`-gated family. Added a new `REVEALED_ICON` constant to `icons.ts`, pulled
+from the trait's own `Buff`-type fact (status "Revealed") rather than reusing `BOON_CONDITION_ICONS`,
+since Revealed is neither a boon nor a condition. `CombatStatePanel.tsx` gained a new click-to-toggle
+icon, shown only when the build has trait 1704 chosen (same conditional-render pattern as the
+mechanic-active toggle).
+
+`npm run typecheck`/`lint` both clean. No dedicated unit tests exist for this calc layer; not visually
+spot-checked in the running app (Electron sandbox limitation). TODO.md's checklist updated to mark this
+family done; 1 family remains (health-threshold-conditional), still expected to need its own new
+`CombatState` field (a health-% slider or preset tiers).
+
 ## Session 154 — Conditional trait-attribute bonuses, leg 6: Shroud/stance-gated flat bonuses
 
 Picks up TODO.md's checklist at the "Shroud/stance-gated flat bonuses" family: traits whose flat

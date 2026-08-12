@@ -30,6 +30,12 @@ export interface CombatState {
    *  `CombatStatePanel` only surfaces this control when a curated trait for the build's own
    *  profession actually exists. */
   mechanicActive: boolean
+  /** Gates `REVEALED_ATTRIBUTE_TRAIT_BONUSES` — the "Revealed-state-gated flat bonuses" family from
+   *  TODO.md (Thief only, currently just Revealed Training). Single boolean, same shape as
+   *  `furyActive`/`mechanicActive`, even though only one profession has any curated Revealed-gated
+   *  trait so far — `CombatStatePanel` only surfaces this control when the build has a curated
+   *  trait for it chosen, same gating as `mechanicActive`. */
+  revealedActive: boolean
   /** 0-25 stacks of whichever stacking sigil is equipped on the active weapon set, if any — see
    *  `detectActiveStackingSigil`. Meaningless when no stacking sigil is equipped. */
   stackingSigilStacks: number
@@ -49,6 +55,7 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   regenerationActive: false,
   quicknessActive: false,
   mechanicActive: false,
+  revealedActive: false,
   stackingSigilStacks: 0,
   relicActive: false,
   targetArmorClass: 'Medium'
@@ -363,6 +370,37 @@ export function mechanicActiveAttributeTraitBonus(build: Build, traitsById: Map<
   return bonus
 }
 
+/**
+ * Trait id -> extra flat attribute point granted while the Revealed debuff is active — the
+ * "Revealed-state-gated flat bonuses" family from TODO.md, 7th leg of the conditional-trait-
+ * attribute-bonus sweep. Only one candidate turned up (Thief only): Revealed Training
+ * (wiki.guildwars2.com/wiki/Revealed_Training, Thief/Deadly Arts, Major GM, id 1704) — surfaced
+ * during the "Weapon-equipped-gated flat bonuses" leg's flat-bonus sweep (`trait-attributes.ts`,
+ * the trait's unconditional "Base Power" half is already curated there) and re-confirmed via raw
+ * wikitext (`?action=raw`) 2026-08-12: `{{skill fact|attribute|Power|alt=Power while Revealed|120|
+ * game mode = pve}}` / `...150|game mode = pvp wvw}}`, genuine 2-way split; WvW value is 150. Same
+ * single-target `{ target, value }` shape as `FURY_ATTRIBUTE_TRAIT_BONUSES` (only one entry so far,
+ * no need for the target-map shape the boon/mechanic families use).
+ */
+export const REVEALED_ATTRIBUTE_TRAIT_BONUSES: Record<number, { target: string; value: number }> = {
+  1704: { target: 'Power', value: 150 } // Revealed Training (Thief, Deadly Arts, Major GM) — WvW value
+}
+
+/**
+ * Sums every curated Revealed-gated trait bonus actually active on this build (mirrors
+ * `furyAttributeTraitBonus`'s shape/gating). Only meaningful when combined with
+ * `combatState.revealedActive` by the caller.
+ */
+export function revealedAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>): Record<string, number> {
+  const active = activeTraitIds(build, traitsById)
+  const bonus: Record<string, number> = {}
+  for (const [traitIdText, { target, value }] of Object.entries(REVEALED_ATTRIBUTE_TRAIT_BONUSES)) {
+    if (!active.has(Number(traitIdText))) continue
+    bonus[target] = (bonus[target] ?? 0) + value
+  }
+  return bonus
+}
+
 export interface ActiveStackingSigil {
   sigilId: number
   name: string
@@ -393,8 +431,8 @@ export function detectActiveStackingSigil(build: Build): ActiveStackingSigil | n
  * Raw core-attribute point deltas contributed by Might (including any curated
  * `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`), an active stacking sigil, and (while the corresponding
  * `CombatState` boolean is on) any curated `FURY_ATTRIBUTE_TRAIT_BONUSES`,
- * `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`, `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES`, or
- * `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES` — in the same
+ * `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`, `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES`,
+ * `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`, or `REVEALED_ATTRIBUTE_TRAIT_BONUSES` — in the same
  * `points` shape `computeGearAttributeTotals` produces — merged into that total by
  * `computeCharacterStats` before deriving the stats-panel values. Fury's own crit-*chance* bonus and
  * the relic bonus don't go through this path since they apply directly to derived stats, not raw
@@ -436,6 +474,10 @@ export function combatStatePoints(build: Build, state: CombatState, traitsById: 
 
   if (state.mechanicActive) {
     for (const [attribute, value] of Object.entries(mechanicActiveAttributeTraitBonus(build, traitsById))) add(attribute, value)
+  }
+
+  if (state.revealedActive) {
+    for (const [attribute, value] of Object.entries(revealedAttributeTraitBonus(build, traitsById))) add(attribute, value)
   }
 
   return points

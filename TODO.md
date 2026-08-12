@@ -139,8 +139,16 @@ as every other sweep here (`pacing_large_sweeps` memory) — do not chain these.
       weapon-equipped/attunement legs) — `Build.activeBundleSkillId` only tracks which skill bar is
       displayed for Shroud, deliberately not gating real totals. New toggle icon in
       `CombatStatePanel.tsx`, shown only when the build has one of the 3 curated traits chosen.
-- [ ] **Revealed-state-gated flat bonuses** (Thief only) — Revealed Training's excluded half
-      (+120/150 Power while Revealed). Needs a new boolean `CombatState` field + UI, Thief-only.
+- [x] **Revealed-state-gated flat bonuses** (Thief only) — done 2026-08-12. Revealed Training
+      (Thief, Deadly Arts, Major GM, id 1704), wiki-reconfirmed via raw wikitext: "Power while
+      Revealed" is genuinely 2-way split, pve 120 / wvw pvp 150 — WvW value 150. Only one candidate
+      in this family. Lives in `combat-state.ts`'s `REVEALED_ATTRIBUTE_TRAIT_BONUSES`/
+      `revealedAttributeTraitBonus`, needing a new `CombatState.revealedActive` boolean (single
+      field, same shape as `furyActive`/`mechanicActive`) since Revealed has no persisted `Build`
+      field to key off. New `REVEALED_ICON` constant added to `icons.ts` (pulled from the trait's
+      own `Buff`-type fact, status "Revealed" — not in `BOON_CONDITION_ICONS` since Revealed is
+      neither a boon nor a condition). New toggle icon in `CombatStatePanel.tsx`, shown only when
+      the build has trait 1704 chosen (mirrors `mechanicActive`'s conditional-display gating).
 - [ ] **Health-threshold-conditional flat bonuses** — Empire Divided (Revenant, already the sweep's
       prototype example for this shape), Last Rites (Necromancer, 3 tiers below 75%/50% health).
       Needs a health-% `CombatState` field (slider or preset tiers) + UI.

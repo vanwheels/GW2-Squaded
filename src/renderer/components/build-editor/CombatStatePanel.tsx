@@ -3,11 +3,12 @@ import {
   CURATED_RELIC_DAMAGE_BONUSES,
   detectActiveStackingSigil,
   MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES,
+  REVEALED_ATTRIBUTE_TRAIT_BONUSES,
   type CombatState,
   type TargetArmorClass
 } from '@shared/gear-calc/combat-state'
 import { activeTraitIds } from '@shared/gear-calc/trait-attributes'
-import { BOON_CONDITION_ICONS, DAMAGE_ICON } from '@shared/boon-calc/icons'
+import { BOON_CONDITION_ICONS, DAMAGE_ICON, REVEALED_ICON } from '@shared/boon-calc/icons'
 import { useGameData } from '@renderer/state/game-data-store'
 
 interface Props {
@@ -48,6 +49,12 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   // Shroud/Berserk/Shade icon (see `combat-state.ts`'s `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`).
   const activeMechanicTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES)
   const mechanicTrait = activeMechanicTraitId !== undefined ? traitsById.get(activeMechanicTraitId) : undefined
+
+  // Only surfaced when the build actually has a curated Revealed-gated trait chosen (currently just
+  // Revealed Training) — same reasoning as `mechanicTrait` above, but uses the shared Revealed debuff
+  // icon rather than the trait's own icon since this family only ever has one profession's worth of
+  // candidates so far (see `combat-state.ts`'s `REVEALED_ATTRIBUTE_TRAIT_BONUSES`).
+  const hasRevealedGatedTrait = [...activeTraitIds(build, traitsById)].some((id) => id in REVEALED_ATTRIBUTE_TRAIT_BONUSES)
 
   return (
     <div className="combat-state-controls">
@@ -101,6 +108,17 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           onClick={() => onChange({ ...value, mechanicActive: !value.mechanicActive })}
         >
           <img className={iconClass(value.mechanicActive)} src={mechanicTrait.icon} alt={mechanicTrait.name} />
+        </button>
+      )}
+
+      {hasRevealedGatedTrait && (
+        <button
+          type="button"
+          className="combat-state-toggle-icon"
+          title={value.revealedActive ? 'Revealed: On' : 'Revealed: Off'}
+          onClick={() => onChange({ ...value, revealedActive: !value.revealedActive })}
+        >
+          <img className={iconClass(value.revealedActive)} src={REVEALED_ICON} alt="Revealed" />
         </button>
       )}
 
