@@ -107,15 +107,20 @@ as every other sweep here (`pacing_large_sweeps` memory) — do not chain these.
 - [ ] **Health-threshold-conditional flat bonuses** — Empire Divided (Revenant, already the sweep's
       prototype example for this shape), Last Rites (Necromancer, 3 tiers below 75%/50% health).
       Needs a health-% `CombatState` field (slider or preset tiers) + UI.
-- [ ] **Continuous stack-scaling flat bonuses** (Might-based, no threshold cutoff — distinct from the
-      already-modeled flat Might Power/ConditionDamage bonus in `combatStatePoints`) — Deadly
-      Strength (Necromancer, per Carapace stack — note: Carapace, not Might, needs its own stack
-      concept), Awaken the Pain (Necromancer, per Might stack), Pinnacle of Strength (Warrior, per
-      Might stack). The Might-stack ones can reuse the existing `CombatState.mightStacks` field
-      directly, no new UI needed for those two; Deadly Strength needs a new Carapace-stack field.
-      Also related but a different single-threshold shape (not continuous): Engineer's Applied Force
-      (Power gated on a might-stack *count* cutoff) — check whether it fits this family or needs its
-      own single-breakpoint treatment.
+- [x] **Continuous Might-stack-scaling flat bonuses** — done 2026-08-12, see COMPLETED.md Session
+      150. Awaken the Pain (Necromancer, id 915, +10 Power/Might stack), Pinnacle of Strength
+      (Warrior, id 1453, +10 Power/Might stack), Applied Force (Engineer/Scrapper, id 1849, +10
+      Power/Might stack, WvW value) — all wiki-verified, live in `combat-state.ts`'s
+      `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`/`mightStackAttributeTraitBonus`. No new UI — reuses the
+      existing `CombatState.mightStacks` field. Applied Force's threshold clause turned out to gate
+      a separate Stability proc, not the Power bonus, so it fit this family after all. Two loose
+      ends spun off:
+      - Deadly Strength (Necromancer, per Carapace stack, not Might) still needs its own new
+        Carapace-stack `CombatState` field — deferred, not part of this family.
+      - Pinnacle of Strength's flat, unconditional +5% critical-hit chance fact is NOT curated
+        anywhere — no unconditional flat-crit-chance table exists yet in this codebase (only the
+        Fury-gated `FURY_CRIT_CHANCE_TRAIT_BONUSES`). Worth a future small sweep if more
+        unconditional flat-crit traits turn up.
 
 ## Coefficient curation — remaining exceptions
 

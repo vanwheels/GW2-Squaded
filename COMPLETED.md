@@ -2,6 +2,33 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 150 — Conditional trait-attribute bonuses, leg 2: continuous Might-stack scaling
+
+Picks up TODO.md's "Conditional trait-attribute bonuses — remaining families" checklist at the next
+cheapest family: traits whose bonus scales continuously with the current Might-stack count (no
+threshold cutoff), reusing the existing `CombatState.mightStacks` field directly — no new UI needed,
+same low-cost shape as Session 149's leg.
+
+Added `combat-state.ts`'s `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`/`mightStackAttributeTraitBonus`, a
+third sibling to `FURY_CRIT_CHANCE_TRAIT_BONUSES`/`FURY_ATTRIBUTE_TRAIT_BONUSES`, wiki-verified via
+raw wikitext (`?action=raw`): Awaken the Pain (Necromancer, id 915, +10 Power per Might stack — wiki
+Notes state 40 Power/stack with the trait vs. 30 Power/stack unmodified, Condition Damage
+unchanged, matching the raw API's own second `AttributeAdjust` fact), Pinnacle of Strength (Warrior,
+id 1453, +10 Power per Might stack, matching its own `AttributeAdjust` fact — also carries a flat,
+unconditional +5% crit chance NOT curated here, logged in TODO.md since no unconditional
+flat-crit-chance table exists yet), and Applied Force (Engineer/Scrapper, id 1849, +10 Power per
+Might stack, WvW value from a genuine 3-way PvE/WvW/PvP split reduced 15→10 on 2026-01-13 — its
+"gain stability at ≥10 Might stacks" clause is a separate proc, not a gate on the power bonus, per
+the trait's two independent description sentences; this resolves TODO.md's open question about
+whether it belongs in this family). `combatStatePoints` folds these in whenever `mightStacks > 0`,
+same path as the flat Might Power/Condition-Damage bonus.
+
+`npm run typecheck`/`lint`/`build` all clean. No dedicated unit tests exist for this calc layer; not
+visually spot-checked in the running app (Electron sandbox limitation). TODO.md's checklist updated
+to mark this family done; 6 families remain, all needing genuinely new `CombatState` UI (boon-gated,
+weapon-equipped-gated is actually still no-new-UI and should probably go next, then
+attunement/shroud/revealed/health-threshold).
+
 ## Session 149 — Conditional trait-attribute bonuses, leg 1: Fury-gated Ferocity/Condition-Damage
 
 Picks up TODO.md's new "Conditional trait-attribute bonuses — remaining families" checklist (the

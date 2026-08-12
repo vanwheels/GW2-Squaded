@@ -162,6 +162,55 @@ export function furyAttributeTraitBonus(build: Build, traitsById: Map<number, Tr
   return bonus
 }
 
+/**
+ * Trait id -> extra flat attribute point granted per stack of Might currently applied, on top of
+ * the flat `MIGHT_POWER_PER_STACK`/`MIGHT_CONDITION_DAMAGE_PER_STACK` every build already gets in
+ * `combatStatePoints` below — a third sibling family (after `FURY_CRIT_CHANCE_TRAIT_BONUSES` and
+ * `FURY_ATTRIBUTE_TRAIT_BONUSES`) for traits whose bonus continuously scales with
+ * `state.mightStacks` rather than being flat or Fury-gated. Reuses the existing `mightStacks`
+ * `CombatState` field directly — no new UI needed. All wiki-verified via raw wikitext
+ * (`?action=raw`) 2026-08-12:
+ * - Awaken the Pain (wiki.guildwars2.com/wiki/Awaken_the_Pain, Necromancer/Spite, Minor, id 915):
+ *   Notes state "each stack of Might grants 40 Power and 30 Condition Damage" against the wiki's
+ *   own unmodified-Might baseline of "30 Power and 30 Condition Damage" — net +10 Power/stack,
+ *   Condition Damage unchanged. Matches the raw API's own second `AttributeAdjust` fact (value 10,
+ *   target Power) exactly.
+ * - Pinnacle of Strength (wiki.guildwars2.com/wiki/Pinnacle_of_Strength, Warrior/Strength, Minor,
+ *   id 1453): "Might applied to you grants more power", raw API `AttributeAdjust` value 10/target
+ *   Power, same +10 Power/stack shape. Also carries a flat, unconditional +5% critical-hit chance
+ *   ("Critical Chance Increase" fact, added 2022-07-19) — NOT curated here or anywhere else yet, no
+ *   unconditional flat-crit-chance table exists in this codebase (only the Fury-gated one above);
+ *   logged in TODO.md as a follow-up.
+ * - Applied Force (wiki.guildwars2.com/wiki/Applied_Force, Engineer/Scrapper, Major, id 1849):
+ *   `split = pve, wvw, pvp`, raw facts dump all 3 untagged (30/15/10) same ambiguous shape as other
+ *   split traits elsewhere in this codebase; WvW value is 10 (reduced from 15 on 2026-01-13). The
+ *   trait's separate "gain stability when you gain might at or above the threshold" clause is an
+ *   event-triggered proc, not a gate on the power bonus itself — the description's two independent
+ *   sentences ("Gain stability when..." / "Might grants bonus power.") confirm the power bonus
+ *   applies continuously per stack, the same shape as the other two entries here, not a
+ *   single-breakpoint fact.
+ */
+export const MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES: Record<number, { target: string; valuePerStack: number }> = {
+  915: { target: 'Power', valuePerStack: 10 }, // Awaken the Pain (Necromancer, Minor)
+  1453: { target: 'Power', valuePerStack: 10 }, // Pinnacle of Strength (Warrior, Minor)
+  1849: { target: 'Power', valuePerStack: 10 } // Applied Force (Engineer, Major) — WvW value
+}
+
+/**
+ * Sums every curated Might-stack-scaling trait bonus actually active on this build, grouped by
+ * target attribute and pre-multiplied by the current `mightStacks` count (mirrors
+ * `furyAttributeTraitBonus`'s shape/gating, see that function's doc comment).
+ */
+export function mightStackAttributeTraitBonus(build: Build, mightStacks: number, traitsById: Map<number, Trait>): Record<string, number> {
+  const active = activeTraitIds(build, traitsById)
+  const bonus: Record<string, number> = {}
+  for (const [traitIdText, { target, valuePerStack }] of Object.entries(MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES)) {
+    if (!active.has(Number(traitIdText))) continue
+    bonus[target] = (bonus[target] ?? 0) + valuePerStack * mightStacks
+  }
+  return bonus
+}
+
 export interface ActiveStackingSigil {
   sigilId: number
   name: string
@@ -189,11 +238,12 @@ export function detectActiveStackingSigil(build: Build): ActiveStackingSigil | n
 }
 
 /**
- * Raw core-attribute point deltas contributed by Might, an active stacking sigil, and (while
- * `state.furyActive`) any curated `FURY_ATTRIBUTE_TRAIT_BONUSES` — in the same `points` shape
- * `computeGearAttributeTotals` produces — merged into that total by `computeCharacterStats` before
- * deriving the stats-panel values. Fury's own crit-*chance* bonus and the relic bonus don't go
- * through this path since they apply directly to derived stats, not raw attribute points.
+ * Raw core-attribute point deltas contributed by Might (including any curated
+ * `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`), an active stacking sigil, and (while `state.furyActive`)
+ * any curated `FURY_ATTRIBUTE_TRAIT_BONUSES` — in the same `points` shape `computeGearAttributeTotals`
+ * produces — merged into that total by `computeCharacterStats` before deriving the stats-panel
+ * values. Fury's own crit-*chance* bonus and the relic bonus don't go through this path since they
+ * apply directly to derived stats, not raw attribute points.
  */
 export function combatStatePoints(build: Build, state: CombatState, traitsById: Map<number, Trait>): Record<string, number> {
   const points: Record<string, number> = {}
@@ -204,6 +254,7 @@ export function combatStatePoints(build: Build, state: CombatState, traitsById: 
   if (state.mightStacks > 0) {
     add('Power', state.mightStacks * MIGHT_POWER_PER_STACK)
     add('ConditionDamage', state.mightStacks * MIGHT_CONDITION_DAMAGE_PER_STACK)
+    for (const [attribute, value] of Object.entries(mightStackAttributeTraitBonus(build, state.mightStacks, traitsById))) add(attribute, value)
   }
 
   const sigil = detectActiveStackingSigil(build)
