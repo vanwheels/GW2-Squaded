@@ -56,6 +56,10 @@ export function factLine(fact: Fact): FactLine | null {
       return typeof fact.duration === 'number'
         ? { icon, text: `${typeof fact.text === 'string' ? fact.text : 'Time'}: ${fact.duration}s` }
         : null
+    case 'Percent':
+      return typeof fact.percent === 'number'
+        ? { icon, text: `${typeof fact.text === 'string' ? fact.text : 'Percent'}: ${fact.percent}%` }
+        : null
     default:
       return null
   }

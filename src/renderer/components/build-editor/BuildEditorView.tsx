@@ -150,16 +150,10 @@ export function BuildEditorView({ build, onBack }: Props) {
       }
     }
 
-    const profession = professions.find((p) => p.id === draft.profession)
-    const equipment = { ...draft.equipment }
-    for (const key of WEAPON_SLOT_KEYS) {
-      const weaponType = equipment[key]?.weaponType
-      const requiredSpecId = weaponType ? profession?.weapons[weaponType]?.specializationId : null
-      if (requiredSpecId != null && !nextEquippedIds.has(requiredSpecId)) {
-        equipment[key] = { itemStatId: null, weaponType: null }
-      }
-    }
-
+    // Weapon legality no longer depends on which spec line is equipped — "Weaponmaster Training"
+    // is always-on (see EquipmentEditor's spec-agnostic `weaponOptions`, COMPLETED.md Session 35),
+    // so dropping/switching a trait line must NOT clear an already-equipped elite-spec weapon
+    // (e.g. dropping Renegade must not unequip Shortbow).
     const familiarId = nextEquippedIds.has(EVOKER_SPECIALIZATION_ID) ? draft.familiarId : null
     // Weaver's "previous" attunement: cleared when Weaver's dropped, seeded to match
     // `activeAttunement` (current === previous) when it's newly picked up — see
@@ -171,7 +165,7 @@ export function BuildEditorView({ build, onBack }: Props) {
     // entirely — see `Build.thiefStolenSkillId`'s doc comment.
     const thiefStolenSkillId = nextEquippedIds.has(SPECTER_SPEC_ID) ? null : draft.thiefStolenSkillId
 
-    setDraft({ ...draft, specializations, skills, equipment, familiarId, weaverPreviousAttunement, thiefStolenSkillId })
+    setDraft({ ...draft, specializations, skills, familiarId, weaverPreviousAttunement, thiefStolenSkillId })
   }
 
   /** `ProfessionSpecPicker`'s single combined onChoose — an elite spec from a different profession
