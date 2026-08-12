@@ -248,7 +248,38 @@ that before extending either further, and before the tooltip visual-pass item be
       Deadly Strength, keyed on Might instead of Carapace; Last Rites (Healing Power at three
       increasing tiers below 75%/50% health, Blood Magic minor) — same health-threshold-conditional
       shape as Vindicator's Empire Divided, just three tiers instead of one.
-      **Remaining legs (~74 candidates across Ranger 23, Thief 29, Warrior 22) not yet swept** — each
+      **Warrior leg (22 candidates, done 2026-08-12)**: 9 curated — 5 flat (Blademaster: +120
+      Expertise, no split; Forceful Greatsword: +120 Power, base/unconditional value only — see
+      below; Axe Mastery: +120 Ferocity, no split; Roaring Reveille: +60 Concentration, WvW value;
+      Inspiring Implements: +60 Concentration, WvW value) and 4 conversions (Great Fortitude: 10%
+      Power→Vitality + 10% Power→Ferocity, no split on either — despite a wiki-noted discrepancy with
+      2021 patch notes claiming the ferocity half should read from Vitality, current data/description
+      both agree on Power; Wounding Precision: 4% Precision→Expertise, WvW value; Vigorous Shouts:
+      13% Power→Healing Power, no split; Blood Reaction: 5% Precision→Ferocity + 10%
+      Power→Condition Damage, both WvW-specific values out of a genuine 3-way pve/pvp/wvw split — see
+      below). 10 excluded as proc-heal/barrier coefficients (Last Stand, Might Makes Right, Soldier's
+      Comfort, Shrug It Off, Mending Might, Dual Wielding, Dead or Alive, Resolute Counter,
+      Unshakable Mountain, Invigorating Tempo — all "heals/grants barrier when/on X" procs, same
+      Healer's-Gift shape). 3 flagged as new or already-known conditional shapes: Deep Strikes
+      (+180 Condition Damage while under Fury, Arms minor) — same Fury-gated flat-bonus family as
+      Engineer's No Scope/Elementalist's Raging Storm, but targeting Condition Damage instead of
+      Ferocity, so it wouldn't fit a `FURY_FEROCITY_TRAIT_BONUSES` sibling table either — reinforces
+      that this family needs a generalized "which boon, which stat" toggle, not per-stat one-offs;
+      Pinnacle of Strength ("Might applied to you grants more power," Strength minor) — same
+      continuous stack-scaling family as Necromancer's Deadly Strength/Awaken the Pain, keyed on
+      Might same as Awaken the Pain; Fatal Frenzy (+300 Power/+150-300 Condition Damage, "Berserk
+      mode increases power and condition damage," Berserker minor) — a full instance of the
+      shroud/stance-gated family (Reaper's Onslaught/Sand Sage), keyed on berserk mode. **Two data-
+      shape notes worth remembering**: (1) Forceful Greatsword's weapon-gated doubling ("double these
+      bonuses while wielding a greatsword") is NOT materialized as a second fact the way Right-Hand
+      Strength/Zealous Blade/Axe Mastery's weapon-gated halves are — the trait exposes only the
+      single always-active base value, confirmed via wiki version history ("120 power base, plus an
+      additional 120 power when wielding greatsword"), so the doubled state is invisible to a
+      fact-only scan; (2) Blood Reaction's berserk-mode doubling is the same invisible-doubling shape
+      but applied to a *conversion percentage* rather than a flat bonus — a new sub-variant of the
+      berserk/stance-gated family (multiplier-on-a-conversion, not an additive threshold bonus) to
+      keep in mind if that family ever gets modeled.
+      **Remaining legs (~52 candidates across Ranger 23, Thief 29) not yet swept** — each
       candidate needs its trait *description* read for genuine unconditional "gain X" language, same
       rigor as every other curated table; regenerate the candidate list per-profession via a
       `traits.json` scan for `AttributeAdjust`/`BuffConversion` facts joined against

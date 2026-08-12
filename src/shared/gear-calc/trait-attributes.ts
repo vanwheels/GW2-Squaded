@@ -159,7 +159,36 @@ const CURATED_FLAT_BONUSES: TraitFlatBonus[] = [
   // 2026-08-12: split game mode=pve 180 / game mode=pvp wvw 60; WvW value is 60. This trait's other
   // effect (life force on creature summon, split pve 10/wvw pvp 3) is a resource gain, not a
   // character-stat gain — out of scope.
-  { traitId: 2371, target: 'BoonDuration', value: 60 }
+  { traitId: 2371, target: 'BoonDuration', value: 60 },
+  // Blademaster (Warrior, Arms, Major Master) — "Gain expertise." Wiki-verified 2026-08-12 (raw
+  // wikitext): unconditional +120 ConditionDuration (Expertise), no game-mode split. This trait's
+  // other AttributeAdjust fact (+120 ConditionDamage, "while wielding a sword") is the
+  // weapon-equipped-gated shape already flagged in the Guardian leg (Right-Hand Strength/Zealous
+  // Blade) — excluded.
+  { traitId: 1333, target: 'ConditionDuration', value: 120 },
+  // Forceful Greatsword (Warrior, Strength, Major Adept) — "Gain power ... Double these bonuses
+  // while wielding a greatsword or underwater spear." Wiki-verified 2026-08-12: unlike Blademaster/
+  // Axe Mastery, the weapon-gated doubling here is NOT materialized as a second fact — the trait's
+  // single AttributeAdjust fact (+120 Power) IS the always-active base value confirmed by version
+  // history ("120 power base, plus an additional 120 power when wielding greatsword"); the doubled
+  // total (240) while wielding greatsword/underwater spear is the same weapon-equipped-gated family,
+  // just not exposed as its own line item in this trait's data — excluded, base only added here.
+  { traitId: 1338, target: 'Power', value: 120 },
+  // Axe Mastery (Warrior, Discipline, Major Grandmaster) — "Gain ferocity." Wiki-verified
+  // 2026-08-12 (raw wikitext): unconditional +120 CritDamage, no game-mode split. This trait's
+  // other CritDamage fact (+120, explicitly labeled "Additional Ferocity," while wielding an axe)
+  // is the same weapon-equipped-gated shape as Right-Hand Strength/Zealous Blade — excluded.
+  { traitId: 1369, target: 'CritDamage', value: 120 },
+  // Roaring Reveille (Warrior, Tactics, Major Adept) — "Your concentration is increased." Wiki-
+  // verified 2026-08-12 (raw wikitext): split game mode=pve 120 / game mode=pvp wvw 60; WvW value
+  // is 60. This trait's other effects (warhorn Fury/Resistance grants) are skill modifiers, not
+  // character-stat gains — out of scope.
+  { traitId: 1471, target: 'BoonDuration', value: 60 },
+  // Inspiring Implements (Warrior, Paragon, Minor Adept) — "Gain concentration." Wiki-verified
+  // 2026-08-12 (raw wikitext): split game mode=pve 180 / game mode=pvp wvw 60; WvW value is 60.
+  // This trait's other effects (adrenaline/motivation on weapon swap) are resource gains, not
+  // character-stat gains — out of scope.
+  { traitId: 2418, target: 'BoonDuration', value: 60 }
 ]
 
 const CURATED_CONVERSIONS: TraitConversion[] = [
@@ -241,7 +270,35 @@ const CURATED_CONVERSIONS: TraitConversion[] = [
   // vitality." Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|Gain|Concentration|Vitality|13}}`,
   // no game-mode split). This trait's other effect (elixir boons shared with nearby allies) is a
   // skill modifier, not a character-stat gain — out of scope.
-  { traitId: 2220, source: 'Vitality', target: 'BoonDuration', percent: 13 }
+  { traitId: 2220, source: 'Vitality', target: 'BoonDuration', percent: 13 },
+  // Great Fortitude (Warrior, Strength, Major Master) — "Gain vitality and ferocity based on a
+  // percentage of your power." Wiki-verified 2026-08-12 (raw wikitext:
+  // `{{skill fact|Gain|Vitality|Power|10}}` + `{{skill fact|Gain|Ferocity|Power|10}}`, no game-mode
+  // split on either). Both clauses are unconditional and both convert from Power (the wiki flags a
+  // discrepancy with 2021-05-11 patch notes claiming the ferocity half converts from Vitality
+  // instead, but the trait's actual current data and description both agree on Power).
+  { traitId: 1449, source: 'Power', target: 'Vitality', percent: 10 },
+  { traitId: 1449, source: 'Power', target: 'CritDamage', percent: 10 },
+  // Wounding Precision (Warrior, Arms, Major Adept) — "Gain expertise based on your precision."
+  // Wiki-verified 2026-08-12 (raw wikitext): split game mode=pve 7 / game mode=pvp wvw 4; WvW
+  // value is 4.
+  { traitId: 1455, source: 'Precision', target: 'ConditionDuration', percent: 4 },
+  // Vigorous Shouts (Warrior, Tactics, Major Master) — "Gain healing power based on your power," a
+  // standalone unconditional clause alongside this trait's shout-heal-coefficient facts (excluded —
+  // same proc shape as Healer's Gift). Wiki-verified 2026-08-12 (raw wikitext:
+  // `{{skill fact|gain|Healing Power|Power|13}}`, no game-mode split).
+  { traitId: 1470, source: 'Power', target: 'Healing', percent: 13 },
+  // Blood Reaction (Warrior, Berserker, Major Adept) — "A percentage of precision is given as a
+  // bonus to ferocity and a percentage of power is given as a bonus to condition damage. These
+  // bonuses are doubled in berserk mode." Wiki-verified 2026-08-12 (raw wikitext): both conversions
+  // are always-active base values (matching Forceful Greatsword's shape — the berserk-mode doubling
+  // isn't materialized as a separate fact, it's a multiplier on these same base values, so only the
+  // base is added here; the doubling itself is a new sub-variant of the shroud/stance-gated family
+  // already flagged — a *multiplier* on an existing conversion rather than an additive bonus).
+  // Precision→Ferocity is a genuine 3-way split: game mode=pve 12 / pvp 10 / wvw 5; WvW value is 5.
+  // Power→Condition Damage splits game mode=pve 12 / pvp wvw 10; WvW value is 10.
+  { traitId: 2011, source: 'Precision', target: 'CritDamage', percent: 5 },
+  { traitId: 2011, source: 'Power', target: 'ConditionDamage', percent: 10 }
 ]
 
 /**
