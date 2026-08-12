@@ -2,6 +2,15 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 147 — Gear Optimizer bug closed: user confirmed live in-app spot-check
+
+Closes the TODO.md "Gear Optimizer doesn't function properly" entry for good. The remaining gap
+after Session 146's scripted re-verification was a real live-app check, which this environment can't
+do itself (Electron sandbox limitation). The user ran their own quick spot-test in the running app
+2026-08-12 and confirmed it looks correct on first pass. They noted more in-depth testing may follow
+later, but said this is sufficient to close the item for now — if a fresh failure mode turns up, it
+gets logged as a new entry rather than reopening this one, per the user's own framing.
+
 ## Session 146 — Gear Optimizer fix re-verified (closes the "unverified in live app" gap)
 
 TODO.md's Gear Optimizer bug entry (Session 108's `applyConversions` fix) was confirmed fixed but
