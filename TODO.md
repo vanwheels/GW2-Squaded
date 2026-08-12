@@ -43,12 +43,11 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       skill bar (not a real skill slot) with its own custom tooltip for whatever a build's dodge
       grants beyond the normal evade frames.
 
-- [ ] Discord bot (client of the backend API) — scoped 2026-08-01: `worker/src/index.ts` is
-      currently just an anonymous KV blob store (`POST /shares` create, `GET /shares/:id` fetch) —
-      no user-account concept, no "list a user's builds/squads" endpoint, so a bot can only "post an
-      embed of a given share link" today, not browse or manage a library. Blocked on a follow-up
-      conversation: post-a-share-as-embed only, or a fuller command set that would need new
-      auth+listing endpoints on the worker (a bigger lift than the bot itself)?
+- [ ] Discord bot — a guild-scoped, curated build/squad board (slash-command add/edit/remove/move,
+      profession-sectioned board messages the bot keeps in sync, optional Manual-approval workflow
+      with role-gated buttons) mapped out in full 2026-08-12, not started. Full design-of-record —
+      command list, D1 schema, approval workflow, architecture decisions, explicit v1 non-goals —
+      now lives in `docs/discord-bot.md` rather than here; read that first before picking this up.
 
 - [ ] Capacitor port for iOS/Android — scoped 2026-08-01, two-part seam: (1)
       `StorageAdapter`/`Repository<T>` (`src/shared/storage/storage-interface.ts`) is already
