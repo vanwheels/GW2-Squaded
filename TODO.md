@@ -167,10 +167,34 @@ that before extending either further, and before the tooltip visual-pass item be
       shape as `combat-state.ts`'s `FURY_CRIT_CHANCE_TRAIT_BONUSES` but a flat CritDamage bonus
       instead of a crit-chance %, so it doesn't fit that table either — would need a sibling table,
       e.g. `FURY_FEROCITY_TRAIT_BONUSES`).
-      **Remaining legs (~162 candidates across Elementalist 19, Guardian 21, Necromancer 29, Ranger
-      23, Revenant 19, Thief 29, Warrior 22) not yet swept** — each candidate needs its trait
-      *description* read for genuine unconditional "gain X" language, same rigor as every other
-      curated table; regenerate the candidate list per-profession via a `traits.json` scan for
+      **Guardian leg (21 candidates, done 2026-08-12)**: 11 curated — Honorable Staff (+60
+      Concentration, WvW value), Right-Hand Strength (+80 Precision, unconditional part only),
+      Radiant Power (+150 Ferocity), Power of the Virtuous (13% Vitality→Condition Damage, WvW
+      value), Zealous Blade (+120 Power, unconditional part only), Kindled Zeal (10%
+      Power→Condition Damage), Defender's Dogma (+180 Vitality), Conceited Curate (+180 Vitality,
+      unconditional part only), Power for Power (+120 Power), Searing Pact (+120 Condition Damage),
+      Light's Gift (+180 Vitality). 8 excluded as proc-heal coefficients (Pure of Heart, Selfless
+      Daring, Writ of Persistence, Altruistic Healing, Monk's Focus, Glacial Heart, Renewing
+      Splendor, Hunter's Fortification — all "heals when/on X" procs, same Healer's-Gift shape).
+      1 flagged as a **new conditional shape not yet seen in this sweep**: Imbued Haste
+      (Firebrand minor) grants +250/150 Condition Damage, Healing Power, and Vitality (PvE/WvW+PvP
+      split) "while affected by quickness" — same boon-gated-flat-bonus family as Chaotic Persistence
+      (Mesmer, regeneration-gated) and Energy Amplifier (Engineer, regeneration-gated), but the first
+      one gated on Quickness specifically; strengthens the case that this whole family needs a
+      generalized "which boons are currently up" toggle in `CombatState`, not per-boon one-offs. Also
+      surfaced a **second new conditional shape**: weapon-equipped-gated flat bonuses — Right-Hand
+      Strength's other half (+80 Power while wielding a one-handed weapon in main hand), Zealous
+      Blade's other half (+120 Power while wielding a greatsword, wiki fact literally labeled "Power
+      While Wielding Greatsword"), and Stalwart Defender (+240 Toughness while wielding a shield, no
+      split) all share this shape. Unlike the boon-gated family, this one doesn't need a new
+      ephemeral toggle — `build.equipment` + `isActiveWeaponSlot` (the same helpers
+      `detectActiveStackingSigil` in `combat-state.ts` already uses) can derive it directly from the
+      build itself, so it's a smaller lift; still out of scope for this unconditional table, would
+      need its own `WEAPON_CONDITIONAL_TRAIT_BONUSES`-style table.
+      **Remaining legs (~141 candidates across Elementalist 19, Necromancer 29, Ranger 23, Revenant
+      19, Thief 29, Warrior 22) not yet swept** — each candidate needs its trait *description* read
+      for genuine unconditional "gain X" language, same rigor as every other curated table;
+      regenerate the candidate list per-profession via a `traits.json` scan for
       `AttributeAdjust`/`BuffConversion` facts joined against `specializations.json` if picking this
       back up in a new session.
 

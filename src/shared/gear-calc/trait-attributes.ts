@@ -48,7 +48,50 @@ const CURATED_FLAT_BONUSES: TraitFlatBonus[] = [
   // Hybrid Vigor (Engineer, Amalgam, Minor Master) — "Gain vitality." Wiki-verified 2026-08-12 (raw
   // wikitext): single game-mode-agnostic value (+240), unlike this same trait's morph-skill barrier
   // proc (split pve/wvw/pvp), which is out of scope for this table.
-  { traitId: 2389, target: 'Vitality', value: 240 }
+  { traitId: 2389, target: 'Vitality', value: 240 },
+  // Honorable Staff (Guardian, Honor, Major Adept) — "Gain concentration." Wiki-verified 2026-08-12
+  // (raw wikitext): split game mode=pve 120 / game mode=pvp wvw 60; WvW value is 60. The trait's
+  // other effect (Empower granting endurance) isn't a character-stat gain — out of scope.
+  { traitId: 557, target: 'BoonDuration', value: 60 },
+  // Right-Hand Strength (Guardian, Radiance, Major Adept) — "Your precision is increased." Wiki-
+  // verified 2026-08-12: unconditional +80 Precision, no game-mode split. This trait's *other*
+  // AttributeAdjust fact (+80 Power) is conditional on wielding a one-handed weapon in the main
+  // hand — a weapon-equipped-gated shape this unconditional table doesn't model; excluded (see
+  // TODO.md for the new-shape note, same family as Zealous Blade's greatsword-gated Power below).
+  { traitId: 566, target: 'Precision', value: 80 },
+  // Radiant Power (Guardian, Radiance, Minor Master) — "Your ferocity is increased." Wiki-verified
+  // 2026-08-12: unconditional +150 CritDamage, no game-mode split. This trait's *other* effect
+  // (crit chance vs burning foes) has no AttributeAdjust fact — out of scope for this table.
+  { traitId: 568, target: 'CritDamage', value: 150 },
+  // Zealous Blade (Guardian, Zeal, Major Adept) — "Your power is increased." Wiki-verified
+  // 2026-08-12: unconditional +120 Power, no game-mode split. This trait's *other* Power fact,
+  // explicitly labeled "Power While Wielding Greatsword" (+120), is conditional on wielding a
+  // greatsword — same weapon-equipped-gated shape as Right-Hand Strength above, excluded.
+  { traitId: 653, target: 'Power', value: 120 },
+  // Defender's Dogma (Guardian, Dragonhunter, Minor Adept) — "Gain vitality." Wiki-verified
+  // 2026-08-12: unconditional +180 Vitality, no game-mode split. This trait's other effect
+  // (blocking maxes Justice's charge) isn't a stat gain — out of scope.
+  { traitId: 1896, target: 'Vitality', value: 180 },
+  // Conceited Curate (Guardian, Willbender, Major Adept) — "Gain increased vitality." Wiki-verified
+  // 2026-08-12: unconditional +180 Vitality, no game-mode split. This trait's other AttributeAdjust
+  // fact (272 Healing, coefficient 0.11) is the proc-heal coefficient for Willbender Flames striking
+  // an enemy — same shape as Healer's Gift, excluded.
+  { traitId: 2187, target: 'Vitality', value: 180 },
+  // Power for Power (Guardian, Willbender, Major Adept) — "Gain increased power." Wiki-verified
+  // 2026-08-12: unconditional +120 Power, no game-mode split. This trait's other effect (Willbender
+  // Flames damage increase, split pve 200%/wvw pvp 100%) is a skill damage modifier, not a
+  // character-stat gain — out of scope.
+  { traitId: 2190, target: 'Power', value: 120 },
+  // Searing Pact (Guardian, Willbender, Major Adept) — "Gain condition damage." Wiki-verified
+  // 2026-08-12: unconditional +120 ConditionDamage, no game-mode split. This trait's other effect
+  // (Willbender Flames apply burning, split pve 1s/wvw pvp 2s) is a skill effect, not a
+  // character-stat gain — out of scope.
+  { traitId: 2191, target: 'ConditionDamage', value: 120 },
+  // Light's Gift (Guardian, Luminary, Minor Adept) — "Gain vitality." Wiki-verified 2026-08-12:
+  // unconditional +180 Vitality, no game-mode split. This trait's other effect (Luminary's Blessing
+  // on radiant-weapon equip, split pve 6s/wvw pvp 3s) is a skill effect, not a stat gain — out of
+  // scope.
+  { traitId: 2394, target: 'Vitality', value: 180 }
 ]
 
 const CURATED_CONVERSIONS: TraitConversion[] = [
@@ -66,7 +109,15 @@ const CURATED_CONVERSIONS: TraitConversion[] = [
   // your power." Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|gain|Vitality|Power|10}}`,
   // no game-mode split). This trait's other effect (Explosive Entrance barrier, split pve/wvw pvp)
   // is a proc, not a stat grant — excluded.
-  { traitId: 1944, source: 'Power', target: 'Vitality', percent: 10 }
+  { traitId: 1944, source: 'Power', target: 'Vitality', percent: 10 },
+  // Power of the Virtuous (Guardian, Virtues, Minor Adept) — "Gain condition damage based on your
+  // vitality." Wiki-verified 2026-08-12 (raw wikitext): split game mode=pve 7 / game mode=pvp wvw
+  // 13; WvW value is 13. The trait's other effect (Virtue recharge reduction) isn't a stat gain.
+  { traitId: 620, source: 'Vitality', target: 'ConditionDamage', percent: 13 },
+  // Kindled Zeal (Guardian, Zeal, Major Master) — "Gain condition damage based on your power."
+  // Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|gain|Condition Damage|Power|10}}`, no
+  // game-mode split).
+  { traitId: 1556, source: 'Power', target: 'ConditionDamage', percent: 10 }
 ]
 
 /**
