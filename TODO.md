@@ -2,6 +2,85 @@
 
 Completed work is tracked in COMPLETED.md, not here — this file only holds what's still open.
 
+## Path to 1.0 (target: ship this week for community testing/feedback)
+
+User's explicit goal, stated 2026-08-12: cut a 1.0 release this week so the community can start using
+it and giving feedback — the user isn't deeply familiar with every profession's own meta/quirks and is
+relying on wider playtesting to catch what solo curation can't. 1.0 scope = README roadmap items 1-4
+(scaffolding, build editor + boon/condition calculator, squad preview builder, sync/share backend) —
+the Discord bot and the Capacitor mobile port are explicitly OUT of 1.0 scope (later roadmap stages,
+own sub-projects). Already shipping releases (v0.1.0-v0.3.0 tagged, electron-builder + auto-update
+live) — the app is feature-complete for this scope; the open question is correctness confidence, not
+missing features.
+
+Two real gaps stand between here and 1.0, both about confidence rather than features:
+1. **Never visually verified in a running app** — every curation session (150+ entries in
+   COMPLETED.md) was checked by typecheck/lint/code-reading only, never seen rendered (Electron
+   sandbox limitation in the assistant's shell). Needs an actual click-through before release: create
+   a build, run the gear optimizer, build a squad comp, generate a share link — for real.
+2. **Zero automated tests.** Discussed at length 2026-08-12 — see "Automated testing strategy" below.
+   This is the priority work before release, not a nice-to-have, because it's the fastest lever on
+   correctness confidence the user doesn't have to personally provide (they don't know every
+   profession's quirks well enough to hand-audit them all before Friday).
+
+## Automated testing strategy (agreed 2026-08-12, not started — pick up here first)
+
+Key insight from this session: the bugs the user has actually hit by hand (traits not feeding into
+attribute totals, buffs whose bonus depends on a runtime value like Kalla's Fervor's stack count,
+sigils not being picked up for Control/Strip metrics because of unique wording) are all **silent
+omission** bugs — a source that was never wired in produces a stable, self-consistent WRONG number. A
+value-correctness regression/snapshot test does NOT catch this class of bug, because there's nothing
+to diff against — it would just lock the wrong value in as "correct" forever. Snapshot tests only
+protect values already known-correct from *future drift*; still worth having (see Tier 1/2/3 below)
+but NOT the priority.
+
+**Priority: completeness/coverage tests — build these first. No gw2skills/in-game verification
+needed, purely structural scans against data already in the repo:**
+
+1. **Trait attribute-bonus completeness scan.** `trait-attributes.ts` + `combat-state.ts` have 9
+   separate hand-populated `Record<number, ...>` tables, each built by a one-off "scan traits.json for
+   this shape" sweep done in its own session, with nothing forcing a new or previously-missed
+   conditional trait into any of them: `FURY_ATTRIBUTE_TRAIT_BONUSES`,
+   `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`, `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`,
+   `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES`, `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`,
+   `REVEALED_ATTRIBUTE_TRAIT_BONUSES`, `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES`,
+   `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`, `ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES` (all in
+   `src/shared/gear-calc/trait-attributes.ts` / `combat-state.ts`). Plan: for every trait in
+   `traits.json` whose facts include an attribute-adjust shape (flat or conditional — "while," "per
+   stack," "below X% health," etc.), assert its id appears in the union of all 9 tables, OR in a new
+   explicit "reviewed, intentionally excluded" allowlist with a stated reason. Turns the ad hoc manual
+   sweeps already done into a permanent CI-enforced invariant — a future balance patch or a
+   previously-missed trait fails the test immediately instead of surfacing as a wrong in-game stat
+   months later. **Agreed as the first test to build, next session.**
+2. **Sigil/Control-Strip completeness scan.** `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/
+   `BOON_STRIP_CORRUPT_MATCHERS` (`src/shared/boon-calc/sources.ts`, ~lines 2813-2850) do
+   "structurally-verified exact match" against known `Fact` shapes — a sigil whose CC/strip effect is
+   only described in free text (not a recognized fact type) matches nothing, silently. Same failure
+   shape as the already-documented Unleashed/Gunsaber-Mode "no generic-text case" gaps. Plan: every
+   sigil's facts should match at least one matcher table, or appear in a reviewed exclusion list — this
+   won't auto-verify correctness, but converts a silent gap into a visible triage list instead of
+   something a user has to stumble onto in the running app.
+3. **State-dependent bonus tests (Kalla's Fervor-shaped).** Bonuses that scale with a runtime value
+   (`combat-state.ts` ~lines 101-120, `KALLA_FERVOR_*_PERCENT_PER_STACK`) need tests parametrized
+   across `CombatState` (0/mid/max stacks), verified by hand at 2-3 points once — not a single static
+   snapshot, which would only ever check one point in the state space.
+
+**Secondary priority: value-correctness tests (Tier 1/2/3, discussed but not started):**
+- Tier 1 — deterministic formula tests needing NO external oracle (gear attribute sums, crit
+  chance/boon duration formulas) — pure arithmetic/documented GW2 formulas, hand-computed expected
+  values.
+- Tier 2 — golden snapshot fixtures for coefficients already wiki-verified over 150+ sessions — pay
+  the verification cost once, then a snapshot diff catches future regressions without re-checking.
+- Tier 3 — 2-3 hand-verified reference meta builds (checked once against gw2skills.net/in-game, all
+  stats) as the actual manual-verification oracle, used sparingly.
+- Vitest is the natural fit (electron-vite project, near-zero extra config) — confirmed not yet
+  installed, no test files exist anywhere in `src` as of 2026-08-12.
+
+**Next action, agreed but not started (session ended at 98% usage before starting):** build the trait
+attribute-bonus completeness scan (#1 above) first — highest leverage, fully groundable in code
+already read this session, requires no new manual verification to write (only to triage whatever it
+flags).
+
 ## Bugs
 
 - [ ] **Multiple same-status Buff facts on one skill render as unlabeled duplicate rows** — flagged
