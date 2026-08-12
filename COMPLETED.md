@@ -2,6 +2,25 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 146 — Gear Optimizer fix re-verified (closes the "unverified in live app" gap)
+
+TODO.md's Gear Optimizer bug entry (Session 108's `applyConversions` fix) was confirmed fixed but
+flagged as never verified outside the original diagnosis session. Live in-app verification still
+isn't possible here (Electron sandbox limitation persists — checked again: no Playwright/xvfb
+available in this environment either), so re-ran the same class of check instead: a fresh standalone
+`tsx` script (not committed — scratch-only) loading real `data/game-data/*.json` directly, building a
+bare Guardian with Superior Sharpening Stone (id 9443, the "Gain Power Equal to N% of Your
+Precision/Ferocity" shape) as a fixed utility item, running `optimizeGear` maximizing Power, and
+diffing its `metricValues.Power` against an independent `computeCharacterStats` call on the exact
+resulting build.
+
+Result: exact match (2223.90196 both sides, diff 0). To confirm the check itself is meaningful (not
+vacuously passing), temporarily commented out the fix's `applyConversions` call and re-ran — the
+same ~91-Power understatement described in the original bug report reproduced immediately, then the
+file was restored via `git checkout` and re-typechecked clean. TODO.md's "wasn't necessarily the only
+issue" caveat still stands (no specific failure mode was ever captured for the original report), but
+the one confirmed concrete bug is now verified fixed, not just theoretically fixed.
+
 ## Session 145 — Per-buff-line target-count model
 
 Closed TODO.md's "per-buff-line (not per-source) target-count model" gap, open since 2026-08-06:

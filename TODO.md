@@ -18,11 +18,16 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       utility items alone carry this shape, confirmed elsewhere in this codebase as "the dominant
       WvW Utility-consumable shape") would show an optimizer result that understated the converted
       stat versus what the Stats panel computes for that identical build (reproduced a ~100-Power
-      understatement on a test Guardian). Fixed in `gear-optimize.ts` — see COMPLETED.md. Left open
-      rather than closed: this is confirmed real and fixed, but wasn't necessarily the only issue
-      behind the original "doesn't function properly" report, and the fix itself is still unverified
-      in the live running app — re-close (or re-open with a fresh failure mode) after an actual
-      in-app check.
+      understatement on a test Guardian). Fixed in `gear-optimize.ts` — see COMPLETED.md.
+      2026-08-11: re-verified the fix with a fresh standalone script (same shape, not committed —
+      scratch-only), confirmed exact match, and confirmed the check itself is meaningful by
+      temporarily disabling the fix and watching the same ~91-Power understatement reproduce — see
+      COMPLETED.md Session 146. Still left open rather than closed: true live-in-app confirmation is
+      still not possible in this environment (Electron sandbox limitation, re-checked — no
+      Playwright/xvfb available either), and this was never confirmed to be the *only* issue behind
+      the original vague "doesn't function properly" report — re-close (or re-open with a fresh
+      failure mode) after an actual in-app check, or after further scripted stress-testing turns up
+      nothing else.
 
 - [ ] **Multiple same-status Buff facts on one skill render as unlabeled duplicate rows** — flagged
       by the user 2026-08-09 looking at Icerazor's Ire's tooltip (2 separate Vulnerability
@@ -188,6 +193,12 @@ that before extending either further, and before the tooltip visual-pass item be
       example.
 
 ## Nice-to-haves
+
+- [ ] Equipment editor: a "clear all" button per row (weapons, sigils, armor, runes, accessories,
+      infusions, relic, food, utility) — flagged by the user 2026-08-11, not scoped yet (which rows
+      count as one "row" vs. several, e.g. armor is 6 slots/trinkets are 6 slots — needs a UI pass to
+      decide grouping before implementing).
+
 
 - [ ] More curated fury-crit-chance traits in `combat-state.ts`'s `FURY_CRIT_CHANCE_TRAIT_BONUSES`
       (seeded 2026-08-01 with only Revenant's Roiling Mists, for the Gear Optimizer's Critical
