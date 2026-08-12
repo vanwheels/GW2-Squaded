@@ -2,6 +2,58 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 144 — Gear Optimizer: searchable rune and infusion choice
+
+Picked up TODO.md's "make rune and infusion choice searchable" item (scoped 2026-08-01). Runes and
+infusions are now search variables in `optimizeGear`, gated behind a new `optimizeRunesInfusions`
+toggle in `GearOptimizerPanel.tsx` — parallel to the existing "optimize food/utility" checkbox,
+default off (existing behavior — runes/infusions as a fixed baseline — unchanged when off).
+
+- **Rune**: modeled as a single search slot (`kind: 'rune'`, `equipmentKeys: RUNE_SLOT_KEYS`) applied
+  uniformly across all 6 armor pieces — matches the WvW "6x one rune" convention (per the item's own
+  scoping note) rather than 6 independently-searched rune slots. New `runeOptionsFor` sums a
+  candidate rune's first 6 `bonuses` stages (mirrors `addRuneBonuses`' own per-count-of-stacks
+  logic for a uniform 6-piece set) into one delta, deduped by `deltaSignature` like every other
+  option list.
+- **Infusion**: modeled as one `OptimizerSlot` per *physical* infusion slot (`kind: 'infusion'`,
+  carrying a new `infusionIndex` into that key's `infusionIds` array) — a ring's 3 slots, for
+  example, are searched independently since they can legally hold 3 different infusions. Capacity
+  per key from the already-existing `armorTrinketInfusionCapacity`/`weaponUpgradeCapacity`
+  (`upgrade-slots.ts`). New `infusionOptionsFor` builds one option per core-attribute WvW infusion
+  (flat +5, no adjustment-tier math needed) — computed once and shared by reference across every
+  physical slot, since infusions aren't slot-restricted.
+- New `activeWeaponItems`/`buildWeaponInfusionSlots`: resolves the build's actually-equipped,
+  actually-active weapon item(s) into per-item infusion capacity — a two-handed weapon gets 2 slots
+  on its main-hand key only (confirmed against `EquipmentEditor.tsx`'s own comment: "its rune/sigil/
+  infusion picks live independently per slot key... only the stat combo mirrors" onto the off-hand
+  key), a one-handed main/off pair gets 1 slot each independently. Kept as a separate item-shaped
+  traversal from `buildWeaponSlots`' own pair-merging (which exists because a 2H weapon's *stat
+  combo* search slot legitimately spans both keys) rather than reusing that function directly.
+  Underwater weapons (always 2H) get 2 slots on their single key.
+  
+- **Baseline correctness**: when `optimizeRunesInfusions` is true, the pre-search baseline now also
+  nulls out `runeId` (for the 6 armor keys) and every `infusionIds` entry (for every key that got an
+  infusion slot) on the fixed-equipment snapshot passed to `computeGearAttributeTotals` — otherwise
+  the build's *original* rune/infusion contribution would double-count against the search's own
+  delta on top of it. Mirrors the existing `itemStatId`-nulling pattern for gear slots exactly.
+- Result-writing switched from the old `slot.id === 'food'`/`'utility'` string checks to an explicit
+  `OptimizerSlot.kind` field (`'food' | 'utility' | 'rune' | 'infusion'`, undefined = ordinary gear
+  slot) — a `switch` in the result-assembly loop writes `runeId`/`infusionIds[idx]` instead of
+  `itemStatId` for the two new kinds. `OptimizerSlotResult` also carries `kind` now, so
+  `GearOptimizerPanel.tsx`'s result list can filter out empty (`chosenId: null`) infusion rows —
+  otherwise up to ~18 mostly-"None" infusion-slot rows would dominate the results list even on runs
+  that only actually filled a handful of them.
+- Verified functionally against real `data/game-data/*.json` (a temporary, not-committed script —
+  see TODO.md's follow-up note on this session's stress-test finding): confirmed rune id lands
+  uniformly across all 6 armor slots, confirmed per-slot infusion capacity is exactly right for both
+  a two-handed (Greatsword, 2 slots on the main key only) and two independent one-handed
+  (Sword+Focus, 1 slot each) weapon set, and cross-checked the optimizer's own `metricValues`
+  against an independent `computeGearAttributeTotals` recomputation of the resulting build — exact
+  agreement. `npm run typecheck`/`lint` both clean. Not itself visually confirmed live (Electron
+  sandbox limitation, same caveat as everything else in this codebase that can't be screenshotted
+  here) — and a synthetic stress case surfaced a real (documented in TODO.md, not itself a bug)
+  truncation trade-off from the larger search space this adds.
+
 ## Session 143 — Elementalist Glyph tooltips: swap to active attunement, not stack all 4
 
 Picked up TODO.md's "Elementalist Glyph tooltips should swap..." item (flagged 2026-08-07). Closed

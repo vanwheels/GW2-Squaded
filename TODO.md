@@ -43,16 +43,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 ## Scoped features, not yet built
 
-- [ ] Gear Optimizer: make rune and infusion choice searchable (currently `optimizeGear` treats
-      equipped runes/infusions as a fixed baseline, same as food/utility when that toggle is off) —
-      scoped 2026-08-01, runes + infusions only for now (sigils are procs, not a stat lever the
-      floor/maximize model fits). Needs: (1) new `OptimizerSlot` entries — likely a single "rune set"
-      slot (WvW runes are usually 6x one rune, so not 6 independent slots) plus per-slot infusion
-      capacity, already known via `upgrade-slots.ts`; (2) `statOptionsFor`'s dedup-by-relevant-metric
-      pattern extended to rune tiered bonuses (`Rune.bonuses`) and infusion flat points
-      (`Infusion.attribute`/`.value`); (3) a "optimize runes/infusions" toggle in
-      `GearOptimizerPanel.tsx`, parallel to the existing "optimize food/utility" checkbox.
-
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around
       dodging). Splits into two different problems on investigation:
@@ -231,3 +221,15 @@ that before extending either further, and before the tooltip visual-pass item be
       Fury" shape — Engineer's Hematic Focus, Warrior's Furious Burst, Ranger's Vicious Quarry,
       Mesmer's Quiet Intensity, Revenant/Renegade's Brutal Momentum — each needs its current WvW-mode
       value confirmed against the wiki (same as Roiling Mists) before being added.
+
+- [ ] Gear Optimizer's rune/infusion search (2026-08-11, see COMPLETED.md) adds up to ~18 extra
+      per-slot infusion search variables + 1 rune slot on top of the existing ~12-14 gear/food/
+      utility slots — a synthetic stress case (2 floors, 3 maximize tiers, food/utility AND
+      runes/infusions all on at once, 35 total slots) hit the search's `NODE_LIMIT` truncation
+      (still returned a feasible, reasonable-looking result in ~1s — not a hang — and the UI already
+      surfaces "truncated" transparently) where the same query without rune/infusion search stays
+      well within budget. Not itself a bug, just a real trade-off worth watching: if truncated
+      results turn out to look meaningfully suboptimal in practice, look at raising `NODE_LIMIT`,
+      tightening the branch-order heuristics for infusion-shaped (single-attribute, low-spread)
+      slots specifically, or collapsing same-key infusion slots that end up with identical option
+      sets before they hit the solver.

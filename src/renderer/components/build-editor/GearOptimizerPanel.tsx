@@ -25,10 +25,12 @@ interface Props {
 
 /**
  * Embedded in `BuildEditorView` (not a separate nav view — see TODO.md): works directly on the
- * build currently being edited, reusing its weapon types/runes/sigils/relic as fixed inputs and
- * the ambient `combatState` already shown in the Stats panel (so Fury there and here always
- * agree). "Apply" only patches the in-memory draft via `onApply` — it never saves on its own, same
- * as every other editor sub-panel; the user still hits the main Save button when happy.
+ * build currently being edited, reusing its weapon type/sigils/relic as fixed inputs (runes and
+ * infusions become search variables too when their own toggle is on — otherwise they're fixed
+ * inputs like sigils/relic always are) and the ambient `combatState` already shown in the Stats
+ * panel (so Fury there and here always agree). "Apply" only patches the in-memory draft via
+ * `onApply` — it never saves on its own, same as every other editor sub-panel; the user still hits
+ * the main Save button when happy.
  */
 export function GearOptimizerPanel({ build, combatState, onApply }: Props) {
   const gameData = useGameData()
@@ -36,6 +38,7 @@ export function GearOptimizerPanel({ build, combatState, onApply }: Props) {
   const [floors, setFloors] = useState<FloorState>({})
   const [targets, setTargets] = useState<OptimizerMetricId[]>(['Power'])
   const [optimizeFoodUtility, setOptimizeFoodUtility] = useState(false)
+  const [optimizeRunesInfusions, setOptimizeRunesInfusions] = useState(false)
   const [result, setResult] = useState<OptimizerResult | null>(null)
   const [running, setRunning] = useState(false)
   const [applied, setApplied] = useState(false)
@@ -74,7 +77,7 @@ export function GearOptimizerPanel({ build, combatState, onApply }: Props) {
     // runs — bounded (see gear-optimize.ts's NODE_LIMIT) but can still take a beat, especially with
     // 2-3 maximize tiers.
     setTimeout(() => {
-      setResult(optimizeGear({ build, gameData, combatState, floors: floorList, targets, optimizeFoodUtility }))
+      setResult(optimizeGear({ build, gameData, combatState, floors: floorList, targets, optimizeFoodUtility, optimizeRunesInfusions }))
       setRunning(false)
     }, 0)
   }
@@ -94,8 +97,8 @@ export function GearOptimizerPanel({ build, combatState, onApply }: Props) {
       {open && (
         <>
           <p className="muted">
-            Satisfy stat floors, then maximize stats in priority order — weapon type, runes, sigils, and relic stay as
-            you've set them here; Fury/Might/etc. use the Combat context toggles above.
+            Satisfy stat floors, then maximize stats in priority order — weapon type, sigils, and relic stay as you've
+            set them here; Fury/Might/etc. use the Combat context toggles above.
           </p>
 
           <h4>Stat floors</h4>
@@ -146,6 +149,15 @@ export function GearOptimizerPanel({ build, combatState, onApply }: Props) {
             Also optimize food &amp; utility choice
           </label>
 
+          <label className="optimizer-checkbox-row">
+            <input
+              type="checkbox"
+              checked={optimizeRunesInfusions}
+              onChange={(e) => setOptimizeRunesInfusions(e.target.checked)}
+            />
+            Also optimize rune &amp; infusion choice
+          </label>
+
           <div className="optimizer-run-row">
             <button onClick={runOptimize} disabled={running}>
               {running ? 'Optimizing…' : 'Optimize'}
@@ -180,12 +192,17 @@ export function GearOptimizerPanel({ build, combatState, onApply }: Props) {
 
                   <h4>Gear</h4>
                   <ul className="optimizer-slot-list">
-                    {result.slots.map((s) => (
-                      <li key={s.label}>
-                        <span className="muted">{s.label}</span>
-                        <span>{s.chosenLabel}</span>
-                      </li>
-                    ))}
+                    {result.slots
+                      // An empty infusion slot (chosen "None") isn't worth a row of its own — up to
+                      // ~18 individual infusion slots get searched when optimizeRunesInfusions is
+                      // on, and most builds only fill a handful of them.
+                      .filter((s) => s.kind !== 'infusion' || s.chosenId !== null)
+                      .map((s) => (
+                        <li key={s.label}>
+                          <span className="muted">{s.label}</span>
+                          <span>{s.chosenLabel}</span>
+                        </li>
+                      ))}
                   </ul>
 
                   <div className="optimizer-run-row">

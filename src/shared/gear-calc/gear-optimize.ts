@@ -1,4 +1,4 @@
-import type { Build, Consumable, EquipmentSlot, EquipmentSlotKey, GameData, ItemStat, Trait } from '../types'
+import type { Build, Consumable, EquipmentSlot, EquipmentSlotKey, GameData, Infusion, ItemStat, Rune, Trait } from '../types'
 import {
   activeConsumableConversions,
   addBonus,
@@ -28,6 +28,7 @@ import {
 import { combatStatePoints, furyCritChanceTraitBonus, FURY_CRITICAL_CHANCE_PERCENT, type CombatState } from './combat-state'
 import { formatItemStatName } from './format-description'
 import { activeTraitFlatBonuses, applyTraitBonuses } from './trait-attributes'
+import { armorTrinketInfusionCapacity, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from './upgrade-slots'
 
 /**
  * The 9 stat metrics the Gear Optimizer can be given as a floor and/or a maximize-priority tier.
@@ -140,6 +141,14 @@ export interface OptimizerSlot {
   /** Empty for the food/utility slots, which aren't tied to an `EquipmentSlotKey`. */
   equipmentKeys: EquipmentSlotKey[]
   options: SearchOption[]
+  /** How this slot's chosen option gets written back onto the result build, in `optimizeGear`'s
+   *  result-assembly loop — everything but the default writes somewhere other than `itemStatId`.
+   *  Omitted (defaults to an ordinary gear slot) for every armor/trinket/weapon stat-combo slot. */
+  kind?: 'food' | 'utility' | 'rune' | 'infusion'
+  /** `kind: 'infusion'` only — which index into `equipmentKeys[0]`'s `infusionIds` array this slot
+   *  writes (each physical infusion slot on a piece of gear is searched independently, since e.g. a
+   *  ring's 3 slots can legally hold 3 different infusions). */
+  infusionIndex?: number
 }
 
 const ARMOR_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
@@ -192,6 +201,67 @@ function consumableOptionsFor(catalog: Consumable[], relevant: OptimizerMetricId
     seen.set(sig, { id: item.id, label: item.name, deltas: relevant.map((id) => metricDelta(id, delta)) })
   }
   return [...seen.values()]
+}
+
+/** One option per rune (plus "None"), each option's delta the SUM of every stage up to and
+ *  including the one unlocked at 6 pieces (`bonuses[0..5]`) — this app models rune choice as a
+ *  single search slot applied uniformly across all 6 armor pieces, matching the "usually 6x one
+ *  rune" WvW convention (see TODO.md's scoping note), rather than 6 independently-searched rune
+ *  slots. Mirrors `addRuneBonuses`' own "count by rune id, credit `bonuses[0..count-1]`" logic for
+ *  a uniform 6-piece set. */
+function runeOptionsFor(runes: Rune[], relevant: OptimizerMetricId[]): SearchOption[] {
+  const seen = new Map<string, SearchOption>()
+  seen.set('none', { id: null, label: 'None', deltas: relevant.map(() => 0) })
+  for (const rune of runes) {
+    const delta = emptyTotals()
+    for (const bonus of rune.bonuses) addBonus(delta, bonus)
+    const sig = deltaSignature(delta, relevant)
+    if (seen.has(sig)) continue
+    seen.set(sig, { id: rune.id, label: rune.name, deltas: relevant.map((id) => metricDelta(id, delta)) })
+  }
+  return [...seen.values()]
+}
+
+/** One option per core-attribute WvW infusion (plus "None") — every attribute infusion is a flat
+ *  +5 to a single attribute (see `Infusion`'s doc comment in `types/game-data.ts`), so unlike
+ *  `statOptionsFor` there's no adjustment-tier math here. Non-attribute infusions
+ *  (`attribute === null` — not currently fetched, see that same doc comment) are skipped. Shared
+ *  across every physical infusion slot (`armorTrinketInfusionSlots`/`buildWeaponInfusionSlots`)
+ *  since infusions aren't slot-restricted — computed once rather than once per slot. */
+function infusionOptionsFor(infusions: Infusion[], relevant: OptimizerMetricId[]): SearchOption[] {
+  const seen = new Map<string, SearchOption>()
+  seen.set('none', { id: null, label: 'None', deltas: relevant.map(() => 0) })
+  for (const infusion of infusions) {
+    if (!infusion.attribute || infusion.value === null) continue
+    const delta = emptyTotals()
+    addPoints(delta, infusion.attribute, infusion.value)
+    const sig = deltaSignature(delta, relevant)
+    if (seen.has(sig)) continue
+    seen.set(sig, { id: infusion.id, label: infusion.name, deltas: relevant.map((id) => metricDelta(id, delta)) })
+  }
+  return [...seen.values()]
+}
+
+/** One `OptimizerSlot` per physical infusion slot on armor/trinkets (helm..boots, back, both
+ *  accessories, both rings — amulet has none) — capacity per key from
+ *  `armorTrinketInfusionCapacity`. Every slot shares the same option list (infusions aren't
+ *  slot-restricted) but is searched independently. */
+function armorTrinketInfusionSlots(options: SearchOption[]): OptimizerSlot[] {
+  const slots: OptimizerSlot[] = []
+  for (const { key, label } of [...ARMOR_SLOTS, ...TRINKET_SLOTS]) {
+    const capacity = armorTrinketInfusionCapacity(key)
+    for (let i = 0; i < capacity; i++) {
+      slots.push({
+        id: `${key}Infusion${i}`,
+        label: capacity > 1 ? `${label} Infusion ${i + 1}` : `${label} Infusion`,
+        equipmentKeys: [key],
+        kind: 'infusion',
+        infusionIndex: i,
+        options
+      })
+    }
+  }
+  return slots
 }
 
 /** Which land/underwater weapon slots actually count right now — mirrors `isActiveWeaponSlot`'s
@@ -253,6 +323,77 @@ function buildWeaponSlots(
   return slots
 }
 
+interface WeaponItem {
+  key: EquipmentSlotKey
+  label: string
+  isTwoHanded: boolean
+}
+
+/** Every physically-equipped weapon item in the build's currently-active set (land: Set A or B,
+ *  whichever `isActiveWeaponSlot` says; underwater: U1 or U2) — one entry per real item, not per
+ *  slot key: a two-handed weapon is a single item living on its main-hand key only (its upgrade
+ *  picks never live on the mirrored off-hand key — see `EquipmentEditor.tsx`'s `setMainItemStat`),
+ *  a one-handed main/off pair is two independent items. Kept separate from `buildWeaponSlots`' own
+ *  pair-merging (one *stat-search* slot per pair, since a two-handed weapon's stat combo IS shared
+ *  across both keys) — that shape doesn't apply here, since each item's infusion slots are searched
+ *  independently regardless of stat-combo mirroring. Shared by `buildWeaponInfusionSlots` below. */
+function activeWeaponItems(build: Build, gameData: Pick<GameData, 'professions'>): WeaponItem[] {
+  const profession = gameData.professions.find((p) => p.id === build.profession)
+
+  function isTwoHanded(weaponType: string | null | undefined): boolean {
+    return Boolean(weaponType && profession?.weapons[weaponType]?.flags.includes('TwoHand'))
+  }
+
+  const items: WeaponItem[] = []
+
+  function addPair(mainKey: EquipmentSlotKey, offKey: EquipmentSlotKey, setLabel: string): void {
+    const main = build.equipment[mainKey]
+    const off = build.equipment[offKey]
+    if (main?.weaponType && isTwoHanded(main.weaponType)) {
+      items.push({ key: mainKey, label: `${setLabel} (2-handed)`, isTwoHanded: true })
+      return
+    }
+    if (main?.weaponType) items.push({ key: mainKey, label: `${setLabel} main hand`, isTwoHanded: false })
+    if (off?.weaponType) items.push({ key: offKey, label: `${setLabel} off hand`, isTwoHanded: false })
+  }
+
+  function addUnderwater(key: EquipmentSlotKey, label: string): void {
+    if (build.equipment[key]?.weaponType) items.push({ key, label, isTwoHanded: true })
+  }
+
+  if (build.environment === 'land') {
+    if (isActiveWeaponSlot('weaponA1', build)) addPair('weaponA1', 'weaponA2', 'Weapon I')
+    if (isActiveWeaponSlot('weaponB1', build)) addPair('weaponB1', 'weaponB2', 'Weapon II')
+  } else {
+    if (isActiveWeaponSlot('weaponU1', build)) addUnderwater('weaponU1', 'Underwater Set 1')
+    if (isActiveWeaponSlot('weaponU2', build)) addUnderwater('weaponU2', 'Underwater Set 2')
+  }
+
+  return items
+}
+
+/** One `OptimizerSlot` per physical infusion slot on the currently-equipped, currently-active
+ *  weapon item(s) — capacity per item from `weaponUpgradeCapacity` (2 for a two-handed weapon, 1
+ *  for a one-handed main/off-hand or underwater weapon). Mirrors `armorTrinketInfusionSlots`'
+ *  shape for the weapon side of the equipment set. */
+function buildWeaponInfusionSlots(build: Build, gameData: Pick<GameData, 'professions'>, options: SearchOption[]): OptimizerSlot[] {
+  const slots: OptimizerSlot[] = []
+  for (const item of activeWeaponItems(build, gameData)) {
+    const capacity = weaponUpgradeCapacity(true, item.isTwoHanded)
+    for (let i = 0; i < capacity; i++) {
+      slots.push({
+        id: `${item.key}Infusion${i}`,
+        label: capacity > 1 ? `${item.label} Infusion ${i + 1}` : `${item.label} Infusion`,
+        equipmentKeys: [item.key],
+        kind: 'infusion',
+        infusionIndex: i,
+        options
+      })
+    }
+  }
+  return slots
+}
+
 export interface OptimizerFloor {
   metric: OptimizerMetricId
   /** Minimum required value, in the metric's natural unit (points or percent). */
@@ -272,9 +413,15 @@ export interface OptimizerInput {
    */
   targets: OptimizerMetricId[]
   /** When true, food and utility choice are search variables too (in addition to gear); when
-   *  false, the build's current food/utility (if any) are treated as fixed inputs, same as
-   *  runes/sigils/relic. */
+   *  false, the build's current food/utility (if any) are treated as fixed inputs. */
   optimizeFoodUtility: boolean
+  /** When true, rune choice (applied uniformly across all 6 armor slots, matching the WvW "6x one
+   *  rune" convention — see `runeOptionsFor`) and every individual infusion slot (searched
+   *  per-slot, not uniformly — see `armorTrinketInfusionSlots`/`buildWeaponInfusionSlots`) become
+   *  search variables too; when false, the build's current runes/infusions are fixed inputs, same
+   *  as sigils/relic (sigils are procs, not a stat lever this floor/maximize model fits — see
+   *  TODO.md's scoping note). */
+  optimizeRunesInfusions: boolean
 }
 
 export interface OptimizerSlotResult {
@@ -282,6 +429,10 @@ export interface OptimizerSlotResult {
   equipmentKeys: EquipmentSlotKey[]
   chosenId: number | null
   chosenLabel: string
+  /** Mirrors `OptimizerSlot.kind` — lets a result list distinguish e.g. an unfilled infusion slot
+   *  (`kind: 'infusion'`, `chosenId: null`) worth hiding from a noisy display, from an ordinary
+   *  gear slot's `chosenId` being null (never happens today, but not assumed here). */
+  kind?: 'food' | 'utility' | 'rune' | 'infusion'
 }
 
 export interface OptimizerResult {
@@ -484,7 +635,7 @@ function solve(slots: OptimizerSlot[], relevant: OptimizerMetricId[], requiredDe
 }
 
 export function optimizeGear(input: OptimizerInput): OptimizerResult {
-  const { build, gameData, combatState, floors, targets, optimizeFoodUtility } = input
+  const { build, gameData, combatState, floors, targets, optimizeFoodUtility, optimizeRunesInfusions } = input
   if (targets.length === 0) throw new Error('optimizeGear requires at least one maximize target')
 
   // Every metric that can possibly matter for this run, fixed upfront (floors don't change
@@ -509,21 +660,44 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
   }
   slots.push(...buildWeaponSlots(build, gameData, legalArmorWeapon, gameData.itemStats, relevant))
 
+  // Rune/infusion slots, added to the same search alongside gear — see `OptimizerInput.
+  // optimizeRunesInfusions`'s doc comment for the uniform-rune-vs-per-slot-infusion distinction.
+  let infusionSlots: OptimizerSlot[] = []
+  if (optimizeRunesInfusions) {
+    slots.push({ id: 'runes', label: 'Runes', equipmentKeys: RUNE_SLOT_KEYS, kind: 'rune', options: runeOptionsFor(gameData.runes, relevant) })
+    const infusionOptions = infusionOptionsFor(gameData.infusions, relevant)
+    infusionSlots = [...armorTrinketInfusionSlots(infusionOptions), ...buildWeaponInfusionSlots(build, gameData, infusionOptions)]
+    slots.push(...infusionSlots)
+  }
+
   const searchedKeys = new Set(slots.flatMap((s) => s.equipmentKeys))
 
   if (optimizeFoodUtility) {
-    slots.push({ id: 'food', label: 'Food', equipmentKeys: [], options: consumableOptionsFor(gameData.food, relevant) })
-    slots.push({ id: 'utility', label: 'Utility', equipmentKeys: [], options: consumableOptionsFor(gameData.utility, relevant) })
+    slots.push({ id: 'food', label: 'Food', equipmentKeys: [], kind: 'food', options: consumableOptionsFor(gameData.food, relevant) })
+    slots.push({ id: 'utility', label: 'Utility', equipmentKeys: [], kind: 'utility', options: consumableOptionsFor(gameData.utility, relevant) })
   }
 
   // Baseline: every fixed contribution (runes, infusions, current food/utility if not being
   // searched) with every searched slot's itemStatId nulled out so it contributes nothing here —
   // the search adds its own delta back on top. Nulling itemStatId (not the whole slot) keeps
-  // rune/infusion contributions, which are always fixed regardless of `optimizeFoodUtility`.
+  // rune/infusion contributions fixed when `optimizeRunesInfusions` is false; when it's true, their
+  // own contributions are nulled out too, right below, the same way `searchedKeys` above nulls
+  // itemStatId for gear.
   const fixedEquipment: Partial<Record<EquipmentSlotKey, EquipmentSlot>> = { ...build.equipment }
   for (const key of searchedKeys) {
     const slot = fixedEquipment[key]
     if (slot) fixedEquipment[key] = { ...slot, itemStatId: null }
+  }
+  if (optimizeRunesInfusions) {
+    for (const key of RUNE_SLOT_KEYS) {
+      const slot = fixedEquipment[key]
+      if (slot) fixedEquipment[key] = { ...slot, runeId: null }
+    }
+    const infusionKeys = new Set(infusionSlots.map((s) => s.equipmentKeys[0]))
+    for (const key of infusionKeys) {
+      const slot = fixedEquipment[key]
+      if (slot) fixedEquipment[key] = { ...slot, infusionIds: (slot.infusionIds ?? []).map(() => null) }
+    }
   }
   const fixedBuild: Build = {
     ...build,
@@ -614,16 +788,36 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
 
   slots.forEach((slot, i) => {
     const option = slot.options[finalOutcome.choice[i]]
-    if (slot.id === 'food') {
-      foodId = option.id
-    } else if (slot.id === 'utility') {
-      utilityId = option.id
-    } else {
-      for (const key of slot.equipmentKeys) {
-        resultEquipment[key] = { ...(resultEquipment[key] ?? {}), itemStatId: option.id }
+    switch (slot.kind) {
+      case 'food':
+        foodId = option.id
+        break
+      case 'utility':
+        utilityId = option.id
+        break
+      case 'rune':
+        for (const key of slot.equipmentKeys) {
+          resultEquipment[key] = { ...(resultEquipment[key] ?? { itemStatId: null }), runeId: option.id }
+        }
+        break
+      case 'infusion': {
+        // Grows the array as slots for this key are visited (0, 1, 2, ... — the order they were
+        // pushed in `armorTrinketInfusionSlots`/`buildWeaponInfusionSlots`), so no pre-known
+        // capacity is needed here.
+        const key = slot.equipmentKeys[0]
+        const idx = slot.infusionIndex ?? 0
+        const nextIds = (resultEquipment[key]?.infusionIds ?? []).slice()
+        while (nextIds.length <= idx) nextIds.push(null)
+        nextIds[idx] = option.id
+        resultEquipment[key] = { ...(resultEquipment[key] ?? { itemStatId: null }), infusionIds: nextIds }
+        break
       }
+      default:
+        for (const key of slot.equipmentKeys) {
+          resultEquipment[key] = { ...(resultEquipment[key] ?? {}), itemStatId: option.id }
+        }
     }
-    slotResults.push({ label: slot.label, equipmentKeys: slot.equipmentKeys, chosenId: option.id, chosenLabel: option.label })
+    slotResults.push({ label: slot.label, equipmentKeys: slot.equipmentKeys, chosenId: option.id, chosenLabel: option.label, kind: slot.kind })
   })
 
   const resultBuild: Build = { ...build, equipment: resultEquipment, foodId, utilityId }
