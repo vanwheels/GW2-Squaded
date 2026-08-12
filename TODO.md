@@ -279,7 +279,30 @@ that before extending either further, and before the tooltip visual-pass item be
       but applied to a *conversion percentage* rather than a flat bonus — a new sub-variant of the
       berserk/stance-gated family (multiplier-on-a-conversion, not an additive threshold bonus) to
       keep in mind if that family ever gets modeled.
-      **Remaining legs (~52 candidates across Ranger 23, Thief 29) not yet swept** — each
+      **Ranger leg (23 candidates, done 2026-08-12)**: 7 curated — 6 flat (Honed Axes: +120 Ferocity,
+      unconditional half only — other half is the weapon-equipped-gated shape, gated on wielding an
+      axe; Lingering Magic: +120 Concentration, WvW value; Arachnophobia: +150 Expertise,
+      unconditional half only — other half gated on pet type; Ambidexterity: +120 Condition Damage,
+      no split — its historical PvE/PvP+WvW split was consolidated by the 2019-03-05 update; Strider's
+      Strength: +120 Power, unconditional half only — other half is weapon-equipped-gated, gated on
+      wielding a sword; Natural Fortitude: +240 Vitality) and 1 conversion (Wellspring: 7%
+      Power→Healing Power, no split — wiki separately flags an in-game rounding anomaly where the
+      actual gain computes to 6.5%, used the declared 7% fact value per this table's usual
+      convention). 4 excluded as a **new pet-only-stat shape**, distinct from proc-heals: Fang and
+      Claw (precision/ferocity to feline/avian/drake pets only), Pet's Prowess (pet move speed/crit
+      damage), Natural Healing (pet health regen), Pack Alpha (pet's own power/condition
+      damage/precision/toughness/vitality) — all grant stats to the ranger's *pet*, not the ranger's
+      own character sheet, so out of scope for this player-attribute table regardless of the
+      unconditional language. 11 excluded as proc-heal/barrier/life-siphon coefficients (Windborne
+      Notes, Evasive Purity, Allies' Aid, Rugged Growth, Invigorating Bond, Live Vicariously, Verdant
+      Etching, Cultivated Synergy, Eternal Bond, Predator's Cunning, Nature's Shield — plus Natural
+      Fortitude's own life-siphon half, excluded while its Vitality half was curated). 1 flagged as an
+      already-known conditional shape: Vicious Quarry ("Fury grants ferocity," Skirmishing major) —
+      same Fury-gated flat-bonus family as Guardian's No Scope/Elementalist's Raging Storm/Warrior's
+      Deep Strikes, still waiting on a `FURY_FEROCITY_TRAIT_BONUSES`-style table; this trait's *other*
+      effect (crit chance while under Fury) is the one already tracked in `combat-state.ts`'s
+      `FURY_CRIT_CHANCE_TRAIT_BONUSES` TODO entry below.
+      **Remaining leg (~29 candidates, Thief) not yet swept** — each
       candidate needs its trait *description* read for genuine unconditional "gain X" language, same
       rigor as every other curated table; regenerate the candidate list per-profession via a
       `traits.json` scan for `AttributeAdjust`/`BuffConversion` facts joined against

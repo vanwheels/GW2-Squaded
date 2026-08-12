@@ -188,7 +188,43 @@ const CURATED_FLAT_BONUSES: TraitFlatBonus[] = [
   // 2026-08-12 (raw wikitext): split game mode=pve 180 / game mode=pvp wvw 60; WvW value is 60.
   // This trait's other effects (adrenaline/motivation on weapon swap) are resource gains, not
   // character-stat gains — out of scope.
-  { traitId: 2418, target: 'BoonDuration', value: 60 }
+  { traitId: 2418, target: 'BoonDuration', value: 60 },
+  // Honed Axes (Ranger, Beastmastery, Major Adept) — "You and your pet gain ferocity ... you gain
+  // additional ferocity while wielding an axe." Wiki-verified 2026-08-12 (raw wikitext:
+  // `{{skill fact|attribute|Ferocity|120}}`, no game-mode split). This trait's other CritDamage fact
+  // (+120, labeled "Additional Ferocity"), gated on wielding an axe, is the same weapon-equipped-
+  // gated shape as Right-Hand Strength/Zealous Blade/Axe Mastery — excluded.
+  { traitId: 970, target: 'CritDamage', value: 120 },
+  // Lingering Magic (Ranger, Nature Magic, Minor Master) — "You and your pet gain increased
+  // concentration." Wiki-verified 2026-08-12 (raw wikitext): split game mode=pve 240 / game
+  // mode=pvp wvw 120; WvW value is 120. This trait's other effect (regeneration effectiveness) isn't
+  // a character-stat gain — out of scope.
+  { traitId: 1059, target: 'BoonDuration', value: 120 },
+  // Arachnophobia (Ranger, Wilderness Survival, Major Adept) — "You and your pet gain expertise;
+  // spiders and devourers gain more." Wiki-verified 2026-08-12 (raw wikitext:
+  // `{{skill fact|attribute|Expertise|150}}`, no game-mode split). This trait's other ConditionDuration
+  // fact (+225, labeled "Spider and Devourer Additional Expertise") is conditional on pet type, not a
+  // character-stat gain — out of scope.
+  { traitId: 1099, target: 'ConditionDuration', value: 150 },
+  // Ambidexterity (Ranger, Wilderness Survival, Major Master) — "Gain condition damage. Gain
+  // additional condition damage while wielding a torch, dagger, or mace." Wiki-verified 2026-08-12:
+  // this trait's game-mode split was removed by the 2019-03-05 update ("no longer split between game
+  // modes and now uses its highest stat value in all modes"), leaving a single unconditional +120
+  // ConditionDamage. This trait's other ConditionDamage fact (+120, "Additional Condition Damage") is
+  // the same weapon-equipped-gated shape as Right-Hand Strength/Zealous Blade — excluded.
+  { traitId: 1101, target: 'ConditionDamage', value: 120 },
+  // Strider's Strength (Ranger, Skirmishing, Major Adept) — "You and your pet gain power. Gain
+  // additional power while wielding a sword." Wiki-verified 2026-08-12 (raw wikitext:
+  // `{{skill fact|attribute|power|120}}`, no game-mode split). This trait's other Power fact (+120,
+  // "Additional Power"), gated on wielding a sword, is the same weapon-equipped-gated shape as
+  // Right-Hand Strength/Zealous Blade/Axe Mastery/Honed Axes — excluded. The evade-grants-might
+  // effect is a proc, not a stat gain — out of scope.
+  { traitId: 1700, target: 'Power', value: 120 },
+  // Natural Fortitude (Ranger, Untamed, Minor Adept) — "Gain vitality." Wiki-verified 2026-08-12
+  // (raw wikitext: `{{skill fact|attribute|Vitality|240}}`, no game-mode split). This trait's other
+  // effects (life-siphon on Unleashed Ambush hits) are the same life-siphon proc shape as
+  // Necromancer's Predator's Cunning-family exclusions — excluded.
+  { traitId: 2286, target: 'Vitality', value: 240 }
 ]
 
 const CURATED_CONVERSIONS: TraitConversion[] = [
@@ -298,7 +334,14 @@ const CURATED_CONVERSIONS: TraitConversion[] = [
   // Precision→Ferocity is a genuine 3-way split: game mode=pve 12 / pvp 10 / wvw 5; WvW value is 5.
   // Power→Condition Damage splits game mode=pve 12 / pvp wvw 10; WvW value is 10.
   { traitId: 2011, source: 'Precision', target: 'CritDamage', percent: 5 },
-  { traitId: 2011, source: 'Power', target: 'ConditionDamage', percent: 10 }
+  { traitId: 2011, source: 'Power', target: 'ConditionDamage', percent: 10 },
+  // Wellspring (Ranger, Nature Magic, Major Master) — "You and your pet gain healing power based on
+  // power," a standalone unconditional clause alongside this trait's regeneration-on-healing-skill
+  // proc (excluded — not a stat grant). Wiki-verified 2026-08-12 (raw wikitext:
+  // `{{skill fact|Gain|Healing Power|Power|7}}`, no game-mode split). The wiki separately notes an
+  // in-game rounding anomaly where the actual gain computes to 6.5% rather than 7% — using the
+  // declared fact value (7%) here, same convention as every other curated trait in this table.
+  { traitId: 978, source: 'Power', target: 'Healing', percent: 7 }
 ]
 
 /**
