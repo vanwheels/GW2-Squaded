@@ -1,18 +1,29 @@
 import { useEffect, useState } from 'react'
 import type { UpdateStatus } from '@shared/updater/updater-provider'
+import type { DataUpdateStatus, GameDataMeta } from '@shared/game-data/data-update-provider'
 import { useAppSettings } from '@renderer/state/app-settings-store'
+import { useDataUpdate } from '@renderer/state/data-update-store'
 
 export function SettingsView() {
   const [version, setVersion] = useState('')
   const [supported, setSupported] = useState(false)
   const [status, setStatus] = useState<UpdateStatus>({ state: 'idle' })
   const { showUnderwater, setShowUnderwater, showRacialSkills, setShowRacialSkills } = useAppSettings()
+  const dataUpdate = useDataUpdate()
+  const [localMeta, setLocalMeta] = useState<GameDataMeta | null>(null)
 
   useEffect(() => {
     void window.gw2Updater.getAppVersion().then(setVersion)
     void window.gw2Updater.isSupported().then(setSupported)
     return window.gw2Updater.onStatus(setStatus)
   }, [])
+
+  // Re-reads local meta on every status change (not just once) since a completed download
+  // updates the on-disk copy `getLocalMeta` reads from immediately, even though the loaded game
+  // data itself stays the old copy in memory until a restart.
+  useEffect(() => {
+    void window.gw2DataUpdate.getLocalMeta().then(setLocalMeta)
+  }, [dataUpdate.status.state])
 
   return (
     <section>
@@ -63,6 +74,18 @@ export function SettingsView() {
       </div>
 
       <div className="settings-panel settings-panel-spaced">
+        <h3>Game data</h3>
+        <p className="muted">
+          {localMeta
+            ? `Last synced ${new Date(localMeta.fetchedAt).toLocaleDateString()}${
+                localMeta.gw2Build !== null ? ` (build ${localMeta.gw2Build})` : ''
+              }`
+            : 'Loading…'}
+        </p>
+        <DataUpdateControls status={dataUpdate.status} controls={dataUpdate} />
+      </div>
+
+      <div className="settings-panel settings-panel-spaced">
         <h3>Credits</h3>
         <p>
           Equipment-slot and stat-prefix icons are used with permission from{' '}
@@ -87,6 +110,60 @@ export function SettingsView() {
       </div>
     </section>
   )
+}
+
+interface DataUpdateControlsProps {
+  status: DataUpdateStatus
+  controls: { checkForUpdate: () => void; downloadUpdate: () => void; restartAndApply: () => void }
+}
+
+function DataUpdateControls({ status, controls }: DataUpdateControlsProps) {
+  switch (status.state) {
+    case 'idle':
+      return <button onClick={controls.checkForUpdate}>Check for game data updates</button>
+    case 'checking':
+      return <p className="muted">Checking for game data updates…</p>
+    case 'not-available':
+      return (
+        <div className="settings-update-row">
+          <p>Game data is up to date.</p>
+          <button onClick={controls.checkForUpdate}>Check again</button>
+        </div>
+      )
+    case 'available':
+      return (
+        <div className="settings-update-row">
+          <p>
+            New game data is available
+            {status.remoteMeta.gw2Build !== null ? ` (build ${status.remoteMeta.gw2Build})` : ''}.
+          </p>
+          <button onClick={controls.downloadUpdate}>Download update</button>
+        </div>
+      )
+    case 'downloading':
+      return (
+        <div className="settings-update-row">
+          <p className="muted">Downloading game data… {status.percent}%</p>
+          <div className="progress-bar">
+            <div className="progress-bar-fill" style={{ width: `${status.percent}%` }} />
+          </div>
+        </div>
+      )
+    case 'downloaded':
+      return (
+        <div className="settings-update-row">
+          <p>Game data downloaded and ready — restart to apply.</p>
+          <button onClick={controls.restartAndApply}>Restart now</button>
+        </div>
+      )
+    case 'error':
+      return (
+        <div className="settings-update-row">
+          <p className="error-text">Game data check failed: {status.message}</p>
+          <button onClick={controls.checkForUpdate}>Try again</button>
+        </div>
+      )
+  }
 }
 
 function UpdateControls({ status }: { status: UpdateStatus }) {

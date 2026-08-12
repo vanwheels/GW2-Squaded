@@ -13,8 +13,10 @@ Run it with:
 npm run fetch-game-data
 ```
 
-Re-run it manually whenever a balance patch changes trait/skill values. There's no automatic
-refresh yet — see TODO.md.
+Re-run it manually (along with the wiki-sourced scripts documented further down this file, as
+needed) whenever a balance patch changes trait/skill values, then commit the regenerated
+`data/game-data/*.json`. That commit **is** the publish step for the in-app refresh mechanism —
+see "In-app game-data refresh" below; there's nothing further to run or upload.
 
 ## Endpoints used
 
@@ -96,11 +98,61 @@ needing to run the fetch script immediately:
 - `soulbeast-beastmode.json` — see "Soulbeast's Beastmode F1-F3" below; sourced from the wiki, not
   `fetch-game-data.ts`
 - `familiars.json` — Elementalist Evoker familiars; see below
-- `meta.json` — just `{ fetchedAt }`, so the app/UI can eventually surface "game data last
-  updated on ..." somewhere.
+- `meta.json` — `{ fetchedAt, gw2Build }`. `gw2Build` is the GW2 API's own `/v2/build` id at fetch
+  time (added 2026-08-11; `null` on copies fetched before this field existed — the app's update
+  check falls back to comparing `fetchedAt` in that case). Surfaced in the Settings tab and used
+  as the freshness signal for the in-app refresh mechanism below.
 - `skill-coefficient-verification.json` / `target-count-verification.json` /
   `balance-patch-verification.json` — **not read by the app at runtime**, unlike every file above.
   See "Wiki-verification audit trail" below.
+
+## In-app game-data refresh
+
+Built 2026-08-11, closing TODO.md's "Automatic game-data refresh mechanism" item (**Option C —
+static-publish**, chosen 2026-08-07). Lets a packaged app pick up a regenerated
+`data/game-data/*.json` without waiting for a new app-binary release.
+
+**Publish side — nothing to run.** `data/game-data/*.json` is already committed to this public
+repo (see `repo_now_public_for_autoupdate` in project memory), so the moment a curation session
+commits+pushes a regenerated file to `main`, it's already fetchable at
+`https://raw.githubusercontent.com/vanwheels/GW2-Squaded/main/data/game-data/<file>` — no worker
+endpoint, no build/upload step, no new ops surface. `src/main/game-data/data-update.ts` hardcodes
+that owner/repo/branch (kept in sync by hand with `electron-builder.yml`'s own `publish` config,
+which points app-binary releases at the same repo).
+
+**Consume side:**
+- `src/main/game-data/load-game-data.ts`'s `resolveDataDir()` prefers a writable
+  `<userData>/game-data/` override directory over the bundled/dev copy whenever that override's own
+  `meta.json` exists — the override dir's presence alone (not any comparison) is what makes it
+  authoritative, so a completed download takes effect without touching the bundled copy at all
+  (not writable once packaged anyway).
+- **Check**: fetches the remote `meta.json` and compares its `gw2Build` against the local copy's
+  (falling back to `fetchedAt` if either is `null` — see `data-update-provider.ts`'s
+  `GameDataMeta` doc comment for why `gw2Build` is preferred). Fired once automatically on launch
+  (`ready-to-show`, from `src/main/index.ts`) — TODO.md's decided "check on launch, prompt the
+  user, never a silent background download" contract — and again on demand from the Settings tab.
+  A found update surfaces as a small badge on the NavBar's Settings tab (`NavBar.tsx`) plus the
+  full check/download panel in `SettingsView.tsx`, mirroring the app-binary `UpdateControls`
+  section right above it.
+- **Download**: pulls every file in `GAME_DATA_FILE_NAMES`
+  (`src/shared/game-data/data-files.ts`, hand-synced with `load-game-data.ts`'s own read list —
+  same "duplicated, not shared via tooling" tradeoff as the Worker's `ShareKind`) into a temp
+  directory, `meta.json` last so a partial temp dir never looks complete, then swaps it in for the
+  override directory in one `rm`+`rename` — a failure partway through leaves the previous override
+  (or bundled copy, if this was the first download) untouched rather than a mismatched mix of
+  old/new files.
+- **Apply**: same "downloaded, needs a restart" contract as the app-binary updater — the
+  already-loaded in-memory `GameData` (and every renderer store built from it) stays exactly as it
+  was for the rest of the running session; `SettingsView`'s "Restart now" button calls
+  `app.relaunch()` + `app.exit()`.
+
+**Known gap, not chased further**: `gw2Build` only reflects `scripts/fetch-game-data.ts`'s own
+fetch — the separate wiki-sourced scripts (`fetch-elite-spec-skills.ts`, `fetch-wvw-splits.ts`,
+etc., see their own sections below) don't bump it if run independently of a full
+`fetch-game-data.ts` pass. In practice these are run together in the same curation session per
+this file's own "re-run X too" notes throughout, so `meta.json` still reflects "as of this
+pipeline run" closely enough — but a wiki-only content change committed without also re-running
+`fetch-game-data.ts` wouldn't be detected as an update by this mechanism.
 
 ## Revenant legends (`legends.json`)
 

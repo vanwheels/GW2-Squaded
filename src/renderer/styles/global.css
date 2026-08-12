@@ -68,6 +68,21 @@ button:hover {
   color: var(--accent);
 }
 
+.nav-item {
+  position: relative;
+}
+
+/* Signals a game-data refresh is available (NavBar's Settings tab) — see data-update-store.tsx. */
+.nav-item-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
 .app-content {
   padding: 24px;
 }

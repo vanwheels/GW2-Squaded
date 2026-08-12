@@ -2,6 +2,63 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 142 — Automatic game-data refresh (Option C: static-publish, in-app)
+
+Picked up TODO.md's "Automatic game-data refresh mechanism" item — direction (Option C, "check on
+launch, prompt the user") was already decided (2026-07-31/2026-08-07); this session built it.
+Asked the user one open design question — how the launch-time "prompt" should surface — and they
+picked a NavBar badge on the Settings tab over a dismissible banner or blocking modal.
+
+- **Publish side turned out to need zero new infra**: `data/game-data/*.json` is already committed
+  to this public repo, so the raw GitHub content URL for `main` already *is* the fetchable blob the
+  moment a curation session pushes — no worker endpoint, no upload step. `data-update.ts` hardcodes
+  the same owner/repo electron-builder.yml's `publish` config already uses.
+- **Freshness signal**: added `gw2Build` (the GW2 API's own `/v2/build` id) to `meta.json`,
+  fetched by `fetch-game-data.ts` alongside everything else. Chosen over comparing `fetchedAt`
+  alone specifically because `fetchedAt` bumps on every pipeline re-run even for a curation-only
+  tweak that touches no `data/game-data/*.json` content — `gw2Build` only changes on a real game
+  update. The live repo's `meta.json` predates this field (`fetchedAt` only) — rather than
+  fabricate a historical build number for it, left `gw2Build: null` there and added a fallback:
+  the update-check compares `fetchedAt` instead whenever either side is `null`, so an existing
+  local copy still gets offered the first real refresh once one is published.
+- **Consume side** (`src/main/game-data/`):
+  - `load-game-data.ts`'s `resolveDataDir()` now prefers a writable `<userData>/game-data/`
+    override directory over the bundled/dev copy whenever that override's own `meta.json` exists.
+  - `data-update.ts`: `checkForUpdate` compares local vs. remote `meta.json`;
+    `downloadUpdate` pulls every file in the new `GAME_DATA_FILE_NAMES` list
+    (`src/shared/game-data/data-files.ts`, hand-synced with `load-game-data.ts`'s own read list —
+    same tradeoff as the Worker's `ShareKind`) into a temp directory, `meta.json` last, then
+    swaps it in for the override directory in one `rm`+`rename` — a failure partway through never
+    leaves a mismatched mix of old/new files.
+  - Same "downloaded, needs a restart" contract as the existing app-binary updater — the
+    already-loaded in-memory `GameData` stays exactly as it was until `SettingsView`'s "Restart
+    now" button (`app.relaunch()` + `app.exit()`).
+- **IPC/UI**, mirroring the app-binary updater's own shape end-to-end: `DataUpdateIpcChannel` +
+  `DataUpdateProvider` (`src/shared/game-data/`), `registerDataUpdateIpc` (returns a
+  `runAutoCheck` the main process fires once on `ready-to-show`), `window.gw2DataUpdate` preload
+  bridge, a new `DataUpdateStoreProvider` React context (`src/renderer/state/data-update-store.tsx`,
+  mounted in `App.tsx` alongside the other cross-cutting providers) so `NavBar`'s badge and
+  `SettingsView`'s full check/download panel share one status rather than each subscribing
+  independently, and a new "Game data" panel in `SettingsView.tsx` parallel to "Updates".
+- Manually patched the live `data/game-data/meta.json` to add the new `gw2Build` field —
+  confirmed live via a direct `/v2/build` call (returned 205299) before touching anything, then
+  left the field `null` anyway rather than backdating today's build number onto an 11-day-old
+  `fetchedAt` (that would misrepresent what build the data was actually fetched at — see the
+  fallback-comparison reasoning above for why `null` here doesn't break the check).
+- Also fixed stale TODO.md text: the item's own "Curation-side change detection" sub-bullet said
+  "not yet built — direction only," but that was actually already closed in Session 121
+  (`fetch-balance-patch-changes.ts`) — a separate, already-done piece of the same TODO entry that
+  just hadn't been reconciled with the checklist wording.
+- `npm run typecheck`/`lint`/`build` all clean.
+- **Known gap, not chased further**: `gw2Build` only reflects `fetch-game-data.ts`'s own fetch —
+  the separate wiki-sourced scripts (`fetch-elite-spec-skills.ts`, `fetch-wvw-splits.ts`, etc.)
+  don't bump it if run independently. In practice these are run together in the same curation
+  session per `docs/game-data.md`'s own "re-run X too" notes throughout, so this is close enough,
+  but a wiki-only content change committed without also re-running `fetch-game-data.ts` wouldn't
+  be detected as an update by this mechanism. Also unverified in the live packaged app (same
+  Electron-sandbox limitation as ever — see project memory); typecheck/lint/build clean is the
+  fallback confirmation for now.
+
 ## Session 141 — Tooltip visual pass: icon-in-header + rarity-colored titles (traits/skills/gear upgrades)
 
 First slice of the "dedicated visual pass over every tooltip type" TODO item. Visually confirmed

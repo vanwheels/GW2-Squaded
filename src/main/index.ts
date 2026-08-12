@@ -4,6 +4,7 @@ import { is } from '@electron-toolkit/utils'
 import { createSqliteStorage } from './storage/sqlite-storage'
 import { registerStorageIpc } from './ipc/storage-ipc'
 import { registerGameDataIpc } from './ipc/game-data-ipc'
+import { registerDataUpdateIpc } from './ipc/data-update-ipc'
 import { registerCaptureIpc } from './ipc/capture-ipc'
 import { registerUpdaterIpc } from './updater/auto-updater'
 
@@ -49,6 +50,11 @@ app.whenReady().then(() => {
     mainWindow = null
   })
   registerUpdaterIpc(() => mainWindow)
+  const { runAutoCheck } = registerDataUpdateIpc(() => mainWindow)
+  // "Check on launch, prompt the user" (TODO.md's decided contract for this feature) — fired once
+  // `ready-to-show` so the check's own IPC push doesn't race the renderer's status subscription,
+  // which only wires up after React mounts.
+  mainWindow.once('ready-to-show', runAutoCheck)
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

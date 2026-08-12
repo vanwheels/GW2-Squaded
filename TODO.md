@@ -53,45 +53,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       (`Infusion.attribute`/`.value`); (3) a "optimize runes/infusions" toggle in
       `GearOptimizerPanel.tsx`, parallel to the existing "optimize food/utility" checkbox.
 
-- [ ] Automatic game-data refresh mechanism (balance patches) — manual refresh only for now.
-      Decided 2026-07-31: check for updates on app launch, prompt the user to refresh (not a silent
-      background refresh) — user stays in control. `data/game-data/meta.json` only records
-      `fetchedAt`, not a GW2 API build/version number, so "is there a new patch" isn't detectable
-      yet under either option below; fetching `/v2/build` (a single integer) and comparing to a
-      stored last-known value is needed regardless of which is chosen.
-      - **Option A — live re-scrape in-app**: bundle the existing `scripts/fetch-*.ts` pipeline into
-        the packaged app. Bigger lift — those scripts assume a dev Node environment and write
-        straight to the repo, not a packaged app's writable user-data directory, and wiki-scraping
-        from a shipped consumer app is fragile.
-      - **Option B — piggyback on the auto-updater**: "new data" just means "new app version" —
-        reuse the Settings-tab update flow already shipped (`src/main/updater/auto-updater.ts`).
-        Simpler, but a data-only fix still requires a full version bump/release.
-      - **Option C — static-publish the generated JSON, chosen 2026-08-07**: not a real queryable
-        API (no query logic, no auth, no rate limiting to design) — whenever
-        `scripts/fetch-*.ts`/the wiki-extraction pipeline (built out and closed, see COMPLETED.md
-        Sessions 110-122) regenerates `data/game-data/*.json`, publish that blob somewhere fetchable and have
-        the app pull it on the same launch-time "check for updates, prompt the user" flow already
-        decided above, instead of requiring a new app binary for a data-only fix. Reuses
-        already-running infra rather than standing up anything new: either a new endpoint on the
-        existing `worker/` (Cloudflare Worker, currently just the build-share KV store) or simply the
-        public repo's raw GitHub content URL (already public to support electron-updater). Chosen
-        specifically because it decouples data-freshness
-        from release cadence for both desktop (GitHub Releases lag) and the still-scoped Capacitor
-        mobile port (App Store/Play Store review lag is worse) — solves Option A/B's shared weakness
-        without their downsides: the app stays local-first/offline-capable (still reads its local
-        cache when there's no network; this only changes how that cache gets refreshed), and there's
-        no new ops burden (no server logic, no uptime/auth surface — a static blob, not a live API).
-      - **Curation-side change detection** (separate question, direction chosen 2026-08-04): how
-        *we* learn a patch changed a coefficient we've already curated, so the curated tables don't
-        silently go stale. Official forums are too vague to parse reliably (confirmed via the
-        Renegade trait rework — several changes are prose-only, no stated number). Better source:
-        the wiki's Game_updates page and per-patch subpages, which give diffable
-        `"X coefficient from A to B"` text — fetch the index, pull raw wikitext for patches newer
-        than our last check, regex for "coefficient from," cross-reference matched skill names
-        against curated tables. **Known limitation**: prose-only reworks (moving a bonus between
-        traits, changing a trait's own %) produce no diffable signal — still needs a human read or
-        a periodic trait re-review. Not yet built — direction only.
-
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around
       dodging). Splits into two different problems on investigation:
@@ -140,8 +101,12 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
 
 - [ ] Stretch, deferred 2026-08-01: frame a build's "last updated" (shown today as a plain relative
       timestamp) relative to GW2 balance patches instead — e.g. "not reviewed since the last patch."
-      Blocked on the same `/v2/build`-polling mechanism the item above needs; revisit once that's
-      decided rather than building a second parallel patch-tracking path.
+      Was blocked on a `/v2/build`-polling mechanism not existing yet; that's no longer true as of
+      2026-08-11's in-app game-data refresh (`src/main/game-data/data-update.ts` now fetches and
+      compares `/v2/build` via `meta.json`'s `gw2Build` — see `docs/game-data.md`'s "In-app
+      game-data refresh" section). Not itself built — this stretch item can now reuse that same
+      `gw2Build` value (the currently-loaded local `meta.json`'s, via `getLocalMeta()`) instead of
+      polling a second, parallel patch-tracking path.
 
 ## Coefficient curation — remaining exceptions
 

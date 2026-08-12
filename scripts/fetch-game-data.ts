@@ -358,6 +358,9 @@ function normalizeItemStat(raw: RawItemStat): ItemStat {
 async function main(): Promise<void> {
   await mkdir(OUTPUT_DIR, { recursive: true })
 
+  console.log('Fetching build id...')
+  const { id: gw2Build } = await fetchJsonWithRetry<{ id: number }>(`${API_BASE}/build`)
+
   console.log('Fetching professions...')
   const professions = (await fetchAllRecords<string, RawProfession>('professions')).map(normalizeProfession)
 
@@ -433,7 +436,11 @@ async function main(): Promise<void> {
     writeFile(join(OUTPUT_DIR, 'familiars.json'), JSON.stringify(familiars, null, 2)),
     writeFile(
       join(OUTPUT_DIR, 'meta.json'),
-      JSON.stringify({ fetchedAt: new Date().toISOString() }, null, 2)
+      // gw2Build is the GW2 API's own `/v2/build` id at fetch time — the freshness signal the
+      // in-app data-update check (src/main/game-data/data-update.ts) compares against, since it
+      // only changes on a real game update (unlike fetchedAt, which bumps on every re-run even
+      // for a curation-only tweak that touches no data/game-data/*.json content at all).
+      JSON.stringify({ fetchedAt: new Date().toISOString(), gw2Build }, null, 2)
     )
   ])
 

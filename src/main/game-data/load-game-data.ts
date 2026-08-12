@@ -1,7 +1,8 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { app } from 'electron'
 import type { Fact, GameData, Skill } from '@shared/types'
+import type { GameDataMeta } from '@shared/game-data/data-update-provider'
 
 let cached: GameData | null = null
 
@@ -11,13 +12,31 @@ let cached: GameData | null = null
 // data/game-data/ as an `extraResources` entry (outside app.asar, since native-module-adjacent
 // resources and large static data don't need to go through the archive), landing at
 // process.resourcesPath/data/game-data.
-const DATA_DIR = app.isPackaged
+const BUNDLED_DATA_DIR = app.isPackaged
   ? join(process.resourcesPath, 'data', 'game-data')
   : join(__dirname, '..', '..', 'data', 'game-data')
 
+// A downloaded game-data refresh (src/main/game-data/data-update.ts) writes a full replacement
+// copy here, in the writable userData directory, rather than overwriting BUNDLED_DATA_DIR (not
+// writable once packaged, and overwriting a repo-committed dev copy would be a confusing git-status
+// surprise). Preferred over BUNDLED_DATA_DIR whenever present — its own meta.json's presence is
+// what marks it "complete" (downloadUpdate() writes every other file first, meta.json last).
+export const OVERRIDE_DATA_DIR = join(app.getPath('userData'), 'game-data')
+
+function resolveDataDir(): string {
+  return existsSync(join(OVERRIDE_DATA_DIR, 'meta.json')) ? OVERRIDE_DATA_DIR : BUNDLED_DATA_DIR
+}
+
 function readJson<T>(fileName: string): T {
-  const filePath = join(DATA_DIR, fileName)
+  const filePath = join(resolveDataDir(), fileName)
   return JSON.parse(readFileSync(filePath, 'utf-8')) as T
+}
+
+/** The currently-active copy's `meta.json` — read fresh every call (unlike `loadGameData()`,
+ *  never cached), since the update-check flow needs it to reflect a just-downloaded override
+ *  without requiring a restart first. */
+export function loadLocalMeta(): GameDataMeta {
+  return readJson<GameDataMeta>('meta.json')
 }
 
 /**
