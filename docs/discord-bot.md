@@ -147,20 +147,31 @@ per-command permission UI, not by `action_permissions`):
 
 | Command | Notes |
 | --- | --- |
-| `/buildAdd [Build Name] [Link]` | `[Link]` must resolve via the existing `GET /shares/:id` and pass `isLikelyBuild` — rejected otherwise. Profession is derived from the fetched data, never typed by the user. Appended to the end of that profession's section. |
+| `/buildAdd [Link] [Build Name?]` | `[Link]` must resolve via the existing `GET /shares/:id` and pass `isLikelyBuild` — rejected otherwise. Profession is derived from the fetched data, never typed by the user. `[Build Name]` is optional — if omitted, falls back to the fetched `Build`'s own `name` field (`src/shared/types/build.ts:111`), so a build that was already named in the desktop app needs no retyping. Appended to the end of that profession's section. |
 | `/buildRemove [Build Name]` | |
 | `/buildEdit [Build Name] [new name?] [new link?]` | Both optional. **Edge case**: if the new link resolves to a *different* profession than the original, the entry moves sections — removed from the old board message, appended to the new one, both `PATCH`ed. |
 | `/buildMove [Build Name] [position]` | Numeric slot within that build's own profession section. Subject to approval gating in Manual mode, same as add/edit/remove — decided against treating it as always-immediate, for one consistent rule admins don't have to special-case. |
 
-**Squads** — `/squadAdd`, `/squadRemove`, `/squadEdit`, same shape, no `/squadMove` (add-order
-stands for v1; the "one running list" layout was chosen over profession-style categories or a
-freeform per-add tag, since squads have no natural fixed taxonomy the way professions do).
+**Squads** — `/squadAdd [Link] [Squad Name?]`, `/squadRemove`, `/squadEdit`, same shape (name
+optional, falls back to the fetched `SquadCompSharePayload.squadComp.name`), no `/squadMove`
+(add-order stands for v1; the "one running list" layout was chosen over profession-style
+categories or a freeform per-add tag, since squads have no natural fixed taxonomy the way
+professions do).
 
-**Display** — `/buildDisplay [Build Name]`, `/squadDisplay [Squad Name]`. Posts a text-only
-embed: profession/elite spec, weapons, utility skills, trait lines + selected traits, gear
-stat/rune/sigil summary for builds; roster-by-party breakdown for squads. No image, no hover —
-Discord has no tooltip mechanism, so this is the honest flattened equivalent of the desktop
-app's tooltip content. See "Rendered images" below for why a visual version isn't v1.
+**Display** — `/buildDisplay [Build Name?] [Link?]`, `/squadDisplay [Squad Name?] [Link?]`. Both
+arguments optional, but exactly one must be given: `[Name]` looks up an existing board entry by
+its stored `share_id`; `[Link]` renders an ad-hoc preview of *any* share link, including one
+that was never added to the board at all — same rendering path either way, just a different
+source for which share to fetch. Posts a text-only embed: profession/elite spec, weapons,
+utility skills, trait lines + selected traits, gear stat/rune/sigil summary for builds;
+roster-by-party breakdown for squads. No image, no hover — Discord has no tooltip mechanism, so
+this is the honest flattened equivalent of the desktop app's tooltip content. See "Rendered
+images" below for why a visual version isn't v1.
+
+Because `/buildAdd`/`/buildDisplay` both start from "fetch and validate a share link," the
+fetch+validate+shape-into-embed-fields logic is one shared function, not duplicated — `/buildAdd`
+uses it to derive the default name/profession before writing a row, `/buildDisplay` uses it
+straight through to render, whether or not that link is on the board.
 
 ## Approval workflow (Manual mode)
 
@@ -207,6 +218,37 @@ unbuilt.
   for e.g. "only Guild Leader approves removes" shows up.
 - **Squad reordering / categorization.** `/squadAdd` has no category argument and there's no
   `/squadMove`; the board is a single add-ordered list.
+
+## Phased build order
+
+This is the largest single feature scoped in this project so far — closer to standing up a
+small independent service than a typical feature session. Four phases, each independently
+shippable/testable, matching this project's established pattern of doing one piece of a large
+effort at a time rather than chaining straight through (see the "pacing large sweeps" memory
+convention from other multi-part sweeps in this project). Each phase's own doc-comment/commit
+should update this section's checkbox when done.
+
+- [ ] **Phase 1 — foundational plumbing.** Discord application registration (public key, bot
+      token), the `/interactions` route with Ed25519 signature verification and the
+      `PING`/`PONG` handshake (Discord won't accept the endpoint URL in its Developer Portal
+      until this works), the D1 database and its bindings, and a command-registration script
+      that keeps Discord's slash-command definitions in sync with what the bot actually handles.
+      Nothing user-facing yet — this phase is done when Discord successfully validates the
+      endpoint and an empty/no-op command round-trips.
+- [ ] **Phase 2 — core CRUD + board sync, Automatic mode only.** `/buildAdd`/`Edit`/`Remove`/
+      `Move`, `/squadAdd`/`Edit`/`Remove`, `/buildBoardSetup`/`Rebuild` + squad equivalents,
+      `/buildBoardConfig setPermission`. No approval workflow, no `/*Display` — every mutating
+      command executes immediately once the caller's role checks out. **This phase alone is a
+      usable v1** — a curated, permissioned board with no display/approval polish. Good candidate
+      for an actual release checkpoint before continuing.
+- [ ] **Phase 3 — approval workflow.** `pending_requests`, `/buildBoardConfig approvalMode` /
+      `setApproverRole` / `approvalsChannel`, the Approve/Reject button interactions and the
+      permission re-check on click. Layers entirely on top of Phase 2's write paths without
+      changing them (Automatic mode keeps working exactly as before).
+- [ ] **Phase 4 — display + game-data resolution.** Bundling a synced slice of
+      `data/game-data/*.json` into the worker (the real unknown-sized piece of this whole
+      project — see "The game-data gap this surfaces" above), then `/buildDisplay`/
+      `/squadDisplay` built on top of it, including the link-only ad-hoc preview path.
 
 ## Status
 
