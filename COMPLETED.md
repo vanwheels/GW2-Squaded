@@ -2,6 +2,32 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 149 — Conditional trait-attribute bonuses, leg 1: Fury-gated Ferocity/Condition-Damage
+
+Picks up TODO.md's new "Conditional trait-attribute bonuses — remaining families" checklist (the
+8-family backlog Session 148 flagged) at the cheapest family first: traits whose flat bonus only
+applies under Fury and targets a raw attribute (Ferocity/Condition Damage) rather than critical-hit
+chance — a direct sibling of the already-existing `FURY_CRIT_CHANCE_TRAIT_BONUSES` family, so no new
+`CombatState` field or UI was needed, just a second table plus wiring.
+
+Added `combat-state.ts`'s `FURY_ATTRIBUTE_TRAIT_BONUSES`/`furyAttributeTraitBonus`, wiki-verified via
+raw wikitext (`?action=raw`, cross-checked against each trait's own `AttributeAdjust` fact in
+`traits.json`): No Scope (Guardian, id 1923, +150 Ferocity), Raging Storm (Elementalist, id 214, +180
+Ferocity), Deep Strikes (Warrior, id 1343, +180 Condition Damage), Vicious Quarry (Ranger, id 1888,
++250 Ferocity), No Quarter (Thief, id 1904, +300 Ferocity — genuine PvE/WvW split, PvE is 250).
+`combatStatePoints` now takes a `traitsById` param and folds these in when `state.furyActive`, same
+path Might/stacking-sigil already use; both call sites (`derived-stats.ts`, `gear-optimize.ts`)
+updated. Also exported `trait-attributes.ts`'s previously-private `activeTraitIds` helper and
+refactored `furyCritChanceTraitBonus` to use it instead of re-implementing the same active-trait
+gating inline — removes duplicated logic, same behavior.
+
+`npm run typecheck`/`lint`/`build` all clean. No dedicated unit tests exist for this calc layer
+(confirmed via glob); not visually spot-checked in the running app (Electron sandbox limitation).
+TODO.md's new entry updated to mark this family done; 7 families remain, each scoped with its
+candidate trait list and what new `CombatState` plumbing it needs — next session picks up wherever
+the user wants (weapon-equipped-gated and the two Might-stack-scaling traits need no new UI either,
+same low-cost shape as this leg).
+
 ## Session 148 — Trait attribute bonus sweep complete (Thief leg, final of 9 professions)
 
 Closes TODO.md's "Curate more trait attribute bonuses" entry, open since 2026-08-12. Swept

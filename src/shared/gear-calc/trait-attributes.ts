@@ -421,8 +421,10 @@ const CURATED_CONVERSIONS: TraitConversion[] = [
 /**
  * Every trait currently active on a build: every Minor trait of an equipped specialization line
  * (auto-granted, no selection needed) plus whichever Major trait was actually chosen per tier.
+ * Exported for reuse by `combat-state.ts`'s fury-gated trait-bonus tables, which need the exact
+ * same "is this trait live on this build" check.
  */
-function activeTraitIds(build: Build, traitsById: Map<number, Trait>): Set<number> {
+export function activeTraitIds(build: Build, traitsById: Map<number, Trait>): Set<number> {
   const active = new Set<number>()
   for (const line of build.specializations) {
     if (!line) continue

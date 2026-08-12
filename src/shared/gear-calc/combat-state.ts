@@ -1,5 +1,6 @@
 import type { Build, EquipmentSlotKey, Trait } from '../types'
 import { ALL_CORE_ATTRIBUTE_KEYS, isActiveWeaponSlot } from './attribute-totals'
+import { activeTraitIds } from './trait-attributes'
 
 /**
  * Ephemeral "what-if" combat inputs for the Stats panel — deliberately never persisted on `Build`
@@ -106,25 +107,57 @@ export const FURY_CRIT_CHANCE_TRAIT_BONUSES: Record<number, number> = {
 }
 
 /**
- * Sums every curated fury-crit trait bonus actually active on this build: the trait's
- * specialization line must be equipped, and — for a Major trait (player-chosen, unlike a Minor
- * trait which is auto-granted just by equipping the line) — it must be the specific trait chosen
- * for that tier. Only meaningful when combined with `combatState.furyActive` by the caller (this
- * function doesn't know about `CombatState` at all, matching `boonDurationPercent`'s "raw
- * ingredient" shape rather than a fully-derived value).
+ * Sums every curated fury-crit trait bonus actually active on this build (via `activeTraitIds`).
+ * Only meaningful when combined with `combatState.furyActive` by the caller (this function doesn't
+ * know about `CombatState` at all, matching `boonDurationPercent`'s "raw ingredient" shape rather
+ * than a fully-derived value).
  */
 export function furyCritChanceTraitBonus(build: Build, traitsById: Map<number, Trait>): number {
-  const equippedSpecIds = new Set(build.specializations.filter((line) => line !== null).map((line) => line.specializationId))
-  const chosenTraitIds = new Set(
-    build.specializations.flatMap((line) => line?.chosenTraitIds.filter((id): id is number => id !== null) ?? [])
-  )
+  const active = activeTraitIds(build, traitsById)
   let bonus = 0
   for (const [traitIdText, value] of Object.entries(FURY_CRIT_CHANCE_TRAIT_BONUSES)) {
-    const traitId = Number(traitIdText)
-    const trait = traitsById.get(traitId)
-    if (!trait || !equippedSpecIds.has(trait.specializationId)) continue
-    if (trait.slot === 'Major' && !chosenTraitIds.has(traitId)) continue
-    bonus += value
+    if (active.has(Number(traitIdText))) bonus += value
+  }
+  return bonus
+}
+
+/**
+ * Trait id -> extra flat attribute point granted while Fury is active, on top of any curated
+ * critical-*chance* bonus above — a sibling family for traits whose Fury-gated bonus instead
+ * targets a raw attribute (Ferocity/Condition Damage). Found via the trait-attribute-bonus sweep
+ * (`trait-attributes.ts`, COMPLETED.md Session 148) — each of these was excluded from that sweep's
+ * unconditional `CURATED_FLAT_BONUSES` table specifically because the bonus only applies under
+ * Fury, same conditional shape as `FURY_CRIT_CHANCE_TRAIT_BONUSES` above. All 5 wiki-verified via
+ * raw wikitext (`?action=raw`) 2026-08-12: No Scope (wiki.guildwars2.com/wiki/No_Scope, Guardian/
+ * Firearms-adjacent, Major) +150 Ferocity, no game-mode split; Raging Storm (wiki.guildwars2.com/
+ * wiki/Raging_Storm, Elementalist, Major) +180 Ferocity, no split; Deep Strikes
+ * (wiki.guildwars2.com/wiki/Deep_Strikes, Warrior, Minor) +180 Condition Damage, no split; Vicious
+ * Quarry (wiki.guildwars2.com/wiki/Vicious_Quarry, Ranger, Major) +250 Ferocity, no split; No
+ * Quarter (wiki.guildwars2.com/index.php?title=No_Quarter_(trait), Thief, Major) — genuine 2-way
+ * split, `{{skill fact|attribute|Ferocity|250|game mode = pve}}` /
+ * `{{skill fact|attribute|Ferocity|300|game mode = pvp wvw}}`, WvW value is 300. `target` uses the
+ * same `CritDamage` key as Ferocity elsewhere in this codebase (matches the raw API fact's own
+ * `target` field).
+ */
+export const FURY_ATTRIBUTE_TRAIT_BONUSES: Record<number, { target: string; value: number }> = {
+  1923: { target: 'CritDamage', value: 150 }, // No Scope (Guardian, Major)
+  214: { target: 'CritDamage', value: 180 }, // Raging Storm (Elementalist, Major)
+  1343: { target: 'ConditionDamage', value: 180 }, // Deep Strikes (Warrior, Minor)
+  1888: { target: 'CritDamage', value: 250 }, // Vicious Quarry (Ranger, Major)
+  1904: { target: 'CritDamage', value: 300 } // No Quarter (Thief, Major) — WvW/PvP value; PvE is 250
+}
+
+/**
+ * Sums every curated fury-attribute trait bonus actually active on this build, grouped by target
+ * attribute (mirrors `furyCritChanceTraitBonus`'s gating, see that function's doc comment). Only
+ * meaningful when combined with `combatState.furyActive` by the caller.
+ */
+export function furyAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>): Record<string, number> {
+  const active = activeTraitIds(build, traitsById)
+  const bonus: Record<string, number> = {}
+  for (const [traitIdText, { target, value }] of Object.entries(FURY_ATTRIBUTE_TRAIT_BONUSES)) {
+    if (!active.has(Number(traitIdText))) continue
+    bonus[target] = (bonus[target] ?? 0) + value
   }
   return bonus
 }
@@ -156,12 +189,13 @@ export function detectActiveStackingSigil(build: Build): ActiveStackingSigil | n
 }
 
 /**
- * Raw core-attribute point deltas contributed by Might and an active stacking sigil, in the same
- * `points` shape `computeGearAttributeTotals` produces — merged into that total by
- * `computeCharacterStats` before deriving the stats-panel values. Fury and the relic bonus don't
- * go through this path since they apply directly to derived stats, not raw attribute points.
+ * Raw core-attribute point deltas contributed by Might, an active stacking sigil, and (while
+ * `state.furyActive`) any curated `FURY_ATTRIBUTE_TRAIT_BONUSES` — in the same `points` shape
+ * `computeGearAttributeTotals` produces — merged into that total by `computeCharacterStats` before
+ * deriving the stats-panel values. Fury's own crit-*chance* bonus and the relic bonus don't go
+ * through this path since they apply directly to derived stats, not raw attribute points.
  */
-export function combatStatePoints(build: Build, state: CombatState): Record<string, number> {
+export function combatStatePoints(build: Build, state: CombatState, traitsById: Map<number, Trait>): Record<string, number> {
   const points: Record<string, number> = {}
   const add = (attribute: string, value: number): void => {
     points[attribute] = (points[attribute] ?? 0) + value
@@ -180,6 +214,10 @@ export function combatStatePoints(build: Build, state: CombatState): Record<stri
     } else {
       add(sigil.attribute, value)
     }
+  }
+
+  if (state.furyActive) {
+    for (const [attribute, value] of Object.entries(furyAttributeTraitBonus(build, traitsById))) add(attribute, value)
   }
 
   return points

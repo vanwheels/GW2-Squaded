@@ -707,8 +707,8 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
   }
 
   const gearTotals = computeGearAttributeTotals(fixedBuild, gameData)
-  const combatPoints = combatStatePoints(build, combatState)
   const traitsById = new Map(gameData.traits.map((t: Trait) => [t.id, t]))
+  const combatPoints = combatStatePoints(build, combatState, traitsById)
   const foodById = new Map(gameData.food.map((f) => [f.id, f]))
   const utilityById = new Map(gameData.utility.map((u) => [u.id, u]))
 

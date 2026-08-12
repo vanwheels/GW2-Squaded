@@ -68,6 +68,55 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       `gw2Build` value (the currently-loaded local `meta.json`'s, via `getLocalMeta()`) instead of
       polling a second, parallel patch-tracking path.
 
+## Conditional trait-attribute bonuses — remaining families
+
+The trait-attribute-bonus sweep (`trait-attributes.ts`, COMPLETED.md Session 148, closed 2026-08-12)
+only modeled *unconditional* flat bonuses/conversions. Along the way it surfaced 8 distinct families
+of traits whose bonus only applies under some condition — each needs its own new plumbing (usually a
+new `CombatState` toggle) before those traits can be curated at all. One leg per session, same pacing
+as every other sweep here (`pacing_large_sweeps` memory) — do not chain these.
+
+- [x] **Fury-gated Ferocity/Condition-Damage** — done 2026-08-12, see COMPLETED.md. No Scope
+      (Guardian, id 1923), Raging Storm (Elementalist, id 214), Deep Strikes (Warrior, id 1343),
+      Vicious Quarry (Ranger, id 1888), No Quarter (Thief, id 1904) — all wiki-verified, live in
+      `combat-state.ts`'s `FURY_ATTRIBUTE_TRAIT_BONUSES`/`furyAttributeTraitBonus`, sibling to the
+      already-existing `FURY_CRIT_CHANCE_TRAIT_BONUSES` family. No new UI — reuses the existing
+      `CombatState.furyActive` toggle.
+- [ ] **Boon-gated flat bonuses** (Regeneration/Quickness) — Chaotic Persistence, Sharpening Sorrow
+      (Mesmer, Regeneration-gated), Energy Amplifier (Engineer, Regeneration-gated), Imbued Haste
+      (Guardian/Firebrand, Quickness-gated), Be Quick or Be Killed (Thief, Quickness-gated). Needs a
+      generalized "which boons are up" `CombatState` toggle (or one boolean per boon, mirroring
+      `furyActive`) plus new UI in `CombatStatePanel.tsx`.
+- [ ] **Weapon-equipped-gated flat bonuses** — derivable from `build.equipment` +
+      `isActiveWeaponSlot` (already exist in `attribute-totals.ts`, no new `CombatState` field
+      needed, same as this session's family needed none). Candidates flagged across the sweep:
+      Right-Hand Strength/Zealous Blade/Stalwart Defender (Guardian), Honed Axes/Arachnophobia/
+      Strider's Strength (Ranger), Swindler's Equilibrium/Dagger Training/Staff Master/Second Opinion
+      (Thief), Blademaster/Axe Mastery/Ambidexterity (Warrior, per Session 148's summary — re-verify
+      against `traits.json`/wiki before curating, some of these may already be fully captured as
+      unconditional in `CURATED_FLAT_BONUSES` and only have a *second*, separate weapon-gated fact;
+      don't assume the Session 148 list is authoritative without a fresh check).
+- [ ] **Attunement-gated flat bonuses** (Elementalist only) — Empowering Flame (+150 Power, fire),
+      Aeromancer's Training's excluded half (+150 Ferocity, air). Needs a new "current attunement"
+      `CombatState` field + UI, Elementalist-only.
+- [ ] **Shroud/stance-gated flat bonuses** — Reaper's Onslaught (+300 Ferocity, Reaper's Shroud),
+      Sand Sage (Concentration+Expertise, active shade), Fatal Frenzy (Power+Condition Damage,
+      berserk mode). Needs a per-profession "mechanic active" `CombatState` toggle + UI.
+- [ ] **Revealed-state-gated flat bonuses** (Thief only) — Revealed Training's excluded half
+      (+120/150 Power while Revealed). Needs a new boolean `CombatState` field + UI, Thief-only.
+- [ ] **Health-threshold-conditional flat bonuses** — Empire Divided (Revenant, already the sweep's
+      prototype example for this shape), Last Rites (Necromancer, 3 tiers below 75%/50% health).
+      Needs a health-% `CombatState` field (slider or preset tiers) + UI.
+- [ ] **Continuous stack-scaling flat bonuses** (Might-based, no threshold cutoff — distinct from the
+      already-modeled flat Might Power/ConditionDamage bonus in `combatStatePoints`) — Deadly
+      Strength (Necromancer, per Carapace stack — note: Carapace, not Might, needs its own stack
+      concept), Awaken the Pain (Necromancer, per Might stack), Pinnacle of Strength (Warrior, per
+      Might stack). The Might-stack ones can reuse the existing `CombatState.mightStacks` field
+      directly, no new UI needed for those two; Deadly Strength needs a new Carapace-stack field.
+      Also related but a different single-threshold shape (not continuous): Engineer's Applied Force
+      (Power gated on a might-stack *count* cutoff) — check whether it fits this family or needs its
+      own single-breakpoint treatment.
+
 ## Coefficient curation — remaining exceptions
 
 `CURATED_HEALING_COEFFICIENTS` and `CURATED_DAMAGE_COEFFICIENTS` are now complete sweeps across all

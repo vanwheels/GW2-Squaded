@@ -155,7 +155,7 @@ export function computeCharacterStats(
   const traitsById = new Map(gameData.traits.map((t) => [t.id, t]))
   const foodById = new Map(gameData.food.map((f) => [f.id, f]))
   const utilityById = new Map(gameData.utility.map((u) => [u.id, u]))
-  const combatPoints = combatStatePoints(build, combatState)
+  const combatPoints = combatStatePoints(build, combatState, traitsById)
 
   // Single unified totals: base + gear/rune/food/utility + combat state, then every active
   // trait's flat AttributeAdjust bonus and BuffConversion (e.g. Revenant/Salvation's "Life
