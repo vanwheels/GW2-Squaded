@@ -2,9 +2,11 @@ import type { Build } from '@shared/types'
 import {
   CURATED_RELIC_DAMAGE_BONUSES,
   detectActiveStackingSigil,
+  MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES,
   type CombatState,
   type TargetArmorClass
 } from '@shared/gear-calc/combat-state'
+import { activeTraitIds } from '@shared/gear-calc/trait-attributes'
 import { BOON_CONDITION_ICONS, DAMAGE_ICON } from '@shared/boon-calc/icons'
 import { useGameData } from '@renderer/state/game-data-store'
 
@@ -27,18 +29,25 @@ function iconClass(active: boolean): string {
 /**
  * Icon-based controls for `CombatState`, rendered inline inside `StatsPanel` to the right of the
  * stat grid. Might/stacking-sigil are steppers (icon + 5-increment dropdown); Fury/Regeneration/
- * Quickness/relic are click-to-toggle icons (no dropdown, boolean on/off); target armor is a
- * 3-option dropdown (not a stepper — only Light/Medium/Heavy exist, no intermediate values) — see
- * `CombatState`'s doc comment for why each field takes the shape it does.
+ * Quickness/relic/mechanic-active are click-to-toggle icons (no dropdown, boolean on/off); target
+ * armor is a 3-option dropdown (not a stepper — only Light/Medium/Heavy exist, no intermediate
+ * values) — see `CombatState`'s doc comment for why each field takes the shape it does.
  */
 export function CombatStatePanel({ build, value, onChange }: Props) {
-  const { sigilsById, relicsById } = useGameData()
+  const { sigilsById, relicsById, traitsById } = useGameData()
 
   const stackingSigil = detectActiveStackingSigil(build)
   const sigilIcon = stackingSigil ? sigilsById.get(stackingSigil.sigilId)?.icon : undefined
 
   const relicHasCuratedBonus = build.relicId !== null && build.relicId in CURATED_RELIC_DAMAGE_BONUSES
   const relicIcon = relicHasCuratedBonus && build.relicId !== null ? relicsById.get(build.relicId)?.icon : undefined
+
+  // Only surfaced when the build actually has a curated `mechanicActive`-family trait chosen
+  // (Reaper's Onslaught / Fatal Frenzy / Sand Sage) — every build only ever has one profession's
+  // mechanic to toggle, so this reads the specific trait's own icon/name rather than a generic
+  // Shroud/Berserk/Shade icon (see `combat-state.ts`'s `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`).
+  const activeMechanicTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES)
+  const mechanicTrait = activeMechanicTraitId !== undefined ? traitsById.get(activeMechanicTraitId) : undefined
 
   return (
     <div className="combat-state-controls">
@@ -83,6 +92,17 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
       >
         <img className={iconClass(value.quicknessActive)} src={BOON_CONDITION_ICONS.Quickness} alt="Quickness" />
       </button>
+
+      {mechanicTrait && (
+        <button
+          type="button"
+          className="combat-state-toggle-icon"
+          title={value.mechanicActive ? `${mechanicTrait.name}: Active` : `${mechanicTrait.name}: Inactive`}
+          onClick={() => onChange({ ...value, mechanicActive: !value.mechanicActive })}
+        >
+          <img className={iconClass(value.mechanicActive)} src={mechanicTrait.icon} alt={mechanicTrait.name} />
+        </button>
+      )}
 
       {stackingSigil && sigilIcon && (
         <div className="combat-state-row">

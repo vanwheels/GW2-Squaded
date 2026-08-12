@@ -21,6 +21,15 @@ export interface CombatState {
   regenerationActive: boolean
   /** Gates `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES` — sibling to `regenerationActive` above. */
   quicknessActive: boolean
+  /** Gates `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES` — the "Shroud/stance-gated flat bonuses"
+   *  family from TODO.md: whether the build's profession mechanic (Necromancer Shroud, Necromancer
+   *  Scourge's active shade, Warrior Berserker's berserk mode, ...) is currently toggled on. One
+   *  boolean covers every profession rather than a per-profession field, same reasoning as
+   *  `furyActive`/`regenerationActive`/`quicknessActive` being single fields even though only some
+   *  traits key off each — a build only ever has one profession's mechanic to toggle at all, so
+   *  `CombatStatePanel` only surfaces this control when a curated trait for the build's own
+   *  profession actually exists. */
+  mechanicActive: boolean
   /** 0-25 stacks of whichever stacking sigil is equipped on the active weapon set, if any — see
    *  `detectActiveStackingSigil`. Meaningless when no stacking sigil is equipped. */
   stackingSigilStacks: number
@@ -39,6 +48,7 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   furyActive: false,
   regenerationActive: false,
   quicknessActive: false,
+  mechanicActive: false,
   stackingSigilStacks: 0,
   relicActive: false,
   targetArmorClass: 'Medium'
@@ -302,6 +312,57 @@ export function quicknessAttributeTraitBonus(build: Build, traitsById: Map<numbe
   return bonus
 }
 
+/**
+ * Trait id -> extra flat attribute points (by target) granted while the build's profession
+ * mechanic is active (Shroud entered / a Sand Shade currently placed / Berserk mode) — the
+ * "Shroud/stance-gated flat bonuses" family from TODO.md, 6th leg of the conditional-trait-
+ * attribute-bonus sweep. Uses the same target-map shape as `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`/
+ * `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES` above (kept uniform across all 3 entries even though Reaper's
+ * Onslaught only grants one attribute) rather than the single-target `{ target, value }` shape
+ * `FURY_ATTRIBUTE_TRAIT_BONUSES` uses. Needed a brand-new `CombatState.mechanicActive` toggle
+ * (unlike the weapon-equipped/attunement legs) since none of these 3 mechanics has a persisted
+ * `Build` field that means "currently active in a fight" — `Build.activeBundleSkillId` tracks
+ * Shroud only as *which skill bar is displayed*, deliberately not gating real totals (same
+ * "player can toggle at will, both states always contribute" reasoning documented on that field),
+ * and Scourge's shade/Berserker's berserk mode have no `Build` field at all. All 3 wiki-verified via
+ * raw wikitext (`?action=raw`) 2026-08-12:
+ * - Reaper's Onslaught (wiki.guildwars2.com/wiki/Reaper's_Onslaught, Necromancer/Reaper, Major tier
+ *   3, id 2021): "Gain ferocity and quickness while in Reaper's Shroud." The Quickness grant is a
+ *   proc buff, not a character-stat gain — out of scope for this table. `{{skill fact|attribute|
+ *   Ferocity|300}}`, no game-mode split.
+ * - Fatal Frenzy (wiki.guildwars2.com/wiki/Fatal_Frenzy, Warrior/Berserker, Minor tier 3, id 2046):
+ *   "Berserk mode increases power and condition damage." Power is a flat +300, no split (confirmed
+ *   by the raw API's single Power `AttributeAdjust` fact). Condition Damage has a genuine 2-way
+ *   split: pve 150 / wvw+pvp 300 (per the 2026-04-14 balance pass — "Reduced the condition damage
+ *   granted from 300 to 150 in PvE only. Increased the power from 150 to 300 in WvW only.", the
+ *   latter clause referring to a since-reverted earlier WvW-only Power change, not the current flat
+ *   Power value). WvW value used here: Condition Damage 300.
+ * - Sand Sage (wiki.guildwars2.com/wiki/Sand_Sage, Necromancer/Scourge, Minor tier 2, id 2121):
+ *   "Gain concentration and expertise when you have an active shade." `split = pve, wvw pvp`,
+ *   genuine 2-way split on both attributes — Concentration (`BoonDuration`) and Expertise
+ *   (`ConditionDuration`) are each 225 PvE, 150 WvW/PvP. WvW value used here: 150 for both.
+ */
+export const MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<string, number>> = {
+  2021: { CritDamage: 300 }, // Reaper's Onslaught (Necromancer/Reaper, Major tier 3) — Ferocity
+  2046: { Power: 300, ConditionDamage: 300 }, // Fatal Frenzy (Warrior/Berserker, Minor tier 3) — WvW value
+  2121: { BoonDuration: 150, ConditionDuration: 150 } // Sand Sage (Necromancer/Scourge, Minor tier 2) — WvW value
+}
+
+/**
+ * Sums every curated mechanic-active trait bonus actually active on this build, grouped by target
+ * attribute (mirrors `regenerationAttributeTraitBonus`/`quicknessAttributeTraitBonus` above). Only
+ * meaningful when combined with `combatState.mechanicActive` by the caller.
+ */
+export function mechanicActiveAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>): Record<string, number> {
+  const active = activeTraitIds(build, traitsById)
+  const bonus: Record<string, number> = {}
+  for (const [traitIdText, targets] of Object.entries(MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES)) {
+    if (!active.has(Number(traitIdText))) continue
+    for (const [target, value] of Object.entries(targets)) bonus[target] = (bonus[target] ?? 0) + value
+  }
+  return bonus
+}
+
 export interface ActiveStackingSigil {
   sigilId: number
   name: string
@@ -332,7 +393,8 @@ export function detectActiveStackingSigil(build: Build): ActiveStackingSigil | n
  * Raw core-attribute point deltas contributed by Might (including any curated
  * `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`), an active stacking sigil, and (while the corresponding
  * `CombatState` boolean is on) any curated `FURY_ATTRIBUTE_TRAIT_BONUSES`,
- * `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`, or `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES` — in the same
+ * `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`, `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES`, or
+ * `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES` — in the same
  * `points` shape `computeGearAttributeTotals` produces — merged into that total by
  * `computeCharacterStats` before deriving the stats-panel values. Fury's own crit-*chance* bonus and
  * the relic bonus don't go through this path since they apply directly to derived stats, not raw
@@ -370,6 +432,10 @@ export function combatStatePoints(build: Build, state: CombatState, traitsById: 
 
   if (state.quicknessActive) {
     for (const [attribute, value] of Object.entries(quicknessAttributeTraitBonus(build, traitsById))) add(attribute, value)
+  }
+
+  if (state.mechanicActive) {
+    for (const [attribute, value] of Object.entries(mechanicActiveAttributeTraitBonus(build, traitsById))) add(attribute, value)
   }
 
   return points

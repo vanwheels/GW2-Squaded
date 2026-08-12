@@ -2,6 +2,42 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 154 — Conditional trait-attribute bonuses, leg 6: Shroud/stance-gated flat bonuses
+
+Picks up TODO.md's checklist at the "Shroud/stance-gated flat bonuses" family: traits whose flat
+attribute bonus only applies while the build's profession mechanic is toggled on (Necromancer Shroud,
+Necromancer Scourge's active Sand Shade, Warrior Berserker's berserk mode). Unlike the previous two
+legs (weapon-equipped-gated, attunement-gated), no persisted `Build` field could be reused here:
+`Build.activeBundleSkillId` tracks Shroud only as *which skill bar is displayed*, deliberately not
+gating real totals (its own doc comment's "player can toggle at will, both states always contribute"
+reasoning), and Scourge's shade/Berserker's berserk mode have no `Build` field at all. So this leg
+needed the genuinely new ephemeral `CombatState` toggle the checklist originally called for — added
+`CombatState.mechanicActive`, a single boolean covering all 3 mechanics (mirrors `furyActive`/
+`regenerationActive`/`quicknessActive`'s "one field, not per-profession" shape, since a build only
+ever has one profession's mechanic to toggle anyway).
+
+Added `combat-state.ts`'s `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`/`mechanicActiveAttributeTraitBonus`
+(same target-map shape as the Regeneration/Quickness families), wired into `combatStatePoints`.
+`gear-optimize.ts` needed no changes — it already threads the whole `CombatState` object through
+`combatStatePoints` generically, same as every other Combat State family. `CombatStatePanel.tsx` gained
+a new click-to-toggle icon, shown only when the build actually has one of the 3 curated traits chosen
+(reads the trait's own icon/name from `traitsById` rather than a generic Shroud/Berserk/Shade icon,
+same conditional-render pattern the relic toggle already uses).
+
+3 traits curated, all wiki-verified via raw wikitext (`?action=raw`) 2026-08-12: **Reaper's Onslaught**
+(Necromancer/Reaper, Major tier 3, id 2021) — "Gain ferocity and quickness while in Reaper's Shroud,"
++300 Ferocity, no game-mode split (the Quickness grant is a proc buff, out of scope). **Fatal Frenzy**
+(Warrior/Berserker, Minor tier 3, id 2046) — "Berserk mode increases power and condition damage,"
+Power flat +300 no split, Condition Damage a genuine 2-way split (pve 150 / wvw+pvp 300 per the
+2026-04-14 balance pass); WvW value 300 used. **Sand Sage** (Necromancer/Scourge, Minor tier 2, id
+2121) — "Gain concentration and expertise when you have an active shade," both attributes split pve
+225 / wvw+pvp 150; WvW value 150 used for both.
+
+`npm run typecheck`/`lint` both clean. No dedicated unit tests exist for this calc layer; not visually
+spot-checked in the running app (Electron sandbox limitation). TODO.md's checklist updated to mark this
+family done; 2 families remain (revealed-state-gated, health-threshold-conditional), both still
+expected to need their own new `CombatState` field.
+
 ## Session 153 — Conditional trait-attribute bonuses, leg 5: Attunement-gated flat bonuses
 
 Picks up TODO.md's "Conditional trait-attribute bonuses — remaining families" checklist at the

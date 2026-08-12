@@ -128,9 +128,17 @@ as every other sweep here (`pacing_large_sweeps` memory) — do not chain these.
       field/UI as this checklist originally assumed — `Build.activeAttunement` already tracks the
       currently-selected attunement (set via the existing F1-F4 `ProfessionMechanicBar` icons), so
       this leg reused persisted `Build` state instead, same shape as the weapon-equipped-gated leg.
-- [ ] **Shroud/stance-gated flat bonuses** — Reaper's Onslaught (+300 Ferocity, Reaper's Shroud),
-      Sand Sage (Concentration+Expertise, active shade), Fatal Frenzy (Power+Condition Damage,
-      berserk mode). Needs a per-profession "mechanic active" `CombatState` toggle + UI.
+- [x] **Shroud/stance-gated flat bonuses** — done 2026-08-12, see COMPLETED.md Session 154. Reaper's
+      Onslaught (Necromancer/Reaper, id 2021, +300 Ferocity), Fatal Frenzy (Warrior/Berserker, id
+      2046, +300 Power/+300 ConditionDamage WvW value), Sand Sage (Necromancer/Scourge, id 2121,
+      +150 BoonDuration/+150 ConditionDuration WvW value) — all wiki-verified, live in
+      `combat-state.ts`'s `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`/
+      `mechanicActiveAttributeTraitBonus`. Needed a genuinely new `CombatState.mechanicActive`
+      boolean (single field covering all 3 mechanics, mirroring `furyActive`'s shape) since none of
+      Shroud/Shade/Berserk-mode has a persisted `Build` field usable as the gate (unlike the
+      weapon-equipped/attunement legs) — `Build.activeBundleSkillId` only tracks which skill bar is
+      displayed for Shroud, deliberately not gating real totals. New toggle icon in
+      `CombatStatePanel.tsx`, shown only when the build has one of the 3 curated traits chosen.
 - [ ] **Revealed-state-gated flat bonuses** (Thief only) — Revealed Training's excluded half
       (+120/150 Power while Revealed). Needs a new boolean `CombatState` field + UI, Thief-only.
 - [ ] **Health-threshold-conditional flat bonuses** — Empire Divided (Revenant, already the sweep's
