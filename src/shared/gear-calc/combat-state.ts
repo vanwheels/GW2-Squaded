@@ -36,6 +36,15 @@ export interface CombatState {
    *  trait so far — `CombatStatePanel` only surfaces this control when the build has a curated
    *  trait for it chosen, same gating as `mechanicActive`. */
   revealedActive: boolean
+  /** Gates `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES` — the "Health-threshold-conditional flat
+   *  bonuses" family from TODO.md, 8th and final leg of the conditional-trait-attribute-bonus sweep.
+   *  A 3-way tier rather than a boolean (unlike every other family here) since the two curated
+   *  traits key off different thresholds (50% for Empire Divided, 75%/50% for Last Rites) — one
+   *  field covers both without needing a raw 0-100 slider, matching how coarse the actual curated
+   *  breakpoints are. Always meaningful (no "which trait is chosen" branch the way `mechanicActive`/
+   *  `revealedActive` need one to pick an icon) since a tier is always selected, just defaults to
+   *  full health. */
+  healthTier: HealthTier
   /** 0-25 stacks of whichever stacking sigil is equipped on the active weapon set, if any — see
    *  `detectActiveStackingSigil`. Meaningless when no stacking sigil is equipped. */
   stackingSigilStacks: number
@@ -56,6 +65,7 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   quicknessActive: false,
   mechanicActive: false,
   revealedActive: false,
+  healthTier: 'above75',
   stackingSigilStacks: 0,
   relicActive: false,
   targetArmorClass: 'Medium'
@@ -401,6 +411,62 @@ export function revealedAttributeTraitBonus(build: Build, traitsById: Map<number
   return bonus
 }
 
+/** 3-way health tier `CombatState.healthTier` distinguishes — coarse enough to cover both curated
+ *  traits' breakpoints (Empire Divided's single 50% threshold, Last Rites' 75%/50% pair) without a
+ *  raw percent slider; see `CombatState.healthTier`'s doc comment. */
+export type HealthTier = 'above75' | 'between50and75' | 'below50'
+
+/**
+ * Trait id -> extra flat attribute points (by target), one entry per `HealthTier`, granted while
+ * the player's own health sits in that tier — the "Health-threshold-conditional flat bonuses"
+ * family from TODO.md, 8th and final leg of the conditional-trait-attribute-bonus sweep. Both
+ * candidates were the sweep's own original prototype examples for this shape; both wiki-verified via
+ * raw wikitext (`?action=raw`) 2026-08-12:
+ * - Empire Divided (wiki.guildwars2.com/wiki/Empire_Divided, Revenant/Vindicator, Minor GM, id 2229):
+ *   single 50% threshold, no game-mode split at all (only a PvP-specific value that has changed
+ *   across balance patches independently of PvE/WvW, irrelevant here since this app only tracks a
+ *   WvW value) — "Gain increased power while above the health threshold. Gain increased healing
+ *   power when below it." Power 240 at/above 50%, Healing 240 below 50%. `between50and75` uses the
+ *   same Power 240 as `above75` since Empire Divided's own threshold is 50%, not 75% — the tier only
+ *   exists to serve Last Rites' finer breakpoint below.
+ * - Last Rites (wiki.guildwars2.com/wiki/Last_Rites, Necromancer/Blood Magic, Major tier 3, id
+ *   1931): `split = pve wvw, pvp`, genuine 2-way split on all 3 tiers — Healing Power is 150/300/450
+ *   PvE+WvW vs. 50/100/150 PvP (above 75% / 75%-50% / below 50% respectively, per the raw API's own
+ *   duplicate `AttributeAdjust` facts per tier). WvW values used here: 150/300/450. The trait's other
+ *   effect (allies near you don't bleed out while downed) is a proc/utility effect, not a character-
+ *   stat gain — out of scope.
+ */
+export const HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<HealthTier, Record<string, number>>> = {
+  2229: {
+    // Empire Divided (Revenant/Vindicator, Minor GM) — WvW value
+    above75: { Power: 240 },
+    between50and75: { Power: 240 },
+    below50: { Healing: 240 }
+  },
+  1931: {
+    // Last Rites (Necromancer/Blood Magic, Major tier 3) — WvW value
+    above75: { Healing: 150 },
+    between50and75: { Healing: 300 },
+    below50: { Healing: 450 }
+  }
+}
+
+/**
+ * Sums every curated health-threshold trait bonus actually active on this build for the given tier,
+ * grouped by target attribute (mirrors `mechanicActiveAttributeTraitBonus`'s shape/gating). Unlike
+ * every prior family here, this isn't gated by a separate boolean — `state.healthTier` itself always
+ * has a value, so this just picks the matching tier's bonus map per curated trait.
+ */
+export function healthThresholdAttributeTraitBonus(build: Build, tier: HealthTier, traitsById: Map<number, Trait>): Record<string, number> {
+  const active = activeTraitIds(build, traitsById)
+  const bonus: Record<string, number> = {}
+  for (const [traitIdText, tiers] of Object.entries(HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES)) {
+    if (!active.has(Number(traitIdText))) continue
+    for (const [target, value] of Object.entries(tiers[tier])) bonus[target] = (bonus[target] ?? 0) + value
+  }
+  return bonus
+}
+
 export interface ActiveStackingSigil {
   sigilId: number
   name: string
@@ -432,8 +498,10 @@ export function detectActiveStackingSigil(build: Build): ActiveStackingSigil | n
  * `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`), an active stacking sigil, and (while the corresponding
  * `CombatState` boolean is on) any curated `FURY_ATTRIBUTE_TRAIT_BONUSES`,
  * `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`, `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES`,
- * `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`, or `REVEALED_ATTRIBUTE_TRAIT_BONUSES` — in the same
- * `points` shape `computeGearAttributeTotals` produces — merged into that total by
+ * `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`, or `REVEALED_ATTRIBUTE_TRAIT_BONUSES` — plus any
+ * curated `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES` for the current `state.healthTier` (always
+ * applied, no separate on/off gate) — in the same `points` shape `computeGearAttributeTotals`
+ * produces — merged into that total by
  * `computeCharacterStats` before deriving the stats-panel values. Fury's own crit-*chance* bonus and
  * the relic bonus don't go through this path since they apply directly to derived stats, not raw
  * attribute points.
@@ -479,6 +547,8 @@ export function combatStatePoints(build: Build, state: CombatState, traitsById: 
   if (state.revealedActive) {
     for (const [attribute, value] of Object.entries(revealedAttributeTraitBonus(build, traitsById))) add(attribute, value)
   }
+
+  for (const [attribute, value] of Object.entries(healthThresholdAttributeTraitBonus(build, state.healthTier, traitsById))) add(attribute, value)
 
   return points
 }

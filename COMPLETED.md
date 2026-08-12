@@ -2,6 +2,51 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 156 — Conditional trait-attribute bonuses, leg 8 (final): Health-threshold-conditional flat bonuses
+
+Closes TODO.md's "Conditional trait-attribute bonuses — remaining families" checklist, the last of
+the 8 families the sweep surfaced (see Session 148). Both candidates were the checklist's own
+original prototype examples for this shape, both wiki-verified via raw wikitext (`?action=raw`)
+2026-08-12:
+
+- **Empire Divided** (Revenant/Vindicator, Minor Grandmaster, id 2229): single 50% health threshold,
+  no game-mode split at all — +240 Power at/above the threshold, +240 Healing Power below it.
+- **Last Rites** (Necromancer/Blood Magic, Major tier 3, id 1931): a genuine 2-way PvE+WvW/PvP split
+  across 3 tiers — +150/+300/+450 Healing Power above 75% / between 50%-75% / below 50% health
+  (PvP-only values differ, irrelevant to this WvW-focused app). Its other effect (allies near you
+  don't bleed out while downed) is a proc/utility effect, out of scope.
+
+Needed a genuinely new `CombatState` field, as the checklist expected, but shaped as a 3-way tier
+(`HealthTier = 'above75' | 'between50and75' | 'below50'`) rather than a raw 0-100 slider — coarse
+enough to cover both traits' differing breakpoints (50% vs. 75%/50%) without over-building. Unlike
+every other family in this sweep, it isn't gated by a separate on/off boolean: `state.healthTier`
+always has a value (defaults to `'above75'`, full health), so `combatStatePoints` applies
+`healthThresholdAttributeTraitBonus` unconditionally rather than behind an `if (state.xActive)`
+check. Added `combat-state.ts`'s `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES`/
+`healthThresholdAttributeTraitBonus` (per-tier target-map shape, mirroring the boon/mechanic
+families' `Record<HealthTier, Record<string, number>>`). `CombatStatePanel.tsx` gained a new
+3-option dropdown (not a toggle icon, matching `targetArmorClass`'s shape since there are more than 2
+states), shown only when the build has one of the 2 curated traits chosen, using that trait's own
+icon/name (same conditional-render pattern as the mechanic-active toggle). `gear-optimize.ts` needed
+no changes, same as every prior ephemeral-`CombatState`-gated family.
+
+`npm run typecheck`/`lint` both clean. No dedicated unit tests exist for this calc layer; not
+visually spot-checked in the running app (Electron sandbox limitation).
+
+**Sweep closeout, all 8 families now done** (Sessions 149-156): Fury-gated Ferocity/Condition-Damage
+(No Scope, Raging Storm, Deep Strikes, Vicious Quarry, No Quarter, Sharpening Sorrow); Boon-gated
+flat bonuses — Regeneration/Quickness (Chaotic Persistence, Energy Amplifier, Imbued Haste, Be Quick
+or Be Killed); Weapon-equipped-gated flat bonuses (13 traits across Guardian/Warrior/Ranger/Thief);
+Attunement-gated flat bonuses (Empowering Flame, Aeromancer's Training, Elementalist-only);
+Shroud/stance-gated flat bonuses (Reaper's Onslaught, Fatal Frenzy, Sand Sage); Continuous
+Might-stack-scaling flat bonuses (Awaken the Pain, Pinnacle of Strength, Applied Force);
+Revealed-state-gated flat bonuses (Revealed Training, Thief-only); Health-threshold-conditional flat
+bonuses (this session). TODO.md's whole "Conditional trait-attribute bonuses" section is now removed
+(fully closed, nothing left open in it). Two loose ends spun off along the way, both still open in
+TODO.md as their own small future items: Deadly Strength's Carapace-stack bonus (needs its own new
+`CombatState` field, not part of any curated family) and Pinnacle of Strength's flat unconditional
++5% crit-chance fact (no unconditional flat-crit-chance table exists yet).
+
 ## Session 155 — Conditional trait-attribute bonuses, leg 7: Revealed-state-gated flat bonuses
 
 Picks up TODO.md's checklist at the "Revealed-state-gated flat bonuses" family: traits whose flat

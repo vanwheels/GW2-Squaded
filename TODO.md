@@ -68,104 +68,19 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       `gw2Build` value (the currently-loaded local `meta.json`'s, via `getLocalMeta()`) instead of
       polling a second, parallel patch-tracking path.
 
-## Conditional trait-attribute bonuses — remaining families
+## Loose ends from the conditional-trait-attribute-bonus sweep
 
-The trait-attribute-bonus sweep (`trait-attributes.ts`, COMPLETED.md Session 148, closed 2026-08-12)
-only modeled *unconditional* flat bonuses/conversions. Along the way it surfaced 8 distinct families
-of traits whose bonus only applies under some condition — each needs its own new plumbing (usually a
-new `CombatState` toggle) before those traits can be curated at all. One leg per session, same pacing
-as every other sweep here (`pacing_large_sweeps` memory) — do not chain these.
+The trait-attribute-bonus sweep (`trait-attributes.ts`, COMPLETED.md Session 148) and its 8-family
+conditional follow-on sweep (Sessions 149-156, all now closed) spun off these two items that don't
+belong in either closed sweep's own table:
 
-- [x] **Fury-gated Ferocity/Condition-Damage** — done 2026-08-12, see COMPLETED.md. No Scope
-      (Guardian, id 1923), Raging Storm (Elementalist, id 214), Deep Strikes (Warrior, id 1343),
-      Vicious Quarry (Ranger, id 1888), No Quarter (Thief, id 1904) — all wiki-verified, live in
-      `combat-state.ts`'s `FURY_ATTRIBUTE_TRAIT_BONUSES`/`furyAttributeTraitBonus`, sibling to the
-      already-existing `FURY_CRIT_CHANCE_TRAIT_BONUSES` family. No new UI — reuses the existing
-      `CombatState.furyActive` toggle. Grew a 6th entry during the Boon-gated leg below: Sharpening
-      Sorrow (Mesmer/Virtuoso, id 2207) was misfiled in this checklist as Regeneration-gated — its
-      wiki page confirms it's actually Fury-gated (its own on-cast Fury proc, +150 Expertise), so
-      it's added here instead, target `ConditionDuration`.
-- [x] **Boon-gated flat bonuses** (Regeneration/Quickness) — done 2026-08-12, see COMPLETED.md.
-      Chaotic Persistence (Mesmer, id 1865, Regeneration-gated) and Energy Amplifier (Engineer, id
-      519, Regeneration-gated) live in `combat-state.ts`'s
-      `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`/`regenerationAttributeTraitBonus`; Imbued Haste
-      (Guardian/Firebrand, id 2148, Quickness-gated) and Be Quick or Be Killed (Thief/Deadeye, id
-      2093, Quickness-gated) live in `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES`/
-      `quicknessAttributeTraitBonus` — all wiki-verified. Sharpening Sorrow, originally listed here,
-      turned out to be Fury-gated instead (see the Fury leg's entry above). Went with one boolean per
-      boon (`CombatState.regenerationActive`/`quicknessActive`, mirroring `furyActive`) rather than a
-      generalized boon map — only these 2 boons have any curated trait bonus so far. New toggle icons
-      added to `CombatStatePanel.tsx` next to the existing Fury toggle.
-- [x] **Weapon-equipped-gated flat bonuses** — done 2026-08-12, see COMPLETED.md. Lives in
-      `trait-attributes.ts`'s `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`/
-      `activeWeaponEquippedAttributeTraitBonus`, needing no new `CombatState` field as expected
-      (derivable purely from `build.equipment`, gated via 2 new helpers, `activeWeaponTypes`/
-      `activeMainHandWeaponType`). Also folded into `gear-optimize.ts`'s pre-search baseline
-      alongside `activeTraitFlatBonuses`, since the optimizer never touches `weaponType`. 13 traits
-      curated, wiki-verified via the live API's own `description` text (matches each trait's
-      already-wiki-verified base-half comment in `CURATED_FLAT_BONUSES`): Right-Hand Strength (566,
-      Guardian, +80 Power, one-handed weapon in main hand only — Axe/Mace/Scepter/Sword), Zealous
-      Blade (653, Guardian, +120 Power, Greatsword), Forceful Greatsword (1338, Warrior, +120 Power
-      additional on top of its already-curated +120 base, Greatsword/Spear — not originally on this
-      checklist's candidate list, surfaced by its "doubling" comment in `CURATED_FLAT_BONUSES`),
-      Blademaster (1333, Warrior, +120 ConditionDamage, Sword — a different attribute than its
-      unconditional Expertise half, not a doubling of it), Axe Mastery (1369, Warrior, +120
-      CritDamage, Axe), Honed Axes (970, Ranger, +120 CritDamage, Axe), Ambidexterity (1101,
-      Ranger, +120 ConditionDamage, Torch/Dagger/Mace), Strider's Strength (1700, Ranger, +120
-      Power, Sword), Swindler's Equilibrium (1192, Thief, +120 Power, Sword/Spear), Dagger Training
-      (1245, Thief, +80 Power, Dagger), Staff Master (1884, Thief, +120 Power, Staff), Second
-      Opinion (2284, Thief, +90 ConditionDamage, Scepter), Stalwart Defender (580, Guardian, +240
-      Toughness, Shield — wiki-verified via raw wikitext since it has no unconditional half at all,
-      the only entry in this family with no counterpart in `CURATED_FLAT_BONUSES`). Arachnophobia
-      (1099, Ranger), one of this checklist's original candidates, turned out NOT to belong here on
-      a fresh check — its second fact is pet-type-conditional (Spider/Devourer), not weapon-gated —
-      confirming the checklist's own warning not to trust the Session 148 candidate list blindly.
-- [x] **Attunement-gated flat bonuses** (Elementalist only) — done 2026-08-12, see COMPLETED.md
-      Session 153. Empowering Flame (id 320, +150 Power, no unconditional half at all) and
-      Aeromancer's Training's excluded half (id 223, +150 Ferocity, air) — both wiki-verified, live
-      in `trait-attributes.ts`'s `ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`/
-      `activeAttunementAttributeTraitBonus`. Turned out **not** to need a new `CombatState`
-      field/UI as this checklist originally assumed — `Build.activeAttunement` already tracks the
-      currently-selected attunement (set via the existing F1-F4 `ProfessionMechanicBar` icons), so
-      this leg reused persisted `Build` state instead, same shape as the weapon-equipped-gated leg.
-- [x] **Shroud/stance-gated flat bonuses** — done 2026-08-12, see COMPLETED.md Session 154. Reaper's
-      Onslaught (Necromancer/Reaper, id 2021, +300 Ferocity), Fatal Frenzy (Warrior/Berserker, id
-      2046, +300 Power/+300 ConditionDamage WvW value), Sand Sage (Necromancer/Scourge, id 2121,
-      +150 BoonDuration/+150 ConditionDuration WvW value) — all wiki-verified, live in
-      `combat-state.ts`'s `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`/
-      `mechanicActiveAttributeTraitBonus`. Needed a genuinely new `CombatState.mechanicActive`
-      boolean (single field covering all 3 mechanics, mirroring `furyActive`'s shape) since none of
-      Shroud/Shade/Berserk-mode has a persisted `Build` field usable as the gate (unlike the
-      weapon-equipped/attunement legs) — `Build.activeBundleSkillId` only tracks which skill bar is
-      displayed for Shroud, deliberately not gating real totals. New toggle icon in
-      `CombatStatePanel.tsx`, shown only when the build has one of the 3 curated traits chosen.
-- [x] **Revealed-state-gated flat bonuses** (Thief only) — done 2026-08-12. Revealed Training
-      (Thief, Deadly Arts, Major GM, id 1704), wiki-reconfirmed via raw wikitext: "Power while
-      Revealed" is genuinely 2-way split, pve 120 / wvw pvp 150 — WvW value 150. Only one candidate
-      in this family. Lives in `combat-state.ts`'s `REVEALED_ATTRIBUTE_TRAIT_BONUSES`/
-      `revealedAttributeTraitBonus`, needing a new `CombatState.revealedActive` boolean (single
-      field, same shape as `furyActive`/`mechanicActive`) since Revealed has no persisted `Build`
-      field to key off. New `REVEALED_ICON` constant added to `icons.ts` (pulled from the trait's
-      own `Buff`-type fact, status "Revealed" — not in `BOON_CONDITION_ICONS` since Revealed is
-      neither a boon nor a condition). New toggle icon in `CombatStatePanel.tsx`, shown only when
-      the build has trait 1704 chosen (mirrors `mechanicActive`'s conditional-display gating).
-- [ ] **Health-threshold-conditional flat bonuses** — Empire Divided (Revenant, already the sweep's
-      prototype example for this shape), Last Rites (Necromancer, 3 tiers below 75%/50% health).
-      Needs a health-% `CombatState` field (slider or preset tiers) + UI.
-- [x] **Continuous Might-stack-scaling flat bonuses** — done 2026-08-12, see COMPLETED.md Session
-      150. Awaken the Pain (Necromancer, id 915, +10 Power/Might stack), Pinnacle of Strength
-      (Warrior, id 1453, +10 Power/Might stack), Applied Force (Engineer/Scrapper, id 1849, +10
-      Power/Might stack, WvW value) — all wiki-verified, live in `combat-state.ts`'s
-      `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`/`mightStackAttributeTraitBonus`. No new UI — reuses the
-      existing `CombatState.mightStacks` field. Applied Force's threshold clause turned out to gate
-      a separate Stability proc, not the Power bonus, so it fit this family after all. Two loose
-      ends spun off:
-      - Deadly Strength (Necromancer, per Carapace stack, not Might) still needs its own new
-        Carapace-stack `CombatState` field — deferred, not part of this family.
-      - Pinnacle of Strength's flat, unconditional +5% critical-hit chance fact is NOT curated
-        anywhere — no unconditional flat-crit-chance table exists yet in this codebase (only the
-        Fury-gated `FURY_CRIT_CHANCE_TRAIT_BONUSES`). Worth a future small sweep if more
-        unconditional flat-crit traits turn up.
+- [ ] Deadly Strength (Necromancer) grants a bonus per stack of Carapace, not Might — needs its own
+      new Carapace-stack `CombatState` field before it can be curated; not part of the Might-stack
+      family (`MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`) despite the surface similarity.
+- [ ] Pinnacle of Strength's flat, unconditional +5% critical-hit chance fact is NOT curated
+      anywhere — no unconditional flat-crit-chance table exists yet in this codebase (only the
+      Fury-gated `FURY_CRIT_CHANCE_TRAIT_BONUSES`). Worth a future small sweep if more unconditional
+      flat-crit traits turn up.
 
 ## Coefficient curation — remaining exceptions
 

@@ -2,9 +2,11 @@ import type { Build } from '@shared/types'
 import {
   CURATED_RELIC_DAMAGE_BONUSES,
   detectActiveStackingSigil,
+  HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES,
   MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES,
   REVEALED_ATTRIBUTE_TRAIT_BONUSES,
   type CombatState,
+  type HealthTier,
   type TargetArmorClass
 } from '@shared/gear-calc/combat-state'
 import { activeTraitIds } from '@shared/gear-calc/trait-attributes'
@@ -22,6 +24,14 @@ interface Props {
 const STACK_OPTIONS = [0, 5, 10, 15, 20, 25]
 
 const TARGET_ARMOR_OPTIONS: TargetArmorClass[] = ['Light', 'Medium', 'Heavy']
+
+/** Dropdown labels for `HealthTier` — see `CombatState.healthTier`'s doc comment for why this is a
+ *  3-way tier rather than a raw percent slider. */
+const HEALTH_TIER_OPTIONS: { value: HealthTier; label: string }[] = [
+  { value: 'above75', label: 'Above 75%' },
+  { value: 'between50and75', label: '50%–75%' },
+  { value: 'below50', label: 'Below 50%' }
+]
 
 function iconClass(active: boolean): string {
   return active ? 'combat-state-icon' : 'combat-state-icon combat-state-icon-inactive'
@@ -55,6 +65,13 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   // icon rather than the trait's own icon since this family only ever has one profession's worth of
   // candidates so far (see `combat-state.ts`'s `REVEALED_ATTRIBUTE_TRAIT_BONUSES`).
   const hasRevealedGatedTrait = [...activeTraitIds(build, traitsById)].some((id) => id in REVEALED_ATTRIBUTE_TRAIT_BONUSES)
+
+  // Only surfaced when the build actually has a curated health-threshold-gated trait chosen (Empire
+  // Divided / Last Rites) — same reasoning as `mechanicTrait` above, reads the specific trait's own
+  // icon/name since (unlike Revealed) each candidate has a genuinely different icon (see
+  // `combat-state.ts`'s `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES`).
+  const activeHealthTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES)
+  const healthTrait = activeHealthTraitId !== undefined ? traitsById.get(activeHealthTraitId) : undefined
 
   return (
     <div className="combat-state-controls">
@@ -120,6 +137,23 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
         >
           <img className={iconClass(value.revealedActive)} src={REVEALED_ICON} alt="Revealed" />
         </button>
+      )}
+
+      {healthTrait && (
+        <div className="combat-state-row">
+          <img className="combat-state-icon" src={healthTrait.icon} alt="" title={healthTrait.name} />
+          <select
+            aria-label="Health tier"
+            value={value.healthTier}
+            onChange={(e) => onChange({ ...value, healthTier: e.target.value as HealthTier })}
+          >
+            {HEALTH_TIER_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
       )}
 
       {stackingSigil && sigilIcon && (
