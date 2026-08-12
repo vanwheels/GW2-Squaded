@@ -204,6 +204,7 @@ export function computePartyNamedFactSummary(
   gameData: {
     skills: Skill[]
     traits: Trait[]
+    sigils: Sigil[]
     legends: Legend[]
     pets: Pet[]
     professions: Profession[]

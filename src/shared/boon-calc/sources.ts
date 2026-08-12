@@ -20,7 +20,7 @@ import type {
   WvwFactOverrides
 } from '../types'
 import { isAuraName, isBoonName, isConditionName } from './constants'
-import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent } from '../gear-calc/attribute-totals'
+import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent, isActiveWeaponSlot } from '../gear-calc/attribute-totals'
 import { WEAVER_SPEC_ID, weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
 import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bundle-skills'
 import { professionMechanicBar, RANGER_BEASTMODE_SPEC_ID } from '../skill-calc/profession-mechanic'
@@ -2746,7 +2746,7 @@ export function auraFactsForSkill(
 }
 
 export interface NamedFactSource {
-  sourceKind: 'skill' | 'trait'
+  sourceKind: 'skill' | 'trait' | 'sigil'
   sourceId: number
   sourceName: string
   sourceIcon: string
@@ -2866,20 +2866,69 @@ export const NAMED_FACT_TARGET_COUNT_TABLES: Record<
 }
 
 /**
+ * Sigil-derived Control/Miscellaneous/Strip/Corrupt/Cleanse sources. Sigils carry no `Fact[]`
+ * array at all (the GW2 API only exposes a `description` free-text string plus a best-effort
+ * `bonuses` parse for stat sigils — see `Sigil`'s doc comment in `types/game-data.ts`), so none of
+ * `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/`BOON_STRIP_CORRUPT_MATCHERS` (all matched against
+ * `Fact` shapes) could ever see a sigil — a silent, total gap, distinct from the trait/skill
+ * matchers' occasional missed-wording gap (TODO.md's "Sigil/Control-Strip completeness scan").
+ * Curated by hand from a full read of every `description` in `data/game-data/sigils.json`
+ * (2026-08-12, see `sigil-named-fact-completeness.test.ts`): every sigil whose free text genuinely
+ * *grants* (not just references, e.g. Impact's "+damage vs. Stunned foes" or Paralyzation's "+30%
+ * Stun Duration" — bonuses that require an external stun source, not one of their own) a
+ * Control/Miscellaneous/Strip/Corrupt/Cleanse effect. `name` must be a key of whichever matcher
+ * table the caller passes in, so `computeSigilNamedFactSources` can filter itself down to the row
+ * currently being rendered.
+ */
+export const SIGIL_NAMED_FACT_SOURCES: Record<number, { name: string; detail: string }> = {
+  24571: { name: 'Cleanse', detail: 'On flank/defiant hit (4s CD)' }, // Superior Sigil of Purity
+  24572: { name: 'Strip', detail: 'On flank/defiant hit (5s CD)' }, // Superior Sigil of Nullification
+  38294: { name: 'Cleanse', detail: 'On crit, transfers to foe (6s CD)' }, // Superior Sigil of Generosity
+  67340: { name: 'Cleanse', detail: '×3 on weapon swap (9s CD)' }, // Superior Sigil of Cleansing
+  72872: { name: 'Strip', detail: '×3 on interrupt (10s CD)' } // Superior Sigil of Absorption
+}
+
+/** `SIGIL_NAMED_FACT_SOURCES` entries for every sigil equipped on the build's currently-active
+ *  weapon set(s) — same `isActiveWeaponSlot` gating `computeGearAttributeTotals` uses for a
+ *  sigil's passive stat bonus (a stowed weapon's sigil doesn't proc either, same in-game rule
+ *  confirmed for stat bonuses — see that function's own comment). Filtered to `matchers`' own keys
+ *  so a single call only contributes to whichever of Control/Miscellaneous/Strip-Corrupt-Cleanse
+ *  the caller is currently rendering. */
+function computeSigilNamedFactSources(build: Build, sigils: Sigil[], matchers: Record<string, (fact: Fact) => boolean>): NamedFactSource[] {
+  const sigilsById = new Map(sigils.map((s) => [s.id, s]))
+  const out: NamedFactSource[] = []
+  for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
+    if (!slotKey.startsWith('weapon') || !isActiveWeaponSlot(slotKey, build)) continue
+    for (const sigilId of build.equipment[slotKey]?.sigilIds ?? []) {
+      if (sigilId == null) continue
+      const entry = SIGIL_NAMED_FACT_SOURCES[sigilId]
+      if (!entry || !(entry.name in matchers)) continue
+      const sigil = sigilsById.get(sigilId)
+      if (!sigil) continue
+      out.push({ sourceKind: 'sigil', sourceId: sigilId, sourceName: sigil.name, sourceIcon: sigil.icon, name: entry.name, detail: entry.detail, targetCount: null })
+    }
+  }
+  return out
+}
+
+/**
  * Generic counterpart to `computeAuraSources`/`computeComboSources` for named facts that don't
  * share boons/conditions/auras' `Buff`-with-`status` shape — Control/Miscellaneous/Strip&Corrupt
  * each read a mix of fact `type`s (`Time`/`Distance`/`Number`/`StunBreak`/`NoData`/`AttributeAdjust`),
  * so each is defined as a small `name -> (fact) => boolean` matcher table (`CONTROL_MATCHERS` etc.,
  * above) instead of a single classify function. Same skill/trait-walking rules as
- * `computeAuraSources`/`computeComboSources`; call once per matcher table. `targetCountTables` is
- * optional and forwarded straight to `namedFactsFrom` — pass `NAMED_FACT_TARGET_COUNT_TABLES` for
- * `BOON_STRIP_CORRUPT_MATCHERS`, omit it for `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`.
+ * `computeAuraSources`/`computeComboSources`, plus equipped sigils via
+ * `computeSigilNamedFactSources` (sigils have no `Fact` shape to match at all, see that function's
+ * doc comment); call once per matcher table. `targetCountTables` is optional and forwarded straight
+ * to `namedFactsFrom` — pass `NAMED_FACT_TARGET_COUNT_TABLES` for `BOON_STRIP_CORRUPT_MATCHERS`,
+ * omit it for `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`.
  */
 export function computeNamedFactSources(
   build: Build,
   gameData: {
     skills: Skill[]
     traits: Trait[]
+    sigils: Sigil[]
     legends: Legend[]
     pets: Pet[]
     professions: Profession[]
@@ -2891,7 +2940,7 @@ export function computeNamedFactSources(
 ): NamedFactSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
   const legendIds = equippedLegendIds(build)
-  const out: NamedFactSource[] = []
+  const out: NamedFactSource[] = [...computeSigilNamedFactSources(build, gameData.sigils, matchers)]
   const { skillsById, skillIds } = equippedSkillsById(build, gameData)
 
   for (const id of skillIds) {

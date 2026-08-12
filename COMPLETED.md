@@ -2,6 +2,48 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 158 — Sigil/Control-Strip completeness scan
+
+Closes TODO.md's "Automated testing strategy" item #2, sibling to the trait attribute-bonus
+completeness scan (Session 156-ish). `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/
+`BOON_STRIP_CORRUPT_MATCHERS` (`boon-calc/sources.ts`) all match against the GW2 API's structured
+`Fact` shape — but sigils carry no `Fact[]` at all, only a free-text `description` (confirmed via
+`Sigil`'s own doc comment and `fetch-gear-upgrades.ts`), so those matchers could never see a sigil
+even in principle. Unlike the trait scan's "occasional missed wording," this was a total, silent,
+structural gap: equipped sigils never contributed to the Control/Miscellaneous/Strip/Corrupt/Cleanse
+summary row at all.
+
+Hand-scanned all 81 sigils in `data/game-data/sigils.json` for genuine grants (not mere references)
+of any of the 3 tables' effects. 7 candidates, 5 genuine:
+- **Strip**: Superior Sigil of Nullification (remove a boon on flank/defiant hit), Superior Sigil of
+  Absorption (steal 3 boons on interrupt).
+- **Cleanse**: Superior Sigil of Purity (remove a condition on flank/defiant hit), Superior Sigil of
+  Cleansing (remove 3 conditions on weapon swap), Superior Sigil of Generosity (transfer a condition
+  to the foe on crit — functions as a self-cleanse).
+
+2 false positives, documented with reasons rather than silently dropped: Superior Sigil of
+Paralyzation (+30% Stun Duration boosts a stun landed some other way, doesn't apply one itself),
+Superior Sigil of Impact (+damage vs. already-Stunned/Knocked-Down foes, references the state
+without granting it). Superior Sigil of Mischief's "Launch...snowballs" is flavor text for a ranged
+attack, not the Launch knockback mechanic.
+
+Added `SIGIL_NAMED_FACT_SOURCES` (id → `{name, detail}`) and `computeSigilNamedFactSources` in
+`sources.ts`, wired into `computeNamedFactSources` — gated by `isActiveWeaponSlot`, same "a sigil on
+a stowed weapon set doesn't proc either" rule already used for sigils' passive stat bonuses
+(`computeGearAttributeTotals`). `NamedFactSource.sourceKind` widened to include `'sigil'`.
+`computeNamedFactSources`'/`computePartyNamedFactSummary`'s (`party-summary.ts`) `gameData` param
+types both grew a `sigils: Sigil[]` field — every call site already passes the full `GameData` from
+`useGameData()`, so this was type-only, no call-site changes needed.
+
+New `sigil-named-fact-completeness.test.ts` (5 tests, `boon-calc/`): scans every sigil's
+`description` against a narrow verb+noun regex per matcher-table name (bare `/boon|condition/`
+would flag ~15 unrelated flat-duration stat sigils, e.g. Bursting/Malice/Concentration), asserting
+every hit is either in `SIGIL_NAMED_FACT_SOURCES` or a reviewed `EXCLUDED_SIGIL_IDS` entry — same
+"reviewed allowlist, not a silent bypass" contract as the trait scan, plus 2 extra invariants
+(`SIGIL_NAMED_FACT_SOURCES` names a real matcher key; ids still exist in `sigils.json`) since this
+table feeds live UI, not just documentation. `npm run typecheck`/`npm run lint`/`npm run test` all
+clean.
+
 ## Session 157 — Trait-granted boons on skills: Notoriety + Rapid Flow
 
 Closes TODO.md's "Trait-granted boons don't show up on the skill that actually triggers them" item

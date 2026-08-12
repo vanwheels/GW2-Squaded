@@ -58,14 +58,15 @@ needed, purely structural scans against data already in the repo:**
    — see "New gaps found by the completeness scan" below. The test also asserts the exclusion list
    itself stays clean (no entry for an already-curated trait, no stale entry for a trait a balance
    patch reworked).
-2. **Sigil/Control-Strip completeness scan.** `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/
-   `BOON_STRIP_CORRUPT_MATCHERS` (`src/shared/boon-calc/sources.ts`, ~lines 2813-2850) do
-   "structurally-verified exact match" against known `Fact` shapes — a sigil whose CC/strip effect is
-   only described in free text (not a recognized fact type) matches nothing, silently. Same failure
-   shape as the already-documented Unleashed/Gunsaber-Mode "no generic-text case" gaps. Plan: every
-   sigil's facts should match at least one matcher table, or appear in a reviewed exclusion list — this
-   won't auto-verify correctness, but converts a silent gap into a visible triage list instead of
-   something a user has to stumble onto in the running app.
+2. ~~**Sigil/Control-Strip completeness scan.**~~ **DONE 2026-08-12** (`src/shared/boon-calc/
+   sigil-named-fact-completeness.test.ts`). Sigils carry no `Fact[]` at all (only free-text
+   `description`), so `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/`BOON_STRIP_CORRUPT_MATCHERS`
+   could never see one — a total gap, not just occasional missed wording. Hand-scanned all 81
+   sigils: 5 genuine grants (Strip: Nullification, Absorption; Cleanse: Purity, Cleansing,
+   Generosity) added to a new `SIGIL_NAMED_FACT_SOURCES` table and wired into
+   `computeNamedFactSources` via `computeSigilNamedFactSources` (gated by `isActiveWeaponSlot`, same
+   as sigils' passive stat bonuses); 2 false positives (Paralyzation, Impact) documented and
+   excluded. See COMPLETED.md Session 158.
 3. **State-dependent bonus tests (Kalla's Fervor-shaped).** Bonuses that scale with a runtime value
    (`combat-state.ts` ~lines 101-120, `KALLA_FERVOR_*_PERCENT_PER_STACK`) need tests parametrized
    across `CombatState` (0/mid/max stacks), verified by hand at 2-3 points once — not a single static
@@ -82,8 +83,8 @@ needed, purely structural scans against data already in the repo:**
 - Vitest is now installed (`npm run test`) — added 2026-08-12 to build the completeness scan above,
   `vitest.config.ts` at repo root, near-zero extra config as expected.
 
-**Next action:** build the Sigil/Control-Strip completeness scan (#2 above) — same shape as the
-now-done trait scan, next-highest leverage per the original ranking.
+**Next action:** build the State-dependent bonus tests (#3 above) — next-highest leverage per the
+original ranking, both completeness scans now done.
 
 ## New gaps found by the trait attribute-bonus completeness scan (2026-08-12)
 
