@@ -32,7 +32,23 @@ export interface TraitConversion extends AttributeConversion {
 const CURATED_FLAT_BONUSES: TraitFlatBonus[] = [
   // Life Attunement (Revenant, Salvation, Minor tier 2) — "Gain healing power." Unambiguous
   // single-value AttributeAdjust fact; description confirms this is a genuine passive stat gain.
-  { traitId: 1821, target: 'Healing', value: 120 }
+  { traitId: 1821, target: 'Healing', value: 120 },
+  // Compounding Chemicals (Engineer, Alchemy, Minor GM) — "Gain increased concentration." Wiki-
+  // verified 2026-08-12 (wiki.guildwars2.com/wiki/Compounding_Chemicals raw wikitext): split
+  // pve=240/wvw+pvp=75; this app is WvW-focused so 75. The trait's other AttributeAdjust fact (37
+  // Healing, coefficient 0.023) is the proc-heal-on-boon-grant, not a stat grant — excluded.
+  { traitId: 413, target: 'BoonDuration', value: 75 },
+  // Chemical Rounds (Engineer, Firearms, Major Adept) — "Gain condition damage." Wiki-verified
+  // 2026-08-12: single game-mode-agnostic value (+120). The trait's other effect (pistol condition
+  // duration) is a skill-specific modifier, not a character-stat gain — out of scope for this table.
+  { traitId: 1878, target: 'ConditionDamage', value: 120 },
+  // Thermal Vision (Engineer, Firearms, Major Master) — "Gain expertise." Wiki-verified 2026-08-12
+  // (raw wikitext): split game mode=pve 150 / game mode=pvp wvw 60; WvW value is 60.
+  { traitId: 2006, target: 'ConditionDuration', value: 60 },
+  // Hybrid Vigor (Engineer, Amalgam, Minor Master) — "Gain vitality." Wiki-verified 2026-08-12 (raw
+  // wikitext): single game-mode-agnostic value (+240), unlike this same trait's morph-skill barrier
+  // proc (split pve/wvw/pvp), which is out of scope for this table.
+  { traitId: 2389, target: 'Vitality', value: 240 }
 ]
 
 const CURATED_CONVERSIONS: TraitConversion[] = [
@@ -45,7 +61,12 @@ const CURATED_CONVERSIONS: TraitConversion[] = [
   // agnostic value, unlike this same trait's *other* effect ("Fury gives an increased critical
   // chance," 15% PvE / 10% WvW/PvP — that half is conditional-on-Fury, tracked separately in
   // `combat-state.ts`'s `FURY_CRIT_CHANCE_TRAIT_BONUSES`, not here).
-  { traitId: 2193, source: 'Vitality', target: 'CritDamage', percent: 10 }
+  { traitId: 2193, source: 'Vitality', target: 'CritDamage', percent: 10 },
+  // Blast Shield (Engineer, Explosives, Major Master) — "Gain vitality based on a percentage of
+  // your power." Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|gain|Vitality|Power|10}}`,
+  // no game-mode split). This trait's other effect (Explosive Entrance barrier, split pve/wvw pvp)
+  // is a proc, not a stat grant — excluded.
+  { traitId: 1944, source: 'Power', target: 'Vitality', percent: 10 }
 ]
 
 /**

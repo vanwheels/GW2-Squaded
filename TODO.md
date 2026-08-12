@@ -152,12 +152,27 @@ that before extending either further, and before the tooltip visual-pass item be
       Sharpening Sorrow: Expertise "while under Fury" after casting Bladesong Sorrow) — same shape as
       Vindicator's "Empire Divided" (Power/Healing Power +240 at ≤50% health), needs its own
       `CombatState`-style toggle rather than this unconditional table, not scoped further yet.
-      **Remaining legs (~179 candidates across Elementalist 19, Engineer 17, Guardian 21,
-      Necromancer 29, Ranger 23, Revenant 19, Thief 29, Warrior 22) not yet swept** — each candidate
-      needs its trait *description* read for genuine unconditional "gain X" language, same rigor as
-      every other curated table; full candidate list with facts dumped to scratchpad during the
-      Mesmer leg (session-local, regenerate via a `traits.json` scan for
-      `AttributeAdjust`/`BuffConversion` facts if picking this back up in a new session).
+      **Engineer leg (17 candidates, done 2026-08-12)**: 5 curated — Compounding Chemicals (+75
+      Concentration, WvW value), Chemical Rounds (+120 Condition Damage), Thermal Vision (+60
+      Expertise, WvW value), Hybrid Vigor (+240 Vitality), Blast Shield (10% Power→Vitality). 9
+      excluded as proc-heal/barrier coefficients (Soothing Detonation, Chain Reactivity, System
+      Shocker, Ex Machina, Kinetic Accelerators, Heat Therapy, Crystal Configuration: Eclipse, Mech
+      Core: Barrier Engine, Innervating Alloy). 3 flagged as new conditional shapes, not added to
+      this unconditional table: Energy Amplifier (+250 Power/+250 Healing "while you have
+      regeneration" — same Chaotic-Persistence-shaped boon-conditional gap as the Mesmer leg, no
+      Regeneration toggle exists in `CombatState`); Applied Force (+10 Power, WvW value, once might
+      stacks reach the 10-stack threshold — a *new* conditional shape, might-threshold rather than
+      boon-presence, but `CombatState.mightStacks` already exists so this one's a smaller lift than
+      Energy Amplifier's); No Scope (+150 Ferocity while Fury is active, no split — same Fury-gated
+      shape as `combat-state.ts`'s `FURY_CRIT_CHANCE_TRAIT_BONUSES` but a flat CritDamage bonus
+      instead of a crit-chance %, so it doesn't fit that table either — would need a sibling table,
+      e.g. `FURY_FEROCITY_TRAIT_BONUSES`).
+      **Remaining legs (~162 candidates across Elementalist 19, Guardian 21, Necromancer 29, Ranger
+      23, Revenant 19, Thief 29, Warrior 22) not yet swept** — each candidate needs its trait
+      *description* read for genuine unconditional "gain X" language, same rigor as every other
+      curated table; regenerate the candidate list per-profession via a `traits.json` scan for
+      `AttributeAdjust`/`BuffConversion` facts joined against `specializations.json` if picking this
+      back up in a new session.
 
 - [ ] 76 Food catalog entries still have no buff data after `borrowSharedContainerBonuses` +
       `applyAscendedFeastFormula` (`fetch-gear-upgrades.ts`) — genuinely buff-less items that don't
