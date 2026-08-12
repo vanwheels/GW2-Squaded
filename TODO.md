@@ -191,12 +191,30 @@ that before extending either further, and before the tooltip visual-pass item be
       `detectActiveStackingSigil` in `combat-state.ts` already uses) can derive it directly from the
       build itself, so it's a smaller lift; still out of scope for this unconditional table, would
       need its own `WEAPON_CONDITIONAL_TRAIT_BONUSES`-style table.
-      **Remaining legs (~141 candidates across Elementalist 19, Necromancer 29, Ranger 23, Revenant
-      19, Thief 29, Warrior 22) not yet swept** — each candidate needs its trait *description* read
-      for genuine unconditional "gain X" language, same rigor as every other curated table;
-      regenerate the candidate list per-profession via a `traits.json` scan for
-      `AttributeAdjust`/`BuffConversion` facts joined against `specializations.json` if picking this
-      back up in a new session.
+      **Elementalist leg (19 candidates, done 2026-08-12)**: 8 curated — Aeromancer's Training (+150
+      Ferocity, unconditional half only), Ferocious Winds (7% Precision→Ferocity), Strength of Stone
+      (10% Toughness→Condition Damage), Burning Rage/Sunspot (+180 Condition Damage), Gathered Focus
+      (+120 Concentration, WvW value), Elemental Enchantment (+120 Concentration, WvW value),
+      Soothing Power (+300 Vitality), Elemental Refreshment (+180 Vitality, unconditional half only).
+      7 excluded as proc-heal/barrier coefficients (Earthen Blast, Flow like Water, Healing Ripple,
+      Arcane Restoration, Elemental Bastion, Master's Fortitude, Spirit's Succor). 4 flagged as
+      already-known or new conditional shapes, not added to this unconditional table: Raging Storm
+      (+180 Ferocity while under Fury — same Fury-gated-flat-bonus shape as Guardian's No Scope, both
+      still waiting on a `FURY_FEROCITY_TRAIT_BONUSES` table); Power Overwhelming (+150 Power at/above
+      the might threshold — same might-threshold-gated shape as Engineer's Applied Force); Arcane
+      Lightning (+150 Ferocity for 15s after using an Arcane skill, via a self-applied "Arcane
+      Lightning" buff — a *new* shape, on-skill-use temporary buff rather than a standing conditional,
+      doesn't fit any flagged table so far); and a **new attunement-gated family**: Empowering Flame
+      (+150 Power while in fire attunement) plus Aeromancer's Training's other half (+150 additional
+      Ferocity while attuned to air) both grant a flat bonus only while a specific attunement is
+      active — `CombatState` has no current-attunement toggle, would need one (same shape category as
+      the weapon-equipped-gated and boon-gated families already flagged, just keyed on attunement
+      instead).
+      **Remaining legs (~122 candidates across Necromancer 29, Ranger 23, Revenant 19, Thief 29,
+      Warrior 22) not yet swept** — each candidate needs its trait *description* read for genuine
+      unconditional "gain X" language, same rigor as every other curated table; regenerate the
+      candidate list per-profession via a `traits.json` scan for `AttributeAdjust`/`BuffConversion`
+      facts joined against `specializations.json` if picking this back up in a new session.
 
 - [ ] 76 Food catalog entries still have no buff data after `borrowSharedContainerBonuses` +
       `applyAscendedFeastFormula` (`fetch-gear-upgrades.ts`) — genuinely buff-less items that don't

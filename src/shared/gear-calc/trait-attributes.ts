@@ -91,7 +91,37 @@ const CURATED_FLAT_BONUSES: TraitFlatBonus[] = [
   // unconditional +180 Vitality, no game-mode split. This trait's other effect (Luminary's Blessing
   // on radiant-weapon equip, split pve 6s/wvw pvp 3s) is a skill effect, not a stat gain — out of
   // scope.
-  { traitId: 2394, target: 'Vitality', value: 180 }
+  { traitId: 2394, target: 'Vitality', value: 180 },
+  // Aeromancer's Training (Elementalist, Air, Minor GM) — "Gain ferocity, and gain additional
+  // ferocity while attuned to air." Wiki-verified 2026-08-12: unconditional half is a flat +150
+  // CritDamage, no game-mode split. The trait's *other* CritDamage fact (+150, explicitly labeled
+  // "Additional Ferocity" in the game data, only while attuned to air) is a new conditional shape —
+  // attunement-gated flat bonus, same family as Empowering Flame below — excluded.
+  { traitId: 223, target: 'CritDamage', value: 150 },
+  // Burning Rage / Sunspot (Elementalist, Fire, Major Master) — "Your condition damage is
+  // increased." Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|attribute|Condition
+  // Damage|180}}`, no game-mode split). This trait's other effect (Sunspot burning stacks/radius)
+  // is a skill modifier, not a character-stat gain — out of scope.
+  { traitId: 325, target: 'ConditionDamage', value: 180 },
+  // Gathered Focus (Elementalist, Tempest, Minor Master) — "Your concentration is increased." Wiki-
+  // verified 2026-08-12: split game mode=pve 240 / game mode=pvp wvw 120; WvW value is 120. As of
+  // the 2024-06-25 patch this is fully unconditional (the trait's earlier above-90%-health
+  // requirement for the bonus half was removed) — confirmed via version history on the same page.
+  { traitId: 1938, target: 'BoonDuration', value: 120 },
+  // Elemental Enchantment (Elementalist, Arcane, Minor GM) — "Gain concentration and your
+  // attunements gain reduced recharge." Wiki-verified 2026-08-12: split game mode=pve 180 / game
+  // mode=pvp wvw 120; WvW value is 120. The attunement-recharge-reduction half is a skill modifier,
+  // not a character-stat gain — out of scope.
+  { traitId: 2004, target: 'BoonDuration', value: 120 },
+  // Soothing Power (Elementalist, Water, Major Master) — "Gain vitality." Wiki-verified 2026-08-12:
+  // unconditional +300 Vitality, no game-mode split. This trait's other effect (Soothing Mist
+  // healing effectiveness +100%) is a skill modifier, not a character-stat gain — out of scope.
+  { traitId: 2028, target: 'Vitality', value: 300 },
+  // Elemental Refreshment (Elementalist, Weaver, Minor Master) — "Gain vitality." Wiki-verified
+  // 2026-08-12: unconditional +180 Vitality, no game-mode split. This trait's other effect (barrier
+  // on Dual Attack skills, split pve/wvw pvp) is a proc barrier coefficient, not a character-stat
+  // gain — out of scope.
+  { traitId: 2077, target: 'Vitality', value: 180 }
 ]
 
 const CURATED_CONVERSIONS: TraitConversion[] = [
@@ -117,7 +147,17 @@ const CURATED_CONVERSIONS: TraitConversion[] = [
   // Kindled Zeal (Guardian, Zeal, Major Master) — "Gain condition damage based on your power."
   // Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|gain|Condition Damage|Power|10}}`, no
   // game-mode split).
-  { traitId: 1556, source: 'Power', target: 'ConditionDamage', percent: 10 }
+  { traitId: 1556, source: 'Power', target: 'ConditionDamage', percent: 10 },
+  // Ferocious Winds (Elementalist, Air, Major Adept) — "Gain ferocity based on your precision."
+  // Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|gain|Ferocity|Precision|7}}`, no game-mode
+  // split). The wiki's version-history note about a 2015 bug (this trait briefly converting
+  // toughness instead of precision) is historical, not a current conditional.
+  { traitId: 232, source: 'Precision', target: 'CritDamage', percent: 7 },
+  // Strength of Stone (Elementalist, Earth, Major Master) — "Gain condition damage based on your
+  // toughness." Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|gain|Condition
+  // Damage|Toughness|10}}`, no game-mode split). This trait's other effect (bleed on immobilize,
+  // split pve/wvw pvp stack count) is a skill effect, not a character-stat gain — out of scope.
+  { traitId: 275, source: 'Toughness', target: 'ConditionDamage', percent: 10 }
 ]
 
 /**
