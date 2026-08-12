@@ -27,7 +27,7 @@ import {
 } from './derived-stats'
 import { combatStatePoints, furyCritChanceTraitBonus, FURY_CRITICAL_CHANCE_PERCENT, type CombatState } from './combat-state'
 import { formatItemStatName } from './format-description'
-import { activeTraitFlatBonuses, applyTraitBonuses } from './trait-attributes'
+import { activeTraitFlatBonuses, activeWeaponEquippedAttributeTraitBonus, applyTraitBonuses } from './trait-attributes'
 import { armorTrinketInfusionCapacity, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from './upgrade-slots'
 
 /**
@@ -732,6 +732,12 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
   baseline.bonusPercent = { ...gearTotals.bonusPercent }
   const traitFlat = activeTraitFlatBonuses(build, traitsById)
   for (const [k, v] of Object.entries(traitFlat.points)) addPoints(baseline, k, v)
+  // Weapon-equipped-gated trait bonuses (`WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`) are, like the
+  // flat bonuses above, gear-independent from the search's point of view — the optimizer never
+  // changes `weaponType` (only `itemStatId`/upgrades per slot), so this value is already fixed by
+  // the time the search runs, safe to fold into the baseline the same way (unlike trait
+  // *conversions*, whose source attribute a still-being-searched slot could affect).
+  for (const [k, v] of Object.entries(activeWeaponEquippedAttributeTraitBonus(build, traitsById))) addPoints(baseline, k, v)
 
   const weightClass = WEIGHT_CLASS_BY_PROFESSION[build.profession]
   const ctx: MetricContext = {

@@ -2,6 +2,57 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 152 — Conditional trait-attribute bonuses, leg 4: Weapon-equipped-gated flat bonuses
+
+Picks up TODO.md's "Conditional trait-attribute bonuses — remaining families" checklist at the
+"Weapon-equipped-gated flat bonuses" family: traits whose flat attribute bonus only applies while a
+specific weapon type is equipped. Unlike the 3 prior legs (Fury/Boon/Might), this needed **no new
+`CombatState` field** — the condition is derivable purely from `build.equipment`, same shape as the
+existing `detectActiveStackingSigil`.
+
+Added `trait-attributes.ts`'s `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`/
+`activeWeaponEquippedAttributeTraitBonus`, plus 2 new private helpers: `activeWeaponTypes` (every
+weapon type equipped across the active set, either hand) and `activeMainHandWeaponType` (the active
+set's main-hand slot only, `null` underwater). Folded into `applyTraitBonuses` for every normal
+caller, and separately folded into `gear-optimize.ts`'s pre-search baseline alongside
+`activeTraitFlatBonuses` — safe to fix before the search runs (unlike trait *conversions*) since the
+optimizer never touches `weaponType`, only `itemStatId`/upgrades per slot.
+
+13 traits curated, wiki-verified via the live API's own `description` text
+(`data/game-data/traits.json`), cross-checked against each trait's already-wiki-verified base-half
+comment in `CURATED_FLAT_BONUSES` (added during the original trait-attribute-bonus sweep, Session
+148) — none carry a game-mode split, matching their base halves: Right-Hand Strength (Guardian, id
+566, +80 Power, main-hand-only gate on Axe/Mace/Scepter/Sword — the only entry gated on a specific
+hand), Zealous Blade (Guardian, id 653, +120 Power, Greatsword), Blademaster (Warrior, id 1333, +120
+ConditionDamage, Sword — a *different* attribute than its unconditional Expertise half, not a
+doubling of it), Axe Mastery (Warrior, id 1369, +120 CritDamage, Axe), Honed Axes (Ranger, id 970,
++120 CritDamage, Axe), Ambidexterity (Ranger, id 1101, +120 ConditionDamage, Torch/Dagger/Mace),
+Strider's Strength (Ranger, id 1700, +120 Power, Sword), Swindler's Equilibrium (Thief, id 1192, +120
+Power, Sword/Spear), Dagger Training (Thief, id 1245, +80 Power, Dagger), Staff Master (Thief, id
+1884, +120 Power, Staff), Second Opinion (Thief, id 2284, +90 ConditionDamage, Scepter). `weaponTypes`
+uses the `EquipmentSlot.weaponType`/API convention (e.g. `"Spear"` for both land and underwater
+post-Janthir Wilds, confirmed via `data/game-data/professions.json`).
+
+Two traits needed a fresh look beyond the base-half cross-check: **Forceful Greatsword** (Warrior, id
+1338) wasn't on this checklist's original candidate list — surfaced by its own comment in
+`CURATED_FLAT_BONUSES` noting the "double these bonuses while wielding a greatsword or underwater
+spear" clause isn't materialized as a separate fact; added here as +120 Power *additional* on top of
+its already-curated +120 base (Greatsword/Spear), matching the confirmed 120-base/240-doubled shape
+from wiki version history. **Stalwart Defender** (Guardian, id 580) has no unconditional half at
+all — its entire +240 Toughness is gated on wielding a Shield — confirmed via raw wikitext (`?action=
+raw`) since `traits.json`'s facts alone don't carry the gating condition text for a single-fact
+trait; the only entry in this family with no counterpart in `CURATED_FLAT_BONUSES`.
+
+One checklist candidate was dropped on a fresh check: **Arachnophobia** (Ranger, id 1099) — its
+second fact turned out to be pet-type-conditional (Spider/Devourer gets extra Expertise), not
+weapon-gated, confirming the checklist's own warning not to trust the Session 148 candidate list
+blindly.
+
+`npm run typecheck`/`lint`/`build` all clean. No dedicated unit tests exist for this calc layer; not
+visually spot-checked in the running app (Electron sandbox limitation). TODO.md's checklist updated
+to mark this family done; 4 families remain (attunement-gated, shroud/stance-gated,
+revealed-state-gated, health-threshold-conditional).
+
 ## Session 151 — Conditional trait-attribute bonuses, leg 3: Regeneration/Quickness-gated flat bonuses
 
 Picks up TODO.md's "Conditional trait-attribute bonuses — remaining families" checklist at the

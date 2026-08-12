@@ -1,5 +1,5 @@
-import type { Build, Trait } from '../types'
-import { addPoints, applyConversions, emptyTotals, type AttributeConversion, type AttributeTotals } from './attribute-totals'
+import type { Build, EquipmentSlotKey, Trait } from '../types'
+import { addPoints, applyConversions, emptyTotals, isActiveWeaponSlot, type AttributeConversion, type AttributeTotals } from './attribute-totals'
 
 /**
  * Traits can grant a flat attribute bonus (`AttributeAdjust` fact) or convert a percentage of one
@@ -419,6 +419,131 @@ const CURATED_CONVERSIONS: TraitConversion[] = [
 ]
 
 /**
+ * Trait id -> extra flat attribute point granted only while a qualifying weapon is equipped —
+ * the "Weapon-equipped-gated flat bonuses" family from TODO.md, first leg of the conditional-
+ * trait-attribute-bonus sweep needing no new `CombatState` field (derivable purely from
+ * `build.equipment`, same as `detectActiveStackingSigil` in combat-state.ts). Every entry here is
+ * a trait's *second* half — the always-active half of the same trait already lives in
+ * `CURATED_FLAT_BONUSES` above (see each trait's comment there for the "excluded, see
+ * weapon-equipped-gated family" cross-reference) — except Stalwart Defender (580), whose entire
+ * bonus is weapon-gated with no unconditional half at all. All wiki-verified via the live API's
+ * own `description` text (`data/game-data/traits.json`) 2026-08-12, matching the exact wording
+ * each `CURATED_FLAT_BONUSES` entry already quoted; none of these have a game-mode split (already
+ * confirmed for each trait's base half above, and the "Additional X"/doubled fact carries the same
+ * value in every case, so the split status — or lack of one — is identical for both halves).
+ * `weaponTypes` matches the `EquipmentSlot.weaponType`/API convention (e.g. `"Greatsword"`,
+ * `"Spear"` — Spear is a single API weapon type covering both the land and underwater weapon
+ * post-Janthir Wilds, confirmed via `data/game-data/professions.json`, so "underwater spear" in
+ * older trait wording resolves to the same `"Spear"` key used everywhere else in this codebase).
+ */
+export interface WeaponEquippedTraitBonus {
+  target: string
+  value: number
+  weaponTypes: string[]
+  /** When true, only the active set's *main-hand* slot's weapon type is checked (Right-Hand
+   *  Strength's "while wielding a one-handed weapon in your main hand" — the only curated trait
+   *  gated on a specific hand rather than either). Every other entry checks both hands (and, on
+   *  land, both slots of the inactive-but-mirrored two-handed weapon) via `activeWeaponTypes`. */
+  mainHandOnly?: boolean
+}
+
+export const WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES: Record<number, WeaponEquippedTraitBonus> = {
+  // Right-Hand Strength (Guardian, Radiance, Major Adept) — "Gain increased power while wielding
+  // a one-handed weapon in your main hand." Guardian's 4 one-handed main-hand weapon types per the
+  // wiki's own weapon-gating list: Axe, Mace, Scepter, Sword (Focus/Shield/Torch are offhand-only,
+  // never legal in the main-hand slot this checks).
+  566: { target: 'Power', value: 80, weaponTypes: ['Axe', 'Mace', 'Scepter', 'Sword'], mainHandOnly: true },
+  // Zealous Blade (Guardian, Zeal, Major Adept) — "Gain additional power while wielding a
+  // greatsword."
+  653: { target: 'Power', value: 120, weaponTypes: ['Greatsword'] },
+  // Forceful Greatsword (Warrior, Strength, Major Adept) — "Double these bonuses while wielding a
+  // greatsword or underwater spear" — the doubling isn't its own fact (see `CURATED_FLAT_BONUSES`
+  // above), so this entry's `value` is the *additional* +120 Power on top of the already-curated
+  // +120 base, matching the confirmed 120-base/240-doubled shape from version history.
+  1338: { target: 'Power', value: 120, weaponTypes: ['Greatsword', 'Spear'] },
+  // Blademaster (Warrior, Arms, Major Master) — "Gain condition damage while wielding a sword,"
+  // a *different* attribute than this trait's unconditional Expertise half (see
+  // `CURATED_FLAT_BONUSES`), not a doubling of it.
+  1333: { target: 'ConditionDamage', value: 120, weaponTypes: ['Sword'] },
+  // Axe Mastery (Warrior, Discipline, Major Grandmaster) — "Gain additional ferocity when wielding
+  // an axe."
+  1369: { target: 'CritDamage', value: 120, weaponTypes: ['Axe'] },
+  // Honed Axes (Ranger, Beastmastery, Major Adept) — "gain additional ferocity while wielding an
+  // axe."
+  970: { target: 'CritDamage', value: 120, weaponTypes: ['Axe'] },
+  // Ambidexterity (Ranger, Wilderness Survival, Major Master) — "Gain additional condition damage
+  // while wielding a torch, dagger, or mace."
+  1101: { target: 'ConditionDamage', value: 120, weaponTypes: ['Torch', 'Dagger', 'Mace'] },
+  // Strider's Strength (Ranger, Skirmishing, Major Adept) — "Gain additional power while wielding
+  // a sword."
+  1700: { target: 'Power', value: 120, weaponTypes: ['Sword'] },
+  // Swindler's Equilibrium (Thief, Acrobatics, Major Adept) — "additional power while wielding a
+  // sword or underwater spear."
+  1192: { target: 'Power', value: 120, weaponTypes: ['Sword', 'Spear'] },
+  // Dagger Training (Thief, Deadly Arts, Major Adept) — "bonus power, which is increased when
+  // wielding a dagger."
+  1245: { target: 'Power', value: 80, weaponTypes: ['Dagger'] },
+  // Staff Master (Thief, Daredevil, Major Adept) — "bonus power, which is increased when wielding
+  // a staff."
+  1884: { target: 'Power', value: 120, weaponTypes: ['Staff'] },
+  // Second Opinion (Thief, Specter, Major Adept) — "condition damage, which is increased when
+  // wielding a scepter."
+  2284: { target: 'ConditionDamage', value: 90, weaponTypes: ['Scepter'] },
+  // Stalwart Defender (Guardian, Valor, Major Adept) — "Gain toughness when wielding a shield" —
+  // wiki-verified 2026-08-12 (raw wikitext confirms the full description above, quoted directly,
+  // no separate unconditional half exists for this trait — unlike every other entry in this
+  // table, it has no counterpart in `CURATED_FLAT_BONUSES`).
+  580: { target: 'Toughness', value: 240, weaponTypes: ['Shield'] }
+}
+
+/** Every weapon type (`EquipmentSlot.weaponType`) currently equipped across the build's active
+ *  weapon slots — mirrors `isActiveWeaponSlot`'s "only the active set counts" gating (same rule
+ *  `detectActiveStackingSigil` in combat-state.ts uses), deduped since a two-handed weapon mirrors
+ *  the same type onto both its slots. Used by every `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`
+ *  entry except Right-Hand Strength's main-hand-only gate below. */
+function activeWeaponTypes(build: Build): Set<string> {
+  const types = new Set<string>()
+  for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
+    if (!slotKey.startsWith('weapon') || !isActiveWeaponSlot(slotKey, build)) continue
+    const type = build.equipment[slotKey]?.weaponType
+    if (type) types.add(type)
+  }
+  return types
+}
+
+/** The active set's main-hand weapon type (`weaponA1`/`weaponB1`, whichever set is active) —
+ *  `null` underwater, where the 2 swap sets (`weaponU1`/`weaponU2`) have no main/off-hand
+ *  distinction. Only Right-Hand Strength cares about this distinction; every other curated trait
+ *  in this family accepts the weapon in either hand via `activeWeaponTypes` above. */
+function activeMainHandWeaponType(build: Build): string | null {
+  if (build.environment === 'underwater') return null
+  const slotKey = build.activeWeaponSet === 'A' ? 'weaponA1' : 'weaponB1'
+  return build.equipment[slotKey]?.weaponType ?? null
+}
+
+/**
+ * Sums every curated weapon-equipped trait bonus actually active on this build, grouped by target
+ * attribute (mirrors `combat-state.ts`'s `furyAttributeTraitBonus`-family shape). Unlike those
+ * siblings this needs no `CombatState` gating — the weapon itself, not an ephemeral toggle, is the
+ * condition — so it's exported standalone for `gear-optimize.ts`'s pre-search baseline (same
+ * reason `activeTraitFlatBonuses` is called there directly) as well as being folded into
+ * `applyTraitBonuses` below for every other caller.
+ */
+export function activeWeaponEquippedAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>): Record<string, number> {
+  const active = activeTraitIds(build, traitsById)
+  const equipped = activeWeaponTypes(build)
+  const mainHand = activeMainHandWeaponType(build)
+  const bonus: Record<string, number> = {}
+  for (const [traitIdText, { target, value, weaponTypes, mainHandOnly }] of Object.entries(WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES)) {
+    if (!active.has(Number(traitIdText))) continue
+    const matches = mainHandOnly ? mainHand !== null && weaponTypes.includes(mainHand) : weaponTypes.some((w) => equipped.has(w))
+    if (!matches) continue
+    bonus[target] = (bonus[target] ?? 0) + value
+  }
+  return bonus
+}
+
+/**
  * Every trait currently active on a build: every Minor trait of an equipped specialization line
  * (auto-granted, no selection needed) plus whichever Major trait was actually chosen per tier.
  * Exported for reuse by `combat-state.ts`'s fury-gated trait-bonus tables, which need the exact
@@ -465,6 +590,8 @@ export function activeTraitConversions(build: Build, traitsById: Map<number, Tra
 export function applyTraitBonuses(totals: AttributeTotals, build: Build, traitsById: Map<number, Trait>): void {
   const flat = activeTraitFlatBonuses(build, traitsById)
   for (const [k, v] of Object.entries(flat.points)) addPoints(totals, k, v)
+
+  for (const [target, value] of Object.entries(activeWeaponEquippedAttributeTraitBonus(build, traitsById))) addPoints(totals, target, value)
 
   applyConversions(totals, activeTraitConversions(build, traitsById))
 }

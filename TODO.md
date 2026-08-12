@@ -96,15 +96,30 @@ as every other sweep here (`pacing_large_sweeps` memory) — do not chain these.
       boon (`CombatState.regenerationActive`/`quicknessActive`, mirroring `furyActive`) rather than a
       generalized boon map — only these 2 boons have any curated trait bonus so far. New toggle icons
       added to `CombatStatePanel.tsx` next to the existing Fury toggle.
-- [ ] **Weapon-equipped-gated flat bonuses** — derivable from `build.equipment` +
-      `isActiveWeaponSlot` (already exist in `attribute-totals.ts`, no new `CombatState` field
-      needed, same as this session's family needed none). Candidates flagged across the sweep:
-      Right-Hand Strength/Zealous Blade/Stalwart Defender (Guardian), Honed Axes/Arachnophobia/
-      Strider's Strength (Ranger), Swindler's Equilibrium/Dagger Training/Staff Master/Second Opinion
-      (Thief), Blademaster/Axe Mastery/Ambidexterity (Warrior, per Session 148's summary — re-verify
-      against `traits.json`/wiki before curating, some of these may already be fully captured as
-      unconditional in `CURATED_FLAT_BONUSES` and only have a *second*, separate weapon-gated fact;
-      don't assume the Session 148 list is authoritative without a fresh check).
+- [x] **Weapon-equipped-gated flat bonuses** — done 2026-08-12, see COMPLETED.md. Lives in
+      `trait-attributes.ts`'s `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`/
+      `activeWeaponEquippedAttributeTraitBonus`, needing no new `CombatState` field as expected
+      (derivable purely from `build.equipment`, gated via 2 new helpers, `activeWeaponTypes`/
+      `activeMainHandWeaponType`). Also folded into `gear-optimize.ts`'s pre-search baseline
+      alongside `activeTraitFlatBonuses`, since the optimizer never touches `weaponType`. 13 traits
+      curated, wiki-verified via the live API's own `description` text (matches each trait's
+      already-wiki-verified base-half comment in `CURATED_FLAT_BONUSES`): Right-Hand Strength (566,
+      Guardian, +80 Power, one-handed weapon in main hand only — Axe/Mace/Scepter/Sword), Zealous
+      Blade (653, Guardian, +120 Power, Greatsword), Forceful Greatsword (1338, Warrior, +120 Power
+      additional on top of its already-curated +120 base, Greatsword/Spear — not originally on this
+      checklist's candidate list, surfaced by its "doubling" comment in `CURATED_FLAT_BONUSES`),
+      Blademaster (1333, Warrior, +120 ConditionDamage, Sword — a different attribute than its
+      unconditional Expertise half, not a doubling of it), Axe Mastery (1369, Warrior, +120
+      CritDamage, Axe), Honed Axes (970, Ranger, +120 CritDamage, Axe), Ambidexterity (1101,
+      Ranger, +120 ConditionDamage, Torch/Dagger/Mace), Strider's Strength (1700, Ranger, +120
+      Power, Sword), Swindler's Equilibrium (1192, Thief, +120 Power, Sword/Spear), Dagger Training
+      (1245, Thief, +80 Power, Dagger), Staff Master (1884, Thief, +120 Power, Staff), Second
+      Opinion (2284, Thief, +90 ConditionDamage, Scepter), Stalwart Defender (580, Guardian, +240
+      Toughness, Shield — wiki-verified via raw wikitext since it has no unconditional half at all,
+      the only entry in this family with no counterpart in `CURATED_FLAT_BONUSES`). Arachnophobia
+      (1099, Ranger), one of this checklist's original candidates, turned out NOT to belong here on
+      a fresh check — its second fact is pet-type-conditional (Spider/Devourer), not weapon-gated —
+      confirming the checklist's own warning not to trust the Session 148 candidate list blindly.
 - [ ] **Attunement-gated flat bonuses** (Elementalist only) — Empowering Flame (+150 Power, fire),
       Aeromancer's Training's excluded half (+150 Ferocity, air). Needs a new "current attunement"
       `CombatState` field + UI, Elementalist-only.
