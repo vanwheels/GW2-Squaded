@@ -132,7 +132,34 @@ const CURATED_FLAT_BONUSES: TraitFlatBonus[] = [
   // Wiki-verified 2026-08-12 (raw wikitext): split "pve wvw"=120 / "pvp"=240 — unlike most splits
   // seen in this sweep, WvW groups with PvE here, not PvP (flagged as the exception this sweep's
   // notes warned to watch for). WvW value is 120.
-  { traitId: 1801, target: 'ConditionDamage', value: 120 }
+  { traitId: 1801, target: 'ConditionDamage', value: 120 },
+  // Lingering Curse (Necromancer, Curses, Major Grandmaster) — "Your condition damage is increased."
+  // Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|attribute|Condition Damage|200}}`, no
+  // game-mode split). This trait's other effect (scepter condition duration + Feast of Corruption
+  // morph) is a skill modifier, not a character-stat gain — out of scope. Note: the raw API fact
+  // data lists this fact's `target` as `"None"` (a data quirk), but the wiki confirms it's a genuine
+  // Condition Damage attribute gain.
+  { traitId: 801, target: 'ConditionDamage', value: 200 },
+  // Furious Demise (Necromancer, Curses, Minor Master) — "Gain additional precision." Wiki-verified
+  // 2026-08-12: unconditional +180 Precision, no game-mode split. This trait's other effect (fury on
+  // shroud entry, split pve 25% crit-chance bonus/wvw pvp standard) is a proc buff, not a
+  // character-stat gain — out of scope.
+  { traitId: 803, target: 'Precision', value: 180 },
+  // Vital Persistence (Necromancer, Soul Reaping, Major Master) — "Gain Vitality." Wiki-verified
+  // 2026-08-12: unconditional +180 Vitality, no game-mode split. This trait's other effect (incoming
+  // healing increase, split pve 20%/wvw pvp 10%) isn't modeled by this attribute-totals table —
+  // out of scope.
+  { traitId: 861, target: 'Vitality', value: 180 },
+  // Alchemic Vigor (Necromancer, Harbinger, Minor Master) — "Gain increased vitality." Wiki-verified
+  // 2026-08-12 (raw wikitext: `{{skill fact|attribute|Vitality|alt=Vitality Increased|240}}`, no
+  // game-mode split). This trait's other effect (heal per blight stack each second) is a proc-heal
+  // coefficient, not a character-stat gain — out of scope.
+  { traitId: 2186, target: 'Vitality', value: 240 },
+  // Boon of Creation (Necromancer, Ritualist, Minor Master) — "Gain concentration." Wiki-verified
+  // 2026-08-12: split game mode=pve 180 / game mode=pvp wvw 60; WvW value is 60. This trait's other
+  // effect (life force on creature summon, split pve 10/wvw pvp 3) is a resource gain, not a
+  // character-stat gain — out of scope.
+  { traitId: 2371, target: 'BoonDuration', value: 60 }
 ]
 
 const CURATED_CONVERSIONS: TraitConversion[] = [
@@ -184,7 +211,37 @@ const CURATED_CONVERSIONS: TraitConversion[] = [
   // health threshold) — same multi-sentence shape as Life Attunement/Quiet Intensity, where one
   // clause is a genuine passive gain and the others aren't. Wiki-verified 2026-08-12 (raw wikitext):
   // split game mode=pve 13 / game mode=pvp wvw 4; WvW value is 4.
-  { traitId: 1770, source: 'Toughness', target: 'Power', percent: 4 }
+  { traitId: 1770, source: 'Toughness', target: 'Power', percent: 4 },
+  // Target the Weak (Necromancer, Curses, Minor Grandmaster) — "Gain condition damage based on your
+  // precision." Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|Gain|Condition
+  // Damage|Precision|13}}`, no game-mode split). This trait's other effect (crit chance per
+  // condition on the foe) is a skill modifier, not a character-stat gain — out of scope.
+  { traitId: 810, source: 'Precision', target: 'ConditionDamage', percent: 13 },
+  // Spiteful Fortitude (Necromancer, Spite, Major Master) — "Gain vitality based on a percentage of
+  // your power." Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|gain|Vitality|Power|10}}`, no
+  // game-mode split). This trait's other effect (life force on striking a foe below the health
+  // threshold) is a resource-gain proc, not a character-stat gain — out of scope.
+  { traitId: 829, source: 'Power', target: 'Vitality', percent: 10 },
+  // Fell Beacon (Necromancer, Scourge, Major Adept) — "Gain expertise based on your condition
+  // damage." Wiki-verified 2026-08-12: split game mode=pve 7 / game mode=pvp wvw 4; WvW value is 4.
+  // This trait's other effect (burning damage increase) is a skill modifier, not a character-stat
+  // gain — out of scope.
+  { traitId: 2074, source: 'ConditionDamage', target: 'ConditionDuration', percent: 4 },
+  // Implacable Foe (Necromancer, Harbinger, Major Master) — "Gain ferocity based on your vitality."
+  // Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|Gain|Ferocity|Vitality|13}}`, no game-mode
+  // split). This trait's other effect (stability + damage reduction on Harbinger Shroud entry, split
+  // pve 5 stacks/wvw pvp 3 stacks) is a shroud-entry proc, not a character-stat gain — out of scope.
+  { traitId: 2192, source: 'Vitality', target: 'CritDamage', percent: 13 },
+  // Dark Gunslinger (Necromancer, Harbinger, Major Master) — "Gain expertise based on your vitality."
+  // Wiki-verified 2026-08-12: split game mode=pve 10 / game mode=pvp wvw 13; WvW value is 13. This
+  // trait's other effect (pistol skill recharge reduction) is a skill modifier, not a character-stat
+  // gain — out of scope.
+  { traitId: 2209, source: 'Vitality', target: 'ConditionDuration', percent: 13 },
+  // Twisted Medicine (Necromancer, Harbinger, Major Master) — "Gain concentration based on your
+  // vitality." Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|Gain|Concentration|Vitality|13}}`,
+  // no game-mode split). This trait's other effect (elixir boons shared with nearby allies) is a
+  // skill modifier, not a character-stat gain — out of scope.
+  { traitId: 2220, source: 'Vitality', target: 'BoonDuration', percent: 13 }
 ]
 
 /**

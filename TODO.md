@@ -225,11 +225,34 @@ that before extending either further, and before the tooltip visual-pass item be
       known health-threshold-conditional shape (Empire Divided — the very trait used as this sweep's
       prototype example for that family, Vindicator). Life Attunement was already curated from before
       this sweep started, not recounted.
-      **Remaining legs (~103 candidates across Necromancer 29, Ranger 23, Thief 29, Warrior 22) not
-      yet swept** — each candidate needs its trait *description* read for genuine unconditional
-      "gain X" language, same rigor as every other curated table; regenerate the candidate list
-      per-profession via a `traits.json` scan for `AttributeAdjust`/`BuffConversion` facts joined
-      against `specializations.json` if picking this back up in a new session.
+      **Necromancer leg (29 candidates, done 2026-08-12)**: 11 curated — 5 flat (Lingering Curse:
+      +200 Condition Damage, no split, despite the raw API fact's `target` reading `"None"` — a data
+      quirk the wiki resolved; Furious Demise: +180 Precision; Vital Persistence: +180 Vitality;
+      Alchemic Vigor: +240 Vitality; Boon of Creation: +60 Concentration, WvW value) and 6 conversions
+      (Target the Weak: 13% Precision→Condition Damage, no split; Spiteful Fortitude: 10%
+      Power→Vitality, no split; Fell Beacon: 4% Condition Damage→Expertise, WvW value; Implacable Foe:
+      13% Vitality→Ferocity, no split; Dark Gunslinger: 13% Vitality→Expertise, WvW value; Twisted
+      Medicine: 13% Vitality→Concentration, no split). 13 excluded as proc-heal/life-siphon/barrier
+      coefficients (Transfusion, Vampiric, Overflowing Thirst, Life from Death, Signets of Suffering,
+      Terror, Vampiric Presence, Blood Renewal, Blighter's Boon, Augury of Death, Feed from
+      Corruption, Desert Empowerment, Spirit's Gift — life-siphon-on-hit is the same shape family as
+      Healer's-Gift proc-heals, just health-drain-flavored instead of heal-flavored). 5 flagged as new
+      or already-known conditional shapes, not added to this unconditional table: Reaper's Onslaught
+      (+300 Ferocity while in Reaper's Shroud — a **new shroud-gated flat-bonus family**, same shape
+      category as the attunement-gated/weapon-equipped-gated families already flagged, just keyed on
+      shroud state) and Sand Sage (Concentration+Expertise while an active shade is up — same
+      shroud/stance-gated family, Scourge's shade mechanic instead of shroud); Deadly Strength (Power
+      + Condition Damage per Carapace stack, Death Magic) — a **new stack-scaling family**, distinct
+      from Applied Force's single-threshold gate because Carapace stacks scale continuously; Awaken
+      the Pain ("Might grants you more power," Spite minor) — same continuous stack-scaling family as
+      Deadly Strength, keyed on Might instead of Carapace; Last Rites (Healing Power at three
+      increasing tiers below 75%/50% health, Blood Magic minor) — same health-threshold-conditional
+      shape as Vindicator's Empire Divided, just three tiers instead of one.
+      **Remaining legs (~74 candidates across Ranger 23, Thief 29, Warrior 22) not yet swept** — each
+      candidate needs its trait *description* read for genuine unconditional "gain X" language, same
+      rigor as every other curated table; regenerate the candidate list per-profession via a
+      `traits.json` scan for `AttributeAdjust`/`BuffConversion` facts joined against
+      `specializations.json` if picking this back up in a new session.
 
 - [ ] 76 Food catalog entries still have no buff data after `borrowSharedContainerBonuses` +
       `applyAscendedFeastFormula` (`fetch-gear-upgrades.ts`) — genuinely buff-less items that don't
