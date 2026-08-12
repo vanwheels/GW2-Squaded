@@ -27,7 +27,7 @@ import {
 } from './derived-stats'
 import { combatStatePoints, furyCritChanceTraitBonus, FURY_CRITICAL_CHANCE_PERCENT, type CombatState } from './combat-state'
 import { formatItemStatName } from './format-description'
-import { activeTraitFlatBonuses, activeWeaponEquippedAttributeTraitBonus, applyTraitBonuses } from './trait-attributes'
+import { activeAttunementAttributeTraitBonus, activeTraitFlatBonuses, activeWeaponEquippedAttributeTraitBonus, applyTraitBonuses } from './trait-attributes'
 import { armorTrinketInfusionCapacity, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from './upgrade-slots'
 
 /**
@@ -738,6 +738,9 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
   // the time the search runs, safe to fold into the baseline the same way (unlike trait
   // *conversions*, whose source attribute a still-being-searched slot could affect).
   for (const [k, v] of Object.entries(activeWeaponEquippedAttributeTraitBonus(build, traitsById))) addPoints(baseline, k, v)
+  // Attunement-gated trait bonuses (`ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`) are gear-independent for
+  // the same reason — the optimizer never touches `build.activeAttunement`.
+  for (const [k, v] of Object.entries(activeAttunementAttributeTraitBonus(build, traitsById))) addPoints(baseline, k, v)
 
   const weightClass = WEIGHT_CLASS_BY_PROFESSION[build.profession]
   const ctx: MetricContext = {

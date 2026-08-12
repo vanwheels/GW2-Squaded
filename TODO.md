@@ -120,9 +120,14 @@ as every other sweep here (`pacing_large_sweeps` memory) — do not chain these.
       (1099, Ranger), one of this checklist's original candidates, turned out NOT to belong here on
       a fresh check — its second fact is pet-type-conditional (Spider/Devourer), not weapon-gated —
       confirming the checklist's own warning not to trust the Session 148 candidate list blindly.
-- [ ] **Attunement-gated flat bonuses** (Elementalist only) — Empowering Flame (+150 Power, fire),
-      Aeromancer's Training's excluded half (+150 Ferocity, air). Needs a new "current attunement"
-      `CombatState` field + UI, Elementalist-only.
+- [x] **Attunement-gated flat bonuses** (Elementalist only) — done 2026-08-12, see COMPLETED.md
+      Session 153. Empowering Flame (id 320, +150 Power, no unconditional half at all) and
+      Aeromancer's Training's excluded half (id 223, +150 Ferocity, air) — both wiki-verified, live
+      in `trait-attributes.ts`'s `ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`/
+      `activeAttunementAttributeTraitBonus`. Turned out **not** to need a new `CombatState`
+      field/UI as this checklist originally assumed — `Build.activeAttunement` already tracks the
+      currently-selected attunement (set via the existing F1-F4 `ProfessionMechanicBar` icons), so
+      this leg reused persisted `Build` state instead, same shape as the weapon-equipped-gated leg.
 - [ ] **Shroud/stance-gated flat bonuses** — Reaper's Onslaught (+300 Ferocity, Reaper's Shroud),
       Sand Sage (Concentration+Expertise, active shade), Fatal Frenzy (Power+Condition Damage,
       berserk mode). Needs a per-profession "mechanic active" `CombatState` toggle + UI.

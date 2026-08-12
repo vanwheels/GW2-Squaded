@@ -2,6 +2,45 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 153 — Conditional trait-attribute bonuses, leg 5: Attunement-gated flat bonuses
+
+Picks up TODO.md's "Conditional trait-attribute bonuses — remaining families" checklist at the
+"Attunement-gated flat bonuses" family (Elementalist only): traits whose flat attribute bonus only
+applies while attuned to a specific element. The checklist originally assumed this would need a new
+`CombatState` field/UI (grouped with the boon-gated/shroud-gated/revealed-gated/health-threshold legs
+still needing genuinely new toggles) — but a fresh look at `Build`'s own fields found
+`activeAttunement` already tracks exactly this, set live by clicking the F1-F4 icons in
+`ProfessionMechanicBar`. Reused it instead, same **no new `CombatState` UI** shape as the
+weapon-equipped-gated leg (persisted `Build` state is the condition, not an ephemeral toggle).
+`activeAttunement`'s own doc comment calls it "display-only" for `WeaponSkillBar`/boon-calc purposes
+(a real Elementalist cycles all 4 attunements at will, so skill/boon totals credit every attunement
+regardless of which is shown) — that reasoning doesn't apply here: a flat attribute bonus like these
+only applies at the instant you're actually standing in that attunement, so gating on the
+currently-selected one is the *correct* semantics, not merely a convenient shortcut, unlike boon
+uptime.
+
+Added `trait-attributes.ts`'s `ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`/
+`activeAttunementAttributeTraitBonus`, folded into `applyTraitBonuses` for every normal caller and
+separately into `gear-optimize.ts`'s pre-search baseline (safe to fix before the search runs, same
+reasoning as the weapon-equipped-gated leg, since the optimizer never touches
+`build.activeAttunement`).
+
+2 traits curated, both wiki-verified via raw wikitext (`?action=raw`) 2026-08-12, no game-mode split
+on either: **Empowering Flame** (Elementalist/Fire, Minor Adept, id 320) — its entire +150 Power is
+attunement-gated, no unconditional half at all (its description literally is the gate: "Gain power
+while in fire attunement"), the second entry in this whole sweep with that shape after Stalwart
+Defender. **Aeromancer's Training** (Elementalist/Air, Minor GM, id 223) — its *second* Ferocity
+fact, explicitly labeled "Additional Ferocity" in both the raw API data and the wiki's own `alt=`
+parameter, +150 CritDamage while attuned to air; its unconditional +150 CritDamage half was already
+curated in `CURATED_FLAT_BONUSES` during the original Session 148 sweep (that entry's comment already
+flagged this second half as excluded pending this family).
+
+`npm run typecheck`/`lint` both clean. No dedicated unit tests exist for this calc layer; not
+visually spot-checked in the running app (Electron sandbox limitation). TODO.md's checklist updated
+to mark this family done; 3 families remain (shroud/stance-gated, revealed-state-gated,
+health-threshold-conditional) — all still expected to need a genuinely new `CombatState` toggle,
+unlike this leg and the weapon-equipped-gated one.
+
 ## Session 152 — Conditional trait-attribute bonuses, leg 4: Weapon-equipped-gated flat bonuses
 
 Picks up TODO.md's "Conditional trait-attribute bonuses — remaining families" checklist at the

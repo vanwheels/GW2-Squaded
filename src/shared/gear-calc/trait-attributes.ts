@@ -544,6 +544,59 @@ export function activeWeaponEquippedAttributeTraitBonus(build: Build, traitsById
 }
 
 /**
+ * Trait id -> extra flat attribute point granted only while attuned to a specific element
+ * (Elementalist only) — the "Attunement-gated flat bonuses" family from TODO.md, second leg of the
+ * conditional-trait-attribute-bonus sweep needing no new `CombatState` field, same reasoning as
+ * `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES` above: `Build.activeAttunement` already tracks which
+ * attunement is currently selected (set by clicking the F1-F4 icons in `ProfessionMechanicBar`), so
+ * no duplicate ephemeral toggle is needed even though this checklist entry originally assumed one
+ * would be. That field's own doc comment notes it's "display-only" for `WeaponSkillBar`/boon-calc
+ * purposes (a real Elementalist cycles all 4 attunements at will, so skill/boon contributions credit
+ * every attunement regardless of which is shown) — but that reasoning is specific to skill
+ * availability over a full rotation, not applicable here: a flat attribute bonus like these only
+ * applies at the instant you're actually standing in that one attunement, so gating on the
+ * currently-selected one is the correct (not merely convenient) semantics, unlike boon uptime.
+ * Both wiki-verified via raw wikitext (`?action=raw`) 2026-08-12:
+ * - Empowering Flame (wiki.guildwars2.com/wiki/Empowering_Flame, Elementalist/Fire, Minor Adept, id
+ *   320): description is itself the whole gate ("Gain power while in fire attunement") — unlike
+ *   every entry in the weapon-equipped-gated family except Stalwart Defender, this trait has no
+ *   unconditional half at all. `{{skill fact|attribute|Power|150}}`, no game-mode split.
+ * - Aeromancer's Training (wiki.guildwars2.com/wiki/Aeromancer's_Training, Elementalist/Air, Minor
+ *   GM, id 223): this trait's *second* Ferocity fact, explicitly labeled "Additional Ferocity" in
+ *   both the raw API data and the wiki's own `alt=` fact parameter, gated on "while attuned to air";
+ *   its unconditional +150 CritDamage half is already curated in `CURATED_FLAT_BONUSES` above (see
+ *   that entry's comment). `{{skill fact|attribute|Ferocity|alt=Additional Ferocity|150}}`, no
+ *   game-mode split.
+ */
+export interface AttunementTraitBonus {
+  target: string
+  value: number
+  attunement: 'Fire' | 'Water' | 'Air' | 'Earth'
+}
+
+export const ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES: Record<number, AttunementTraitBonus> = {
+  320: { target: 'Power', value: 150, attunement: 'Fire' }, // Empowering Flame (Elementalist, Fire, Minor Adept)
+  223: { target: 'CritDamage', value: 150, attunement: 'Air' } // Aeromancer's Training (Elementalist, Air, Minor GM)
+}
+
+/**
+ * Sums every curated attunement-gated trait bonus actually active on this build AND matching
+ * `build.activeAttunement`, grouped by target attribute (mirrors `activeWeaponEquippedAttributeTraitBonus`'s
+ * shape/gating just above — persisted `Build` state is the condition here too, not an ephemeral
+ * `CombatState` toggle).
+ */
+export function activeAttunementAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>): Record<string, number> {
+  const active = activeTraitIds(build, traitsById)
+  const bonus: Record<string, number> = {}
+  for (const [traitIdText, { target, value, attunement }] of Object.entries(ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES)) {
+    if (!active.has(Number(traitIdText))) continue
+    if (build.activeAttunement !== attunement) continue
+    bonus[target] = (bonus[target] ?? 0) + value
+  }
+  return bonus
+}
+
+/**
  * Every trait currently active on a build: every Minor trait of an equipped specialization line
  * (auto-granted, no selection needed) plus whichever Major trait was actually chosen per tier.
  * Exported for reuse by `combat-state.ts`'s fury-gated trait-bonus tables, which need the exact
@@ -592,6 +645,8 @@ export function applyTraitBonuses(totals: AttributeTotals, build: Build, traitsB
   for (const [k, v] of Object.entries(flat.points)) addPoints(totals, k, v)
 
   for (const [target, value] of Object.entries(activeWeaponEquippedAttributeTraitBonus(build, traitsById))) addPoints(totals, target, value)
+
+  for (const [target, value] of Object.entries(activeAttunementAttributeTraitBonus(build, traitsById))) addPoints(totals, target, value)
 
   applyConversions(totals, activeTraitConversions(build, traitsById))
 }
