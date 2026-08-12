@@ -723,15 +723,34 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   71889: [{ factText: 'Healing', baseValue: 1940, coefficient: 1.1 }],
   // Warrior — Valiant Leap (Spear). 3-way split by mode (PvE 1295/1.0, WvW 975/0.5, PvP separately
   // valued) — WvW value used.
-  72002: [{ factText: 'Healing', baseValue: 975, coefficient: 0.5 }]
-  // Revenant — Energy Expulsion (Legendary Centaur Stance flip-skill, id 29114) investigated but left
-  // uncurated: the live GW2 API (re-confirmed via a fresh `/v2/skills/29114` pull, not just this app's
-  // cached data) returns a completely different fact set — a "Healing Fragment"/"Number of
-  // Fragments"/"Knockback" mechanic — than the wiki's current page, which describes a single
-  // knockdown+heal with no fragments at all (`{{skill fact|healing|1970|coefficient=1.0|game
-  // mode=pve}}` / `1478/0.5` pvp+wvw). This is a genuine, unresolved API/wiki mechanic mismatch (not
-  // just a value tweak), not a case where either source can be trusted over the other — left
-  // uncurated rather than guessing which one is stale.
+  72002: [{ factText: 'Healing', baseValue: 975, coefficient: 0.5 }],
+  // Revenant — Energy Expulsion, the LIVE/canonical id (27356, referenced by legends.json's
+  // Legend6 `elite` — confirmed via docs/game-data.md's "Revenant legends" section this is the id
+  // `RevenantSkillsEditor` actually displays; 29114 below is a same-named orphan id, structurally
+  // unreachable in this app). Unlike 29114, this id carries ZERO real API Healing fact at all (a
+  // straightforward empty-facts gap, not a mismatch), so the wiki's stated value is used directly
+  // per the usual synthetic-facts.json Case 1 pattern — see there for the matching Buff/Number
+  // facts (Knockdown, Conditions Removed) added alongside this. 3-way split (PvE 1970/1.0, WvW+PvP
+  // 1478/0.5) — WvW value used, same convention as every other split entry in this table.
+  27356: [{ factText: 'Healing', baseValue: 1478, coefficient: 0.5 }],
+  // Revenant — Purifying Essence, the LIVE/canonical id (27715, Legend6 `utilities[2]`) — its own
+  // orphan sibling 29197 (above, in the Heal/Utility section) already carries this exact same
+  // Healing fact for real; 27715 doesn't, so the same value is mirrored here via a
+  // synthetic-facts.json Case 1 entry. No PvE/WvW split (wiki's `{{skill fact|healing|...}}`
+  // template for this skill carries no `game mode=` tag at all, matching 29197's own comment above).
+  27715: [{ factText: 'Healing per Condition Removed', baseValue: 325, coefficient: 0.2 }],
+  // Revenant — Energy Expulsion, the ORPHAN id (29114, a same-named sibling of the live 27356
+  // above — see that entry's comment). Investigated but left uncurated: the live GW2 API
+  // (re-confirmed via a fresh `/v2/skills/29114` pull, not just this app's cached data) returns a
+  // completely different fact set — a "Healing Fragment"/"Number of Fragments"/"Knockback"
+  // mechanic — than the wiki's current page, which describes a single knockdown+heal with no
+  // fragments at all (`{{skill fact|healing|1970|coefficient=1.0|game mode=pve}}` / `1478/0.5`
+  // pvp+wvw — the same values curated for 27356 above). This is a genuine, unresolved API/wiki
+  // mechanic mismatch on 29114 specifically (not just a value tweak), not a case where either
+  // source can be trusted over the other — left uncurated rather than guessing which one is stale.
+  // Moot either way: 29114 is structurally unreachable in this app, so this entry would be dead
+  // data even if curated (same shape as Jade Winds' harmless-dead-data orphan, see
+  // docs/game-data.md's Protective Solace/Jade Winds writeup).
 }
 
 export interface HealingLine {

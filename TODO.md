@@ -89,10 +89,32 @@ sweeps, not code fixes, and weren't started:
       Unleashed/Gunsaber-Mode-shaped skip as `docs/game-data.md` already documents), and
       Darkrazor's Daring's WvW-split Stability durations (two simultaneous same-status Buff facts —
       overriding either would collapse-drop the other, same failure mode Fox's Fury's Might hit).
-      Remaining legs (Dragon/Assassin/Dwarf/Demon/Centaur/Alliance/Entity Stances, ~19 more skill
-      ids across `legends.json`'s `heal`/`elite`/`utilities`) not started — check each against
-      `synthetic-facts.json` and the wiki before assuming a gap; several may already be fully
-      API-covered like Renegade's own heal/elite were.
+      **Full sweep DONE 2026-08-12** (all 8 legends checked, not just Renegade): Dragon/Assassin/
+      Dwarf/Demon/Alliance/Entity Stances turned out to already have real, substantial API facts for
+      every heal/elite/utility skill — no gap of this shape existed there. **Legendary Centaur
+      Stance was the other real gap**, same "API returns almost nothing" shape as Renegade — fixed:
+      Energy Expulsion (27356, Healing/Conditions Removed/Knockdown), Protective Solace (26821,
+      barrier Duration), Natural Harmony (27025, Delay Time only — Healing deliberately left
+      uncurated, see below), Purifying Essence (27715, Healing per Condition Removed/Conditions
+      Removed). Ventari's Will (28427, the legend's heal-slot id) needed nothing — wiki-confirmed
+      (2022-06-28 patch notes) it no longer heals at all, "will the tablet toward target location"
+      is its whole effect; the near-empty facts were correct, not a gap.
+      **Load-bearing wrinkle found mid-sweep**: `legends.json`'s ids (the ones `RevenantSkillsEditor`
+      actually displays, confirmed via `docs/game-data.md`'s Protective Solace/Jade Winds writeup)
+      are DIFFERENT ids from same-named, structurally-unreachable "orphan" siblings elsewhere in
+      `skills.json` (26821 vs `29310`, 27025 vs `29082`, 27356 vs `29114`, 27715 vs `29197`) — the
+      orphans often carry richer real API facts (an earlier Healing-category sweep had already
+      curated 29197, and flagged 29114/29082 as unusable — see `healing-calc.ts`), but being
+      unreachable, none of that helps the live ids. Natural Harmony's Healing was deliberately left
+      uncurated for this reason: its orphan sibling's OWN live API pull (1620) genuinely disagrees
+      with the current wiki text (1124) with no way to tell which is stale, a documented exception
+      already on record in `healing-calc.ts` — reusing the wiki number for the live id risked baking
+      in the same possibly-wrong value, so left as an honest gap instead.
+      **Not re-litigated, pre-existing partial curation**: Entity Stance's elite (76968/77001,
+      wiki-titled "Fragment of Razah") already had its unconditional Might fact curated by an earlier
+      session; its base Bleeding fact and its "Resonance" mechanic (5 different bonus effects
+      depending on which OTHER legend is equipped) remain uncurated — a legend-conditional curation
+      shape of its own, out of scope here, not chased further this session.
 
 - [ ] **Trait-granted boons don't show up on the skill that actually triggers them** — flagged for
       Notoriety and Rapid Flow (both Revenant/Invocation minor traits). Both already carry their own

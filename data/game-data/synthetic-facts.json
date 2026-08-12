@@ -145,5 +145,16 @@
     { "type": "Number", "text": "Bonus Defiance Break", "value": 400 },
     { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4 },
     { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 4 }
+  ],
+  "27356": [
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Healing", "value": 1970 },
+    { "type": "Number", "text": "Conditions Removed", "value": 1 },
+    { "type": "Time", "text": "Knockdown", "duration": 3 }
+  ],
+  "26821": [{ "type": "Time", "text": "Duration", "duration": 20 }],
+  "27025": [{ "type": "Time", "text": "Delay Time", "duration": 1 }],
+  "27715": [
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Healing per Condition Removed", "value": 325 },
+    { "type": "Number", "text": "Conditions Removed", "value": 3 }
   ]
 }
