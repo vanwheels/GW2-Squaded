@@ -2,6 +2,54 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 148 — Trait attribute bonus sweep complete (Thief leg, final of 9 professions)
+
+Closes TODO.md's "Curate more trait attribute bonuses" entry, open since 2026-08-12. Swept
+`trait-attributes.ts`'s last remaining profession leg, Thief (29 candidates), completing the sweep
+across all 9 professions (187 candidates total: Mesmer 8, Engineer 17, Guardian 21, Elementalist 19,
+Revenant 19, Necromancer 29, Warrior 22, Ranger 23, Thief 29).
+
+**Thief leg**: 12 traits curated into `CURATED_FLAT_BONUSES`/`CURATED_CONVERSIONS` — 9 flat (Deadly
+Ambition +120 Condition Damage; Swindler's Equilibrium +120 Power, unconditional half; Preparedness
++150 Expertise; Dagger Training +80 Power, unconditional half; Revealed Training +100 Power,
+unconditional half; Staff Master +120 Power, unconditional half; Silent Scope +120 Precision;
+Premeditation +60 Concentration; Second Opinion +90 Condition Damage, unconditional half) and 4
+conversions (Practiced Tolerance 15% Precision→Ferocity; Marauder's Resilience 7% Power→Vitality;
+Strength of Shadows 13% Vitality→Expertise; Second Opinion 7% Condition Damage→Healing Power). All
+percent/split values wiki-verified via raw wikitext (`?action=raw`), double-checked with a
+"quote every `skill fact` line verbatim" re-fetch per candidate after last leg's lesson about the
+raw-wikitext fetch tool itself summarizing through a small model. 15 excluded as proc-heal/barrier/
+life-siphon coefficients (Leeching Venoms, Shielding Restoration, Assassin's Reward, Mug, Merciful
+Ambush, Shadow Savior, Cloaked in Shadow, Shadow Siphoning, Escapist's Fortitude, Panaku's Ambition,
+Traversing Dusk, Larcenous Torment, Hungering Darkness, Magpie's Defense, Enterprising Aristocrat).
+
+2 traits fully excluded as new/known conditional shapes, not added to this unconditional table: No
+Quarter (+250/300 Ferocity while under Fury — Fury-gated flat-bonus family, same as No
+Scope/Raging Storm/Deep Strikes/Vicious Quarry from earlier legs); Be Quick or Be Killed (+200
+Power/+200 Precision entirely gated on the Quickness gained from marking a foe — boon-gated flat-
+bonus family, same as Chaotic Persistence/Energy Amplifier/Imbued Haste, this time keyed on
+Quickness). Also surfaced a **new revealed-state-gated flat-bonus shape**: Revealed Training's
+excluded half (+120/150 Power while Revealed) — same conditional-gate category as the
+weapon-equipped/attunement/shroud/boon-gated families already flagged across this sweep, just keyed
+on the Revealed debuff.
+
+**Sweep-wide summary of what's still out of scope for this unconditional table**, tracked here since
+the TODO.md entry is now closed: a boon-gated family (Regeneration/Fury/Quickness — Chaotic
+Persistence, Sharpening Sorrow, Energy Amplifier, Imbued Haste, Be Quick or Be Killed) needing a
+generalized `CombatState` "which boons are up" toggle; a Fury-gated-Ferocity/Condition-Damage family
+(No Scope, Raging Storm, Deep Strikes, Vicious Quarry, No Quarter) needing a
+`FURY_FEROCITY_TRAIT_BONUSES`-style sibling table; a weapon-equipped-gated family derivable from
+`build.equipment` + `isActiveWeaponSlot` (Right-Hand Strength, Zealous Blade, Stalwart Defender,
+Blademaster, Axe Mastery, Honed Axes, Arachnophobia, Ambidexterity, Strider's Strength, Swindler's
+Equilibrium, Dagger Training, Staff Master, Second Opinion); an attunement-gated family (Aeromancer's
+Training, Empowering Flame); a shroud/stance-gated family (Reaper's Onslaught, Sand Sage, Fatal
+Frenzy); a revealed-state-gated family (Revealed Training); a continuous stack-scaling family
+(Deadly Strength, Awaken the Pain, Pinnacle of Strength); a pet-only-stat exclusion category (Ranger's
+Fang and Claw etc., correctly out of scope for the player's own attribute table); and a handful of
+already-tracked health-threshold-conditional traits (Empire Divided, Last Rites). None of these are
+omissions — each was investigated and deliberately deferred pending new plumbing, same convention as
+prior sweeps' TODO notes.
+
 ## Session 147 — Gear Optimizer bug closed: user confirmed live in-app spot-check
 
 Closes the TODO.md "Gear Optimizer doesn't function properly" entry for good. The remaining gap

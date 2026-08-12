@@ -224,7 +224,62 @@ const CURATED_FLAT_BONUSES: TraitFlatBonus[] = [
   // (raw wikitext: `{{skill fact|attribute|Vitality|240}}`, no game-mode split). This trait's other
   // effects (life-siphon on Unleashed Ambush hits) are the same life-siphon proc shape as
   // Necromancer's Predator's Cunning-family exclusions — excluded.
-  { traitId: 2286, target: 'Vitality', value: 240 }
+  { traitId: 2286, target: 'Vitality', value: 240 },
+  // Deadly Ambition (Thief, Deadly Arts, Major Master) — "Inflict poison when striking a foe with a
+  // dual wield attack. Gain increased Condition Damage." Wiki-verified 2026-08-12 (raw wikitext):
+  // split game mode=pve 180 / game mode=wvw pvp 120; WvW value is 120. The poison-on-hit half is a
+  // skill proc, not a character-stat gain — out of scope.
+  { traitId: 1164, target: 'ConditionDamage', value: 120 },
+  // Swindler's Equilibrium (Thief, Acrobatics, Major Adept) — "Gain power and additional power while
+  // wielding a sword or underwater spear." Wiki-verified 2026-08-12 (raw wikitext:
+  // `{{skill fact|attribute|Power|120}}` + `{{skill fact|attribute|Power|120|alt=Bonus Power}}`, no
+  // game-mode split). Unconditional half only; the "Bonus Power" fact is the same weapon-equipped-
+  // gated shape as Right-Hand Strength/Zealous Blade (gated on sword/underwater spear) — excluded.
+  { traitId: 1192, target: 'Power', value: 120 },
+  // Preparedness (Thief, Trickery, Minor Adept) — "Increases maximum initiative by 3. Gain increased
+  // expertise." Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|attribute|expertise|150}}`, no
+  // game-mode split). The initiative increase is a resource-cap change, not a character-stat gain —
+  // out of scope for this table.
+  { traitId: 1232, target: 'ConditionDuration', value: 150 },
+  // Dagger Training (Thief, Deadly Arts, Major Adept) — "Gain bonus power, which is increased when
+  // wielding a dagger." Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|attribute|Power|80}}` +
+  // `{{skill fact|attribute|Power|80|alt=Additional Power}}`, no game-mode split). Unconditional half
+  // only; the "Additional Power" fact is the same weapon-equipped-gated shape as Swindler's
+  // Equilibrium above (gated on dagger) — excluded.
+  { traitId: 1245, target: 'Power', value: 80 },
+  // Revealed Training (Thief, Deadly Arts, Major Grandmaster) — "Gain power, then gain extra power
+  // while you are revealed." Wiki-verified 2026-08-12 (raw wikitext): the base-power half splits
+  // game mode=pve 80 / game mode=pvp wvw 100; WvW value is 100. The "Power while Revealed" half
+  // (pve 120/wvw pvp 150) is a **new revealed-state-gated flat-bonus shape** — same conditional-gate
+  // family as weapon-equipped/attunement/shroud/boon gating already flagged elsewhere in this sweep,
+  // just keyed on the Revealed debuff — excluded, not added to this unconditional table.
+  { traitId: 1704, target: 'Power', value: 100 },
+  // Staff Master (Thief, Daredevil, Major Adept) — "While wielding a staff, gain endurance for each
+  // initiative point spent. Gain bonus power, which is increased when wielding a staff." Wiki-verified
+  // 2026-08-12 (raw wikitext: `{{skill fact|attribute|Power|120}}` +
+  // `{{skill fact|attribute|Power|120|alt=Bonus Power with Staff}}`, no game-mode split).
+  // Unconditional half only; "Bonus Power with Staff" is the same weapon-equipped-gated shape as
+  // Swindler's Equilibrium/Dagger Training above (gated on staff) — excluded. The endurance-per-
+  // initiative effect is a resource gain, not a character-stat gain — out of scope.
+  { traitId: 1884, target: 'Power', value: 120 },
+  // Silent Scope (Thief, Deadeye, Major Adept) — "Gain precision. When you dodge roll, gain access to
+  // your stealth attack if your malice is above the threshold." Wiki-verified 2026-08-12 (raw
+  // wikitext: `{{skill fact|attribute|Precision|120}}`, no game-mode split). The dodge-roll stealth-
+  // attack-access clause is a skill-access unlock, not a character-stat gain — out of scope.
+  { traitId: 2118, target: 'Precision', value: 120 },
+  // Premeditation (Thief, Deadeye, Major Grandmaster) — "Deal increased strike damage for each unique
+  // boon you have; concentration is increased." Wiki-verified 2026-08-12 (raw wikitext): split game
+  // mode=pve 180 / game mode=pvp wvw 60; WvW value is 60. The per-boon strike-damage clause is a
+  // damage modifier, not a character-stat gain — out of scope.
+  { traitId: 2160, target: 'BoonDuration', value: 60 },
+  // Second Opinion (Thief, Specter, Major Adept) — "A portion of condition damage is converted to
+  // healing power. Gain condition damage, which is increased when wielding a scepter." Wiki-verified
+  // 2026-08-12 (raw wikitext: `{{skill fact|attribute|Condition Damage|+90}}` +
+  // `{{skill fact|attribute|Condition Damage|alt=Additional Condition Damage|+90}}`, no game-mode
+  // split). Unconditional half only; "Additional Condition Damage" is the same weapon-equipped-gated
+  // shape as Swindler's Equilibrium/Dagger Training/Staff Master above (gated on scepter) — excluded.
+  // This trait's Condition Damage→Healing conversion is added separately below.
+  { traitId: 2284, target: 'ConditionDamage', value: 90 }
 ]
 
 const CURATED_CONVERSIONS: TraitConversion[] = [
@@ -341,7 +396,26 @@ const CURATED_CONVERSIONS: TraitConversion[] = [
   // `{{skill fact|Gain|Healing Power|Power|7}}`, no game-mode split). The wiki separately notes an
   // in-game rounding anomaly where the actual gain computes to 6.5% rather than 7% — using the
   // declared fact value (7%) here, same convention as every other curated trait in this table.
-  { traitId: 978, source: 'Power', target: 'Healing', percent: 7 }
+  { traitId: 978, source: 'Power', target: 'Healing', percent: 7 },
+  // Practiced Tolerance (Thief, Critical Strikes, Major Adept) — "Gain ferocity based on your
+  // precision." Wiki-verified 2026-08-12 (raw wikitext): split game mode=pve 10 / game mode=pvp wvw
+  // 15; WvW value is 15.
+  { traitId: 1272, source: 'Precision', target: 'CritDamage', percent: 15 },
+  // Marauder's Resilience (Thief, Daredevil, Major Adept) — "Gain vitality based on a portion of your
+  // power." Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|gain|Vitality|Power|7}}`, no
+  // game-mode split). This trait's other effect (incoming-damage reduction within a range threshold)
+  // is a damage modifier, not a character-stat gain — out of scope.
+  { traitId: 1933, source: 'Power', target: 'Vitality', percent: 7 },
+  // Strength of Shadows (Thief, Specter, Major Adept) — "Gain expertise based on a percentage of your
+  // vitality." Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|Gain|Expertise|Vitality|13}}`,
+  // no game-mode split). This trait's other effect (torment damage increase, split pve 20%/wvw pvp
+  // 25%) is a damage modifier, not a character-stat gain — out of scope.
+  { traitId: 2264, source: 'Vitality', target: 'ConditionDuration', percent: 13 },
+  // Second Opinion (Thief, Specter, Major Adept) — "A portion of condition damage is converted to
+  // healing power." Wiki-verified 2026-08-12 (raw wikitext:
+  // `{{skill fact|Gain|Healing Power|Condition Damage|7}}`, no game-mode split). This trait's flat
+  // Condition Damage half is added separately above.
+  { traitId: 2284, source: 'ConditionDamage', target: 'Healing', percent: 7 }
 ]
 
 /**
