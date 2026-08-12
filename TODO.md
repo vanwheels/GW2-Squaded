@@ -140,17 +140,24 @@ that before extending either further, and before the tooltip visual-pass item be
       per-option tooltip (not just its single fixed `rarity` prop) before extending
       `.tooltip-title.rarity-*` to them.
 
-- [ ] Curate more trait attribute bonuses (`trait-attributes.ts`). Only Revenant/Salvation's "Life
-      Attunement" is curated so far (+120 Healing Power, 7% Healing→Concentration, found via a
-      gw2skills.net cross-check). A `traits.json` scan found ~190 more candidates (168 with an
-      `AttributeAdjust` fact, 25 with `BuffConversion`) but the fact type alone doesn't mean "you
-      passively gain this" — confirmed live that Revenant/Salvation's "Healer's Gift" is actually the
-      coefficient for its own dodge-roll proc, not a stat grant. Each candidate needs its trait
-      *description* read for genuine unconditional "gain X" language before being added, same rigor
-      as every other curated table — add incrementally as specific builds get tested, not as a bulk
-      pass. Watch for conditional variants too: Vindicator's "Empire Divided" (Power/Healing Power
-      +240) is conditional on a 50% health threshold, not unconditional like Life Attunement — needs
-      its own `CombatState`-style toggle (like `furyActive`) rather than the unconditional table.
+- [ ] Curate more trait attribute bonuses (`trait-attributes.ts`) — sweep started 2026-08-12,
+      profession-by-profession (see [[pacing-large-sweeps]]). Revenant/Salvation's "Life Attunement"
+      (+120 Healing Power, 7% Healing→Concentration) plus, as of the **Mesmer leg (8 candidates,
+      done)**, Virtuoso's "Quiet Intensity" (10% Vitality→Ferocity, wiki-verified 2026-08-12) are now
+      curated. Mesmer leg findings: 5 of the 8 candidates were proc heal coefficients, not stat
+      grants, same shape as Revenant's "Healer's Gift" (All's Well That Ends Well, Illusionary
+      Inspiration, Restorative Illusions, Restorative Mantras, Raconteur — each fires "when you use/
+      summon/end X," not an unconditional gain); 2 were conditional-on-boon flat bonuses, not
+      unconditional (Chaotic Persistence: Concentration+Expertise "while affected by regeneration";
+      Sharpening Sorrow: Expertise "while under Fury" after casting Bladesong Sorrow) — same shape as
+      Vindicator's "Empire Divided" (Power/Healing Power +240 at ≤50% health), needs its own
+      `CombatState`-style toggle rather than this unconditional table, not scoped further yet.
+      **Remaining legs (~179 candidates across Elementalist 19, Engineer 17, Guardian 21,
+      Necromancer 29, Ranger 23, Revenant 19, Thief 29, Warrior 22) not yet swept** — each candidate
+      needs its trait *description* read for genuine unconditional "gain X" language, same rigor as
+      every other curated table; full candidate list with facts dumped to scratchpad during the
+      Mesmer leg (session-local, regenerate via a `traits.json` scan for
+      `AttributeAdjust`/`BuffConversion` facts if picking this back up in a new session).
 
 - [ ] 76 Food catalog entries still have no buff data after `borrowSharedContainerBonuses` +
       `applyAscendedFeastFormula` (`fetch-gear-upgrades.ts`) — genuinely buff-less items that don't
@@ -177,10 +184,11 @@ that before extending either further, and before the tooltip visual-pass item be
 
 - [ ] More curated fury-crit-chance traits in `combat-state.ts`'s `FURY_CRIT_CHANCE_TRAIT_BONUSES`
       (seeded 2026-08-01 with only Revenant's Roiling Mists, for the Gear Optimizer's Critical
-      Chance metric). A `traits.json` scan found 6 more with the same "extra crit chance while under
-      Fury" shape — Engineer's Hematic Focus, Warrior's Furious Burst, Ranger's Vicious Quarry,
-      Mesmer's Quiet Intensity, Revenant/Renegade's Brutal Momentum — each needs its current WvW-mode
-      value confirmed against the wiki (same as Roiling Mists) before being added.
+      Chance metric). Mesmer's Quiet Intensity added 2026-08-12 (wiki-verified: 15% PvE / 10% WvW,
+      value 10 stored) as a side effect of curating this same trait's *other* unconditional effect in
+      `trait-attributes.ts`. Still open — Engineer's Hematic Focus, Warrior's Furious Burst, Ranger's
+      Vicious Quarry, Revenant/Renegade's Brutal Momentum — each needs its current WvW-mode value
+      confirmed against the wiki (same as Roiling Mists) before being added.
 
 - [ ] Gear Optimizer's rune/infusion search (2026-08-11, see COMPLETED.md) adds up to ~18 extra
       per-slot infusion search variables + 1 rune slot on top of the existing ~12-14 gear/food/

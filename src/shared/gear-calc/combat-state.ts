@@ -101,7 +101,8 @@ export const CURATED_RELIC_DAMAGE_BONUSES: Record<number, number> = {
  * "fury" in the description) but aren't curated yet — add them here the same way once verified.
  */
 export const FURY_CRIT_CHANCE_TRAIT_BONUSES: Record<number, number> = {
-  1719: 20 // Roiling Mists (Revenant, Invocation, Major tier 3) — WvW value
+  1719: 20, // Roiling Mists (Revenant, Invocation, Major tier 3) — WvW value
+  2193: 10 // Quiet Intensity (Mesmer, Virtuoso, Minor GM) — WvW/PvP value; PvE is 15, WvW is 10
 }
 
 /**

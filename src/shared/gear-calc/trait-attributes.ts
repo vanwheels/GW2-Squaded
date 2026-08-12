@@ -39,7 +39,13 @@ const CURATED_CONVERSIONS: TraitConversion[] = [
   // Life Attunement — "Gain concentration based on a portion of your healing power." Wiki-verified
   // 2026-08-02 (wiki.guildwars2.com/wiki/Life_Attunement): 7% is the PvE **and** WvW value; 4% (the
   // raw API's other listed value) is competitive/PvP-only.
-  { traitId: 1821, source: 'Healing', target: 'BoonDuration', percent: 7 }
+  { traitId: 1821, source: 'Healing', target: 'BoonDuration', percent: 7 },
+  // Quiet Intensity (Mesmer, Virtuoso, Minor GM) — "Gain ferocity based on your vitality." Wiki-
+  // verified 2026-08-12 (wiki.guildwars2.com/wiki/Quiet_Intensity): 10% is a single game-mode-
+  // agnostic value, unlike this same trait's *other* effect ("Fury gives an increased critical
+  // chance," 15% PvE / 10% WvW/PvP — that half is conditional-on-Fury, tracked separately in
+  // `combat-state.ts`'s `FURY_CRIT_CHANCE_TRAIT_BONUSES`, not here).
+  { traitId: 2193, source: 'Vitality', target: 'CritDamage', percent: 10 }
 ]
 
 /**
