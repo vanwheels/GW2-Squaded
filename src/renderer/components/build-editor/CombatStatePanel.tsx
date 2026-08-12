@@ -3,6 +3,7 @@ import {
   CURATED_RELIC_DAMAGE_BONUSES,
   detectActiveStackingSigil,
   HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES,
+  kallaFervorPercentPerStack,
   KALLA_FERVOR_MAX_STACKS,
   MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES,
   RENEGADE_SPECIALIZATION_ID,
@@ -82,6 +83,10 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   // Only surfaced when the Renegade elite spec is actually equipped — Kalla's Fervor is exclusive
   // to that spec (see `combat-state.ts`'s `KALLA_FERVOR_*_PERCENT_PER_STACK`).
   const hasRenegade = build.specializations.some((s) => s?.specializationId === RENEGADE_SPECIALIZATION_ID)
+  // Reflects Lasting Legacy's upgrade (2%/2%/2% -> 3%/3%/3% per stack) in the stepper's own label,
+  // so the per-stack rate actually being used is visible without opening the Stats panel — see
+  // `kallaFervorPercentPerStack`'s doc comment.
+  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
 
   return (
     <div className="combat-state-controls">
@@ -102,7 +107,16 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
 
       {hasRenegade && (
         <div className="combat-state-row">
-          <img className={iconClass(value.kallaFervorStacks > 0)} src={KALLA_FERVOR_ICON} alt="" title="Kalla's Fervor" />
+          <img
+            className={iconClass(value.kallaFervorStacks > 0)}
+            src={KALLA_FERVOR_ICON}
+            alt=""
+            title={
+              kallaFervorPerStack.improved
+                ? `Kalla's Fervor (Improved by Lasting Legacy): +${kallaFervorPerStack.strikeDamage}% Damage / +${kallaFervorPerStack.conditionDamage}% Condition Damage / +${kallaFervorPerStack.lifeSteal}% Life Steal per stack`
+                : `Kalla's Fervor: +${kallaFervorPerStack.strikeDamage}% Damage / +${kallaFervorPerStack.conditionDamage}% Condition Damage / +${kallaFervorPerStack.lifeSteal}% Life Steal per stack`
+            }
+          />
           <select
             aria-label="Kalla's Fervor stacks"
             value={value.kallaFervorStacks}

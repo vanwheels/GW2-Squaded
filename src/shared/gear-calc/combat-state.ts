@@ -56,11 +56,12 @@ export interface CombatState {
    *  along with the other "what-if" combat inputs here. Same 3-tier convention gw2skills.net's own
    *  WvW golem toggle uses. */
   targetArmorClass: TargetArmorClass
-  /** 0-5 stacks of Kalla's Fervor, Revenant/Renegade's own stacking self-buff (2% strike damage,
-   *  2% condition damage, 2% life-steal damage per stack — see `KALLA_FERVOR_*_PERCENT_PER_STACK`
-   *  below). Only meaningful/surfaced when the Renegade elite spec is equipped (`CombatStatePanel`
-   *  gates its stepper on `RENEGADE_SPECIALIZATION_ID`), same shape as `stackingSigilStacks` (a
-   *  build-conditional stepper) rather than a flat boolean like `furyActive` etc. */
+  /** 0-5 stacks of Kalla's Fervor, Revenant/Renegade's own stacking self-buff (2% strike damage, 2%
+   *  condition damage, 2% life-steal damage per stack — 3%/3%/3% with Lasting Legacy chosen, see
+   *  `kallaFervorPercentPerStack` below). Only meaningful/surfaced when the Renegade elite spec is
+   *  equipped (`CombatStatePanel` gates its stepper on `RENEGADE_SPECIALIZATION_ID`), same shape as
+   *  `stackingSigilStacks` (a build-conditional stepper) rather than a flat boolean like
+   *  `furyActive` etc. */
   kallaFervorStacks: number
 }
 
@@ -101,6 +102,52 @@ export const KALLA_FERVOR_MAX_STACKS = 5
 export const KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK = 2
 export const KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK = 2
 export const KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK = 2
+
+/**
+ * Renegade/Grandmaster major trait "Lasting Legacy" (id 2100) upgrades Kalla's Fervor to "Improved
+ * Kalla's Fervor" — wiki-verified via raw wikitext 2026-08-12: `split = pve, wvw pvp`, genuine 2-way
+ * split — PvE is +5% Damage/+3% Condition Damage/+3% Life-Steal Damage per stack (asymmetric), WvW/
+ * PvP is a flat +3%/+3%/+3% per stack (this app's WvW value, used here). The trait's other effect
+ * ("lasts longer", `{{skill fact|duration increase|50%}}`) isn't modeled — Kalla's Fervor stacks are
+ * a manual 0-5 combat-state count here, not a timed buff (see `CombatState.kallaFervorStacks`'s doc
+ * comment), so a duration bonus has nothing to attach to, same as Might's own duration never being
+ * tracked. Heroic Command's separate "grants more might per stack" clause is its own skill-tooltip
+ * Buff fact (already rendered via `boonConditionFactsForTrait`), not part of this per-stack-%% math.
+ */
+export const LASTING_LEGACY_TRAIT_ID = 2100
+export const KALLA_FERVOR_IMPROVED_STRIKE_DAMAGE_PERCENT_PER_STACK = 3
+export const KALLA_FERVOR_IMPROVED_CONDITION_DAMAGE_PERCENT_PER_STACK = 3
+export const KALLA_FERVOR_IMPROVED_LIFE_STEAL_PERCENT_PER_STACK = 3
+
+export interface KallaFervorPercentPerStack {
+  strikeDamage: number
+  conditionDamage: number
+  lifeSteal: number
+  /** Whether Lasting Legacy's upgraded per-stack values are the ones being returned — surfaced so
+   *  `CombatStatePanel` can label its stepper accordingly. */
+  improved: boolean
+}
+
+/** Resolves Kalla's Fervor's actual per-stack %-per-stat, upgraded by Lasting Legacy when it's
+ *  chosen — mirrors `mightStackAttributeTraitBonus`'s "check `activeTraitIds` once" convention, but
+ *  a straight override rather than an additive bonus (Lasting Legacy replaces the base 2%/2%/2%
+ *  with 3%/3%/3%, it doesn't stack on top of it). */
+export function kallaFervorPercentPerStack(build: Build, traitsById: Map<number, Trait>): KallaFervorPercentPerStack {
+  const improved = activeTraitIds(build, traitsById).has(LASTING_LEGACY_TRAIT_ID)
+  return improved
+    ? {
+        strikeDamage: KALLA_FERVOR_IMPROVED_STRIKE_DAMAGE_PERCENT_PER_STACK,
+        conditionDamage: KALLA_FERVOR_IMPROVED_CONDITION_DAMAGE_PERCENT_PER_STACK,
+        lifeSteal: KALLA_FERVOR_IMPROVED_LIFE_STEAL_PERCENT_PER_STACK,
+        improved: true
+      }
+    : {
+        strikeDamage: KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK,
+        conditionDamage: KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK,
+        lifeSteal: KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK,
+        improved: false
+      }
+}
 
 export const FURY_CRITICAL_CHANCE_PERCENT = 20
 

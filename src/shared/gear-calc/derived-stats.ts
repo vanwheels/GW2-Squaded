@@ -16,9 +16,7 @@ import {
   DEFAULT_COMBAT_STATE,
   furyCritChanceTraitBonus,
   FURY_CRITICAL_CHANCE_PERCENT,
-  KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK,
-  KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK,
-  KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK,
+  kallaFervorPercentPerStack,
   type CombatState
 } from './combat-state'
 import { applyTraitBonuses } from './trait-attributes'
@@ -140,14 +138,17 @@ export interface DerivedStats {
   conditionDuration: number
   magicFind: number
   /** Outgoing strike-damage-% bonus: `CombatState.relicActive`'s curated relic bonus (0 when no
-   *  curated relic/inactive, see `CURATED_RELIC_DAMAGE_BONUSES`) plus Kalla's Fervor's 2%-per-stack
-   *  strike-damage share (`CombatState.kallaFervorStacks`, see `combat-state.ts`). */
+   *  curated relic/inactive, see `CURATED_RELIC_DAMAGE_BONUSES`) plus Kalla's Fervor's per-stack
+   *  strike-damage share (`CombatState.kallaFervorStacks`, 2%/stack or 3%/stack with Lasting Legacy
+   *  chosen — see `kallaFervorPercentPerStack` in `combat-state.ts`). */
   outgoingDamagePercent: number
   /** Outgoing condition-damage-% bonus — distinct from the raw `ConditionDamage` attribute total.
-   *  Currently only Kalla's Fervor's 2%-per-stack condition-damage share contributes. */
+   *  Currently only Kalla's Fervor's per-stack condition-damage share contributes (see
+   *  `outgoingDamagePercent`'s doc comment for the Lasting Legacy upgrade). */
   outgoingConditionDamagePercent: number
   /** Life-steal-%, first/only field for this stat anywhere in the app — currently only Kalla's
-   *  Fervor's 2%-per-stack life-steal share contributes. See `combat-state.ts`. */
+   *  Fervor's per-stack life-steal share contributes (see `outgoingDamagePercent`'s doc comment for
+   *  the Lasting Legacy upgrade). */
   lifeStealPercent: number
 }
 
@@ -201,6 +202,7 @@ export function computeCharacterStats(
   const weightClass = WEIGHT_CLASS_BY_PROFESSION[build.profession]
   const defense = weightClass ? armorDefenseTotal(build, weightClass) : 0
   const baseHealth = BASE_HEALTH_BY_PROFESSION[build.profession] ?? 0
+  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
 
   const derived: DerivedStats = {
     armor: attributes.toughness + defense,
@@ -217,9 +219,9 @@ export function computeCharacterStats(
     magicFind: magicFindPercent(totals),
     outgoingDamagePercent:
       (combatState.relicActive && build.relicId !== null ? (CURATED_RELIC_DAMAGE_BONUSES[build.relicId] ?? 0) : 0) +
-      combatState.kallaFervorStacks * KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK,
-    outgoingConditionDamagePercent: combatState.kallaFervorStacks * KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK,
-    lifeStealPercent: combatState.kallaFervorStacks * KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK
+      combatState.kallaFervorStacks * kallaFervorPerStack.strikeDamage,
+    outgoingConditionDamagePercent: combatState.kallaFervorStacks * kallaFervorPerStack.conditionDamage,
+    lifeStealPercent: combatState.kallaFervorStacks * kallaFervorPerStack.lifeSteal
   }
 
   return { attributes, derived }
