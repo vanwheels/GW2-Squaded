@@ -67,14 +67,26 @@ export interface BoonConditionSource {
    * of this comment misidentified Heat Wave as belonging to the first ("ambiguous, self-only")
    * group — the Elementalist leg (2026-08-07) wiki-confirmed it actually belongs to the second
    * ("reused as ally count") group instead, and it's now curated as party-wide in the table below.]
-   * Resolved once per skill/trait's flat facts array and applied uniformly to every
-   * `BoonConditionSource` `extractFromFacts` emits from that call — a skill with both a self-only
-   * buff and an ally-only buff in the same facts array can't be bound per-buff-line without a
-   * positional heuristic. Concrete examples of that exact shape turned up this sweep (Guardian's
-   * Tome of Courage, Willbender's Phoenix Protocol — both mix self-only and party-wide boons
-   * depending on which OTHER trait is chosen) but were left unresolved rather than mis-curated; see
-   * `TARGET_COUNT_OVERRIDES`' doc comment. See TODO.md for the still-open, much larger curation-sweep
-   * item this leaves (the ~399 skills/traits with an ambiguous "Number of Targets"-only reading).
+   *
+   * **Per-buff-line resolution (added 2026-08-11):** resolved once PER BUFF FACT (not once per
+   * source) via `resolveTargetCount`, which is called from inside `extractFromFacts`'s per-fact
+   * loop. A source's `TARGET_COUNT_OVERRIDES` entry can be a flat `TargetCountOverride` (the
+   * original shape, applies uniformly to every boon line the source emits — still the overwhelming
+   * majority of entries) OR one of `SourceTargetCountOverride`'s per-line shapes: a `status`-keyed
+   * map (different boon STATUSES on one source reach different counts — e.g. Guardian's Tome of
+   * Courage: self Aegis, party Stability/Protection), a trait-conditional (the WHOLE source's reach
+   * flips between two values depending on whether some OTHER trait is chosen — e.g. Willbender's
+   * Phoenix Protocol: self unless Battle Presence is also chosen), or a legend-conditional (same
+   * idea, gated on an EQUIPPED legend rather than a chosen trait — e.g. Revenant's Gladiator's
+   * Defense: self unless Legendary Dwarf Stance is also equipped). See `SourceTargetCountOverride`'s
+   * own doc comment and `TARGET_COUNT_OVERRIDES`' "Per-buff-line resolved conflicts" section for the
+   * concrete entries. A conditional override that resolves via its "active" branch also appends a
+   * `+ <TraitOrLegendName>` suffix to the emitted source's `sourceName` (see `extractFromFacts`), so
+   * e.g. a party-wide Gladiator's Defense row reads "Gladiator's Defense + Dwarf Stance" rather than
+   * looking indistinguishable from a source that's unconditionally party-wide — the reach depends on
+   * a DIFFERENT skill/trait than the one on the row, which needs to stay visible without requiring
+   * that legend to be the currently-*displayed* one (same "every equipped alternate always
+   * contributes" convention as `RevenantSkillSelection.legends`/`activeLegendIndex` itself).
    */
   targetCount: number | null
 }
@@ -83,6 +95,64 @@ export interface BoonConditionSource {
  *  would otherwise return `null`): a number is the confirmed ally count to show instead; `'self'`
  *  documents "confirmed self-only, `null` is correct" so a future sweep doesn't re-research it. */
 export type TargetCountOverride = number | 'self'
+
+/** A `TARGET_COUNT_OVERRIDES`/`CONDITION_CLEANSE_TARGETS` entry whose reach flips between two
+ *  `TargetCountOverride`s depending on whether ANOTHER specific trait is chosen — see
+ *  `BoonConditionSource.targetCount`'s doc comment ("per-buff-line resolution"). Applies to every
+ *  boon line the source emits uniformly (unlike the per-status map shape below): the sources found
+ *  needing this (Willbender's Phoenix Protocol) don't distinguish which of their own boon lines the
+ *  OTHER trait affects — it broadens all of them at once. `traitName` is display-only, appended to
+ *  the emitted source's `sourceName` (as `+ <traitName>`) when `whenActive` is the resolved branch. */
+export interface TraitConditionalTargetCountOverride {
+  gatedBy: 'trait'
+  traitId: number
+  traitName: string
+  whenActive: TargetCountOverride
+  otherwise: TargetCountOverride
+}
+
+/** Same shape as `TraitConditionalTargetCountOverride`, gated on an EQUIPPED Revenant legend
+ *  (`Legend.id`, e.g. `'Legend3'` for Legendary Dwarf Stance) instead of a chosen trait — see
+ *  `equippedLegendIds`. `legendId` is checked against BOTH equipped legend slots (whichever one
+ *  currently holds it), the same "every equipped alternate always contributes regardless of which
+ *  is displayed" convention `RevenantSkillSelection.activeLegendIndex`'s own doc comment documents
+ *  for legends generally — the gating legend doesn't need to be the build's *currently active* one,
+ *  only equipped in either slot. */
+export interface LegendConditionalTargetCountOverride {
+  gatedBy: 'legend'
+  legendId: string
+  legendName: string
+  whenEquipped: TargetCountOverride
+  otherwise: TargetCountOverride
+}
+
+/**
+ * A source's full target-count decision — the original flat `TargetCountOverride` (still correct
+ * for the vast majority of sources, which reach the same count on every boon line they grant) widened
+ * to also allow the 3 per-buff-line shapes `BoonConditionSource.targetCount`'s doc comment describes:
+ *  - `Record<string, TargetCountOverride>`: keyed by the boon/condition `status` name (e.g. `Might`,
+ *    `Aegis`) for sources where DIFFERENT statuses reach different counts. When the SAME status
+ *    appears more than once on one source with genuinely different reaches (Revenant's Pain
+ *    Absorption: "Resistance" both party-wide(3s) and self-only(1s)), key by `status@duration`
+ *    instead (e.g. `'Resistance@3'`) — `resolveTargetCount` tries the composite key first, falling
+ *    back to the bare status name. Every entry in this map still gated by the fact's own
+ *    `requires_trait` as usual (`extractFromFacts` skips facts for inactive traits before this map
+ *    is ever consulted), so a status that only exists in a trait-gated form doesn't need special
+ *    handling here beyond its own override value.
+ *  - `TraitConditionalTargetCountOverride` / `LegendConditionalTargetCountOverride`: the whole
+ *    source's reach flips based on a build-state check outside the fact data itself (an unrelated
+ *    trait choice, or an equipped legend) — see each type's own doc comment.
+ */
+export type SourceTargetCountOverride = TargetCountOverride | Record<string, TargetCountOverride> | TraitConditionalTargetCountOverride | LegendConditionalTargetCountOverride
+
+/** Narrows a `SourceTargetCountOverride` to the original flat shape — used by tooling
+ *  (`scripts/fetch-target-counts.ts`/`fetch-balance-patch-changes.ts`) that diffs a curated value
+ *  against a single wiki-parsed number and has no way to diff a per-buff-line/conditional entry the
+ *  same way (there's no single "the" value to compare — see each conditional type's own doc
+ *  comment). */
+export function isFlatTargetCountOverride(override: SourceTargetCountOverride): override is TargetCountOverride {
+  return typeof override === 'number' || override === 'self'
+}
 
 /**
  * Curation sweep (2026-08-06) of every skill/trait that grants a tracked boon (`BOON_NAMES`) with a
@@ -100,14 +170,18 @@ export type TargetCountOverride = number | 'self'
  * Deliberately NOT covered here: the much larger ~399-entry "ambiguous `Number of Targets`" bucket
  * (the OTHER half of the same TODO.md item) — that fact's ambiguity (enemy-hit count on some skills,
  * reused as an ally count on others, e.g. Healing Rain) needs its own separate sweep, not this one.
- * Also NOT covered: Tome of Courage (ids 42259/42371/68646/68650) and the Willbender's Phoenix
- * Protocol (trait 2195) — both found to have a genuine mix of self-only and party-wide boons in the
- * SAME facts array depending on which OTHER trait is chosen (Guardian's Inspired Virtue/Indomitable
- * Courage; Willbender's Battle Presence), which this table's one-value-per-source shape can't express
- * (`targetCount` is computed once per source and applied uniformly to every boon line it emits — see
- * `BoonConditionSource.targetCount`'s doc comment on why a positional/per-buff-line split isn't
- * implemented). Concrete real-world example of the gap that doc comment says wasn't found yet — see
- * TODO.md.
+ * Was NOT covered here until 2026-08-11: Tome of Courage (ids 42259/42371/68646/68650) and the
+ * Willbender's Phoenix Protocol (trait 2195) — both found to have a genuine mix of self-only and
+ * party-wide boons in the SAME facts array depending on which OTHER trait is chosen (Guardian's
+ * Inspired Virtue/Indomitable Courage; Willbender's Battle Presence), which this table's original
+ * one-value-per-source shape couldn't express. **RESOLVED 2026-08-11** via the new per-buff-line
+ * model (`SourceTargetCountOverride`, see `BoonConditionSource.targetCount`'s doc comment) — Tome of
+ * Courage is now a per-status map (self Aegis, party Stability/Protection, self Resolution — see its
+ * own entry below for why Resolution isn't party too); Phoenix Protocol is now a
+ * `TraitConditionalTargetCountOverride` gated on Battle Presence (554), since ALL of its boon lines
+ * (Alacrity/Regeneration/Resolution) broaden together rather than individually — confirmed via its
+ * own `traitedFacts`: a single Radius(600) fact gated on 554 is the only trait-conditioned fact on
+ * the whole source, with no per-status split in the base Buff facts themselves.
  *
  * Also NOT covered: Thief's Pitfall (skill 56880). Its Might `Buff` fact only exists in
  * `traitedFacts` gated on Even the Odds (trait 1169) — Even the Odds' own description ("Apply
@@ -117,39 +191,47 @@ export type TargetCountOverride = number | 'self'
  * grant itself isn't real, neither `'self'` nor a number would be a correct answer — left out
  * entirely rather than curating a boon that doesn't actually happen.
  *
- * Also NOT covered: Necromancer's Well of Power (ids 10609, 10673). A genuine per-buff-line split,
- * same shape as Tome of Courage/Phoenix Protocol above — the wiki's own notes are explicit: "Only
- * the stability and stun break are exclusively applied to the caster upon cast," while "[o]ne stack
- * of Might is applied to allies in range every pulse." Stability self-only, Might party-wide(5), same
- * source, no positional split available — left out entirely rather than mis-applying one number to
- * both boon lines.
+ * Was NOT covered here until 2026-08-11: Necromancer's Well of Power (ids 10609, 10673). A genuine
+ * per-buff-line split, same shape as Tome of Courage/Phoenix Protocol above — the wiki's own notes
+ * are explicit: "Only the stability and stun break are exclusively applied to the caster upon cast,"
+ * while "[o]ne stack of Might is applied to allies in range every pulse." **RESOLVED 2026-08-11** as
+ * a per-status map: self Stability, party(5) Might — the two statuses never collide so no composite
+ * `status@duration` key is needed even though Might itself has 2 differently-timed Buff facts (both
+ * party-wide, same value either way).
  *
- * Also NOT covered: Necromancer's Mark of Blood (skill 19117). Its base, unconditioned Regeneration
- * is confirmed party-wide ("grants regeneration to allies," own Radius(240)/Number-of-Targets(5)) —
- * but the Transfusion-trait-gated (778) Vigor is a different mechanic entirely: Transfusion's own
- * description is "Marks can be triggered by allies to heal them and provide them with additional
- * benefits," meaning only the ONE ally who steps on and triggers the mark receives Vigor, not up to
- * 5 simultaneously. Same same-source per-buff-line conflict as Well of Power above — left out.
+ * Was NOT covered here until 2026-08-11: Necromancer's Mark of Blood (skill 19117). Its base,
+ * unconditioned Regeneration is confirmed party-wide ("grants regeneration to allies," own
+ * Radius(240)/Number-of-Targets(5)) — but the Transfusion-trait-gated (778) Vigor is a different
+ * mechanic entirely: Transfusion's own description is "Marks can be triggered by allies to heal them
+ * and provide them with additional benefits," meaning only the ONE ally who steps on and triggers the
+ * mark receives Vigor, not up to 5 simultaneously. **RESOLVED 2026-08-11** as a per-status map:
+ * party(5) Regeneration, party(1) Vigor (not `'self'` — same "one ally per mark trigger" mechanic
+ * already curated for Chillblains/Reaper's Mark/Lesser Chilblains above).
  *
- * Also NOT covered: Revenant's Pain Absorption (ids 27322, 78505). Its own description states
- * "Grant resistance to yourself and nearby allies. Absorb conditions from those allies, gaining
- * resolution and additional resistance per condition" — the API backs this with THREE separate
- * unconditioned Resistance/Resolution `Buff` facts of different durations (party-wide base
- * Resistance at 3s, a self-only "additional resistance per condition" bonus Resistance at 1s, and a
- * self-only Resolution at 5s), i.e. the very same "Resistance" status appears twice on one source
- * with two different reaches. Same same-status per-buff-line conflict as Well of Power above — left
- * out (a fourth Resistance fact, trait-gated on Demonic Defiance/1789, is separately confirmed
- * self-only — see that trait's own "gain resistance" first-person text — but doesn't rescue the
- * base-vs-bonus conflict on the unconditioned facts).
+ * Was NOT covered here until 2026-08-11: Revenant's Pain Absorption (ids 27322, 78505). Its own
+ * description states "Grant resistance to yourself and nearby allies. Absorb conditions from those
+ * allies, gaining resolution and additional resistance per condition" — the API backs this with
+ * THREE separate unconditioned Resistance/Resolution `Buff` facts of different durations (party-wide
+ * base Resistance at 3s, a self-only "additional resistance per condition" bonus Resistance at 1s,
+ * and a self-only Resolution at 5s), i.e. the very same "Resistance" status appears twice on one
+ * source with two different reaches (a fourth Resistance fact, trait-gated on Demonic Defiance/1789,
+ * is separately confirmed self-only — see that trait's own "gain resistance" first-person text).
+ * **RESOLVED 2026-08-11** as a `status@duration`-keyed per-status map — the only source in this sweep
+ * that actually needed the composite key, since bare `Resistance` alone can't disambiguate its 3
+ * same-status facts: `Resistance@3` party(5), `Resistance@1` self, `Resistance@5` self (the
+ * Demonic-Defiance-gated one), bare `Resolution` self (only 1 Resolution fact, no collision).
  *
- * Also NOT covered: Revenant's Gladiator's Defense (skill 77291). Wiki confirms its boons (Weakness
- * is a condition, ignore; Resolution/Resistance are the tracked boons) are self-only by default, but
- * its "Resonance" note states that when Legendary Dwarf Stance is equipped the SAME boons are
- * "also granted to allies in a radius around you" — an explicit `Additional Allies Affected: 4` fact
- * confirms the expanded reach. This is a legend-equipped conditional, not a `requires_trait` gate the
- * fact data can express, and — like Tome of Courage/Phoenix Protocol above — flips between fully
- * self-only and fully party-wide depending on player choice with no positional split available;
- * left out rather than picking one state to always show.
+ * Was NOT covered here until 2026-08-11: Revenant's Gladiator's Defense (skill 77291). Wiki confirms
+ * its boons (Weakness is a condition, ignore; Resolution/Resistance are the tracked boons) are
+ * self-only by default, but its "Resonance" note states that when Legendary Dwarf Stance is equipped
+ * the SAME boons are "also granted to allies in a radius around you" — an explicit `Additional Allies
+ * Affected: 4` fact confirms the expanded reach (self + 4 = the standard 5). This is a
+ * legend-equipped conditional, not a `requires_trait` gate the fact data can express on its own.
+ * **RESOLVED 2026-08-11** as a `LegendConditionalTargetCountOverride` gated on `'Legend3'` (Legendary
+ * Dwarf Stance's `Legend.id`) — applies to both Resolution and Resistance uniformly (both flip
+ * together, no per-status split needed here unlike Pain Absorption above) via `equippedLegendIds`,
+ * which checks BOTH equipped legend slots the same way `activeTraitIds` checks every equipped
+ * specialization line, not just whichever legend is currently toggled active.
  *
  * Revenant leg (6th leg, 2026-08-06): 33 skills + 6 traits curated (2 skills excluded as above), plus
  * 2 leftover "no profession tag" skills (Invoke Torment 59591, Lesser Chilblains 76506) that a fresh
@@ -190,11 +272,13 @@ export type TargetCountOverride = number | 'self'
  * reading 10 — that fact is the enemy-facing/shared count, not the true ally cap.
  *
  * Guardian leg (9th leg, 2026-08-07): 45 skills + 3 traits resolved, 1 trait (Holy Reckoning, 2210)
- * excluded — a new instance of the mixed self/party-wide-under-one-source gap this table can't
- * express (see this table's top comment): its Might line ("Triggered virtue effects...now grant
- * might to allies") is party-wide, but its Fury line ("Gain fury when activating Rushing Justice") is
- * self-only, and both share the same single Radius(360)/Number-of-Targets(5) fact with no
- * `requires_trait` split distinguishing them. New recurring pattern this leg: the wiki's own "Symbol"
+ * excluded at the time — a new instance of the mixed self/party-wide-under-one-source gap this table
+ * couldn't yet express (see this table's top comment): its Might line ("Triggered virtue
+ * effects...now grant might to allies") is party-wide, but its Fury line ("Gain fury when activating
+ * Rushing Justice") is self-only, and both share the same single Radius(360)/Number-of-Targets(5)
+ * fact with no `requires_trait` split distinguishing them. **RESOLVED 2026-08-11** as a per-status
+ * map (party(5) Might, self Fury) — the 3 differently-timed Might Buff facts all share one value so
+ * no composite key is needed. New recurring pattern this leg: the wiki's own "Symbol"
  * skill-type page states a blanket rule — "delivers a boon to allies that stand on it," except
  * Symbol of Ignition by name — used to resolve every Symbol skill's boon as party-wide even where the
  * skill's own tooltip omits "allies" wording entirely (Symbol of Spears, Symbol of Vengeance), and to
@@ -207,23 +291,27 @@ export type TargetCountOverride = number | 'self'
  * Trigger" self-reward phrasing with no allies wording anywhere on either wiki page — resolved
  * self-only, same "no allies wording anywhere" tell used throughout this sweep.
  *
- * Also NOT covered: Elementalist's Overload Earth (skill 29618). Wiki confirms its base (untraited)
- * Stability is self-only ("Initial Stability... as a personal effect") while its base Protection is
- * party-wide ("the protection is granted to self too," despite the description saying "other
- * allies") — two different-reach boons on ONE source with no `requires_trait` (or any other) gate
- * distinguishing them, sharing the same Radius(240)/Number-of-Targets(5) fact. Same shape as Holy
- * Reckoning above — left out rather than picking one reach for both.
+ * Was NOT covered here until 2026-08-11: Elementalist's Overload Earth (skill 29618). Wiki confirms
+ * its base (untraited) Stability is self-only ("Initial Stability... as a personal effect") while its
+ * base Protection is party-wide ("the protection is granted to self too," despite the description
+ * saying "other allies") — two different-reach boons on ONE source with no `requires_trait` (or any
+ * other) gate distinguishing them, sharing the same Radius(240)/Number-of-Targets(5) fact. Same shape
+ * as Holy Reckoning above. **RESOLVED 2026-08-11** as a per-status map: self Stability (also covers a
+ * `requires_trait`-gated Stability apply-count upgrade — same self-only mechanic, just more stacks),
+ * party(5) Protection.
  *
- * Also NOT covered: Elementalist's Hare's Agility (skill 76583). Its base Swiftness is self-only
- * (wiki: "applies only to the caster," matching the skill's own first-person "Gain endurance and
- * swiftness"); Altruistic Aspect (trait 2415, "Meditation skills grant boons to allies") separately
- * confirms it adds Fury to up to 5 nearby allies specifically for this skill when traited — a real,
- * documented addition, not an undocumented quirk, but still a self-only base boon and a party-wide
- * trait-gated boon sharing one source with no way to split them. Contrast with Otter's Compassion
- * and Toad's Fortitude below, the other two Altruistic-Aspect-affected meditations this leg — both
- * curated normally because their OWN base boons are already party-wide by their own description, so
- * the trait's added boon (Regeneration / Stability respectively) shares the same reach rather than
- * conflicting with it.
+ * Was NOT covered here until 2026-08-11: Elementalist's Hare's Agility (skill 76583). Its base
+ * Swiftness is self-only (wiki: "applies only to the caster," matching the skill's own first-person
+ * "Gain endurance and swiftness"); Altruistic Aspect (trait 2415, "Meditation skills grant boons to
+ * allies") separately confirms it adds Fury to up to 5 nearby allies specifically for this skill when
+ * traited — a real, documented addition, not an undocumented quirk, but still a self-only base boon
+ * and a party-wide trait-gated boon sharing one source. **RESOLVED 2026-08-11** as a per-status map:
+ * self Swiftness, party(5) Fury (the Fury fact's own `requires_trait: 2415` already gates it to only
+ * emit when Altruistic Aspect is chosen, same as every other trait-gated fact). Contrast with Otter's
+ * Compassion and Toad's Fortitude below, the other two Altruistic-Aspect-affected meditations this
+ * leg — both curated normally because their OWN base boons are already party-wide by their own
+ * description, so the trait's added boon (Regeneration / Stability respectively) shares the same
+ * reach rather than conflicting with it.
  *
  * Elementalist leg (10th and final leg of the Group A sweep, 2026-08-07): 51 skills + 5 traits
  * resolved (2 skills excluded, above), closing out Group A entirely — see TODO.md. 20 of the 51
@@ -327,11 +415,30 @@ export type TargetCountOverride = number | 'self'
  * for its 4 gated skill ids). Self-only: Auspicious Anguish (Mesmer 673, "Convert damaging conditions
  * to boons whenever you gain Distortion or become disabled" — first-person throughout, no ally
  * wording anywhere). Sweep now fully closed — 45/45 sources curated across all 9 professions.
+ *
+ * --- Per-buff-line target-count model (2026-08-11) ---
+ * TODO.md's "per-buff-line (not per-source) target-count model" item, closing the 7 genuine
+ * same-source conflicts the two sweeps above kept finding and deliberately leaving uncurated (see
+ * each one's own "Was NOT covered here until 2026-08-11" paragraph above for the full reasoning):
+ * Tome of Courage, Phoenix Protocol, Well of Power, Mark of Blood, Pain Absorption, Gladiator's
+ * Defense, and the Guardian leg's Holy Reckoning / Elementalist leg's Overload Earth and Hare's
+ * Agility. `SourceTargetCountOverride` (see its own doc comment) widens a table entry from one flat
+ * value to 3 shapes: a per-`status`(-or-`status@duration`) map, a `TraitConditionalTargetCountOverride`,
+ * or a `LegendConditionalTargetCountOverride` — `resolveTargetCount` now runs once PER BUFF FACT
+ * (inside `extractFromFacts`'s loop) instead of once per source. Thief's Pitfall (56880) stays
+ * excluded — that one was never a target-count conflict, it's a confirmed wiki-documented tooltip
+ * bug (the Might grant isn't real at all), so no override value would be correct.
+ *
+ * `CONDITION_CLEANSE_TARGETS`' own EXCLUDED list (see its doc comment) has several sources with the
+ * exact same shape (Virtue of Resolve/Wings of Resolve, Diamond Skin, Grasping Shadows) that could
+ * reuse this same mechanism — deliberately NOT curated in this pass (out of this TODO.md item's
+ * scope, a separate table with its own backlog), but the resolution code (`resolveTargetCountFrom`)
+ * is already shared, so a future pass just needs the per-source table entries, no new plumbing.
  */
 // Exported for scripts/fetch-target-counts.ts (the wiki-extraction pipeline's target-count leg,
 // TODO.md's "Wiki-sourced data pipeline" step 3) — same shape as damage-calc.ts's own
 // CURATED_DAMAGE_COEFFICIENTS export for its pilot script.
-export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> } = {
+export const TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
   skill: {
     // Lightning Flash (Elementalist cantrip). Resistance only exists with Soothing Disruption
     // ("Cantrips grant boons") traited — that trait's own page states no radius/ally wording, and
@@ -1110,12 +1217,74 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
     // --- PrefixedBuff target-count sweep, Guardian leg (4th leg, 2026-08-10) — see the sweep's top
     // doc comment for scope/method. See the matching trait table entry below (Inspired Virtue, 621)
     // for the other 3 Guardian sources this leg.
-    76982: 5 // Glaring Burst (Luminous/radiant weapon mechanic). Own facts: explicit "Number of
+    76982: 5, // Glaring Burst (Luminous/radiant weapon mechanic). Own facts: explicit "Number of
     // Targets: 5", Radius(240). Two of its 4 weapon-variant PrefixedBuff facts are boon-classified —
     // Radiant Bulwark's Resolution ("Grants aegis to nearby allies on activation") and Luminous
     // Staff's Regeneration ("granting boons to allies and creating a symbol") — both explicitly ally-
     // facing per the wiki; the other 2 variants (Gleaming Blade's Vulnerability, Dazzling Hammer's
     // Damage Increase) aren't boons and are out of this sweep's scope.
+
+    // --- Per-buff-line target-count model (2026-08-11) — see this table's own top doc comment's
+    // "Per-buff-line target-count model" section for the full list/rationale. Each entry below is a
+    // `SourceTargetCountOverride` per-status map or conditional, not a flat value.
+
+    // Tome of Courage (Guardian, all 4 flip-chain ids share the identical fact shape — confirmed live
+    // against game-data). Base Aegis (no requires_trait): self, wiki "Virtue: Gain aegis
+    // periodically." Stability (requires_trait 612, Indomitable Courage: "grants stability to nearby
+    // allies"): party(5). Protection (requires_trait 621, Inspired Virtue: "apply boons to allies
+    // when activated"): party(5). Resolution (requires_trait 604, Virtue of Resolution: "Gain
+    // resolution when you activate a Virtue" — first-person, no allies wording despite living on the
+    // same source as 2 party-wide lines): self.
+    42259: { Aegis: 'self', Stability: 5, Protection: 5, Resolution: 'self' },
+    42371: { Aegis: 'self', Stability: 5, Protection: 5, Resolution: 'self' },
+    68646: { Aegis: 'self', Stability: 5, Protection: 5, Resolution: 'self' },
+    68650: { Aegis: 'self', Stability: 5, Protection: 5, Resolution: 'self' },
+
+    // Well of Power (Necromancer, both ids). Stability (1 fact, no requires_trait): self, wiki "Only
+    // the stability and stun break are exclusively applied to the caster upon cast." Might (2
+    // differently-timed facts on 10609, 1 on 10673, all unconditioned): party(5), wiki "One stack of
+    // Might is applied to allies in range every pulse" — no composite key needed, both Might facts on
+    // 10609 share the same reach.
+    10609: { Stability: 'self', Might: 5 },
+    10673: { Stability: 'self', Might: 5 },
+
+    // Mark of Blood (Necromancer staff mark). Base Regeneration (no requires_trait): party(5), wiki
+    // "grants regeneration to allies," own Number-of-Targets(5)/Radius(240). Vigor (requires_trait
+    // 778, Transfusion): party but count 1 — the established "one ally per mark trigger" mechanic,
+    // same as Chillblains/Reaper's Mark/Lesser Chilblains above, not the usual 5-ally pulse.
+    19117: { Regeneration: 5, Vigor: 1 },
+
+    // Pain Absorption (Revenant/Legendary Demon, both ids). THREE unconditioned/trait-gated
+    // Resistance facts with different durations need the composite `status@duration` key (bare
+    // `Resistance` alone can't disambiguate them): Resistance@3 (no requires_trait, wiki "Grant
+    // resistance to yourself and nearby allies"): party(5). Resistance@1 (no requires_trait, wiki's
+    // "additional resistance per condition" bonus, caster-only): self. Resistance@5 (requires_trait
+    // 1789, Demonic Defiance: "Gain resistance...when you use a Legendary Demon skill" — first-person):
+    // self. Resolution (1 fact @5s, no requires_trait, wiki "gaining resolution" — the caster's own
+    // condition-absorb bonus, not shared): self, no composite key needed (only 1 Resolution fact).
+    27322: { 'Resistance@3': 5, 'Resistance@1': 'self', 'Resistance@5': 'self', Resolution: 'self' },
+    78505: { 'Resistance@3': 5, 'Resistance@1': 'self', 'Resistance@5': 'self', Resolution: 'self' },
+
+    // Gladiator's Defense (Revenant/Legendary Entity Stance, "Antique Stance"). Self-only by default
+    // (Resolution/Resistance both @3s) — wiki's "Resonance" note: when Legendary Dwarf Stance
+    // (`Legend.id` 'Legend3') is ALSO equipped, "the boons are also granted to allies in a radius
+    // around you," backed by an explicit `Additional Allies Affected: 4` fact (self + 4 = 5, the
+    // standard cap). A whole-source legend-conditional, not per-status — both Resolution and
+    // Resistance flip together, so one override covers the entire source.
+    77291: { gatedBy: 'legend', legendId: 'Legend3', legendName: 'Dwarf Stance', whenEquipped: 5, otherwise: 'self' },
+
+    // Overload Earth (Elementalist/Catalyst). Base (untraited) Stability (no requires_trait, wiki
+    // "Initial Stability... as a personal effect"): self — also covers a `requires_trait`-gated
+    // apply-count upgrade (same self-only Stability, more stacks). Base Protection (no requires_trait,
+    // wiki confirms it reaches self AND allies despite its own text naming only "other allies"):
+    // party(5).
+    29618: { Stability: 'self', Protection: 5 },
+
+    // Hare's Agility (Elementalist/Evocation meditation). Base Swiftness (no requires_trait, wiki
+    // "applies only to the caster"): self. Fury (requires_trait 2415, Altruistic Aspect: "Meditation
+    // skills grant boons to allies" — its own wiki page documents a fixed per-meditation bonus-boon
+    // table naming this exact Swiftness->Fury addition): party(5).
+    76583: { Swiftness: 'self', Fury: 5 }
   },
   trait: {
     // All of the below grant a tracked boon on some proc condition with no Number fact of their own,
@@ -1345,10 +1514,72 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
     2289: 5, // Shadestep (Thief, Specter). Own facts: explicit "Number of Targets: 5", Radius(360) —
     // wiki: "Shadow Shroud skills provide additional supportive effects to nearby allies and your
     // tethered ally."
-    1471: 5 // Roaring Reveille (Warrior, Tactics Adept). Wiki: "Warhorn skills apply additional boons."
+    1471: 5, // Roaring Reveille (Warrior, Tactics Adept). Wiki: "Warhorn skills apply additional boons."
     // Gates Charge (14393)/Call of Valor (14394), both already curated party-wide(5) above — same
     // gate-reuse pattern as Inspired Virtue/Legendary Lore gating their own Virtue/Tome skills.
+
+    // --- Per-buff-line target-count model (2026-08-11) — see this table's own top doc comment's
+    // "Per-buff-line target-count model" section for the full list/rationale.
+
+    // Holy Reckoning (Guardian/Willbender). 3 differently-timed Might facts (no requires_trait, own
+    // description "Triggered virtue effects...now grant might to allies"): party(5), no composite key
+    // needed since they all share one value. Fury (own description "Gain fury when activating Rushing
+    // Justice" — first-person): self.
+    2210: { Might: 5, Fury: 'self' },
+
+    // Phoenix Protocol (Guardian/Willbender). Own base facts (multiple Alacrity/Regeneration/
+    // Resolution tiers, no requires_trait on any of them) are self-only by default; its ONLY
+    // trait-conditioned fact is a Radius(600) in `traitedFacts` gated on Battle Presence (554,
+    // Guardian/Virtues: "Nearby allies gain the passive effect of Virtue skill 2") — when chosen,
+    // ALL of Phoenix Protocol's boon lines broaden together (no per-status split in the data itself),
+    // so this is a whole-source trait-conditional rather than a per-status map.
+    2195: { gatedBy: 'trait', traitId: 554, traitName: 'Battle Presence', whenActive: 5, otherwise: 'self' }
   }
+}
+
+/** A resolved `SourceTargetCountOverride`, plus the display note (see `resolveOverrideValue`'s doc
+ *  comment) to append to the emitted source's `sourceName` when a conditional override resolved via
+ *  its "active" branch. */
+interface ResolvedTargetCount {
+  value: number | null
+  nameSuffix: string | null
+}
+
+/**
+ * Resolves one `SourceTargetCountOverride` against a specific Buff `fact`, given the build's active
+ * traits/equipped legends — see `SourceTargetCountOverride`'s own doc comment for the 4 shapes this
+ * handles. A per-status map is looked up by the composite `status@duration` key first (the only
+ * disambiguator for a source with the SAME status appearing more than once with different reaches,
+ * e.g. Pain Absorption's 2 unconditioned Resistance facts), falling back to the bare `status` key
+ * (every other per-status entry, where one lookup covers every differently-timed fact of that status).
+ * A conditional override (`gatedBy: 'trait'`/`'legend'`) returns a `nameSuffix` when it resolves via
+ * its "active" branch, so `extractFromFacts` can append `+ <name>` to the emitted source's
+ * `sourceName` — without that, a conditionally-party-wide row (e.g. Gladiator's Defense only when
+ * Legendary Dwarf Stance is also equipped) would look indistinguishable from an unconditionally
+ * party-wide one.
+ */
+function resolveOverrideValue(
+  override: SourceTargetCountOverride | undefined,
+  fact: Fact,
+  activeTraitIdSet: Set<number>,
+  equippedLegendIdSet: Set<string>
+): ResolvedTargetCount {
+  if (override === undefined) return { value: null, nameSuffix: null }
+  if (typeof override === 'number' || override === 'self') return { value: typeof override === 'number' ? override : null, nameSuffix: null }
+  if (override.gatedBy === 'trait') {
+    return activeTraitIdSet.has(override.traitId)
+      ? { value: typeof override.whenActive === 'number' ? override.whenActive : null, nameSuffix: override.traitName }
+      : { value: typeof override.otherwise === 'number' ? override.otherwise : null, nameSuffix: null }
+  }
+  if (override.gatedBy === 'legend') {
+    return equippedLegendIdSet.has(override.legendId)
+      ? { value: typeof override.whenEquipped === 'number' ? override.whenEquipped : null, nameSuffix: override.legendName }
+      : { value: typeof override.otherwise === 'number' ? override.otherwise : null, nameSuffix: null }
+  }
+  // Per-status(-line) map.
+  const compositeKey = `${fact.status}@${fact.duration}`
+  const resolved = compositeKey in override ? override[compositeKey] : override[String(fact.status)]
+  return { value: typeof resolved === 'number' ? resolved : null, nameSuffix: null }
 }
 
 /** The only reliable "this reaches up to N allies" signal in the API's fact data — see
@@ -1356,23 +1587,32 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, TargetCountOverride
  *  of Targets" fact, or the absence of any Number fact at all) is trustworthy enough to use here.
  *  Falls back to `overrides` (a curated, wiki-verified per-source decision, same `skill`/`trait`
  *  shape as `TARGET_COUNT_OVERRIDES`/`CONDITION_CLEANSE_TARGETS`) when the fact data itself has no
- *  signal at all. */
+ *  signal at all. Resolved per BUFF FACT, not once per source — see `resolveOverrideValue`. */
 function resolveTargetCountFrom(
-  facts: Fact[],
+  fact: Fact,
+  combinedFacts: Fact[],
   sourceKind: 'skill' | 'trait',
   sourceId: number,
-  overrides: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> }
-): number | null {
-  const alliedFact = facts.find((f) => f.type === 'Number' && f.text === 'Number of Allied Targets' && typeof f.value === 'number')
-  if (typeof alliedFact?.value === 'number') return alliedFact.value
-  const override = overrides[sourceKind][sourceId]
-  return typeof override === 'number' ? override : null
+  overrides: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> },
+  activeTraitIdSet: Set<number>,
+  equippedLegendIdSet: Set<string>
+): ResolvedTargetCount {
+  const alliedFact = combinedFacts.find((f) => f.type === 'Number' && f.text === 'Number of Allied Targets' && typeof f.value === 'number')
+  if (typeof alliedFact?.value === 'number') return { value: alliedFact.value, nameSuffix: null }
+  return resolveOverrideValue(overrides[sourceKind][sourceId], fact, activeTraitIdSet, equippedLegendIdSet)
 }
 
 /** `resolveTargetCountFrom` against `TARGET_COUNT_OVERRIDES` specifically — the boon/condition
  *  case every existing caller uses. */
-function resolveTargetCount(facts: Fact[], sourceKind: 'skill' | 'trait', sourceId: number): number | null {
-  return resolveTargetCountFrom(facts, sourceKind, sourceId, TARGET_COUNT_OVERRIDES)
+function resolveTargetCount(
+  fact: Fact,
+  combinedFacts: Fact[],
+  sourceKind: 'skill' | 'trait',
+  sourceId: number,
+  activeTraitIdSet: Set<number>,
+  equippedLegendIdSet: Set<string>
+): ResolvedTargetCount {
+  return resolveTargetCountFrom(fact, combinedFacts, sourceKind, sourceId, TARGET_COUNT_OVERRIDES, activeTraitIdSet, equippedLegendIdSet)
 }
 
 /**
@@ -1504,7 +1744,7 @@ function resolveTargetCount(facts: Fact[], sourceKind: 'skill' | 'trait', source
  *    blast finisher" — self for one finisher type, party for another, same one-source-two-reaches
  *    shape as the Virtue of Resolve pair above.
  */
-export const CONDITION_CLEANSE_TARGETS: { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> } = {
+export const CONDITION_CLEANSE_TARGETS: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
   skill: {
     // --- Self-only, explicit "from Self"/"yourself" wiki wording, no allies mention ---
     5965: 'self', // Fumigate
@@ -1816,6 +2056,20 @@ export function activeTraitIds(build: Build, allTraits: Trait[]): Set<number> {
   return ids
 }
 
+/**
+ * Legend ids (`Legend.id`, e.g. `'Legend3'`) currently equipped for a build — `activeTraitIds`'s
+ * counterpart for `LegendConditionalTargetCountOverride` (see its doc comment). BOTH equipped legend
+ * slots count, not just whichever one `RevenantSkillSelection.activeLegendIndex` currently displays —
+ * same "every equipped alternate always contributes regardless of which is shown" convention that
+ * field's own doc comment documents (mirrors `skillIdsForBuild`'s own legend handling). Empty for
+ * every non-Revenant profession, same as `build.skills.kind !== 'revenant'` everywhere else in this
+ * file.
+ */
+export function equippedLegendIds(build: Build): Set<string> {
+  if (build.skills.kind !== 'revenant') return new Set()
+  return new Set(build.skills.legends.filter((id): id is string => id !== null))
+}
+
 /** Default classifier: real boons/conditions only — every existing caller relies on this exact
  *  behavior (unchanged from before `BoonConditionCategory` existed), so it's the default rather
  *  than something every call site has to pass explicitly. */
@@ -1835,6 +2089,7 @@ function extractFromFacts(
   facts: Fact[],
   traitedFacts: Fact[],
   activeIds: Set<number>,
+  equippedLegendIdSet: Set<string>,
   sourceKind: 'skill' | 'trait',
   sourceId: number,
   sourceName: string,
@@ -1846,7 +2101,6 @@ function extractFromFacts(
   const out: BoonConditionSource[] = []
   const emittedOverriddenStatuses = new Set<string>()
   const combinedFacts = [...facts, ...traitedFacts]
-  const targetCount = resolveTargetCount(combinedFacts, sourceKind, sourceId)
   for (const fact of combinedFacts) {
     // `PrefixedBuff` (e.g. Revenant/Salvation's Serene Rejuvenation, "Legendary Centaur skills
     // apply boons in an area") carries the identical status/duration/apply_count/requires_trait
@@ -1874,11 +2128,12 @@ function extractFromFacts(
     if (wvwOverride === 'omit') continue
     const baseDuration = typeof wvwOverride === 'number' ? wvwOverride : fact.duration
 
+    const { value: targetCount, nameSuffix } = resolveTargetCount(fact, combinedFacts, sourceKind, sourceId, activeIds, equippedLegendIdSet)
     const percent = category === 'condition' ? durationPercent.condition : category === 'boon' ? durationPercent.boon : 0
     out.push({
       sourceKind,
       sourceId,
-      sourceName,
+      sourceName: nameSuffix ? `${sourceName} + ${nameSuffix}` : sourceName,
       sourceIcon,
       boonOrConditionName: fact.status,
       isCondition: category === 'condition',
@@ -1904,6 +2159,7 @@ function extractFromFacts(
 export function boonConditionFactsForSkill(
   skill: Skill,
   activeIds: Set<number>,
+  equippedLegendIdSet: Set<string>,
   durationPercent: { boon: number; condition: number },
   wvwOverride: Record<string, WvwFactOverride> | undefined
 ): BoonConditionSource[] {
@@ -1911,6 +2167,7 @@ export function boonConditionFactsForSkill(
     skill.facts,
     skill.traitedFacts,
     activeIds,
+    equippedLegendIdSet,
     'skill',
     skill.id,
     skill.name,
@@ -1932,6 +2189,7 @@ export function boonConditionFactsForSkill(
 export function boonConditionFactsForTrait(
   trait: Trait,
   activeIds: Set<number>,
+  equippedLegendIdSet: Set<string>,
   durationPercent: { boon: number; condition: number },
   wvwOverride: Record<string, WvwFactOverride> | undefined
 ): BoonConditionSource[] {
@@ -1939,6 +2197,7 @@ export function boonConditionFactsForTrait(
     trait.facts,
     trait.traitedFacts,
     activeIds,
+    equippedLegendIdSet,
     'trait',
     trait.id,
     trait.name,
@@ -2247,6 +2506,7 @@ export function computeBoonConditionSources(
   }
 ): BoonConditionSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
+  const legendIds = equippedLegendIds(build)
   const out: BoonConditionSource[] = []
   const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
 
@@ -2269,6 +2529,7 @@ export function computeBoonConditionSources(
         skill.facts,
         skill.traitedFacts,
         activeIds,
+        legendIds,
         'skill',
         skill.id,
         skill.name,
@@ -2294,6 +2555,7 @@ export function computeBoonConditionSources(
           trait.facts,
           trait.traitedFacts,
           activeIds,
+          legendIds,
           'trait',
           trait.id,
           trait.name,
@@ -2361,6 +2623,7 @@ export function computeAuraSources(
   }
 ): BoonConditionSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
+  const legendIds = equippedLegendIds(build)
   const out: BoonConditionSource[] = []
   const unscaled = { boon: 0, condition: 0 }
   const { skillsById, skillIds } = equippedSkillsById(build, gameData)
@@ -2373,6 +2636,7 @@ export function computeAuraSources(
         skill.facts,
         skill.traitedFacts,
         activeIds,
+        legendIds,
         'skill',
         skill.id,
         skill.name,
@@ -2396,6 +2660,7 @@ export function computeAuraSources(
           trait.facts,
           trait.traitedFacts,
           activeIds,
+          legendIds,
           'trait',
           trait.id,
           trait.name,
@@ -2423,12 +2688,14 @@ export function computeAuraSources(
 export function auraFactsForSkill(
   skill: Skill,
   activeIds: Set<number>,
+  equippedLegendIdSet: Set<string>,
   wvwOverride: Record<string, WvwFactOverride> | undefined
 ): BoonConditionSource[] {
   return extractFromFacts(
     skill.facts,
     skill.traitedFacts,
     activeIds,
+    equippedLegendIdSet,
     'skill',
     skill.id,
     skill.name,
@@ -2470,12 +2737,13 @@ function namedFactsFrom(
   facts: Fact[],
   traitedFacts: Fact[],
   activeIds: Set<number>,
+  equippedLegendIdSet: Set<string>,
   sourceKind: 'skill' | 'trait',
   sourceId: number,
   sourceName: string,
   sourceIcon: string,
   matchers: Record<string, (fact: Fact) => boolean>,
-  targetCountTables?: Record<string, { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> }>
+  targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>
 ): NamedFactSource[] {
   const out: NamedFactSource[] = []
   const matchedNames = new Set<string>()
@@ -2485,7 +2753,7 @@ function namedFactsFrom(
     for (const [name, match] of Object.entries(matchers)) {
       if (matchedNames.has(name) || !match(fact)) continue
       const table = targetCountTables?.[name]
-      const targetCount = table ? resolveTargetCountFrom(combinedFacts, sourceKind, sourceId, table) : null
+      const targetCount = table ? resolveTargetCountFrom(fact, combinedFacts, sourceKind, sourceId, table, activeIds, equippedLegendIdSet).value : null
       out.push({ sourceKind, sourceId, sourceName, sourceIcon, name, detail: namedFactDetail(fact), targetCount })
       matchedNames.add(name)
     }
@@ -2553,7 +2821,7 @@ export const BOON_STRIP_CORRUPT_MATCHERS: Record<string, (fact: Fact) => boolean
  *  Miscellaneous name were never scoped for this and stay `null`. */
 export const NAMED_FACT_TARGET_COUNT_TABLES: Record<
   string,
-  { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> }
+  { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }
 > = {
   Cleanse: CONDITION_CLEANSE_TARGETS
 }
@@ -2580,9 +2848,10 @@ export function computeNamedFactSources(
     soulbeastBeastmode: SoulbeastBeastmodeMap
   },
   matchers: Record<string, (fact: Fact) => boolean>,
-  targetCountTables?: Record<string, { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> }>
+  targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>
 ): NamedFactSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
+  const legendIds = equippedLegendIds(build)
   const out: NamedFactSource[] = []
   const { skillsById, skillIds } = equippedSkillsById(build, gameData)
 
@@ -2590,7 +2859,18 @@ export function computeNamedFactSources(
     const skill = skillsById.get(id)
     if (!skill) continue
     out.push(
-      ...namedFactsFrom(skill.facts, skill.traitedFacts, activeIds, 'skill', skill.id, skill.name, skill.icon, matchers, targetCountTables)
+      ...namedFactsFrom(
+        skill.facts,
+        skill.traitedFacts,
+        activeIds,
+        legendIds,
+        'skill',
+        skill.id,
+        skill.name,
+        skill.icon,
+        matchers,
+        targetCountTables
+      )
     )
   }
 
@@ -2602,7 +2882,18 @@ export function computeNamedFactSources(
       const isChosenMajor = trait.slot === 'Major' && line.chosenTraitIds.includes(trait.id)
       if (!isMinor && !isChosenMajor) continue
       out.push(
-        ...namedFactsFrom(trait.facts, trait.traitedFacts, activeIds, 'trait', trait.id, trait.name, trait.icon, matchers, targetCountTables)
+        ...namedFactsFrom(
+          trait.facts,
+          trait.traitedFacts,
+          activeIds,
+          legendIds,
+          'trait',
+          trait.id,
+          trait.name,
+          trait.icon,
+          matchers,
+          targetCountTables
+        )
       )
     }
   }
@@ -2622,10 +2913,22 @@ export function computeNamedFactSources(
 export function namedFactsForSkill(
   skill: Skill,
   activeIds: Set<number>,
+  equippedLegendIdSet: Set<string>,
   matchers: Record<string, (fact: Fact) => boolean>,
-  targetCountTables?: Record<string, { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> }>
+  targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>
 ): NamedFactSource[] {
-  return namedFactsFrom(skill.facts, skill.traitedFacts, activeIds, 'skill', skill.id, skill.name, skill.icon, matchers, targetCountTables)
+  return namedFactsFrom(
+    skill.facts,
+    skill.traitedFacts,
+    activeIds,
+    equippedLegendIdSet,
+    'skill',
+    skill.id,
+    skill.name,
+    skill.icon,
+    matchers,
+    targetCountTables
+  )
 }
 
 export interface NamedFactGroup {

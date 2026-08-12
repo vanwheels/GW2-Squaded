@@ -62,7 +62,12 @@ import { readFile } from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import type { Skill, Trait } from '../src/shared/types/game-data'
-import { TARGET_COUNT_OVERRIDES, type TargetCountOverride } from '../src/shared/boon-calc/sources'
+import {
+  isFlatTargetCountOverride,
+  TARGET_COUNT_OVERRIDES,
+  type SourceTargetCountOverride,
+  type TargetCountOverride
+} from '../src/shared/boon-calc/sources'
 import { fetchWikiPage, flushWikiCache, getWikiRevisionId } from './lib/wiki-cache'
 import { writeVerificationFile, type WikiVerificationEntry } from './lib/wiki-verification'
 
@@ -125,7 +130,7 @@ async function resolvePage(
   _sourceKind: SourceKind,
   curated: TargetCountOverride,
   entityById: Map<number, { name: string }>,
-  curatedTable: Record<number, TargetCountOverride>
+  curatedTable: Record<number, SourceTargetCountOverride>
 ): Promise<PageResolution> {
   const triedTitles: string[] = []
   const fetchedPages: { title: string; text: string; ids: number[] }[] = []
@@ -247,13 +252,18 @@ async function main(): Promise<void> {
   const skillsById = new Map(skills.map((s) => [s.id, s]))
   const traitsById = new Map(traits.map((t) => [t.id, t]))
 
+  // Per-buff-line/conditional overrides (added 2026-08-11, see `SourceTargetCountOverride`) have no
+  // single flat value to diff against a wiki-parsed number — skipped here rather than guessing which
+  // branch to compare, same "fail safe into a logged bucket" convention this whole script follows.
   const candidates: CandidateResult[] = []
   for (const [idStr, curated] of Object.entries(TARGET_COUNT_OVERRIDES.skill)) {
+    if (!isFlatTargetCountOverride(curated)) continue
     const id = Number(idStr)
     const skill = skillsById.get(id)
     candidates.push({ sourceKind: 'skill', id, name: skill?.name ?? `(unknown skill ${id})`, curated })
   }
   for (const [idStr, curated] of Object.entries(TARGET_COUNT_OVERRIDES.trait)) {
+    if (!isFlatTargetCountOverride(curated)) continue
     const id = Number(idStr)
     const trait = traitsById.get(id)
     candidates.push({ sourceKind: 'trait', id, name: trait?.name ?? `(unknown trait ${id})`, curated })

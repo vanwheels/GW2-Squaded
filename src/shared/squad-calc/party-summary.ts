@@ -22,7 +22,7 @@ import {
   computeBoonConditionSources,
   computeComboSources,
   computeNamedFactSources,
-  type TargetCountOverride
+  type SourceTargetCountOverride
 } from '../boon-calc/sources'
 
 export interface PartyBoonConditionContribution {
@@ -211,7 +211,7 @@ export function computePartyNamedFactSummary(
     soulbeastBeastmode: SoulbeastBeastmodeMap
   },
   matchers: Record<string, (fact: Fact) => boolean>,
-  targetCountTables?: Record<string, { skill: Record<number, TargetCountOverride>; trait: Record<number, TargetCountOverride> }>
+  targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>
 ): PartyNamedFactEntry[] {
   const map = new Map<string, PartyNamedFactEntry>()
 

@@ -183,32 +183,6 @@ that before extending either further, and before the tooltip visual-pass item be
 
 ## Stats panel / boon-condition bar polish
 
-- [ ] Two concrete examples turned up 2026-08-06 of a gap `BoonConditionSource.targetCount`'s doc
-      comment previously said had no known instance: a skill/trait whose facts array mixes a
-      self-only boon and a party-wide boon, distinguishable only by which OTHER trait is chosen —
-      not expressible by `TARGET_COUNT_OVERRIDES`' one-value-per-source shape. Guardian's Tome of
-      Courage (ids 42259/42371/68646/68650): its base Aegis proc is self-only, but Stability
-      (Indomitable Courage) and Protection (Inspired Virtue) become party-wide only when those
-      specific traits are also chosen. Willbender's Phoenix Protocol (trait 2195): its Alacrity/
-      Regeneration/Resolution are self-only unless Battle Presence (trait 554) is also chosen. Needs
-      a per-buff-line (not per-source) target-count model to resolve correctly — scoping, not a
-      one-off patch. Two more shapes of the same underlying gap turned up in the Revenant leg
-      (Session 102): Pain Absorption (27322/78505) mixes party-wide and self-only under the SAME
-      status ("Resistance" twice, different reach) rather than two different statuses; Gladiator's
-      Defense (77291) flips self-only vs. party-wide based on which LEGEND is equipped, not which
-      trait is chosen — neither is expressible by `requires_trait` gating either, widening what the
-      eventual fix needs to cover beyond just "per-trait." A fourth shape turned up in the Guardian
-      leg (Session 105): Holy Reckoning (trait 2210) mixes a party-wide Might line ("Triggered virtue
-      effects...now grant might to allies") and a self-only Fury line ("Gain fury when activating
-      Rushing Justice") under ONE trait with no `requires_trait` distinguishing them at all — both
-      lines share a single Radius(360)/Number-of-Targets(5) fact, so even the per-`requires_trait`
-      version of a fix wouldn't resolve this one; needs true per-buff-line granularity. Two more
-      turned up in the Elementalist leg (Session 106): Overload Earth (skill 29618) mixes a self-only
-      base Stability with a party-wide base Protection, both unconditioned (no gate at all, of any
-      kind) on one source. Hare's Agility (skill 76583) mixes a self-only base Swiftness with a
-      party-wide Fury added by Altruistic Aspect (trait 2415) specifically when traited — a
-      documented, real addition (unlike a tooltip bug), but still an unsplittable per-source conflict
-      once traited.
 - [ ] Minor, unconfirmed: possible Ascended-vs-Exotic filter tabs on the itemstat-combo picker — no
       screenshot exists confirming this is real; leave as-is unless it resurfaces with a concrete
       example.

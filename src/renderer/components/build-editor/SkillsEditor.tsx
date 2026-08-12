@@ -7,6 +7,7 @@ import {
   boonConditionFactsForSkill,
   CONTROL_MATCHERS,
   comboFactsForSkill,
+  equippedLegendIds,
   MISCELLANEOUS_MATCHERS,
   NAMED_FACT_TARGET_COUNT_TABLES,
   namedFactsForSkill,
@@ -162,10 +163,11 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
 export function useDurationContext(build: Build, combatState: CombatState = DEFAULT_COMBAT_STATE) {
   const gameData = useGameData()
   const activeIds = useMemo(() => activeTraitIds(build, gameData.traits), [build, gameData.traits])
+  const legendIds = useMemo(() => equippedLegendIds(build), [build])
   const durationPercent = useMemo(() => boonConditionDurationPercent(build, gameData), [build, gameData])
   const characterAttributes = useMemo(() => computeCharacterStats(build, gameData, combatState).attributes, [build, gameData, combatState])
   const targetArmor = TARGET_ARMOR_VALUES[combatState.targetArmorClass]
-  return { gameData, activeIds, durationPercent, characterAttributes, targetArmor }
+  return { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor }
 }
 
 const BOON_CONDITION_ICONS_BY_NAME: Record<string, string> = BOON_CONDITION_ICONS
@@ -276,13 +278,18 @@ export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSou
  *  `skillTooltipContent` (base skill + each variant) and `ProfessionMechanicBar`'s own inline
  *  tooltip builder, which deliberately doesn't call `skillTooltipContent` itself (see that
  *  component's doc comment) but still needs the same fact categories. */
-export function skillNamedFacts(skill: Skill, activeIds: Set<number>, wvwOverride: Record<string, WvwFactOverride> | undefined): SkillNamedFacts {
+export function skillNamedFacts(
+  skill: Skill,
+  activeIds: Set<number>,
+  legendIds: Set<string>,
+  wvwOverride: Record<string, WvwFactOverride> | undefined
+): SkillNamedFacts {
   return {
-    auraFacts: auraFactsForSkill(skill, activeIds, wvwOverride),
+    auraFacts: auraFactsForSkill(skill, activeIds, legendIds, wvwOverride),
     namedFactSources: [
-      ...namedFactsForSkill(skill, activeIds, CONTROL_MATCHERS),
-      ...namedFactsForSkill(skill, activeIds, MISCELLANEOUS_MATCHERS),
-      ...namedFactsForSkill(skill, activeIds, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES)
+      ...namedFactsForSkill(skill, activeIds, legendIds, CONTROL_MATCHERS),
+      ...namedFactsForSkill(skill, activeIds, legendIds, MISCELLANEOUS_MATCHERS),
+      ...namedFactsForSkill(skill, activeIds, legendIds, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES)
     ],
     comboFacts: comboFactsForSkill(skill, activeIds)
   }
@@ -292,6 +299,8 @@ export interface SkillVariantContext {
   skills: Skill[]
   skillsById: Map<number, Skill>
   wvwFactOverrides: WvwFactOverrides
+  /** The build's equipped Revenant legends (`equippedLegendIds`) — see `LegendConditionalTargetCountOverride`. */
+  legendIds: Set<string>
   durationPercent: { boon: number; condition: number }
   /** Current Power/Healing Power (`useDurationContext`'s `characterAttributes`) and assumed target
    *  armor a skill's real Damage/Healing tooltip lines scale against — see `skillFactLines`. */
@@ -331,9 +340,15 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
   const factSourceSkill = swappedFactSkill ?? skill
   const numericLines = skillFactLines(factSourceSkill, activeIds, power, healingPower, variantContext.targetArmor)
   const effectiveFacts = swappedFactSkill
-    ? boonConditionFactsForSkill(swappedFactSkill, activeIds, variantContext.durationPercent, variantContext.wvwFactOverrides.skill[swappedFactSkill.id])
+    ? boonConditionFactsForSkill(
+        swappedFactSkill,
+        activeIds,
+        variantContext.legendIds,
+        variantContext.durationPercent,
+        variantContext.wvwFactOverrides.skill[swappedFactSkill.id]
+      )
     : facts
-  const effectiveNamedFacts = skillNamedFacts(factSourceSkill, activeIds, variantContext.wvwFactOverrides.skill[factSourceSkill.id])
+  const effectiveNamedFacts = skillNamedFacts(factSourceSkill, activeIds, variantContext.legendIds, variantContext.wvwFactOverrides.skill[factSourceSkill.id])
   return (
     <>
       <TooltipBody title={skill.name} description={factSourceSkill.description} icon={skill.icon} />
@@ -365,7 +380,13 @@ export function FlipSkillStack({
   return (
     <div className="skill-slot-flip-stack">
       {flips.map((f) => {
-        const facts = boonConditionFactsForSkill(f.skill, activeIds, variantContext.durationPercent, variantContext.wvwFactOverrides.skill[f.skill.id])
+        const facts = boonConditionFactsForSkill(
+          f.skill,
+          activeIds,
+          variantContext.legendIds,
+          variantContext.durationPercent,
+          variantContext.wvwFactOverrides.skill[f.skill.id]
+        )
         return (
           <Tooltip key={f.skill.id} content={skillTooltipContent(f.skill, facts, activeIds, variantContext)}>
             <span className="skill-slot-flip-icon">
@@ -413,7 +434,7 @@ interface StandardProps {
 
 function StandardSkillsEditor({ build, value, onChange, equippedSpecializationIds, combatState }: StandardProps) {
   const profession = build.profession
-  const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
+  const { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
   const { skillsById, skillsForProfessionAndSlot } = gameData
   const { showRacialSkills } = useAppSettings()
   const { open, openThis, close } = usePickerOpen()
@@ -435,13 +456,14 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
   )
 
   function skillFacts(skill: Skill): BoonConditionSource[] {
-    return boonConditionFactsForSkill(skill, activeIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
+    return boonConditionFactsForSkill(skill, activeIds, legendIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
   }
 
   const variantContext: SkillVariantContext = {
     skills: gameData.skills,
     skillsById,
     wvwFactOverrides: gameData.wvwFactOverrides,
+    legendIds,
     durationPercent,
     characterAttributes,
     targetArmor,
@@ -591,7 +613,7 @@ interface RevenantProps {
  * (read-only icons with boon/condition tooltips, same as the standard skill bar).
  */
 function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationIds, combatState, section }: RevenantProps) {
-  const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
+  const { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
   const { skillsById, legendsById, legendsForSpecializations } = gameData
   const { open, openThis, close } = usePickerOpen()
   const [openLegendSlot, setOpenLegendSlot] = useState<0 | 1 | null>(null)
@@ -602,6 +624,7 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
     skills: gameData.skills,
     skillsById,
     wvwFactOverrides: gameData.wvwFactOverrides,
+    legendIds,
     durationPercent,
     characterAttributes,
     targetArmor,
@@ -616,7 +639,7 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
   function skillTooltipFor(skillId: number) {
     const skill = skillsById.get(skillId)
     if (!skill) return null
-    const facts = boonConditionFactsForSkill(skill, activeIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
+    const facts = boonConditionFactsForSkill(skill, activeIds, legendIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
     return skillTooltipContent(skill, facts, activeIds, variantContext)
   }
 

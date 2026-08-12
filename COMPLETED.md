@@ -2,6 +2,55 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 145 — Per-buff-line target-count model
+
+Closed TODO.md's "per-buff-line (not per-source) target-count model" gap, open since 2026-08-06:
+`BoonConditionSource.targetCount`/`resolveTargetCount` used to resolve once per skill/trait and apply
+that one value to every boon line the source emitted — couldn't express a source whose different boon
+lines (or the same status appearing twice) genuinely reach different counts. 7 known conflicts had been
+deliberately left uncurated pending this: Guardian's Tome of Courage, Willbender's Phoenix Protocol,
+Necromancer's Well of Power/Mark of Blood, Revenant's Pain Absorption/Gladiator's Defense, Guardian's
+Holy Reckoning, Elementalist's Overload Earth/Hare's Agility.
+
+`SourceTargetCountOverride` (`src/shared/boon-calc/sources.ts`) widens a `TARGET_COUNT_OVERRIDES`/
+`CONDITION_CLEANSE_TARGETS` entry from a flat `TargetCountOverride` to 3 additional shapes:
+- A `status`(-or-`status@duration`)-keyed map, for sources where different boon STATUSES reach
+  different counts (the composite key only needed once, for Pain Absorption's 2 same-status
+  differently-timed Resistance facts).
+- `TraitConditionalTargetCountOverride`: the whole source's reach flips based on whether some OTHER
+  trait is chosen (Phoenix Protocol, gated on Battle Presence/554).
+- `LegendConditionalTargetCountOverride`: same idea, gated on an EQUIPPED Revenant legend rather than
+  a trait (Gladiator's Defense, gated on Legendary Dwarf Stance/`Legend3`) — built per explicit user
+  request rather than left excluded like the other legend-shaped gap (was going to be skipped
+  otherwise, since it needed new plumbing). New `equippedLegendIds(build)` mirrors `activeTraitIds`:
+  BOTH equipped legend slots count, not just whichever `activeLegendIndex` currently displays, same
+  "every equipped alternate always contributes" convention as `RevenantSkillSelection` itself.
+
+`resolveTargetCount` now runs once PER BUFF FACT (moved inside `extractFromFacts`'s loop) instead of
+once per source. A conditional override that resolves via its "active" branch also appends
+`+ <TraitOrLegendName>` to the emitted source's `sourceName` (e.g. "Gladiator's Defense + Dwarf
+Stance") so a conditionally-party-wide row doesn't look indistinguishable from an unconditionally
+party-wide one — the reach depends on a DIFFERENT skill/trait/legend than the row itself, which needs
+to stay visible without the player needing that legend to be the currently-*displayed* one.
+
+Threading `equippedLegendIds` (a `Set<string>`, empty for non-Revenant) through required updating
+every call site of `extractFromFacts`/`boonConditionFactsForSkill`/`boonConditionFactsForTrait`/
+`auraFactsForSkill`/`namedFactsFrom`/`computeNamedFactSources`/`namedFactsForSkill` — added `legendIds`
+to `SkillsEditor.tsx`'s shared `useDurationContext` hook (alongside its existing `activeIds`) so most
+consumers (PetsEditor, ProfessionMechanicBar, SkillsEditor, WeaponSkillBar) picked it up for free;
+`TraitsEditor.tsx` computes it separately (doesn't use that hook) and threads it through as a new
+`TraitLineRowProps.legendIds`.
+
+Verified the whole matrix (Tome of Courage un/traited, Holy Reckoning, Phoenix Protocol with/without
+Battle Presence, Pain Absorption with/without Demonic Defiance, Gladiator's Defense with/without
+Legend3) against real `data/game-data/*.json` via a temporary `tsx` script — every resolution matched
+hand-derivation exactly, including the `sourceName` suffix appearing only on the conditional branch.
+Also fixed 2 scripts (`fetch-target-counts.ts`'s wiki-verification pilot, `fetch-balance-patch-changes.ts`'s
+patch-diff tool) that read `TARGET_COUNT_OVERRIDES` expecting a flat value — new `isFlatTargetCountOverride`
+type guard filters/branches around the new conditional shapes rather than trying to diff them against a
+single wiki number (added a `complex-override` outcome bucket to the balance-patch script for these,
+flagged for a human read rather than silently skipped). `npm run typecheck`/`lint` both clean.
+
 ## Session 144 — Gear Optimizer: searchable rune and infusion choice
 
 Picked up TODO.md's "make rune and infusion choice searchable" item (scoped 2026-08-01). Runes and

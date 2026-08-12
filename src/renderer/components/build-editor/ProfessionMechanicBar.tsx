@@ -132,7 +132,7 @@ const THIEF_STOLEN_SKILL_SLOT = 'Profession_2'
  * attunement's facts repeated several times over instead of once each.
  */
 export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuildChange, combatState }: Props) {
-  const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
+  const { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
   const { professions, skillsById, tomeChapters, familiars } = gameData
   const profession = professions.find((p) => p.id === build.profession)
   const { open: stolenSkillPickerOpen, openThis: openStolenSkillPicker, close: closeStolenSkillPicker } = usePickerOpen()
@@ -157,9 +157,9 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
   function skillTooltipFor(skillId: number) {
     const skill = skillsById.get(skillId)
     if (!skill) return null
-    const facts = boonConditionFactsForSkill(skill, activeIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
+    const facts = boonConditionFactsForSkill(skill, activeIds, legendIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
     const numericLines = skillFactLines(skill, activeIds, characterAttributes.power, characterAttributes.healingPower, targetArmor)
-    const namedFacts = skillNamedFacts(skill, activeIds, gameData.wvwFactOverrides.skill[skill.id])
+    const namedFacts = skillNamedFacts(skill, activeIds, legendIds, gameData.wvwFactOverrides.skill[skill.id])
     return (
       <>
         <TooltipBody title={skill.name} description={skill.description} />

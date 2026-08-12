@@ -26,7 +26,7 @@ interface Props {
  * replaces its standalone skill bar entirely in-game.
  */
 export function PetsEditor({ build, onBuildChange, equippedSpecializationIds, combatState }: Props) {
-  const { gameData, activeIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
+  const { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
   const { skillsById, petsById, pets } = gameData
   const { open, openThis, close } = usePickerOpen()
   const [openPetSlot, setOpenPetSlot] = useState<0 | 1 | null>(null)
@@ -39,6 +39,7 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds, co
     skills: gameData.skills,
     skillsById,
     wvwFactOverrides: gameData.wvwFactOverrides,
+    legendIds,
     durationPercent,
     characterAttributes,
     targetArmor,
@@ -52,7 +53,7 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds, co
   function skillTooltipFor(skillId: number) {
     const skill = skillsById.get(skillId)
     if (!skill) return null
-    const facts = boonConditionFactsForSkill(skill, activeIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
+    const facts = boonConditionFactsForSkill(skill, activeIds, legendIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
     return skillTooltipContent(skill, facts, activeIds, variantContext)
   }
 

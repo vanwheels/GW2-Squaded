@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import type { Build, ProfessionId, Specialization, Trait, TraitLineSelection, TraitLineSlots, WvwFactOverride } from '@shared/types'
 import { numericFactLines } from '@shared/skill-calc/fact-numbers'
-import { boonConditionFactsForTrait } from '@shared/boon-calc/sources'
+import { boonConditionFactsForTrait, equippedLegendIds } from '@shared/boon-calc/sources'
 import { boonConditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
@@ -111,6 +111,9 @@ interface TraitLineRowProps {
    *  Typed as the mutable `Set` (not `ReadonlySet`) `boonConditionFactsForTrait` expects, same as
    *  every other `activeIds` consumer in `boon-calc/sources.ts`. */
   activeIds: Set<number>
+  /** The build's equipped Revenant legends — see `boonConditionFactsForTrait`'s `equippedLegendIdSet`
+   *  param / `LegendConditionalTargetCountOverride`. */
+  legendIds: Set<string>
   /** Gear-derived boon/condition duration % — see `SkillsEditor.tsx`'s `useDurationContext`, whose
    *  shape this mirrors (computed once per render in the parent, reused across every trait shown). */
   durationPercent: { boon: number; condition: number }
@@ -126,6 +129,7 @@ function TraitLineRow({
   minorTraitsForSpecialization,
   majorTraitsForSpecialization,
   activeIds,
+  legendIds,
   durationPercent,
   wvwFactOverridesByTraitId
 }: TraitLineRowProps) {
@@ -181,7 +185,7 @@ function TraitLineRow({
                         <TooltipBody title={minor.name} description={minor.description} icon={minor.icon} />
                         {factsBlock(
                           numericFactLines(minor.facts, minor.traitedFacts, activeIds),
-                          boonConditionFactsForTrait(minor, activeIds, durationPercent, wvwFactOverridesByTraitId[minor.id])
+                          boonConditionFactsForTrait(minor, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[minor.id])
                         )}
                       </>
                     }
@@ -205,7 +209,7 @@ function TraitLineRow({
                           <TooltipBody title={t.name} description={t.description} icon={t.icon} />
                           {factsBlock(
                             numericFactLines(t.facts, t.traitedFacts, activeIds),
-                            boonConditionFactsForTrait(t, activeIds, durationPercent, wvwFactOverridesByTraitId[t.id])
+                            boonConditionFactsForTrait(t, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[t.id])
                           )}
                         </>
                       }
@@ -297,6 +301,7 @@ export function TraitsEditor({ profession, build, value, onChange }: Props) {
     }
     return ids
   }, [lines, minorTraitsForSpecialization])
+  const legendIds = useMemo(() => equippedLegendIds(build), [build])
 
   return (
     <div className="traits-editor">
@@ -321,6 +326,7 @@ export function TraitsEditor({ profession, build, value, onChange }: Props) {
             minorTraitsForSpecialization={minorTraitsForSpecialization}
             majorTraitsForSpecialization={majorTraitsForSpecialization}
             activeIds={activeIds}
+            legendIds={legendIds}
             durationPercent={durationPercent}
             wvwFactOverridesByTraitId={gameData.wvwFactOverrides.trait}
           />

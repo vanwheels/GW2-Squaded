@@ -83,7 +83,13 @@ import type { Skill, Trait } from '../src/shared/types/game-data'
 import { CURATED_DAMAGE_COEFFICIENTS } from '../src/shared/skill-calc/damage-calc'
 import { CURATED_HEALING_COEFFICIENTS } from '../src/shared/skill-calc/healing-calc'
 import { CURATED_BARRIER_COEFFICIENTS } from '../src/shared/skill-calc/barrier-calc'
-import { TARGET_COUNT_OVERRIDES, CONDITION_CLEANSE_TARGETS, type TargetCountOverride } from '../src/shared/boon-calc/sources'
+import {
+  TARGET_COUNT_OVERRIDES,
+  CONDITION_CLEANSE_TARGETS,
+  isFlatTargetCountOverride,
+  type SourceTargetCountOverride,
+  type TargetCountOverride
+} from '../src/shared/boon-calc/sources'
 import { fetchWikiPage, flushWikiCache } from './lib/wiki-cache'
 
 const WIKI_API = 'https://wiki.guildwars2.com/api.php'
@@ -297,6 +303,7 @@ type ReachOutcome =
   | 'not-a-skill-or-trait' // id resolved via infobox, but isn't in local skills.json or traits.json
   | 'ambiguous-multiple-ids' // page's own id= lists >1 id, and not exactly one has curated reach data to disambiguate with
   | 'title-not-found' // no wiki page (or no id=) at this exact title
+  | 'complex-override' // curated value is a per-buff-line/conditional override (2026-08-11) — no single flat value to diff a patch's old/new reach against
 
 interface ReachOutcomeEntry {
   wikiTitle: string
@@ -374,11 +381,11 @@ async function processReachGroups(reachRawChanges: RawReachChange[], skillsById:
     }
     const sourceName = kind === 'skill' ? skillsById.get(resolvedId)!.name : traitsById.get(resolvedId)!.name
 
-    const perTable: { table: ReachTableKind; curated: TargetCountOverride | undefined }[] = [
+    const perTable: { table: ReachTableKind; curated: SourceTargetCountOverride | undefined }[] = [
       { table: 'targetCount', curated: TARGET_COUNT_OVERRIDES[kind][resolvedId] },
       { table: 'cleanseCount', curated: CONDITION_CLEANSE_TARGETS[kind][resolvedId] }
     ]
-    const curatedHits = perTable.filter((p): p is { table: ReachTableKind; curated: TargetCountOverride } => p.curated !== undefined)
+    const curatedHits = perTable.filter((p): p is { table: ReachTableKind; curated: SourceTargetCountOverride } => p.curated !== undefined)
 
     if (curatedHits.length === 0) {
       outcomes.push({ ...base, sourceKind: kind, sourceId: resolvedId, sourceName, outcome: 'not-curated', detail: 'not present in TARGET_COUNT_OVERRIDES or CONDITION_CLEANSE_TARGETS' })
@@ -386,6 +393,21 @@ async function processReachGroups(reachRawChanges: RawReachChange[], skillsById:
     }
 
     for (const hit of curatedHits) {
+      // Per-buff-line/conditional overrides (2026-08-11, see `SourceTargetCountOverride`) have no
+      // single flat value to diff a patch's old/new reach against — flagged for a human read instead
+      // of guessing which branch the patch note refers to.
+      if (!isFlatTargetCountOverride(hit.curated)) {
+        outcomes.push({
+          ...base,
+          curatedTable: hit.table,
+          sourceKind: kind,
+          sourceId: resolvedId,
+          sourceName,
+          outcome: 'complex-override',
+          detail: `curated value is a per-buff-line/conditional override — patch shows a reach change ${latest.oldValue} -> ${latest.newValue}, needs a human read`
+        })
+        continue
+      }
       let outcome: ReachOutcome
       let detail: string | undefined
       if (hit.curated === 'self') {
@@ -699,6 +721,7 @@ async function main(): Promise<void> {
   console.log(`  STALE (needs re-curation!):  ${reachCounts.stale ?? 0}`)
   console.log(`  MISMATCH (neither old/new):  ${reachCounts.mismatch ?? 0}`)
   console.log(`  SELF-CONFLICT:               ${reachCounts['self-conflict'] ?? 0}`)
+  console.log(`  COMPLEX-OVERRIDE (needs a human read): ${reachCounts['complex-override'] ?? 0}`)
   console.log(`  not-curated:                 ${reachCounts['not-curated'] ?? 0}`)
   console.log(`  not-a-skill-or-trait:        ${reachCounts['not-a-skill-or-trait'] ?? 0}`)
   console.log(`  ambiguous-multiple-ids:      ${reachCounts['ambiguous-multiple-ids'] ?? 0}`)
@@ -715,6 +738,13 @@ async function main(): Promise<void> {
   if (reachSelfConflict.length > 0) {
     console.log(`\n--- REACH SELF-CONFLICT (curated 'self' but patch shows a numeric allied-target change) ---`)
     for (const o of reachSelfConflict) {
+      console.log(`  - ${o.sourceName} (id ${o.sourceId}, ${o.sourceKind}) / ${REACH_TABLE_NAMES[o.curatedTable as ReachTableKind]}: ${o.detail}`)
+    }
+  }
+  const reachComplexOverride = reachOutcomes.filter((o) => o.outcome === 'complex-override')
+  if (reachComplexOverride.length > 0) {
+    console.log(`\n--- REACH COMPLEX-OVERRIDE (per-buff-line/conditional curated value, needs a human read) ---`)
+    for (const o of reachComplexOverride) {
       console.log(`  - ${o.sourceName} (id ${o.sourceId}, ${o.sourceKind}) / ${REACH_TABLE_NAMES[o.curatedTable as ReachTableKind]}: ${o.detail}`)
     }
   }
