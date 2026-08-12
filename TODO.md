@@ -210,11 +210,26 @@ that before extending either further, and before the tooltip visual-pass item be
       active — `CombatState` has no current-attunement toggle, would need one (same shape category as
       the weapon-equipped-gated and boon-gated families already flagged, just keyed on attunement
       instead).
-      **Remaining legs (~122 candidates across Necromancer 29, Ranger 23, Revenant 19, Thief 29,
-      Warrior 22) not yet swept** — each candidate needs its trait *description* read for genuine
-      unconditional "gain X" language, same rigor as every other curated table; regenerate the
-      candidate list per-profession via a `traits.json` scan for `AttributeAdjust`/`BuffConversion`
-      facts joined against `specializations.json` if picking this back up in a new session.
+      **Revenant leg (19 candidates, done 2026-08-12)**: 4 curated — Reinforced Potency (+60
+      Concentration, WvW value; the trait's "for each active boon" language only modifies its
+      separate strike-damage fact, not the flat Concentration one), Seething Malice (+120 Condition
+      Damage — the exception this sweep's notes warned about: WvW groups with PvE here, not PvP),
+      Elevated Compassion (13% Power→Concentration, no split — a genuine unconditional passive added
+      by the 2023-07-18 patch "in addition to" this trait's two heal/boon procs, even though it's
+      absent from the wiki's condensed description field), Versed in Stone (4% Toughness→Power, WvW
+      value — a standalone "Gain power based on your toughness" sentence alongside two conditional/
+      proc effects, same multi-clause shape as Life Attunement/Quiet Intensity). 14 excluded as
+      proc-heal/barrier coefficients (Fiendish Tenacity, Shining Aspects, Battle Scarred, Rapid Flow,
+      Glaring Resolve, Generous Abundance, Healer's Gift, Resilient Spirit, Words of Censure,
+      Righteous Rebel, Redemptor's Sermon, Balance in Discord, Expanded Consciousness) plus 1 already-
+      known health-threshold-conditional shape (Empire Divided — the very trait used as this sweep's
+      prototype example for that family, Vindicator). Life Attunement was already curated from before
+      this sweep started, not recounted.
+      **Remaining legs (~103 candidates across Necromancer 29, Ranger 23, Thief 29, Warrior 22) not
+      yet swept** — each candidate needs its trait *description* read for genuine unconditional
+      "gain X" language, same rigor as every other curated table; regenerate the candidate list
+      per-profession via a `traits.json` scan for `AttributeAdjust`/`BuffConversion` facts joined
+      against `specializations.json` if picking this back up in a new session.
 
 - [ ] 76 Food catalog entries still have no buff data after `borrowSharedContainerBonuses` +
       `applyAscendedFeastFormula` (`fetch-gear-upgrades.ts`) — genuinely buff-less items that don't

@@ -121,7 +121,18 @@ const CURATED_FLAT_BONUSES: TraitFlatBonus[] = [
   // 2026-08-12: unconditional +180 Vitality, no game-mode split. This trait's other effect (barrier
   // on Dual Attack skills, split pve/wvw pvp) is a proc barrier coefficient, not a character-stat
   // gain — out of scope.
-  { traitId: 2077, target: 'Vitality', value: 180 }
+  { traitId: 2077, target: 'Vitality', value: 180 },
+  // Reinforced Potency (Revenant, Herald, Minor GM) — "Gain concentration and deal increased strike
+  // damage for each active boon you have." Wiki-verified 2026-08-12 (raw wikitext): the Concentration
+  // half is a flat, non-scaling `{{skill fact|attribute|Concentration|...}}` split pve 240/wvw+pvp
+  // 60 — the "for each active boon" language only applies to the separate strike-damage-increase
+  // fact, not this one. WvW value is 60.
+  { traitId: 1788, target: 'BoonDuration', value: 60 },
+  // Seething Malice (Revenant, Corruption, Minor Master) — "Your condition damage is increased."
+  // Wiki-verified 2026-08-12 (raw wikitext): split "pve wvw"=120 / "pvp"=240 — unlike most splits
+  // seen in this sweep, WvW groups with PvE here, not PvP (flagged as the exception this sweep's
+  // notes warned to watch for). WvW value is 120.
+  { traitId: 1801, target: 'ConditionDamage', value: 120 }
 ]
 
 const CURATED_CONVERSIONS: TraitConversion[] = [
@@ -157,7 +168,23 @@ const CURATED_CONVERSIONS: TraitConversion[] = [
   // toughness." Wiki-verified 2026-08-12 (raw wikitext: `{{skill fact|gain|Condition
   // Damage|Toughness|10}}`, no game-mode split). This trait's other effect (bleed on immobilize,
   // split pve/wvw pvp stack count) is a skill effect, not a character-stat gain — out of scope.
-  { traitId: 275, source: 'Toughness', target: 'ConditionDamage', percent: 10 }
+  { traitId: 275, source: 'Toughness', target: 'ConditionDamage', percent: 10 },
+  // Elevated Compassion (Revenant, Herald, Major Master) — in-game tooltip includes "Gain
+  // Concentration Based on a Percentage of Power: 13%" (confirmed via wiki version history: added
+  // 2023-07-18, "converts 13% of the herald's power into concentration in addition to its other
+  // effects") even though this doesn't appear in the wiki's condensed description field, which only
+  // covers this trait's two heal-on-boon-grant/boon-on-upkeep-threshold procs. Wiki-verified
+  // 2026-08-12 (raw wikitext: `{{skill fact|gain|Concentration|Power|13}}`, no game-mode split) —
+  // unconditional, "in addition to" the procs, so it belongs in this table despite the procs
+  // themselves being out of scope (same shape as Healer's Gift-style exclusions elsewhere).
+  { traitId: 1746, source: 'Power', target: 'BoonDuration', percent: 13 },
+  // Versed in Stone (Revenant, Retribution, Major GM) — "Gain power based on your toughness," a
+  // standalone unconditional sentence alongside this trait's two conditional/proc effects (extra
+  // Rite of the Great Dwarf damage reduction; casting Rite of the Great Dwarf when struck below the
+  // health threshold) — same multi-sentence shape as Life Attunement/Quiet Intensity, where one
+  // clause is a genuine passive gain and the others aren't. Wiki-verified 2026-08-12 (raw wikitext):
+  // split game mode=pve 13 / game mode=pvp wvw 4; WvW value is 4.
+  { traitId: 1770, source: 'Toughness', target: 'Power', percent: 4 }
 ]
 
 /**
