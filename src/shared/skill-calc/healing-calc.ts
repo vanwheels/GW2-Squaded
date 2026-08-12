@@ -733,6 +733,16 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // facts (Knockdown, Conditions Removed) added alongside this. 3-way split (PvE 1970/1.0, WvW+PvP
   // 1478/0.5) — WvW value used, same convention as every other split entry in this table.
   27356: [{ factText: 'Healing', baseValue: 1478, coefficient: 0.5 }],
+  // Revenant — Natural Harmony, the LIVE/canonical id (27025, Legend6 `utilities[1]`) — its orphan
+  // sibling 29082 (structurally unreachable, see the Protective Solace/Jade Winds writeup in
+  // docs/game-data.md) carries a real Healing fact whose OWN live API value (1620 base) disagrees
+  // with the current wiki text (1124 base) — user-verified 2026-08-12 against the live wiki page
+  // (base unchanged across every dated Version History entry back to 2015; only the coefficient has
+  // ever moved) that 1124 is correct, siding with the wiki over 29082's API value per this app's
+  // standing convention (wiki is hand-updated same-day for balance patches; a structurally-orphaned
+  // API id has no in-game path forcing ArenaNet to keep it in sync, unlike the live 27025 id used
+  // here). 3-way split (PvE 2.75, WvW 1.75, PvP 1.0, same 1124 base in all 3) — WvW value used.
+  27025: [{ factText: 'Healing', baseValue: 1124, coefficient: 1.75 }],
   // Revenant — Purifying Essence, the LIVE/canonical id (27715, Legend6 `utilities[2]`) — its own
   // orphan sibling 29197 (above, in the Heal/Utility section) already carries this exact same
   // Healing fact for real; 27715 doesn't, so the same value is mirrored here via a
@@ -740,16 +750,18 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // template for this skill carries no `game mode=` tag at all, matching 29197's own comment above).
   27715: [{ factText: 'Healing per Condition Removed', baseValue: 325, coefficient: 0.2 }],
   // Revenant — Energy Expulsion, the ORPHAN id (29114, a same-named sibling of the live 27356
-  // above — see that entry's comment). Investigated but left uncurated: the live GW2 API
-  // (re-confirmed via a fresh `/v2/skills/29114` pull, not just this app's cached data) returns a
-  // completely different fact set — a "Healing Fragment"/"Number of Fragments"/"Knockback"
-  // mechanic — than the wiki's current page, which describes a single knockdown+heal with no
-  // fragments at all (`{{skill fact|healing|1970|coefficient=1.0|game mode=pve}}` / `1478/0.5`
-  // pvp+wvw — the same values curated for 27356 above). This is a genuine, unresolved API/wiki
-  // mechanic mismatch on 29114 specifically (not just a value tweak), not a case where either
-  // source can be trusted over the other — left uncurated rather than guessing which one is stale.
-  // Moot either way: 29114 is structurally unreachable in this app, so this entry would be dead
-  // data even if curated (same shape as Jade Winds' harmless-dead-data orphan, see
+  // above — see that entry's comment). Deliberately left uncurated, now CONFIRMED (not just
+  // suspected) stale: its "Healing Fragment"/"Number of Fragments"/"Knockback" fact set is the
+  // skill's pre-2022-06-28 design — the wiki's own Version History for Energy Expulsion states
+  // that patch "no longer creates healing fragments and instead heals and removes conditions from
+  // allies in the area... now knocks down enemies that it strikes instead of knocking them back,"
+  // which is exactly the current mechanic curated on 27356 above (user-verified 2026-08-12, who
+  // also confirmed the game's real "When Empowered" behavior matches the wiki: +3-stack Stability,
+  // 5s PvE/PvP -> 3s WvW-only per a 2024-03-19 patch — not curated here, a state-conditional
+  // proc-gated bonus only the skill cast right after a legend-swap/Project Tranquility gets, same
+  // "misrepresents every cast" reason every other "When Empowered" bonus in this legend is left
+  // out). 29114 itself is moot either way — structurally unreachable in this app, so even accurate
+  // data here would be dead weight (same shape as Jade Winds' harmless-dead-data orphan, see
   // docs/game-data.md's Protective Solace/Jade Winds writeup).
 }
 

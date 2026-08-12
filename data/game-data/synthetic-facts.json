@@ -152,7 +152,10 @@
     { "type": "Time", "text": "Knockdown", "duration": 3 }
   ],
   "26821": [{ "type": "Time", "text": "Duration", "duration": 20 }],
-  "27025": [{ "type": "Time", "text": "Delay Time", "duration": 1 }],
+  "27025": [
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Healing", "value": 1124 },
+    { "type": "Time", "text": "Delay Time", "duration": 1 }
+  ],
   "27715": [
     { "type": "AttributeAdjust", "target": "Healing", "text": "Healing per Condition Removed", "value": 325 },
     { "type": "Number", "text": "Conditions Removed", "value": 3 }
