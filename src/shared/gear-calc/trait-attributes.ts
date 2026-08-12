@@ -29,7 +29,10 @@ export interface TraitConversion extends AttributeConversion {
   traitId: number
 }
 
-const CURATED_FLAT_BONUSES: TraitFlatBonus[] = [
+// Exported (not just module-private) so the completeness scan
+// (trait-attribute-completeness.test.ts) can enumerate every trait id already covered here without
+// duplicating the list — see that file for the invariant this backs.
+export const CURATED_FLAT_BONUSES: TraitFlatBonus[] = [
   // Life Attunement (Revenant, Salvation, Minor tier 2) — "Gain healing power." Unambiguous
   // single-value AttributeAdjust fact; description confirms this is a genuine passive stat gain.
   { traitId: 1821, target: 'Healing', value: 120 },
@@ -282,7 +285,8 @@ const CURATED_FLAT_BONUSES: TraitFlatBonus[] = [
   { traitId: 2284, target: 'ConditionDamage', value: 90 }
 ]
 
-const CURATED_CONVERSIONS: TraitConversion[] = [
+// Exported for the same reason as CURATED_FLAT_BONUSES above.
+export const CURATED_CONVERSIONS: TraitConversion[] = [
   // Life Attunement — "Gain concentration based on a portion of your healing power." Wiki-verified
   // 2026-08-02 (wiki.guildwars2.com/wiki/Life_Attunement): 7% is the PvE **and** WvW value; 4% (the
   // raw API's other listed value) is competitive/PvP-only.
@@ -415,7 +419,16 @@ const CURATED_CONVERSIONS: TraitConversion[] = [
   // healing power." Wiki-verified 2026-08-12 (raw wikitext:
   // `{{skill fact|Gain|Healing Power|Condition Damage|7}}`, no game-mode split). This trait's flat
   // Condition Damage half is added separately above.
-  { traitId: 2284, source: 'ConditionDamage', target: 'Healing', percent: 7 }
+  { traitId: 2284, source: 'ConditionDamage', target: 'Healing', percent: 7 },
+  // Kinetic Accelerators (Engineer, Scrapper, Major GM) — found by the trait attribute-bonus
+  // completeness scan (`trait-attribute-completeness.test.ts`) 2026-08-12: this trait's condensed
+  // description only covers its combo-finisher boon-share proc (Quickness/Fury/Might), but the raw
+  // wikitext carries a separate, unconditional `{{skill fact|gain|Concentration|Power|...}}` template
+  // with no combo/finisher gate of its own — confirmed via the rendered wiki page's own explanatory
+  // text: "unconditional and passive... a permanent stat conversion, not triggered only by combo
+  // finishers." Same "in addition to procs" shape as Elevated Compassion above. Split game mode=pve 13
+  // / game mode=wvw pvp 10; WvW value is 10.
+  { traitId: 2052, source: 'Power', target: 'BoonDuration', percent: 10 }
 ]
 
 /**

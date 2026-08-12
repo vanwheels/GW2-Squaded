@@ -1,6 +1,10 @@
 {
   "extends": "@electron-toolkit/tsconfig/tsconfig.web.json",
   "include": ["src/renderer/**/*", "src/shared/**/*", "src/preload/index.d.ts"],
+  // *.test.ts files (vitest, node:fs/node:path/node:url-using) are covered by tsconfig.node.json's
+  // "types": ["node"] instead — this config's "vite/client" types have no Node built-in
+  // declarations, and tests don't ship in the renderer bundle anyway.
+  "exclude": ["src/shared/**/*.test.ts"],
   "compilerOptions": {
     "composite": true,
     "strict": true,

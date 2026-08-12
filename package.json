@@ -32,6 +32,8 @@
     "fetch-condition-cleanse": "tsx scripts/fetch-condition-cleanse.ts",
     "fetch-balance-patch-changes": "tsx scripts/fetch-balance-patch-changes.ts",
     "audit-skill-picker-duplicates": "tsx scripts/audit-skill-picker-duplicates.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json"
   },
@@ -58,7 +60,8 @@
     "tsx": "^4.19.2",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.24.0",
-    "vite": "^6.4.3"
+    "vite": "^6.4.3",
+    "vitest": "^4.1.10"
   },
   "allowScripts": {
     "electron-winstaller@5.4.0": true,

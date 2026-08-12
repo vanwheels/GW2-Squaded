@@ -37,21 +37,27 @@ but NOT the priority.
 **Priority: completeness/coverage tests — build these first. No gw2skills/in-game verification
 needed, purely structural scans against data already in the repo:**
 
-1. **Trait attribute-bonus completeness scan.** `trait-attributes.ts` + `combat-state.ts` have 9
-   separate hand-populated `Record<number, ...>` tables, each built by a one-off "scan traits.json for
-   this shape" sweep done in its own session, with nothing forcing a new or previously-missed
-   conditional trait into any of them: `FURY_ATTRIBUTE_TRAIT_BONUSES`,
+1. ~~**Trait attribute-bonus completeness scan.**~~ **DONE 2026-08-12** (`vitest` added as a new
+   devDependency; `src/shared/gear-calc/trait-attribute-completeness.test.ts`, `npm run test`). Scanned
+   all 187 traits in `traits.json` carrying an `AttributeAdjust`/`BuffConversion` fact (in either
+   `facts` or `traitedFacts`) against the union of all 12 curated tables/lists across
+   `trait-attributes.ts`/`combat-state.ts` (`CURATED_FLAT_BONUSES`, `CURATED_CONVERSIONS`,
+   `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`, `ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`,
+   `FURY_CRIT_CHANCE_TRAIT_BONUSES`, `FURY_ATTRIBUTE_TRAIT_BONUSES`,
    `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`, `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`,
    `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES`, `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`,
-   `REVEALED_ATTRIBUTE_TRAIT_BONUSES`, `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES`,
-   `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`, `ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES` (all in
-   `src/shared/gear-calc/trait-attributes.ts` / `combat-state.ts`). Plan: for every trait in
-   `traits.json` whose facts include an attribute-adjust shape (flat or conditional — "while," "per
-   stack," "below X% health," etc.), assert its id appears in the union of all 9 tables, OR in a new
-   explicit "reviewed, intentionally excluded" allowlist with a stated reason. Turns the ad hoc manual
-   sweeps already done into a permanent CI-enforced invariant — a future balance patch or a
-   previously-missed trait fails the test immediately instead of surfacing as a wrong in-game stat
-   months later. **Agreed as the first test to build, next session.**
+   `REVEALED_ATTRIBUTE_TRAIT_BONUSES`, `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES`) — 90 already
+   covered. Of the 98 uncovered candidates: 1 (Kinetic Accelerators, id 2052) was a genuine miss,
+   wiki-verified and added to `CURATED_CONVERSIONS` (Power→Concentration 10% WvW, confirmed
+   unconditional despite sitting alongside this trait's combo-finisher boon procs); 95 were
+   reviewed and confirmed to be proc/skill-tooltip coefficients reusing the same fact shape
+   (heal-on-X, barrier-on-X, life-siphon-on-hit, 3 pet-only stats, 1 temporary on-cast buff value,
+   1 condition-tick-damage coefficient, 1 `requires_trait` cross-reference) — same "Healer's Gift"
+   shape already documented in `trait-attributes.ts`'s file header; all logged with a stated reason
+   in the test file's `EXCLUDED_TRAIT_IDS`. The remaining 2 are genuine stat gains with no infra yet
+   — see "New gaps found by the completeness scan" below. The test also asserts the exclusion list
+   itself stays clean (no entry for an already-curated trait, no stale entry for a trait a balance
+   patch reworked).
 2. **Sigil/Control-Strip completeness scan.** `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/
    `BOON_STRIP_CORRUPT_MATCHERS` (`src/shared/boon-calc/sources.ts`, ~lines 2813-2850) do
    "structurally-verified exact match" against known `Fact` shapes — a sigil whose CC/strip effect is
@@ -73,13 +79,38 @@ needed, purely structural scans against data already in the repo:**
   the verification cost once, then a snapshot diff catches future regressions without re-checking.
 - Tier 3 — 2-3 hand-verified reference meta builds (checked once against gw2skills.net/in-game, all
   stats) as the actual manual-verification oracle, used sparingly.
-- Vitest is the natural fit (electron-vite project, near-zero extra config) — confirmed not yet
-  installed, no test files exist anywhere in `src` as of 2026-08-12.
+- Vitest is now installed (`npm run test`) — added 2026-08-12 to build the completeness scan above,
+  `vitest.config.ts` at repo root, near-zero extra config as expected.
 
-**Next action, agreed but not started (session ended at 98% usage before starting):** build the trait
-attribute-bonus completeness scan (#1 above) first — highest leverage, fully groundable in code
-already read this session, requires no new manual verification to write (only to triage whatever it
-flags).
+**Next action:** build the Sigil/Control-Strip completeness scan (#2 above) — same shape as the
+now-done trait scan, next-highest leverage per the original ranking.
+
+## New gaps found by the trait attribute-bonus completeness scan (2026-08-12)
+
+Both are genuine character-stat grants confirmed via wiki (not proc/skill-tooltip coefficients like
+the scan's other 95 flagged traits) but need a conditional-gate shape this codebase doesn't have infra
+for yet — logged here per the scan's own `EXCLUDED_TRAIT_IDS` entries rather than rushed into a
+curated table. Both are the same general shape as the already-built "conditional trait-attribute
+bonus families" ([[conditional_trait_bonus_families]]) — a new family, not a one-off fix.
+
+- [ ] **Power Overwhelming (Elementalist, id 334) — might-stack-THRESHOLD-gated Power, doubled by
+      attunement.** "While at or above the might threshold, gain increased power. Power bonuses are
+      doubled while attuned to fire." Wiki-verified 2026-08-12: +150 Power once `mightStacks >= 8`
+      (WvW/PvP threshold; PvE is 10), doubled to +300 while `activeAttunement === 'Fire'`. Distinct
+      from `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`'s continuous per-stack scaling (this is a binary
+      on/off at a threshold) AND distinct from `ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`'s flat
+      attunement-gated bonus (this is a *multiplier* on an already-conditional bonus, same
+      "doubling isn't its own fact" shape `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`'s Forceful
+      Greatsword/Blood Reaction comments already flag) — needs its own combined-gate table, not a fit
+      for any existing one.
+- [ ] **Deadly Strength (Necromancer/Harbinger, id 855) — per-Carapace-stack Power/ConditionDamage.**
+      "Carapace stacks grant power and condition damage." Wiki-verified 2026-08-12: +10 Power / +10
+      ConditionDamage per stack, no game-mode split (`{{skill fact|attribute|Power|10}}` +
+      `{{skill fact|attribute|Condition Damage|10}}`). "Carapace" is Harbinger's own stacking
+      resource (built from applying Blight, distinct from Might) — no `CombatState` field tracks it
+      today (`mightStacks`/`kallaFervorStacks` are the only stack counters that exist). Needs a new
+      `CombatState.carapaceStacks` field (same UI shape as `kallaFervorStacks`'s Renegade-gated
+      stepper, surfaced only when Harbinger is equipped) before this can be curated.
 
 ## Bugs
 
