@@ -81,12 +81,21 @@ as every other sweep here (`pacing_large_sweeps` memory) — do not chain these.
       Vicious Quarry (Ranger, id 1888), No Quarter (Thief, id 1904) — all wiki-verified, live in
       `combat-state.ts`'s `FURY_ATTRIBUTE_TRAIT_BONUSES`/`furyAttributeTraitBonus`, sibling to the
       already-existing `FURY_CRIT_CHANCE_TRAIT_BONUSES` family. No new UI — reuses the existing
-      `CombatState.furyActive` toggle.
-- [ ] **Boon-gated flat bonuses** (Regeneration/Quickness) — Chaotic Persistence, Sharpening Sorrow
-      (Mesmer, Regeneration-gated), Energy Amplifier (Engineer, Regeneration-gated), Imbued Haste
-      (Guardian/Firebrand, Quickness-gated), Be Quick or Be Killed (Thief, Quickness-gated). Needs a
-      generalized "which boons are up" `CombatState` toggle (or one boolean per boon, mirroring
-      `furyActive`) plus new UI in `CombatStatePanel.tsx`.
+      `CombatState.furyActive` toggle. Grew a 6th entry during the Boon-gated leg below: Sharpening
+      Sorrow (Mesmer/Virtuoso, id 2207) was misfiled in this checklist as Regeneration-gated — its
+      wiki page confirms it's actually Fury-gated (its own on-cast Fury proc, +150 Expertise), so
+      it's added here instead, target `ConditionDuration`.
+- [x] **Boon-gated flat bonuses** (Regeneration/Quickness) — done 2026-08-12, see COMPLETED.md.
+      Chaotic Persistence (Mesmer, id 1865, Regeneration-gated) and Energy Amplifier (Engineer, id
+      519, Regeneration-gated) live in `combat-state.ts`'s
+      `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`/`regenerationAttributeTraitBonus`; Imbued Haste
+      (Guardian/Firebrand, id 2148, Quickness-gated) and Be Quick or Be Killed (Thief/Deadeye, id
+      2093, Quickness-gated) live in `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES`/
+      `quicknessAttributeTraitBonus` — all wiki-verified. Sharpening Sorrow, originally listed here,
+      turned out to be Fury-gated instead (see the Fury leg's entry above). Went with one boolean per
+      boon (`CombatState.regenerationActive`/`quicknessActive`, mirroring `furyActive`) rather than a
+      generalized boon map — only these 2 boons have any curated trait bonus so far. New toggle icons
+      added to `CombatStatePanel.tsx` next to the existing Fury toggle.
 - [ ] **Weapon-equipped-gated flat bonuses** — derivable from `build.equipment` +
       `isActiveWeaponSlot` (already exist in `attribute-totals.ts`, no new `CombatState` field
       needed, same as this session's family needed none). Candidates flagged across the sweep:

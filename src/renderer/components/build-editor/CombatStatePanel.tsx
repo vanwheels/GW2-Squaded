@@ -26,10 +26,10 @@ function iconClass(active: boolean): string {
 
 /**
  * Icon-based controls for `CombatState`, rendered inline inside `StatsPanel` to the right of the
- * stat grid. Might/stacking-sigil are steppers (icon + 5-increment dropdown); Fury/relic are
- * click-to-toggle icons (no dropdown, boolean on/off); target armor is a 3-option dropdown (not a
- * stepper — only Light/Medium/Heavy exist, no intermediate values) — see `CombatState`'s doc comment
- * for why each field takes the shape it does.
+ * stat grid. Might/stacking-sigil are steppers (icon + 5-increment dropdown); Fury/Regeneration/
+ * Quickness/relic are click-to-toggle icons (no dropdown, boolean on/off); target armor is a
+ * 3-option dropdown (not a stepper — only Light/Medium/Heavy exist, no intermediate values) — see
+ * `CombatState`'s doc comment for why each field takes the shape it does.
  */
 export function CombatStatePanel({ build, value, onChange }: Props) {
   const { sigilsById, relicsById } = useGameData()
@@ -64,6 +64,24 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
         onClick={() => onChange({ ...value, furyActive: !value.furyActive })}
       >
         <img className={iconClass(value.furyActive)} src={BOON_CONDITION_ICONS.Fury} alt="Fury" />
+      </button>
+
+      <button
+        type="button"
+        className="combat-state-toggle-icon"
+        title={value.regenerationActive ? 'Regeneration: On' : 'Regeneration: Off'}
+        onClick={() => onChange({ ...value, regenerationActive: !value.regenerationActive })}
+      >
+        <img className={iconClass(value.regenerationActive)} src={BOON_CONDITION_ICONS.Regeneration} alt="Regeneration" />
+      </button>
+
+      <button
+        type="button"
+        className="combat-state-toggle-icon"
+        title={value.quicknessActive ? 'Quickness: On' : 'Quickness: Off'}
+        onClick={() => onChange({ ...value, quicknessActive: !value.quicknessActive })}
+      >
+        <img className={iconClass(value.quicknessActive)} src={BOON_CONDITION_ICONS.Quickness} alt="Quickness" />
       </button>
 
       {stackingSigil && sigilIcon && (

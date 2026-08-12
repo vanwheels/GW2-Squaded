@@ -14,6 +14,13 @@ export interface CombatState {
   /** Fury's effect on specific skills/traits ("while under the effect of Fury") is NOT modeled —
    *  no structural data exists anywhere in the app for conditional Fury-gated bonuses. */
   furyActive: boolean
+  /** Gates `REGENERATION_ATTRIBUTE_TRAIT_BONUSES` — mirrors `furyActive`'s shape/gating, one
+   *  boolean per boon rather than a generalized "which boons are up" map, since only Regeneration
+   *  and Quickness have any curated conditional trait bonus so far (see TODO.md's "Boon-gated flat
+   *  bonuses" family). */
+  regenerationActive: boolean
+  /** Gates `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES` — sibling to `regenerationActive` above. */
+  quicknessActive: boolean
   /** 0-25 stacks of whichever stacking sigil is equipped on the active weapon set, if any — see
    *  `detectActiveStackingSigil`. Meaningless when no stacking sigil is equipped. */
   stackingSigilStacks: number
@@ -30,6 +37,8 @@ export interface CombatState {
 export const DEFAULT_COMBAT_STATE: CombatState = {
   mightStacks: 0,
   furyActive: false,
+  regenerationActive: false,
+  quicknessActive: false,
   stackingSigilStacks: 0,
   relicActive: false,
   targetArmorClass: 'Medium'
@@ -138,13 +147,24 @@ export function furyCritChanceTraitBonus(build: Build, traitsById: Map<number, T
  * `{{skill fact|attribute|Ferocity|300|game mode = pvp wvw}}`, WvW value is 300. `target` uses the
  * same `CritDamage` key as Ferocity elsewhere in this codebase (matches the raw API fact's own
  * `target` field).
+ *
+ * Sharpening Sorrow (wiki.guildwars2.com/wiki/Sharpening_Sorrow, Mesmer/Virtuoso, Major, id 2207)
+ * was added later, found while wiki-verifying the "Boon-gated flat bonuses" family
+ * (TODO.md) — its description reads "Gain fury when you activate Bladesong Sorrow. Fury increases
+ * your expertise.", which sounds Regeneration/boon-shaped at a glance but is actually Fury-gated
+ * (the trait's own on-cast Fury proc, not an external boon), so it belongs here rather than in that
+ * new family. Raw facts confirm: `{{skill fact|attribute|Expertise|alt=Expertise granted by
+ * fury|150}}`, no game-mode split. `target` uses `ConditionDuration`, this codebase's API key for
+ * Expertise (same convention as Chaotic Persistence's Expertise bonus, see
+ * `REGENERATION_ATTRIBUTE_TRAIT_BONUSES` below).
  */
 export const FURY_ATTRIBUTE_TRAIT_BONUSES: Record<number, { target: string; value: number }> = {
   1923: { target: 'CritDamage', value: 150 }, // No Scope (Guardian, Major)
   214: { target: 'CritDamage', value: 180 }, // Raging Storm (Elementalist, Major)
   1343: { target: 'ConditionDamage', value: 180 }, // Deep Strikes (Warrior, Minor)
   1888: { target: 'CritDamage', value: 250 }, // Vicious Quarry (Ranger, Major)
-  1904: { target: 'CritDamage', value: 300 } // No Quarter (Thief, Major) — WvW/PvP value; PvE is 250
+  1904: { target: 'CritDamage', value: 300 }, // No Quarter (Thief, Major) — WvW/PvP value; PvE is 250
+  2207: { target: 'ConditionDuration', value: 150 } // Sharpening Sorrow (Mesmer, Major)
 }
 
 /**
@@ -211,6 +231,77 @@ export function mightStackAttributeTraitBonus(build: Build, mightStacks: number,
   return bonus
 }
 
+/**
+ * Trait id -> extra flat attribute points (by target) granted while Regeneration is active — the
+ * "Boon-gated flat bonuses" family from TODO.md, first leg (Regeneration; Quickness follows
+ * immediately below). Unlike the single-target `FURY_ATTRIBUTE_TRAIT_BONUSES`/
+ * `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES` shape, both traits here grant 2 attributes at once, so the
+ * value is a target->amount map instead of one `{ target, value }` pair. Both wiki-verified via raw
+ * wikitext (`?action=raw`) 2026-08-12:
+ * - Chaotic Persistence (wiki.guildwars2.com/wiki/Chaotic_Persistence, Mesmer/Chaos, Minor GM, id
+ *   1865): `split = pve, wvw, pvp`, genuine 3-way split on both attributes — Concentration
+ *   (`BoonDuration`) is 250 PvE/WvW, 150 PvP; Expertise (`ConditionDuration`) is 100 PvE (reduced
+ *   from 250 on 2026-04-14, PvE only), 250 WvW, 150 PvP. WvW value used here: Concentration 250,
+ *   Expertise 250 — note WvW no longer matches PvE for Expertise since the 2026-04-14 patch split
+ *   them.
+ * - Energy Amplifier (wiki.guildwars2.com/wiki/Energy_Amplifier, Engineer/Inventions, Minor GM, id
+ *   519): no split, flat Power 250 / Healing 250 in every game mode.
+ */
+export const REGENERATION_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<string, number>> = {
+  1865: { BoonDuration: 250, ConditionDuration: 250 }, // Chaotic Persistence (Mesmer, Minor GM) — WvW value
+  519: { Power: 250, Healing: 250 } // Energy Amplifier (Engineer, Minor GM)
+}
+
+/**
+ * Sums every curated Regeneration-gated trait bonus actually active on this build, grouped by
+ * target attribute (mirrors `furyAttributeTraitBonus`'s shape/gating). Only meaningful when
+ * combined with `combatState.regenerationActive` by the caller.
+ */
+export function regenerationAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>): Record<string, number> {
+  const active = activeTraitIds(build, traitsById)
+  const bonus: Record<string, number> = {}
+  for (const [traitIdText, targets] of Object.entries(REGENERATION_ATTRIBUTE_TRAIT_BONUSES)) {
+    if (!active.has(Number(traitIdText))) continue
+    for (const [target, value] of Object.entries(targets)) bonus[target] = (bonus[target] ?? 0) + value
+  }
+  return bonus
+}
+
+/**
+ * Trait id -> extra flat attribute points (by target) granted while Quickness is active — second
+ * leg of the "Boon-gated flat bonuses" family, sibling to `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`
+ * above (same target-map shape, same reasoning for why). Both wiki-verified via raw wikitext
+ * (`?action=raw`) 2026-08-12:
+ * - Imbued Haste (wiki.guildwars2.com/wiki/Imbued_Haste, Guardian/Firebrand, Minor GM, id 2148):
+ *   `split = pve, wvw pvp`, genuine 2-way split on all 3 attributes — Condition Damage/Healing
+ *   Power/Vitality each 250 PvE, 150 WvW/PvP. WvW value used here: 150 for all three.
+ * - Be Quick or Be Killed (wiki.guildwars2.com/wiki/Be_Quick_or_Be_Killed, Thief/Deadeye, Major GM,
+ *   id 2093): the trait's own on-mark Quickness proc, not an external boon requirement — same shape
+ *   as Sharpening Sorrow's Fury proc above, but the target attributes (Power/Precision) aren't
+ *   split by game mode (only the Quickness proc's own duration is, 4s PvE / 2.5s WvW/PvP —
+ *   irrelevant here since `combatState.quicknessActive` is a flat on/off, not a duration). Power
+ *   200 / Precision 200 in every game mode.
+ */
+export const QUICKNESS_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<string, number>> = {
+  2148: { ConditionDamage: 150, Healing: 150, Vitality: 150 }, // Imbued Haste (Guardian, Minor GM) — WvW/PvP value
+  2093: { Power: 200, Precision: 200 } // Be Quick or Be Killed (Thief, Major GM)
+}
+
+/**
+ * Sums every curated Quickness-gated trait bonus actually active on this build, grouped by target
+ * attribute (mirrors `regenerationAttributeTraitBonus` above). Only meaningful when combined with
+ * `combatState.quicknessActive` by the caller.
+ */
+export function quicknessAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>): Record<string, number> {
+  const active = activeTraitIds(build, traitsById)
+  const bonus: Record<string, number> = {}
+  for (const [traitIdText, targets] of Object.entries(QUICKNESS_ATTRIBUTE_TRAIT_BONUSES)) {
+    if (!active.has(Number(traitIdText))) continue
+    for (const [target, value] of Object.entries(targets)) bonus[target] = (bonus[target] ?? 0) + value
+  }
+  return bonus
+}
+
 export interface ActiveStackingSigil {
   sigilId: number
   name: string
@@ -239,11 +330,13 @@ export function detectActiveStackingSigil(build: Build): ActiveStackingSigil | n
 
 /**
  * Raw core-attribute point deltas contributed by Might (including any curated
- * `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`), an active stacking sigil, and (while `state.furyActive`)
- * any curated `FURY_ATTRIBUTE_TRAIT_BONUSES` — in the same `points` shape `computeGearAttributeTotals`
- * produces — merged into that total by `computeCharacterStats` before deriving the stats-panel
- * values. Fury's own crit-*chance* bonus and the relic bonus don't go through this path since they
- * apply directly to derived stats, not raw attribute points.
+ * `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`), an active stacking sigil, and (while the corresponding
+ * `CombatState` boolean is on) any curated `FURY_ATTRIBUTE_TRAIT_BONUSES`,
+ * `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`, or `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES` — in the same
+ * `points` shape `computeGearAttributeTotals` produces — merged into that total by
+ * `computeCharacterStats` before deriving the stats-panel values. Fury's own crit-*chance* bonus and
+ * the relic bonus don't go through this path since they apply directly to derived stats, not raw
+ * attribute points.
  */
 export function combatStatePoints(build: Build, state: CombatState, traitsById: Map<number, Trait>): Record<string, number> {
   const points: Record<string, number> = {}
@@ -269,6 +362,14 @@ export function combatStatePoints(build: Build, state: CombatState, traitsById: 
 
   if (state.furyActive) {
     for (const [attribute, value] of Object.entries(furyAttributeTraitBonus(build, traitsById))) add(attribute, value)
+  }
+
+  if (state.regenerationActive) {
+    for (const [attribute, value] of Object.entries(regenerationAttributeTraitBonus(build, traitsById))) add(attribute, value)
+  }
+
+  if (state.quicknessActive) {
+    for (const [attribute, value] of Object.entries(quicknessAttributeTraitBonus(build, traitsById))) add(attribute, value)
   }
 
   return points

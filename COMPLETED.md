@@ -2,6 +2,43 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 151 — Conditional trait-attribute bonuses, leg 3: Regeneration/Quickness-gated flat bonuses
+
+Picks up TODO.md's "Conditional trait-attribute bonuses — remaining families" checklist at the
+"Boon-gated flat bonuses" family: traits whose flat attribute bonus only applies while a specific
+boon (not Fury or Might) is active. Needed genuinely new `CombatState` plumbing, per TODO.md's
+scoping — went with one boolean per boon (`regenerationActive`/`quicknessActive`, mirroring the
+existing `furyActive`) rather than a generalized "which boons are up" map, since only Regeneration
+and Quickness have any curated trait bonus so far.
+
+Added `combat-state.ts`'s `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`/`regenerationAttributeTraitBonus`
+and `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES`/`quicknessAttributeTraitBonus`, wiki-verified via raw
+wikitext (`?action=raw`, fetched directly with `curl` this session rather than through WebFetch's
+summarizing model, after WebFetch's first pass paraphrased two of the pages instead of returning them
+verbatim): Chaotic Persistence (Mesmer/Chaos, id 1865, Regeneration-gated, +250 Concentration/+250
+Expertise WvW — a genuine 3-way PvE/WvW/PvP split where Expertise's PvE value alone dropped to 100 on
+2026-04-14, WvW unaffected), Energy Amplifier (Engineer/Inventions, id 519, Regeneration-gated, +250
+Power/+250 Healing, no split), Imbued Haste (Guardian/Firebrand, id 2148, Quickness-gated, +150
+Condition Damage/Healing/Vitality WvW — 2-way split, PvE is 250 each), Be Quick or Be Killed
+(Thief/Deadeye, id 2093, Quickness-gated — its own on-mark Quickness proc, +200 Power/+200 Precision,
+no split on the attribute values). Unlike the single-target `FURY_ATTRIBUTE_TRAIT_BONUSES` shape,
+each entry here grants 2-3 attributes at once, so the table value is a target->amount map instead of
+one `{ target, value }` pair. `combatStatePoints` folds both in when the matching boolean is on, same
+pattern as `furyActive`. Added two new toggle icons (Regeneration, Quickness) to
+`CombatStatePanel.tsx` next to the existing Fury toggle, reusing `BOON_CONDITION_ICONS`.
+
+Also fixed a misfile surfaced along the way: Sharpening Sorrow (Mesmer/Virtuoso, id 2207) was listed
+in this checklist as Regeneration-gated, but its wiki page confirms it's actually Fury-gated (its own
+on-cast Fury proc from Bladesong Sorrow, +150 Expertise) — moved into the already-closed Fury leg's
+`FURY_ATTRIBUTE_TRAIT_BONUSES` table instead (target `ConditionDuration`, this codebase's key for
+Expertise), no new plumbing needed since it reuses the existing `furyActive` toggle.
+
+`npm run typecheck`/`lint`/`build` all clean. No dedicated unit tests exist for this calc layer; not
+visually spot-checked in the running app (Electron sandbox limitation). TODO.md's checklist updated
+to mark this family done (and to record the Sharpening Sorrow correction in the Fury leg's entry); 5
+families remain (weapon-equipped-gated, attunement-gated, shroud/stance-gated, revealed-state-gated,
+health-threshold-conditional).
+
 ## Session 150 — Conditional trait-attribute bonuses, leg 2: continuous Might-stack scaling
 
 Picks up TODO.md's "Conditional trait-attribute bonuses — remaining families" checklist at the next
