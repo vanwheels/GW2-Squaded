@@ -3,14 +3,16 @@ import {
   CURATED_RELIC_DAMAGE_BONUSES,
   detectActiveStackingSigil,
   HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES,
+  KALLA_FERVOR_MAX_STACKS,
   MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES,
+  RENEGADE_SPECIALIZATION_ID,
   REVEALED_ATTRIBUTE_TRAIT_BONUSES,
   type CombatState,
   type HealthTier,
   type TargetArmorClass
 } from '@shared/gear-calc/combat-state'
 import { activeTraitIds } from '@shared/gear-calc/trait-attributes'
-import { BOON_CONDITION_ICONS, DAMAGE_ICON, REVEALED_ICON } from '@shared/boon-calc/icons'
+import { BOON_CONDITION_ICONS, DAMAGE_ICON, KALLA_FERVOR_ICON, REVEALED_ICON } from '@shared/boon-calc/icons'
 import { useGameData } from '@renderer/state/game-data-store'
 
 interface Props {
@@ -22,6 +24,10 @@ interface Props {
 /** Stepper values for Might/stacking-sigil stacks — 5-stack increments rather than every value
  *  0-25, matching how stacks are actually gained/tracked in practice. */
 const STACK_OPTIONS = [0, 5, 10, 15, 20, 25]
+
+/** Kalla's Fervor stacks every value 0-5 (its own real max, unlike Might/stacking-sigils'
+ *  0-25-by-5s above) — few enough values that every-integer options read fine as a dropdown. */
+const KALLA_FERVOR_STACK_OPTIONS = Array.from({ length: KALLA_FERVOR_MAX_STACKS + 1 }, (_, n) => n)
 
 const TARGET_ARMOR_OPTIONS: TargetArmorClass[] = ['Light', 'Medium', 'Heavy']
 
@@ -73,6 +79,10 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   const activeHealthTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES)
   const healthTrait = activeHealthTraitId !== undefined ? traitsById.get(activeHealthTraitId) : undefined
 
+  // Only surfaced when the Renegade elite spec is actually equipped — Kalla's Fervor is exclusive
+  // to that spec (see `combat-state.ts`'s `KALLA_FERVOR_*_PERCENT_PER_STACK`).
+  const hasRenegade = build.specializations.some((s) => s?.specializationId === RENEGADE_SPECIALIZATION_ID)
+
   return (
     <div className="combat-state-controls">
       <div className="combat-state-row">
@@ -89,6 +99,23 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           ))}
         </select>
       </div>
+
+      {hasRenegade && (
+        <div className="combat-state-row">
+          <img className={iconClass(value.kallaFervorStacks > 0)} src={KALLA_FERVOR_ICON} alt="" title="Kalla's Fervor" />
+          <select
+            aria-label="Kalla's Fervor stacks"
+            value={value.kallaFervorStacks}
+            onChange={(e) => onChange({ ...value, kallaFervorStacks: Number(e.target.value) })}
+          >
+            {KALLA_FERVOR_STACK_OPTIONS.map((n) => (
+              <option key={n} value={n}>
+                ×{n}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
 
       <button
         type="button"

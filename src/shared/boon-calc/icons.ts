@@ -88,6 +88,13 @@ export const BOON_STRIP_CORRUPT_ICONS: Record<string, string> = {
  *  input the "Damage" numbers on skill tooltips scale against, see `damage-calc.ts`). */
 export const DAMAGE_ICON = 'https://render.guildwars2.com/file/61AA4919C4A7990903241B680A69530121E994C7/156657.png'
 
+/** Kalla's Fervor's own icon (Revenant/Renegade's stacking self-buff — 2% strike damage/condition
+ *  damage/life-steal damage per stack, max 5) — not in `BOON_CONDITION_ICONS` since it's neither a
+ *  boon nor a condition, same reasoning `REVEALED_ICON` gets its own constant. Pulled from the
+ *  buff's own `Buff`-type fact (status "Kalla's Fervor", e.g. skills.json id 44076 "Heroic
+ *  Command") — used for `CombatStatePanel`'s `kallaFervorStacks` stepper. */
+export const KALLA_FERVOR_ICON = 'https://render.guildwars2.com/file/4DDE151C71EDB6120E3454036C4C3504EADB02D8/1770161.png'
+
 /** The Revealed debuff's own icon — not in `BOON_CONDITION_ICONS` since Revealed is neither a
  *  boon nor a condition (it's a unique "you cannot stealth" effect), same reasoning `Stealth`/
  *  `Superspeed`/`Evade` get their own `MISCELLANEOUS_ICONS` entries rather than living there.

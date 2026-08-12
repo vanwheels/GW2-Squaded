@@ -56,6 +56,12 @@ export interface CombatState {
    *  along with the other "what-if" combat inputs here. Same 3-tier convention gw2skills.net's own
    *  WvW golem toggle uses. */
   targetArmorClass: TargetArmorClass
+  /** 0-5 stacks of Kalla's Fervor, Revenant/Renegade's own stacking self-buff (2% strike damage,
+   *  2% condition damage, 2% life-steal damage per stack — see `KALLA_FERVOR_*_PERCENT_PER_STACK`
+   *  below). Only meaningful/surfaced when the Renegade elite spec is equipped (`CombatStatePanel`
+   *  gates its stepper on `RENEGADE_SPECIALIZATION_ID`), same shape as `stackingSigilStacks` (a
+   *  build-conditional stepper) rather than a flat boolean like `furyActive` etc. */
+  kallaFervorStacks: number
 }
 
 export const DEFAULT_COMBAT_STATE: CombatState = {
@@ -68,12 +74,33 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   healthTier: 'above75',
   stackingSigilStacks: 0,
   relicActive: false,
-  targetArmorClass: 'Medium'
+  targetArmorClass: 'Medium',
+  kallaFervorStacks: 0
 }
 
 // wiki-confirmed flat value at level 80, quoted directly (not derived from a per-level formula).
 export const MIGHT_POWER_PER_STACK = 34
 export const MIGHT_CONDITION_DAMAGE_PER_STACK = 34
+
+/** Revenant/Renegade's elite-spec trait line — gates `CombatStatePanel`'s Kalla's Fervor stepper
+ *  (also happens to be the same id Revenant/Shortbow's `specializationId` requires, since both are
+ *  Renegade-gated; unrelated to this constant's own use here). */
+export const RENEGADE_SPECIALIZATION_ID = 63
+
+/**
+ * Kalla's Fervor (Revenant/Renegade's stacking self-buff, max 5 stacks) — wiki-verified via raw
+ * wikitext (wiki.guildwars2.com/index.php?title=Kalla%27s_Fervor&action=raw) 2026-08-12: "passively
+ * grants 2% strike damage, 2% condition damage and 2% life-steal damage per stack, for a maximum of
+ * 5 stacks" — flat 2%/2%/2% per stack, no game-mode split. Life-steal has no other home anywhere in
+ * this codebase (`DerivedStats.lifeStealPercent` is the first/only field for it); the strike-damage
+ * share adds onto `DerivedStats.outgoingDamagePercent` alongside the relic bonus, and condition
+ * damage gets its own `DerivedStats.outgoingConditionDamagePercent` sibling field (distinct from the
+ * raw `ConditionDamage` attribute total).
+ */
+export const KALLA_FERVOR_MAX_STACKS = 5
+export const KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK = 2
+export const KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK = 2
+export const KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK = 2
 
 export const FURY_CRITICAL_CHANCE_PERCENT = 20
 

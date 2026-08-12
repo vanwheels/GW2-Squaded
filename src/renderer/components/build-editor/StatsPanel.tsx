@@ -48,7 +48,8 @@ export function StatsPanel({ build, combatState = DEFAULT_COMBAT_STATE, onCombat
     { leftLabel: 'Concentration', leftValue: `${round(stats.attributes.concentration)}`, rightLabel: 'Boon Duration', rightValue: `${formatBoonPercent(stats.derived.boonDuration)}%` },
     { leftLabel: 'Expertise', leftValue: `${round(stats.attributes.expertise)}`, rightLabel: 'Condition Duration', rightValue: `${formatBoonPercent(stats.derived.conditionDuration)}%` },
     { leftLabel: 'Healing Power', leftValue: `${round(stats.attributes.healingPower)}`, rightLabel: 'Magic Find', rightValue: `${formatBoonPercent(stats.derived.magicFind)}%` },
-    { leftLabel: '', leftValue: '', rightLabel: 'Outgoing Damage', rightValue: `${formatBoonPercent(stats.derived.outgoingDamagePercent)}%` },
+    { leftLabel: 'Life Steal', leftValue: `${formatBoonPercent(stats.derived.lifeStealPercent)}%`, rightLabel: 'Outgoing Damage', rightValue: `${formatBoonPercent(stats.derived.outgoingDamagePercent)}%` },
+    { leftLabel: '', leftValue: '', rightLabel: 'Outgoing Condition Damage', rightValue: `${formatBoonPercent(stats.derived.outgoingConditionDamagePercent)}%` },
   ]
 
   return (

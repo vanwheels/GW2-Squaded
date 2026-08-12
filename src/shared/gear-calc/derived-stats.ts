@@ -16,6 +16,9 @@ import {
   DEFAULT_COMBAT_STATE,
   furyCritChanceTraitBonus,
   FURY_CRITICAL_CHANCE_PERCENT,
+  KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK,
+  KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK,
+  KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK,
   type CombatState
 } from './combat-state'
 import { applyTraitBonuses } from './trait-attributes'
@@ -136,9 +139,16 @@ export interface DerivedStats {
   boonDuration: number
   conditionDuration: number
   magicFind: number
-  /** Flat outgoing-damage-% bonus from `CombatState.relicActive`, when the equipped relic has a
-   *  curated entry — 0 otherwise. See `CURATED_RELIC_DAMAGE_BONUSES` in combat-state.ts. */
+  /** Outgoing strike-damage-% bonus: `CombatState.relicActive`'s curated relic bonus (0 when no
+   *  curated relic/inactive, see `CURATED_RELIC_DAMAGE_BONUSES`) plus Kalla's Fervor's 2%-per-stack
+   *  strike-damage share (`CombatState.kallaFervorStacks`, see `combat-state.ts`). */
   outgoingDamagePercent: number
+  /** Outgoing condition-damage-% bonus — distinct from the raw `ConditionDamage` attribute total.
+   *  Currently only Kalla's Fervor's 2%-per-stack condition-damage share contributes. */
+  outgoingConditionDamagePercent: number
+  /** Life-steal-%, first/only field for this stat anywhere in the app — currently only Kalla's
+   *  Fervor's 2%-per-stack life-steal share contributes. See `combat-state.ts`. */
+  lifeStealPercent: number
 }
 
 export interface CharacterStats {
@@ -206,7 +216,10 @@ export function computeCharacterStats(
     conditionDuration: conditionDurationPercent(totals),
     magicFind: magicFindPercent(totals),
     outgoingDamagePercent:
-      combatState.relicActive && build.relicId !== null ? (CURATED_RELIC_DAMAGE_BONUSES[build.relicId] ?? 0) : 0
+      (combatState.relicActive && build.relicId !== null ? (CURATED_RELIC_DAMAGE_BONUSES[build.relicId] ?? 0) : 0) +
+      combatState.kallaFervorStacks * KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK,
+    outgoingConditionDamagePercent: combatState.kallaFervorStacks * KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK,
+    lifeStealPercent: combatState.kallaFervorStacks * KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK
   }
 
   return { attributes, derived }
