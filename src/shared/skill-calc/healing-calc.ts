@@ -284,7 +284,8 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // specializationId-79 "Conduit" variant). Both ids share identical facts. No split found.
   28219: [
     { factText: 'Healing', baseValue: 4600, coefficient: 1.0 },
-    { factText: 'Heal per Condition', baseValue: 596, coefficient: 0.1 }
+    { factText: 'Heal per Condition', baseValue: 596, coefficient: 0.1 },
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
   ],
   78681: [
     { factText: 'Healing', baseValue: 4600, coefficient: 1.0 },
@@ -294,23 +295,36 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // left uncurated — the wiki's own base value (1640) doesn't match this app's own API base value
   // (1560), a real wiki/API discrepancy (same +80 offset also seen on this skill's Siphon Damage
   // facts), so no coefficient is trusted for it rather than guessing which source is stale.
-  26937: [{ factText: 'Siphon Healing', baseValue: 768, coefficient: 0.2 }],
+  26937: [
+    { factText: 'Siphon Healing', baseValue: 768, coefficient: 0.2 },
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+  ],
   // Revenant — Infuse Light (Herald, Legendary Dragon Stance). No PvE/WvW split.
   27228: [{ factText: 'Healing', baseValue: 1853, coefficient: 1.0 }],
   // Revenant — Soothing Stone (Legendary Centaur Stance). No PvE/WvW split.
-  27372: [{ factText: 'Healing', baseValue: 5501, coefficient: 1.0 }],
+  27372: [
+    { factText: 'Healing', baseValue: 5501, coefficient: 1.0 },
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+  ],
   // Revenant — Project Tranquility (Legendary Centaur Stance facet). Single "Healing" fact with a
   // PvE/WvW split (PvE 363 vs WvW 325, same 0.05 coefficient) — WvW value used.
   29148: [{ factText: 'Healing', baseValue: 325, coefficient: 0.05 }],
   // Revenant — Selfless Spirit / Selfish Spirit (Vindicator, specializationId 69) — 2 different-named
   // skills, not a shared page. No PvE/WvW split on either.
-  62680: [{ factText: 'Healing', baseValue: 714, coefficient: 0.22 }],
-  62719: [{ factText: 'Healing per Hit', baseValue: 714, coefficient: 0.22 }],
+  62680: [
+    { factText: 'Healing', baseValue: 714, coefficient: 0.22 },
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+  ],
+  62719: [
+    { factText: 'Healing per Hit', baseValue: 714, coefficient: 0.22 },
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+  ],
   // Revenant — Shielding Hands (Conduit). Self-Healing has a PvE/WvW base-value split (PvE 1950
   // vs WvW 1310, same 0.2 coefficient) — WvW value used. Allied Healing has no split.
   77043: [
     { factText: 'Self-Healing', baseValue: 1310, coefficient: 0.2 },
-    { factText: 'Allied Healing', baseValue: 975, coefficient: 0.1 }
+    { factText: 'Allied Healing', baseValue: 975, coefficient: 0.1 },
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
   ],
   // Thief — Withdraw. WvW split used (PvE was 4778/0.66).
   13021: [{ factText: 'Healing', baseValue: 5243, coefficient: 0.66 }],
@@ -430,7 +444,10 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   14413: [{ factText: 'Healing', baseValue: 2870, coefficient: 0.35 }],
   // Revenant — Vengeful Hammers (Legendary Dwarf Stance, Jalis). Passive per-hit heal tick from the
   // summoned hammers. No PvE/WvW split.
-  26557: [{ factText: 'Healing', baseValue: 53, coefficient: 0.004 }],
+  26557: [
+    { factText: 'Healing', baseValue: 53, coefficient: 0.004 },
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+  ],
   // Revenant — Purifying Essence (Legendary Centaur Stance, Ventari facet). No PvE/WvW split on the
   // healing fact itself (only recharge splits).
   29197: [{ factText: 'Healing per Condition Removed', baseValue: 325, coefficient: 0.2 }],
@@ -438,7 +455,10 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // legend-swap variants, confirmed byte-identical Healing facts via direct API pulls). No PvE/WvW
   // split.
   62793: [{ factText: 'Healing per Condition', baseValue: 709, coefficient: 0.22 }],
-  62941: [{ factText: 'Healing per Condition', baseValue: 709, coefficient: 0.22 }],
+  62941: [
+    { factText: 'Healing per Condition', baseValue: 709, coefficient: 0.22 },
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+  ],
   // Necromancer — Nightmare Weapon (Harbinger). Both game-mode variants share the exact same fact
   // text ("Life Siphon Healing") on the wiki too — a genuine duplicate label, not an app oversight —
   // so only the WvW-correct pair is curated (PvE-only: base 774, coefficient 0.5).
@@ -497,11 +517,15 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // values used for both.
   45773: [
     { factText: 'Healing', baseValue: 1439, coefficient: 0.25 },
-    { factText: 'Life Siphon Healing', baseValue: 578, coefficient: 0.5 }
+    { factText: 'Life Siphon Healing', baseValue: 578, coefficient: 0.5 },
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
   ],
   // Revenant — Urn of Saint Viktor (Vindicator). PvE/WvW base-value split (PvE+PvP grouped 708 vs WvW
   // 450, same 0.22 coefficient) — WvW value used.
-  62687: [{ factText: 'Healing', baseValue: 450, coefficient: 0.22 }],
+  62687: [
+    { factText: 'Healing', baseValue: 450, coefficient: 0.22 },
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+  ],
   // Revenant — Drop Urn of Saint Viktor (Vindicator, Urn of Saint Viktor's flip-skill detonate). No
   // PvE/WvW split.
   62738: [{ factText: 'Base Heal', baseValue: 709, coefficient: 0.22 }],
@@ -732,7 +756,13 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // per the usual synthetic-facts.json Case 1 pattern — see there for the matching Buff/Number
   // facts (Knockdown, Conditions Removed) added alongside this. 3-way split (PvE 1970/1.0, WvW+PvP
   // 1478/0.5) — WvW value used, same convention as every other split entry in this table.
-  27356: [{ factText: 'Healing', baseValue: 1478, coefficient: 0.5 }],
+  // Rapid Flow (Invocation trait 1760) entry added 2026-08-12, same trait-granted-boons-on-skills
+  // curation as the block below this table — kept alongside this skill's own unrelated Healing
+  // entry rather than duplicated there.
+  27356: [
+    { factText: 'Healing', baseValue: 1478, coefficient: 0.5 },
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+  ],
   // Revenant — Natural Harmony, the LIVE/canonical id (27025, Legend6 `utilities[1]`) — its orphan
   // sibling 29082 (structurally unreachable, see the Protective Solace/Jade Winds writeup in
   // docs/game-data.md) carries a real Healing fact whose OWN live API value (1620 base) disagrees
@@ -742,13 +772,19 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // standing convention (wiki is hand-updated same-day for balance patches; a structurally-orphaned
   // API id has no in-game path forcing ArenaNet to keep it in sync, unlike the live 27025 id used
   // here). 3-way split (PvE 2.75, WvW 1.75, PvP 1.0, same 1124 base in all 3) — WvW value used.
-  27025: [{ factText: 'Healing', baseValue: 1124, coefficient: 1.75 }],
+  27025: [
+    { factText: 'Healing', baseValue: 1124, coefficient: 1.75 },
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+  ],
   // Revenant — Purifying Essence, the LIVE/canonical id (27715, Legend6 `utilities[2]`) — its own
   // orphan sibling 29197 (above, in the Heal/Utility section) already carries this exact same
   // Healing fact for real; 27715 doesn't, so the same value is mirrored here via a
   // synthetic-facts.json Case 1 entry. No PvE/WvW split (wiki's `{{skill fact|healing|...}}`
   // template for this skill carries no `game mode=` tag at all, matching 29197's own comment above).
-  27715: [{ factText: 'Healing per Condition Removed', baseValue: 325, coefficient: 0.2 }],
+  27715: [
+    { factText: 'Healing per Condition Removed', baseValue: 325, coefficient: 0.2 },
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+  ],
   // Revenant — Energy Expulsion, the ORPHAN id (29114, a same-named sibling of the live 27356
   // above — see that entry's comment). Deliberately left uncurated, now CONFIRMED (not just
   // suspected) stale: its "Healing Fragment"/"Number of Fragments"/"Knockback" fact set is the
@@ -763,6 +799,60 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // out). 29114 itself is moot either way — structurally unreachable in this app, so even accurate
   // data here would be dead weight (same shape as Jade Winds' harmless-dead-data orphan, see
   // docs/game-data.md's Protective Solace/Jade Winds writeup).
+
+  // Rapid Flow (Revenant/Invocation trait 1760, trait-granted-boons-on-skills curation
+  // 2026-08-12, TODO.md): "Heal yourself and gain swiftness when you use a skill that has an
+  // energy cost" — every legend's heal/utility/elite skill costs Energy by design, so each gets
+  // its own copy of the trait's Healing fact (`requires_trait: 1760`, matching synthetic-facts.json)
+  // so the skill's own tooltip shows the real, healing-power-scaled number instead of the generic
+  // "Healing (base): 500" placeholder `numericFactLines` would otherwise show. `factText:
+  // 'Rapid Flow Healing'` is a made-up label distinct from a plain "Healing" fact text on purpose —
+  // `skillFactLines`' `healingByLabel` lookup is keyed by fact text alone (not also by
+  // `requiresTrait`), so reusing the generic "Healing" text on a skill that ALSO has its own
+  // unconditional "Healing" fact (27025, 27356 above) would collapse the two into one shown value
+  // instead of two distinct lines. Wiki: `{{skill fact|healing|500|coefficient=0.05|game
+  // mode=pve}}{{skill fact|healing|333|coefficient=0.05|game mode=pvp wvw}}` — WvW value (333) used
+  // per this table's usual convention; the `value: 500` baked into the synthetic Fact itself is the
+  // PvE/reference-build number, matching how the live API's own trait-1760 fact reports it (matched
+  // by presence only, not by re-checking `value` against `baseValue` — see this file's own top
+  // comment). Shackling Wave (28472, a Sword weapon skill) is the one wiki-documented exception:
+  // "Updated this trait to allow Shackling Wave to heal the revenant" (2017-12-13 patch note) even
+  // though it's not a legend skill and the live API exposes no Energy Cost fact for it either (a
+  // separate, unrelated empty-facts gap — not curated here since nothing in this app displays a
+  // Revenant Energy resource bar).
+  27220: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Facet of Light
+  28379: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Facet of Darkness
+  27014: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Facet of Elements
+  26644: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Facet of Strength
+  27760: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Facet of Chaos
+  29209: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Riposting Shadows
+  28231: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Phase Traversal
+  27107: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Impossible Odds
+  28406: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Jade Winds
+  28516: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Inspiring Reinforcement
+  26679: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Forced Engagement
+  27975: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Rite of the Great Dwarf
+  27322: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Pain Absorption
+  27505: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Banish Enchantment
+  27917: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Call to Anguish
+  28287: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Embrace the Darkness
+  45686: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Breakrazor's Bastion
+  42949: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Razorclaw's Rage
+  40485: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Icerazor's Ire
+  41220: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Darkrazor's Daring
+  28427: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Ventari's Will
+  26821: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Protective Solace
+  62832: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Nomad's Advance
+  62962: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Scavenger Burst
+  62878: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Reaver's Rage
+  62942: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Spear of Archemorus
+  62702: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Battle Dance
+  62796: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Awakening
+  77243: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Hex-Eater Vortex
+  77291: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Gladiator's Defense
+  76805: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Beguiling Haze
+  76968: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Twin Moon Sweep
+  28472: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }] // Shackling Wave (Sword weapon skill)
 }
 
 export interface HealingLine {

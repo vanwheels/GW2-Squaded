@@ -120,18 +120,42 @@ sweeps, not code fixes, and weren't started:
       depending on which OTHER legend is equipped) remain uncurated — a legend-conditional curation
       shape of its own, out of scope here, not chased further this session.
 
-- [ ] **Trait-granted boons don't show up on the skill that actually triggers them** — flagged for
-      Notoriety and Rapid Flow (both Revenant/Invocation minor traits). Both already carry their own
-      Might / Swiftness+Heal facts directly on the trait (counted in build totals, shown on the
-      trait's own tooltip already), but the `Skill.traitedFacts`/`requires_trait` link that would
-      surface "this skill also grants X because of trait Y" on the *skill's* own tooltip
-      (`boonConditionFactsForSkill`) is a real link the API sometimes populates — confirmed via a
-      full `requires_trait` scan of `skills.json`: populated for only 1 of many candidate skills for
-      Notoriety (Legendary Assassin's Jade Winds) and 0 skills for Rapid Flow. Not a display bug —
-      needs a hand-curated sweep deciding which skills should carry the link (every Legendary Stance
-      skill, for Notoriety's "using a legendary stance skill"; every skill with an energy cost, for
-      Rapid Flow) and adding matching `traitedFacts` entries, same curation shape as
-      `synthetic-facts.json` above.
+- [x] **Trait-granted boons don't show up on the skill that actually triggers them** — DONE
+      2026-08-12. Notoriety (trait 1765, Might on legendary-stance-skill cast) and Rapid Flow (trait
+      1760, Swiftness+Heal on any energy-cost skill cast) both curated via `synthetic-facts.json`
+      `requires_trait`-gated facts, same mechanism the empty-effect-facts sweep uses, not real
+      `traitedFacts` (the API never populates that link for either trait, confirmed via a full scan).
+      Both traits turned out to target the exact same 45-skill candidate set (every legend's
+      heal/3 utilities/elite across all 8 legends, including Vindicator's 10 Archemorus/Saint-Viktor
+      aspect-flip ids) since every one of those costs Energy by design — Notoriety got 44 of the 45
+      (Might), Rapid Flow all 45 plus one wiki-documented outlier, Shackling Wave (28472, a Sword
+      weapon skill — "Updated this trait to allow Shackling Wave to heal the revenant", 2017-12-13
+      patch note). `CURATED_HEALING_COEFFICIENTS` got a matching `'Rapid Flow Healing'` entry per
+      skill (WvW value 333/0.05, deliberately NOT reusing the plain `'Healing'` factText some of
+      these skills already have their own unconditional entry for — `skillFactLines`' `healingByLabel`
+      lookup collapses same-text entries and would otherwise show the wrong number on one of the two
+      lines). `wvw-fact-overrides.json` got a matching `Might: 10` override per skill via
+      `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` (mirrors the trait's own already-curated WvW value).
+      **One documented display gap**: Facet of Strength (26644) did NOT get a Notoriety fact at all —
+      it already carries 2 real Might facts under an existing WvW override, and `extractFromFacts`
+      collapses every fact sharing one status once any override exists for it, so a 3rd (ours) would
+      be silently dropped rather than shown (same hazard Fox's Fury/Darkrazor's Daring hit in the
+      empty-effect-facts sweep, see `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` comment) — adding
+      permanently-invisible data seemed worse than a documented omission. 4 more skills (Twin Moon
+      Sweep, Empowering Misery, Selfish Spirit, Nomad's Advance) got the Notoriety fact but no WvW
+      override for the same underlying reason, so their Notoriety line shows a flat 5s instead of
+      splitting 5s pve/10s wvw — a narrower, cosmetic-only version of the same gap.
+      **Deliberately out of scope, not chased this session**: Notoriety's own trait infobox also
+      names Ancient Echo (core Revenant F2), True Nature ×5 legend flavors (Herald F2), and Citadel
+      Order ×3 (Renegade F2-F4) as triggering skills — none of the 3 render anywhere in this app's UI
+      at all (confirmed: none of their ids appear in Revenant's `professionSkills` list at all, the
+      same real API-gap class `profession-mechanic.ts`'s `EXCLUDED_MECHANIC_SKILL_IDS` already
+      documents for Dragonhunter's virtues/Specter's mechanics — would need new hand-injected
+      mechanic-bar wiring before any trait-linking here could ever be seen). Also unexplored: whether
+      a Facet's flip/consume half (e.g. Infuse Light, reached via `FlipSkillStack`'s own independent
+      tooltip) should carry these facts too, since consuming a Facet is its own energy-costing skill
+      activation in-game — left uncurated pending a genuine per-skill mechanic check, not assumed
+      either way.
 
 ## Loose ends from the conditional-trait-attribute-bonus sweep
 

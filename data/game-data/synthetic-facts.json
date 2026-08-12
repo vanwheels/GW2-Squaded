@@ -1,38 +1,68 @@
 {
-  "76695": [
-    { "type": "AttributeAdjust", "target": "Healing", "text": "Self-Healing", "value": 3535 },
-    { "type": "AttributeAdjust", "target": "Healing", "text": "Ally Healing", "value": 2250 }
-  ],
   "6119": [
     { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 2 },
     { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4 },
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 4 }
   ],
+  "26821": [
+    { "type": "Time", "text": "Duration", "duration": 20 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "27025": [
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Healing", "value": 1124 },
+    { "type": "Time", "text": "Delay Time", "duration": 1 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "27356": [
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Healing", "value": 1970 },
+    { "type": "Number", "text": "Conditions Removed", "value": 1 },
+    { "type": "Time", "text": "Knockdown", "duration": 3 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "27715": [
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Healing per Condition Removed", "value": 325 },
+    { "type": "Number", "text": "Conditions Removed", "value": 3 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "40485": [
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 10 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 5 },
+    { "type": "Buff", "status": "Immobilize", "text": "Apply Buff/Condition", "duration": 2 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "41220": [
+    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 1 },
+    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3 },
+    { "type": "Time", "text": "Daze", "duration": 2 },
+    { "type": "Number", "text": "Bonus Defiance Break", "value": 400 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "42949": [
+    { "type": "Buff", "status": "Bleeding", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 4 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
   "62514": [{ "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 5 }],
-  "68132": [{ "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 5 }],
   "62530": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 10 },
     { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 10 }
   ],
-  "68105": [
-    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 10 },
-    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 10 }
-  ],
+  "62539": [{ "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 7, "apply_count": 5 }],
   "62655": [
-    { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 5 },
-    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 5 },
-    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5 },
-    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 25 },
-    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 5 },
-    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5 },
-    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5 },
-    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 5 },
-    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 5 },
-    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 5 },
-    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5 },
-    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 5 }
-  ],
-  "68090": [
     { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 5 },
     { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 5 },
     { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5 },
@@ -50,44 +80,44 @@
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 10 },
     { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5 }
   ],
-  "68113": [
-    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 10 },
-    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5 }
-  ],
   "62667": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 8 }],
-  "68081": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 8 }],
-  "71828": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6 }],
-  "71960": [
-    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5 },
-    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 5 }
-  ],
-  "72916": [
-    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 3 },
-    { "type": "Buff", "status": "Fire Aura", "text": "Apply Buff/Condition", "duration": 3 }
-  ],
-  "73104": [
-    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3 },
-    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3 }
-  ],
+  "62672": [{ "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 5 }],
   "63314": [
     { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 2.5, "apply_count": 8 },
     { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
   ],
+  "68081": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 8 }],
+  "68090": [
+    { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 25 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 5 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 5 }
+  ],
+  "68105": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 10 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 10 }
+  ],
+  "68113": [
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 10 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5 }
+  ],
+  "68132": [{ "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 5 }],
   "69173": [
     { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 2.5, "apply_count": 8 },
     { "type": "Number", "text": "Number of Allied Targets", "value": 1 }
   ],
-  "62539": [{ "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 7, "apply_count": 5 }],
-  "62672": [{ "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 5 }],
-  "76864": [
-    { "type": "Buff", "status": "Crippled", "text": "Apply Buff/Condition", "duration": 4 },
-    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 8 }
-  ],
-  "40485": [
-    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 10 },
-    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3 },
-    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 5 },
-    { "type": "Buff", "status": "Immobilize", "text": "Apply Buff/Condition", "duration": 2 }
+  "71828": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6 }],
+  "71960": [
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 5 }
   ],
   "72359": [
     { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 10 },
@@ -96,47 +126,9 @@
     { "type": "Buff", "status": "Immobilize", "text": "Apply Buff/Condition", "duration": 2 },
     { "type": "Buff", "status": "Chilled", "text": "Apply Buff/Condition", "duration": 1.5 }
   ],
-  "76711": [
-    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 8 },
-    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 10 },
-    { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
-  ],
-  "77282": [
-    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 8 },
-    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 3 },
-    { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
-  ],
-  "76968": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 2 }],
-  "77001": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 2 }],
-  "77066": [
-    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 4 },
-    { "type": "Buff", "status": "Weakness", "text": "Apply Buff/Condition", "duration": 5 },
-    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 10 },
-    { "type": "Number", "text": "Boons Removed", "value": 3 },
-    { "type": "Time", "text": "Daze", "duration": 3 }
-  ],
-  "78604": [
-    { "type": "Buff", "status": "Light Aura", "text": "Apply Buff/Condition", "duration": 4 },
-    { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
-  ],
-  "78514": [
-    { "type": "Buff", "status": "Light Aura", "text": "Apply Buff/Condition", "duration": 4 },
-    { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
-  ],
-  "78837": [
-    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3 },
-    { "type": "Buff", "status": "Burning", "text": "Apply Buff/Condition", "duration": 2 }
-  ],
-  "42949": [{ "type": "Buff", "status": "Bleeding", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 4 }],
   "72363": [
     { "type": "Buff", "status": "Bleeding", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 4 },
     { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3 }
-  ],
-  "41220": [
-    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 1 },
-    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3 },
-    { "type": "Time", "text": "Daze", "duration": 2 },
-    { "type": "Number", "text": "Bonus Defiance Break", "value": 400 }
   ],
   "72366": [
     { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 1 },
@@ -146,18 +138,244 @@
     { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4 },
     { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 4 }
   ],
-  "27356": [
-    { "type": "AttributeAdjust", "target": "Healing", "text": "Healing", "value": 1970 },
-    { "type": "Number", "text": "Conditions Removed", "value": 1 },
-    { "type": "Time", "text": "Knockdown", "duration": 3 }
+  "72916": [
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 3 },
+    { "type": "Buff", "status": "Fire Aura", "text": "Apply Buff/Condition", "duration": 3 }
   ],
-  "26821": [{ "type": "Time", "text": "Duration", "duration": 20 }],
-  "27025": [
-    { "type": "AttributeAdjust", "target": "Healing", "text": "Healing", "value": 1124 },
-    { "type": "Time", "text": "Delay Time", "duration": 1 }
+  "73104": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3 },
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3 }
   ],
-  "27715": [
-    { "type": "AttributeAdjust", "target": "Healing", "text": "Healing per Condition Removed", "value": 325 },
-    { "type": "Number", "text": "Conditions Removed", "value": 3 }
+  "76695": [
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Self-Healing", "value": 3535 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Ally Healing", "value": 2250 }
+  ],
+  "76711": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 8 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 10 },
+    { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
+  ],
+  "76864": [
+    { "type": "Buff", "status": "Crippled", "text": "Apply Buff/Condition", "duration": 4 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 8 }
+  ],
+  "76968": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 2 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "77001": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 2 }],
+  "77066": [
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 4 },
+    { "type": "Buff", "status": "Weakness", "text": "Apply Buff/Condition", "duration": 5 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 10 },
+    { "type": "Number", "text": "Boons Removed", "value": 3 },
+    { "type": "Time", "text": "Daze", "duration": 3 }
+  ],
+  "77282": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 8 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 3 },
+    { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
+  ],
+  "78514": [
+    { "type": "Buff", "status": "Light Aura", "text": "Apply Buff/Condition", "duration": 4 },
+    { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
+  ],
+  "78604": [
+    { "type": "Buff", "status": "Light Aura", "text": "Apply Buff/Condition", "duration": 4 },
+    { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
+  ],
+  "78837": [
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3 },
+    { "type": "Buff", "status": "Burning", "text": "Apply Buff/Condition", "duration": 2 }
+  ],
+  "26557": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "26644": [
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "26679": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "26937": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "27014": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "27107": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "27220": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "27322": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "27372": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "27505": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "27760": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "27917": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "27975": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "28219": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "28231": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "28287": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "28379": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "28406": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "28427": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "28472": [
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "28516": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "29209": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "45686": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "45773": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "62680": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "62687": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "62702": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "62719": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "62796": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "62832": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "62878": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "62941": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "62942": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "62962": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "76805": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "77043": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "77243": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "77291": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
   ]
 }

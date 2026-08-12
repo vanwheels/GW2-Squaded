@@ -353,7 +353,9 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // (on-hit, 5 stacks/8s, unsplit per the wiki) correctly gets no override at all. 40485 = base
     // cast, 72359 = "Band Together"-enhanced cast (same wiki page, `id = 40485, <!-- enhanced -->
     // 72359`) — both share every fact above; 72359 alone adds an unsplit Chilled 1.5s.
-    40485: { Immobilize: 1.5 },
+    // Might: 10 added 2026-08-12 (Notoriety trait-linking, see the dedicated block below) —
+    // merged into this same key since a JS object literal can't repeat a key.
+    40485: { Immobilize: 1.5, Might: 10 },
     72359: { Immobilize: 1.5 },
 
     // Fox's Fury (Elementalist/Evoker meditation, empty-effect-facts curation, see
@@ -408,7 +410,70 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // is a Number fact, not a boon/condition — no override mechanism applies to it regardless.
     // Enhanced-only Resistance (4s) is unsplit; enhanced-only Protection is a single fact with a
     // clean split (no duplicate-status collision), so it gets a normal override below.
-    72366: { Protection: 3 }
+    72366: { Protection: 3 },
+
+    // Notoriety (Revenant/Invocation trait 1765, trait-granted-boons-on-skills curation
+    // 2026-08-12, see synthetic-facts.json): every legend's heal/utility/elite skill gets its own
+    // copy of the trait's own Might fact (5s pve, 2 stacks, `requires_trait: 1765`) so the skill's
+    // own tooltip shows Notoriety's contribution — same "trait fact copied onto the skill it
+    // actually triggers from" mechanism as the empty-effect-facts synthetic entries above, just
+    // gating on a trait instead of filling a real API gap. Mirrors the trait's own already-curated
+    // WvW value (10s, see the "1765" entry in the `trait` block below) so the two tooltips agree.
+    27220: { Might: 10 }, // Facet of Light (Legend1 heal)
+    28379: { Might: 10 }, // Facet of Darkness (Legend1 utility)
+    27014: { Might: 10 }, // Facet of Elements (Legend1 utility)
+    27760: { Might: 10 }, // Facet of Chaos (Legend1 elite)
+    26937: { Might: 10 }, // Enchanted Daggers (Legend2 heal)
+    29209: { Might: 10 }, // Riposting Shadows (Legend2 utility)
+    28231: { Might: 10 }, // Phase Traversal (Legend2 utility)
+    27107: { Might: 10 }, // Impossible Odds (Legend2 utility)
+    28406: { Might: 10 }, // Jade Winds (Legend2 elite)
+    27372: { Might: 10 }, // Soothing Stone (Legend3 heal)
+    28516: { Might: 10 }, // Inspiring Reinforcement (Legend3 utility)
+    26679: { Might: 10 }, // Forced Engagement (Legend3 utility)
+    26557: { Might: 10 }, // Vengeful Hammers (Legend3 utility)
+    27975: { Might: 10 }, // Rite of the Great Dwarf (Legend3 elite)
+    27322: { Might: 10 }, // Pain Absorption (Legend4 utility)
+    27505: { Might: 10 }, // Banish Enchantment (Legend4 utility)
+    27917: { Might: 10 }, // Call to Anguish (Legend4 utility)
+    28287: { Might: 10 }, // Embrace the Darkness (Legend4 elite)
+    45686: { Might: 10 }, // Breakrazor's Bastion (Legend5 heal)
+    42949: { Might: 10 }, // Razorclaw's Rage (Legend5 utility)
+    // Icerazor's Ire (40485) already has its own entry above (Immobilize: 1.5, Might: 10) — a
+    // repeated key here would silently discard it, JS object literals can't merge duplicate keys.
+    41220: { Might: 10 }, // Darkrazor's Daring (Legend5 utility)
+    45773: { Might: 10 }, // Soulcleave's Summit (Legend5 elite)
+    28427: { Might: 10 }, // Ventari's Will (Legend6 heal)
+    26821: { Might: 10 }, // Protective Solace (Legend6 utility)
+    27025: { Might: 10 }, // Natural Harmony (Legend6 utility)
+    27715: { Might: 10 }, // Purifying Essence (Legend6 utility)
+    27356: { Might: 10 }, // Energy Expulsion (Legend6 elite)
+    62962: { Might: 10 }, // Scavenger Burst (Legend7 Archemorus utility)
+    62878: { Might: 10 }, // Reaver's Rage (Legend7 Archemorus utility)
+    62942: { Might: 10 }, // Spear of Archemorus (Legend7 Archemorus elite)
+    62680: { Might: 10 }, // Selfless Spirit (Legend7 Saint Viktor heal)
+    62702: { Might: 10 }, // Battle Dance (Legend7 Saint Viktor utility)
+    62941: { Might: 10 }, // Tree Song (Legend7 Saint Viktor utility)
+    62796: { Might: 10 }, // Awakening (Legend7 Saint Viktor utility)
+    62687: { Might: 10 }, // Urn of Saint Viktor (Legend7 Saint Viktor elite)
+    77043: { Might: 10 }, // Shielding Hands (Legend8 heal)
+    77243: { Might: 10 }, // Hex-Eater Vortex (Legend8 utility)
+    77291: { Might: 10 }, // Gladiator's Defense (Legend8 utility)
+    76805: { Might: 10 } // Beguiling Haze (Legend8 utility)
+    // Deliberately NOT given a Notoriety override, same "extractFromFacts collapses EVERY fact
+    // sharing one status once an override for that status exists" hazard as Fox's Fury/Darkrazor's
+    // Daring above:
+    //   - 26644 (Facet of Strength, Legend1 utility): already carries 2 REAL Might facts under an
+    //     existing override (`Might: 6` above) — a 3rd trait-gated one would be silently dropped by
+    //     the dedup, not just mis-shown, so `synthetic-facts.json` skips this id's Notoriety fact
+    //     entirely rather than adding permanently-invisible data (see TODO.md).
+    //   - 76968 (Twin Moon Sweep, Legend8 elite), 28219 (Empowering Misery, Legend4 heal), 62719
+    //     (Selfish Spirit, Legend7 Archemorus heal), 62832 (Nomad's Advance, Legend7 Archemorus
+    //     utility): each already carries its own unconditional Might fact with NO existing
+    //     override — adding one here would both corrupt that unconditional fact's shown duration
+    //     AND drop the new Notoriety one via the same dedup. Left unsplit: the Notoriety fact is
+    //     present (synthetic-facts.json) and displays, just without the pve/wvw duration split
+    //     (flat 5s), same documented-gap shape as Icerazor's Ire's stack counts above.
   },
   trait: {}
 }
