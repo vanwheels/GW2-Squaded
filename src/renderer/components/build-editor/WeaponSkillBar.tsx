@@ -109,6 +109,7 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
     skillsById,
     wvwFactOverrides: gameData.wvwFactOverrides,
     legendIds,
+    legends: gameData.legends,
     durationPercent,
     characterAttributes,
     targetArmor,
@@ -139,7 +140,7 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
   function skillTooltipFor(skillId: number) {
     const skill = skillsById.get(skillId)
     if (!skill) return null
-    const facts = boonConditionFactsForSkill(skill, activeIds, legendIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
+    const facts = boonConditionFactsForSkill(skill, activeIds, legendIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id], gameData.legends)
     return skillTooltipContent(skill, facts, activeIds, variantContext)
   }
 

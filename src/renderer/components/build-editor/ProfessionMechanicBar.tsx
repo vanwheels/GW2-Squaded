@@ -157,7 +157,7 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
   function skillTooltipFor(skillId: number) {
     const skill = skillsById.get(skillId)
     if (!skill) return null
-    const facts = boonConditionFactsForSkill(skill, activeIds, legendIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id])
+    const facts = boonConditionFactsForSkill(skill, activeIds, legendIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id], gameData.legends)
     const numericLines = skillFactLines(skill, activeIds, characterAttributes.power, characterAttributes.healingPower, targetArmor)
     const namedFacts = skillNamedFacts(skill, activeIds, legendIds, gameData.wvwFactOverrides.skill[skill.id])
     return (

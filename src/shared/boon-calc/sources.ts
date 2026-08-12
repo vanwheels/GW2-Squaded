@@ -89,6 +89,18 @@ export interface BoonConditionSource {
    * contributes" convention as `RevenantSkillSelection.legends`/`activeLegendIndex` itself).
    */
   targetCount: number | null
+  /**
+   * The specific legend this boon/condition line is gated on, when the source is a `PrefixedBuff`
+   * fact naming one — e.g. Invocation's Spirit Boon: each of its 8 boon lines carries a
+   * `prefix.status` of "Legendary <X> Stance" naming exactly which legend-swap grants it (see
+   * `resolveLegendFromPrefix`). `undefined` for every ordinary `Buff` fact and for a `PrefixedBuff`
+   * whose `prefix.status` doesn't name a legend (e.g. Salvation's Serene Rejuvenation names a set of
+   * skills, not a legend) — deliberately narrow, unlike the general "resolve `prefix.status` to a
+   * specific id" case `Fact`'s own doc comment says NOT to attempt (ambiguous for skills; the fixed
+   * 8-entry legend list has no such ambiguity).
+   */
+  legendIcon?: string
+  legendName?: string
 }
 
 /** A wiki-confirmed decision for a source with no target-count fact of its own (`resolveTargetCount`
@@ -2085,6 +2097,19 @@ function classifyAura(status: string): BoonConditionCategory | null {
   return null
 }
 
+/**
+ * Resolves a `PrefixedBuff` fact's `prefix.status` to the specific `Legend` it names, when it names
+ * one at all — see `BoonConditionSource.legendIcon`'s doc comment for the reasoning/scope. `legends`
+ * is the fixed 8-entry `data/game-data/legends.json` list; every prefix status observed matches a
+ * legend's own `name` exactly EXCEPT "Legendary Alliance" (`prefix.status` instead reads "Legendary
+ * Alliance Stance"), so `name + " Stance"` is checked too.
+ */
+function resolveLegendFromPrefix(prefix: Fact['prefix'], legends: Legend[]): Legend | undefined {
+  const status = prefix?.status
+  if (!status) return undefined
+  return legends.find((l) => l.name === status || `${l.name} Stance` === status)
+}
+
 function extractFromFacts(
   facts: Fact[],
   traitedFacts: Fact[],
@@ -2096,7 +2121,8 @@ function extractFromFacts(
   sourceIcon: string,
   durationPercent: { boon: number; condition: number },
   wvwOverrides: Record<string, WvwFactOverride> | undefined,
-  classify: (status: string) => BoonConditionCategory | null = classifyBoonCondition
+  classify: (status: string) => BoonConditionCategory | null = classifyBoonCondition,
+  legends: Legend[] = []
 ): BoonConditionSource[] {
   const out: BoonConditionSource[] = []
   const emittedOverriddenStatuses = new Set<string>()
@@ -2130,6 +2156,7 @@ function extractFromFacts(
 
     const { value: targetCount, nameSuffix } = resolveTargetCount(fact, combinedFacts, sourceKind, sourceId, activeIds, equippedLegendIdSet)
     const percent = category === 'condition' ? durationPercent.condition : category === 'boon' ? durationPercent.boon : 0
+    const legend = fact.type === 'PrefixedBuff' ? resolveLegendFromPrefix(fact.prefix, legends) : undefined
     out.push({
       sourceKind,
       sourceId,
@@ -2142,7 +2169,9 @@ function extractFromFacts(
       scaledDurationSeconds: baseDuration * (1 + percent / 100),
       applyCount: fact.apply_count ?? 1,
       requiresTraitId: fact.requires_trait ?? null,
-      targetCount
+      targetCount,
+      legendIcon: legend?.icon,
+      legendName: legend?.name
     })
   }
   return out
@@ -2161,7 +2190,8 @@ export function boonConditionFactsForSkill(
   activeIds: Set<number>,
   equippedLegendIdSet: Set<string>,
   durationPercent: { boon: number; condition: number },
-  wvwOverride: Record<string, WvwFactOverride> | undefined
+  wvwOverride: Record<string, WvwFactOverride> | undefined,
+  legends: Legend[] = []
 ): BoonConditionSource[] {
   return extractFromFacts(
     skill.facts,
@@ -2173,7 +2203,9 @@ export function boonConditionFactsForSkill(
     skill.name,
     skill.icon,
     durationPercent,
-    wvwOverride
+    wvwOverride,
+    classifyBoonCondition,
+    legends
   )
 }
 
@@ -2191,7 +2223,8 @@ export function boonConditionFactsForTrait(
   activeIds: Set<number>,
   equippedLegendIdSet: Set<string>,
   durationPercent: { boon: number; condition: number },
-  wvwOverride: Record<string, WvwFactOverride> | undefined
+  wvwOverride: Record<string, WvwFactOverride> | undefined,
+  legends: Legend[] = []
 ): BoonConditionSource[] {
   return extractFromFacts(
     trait.facts,
@@ -2203,7 +2236,9 @@ export function boonConditionFactsForTrait(
     trait.name,
     trait.icon,
     durationPercent,
-    wvwOverride
+    wvwOverride,
+    classifyBoonCondition,
+    legends
   )
 }
 
@@ -2535,7 +2570,9 @@ export function computeBoonConditionSources(
         skill.name,
         skill.icon,
         durationPercent,
-        gameData.wvwFactOverrides.skill[skill.id]
+        gameData.wvwFactOverrides.skill[skill.id],
+        classifyBoonCondition,
+        gameData.legends
       )
     )
   }
@@ -2561,7 +2598,9 @@ export function computeBoonConditionSources(
           trait.name,
           trait.icon,
           durationPercent,
-          gameData.wvwFactOverrides.trait[trait.id]
+          gameData.wvwFactOverrides.trait[trait.id],
+          classifyBoonCondition,
+          gameData.legends
         )
       )
     }
