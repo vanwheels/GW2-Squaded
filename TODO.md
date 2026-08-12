@@ -68,6 +68,39 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       `gw2Build` value (the currently-loaded local `meta.json`'s, via `getLocalMeta()`) instead of
       polling a second, parallel patch-tracking path.
 
+## Renegade tooltip/data gaps (flagged by the user 2026-08-12)
+
+A user pass over Renegade turned up 5 display gaps, investigated together; the first 3 are already
+fixed (weapon-clearing bug fix + `Percent` fact rendering + Kalla's Fervor combat-state wiring +
+Spirit-Boon-style legend-icon attribution, this same session). The remaining 2 are hand-curation
+sweeps, not code fixes, and weren't started:
+
+- [ ] **Legendary Renegade Stance skills are missing on-cast effects the wiki documents** — e.g.
+      Darkrazor's Daring (ids 41220 base / 72366 flip) is supposed to Stun on initial cast and grant
+      Stability, neither of which shows in its tooltip. Confirmed NOT a renderer bug: the live GW2
+      API's own `facts` array for this skill has only `Range`/`Recharge`/`StunBreak`/`Number of
+      Targets`/`Number of Allied Targets`/`Radius` — no Stun/Stability fact of any kind — so
+      `extractFromFacts`/`factLine` have nothing to render. Same "API withholds facts for an
+      internal-cast Legendary-Stance skill" shape as other already-documented gaps in this family.
+      Fix via `synthetic-facts.json` (see `docs/game-data.md`'s "Skills the API returns with no
+      usable facts at all" section) — hand-add the wiki-documented Stun/Stability (etc.) facts per
+      skill. Scope this as a full sweep of all 24 Legendary Stance heal/utility/elite skill ids
+      (`legends.json`'s `heal`/`elite`/`utilities` arrays across all 8 legends), not just this one
+      skill — Darkrazor's Daring was only the example the user happened to check.
+
+- [ ] **Trait-granted boons don't show up on the skill that actually triggers them** — flagged for
+      Notoriety and Rapid Flow (both Revenant/Invocation minor traits). Both already carry their own
+      Might / Swiftness+Heal facts directly on the trait (counted in build totals, shown on the
+      trait's own tooltip already), but the `Skill.traitedFacts`/`requires_trait` link that would
+      surface "this skill also grants X because of trait Y" on the *skill's* own tooltip
+      (`boonConditionFactsForSkill`) is a real link the API sometimes populates — confirmed via a
+      full `requires_trait` scan of `skills.json`: populated for only 1 of many candidate skills for
+      Notoriety (Legendary Assassin's Jade Winds) and 0 skills for Rapid Flow. Not a display bug —
+      needs a hand-curated sweep deciding which skills should carry the link (every Legendary Stance
+      skill, for Notoriety's "using a legendary stance skill"; every skill with an energy cost, for
+      Rapid Flow) and adding matching `traitedFacts` entries, same curation shape as
+      `synthetic-facts.json` above.
+
 ## Loose ends from the conditional-trait-attribute-bonus sweep
 
 The trait-attribute-bonus sweep (`trait-attributes.ts`, COMPLETED.md Session 148) and its 8-family
