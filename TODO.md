@@ -73,16 +73,6 @@ Completed work is tracked in COMPLETED.md, not here — this file only holds wha
       skill bar (not a real skill slot) with its own custom tooltip for whatever a build's dodge
       grants beyond the normal evade frames.
 
-- [ ] Elementalist Glyph tooltips should swap to show only the currently-selected attunement's
-      version, the same "swap not stack" treatment Druid Glyphs already get for Celestial Avatar
-      (`glyph-forms.ts`) — flagged by the user 2026-08-07. Partially handled today, just not the way
-      requested: `multi-effect.ts`'s `relatedVariantSkills` currently lists *all 4* attunement
-      variants stacked in the tooltip as a documentation list, rather than swapping to the one
-      matching `Build.activeAttunement` (already tracked, already player-toggleable via the F1-F4
-      mechanic bar). Should be a close structural parallel to `glyph-forms.ts`'s
-      `glyphFormFactSourceSkill`/`glyphFormDisplayIcon`, keyed on `activeAttunement` instead of
-      `celestialAvatarActive`, rather than a new concept.
-
 - [ ] Discord bot (client of the backend API) — scoped 2026-08-01: `worker/src/index.ts` is
       currently just an anonymous KV blob store (`POST /shares` create, `GET /shares/:id` fetch) —
       no user-account concept, no "list a user's builds/squads" endpoint, so a bot can only "post an

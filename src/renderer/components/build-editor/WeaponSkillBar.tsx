@@ -112,10 +112,11 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
     characterAttributes,
     targetArmor,
     // Never matches here either — the weapon bar's own skill ids are never a Glyph's canonical id
-    // — but kept accurate (rather than hardcoded `false`) since this component already knows the
-    // real toggle state.
+    // — but kept accurate (rather than hardcoded `false`/empty) since this component already knows
+    // the real toggle state and attunement.
     glyphFormVariants: gameData.glyphFormVariants,
-    celestialAvatarActive: build.activeBundleSkillId === CELESTIAL_AVATAR_SKILL_ID
+    celestialAvatarActive: build.activeBundleSkillId === CELESTIAL_AVATAR_SKILL_ID,
+    activeAttunement: build.activeAttunement
   }
 
   const isUntamed = equippedSpecializationIds.has(UNTAMED_SPEC_ID)

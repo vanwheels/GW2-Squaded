@@ -1397,21 +1397,6 @@ input[type='text'] {
   min-width: 0;
 }
 
-.tooltip-skill-variant {
-  margin-top: 6px;
-  padding-top: 6px;
-  border-top: 1px solid var(--border);
-}
-
-.tooltip-skill-variant .tooltip-title {
-  font-size: 0.85em;
-}
-
-.tooltip-skill-variant .tooltip-icon {
-  width: 18px;
-  height: 18px;
-}
-
 .tooltip-boon-facts li {
   display: flex;
   align-items: center;

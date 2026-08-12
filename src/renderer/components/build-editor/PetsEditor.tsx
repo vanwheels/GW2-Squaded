@@ -42,10 +42,11 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds, co
     durationPercent,
     characterAttributes,
     targetArmor,
-    // A pet's own skill is never a Druid Glyph — same "harmless, never matched" reasoning as
-    // RevenantSkillsEditor's own variantContext.
+    // A pet's own skill is never a Druid or Elementalist Glyph — same "harmless, never matched"
+    // reasoning as RevenantSkillsEditor's own variantContext.
     glyphFormVariants: gameData.glyphFormVariants,
-    celestialAvatarActive: false
+    celestialAvatarActive: false,
+    activeAttunement: build.activeAttunement
   }
 
   function skillTooltipFor(skillId: number) {

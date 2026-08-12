@@ -2,6 +2,40 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 143 — Elementalist Glyph tooltips: swap to active attunement, not stack all 4
+
+Picked up TODO.md's "Elementalist Glyph tooltips should swap..." item (flagged 2026-08-07). Closed
+the structural gap the item called out: `multi-effect.ts`'s `relatedVariantSkills` was already
+finding all 4 attunement-specific variant ids of a Glyph (e.g. Glyph of Lesser Elementals'
+Fire/Water/Air/Earth ids), but `SkillsEditor.tsx`'s `skillTooltipContent` stacked all 4 as
+`tooltip-skill-variant` sub-blocks below the canonical skill's own (generic, low-fact) description
+— a documentation list, not the live per-attunement effect.
+
+- New `activeAttunementVariantSkill(skill, activeAttunement, allSkills)` in `multi-effect.ts`:
+  finds the one `relatedVariantSkills` entry whose `attunement` matches `Build.activeAttunement`,
+  returning `null` for any non-Glyph skill or an unmatched attunement — same fail-open posture as
+  `glyph-forms.ts`'s `glyphFormFactSourceSkill`, which this deliberately parallels structurally per
+  the TODO item's own framing.
+- `skillTooltipContent` now resolves one `swappedFactSkill = glyphFormSkill ?? attunementVariantSkill`
+  and sources the *entire* tooltip (description + facts) from it, exactly like the existing Druid
+  Glyph swap already did — no profession has both kinds of Glyph, so the two never both match the
+  same skill and the `??` ordering is unambiguous. Removed the old `variants.map(...)` stacking
+  block entirely (Elementalist Glyphs were its only real-world caller — `relatedVariantSkills`
+  itself stays, now used only internally by the new wrapper).
+- `SkillVariantContext` gained `activeAttunement: Build['activeAttunement']`; all 4 construction
+  sites (`SkillsEditor.tsx`'s `StandardSkillsEditor`/`RevenantSkillsEditor`, `WeaponSkillBar.tsx`,
+  `PetsEditor.tsx`) now pass `build.activeAttunement` through — harmless everywhere except the
+  Elementalist skill bar, since no other profession's skills ever carry a non-null
+  `Skill.attunement`, same "accurate but never matches" posture the file already used for
+  `glyphFormVariants`/`celestialAvatarActive` in those non-Ranger/non-Elementalist contexts.
+- Removed the now-dead `.tooltip-skill-variant` CSS rules (`global.css`) — no remaining consumer.
+- Verified against real `data/game-data/skills.json`: Glyph of Lesser Elementals' canonical id 5502
+  has exactly the 4 expected attunement-tagged variant ids (25486 Fire/25487 Water/25495 Air/25497
+  Earth), matching the same mechanism already confirmed live in an earlier session (COMPLETED.md
+  Session 106-era note on `relatedVariantSkills(skill 5506, allSkills)`). `npm run
+  typecheck`/`lint`/`build` all clean. Not itself visually re-confirmed live (Electron sandbox
+  limitation) — same caveat as everything else in this codebase that can't be screenshotted here.
+
 ## Session 142 — Automatic game-data refresh (Option C: static-publish, in-app)
 
 Picked up TODO.md's "Automatic game-data refresh mechanism" item — direction (Option C, "check on

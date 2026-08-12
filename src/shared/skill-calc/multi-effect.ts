@@ -34,6 +34,22 @@ export function relatedVariantSkills(skill: Skill, allSkills: Skill[]): SkillVar
 }
 
 /**
+ * The single one of `skill`'s attunement variants (see `relatedVariantSkills` above) matching the
+ * build's current attunement (`Build.activeAttunement`) — e.g. Glyph of Lesser Elementals' actual
+ * Fire-attunement facts while attuned to Fire. A "swap, not stack" treatment, the same shape
+ * `glyph-forms.ts`'s `glyphFormFactSourceSkill` uses for Druid Glyph forms and for the identical
+ * reason: only one attunement's effect is ever live at once, unlike `flipTargetSkills`' genuine
+ * on/release pairs that render simultaneously.
+ *
+ * Returns `null` for any skill with no attunement variants (every non-Glyph skill) or when no
+ * variant matches the given attunement — callers should fall back to `skill`'s own facts in that
+ * case, same fail-open posture as `glyphFormFactSourceSkill`.
+ */
+export function activeAttunementVariantSkill(skill: Skill, activeAttunement: string, allSkills: Skill[]): Skill | null {
+  return relatedVariantSkills(skill, allSkills).find((v) => v.skill.attunement === activeAttunement)?.skill ?? null
+}
+
+/**
  * The flip/activation-chain targets a skill leads to — its `flipSkill` hop(s) (e.g. Revenant's
  * Chaotic Release, Elementalist's Tailored Victory) plus, for a Firebrand mantra, the hand-curated
  * enhanced Final Charge appended after the chain (`MANTRA_FINAL_CHARGE_IDS` — the API never
