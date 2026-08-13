@@ -181,6 +181,29 @@ bonus families" ([[conditional_trait_bonus_families]]) — a new family, not a o
       automatic generic label for all 214+ skills at once) — this entry is that future design pass,
       not started.
 
+## Follow-ups from the Revenant flip-duplicate fix (2026-08-13)
+
+Session 165 (COMPLETED.md) fixed Revenant's phantom flip-duplicate skill-bar rows (a `flipSkill` hop
+pointing at a same-name sibling with no real new content). Two things it deliberately left open:
+
+- [ ] **Same "same-name `flipSkill` sibling" shape found outside Revenant** — a full scan of
+      `skills.json` found ~15 more pairs across Engineer (Personal Battering Ram, Utility Goggles,
+      A.E.D. — all Heal/Utility), Guardian ("Feel My Wrath!", Signet of Courage — Elite), Elementalist
+      (Fox's Fury, Otter's Compassion, Toad's Fortitude — Utility; Rejuvenate — Heal, likely related to
+      the 4 familiar-flavor duplicate ids `Build.familiarId` already handles a different way), and
+      Thief (Stone Summit Cannon, Emergency Jade Shield, Canach-Coin Toss — Utility). Each needs the
+      same per-pair fact comparison (raw + `synthetic-facts.json`-merged) this session did for
+      Revenant before deciding curated-content-worth-keeping vs. stale-duplicate-worth-excluding —
+      not assumed to be the same shape without checking (Revenant's own 9 turned out to split 3
+      different ways, plus one deliberate non-exclusion).
+- [ ] **Breakrazor's Bastion (Renegade heal, 45686) never got the Kalla's Fervor "Band Together"
+      curation** its 3 Legend5 siblings did (Darkrazor's Daring/Razorclaw's Rage/Icerazor's Ire, all
+      curated 2026-08-12) — its flip target (72389) currently has zero distinguishing facts, so it's
+      excluded from the flip-icon stack via `NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS`
+      (`revenant-flip-duplicates.ts`) as a still-open gap, not a permanent decision. Wiki-verify
+      Breakrazor's Bastion's own Band Together bonus and curate it the same way, then remove it from
+      that exclusion table.
+
 ## Scoped features, not yet built
 
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —

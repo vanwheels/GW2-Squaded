@@ -2,6 +2,56 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 165 — Revenant skill bar phantom "flip" duplicate rows, found by the user
+
+User flagged (screenshots of a live 2-legend skill bar) that Revenant's Heal/Utility/Elite row shows
+a second full row of icons underneath, even though not every skill has a real flip/secondary action —
+and that this also produced duplicate-looking entries in the boon/condition totals.
+
+Root cause: `flipTargetSkills` (drives `SkillsEditor`'s `FlipSkillStack`, the stacked-icon UI for a
+skill's `flipSkill` chain) and `withFlipChain` (`boon-calc/sources.ts`, folds a skill's flip chain into
+the build's aggregate boon/condition totals) both assume every `flipSkill` hop is a genuine on/release
+action pair (e.g. Facet of Chaos -> Chaotic Release — different name, different facts, the common
+case, correctly rendered). A full scan of every Legend's heal/3-utility/elite `flipSkill` chain found
+9 ids across 4 Legends that break that assumption in 3 different ways, none a real secondary action:
+
+1. **Legendary Demon Stance** (28219 Empowering Misery, 27322 Pain Absorption, 27505 Banish
+   Enchantment) each flip to a byte-for-byte-or-near-identical copy of themselves under a different
+   id (78681/78505/78587) — no wiki mechanic names a second cast for any of these.
+2. **Legendary Centaur Stance**'s 3 already-documented "orphan" siblings (see the Renegade-tooltip-
+   gaps sweep, COMPLETED Session prior to 162) — 27025 Natural Harmony -> 29082, 27356 Energy
+   Expulsion -> 29114, 27715 Purifying Essence -> 29197 — are worse than redundant: showing them would
+   re-surface already-confirmed-*wrong* numbers (29082's Healing 1620 vs. the wiki-verified 1124 now
+   curated onto live id 27025; 29114's whole "Healing Fragment" mechanic confirmed retired by the
+   2022-06-28 patch).
+3. **Legendary Entity Stance**'s Beguiling Haze (both ground-targeted and not, 76805->76917,
+   77141->77159) flips to a Recharge-1 twin with otherwise identical facts — the wiki's real
+   "Resonance" conditional bonus for this skill is still uncurated (TODO.md), so there's nothing yet
+   to distinguish the flip target from the source.
+
+Also found or (Renegade Legend5) confirmed-correct-to-keep: 3 of Legend5's 4 flip pairs
+(72359/72363/72366) are the already-curated Kalla's Fervor "Band Together"-enhanced casts from an
+earlier dedicated sweep — genuinely distinct facts (extra Resistance/Protection/Torment/Chilled),
+correctly left alone. The 4th, 45686 Breakrazor's Bastion -> 72389, never got that sweep and currently
+has zero distinguishing facts either — flagged in the new exclusion table as a still-open curation gap
+(remove once it's curated) rather than assumed permanent, same "documented, not guessed" treatment
+`VINDICATOR_ASPECT_ARCHEMORUS_IDS` already established for this exact class of problem.
+
+Fixed via a new `NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS` table
+(`src/shared/skill-calc/revenant-flip-duplicates.ts`, full per-entry reasoning in its doc comment),
+wired into both `flipTargetSkills` (`multi-effect.ts`) and `withFlipChain` (`boon-calc/sources.ts`) —
+the walk now stops before appending one of these ids instead of rendering it as a phantom stacked icon
+or double-counting its source's own facts under a different id. `npm run typecheck`/`lint`/`test` all
+clean (108/108 tests, no snapshot changes — none of the 9 excluded ids had a
+`CURATED_HEALING_COEFFICIENTS`/`CURATED_DAMAGE_COEFFICIENTS` entry of their own being exercised through
+this path).
+
+**Not fixed, logged in TODO.md as a follow-up**: the same "flipSkill points at a same-name sibling"
+shape exists outside Revenant too (a full-codebase scan found ~15 more pairs across Engineer, Guardian,
+Elementalist, and Thief Heal/Utility/Elite skills) — each needs the same kind of per-pair fact
+comparison this session did for Revenant before deciding curated-content-worth-keeping vs.
+stale-duplicate-worth-excluding, not assumed to be the same shape without checking.
+
 ## Session 164 — Mesmer's Mirror Blade coefficient re-verification (Tier 2's flagged stale entry)
 
 Closed the one open item TODO.md's Tier 2 snapshot build (Session 161) had left behind: `CURATED_DAMAGE_COEFFICIENTS[10333]` only resolved 2 of its 3 lines against current `skills.json`.
