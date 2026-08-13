@@ -2,7 +2,9 @@ import type { Build } from '@shared/types'
 import {
   CURATED_RELIC_DAMAGE_BONUSES,
   detectActiveStackingSigil,
+  FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES,
   HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES,
+  HEALTH_THRESHOLD_CONSUMABLE_BONUSES,
   kallaFervorPercentPerStack,
   KALLA_FERVOR_MAX_STACKS,
   MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES,
@@ -52,7 +54,7 @@ function iconClass(active: boolean): string {
  * values) — see `CombatState`'s doc comment for why each field takes the shape it does.
  */
 export function CombatStatePanel({ build, value, onChange }: Props) {
-  const { sigilsById, relicsById, traitsById } = useGameData()
+  const { sigilsById, relicsById, traitsById, foodById, utilityById } = useGameData()
 
   const stackingSigil = detectActiveStackingSigil(build)
   const sigilIcon = stackingSigil ? sigilsById.get(stackingSigil.sigilId)?.icon : undefined
@@ -79,6 +81,17 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   // `combat-state.ts`'s `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES`).
   const activeHealthTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES)
   const healthTrait = activeHealthTraitId !== undefined ? traitsById.get(activeHealthTraitId) : undefined
+  // A curated health-threshold-gated consumable (the "Writ of X"/"Thesis on X" WvW family) also
+  // needs the tier selector surfaced, same reasoning as `healthTrait` above but reading
+  // `build.foodId`/`build.utilityId` instead of traits — see `HEALTH_THRESHOLD_CONSUMABLE_BONUSES`.
+  const healthConsumableId = [build.foodId, build.utilityId].find((id) => id !== null && id in HEALTH_THRESHOLD_CONSUMABLE_BONUSES)
+  const healthConsumable = healthConsumableId != null ? (foodById.get(healthConsumableId) ?? utilityById.get(healthConsumableId)) : undefined
+
+  // Only surfaced when the build actually has a curated `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES`
+  // trait chosen (currently just Renegade's Brutal Momentum) — same reasoning as `mechanicTrait`
+  // above, reads the specific trait's own icon/name.
+  const activeFullEnduranceTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES)
+  const fullEnduranceTrait = activeFullEnduranceTraitId !== undefined ? traitsById.get(activeFullEnduranceTraitId) : undefined
 
   // Only surfaced when the Renegade elite spec is actually equipped — Kalla's Fervor is exclusive
   // to that spec (see `combat-state.ts`'s `KALLA_FERVOR_*_PERCENT_PER_STACK`).
@@ -180,9 +193,25 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
         </button>
       )}
 
-      {healthTrait && (
+      {fullEnduranceTrait && (
+        <button
+          type="button"
+          className="combat-state-toggle-icon"
+          title={value.fullEnduranceActive ? `${fullEnduranceTrait.name}: Full Endurance` : `${fullEnduranceTrait.name}: Not Full Endurance`}
+          onClick={() => onChange({ ...value, fullEnduranceActive: !value.fullEnduranceActive })}
+        >
+          <img className={iconClass(value.fullEnduranceActive)} src={fullEnduranceTrait.icon} alt={fullEnduranceTrait.name} />
+        </button>
+      )}
+
+      {(healthTrait || healthConsumable) && (
         <div className="combat-state-row">
-          <img className="combat-state-icon" src={healthTrait.icon} alt="" title={healthTrait.name} />
+          <img
+            className="combat-state-icon"
+            src={(healthTrait ?? healthConsumable)!.icon}
+            alt=""
+            title={(healthTrait ?? healthConsumable)!.name}
+          />
           <select
             aria-label="Health tier"
             value={value.healthTier}

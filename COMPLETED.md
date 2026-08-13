@@ -2,6 +2,68 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 162 — Tier 3 hand-verified reference builds + 2 real bugs found & fixed
+
+Picks up TODO.md's "Automated testing strategy" Tier 3, the final tier, right after Session 161's
+Tier 2 — closes out the whole testing-strategy item. Unlike Tier 1 (arithmetic against wiki-quoted
+constants) or Tier 2 (drift protection for already-curated tables), Tier 3 is the actual
+manual-verification oracle: real builds independently checked against gw2skills.net/in-game, not
+just against this app's own reasoning about itself.
+
+The user supplied 3 real WvW builds they'd hand-built with their guild (gw2skills.net editor links
++ screenshots of the Gear/Traits/Skills tabs) — Power Strip Renegade, Shattered Aegis Firebrand,
+Heal Druid. Along the way the user taught a reusable shorthand for describing trait picks:
+`"[Specialization] x-x-x"`, where each `x` (1/2/3 = top/mid/bottom) is that tier's chosen column,
+decodable directly against `traits.json`'s own `order` field — saved to memory
+(`trait_notation_shorthand`) since it'll come up again. All 3 builds' gear/rune/sigil/infusion/food/
+utility/relic/skill/trait ids were resolved against this repo's own `data/game-data/*.json` (not
+guessed from screenshot icons — an early attempt to cross-reference against a public build-guide
+site via `WebFetch` produced fabricated trait-line names for a Revenant, since these are custom
+guild builds with no public match, and was abandoned in favor of asking the user directly).
+
+**Building the first (Renegade) build's oracle number surfaced 2 real, previously-unmodeled bugs**
+— its computed Power (2641) and Critical Chance (27.3%) didn't match gw2skills.net/in-game (2830 /
+60.29%) even after every gear/trait/rune/infusion input was confirmed correct, which is exactly the
+"silent omission" class this whole testing strategy exists to catch. Both fixed same session in
+`combat-state.ts`/`derived-stats.ts`/`CombatStatePanel.tsx`:
+1. **`HEALTH_THRESHOLD_CONSUMABLE_BONUSES`** (new) — the WvW "Writ of X"/"Thesis on X" consumable
+   family (36 items: Strength→Power, Accuracy→Precision, Malice→Condition Damage, 5 tiers each at
+   40/100/120/160/200, all "Gain N Attribute When Health above 90%") parsed to `{attribute: null}`
+   in `AttributeBonusText` — the existing parser only recognizes flat/percent/sourceAttribute
+   shapes, not a health-threshold-gated one, so every one of these 36 items silently contributed
+   nothing. Only traits had an equivalent table before this
+   (`HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES`); this is the consumable sibling, gated the same way
+   (only the `'above75'` `HealthTier` bucket qualifies, since ">90%" only cleanly maps onto that
+   tier). Wired into `computeCharacterStats` directly (alongside `activeConsumableConversions`,
+   which already has the `foodById`/`utilityById` maps `combatStatePoints` doesn't receive).
+2. **`FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES`** (new) + **`CombatState.fullEnduranceActive`**
+   (new field, defaults `true` — endurance regenerates passively like health, same "assume the
+   steady state" reasoning `healthTier`'s `'above75'` default already uses, unlike an
+   externally-granted boon like Fury which defaults off). Renegade's Brutal Momentum trait (id
+   2142) was wiki-verified (raw wikitext) to grant +10%/+15% (PvE+WvW/PvP) critical chance
+   unconditionally, REPLACED (not stacked on top of) by +33% while at full Endurance — confirmed
+   both from the wiki's own `alt=` template usage (an override display name for the same fact slot)
+   and empirically against the reference build's real total (base + Precision term + 33 matched
+   exactly; + 10 + 33 overshot). An earlier trait-attribute-completeness-scan comment had actually
+   already flagged Brutal Momentum as "aren't curated yet" but miscategorized it as Fury-gated
+   (grouped with Roiling Mists/Quiet Intensity) — corrected in that comment too. Wired into
+   `derived-stats.ts`'s `criticalChance` formula; surfaced in `CombatStatePanel.tsx` as a new
+   toggle icon (only shown when a curated trait is active, same gating pattern as
+   `mechanicActive`/`revealedActive`), and the existing health-tier selector's surfacing condition
+   was widened to also fire for a curated health-threshold *consumable* (previously trait-only).
+
+With both fixed, all 3 builds' full stat panels (Power/Toughness/Vitality/Precision/Ferocity/
+Concentration/Armor/Health/Critical Chance/Critical Damage/Boon Duration/Magic Find) match the
+external oracle within normal display-rounding tolerance. New
+`src/shared/gear-calc/tier3-reference-builds.test.ts`, 9 tests (`npm run test` now 108 total).
+
+Also discovered along the way: `computeGearAttributeTotals` relies on a "mirrored slot" convention
+for two-handed weapons (`EquipmentEditor.tsx` writes the same `itemStatId`/`weaponType` into both
+`weaponA1` and `weaponA2`, letting the calc treat every weapon slot uniformly as one-handed and get
+the correct two-handed total by summing both mirrored slots) — already covered by a Tier 1 test
+(`attribute-totals.test.ts`'s "weaponOneHanded doubled equals weaponTwoHanded") but easy to miss
+when hand-constructing a `Build` object outside the UI, as this session's own first draft did.
+
 ## Session 161 — Tier 2 golden snapshot fixtures (curated coefficient tables) + 4 drift bugs found & fixed
 
 Picks up TODO.md's "Automated testing strategy" Tier 2, right after Session 160's Tier 1. Where

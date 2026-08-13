@@ -18,12 +18,10 @@ Two real gaps stand between here and 1.0, both about confidence rather than feat
    COMPLETED.md) was checked by typecheck/lint/code-reading only, never seen rendered (Electron
    sandbox limitation in the assistant's shell). Needs an actual click-through before release: create
    a build, run the gear optimizer, build a squad comp, generate a share link — for real.
-2. **Zero automated tests.** Discussed at length 2026-08-12 — see "Automated testing strategy" below.
-   This is the priority work before release, not a nice-to-have, because it's the fastest lever on
-   correctness confidence the user doesn't have to personally provide (they don't know every
-   profession's quirks well enough to hand-audit them all before Friday).
+2. ~~**Zero automated tests.**~~ **DONE 2026-08-13** — see "Automated testing strategy" below (all 3
+   completeness scans + all 3 value-correctness tiers now complete, 108 tests total).
 
-## Automated testing strategy (agreed 2026-08-12, not started — pick up here first)
+## Automated testing strategy (agreed 2026-08-12, DONE 2026-08-13)
 
 Key insight from this session: the bugs the user has actually hit by hand (traits not feeding into
 attribute totals, buffs whose bonus depends on a runtime value like Kalla's Fervor's stack count,
@@ -108,13 +106,27 @@ needed, purely structural scans against data already in the repo:**
   Damage'`), Warrior's Tsunami Slash's Barbarian's Retaliation-traited variant (14480, Damage — was
   `'Damage per Strike'`, its `traitedFacts` entry is plain `'Damage'`). **1 left unfixed, needs fresh
   wiki verification, not a text fix** — see "Mesmer's Mirror Blade" below.
-- Tier 3 — 2-3 hand-verified reference meta builds (checked once against gw2skills.net/in-game, all
-  stats) as the actual manual-verification oracle, used sparingly. Not started.
+- ~~Tier 3~~ **DONE 2026-08-13** — 3 hand-verified WvW reference builds (Power Strip Renegade,
+  Shattered Aegis Firebrand, Heal Druid), sourced directly from the user (gw2skills.net links +
+  screenshots, decoded via the "[Spec] x-x-x" trait-pick shorthand — see memory
+  `trait_notation_shorthand`), checked against gw2skills.net's Attributes panel (Renegade also
+  cross-checked live in-game). `src/shared/gear-calc/tier3-reference-builds.test.ts`, 9 tests.
+  **Found and fixed 2 real silent-omission bugs** while sourcing the Renegade build's oracle number
+  (it didn't match until both were fixed):
+  1. `HEALTH_THRESHOLD_CONSUMABLE_BONUSES` (new, `combat-state.ts`) — the WvW "Writ of X"/"Thesis on
+     X" consumable family ("Gain N Power/Precision/Condition Damage When Health above 90%", 36
+     items) parsed to `{attribute: null}` and silently contributed nothing; only traits had a
+     health-threshold-gated bonus table before this.
+  2. `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES` (new, `combat-state.ts`) + `CombatState.
+     fullEnduranceActive` (new field, defaults `true`) — Renegade's Brutal Momentum (+33% critical
+     chance at full Endurance, overriding its own +10%/+15% baseline) had no full-Endurance combat
+     state dimension anywhere in the app.
+  Both wired into `computeCharacterStats`/`CombatStatePanel.tsx`. See COMPLETED.md Session 162.
 - Vitest is now installed (`npm run test`) — added 2026-08-12 to build the completeness scan above,
   `vitest.config.ts` at repo root, near-zero extra config as expected.
 
-**Next action:** Tier 1 and Tier 2 are done. Pick up Tier 3 (hand-verified reference builds) next,
-not started. Also open: Mesmer's Mirror Blade re-verification (below), surfaced by Tier 2.
+**Next action:** Tier 1, Tier 2, and Tier 3 are all done — the "Automated testing strategy" section
+is complete. Next open item: Mesmer's Mirror Blade re-verification (below), surfaced by Tier 2.
 
 - [ ] **Mesmer's Mirror Blade (id 10333) — `CURATED_DAMAGE_COEFFICIENTS` entry is stale, needs a
       fresh wiki check, found 2026-08-12 by the Tier 2 snapshot build.** The curated entry (3 lines:

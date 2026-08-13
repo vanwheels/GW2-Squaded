@@ -14,8 +14,10 @@ import {
   combatStatePoints,
   CURATED_RELIC_DAMAGE_BONUSES,
   DEFAULT_COMBAT_STATE,
+  fullEnduranceCritChanceTraitBonus,
   furyCritChanceTraitBonus,
   FURY_CRITICAL_CHANCE_PERCENT,
+  healthThresholdConsumableBonus,
   kallaFervorPercentPerStack,
   type CombatState
 } from './combat-state'
@@ -185,6 +187,7 @@ export function computeCharacterStats(
   // `addBonus` intentionally no-ops on these during `computeGearAttributeTotals` since a
   // single-pass point add can't see the source attribute's final value yet.
   applyConversions(totals, activeConsumableConversions(build, foodById, utilityById))
+  for (const [k, v] of Object.entries(healthThresholdConsumableBonus(build, combatState.healthTier, foodById, utilityById))) addPoints(totals, k, v)
   applyTraitBonuses(totals, build, traitsById)
 
   const attributes: CharacterAttributes = {
@@ -212,7 +215,8 @@ export function computeCharacterStats(
       (attributes.precision - 1000) / PRECISION_PER_CRITICAL_CHANCE_PERCENT +
       (combatState.furyActive
         ? FURY_CRITICAL_CHANCE_PERCENT + furyCritChanceTraitBonus(build, traitsById)
-        : 0),
+        : 0) +
+      fullEnduranceCritChanceTraitBonus(build, traitsById, combatState.fullEnduranceActive),
     criticalDamage: BASE_CRITICAL_DAMAGE_PERCENT + attributes.ferocity / FEROCITY_PER_CRITICAL_DAMAGE_PERCENT,
     boonDuration: boonDurationPercent(totals),
     conditionDuration: conditionDurationPercent(totals),

@@ -1,4 +1,4 @@
-import type { Build, EquipmentSlotKey, Trait } from '../types'
+import type { Build, Consumable, EquipmentSlotKey, Trait } from '../types'
 import { ALL_CORE_ATTRIBUTE_KEYS, isActiveWeaponSlot } from './attribute-totals'
 import { activeTraitIds } from './trait-attributes'
 
@@ -21,6 +21,13 @@ export interface CombatState {
   regenerationActive: boolean
   /** Gates `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES` — sibling to `regenerationActive` above. */
   quicknessActive: boolean
+  /** Gates `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES` (currently just Brutal Momentum) — defaults to
+   *  `true`, unlike every boolean above (which default `false`): endurance, like health
+   *  (`healthTier`, also defaulted to its "full" tier), is the player's own passively-regenerating
+   *  resource rather than an externally-granted boon, so "full" is the reasonable steady-state
+   *  assumption a static build snapshot should start from — matches gw2skills.net's own default and
+   *  a real in-game hero-panel check out of combat (both confirmed 2026-08-13). */
+  fullEnduranceActive: boolean
   /** Gates `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES` — the "Shroud/stance-gated flat bonuses"
    *  family from TODO.md: whether the build's profession mechanic (Necromancer Shroud, Necromancer
    *  Scourge's active shade, Warrior Berserker's berserk mode, ...) is currently toggled on. One
@@ -70,6 +77,7 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   furyActive: false,
   regenerationActive: false,
   quicknessActive: false,
+  fullEnduranceActive: true,
   mechanicActive: false,
   revealedActive: false,
   healthTier: 'above75',
@@ -207,9 +215,12 @@ export const CURATED_RELIC_DAMAGE_BONUSES: Record<number, number> = {
  * both 25 (PvE) and 20 (WvW/PvP); this app is WvW-focused (see gw2squaded-claude-code-prompt.md),
  * so 20 is correct here. A
  * handful of other professions have similarly-shaped fury-crit traits (Engineer's Hematic Focus,
- * Warrior's Furious Burst, Ranger's Vicious Quarry, Mesmer's Quiet Intensity, Revenant/Renegade's
- * Brutal Momentum — found via a full `traits.json` scan for "Critical Chance Increase" facts near
- * "fury" in the description) but aren't curated yet — add them here the same way once verified.
+ * Warrior's Furious Burst, Ranger's Vicious Quarry, Mesmer's Quiet Intensity — found via a full
+ * `traits.json` scan for "Critical Chance Increase" facts near "fury" in the description) but
+ * aren't curated yet — add them here the same way once verified. Revenant/Renegade's Brutal
+ * Momentum was originally assumed to belong to this list too, but wiki-verification 2026-08-13
+ * (prompted by a Tier 3 reference-build mismatch — see TODO.md) found its actual gate is full
+ * Endurance, not Fury — it's curated separately below, in `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES`.
  */
 export const FURY_CRIT_CHANCE_TRAIT_BONUSES: Record<number, number> = {
   1719: 20, // Roiling Mists (Revenant, Invocation, Major tier 3) — WvW value
@@ -227,6 +238,40 @@ export function furyCritChanceTraitBonus(build: Build, traitsById: Map<number, T
   let bonus = 0
   for (const [traitIdText, value] of Object.entries(FURY_CRIT_CHANCE_TRAIT_BONUSES)) {
     if (active.has(Number(traitIdText))) bonus += value
+  }
+  return bonus
+}
+
+/**
+ * Trait id -> { at full Endurance / otherwise } critical-chance bonus — sibling family to
+ * `FURY_CRIT_CHANCE_TRAIT_BONUSES` above, for the one trait gated on Endurance instead of Fury.
+ * Wiki-verified via raw wikitext (wiki.guildwars2.com/index.php?title=Brutal_Momentum&action=raw)
+ * 2026-08-13: "Gain increased critical-hit chance. This bonus is increased further while your
+ * endurance is full." — `{{skill fact|Critical Chance Increase|10|game mode=pve wvw}}` /
+ * `{{skill fact|Critical Chance Increase|15|game mode=pvp}}` (WvW value 10) is the baseline, fully
+ * REPLACED (not stacked on top of) by `{{skill fact|Critical Chance Increase|alt=Critical Chance
+ * Increase at Full Endurance|33}}` while at full Endurance — confirmed against a real reference
+ * build (gw2skills.net + in-game hero panel, both 2026-08-13): with Roiling Mists' Fury-gated bonus
+ * OFF and Brutal Momentum's own trait chosen, the build's total critical chance matched
+ * `base + Precision term + 33` exactly, not `+ 10 + 33` — the game's own "alt=" template usage
+ * (an override display name for the same fact slot, not a separate additive fact) confirms this
+ * reading structurally too.
+ */
+export const FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES: Record<number, { fullEndurance: number; otherwise: number }> = {
+  2142: { fullEndurance: 33, otherwise: 10 } // Brutal Momentum (Revenant, Renegade, Minor GM) — WvW value
+}
+
+/**
+ * Picks the right `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES` value (full-Endurance vs. otherwise,
+ * per `fullEnduranceActive`) for every curated trait active on this build, summed. Unlike
+ * `furyCritChanceTraitBonus` (an on/off add the caller gates), this always contributes *something*
+ * once the trait is active — mirrors `kallaFervorPercentPerStack`'s "override, not stack" shape.
+ */
+export function fullEnduranceCritChanceTraitBonus(build: Build, traitsById: Map<number, Trait>, fullEnduranceActive: boolean): number {
+  const active = activeTraitIds(build, traitsById)
+  let bonus = 0
+  for (const [traitIdText, { fullEndurance, otherwise }] of Object.entries(FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES)) {
+    if (active.has(Number(traitIdText))) bonus += fullEnduranceActive ? fullEndurance : otherwise
   }
   return bonus
 }
@@ -537,6 +582,86 @@ export function healthThresholdAttributeTraitBonus(build: Build, tier: HealthTie
   for (const [traitIdText, tiers] of Object.entries(HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES)) {
     if (!active.has(Number(traitIdText))) continue
     for (const [target, value] of Object.entries(tiers[tier])) bonus[target] = (bonus[target] ?? 0) + value
+  }
+  return bonus
+}
+
+/**
+ * Food/Utility consumable id -> flat attribute bonus while at/above 90% health — the WvW "Writ of
+ * X" / "Thesis on X" family (Strength -> Power, Accuracy -> Precision, Malice -> Condition Damage;
+ * Basic/Studied/Calculated/Learned/Masterful tiers = 40/100/120/160/200), sourced directly from
+ * each item's own API description text (e.g. "Gain 200 Power When Health above 90%" — not
+ * wiki-sourced, this is the game's own structured text, same trust level as any other consumable
+ * bonus line already used unverified elsewhere, e.g. a stat sigil's "+N% Boon Duration"). Found
+ * 2026-08-13 investigating a Tier 3 reference-build Power mismatch: `AttributeBonusText`'s parser
+ * (`parseAttributeBonusText` in `scripts/fetch-gear-upgrades.ts`) only recognizes flat/percent/
+ * sourceAttribute shapes, so every one of these 36 items' bonus line came back `{attribute: null}`
+ * and silently contributed nothing — see TODO.md. Threshold is always exactly "above 90%" across
+ * the whole family (confirmed via the scan that built this table — no other health-conditional
+ * consumable shape exists in `food.json`/`utility.json`), which only cleanly maps onto this app's
+ * `HealthTier`'s `'above75'` bucket (same simplification `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES`
+ * already makes for its own curated traits) — `between50and75`/`below50` never grant this bonus.
+ */
+export const HEALTH_THRESHOLD_CONSUMABLE_BONUSES: Record<number, { target: string; value: number }> = {
+  70845: { target: 'Power', value: 100 }, // Thesis on Studied Strength
+  70883: { target: 'Power', value: 100 }, // Writ of Studied Strength
+  70920: { target: 'ConditionDamage', value: 120 }, // Thesis on Calculated Malice
+  71071: { target: 'ConditionDamage', value: 160 }, // Thesis on Learned Malice
+  71377: { target: 'Power', value: 60 }, // Thesis on Strength
+  71514: { target: 'Precision', value: 100 }, // Writ of Studied Accuracy
+  71810: { target: 'Precision', value: 160 }, // Thesis on Learned Accuracy
+  72048: { target: 'Power', value: 60 }, // Writ of Strength
+  72291: { target: 'Precision', value: 60 }, // Writ of Accuracy
+  72510: { target: 'ConditionDamage', value: 200 }, // Writ of Masterful Malice
+  72563: { target: 'ConditionDamage', value: 40 }, // Writ of Basic Malice
+  72572: { target: 'ConditionDamage', value: 120 }, // Writ of Calculated Malice
+  72807: { target: 'Power', value: 160 }, // Writ of Learned Strength
+  72813: { target: 'ConditionDamage', value: 60 }, // Writ of Malice
+  72821: { target: 'Precision', value: 120 }, // Writ of Calculated Accuracy
+  73006: { target: 'Power', value: 40 }, // Thesis on Basic Strength
+  73105: { target: 'Power', value: 160 }, // Thesis on Learned Strength
+  73191: { target: 'Power', value: 200 }, // Writ of Masterful Strength
+  73286: { target: 'Power', value: 40 }, // Writ of Basic Strength
+  73595: { target: 'Precision', value: 40 }, // Writ of Basic Accuracy
+  74478: { target: 'Power', value: 120 }, // Thesis on Calculated Strength
+  75051: { target: 'ConditionDamage', value: 100 }, // Writ of Studied Malice
+  75060: { target: 'Precision', value: 40 }, // Thesis on Basic Accuracy
+  75199: { target: 'Precision', value: 100 }, // Thesis on Studied Accuracy
+  75598: { target: 'ConditionDamage', value: 60 }, // Thesis on Malice
+  75610: { target: 'Precision', value: 160 }, // Writ of Learned Accuracy
+  75728: { target: 'Precision', value: 60 }, // Thesis on Accuracy
+  76353: { target: 'ConditionDamage', value: 40 }, // Thesis on Basic Malice
+  76478: { target: 'ConditionDamage', value: 160 }, // Writ of Learned Malice
+  76599: { target: 'Precision', value: 200 }, // Thesis on Masterful Accuracy
+  76738: { target: 'ConditionDamage', value: 200 }, // Thesis on Masterful Malice
+  76833: { target: 'Precision', value: 200 }, // Writ of Masterful Accuracy
+  76870: { target: 'Precision', value: 120 }, // Thesis on Calculated Accuracy
+  77106: { target: 'ConditionDamage', value: 100 }, // Thesis on Studied Malice
+  77128: { target: 'Power', value: 120 }, // Writ of Calculated Strength
+  77146: { target: 'Power', value: 200 } // Thesis on Masterful Strength
+}
+
+/**
+ * Sums `HEALTH_THRESHOLD_CONSUMABLE_BONUSES` for whichever of `build.foodId`/`build.utilityId` has
+ * a curated entry, gated on `tier === 'above75'` (see that table's doc comment). Mirrors
+ * `healthThresholdAttributeTraitBonus`'s shape but reads consumables instead of traits — called
+ * directly from `computeCharacterStats` (like `activeConsumableConversions`) rather than folded
+ * into `combatStatePoints`, since only that call site already has `foodById`/`utilityById` maps.
+ */
+export function healthThresholdConsumableBonus(
+  build: Build,
+  tier: HealthTier,
+  foodById: Map<number, Consumable>,
+  utilityById: Map<number, Consumable>
+): Record<string, number> {
+  const bonus: Record<string, number> = {}
+  if (tier !== 'above75') return bonus
+  for (const id of [build.foodId, build.utilityId]) {
+    if (id === null) continue
+    if (!foodById.has(id) && !utilityById.has(id)) continue
+    const entry = HEALTH_THRESHOLD_CONSUMABLE_BONUSES[id]
+    if (!entry) continue
+    bonus[entry.target] = (bonus[entry.target] ?? 0) + entry.value
   }
   return bonus
 }
