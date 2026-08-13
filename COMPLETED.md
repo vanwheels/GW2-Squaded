@@ -2,6 +2,36 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 163 — Phantom double-counted two-handed-weapon infusions/sigils, found by the user
+
+Follow-up to Session 162: after that session's Power-total fix landed, the user reloaded their
+actual saved Renegade build and got 2841, not the 2830 the session had verified — a clean +10 over
+the reconstructed test build's 2831 (itself already matching the external oracle). +10 is exactly 2
+extra Mighty WvW Infusions (+5 each), which pointed straight at a two-handed weapon's 2-slot
+infusion capacity being counted twice somewhere.
+
+Root cause: `weaponSlotCapacity()` in `EquipmentEditor.tsx` (used only by the "apply to all"
+sigil/infusion bulk-fill actions, not by the per-slot pickers) derived a slot's upgrade capacity
+purely from that slot's own `weaponType`/`TwoHand` flag. A two-handed weapon's off-hand mirror slot
+(`weaponA2`/`weaponB2` — `itemStatId`+`weaponType` mirrored from the main slot per
+`setMainItemStat`'s own doc comment, but deliberately given no sigil/infusion picker of its own in
+the render, per `renderWeaponPair`) still has that mirrored `weaponType` set, and that weapon type
+*is* `TwoHand`-flagged — so the naive check returned capacity 2 for the mirror slot too, same as the
+real main slot. `applySigilToAll`/`applyInfusionToAll` then wrote a second, phantom set of 2
+sigils/infusions onto the mirror slot on top of the main slot's real 2, and
+`computeGearAttributeTotals` (which iterates every populated slot key independently, with no
+"is this a mirror" awareness) counted both — a two-handed weapon's infusions/sigils contributed
+double whenever the bulk-fill action had ever been used on it.
+
+Fixed: `weaponSlotCapacity()` now recognizes the mirror relationship (new
+`WEAPON_OFF_HAND_MIRROR` map: `weaponA2`->`weaponA1`, `weaponB2`->`weaponB1`; underwater slots
+excluded — `weaponU1`/`weaponU2` are never paired, each is independently a real weapon) and returns
+0 for a mirror slot whenever its paired main slot is actually two-handed.
+`applySigilToAll`/`applyInfusionToAll` were also changed to always write (including a capacity-0
+write, i.e. `sigilIds: []`/`infusionIds: []`) rather than skipping once a `weaponType` is present —
+so the next time either bulk-fill action runs, it self-heals any stale phantom data an
+already-saved build (like the user's) is still carrying, not just prevents new occurrences.
+
 ## Session 162 — Tier 3 hand-verified reference builds + 2 real bugs found & fixed
 
 Picks up TODO.md's "Automated testing strategy" Tier 3, the final tier, right after Session 161's
