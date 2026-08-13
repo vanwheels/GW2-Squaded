@@ -104,6 +104,17 @@ const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
 
 const WEAPON_SLOT_KEYS: EquipmentSlotKey[] = ['weaponA1', 'weaponA2', 'weaponB1', 'weaponB2', 'weaponU1', 'weaponU2']
 
+/** weaponA2/weaponB2 -> their paired main-hand key — used only by `weaponSlotCapacity` to
+ *  recognize when a slot is actually the "locked (2-handed)" mirror of a two-handed main-hand
+ *  weapon (see `renderWeaponPair`'s class doc comment) rather than an independent one-handed
+ *  off-hand weapon. weaponU1/weaponU2 are deliberately excluded — underwater slots are never
+ *  paired/mirrored (`renderUnderwaterSlot`'s own doc comment: "no hand pairing"), each is its own
+ *  independent weapon. */
+const WEAPON_OFF_HAND_MIRROR: Partial<Record<EquipmentSlotKey, EquipmentSlotKey>> = {
+  weaponA2: 'weaponA1',
+  weaponB2: 'weaponB1'
+}
+
 /** Maps each armor/trinket slot to its gw2skills mini-icon name, overlaid in the corner of the
  *  slot's stat-prefix picker (see UpgradePicker's `cornerIcon` prop). */
 const SLOT_ICON_KIND: Partial<Record<EquipmentSlotKey, string>> = {
@@ -359,8 +370,27 @@ export function EquipmentEditor({
   }
 
   /** A weapon slot's current sigil/infusion capacity — same rule `renderWeaponPair`/
-   *  `renderUnderwaterSlot` use locally, exposed here too for the "apply to all" bulk-fill below. */
+   *  `renderUnderwaterSlot` use locally, exposed here too for the "apply to all" bulk-fill below.
+   *  Found 2026-08-13: a two-handed weapon's off-hand mirror slot (`WEAPON_OFF_HAND_MIRROR`) has
+   *  its own `weaponType` set (mirroring the main slot, per `setMainItemStat`'s doc comment) and
+   *  that weapon type IS itself `TwoHand`-flagged — naively re-deriving capacity from `slot`'s own
+   *  fields (as this function used to) therefore returned 2, not 0, for that mirror slot, letting
+   *  `applySigilToAll`/`applyInfusionToAll` silently double-write a two-handed weapon's sigils/
+   *  infusions (2 "real" on the main slot + 2 phantom on the mirror = 4 total contributing, since
+   *  `computeGearAttributeTotals` iterates every populated slot key independently) — caught by a
+   *  user-reported Power total 10 points over the correct value after using "apply to all" to
+   *  infuse a Spear. The mirror slot always has 0 capacity of its own; only the main slot's 2
+   *  upgrade slots are real (see `renderWeaponPair`'s "only the stat combo mirrors, not the
+   *  upgrades" comment) — `sigilRow`/`infusionRow` were never rendered for it either, so only this
+   *  bulk-fill path could ever have written there.
+   */
   function weaponSlotCapacity(key: EquipmentSlotKey): number {
+    const mainKey = WEAPON_OFF_HAND_MIRROR[key]
+    if (mainKey) {
+      const mainWeaponType = value[mainKey]?.weaponType
+      const mainIsTwoHanded = mainWeaponType ? (profession?.weapons[mainWeaponType]?.flags.includes('TwoHand') ?? false) : false
+      if (mainIsTwoHanded) return 0
+    }
     const slot = value[key]
     if (!slot?.weaponType) return 0
     const isTwoHanded = profession?.weapons[slot.weaponType]?.flags.includes('TwoHand') ?? false
@@ -410,9 +440,14 @@ export function EquipmentEditor({
   function applySigilToAll(sigilId: number | null): void {
     const next = { ...value }
     for (const key of WEAPON_SLOT_KEYS) {
+      if (!next[key]?.weaponType) continue
+      // Always write (never skip once a weapon is present), even at capacity 0 — a two-handed
+      // weapon's off-hand mirror slot (see `weaponSlotCapacity`'s doc comment) always lands here
+      // at capacity 0, and writing `sigilIds: []` actively clears any stale phantom entries an
+      // older build of the app may have written there, rather than leaving them to silently
+      // double-count in `computeGearAttributeTotals`.
       const capacity = weaponSlotCapacity(key)
-      if (capacity === 0) continue
-      next[key] = { ...(next[key] ?? { itemStatId: null }), sigilIds: new Array(capacity).fill(sigilId) }
+      next[key] = { ...next[key], sigilIds: new Array(capacity).fill(sigilId) }
     }
     onChange(next)
   }
@@ -425,9 +460,10 @@ export function EquipmentEditor({
       next[key] = { ...(next[key] ?? { itemStatId: null }), infusionIds: new Array(capacity).fill(infusionId) }
     }
     for (const key of WEAPON_SLOT_KEYS) {
+      if (!next[key]?.weaponType) continue
+      // Same "always write, even at capacity 0" self-healing reasoning as `applySigilToAll` above.
       const capacity = weaponSlotCapacity(key)
-      if (capacity === 0) continue
-      next[key] = { ...(next[key] ?? { itemStatId: null }), infusionIds: new Array(capacity).fill(infusionId) }
+      next[key] = { ...next[key], infusionIds: new Array(capacity).fill(infusionId) }
     }
     onChange(next)
   }
