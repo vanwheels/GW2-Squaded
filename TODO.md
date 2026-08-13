@@ -47,25 +47,6 @@ that don't block a release.
       automatic generic label for all 214+ skills at once) — this entry is that future design pass,
       not started.
 
-## Follow-ups from the Revenant flip-duplicate fix (2026-08-13)
-
-Session 165 (COMPLETED.md) fixed Revenant's phantom flip-duplicate skill-bar rows (a `flipSkill` hop
-pointing at a same-name sibling with no real new content). One of the two things it deliberately left
-open is now also done:
-
-- [x] **Same "same-name `flipSkill` sibling" shape found outside Revenant** — DONE 2026-08-13
-      (COMPLETED.md Session 166). Turned out to be 23 pairs (not ~15) across Engineer/Guardian/
-      Elementalist/Thief; 19 confirmed non-actionable and excluded (`other-profession-flip-
-      duplicates.ts`), 4 (Elementalist Evoker's familiar Utility skills) confirmed genuinely
-      actionable and left alone.
-- [ ] **Breakrazor's Bastion (Renegade heal, 45686) never got the Kalla's Fervor "Band Together"
-      curation** its 3 Legend5 siblings did (Darkrazor's Daring/Razorclaw's Rage/Icerazor's Ire, all
-      curated 2026-08-12) — its flip target (72389) currently has zero distinguishing facts, so it's
-      excluded from the flip-icon stack via `NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS`
-      (`revenant-flip-duplicates.ts`) as a still-open gap, not a permanent decision. Wiki-verify
-      Breakrazor's Bastion's own Band Together bonus and curate it the same way, then remove it from
-      that exclusion table.
-
 ## Scoped features, not yet built
 
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —

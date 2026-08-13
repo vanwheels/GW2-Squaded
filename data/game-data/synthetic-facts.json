@@ -299,9 +299,22 @@
     { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
   ],
   "45686": [
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Initial Self Heal", "value": 4529 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Heal Pulses", "value": 615 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Final Heal", "value": 1845 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 2.5 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 4 },
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
     { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "72389": [
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Initial Self Heal", "value": 4529 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Heal Pulses", "value": 615 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Final Heal", "value": 1845 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 2.5 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 4 },
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Barrier", "value": 2440 }
   ],
   "45773": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },

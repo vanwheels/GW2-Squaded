@@ -249,6 +249,11 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   ],
 
   // --- Revenant ---
+  // Breakrazor's Bastion, "Band Together"-enhanced flip target only (72389, not base id 45686 —
+  // the un-enhanced cast grants no Barrier at all per the wiki, only its Healing/Resolution facts
+  // are shared between the two ids; see CURATED_HEALING_COEFFICIENTS' own comment on this skill).
+  // No PvE/WvW split.
+  72389: [{ factText: 'Barrier', baseValue: 2440, coefficient: 0.5 }],
   // Blossoming Aura (scepter). PvE+WvW grouped (504/0.3) vs PvP-only (504/0.4) — WvW value used. Wiki
   // page carries its own `{{stub|skill|check PvP/WvW values, check barrier scaling}}` maintenance
   // tag, but the base value (504) matches this app's own independently-sourced API value exactly —

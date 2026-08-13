@@ -35,14 +35,13 @@
  *    show. Revisit once Resonance gets curated.
  *
  * Deliberately NOT included: Legendary Renegade Stance's Kalla's-Fervor-enhanced ("Band Together")
- * ids (72359/72363/72366) — those DO carry genuinely different curated facts (extra
- * Resistance/Protection/Torment/Chilled the base id lacks) from a dedicated curation sweep
+ * ids (72359/72363/72366/72389) — those DO carry genuinely different curated facts (extra
+ * Resistance/Protection/Torment/Chilled/Barrier the base id lacks) from a dedicated curation sweep
  * (COMPLETED.md, "Legendary Renegade Stance skills are missing on-cast effects", 2026-08-12) and are
  * a real "this is what the enhanced cast grants" secondary display, same shape as a genuine on/release
- * pair. One sibling in that same family, 45686 Breakrazor's Bastion -> 72389, never got that sweep and
- * currently has zero distinguishing facts either — included below as a still-open curation gap rather
- * than a permanent exclusion; remove it once Breakrazor's Bastion's own Band Together bonus is curated
- * (see TODO.md).
+ * pair. The last sibling in that family, 45686 Breakrazor's Bastion -> 72389, never got that sweep
+ * (TODO.md follow-up) until 2026-08-13, when its own Healing/Resolution/Barrier facts were curated
+ * (CURATED_HEALING_COEFFICIENTS/CURATED_BARRIER_COEFFICIENTS) — no longer excluded here.
  */
 export const NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS: ReadonlySet<number> = new Set([
   78681, // Empowering Misery (Demon heal) — identical duplicate of 28219
@@ -52,6 +51,5 @@ export const NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS: ReadonlySet<number> = new 
   29114, // Energy Expulsion (Centaur elite) — stale/pre-rework orphan, superseded by 27356's own curated facts
   29197, // Purifying Essence (Centaur utility) — orphan, now redundant with 27715's own curated facts
   76917, // Beguiling Haze (Entity utility) — Recharge-only variant of 76805, Resonance still uncurated
-  77159, // Beguiling Haze, ground-targeted (Entity utility) — Recharge-only variant of 77141
-  72389 // Breakrazor's Bastion (Renegade heal) — Band Together sibling never got the curation sweep
+  77159 // Beguiling Haze, ground-targeted (Entity utility) — Recharge-only variant of 77141
 ])

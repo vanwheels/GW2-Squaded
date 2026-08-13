@@ -278,6 +278,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1395,
     },
   ],
+  "72389": [
+    {
+      "label": "Barrier",
+      "value": 3190,
+    },
+  ],
   "73019": [
     {
       "label": "Barrier",
@@ -7088,6 +7094,18 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
   ],
   "45686": [
     {
+      "label": "Initial Self Heal",
+      "value": 5729,
+    },
+    {
+      "label": "Heal Pulses",
+      "value": 823,
+    },
+    {
+      "label": "Final Heal",
+      "value": 4095,
+    },
+    {
       "label": "Rapid Flow Healing",
       "value": 408,
     },
@@ -7490,6 +7508,20 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Healing per Unique Condition",
       "value": 98,
+    },
+  ],
+  "72389": [
+    {
+      "label": "Initial Self Heal",
+      "value": 5729,
+    },
+    {
+      "label": "Heal Pulses",
+      "value": 823,
+    },
+    {
+      "label": "Final Heal",
+      "value": 4095,
     },
   ],
   "72940": [

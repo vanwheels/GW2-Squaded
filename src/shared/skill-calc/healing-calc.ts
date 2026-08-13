@@ -789,6 +789,34 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
     { factText: 'Healing per Condition Removed', baseValue: 325, coefficient: 0.2 },
     { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
   ],
+  // Revenant — Breakrazor's Bastion, Legendary Renegade Stance's heal skill (45686 base, 72389 its
+  // "Band Together"-enhanced flip target — see revenant-flip-duplicates.ts's doc comment; this was
+  // the one sibling in that family the 2026-08-12 Renegade sweep left uncurated, closed here
+  // 2026-08-13). Unlike its 3 Legend5 siblings (Darkrazor's Daring/Razorclaw's Rage/Icerazor's Ire),
+  // this skill carries real Healing facts, not just Buff ones — API returns ZERO facts of any kind
+  // on either id, so all values are wiki-sourced per the usual synthetic-facts.json Case 1 pattern.
+  // 3 Healing sub-facts, each with its own PvE/WvW/PvP split (Initial Self Heal 4529/1.3 pve vs
+  // 4529/0.8 wvw vs 3397/0.8 pvp; Heal Pulses 615/1.0 pve vs 373/0.3 wvw vs 325/0.1 pvp; Final Heal
+  // 1845/3.0 pve vs 1845/1.5 wvw vs 1605/0.5 pvp) — WvW values used throughout, same convention as
+  // every other split entry in this table. Per the wiki's own Notes, healing (and the Resolution
+  // buff facts, curated as plain Buff facts alongside these, no coefficient) apply on EVERY cast,
+  // base or enhanced — hence identical Healing entries on both ids, mirroring how the sibling trio's
+  // own shared action facts (Stability/Daze/Bonus Defiance Break) are likewise repeated on their own
+  // enhanced ids. Only Barrier (2440/0.5, no mode split) is enhance-only, curated in
+  // CURATED_BARRIER_COEFFICIENTS on 72389 alone. Might/Swiftness/Rapid Flow Healing are deliberately
+  // NOT repeated on 72389, matching the sibling trio's own precedent (avoids double-counting a
+  // trait proc that fires once per skill-use event regardless of which cast variant triggers it).
+  45686: [
+    { factText: 'Initial Self Heal', baseValue: 4529, coefficient: 0.8 },
+    { factText: 'Heal Pulses', baseValue: 373, coefficient: 0.3 },
+    { factText: 'Final Heal', baseValue: 1845, coefficient: 1.5 },
+    { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
+  ],
+  72389: [
+    { factText: 'Initial Self Heal', baseValue: 4529, coefficient: 0.8 },
+    { factText: 'Heal Pulses', baseValue: 373, coefficient: 0.3 },
+    { factText: 'Final Heal', baseValue: 1845, coefficient: 1.5 }
+  ],
   // Revenant — Energy Expulsion, the ORPHAN id (29114, a same-named sibling of the live 27356
   // above — see that entry's comment). Deliberately left uncurated, now CONFIRMED (not just
   // suspected) stale: its "Healing Fragment"/"Number of Fragments"/"Knockback" fact set is the
@@ -840,7 +868,6 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   27505: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Banish Enchantment
   27917: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Call to Anguish
   28287: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Embrace the Darkness
-  45686: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Breakrazor's Bastion
   42949: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Razorclaw's Rage
   40485: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Icerazor's Ire
   41220: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Darkrazor's Daring

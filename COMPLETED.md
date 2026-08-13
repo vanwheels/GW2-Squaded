@@ -2,6 +2,32 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 167 — Breakrazor's Bastion Band Together curation (closes the Revenant flip-duplicate follow-up)
+
+The last open item from Session 165/166's flip-duplicate cleanup: Legendary Renegade Stance's heal
+skill, Breakrazor's Bastion (45686, flip target 72389), never got the "Band Together" curation its 3
+Legend5 siblings (Darkrazor's Daring/Razorclaw's Rage/Icerazor's Ire) did in the 2026-08-12 sweep, so
+its flip target sat in `NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS` as a documented open gap rather than
+a permanent exclusion.
+
+Wiki-verified (raw wikitext, not paraphrased) that this skill is shaped differently from its 3
+siblings: those are Buff-only skills (conditions/boons), but Breakrazor's Bastion carries real Healing
+facts — 3 sub-facts (Initial Self Heal, Heal Pulses, Final Heal), each with its own PvE/WvW/PvP split
+— plus 2 Resolution buff facts, all applying on **every** cast (base or enhanced), plus a Barrier bonus
+(2440/0.5, no mode split) that's enhance-only. The API returns zero facts of any kind on either id, so
+everything is wiki-sourced via the usual `synthetic-facts.json` Case 1 pattern (matching the same
+"empty facts" shape as the sibling trio and Legendary Centaur Stance before it).
+
+Curated: Healing (`CURATED_HEALING_COEFFICIENTS`, WvW values — Initial Self Heal 4529/0.8, Heal Pulses
+373/0.3, Final Heal 1845/1.5) and Resolution facts on **both** 45686 and 72389 (mirrors how the sibling
+trio's own shared action facts, e.g. Stability/Daze/Bonus Defiance Break, are repeated on their own
+enhanced ids); Barrier (`CURATED_BARRIER_COEFFICIENTS`, 2440/0.5) on 72389 only. Might/Swiftness/Rapid
+Flow Healing deliberately NOT repeated on 72389, matching the sibling trio's own precedent (avoids
+double-counting a trait proc that fires once per skill-use event regardless of which cast variant
+triggers it). Removed 72389 from `NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS` now that it's a genuine
+superset of its base id's content. `npm run typecheck`/`lint`/`test` all clean (108/108 — 2 golden
+snapshot fixtures updated to include the new curated lines, no other changes).
+
 ## Session 166 — Same-name flip-duplicate sweep, non-Revenant professions
 
 Follow-up to Session 165's Revenant fix — TODO.md had logged "the same shape exists outside Revenant
