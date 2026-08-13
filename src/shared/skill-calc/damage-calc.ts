@@ -1154,10 +1154,13 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   14472: [{ factText: 'Damage', coefficient: 1.09, weapon: 'rifle' }],
   // Warrior — Spear 5, Tsunami Slash. No split. No `strikes=` param despite multiple possible
   // strikes (API hit_count=1, "Number of Strikes" is a separate variable-hit-count fact) — per-hit
-  // value used as-is, not totaled. Trait 1338 variant: 0.4*1.10=0.44 (matches API exactly).
+  // value used as-is, not totaled. Trait 1338 variant: 0.4*1.10=0.44 (matches API exactly). Trait
+  // variant's factText fixed 2026-08-12 (found by the Tier 2 golden-snapshot build): its
+  // `traitedFacts` entry is labeled plain "Damage", not "Damage per Strike" like the untraited
+  // fact — was silently never matching, value unchanged.
   14480: [
     { factText: 'Damage per Strike', coefficient: 0.4, weapon: 'spear' },
-    { factText: 'Damage per Strike', coefficient: 0.44, weapon: 'spear', requiresTrait: 1338 }
+    { factText: 'Damage', coefficient: 0.44, weapon: 'spear', requiresTrait: 1338 }
   ],
   // Warrior — Speargun 3, Split Shot. No split.
   14481: [{ factText: 'Damage', coefficient: 0.2, weapon: 'harpoon gun' }],
@@ -2868,8 +2871,11 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   62694: [{ factText: 'Damage', coefficient: 0.6, weapon: 'hammer' }],
   // Hammer — Hammer 1 (Water), Chilling Crack. PvE/PvP+WvW split (1.38/0.8) — WvW value used.
   62862: [{ factText: 'Damage', coefficient: 0.8, weapon: 'hammer' }],
-  // Hammer — Hammer 1 (Air), Wind Slam. PvE/PvP+WvW split (1.035/0.6) — WvW value used.
-  62747: [{ factText: 'Damage', coefficient: 0.6, weapon: 'hammer' }],
+  // Hammer — Hammer 1 (Air), Wind Slam. PvE/PvP+WvW split (1.035/0.6) — WvW value used. factText
+  // fixed 2026-08-12 (found by the Tier 2 golden-snapshot build): live API labels this skill's fact
+  // "Maximum Damage", not plain "Damage" like its Hammer-1 siblings — was silently never matching,
+  // value unchanged.
+  62747: [{ factText: 'Maximum Damage', coefficient: 0.6, weapon: 'hammer' }],
   // Hammer — Hammer 1 (Earth), Stonestrike. PvE/PvP+WvW split (1.035/0.7) — WvW value used.
   62683: [{ factText: 'Damage', coefficient: 0.7, weapon: 'hammer' }],
   // Hammer — Hammer 1 (Fire), Singeing Strike. PvE/PvP+WvW split (0.69/0.50) — WvW value used.

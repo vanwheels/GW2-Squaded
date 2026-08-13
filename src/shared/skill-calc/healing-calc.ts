@@ -253,8 +253,10 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // shape as its 5 sibling Spirits (Storm/Stone/Frost/Sun/Nature), all of which have an identical
   // unexplained non-ground duplicate; moved to `skill-variant-exclusions.json`.
   21773: [{ factText: 'Healing', baseValue: 1998, coefficient: 0.4 }],
-  // Ranger — Troll Unguent. No PvE/WvW split.
-  12483: [{ factText: 'Health per second', baseValue: 1062, coefficient: 0.12 }],
+  // Ranger — Troll Unguent. No PvE/WvW split. factText fixed 2026-08-12 (found by the Tier 2
+  // golden-snapshot build): live API capitalizes this fact "Health per Second" — was silently never
+  // matching due to the lowercase "second", value unchanged.
+  12483: [{ factText: 'Health per Second', baseValue: 1062, coefficient: 0.12 }],
   // Ranger — Healing Spring. No PvE/WvW split.
   12489: [{ factText: 'Healing', baseValue: 4920, coefficient: 1.0 }],
   // Ranger — Aqua Surge (Water Spirit's underwater slam follow-up). Confirmed via its own wiki page
@@ -692,8 +694,10 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // untraited baseline is curated here, same reasoning as Signet of Courage's traited variant below;
   // the trait bonus isn't reflected. WvW value of the untraited pair used.
   10557: [{ factText: 'Life Siphon Healing', baseValue: 55, coefficient: 0.08 }],
-  // Necromancer — Deadly Feast. No PvE/WvW split.
-  10619: [{ factText: 'Life Siphon Healing', baseValue: 69, coefficient: 0.1 }],
+  // Necromancer — Deadly Feast. No PvE/WvW split. factText fixed 2026-08-12 (found by the Tier 2
+  // golden-snapshot build): live API labels this skill's fact plain "Healing", not "Life Siphon
+  // Healing" like its Life-Siphon-family siblings — was silently never matching, value unchanged.
+  10619: [{ factText: 'Healing', baseValue: 69, coefficient: 0.1 }],
   // Necromancer — Soul Grasp. PvE/WvW+PvP base-value split (PvE 1003 vs WvW 440), same 0.2
   // coefficient both modes — WvW value used.
   55050: [{ factText: 'Life Siphon Healing', baseValue: 440, coefficient: 0.2 }],

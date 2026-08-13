@@ -1,0 +1,7760 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md Tier 2) > CURATED_BARRIER_COEFFICIENTS produces stable Barrier lines at a fixed reference build 1`] = `
+{
+  "12631": [
+    {
+      "label": "Barrier",
+      "value": 4333,
+    },
+  ],
+  "14394": [
+    {
+      "label": "Barrier",
+      "value": 4380,
+    },
+  ],
+  "14503": [
+    {
+      "label": "Barrier",
+      "value": 1659,
+    },
+  ],
+  "14570": [
+    {
+      "label": "Barrier",
+      "value": 4912,
+    },
+  ],
+  "21647": [
+    {
+      "label": "Barrier",
+      "value": 1048,
+    },
+  ],
+  "29840": [
+    {
+      "label": "Barrier per Hit",
+      "value": 303,
+    },
+  ],
+  "30101": [
+    {
+      "label": "Initial Barrier",
+      "value": 1490,
+    },
+    {
+      "label": "Pulse Barrier",
+      "value": 560,
+    },
+  ],
+  "31740": [
+    {
+      "label": "Barrier",
+      "value": 4460,
+    },
+  ],
+  "34714": [
+    {
+      "label": "Barrier",
+      "value": 3300,
+    },
+  ],
+  "41615": [
+    {
+      "label": "Barrier",
+      "value": 2795,
+    },
+  ],
+  "41919": [
+    {
+      "label": "First Hit Barrier",
+      "value": 2561,
+    },
+    {
+      "label": "Additional Hit Barrier",
+      "value": 700,
+    },
+  ],
+  "42917": [
+    {
+      "label": "Barrier",
+      "value": 2743,
+    },
+  ],
+  "43148": [
+    {
+      "label": "Self Barrier",
+      "value": 4670,
+    },
+    {
+      "label": "Ally Barrier",
+      "value": 3470,
+    },
+  ],
+  "43448": [
+    {
+      "label": "Barrier",
+      "value": 2688,
+    },
+  ],
+  "44663": [
+    {
+      "label": "Barrier",
+      "value": 4063,
+    },
+  ],
+  "44926": [
+    {
+      "label": "Barrier",
+      "value": 1294,
+    },
+  ],
+  "46185": [
+    {
+      "label": "Barrier",
+      "value": 2692,
+    },
+  ],
+  "46447": [
+    {
+      "label": "Barrier per Pulse",
+      "value": 400,
+    },
+    {
+      "label": "Initial Barrier",
+      "value": 1318,
+    },
+  ],
+  "54870": [
+    {
+      "label": "Barrier per Pulse",
+      "value": 1068,
+    },
+    {
+      "label": "Barrier on Detonation",
+      "value": 2129,
+    },
+  ],
+  "5639": [
+    {
+      "label": "Barrier per Boon",
+      "value": 594,
+    },
+  ],
+  "5695": [
+    {
+      "label": "Barrier",
+      "value": 2353,
+    },
+  ],
+  "5747": [
+    {
+      "label": "Barrier",
+      "value": 1048,
+    },
+  ],
+  "62826": [
+    {
+      "label": "Barrier",
+      "value": 1404,
+    },
+  ],
+  "62992": [
+    {
+      "label": "Barrier",
+      "value": 3669,
+    },
+  ],
+  "63075": [
+    {
+      "label": "Barrier",
+      "value": 2317,
+    },
+  ],
+  "63141": [
+    {
+      "label": "Barrier per Pulse",
+      "value": 691,
+    },
+  ],
+  "63155": [
+    {
+      "label": "Barrier",
+      "value": 2178,
+    },
+  ],
+  "63169": [
+    {
+      "label": "Barrier",
+      "value": 1266,
+    },
+  ],
+  "63220": [
+    {
+      "label": "Minimum Barrier",
+      "value": 2355,
+    },
+    {
+      "label": "Maximum Barrier",
+      "value": 7155,
+    },
+  ],
+  "63262": [
+    {
+      "label": "Barrier per Pulse",
+      "value": 926,
+    },
+  ],
+  "63351": [
+    {
+      "label": "Barrier",
+      "value": 1027,
+    },
+  ],
+  "63366": [
+    {
+      "label": "First Hit Barrier",
+      "value": 1494,
+    },
+    {
+      "label": "Additional Hit Barrier",
+      "value": 273,
+    },
+  ],
+  "69167": [
+    {
+      "label": "First Hit Barrier",
+      "value": 1494,
+    },
+    {
+      "label": "Additional Hit Barrier",
+      "value": 273,
+    },
+  ],
+  "69262": [
+    {
+      "label": "Barrier",
+      "value": 2317,
+    },
+  ],
+  "71816": [
+    {
+      "label": "Barrier",
+      "value": 954,
+    },
+  ],
+  "71827": [
+    {
+      "label": "Barrier",
+      "value": 3115,
+    },
+  ],
+  "71903": [
+    {
+      "label": "Barrier",
+      "value": 2810,
+    },
+    {
+      "label": "Barrier on hit",
+      "value": 2010,
+    },
+  ],
+  "71942": [
+    {
+      "label": "Barrier",
+      "value": 476,
+    },
+  ],
+  "72008": [
+    {
+      "label": "Barrier",
+      "value": 4371,
+    },
+  ],
+  "72052": [
+    {
+      "label": "Barrier",
+      "value": 1395,
+    },
+  ],
+  "73019": [
+    {
+      "label": "Barrier",
+      "value": 2760,
+    },
+  ],
+  "76562": [
+    {
+      "label": "Minimum Barrier",
+      "value": 2990,
+    },
+    {
+      "label": "Maximum Barrier",
+      "value": 5980,
+    },
+  ],
+  "76613": [
+    {
+      "label": "Barrier",
+      "value": 3000,
+    },
+  ],
+  "76813": [
+    {
+      "label": "Barrier",
+      "value": 4273,
+    },
+  ],
+  "76816": [
+    {
+      "label": "Barrier",
+      "value": 484,
+    },
+  ],
+  "76931": [
+    {
+      "label": "Barrier",
+      "value": 4590,
+    },
+  ],
+  "76934": [
+    {
+      "label": "Barrier",
+      "value": 2055,
+    },
+    {
+      "label": "Echo Barrier",
+      "value": 1110,
+    },
+  ],
+  "77896": [
+    {
+      "label": "Barrier",
+      "value": 1275,
+    },
+  ],
+  "9260": [
+    {
+      "label": "First Hit Barrier",
+      "value": 1813,
+    },
+    {
+      "label": "Additional Hit Barrier",
+      "value": 700,
+    },
+  ],
+}
+`;
+
+exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md Tier 2) > CURATED_DAMAGE_COEFFICIENTS produces stable damage lines at a fixed reference build 1`] = `
+{
+  "10168": [
+    {
+      "label": "Damage",
+      "value": 2028,
+    },
+  ],
+  "10169": [
+    {
+      "label": "Damage",
+      "value": 413,
+    },
+  ],
+  "10170": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "10171": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "10172": [
+    {
+      "label": "Damage without Boons",
+      "value": 1515,
+    },
+    {
+      "label": "Damage with Boons",
+      "value": 757,
+    },
+  ],
+  "10173": [
+    {
+      "label": "Damage",
+      "value": 3,
+    },
+  ],
+  "10174": [
+    {
+      "label": "Phantasm Damage",
+      "value": 1486,
+    },
+    {
+      "label": "Sword Strike Damage",
+      "value": 568,
+    },
+    {
+      "label": "Phantasm Damage",
+      "value": 1709,
+    },
+  ],
+  "10175": [
+    {
+      "label": "Damage",
+      "value": 375,
+    },
+    {
+      "label": "Illusion Damage",
+      "value": 2378,
+    },
+    {
+      "label": "Illusion Damage",
+      "value": 2734,
+    },
+  ],
+  "10189": [
+    {
+      "label": "Damage",
+      "value": 1486,
+    },
+    {
+      "label": "Damage",
+      "value": 1709,
+    },
+  ],
+  "10216": [
+    {
+      "label": "Damage",
+      "value": 736,
+    },
+    {
+      "label": "Damage",
+      "value": 846,
+    },
+  ],
+  "10218": [
+    {
+      "label": "Damage",
+      "value": 1250,
+    },
+    {
+      "label": "Damage",
+      "value": 1375,
+    },
+  ],
+  "10219": [
+    {
+      "label": "Maximum Damage",
+      "value": 836,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 563,
+    },
+  ],
+  "10220": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "10221": [
+    {
+      "label": "Phantasm Damage",
+      "value": 1962,
+    },
+    {
+      "label": "Greatsword Damage",
+      "value": 500,
+    },
+    {
+      "label": "Phantasm Damage",
+      "value": 2256,
+    },
+    {
+      "label": "Greatsword Damage",
+      "value": 550,
+    },
+  ],
+  "10229": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "10251": [
+    {
+      "label": "Damage",
+      "value": 2031,
+    },
+    {
+      "label": "Final Strike Damage",
+      "value": 1161,
+    },
+    {
+      "label": "Evasive Strike Damage",
+      "value": 909,
+    },
+    {
+      "label": "Damage",
+      "value": 2336,
+    },
+    {
+      "label": "Final Strike Damage",
+      "value": 1335,
+    },
+  ],
+  "10255": [
+    {
+      "label": "Damage",
+      "value": 4091,
+    },
+  ],
+  "10258": [
+    {
+      "label": "Damage",
+      "value": 341,
+    },
+  ],
+  "10259": [
+    {
+      "label": "Damage",
+      "value": 909,
+    },
+  ],
+  "10260": [
+    {
+      "label": "Damage",
+      "value": 1455,
+    },
+  ],
+  "10267": [
+    {
+      "label": "Damage without Boons",
+      "value": 1486,
+    },
+    {
+      "label": "Damage with Boons",
+      "value": 594,
+    },
+    {
+      "label": "Damage without Boons",
+      "value": 1709,
+    },
+    {
+      "label": "Damage with Boons",
+      "value": 684,
+    },
+  ],
+  "10273": [
+    {
+      "label": "Damage",
+      "value": 250,
+    },
+  ],
+  "10276": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "10280": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "10282": [
+    {
+      "label": "Damage",
+      "value": 3567,
+    },
+    {
+      "label": "Damage",
+      "value": 4102,
+    },
+  ],
+  "10285": [
+    {
+      "label": "Damage",
+      "value": 511,
+    },
+  ],
+  "10289": [
+    {
+      "label": "Damage",
+      "value": 378,
+    },
+  ],
+  "10290": [
+    {
+      "label": "Damage",
+      "value": 378,
+    },
+  ],
+  "10291": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "10314": [
+    {
+      "label": "Damage",
+      "value": 114,
+    },
+  ],
+  "10315": [
+    {
+      "label": "Damage",
+      "value": 909,
+    },
+  ],
+  "10316": [
+    {
+      "label": "Damage",
+      "value": 1023,
+    },
+  ],
+  "10317": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "10318": [
+    {
+      "label": "Damage",
+      "value": 2727,
+    },
+  ],
+  "10325": [
+    {
+      "label": "Damage",
+      "value": 625,
+    },
+  ],
+  "10328": [
+    {
+      "label": "Damage",
+      "value": 1741,
+    },
+    {
+      "label": "Damage",
+      "value": 2002,
+    },
+  ],
+  "10333": [
+    {
+      "label": "Maximum Damage",
+      "value": 938,
+    },
+    {
+      "label": "Maximum Damage",
+      "value": 1031,
+    },
+  ],
+  "10334": [
+    {
+      "label": "Damage",
+      "value": 1164,
+    },
+  ],
+  "10341": [
+    {
+      "label": "Damage",
+      "value": 580,
+    },
+    {
+      "label": "Damage",
+      "value": 667,
+    },
+  ],
+  "10358": [
+    {
+      "label": "Damage",
+      "value": 114,
+    },
+  ],
+  "10528": [
+    {
+      "label": "Damage",
+      "value": 3027,
+    },
+  ],
+  "10529": [
+    {
+      "label": "Damage",
+      "value": 1364,
+    },
+  ],
+  "10532": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "10544": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "10549": [
+    {
+      "label": "Damage",
+      "value": 306,
+    },
+  ],
+  "10552": [
+    {
+      "label": "Damage",
+      "value": 378,
+    },
+  ],
+  "10555": [
+    {
+      "label": "Damage—Three Boons",
+      "value": 2685,
+    },
+    {
+      "label": "Damage—Two Boons",
+      "value": 1918,
+    },
+    {
+      "label": "Damage—One Boon",
+      "value": 1151,
+    },
+    {
+      "label": "Damage—No Boons",
+      "value": 511,
+    },
+  ],
+  "10561": [
+    {
+      "label": "Damage",
+      "value": 757,
+    },
+  ],
+  "10596": [
+    {
+      "label": "Damage",
+      "value": 555,
+    },
+  ],
+  "10605": [
+    {
+      "label": "Damage",
+      "value": 688,
+    },
+  ],
+  "10606": [
+    {
+      "label": "Damage",
+      "value": 78,
+    },
+  ],
+  "10612": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
+  "10616": [
+    {
+      "label": "Missile Damage",
+      "value": 1420,
+    },
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "10617": [
+    {
+      "label": "Damage",
+      "value": 1477,
+    },
+  ],
+  "10619": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "10622": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
+  "10623": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "10624": [
+    {
+      "label": "Damage",
+      "value": 795,
+    },
+  ],
+  "10625": [
+    {
+      "label": "Damage",
+      "value": 1989,
+    },
+  ],
+  "10629": [
+    {
+      "label": "Damage",
+      "value": 3409,
+    },
+  ],
+  "10671": [
+    {
+      "label": "Damage",
+      "value": 1318,
+    },
+  ],
+  "10674": [
+    {
+      "label": "Damage",
+      "value": 3531,
+    },
+  ],
+  "10692": [
+    {
+      "label": "Damage",
+      "value": 1250,
+    },
+  ],
+  "10693": [
+    {
+      "label": "Damage",
+      "value": 1364,
+    },
+  ],
+  "10694": [
+    {
+      "label": "Damage",
+      "value": 4541,
+    },
+  ],
+  "10695": [
+    {
+      "label": "Damage",
+      "value": 852,
+    },
+  ],
+  "10698": [
+    {
+      "label": "Damage",
+      "value": 265,
+    },
+  ],
+  "10699": [
+    {
+      "label": "Damage",
+      "value": 265,
+    },
+  ],
+  "10701": [
+    {
+      "label": "Damage",
+      "value": 1364,
+    },
+  ],
+  "10702": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "10703": [
+    {
+      "label": "Damage",
+      "value": 530,
+    },
+  ],
+  "10705": [
+    {
+      "label": "Damage",
+      "value": 114,
+    },
+  ],
+  "10706": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "10709": [
+    {
+      "label": "Damage",
+      "value": 852,
+    },
+  ],
+  "12319": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "12337": [
+    {
+      "label": "Damage",
+      "value": 1177,
+    },
+  ],
+  "12339": [
+    {
+      "label": "Damage",
+      "value": 471,
+    },
+  ],
+  "12343": [
+    {
+      "label": "Damage",
+      "value": 1177,
+    },
+  ],
+  "12345": [
+    {
+      "label": "Damage",
+      "value": 628,
+    },
+  ],
+  "12346": [
+    {
+      "label": "Damage",
+      "value": 5885,
+    },
+  ],
+  "12347": [
+    {
+      "label": "Damage",
+      "value": 78,
+    },
+  ],
+  "12348": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "12349": [
+    {
+      "label": "Damage",
+      "value": 1569,
+    },
+  ],
+  "12387": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
+  "12466": [
+    {
+      "label": "Damage",
+      "value": 606,
+    },
+  ],
+  "12468": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "12469": [
+    {
+      "label": "Damage",
+      "value": 5455,
+    },
+  ],
+  "12470": [
+    {
+      "label": "Damage",
+      "value": 302,
+    },
+  ],
+  "12474": [
+    {
+      "label": "Damage",
+      "value": 625,
+    },
+  ],
+  "12475": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "12476": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "12477": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "12478": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "12480": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "12482": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "12490": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "12491": [
+    {
+      "label": "Damage",
+      "value": 628,
+    },
+  ],
+  "12492": [
+    {
+      "label": "Damage",
+      "value": 1962,
+    },
+  ],
+  "12494": [
+    {
+      "label": "Damage",
+      "value": 78,
+    },
+  ],
+  "12496": [
+    {
+      "label": "Damage",
+      "value": 706,
+    },
+  ],
+  "12499": [
+    {
+      "label": "Damage per Pulse",
+      "value": 235,
+    },
+  ],
+  "12504": [
+    {
+      "label": "Damage",
+      "value": 920,
+    },
+  ],
+  "12507": [
+    {
+      "label": "Damage",
+      "value": 909,
+    },
+  ],
+  "12508": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "12509": [
+    {
+      "label": "Damage",
+      "value": 3281,
+    },
+  ],
+  "12510": [
+    {
+      "label": "Maximum Damage",
+      "value": 716,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 556,
+    },
+  ],
+  "12511": [
+    {
+      "label": "Damage",
+      "value": 12,
+    },
+  ],
+  "12517": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "12521": [
+    {
+      "label": "Damage",
+      "value": 1250,
+    },
+  ],
+  "12525": [
+    {
+      "label": "Damage",
+      "value": 1875,
+    },
+  ],
+  "12526": [
+    {
+      "label": "Damage",
+      "value": 625,
+    },
+  ],
+  "12527": [
+    {
+      "label": "Base Damage",
+      "value": 1136,
+    },
+    {
+      "label": "Less than 66% Health",
+      "value": 1989,
+    },
+    {
+      "label": "Less than 33% Health",
+      "value": 2841,
+    },
+  ],
+  "12528": [
+    {
+      "label": "Damage",
+      "value": 5000,
+    },
+  ],
+  "12529": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "12530": [
+    {
+      "label": "Damage",
+      "value": 1591,
+    },
+  ],
+  "12552": [
+    {
+      "label": "Damage",
+      "value": 2625,
+    },
+    {
+      "label": "Final Attack",
+      "value": 1420,
+    },
+  ],
+  "12553": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "12557": [
+    {
+      "label": "Damage",
+      "value": 1364,
+    },
+  ],
+  "12559": [
+    {
+      "label": "Damage",
+      "value": 1989,
+    },
+  ],
+  "12561": [
+    {
+      "label": "Damage",
+      "value": 1989,
+    },
+  ],
+  "12573": [
+    {
+      "label": "Damage",
+      "value": 477,
+    },
+  ],
+  "12580": [
+    {
+      "label": "Damage",
+      "value": 628,
+    },
+  ],
+  "12620": [
+    {
+      "label": "Damage",
+      "value": 1964,
+    },
+  ],
+  "12635": [
+    {
+      "label": "Damage",
+      "value": 681,
+    },
+  ],
+  "12638": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "12639": [
+    {
+      "label": "Damage",
+      "value": 6000,
+    },
+  ],
+  "13004": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "13006": [
+    {
+      "label": "Damage",
+      "value": 716,
+    },
+  ],
+  "13007": [
+    {
+      "label": "Damage",
+      "value": 1591,
+    },
+  ],
+  "13008": [
+    {
+      "label": "Damage",
+      "value": 284,
+    },
+    {
+      "label": "Damage",
+      "value": 313,
+    },
+  ],
+  "13009": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "13010": [
+    {
+      "label": "Damage",
+      "value": 358,
+    },
+    {
+      "label": "Shot Damage",
+      "value": 1491,
+    },
+    {
+      "label": "Shot Damage",
+      "value": 1641,
+    },
+  ],
+  "13011": [
+    {
+      "label": "Damage",
+      "value": 2455,
+    },
+  ],
+  "13012": [
+    {
+      "label": "Damage",
+      "value": 284,
+    },
+    {
+      "label": "Damage",
+      "value": 313,
+    },
+  ],
+  "13015": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "13016": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "13019": [
+    {
+      "label": "Damage",
+      "value": 511,
+    },
+  ],
+  "13020": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "13022": [
+    {
+      "label": "Damage",
+      "value": 416,
+    },
+  ],
+  "13024": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "13040": [
+    {
+      "label": "Damage",
+      "value": 1491,
+    },
+  ],
+  "13041": [
+    {
+      "label": "Large Explosion",
+      "value": 1648,
+    },
+  ],
+  "13043": [
+    {
+      "label": "Small Explosion",
+      "value": 1705,
+    },
+  ],
+  "13068": [
+    {
+      "label": "Damage",
+      "value": 2727,
+    },
+  ],
+  "13069": [
+    {
+      "label": "Damage",
+      "value": 1989,
+    },
+    {
+      "label": "Damage When Flanking",
+      "value": 2983,
+    },
+  ],
+  "13070": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "13072": [
+    {
+      "label": "Damage",
+      "value": 625,
+    },
+    {
+      "label": "Damage",
+      "value": 688,
+    },
+  ],
+  "13073": [
+    {
+      "label": "Damage",
+      "value": 795,
+    },
+    {
+      "label": "Damage",
+      "value": 875,
+    },
+  ],
+  "13074": [
+    {
+      "label": "Missile Damage",
+      "value": 1511,
+    },
+    {
+      "label": "Damage",
+      "value": 375,
+    },
+    {
+      "label": "Missile Damage",
+      "value": 1663,
+    },
+    {
+      "label": "Damage",
+      "value": 413,
+    },
+  ],
+  "13075": [
+    {
+      "label": "Damage",
+      "value": 1989,
+    },
+    {
+      "label": "Damage",
+      "value": 2188,
+    },
+  ],
+  "13076": [
+    {
+      "label": "Damage",
+      "value": 852,
+    },
+    {
+      "label": "Damage",
+      "value": 938,
+    },
+  ],
+  "13083": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "13084": [
+    {
+      "label": "Damage",
+      "value": 435,
+    },
+    {
+      "label": "Damage",
+      "value": 479,
+    },
+  ],
+  "13085": [
+    {
+      "label": "Damage",
+      "value": 314,
+    },
+  ],
+  "13087": [
+    {
+      "label": "Damage",
+      "value": 492,
+    },
+  ],
+  "13088": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "13097": [
+    {
+      "label": "Above 50%",
+      "value": 1136,
+    },
+    {
+      "label": "Below 50%",
+      "value": 1705,
+    },
+    {
+      "label": "Below 25%",
+      "value": 2273,
+    },
+  ],
+  "13111": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+    {
+      "label": "Damage",
+      "value": 1875,
+    },
+  ],
+  "13113": [
+    {
+      "label": "Damage",
+      "value": 284,
+    },
+    {
+      "label": "Damage",
+      "value": 313,
+    },
+  ],
+  "13115": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+    {
+      "label": "Damage",
+      "value": 1875,
+    },
+  ],
+  "13119": [
+    {
+      "label": "Damage",
+      "value": 1193,
+    },
+  ],
+  "13120": [
+    {
+      "label": "Damage",
+      "value": 1307,
+    },
+  ],
+  "13121": [
+    {
+      "label": "Damage",
+      "value": 1511,
+    },
+  ],
+  "13122": [
+    {
+      "label": "Damage",
+      "value": 2273,
+    },
+    {
+      "label": "Final Strike Damage",
+      "value": 568,
+    },
+  ],
+  "13126": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+    {
+      "label": "Damage",
+      "value": 1875,
+    },
+  ],
+  "13129": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "14354": [
+    {
+      "label": "Damage",
+      "value": 196,
+    },
+  ],
+  "14356": [
+    {
+      "label": "Damage",
+      "value": 586,
+    },
+  ],
+  "14358": [
+    {
+      "label": "Damage",
+      "value": 750,
+    },
+  ],
+  "14359": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "14360": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "14361": [
+    {
+      "label": "Damage",
+      "value": 10,
+    },
+  ],
+  "14364": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "14366": [
+    {
+      "label": "Damage",
+      "value": 1534,
+    },
+  ],
+  "14369": [
+    {
+      "label": "Damage",
+      "value": 534,
+    },
+  ],
+  "14376": [
+    {
+      "label": "Damage",
+      "value": 606,
+    },
+  ],
+  "14381": [
+    {
+      "label": "Damage",
+      "value": 1790,
+    },
+  ],
+  "14386": [
+    {
+      "label": "Damage",
+      "value": 1500,
+    },
+    {
+      "label": "Damage to Controlled or Defiant Foes",
+      "value": 2275,
+    },
+  ],
+  "14388": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "14398": [
+    {
+      "label": "Damage",
+      "value": 966,
+    },
+  ],
+  "14399": [
+    {
+      "label": "Damage",
+      "value": 5080,
+    },
+  ],
+  "14400": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "14405": [
+    {
+      "label": "Damage",
+      "value": 1569,
+    },
+  ],
+  "14407": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "14415": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "14416": [
+    {
+      "label": "Damage",
+      "value": 3267,
+    },
+  ],
+  "14418": [
+    {
+      "label": "Damage",
+      "value": 2273,
+    },
+  ],
+  "14419": [
+    {
+      "label": "Damage",
+      "value": 1177,
+    },
+  ],
+  "14421": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "14431": [
+    {
+      "label": "Damage",
+      "value": 699,
+    },
+  ],
+  "14432": [
+    {
+      "label": "Damage",
+      "value": 601,
+    },
+    {
+      "label": "Damage",
+      "value": 661,
+    },
+  ],
+  "14437": [
+    {
+      "label": "Damage",
+      "value": 909,
+    },
+    {
+      "label": "Damage",
+      "value": 1000,
+    },
+  ],
+  "14440": [
+    {
+      "label": "Damage",
+      "value": 398,
+    },
+    {
+      "label": "Final Strike Damage",
+      "value": 568,
+    },
+    {
+      "label": "Damage",
+      "value": 438,
+    },
+    {
+      "label": "Final Strike Damage",
+      "value": 625,
+    },
+  ],
+  "14441": [
+    {
+      "label": "Damage",
+      "value": 2273,
+    },
+    {
+      "label": "Damage",
+      "value": 2500,
+    },
+  ],
+  "14446": [
+    {
+      "label": "Damage",
+      "value": 1700,
+    },
+  ],
+  "14447": [
+    {
+      "label": "Damage",
+      "value": 416,
+    },
+  ],
+  "14448": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+    {
+      "label": "Damage",
+      "value": 1250,
+    },
+  ],
+  "14465": [
+    {
+      "label": "Damage",
+      "value": 3409,
+    },
+  ],
+  "14466": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "14467": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "14472": [
+    {
+      "label": "Damage",
+      "value": 1424,
+    },
+  ],
+  "14480": [
+    {
+      "label": "Damage per Strike",
+      "value": 455,
+    },
+    {
+      "label": "Damage",
+      "value": 500,
+    },
+  ],
+  "14481": [
+    {
+      "label": "Damage",
+      "value": 227,
+    },
+  ],
+  "14482": [
+    {
+      "label": "Damage",
+      "value": 1412,
+    },
+  ],
+  "14498": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "14502": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "14503": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "14504": [
+    {
+      "label": "Damage",
+      "value": 525,
+    },
+  ],
+  "14505": [
+    {
+      "label": "Damage",
+      "value": 239,
+    },
+  ],
+  "14507": [
+    {
+      "label": "Damage",
+      "value": 1534,
+    },
+  ],
+  "14510": [
+    {
+      "label": "Damage",
+      "value": 938,
+    },
+  ],
+  "14511": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "14516": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "14518": [
+    {
+      "label": "Damage",
+      "value": 1989,
+    },
+  ],
+  "14519": [
+    {
+      "label": "Damage",
+      "value": 1575,
+    },
+  ],
+  "14554": [
+    {
+      "label": "Damage",
+      "value": 3500,
+    },
+    {
+      "label": "Final Strike Damage",
+      "value": 1000,
+    },
+  ],
+  "15716": [
+    {
+      "label": "Damage",
+      "value": 375,
+    },
+  ],
+  "15717": [
+    {
+      "label": "Damage",
+      "value": 583,
+    },
+  ],
+  "15718": [
+    {
+      "label": "Damage per Projectile",
+      "value": 284,
+    },
+  ],
+  "16432": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "19115": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "19116": [
+    {
+      "label": "Damage",
+      "value": 1650,
+    },
+  ],
+  "19117": [
+    {
+      "label": "Damage",
+      "value": 413,
+    },
+  ],
+  "21646": [
+    {
+      "label": "Damage",
+      "value": 770,
+    },
+  ],
+  "21647": [
+    {
+      "label": "Damage",
+      "value": 880,
+    },
+  ],
+  "21656": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "22572": [
+    {
+      "label": "Damage",
+      "value": 1334,
+    },
+  ],
+  "24755": [
+    {
+      "label": "Damage",
+      "value": 3923,
+    },
+  ],
+  "26557": [
+    {
+      "label": "Damage",
+      "value": 157,
+    },
+  ],
+  "26666": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+    {
+      "label": "Chaining Damage",
+      "value": 227,
+    },
+  ],
+  "26679": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "26699": [
+    {
+      "label": "Damage",
+      "value": 432,
+    },
+  ],
+  "26730": [
+    {
+      "label": "Damage",
+      "value": 302,
+    },
+  ],
+  "27066": [
+    {
+      "label": "Damage",
+      "value": 265,
+    },
+  ],
+  "27074": [
+    {
+      "label": "Initial Damage",
+      "value": 114,
+    },
+  ],
+  "27107": [
+    {
+      "label": "Damage",
+      "value": 432,
+    },
+  ],
+  "27162": [
+    {
+      "label": "Damage",
+      "value": 2095,
+    },
+  ],
+  "27505": [
+    {
+      "label": "Damage",
+      "value": 235,
+    },
+  ],
+  "27665": [
+    {
+      "label": "Damage",
+      "value": 1375,
+    },
+  ],
+  "27964": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "27976": [
+    {
+      "label": "Damage",
+      "value": 1375,
+    },
+  ],
+  "28029": [
+    {
+      "label": "Pass-Through Damage",
+      "value": 170,
+    },
+    {
+      "label": "Final Damage",
+      "value": 1705,
+    },
+  ],
+  "28075": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "28110": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "28231": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
+  "28253": [
+    {
+      "label": "Damage",
+      "value": 1138,
+    },
+  ],
+  "28287": [
+    {
+      "label": "Damage",
+      "value": 235,
+    },
+  ],
+  "28357": [
+    {
+      "label": "Initial Strike",
+      "value": 568,
+    },
+    {
+      "label": "Additional Strikes",
+      "value": 852,
+    },
+  ],
+  "28406": [
+    {
+      "label": "Damage",
+      "value": 1569,
+    },
+  ],
+  "28409": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "28472": [
+    {
+      "label": "Initial Damage",
+      "value": 114,
+    },
+    {
+      "label": "Additional Strikes",
+      "value": 1136,
+    },
+  ],
+  "28516": [
+    {
+      "label": "Damage",
+      "value": 588,
+    },
+  ],
+  "28549": [
+    {
+      "label": "Damage",
+      "value": 625,
+    },
+  ],
+  "28625": [
+    {
+      "label": "Final Strike Damage",
+      "value": 1932,
+    },
+  ],
+  "28692": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "28714": [
+    {
+      "label": "Damage",
+      "value": 909,
+    },
+  ],
+  "28797": [
+    {
+      "label": "Damage",
+      "value": 2273,
+    },
+  ],
+  "28815": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "28827": [
+    {
+      "label": "Damage",
+      "value": 227,
+    },
+  ],
+  "28915": [
+    {
+      "label": "Damage",
+      "value": 3409,
+    },
+  ],
+  "28930": [
+    {
+      "label": "Damage",
+      "value": 1500,
+    },
+  ],
+  "28964": [
+    {
+      "label": "Damage",
+      "value": 795,
+    },
+    {
+      "label": "Rift Damage",
+      "value": 165,
+    },
+  ],
+  "28978": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "29002": [
+    {
+      "label": "Damage",
+      "value": 833,
+    },
+  ],
+  "29057": [
+    {
+      "label": "Damage",
+      "value": 530,
+    },
+  ],
+  "29145": [
+    {
+      "label": "Damage",
+      "value": 1363,
+    },
+  ],
+  "29180": [
+    {
+      "label": "Damage",
+      "value": 541,
+    },
+  ],
+  "29233": [
+    {
+      "label": "Damage",
+      "value": 795,
+    },
+    {
+      "label": "Isolated Damage",
+      "value": 1023,
+    },
+  ],
+  "29256": [
+    {
+      "label": "Damage",
+      "value": 608,
+    },
+  ],
+  "29288": [
+    {
+      "label": "Damage",
+      "value": 125,
+    },
+  ],
+  "29331": [
+    {
+      "label": "Damage",
+      "value": 625,
+    },
+  ],
+  "29414": [
+    {
+      "label": "Damage",
+      "value": 314,
+    },
+  ],
+  "29516": [
+    {
+      "label": "Damage",
+      "value": 588,
+    },
+  ],
+  "29522": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "29533": [
+    {
+      "label": "Damage",
+      "value": 511,
+    },
+  ],
+  "29613": [
+    {
+      "label": "Damage",
+      "value": 1569,
+    },
+  ],
+  "29630": [
+    {
+      "label": "Damage",
+      "value": 12,
+    },
+  ],
+  "29639": [
+    {
+      "label": "Damage",
+      "value": 1962,
+    },
+  ],
+  "29649": [
+    {
+      "label": "Damage",
+      "value": 1337,
+    },
+    {
+      "label": "Damage",
+      "value": 1538,
+    },
+  ],
+  "29666": [
+    {
+      "label": "Damage",
+      "value": 549,
+    },
+  ],
+  "29705": [
+    {
+      "label": "Damage",
+      "value": 833,
+    },
+  ],
+  "29740": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "29785": [
+    {
+      "label": "Damage",
+      "value": 833,
+    },
+  ],
+  "29786": [
+    {
+      "label": "Initial Damage",
+      "value": 78,
+    },
+    {
+      "label": "Damage",
+      "value": 1475,
+    },
+  ],
+  "29789": [
+    {
+      "label": "Initial Damage",
+      "value": 1026,
+    },
+    {
+      "label": "Symbol Damage",
+      "value": 513,
+    },
+  ],
+  "29840": [
+    {
+      "label": "Damage",
+      "value": 625,
+    },
+  ],
+  "29845": [
+    {
+      "label": "Damage",
+      "value": 2045,
+    },
+  ],
+  "29855": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "29856": [
+    {
+      "label": "Damage",
+      "value": 1177,
+    },
+  ],
+  "29867": [
+    {
+      "label": "Damage",
+      "value": 1416,
+    },
+  ],
+  "29911": [
+    {
+      "label": "Damage",
+      "value": 1688,
+    },
+  ],
+  "29921": [
+    {
+      "label": "Damage",
+      "value": 3766,
+    },
+  ],
+  "29940": [
+    {
+      "label": "Damage",
+      "value": 1023,
+    },
+  ],
+  "29941": [
+    {
+      "label": "Damage",
+      "value": 1334,
+    },
+  ],
+  "29948": [
+    {
+      "label": "Damage",
+      "value": 78,
+    },
+  ],
+  "30008": [
+    {
+      "label": "Damage",
+      "value": 10,
+    },
+  ],
+  "30025": [
+    {
+      "label": "Damage",
+      "value": 147,
+    },
+  ],
+  "30074": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "30077": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "30088": [
+    {
+      "label": "Damage",
+      "value": 1700,
+    },
+  ],
+  "30105": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "30121": [
+    {
+      "label": "Initial Damage",
+      "value": 1101,
+    },
+  ],
+  "30135": [
+    {
+      "label": "Damage",
+      "value": 555,
+    },
+  ],
+  "30163": [
+    {
+      "label": "Damage",
+      "value": 2275,
+    },
+  ],
+  "30210": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "30229": [
+    {
+      "label": "Damage",
+      "value": 2028,
+    },
+  ],
+  "30273": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "30307": [
+    {
+      "label": "Initial Damage",
+      "value": 1101,
+    },
+  ],
+  "30336": [
+    {
+      "label": "Damage",
+      "value": 307,
+    },
+  ],
+  "30337": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "30343": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "30359": [
+    {
+      "label": "Pulse Damage",
+      "value": 8,
+    },
+    {
+      "label": "Final Damage",
+      "value": 8,
+    },
+  ],
+  "30364": [
+    {
+      "label": "Damage",
+      "value": 3453,
+    },
+  ],
+  "30369": [
+    {
+      "label": "Damage",
+      "value": 1765,
+    },
+  ],
+  "30371": [
+    {
+      "label": "Damage",
+      "value": 1101,
+    },
+  ],
+  "30432": [
+    {
+      "label": "Damage",
+      "value": 78,
+    },
+  ],
+  "30434": [
+    {
+      "label": "Damage",
+      "value": 1393,
+    },
+  ],
+  "30448": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "30471": [
+    {
+      "label": "Damage",
+      "value": 675,
+    },
+  ],
+  "30488": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "30489": [
+    {
+      "label": "Damage",
+      "value": 1166,
+    },
+  ],
+  "30501": [
+    {
+      "label": "Damage",
+      "value": 666,
+    },
+  ],
+  "30519": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "30520": [
+    {
+      "label": "Damage",
+      "value": 625,
+    },
+  ],
+  "30525": [
+    {
+      "label": "Pulse Damage",
+      "value": 588,
+    },
+    {
+      "label": "Final Damage",
+      "value": 2354,
+    },
+  ],
+  "30553": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
+  "30568": [
+    {
+      "label": "Damage",
+      "value": 196,
+    },
+  ],
+  "30597": [
+    {
+      "label": "Damage",
+      "value": 2275,
+    },
+  ],
+  "30614": [
+    {
+      "label": "Damage",
+      "value": 555,
+    },
+  ],
+  "30628": [
+    {
+      "label": "Initial Damage",
+      "value": 119,
+    },
+    {
+      "label": "Final Impact Damage",
+      "value": 1591,
+    },
+  ],
+  "30643": [
+    {
+      "label": "Damage",
+      "value": 10,
+    },
+  ],
+  "30662": [
+    {
+      "label": "Damage",
+      "value": 78,
+    },
+  ],
+  "30665": [
+    {
+      "label": "Damage",
+      "value": 2775,
+    },
+  ],
+  "30670": [
+    {
+      "label": "Damage",
+      "value": 235,
+    },
+  ],
+  "30693": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+    {
+      "label": "Second Strike Damage",
+      "value": 2574,
+    },
+  ],
+  "30713": [
+    {
+      "label": "Damage",
+      "value": 2813,
+    },
+  ],
+  "30769": [
+    {
+      "label": "Damage",
+      "value": 1337,
+    },
+    {
+      "label": "Damage",
+      "value": 1538,
+    },
+  ],
+  "30772": [
+    {
+      "label": "Damage",
+      "value": 314,
+    },
+  ],
+  "30775": [
+    {
+      "label": "Damage",
+      "value": 1313,
+    },
+  ],
+  "30795": [
+    {
+      "label": "Damage",
+      "value": 1023,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 51,
+    },
+  ],
+  "30799": [
+    {
+      "label": "Damage",
+      "value": 1083,
+    },
+  ],
+  "30814": [
+    {
+      "label": "Pulse Damage",
+      "value": 549,
+    },
+  ],
+  "30860": [
+    {
+      "label": "Damage",
+      "value": 2000,
+    },
+  ],
+  "30864": [
+    {
+      "label": "Damage",
+      "value": 10,
+    },
+  ],
+  "30868": [
+    {
+      "label": "Damage",
+      "value": 1962,
+    },
+  ],
+  "30871": [
+    {
+      "label": "Damage",
+      "value": 147,
+    },
+  ],
+  "30885": [
+    {
+      "label": "Initial Damage",
+      "value": 1101,
+    },
+  ],
+  "31100": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "31248": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "31294": [
+    {
+      "label": "Damage",
+      "value": 1569,
+    },
+  ],
+  "31607": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "31658": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "31700": [
+    {
+      "label": "Damage",
+      "value": 625,
+    },
+  ],
+  "31710": [
+    {
+      "label": "Damage",
+      "value": 313,
+    },
+  ],
+  "34296": [
+    {
+      "label": "Damage",
+      "value": 523,
+    },
+  ],
+  "35637": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+    {
+      "label": "Damage",
+      "value": 863,
+    },
+  ],
+  "39959": [
+    {
+      "label": "Damage",
+      "value": 909,
+    },
+  ],
+  "39964": [
+    {
+      "label": "Damage",
+      "value": 500,
+    },
+  ],
+  "39981": [
+    {
+      "label": "Damage",
+      "value": 1500,
+    },
+  ],
+  "40139": [
+    {
+      "label": "Damage",
+      "value": 2273,
+    },
+  ],
+  "40160": [
+    {
+      "label": "Damage",
+      "value": 1875,
+    },
+  ],
+  "40170": [
+    {
+      "label": "Damage",
+      "value": 2682,
+    },
+  ],
+  "40175": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "40183": [
+    {
+      "label": "Damage",
+      "value": 259,
+    },
+  ],
+  "40184": [
+    {
+      "label": "Damage",
+      "value": 750,
+    },
+  ],
+  "40229": [
+    {
+      "label": "Damage",
+      "value": 880,
+    },
+  ],
+  "40274": [
+    {
+      "label": "Damage",
+      "value": 432,
+    },
+  ],
+  "40326": [
+    {
+      "label": "Damage",
+      "value": 583,
+    },
+  ],
+  "40332": [
+    {
+      "label": "Damage",
+      "value": 1663,
+    },
+  ],
+  "40378": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "40497": [
+    {
+      "label": "Damage",
+      "value": 500,
+    },
+  ],
+  "40533": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "40624": [
+    {
+      "label": "Damage",
+      "value": 2557,
+    },
+  ],
+  "40709": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "40794": [
+    {
+      "label": "Initial Damage",
+      "value": 11,
+    },
+    {
+      "label": "Secondary Damage",
+      "value": 11,
+    },
+  ],
+  "40963": [
+    {
+      "label": "Damage",
+      "value": 1875,
+    },
+  ],
+  "41001": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "41052": [
+    {
+      "label": "Damage",
+      "value": 250,
+    },
+  ],
+  "41065": [
+    {
+      "label": "Damage",
+      "value": 1883,
+    },
+  ],
+  "41125": [
+    {
+      "label": "Damage",
+      "value": 2075,
+    },
+  ],
+  "41158": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
+  "41164": [
+    {
+      "label": "Damage",
+      "value": 832,
+    },
+  ],
+  "41167": [
+    {
+      "label": "Damage",
+      "value": 852,
+    },
+  ],
+  "41184": [
+    {
+      "label": "Damage",
+      "value": 25,
+    },
+  ],
+  "41205": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "41422": [
+    {
+      "label": "Damage",
+      "value": 523,
+    },
+  ],
+  "41494": [
+    {
+      "label": "Damage",
+      "value": 1307,
+    },
+  ],
+  "41712": [
+    {
+      "label": "Damage",
+      "value": 1511,
+    },
+  ],
+  "41829": [
+    {
+      "label": "Damage",
+      "value": 2108,
+    },
+  ],
+  "41937": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "42009": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+    {
+      "label": "<c=@abilitytype>Field Damage</c>",
+      "value": 314,
+    },
+  ],
+  "42181": [
+    {
+      "label": "Damage",
+      "value": 1250,
+    },
+  ],
+  "42271": [
+    {
+      "label": "Initial Strike",
+      "value": 568,
+    },
+    {
+      "label": "Second Strike",
+      "value": 1136,
+    },
+  ],
+  "42321": [
+    {
+      "label": "Damage",
+      "value": 2000,
+    },
+  ],
+  "42330": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "42355": [
+    {
+      "label": "Damage",
+      "value": 2746,
+    },
+  ],
+  "42379": [
+    {
+      "label": "Initial Strike",
+      "value": 227,
+    },
+    {
+      "label": "Secondary Strike",
+      "value": 2273,
+    },
+  ],
+  "42745": [
+    {
+      "label": "Damage",
+      "value": 364,
+    },
+  ],
+  "42842": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "42851": [
+    {
+      "label": "Damage",
+      "value": 1177,
+    },
+  ],
+  "42867": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "42917": [
+    {
+      "label": "Damage",
+      "value": 1099,
+    },
+  ],
+  "42924": [
+    {
+      "label": "Damage",
+      "value": 235,
+    },
+  ],
+  "42935": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
+  "42954": [
+    {
+      "label": "Damage",
+      "value": 1750,
+    },
+  ],
+  "43074": [
+    {
+      "label": "Initial Strike",
+      "value": 1136,
+    },
+    {
+      "label": "Damage",
+      "value": 375,
+    },
+  ],
+  "43080": [
+    {
+      "label": "Damage",
+      "value": 583,
+    },
+  ],
+  "43123": [
+    {
+      "label": "Damage",
+      "value": 549,
+    },
+  ],
+  "43199": [
+    {
+      "label": "Damage",
+      "value": 500,
+    },
+  ],
+  "43476": [
+    {
+      "label": "Damage",
+      "value": 666,
+    },
+  ],
+  "43536": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "43576": [
+    {
+      "label": "Damage",
+      "value": 2500,
+    },
+  ],
+  "43616": [
+    {
+      "label": "Damage",
+      "value": 500,
+    },
+  ],
+  "43657": [
+    {
+      "label": "Damage",
+      "value": 947,
+    },
+  ],
+  "43761": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "43762": [
+    {
+      "label": "Impact Damage",
+      "value": 1000,
+    },
+    {
+      "label": "Pulse Damage",
+      "value": 500,
+    },
+  ],
+  "43803": [
+    {
+      "label": "Initial Attack",
+      "value": 114,
+    },
+    {
+      "label": "Lightning Strike Damage",
+      "value": 2273,
+    },
+  ],
+  "43916": [
+    {
+      "label": "Damage",
+      "value": 1307,
+    },
+  ],
+  "43993": [
+    {
+      "label": "Initial Damage",
+      "value": 1420,
+    },
+    {
+      "label": "Damage",
+      "value": 852,
+    },
+  ],
+  "44004": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "44008": [
+    {
+      "label": "Damage",
+      "value": 235,
+    },
+  ],
+  "44087": [
+    {
+      "label": "Damage",
+      "value": 1750,
+    },
+    {
+      "label": "Damage on Untargeted Foes",
+      "value": 216,
+    },
+  ],
+  "44110": [
+    {
+      "label": "Damage",
+      "value": 852,
+    },
+    {
+      "label": "Projectile Damage",
+      "value": 313,
+    },
+  ],
+  "44241": [
+    {
+      "label": "Damage",
+      "value": 1350,
+    },
+  ],
+  "44296": [
+    {
+      "label": "Damage",
+      "value": 10,
+    },
+  ],
+  "44405": [
+    {
+      "label": "Damage",
+      "value": 227,
+    },
+  ],
+  "44451": [
+    {
+      "label": "Damage vs. Burning",
+      "value": 2045,
+    },
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "44550": [
+    {
+      "label": "Damage",
+      "value": 1563,
+    },
+  ],
+  "44591": [
+    {
+      "label": "Damage",
+      "value": 523,
+    },
+  ],
+  "44637": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "44652": [
+    {
+      "label": "Damage",
+      "value": 2273,
+    },
+  ],
+  "44677": [
+    {
+      "label": "Damage",
+      "value": 471,
+    },
+  ],
+  "44681": [
+    {
+      "label": "Damage",
+      "value": 583,
+    },
+  ],
+  "44695": [
+    {
+      "label": "Damage",
+      "value": 1960,
+    },
+  ],
+  "44791": [
+    {
+      "label": "Damage",
+      "value": 416,
+    },
+  ],
+  "44840": [
+    {
+      "label": "Damage",
+      "value": 416,
+    },
+  ],
+  "44937": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "44998": [
+    {
+      "label": "Damage",
+      "value": 375,
+    },
+  ],
+  "45047": [
+    {
+      "label": "Damage",
+      "value": 545,
+    },
+  ],
+  "45160": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "45216": [
+    {
+      "label": "Primary Strike Damage",
+      "value": 909,
+    },
+    {
+      "label": "Lightning Strike Damage",
+      "value": 227,
+    },
+  ],
+  "45243": [
+    {
+      "label": "Damage",
+      "value": 1364,
+    },
+  ],
+  "45259": [
+    {
+      "label": "Damage",
+      "value": 667,
+    },
+  ],
+  "45313": [
+    {
+      "label": "Initial Damage",
+      "value": 1420,
+    },
+    {
+      "label": "Field Damage",
+      "value": 455,
+    },
+  ],
+  "45333": [
+    {
+      "label": "Damage",
+      "value": 353,
+    },
+  ],
+  "45402": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "45426": [
+    {
+      "label": "Damage",
+      "value": 364,
+    },
+  ],
+  "45449": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "45581": [
+    {
+      "label": "Damage",
+      "value": 705,
+    },
+  ],
+  "45672": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
+  "45717": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "45742": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "45773": [
+    {
+      "label": "Additional Strike Damage",
+      "value": 628,
+    },
+  ],
+  "45846": [
+    {
+      "label": "Damage",
+      "value": 818,
+    },
+  ],
+  "45983": [
+    {
+      "label": "Damage",
+      "value": 341,
+    },
+  ],
+  "46014": [
+    {
+      "label": "Damage",
+      "value": 1364,
+    },
+  ],
+  "46018": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "46024": [
+    {
+      "label": "Damage",
+      "value": 757,
+    },
+  ],
+  "46123": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "46140": [
+    {
+      "label": "Initial Damage",
+      "value": 227,
+    },
+    {
+      "label": "Delayed Damage",
+      "value": 2273,
+    },
+  ],
+  "46185": [
+    {
+      "label": "Damage",
+      "value": 1511,
+    },
+  ],
+  "46233": [
+    {
+      "label": "Damage",
+      "value": 1500,
+    },
+  ],
+  "46295": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "46335": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "46360": [
+    {
+      "label": "Damage",
+      "value": 875,
+    },
+  ],
+  "46447": [
+    {
+      "label": "Damage",
+      "value": 375,
+    },
+  ],
+  "50379": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "50380": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "50390": [
+    {
+      "label": "Damage",
+      "value": 284,
+    },
+  ],
+  "50395": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "50410": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "50456": [
+    {
+      "label": "Damage",
+      "value": 3000,
+    },
+  ],
+  "50483": [
+    {
+      "label": "Damage",
+      "value": 5500,
+    },
+  ],
+  "51646": [
+    {
+      "label": "Damage",
+      "value": 114,
+    },
+  ],
+  "51647": [
+    {
+      "label": "Damage",
+      "value": 1055,
+    },
+  ],
+  "51662": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "51684": [
+    {
+      "label": "Damage",
+      "value": 125,
+    },
+  ],
+  "51711": [
+    {
+      "label": "Damage",
+      "value": 1023,
+    },
+  ],
+  "5487": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "5489": [
+    {
+      "label": "Damage",
+      "value": 955,
+    },
+  ],
+  "5490": [
+    {
+      "label": "Damage",
+      "value": 767,
+    },
+  ],
+  "5491": [
+    {
+      "label": "Damage",
+      "value": 833,
+    },
+  ],
+  "5496": [
+    {
+      "label": "Damage",
+      "value": 2000,
+    },
+  ],
+  "5497": [
+    {
+      "label": "Damage",
+      "value": 102,
+    },
+  ],
+  "5500": [
+    {
+      "label": "Damage",
+      "value": 341,
+    },
+  ],
+  "5501": [
+    {
+      "label": "Damage",
+      "value": 1100,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 220,
+    },
+  ],
+  "5508": [
+    {
+      "label": "Damage",
+      "value": 210,
+    },
+    {
+      "label": "Secondary Strike",
+      "value": 318,
+    },
+  ],
+  "5510": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "5516": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
+  "5517": [
+    {
+      "label": "Damage",
+      "value": 2201,
+    },
+    {
+      "label": "Fire Wall Damage",
+      "value": 220,
+    },
+  ],
+  "5518": [
+    {
+      "label": "Damage",
+      "value": 550,
+    },
+  ],
+  "5519": [
+    {
+      "label": "Damage",
+      "value": 416,
+    },
+  ],
+  "5522": [
+    {
+      "label": "Damage",
+      "value": 1818,
+    },
+  ],
+  "5525": [
+    {
+      "label": "Initial Damage",
+      "value": 114,
+    },
+    {
+      "label": "Final Impact Damage",
+      "value": 1420,
+    },
+  ],
+  "5526": [
+    {
+      "label": "Stage 1 Damage",
+      "value": 341,
+    },
+    {
+      "label": "Stage 2 Damage",
+      "value": 682,
+    },
+    {
+      "label": "Stage 3 Damage",
+      "value": 1364,
+    },
+  ],
+  "5528": [
+    {
+      "label": "Damage",
+      "value": 1563,
+    },
+  ],
+  "5529": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "5531": [
+    {
+      "label": "Damage",
+      "value": 715,
+    },
+  ],
+  "5532": [
+    {
+      "label": "Damage",
+      "value": 715,
+    },
+  ],
+  "5534": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "5536": [
+    {
+      "label": "Damage",
+      "value": 235,
+    },
+  ],
+  "5537": [
+    {
+      "label": "Damage",
+      "value": 1364,
+    },
+  ],
+  "5538": [
+    {
+      "label": "Damage",
+      "value": 1364,
+    },
+  ],
+  "5539": [
+    {
+      "label": "Damage",
+      "value": 471,
+    },
+  ],
+  "5541": [
+    {
+      "label": "Damage",
+      "value": 880,
+    },
+  ],
+  "5542": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "5547": [
+    {
+      "label": "Damage",
+      "value": 1101,
+    },
+  ],
+  "5548": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "5549": [
+    {
+      "label": "Damage",
+      "value": 250,
+    },
+  ],
+  "5550": [
+    {
+      "label": "Damage",
+      "value": 1412,
+    },
+  ],
+  "5552": [
+    {
+      "label": "Damage",
+      "value": 1412,
+    },
+  ],
+  "5555": [
+    {
+      "label": "Damage",
+      "value": 256,
+    },
+  ],
+  "5556": [
+    {
+      "label": "Damage",
+      "value": 256,
+    },
+  ],
+  "5557": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+    {
+      "label": "Damage vs. Burning",
+      "value": 2273,
+    },
+  ],
+  "5559": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "5561": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "5566": [
+    {
+      "label": "Damage",
+      "value": 1875,
+    },
+  ],
+  "5568": [
+    {
+      "label": "Damage",
+      "value": 1926,
+    },
+  ],
+  "5570": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "5571": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "5572": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "5593": [
+    {
+      "label": "Damage",
+      "value": 1706,
+    },
+  ],
+  "5595": [
+    {
+      "label": "Damage",
+      "value": 330,
+    },
+  ],
+  "5597": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "5598": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+    {
+      "label": "Explosion Damage",
+      "value": 455,
+    },
+  ],
+  "5599": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "5600": [
+    {
+      "label": "Damage",
+      "value": 852,
+    },
+  ],
+  "5602": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "5604": [
+    {
+      "label": "Damage",
+      "value": 909,
+    },
+  ],
+  "5605": [
+    {
+      "label": "Projectile Dmg",
+      "value": 1136,
+    },
+    {
+      "label": "Detonation Damage",
+      "value": 2273,
+    },
+  ],
+  "5606": [
+    {
+      "label": "Damage",
+      "value": 2273,
+    },
+  ],
+  "5607": [
+    {
+      "label": "Maximum Damage",
+      "value": 5313,
+    },
+    {
+      "label": "Base Damage",
+      "value": 1136,
+    },
+  ],
+  "5621": [
+    {
+      "label": "Damage",
+      "value": 770,
+    },
+  ],
+  "5625": [
+    {
+      "label": "Damage",
+      "value": 1101,
+    },
+  ],
+  "5641": [
+    {
+      "label": "Damage",
+      "value": 1177,
+    },
+  ],
+  "5644": [
+    {
+      "label": "Blast Damage",
+      "value": 1932,
+    },
+    {
+      "label": "Fire Wall Damage",
+      "value": 227,
+    },
+  ],
+  "5646": [
+    {
+      "label": "Damage",
+      "value": 1250,
+    },
+  ],
+  "5648": [
+    {
+      "label": "Damage",
+      "value": 1875,
+    },
+  ],
+  "5650": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "5652": [
+    {
+      "label": "Damage",
+      "value": 887,
+    },
+  ],
+  "5655": [
+    {
+      "label": "Damage",
+      "value": 1364,
+    },
+  ],
+  "5656": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "5657": [
+    {
+      "label": "Damage",
+      "value": 511,
+    },
+  ],
+  "5658": [
+    {
+      "label": "Damage",
+      "value": 1893,
+    },
+  ],
+  "5659": [
+    {
+      "label": "Damage",
+      "value": 2250,
+    },
+  ],
+  "5661": [
+    {
+      "label": "Damage",
+      "value": 1989,
+    },
+  ],
+  "5662": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "5671": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "5675": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+    {
+      "label": "Explosion Damage",
+      "value": 1705,
+    },
+  ],
+  "5679": [
+    {
+      "label": "Damage",
+      "value": 125,
+    },
+  ],
+  "5680": [
+    {
+      "label": "Damage",
+      "value": 250,
+    },
+  ],
+  "5686": [
+    {
+      "label": "Damage",
+      "value": 625,
+    },
+  ],
+  "56880": [
+    {
+      "label": "Initial Impact Damage",
+      "value": 8,
+    },
+    {
+      "label": "Pulse Damage",
+      "value": 235,
+    },
+  ],
+  "56898": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+    {
+      "label": "Pulsing Damage",
+      "value": 157,
+    },
+  ],
+  "5690": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "5691": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "5692": [
+    {
+      "label": "Damage",
+      "value": 1511,
+    },
+  ],
+  "5693": [
+    {
+      "label": "Damage",
+      "value": 545,
+    },
+  ],
+  "5696": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "5697": [
+    {
+      "label": "Damage",
+      "value": 757,
+    },
+  ],
+  "5717": [
+    {
+      "label": "Damage",
+      "value": 220,
+    },
+  ],
+  "5718": [
+    {
+      "label": "Damage",
+      "value": 550,
+    },
+  ],
+  "5719": [
+    {
+      "label": "Damage",
+      "value": 1651,
+    },
+  ],
+  "5720": [
+    {
+      "label": "Damage",
+      "value": 2751,
+    },
+  ],
+  "5721": [
+    {
+      "label": "Damage",
+      "value": 880,
+    },
+  ],
+  "5723": [
+    {
+      "label": "Damage",
+      "value": 770,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 154,
+    },
+  ],
+  "5725": [
+    {
+      "label": "Damage",
+      "value": 908,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 264,
+    },
+  ],
+  "5726": [
+    {
+      "label": "Damage",
+      "value": 1101,
+    },
+  ],
+  "5727": [
+    {
+      "label": "Damage",
+      "value": 1101,
+    },
+  ],
+  "5728": [
+    {
+      "label": "Damage",
+      "value": 1651,
+    },
+  ],
+  "5732": [
+    {
+      "label": "Damage",
+      "value": 550,
+    },
+  ],
+  "5733": [
+    {
+      "label": "Damage",
+      "value": 363,
+    },
+  ],
+  "5746": [
+    {
+      "label": "Damage",
+      "value": 825,
+    },
+  ],
+  "5747": [
+    {
+      "label": "Damage",
+      "value": 440,
+    },
+  ],
+  "5748": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "5780": [
+    {
+      "label": "Damage",
+      "value": 1477,
+    },
+  ],
+  "5806": [
+    {
+      "label": "Damage",
+      "value": 550,
+    },
+  ],
+  "5807": [
+    {
+      "label": "Damage",
+      "value": 693,
+    },
+  ],
+  "5808": [
+    {
+      "label": "Damage",
+      "value": 110,
+    },
+  ],
+  "5809": [
+    {
+      "label": "Damage",
+      "value": 550,
+    },
+  ],
+  "5811": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "5813": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "5822": [
+    {
+      "label": "Damage",
+      "value": 1541,
+    },
+  ],
+  "5823": [
+    {
+      "label": "Damage",
+      "value": 275,
+    },
+  ],
+  "5827": [
+    {
+      "label": "Damage",
+      "value": 302,
+    },
+  ],
+  "5828": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "5829": [
+    {
+      "label": "Damage",
+      "value": 341,
+    },
+  ],
+  "5830": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "5831": [
+    {
+      "label": "Maximum Damage",
+      "value": 1136,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 375,
+    },
+  ],
+  "5842": [
+    {
+      "label": "Damage",
+      "value": 770,
+    },
+  ],
+  "5868": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "5882": [
+    {
+      "label": "Damage",
+      "value": 363,
+    },
+  ],
+  "5905": [
+    {
+      "label": "Damage",
+      "value": 2201,
+    },
+  ],
+  "5910": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "5928": [
+    {
+      "label": "Damage",
+      "value": 1321,
+    },
+  ],
+  "5929": [
+    {
+      "label": "Damage",
+      "value": 2641,
+    },
+  ],
+  "5931": [
+    {
+      "label": "Damage",
+      "value": 1211,
+    },
+  ],
+  "5934": [
+    {
+      "label": "Damage",
+      "value": 440,
+    },
+  ],
+  "5935": [
+    {
+      "label": "Damage",
+      "value": 825,
+    },
+  ],
+  "5936": [
+    {
+      "label": "Damage",
+      "value": 770,
+    },
+    {
+      "label": "Initial Damage",
+      "value": 1101,
+    },
+  ],
+  "59526": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+    {
+      "label": "Damage",
+      "value": 1875,
+    },
+  ],
+  "5965": [
+    {
+      "label": "Damage",
+      "value": 440,
+    },
+  ],
+  "5992": [
+    {
+      "label": "Damage",
+      "value": 880,
+    },
+  ],
+  "5993": [
+    {
+      "label": "Damage",
+      "value": 880,
+    },
+  ],
+  "5994": [
+    {
+      "label": "Damage",
+      "value": 1926,
+    },
+  ],
+  "6003": [
+    {
+      "label": "Damage",
+      "value": 216,
+    },
+  ],
+  "6004": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "6005": [
+    {
+      "label": "Leap Damage",
+      "value": 131,
+    },
+    {
+      "label": "Landing Damage",
+      "value": 1895,
+    },
+  ],
+  "6057": [
+    {
+      "label": "Damage",
+      "value": 511,
+    },
+  ],
+  "6126": [
+    {
+      "label": "Damage",
+      "value": 256,
+    },
+  ],
+  "6145": [
+    {
+      "label": "Damage",
+      "value": 227,
+    },
+  ],
+  "6147": [
+    {
+      "label": "Damage",
+      "value": 4773,
+    },
+  ],
+  "6148": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "6149": [
+    {
+      "label": "Explosion Damage",
+      "value": 1989,
+    },
+  ],
+  "6153": [
+    {
+      "label": "Maximum Damage",
+      "value": 1712,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 1137,
+    },
+  ],
+  "6154": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "6161": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "6167": [
+    {
+      "label": "Damage",
+      "value": 550,
+    },
+  ],
+  "6168": [
+    {
+      "label": "Damage",
+      "value": 550,
+    },
+  ],
+  "6169": [
+    {
+      "label": "Damage",
+      "value": 110,
+    },
+  ],
+  "6170": [
+    {
+      "label": "Damage",
+      "value": 693,
+    },
+  ],
+  "6171": [
+    {
+      "label": "Damage",
+      "value": 363,
+    },
+  ],
+  "62510": [
+    {
+      "label": "Damage",
+      "value": 398,
+    },
+    {
+      "label": "Flurry Damage",
+      "value": 682,
+    },
+    {
+      "label": "Damage",
+      "value": 438,
+    },
+    {
+      "label": "Flurry Damage",
+      "value": 750,
+    },
+  ],
+  "62511": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "62513": [
+    {
+      "label": "Damage",
+      "value": 1159,
+    },
+  ],
+  "62517": [
+    {
+      "label": "Damage",
+      "value": 265,
+    },
+  ],
+  "62521": [
+    {
+      "label": "Damage",
+      "value": 78,
+    },
+  ],
+  "62522": [
+    {
+      "label": "Damage",
+      "value": 549,
+    },
+  ],
+  "62525": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+    {
+      "label": "Secondary Attacks",
+      "value": 1818,
+    },
+  ],
+  "62549": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "62553": [
+    {
+      "label": "Damage",
+      "value": 628,
+    },
+    {
+      "label": "Damage",
+      "value": 691,
+    },
+  ],
+  "62560": [
+    {
+      "label": "Outgoing Damage",
+      "value": 114,
+    },
+    {
+      "label": "Returning Damage",
+      "value": 568,
+    },
+    {
+      "label": "Outgoing Damage",
+      "value": 125,
+    },
+    {
+      "label": "Returning Damage",
+      "value": 625,
+    },
+  ],
+  "62561": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "62565": [
+    {
+      "label": "Damage",
+      "value": 2095,
+    },
+  ],
+  "62568": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "62573": [
+    {
+      "label": "Damage",
+      "value": 1177,
+    },
+    {
+      "label": "Damage",
+      "value": 1295,
+    },
+  ],
+  "62607": [
+    {
+      "label": "Storm Damage",
+      "value": 455,
+    },
+    {
+      "label": "Blade Damage",
+      "value": 114,
+    },
+    {
+      "label": "Storm Damage",
+      "value": 500,
+    },
+    {
+      "label": "Blade Damage",
+      "value": 125,
+    },
+  ],
+  "62608": [
+    {
+      "label": "Damage",
+      "value": 1569,
+    },
+  ],
+  "62650": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "62683": [
+    {
+      "label": "Damage",
+      "value": 875,
+    },
+  ],
+  "62688": [
+    {
+      "label": "Damage",
+      "value": 750,
+    },
+  ],
+  "62692": [
+    {
+      "label": "Damage",
+      "value": 1700,
+    },
+  ],
+  "62694": [
+    {
+      "label": "Damage",
+      "value": 750,
+    },
+  ],
+  "62697": [
+    {
+      "label": "Damage",
+      "value": 1023,
+    },
+  ],
+  "62698": [
+    {
+      "label": "Damage",
+      "value": 235,
+    },
+  ],
+  "62716": [
+    {
+      "label": "Passthrough Damage",
+      "value": 625,
+    },
+    {
+      "label": "Explosion Damage",
+      "value": 13,
+    },
+  ],
+  "62719": [
+    {
+      "label": "Damage",
+      "value": 174,
+    },
+  ],
+  "62747": [
+    {
+      "label": "Maximum Damage",
+      "value": 750,
+    },
+  ],
+  "62752": [
+    {
+      "label": "Damage",
+      "value": 1063,
+    },
+  ],
+  "62758": [
+    {
+      "label": "Damage",
+      "value": 188,
+    },
+  ],
+  "62778": [
+    {
+      "label": "Damage",
+      "value": 1138,
+    },
+  ],
+  "62800": [
+    {
+      "label": "Damage per Bullet",
+      "value": 378,
+    },
+  ],
+  "62807": [
+    {
+      "label": "Damage",
+      "value": 750,
+    },
+  ],
+  "62812": [
+    {
+      "label": "Damage",
+      "value": 3375,
+    },
+  ],
+  "62828": [
+    {
+      "label": "Damage",
+      "value": 1250,
+    },
+    {
+      "label": "Damage per Block",
+      "value": 63,
+    },
+  ],
+  "62832": [
+    {
+      "label": "Damage",
+      "value": 1805,
+    },
+  ],
+  "62834": [
+    {
+      "label": "Damage",
+      "value": 188,
+    },
+  ],
+  "62843": [
+    {
+      "label": "Damage",
+      "value": 1700,
+    },
+  ],
+  "62862": [
+    {
+      "label": "Damage",
+      "value": 1000,
+    },
+  ],
+  "62865": [
+    {
+      "label": "Damage",
+      "value": 663,
+    },
+  ],
+  "62878": [
+    {
+      "label": "Damage",
+      "value": 981,
+    },
+  ],
+  "62884": [
+    {
+      "label": "Damage",
+      "value": 1700,
+    },
+  ],
+  "62887": [
+    {
+      "label": "Damage",
+      "value": 188,
+    },
+  ],
+  "62895": [
+    {
+      "label": "Damage",
+      "value": 1663,
+    },
+  ],
+  "62910": [
+    {
+      "label": "Damage",
+      "value": 2125,
+    },
+  ],
+  "62913": [
+    {
+      "label": "Damage",
+      "value": 750,
+    },
+  ],
+  "62925": [
+    {
+      "label": "Damage",
+      "value": 625,
+    },
+  ],
+  "62929": [
+    {
+      "label": "Damage",
+      "value": 1125,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 125,
+    },
+  ],
+  "62942": [
+    {
+      "label": "Damage",
+      "value": 2095,
+    },
+  ],
+  "62947": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "62948": [
+    {
+      "label": "Damage",
+      "value": 1250,
+    },
+  ],
+  "62958": [
+    {
+      "label": "Damage",
+      "value": 1500,
+    },
+  ],
+  "62960": [
+    {
+      "label": "Damage",
+      "value": 471,
+    },
+  ],
+  "62962": [
+    {
+      "label": "Damage",
+      "value": 981,
+    },
+  ],
+  "62975": [
+    {
+      "label": "Damage",
+      "value": 188,
+    },
+  ],
+  "62976": [
+    {
+      "label": "Damage",
+      "value": 2131,
+    },
+  ],
+  "63077": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "63113": [
+    {
+      "label": "Damage",
+      "value": 1883,
+    },
+  ],
+  "63118": [
+    {
+      "label": "Damage",
+      "value": 666,
+    },
+  ],
+  "63157": [
+    {
+      "label": "Damage",
+      "value": 2072,
+    },
+  ],
+  "63169": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "63174": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "63186": [
+    {
+      "label": "Damage",
+      "value": 606,
+    },
+  ],
+  "63234": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "63253": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "63275": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "63276": [
+    {
+      "label": "Damage",
+      "value": 174,
+    },
+  ],
+  "63294": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
+  "63351": [
+    {
+      "label": "Damage",
+      "value": 875,
+    },
+  ],
+  "68079": [
+    {
+      "label": "Damage",
+      "value": 288,
+    },
+  ],
+  "69164": [
+    {
+      "label": "Damage",
+      "value": 188,
+    },
+  ],
+  "69167": [
+    {
+      "label": "Damage",
+      "value": 1375,
+    },
+  ],
+  "69184": [
+    {
+      "label": "Damage",
+      "value": 188,
+    },
+  ],
+  "69203": [
+    {
+      "label": "Damage",
+      "value": 1932,
+    },
+  ],
+  "69211": [
+    {
+      "label": "Damage",
+      "value": 188,
+    },
+  ],
+  "69212": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "69246": [
+    {
+      "label": "Damage",
+      "value": 188,
+    },
+  ],
+  "69262": [
+    {
+      "label": "Damage",
+      "value": 375,
+    },
+    {
+      "label": "Follow-Up Damage",
+      "value": 1250,
+    },
+  ],
+  "69302": [
+    {
+      "label": "Damage",
+      "value": 2557,
+    },
+  ],
+  "69311": [
+    {
+      "label": "Outgoing Damage",
+      "value": 114,
+    },
+    {
+      "label": "Returning Damage",
+      "value": 568,
+    },
+    {
+      "label": "Outgoing Damage",
+      "value": 125,
+    },
+    {
+      "label": "Returning Damage",
+      "value": 625,
+    },
+  ],
+  "69316": [
+    {
+      "label": "Damage",
+      "value": 1750,
+    },
+    {
+      "label": "Damage on Untargeted Foes",
+      "value": 216,
+    },
+  ],
+  "69340": [
+    {
+      "label": "Damage",
+      "value": 563,
+    },
+  ],
+  "69341": [
+    {
+      "label": "Damage",
+      "value": 188,
+    },
+  ],
+  "69344": [
+    {
+      "label": "Damage",
+      "value": 1364,
+    },
+  ],
+  "69385": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "69389": [
+    {
+      "label": "Damage",
+      "value": 1693,
+    },
+  ],
+  "69413": [
+    {
+      "label": "Damage",
+      "value": 188,
+    },
+  ],
+  "69565": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "69906": [
+    {
+      "label": "Damage",
+      "value": 739,
+    },
+  ],
+  "70514": [
+    {
+      "label": "Damage",
+      "value": 693,
+    },
+  ],
+  "71121": [
+    {
+      "label": "Damage",
+      "value": 852,
+    },
+    {
+      "label": "Projectile Damage",
+      "value": 313,
+    },
+  ],
+  "71799": [
+    {
+      "label": "Damage",
+      "value": 852,
+    },
+  ],
+  "71800": [
+    {
+      "label": "Damage",
+      "value": 1568,
+    },
+  ],
+  "71802": [
+    {
+      "label": "Damage",
+      "value": 1375,
+    },
+  ],
+  "71813": [
+    {
+      "label": "Damage",
+      "value": 909,
+    },
+  ],
+  "71816": [
+    {
+      "label": "Pulsing Damage",
+      "value": 909,
+    },
+    {
+      "label": "Final Damage",
+      "value": 568,
+    },
+  ],
+  "71817": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "71841": [
+    {
+      "label": "Damage",
+      "value": 545,
+    },
+    {
+      "label": "Final Slam Damage",
+      "value": 1091,
+    },
+  ],
+  "71850": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "71852": [
+    {
+      "label": "Damage",
+      "value": 1023,
+    },
+  ],
+  "71854": [
+    {
+      "label": "Damage",
+      "value": 398,
+    },
+  ],
+  "71870": [
+    {
+      "label": "Damage",
+      "value": 852,
+    },
+  ],
+  "71871": [
+    {
+      "label": "Damage",
+      "value": 852,
+    },
+  ],
+  "71873": [
+    {
+      "label": "Damage",
+      "value": 341,
+    },
+    {
+      "label": "Shock Damage",
+      "value": 227,
+    },
+  ],
+  "71882": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "71883": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "71888": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "71892": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "71893": [
+    {
+      "label": "Damage",
+      "value": 261,
+    },
+  ],
+  "71897": [
+    {
+      "label": "Damage",
+      "value": 1438,
+    },
+  ],
+  "71903": [
+    {
+      "label": "Damage",
+      "value": 909,
+    },
+  ],
+  "71904": [
+    {
+      "label": "Damage",
+      "value": 284,
+    },
+  ],
+  "71914": [
+    {
+      "label": "Damage",
+      "value": 1023,
+    },
+  ],
+  "71918": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "71926": [
+    {
+      "label": "Damage",
+      "value": 2841,
+    },
+  ],
+  "71929": [
+    {
+      "label": "Damage",
+      "value": 341,
+    },
+  ],
+  "71930": [
+    {
+      "label": "Damage",
+      "value": 540,
+    },
+  ],
+  "71933": [
+    {
+      "label": "Damage",
+      "value": 540,
+    },
+  ],
+  "71942": [
+    {
+      "label": "Damage",
+      "value": 758,
+    },
+  ],
+  "71963": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "71967": [
+    {
+      "label": "Damage",
+      "value": 398,
+    },
+  ],
+  "71968": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "71986": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "71987": [
+    {
+      "label": "Damage",
+      "value": 2273,
+    },
+  ],
+  "71998": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "71999": [
+    {
+      "label": "Initial Damage",
+      "value": 852,
+    },
+    {
+      "label": "Delayed Damage",
+      "value": 1136,
+    },
+  ],
+  "72002": [
+    {
+      "label": "Damage",
+      "value": 938,
+    },
+  ],
+  "72007": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "72024": [
+    {
+      "label": "Damage",
+      "value": 625,
+    },
+  ],
+  "72026": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "72031": [
+    {
+      "label": "Damage",
+      "value": 398,
+    },
+  ],
+  "72033": [
+    {
+      "label": "Damage",
+      "value": 302,
+    },
+  ],
+  "72052": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "72068": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "72076": [
+    {
+      "label": "Damage",
+      "value": 1764,
+    },
+  ],
+  "72088": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "72896": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "72897": [
+    {
+      "label": "Initial Strike Damage",
+      "value": 795,
+    },
+    {
+      "label": "Aftershock Damage",
+      "value": 341,
+    },
+  ],
+  "72905": [
+    {
+      "label": "Damage",
+      "value": 2500,
+    },
+  ],
+  "72910": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "72922": [
+    {
+      "label": "Damage",
+      "value": 563,
+    },
+  ],
+  "72924": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "72927": [
+    {
+      "label": "Damage",
+      "value": 284,
+    },
+  ],
+  "72928": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "72931": [
+    {
+      "label": "Damage",
+      "value": 511,
+    },
+  ],
+  "72935": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "72940": [
+    {
+      "label": "Damage",
+      "value": 909,
+    },
+  ],
+  "72944": [
+    {
+      "label": "Damage",
+      "value": 511,
+    },
+  ],
+  "72946": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+    {
+      "label": "Phantasm Damage",
+      "value": 1962,
+    },
+  ],
+  "72954": [
+    {
+      "label": "Initial Attack Damage",
+      "value": 11,
+    },
+    {
+      "label": "Pulse Damage",
+      "value": 1023,
+    },
+    {
+      "label": "Damage",
+      "value": 1034,
+    },
+  ],
+  "72957": [
+    {
+      "label": "Damage",
+      "value": 2045,
+    },
+  ],
+  "72958": [
+    {
+      "label": "Spear Damage",
+      "value": 511,
+    },
+    {
+      "label": "Shard Damage",
+      "value": 420,
+    },
+  ],
+  "72959": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "72966": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "72972": [
+    {
+      "label": "Damage",
+      "value": 909,
+    },
+  ],
+  "72974": [
+    {
+      "label": "Damage",
+      "value": 2273,
+    },
+  ],
+  "72977": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "72978": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+    {
+      "label": "Shock-Wave Damage",
+      "value": 1136,
+    },
+  ],
+  "72986": [
+    {
+      "label": "Damage",
+      "value": 341,
+    },
+  ],
+  "72988": [
+    {
+      "label": "Damage",
+      "value": 1364,
+    },
+  ],
+  "72992": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "72995": [
+    {
+      "label": "Damage",
+      "value": 4293,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 57,
+    },
+  ],
+  "72998": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "73001": [
+    {
+      "label": "Damage",
+      "value": 739,
+    },
+  ],
+  "73002": [
+    {
+      "label": "Focused Target Damage",
+      "value": 199,
+    },
+    {
+      "label": "Damage",
+      "value": 142,
+    },
+  ],
+  "73005": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "73007": [
+    {
+      "label": "Damage",
+      "value": 2273,
+    },
+  ],
+  "73009": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "73010": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "73012": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "73013": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "73015": [
+    {
+      "label": "Damage",
+      "value": 511,
+    },
+  ],
+  "73020": [
+    {
+      "label": "Damage",
+      "value": 1591,
+    },
+  ],
+  "73040": [
+    {
+      "label": "Damage",
+      "value": 909,
+    },
+  ],
+  "73041": [
+    {
+      "label": "Damage",
+      "value": 455,
+    },
+  ],
+  "73047": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "73055": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "73059": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "73060": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "73061": [
+    {
+      "label": "Damage",
+      "value": 1364,
+    },
+  ],
+  "73063": [
+    {
+      "label": "Damage",
+      "value": 909,
+    },
+  ],
+  "73064": [
+    {
+      "label": "Damage",
+      "value": 682,
+    },
+  ],
+  "73066": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "73068": [
+    {
+      "label": "Damage",
+      "value": 1364,
+    },
+  ],
+  "73080": [
+    {
+      "label": "Damage",
+      "value": 1063,
+    },
+  ],
+  "73088": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "73091": [
+    {
+      "label": "Damage",
+      "value": 284,
+    },
+  ],
+  "73093": [
+    {
+      "label": "Damage",
+      "value": 1591,
+    },
+  ],
+  "73094": [
+    {
+      "label": "Damage",
+      "value": 739,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 114,
+    },
+  ],
+  "73095": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "73105": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "73107": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "73109": [
+    {
+      "label": "Damage",
+      "value": 511,
+    },
+  ],
+  "73110": [
+    {
+      "label": "Damage",
+      "value": 1761,
+    },
+  ],
+  "73122": [
+    {
+      "label": "Focused Target Damage",
+      "value": 1364,
+    },
+    {
+      "label": "Unfocused Target Damage",
+      "value": 1136,
+    },
+  ],
+  "73124": [
+    {
+      "label": "Damage",
+      "value": 1250,
+    },
+  ],
+  "73132": [
+    {
+      "label": "Initial Damage",
+      "value": 11,
+    },
+    {
+      "label": "Symbol Damage",
+      "value": 455,
+    },
+  ],
+  "73143": [
+    {
+      "label": "Focused Target Damage",
+      "value": 1705,
+    },
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "73145": [
+    {
+      "label": "Damage",
+      "value": 426,
+    },
+  ],
+  "73148": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "73152": [
+    {
+      "label": "Damage",
+      "value": 1591,
+    },
+  ],
+  "73154": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "76493": [
+    {
+      "label": "Damage",
+      "value": 550,
+    },
+  ],
+  "76530": [
+    {
+      "label": "Damage",
+      "value": 11,
+    },
+  ],
+  "76583": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "76687": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "76757": [
+    {
+      "label": "Damage",
+      "value": 235,
+    },
+  ],
+  "76805": [
+    {
+      "label": "Follow-Up Damage",
+      "value": 471,
+    },
+  ],
+  "76813": [
+    {
+      "label": "Maximum Damage",
+      "value": 1648,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 392,
+    },
+  ],
+  "76908": [
+    {
+      "label": "Damage",
+      "value": 628,
+    },
+  ],
+  "76975": [
+    {
+      "label": "Damage",
+      "value": 196,
+    },
+  ],
+  "76979": [
+    {
+      "label": "Traveling Tornado Damage",
+      "value": 8,
+    },
+    {
+      "label": "Stationary Tornado Damage",
+      "value": 4708,
+    },
+  ],
+  "76993": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+    {
+      "label": "Storm Damage",
+      "value": 3766,
+    },
+  ],
+  "77040": [
+    {
+      "label": "Damage",
+      "value": 785,
+    },
+  ],
+  "77069": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "77078": [
+    {
+      "label": "Damage",
+      "value": 196,
+    },
+  ],
+  "77114": [
+    {
+      "label": "Damage",
+      "value": 628,
+    },
+  ],
+  "77209": [
+    {
+      "label": "Damage",
+      "value": 1569,
+    },
+  ],
+  "77211": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "77247": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "77264": [
+    {
+      "label": "Damage",
+      "value": 1373,
+    },
+  ],
+  "77282": [
+    {
+      "label": "Damage (over 20 Might)",
+      "value": 2354,
+    },
+    {
+      "label": "Damage (10–20 Might)",
+      "value": 1765,
+    },
+    {
+      "label": "Damage (under 10 Might)",
+      "value": 1177,
+    },
+  ],
+  "78587": [
+    {
+      "label": "Damage",
+      "value": 235,
+    },
+  ],
+  "78798": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "80244": [
+    {
+      "label": "Damage",
+      "value": 1023,
+    },
+    {
+      "label": "Final Slash Damage",
+      "value": 1420,
+    },
+    {
+      "label": "Projectile Damage",
+      "value": 1023,
+    },
+    {
+      "label": "Projectile Damage",
+      "value": 1125,
+    },
+  ],
+  "80247": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+    {
+      "label": "Follow-Up Damage",
+      "value": 1420,
+    },
+  ],
+  "9080": [
+    {
+      "label": "Damage",
+      "value": 1563,
+    },
+  ],
+  "9081": [
+    {
+      "label": "Damage",
+      "value": 3500,
+    },
+    {
+      "label": "Projectile Damage",
+      "value": 125,
+    },
+  ],
+  "9082": [
+    {
+      "label": "Damage",
+      "value": 1698,
+    },
+  ],
+  "9086": [
+    {
+      "label": "Damage",
+      "value": 1705,
+    },
+  ],
+  "9087": [
+    {
+      "label": "Damage",
+      "value": 685,
+    },
+  ],
+  "9088": [
+    {
+      "label": "Damage",
+      "value": 2864,
+    },
+  ],
+  "9090": [
+    {
+      "label": "Damage",
+      "value": 318,
+    },
+    {
+      "label": "Symbol Damage",
+      "value": 318,
+    },
+  ],
+  "9093": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "9097": [
+    {
+      "label": "Damage",
+      "value": 2557,
+    },
+  ],
+  "9098": [
+    {
+      "label": "Damage",
+      "value": 505,
+    },
+  ],
+  "9099": [
+    {
+      "label": "Damage",
+      "value": 284,
+    },
+  ],
+  "9105": [
+    {
+      "label": "Damage",
+      "value": 505,
+    },
+  ],
+  "9107": [
+    {
+      "label": "Damage",
+      "value": 2000,
+    },
+  ],
+  "9109": [
+    {
+      "label": "Damage",
+      "value": 606,
+    },
+  ],
+  "9111": [
+    {
+      "label": "Damage",
+      "value": 2557,
+    },
+  ],
+  "9112": [
+    {
+      "label": "Damage",
+      "value": 1289,
+    },
+  ],
+  "9122": [
+    {
+      "label": "Damage",
+      "value": 457,
+    },
+  ],
+  "9124": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "9125": [
+    {
+      "label": "Damage",
+      "value": 8,
+    },
+  ],
+  "9137": [
+    {
+      "label": "Damage",
+      "value": 666,
+    },
+  ],
+  "9140": [
+    {
+      "label": "Damage",
+      "value": 913,
+    },
+  ],
+  "9143": [
+    {
+      "label": "Damage",
+      "value": 1563,
+    },
+  ],
+  "9146": [
+    {
+      "label": "Initial Damage",
+      "value": 1000,
+    },
+    {
+      "label": "Symbol Damage",
+      "value": 2000,
+    },
+  ],
+  "9147": [
+    {
+      "label": "Damage",
+      "value": 13,
+    },
+  ],
+  "9150": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "9151": [
+    {
+      "label": "Damage",
+      "value": 196,
+    },
+  ],
+  "9159": [
+    {
+      "label": "Damage",
+      "value": 666,
+    },
+  ],
+  "9168": [
+    {
+      "label": "Damage",
+      "value": 1412,
+    },
+  ],
+  "9182": [
+    {
+      "label": "Damage",
+      "value": 392,
+    },
+  ],
+  "9189": [
+    {
+      "label": "Maximum Damage",
+      "value": 1136,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 682,
+    },
+  ],
+  "9190": [
+    {
+      "label": "Damage",
+      "value": 2727,
+    },
+  ],
+  "9191": [
+    {
+      "label": "Damage",
+      "value": 2273,
+    },
+  ],
+  "9192": [
+    {
+      "label": "Damage",
+      "value": 909,
+    },
+  ],
+  "9193": [
+    {
+      "label": "Damage",
+      "value": 1136,
+    },
+  ],
+  "9194": [
+    {
+      "label": "Damage",
+      "value": 2275,
+    },
+  ],
+  "9205": [
+    {
+      "label": "Damage",
+      "value": 568,
+    },
+  ],
+  "9206": [
+    {
+      "label": "Damage",
+      "value": 2273,
+    },
+  ],
+  "9207": [
+    {
+      "label": "Damage",
+      "value": 1420,
+    },
+  ],
+  "9208": [
+    {
+      "label": "Damage",
+      "value": 2727,
+    },
+  ],
+  "9245": [
+    {
+      "label": "Damage With No Conditions",
+      "value": 157,
+    },
+    {
+      "label": "Damage With Condition",
+      "value": 235,
+    },
+  ],
+  "9247": [
+    {
+      "label": "Damage",
+      "value": 78,
+    },
+  ],
+  "9260": [
+    {
+      "label": "Damage",
+      "value": 1500,
+    },
+  ],
+}
+`;
+
+exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md Tier 2) > CURATED_HEALING_COEFFICIENTS produces stable healing lines at a fixed reference build 1`] = `
+{
+  "10176": [
+    {
+      "label": "Healing",
+      "value": 7060,
+    },
+    {
+      "label": "Heal per Clone",
+      "value": 790,
+    },
+  ],
+  "10177": [
+    {
+      "label": "Healing",
+      "value": 6095,
+    },
+  ],
+  "10213": [
+    {
+      "label": "Self-Healing",
+      "value": 4025,
+    },
+    {
+      "label": "Ally-Healing",
+      "value": 2415,
+    },
+  ],
+  "10214": [
+    {
+      "label": "Healing",
+      "value": 2015,
+    },
+    {
+      "label": "Healing below 50%",
+      "value": 3220,
+    },
+  ],
+  "10527": [
+    {
+      "label": "Initial Self Heal",
+      "value": 5954,
+    },
+    {
+      "label": "Health per Second",
+      "value": 796,
+    },
+  ],
+  "10548": [
+    {
+      "label": "Healing",
+      "value": 8340,
+    },
+    {
+      "label": "Heal per condition",
+      "value": 874,
+    },
+  ],
+  "10557": [
+    {
+      "label": "Life Siphon Healing",
+      "value": 175,
+    },
+  ],
+  "10577": [
+    {
+      "label": "Healing",
+      "value": 5460,
+    },
+  ],
+  "10605": [
+    {
+      "label": "Healing",
+      "value": 2052,
+    },
+  ],
+  "10619": [
+    {
+      "label": "Healing",
+      "value": 219,
+    },
+  ],
+  "12360": [
+    {
+      "label": "Healing",
+      "value": 7795,
+    },
+  ],
+  "12440": [
+    {
+      "label": "Healing",
+      "value": 8020,
+    },
+  ],
+  "12483": [
+    {
+      "label": "Health per Second",
+      "value": 1242,
+    },
+  ],
+  "12489": [
+    {
+      "label": "Healing",
+      "value": 6420,
+    },
+  ],
+  "13021": [
+    {
+      "label": "Healing",
+      "value": 6233,
+    },
+  ],
+  "13027": [
+    {
+      "label": "Healing",
+      "value": 7526,
+    },
+  ],
+  "13050": [
+    {
+      "label": "Healing",
+      "value": 4025,
+    },
+  ],
+  "13117": [
+    {
+      "label": "Healing",
+      "value": 840,
+    },
+  ],
+  "14389": [
+    {
+      "label": "Healing",
+      "value": 2845,
+    },
+  ],
+  "14401": [
+    {
+      "label": "Healing",
+      "value": 8320,
+    },
+  ],
+  "14402": [
+    {
+      "label": "Healing",
+      "value": 9235,
+    },
+  ],
+  "14413": [
+    {
+      "label": "Healing",
+      "value": 3395,
+    },
+  ],
+  "21656": [
+    {
+      "label": "Healing",
+      "value": 5290,
+    },
+  ],
+  "21659": [
+    {
+      "label": "Healing when lethal damage taken",
+      "value": 14860,
+    },
+    {
+      "label": "Healing",
+      "value": 5244,
+    },
+  ],
+  "21664": [
+    {
+      "label": "Healing",
+      "value": 2015,
+    },
+  ],
+  "21750": [
+    {
+      "label": "Healing",
+      "value": 6835,
+    },
+    {
+      "label": "Heal on Illusion Summon",
+      "value": 387,
+    },
+  ],
+  "21762": [
+    {
+      "label": "Passive Life-Siphon Healing",
+      "value": 231,
+    },
+    {
+      "label": "Active Life Siphon Heal",
+      "value": 960,
+    },
+    {
+      "label": "Healing",
+      "value": 6500,
+    },
+  ],
+  "21773": [
+    {
+      "label": "Healing",
+      "value": 2598,
+    },
+  ],
+  "21776": [
+    {
+      "label": "Healing",
+      "value": 3602,
+    },
+  ],
+  "21778": [
+    {
+      "label": "Initial Self Heal",
+      "value": 4178,
+    },
+    {
+      "label": "Healing",
+      "value": 1656,
+    },
+  ],
+  "25492": [
+    {
+      "label": "Healing",
+      "value": 7910,
+    },
+  ],
+  "26557": [
+    {
+      "label": "Healing",
+      "value": 59,
+    },
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "26644": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "26679": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "26821": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "26937": [
+    {
+      "label": "Siphon Healing",
+      "value": 1068,
+    },
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "27014": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "27025": [
+    {
+      "label": "Healing",
+      "value": 3749,
+    },
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "27107": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "27220": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "27228": [
+    {
+      "label": "Healing",
+      "value": 3353,
+    },
+  ],
+  "27322": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "27356": [
+    {
+      "label": "Healing",
+      "value": 2228,
+    },
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "27372": [
+    {
+      "label": "Healing",
+      "value": 7001,
+    },
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "27505": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "27715": [
+    {
+      "label": "Healing per Condition Removed",
+      "value": 625,
+    },
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "27760": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "27917": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "27975": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "28219": [
+    {
+      "label": "Healing",
+      "value": 6100,
+    },
+    {
+      "label": "Heal per Condition",
+      "value": 746,
+    },
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "28231": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "28262": [
+    {
+      "label": "Healing",
+      "value": 684,
+    },
+  ],
+  "28287": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "28379": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "28406": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "28427": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "28472": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "28516": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "29145": [
+    {
+      "label": "Healing",
+      "value": 950,
+    },
+  ],
+  "29148": [
+    {
+      "label": "Healing",
+      "value": 400,
+    },
+  ],
+  "29197": [
+    {
+      "label": "Healing per Condition Removed",
+      "value": 625,
+    },
+  ],
+  "29209": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "29321": [
+    {
+      "label": "Healing",
+      "value": 2270,
+    },
+  ],
+  "29386": [
+    {
+      "label": "Healing",
+      "value": 2715,
+    },
+  ],
+  "29535": [
+    {
+      "label": "First Heal",
+      "value": 3094,
+    },
+    {
+      "label": "Second Heal",
+      "value": 1685,
+    },
+    {
+      "label": "Third Heal",
+      "value": 1035,
+    },
+  ],
+  "29968": [
+    {
+      "label": "Healing",
+      "value": 5086,
+    },
+  ],
+  "30025": [
+    {
+      "label": "Initial Heal",
+      "value": 2108,
+    },
+    {
+      "label": "Trap Heal",
+      "value": 5855,
+    },
+  ],
+  "30189": [
+    {
+      "label": "Healing",
+      "value": 3680,
+    },
+  ],
+  "30305": [
+    {
+      "label": "Initial Self Heal",
+      "value": 2549,
+    },
+    {
+      "label": "Ending Heal",
+      "value": 5070,
+    },
+  ],
+  "30357": [
+    {
+      "label": "Personal Heal",
+      "value": 4810,
+    },
+    {
+      "label": "Area Pulse Heal",
+      "value": 835,
+    },
+  ],
+  "30400": [
+    {
+      "label": "Heal if Endurance is Full",
+      "value": 3190,
+    },
+    {
+      "label": "Healing",
+      "value": 2401,
+    },
+  ],
+  "30446": [
+    {
+      "label": "Healing",
+      "value": 658,
+    },
+  ],
+  "30461": [
+    {
+      "label": "Passive Healing",
+      "value": 427,
+    },
+    {
+      "label": "Active Heal Pulse",
+      "value": 950,
+    },
+    {
+      "label": "Final Heal Pulse",
+      "value": 6250,
+    },
+  ],
+  "30488": [
+    {
+      "label": "Healing",
+      "value": 7224,
+    },
+  ],
+  "30864": [
+    {
+      "label": "Healing",
+      "value": 2052,
+    },
+  ],
+  "30881": [
+    {
+      "label": "Healing when lethal damage taken",
+      "value": 14860,
+    },
+    {
+      "label": "Healing",
+      "value": 5244,
+    },
+  ],
+  "31348": [
+    {
+      "label": "Healing",
+      "value": 4576,
+    },
+  ],
+  "31496": [
+    {
+      "label": "Healing",
+      "value": 200,
+    },
+  ],
+  "31535": [
+    {
+      "label": "Healing",
+      "value": 3700,
+    },
+  ],
+  "31710": [
+    {
+      "label": "Healing",
+      "value": 75,
+    },
+  ],
+  "31819": [
+    {
+      "label": "Self-Healing",
+      "value": 7464,
+    },
+    {
+      "label": "Allied Healing",
+      "value": 4035,
+    },
+  ],
+  "31867": [
+    {
+      "label": "Self-Healing",
+      "value": 4035,
+    },
+    {
+      "label": "Allied Healing",
+      "value": 7464,
+    },
+  ],
+  "31888": [
+    {
+      "label": "Healing",
+      "value": 3435,
+    },
+  ],
+  "31914": [
+    {
+      "label": "Healing",
+      "value": 8020,
+    },
+  ],
+  "34609": [
+    {
+      "label": "Healing",
+      "value": 7994,
+    },
+  ],
+  "34651": [
+    {
+      "label": "Healing",
+      "value": 7994,
+    },
+  ],
+  "34724": [
+    {
+      "label": "Healing",
+      "value": 7994,
+    },
+  ],
+  "34743": [
+    {
+      "label": "Healing",
+      "value": 7994,
+    },
+  ],
+  "40200": [
+    {
+      "label": "Healing",
+      "value": 1515,
+    },
+  ],
+  "40332": [
+    {
+      "label": "Ally Healing",
+      "value": 2035,
+    },
+    {
+      "label": "Self Healing",
+      "value": 1660,
+    },
+  ],
+  "40485": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "40507": [
+    {
+      "label": "Healing",
+      "value": 6450,
+    },
+  ],
+  "41052": [
+    {
+      "label": "Healing",
+      "value": 141,
+    },
+  ],
+  "41167": [
+    {
+      "label": "Healing",
+      "value": 3005,
+    },
+  ],
+  "41220": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "41475": [
+    {
+      "label": "Self-Heal",
+      "value": 349,
+    },
+  ],
+  "42330": [
+    {
+      "label": "Healing",
+      "value": 363,
+    },
+  ],
+  "42949": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "42960": [
+    {
+      "label": "Self-Heal",
+      "value": 4269,
+    },
+  ],
+  "43148": [
+    {
+      "label": "Self Heal",
+      "value": 4355,
+    },
+  ],
+  "43565": [
+    {
+      "label": "Healing",
+      "value": 307,
+    },
+  ],
+  "44405": [
+    {
+      "label": "Healing",
+      "value": 195,
+    },
+  ],
+  "44948": [
+    {
+      "label": "Healing",
+      "value": 5563,
+    },
+    {
+      "label": "Per Condition Removed",
+      "value": 1008,
+    },
+  ],
+  "45088": [
+    {
+      "label": "Healing",
+      "value": 8250,
+    },
+  ],
+  "45686": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "45773": [
+    {
+      "label": "Healing",
+      "value": 1814,
+    },
+    {
+      "label": "Life Siphon Healing",
+      "value": 1328,
+    },
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "49056": [
+    {
+      "label": "Healing",
+      "value": 3890,
+    },
+  ],
+  "50410": [
+    {
+      "label": "Healing",
+      "value": 2628,
+    },
+  ],
+  "55024": [
+    {
+      "label": "Healing",
+      "value": 602,
+    },
+  ],
+  "5503": [
+    {
+      "label": "Healing",
+      "value": 4025,
+    },
+    {
+      "label": "Healing per Cast",
+      "value": 276,
+    },
+  ],
+  "55046": [
+    {
+      "label": "Healing",
+      "value": 451,
+    },
+  ],
+  "55050": [
+    {
+      "label": "Life Siphon Healing",
+      "value": 740,
+    },
+  ],
+  "5507": [
+    {
+      "label": "Healing",
+      "value": 1221,
+    },
+  ],
+  "5510": [
+    {
+      "label": "First-Hit Healing",
+      "value": 2149,
+    },
+    {
+      "label": "Additional-Hit Healing",
+      "value": 700,
+    },
+  ],
+  "5537": [
+    {
+      "label": "Healing",
+      "value": 654,
+    },
+  ],
+  "5549": [
+    {
+      "label": "Healing",
+      "value": 448,
+    },
+  ],
+  "5551": [
+    {
+      "label": "Heal per Condition",
+      "value": 577,
+    },
+  ],
+  "5558": [
+    {
+      "label": "Healing",
+      "value": 3720,
+    },
+  ],
+  "5569": [
+    {
+      "label": "Healing",
+      "value": 7994,
+    },
+  ],
+  "5570": [
+    {
+      "label": "Healing",
+      "value": 3890,
+    },
+  ],
+  "5607": [
+    {
+      "label": "Healing",
+      "value": 475,
+    },
+  ],
+  "5681": [
+    {
+      "label": "Healing",
+      "value": 816,
+    },
+  ],
+  "5748": [
+    {
+      "label": "Healing",
+      "value": 3440,
+    },
+  ],
+  "5834": [
+    {
+      "label": "Healing",
+      "value": 7060,
+    },
+  ],
+  "5857": [
+    {
+      "label": "Healing",
+      "value": 3270,
+    },
+  ],
+  "5860": [
+    {
+      "label": "Healing",
+      "value": 525,
+    },
+  ],
+  "5980": [
+    {
+      "label": "Healing",
+      "value": 3270,
+    },
+  ],
+  "6140": [
+    {
+      "label": "Healing",
+      "value": 3270,
+    },
+  ],
+  "62522": [
+    {
+      "label": "Healing",
+      "value": 4600,
+    },
+  ],
+  "62622": [
+    {
+      "label": "Heal If Attacked",
+      "value": 6574,
+    },
+    {
+      "label": "Heal if no attacks are reversed.",
+      "value": 3287,
+    },
+  ],
+  "62680": [
+    {
+      "label": "Healing",
+      "value": 1044,
+    },
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "62687": [
+    {
+      "label": "Healing",
+      "value": 780,
+    },
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "62702": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "62719": [
+    {
+      "label": "Healing per Hit",
+      "value": 1044,
+    },
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "62738": [
+    {
+      "label": "Base Heal",
+      "value": 1039,
+    },
+  ],
+  "62793": [
+    {
+      "label": "Healing per Condition",
+      "value": 1039,
+    },
+  ],
+  "62796": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "62827": [
+    {
+      "label": "Healing",
+      "value": 1841,
+    },
+  ],
+  "62832": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "62878": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "62941": [
+    {
+      "label": "Healing per Condition",
+      "value": 1039,
+    },
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "62942": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "62948": [
+    {
+      "label": "Lesser Healing",
+      "value": 1918,
+    },
+    {
+      "label": "Greater Healing",
+      "value": 3834,
+    },
+  ],
+  "62962": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "62978": [
+    {
+      "label": "Initial Healing",
+      "value": 4010,
+    },
+    {
+      "label": "Delayed Healing",
+      "value": 4330,
+    },
+  ],
+  "63049": [
+    {
+      "label": "Heal Pulse",
+      "value": 305,
+    },
+    {
+      "label": "Healing",
+      "value": 6630,
+    },
+  ],
+  "63292": [
+    {
+      "label": "Self-Heal",
+      "value": 5954,
+    },
+    {
+      "label": "Area Heal",
+      "value": 820,
+    },
+  ],
+  "68676": [
+    {
+      "label": "Passive Healing",
+      "value": 427,
+    },
+    {
+      "label": "Active Heal Pulse",
+      "value": 950,
+    },
+    {
+      "label": "Final Heal Pulse",
+      "value": 6250,
+    },
+  ],
+  "71799": [
+    {
+      "label": "First-Hit Healing",
+      "value": 3010,
+    },
+    {
+      "label": "Additional-Hit Healing",
+      "value": 560,
+    },
+  ],
+  "71813": [
+    {
+      "label": "First-Hit Healing",
+      "value": 2064,
+    },
+    {
+      "label": "Additional-Hit Healing",
+      "value": 345,
+    },
+  ],
+  "71860": [
+    {
+      "label": "Healing",
+      "value": 4078,
+    },
+  ],
+  "71882": [
+    {
+      "label": "Initial Heal",
+      "value": 1645,
+    },
+    {
+      "label": "Pulse Heal",
+      "value": 945,
+    },
+  ],
+  "71889": [
+    {
+      "label": "Healing",
+      "value": 3590,
+    },
+  ],
+  "71892": [
+    {
+      "label": "Healing",
+      "value": 379,
+    },
+  ],
+  "71897": [
+    {
+      "label": "Healing",
+      "value": 1916,
+    },
+  ],
+  "71986": [
+    {
+      "label": "First-Hit Healing",
+      "value": 277,
+    },
+    {
+      "label": "Additional-Hit Healing",
+      "value": 55,
+    },
+  ],
+  "71999": [
+    {
+      "label": "Healing",
+      "value": 785,
+    },
+  ],
+  "72002": [
+    {
+      "label": "Healing",
+      "value": 1725,
+    },
+  ],
+  "72033": [
+    {
+      "label": "Healing per Unique Condition",
+      "value": 98,
+    },
+  ],
+  "72940": [
+    {
+      "label": "Healing",
+      "value": 1405,
+    },
+    {
+      "label": "Illuminated Healing",
+      "value": 1686,
+    },
+  ],
+  "72966": [
+    {
+      "label": "Healing",
+      "value": 216,
+    },
+  ],
+  "72967": [
+    {
+      "label": "Healing",
+      "value": 2135,
+    },
+  ],
+  "73055": [
+    {
+      "label": "Healing",
+      "value": 288,
+    },
+  ],
+  "73094": [
+    {
+      "label": "Healing",
+      "value": 1416,
+    },
+  ],
+  "73152": [
+    {
+      "label": "Healing",
+      "value": 1760,
+    },
+    {
+      "label": "Empowered Healing",
+      "value": 3040,
+    },
+  ],
+  "76621": [
+    {
+      "label": "Healing",
+      "value": 8050,
+    },
+    {
+      "label": "Ally Healing",
+      "value": 4850,
+    },
+    {
+      "label": "Healing per Condition Removed",
+      "value": 400,
+    },
+  ],
+  "76634": [
+    {
+      "label": "Healing",
+      "value": 7920,
+    },
+  ],
+  "76695": [
+    {
+      "label": "Self-Healing",
+      "value": 5035,
+    },
+    {
+      "label": "Ally Healing",
+      "value": 3000,
+    },
+  ],
+  "76739": [
+    {
+      "label": "Life Siphon Healing",
+      "value": 831,
+    },
+  ],
+  "76755": [
+    {
+      "label": "Healing",
+      "value": 4940,
+    },
+    {
+      "label": "Echo Healing",
+      "value": 2700,
+    },
+  ],
+  "76805": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "76941": [
+    {
+      "label": "Life Siphon Healing",
+      "value": 1009,
+    },
+  ],
+  "76968": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "77022": [
+    {
+      "label": "Healing per Condition Removed",
+      "value": 708,
+    },
+  ],
+  "77043": [
+    {
+      "label": "Self-Healing",
+      "value": 1610,
+    },
+    {
+      "label": "Allied Healing",
+      "value": 1125,
+    },
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "77243": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "77259": [
+    {
+      "label": "Healing per Second",
+      "value": 1712,
+    },
+  ],
+  "77271": [
+    {
+      "label": "Healing",
+      "value": 8020,
+    },
+  ],
+  "77291": [
+    {
+      "label": "Rapid Flow Healing",
+      "value": 408,
+    },
+  ],
+  "77300": [
+    {
+      "label": "Healing",
+      "value": 83,
+    },
+  ],
+  "78681": [
+    {
+      "label": "Healing",
+      "value": 6100,
+    },
+    {
+      "label": "Heal per Condition",
+      "value": 746,
+    },
+  ],
+  "79314": [
+    {
+      "label": "Healing",
+      "value": 7920,
+    },
+  ],
+  "79315": [
+    {
+      "label": "Healing",
+      "value": 7920,
+    },
+  ],
+  "79323": [
+    {
+      "label": "Healing",
+      "value": 7920,
+    },
+  ],
+  "9080": [
+    {
+      "label": "First-Hit Healing",
+      "value": 2050,
+    },
+    {
+      "label": "Additional-Hit Healing",
+      "value": 900,
+    },
+  ],
+  "9083": [
+    {
+      "label": "Initial Self Heal",
+      "value": 3200,
+    },
+    {
+      "label": "Self Heal per Pulse",
+      "value": 890,
+    },
+    {
+      "label": "Allied Heal per Pulse",
+      "value": 1344,
+    },
+  ],
+  "9102": [
+    {
+      "label": "Healing",
+      "value": 5605,
+    },
+  ],
+  "9111": [
+    {
+      "label": "Healing",
+      "value": 1277,
+    },
+  ],
+  "9112": [
+    {
+      "label": "Healing",
+      "value": 1275,
+    },
+  ],
+  "9128": [
+    {
+      "label": "Healing",
+      "value": 728,
+    },
+  ],
+  "9140": [
+    {
+      "label": "Healing",
+      "value": 327,
+    },
+  ],
+  "9158": [
+    {
+      "label": "Healing",
+      "value": 9161,
+    },
+  ],
+  "9175": [
+    {
+      "label": "Healing",
+      "value": 307,
+    },
+  ],
+  "9246": [
+    {
+      "label": "Healing",
+      "value": 3224,
+    },
+  ],
+  "9265": [
+    {
+      "label": "Final Heal",
+      "value": 2250,
+    },
+    {
+      "label": "Heal Pulses",
+      "value": 751,
+    },
+  ],
+}
+`;

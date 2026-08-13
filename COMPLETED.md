@@ -2,6 +2,53 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 161 — Tier 2 golden snapshot fixtures (curated coefficient tables) + 4 drift bugs found & fixed
+
+Picks up TODO.md's "Automated testing strategy" Tier 2, right after Session 160's Tier 1. Where
+Tier 1 hand-verified the *arithmetic* against wiki-quoted constants, Tier 2 pays no new
+verification cost at all — it locks in the *already wiki-verified* output of
+`CURATED_HEALING_COEFFICIENTS`/`CURATED_DAMAGE_COEFFICIENTS`/`CURATED_BARRIER_COEFFICIENTS`
+(150+ sessions of curation) as a snapshot, so a future regression shows up as a diff instead of
+shipping silently.
+
+New `coefficient-snapshots.test.ts` (`skill-calc/`, 3 tests): reads `skills.json` +
+`synthetic-facts.json` directly and merges them the same way `load-game-data.ts`'s
+`withSyntheticFacts` does (that function itself is Electron-`app`-path-dependent and can't be
+imported into a plain vitest run) — several curated entries (every Legendary Stance skill's "Rapid
+Flow Healing" line) only resolve against a synthetic fact, so skipping the merge would've silently
+snapshotted an incomplete picture. Computes `healingLinesForSkill`/`damageLinesForSkill`/
+`barrierLinesForSkill` for every curated skill id at one fixed reference build (Power 2500/Healing
+Power 1500/`TARGET_ARMOR_VALUES.Medium`, every curated `requiresTrait` active at once so both a
+skill's untraited and trait-boosted lines land in the same snapshot pass) and snapshots the whole
+result per table. Also fails loudly (not silently) if a curated id no longer resolves to any skill
+in `skills.json` at all.
+
+**Building this surfaced 5 real bugs**, not just 5 rows of numbers — a curated `factText` silently
+failing to match its skill's actual live-API fact text is exactly the "silent omission" class the
+whole testing-strategy discussion (TODO.md, 2026-08-12) singled out as undetectable by a plain
+value-correctness snapshot on its own; catching it here was a byproduct of computing real output
+against real current data rather than hand-picked fixtures. **4 fixed same session** (curated
+`baseValue`/`coefficient` confirmed unchanged — only the label was stale):
+- Necromancer's Deadly Feast (10619): curated `'Life Siphon Healing'`, live API just says
+  `'Healing'` on this particular skill (its Life-Siphon-family siblings do use that longer label,
+  likely where the copy-paste came from).
+- Ranger's Troll Unguent (12483): curated `'Health per second'`, live API capitalizes `'Health per
+  Second'`.
+- Elementalist's Wind Slam (62747, Hammer 1/Air): curated `'Damage'`, live API labels it `'Maximum
+  Damage'` (unlike its other Hammer-1 attunement siblings, which really are plain `'Damage'`).
+- Warrior's Tsunami Slash (14480, Spear 5), Barbarian's Retaliation (1338)-traited variant: curated
+  `'Damage per Strike'` (matching the untraited fact's label), but the `traitedFacts` entry is
+  labeled plain `'Damage'`.
+
+**1 left unfixed, logged in TODO.md — needs fresh wiki verification, not a text fix**: Mesmer's
+Mirror Blade (10333). Its 3rd curated line (`'Minimum Damage'`) matches nothing at all anymore —
+the skill's real `facts` now carries two `'Maximum Damage'` entries, no Minimum — and its
+`traitedFacts` carries a second Infinite-Forge(2206)-gated fact this table doesn't account for
+(`dmg_multiplier: 2.675`) alongside the already-curated one (0.825). A real content/shape change,
+not a naming drift — left as a documented TODO item rather than guessed at.
+
+`npm run test` now 99 total (up from 96), `npm run typecheck` clean.
+
 ## Session 160 — Tier 1 value-correctness tests (gear/derived-stat formulas)
 
 Picks up TODO.md's "Automated testing strategy" secondary priority, first of the 3 tiers (Tier 1:
