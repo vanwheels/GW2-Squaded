@@ -16,9 +16,9 @@ missing features.
 Both gaps that stood between here and 1.0 are now closed:
 1. ~~**Never visually verified in a running app.**~~ **DONE 2026-08-13** — user did a manual
    click-through pass. Found one real bug along the way: Revenant's skill bar was showing phantom
-   duplicate icon rows for skills with no real secondary action — fixed same day, see COMPLETED.md
-   Session 165 and the "Follow-ups from the Revenant flip-duplicate fix" section below for the
-   narrower, unfinished piece of that fix.
+   duplicate icon rows for skills with no real secondary action — fixed same day (COMPLETED.md
+   Session 165), including its non-Revenant sibling sweep (Session 166) and its last curation
+   loose end, Breakrazor's Bastion (Session 167) — fully closed.
 2. ~~**Zero automated tests.**~~ **DONE 2026-08-13** — 108 tests across 3 completeness scans + 3
    value-correctness tiers; full history in COMPLETED.md (Sessions 158-164). Also found and fixed 7
    real bugs as a byproduct (stale `factText` matches, missing health-threshold/full-endurance combat
