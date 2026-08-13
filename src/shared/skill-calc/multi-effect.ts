@@ -1,7 +1,7 @@
 import type { Skill } from '../types'
 import { MANTRA_FINAL_CHARGE_IDS } from './mantra-final-charge'
 import { VINDICATOR_ASPECT_ARCHEMORUS_IDS } from './vindicator-aspect'
-import { NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS } from './revenant-flip-duplicates'
+import { isNonActionableFlipTarget } from './non-actionable-flip-targets'
 
 export interface SkillVariantEffect {
   label: string
@@ -66,11 +66,12 @@ export function activeAttunementVariantSkill(skill: Skill, activeAttunement: str
  * toggle button. Any further hop past it (e.g. the elite's own "Drop Urn of Saint Viktor"
  * follow-up) still walks normally once the Saint Viktor id itself is the skill passed in here.
  *
- * Second exception: `NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS` — several other Legend skills'
- * `flipSkill` points at a same-name (or near-identical) copy that carries no facts the source skill
- * doesn't already have, not a real secondary action (see that constant's doc comment for the 3
- * different ways this happens). The walk stops there rather than appending a duplicate-looking icon
- * with the same name and tooltip as the skill directly above it.
+ * Second exception: `isNonActionableFlipTarget` — several other skills' (mostly Revenant Legend,
+ * plus a handful of Engineer/Guardian/Elementalist/Thief Heal/Utility/Elite skills)  `flipSkill`
+ * points at a same-name (or near-identical) copy that carries no facts the source skill doesn't
+ * already have, not a real secondary action (see `revenant-flip-duplicates.ts`/
+ * `other-profession-flip-duplicates.ts` for the per-id reasoning). The walk stops there rather than
+ * appending a duplicate-looking icon with the same name and tooltip as the skill directly above it.
  */
 export function flipTargetSkills(skill: Skill, skillsById: Map<number, Skill>): SkillVariantEffect[] {
   const out: SkillVariantEffect[] = []
@@ -84,7 +85,7 @@ export function flipTargetSkills(skill: Skill, skillsById: Map<number, Skill>): 
   while (current.flipSkill !== null) {
     const next = skillsById.get(current.flipSkill)
     if (!next || seen.has(next.id)) break
-    if (NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS.has(next.id)) break
+    if (isNonActionableFlipTarget(next.id)) break
     seen.add(next.id)
     out.push({ label: next.name, skill: next })
     current = next

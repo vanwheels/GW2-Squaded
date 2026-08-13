@@ -25,7 +25,7 @@ import { WEAVER_SPEC_ID, weaponSkillIdsForPair } from '../weapon-calc/weapon-ski
 import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bundle-skills'
 import { professionMechanicBar, RANGER_BEASTMODE_SPEC_ID } from '../skill-calc/profession-mechanic'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash'
-import { NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS } from '../skill-calc/revenant-flip-duplicates'
+import { isNonActionableFlipTarget } from '../skill-calc/non-actionable-flip-targets'
 
 export type BoonConditionCategory = 'boon' | 'condition' | 'aura'
 
@@ -2346,12 +2346,11 @@ function weaponSkillIdsForBuild(
  *  skills specifically — the other aspect's version of the same slot; see `skillIdsForBuild`'s doc
  *  comment). Same walk as `relatedVariantSkills`'s tooltip-chain logic and `untamed-unleash.ts`'s
  *  private `flipChainIds`, duplicated locally rather than shared since each caller's return shape
- *  differs (a flat id list here vs. a `Set` there). Stops before appending a
- *  `NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS` entry — same reasoning as `multi-effect.ts`'s
- *  `flipTargetSkills`, which shares that constant: those ids carry no facts genuinely absent from
- *  their own source skill (stale orphans, near-identical copies), so folding them into the boon/
- *  condition totals here would double-count the source's own facts under a different id rather than
- *  add anything real. */
+ *  differs (a flat id list here vs. a `Set` there). Stops before appending an
+ *  `isNonActionableFlipTarget` id — same reasoning as `multi-effect.ts`'s `flipTargetSkills`, which
+ *  shares that check: those ids carry no facts genuinely absent from their own source skill (stale
+ *  orphans, near-identical mode-split copies), so folding them into the boon/condition totals here
+ *  would double-count the source's own facts under a different id rather than add anything real. */
 function withFlipChain(startId: number, skillsById: Map<number, Skill>): number[] {
   const ids: number[] = []
   const seen = new Set<number>()
@@ -2360,7 +2359,7 @@ function withFlipChain(startId: number, skillsById: Map<number, Skill>): number[
     seen.add(current)
     ids.push(current)
     const next = skillsById.get(current)?.flipSkill ?? null
-    current = next !== null && NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS.has(next) ? null : next
+    current = next !== null && isNonActionableFlipTarget(next) ? null : next
   }
   return ids
 }

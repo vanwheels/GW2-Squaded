@@ -2,6 +2,41 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 166 — Same-name flip-duplicate sweep, non-Revenant professions
+
+Follow-up to Session 165's Revenant fix — TODO.md had logged "the same shape exists outside Revenant
+too, ~15 more pairs, needs the same per-pair verification" as a deliberately-not-guessed-at follow-up.
+Did that verification now: filtered the earlier full-`skills.json` scan down to Engineer/Guardian/
+Elementalist/Thief Heal/Utility/Elite skills specifically, which actually turned up 23 pairs (not 15).
+
+Checked each pair's raw + `synthetic-facts.json`-merged fact signature (ignoring pure metadata like
+Recharge/Range) for whether the flip target is a strict superset of its source's own content, then
+wiki-verified the ambiguous ones directly:
+
+- **19 confirmed non-actionable**, two different reasons: (a) **12 Guardian Spirit Weapon pairs +
+  Rejuvenate + the Thief trio** are byte-identical-or-reduced copies with zero new content — Utility
+  Goggles' own wiki infobox nails down *why*: `split = pve, wvw pvp` with `id = 5865,29591` both
+  listed on one page, i.e. this is the wiki's own PvE-vs-WvW/PvP mode-split convention surfacing as a
+  second id instead of a `wvw-fact-overrides.json` correction on the same id, and the other 18 pairs
+  share the identical signature. (b) **A.E.D.** (Engineer heal) — its flip target's extra "Shocking
+  Aura" fact matches nothing in the skill's current wiki-documented mechanic, so it reads as
+  stale/superseded data, same "orphan carries wrong info" shape as Revenant's Centaur orphans.
+- **4 confirmed genuinely actionable, left alone**: Elementalist Evoker's 4 familiar Utility skills
+  (Fox's Fury, Otter's Compassion, Toad's Fortitude, Hare's Agility) all show their flip target as a
+  strict content superset, and Fox's Fury/Otter's Compassion are wiki-confirmed as a real, current,
+  attunement-conditional enhancement (e.g. "if fire is your specialized element, this skill also
+  breaks stun / grants extra might / strikes nearby foes" — Fox's Fury last balance-patched
+  2025-10-28). Toad's Fortitude/Hare's Agility weren't individually wiki-checked but match the same
+  signature, so assumed to follow the same pattern rather than excluded on a guess (documented as an
+  assumption, not a confirmed fact, in the new file's comment).
+
+Added `other-profession-flip-duplicates.ts` (the 19 new ids, full per-family reasoning) and a small
+`non-actionable-flip-targets.ts` exporting `isNonActionableFlipTarget`, which now unions that table
+with Session 165's `revenant-flip-duplicates.ts` — both `multi-effect.ts`'s `flipTargetSkills` and
+`boon-calc/sources.ts`'s `withFlipChain` were repointed at the combined helper instead of the
+Revenant-only constant, so a future family's exclusion table only needs adding to the union, not to
+both call sites again. `npm run typecheck`/`lint`/`test` all clean (108/108, no snapshot changes).
+
 ## Session 165.5 — TODO.md cleanup: archiving the finished Renegade tooltip/data gaps sweep
 
 Moved here verbatim from TODO.md's "Renegade tooltip/data gaps (flagged by the user 2026-08-12)"
