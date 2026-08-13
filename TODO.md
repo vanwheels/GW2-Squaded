@@ -132,35 +132,43 @@ have infra for yet, so none are rushed into an existing curated table:
 What's left below is specific skills/traits that were investigated and deliberately left uncurated —
 don't re-guess a coefficient for these without a fresh look at the source conflict.
 
-**Healing — Elite (1):**
-- Revenant 29114 (Energy Expulsion, flip-skill): a fresh live API pull still returns a totally
-  different fact set ("Healing Fragment"/knockback) than the wiki's current single knockdown+heal —
-  unresolved API/wiki mismatch, not a stale cache.
-
-**Healing — Utility (3):**
+**Healing — Utility (2):**
 - Guardian 31295 (Sanctuary, underwater variant): a frozen pre-2016-balance-pass copy of id 9128 —
   no wiki coefficient documented for it specifically (underwater is out of scope for WvW anyway).
+  Re-checked 2026-08-13: 9128's own wiki coefficient (522/0.1375) is unchanged and still the only one
+  curated (id 31295 above); no separate documentation for 31295 has appeared, no change.
 - Guardian 62669 (Repose): the wiki page itself is tagged stub — coefficient is an unfilled `?`.
-- Revenant 29082 (Natural Harmony, Ventari facet): wiki base value (1124) disagrees with a freshly
-  reconfirmed API value (1620) — a real conflict, not a stale read.
+  Re-checked 2026-08-13: still `?` — coefficient itself is still undocumented, no change. Note for
+  whoever eventually fills this in: the wiki's Version History now shows a 2025-11-18 balance patch
+  that dropped the WvW/PvP base value from 2595 to 1635 (PvE unaffected) — don't reuse the older 2595
+  figure from before that patch if it surfaces anywhere stale.
 
-**Healing — Heal-slot (6):** Elementalist 44239 (Aquatic Stance — wiki template value matches
-neither this app's API base nor the wiki's own version history, likely a stale unedited template);
-Engineer 63049 (Rectifier Signet's trait-upgraded pulse heal — no wiki fact template at all);
-Engineer 76738 (Mitotic State — API base 305 vs. wiki 7625/5500, ratio suggests a per-tick vs.
-summed-total mismatch, unconfirmed); Necromancer 10547 (Summon Blood Fiend — pet's own fixed-0
-Healing Power, no coefficient param on wiki, expected non-scaling); Necromancer 10670 (2nd Well of
-Blood id — API values don't match either PvE/WvW reading of the shared wiki page, likely an
-undocumented Scourge-context variant); Revenant 26937 (Enchanted Daggers — wiki 1640 vs. API 1560,
-same +80 offset also shows up on its Siphon Damage facts).
+**Healing — Heal-slot (4):** Engineer 63049 (Rectifier Signet's trait-upgraded pulse heal — no wiki
+fact template at all); Necromancer 10547 (Summon Blood Fiend — pet's own fixed-0 Healing Power, no
+coefficient param on wiki, expected non-scaling); Necromancer 10670 (2nd Well of Blood id — API
+values don't match either PvE/WvW reading of the shared wiki page, likely an undocumented
+Scourge-context variant); Revenant 26937 (Enchanted Daggers — wiki 1640 vs. API 1560, same +80
+offset also shows up on its Siphon Damage facts). All 4 re-checked 2026-08-13 against fresh wiki/API
+pulls — same conflicts persist unchanged, still genuinely uncurated.
 
-**Healing — Weapon-slot (5):** Elementalist 72982 (Etching: Jökulhlaup, Spear — no `coefficient=`
+Closed 2026-08-13 (re-investigated, now curated in `CURATED_HEALING_COEFFICIENTS`): Elementalist
+44239 (Aquatic Stance — the wiki's own dated Version History prose and the live API now agree on
+6480; only the infobox's isolated template param was stale, off by 80) and Engineer 76738 (Mitotic
+State — the "API 305" was confirmed to be a per-pulse value, 305 × 25 pulses over its 5s duration =
+7625, matching the wiki's summed total exactly; not a real conflict).
+
+**Healing — Weapon-slot (4):** Elementalist 72982 (Etching: Jökulhlaup, Spear — no `coefficient=`
 param on wiki); Necromancer 30860 (Death Spiral — wiki stub, missing siphon coefficients);
-Necromancer 69302 (Life Siphon — wiki 450/300 vs. API 537/238, unexplained); Ranger 31889 (Astral
-Wisp, post-rework — wiki gives one base value across modes, API shows two duplicate-text facts at
-~1/4 each, pulse relationship undocumented); Thief 72991 (Shadow Veil, Spear — two facts share
-identical factText with only one wiki-documented coefficient; the table matches by factText alone so
-curating risks binding to the wrong fact).
+Necromancer 69302 (Life Siphon — wiki 450/300 vs. API 537/238, unexplained); Thief 72991 (Shadow
+Veil, Spear — two facts share identical factText with only one wiki-documented coefficient; the
+table matches by factText alone so curating risks binding to the wrong fact). All 4 re-checked
+2026-08-13 against fresh wiki/API pulls — same conflicts persist unchanged, still genuinely
+uncurated.
+
+Closed 2026-08-13 (re-investigated, now curated in `CURATED_HEALING_COEFFICIENTS`): Ranger 31889
+(Astral Wisp, post-rework — same per-pulse-vs-total shape as Mitotic State above: wiki's one total
+value (1288) ÷ its now-4 pulses = 322, matching the API's duplicate-text facts exactly; safe to bind
+since, unlike Shadow Veil below, both duplicate facts share the same value).
 
 **Healing — Thief's Assassin's Reward trait (id 1238)**, investigated 2026-08-05: ~38
 `requires_trait`-gated Healing facts (one per initiative-costing weapon skill), each a non-uniform

@@ -88,6 +88,14 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   79314: [{ factText: 'Healing', baseValue: 6420, coefficient: 1.0 }],
   79315: [{ factText: 'Healing', baseValue: 6420, coefficient: 1.0 }],
   79323: [{ factText: 'Healing', baseValue: 6420, coefficient: 1.0 }],
+  // Elementalist — Aquatic Stance (Catalyst). Re-investigated 2026-08-13 (was left uncurated as an
+  // unconfirmed "wiki template value matches neither this app's API base nor the wiki's own version
+  // history" conflict): resolved — the wiki's own dated Version History prose ("Increased the base
+  // healing from 4,000 to 6,480") and the live API (6480) now agree with each other; only the
+  // infobox's isolated `{{skill fact|healing|6400|...}}` template number is stale/unedited (off by
+  // 80 from the same page's own prose), so 6480 is used, siding with the corroborated pair over the
+  // one-off template param. Coefficient (1.0) unaffected by that patch, no PvE/WvW split documented.
+  44239: [{ factText: 'Initial Heal', baseValue: 6480, coefficient: 1.0 }],
   // Engineer — Healing Turret (both ids share identical facts in data/game-data/skills.json).
   5857: [{ factText: 'Healing', baseValue: 2520, coefficient: 0.5 }],
   6140: [{ factText: 'Healing', baseValue: 2520, coefficient: 0.5 }],
@@ -123,6 +131,14 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
     { factText: 'Heal Pulse', baseValue: 230, coefficient: 0.05 },
     { factText: 'Healing', baseValue: 5130, coefficient: 1.0 }
   ],
+  // Engineer — Mitotic State (Amalgam). Re-investigated 2026-08-13 (was left uncurated as an
+  // unconfirmed "API base 305 vs. wiki 7625" mismatch): resolved — 305 is the API's own per-pulse
+  // AttributeAdjust value, not a competing total; the skill pulses for its full 5s Duration fact at
+  // a 0.2s interval (25 pulses), and 305 * 25 = 7625 exactly, matching the wiki's documented total.
+  // The wiki's own fact template is the summed-total figure (coefficient=1.0 both PvE and WvW,
+  // 7625; PvP separately reduced to 5500 by a 2026-06-02 balance patch) — same convention as every
+  // other "Healing" entry in this table, no per-pulse math needed at render time. No PvE/WvW split.
+  76738: [{ factText: 'Healing', baseValue: 7625, coefficient: 1.0 }],
   // Guardian — Shelter.
   9102: [{ factText: 'Healing', baseValue: 4555, coefficient: 0.7 }],
   // Guardian — "Receive the Light!". Initial Self Heal and Allied Heal per Pulse keep the same base
@@ -395,11 +411,15 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // actually Barrier facts (the API mislabels Barrier's target as "Healing" too — same quirk
   // already noted on Necromancer's Sand Flare above); those are out of scope (Barrier is a
   // separate resource bar this app doesn't model) and not listed here at all, curated or not.
-  // Of the 23 genuine Healing candidates, 3 stayed uncurated (see TODO.md): Guardian's underwater
+  // Of the 23 genuine Healing candidates, 3 stayed uncurated on their own id: Guardian's underwater
   // Sanctuary variant (id 31295, no wiki-documented coefficient exists for it at all), Guardian's
   // Repose (id 62669, the wiki's own coefficient field is a literal unfilled "?" stub), and
-  // Revenant's Natural Harmony (id 29082, wiki base 1124 vs. this app's own live API base 1620 —
-  // a genuine disagreement, independently reconfirmed against a fresh `/v2/skills/29082` API pull).
+  // Revenant's Natural Harmony's orphan (id 29082, wiki base 1124 vs. this id's own live API base
+  // 1620 — a genuine disagreement). Of those 3, Natural Harmony is NOT a real gap — same shape as
+  // Energy Expulsion above: 29082 is a structurally-unreachable orphan (see Elite section above),
+  // and the live/reachable id (27025, below) was separately curated with the wiki-correct 1124 in
+  // the 2026-08-12 Renegade sweep. TODO.md's exceptions list closed this item 2026-08-13 on that
+  // basis; Sanctuary/Repose remain genuinely open (see TODO.md).
   // Elementalist — Signet of Water (both ids share one wiki page/identical Healing fact; 49056
   // is a stale/legacy duplicate id missing the post-2025-06-24 "Conditions Removed" fact). No
   // PvE/WvW split on the heal itself.
@@ -473,8 +493,12 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // smaller surface than Heal/Utility) — of those, 1 (Warrior's "We Will Never Yield!", id 76562) is
   // the same API Barrier-mislabeling trap already seen on Necromancer's Sand Flare/several Utility
   // skills (its 2 Healing-tagged facts are literally named "Minimum Barrier"/"Maximum Barrier") and is
-  // out of scope, not listed here. Of the remaining 11 genuine Healing candidates, 1 stayed uncurated
-  // (Revenant's Energy Expulsion, id 29114 — see below).
+  // out of scope, not listed here. Of the remaining 11 genuine Healing candidates, 1 (Revenant's
+  // Energy Expulsion, id 29114 — its own stale pre-2022-06-28 fact set, see below) stayed uncurated
+  // on its own id, but the skill itself is NOT a real gap: the live/reachable id (27356, outside this
+  // 12-candidate count since it originally carried zero API Healing facts) was separately curated via
+  // synthetic-facts.json in the 2026-08-12 Renegade sweep — see that entry below. TODO.md's exceptions
+  // list closed this item 2026-08-13 on that basis.
   // Elementalist — Crashing Waves. No PvE/WvW split.
   25492: [{ factText: 'Healing', baseValue: 6410, coefficient: 1.0 }],
   // Elementalist — "Rebound!" (Tempest). No PvE/WvW split.
@@ -726,6 +750,18 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Ranger — Solar Beam (Druid Staff). PvE/WvW+PvP base-value split (PvE 66 vs WvW 30), same 0.03
   // coefficient both modes — WvW value used.
   31710: [{ factText: 'Healing', baseValue: 30, coefficient: 0.03 }],
+  // Ranger — Astral Wisp (Druid Staff, post-rework). Re-investigated 2026-08-13 (was left uncurated
+  // as an unconfirmed "wiki gives one base value across modes, API shows two duplicate-text facts at
+  // ~1/4 each" mismatch): resolved — same per-pulse-vs-total shape as Mitotic State above. The wiki
+  // documents ONE total value per mode (1288, coefficient 0.6 pve/pvp vs 0.9 wvw) across the skill's
+  // now-4 pulses (an undocumented wiki patch note confirms "Number of pulses reduced to 4"), and
+  // 1288 / 4 = 322 exactly, matching the API's two (of what should be four) identical 322 raw facts.
+  // Curated with the wiki's own total per this table's usual convention — `.find()` binds to
+  // whichever of the two identical-text API facts comes first, which is safe here since both raw
+  // facts share the exact same value (unlike Thief's Shadow Veil below, where the two API facts
+  // differ and only one has a documented coefficient — left uncurated for that reason). WvW value
+  // used per convention.
+  31889: [{ factText: 'Healing', baseValue: 1288, coefficient: 0.9 }],
   // Ranger — Flourish (Spear). "wvw pvp" grouped coefficient split from PvE (PvE 509/0.5 vs WvW+PvP
   // 410/0.25) — WvW value used.
   71999: [{ factText: 'Healing', baseValue: 410, coefficient: 0.25 }],

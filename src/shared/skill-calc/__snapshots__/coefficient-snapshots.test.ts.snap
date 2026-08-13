@@ -6958,6 +6958,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 3435,
     },
   ],
+  "31889": [
+    {
+      "label": "Healing",
+      "value": 2638,
+    },
+  ],
   "31914": [
     {
       "label": "Healing",
@@ -7068,6 +7074,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Healing",
       "value": 307,
+    },
+  ],
+  "44239": [
+    {
+      "label": "Initial Heal",
+      "value": 7980,
     },
   ],
   "44405": [
@@ -7596,6 +7608,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Ally Healing",
       "value": 3000,
+    },
+  ],
+  "76738": [
+    {
+      "label": "Healing",
+      "value": 9125,
     },
   ],
   "76739": [
