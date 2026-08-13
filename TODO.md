@@ -67,10 +67,12 @@ needed, purely structural scans against data already in the repo:**
    `computeNamedFactSources` via `computeSigilNamedFactSources` (gated by `isActiveWeaponSlot`, same
    as sigils' passive stat bonuses); 2 false positives (Paralyzation, Impact) documented and
    excluded. See COMPLETED.md Session 158.
-3. **State-dependent bonus tests (Kalla's Fervor-shaped).** Bonuses that scale with a runtime value
-   (`combat-state.ts` ~lines 101-120, `KALLA_FERVOR_*_PERCENT_PER_STACK`) need tests parametrized
-   across `CombatState` (0/mid/max stacks), verified by hand at 2-3 points once — not a single static
-   snapshot, which would only ever check one point in the state space.
+3. ~~**State-dependent bonus tests (Kalla's Fervor-shaped).**~~ **DONE 2026-08-12**
+   (`src/shared/gear-calc/combat-state.test.ts`, 38 tests). Every state-dependent family in
+   `combat-state.ts` (mightStacks, stacking sigils, the 5 boolean-gated families, healthTier's 3-way
+   tier, Kalla's Fervor's per-stack %/Lasting-Legacy override) tested at 0/mid/max points of its own
+   dimension, plus end-to-end through `computeCharacterStats` for Kalla's Fervor/relic/Fury-crit-
+   chance. See COMPLETED.md Session 159.
 
 **Secondary priority: value-correctness tests (Tier 1/2/3, discussed but not started):**
 - Tier 1 — deterministic formula tests needing NO external oracle (gear attribute sums, crit
@@ -83,8 +85,8 @@ needed, purely structural scans against data already in the repo:**
 - Vitest is now installed (`npm run test`) — added 2026-08-12 to build the completeness scan above,
   `vitest.config.ts` at repo root, near-zero extra config as expected.
 
-**Next action:** build the State-dependent bonus tests (#3 above) — next-highest leverage per the
-original ranking, both completeness scans now done.
+**Next action:** all 3 completeness/coverage items above are now done. Pick up the secondary-priority
+Tier 1/2/3 value-correctness tests below, not started.
 
 ## New gaps found by the trait attribute-bonus completeness scan (2026-08-12)
 

@@ -2,6 +2,49 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 159 — State-dependent bonus tests (Kalla's Fervor-shaped)
+
+Closes TODO.md's "Automated testing strategy" item #3, the last of the 3 completeness/coverage
+items (siblings: Session 156-ish trait scan, Session 158 sigil scan). Unlike those two structural
+scans, every family in `combat-state.ts` is a runtime-parametrized formula (a per-stack multiplier,
+a boolean gate, a 3-way health tier) — a single static snapshot only ever checks one point in that
+state space and would pass even if the scaling itself were broken (e.g. a bonus that stopped
+scaling past 1 stack, or a gate wired backwards).
+
+New `combat-state.test.ts` (38 tests, `gear-calc/`) calls each state-dependent function at 0/mid/max
+points of its own dimension and asserts the exact hand-computed value at each — not re-verifying the
+underlying wiki numbers (each curated table's own comment already documents that source), just
+locking in that the formula built on top of them stays correct:
+- `mightStacks` — flat per-stack Power/ConditionDamage grant at 0/12/25 stacks, plus a curated
+  per-stack trait bonus (Awaken the Pain) stacking on top, plus confirming the trait bonus is absent
+  when the trait itself isn't active regardless of stack count.
+- Stacking sigil — single-attribute (Bloodlust) and "all stats" (the Stars, expands to all 9 core
+  attributes) scaling at 0/12/25 stacks, plus confirming a sigil on the *inactive* weapon set never
+  contributes at any stack count.
+- All 5 boolean-gated families (`furyActive`/`regenerationActive`/`quicknessActive`/
+  `mechanicActive`/`revealedActive`) — table-driven off/on pair per family against one curated trait
+  each, confirming the bonus is fully absent when off and exactly right when on.
+- `healthTier` — all 3 tiers against 2 curated traits at once (Empire Divided + Last Rites), proving
+  the additive sum changes correctly per tier including the below-50% tier where both traits' bonus
+  moves to a *different* target attribute (Power → Healing).
+- A combined-state test proving two families targeting the same attribute (Might-stack scaling +
+  health-threshold Power) accumulate additively rather than one overwriting the other.
+- `kallaFervorPercentPerStack` — base 2%/2%/2% vs. Lasting Legacy's improved 3%/3%/3%, a straight
+  override not an additive stack.
+- End-to-end via `computeCharacterStats`: Kalla's Fervor's 3 derived-stat percentages at 0/3/5
+  stacks (base and Lasting-Legacy-improved rates), the curated relic bonus adding onto
+  `outgoingDamagePercent` only while `relicActive`, and `furyActive`'s critical-chance bonus
+  (flat 20% plus a curated Fury-gated crit trait, Roiling Mists) off vs. on.
+
+All fixtures are self-contained synthetic `Build`/`Trait` objects built by local test helpers
+(`makeBuild`/`buildWithTrait(s)`) — no dependency on `data/game-data/traits.json` or the renderer's
+`makeBlankBuild`, so these tests exercise the formula in `combat-state.ts`/`derived-stats.ts` in
+isolation from data-curation correctness (that's the completeness scans' job). `npm run typecheck`/
+`npm run lint`/`npm run test` all clean (46 tests total across all 3 test files).
+
+This closes out all 3 items in TODO.md's "Priority: completeness/coverage tests" list. Next up per
+that section's own ranking is the secondary-priority Tier 1/2/3 value-correctness tests, not started.
+
 ## Session 158 — Sigil/Control-Strip completeness scan
 
 Closes TODO.md's "Automated testing strategy" item #2, sibling to the trait attribute-bonus
