@@ -2,6 +2,50 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 160 — Tier 1 value-correctness tests (gear/derived-stat formulas)
+
+Picks up TODO.md's "Automated testing strategy" secondary priority, first of the 3 tiers (Tier 1:
+deterministic formulas needing no external oracle). Unlike Sessions 156-159's completeness/coverage
+scans (which only check that a source was *looked at*), these hand-compute an expected number from
+the same wiki-quoted constants each source file already cites in its own comments and assert the
+code reproduces it exactly — catching an arithmetic slip (wrong divisor, dropped term, compounding
+where the game doesn't) that a completeness scan can't see because it never looks at values.
+
+New `attribute-totals.test.ts` (36 tests, `gear-calc/`): `statComboContribution`'s
+`adjustment * multiplier + value` formula at several adjustment tiers (armorHelm, trinketAmulet,
+weaponTwoHanded) against the wiki-quoted ascended constants, plus the one-handed-mirrored-equals-
+two-handed identity `computeGearAttributeTotals` relies on; `addBonus`'s 4 shapes (flat alias,
+percent bucket, "to all stats" distribution, sourceAttribute no-op, unmapped/null no-ops);
+`applyConversions`' simultaneous-not-chained resolution (multiple conversions all read the same
+pre-conversion snapshot, and multiple conversions targeting the same attribute sum);
+`boonDurationPercent`/`conditionDurationPercent`'s 15-points-per-1% conversion plus already-percent
+bonus;
+`magicFindPercent`'s pass-through; `resolveItemStatId`'s category self-heal (armor/weapon <->
+trinket id correction by matching name); `isActiveWeaponSlot`'s land-set/underwater-set/non-weapon
+gating; and `computeGearAttributeTotals` end-to-end (single-slot sum, two-handed mirroring, stowed-
+set exclusion, empty-weapon-slot exclusion, underwater two-handed adjustment, infusion flat add,
+sigil active-set gating, rune per-piece-count stage-gating — including a 4th stage staying locked
+at only 3 pieces equipped, food/utility bonus lines).
+
+New `derived-stats.test.ts` (14 tests, `gear-calc/`): `computeCharacterStats`'s crit chance formula
+(5% base + Precision/21 above 1000, plus Fury's flat +20% only when `furyActive`), crit damage
+formula (150% base + Ferocity/15), health formula (per-profession baseline + Vitality*10, confirmed
+to actually differ by profession for identical Vitality), and armor formula (Toughness + Defense,
+Defense gated per-armor-piece on that slot having an `itemStatId` — a partial 1-of-6-piece build
+sums to less than the full 6-piece `fullArmorDefense` total, proving the per-piece gate is real
+rather than always crediting the full set). Also pins the with-no-equipment baseline: attributes
+match `BASE_ATTRIBUTES` exactly, crit chance/damage sit at their bases, health is exactly the
+profession floor, armor is exactly base Toughness, and boon/condition duration/magic find are 0.
+
+One test-writing mistake caught by the tests themselves and fixed before landing: an `ItemStat`
+fixture used the display name `'Ferocity'` as its `attribute` key, but `ItemStat.attributes` uses
+the raw ItemStat/API key convention (`CritDamage`) per `AttributeTotals`'s own doc comment in
+`attribute-totals.ts` — `addBonus`'s free-text alias table doesn't apply to raw gear stat combos,
+only to Rune/Consumable bonus lines. Fixed by using `CritDamage` directly, matching real
+`itemstats.json` data.
+
+`npm run test` now 96 total (up from 82), `npm run typecheck`/`npx eslint .` both clean.
+
 ## Session 159 — State-dependent bonus tests (Kalla's Fervor-shaped)
 
 Closes TODO.md's "Automated testing strategy" item #3, the last of the 3 completeness/coverage

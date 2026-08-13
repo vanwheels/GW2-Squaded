@@ -74,10 +74,20 @@ needed, purely structural scans against data already in the repo:**
    dimension, plus end-to-end through `computeCharacterStats` for Kalla's Fervor/relic/Fury-crit-
    chance. See COMPLETED.md Session 159.
 
-**Secondary priority: value-correctness tests (Tier 1/2/3, discussed but not started):**
-- Tier 1 — deterministic formula tests needing NO external oracle (gear attribute sums, crit
-  chance/boon duration formulas) — pure arithmetic/documented GW2 formulas, hand-computed expected
-  values.
+**Secondary priority: value-correctness tests (Tier 1/2/3):**
+- ~~**Tier 1 — deterministic formula tests needing NO external oracle.**~~ **DONE 2026-08-12**
+  (`src/shared/gear-calc/attribute-totals.test.ts`, 36 tests; `src/shared/gear-calc/
+  derived-stats.test.ts`, 14 tests — 50 new, `npm run test` now 96 total). Hand-computed expected
+  values against the wiki-quoted constants each source file already cites in its own comments —
+  not re-verifying the constants themselves (that's each file's own cited-source comment), only
+  that the arithmetic built on top of them is right. Covers: `statComboContribution`'s
+  `adjustment * multiplier + value` formula at several adjustment tiers, the one-handed-mirrored-
+  equals-two-handed identity, `addBonus`'s 4 bonus shapes (flat/percent/all-stats/sourceAttribute
+  no-op), `applyConversions`' simultaneous-not-chained resolution, `resolveItemStatId`'s category
+  self-heal, `isActiveWeaponSlot`'s land/underwater/swap-set gating, `computeGearAttributeTotals`
+  end-to-end (weapon mirroring, stowed-set exclusion, rune stage-gating, sigil active-set gating,
+  infusions, food/utility), and `computeCharacterStats`'s crit chance/damage, health, and armor
+  formulas (including Fury's flat crit-chance add and per-piece Defense gating).
 - Tier 2 — golden snapshot fixtures for coefficients already wiki-verified over 150+ sessions — pay
   the verification cost once, then a snapshot diff catches future regressions without re-checking.
 - Tier 3 — 2-3 hand-verified reference meta builds (checked once against gw2skills.net/in-game, all
@@ -85,8 +95,8 @@ needed, purely structural scans against data already in the repo:**
 - Vitest is now installed (`npm run test`) — added 2026-08-12 to build the completeness scan above,
   `vitest.config.ts` at repo root, near-zero extra config as expected.
 
-**Next action:** all 3 completeness/coverage items above are now done. Pick up the secondary-priority
-Tier 1/2/3 value-correctness tests below, not started.
+**Next action:** Tier 1 is done. Pick up Tier 2 (golden snapshot fixtures for wiki-verified
+coefficients) next, then Tier 3 (hand-verified reference builds), not started.
 
 ## New gaps found by the trait attribute-bonus completeness scan (2026-08-12)
 
