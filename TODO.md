@@ -13,154 +13,20 @@ own sub-projects). Already shipping releases (v0.1.0-v0.3.0 tagged, electron-bui
 live) — the app is feature-complete for this scope; the open question is correctness confidence, not
 missing features.
 
-Two real gaps stand between here and 1.0, both about confidence rather than features:
-1. **Never visually verified in a running app** — every curation session (150+ entries in
-   COMPLETED.md) was checked by typecheck/lint/code-reading only, never seen rendered (Electron
-   sandbox limitation in the assistant's shell). Needs an actual click-through before release: create
-   a build, run the gear optimizer, build a squad comp, generate a share link — for real.
-2. ~~**Zero automated tests.**~~ **DONE 2026-08-13** — see "Automated testing strategy" below (all 3
-   completeness scans + all 3 value-correctness tiers now complete, 108 tests total).
+Both gaps that stood between here and 1.0 are now closed:
+1. ~~**Never visually verified in a running app.**~~ **DONE 2026-08-13** — user did a manual
+   click-through pass. Found one real bug along the way: Revenant's skill bar was showing phantom
+   duplicate icon rows for skills with no real secondary action — fixed same day, see COMPLETED.md
+   Session 165 and the "Follow-ups from the Revenant flip-duplicate fix" section below for the
+   narrower, unfinished piece of that fix.
+2. ~~**Zero automated tests.**~~ **DONE 2026-08-13** — 108 tests across 3 completeness scans + 3
+   value-correctness tiers; full history in COMPLETED.md (Sessions 158-164). Also found and fixed 7
+   real bugs as a byproduct (stale `factText` matches, missing health-threshold/full-endurance combat
+   state dimensions, one live ArenaNet API data bug) — see COMPLETED.md for details.
 
-## Automated testing strategy (agreed 2026-08-12, DONE 2026-08-13)
-
-Key insight from this session: the bugs the user has actually hit by hand (traits not feeding into
-attribute totals, buffs whose bonus depends on a runtime value like Kalla's Fervor's stack count,
-sigils not being picked up for Control/Strip metrics because of unique wording) are all **silent
-omission** bugs — a source that was never wired in produces a stable, self-consistent WRONG number. A
-value-correctness regression/snapshot test does NOT catch this class of bug, because there's nothing
-to diff against — it would just lock the wrong value in as "correct" forever. Snapshot tests only
-protect values already known-correct from *future drift*; still worth having (see Tier 1/2/3 below)
-but NOT the priority.
-
-**Priority: completeness/coverage tests — build these first. No gw2skills/in-game verification
-needed, purely structural scans against data already in the repo:**
-
-1. ~~**Trait attribute-bonus completeness scan.**~~ **DONE 2026-08-12** (`vitest` added as a new
-   devDependency; `src/shared/gear-calc/trait-attribute-completeness.test.ts`, `npm run test`). Scanned
-   all 187 traits in `traits.json` carrying an `AttributeAdjust`/`BuffConversion` fact (in either
-   `facts` or `traitedFacts`) against the union of all 12 curated tables/lists across
-   `trait-attributes.ts`/`combat-state.ts` (`CURATED_FLAT_BONUSES`, `CURATED_CONVERSIONS`,
-   `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`, `ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`,
-   `FURY_CRIT_CHANCE_TRAIT_BONUSES`, `FURY_ATTRIBUTE_TRAIT_BONUSES`,
-   `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`, `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`,
-   `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES`, `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`,
-   `REVEALED_ATTRIBUTE_TRAIT_BONUSES`, `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES`) — 90 already
-   covered. Of the 98 uncovered candidates: 1 (Kinetic Accelerators, id 2052) was a genuine miss,
-   wiki-verified and added to `CURATED_CONVERSIONS` (Power→Concentration 10% WvW, confirmed
-   unconditional despite sitting alongside this trait's combo-finisher boon procs); 95 were
-   reviewed and confirmed to be proc/skill-tooltip coefficients reusing the same fact shape
-   (heal-on-X, barrier-on-X, life-siphon-on-hit, 3 pet-only stats, 1 temporary on-cast buff value,
-   1 condition-tick-damage coefficient, 1 `requires_trait` cross-reference) — same "Healer's Gift"
-   shape already documented in `trait-attributes.ts`'s file header; all logged with a stated reason
-   in the test file's `EXCLUDED_TRAIT_IDS`. The remaining 2 are genuine stat gains with no infra yet
-   — see "New gaps found by the completeness scan" below. The test also asserts the exclusion list
-   itself stays clean (no entry for an already-curated trait, no stale entry for a trait a balance
-   patch reworked).
-2. ~~**Sigil/Control-Strip completeness scan.**~~ **DONE 2026-08-12** (`src/shared/boon-calc/
-   sigil-named-fact-completeness.test.ts`). Sigils carry no `Fact[]` at all (only free-text
-   `description`), so `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/`BOON_STRIP_CORRUPT_MATCHERS`
-   could never see one — a total gap, not just occasional missed wording. Hand-scanned all 81
-   sigils: 5 genuine grants (Strip: Nullification, Absorption; Cleanse: Purity, Cleansing,
-   Generosity) added to a new `SIGIL_NAMED_FACT_SOURCES` table and wired into
-   `computeNamedFactSources` via `computeSigilNamedFactSources` (gated by `isActiveWeaponSlot`, same
-   as sigils' passive stat bonuses); 2 false positives (Paralyzation, Impact) documented and
-   excluded. See COMPLETED.md Session 158.
-3. ~~**State-dependent bonus tests (Kalla's Fervor-shaped).**~~ **DONE 2026-08-12**
-   (`src/shared/gear-calc/combat-state.test.ts`, 38 tests). Every state-dependent family in
-   `combat-state.ts` (mightStacks, stacking sigils, the 5 boolean-gated families, healthTier's 3-way
-   tier, Kalla's Fervor's per-stack %/Lasting-Legacy override) tested at 0/mid/max points of its own
-   dimension, plus end-to-end through `computeCharacterStats` for Kalla's Fervor/relic/Fury-crit-
-   chance. See COMPLETED.md Session 159.
-
-**Secondary priority: value-correctness tests (Tier 1/2/3):**
-- ~~**Tier 1 — deterministic formula tests needing NO external oracle.**~~ **DONE 2026-08-12**
-  (`src/shared/gear-calc/attribute-totals.test.ts`, 36 tests; `src/shared/gear-calc/
-  derived-stats.test.ts`, 14 tests — 50 new, `npm run test` now 96 total). Hand-computed expected
-  values against the wiki-quoted constants each source file already cites in its own comments —
-  not re-verifying the constants themselves (that's each file's own cited-source comment), only
-  that the arithmetic built on top of them is right. Covers: `statComboContribution`'s
-  `adjustment * multiplier + value` formula at several adjustment tiers, the one-handed-mirrored-
-  equals-two-handed identity, `addBonus`'s 4 bonus shapes (flat/percent/all-stats/sourceAttribute
-  no-op), `applyConversions`' simultaneous-not-chained resolution, `resolveItemStatId`'s category
-  self-heal, `isActiveWeaponSlot`'s land/underwater/swap-set gating, `computeGearAttributeTotals`
-  end-to-end (weapon mirroring, stowed-set exclusion, rune stage-gating, sigil active-set gating,
-  infusions, food/utility), and `computeCharacterStats`'s crit chance/damage, health, and armor
-  formulas (including Fury's flat crit-chance add and per-piece Defense gating).
-- ~~**Tier 2 — golden snapshot fixtures for coefficients already wiki-verified over 150+
-  sessions.**~~ **DONE 2026-08-12** (`src/shared/skill-calc/coefficient-snapshots.test.ts`, 3 tests
-  covering all of `CURATED_HEALING_COEFFICIENTS`/`CURATED_DAMAGE_COEFFICIENTS`/
-  `CURATED_BARRIER_COEFFICIENTS`). Reads `skills.json`+`synthetic-facts.json` directly (mirrors
-  `load-game-data.ts`'s merge, since that function is Electron-`app`-path-dependent and can't be
-  imported into a plain vitest run) and snapshots `healingLinesForSkill`/`damageLinesForSkill`/
-  `barrierLinesForSkill`'s real output for every curated id at one fixed reference build (Power
-  2500/Healing Power 1500/`TARGET_ARMOR_VALUES.Medium`, every `requiresTrait` active at once so both
-  a skill's untraited and trait-boosted lines land in one snapshot). Pays the verification cost once;
-  a future snapshot diff now catches drift without re-checking the wiki.
-  **Found 5 real bugs as a direct byproduct** (a stale `factText` silently failing to match its
-  skill's real API fact is exactly the "silent omission" class this whole testing strategy exists to
-  catch) — **4 fixed same session**, all one-word `factText` corrections with the curated
-  `baseValue`/`coefficient` confirmed unchanged against the still-matching real fact: Necromancer's
-  Deadly Feast (10619, Healing — was `'Life Siphon Healing'`, live API just says `'Healing'`),
-  Ranger's Troll Unguent (12483, Healing — was `'Health per second'`, live API capitalizes `'Health
-  per Second'`), Elementalist's Wind Slam (62747, Damage — was `'Damage'`, live API says `'Maximum
-  Damage'`), Warrior's Tsunami Slash's Barbarian's Retaliation-traited variant (14480, Damage — was
-  `'Damage per Strike'`, its `traitedFacts` entry is plain `'Damage'`). **1 left unfixed, needs fresh
-  wiki verification, not a text fix** — see "Mesmer's Mirror Blade" below.
-- ~~Tier 3~~ **DONE 2026-08-13** — 3 hand-verified WvW reference builds (Power Strip Renegade,
-  Shattered Aegis Firebrand, Heal Druid), sourced directly from the user (gw2skills.net links +
-  screenshots, decoded via the "[Spec] x-x-x" trait-pick shorthand — see memory
-  `trait_notation_shorthand`), checked against gw2skills.net's Attributes panel (Renegade also
-  cross-checked live in-game). `src/shared/gear-calc/tier3-reference-builds.test.ts`, 9 tests.
-  **Found and fixed 2 real silent-omission bugs** while sourcing the Renegade build's oracle number
-  (it didn't match until both were fixed):
-  1. `HEALTH_THRESHOLD_CONSUMABLE_BONUSES` (new, `combat-state.ts`) — the WvW "Writ of X"/"Thesis on
-     X" consumable family ("Gain N Power/Precision/Condition Damage When Health above 90%", 36
-     items) parsed to `{attribute: null}` and silently contributed nothing; only traits had a
-     health-threshold-gated bonus table before this.
-  2. `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES` (new, `combat-state.ts`) + `CombatState.
-     fullEnduranceActive` (new field, defaults `true`) — Renegade's Brutal Momentum (+33% critical
-     chance at full Endurance, overriding its own +10%/+15% baseline) had no full-Endurance combat
-     state dimension anywhere in the app.
-  Both wired into `computeCharacterStats`/`CombatStatePanel.tsx`. See COMPLETED.md Session 162.
-- Vitest is now installed (`npm run test`) — added 2026-08-12 to build the completeness scan above,
-  `vitest.config.ts` at repo root, near-zero extra config as expected.
-
-**Next action:** Tier 1, Tier 2, and Tier 3 are all done, and Mesmer's Mirror Blade (below) is fixed —
-the "Automated testing strategy" section and everything it surfaced are now fully closed. See TODO.md's
-other open sections (Renegade tooltip gaps, coefficient curation exceptions, etc.) for what's next.
-
-Mesmer's Mirror Blade (id 10333) — **DONE 2026-08-13** (COMPLETED.md Session 164). The stale entry the
-Tier 2 snapshot build flagged 2026-08-12 turned out to be a live ArenaNet API data bug (confirmed via a
-fresh raw-wikitext pull, unchanged, plus a fresh independent `api.guildwars2.com` pull, byte-identical
-to the cached one) — the curated coefficients were never wrong, they just lost their matching API fact
-to key off. Fixed via a `synthetic-facts.json` entry, no coefficient changes.
-
-## New gaps found by the trait attribute-bonus completeness scan (2026-08-12)
-
-Both are genuine character-stat grants confirmed via wiki (not proc/skill-tooltip coefficients like
-the scan's other 95 flagged traits) but need a conditional-gate shape this codebase doesn't have infra
-for yet — logged here per the scan's own `EXCLUDED_TRAIT_IDS` entries rather than rushed into a
-curated table. Both are the same general shape as the already-built "conditional trait-attribute
-bonus families" ([[conditional_trait_bonus_families]]) — a new family, not a one-off fix.
-
-- [ ] **Power Overwhelming (Elementalist, id 334) — might-stack-THRESHOLD-gated Power, doubled by
-      attunement.** "While at or above the might threshold, gain increased power. Power bonuses are
-      doubled while attuned to fire." Wiki-verified 2026-08-12: +150 Power once `mightStacks >= 8`
-      (WvW/PvP threshold; PvE is 10), doubled to +300 while `activeAttunement === 'Fire'`. Distinct
-      from `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`'s continuous per-stack scaling (this is a binary
-      on/off at a threshold) AND distinct from `ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`'s flat
-      attunement-gated bonus (this is a *multiplier* on an already-conditional bonus, same
-      "doubling isn't its own fact" shape `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`'s Forceful
-      Greatsword/Blood Reaction comments already flag) — needs its own combined-gate table, not a fit
-      for any existing one.
-- [ ] **Deadly Strength (Necromancer/Harbinger, id 855) — per-Carapace-stack Power/ConditionDamage.**
-      "Carapace stacks grant power and condition damage." Wiki-verified 2026-08-12: +10 Power / +10
-      ConditionDamage per stack, no game-mode split (`{{skill fact|attribute|Power|10}}` +
-      `{{skill fact|attribute|Condition Damage|10}}`). "Carapace" is Harbinger's own stacking
-      resource (built from applying Blight, distinct from Might) — no `CombatState` field tracks it
-      today (`mightStacks`/`kallaFervorStacks` are the only stack counters that exist). Needs a new
-      `CombatState.carapaceStacks` field (same UI shape as `kallaFervorStacks`'s Renegade-gated
-      stepper, surfaced only when Harbinger is equipped) before this can be curated.
+**1.0 is otherwise unblocked** — what's left in this file below is post-1.0 polish, deliberately
+deferred features (Discord bot, Capacitor port — always out of 1.0 scope), and open curation gaps
+that don't block a release.
 
 ## Bugs
 
@@ -250,104 +116,33 @@ pointing at a same-name sibling with no real new content). Two things it deliber
       `gw2Build` value (the currently-loaded local `meta.json`'s, via `getLocalMeta()`) instead of
       polling a second, parallel patch-tracking path.
 
-## Renegade tooltip/data gaps (flagged by the user 2026-08-12)
+## New attribute-bonus gaps needing new CombatState infra
 
-A user pass over Renegade turned up 5 display gaps, investigated together; the first 3 are already
-fixed (weapon-clearing bug fix + `Percent` fact rendering + Kalla's Fervor combat-state wiring +
-Spirit-Boon-style legend-icon attribution, this same session). The remaining 2 are hand-curation
-sweeps, not code fixes, and weren't started:
+Spun off by the trait-attribute-bonus sweep (`trait-attributes.ts`, COMPLETED.md Session 148), its
+8-family conditional follow-on sweep (Sessions 149-156), and the trait attribute-bonus completeness
+scan (2026-08-12, TODO's now-closed "Automated testing strategy" section) — all now-closed sweeps that
+don't have their own open-items table to hold these. Each is a genuine, wiki-confirmed character-stat
+grant, not a proc/skill-tooltip coefficient, but needs a conditional-gate shape this codebase doesn't
+have infra for yet, so none are rushed into an existing curated table:
 
-- [x] **Legendary Renegade Stance skills are missing on-cast effects the wiki documents** — Renegade
-      leg DONE 2026-08-12: Darkrazor's Daring (41220 base / 72366 "Band Together"-enhanced) now has
-      Daze/Stability(x2)/Bonus Defiance Break, plus Resistance/Protection on the enhanced cast;
-      Razorclaw's Rage (42949/72363) now has Bleeding/enhanced-Torment. Icerazor's Ire (40485/72359)
-      was already done by an earlier sweep. Added via `synthetic-facts.json` (see
-      `docs/game-data.md`'s "Skills the API returns with no usable facts at all" section) +
-      `fetch-wvw-splits.ts` `MANUAL_OVERRIDES` for the one cleanly-splittable status (72366's
-      Protection). Deliberately NOT curated, same family, documented in `fetch-wvw-splits.ts`'s
-      comment: both skills' wiki Damage coefficients (no CURATED_DAMAGE_COEFFICIENTS entry, matching
-      Icerazor's Ire's own precedent), Razorclaw's Rage's "(effect)" ally-buff + dependent "Enhance
-      Bleeding" (not a recognized boon/condition name, `factLine` has no generic-text case — same
-      Unleashed/Gunsaber-Mode-shaped skip as `docs/game-data.md` already documents), and
-      Darkrazor's Daring's WvW-split Stability durations (two simultaneous same-status Buff facts —
-      overriding either would collapse-drop the other, same failure mode Fox's Fury's Might hit).
-      **Full sweep DONE 2026-08-12** (all 8 legends checked, not just Renegade): Dragon/Assassin/
-      Dwarf/Demon/Alliance/Entity Stances turned out to already have real, substantial API facts for
-      every heal/elite/utility skill — no gap of this shape existed there. **Legendary Centaur
-      Stance was the other real gap**, same "API returns almost nothing" shape as Renegade — fixed:
-      Energy Expulsion (27356, Healing/Conditions Removed/Knockdown), Protective Solace (26821,
-      barrier Duration), Natural Harmony (27025, Healing/Delay Time), Purifying Essence (27715,
-      Healing per Condition Removed/Conditions Removed). Ventari's Will (28427, the legend's
-      heal-slot id) needed nothing — wiki-confirmed (2022-06-28 patch notes) it no longer heals at
-      all, "will the tablet toward target location" is its whole effect; the near-empty facts were
-      correct, not a gap.
-      **Load-bearing wrinkle found mid-sweep**: `legends.json`'s ids (the ones `RevenantSkillsEditor`
-      actually displays, confirmed via `docs/game-data.md`'s Protective Solace/Jade Winds writeup)
-      are DIFFERENT ids from same-named, structurally-unreachable "orphan" siblings elsewhere in
-      `skills.json` (26821 vs `29310`, 27025 vs `29082`, 27356 vs `29114`, 27715 vs `29197`) — the
-      orphans often carry richer real API facts (an earlier Healing-category sweep had already
-      curated 29197, and flagged 29114/29082 as unusable — see `healing-calc.ts`), but being
-      unreachable, none of that helps the live ids on its own. Natural Harmony's Healing was
-      initially left uncurated for this reason (orphan 29082's own live API value, 1620, disagreed
-      with the wiki's 1124) — **resolved same session**: user-verified against the live wiki page
-      (base unchanged across every dated Version History entry back to 2015) that 1124 is correct,
-      confirming this app's standing wiki-over-API convention holds even when a same-skill API value
-      exists to tempt otherwise (an orphan id has no in-game path forcing ArenaNet to keep it
-      synced). Energy Expulsion's own orphan (29114) was separately confirmed stale by the same
-      route — its "healing fragments" mechanic is verifiably pre-2022-06-28, retired by that patch's
-      own wiki-documented notes, matching the current mechanic curated on live id 27356 exactly.
-      **Not re-litigated, pre-existing partial curation**: Entity Stance's elite (76968/77001,
-      wiki-titled "Fragment of Razah") already had its unconditional Might fact curated by an earlier
-      session; its base Bleeding fact and its "Resonance" mechanic (5 different bonus effects
-      depending on which OTHER legend is equipped) remain uncurated — a legend-conditional curation
-      shape of its own, out of scope here, not chased further this session.
-
-- [x] **Trait-granted boons don't show up on the skill that actually triggers them** — DONE
-      2026-08-12. Notoriety (trait 1765, Might on legendary-stance-skill cast) and Rapid Flow (trait
-      1760, Swiftness+Heal on any energy-cost skill cast) both curated via `synthetic-facts.json`
-      `requires_trait`-gated facts, same mechanism the empty-effect-facts sweep uses, not real
-      `traitedFacts` (the API never populates that link for either trait, confirmed via a full scan).
-      Both traits turned out to target the exact same 45-skill candidate set (every legend's
-      heal/3 utilities/elite across all 8 legends, including Vindicator's 10 Archemorus/Saint-Viktor
-      aspect-flip ids) since every one of those costs Energy by design — Notoriety got 44 of the 45
-      (Might), Rapid Flow all 45 plus one wiki-documented outlier, Shackling Wave (28472, a Sword
-      weapon skill — "Updated this trait to allow Shackling Wave to heal the revenant", 2017-12-13
-      patch note). `CURATED_HEALING_COEFFICIENTS` got a matching `'Rapid Flow Healing'` entry per
-      skill (WvW value 333/0.05, deliberately NOT reusing the plain `'Healing'` factText some of
-      these skills already have their own unconditional entry for — `skillFactLines`' `healingByLabel`
-      lookup collapses same-text entries and would otherwise show the wrong number on one of the two
-      lines). `wvw-fact-overrides.json` got a matching `Might: 10` override per skill via
-      `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` (mirrors the trait's own already-curated WvW value).
-      **One documented display gap**: Facet of Strength (26644) did NOT get a Notoriety fact at all —
-      it already carries 2 real Might facts under an existing WvW override, and `extractFromFacts`
-      collapses every fact sharing one status once any override exists for it, so a 3rd (ours) would
-      be silently dropped rather than shown (same hazard Fox's Fury/Darkrazor's Daring hit in the
-      empty-effect-facts sweep, see `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` comment) — adding
-      permanently-invisible data seemed worse than a documented omission. 4 more skills (Twin Moon
-      Sweep, Empowering Misery, Selfish Spirit, Nomad's Advance) got the Notoriety fact but no WvW
-      override for the same underlying reason, so their Notoriety line shows a flat 5s instead of
-      splitting 5s pve/10s wvw — a narrower, cosmetic-only version of the same gap.
-      **Deliberately out of scope, not chased this session**: Notoriety's own trait infobox also
-      names Ancient Echo (core Revenant F2), True Nature ×5 legend flavors (Herald F2), and Citadel
-      Order ×3 (Renegade F2-F4) as triggering skills — none of the 3 render anywhere in this app's UI
-      at all (confirmed: none of their ids appear in Revenant's `professionSkills` list at all, the
-      same real API-gap class `profession-mechanic.ts`'s `EXCLUDED_MECHANIC_SKILL_IDS` already
-      documents for Dragonhunter's virtues/Specter's mechanics — would need new hand-injected
-      mechanic-bar wiring before any trait-linking here could ever be seen). Also unexplored: whether
-      a Facet's flip/consume half (e.g. Infuse Light, reached via `FlipSkillStack`'s own independent
-      tooltip) should carry these facts too, since consuming a Facet is its own energy-costing skill
-      activation in-game — left uncurated pending a genuine per-skill mechanic check, not assumed
-      either way.
-
-## Loose ends from the conditional-trait-attribute-bonus sweep
-
-The trait-attribute-bonus sweep (`trait-attributes.ts`, COMPLETED.md Session 148) and its 8-family
-conditional follow-on sweep (Sessions 149-156, all now closed) spun off these two items that don't
-belong in either closed sweep's own table:
-
-- [ ] Deadly Strength (Necromancer) grants a bonus per stack of Carapace, not Might — needs its own
-      new Carapace-stack `CombatState` field before it can be curated; not part of the Might-stack
-      family (`MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`) despite the surface similarity.
+- [ ] **Power Overwhelming (Elementalist, id 334) — might-stack-THRESHOLD-gated Power, doubled by
+      attunement.** "While at or above the might threshold, gain increased power. Power bonuses are
+      doubled while attuned to fire." Wiki-verified 2026-08-12: +150 Power once `mightStacks >= 8`
+      (WvW/PvP threshold; PvE is 10), doubled to +300 while `activeAttunement === 'Fire'`. Distinct
+      from `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`'s continuous per-stack scaling (this is a binary
+      on/off at a threshold) AND distinct from `ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`'s flat
+      attunement-gated bonus (this is a *multiplier* on an already-conditional bonus, same
+      "doubling isn't its own fact" shape `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`'s Forceful
+      Greatsword/Blood Reaction comments already flag) — needs its own combined-gate table, not a fit
+      for any existing one.
+- [ ] **Deadly Strength (Necromancer/Harbinger, id 855) — per-Carapace-stack Power/ConditionDamage.**
+      "Carapace stacks grant power and condition damage." Wiki-verified 2026-08-12: +10 Power / +10
+      ConditionDamage per stack, no game-mode split (`{{skill fact|attribute|Power|10}}` +
+      `{{skill fact|attribute|Condition Damage|10}}`). "Carapace" is Harbinger's own stacking
+      resource (built from applying Blight, distinct from Might) — no `CombatState` field tracks it
+      today (`mightStacks`/`kallaFervorStacks` are the only stack counters that exist). Needs a new
+      `CombatState.carapaceStacks` field (same UI shape as `kallaFervorStacks`'s Renegade-gated
+      stepper, surfaced only when Harbinger is equipped) before this can be curated.
 - [ ] Pinnacle of Strength's flat, unconditional +5% critical-hit chance fact is NOT curated
       anywhere — no unconditional flat-crit-chance table exists yet in this codebase (only the
       Fury-gated `FURY_CRIT_CHANCE_TRAIT_BONUSES`). Worth a future small sweep if more unconditional
@@ -446,7 +241,6 @@ that before extending either further, and before the tooltip visual-pass item be
       infusions, relic, food, utility) — flagged by the user 2026-08-11, not scoped yet (which rows
       count as one "row" vs. several, e.g. armor is 6 slots/trinkets are 6 slots — needs a UI pass to
       decide grouping before implementing).
-
 
 - [ ] More curated fury-crit-chance traits in `combat-state.ts`'s `FURY_CRIT_CHANCE_TRAIT_BONUSES`
       (seeded 2026-08-01 with only Revenant's Roiling Mists, for the Gear Optimizer's Critical

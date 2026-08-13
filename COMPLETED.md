@@ -2,6 +2,98 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 165.5 — TODO.md cleanup: archiving the finished Renegade tooltip/data gaps sweep
+
+Moved here verbatim from TODO.md's "Renegade tooltip/data gaps (flagged by the user 2026-08-12)"
+section — both of its items were already marked `[x]` done and the file's own header rule is
+"completed work is tracked in COMPLETED.md, not here." No content changes, just relocation.
+
+A user pass over Renegade turned up 5 display gaps, investigated together; the first 3 were fixed
+same-session (weapon-clearing bug fix + `Percent` fact rendering + Kalla's Fervor combat-state wiring +
+Spirit-Boon-style legend-icon attribution). The remaining 2 were hand-curation sweeps:
+
+- [x] **Legendary Renegade Stance skills are missing on-cast effects the wiki documents** — Renegade
+      leg DONE 2026-08-12: Darkrazor's Daring (41220 base / 72366 "Band Together"-enhanced) now has
+      Daze/Stability(x2)/Bonus Defiance Break, plus Resistance/Protection on the enhanced cast;
+      Razorclaw's Rage (42949/72363) now has Bleeding/enhanced-Torment. Icerazor's Ire (40485/72359)
+      was already done by an earlier sweep. Added via `synthetic-facts.json` (see
+      `docs/game-data.md`'s "Skills the API returns with no usable facts at all" section) +
+      `fetch-wvw-splits.ts` `MANUAL_OVERRIDES` for the one cleanly-splittable status (72366's
+      Protection). Deliberately NOT curated, same family, documented in `fetch-wvw-splits.ts`'s
+      comment: both skills' wiki Damage coefficients (no CURATED_DAMAGE_COEFFICIENTS entry, matching
+      Icerazor's Ire's own precedent), Razorclaw's Rage's "(effect)" ally-buff + dependent "Enhance
+      Bleeding" (not a recognized boon/condition name, `factLine` has no generic-text case — same
+      Unleashed/Gunsaber-Mode-shaped skip as `docs/game-data.md` already documents), and
+      Darkrazor's Daring's WvW-split Stability durations (two simultaneous same-status Buff facts —
+      overriding either would collapse-drop the other, same failure mode Fox's Fury's Might hit).
+      **Full sweep DONE 2026-08-12** (all 8 legends checked, not just Renegade): Dragon/Assassin/
+      Dwarf/Demon/Alliance/Entity Stances turned out to already have real, substantial API facts for
+      every heal/elite/utility skill — no gap of this shape existed there. **Legendary Centaur
+      Stance was the other real gap**, same "API returns almost nothing" shape as Renegade — fixed:
+      Energy Expulsion (27356, Healing/Conditions Removed/Knockdown), Protective Solace (26821,
+      barrier Duration), Natural Harmony (27025, Healing/Delay Time), Purifying Essence (27715,
+      Healing per Condition Removed/Conditions Removed). Ventari's Will (28427, the legend's
+      heal-slot id) needed nothing — wiki-confirmed (2022-06-28 patch notes) it no longer heals at
+      all, "will the tablet toward target location" is its whole effect; the near-empty facts were
+      correct, not a gap.
+      **Load-bearing wrinkle found mid-sweep**: `legends.json`'s ids (the ones `RevenantSkillsEditor`
+      actually displays, confirmed via `docs/game-data.md`'s Protective Solace/Jade Winds writeup)
+      are DIFFERENT ids from same-named, structurally-unreachable "orphan" siblings elsewhere in
+      `skills.json` (26821 vs `29310`, 27025 vs `29082`, 27356 vs `29114`, 27715 vs `29197`) — the
+      orphans often carry richer real API facts (an earlier Healing-category sweep had already
+      curated 29197, and flagged 29114/29082 as unusable — see `healing-calc.ts`), but being
+      unreachable, none of that helps the live ids on its own. Natural Harmony's Healing was
+      initially left uncurated for this reason (orphan 29082's own live API value, 1620, disagreed
+      with the wiki's 1124) — **resolved same session**: user-verified against the live wiki page
+      (base unchanged across every dated Version History entry back to 2015) that 1124 is correct,
+      confirming this app's standing wiki-over-API convention holds even when a same-skill API value
+      exists to tempt otherwise (an orphan id has no in-game path forcing ArenaNet to keep it
+      synced). Energy Expulsion's own orphan (29114) was separately confirmed stale by the same
+      route — its "healing fragments" mechanic is verifiably pre-2022-06-28, retired by that patch's
+      own wiki-documented notes, matching the current mechanic curated on live id 27356 exactly.
+      **Not re-litigated, pre-existing partial curation**: Entity Stance's elite (76968/77001,
+      wiki-titled "Fragment of Razah") already had its unconditional Might fact curated by an earlier
+      session; its base Bleeding fact and its "Resonance" mechanic (5 different bonus effects
+      depending on which OTHER legend is equipped) remain uncurated — a legend-conditional curation
+      shape of its own, out of scope here, not chased further this session.
+
+- [x] **Trait-granted boons don't show up on the skill that actually triggers them** — DONE
+      2026-08-12. Notoriety (trait 1765, Might on legendary-stance-skill cast) and Rapid Flow (trait
+      1760, Swiftness+Heal on any energy-cost skill cast) both curated via `synthetic-facts.json`
+      `requires_trait`-gated facts, same mechanism the empty-effect-facts sweep uses, not real
+      `traitedFacts` (the API never populates that link for either trait, confirmed via a full scan).
+      Both traits turned out to target the exact same 45-skill candidate set (every legend's
+      heal/3 utilities/elite across all 8 legends, including Vindicator's 10 Archemorus/Saint-Viktor
+      aspect-flip ids) since every one of those costs Energy by design — Notoriety got 44 of the 45
+      (Might), Rapid Flow all 45 plus one wiki-documented outlier, Shackling Wave (28472, a Sword
+      weapon skill — "Updated this trait to allow Shackling Wave to heal the revenant", 2017-12-13
+      patch note). `CURATED_HEALING_COEFFICIENTS` got a matching `'Rapid Flow Healing'` entry per
+      skill (WvW value 333/0.05, deliberately NOT reusing the plain `'Healing'` factText some of
+      these skills already have their own unconditional entry for — `skillFactLines`' `healingByLabel`
+      lookup collapses same-text entries and would otherwise show the wrong number on one of the two
+      lines). `wvw-fact-overrides.json` got a matching `Might: 10` override per skill via
+      `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` (mirrors the trait's own already-curated WvW value).
+      **One documented display gap**: Facet of Strength (26644) did NOT get a Notoriety fact at all —
+      it already carries 2 real Might facts under an existing WvW override, and `extractFromFacts`
+      collapses every fact sharing one status once any override exists for it, so a 3rd (ours) would
+      be silently dropped rather than shown (same hazard Fox's Fury/Darkrazor's Daring hit in the
+      empty-effect-facts sweep, see `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` comment) — adding
+      permanently-invisible data seemed worse than a documented omission. 4 more skills (Twin Moon
+      Sweep, Empowering Misery, Selfish Spirit, Nomad's Advance) got the Notoriety fact but no WvW
+      override for the same underlying reason, so their Notoriety line shows a flat 5s instead of
+      splitting 5s pve/10s wvw — a narrower, cosmetic-only version of the same gap.
+      **Deliberately out of scope, not chased this session**: Notoriety's own trait infobox also
+      names Ancient Echo (core Revenant F2), True Nature ×5 legend flavors (Herald F2), and Citadel
+      Order ×3 (Renegade F2-F4) as triggering skills — none of the 3 render anywhere in this app's UI
+      at all (confirmed: none of their ids appear in Revenant's `professionSkills` list at all, the
+      same real API-gap class `profession-mechanic.ts`'s `EXCLUDED_MECHANIC_SKILL_IDS` already
+      documents for Dragonhunter's virtues/Specter's mechanics — would need new hand-injected
+      mechanic-bar wiring before any trait-linking here could ever be seen). Also unexplored: whether
+      a Facet's flip/consume half (e.g. Infuse Light, reached via `FlipSkillStack`'s own independent
+      tooltip) should carry these facts too, since consuming a Facet is its own energy-costing skill
+      activation in-game — left uncurated pending a genuine per-skill mechanic check, not assumed
+      either way.
+
 ## Session 165 — Revenant skill bar phantom "flip" duplicate rows, found by the user
 
 User flagged (screenshots of a live 2-legend skill bar) that Revenant's Heal/Utility/Elite row shows
