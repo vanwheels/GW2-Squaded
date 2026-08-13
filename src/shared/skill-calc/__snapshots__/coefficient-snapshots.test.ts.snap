@@ -655,6 +655,10 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 938,
     },
     {
+      "label": "Minimum Damage",
+      "value": 240,
+    },
+    {
       "label": "Maximum Damage",
       "value": 1031,
     },

@@ -2,6 +2,18 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 164 — Mesmer's Mirror Blade coefficient re-verification (Tier 2's flagged stale entry)
+
+Closed the one open item TODO.md's Tier 2 snapshot build (Session 161) had left behind: `CURATED_DAMAGE_COEFFICIENTS[10333]` only resolved 2 of its 3 lines against current `skills.json`.
+
+Fetched Mirror Blade's raw wikitext fresh (`action=raw`) — completely unchanged since this entry was originally curated (still Maximum 2.5 PvE/0.75 WvW, Minimum 0.4437 PvE/0.1923 WvW, most recent Version History entry 2026-04-14). Cross-checked against a fresh, independent `api.guildwars2.com/v2/skills/10333` pull (not just this repo's cached copy) and got a byte-identical result to what's already in `skills.json` — confirming the mismatch is a real live ArenaNet API bug, not a stale local cache: `facts` now carries *two* `'Maximum Damage'` entries (both `dmg_multiplier` 0.75, the WvW value) and the `'Minimum Damage'` fact/text is gone entirely.
+
+Fixed by adding a synthetic `'Minimum Damage'` `Fact` for skill 10333 in `synthetic-facts.json` (cosmetic `dmg_multiplier: 0.1923`, matching the WvW value for parity with a real fact) so the still-correct, still wiki-verified 0.1923 coefficient has something to key off again — same "no live-API fact of the matching text to gate on" shape `docs/game-data.md`'s `synthetic-facts.json` section already documents, no code changes needed (`damageLinesForSkill`'s match is a presence check by `factText`/`requiresTrait`, not by the API's own `dmg_multiplier`, so the two real duplicate Maximum Damage facts were already harmless).
+
+Also traced the *other* half of what Tier 2 flagged — a second trait-2206-gated `traitedFacts` entry (`dmg_multiplier: 2.675`) the curated table didn't reference at all. Confirmed it's not a new mechanic: Infinite Forge's own wiki page (re-pulled raw) documents its own PvE/WvW split, `damage increase|7|pve` / `damage increase|10|wvw pvp` — 2.5 (PvE Maximum) × 1.07 = 2.675 exactly, mirroring 0.75 (WvW Maximum) × 1.10 = 0.825 exactly, the value already curated. This app's standing WvW-only convention already picks the right one; no new curated line was needed.
+
+`npm run test -- -u` regenerated the Tier 2 snapshot (now shows all 3 lines: Maximum 938, Minimum 240, Infinite-Forge-traited Maximum 1031) — clean 4-line diff, no other snapshot moved. `npm run typecheck`/`npm run lint` both clean, 108/108 tests pass.
+
 ## Session 163 — Phantom double-counted two-handed-weapon infusions/sigils, found by the user
 
 Follow-up to Session 162: after that session's Power-total fix landed, the user reloaded their

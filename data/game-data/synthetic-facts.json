@@ -377,5 +377,8 @@
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
     { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+  ],
+  "10333": [
+    { "type": "Damage", "text": "Minimum Damage", "hit_count": 1, "dmg_multiplier": 0.1923 }
   ]
 }

@@ -3399,6 +3399,28 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // PvE/WvW+PvP split 2.5/0.75 (Maximum) and 0.4437/0.1923 (Minimum). WvW values used. Infinite Forge
   // (2206) trait-gated variant on Maximum Damage only (via Psychic Blades' hidden `blade` conversion,
   // per the "missing facts" note on this skill's wiki page): 0.75*1.10=0.825.
+  // Re-verified 2026-08-13 (Tier 2 snapshot build flagged this entry stale): raw wikitext re-pulled
+  // fresh (action=raw) is UNCHANGED since the above was written, still the same 4 coefficients — this
+  // is not a balance-patch drift. The live API (both this repo's cached skills.json and a fresh
+  // api.guildwars2.com pull, byte-identical) has a real upstream data bug instead: `facts` now carries
+  // TWO `'Maximum Damage'` entries (both dmg_multiplier 0.75, the WvW value) and the `'Minimum Damage'`
+  // fact/text is gone entirely — so this table's Minimum Damage line silently stopped resolving (no
+  // fact left to key off), while the two Maximum Damage lines below still resolve fine (match is a
+  // presence check by factText/requiresTrait only, not by dmg_multiplier, so two real facts sharing
+  // identical text is harmless as long as at least one exists — see the several other same-shape
+  // comments in this file). Fixed by adding a `'Minimum Damage'` synthetic Fact for this skill
+  // (`synthetic-facts.json`, cosmetic dmg_multiplier 0.1923 for parity with a real fact) so the still-
+  // correct wiki coefficient below has something to match against again.
+  // Also traced the "real shape not just a naming drift" flagged in TODO.md: `traitedFacts` now
+  // carries a 2nd trait-2206-gated `'Maximum Damage'` fact (dmg_multiplier 2.675) this table doesn't
+  // reference. Confirmed NOT a new mechanic — it's simply the API's PvE-mode counterpart of the same
+  // Infinite Forge bonus already curated below: Infinite Forge's own wiki page (action=raw,
+  // re-pulled 2026-08-13) gives a PvE/WvW+PvP split of its own, `damage increase|7|pve` /
+  // `damage increase|10|wvw pvp` — 2.5 (PvE Maximum) * 1.07 = 2.675 exactly, matching 0.75 (WvW
+  // Maximum) * 1.10 = 0.825 exactly, the value already curated below. No new curated line needed —
+  // this app's standing convention (WvW values only) already picks the right one, and the existing
+  // entry resolves to it regardless of which of the two identically-labeled traited facts `.find`
+  // happens to match first, since (as above) the match is presence-only, not value-based.
   10333: [
     { factText: 'Maximum Damage', coefficient: 0.75, weapon: 'greatsword' },
     { factText: 'Minimum Damage', coefficient: 0.1923, weapon: 'greatsword' },

@@ -125,20 +125,15 @@ needed, purely structural scans against data already in the repo:**
 - Vitest is now installed (`npm run test`) — added 2026-08-12 to build the completeness scan above,
   `vitest.config.ts` at repo root, near-zero extra config as expected.
 
-**Next action:** Tier 1, Tier 2, and Tier 3 are all done — the "Automated testing strategy" section
-is complete. Next open item: Mesmer's Mirror Blade re-verification (below), surfaced by Tier 2.
+**Next action:** Tier 1, Tier 2, and Tier 3 are all done, and Mesmer's Mirror Blade (below) is fixed —
+the "Automated testing strategy" section and everything it surfaced are now fully closed. See TODO.md's
+other open sections (Renegade tooltip gaps, coefficient curation exceptions, etc.) for what's next.
 
-- [ ] **Mesmer's Mirror Blade (id 10333) — `CURATED_DAMAGE_COEFFICIENTS` entry is stale, needs a
-      fresh wiki check, found 2026-08-12 by the Tier 2 snapshot build.** The curated entry (3 lines:
-      untraited Maximum Damage 0.75, untraited Minimum Damage 0.1923, Infinite Forge/2206-traited
-      Maximum Damage 0.825) only resolves 2 of its 3 lines against current `skills.json`: the
-      `'Minimum Damage'` fact no longer exists at all — the skill's real `facts` array now carries
-      *two* `'Maximum Damage'` entries (both 0.75), no Minimum. Its `traitedFacts` also now carries a
-      *second* trait-2206-gated fact this table doesn't account for (`dmg_multiplier: 2.675`, distinct
-      from the already-curated 0.825 one) — a real shape not just a naming drift. Not fixed this
-      session — needs the skill's current wiki page read fresh (raw wikitext, not paraphrased, per
-      this project's standing rule) to find out whether Minimum Damage was removed by a balance patch,
-      merged into Maximum, or something else, before touching the curated entry.
+Mesmer's Mirror Blade (id 10333) — **DONE 2026-08-13** (COMPLETED.md Session 164). The stale entry the
+Tier 2 snapshot build flagged 2026-08-12 turned out to be a live ArenaNet API data bug (confirmed via a
+fresh raw-wikitext pull, unchanged, plus a fresh independent `api.guildwars2.com` pull, byte-identical
+to the cached one) — the curated coefficients were never wrong, they just lost their matching API fact
+to key off. Fixed via a `synthetic-facts.json` entry, no coefficient changes.
 
 ## New gaps found by the trait attribute-bonus completeness scan (2026-08-12)
 
