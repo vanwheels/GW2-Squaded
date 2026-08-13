@@ -213,17 +213,39 @@ export const CURATED_RELIC_DAMAGE_BONUSES: Record<number, number> = {
  * "Roiling Mists" ("Critical-hit chance is further increased while you are under the effect of
  * fury") — confirmed via wiki.guildwars2.com/wiki/Roiling_Mists 2026-08-01: the raw facts list
  * both 25 (PvE) and 20 (WvW/PvP); this app is WvW-focused (see gw2squaded-claude-code-prompt.md),
- * so 20 is correct here. A
- * handful of other professions have similarly-shaped fury-crit traits (Engineer's Hematic Focus,
- * Warrior's Furious Burst, Ranger's Vicious Quarry, Mesmer's Quiet Intensity — found via a full
- * `traits.json` scan for "Critical Chance Increase" facts near "fury" in the description) but
- * aren't curated yet — add them here the same way once verified. Revenant/Renegade's Brutal
- * Momentum was originally assumed to belong to this list too, but wiki-verification 2026-08-13
- * (prompted by a Tier 3 reference-build mismatch — see TODO.md) found its actual gate is full
- * Endurance, not Fury — it's curated separately below, in `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES`.
+ * so 20 is correct here. Revenant/Renegade's Brutal Momentum was originally assumed to belong to
+ * this list too, but wiki-verification 2026-08-13 (prompted by a Tier 3 reference-build mismatch
+ * — see TODO.md) found its actual gate is full Endurance, not Fury — it's curated separately
+ * below, in `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES`.
+ *
+ * The remaining 3 similarly-shaped fury-crit traits flagged in TODO.md (found via a full
+ * `traits.json` scan for "Critical Chance Increase" facts near "fury" in the description) are now
+ * also wiki-verified via raw wikitext (`?action=raw`) 2026-08-13:
+ * - Hematic Focus (wiki.guildwars2.com/wiki/Hematic_Focus, Engineer/Firearms, Minor Master, id
+ *   536): `{{skill fact|critical chance increase|15|game mode=pve}}` /
+ *   `{{skill fact|critical chance increase|10|game mode=pvp}}` /
+ *   `{{skill fact|critical chance increase|5|game mode=wvw}}` — a genuine 3-way split (WvW ≠ PvP
+ *   here, unlike most of this table), and WvW was independently nerfed 10→5 by the 2026-01-13
+ *   patch per the page's own version history, so the older "WvW/PvP share a value" assumption
+ *   this table otherwise uses doesn't hold for this trait. WvW value is 5.
+ * - Furious Burst (wiki.guildwars2.com/wiki/Furious_Burst, Warrior/Arms, Minor Adept, id 1342 —
+ *   the raw wikitext's own infobox icon/description now reads "Precise Strikes", a 2023-11-28
+ *   rework that changed its trigger from burst-skill-use to weapon-swap, but `traits.json` still
+ *   names live id 1342 "Furious Burst", so kept that name here for consistency with this app's
+ *   data): `{{skill fact|critical chance increase|5}}`, no game-mode split on this particular
+ *   fact.
+ * - Vicious Quarry (wiki.guildwars2.com/wiki/Vicious_Quarry, Ranger/Skirmishing, Major GM, id
+ *   1888): `{{skill fact|critical chance increase|15|game mode=pve}}` /
+ *   `{{skill fact|critical chance increase|10|game mode=pvp wvw}}`, WvW value 10 — a *second*,
+ *   independent fact on the same trait from the one already curated in
+ *   `FURY_ATTRIBUTE_TRAIT_BONUSES` below (`{{skill fact|attribute|Ferocity|250}}`, no split); both
+ *   are real and both apply, this table just tracks the crit-chance half.
  */
 export const FURY_CRIT_CHANCE_TRAIT_BONUSES: Record<number, number> = {
+  536: 5, // Hematic Focus (Engineer, Firearms, Minor Master) — WvW value (PvP is 10, PvE is 15)
+  1342: 5, // Furious Burst (Warrior, Arms, Minor Adept) — no mode split
   1719: 20, // Roiling Mists (Revenant, Invocation, Major tier 3) — WvW value
+  1888: 10, // Vicious Quarry (Ranger, Skirmishing, Major GM) — WvW/PvP value; PvE is 15
   2193: 10 // Quiet Intensity (Mesmer, Virtuoso, Minor GM) — WvW/PvP value; PvE is 15, WvW is 10
 }
 
@@ -308,7 +330,7 @@ export const FURY_ATTRIBUTE_TRAIT_BONUSES: Record<number, { target: string; valu
   1923: { target: 'CritDamage', value: 150 }, // No Scope (Guardian, Major)
   214: { target: 'CritDamage', value: 180 }, // Raging Storm (Elementalist, Major)
   1343: { target: 'ConditionDamage', value: 180 }, // Deep Strikes (Warrior, Minor)
-  1888: { target: 'CritDamage', value: 250 }, // Vicious Quarry (Ranger, Major)
+  1888: { target: 'CritDamage', value: 250 }, // Vicious Quarry (Ranger, Major) — also grants a crit-*chance* bonus, curated separately in FURY_CRIT_CHANCE_TRAIT_BONUSES above
   1904: { target: 'CritDamage', value: 300 }, // No Quarter (Thief, Major) — WvW/PvP value; PvE is 250
   2207: { target: 'ConditionDuration', value: 150 } // Sharpening Sorrow (Mesmer, Major)
 }

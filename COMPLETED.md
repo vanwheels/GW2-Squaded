@@ -2,6 +2,38 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 168 — Fury-crit-chance trait sweep, closing the last 3 entries
+
+TODO.md's "Nice-to-haves" list had 3 remaining fury-gated critical-chance traits (Engineer's
+Hematic Focus, Warrior's Furious Burst, Ranger's Vicious Quarry) needing their current WvW value
+confirmed against the wiki before adding to `combat-state.ts`'s `FURY_CRIT_CHANCE_TRAIT_BONUSES`
+(seeded 2026-08-01 with Revenant's Roiling Mists; Mesmer's Quiet Intensity added 2026-08-12). A
+4th listed trait, Revenant/Renegade's Brutal Momentum, was already resolved earlier (2026-08-13,
+Tier 3 reference-build session) as NOT belonging to this family — it's Endurance-gated, not
+Fury-gated, curated separately in `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES`.
+
+Wiki-verified all 3 via raw wikitext (`?action=raw`, not the rendered page):
+- **Hematic Focus** (Engineer/Firearms, Minor Master, id 536): `{{skill fact|critical chance
+  increase|15|game mode=pve}}` / `|10|game mode=pvp}}` / `|5|game mode=wvw}}` — a genuine 3-way
+  split (WvW ≠ PvP), unlike most of this table's entries. The page's own version history shows WvW
+  was independently nerfed 10→5 by a 2026-01-13 patch. WvW value curated: 5.
+- **Furious Burst** (Warrior/Arms, Minor Adept, id 1342): `{{skill fact|critical chance
+  increase|5}}`, no game-mode split. The raw wikitext's own infobox now reads "Precise Strikes"
+  (a 2023-11-28 rework changed its trigger from burst-skill-use to weapon-swap), but live
+  `traits.json` still names id 1342 "Furious Burst", so kept that name for consistency with this
+  app's data. Value curated: 5.
+- **Vicious Quarry** (Ranger/Skirmishing, Major GM, id 1888): `{{skill fact|critical chance
+  increase|15|game mode=pve}}` / `|10|game mode=pvp wvw}}` — a *second*, independent fact on a
+  trait that already had its Ferocity bonus (`+250`, no split) curated in
+  `FURY_ATTRIBUTE_TRAIT_BONUSES` since the 2026-08-12 sweep; both facts are real and both apply,
+  cross-referenced in both tables' comments so a future reader doesn't mistake the two entries for
+  an accidental duplicate. WvW/PvP value curated: 10.
+
+Also fixed a dangling TODO.md cross-reference left over from the 2026-08-13 TODO cleanup pass
+(pointed at a "Follow-ups from the Revenant flip-duplicate fix" section that had since been fully
+archived to COMPLETED.md/Sessions 165-167). `npm run typecheck`/`lint`/`test` all clean (108/108,
+no snapshot changes — crit-chance % isn't part of the coefficient-snapshot fixtures).
+
 ## Session 167 — Breakrazor's Bastion Band Together curation (closes the Revenant flip-duplicate follow-up)
 
 The last open item from Session 165/166's flip-duplicate cleanup: Legendary Renegade Stance's heal

@@ -219,14 +219,6 @@ that before extending either further, and before the tooltip visual-pass item be
       count as one "row" vs. several, e.g. armor is 6 slots/trinkets are 6 slots — needs a UI pass to
       decide grouping before implementing).
 
-- [ ] More curated fury-crit-chance traits in `combat-state.ts`'s `FURY_CRIT_CHANCE_TRAIT_BONUSES`
-      (seeded 2026-08-01 with only Revenant's Roiling Mists, for the Gear Optimizer's Critical
-      Chance metric). Mesmer's Quiet Intensity added 2026-08-12 (wiki-verified: 15% PvE / 10% WvW,
-      value 10 stored) as a side effect of curating this same trait's *other* unconditional effect in
-      `trait-attributes.ts`. Still open — Engineer's Hematic Focus, Warrior's Furious Burst, Ranger's
-      Vicious Quarry, Revenant/Renegade's Brutal Momentum — each needs its current WvW-mode value
-      confirmed against the wiki (same as Roiling Mists) before being added.
-
 - [ ] Gear Optimizer's rune/infusion search (2026-08-11, see COMPLETED.md) adds up to ~18 extra
       per-slot infusion search variables + 1 rune slot on top of the existing ~12-14 gear/food/
       utility slots — a synthetic stress case (2 floors, 3 maximize tiers, food/utility AND
