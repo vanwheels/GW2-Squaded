@@ -170,14 +170,27 @@ Closed 2026-08-13 (re-investigated, now curated in `CURATED_HEALING_COEFFICIENTS
 value (1288) ÷ its now-4 pulses = 322, matching the API's duplicate-text facts exactly; safe to bind
 since, unlike Shadow Veil below, both duplicate facts share the same value).
 
-**Healing — Thief's Assassin's Reward trait (id 1238)**, investigated 2026-08-05: ~38
-`requires_trait`-gated Healing facts (one per initiative-costing weapon skill), each a non-uniform
-multiple consistent with `0.085 * that skill's own initiative cost`. **Blocked on missing data** —
-this app has no initiative-cost field anywhere in `src/shared/types` or `skills.json`, so a generic
-per-point trait-bonus table can't render without new data modeling first. (Necromancer's equivalent
-case, Chillblains/Transfusion trait 778, was resolved 2026-08-05 as a genuine per-skill design, not
-this shape — already curated.) Worth checking other professions for the same "heal on X while this
-trait is active" shape before scoping further.
+Closed 2026-08-13 (re-investigated, resolved): **Healing — Thief's Assassin's Reward trait (id
+1238)**, originally investigated 2026-08-05 and blocked on "this app has no initiative-cost field
+anywhere ... so a generic per-point trait-bonus table can't render without new data modeling
+first." Turned out no new data modeling was needed — the GW2 API itself exposes per-skill
+initiative cost (`skill.initiative`), the original blocker was about this app's own stored data,
+not the API. The trait's own wiki page gives a flat, unconditional rate (151 base + 0.085
+coefficient per point of initiative spent, no PvE/WvW split), so each of the 45 candidate skills
+just needed `baseValue = 151*N` / `coefficient = 0.085*N` with N wiki/API-confirmed per skill —
+22 landed cleanly, plus 6 more (Spear/underwater-weapon skills) that carry a genuine, still-live
+ArenaNet bug baking their Healing fact at the pre-2023-06-27 rate (102/point) instead of the
+current 151 — reproduced as-is (that's what the live tooltip actually shows) rather than
+"corrected." 17 stayed uncurated: 14 for the familiar `Array.find`-binds-to-array-order duplicate-
+fact trap (a genuine PvE/WvW/PvP initiative-cost split materialized as 2-3 identical-factText facts
+this table can't disambiguate — same shape as Shadow Veil), Black Powder (only its PvE/PvP-grouped
+value is exposed, no sourced number for its separate WvW cost), and Measured Shot/Repeater(13111)
+(each bakes an older, pre-patch initiative cost into its Healing fact — unlike the Spear group,
+here it's N itself that's stale, so there's no way to know which N the HP-scaling coefficient
+would use without live-testing). See `healing-calc.ts`'s Weapon-slot Thief block for the full
+per-skill breakdown. (Necromancer's equivalent case, Chillblains/Transfusion trait 778, was
+resolved 2026-08-05 as a genuine per-skill design, not this shape — already curated.) Still worth
+checking other professions for the same "heal on X while this trait is active" shape someday.
 
 **Damage** — condition-damage skills (coefficient against Condition Damage rather than Power) were
 never in scope for the sweep; would need their own wiki-verification pass

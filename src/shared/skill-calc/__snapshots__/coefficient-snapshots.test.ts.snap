@@ -6448,6 +6448,42 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 6420,
     },
   ],
+  "13008": [
+    {
+      "label": "Healing",
+      "value": 1114,
+    },
+  ],
+  "13010": [
+    {
+      "label": "Healing",
+      "value": 1114,
+    },
+  ],
+  "13012": [
+    {
+      "label": "Healing",
+      "value": 1114,
+    },
+  ],
+  "13015": [
+    {
+      "label": "Healing",
+      "value": 836,
+    },
+  ],
+  "13016": [
+    {
+      "label": "Healing",
+      "value": 1114,
+    },
+  ],
+  "13019": [
+    {
+      "label": "Healing",
+      "value": 836,
+    },
+  ],
   "13021": [
     {
       "label": "Healing",
@@ -6460,16 +6496,100 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 7526,
     },
   ],
+  "13041": [
+    {
+      "label": "Healing",
+      "value": 836,
+    },
+  ],
   "13050": [
     {
       "label": "Healing",
       "value": 4025,
     },
   ],
+  "13068": [
+    {
+      "label": "Healing",
+      "value": 1147,
+    },
+  ],
+  "13069": [
+    {
+      "label": "Healing",
+      "value": 689,
+    },
+  ],
+  "13070": [
+    {
+      "label": "Healing",
+      "value": 917,
+    },
+  ],
+  "13073": [
+    {
+      "label": "Healing",
+      "value": 1394,
+    },
+  ],
+  "13074": [
+    {
+      "label": "Healing",
+      "value": 1114,
+    },
+  ],
+  "13075": [
+    {
+      "label": "Healing",
+      "value": 1114,
+    },
+  ],
+  "13076": [
+    {
+      "label": "Healing",
+      "value": 1394,
+    },
+  ],
+  "13097": [
+    {
+      "label": "Healing",
+      "value": 836,
+    },
+  ],
+  "13110": [
+    {
+      "label": "Healing",
+      "value": 1114,
+    },
+  ],
+  "13112": [
+    {
+      "label": "Healing",
+      "value": 1114,
+    },
+  ],
   "13117": [
     {
       "label": "Healing",
       "value": 840,
+    },
+  ],
+  "13122": [
+    {
+      "label": "Healing",
+      "value": 1147,
+    },
+  ],
+  "13128": [
+    {
+      "label": "Healing",
+      "value": 557,
+    },
+  ],
+  "13130": [
+    {
+      "label": "Healing",
+      "value": 459,
     },
   ],
   "14389": [
@@ -6494,6 +6614,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Healing",
       "value": 3395,
+    },
+  ],
+  "16432": [
+    {
+      "label": "Healing",
+      "value": 1394,
     },
   ],
   "21656": [
@@ -6814,6 +6940,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1035,
     },
   ],
+  "29911": [
+    {
+      "label": "Healing",
+      "value": 836,
+    },
+  ],
   "29968": [
     {
       "label": "Healing",
@@ -6890,6 +7022,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Healing",
       "value": 7224,
+    },
+  ],
+  "30775": [
+    {
+      "label": "Healing",
+      "value": 1114,
     },
   ],
   "30864": [
@@ -7142,6 +7280,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 3890,
     },
   ],
+  "50379": [
+    {
+      "label": "Healing",
+      "value": 689,
+    },
+  ],
   "50410": [
     {
       "label": "Healing",
@@ -7262,6 +7406,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Healing",
       "value": 525,
+    },
+  ],
+  "59526": [
+    {
+      "label": "Healing",
+      "value": 836,
     },
   ],
   "5980": [
@@ -7416,6 +7566,18 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 6630,
     },
   ],
+  "63128": [
+    {
+      "label": "Healing",
+      "value": 836,
+    },
+  ],
+  "63154": [
+    {
+      "label": "Healing",
+      "value": 1114,
+    },
+  ],
   "63292": [
     {
       "label": "Self-Heal",
@@ -7458,6 +7620,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Additional-Hit Healing",
       "value": 345,
+    },
+  ],
+  "71852": [
+    {
+      "label": "Healing",
+      "value": 836,
     },
   ],
   "71860": [

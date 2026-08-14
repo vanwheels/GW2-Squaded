@@ -779,6 +779,77 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Revenant — Reckoning Blast (underwater trident skill 4, condition-per-active-legend). No PvE/WvW
   // split.
   50410: [{ factText: 'Healing', baseValue: 1428, coefficient: 0.8 }],
+  // --- Thief — Assassin's Reward (Deadly Arts trait 1238) weapon-skill healing, resolved 2026-08-13
+  // (see this table's Weapon-slot intro comment above for the original "shared trait formula,
+  // deferred, needs initiative-cost data this app doesn't model" write-up). Turns out no new data
+  // modeling was actually needed — the blocker was about *this app's own* stored data, not the GW2
+  // API, which does expose per-skill initiative cost (`skill.initiative`, confirmed live). The
+  // trait's own wiki page gives a flat, unconditional per-point rate (`{{skill fact|healing|151|
+  // coefficient=0.085}}`, no PvE/WvW split) — "Heal yourself for each point of initiative spent" —
+  // so each entry below is just `baseValue = 151 * N` / `coefficient = 0.085 * N`, N being that
+  // skill's own wiki-documented initiative cost, cross-checked against the live API 2026-08-13.
+  // Of the 45 candidate skills the original sweep found:
+  // - 22 (below) carry exactly one `requires_trait: 1238` Healing fact — safely bindable, curated
+  //   with that fact's own live value as baseValue.
+  // - 6 more (below, "Spear/UW weapon quirk") are also single-fact/safely bindable, but their live
+  //   API value is baked at the OLD 102/point rate (pre-2023-06-27) instead of the current 151 —
+  //   confirmed via direct live-API pulls, not a stale local snapshot: e.g. Shadow Assault (13068)
+  //   shows `initiative: 5` (current, matches the wiki) but a Healing fact of 509 (=102*5, minus the
+  //   usual ±1 rounding seen throughout this table — not 151*5=755). Every Spear-weapon skill with
+  //   this trait shows the same pattern; every non-Spear skill doesn't — a genuine, still-live
+  //   ArenaNet data inconsistency isolated to that one weapon type, not a guess. baseValue below is
+  //   the raw (buggy) live value, reproducing exactly what today's tooltip shows; coefficient still
+  //   uses the trait's real 0.085 rate, since N itself is unambiguous here (it matches both the
+  //   wiki's current cost and the buggy value's own implied N — only the flat-rate constant is
+  //   stale, not N).
+  // - 14 stayed EXCLUDED: each carries 2-3 duplicate `Healing`+`requires_trait:1238` facts (a real
+  //   PvE/WvW/PvP initiative-cost split materialized as separate facts, live-API-verified) sharing
+  //   the identical factText — the same `Array.find`-binds-to-array-order trap already documented
+  //   for Thief's Shadow Veil above, and this table has no way to disambiguate two facts sharing
+  //   both the same factText AND the same requiresTrait. Death Blossom (13006), Larcenous Strike
+  //   (13007), Unload (13011), Choking Gas (13024, a 3-way split), Infiltrator's Arrow (13025),
+  //   Shadow Shot (13040), Disabling Shot (13083), Debilitating Arc/Helmet Breaker (30520/71802, a
+  //   flip-skill pair sharing both duplicate sets), Vault (30597), Twilight Combo (63254), Harrowing
+  //   Storm (71864), Recall Axes (71895), Orchestrated Assault (71965).
+  // - 3 more stayed excluded for other reasons: Black Powder (13113) only exposes its PvE/PvP-
+  //   grouped value (907, cost 6) as a fact — the wiki documents a separate WvW-only cost (7) with
+  //   no directly-sourced number to pair it with, so it's left out rather than self-computing one
+  //   (this table only ever uses wiki/API-sourced numbers, never a formula-derived guess). Measured
+  //   Shot (63267) and Repeater (13111, the non-dual-wield id) each show a live Healing fact baked
+  //   at an OLDER, pre-balance-patch initiative cost than their current live `initiative` field
+  //   (e.g. Measured Shot: `initiative: 4` current, but Healing fact = 453 = 151*3, its pre-
+  //   2025-06-24 cost) — unlike the Spear group, here it's N itself (not just the rate) that's
+  //   stale, and there's no way to know whether the trait's HP-scaling coefficient applies at the
+  //   stale or the current N without live-testing; left uncurated rather than guessing.
+  13008: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Bola Shot
+  13010: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Shadow Strike
+  13012: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Head Shot
+  13015: [{ factText: 'Healing', baseValue: 453, coefficient: 0.255, requiresTrait: 1238 }], // Infiltrator's Strike
+  13016: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Flanking Strike
+  13019: [{ factText: 'Healing', baseValue: 453, coefficient: 0.255, requiresTrait: 1238 }], // Dancing Dagger
+  13041: [{ factText: 'Healing', baseValue: 453, coefficient: 0.255, requiresTrait: 1238 }], // Cluster Bomb
+  13073: [{ factText: 'Healing', baseValue: 756, coefficient: 0.425, requiresTrait: 1238 }], // Deluge
+  13074: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Escape
+  13075: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Crippling Shot
+  13076: [{ factText: 'Healing', baseValue: 756, coefficient: 0.425, requiresTrait: 1238 }], // Ink Shot
+  13097: [{ factText: 'Healing', baseValue: 453, coefficient: 0.255, requiresTrait: 1238 }], // Heartseeker
+  13110: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Twisting Fangs
+  13112: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Stab
+  13128: [{ factText: 'Healing', baseValue: 302, coefficient: 0.17, requiresTrait: 1238 }], // Infiltrator's Return (pve+wvw grouped value — this skill's split groups wvw with pve, not pvp)
+  16432: [{ factText: 'Healing', baseValue: 756, coefficient: 0.425, requiresTrait: 1238 }], // Cloak and Dagger
+  29911: [{ factText: 'Healing', baseValue: 453, coefficient: 0.255, requiresTrait: 1238 }], // Weakening Whirl
+  30775: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Dust Strike
+  59526: [{ factText: 'Healing', baseValue: 453, coefficient: 0.255, requiresTrait: 1238 }], // Repeater (dagger dual-wield variant) — bakes the gross pre-refund cost (3), not the net 2 the Repeater effect actually charges
+  63128: [{ factText: 'Healing', baseValue: 453, coefficient: 0.255, requiresTrait: 1238 }], // Endless Night
+  63154: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Triple Threat
+  71852: [{ factText: 'Healing', baseValue: 453, coefficient: 0.255, requiresTrait: 1238 }], // Venomous Volley
+  // Spear/UW weapon quirk group (see comment above) — baseValue baked at the old 102/point rate.
+  13068: [{ factText: 'Healing', baseValue: 509, coefficient: 0.425, requiresTrait: 1238 }], // Shadow Assault
+  13069: [{ factText: 'Healing', baseValue: 306, coefficient: 0.255, requiresTrait: 1238 }], // Flanking Dive
+  13070: [{ factText: 'Healing', baseValue: 407, coefficient: 0.34, requiresTrait: 1238 }], // Tow Line
+  13122: [{ factText: 'Healing', baseValue: 509, coefficient: 0.425, requiresTrait: 1238 }], // Nine-Tailed Strike
+  13130: [{ factText: 'Healing', baseValue: 204, coefficient: 0.17, requiresTrait: 1238 }], // Break Stance
+  50379: [{ factText: 'Healing', baseValue: 306, coefficient: 0.255, requiresTrait: 1238 }], // Hooked Spear
   // Warrior — Line Breaker (Spear). 3-way split by mode (PvE 3240/2.25, WvW 2203/1.25, PvP separately
   // valued) — WvW value used.
   71860: [{ factText: 'Healing', baseValue: 2203, coefficient: 1.25 }],

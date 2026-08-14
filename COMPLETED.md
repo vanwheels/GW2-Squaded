@@ -2,6 +2,37 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 169 — Assassin's Reward trait healing sweep, closing the last blocked Healing-sweep item
+
+TODO.md's one remaining blocked item from the Weapon-slot Healing sweep: Thief's Assassin's Reward
+trait (id 1238) grants "Heal yourself for each point of initiative spent" on ~45 initiative-costing
+weapon skills, previously deferred 2026-08-05 as needing per-skill initiative-cost data this app
+had nowhere to model. Turned out unnecessary — the GW2 API itself exposes `skill.initiative`
+per-skill; the blocker was only about this app's own stored data, not a real data gap. The trait's
+own wiki page gives a flat, unconditional rate (151 base + 0.085 coefficient per point of
+initiative, no PvE/WvW split), so curation reduced to `baseValue = 151*N` / `coefficient =
+0.085*N` per skill, N confirmed via each skill's own wiki infobox + a live API cross-check.
+
+Live-API verification (not just the local `skills.json` snapshot, which turned out stale for
+several of these) surfaced two distinct ArenaNet data quirks along the way:
+- **Spear/underwater-weapon skills** (6 of them) bake their Healing fact at the pre-2023-06-27
+  rate (102/point) instead of the current 151, confirmed still live today (e.g. Shadow Assault,
+  id 13068: `initiative: 5` current, but Healing fact = 509 ≈ 102×5, not 151×5=755) — reproduced
+  as-is since that's what the live tooltip actually shows, not "corrected" to a theoretical number.
+- **Measured Shot / Repeater (13111)** each bake an older, pre-balance-patch initiative cost into
+  their Healing fact (unlike the Spear group, N itself is stale here, not just the rate) — left
+  uncurated since there's no way to know which N the HP-scaling coefficient would actually use
+  without live-testing.
+
+Of the 45 candidates: 28 curated (22 clean + the 6 Spear-quirk skills), 17 stayed uncurated — 14
+for the familiar `Array.find`-binds-to-array-order duplicate-fact trap (a genuine PvE/WvW/PvP
+initiative-cost split materialized as 2-3 identical-factText facts this table's data model can't
+disambiguate, same shape as Shadow Veil), Black Powder (only its PvE/PvP-grouped value is exposed,
+no sourced number for its separate WvW cost), and the two stale-N skills above. Added to
+`CURATED_HEALING_COEFFICIENTS` in `healing-calc.ts` (Weapon-slot Thief block); golden snapshot
+regenerated (168 lines added, only new ids). `npm run typecheck`/full test suite clean (108/108).
+TODO.md entry closed.
+
 ## Session 168 — Fury-crit-chance trait sweep, closing the last 3 entries
 
 TODO.md's "Nice-to-haves" list had 3 remaining fury-gated critical-chance traits (Engineer's
