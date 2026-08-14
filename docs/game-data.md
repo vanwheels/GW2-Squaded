@@ -619,6 +619,20 @@ Two cases warrant a new entry:
    to Lyssa) can't be modeled as ordinary `Buff` facts either — adding all N possible outcomes as
    simultaneous `Buff` facts would misrepresent every cast as granting all of them at once,
    overcounting boon uptime; left as an honest, documented skip instead of a wrong answer.
+3. TODO.md's "trait-granted boons not shown on the triggering skill" sweep — a trait grants a boon
+   "when you use [a heal skill/shroud/kit/etc.]" (own wiki-confirmed `Buff` fact on the *trait*), but
+   the GW2 API's `Skill.traitedFacts`/`requires_trait` linkage that would normally surface this on the
+   triggering skill's own tooltip is only populated for a handful of skills game-wide — most need the
+   trait's fact hand-mirrored onto every skill id that actually triggers it (`requires_trait: <trait
+   id>` on the synthetic copy, so it only shows when that trait is equipped). First hit: Revenant's
+   Notoriety/Rapid Flow (2026-08-12, trait ids 1765/1760, mirrored onto all 24 legend heal/utility/
+   elite skills). Same "extractFromFacts collapses EVERY fact sharing one status once an override
+   exists" hazard as case 2's `WvwFactOverrides` interactions applies here too, from the opposite
+   direction: adding a synthetic fact can *introduce* a fresh same-tuple collision with a skill's own
+   pre-existing genuine fact (found 2026-08-14, Necromancer leg: Eternal Life's synthetic Protection
+   collided with Sandstorm Shroud's own unconditional Protection fact) — re-run the
+   `BUFF_INSTANCE_LABELS` same-tuple check (`sources.ts`) after adding entries here, not just after
+   the sweep that table was originally built for.
 
 ## Gear upgrades and consumables (`runes.json`, `sigils.json`, `infusions.json`, `relics.json`, `food.json`, `utility.json`)
 

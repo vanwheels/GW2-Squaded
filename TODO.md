@@ -145,18 +145,67 @@ have infra for yet, so none are rushed into an existing curated table:
       "doubling isn't its own fact" shape `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`'s Forceful
       Greatsword/Blood Reaction comments already flag) — needs its own combined-gate table, not a fit
       for any existing one.
-- [ ] **Deadly Strength (Necromancer/Harbinger, id 855) — per-Carapace-stack Power/ConditionDamage.**
-      "Carapace stacks grant power and condition damage." Wiki-verified 2026-08-12: +10 Power / +10
-      ConditionDamage per stack, no game-mode split (`{{skill fact|attribute|Power|10}}` +
-      `{{skill fact|attribute|Condition Damage|10}}`). "Carapace" is Harbinger's own stacking
-      resource (built from applying Blight, distinct from Might) — no `CombatState` field tracks it
-      today (`mightStacks`/`kallaFervorStacks` are the only stack counters that exist). Needs a new
-      `CombatState.carapaceStacks` field (same UI shape as `kallaFervorStacks`'s Renegade-gated
-      stepper, surfaced only when Harbinger is equipped) before this can be curated.
+- [ ] **Deadly Strength (Necromancer/Harbinger, id 855) — per-Death's-Carapace-stack
+      Power/ConditionDamage.** "Carapace stacks grant power and condition damage." Wiki-verified
+      2026-08-12: +10 Power / +10 ConditionDamage per stack, no game-mode split (`{{skill
+      fact|attribute|Power|10}}` + `{{skill fact|attribute|Condition Damage|10}}`). No `CombatState`
+      field tracks stacks of this resource today (`mightStacks`/`kallaFervorStacks` are the only
+      stack counters that exist). Needs a new `CombatState.deathsCarapaceStacks` field (same UI shape
+      as `kallaFervorStacks`'s Renegade-gated stepper) before this can be curated. **Not
+      Harbinger-exclusive**, found 2026-08-14 while scoping the trait-granted-boons-on-skills
+      sweep's Necromancer leg: "Death's Carapace" is a real API `Buff` fact (`status: "Death's
+      Carapace"`, decays like a boon, grants Toughness per stack — its own `desc=` differs pve+wvw
+      vs pvp, another number this app doesn't model yet) built by Death Magic core traits too, not
+      just Harbinger's Blight — **Soul Comprehension** (839, "kills grant carapace; gain life force
+      per stack when you enter shroud" — the actual grant is on-kill, not skill-use), **Armored
+      Shroud** (856, "gain carapace when entering shroud," would mirror onto Death
+      Shroud/Reaper's/Desert/Sandstorm/Harbinger/Ritualist's Shroud the same way this leg's other
+      shroud-entry traits did), and **Dark Defense** (860, "gain carapace and protection when you
+      use a healing skill" — the Protection half is already curated onto all 13 Necromancer heal
+      skills this leg, `synthetic-facts.json`, trait 860; only the Carapace half is blocked here).
+      "Death's Carapace" is also not in `BOON_NAMES`/`CONDITION_NAMES`
+      (`src/shared/boon-calc/constants.ts`) — user-confirmed 2026-08-14 this should be modeled as a
+      `CombatState`-tracked stat-stepper resource (Kalla's-Fervor shape), NOT added to the generic
+      boon-tooltip name list, so don't just add it there as a shortcut. Once `deathsCarapaceStacks`
+      exists, Deadly Strength/Soul Comprehension/Armored Shroud/Dark Defense's granting+consuming
+      sides can all be wired against the same field.
 - [ ] Pinnacle of Strength's flat, unconditional +5% critical-hit chance fact is NOT curated
       anywhere — no unconditional flat-crit-chance table exists yet in this codebase (only the
       Fury-gated `FURY_CRIT_CHANCE_TRAIT_BONUSES`). Worth a future small sweep if more unconditional
       flat-crit traits turn up.
+
+## Trait-granted boons not shown on the triggering skill
+
+Spun off 2026-08-12 from the Renegade tooltip gap pass (Notoriety/Rapid Flow, both already curated
+that session — see `synthetic-facts.json`/`healing-calc.ts`). Same shape as the (now-closed)
+buff-instance-label sweep: `Skill.traitedFacts`/`requires_trait` is a real API mechanism, but the API
+only populates it for a handful of skills — most traits that grant a boon "when you use [a heal
+skill/shroud/kit/etc.]" need the grant hand-mirrored onto the actual triggering skill(s) via
+`synthetic-facts.json`, or the boon never shows on that skill's own tooltip. Scoped 2026-08-14: 470
+traits carry a direct Buff fact, 389 have zero skills referencing them via `requires_trait`, narrowed
+to **48 candidates across all 9 professions** whose description names an identifiable skill/skill-
+category trigger (heal skill, elite skill, shroud, kit, banner, spirit, shout, glyph, signet, etc.) —
+run leg-by-leg like the buff-instance-label sweep, one profession per leg, checking in between (see
+[[pacing_large_sweeps]]).
+
+- [x] **Necromancer leg (1st leg) done 2026-08-14.** 14 raw candidates. 5 traits cleanly curated
+      (Weakening Shroud/813, Speed of Shadows/888, Eternal Life/889, Awaken the Pain/915, Implacable
+      Foe/2192's Stability) mirrored onto the 6 "entering shroud" skills (Death Shroud/Reaper's/
+      Desert/Sandstorm/Harbinger's/Ritualist's Shroud); Dark Defense (860)'s Protection half mirrored
+      onto all 13 Necromancer heal skills. 3 redirected to the new "Death's Carapace" bullet above
+      (Soul Comprehension/839, Armored Shroud/856, Dark Defense/860's other half) — blocked on
+      `CombatState.deathsCarapaceStacks` infra, not a skill-tooltip fix. Left open: **Empowering
+      Spirits** (2405, Ritualist/spirit-summon mechanic — 4 different boons across 3 different
+      "Innervate [Spirit]" trigger skills plus a mode-dependent different-boon-per-mode split
+      [Quickness pve / Vigor wvw+pvp], too much uncertainty about exact linked-skill ids to curate
+      confidently without deeper live-game verification this session didn't have). Also found and
+      fixed a fresh unlabeled-duplicate-row collision this leg's own Eternal Life mirror introduced
+      on Sandstorm Shroud (`BUFF_INSTANCE_LABELS`, sources.ts) — worth re-running that same
+      same-tuple collision check after every future leg here, not just this one.
+- [ ] Elementalist, Engineer, Guardian, Mesmer, Ranger, Revenant, Thief, Warrior legs (8 remaining,
+      not yet started). Revenant's own 5 candidates from the 48-count scan are worth a second look
+      even though Notoriety/Rapid Flow were already curated 2026-08-12 — that scan says 5 Revenant
+      traits still have zero skill linkage, so the earlier pass may not have been fully exhaustive.
 
 ## Coefficient curation — remaining exceptions
 

@@ -2372,7 +2372,14 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // Might|10}}...{{skill fact|fury|alt=First Hit Fury|6|25|game mode = pve}}...
     // {{skill fact|fury|alt=Additional Hit Fury|1|25|game mode = pve}}...` — every tuple already
     // unique (Might by stack count, Fury by duration), no occurrence-indexing needed.
-    62910: { 'Might@10@6': 'First Hit Might', 'Might@10@1': 'Additional Hit Might', 'Fury@6@1': 'First Hit Fury', 'Fury@1@1': 'Additional Hit Fury' }
+    62910: { 'Might@10@6': 'First Hit Might', 'Might@10@1': 'Additional Hit Might', 'Fury@6@1': 'First Hit Fury', 'Fury@1@1': 'Additional Hit Fury' },
+    // Sandstorm Shroud (Necromancer/Scourge, 54870) — a fresh collision introduced by this
+    // session's trait-granted-boons-on-skills curation (Necromancer leg): the skill's own genuine
+    // unconditional Protection@3@1 fact now shares an exact tuple with Eternal Life's (trait 889)
+    // synthetic "gain protection when you enter shroud" copy (`synthetic-facts.json`). Base stays
+    // unlabeled per this table's convention (occurrence 1, no entry needed); the trait-gated 2nd
+    // occurrence gets the real label.
+    54870: { 'Protection@3@1#2': 'Eternal Life' }
   },
   trait: {
     // --- Thief leg (2nd leg, 2026-08-14) --- first-ever trait entries in this table; traits carry

@@ -649,13 +649,23 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     5763: { Regeneration: 5 }, // Renewal of Water
     24410: { Regeneration: 5 }, // Renewal of Water (2nd split id)
     25487: { Regeneration: 5 }, // Glyph of Lesser Elementals (water-attuned)
-    34772: { Regeneration: 5 } // Glyph of Elemental Power (water-attuned)
+    34772: { Regeneration: 5 }, // Glyph of Elemental Power (water-attuned)
     // Glyph of Elemental Harmony (34743, the Heal-slot glyph) carries this exact Inscription-linked
     // Might pair TOO, but ALSO its own genuine unsplit 20s/3-stack Might grant (wiki-confirmed:
     // `{{skill fact|might|20|stacks=3|linked skill=Fire Attunement}}`, no mode split at all) — the
     // same "coexisting genuine untraited application blocks a safe status-wide override" hazard as
     // Toss Elixir H/Reconstruction Field (Engineer leg), so deliberately NOT given an entry here;
     // left open, see BUFF_INSTANCE_LABELS's own comment on this leg.
+
+    // Implacable Foe (trait 2192, Harbinger Master, "gain stability when entering Harbinger
+    // Shroud") — mirrors the trait's own already-auto-detected override below onto Harbinger
+    // Shroud's own synthetic copy of this fact (`synthetic-facts.json`, trait-granted-boons-on-skills
+    // curation, Necromancer leg, 2026-08-14), same "trait fact copied onto the skill it triggers
+    // from" mechanism as the Inscription cluster above. The trait's OTHER Buff fact, "Implacable Foe
+    // (effect)" (-50% incoming damage, flat 2s, no split), was deliberately NOT mirrored — its
+    // `status` isn't in `BOON_NAMES`/`CONDITION_NAMES` so nothing renders it regardless (a self-buff
+    // marker, same "dead entry" shape as the Thief leg's "Assassin's Signet" exclusion).
+    62567: { Stability: 3 }, // Harbinger Shroud
   },
   trait: {
     // Panic Strike (Thief/Deadly Arts trait 1292) and Be Quick or Be Killed (Thief/Trickery trait
@@ -803,6 +813,11 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // skill-side copy of this same Stability pair (Toad's Fortitude, 77247) is left open too, for
     // the same reason.
     2415: { Might: 8 }
+    // Implacable Foe (2192, Harbinger Master) already auto-detects a Stability: 3 override here
+    // from the wiki scan (its own 2 raw facts already contain both the pve(5) and wvw+pvp(3)
+    // durations) — no manual entry needed for the trait's own tooltip. Mirrored onto Harbinger
+    // Shroud's own synthetic copy of this fact in the `skill` block above instead (Necromancer leg,
+    // trait-granted-boons-on-skills sweep, 2026-08-14) — see that entry's comment for the writeup.
   }
 }
 
