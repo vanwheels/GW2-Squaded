@@ -265,7 +265,37 @@ run leg-by-leg like the buff-instance-label sweep, one profession per leg, check
       remaining ~25 raw candidates are on-crit/on-dodge/on-disable/on-combo procs with no single
       triggering skill (Shrapnel, Sapping Device, Equal and Opposite Reaction, etc.) — not itemized
       individually, same reasoning as prior legs.
-- [ ] Guardian, Mesmer, Ranger, Revenant, Thief, Warrior legs (6 remaining, not yet started).
+- [x] **Guardian leg (4th leg) done 2026-08-14.** Rescanned fresh (34 raw candidates). 8 cleanly
+      curated via `synthetic-facts.json`: Healer's Resolution (574, Resolution), Liberator's Vow
+      (2101, Quickness), and Purging Light (2401, Light Aura) all mirrored onto all 12 Guardian heal
+      skill ids (heal-skill-category trigger, same shape as prior legs' heal-skill traits); Monk's
+      Focus (586, Fury + Resolution) onto all 7 Guardian Meditation-category skill ids; Restorative
+      Virtues (2197, Vigor) and Holy Reckoning (2210, Fury) onto the one Willbender virtue skill each
+      names ("activating Flowing Resolve"/"activating Rushing Justice"); Righteous Sprint (2222,
+      Swiftness) onto all 3 Willbender virtue-activation skills (Rushing Justice/Flowing Resolve/
+      Crashing Courage's 4 raw ids) — none of these onto their same-page "Willbender Flames" flip-skill
+      ids, a separate named follow-up skill, not the virtue re-activating. Focus Mastery (633,
+      Protection + Resolution) onto both Focus skills, but Protection only on Shield of Wrath (its
+      2024-03-19 patch note ties it to that skill's own block-window expiry specifically), Resolution
+      on both. First leg where the same-tuple collision re-check came back completely clean (no fresh
+      collisions introduced). First leg needing more than one `WvwFactOverrides` addition for its own
+      new mirrors: Liberator's Vow's Quickness (pve/pvp 2s, wvw 1s) onto all 12 heal ids, and Focus
+      Mastery's Protection (pve 4s, wvw/pvp 2s) onto Shield of Wrath alone — both mirror trait
+      2101/633's own already-auto-detected overrides (`scripts/fetch-wvw-splits.ts`'s
+      `MANUAL_OVERRIDES`). Holy Reckoning's other boon, Might, deliberately NOT curated — its own
+      Mechanics note confirms the trigger is any virtue's passive effect firing (crit/block/ally-heal),
+      explicitly not virtue activation, so no single skill id to mirror onto (same shape as the already-
+      excluded Arcane Prowess/Heavy Light family). ~26 other raw candidates left open: on-crit/on-block/
+      on-disable/on-dodge/equip-triggers (Empowering Might, Valorous Defense, Might of the Protector,
+      Communal Defenses, Heavy Light, Empowered Armaments, etc.), foe-facing debuffs not ally boons
+      (Symbolic Exposure, Zealot's Aggression, Dulled Senses, Unrelenting Criticism, Weighty Terms),
+      and Luminary's very recently added elite-spec mechanics (Light's Gift/Radiant Armaments, equip-a-
+      radiant-weapon triggers) — no deep prior knowledge, same reasoning as Ritualist's Empowering
+      Spirits/Engineer's morph-skill cluster.
+- [ ] Mesmer, Ranger, Revenant, Thief, Warrior legs (5 remaining). Revenant's own 5 candidates from the
+      ORIGINAL 48-count scan are worth a second look even though Notoriety/Rapid Flow were already
+      done — every leg so far (Elementalist 5→41, Engineer 4→40, Guardian ~5→34) has badly undercounted
+      that original scan, so treat its "expected count" as a floor, not a ceiling; rescan fresh.
       Revenant's own 5 candidates from the 48-count scan are worth a second look even though
       Notoriety/Rapid Flow were already curated 2026-08-12 — that scan says 5 Revenant traits still
       have zero skill linkage, so the earlier pass may not have been fully exhaustive (the

@@ -666,6 +666,32 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // `status` isn't in `BOON_NAMES`/`CONDITION_NAMES` so nothing renders it regardless (a self-buff
     // marker, same "dead entry" shape as the Thief leg's "Assassin's Signet" exclusion).
     62567: { Stability: 3 }, // Harbinger Shroud
+
+    // Guardian leg (4th leg of the trait-granted-boons-on-skills sweep, 2026-08-14): Liberator's Vow
+    // (trait 2101, Firebrand Adept, "grant allies quickness when you use your heal skill") mirrors
+    // the trait's own already-auto-detected override below onto every Guardian heal skill's own
+    // synthetic copy of this fact (`synthetic-facts.json`), same "trait fact copied onto the skill it
+    // triggers from" mechanism as Implacable Foe above.
+    9083: { Quickness: 1 }, // "Receive the Light!"
+    9102: { Quickness: 1 }, // Shelter
+    9158: { Quickness: 1 }, // Signet of Resolve
+    12360: { Quickness: 1 }, // Prayer to Dwayna (racial)
+    12440: { Quickness: 1 }, // Healing Seed (racial)
+    21664: { Quickness: 1 }, // Litany of Wrath
+    30025: { Quickness: 1 }, // Purification (Dragonhunter)
+    41475: { Quickness: 1 }, // Restoring Reprieve (Firebrand) — merges (via applyManualOverrides)
+    // with this id's already-automated Protection/Resolution "omit" entries, doesn't replace them
+    41714: { Quickness: 1 }, // Mantra of Solace (Firebrand)
+    42960: { Quickness: 1 }, // Rejuvenating Respite (Firebrand)
+    62622: { Quickness: 1 }, // Reversal of Fortune (Willbender)
+    76621: { Quickness: 1 }, // Resolute Stance (Luminary)
+    // Focus Mastery (trait 633, Valor Adept, "Focus skills grant you protection") — the Protection
+    // half is tied specifically to Shield of Wrath's own block window per its 2024-03-19 patch note
+    // ("Protection from this trait will now apply when Shield of Wrath expires instead of when it
+    // activates"), not to Ray of Judgment (Focus's other skill, which only gets this trait's
+    // unsplit Resolution half, needing no override) — mirrors trait 633's own already-auto-detected
+    // Protection override below onto Shield of Wrath's synthetic copy of the fact.
+    9082: { Protection: 2 }, // Shield of Wrath
   },
   trait: {
     // Panic Strike (Thief/Deadly Arts trait 1292) and Be Quick or Be Killed (Thief/Trickery trait

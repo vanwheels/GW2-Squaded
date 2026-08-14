@@ -89,6 +89,12 @@
     "6176": {
       "Protection": 3
     },
+    "9082": {
+      "Protection": 2
+    },
+    "9083": {
+      "Quickness": 1
+    },
     "9085": {
       "Fury": 10
     },
@@ -98,11 +104,17 @@
     "9099": {
       "Immobile": "omit"
     },
+    "9102": {
+      "Quickness": 1
+    },
     "9151": {
       "Immobile": 3
     },
     "9152": {
       "Protection": 4
+    },
+    "9158": {
+      "Quickness": 1
     },
     "9168": {
       "Vulnerability": 6
@@ -183,8 +195,14 @@
     "12338": {
       "Fury": 6
     },
+    "12360": {
+      "Quickness": 1
+    },
     "12377": {
       "Protection": 3
+    },
+    "12440": {
+      "Quickness": 1
     },
     "12465": {
       "Protection": 3
@@ -360,6 +378,9 @@
     "21661": {
       "Protection": 3
     },
+    "21664": {
+      "Quickness": 1
+    },
     "24407": {
       "Might": 6
     },
@@ -527,6 +548,9 @@
     "29977": {
       "Might": 6
     },
+    "30025": {
+      "Quickness": 1
+    },
     "30047": {
       "Stability": "omit"
     },
@@ -655,10 +679,14 @@
     },
     "41475": {
       "Protection": "omit",
-      "Resolution": "omit"
+      "Resolution": "omit",
+      "Quickness": 1
     },
     "41615": {
       "Regeneration": 6
+    },
+    "41714": {
+      "Quickness": 1
     },
     "41820": {
       "Burning": 1
@@ -696,6 +724,9 @@
     },
     "42949": {
       "Might": 10
+    },
+    "42960": {
+      "Quickness": 1
     },
     "42983": {
       "Quickness": 1
@@ -881,6 +912,9 @@
     },
     "62618": {
       "Burning": 2
+    },
+    "62622": {
+      "Quickness": 1
     },
     "62650": {
       "Immobile": 2
@@ -1157,6 +1191,9 @@
     },
     "76585": {
       "Burning": 5
+    },
+    "76621": {
+      "Quickness": 1
     },
     "76674": {
       "Taunt": 3

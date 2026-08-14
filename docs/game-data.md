@@ -643,6 +643,32 @@ Two cases warrant a new entry:
    (Automated Medical Response, Optimized Activation) and to target a skill with empty
    `professions`/`slot` fields in `skills.json` (Explosive Entrance, Jade Mortar — real ids, just not
    profession-tagged by the API; the synthetic-fact merge is purely id-keyed so this works fine).
+   Guardian leg (2026-08-14) added 8 more: Healer's Resolution/Liberator's Vow/Purging Light (all
+   "when you use a heal skill", mirrored onto all 12 Guardian heal skill ids the same heal-skill-
+   category shape as prior legs) and Monk's Focus (Meditation skills, mirrored onto all 7 Guardian
+   Meditation-category skill ids) found zero fresh same-tuple collisions this time (verified by
+   re-running the merge-and-group check from this leg's own comment above) — the first leg where that
+   check came back clean. First leg to need `WvwFactOverrides` (`data/game-data/wvw-fact-overrides.json`,
+   via `scripts/fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` table) on its own new mirrors more than once:
+   Liberator's Vow's Quickness (pve/pvp 2s, wvw 1s) needed a matching skill-side override on all 12 heal
+   ids, and Focus Mastery's Protection (pve 4s, wvw/pvp 2s) — tied specifically to Shield of Wrath's own
+   block-window-expiry per its 2024-03-19 patch note, NOT to Focus's other skill Ray of Judgment, which
+   only gets this trait's unsplit Resolution half — needed one on Shield of Wrath alone; both mirror
+   trait 633/2101's own already-auto-detected overrides so every tooltip agrees. Also curated:
+   Restorative Virtues (Vigor) and Holy Reckoning (Fury) onto the single Willbender virtue-skill each
+   names ("activating Flowing Resolve"/"activating Rushing Justice") and Righteous Sprint (Swiftness)
+   onto all 3 Willbender virtue-activation skills (Rushing Justice/Flowing Resolve/Crashing Courage,
+   the latter's 4 raw ids all being genuine same-named reactivation charges) — deliberately NOT onto
+   any of their same-page "Willbender Flames" flip-skill ids, which are a separate named follow-up
+   skill (its own damage facts), not a re-activation of the virtue itself. Holy Reckoning's OTHER boon,
+   Might, was left uncurated: its trigger is "any virtue's own passive effect firing" (crit for
+   Justice, block for Courage, ally-heal for Resolve), explicitly NOT virtue activation itself per the
+   trait's own Mechanics note — a foe/passive-proc trigger with no single skill id to mirror onto, same
+   shape as the already-excluded Arcane Prowess/Heavy Light family. 26 other raw candidates left open,
+   not fitting this sweep's single-triggering-skill shape (on-crit/on-block/on-disable/on-dodge/equip-
+   triggers, foe-facing debuffs, or very recent Luminary elite-spec mechanics with no deep prior
+   knowledge, same reasoning as Ritualist's Empowering Spirits/Engineer's morph-skill cluster) —
+   itemized in TODO.md rather than here.
 
 ## Gear upgrades and consumables (`runes.json`, `sigils.json`, `infusions.json`, `relics.json`, `food.json`, `utility.json`)
 
