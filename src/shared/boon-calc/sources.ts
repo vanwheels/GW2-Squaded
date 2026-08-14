@@ -1649,6 +1649,11 @@ function resolveTargetCountFrom(
  * source's unqualified "base" grant in every entry curated so far, its sibling instance(s) being the
  * only one(s) that need a qualifier to read unambiguously.
  *
+ * Every label is quoted straight from its source's own wiki `alt=` text — EXCEPT Icerazor's Ire's
+ * "On Hit" (see its own entry below), the one case in this table sourced from the user's direct
+ * in-game observation instead, since the wiki itself gives that particular fact no qualifying text
+ * at all.
+ *
  * Revenant leg (1st leg, 2026-08-13): started from a scan of `data/game-data/{skills,traits}.json`
  * (after excluding sources `WvwFactOverrides` already resolves) that found 255 sources across all 9
  * professions with 2+ genuinely simultaneous same-status facts: 204 skills + 51 traits, 0 of the
@@ -1732,10 +1737,15 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // was flagged from (TODO.md, 2026-08-09), found again this leg via `synthetic-facts.json` (its
     // real API facts are near-empty; see `fetch-wvw-splits.ts`'s own comment on 40485 for why). Wiki:
     // `{{skill fact|Vulnerability|alt=Initial Vulnerability|8|stacks=10|game mode=pve}}` for the
-    // 10-stack fact; the skill's OTHER Vulnerability fact (8s/5 stacks) carries no `alt=` at all on
-    // the wiki page — stays unlabeled per this table's usual convention, not an oversight.
-    40485: { 'Vulnerability@8@10': 'Initial Vulnerability' },
-    72359: { 'Vulnerability@8@10': 'Initial Vulnerability' },
+    // 10-stack fact. The skill's OTHER Vulnerability fact (8s/5 stacks) carries no `alt=` at all on
+    // the wiki page — the ONE exception in this whole table to "only quote a real wiki `alt=`": the
+    // user's own original 2026-08-09 bug report already characterized this second fact as "on-hit"
+    // from direct in-game play (Visk Icerazor's summoned attacks apply it per-strike, distinct from
+    // the initial burst's 10-stack application), re-confirmed when asked again 2026-08-13 — trusted
+    // as a first-party source the same way any other user-supplied game-mechanic fact would be,
+    // labeled "On Hit" rather than left unlabeled.
+    40485: { 'Vulnerability@8@10': 'Initial Vulnerability', 'Vulnerability@8@5': 'On Hit' },
+    72359: { 'Vulnerability@8@10': 'Initial Vulnerability', 'Vulnerability@8@5': 'On Hit' },
     // Breakrazor's Bastion (Revenant/Renegade heal, both split ids) — same `synthetic-facts.json`
     // root cause as Icerazor's Ire above, found via the same full sweep of that file. Wiki:
     // `{{skill fact|resolution|alt=Initial Resolution|2.5}}` and

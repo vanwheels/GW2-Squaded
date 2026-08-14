@@ -53,12 +53,67 @@ that don't block a release.
       at all — fixed via `WvwFactOverrides` instead, see `wvw-fact-overrides.json`'s `"26699"` entry
       and `fetch-wvw-splits.ts`'s matching `MANUAL_OVERRIDES` entry; Darkrazor's Daring/41220+72366
       stays open — its wiki page has no `alt=` text for either of its 2 Stability facts, nothing to
-      curate from). Remaining: ~245 sources across the other 8 professions in
+      curate from). Icerazor's Ire's own 2nd Vulnerability fact (8s/5 stacks, no wiki `alt=`) also
+      labeled "On Hit" per the user's direct 2026-08-13 confirmation from live play, the one entry in
+      `BUFF_INSTANCE_LABELS` sourced from user observation rather than a literal wiki `alt=` string —
+      see that table's own doc comment. Remaining: ~245 sources across the other 8 professions in
       `skills.json`/`traits.json`, plus an unswept remainder of `synthetic-facts.json` — next leg
       picks a profession the same way `TARGET_COUNT_OVERRIDES`'s sweep did (smallest remaining pool
       first), see `BUFF_INSTANCE_LABELS`'s own doc comment in `sources.ts` for the full leg writeup.
 
 ## Scoped features, not yet built
+
+- [ ] **Same-name "enhanced" flip targets should merge into one tooltip with a "When Enhanced"
+      divider instead of a 2nd stacked icon** — flagged by the user 2026-08-13 looking at Icerazor's
+      Ire's skill bar (still shows 2 icons even after the flip-duplicate sweep, since its enhanced
+      cast DOES carry genuinely new content — Chilled — so the existing `isNonActionableFlipTarget`
+      mechanism correctly leaves it as a separate icon per its own design). User's proposal: for this
+      specific shape (flip target shares the exact same skill name as its source, i.e. "same skill,
+      conditionally enhanced" rather than a genuinely different action), render ONE tooltip — base
+      facts, then a divider, then "When Enhanced"/the triggering condition, then only the target's
+      NEW facts — instead of a full 2nd icon+tooltip.
+      **User chose the full-classification-first option** over "just ship the 2 already-confirmed
+      families now": every same-name flip pair in the game must be individually classified before any
+      rendering changes land, since a blanket "same name → merge" rule would be wrong for many of
+      them (see below).
+      **Scan** (2026-08-13): every `flipSkill` pair in `data/game-data/skills.json` where source and
+      target share the exact same `name`, filtered against the existing
+      `NON_ACTIONABLE_REVENANT_FLIP_TARGET_IDS`/`NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS`
+      exclusion tables (already-hidden pure duplicates) — found ~50 pairs, NOT all the same shape:
+        - Warrior adrenaline-tier bursts (Eviscerate, Kill Shot ×3-deep chain, Earthshaker, Arcing
+          Slice, Skull Crack, Whirling Strike, Combustive Shot, Forceful Shot, Breaching Strike, Path
+          to Victory, Harrier's Toss, Bloodthirster, Berserk — 14 pairs) — mutually EXCLUSIVE power
+          tiers gated by current adrenaline, not additive. A divider merge would misrepresent them as
+          stacking; needs its own classification pass (not started) to confirm this reading per-skill
+          before deciding a treatment (may just need a different render shape entirely, e.g. "Tier 2"
+          labels, not a same/enhanced divider).
+        - Guardian Tome/Virtue/Spirit Weapon chains (Shield of Absorption, Virtue of Courage, Virtue
+          of Resolve, Shield of Courage, Wings of Resolve, Tome of Resolve, Tome of Courage, Tome of
+          Justice, Crashing Courage ×2, Glaring Burst chain, Radiant Courage, Radiant Resolve — 13
+          pairs) — not yet classified, likely a mix of sequential-page/recharge-triggered shapes.
+        - Mesmer (Mind Wrack, Axes of Symmetry, Split Second, Bladesong Harmony — 4 pairs) — not yet
+          classified.
+        - **Classified this session**:
+          - **Additive enhancement** (the target shape, real divider-merge candidates once rendering
+            is built): Revenant's Band Together family (Icerazor's Ire, Darkrazor's Daring,
+            Razorclaw's Rage, Breakrazor's Bastion) + Elementalist's 4 attunement-conditional
+            familiars (Fox's Fury, Otter's Compassion, Toad's Fortitude, Hare's Agility, all 4 now
+            individually wiki-confirmed, not just "assumed" — see `other-profession-flip-
+            duplicates.ts`). 8 pairs total, 0 rendering built yet.
+          - **Genuine sequential chain, correctly left as-is**: Thief's Deathstrike (27074→28625,
+            "quick attack, then a second devastating blow if it hits" — 2nd hit conditional on the
+            1st landing, not an unconditional addition, same shape as any multi-hit autoattack chain).
+          - **Out of scope, not a combat-facts case**: Revenant's Legendary Renegade Stance
+            (46409→41858) — a Legend-select mechanic-bar button, differs only by a `StunBreak` flag,
+            not a boon/condition/damage duplicate in the sense this item is about.
+          - **Zero new content, now excluded** (added to `NON_ACTIONABLE_OTHER_PROFESSION_FLIP_
+            TARGET_IDS` this session, same mechanism as the original sweep — these were STILL showing
+            a pointless 2nd icon until now): Ranger's Maul, Thief's Repeater/Spinning Axe/Death's
+            Advance, Necromancer's 3 Charged Souls "Innervate" mechanic-slot skills. 7 pairs fixed.
+      **Next leg**: classify Warrior (14 pairs, likely needs its own "tiered, not additive" render
+      treatment decided) and Guardian (13 pairs) — largest remaining pools. Once the full ~50-pair
+      classification is done, THEN design+build the actual divider rendering for the confirmed-
+      additive family (`skillTooltipContent`/`FlipSkillStack` in `SkillsEditor.tsx`).
 
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around

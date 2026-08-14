@@ -2,6 +2,44 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 171 — Icerazor's Ire "On Hit" label + same-name flip-pair classification sweep (leg 1)
+
+Two follow-ups from Session 170, both prompted by the user reviewing the live-rendered Icerazor's
+Ire tooltip:
+
+1. Added "On Hit" to Icerazor's Ire's 2nd Vulnerability fact (8s/5 stacks) in `BUFF_INSTANCE_LABELS`
+   — the wiki gives this fact no `alt=` text, but the user's own original 2026-08-09 bug report
+   already characterized it as "on-hit" from direct play, re-confirmed when asked again. The one
+   entry in the table sourced from user observation rather than a literal wiki string; doc comment
+   updated to flag the exception.
+
+2. User asked why Icerazor's Ire still shows 2 skill-bar icons despite the earlier flip-duplicate
+   sweep, and proposed merging same-name "enhanced" flip targets into one tooltip with a "When
+   Enhanced" divider instead. Investigated: the existing sweep's own design already explains this —
+   `isNonActionableFlipTarget` only hides a flip target with literally NO new content; Icerazor's Ire's
+   enhanced cast DOES add real content (Chilled), so it correctly keeps its own icon under that rule.
+   The user's proposal is a genuine UX improvement for that specific shape, but "same name on both
+   ends of a flip" turned out to cover ~50 pairs game-wide, most of which are NOT the same shape
+   (Warrior adrenaline-tier bursts and Guardian Tome/Virtue chains are mutually-exclusive tiers, not
+   additive enhancements) — user chose to fully classify all ~50 before any rendering changes, over
+   shipping just the 2 already-obvious families.
+
+   First leg: classified Revenant's remaining 2 same-name pairs (Deathstrike — genuine 2-hit combo,
+   correctly left as-is; Legendary Renegade Stance — a Legend-select button, out of scope) and all 4
+   Elementalist familiar skills (Fox's Fury/Otter's Compassion/Toad's Fortitude/Hare's Agility, now
+   individually wiki-confirmed as the same additive-enhancement shape, not just "assumed" as the prior
+   sweep left them). Also swept Ranger/Thief/Necromancer's remaining same-name pairs opportunistically
+   (smaller pools) and found 7 more zero-new-content duplicates the original 19-id sweep missed (Maul,
+   Repeater, Spinning Axe, Death's Advance, and all 3 Necromancer "Innervate" mechanic-slot skills) —
+   added to `NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS`, fixing a real "pointless 2nd icon with
+   zero new information" bug immediately using the existing exclusion mechanism, no new code needed.
+
+   8 pairs now confirmed as real divider-merge candidates (Revenant's Band Together family +
+   Elementalist's familiars); rendering itself not yet built. Warrior (14 pairs) and Guardian (13
+   pairs) — the two largest, most ambiguous remaining pools — logged in TODO.md as the next leg.
+
+`npm run typecheck`/lint/full test suite (110/110) all clean.
+
 ## Session 170 — Duplicate same-status buff row labeling: mechanism built, Revenant leg curated
 
 TODO.md's "unlabeled duplicate rows" bug (deferred 2026-08-09 as "leave as-is for now"): re-asked,

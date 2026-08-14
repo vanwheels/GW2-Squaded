@@ -26,12 +26,28 @@
  *
  * Deliberately NOT included: Elementalist Evoker's 4 familiar Utility skills (Fox's Fury, Otter's
  * Compassion, Toad's Fortitude, Hare's Agility) — each *does* carry genuinely new facts on its flip
- * target, and for Fox's Fury and Otter's Compassion this is wiki-confirmed as a real, current,
- * attunement-conditional enhancement ("if fire/water is your specialized element, this skill also
- * breaks stun / grants extra might / strikes nearby foes" — Fox's Fury last balance-patched
- * 2025-10-28). Toad's Fortitude and Hare's Agility weren't individually wiki-checked but show the
- * identical "target is a strict superset, matches the family's shape" signature, so they're assumed
- * to follow the same attunement-gated-enhancement pattern rather than excluded on a guess.
+ * target, wiki-confirmed 2026-08-13 for all 4 (previously only Fox's Fury/Otter's Compassion were
+ * individually checked, the other 2 "assumed") as a real, current, attunement-conditional
+ * enhancement: "if fire/water/earth/air is your specialized element, this skill also breaks stun /
+ * grants extra might / grants resistance / grants blur." These are the exact "additive enhancement"
+ * shape TODO.md's "same-name flip pair" classification sweep (2026-08-13, see
+ * `revenant-flip-duplicates.ts`'s own Band Together note) is tracking as future divider-merge
+ * candidates — correctly still shown as a separate stacked icon today, pending that sweep deciding
+ * how to render them differently.
+ *
+ * Also investigated 2026-08-13 as part of that same classification sweep, deliberately NOT
+ * excluded here for a 3rd reason: **Thief's Deathstrike** (27074 -> 28625) is a genuine 2-hit combo
+ * ("deliver a quick attack, then deliver a second devastating blow if it hits") — the 2nd hit's
+ * damage is conditional on the 1st landing, not an unconditional addition, so it's correctly treated
+ * like any other multi-hit attack chain (no different from a weapon autoattack's 2nd/3rd hit, none
+ * of which get merged into one tooltip either).
+ *
+ * 2026-08-13 addition (7 more same-name pairs, found by the classification sweep above scanning
+ * EVERY same-name flip pair in the game rather than just Engineer/Guardian/Elementalist/Thief
+ * Heal/Utility/Elite): all 7 are byte-identical or near-identical (same substantive Damage/Buff
+ * content, differing only in internal fact ordering/type representation or an unrelated numeric
+ * field the boon/condition calculator doesn't read) — same "2nd id, not 2nd effect" shape as this
+ * file's original 19.
  */
 export const NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS: ReadonlySet<number> = new Set([
   // Engineer
@@ -57,5 +73,21 @@ export const NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS: ReadonlySet<number
   // Thief
   77092, // Stone Summit Cannon
   76784, // Emergency Jade Shield
-  76744 // Canach-Coin Toss
+  76744, // Canach-Coin Toss
+  // Ranger
+  46629, // Maul — same Damage(2.2)/Vulnerability(8s×5)/Attack of Opportunity(10s×1) content as its
+  // source (12525), just represented with an internal duplicate fact on one side and a
+  // Buff-vs-PrefixedBuff type difference on the other
+  // Thief (2026-08-13 addition)
+  59526, // Repeater — byte-identical to its source (13111): Damage/Bleeding(3s×5)/ComboFinisher
+  71854, // Spinning Axe — identical Damage/Bleeding/Number-of-Targets/Pierces to its source (71967);
+  // only its non-boon "Duration" (ground-effect lifetime, 4s vs 10s) differs, a PvE/WvW split the
+  // boon/condition calculator doesn't read
+  80278, // Death's Advance — byte-identical to its source (40436), wiki's own page confirms it's
+  // simply the ground-targeted casting variant ("id = 40436, 80278 <!-- ground-targeted -->")
+  // Necromancer/Ritualist (2026-08-13 addition) — all 3 Charged Souls "Innervate" mechanic-slot
+  // skills share one wiki page per pair (`id = X, Y`) with byte-identical facts on both ids
+  76602, // Innervate Preservation — identical to its source (76647)
+  76732, // Innervate Wanderlust — identical to its source (76758)
+  77003 // Innervate Anguish — identical to its source (77050)
 ])
