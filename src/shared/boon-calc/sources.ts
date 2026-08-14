@@ -1738,6 +1738,16 @@ function resolveTargetCountFrom(
  * template on its whole wiki page for 2 raw-identical facts; Marching Orders' Protection pair is
  * gated by a different trait (Vengeance) with no wiki text of its own to quote for it. See the
  * `skill`/`trait` blocks' own comments below for the full per-source writeup.
+ *
+ * Necromancer leg (4th leg, 2026-08-14): smallest remaining pool per a rescan with all prior legs'
+ * methodology fixes applied — only 3 skill + 1 trait conflict sources (a much smaller pool than the
+ * pre-fix "24" estimate, itself now confirmed stale). All 3 skill sources got real wiki-`alt=`-
+ * sourced labels: Dark Pact's self-inflicted Bleeding echo, Rending Claws' below-health-threshold
+ * Vulnerability bonus, and "You Are All Weaklings!"'s 2 single-stack Might bonuses (occurrence-
+ * indexed, "Might per Hit"/"Might per Melee Hit"). The lone trait conflict, Dhuumfire's untraited
+ * Burning pair, stays open — 2 raw-identical 3s facts, but the wiki page's base section carries only
+ * ONE `{{skill fact|burning|3}}` template, nothing to distinguish them (same "one wiki concept, two
+ * raw facts" shape as this leg's own Banner-of-Tactics precedent above).
  */
 export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string>>; trait: Record<number, Record<string, string>> } = {
   skill: {
@@ -1919,6 +1929,32 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // its 2 simultaneous Stability facts (1s unsplit + a separate 6s/3-stack pve-wvw-split one) as a
     // wiki page with NO `alt=` wording on either — nothing to curate from, not an oversight. Stays an
     // open item (see TODO.md) until/unless the wiki page is updated with real qualifiers.
+
+    // --- Necromancer leg (4th leg, 2026-08-14) ---
+
+    // Dark Pact (dagger 4). Wiki: base `{{skill fact|bleeding|stacks=2|10}}` (to the target) is
+    // unlabeled; the self-inflicted echo carries
+    // `{{skill fact|bleeding|stacks=2|10|alt=Self-Bleeding|applies to=self}}` — occurrence-indexed
+    // since both share the identical 10s/2-stack tuple.
+    10529: { 'Bleeding@10@2#2': 'Self-Bleeding' },
+    // Rending Claws (axe 2, health-threshold-scaled vulnerability). Wiki: base
+    // `{{skill fact|vulnerability|7|stacks=2|game mode = pve}}` is unlabeled; the below-threshold
+    // bonus carries `{{skill fact|vulnerability|7|stacks=2|alt=Vulnerability below threshold|game
+    // mode = pve}}` — occurrence-indexed, identical 7s/2-stack tuple (matches the skill's own
+    // description: "Vulnerability applied increases against foes below the health threshold").
+    10561: { 'Vulnerability@7@2#2': 'Vulnerability below threshold' },
+    // "You Are All Weaklings!" (Spite shout). Wiki's base Might
+    // (`{{skill fact|might|stacks=5|10|game mode = pve}}`) has its own distinct 5-stack tuple, so
+    // stays unlabeled without needing an entry; its 2 single-stack bonus facts share one 10s/1-stack
+    // tuple, occurrence-indexed in wiki template order:
+    // `{{skill fact|might|10|alt=Might per Hit|game mode = pve}}` then
+    // `{{skill fact|might|10|alt=Might per Melee Hit|game mode = pve}}`.
+    29414: { 'Might@10@1#1': 'Might per Hit', 'Might@10@1#2': 'Might per Melee Hit' }
+    // Dhuumfire's (trait 905) base Burning pair (3s×1, both facts identical, the `overrides`-linked
+    // Scourge/Harbinger-traited variants already excluded pre-scan) is a genuine raw-API duplicate
+    // with nothing to curate from: the wiki page's base section carries only ONE
+    // `{{skill fact|burning|3}}` template for the untraited case — same "one wiki concept, two raw
+    // facts" shape as Warrior leg's Banner of Tactics Stability pair. Left open.
   },
   trait: {
     // --- Thief leg (2nd leg, 2026-08-14) --- first-ever trait entries in this table; traits carry

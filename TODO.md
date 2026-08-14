@@ -42,24 +42,27 @@ that don't block a release.
       `${status}@${duration}@${applyCount}` (`#<occurrence>` suffix for same-tuple collisions) —
       rendered in `SkillsEditor.tsx`'s `factsBlock`. A `buff-instance-label-completeness.test.ts`
       staleness scan guards every curated key (skill AND trait sides) against game-data drift.
-      **3 legs done, smallest-remaining-pool-first** (full per-source reasoning for every leg lives
+      **4 legs done, smallest-remaining-pool-first** (full per-source reasoning for every leg lives
       in `BUFF_INSTANCE_LABELS`'s own doc comment, not duplicated here — this entry only tracks
       overall status): Revenant (1st, 2026-08-13, 11 skill ids labeled), Thief (2nd, 2026-08-14, 6
       sources labeled + fixed the scan methodology twice — excluded `overrides`-linked
       replace-not-add facts, and discovered several "conflicts" never reach the table at runtime
       since `classifyBoonCondition` only recognizes `BOON_NAMES`/`CONDITION_NAMES`), Warrior (3rd,
       2026-08-14, 8 sources labeled including this table's first `linked skill=`-derived trait
-      label). Several sources across all 3 legs turned out to be plain PvE/WvW(+PvP) splits with no
-      `alt=` wording — redirected to `WvwFactOverrides`/`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES`
-      instead (regenerate `wvw-fact-overrides.json` by actually running `npm run fetch-wvw-splits`
-      after editing that file, never hand-edit the generated JSON). Also found but deliberately
-      deferred: a cross-profession "Convergence Artifact" skill/trait family (Forged Surfer Dash,
-      Holo-Dancer Decoy, Mistburn Mortar, Possessive Hoarder) with an entangled 3-way pve/wvw/pvp
-      split, worth its own dedicated pass rather than a per-profession fix. **Remaining**: 6
-      professions' `skills.json`/`traits.json` pools unswept (Necromancer next-smallest), plus an
-      unswept `synthetic-facts.json` remainder for those 6 — next leg picks smallest pool first,
-      same pattern as `TARGET_COUNT_OVERRIDES`'s sweep, and checks the `classifyBoonCondition`
-      recognized-name gate BEFORE drafting an entry, not after.
+      label), Necromancer (4th, 2026-08-14, 3 sources labeled — Dark Pact, Rending Claws, "You Are
+      All Weaklings!"; only 4 total conflict sources once the fixed methodology applied from the
+      start, confirming the original "24" estimate was stale). Several sources across all 4 legs
+      turned out to be plain PvE/WvW(+PvP) splits with no `alt=` wording — redirected to
+      `WvwFactOverrides`/`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` instead (regenerate
+      `wvw-fact-overrides.json` by actually running `npm run fetch-wvw-splits` after editing that
+      file, never hand-edit the generated JSON). Also found but deliberately deferred: a
+      cross-profession "Convergence Artifact" skill/trait family (Forged Surfer Dash, Holo-Dancer
+      Decoy, Mistburn Mortar, Possessive Hoarder) with an entangled 3-way pve/wvw/pvp split, worth
+      its own dedicated pass rather than a per-profession fix. **Remaining**: 5 professions'
+      `skills.json`/`traits.json` pools unswept, plus an unswept `synthetic-facts.json` remainder
+      for those 5 — next leg picks smallest pool first, same pattern as `TARGET_COUNT_OVERRIDES`'s
+      sweep, and checks the `classifyBoonCondition` recognized-name gate BEFORE drafting an entry,
+      not after.
 
 ## Scoped features, not yet built
 

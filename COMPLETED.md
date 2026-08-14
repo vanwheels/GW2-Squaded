@@ -2,6 +2,29 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 174 — Buff instance-label sweep, Necromancer leg (4th leg)
+
+Continued TODO.md's "unlabeled duplicate rows" bug sweep, picking the smallest remaining profession
+pool per [[buff_instance_label_sweep_2026-08-13]]/[[pacing_large_sweeps]] convention. Rescanned
+`skills.json`/`traits.json` with both of the Thief/Warrior legs' methodology fixes applied from the
+start (exclude `overrides`-linked traitedFacts, pre-filter to `classifyBoonCondition`-recognized
+statuses) — Necromancer came out with only 3 skill + 1 trait conflict sources, far smaller than the
+original pre-fix "24" estimate.
+
+All 3 skill sources got real wiki-`alt=`-sourced labels: Dark Pact's self-inflicted Bleeding echo
+("Self-Bleeding", `applies to=self`), Rending Claws' health-threshold-scaled Vulnerability bonus
+("Vulnerability below threshold"), and "You Are All Weaklings!"'s 2 single-stack Might bonuses
+(occurrence-indexed, "Might per Hit"/"Might per Melee Hit" — its 5-stack base Might already has a
+distinct tuple so needed no entry). The lone trait conflict, Dhuumfire's untraited Burning pair (2
+raw-identical 3s facts, its 2 trait-gated `overrides`-linked variants correctly excluded pre-scan),
+stays open: the wiki page's base section carries only ONE `{{skill fact|burning|3}}` template,
+nothing to distinguish the 2 raw facts — same "one wiki concept, two raw facts" shape as the Warrior
+leg's Banner of Tactics Stability pair.
+
+`npm run typecheck`/lint clean; full suite 110/110 (no new tests needed — the existing staleness scan
+already covers both table sides, verified the 3 new keys resolve correctly). TODO.md entry updated to
+4 legs done, 5 professions remaining, next leg picks the smallest remaining pool.
+
 ## Session 173 — Buff instance-label sweep, Warrior leg (3rd leg)
 
 Continued TODO.md's "unlabeled duplicate rows" bug sweep. Re-ran the conflict scan with both of the
