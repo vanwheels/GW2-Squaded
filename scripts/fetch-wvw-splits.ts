@@ -581,9 +581,9 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // to collapse), mirrors trait 1687's own already-curated override below so every tooltip agrees.
     // Wiki (on trait 1687's own page): `{{skill fact|vigor|8|linked skill=Cry of Frustration|game
     // mode=pve}}{{skill fact|vigor|5|linked skill=Cry of Frustration|game mode=wvw pvp}}`.
-    10190: { Vigor: 5 },
+    10190: { Vigor: 5, Vulnerability: 6, Torment: 3, Blinded: 1.5 }, // + Mesmer leg mirrors below
     56928: { Vigor: 5 },
-    62616: { Vigor: 5 },
+    62616: { Vigor: 5, Vulnerability: 6, Torment: 3, Blinded: 1.5, Aegis: 3 }, // + Mesmer leg mirrors
     76746: { Vigor: 5 },
     // Deafening Drum (77079) carries the same trait 1687-linked Fury pair (Diversion-linked on the
     // trait's own page: `{{skill fact|fury|10|25|linked skill=Diversion|game mode=pve}}
@@ -675,7 +675,9 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     9083: { Quickness: 1 }, // "Receive the Light!"
     9102: { Quickness: 1 }, // Shelter
     9158: { Quickness: 1 }, // Signet of Resolve
-    12360: { Quickness: 1 }, // Prayer to Dwayna (racial)
+    12360: { Quickness: 1, Regeneration: 4 }, // Prayer to Dwayna (racial) — Regeneration is the
+    // Mesmer leg's Metaphysical Rejuvenation mirror (trait-granted-boons-on-skills sweep,
+    // 2026-08-14), see that leg's own comment below for why 12440/Healing Seed doesn't get one
     12440: { Quickness: 1 }, // Healing Seed (racial)
     21664: { Quickness: 1 }, // Litany of Wrath
     30025: { Quickness: 1 }, // Purification (Dragonhunter)
@@ -692,6 +694,71 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // unsplit Resolution half, needing no override) — mirrors trait 633's own already-auto-detected
     // Protection override below onto Shield of Wrath's synthetic copy of the fact.
     9082: { Protection: 2 }, // Shield of Wrath
+
+    // Mesmer leg (5th leg of the trait-granted-boons-on-skills sweep, 2026-08-14): each entry below
+    // mirrors a Mesmer trait's own already-auto-detected override (see this table's `trait` block)
+    // onto that trait's synthetic copy of the fact on the skill(s) it triggers from
+    // (`synthetic-facts.json`), same mechanism as the legs above. Two ids are deliberately EXCLUDED
+    // from an entry despite carrying a mirrored fact, both because a pre-existing genuine fact of
+    // the SAME status already lives on that skill with no override of its own — adding one here
+    // would incorrectly collapse the pre-existing fact into this override's value too (same
+    // "coexisting genuine untraited/differently-traited application blocks a safe status-wide
+    // override" hazard noted elsewhere in this file): Healing Seed (12440) has its own real API
+    // Regeneration@3@1 (unconditional, no `requires_trait`) already on it — Metaphysical
+    // Rejuvenation's Regeneration mirror is left at its raw 6s value there instead (see
+    // BUFF_INSTANCE_LABELS's own note for the Time Warp case, same reasoning). Cry of Frustration
+    // (10190) and Bladesong Sorrow (62616) already carry Phantasmal Force's (trait 1687) own Vigor
+    // override below — Nomad's Endurance's Vigor mirror was left OFF those 2 ids entirely (not just
+    // un-overridden) in `synthetic-facts.json`, since the 2 traits' Vigor values genuinely differ
+    // (5 vs 1.5) and the override table can't hold 2 values for one status on one skill.
+    10176: { Regeneration: 4 }, // Ether Feast
+    10177: { Regeneration: 4 }, // Mirror
+    10213: { Regeneration: 4 }, // Mantra of Recovery
+    10214: { Regeneration: 4 }, // Power Return
+    // Prayer to Dwayna (12360, racial) gets a Regeneration entry merged into its existing Quickness
+    // one below (Guardian leg) — safe here (unlike Healing Seed/12440): its only other Regeneration
+    // fact is Soothing Ice's (Elementalist trait 348), a different profession, never simultaneously
+    // active with a Mesmer's own Metaphysical Rejuvenation.
+    21750: { Regeneration: 4 }, // Signet of the Ether
+    30305: { Regeneration: 4 }, // Well of Eternity
+    40200: { Regeneration: 4 }, // False Oasis
+    62522: { Regeneration: 4 }, // Twin Blade Restoration
+    76695: { Regeneration: 4 }, // Tale of the Second Scion
+    // Rending Shatter (687) / Maim the Disillusioned (1690) / Nomad's Endurance (2069) — all "Shatter
+    // skills" category triggers, mirrored onto the 5 base shatter ids (Mind Wrack's 2, Cry of
+    // Frustration, Diversion, Distortion) plus all 6 Virtuoso Bladesong ids (wiki: Rending Shatter's
+    // own `improves type = Shatter, Bladesong, Instrument` field — Bladesongs mechanically count as
+    // Shatters; Instrument/Troubadour skill ids deliberately not covered this leg, too recent/no deep
+    // prior knowledge, same reasoning as every other Troubadour exclusion this leg). Cry of
+    // Frustration (10190) and Bladesong Sorrow (62616) get their Vulnerability/Torment/Blinded merged
+    // into their existing Phantasmal Force-linked Vigor entry above instead of a fresh one here.
+    10191: { Vulnerability: 6, Torment: 3, Vigor: 1.5 }, // Mind Wrack
+    49068: { Vulnerability: 6, Torment: 3, Vigor: 1.5 }, // Mind Wrack (flip/charged copy)
+    10287: { Vulnerability: 6, Torment: 3, Vigor: 1.5 }, // Diversion
+    10192: { Vulnerability: 6, Torment: 3, Vigor: 1.5, Resistance: 2.5 }, // Distortion
+    62586: { Vulnerability: 6, Torment: 3, Vigor: 1.5, Aegis: 3 }, // Bladesong Harmony
+    62617: { Vulnerability: 6, Torment: 3, Vigor: 1.5, Aegis: 3 }, // Bladesong Harmony (2nd id)
+    62602: { Vulnerability: 6, Torment: 3, Vigor: 1.5, Aegis: 3 }, // Bladesong Dissonance
+    62597: { Vulnerability: 6, Torment: 3, Vigor: 1.5, Aegis: 3 }, // Bladeturn Requiem
+    // Bladesong Distortion (68273) deliberately has NO Aegis entry here despite carrying both
+    // Inspiring Distortion's (1852, unsplit 2s, no override needed) and Bladeturn Refrain's (2212,
+    // wvw 3s) Aegis mirrors — adding one would incorrectly collapse Inspiring Distortion's own
+    // unsplit fact into Bladeturn Refrain's value too (same hazard as the Vigor exclusion above).
+    68273: { Vulnerability: 6, Torment: 3, Vigor: 1.5, Resistance: 2.5 }, // Bladesong Distortion
+    // Temporal Enchanter (1980, Chaos Master, "when you cast a glamour, allies near the glamour gain
+    // resistance and superspeed") mirrored onto every Glamour-category skill except Portal Exeunt
+    // (wiki: "does not grant allies these boons"). Time Warp (10311/10377) deliberately has NO
+    // Superspeed entry — see BUFF_INSTANCE_LABELS's own comment on those 2 ids for why (its own
+    // unconditional Superspeed@2@1 base fact would get incorrectly collapsed into this override).
+    10187: { Superspeed: 2, Resistance: 2 }, // Veil
+    50414: { Superspeed: 2, Resistance: 2 }, // Veil (2nd id)
+    10197: { Superspeed: 2, Resistance: 2 }, // Portal Entre
+    10203: { Superspeed: 2, Resistance: 2 }, // Null Field
+    50440: { Superspeed: 2, Resistance: 2 }, // Null Field (2nd id)
+    10302: { Superspeed: 2, Resistance: 2 }, // Feedback
+    34326: { Superspeed: 2, Resistance: 2 }, // Feedback (2nd id)
+    10311: { Resistance: 2 }, // Time Warp
+    10377: { Resistance: 2 }, // Time Warp (2nd id)
   },
   trait: {
     // Panic Strike (Thief/Deadly Arts trait 1292) and Be Quick or Be Killed (Thief/Trickery trait
@@ -838,12 +905,20 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // Ire's Torment/Vulnerability (Revenant leg); left at the PvE stack count, documented gap. The
     // skill-side copy of this same Stability pair (Toad's Fortitude, 77247) is left open too, for
     // the same reason.
-    2415: { Might: 8 }
+    2415: { Might: 8 },
     // Implacable Foe (2192, Harbinger Master) already auto-detects a Stability: 3 override here
     // from the wiki scan (its own 2 raw facts already contain both the pve(5) and wvw+pvp(3)
     // durations) — no manual entry needed for the trait's own tooltip. Mirrored onto Harbinger
     // Shroud's own synthetic copy of this fact in the `skill` block above instead (Necromancer leg,
     // trait-granted-boons-on-skills sweep, 2026-08-14) — see that entry's comment for the writeup.
+
+    // Temporal Enchanter (1980, Chaos Master, Mesmer leg of the trait-granted-boons-on-skills sweep,
+    // 2026-08-14): its Resistance pve(3)/wvw+pvp(2) split already auto-detects fine (unclear why —
+    // same "not every case makes the automated candidate list" gap as Unrelenting Assault above), so
+    // only Superspeed needed a manual entry here: plain pve(3)/wvw+pvp(2) split, no `alt=`
+    // (`{{skill fact|effect|Superspeed|3|game mode = pve}}{{skill fact|effect|Superspeed|2|game mode
+    // = wvw pvp}}`), both values already present verbatim among the trait's own raw facts.
+    1980: { Superspeed: 2 }
   }
 }
 

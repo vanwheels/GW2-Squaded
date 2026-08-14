@@ -668,7 +668,27 @@ Two cases warrant a new entry:
    not fitting this sweep's single-triggering-skill shape (on-crit/on-block/on-disable/on-dodge/equip-
    triggers, foe-facing debuffs, or very recent Luminary elite-spec mechanics with no deep prior
    knowledge, same reasoning as Ritualist's Empowering Spirits/Engineer's morph-skill cluster) —
-   itemized in TODO.md rather than here.
+   itemized in TODO.md rather than here. Mesmer leg (2026-08-14) found the largest single-leg haul yet
+   (13 traits) because "Shatter skills" is a whole-category trigger shared by 5 different traits at
+   once (Rending Shatter/Maim the Disillusioned/Illusionary Reversion/Flow of Time/Nomad's Endurance),
+   mirrored onto all 5 base shatter ids PLUS all 6 Virtuoso Bladesong ids — confirmed via Rending
+   Shatter's own wiki `improves type = Shatter, Bladesong, Instrument` field that Bladesongs
+   mechanically count as Shatters for every trait in that family (Instrument/Troubadour ids excluded,
+   too recent). New failure mode this leg, one level past the same-tuple `BUFF_INSTANCE_LABELS` check:
+   a mirrored trait can share a status with an UNRELATED pre-existing fact on the same skill that has
+   no override of its own — adding a `WvwFactOverrides` entry for the new mirror would then silently
+   overwrite that unrelated fact's own true value too (not just introduce an extra display row, an
+   actual wrong number). Found twice: Healing Seed's own unconditional Regeneration@3@1 (no
+   `requires_trait`, always present) vs. Metaphysical Rejuvenation's mirrored copy, and Cry of
+   Frustration/Bladesong Sorrow's pre-existing Phantasmal Force-linked Vigor override (value 5) vs.
+   Nomad's Endurance's own mirror (value 1.5) — since `WvwFactOverrides` only holds one value per
+   status per skill, the fix in both cases was to skip adding an override (or skip the mirror
+   entirely, for the 2 Vigor ids) rather than risk collapsing either trait's value into the other's.
+   Also left open, too complex for one session: Stretched Time and Seize the Moment, both dual-trigger
+   (shatter-clone-count AND phantasm-spawn) traits where the (separate) `BUFF_INSTANCE_LABELS` sweep
+   had already decoded a genuine mode-dependent DIFFERENT-boon swap (Alacrity in pve/pvp, Might in
+   wvw) — see `sources.ts`'s own trait-side comments on trait ids 1942/2022 for the full wiki
+   breakdown a future session could resume from.
 
 ## Gear upgrades and consumables (`runes.json`, `sigils.json`, `infusions.json`, `relics.json`, `food.json`, `utility.json`)
 

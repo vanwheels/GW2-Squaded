@@ -2,6 +2,37 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 180 — Trait-granted-boons-on-skills sweep, Mesmer leg (5th leg)
+
+Rescanned fresh (52 raw zero-skill-linkage-with-a-Buff-fact candidates, vs. the original scoping
+pass's "6" estimate — same badly-undercounted pattern every leg so far has found). 13 traits cleanly
+curated via `synthetic-facts.json`, the largest single-leg haul of the sweep: Metaphysical
+Rejuvenation (Regeneration) onto all 11 Mesmer heal skills; a 5-trait "Shatter skills" category
+cluster (Rending Shatter/Vulnerability, Maim the Disillusioned/Torment, Illusionary
+Reversion/Alacrity, Flow of Time/Alacrity, Nomad's Endurance/Vigor) onto all 5 base shatter ids PLUS
+all 6 Virtuoso Bladesong ids, confirmed via Rending Shatter's own wiki `improves type = Shatter,
+Bladesong, Instrument` field; 2 "Shatter skill 2"-only traits (Illusionary Membrane/Chaos Aura,
+Blinding Dissipation/Blinded) onto Cry of Frustration + its Bladesong equivalent; 2 "Shatter skill
+4"-only traits (Inspiring Distortion/Aegis, Mental Defense/Resistance) onto Distortion + its
+equivalent; Bladeturn Refrain (Aegis) onto all 6 Bladesongs; Master of Manipulation (Aegis) onto all
+6 Manipulation-category skills; Temporal Enchanter (Superspeed + Resistance) onto every Glamour
+skill except Portal Exeunt (wiki: doesn't grant the boons despite being tagged Glamour).
+
+New failure mode, one level past the usual same-tuple `BUFF_INSTANCE_LABELS` check: a mirrored
+trait's status can collide with an UNRELATED pre-existing fact on the same skill that has no
+override of its own — adding a `WvwFactOverrides` entry for the new mirror would silently overwrite
+that other fact's true value too. Found twice (Healing Seed's own unconditional Regeneration@3@1;
+Cry of Frustration/Bladesong Sorrow's pre-existing Phantasmal Force-linked Vigor override) — fixed by
+skipping the override, or skipping the mirror entirely where even that wasn't safe. Fixed 1 fresh
+same-tuple collision (`BUFF_INSTANCE_LABELS`): Time Warp's own unconditional Superspeed@2@1 vs.
+Temporal Enchanter's copy. Deliberately left open: Stretched Time and Seize the Moment (both
+dual-trigger, and both a genuine mode-dependent different-boon swap already decoded by the separate
+BUFF_INSTANCE_LABELS sweep — see `sources.ts`'s trait-side comments on 1942/2022), Phantasmal Haste
+(3 raw facts turned out to be 2 different targets, phantasm vs. player), and Illusionary Defense (a
+genuine base+per-clone-scaling mechanic that doesn't fit the flat single-duration fact shape). Full
+writeup in TODO.md's own entry and `docs/game-data.md`'s synthetic-facts.json section. 4 legs remain
+(Ranger, Revenant, Thief, Warrior).
+
 ## Session 179 — Buff instance-label sweep, Elementalist leg (9th leg, FINAL leg) — sweep complete
 
 Closed out TODO.md's "unlabeled duplicate rows" bug — Elementalist was the last profession pool

@@ -292,15 +292,72 @@ run leg-by-leg like the buff-instance-label sweep, one profession per leg, check
       and Luminary's very recently added elite-spec mechanics (Light's Gift/Radiant Armaments, equip-a-
       radiant-weapon triggers) — no deep prior knowledge, same reasoning as Ritualist's Empowering
       Spirits/Engineer's morph-skill cluster.
-- [ ] Mesmer, Ranger, Revenant, Thief, Warrior legs (5 remaining). Revenant's own 5 candidates from the
+- [x] **Mesmer leg (5th leg) done 2026-08-14.** Rescanned fresh (52 raw candidates). 13 cleanly curated
+      via `synthetic-facts.json`: Metaphysical Rejuvenation (666, Regeneration) onto all 11 Mesmer heal
+      skill ids (heal-skill-category trigger, same shape as every prior leg). A "Shatter skills"
+      category cluster — Rending Shatter (687, Vulnerability), Maim the Disillusioned (1690, Torment),
+      Illusionary Reversion (1913, Alacrity), Flow of Time (1927, Alacrity), and Nomad's Endurance
+      (2069, Vigor) — mirrored onto all 5 base shatter skill ids (Mind Wrack's 2 ids, Cry of
+      Frustration, Diversion, Distortion) PLUS all 6 Virtuoso Bladesong ids, since Rending Shatter's own
+      wiki `improves type = Shatter, Bladesong, Instrument` field confirms Bladesongs mechanically count
+      as Shatters (Instrument/Troubadour ids deliberately excluded, too recent/no deep prior knowledge).
+      2 "Shatter skill 2"-only traits (Illusionary Membrane/667 Chaos Aura, Blinding Dissipation/1889
+      Blinded) onto Cry of Frustration + Bladesong Sorrow (its Virtuoso equivalent); 2 "Shatter skill
+      4"-only traits (Inspiring Distortion/1852 Aegis, Mental Defense/2005 Resistance) onto Distortion +
+      Bladesong Distortion. Bladeturn Refrain (2212, Aegis) onto all 6 Bladesong ids (wiki-confirmed via
+      the Bladesong skills category page, including Bladeturn Requiem). Master of Manipulation (677,
+      Aegis) onto all 6 Manipulation-category skills (wiki-confirmed list: Mirror, Arcane Thievery,
+      Blink, Illusion of Life, Mass Invisibility, Mimic). Temporal Enchanter (1980, Superspeed +
+      Resistance) onto all Glamour-category skills EXCEPT Portal Exeunt (wiki: "does not grant allies
+      these boons" despite being tagged Glamour) — also added a bonus `WvwFactOverrides` fix (trait
+      1980's own Superspeed split wasn't manually curated before, unlike its Resistance sibling).
+      Found and fixed 1 fresh same-tuple collision (`BUFF_INSTANCE_LABELS`): Time Warp's own
+      unconditional Superspeed@2@1 vs. Temporal Enchanter's wvw-tagged copy (same numeric value by
+      coincidence). Flow of Time's pre-existing "2 raw-identical Alacrity facts, nothing to distinguish"
+      quirk (already documented in the OTHER buff-instance-label sweep) propagates unlabeled onto all 11
+      mirrored ids too — not a new problem, the trait's own already-accepted shape. **New failure mode
+      this leg**: 2 planned `WvwFactOverrides` additions were dropped after finding they'd corrupt an
+      UNRELATED pre-existing same-status fact on the same skill (not just a same-tuple collision) —
+      Healing Seed's own unconditional Regeneration@3@1 (would get silently overridden to the trait's
+      wvw value even when the trait isn't equipped), and Nomad's Endurance's Vigor onto Cry of
+      Frustration/Bladesong Sorrow specifically (already carry Phantasmal Force's own Vigor override at
+      a different value — the override table can't hold 2 values for one status on one skill, so those
+      2 ids skip Nomad's Endurance's mirror entirely rather than risk showing the wrong number). Same
+      reasoning applied to Bladesong Distortion's Aegis (carries both Inspiring Distortion's unsplit and
+      Bladeturn Refrain's wvw-split Aegis; only the wvw-split entry was dropped, both facts still
+      mirrored, both just render their raw PvE-ish duration when co-equipped). Deliberately left open,
+      too complex for one session: **Stretched Time** (1942) and **Seize the Moment** (2022) — both
+      dual-trigger (shatter clone-count AND phantasm-spawn), and both a genuine mode-dependent
+      DIFFERENT-boon swap (Alacrity in pve/pvp vs. Might in wvw for Stretched Time) — the OTHER
+      (BUFF_INSTANCE_LABELS) sweep had already independently investigated and decoded both down to the
+      per-concept wiki breakdown (see `sources.ts`'s own trait-side comments on 1942/2022), which is
+      what surfaced the mode-swap complexity in the first place; a future session could pick these up
+      quickly starting from that existing writeup. Also deferred: Phantasmal Haste (729, Quickness) —
+      its "3 raw facts" turned out to be 2 DIFFERENT targets (the summoned phantasm gets 3s Quickness,
+      the player gets a separate 1.5s/1s split), and only the player-facing half would even belong in
+      this sweep, but mirroring just that half risks the same "swallows an unrelated fact" hazard as
+      the Healing Seed/Nomad's Endurance cases above depending on trait combination — deferred rather
+      than risk it without deeper live-game verification. Illusionary Defense (675, Protection) —
+      genuine 2-tier "base + additional per clone shattered" mechanic (wiki: 4 raw facts, base+per-clone
+      × pve/wvw-vs-pvp) that doesn't fit the flat single-duration `Buff` fact/`WvwFactOverride` shape at
+      all. ~30 other raw candidates left open, not fitting this sweep's single-triggering-skill shape:
+      on-crit/on-dodge/on-interrupt/on-block procs (Illusion of Vulnerability, Dazzling, Mental
+      Gymnastics, Critical Infusion, Master Fencer, Furious Interruption, Malicious Sorcery, Power
+      Block, Wandering Mind, Ineptitude, Duelist's Reversal, etc.), foe-facing conditions on-crit
+      (Sharper Images, Jagged Mind, Deadly Blades), boons granted to summoned illusions/phantasms rather
+      than the player (Phantasmal Fury, Escape Artist, Time Catches Up, Phantasmal Blades — this app has
+      no illusion-entity boon tracking, same class of exclusion as pet/mech boons elsewhere), self-stat
+      custom effects not real `BOON_NAMES` entries (Fencer's Finesse, Compounding Power, Time Bomb,
+      Mirage Cloak, Dune Cloak, Phantom Pain, Quiet Intensity), Mirage-dodge/Ambush-category mechanics
+      too broad for one session (Renewing Oasis, Riddle of Sand, Mirage Mantle — same complexity class
+      as the already-excluded Arcane Prowess), and Troubadour's very-recently-added elite-spec mechanics
+      (Raconteur/Tales, Symphonic Resonance, Mayhem/Flustering Flute) — no deep prior knowledge, same
+      reasoning as every other very-recent-elite-spec deferral this sweep.
+- [ ] Ranger, Revenant, Thief, Warrior legs (4 remaining). Revenant's own 5 candidates from the
       ORIGINAL 48-count scan are worth a second look even though Notoriety/Rapid Flow were already
-      done — every leg so far (Elementalist 5→41, Engineer 4→40, Guardian ~5→34) has badly undercounted
-      that original scan, so treat its "expected count" as a floor, not a ceiling; rescan fresh.
-      Revenant's own 5 candidates from the 48-count scan are worth a second look even though
-      Notoriety/Rapid Flow were already curated 2026-08-12 — that scan says 5 Revenant traits still
-      have zero skill linkage, so the earlier pass may not have been fully exhaustive (the
-      Elementalist and Engineer legs above both found the same undercount pattern: rescanning fresh
-      turned up 41 and 40 candidates respectively against original "5"/"4" estimates).
+      done — every leg so far (Elementalist 5→41, Engineer 4→40, Guardian ~5→34, Mesmer 6→52) has badly
+      undercounted that original scan, so treat its "expected count" as a floor, not a ceiling; rescan
+      fresh.
 
 ## Coefficient curation — remaining exceptions
 

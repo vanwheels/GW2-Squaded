@@ -156,7 +156,8 @@
   ],
   "76695": [
     { "type": "AttributeAdjust", "target": "Healing", "text": "Self-Healing", "value": 3535 },
-    { "type": "AttributeAdjust", "target": "Healing", "text": "Ally Healing", "value": 2250 }
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Ally Healing", "value": 2250 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 }
   ],
   "76711": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 8 },
@@ -421,7 +422,8 @@
     { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 },
     { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 574 },
     { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2101 },
-    { "type": "Buff", "status": "Light Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 2401 }
+    { "type": "Buff", "status": "Light Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 2401 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 }
   ],
   "12440": [
     { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 },
@@ -432,7 +434,8 @@
     { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 },
     { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 574 },
     { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2101 },
-    { "type": "Buff", "status": "Light Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 2401 }
+    { "type": "Buff", "status": "Light Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 2401 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 }
   ],
   "21762": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
   "30488": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
@@ -774,5 +777,211 @@
   "62532": [{ "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2222 }],
   "62555": [{ "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2222 }],
   "62596": [{ "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2222 }],
-  "62648": [{ "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2222 }]
+  "62648": [{ "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2222 }],
+  "10176": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 }],
+  "10177": [
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 },
+    { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 677 }
+  ],
+  "10185": [{ "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 677 }],
+  "10187": [
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 }
+  ],
+  "10190": [
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1913 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Chaos Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 667 },
+    { "type": "Buff", "status": "Blinded", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1889 },
+    { "type": "Buff", "status": "Blinded", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1889 }
+  ],
+  "10191": [
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1913 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2069 }
+  ],
+  "10192": [
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1913 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1852 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2005 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 2005 }
+  ],
+  "10197": [
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 }
+  ],
+  "10200": [{ "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 677 }],
+  "10203": [
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 }
+  ],
+  "10213": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 }],
+  "10214": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 }],
+  "10244": [{ "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 677 }],
+  "10245": [{ "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 677 }],
+  "10287": [
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1913 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2069 }
+  ],
+  "10302": [
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 }
+  ],
+  "10311": [
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 }
+  ],
+  "10377": [
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 }
+  ],
+  "21750": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 }],
+  "25541": [{ "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 677 }],
+  "29578": [{ "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 677 }],
+  "30305": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 }],
+  "34326": [
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 }
+  ],
+  "40200": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 }],
+  "49068": [
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1913 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2069 }
+  ],
+  "50414": [
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 }
+  ],
+  "50440": [
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1980 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1980 }
+  ],
+  "62522": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 }],
+  "62586": [
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1913 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2212 }
+  ],
+  "62597": [
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1913 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2212 }
+  ],
+  "62602": [
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1913 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2212 }
+  ],
+  "62616": [
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1913 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Chaos Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 667 },
+    { "type": "Buff", "status": "Blinded", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1889 },
+    { "type": "Buff", "status": "Blinded", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1889 },
+    { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2212 }
+  ],
+  "62617": [
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1913 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2212 }
+  ],
+  "68273": [
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 687 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1690 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1913 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Alacrity", "text": "Apply Buff/Condition", "duration": 1, "apply_count": 1, "requires_trait": 1927 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2069 },
+    { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1852 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2005 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 2005 },
+    { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2212 }
+  ]
 }

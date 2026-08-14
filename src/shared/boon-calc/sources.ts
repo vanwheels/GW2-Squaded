@@ -2403,7 +2403,18 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // self-effect) is occurrence 1. Inscription's (trait 229, "gain boons upon casting a glyph based
     // on your attunement") own Protection upgrade is a different tuple (6s, `overrides: 2`) so it
     // doesn't collide here. Gale Song's mirrored Protection@3@1 copy is occurrence 2.
-    34609: { 'Protection@3@1#2': 'Gale Song' }
+    34609: { 'Protection@3@1#2': 'Gale Song' },
+    // --- Mesmer leg (5th leg, trait-granted-boons-on-skills sweep, 2026-08-14) --- Temporal
+    // Enchanter (trait 1980, "when you cast a glamour, allies near the glamour gain resistance and
+    // superspeed") mirrored onto every Glamour-category skill except Portal Exeunt (wiki: "does not
+    // grant allies these boons"). Time Warp's own unconditional Superspeed@2@1 (base skill fact, no
+    // `requires_trait`) is occurrence 1; the trait's wvw/pvp-tagged Superspeed copy (2s, same value
+    // as Time Warp's own pve-unsplit number) is occurrence 2 — this pairing is also why no matching
+    // skill-side `WvwFactOverrides` entry was added for Superspeed on these 2 ids specifically (see
+    // that file's own comment on skill 10311/10377): collapsing via override would have overridden
+    // Time Warp's OWN unconditional fact instead of just the trait's.
+    10311: { 'Superspeed@2@1#2': 'Temporal Enchanter' },
+    10377: { 'Superspeed@2@1#2': 'Temporal Enchanter' }
   },
   trait: {
     // --- Thief leg (2nd leg, 2026-08-14) --- first-ever trait entries in this table; traits carry
@@ -2566,6 +2577,9 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // WvW-only value from 0.75s to a full 1s, so it now numerically matches the PvE value exactly —
     // one wiki concept (`{{skill fact|alacrity|1|alt=Alacrity per Clone}}`, no `alt=` differentiating
     // a 2nd instance), 2 raw facts, nothing to distinguish the 2nd from the 1st. Left open.
+    // Mirrored verbatim (both facts, still undistinguished) onto all 11 Shatter/Bladesong skill ids
+    // by the Mesmer leg of the trait-granted-boons-on-skills sweep (2026-08-14, `synthetic-facts.json`)
+    // — same already-accepted duplicate shape, not a new problem introduced by that mirroring.
 
     // Stretched Time (Chaos, shatter/phantasm boons). Wiki names 2 Alacrity concepts and 2 Might
     // concepts, matching this trait's own raw fact order exactly:

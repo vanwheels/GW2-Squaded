@@ -137,18 +137,56 @@
     "10175": {
       "Bleeding": 3
     },
+    "10176": {
+      "Regeneration": 4
+    },
+    "10177": {
+      "Regeneration": 4
+    },
     "10185": {
       "Slow": 2,
       "Quickness": 2
     },
+    "10187": {
+      "Superspeed": 2,
+      "Resistance": 2
+    },
     "10190": {
-      "Vigor": 5
+      "Vigor": 5,
+      "Vulnerability": 6,
+      "Torment": 3,
+      "Blinded": 1.5
+    },
+    "10191": {
+      "Vulnerability": 6,
+      "Torment": 3,
+      "Vigor": 1.5
+    },
+    "10192": {
+      "Vulnerability": 6,
+      "Torment": 3,
+      "Vigor": 1.5,
+      "Resistance": 2.5
     },
     "10196": {
       "Confusion": 3
     },
+    "10197": {
+      "Superspeed": 2,
+      "Resistance": 2
+    },
+    "10203": {
+      "Superspeed": 2,
+      "Resistance": 2
+    },
     "10212": {
       "Vulnerability": 6
+    },
+    "10213": {
+      "Regeneration": 4
+    },
+    "10214": {
+      "Regeneration": 4
     },
     "10229": {
       "Confusion": 3
@@ -159,8 +197,20 @@
     "10273": {
       "Fury": 3
     },
+    "10287": {
+      "Vulnerability": 6,
+      "Torment": 3,
+      "Vigor": 1.5
+    },
     "10289": {
       "Torment": 2
+    },
+    "10302": {
+      "Superspeed": 2,
+      "Resistance": 2
+    },
+    "10311": {
+      "Resistance": 2
     },
     "10314": {
       "Confusion": "omit"
@@ -170,6 +220,9 @@
     },
     "10341": {
       "Taunt": 1
+    },
+    "10377": {
+      "Resistance": 2
     },
     "10529": {
       "Immobile": 3
@@ -196,7 +249,8 @@
       "Fury": 6
     },
     "12360": {
-      "Quickness": 1
+      "Quickness": 1,
+      "Regeneration": 4
     },
     "12377": {
       "Protection": 3
@@ -380,6 +434,9 @@
     },
     "21664": {
       "Quickness": 1
+    },
+    "21750": {
+      "Regeneration": 4
     },
     "24407": {
       "Might": 6
@@ -573,6 +630,9 @@
     "30255": {
       "Immobile": 1
     },
+    "30305": {
+      "Regeneration": 4
+    },
     "30336": {
       "Resistance": 3
     },
@@ -632,6 +692,10 @@
     "34296": {
       "Vulnerability": 6
     },
+    "34326": {
+      "Superspeed": 2,
+      "Resistance": 2
+    },
     "34736": {
       "Might": 6
     },
@@ -650,6 +714,9 @@
     },
     "40184": {
       "Might": 8
+    },
+    "40200": {
+      "Regeneration": 4
     },
     "40485": {
       "Immobilize": 1.5,
@@ -854,6 +921,19 @@
     "46857": {
       "Burning": 3
     },
+    "49068": {
+      "Vulnerability": 6,
+      "Torment": 3,
+      "Vigor": 1.5
+    },
+    "50414": {
+      "Superspeed": 2,
+      "Resistance": 2
+    },
+    "50440": {
+      "Superspeed": 2,
+      "Resistance": 2
+    },
     "50451": {
       "Bleeding": 5
     },
@@ -887,6 +967,9 @@
     "62521": {
       "Blinded": 3
     },
+    "62522": {
+      "Regeneration": 4
+    },
     "62528": {
       "Burning": 2
     },
@@ -907,8 +990,36 @@
       "Fury": 7,
       "Might": 6
     },
+    "62586": {
+      "Vulnerability": 6,
+      "Torment": 3,
+      "Vigor": 1.5,
+      "Aegis": 3
+    },
+    "62597": {
+      "Vulnerability": 6,
+      "Torment": 3,
+      "Vigor": 1.5,
+      "Aegis": 3
+    },
+    "62602": {
+      "Vulnerability": 6,
+      "Torment": 3,
+      "Vigor": 1.5,
+      "Aegis": 3
+    },
     "62616": {
-      "Vigor": 5
+      "Vigor": 5,
+      "Vulnerability": 6,
+      "Torment": 3,
+      "Blinded": 1.5,
+      "Aegis": 3
+    },
+    "62617": {
+      "Vulnerability": 6,
+      "Torment": 3,
+      "Vigor": 1.5,
+      "Aegis": 3
     },
     "62618": {
       "Burning": 2
@@ -1047,6 +1158,12 @@
     },
     "68113": {
       "Quickness": 4
+    },
+    "68273": {
+      "Vulnerability": 6,
+      "Torment": 3,
+      "Vigor": 1.5,
+      "Resistance": 2.5
     },
     "68647": {
       "Burning": 2
@@ -1197,6 +1314,9 @@
     },
     "76674": {
       "Taunt": 3
+    },
+    "76695": {
+      "Regeneration": 4
     },
     "76711": {
       "Might": 8,
@@ -1604,7 +1724,8 @@
       "Vigor": 2
     },
     "1980": {
-      "Resistance": 2
+      "Resistance": 2,
+      "Superspeed": 2
     },
     "1984": {
       "Might": 6
