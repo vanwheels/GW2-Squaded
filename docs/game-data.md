@@ -632,7 +632,11 @@ Two cases warrant a new entry:
    pre-existing genuine fact (found 2026-08-14, Necromancer leg: Eternal Life's synthetic Protection
    collided with Sandstorm Shroud's own unconditional Protection fact) — re-run the
    `BUFF_INSTANCE_LABELS` same-tuple check (`sources.ts`) after adding entries here, not just after
-   the sweep that table was originally built for.
+   the sweep that table was originally built for. Elementalist leg (2026-08-14) found 4 more this
+   way, mirroring Earth's Embrace/Soothing Ice/Gale Song onto all 16 Elementalist heal skills and
+   One with Air/Rock Solid onto the Air/Earth Attunement skills and Hardy Conduit onto the 4
+   Overload skills — the moral holds regardless of trait count: check every touched skill, not just
+   the ones a single trait's own mirror looks likely to collide on.
 
 ## Gear upgrades and consumables (`runes.json`, `sigils.json`, `infusions.json`, `relics.json`, `food.json`, `utility.json`)
 

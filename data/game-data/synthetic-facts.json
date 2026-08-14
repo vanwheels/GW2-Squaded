@@ -412,8 +412,20 @@
   ],
   "10577": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
   "10670": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
-  "12360": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
-  "12440": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
+  "12360": [
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "12440": [
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
   "21762": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
   "30488": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
   "30792": [
@@ -453,5 +465,103 @@
     { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 889 },
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 5, "requires_trait": 915 }
   ],
-  "77259": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }]
+  "77259": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
+  "5503": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "5507": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "5569": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "21656": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "29535": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "34609": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "34651": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "34724": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "34743": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "44239": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "62827": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "76634": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "79314": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "79315": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "79323": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+  ],
+  "5494": [{ "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 224 }],
+  "76580": [{ "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 224 }],
+  "5495": [{ "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 281 }],
+  "77082": [{ "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 281 }],
+  "29415": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1948 }],
+  "29618": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1948 }],
+  "29706": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1948 }],
+  "29719": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1948 }]
 }

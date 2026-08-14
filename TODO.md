@@ -202,10 +202,35 @@ run leg-by-leg like the buff-instance-label sweep, one profession per leg, check
       fixed a fresh unlabeled-duplicate-row collision this leg's own Eternal Life mirror introduced
       on Sandstorm Shroud (`BUFF_INSTANCE_LABELS`, sources.ts) — worth re-running that same
       same-tuple collision check after every future leg here, not just this one.
-- [ ] Elementalist, Engineer, Guardian, Mesmer, Ranger, Revenant, Thief, Warrior legs (8 remaining,
-      not yet started). Revenant's own 5 candidates from the 48-count scan are worth a second look
-      even though Notoriety/Rapid Flow were already curated 2026-08-12 — that scan says 5 Revenant
-      traits still have zero skill linkage, so the earlier pass may not have been fully exhaustive.
+- [x] **Elementalist leg (2nd leg) done 2026-08-14.** Rescanned fresh (41 raw zero-linkage-with-a-
+      Buff-fact candidates, wider than the original 48-count estimate's "5" since that scan didn't
+      fully enumerate this profession). 6 cleanly curated via `synthetic-facts.json`: Earth's
+      Embrace (282, Resistance), Soothing Ice (348, Regeneration + Frost Aura), and Gale Song (1952,
+      Protection) all mirrored onto all 16 Elementalist heal skill ids (heal-skill-category
+      trigger, same shape as Necromancer's Dark Defense); One with Air (224, Superspeed) onto both
+      Air Attunement skill ids (base + Weaver's 2nd bar); Rock Solid (281, Stability) onto both
+      Earth Attunement skill ids; Hardy Conduit (1948, Protection) onto all 4 Overload skills. Found
+      and fixed 4 fresh same-tuple collisions this leg's own mirrors introduced (`BUFF_INSTANCE_LABELS`
+      in `sources.ts`): Signet of Restoration's Frost Aura (vs. Written in Stone/trait 287),
+      Prayer to Dwayna's and Healing Seed's Protection (vs. Dark Defense/trait 860, already mirrored
+      there from the Necromancer leg), and Glyph of Elemental Harmony's Protection (vs. its own base
+      self-effect). Deliberately left uncurated as not fitting this sweep's "single identifiable
+      trigger skill" shape: Electric Discharge (222, foe-facing Vulnerability+damage proc, not an
+      ally-boon mirror), Arcane Prowess (268, Might+Fury on ANY attunement swap — 8 skill ids across
+      all 4 elements × base+Weaver, plus a genuine WvW-relevant PvE-Might+Fury-vs-WvW/PvP-Fury-only
+      mode split, too much surface for one session), Earthen Blast (279, Barrier+foe-Cripple, not a
+      recognized boon), Bountiful Power (1511, attunement-swap charge-accumulator, same complexity
+      class as the still-open Empowering Spirits from the Necromancer leg), and Elemental Bastion
+      (1986, health-threshold trigger, not a skill trigger at all). The other ~30 raw candidates are
+      on-crit/on-dodge/on-combo/on-aura-grant mechanics (Elemental Empowerment family, Invigorating
+      Torrents, Elements of Rage, etc.) that don't name a single triggering skill either — not
+      itemized individually, same reasoning as Elemental Bastion.
+- [ ] Engineer, Guardian, Mesmer, Ranger, Revenant, Thief, Warrior legs (7 remaining, not yet
+      started). Revenant's own 5 candidates from the 48-count scan are worth a second look even
+      though Notoriety/Rapid Flow were already curated 2026-08-12 — that scan says 5 Revenant traits
+      still have zero skill linkage, so the earlier pass may not have been fully exhaustive (the
+      Elementalist leg above found the same undercount pattern: rescanning fresh turned up 41
+      candidates against an original "5" estimate).
 
 ## Coefficient curation — remaining exceptions
 

@@ -2379,7 +2379,27 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // synthetic "gain protection when you enter shroud" copy (`synthetic-facts.json`). Base stays
     // unlabeled per this table's convention (occurrence 1, no entry needed); the trait-gated 2nd
     // occurrence gets the real label.
-    54870: { 'Protection@3@1#2': 'Eternal Life' }
+    54870: { 'Protection@3@1#2': 'Eternal Life' },
+    // --- Elementalist leg (5th leg, trait-granted-boons-on-skills sweep, 2026-08-14) --- 4 more
+    // fresh collisions, same shape as Sandstorm Shroud above: Gale Song (trait 1952, "grant
+    // protection to nearby allies when you use a healing skill") and Soothing Ice (trait 348,
+    // "gain regeneration and frost aura when you use a healing skill") each got mirrored onto every
+    // Elementalist heal skill via `synthetic-facts.json`, and 4 of those skills already carried a
+    // genuine same-tuple fact of their own. Base/pre-existing stays unlabeled (occurrence 1) in all
+    // 4 per this table's convention; only the newly-mirrored occurrence gets a label.
+    // Signet of Restoration (5503): its own Frost Aura@4@1 is gated by Written in Stone (trait
+    // 287, "gain an aura when you use a signet skill") — unrelated mechanic, already occurrence 1.
+    5503: { 'Frost Aura@4@1#2': 'Soothing Ice' },
+    // Prayer to Dwayna / Healing Seed (12360/12440, shared racial heal skills): each already carries
+    // Dark Defense's (Necromancer trait 860) synthetic Protection@3@1 from the Necromancer leg —
+    // occurrence 1. Gale Song's copy is occurrence 2.
+    12360: { 'Protection@3@1#2': 'Gale Song' },
+    12440: { 'Protection@3@1#2': 'Gale Song' },
+    // Glyph of Elemental Harmony (34609): its own unconditional Protection@3@1 (the glyph's base
+    // self-effect) is occurrence 1. Inscription's (trait 229, "gain boons upon casting a glyph based
+    // on your attunement") own Protection upgrade is a different tuple (6s, `overrides: 2`) so it
+    // doesn't collide here. Gale Song's mirrored Protection@3@1 copy is occurrence 2.
+    34609: { 'Protection@3@1#2': 'Gale Song' }
   },
   trait: {
     // --- Thief leg (2nd leg, 2026-08-14) --- first-ever trait entries in this table; traits carry
