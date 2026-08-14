@@ -727,6 +727,50 @@ Two cases warrant a new entry:
    normal/Celestial-Avatar-form/other-state variants and this session didn't have enough confidence
    distinguishing which id is which to mirror the Protection half safely.
 
+   Revenant leg (7th leg, 2026-08-14): rescanning fresh caught a bug in this sweep's own
+   candidate-discovery script — it read `skill.traited_facts` (snake_case, doesn't exist) instead of
+   the real field `skill.traitedFacts` (camelCase), so every prior leg's "not yet linked" candidate
+   count silently included traits the GW2 API already links correctly on their own (10 for Revenant
+   alone: Fiendish Tenacity, Permeating Pestilence, Notoriety, Draconic Echo, Demonic Defiance,
+   Diabolic Inferno, Core Value, Lasting Legacy, Bold Reversal, Song of Arboreum) — worth checking
+   this field name before trusting either remaining leg's candidate list. 8 traits cleanly curated.
+   A 4-trait "invoke a legend" category cluster — Aggressive Arrival (1776, Resistance), Invoker's
+   Rage (1778, Fury), Spiritual Reckoning (1810, Resolution, pve 6s/wvw+pvp 3s), Balance in Discord
+   (2254, Regeneration, pve+wvw 6s/pvp-only 3s so no WvW override needed since this app only
+   distinguishes pve vs. wvw) — mirrored onto all 10 "Legendary ___ Stance" legend-swap skill ids
+   game-wide (Balance in Discord's 2nd OR-trigger, Alliance Tactics, got its own single-id mirror
+   too). Spirit Boon (1774, "invoking a legend grants boons to nearby allies based on the legend that
+   was invoked") looked like the sweep's usual "different boon per mode/target" deferral shape at
+   first glance, but its own raw facts carry a `linked skill=`-equivalent `prefix.status` naming
+   exactly which legend each boon belongs to — Might/Legendary Assassin Stance (pve 10s/wvw+pvp 6s),
+   Resistance/Demon, Stability/Dwarf, Regeneration/Centaur, Protection/Dragon (pve 3s/wvw+pvp 2s),
+   Resolution/Renegade, Vigor/Alliance — so each mirrored cleanly onto just that one legend's own
+   swap id; only Legendary Entity Stance's own line ("gain the same boons as the legend equipped in
+   the other slot") stayed uncurated, a dynamic reference not a static fact. Set in Stone (1766,
+   Protection, "gain protection when you use your profession skill 2") looked like a guessing-game
+   across 8 legends at first too, but the wiki's own `improves skill=` field spells out the full
+   list verbatim — Ancient Echo, all 5 True Nature variants (one per core legend Herald re-themes),
+   Heroic Command, both Energy Meld ids, and all 6 Release Potential variants — 15 ids, no per-legend
+   guessing needed since the same Protection value applies regardless of which one fires. Ashen
+   Demeanor (2166, Might flat + Resistance pve 6s/wvw+pvp 4s, "gain might, resistance, and Kalla's
+   Fervor when you use a healing skill" — the Kalla's Fervor third excluded, not a recognized boon)
+   and Redemptor's Sermon (2228, Protection flat, "heal allies in the area and grant them protection
+   when you use a healing skill") both mirrored onto all 8 Revenant heal skill ids, the familiar
+   heal-skill-category shape every prior leg has hit. Found+fixed 1 fresh same-tuple collision
+   (`BUFF_INSTANCE_LABELS`): Aggressive Arrival's and Spirit Boon's Resistance@2@1 both landing on
+   Legendary Demon Stance. Found 3 more genuinely NEW wiki-confirmed WvW splits the automated scan
+   had never resolved even at the trait level (Spiritual Reckoning, Ashen Demeanor, and Spirit Boon's
+   Might/Protection halves) — added by hand to `MANUAL_OVERRIDES.trait` in `fetch-wvw-splits.ts`,
+   same pattern as the Ranger leg's Celestial Shadow. Left open: Invoking Harmony (1823) and
+   Unyielding Devotion (1825) each grant a custom-named "unique effect" per their own wiki pages
+   (Invoking Harmony/Unyielding Spirit) rather than a recognized `BOON_NAMES` entry — same exclusion
+   class as Kalla's Fervor/Death's Carapace. ~36 other raw candidates left open, same shape as every
+   prior leg's exclusions: weapon-swap/dodge/on-crit triggers with no skill id to mirror onto,
+   overly-broad triggers ("applying a boon"/"gaining fury"/"removing a condition" — too many possible
+   trigger skills to enumerate confidently), health-threshold triggers, Kalla's Fervor/Battle Scars
+   stat-steppers, and Legendary Alliance/Conduit's very-recently-added elite-spec mechanics (no deep
+   prior knowledge, same reasoning as Ritualist's Empowering Spirits in the Necromancer leg).
+
 ## Gear upgrades and consumables (`runes.json`, `sigils.json`, `infusions.json`, `relics.json`, `food.json`, `utility.json`)
 
 `scripts/fetch-gear-upgrades.ts` (run via `npm run fetch-gear-upgrades`) fetches Superior runes,

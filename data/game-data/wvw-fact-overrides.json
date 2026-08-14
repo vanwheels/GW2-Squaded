@@ -770,7 +770,8 @@
       "Might": 10
     },
     "26937": {
-      "Might": 10
+      "Might": 10,
+      "Resistance": 4
     },
     "27014": {
       "Might": 10
@@ -788,7 +789,8 @@
       "Might": 10
     },
     "27220": {
-      "Might": 10
+      "Might": 10,
+      "Resistance": 4
     },
     "27322": {
       "Might": 10
@@ -797,7 +799,8 @@
       "Might": 10
     },
     "27372": {
-      "Might": 10
+      "Might": 10,
+      "Resistance": 4
     },
     "27505": {
       "Might": 10
@@ -818,6 +821,20 @@
     "27975": {
       "Might": 10
     },
+    "28085": {
+      "Resolution": 3,
+      "Protection": 2
+    },
+    "28134": {
+      "Resolution": 3,
+      "Might": 6
+    },
+    "28195": {
+      "Resolution": 3
+    },
+    "28219": {
+      "Resistance": 4
+    },
     "28231": {
       "Might": 10
     },
@@ -834,11 +851,18 @@
     "28409": {
       "Torment": 1
     },
+    "28419": {
+      "Resolution": 3
+    },
     "28427": {
-      "Might": 10
+      "Might": 10,
+      "Resistance": 4
     },
     "28472": {
       "Vulnerability": 5
+    },
+    "28494": {
+      "Resolution": 3
     },
     "28516": {
       "Might": 10
@@ -1091,6 +1115,9 @@
     "41820": {
       "Burning": 1
     },
+    "41858": {
+      "Resolution": 3
+    },
     "41988": {
       "Might": 6,
       "Quickness": 2.5
@@ -1237,7 +1264,8 @@
       "Alacrity": "omit"
     },
     "45686": {
-      "Might": 10
+      "Might": 10,
+      "Resistance": 4
     },
     "45709": {
       "Fury": 2.5,
@@ -1261,6 +1289,9 @@
     },
     "46295": {
       "Bleeding": 1
+    },
+    "46409": {
+      "Resolution": 3
     },
     "46447": {
       "Stability": 3
@@ -1411,6 +1442,12 @@
     "62702": {
       "Might": 10
     },
+    "62719": {
+      "Resistance": 4
+    },
+    "62749": {
+      "Resolution": 3
+    },
     "62752": {
       "Chilled": 2,
       "Vulnerability": 6
@@ -1433,6 +1470,9 @@
     },
     "62884": {
       "Burning": 6
+    },
+    "62891": {
+      "Resolution": 3
     },
     "62895": {
       "Fury": 3
@@ -1754,6 +1794,9 @@
     "76585": {
       "Burning": 5
     },
+    "76610": {
+      "Resolution": 3
+    },
     "76621": {
       "Quickness": 1
     },
@@ -1783,7 +1826,8 @@
       "Quickness": 2
     },
     "77043": {
-      "Might": 10
+      "Might": 10,
+      "Resistance": 4
     },
     "77079": {
       "Fury": 6
@@ -2116,6 +2160,10 @@
     },
     "1765": {
       "Might": 10
+    },
+    "1774": {
+      "Might": 6,
+      "Protection": 2
     },
     "1778": {
       "Fury": 5

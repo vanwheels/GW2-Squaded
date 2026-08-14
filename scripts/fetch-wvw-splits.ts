@@ -429,16 +429,16 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // actually triggers from" mechanism as the empty-effect-facts synthetic entries above, just
     // gating on a trait instead of filling a real API gap. Mirrors the trait's own already-curated
     // WvW value (10s, see the "1765" entry in the `trait` block below) so the two tooltips agree.
-    27220: { Might: 10 }, // Facet of Light (Legend1 heal)
+    27220: { Might: 10, Resistance: 4 }, // Facet of Light (Legend1 heal) — Resistance is Ashen Demeanor's (trait 2166, Revenant leg of the trait-granted-boons-on-skills sweep)
     28379: { Might: 10 }, // Facet of Darkness (Legend1 utility)
     27014: { Might: 10 }, // Facet of Elements (Legend1 utility)
     27760: { Might: 10 }, // Facet of Chaos (Legend1 elite)
-    26937: { Might: 10 }, // Enchanted Daggers (Legend2 heal)
+    26937: { Might: 10, Resistance: 4 }, // Enchanted Daggers (Legend2 heal) — Resistance is Ashen Demeanor's
     29209: { Might: 10 }, // Riposting Shadows (Legend2 utility)
     28231: { Might: 10 }, // Phase Traversal (Legend2 utility)
     27107: { Might: 10 }, // Impossible Odds (Legend2 utility)
     28406: { Might: 10 }, // Jade Winds (Legend2 elite)
-    27372: { Might: 10 }, // Soothing Stone (Legend3 heal)
+    27372: { Might: 10, Resistance: 4 }, // Soothing Stone (Legend3 heal) — Resistance is Ashen Demeanor's
     28516: { Might: 10 }, // Inspiring Reinforcement (Legend3 utility)
     26679: { Might: 10 }, // Forced Engagement (Legend3 utility)
     26557: { Might: 10 }, // Vengeful Hammers (Legend3 utility)
@@ -447,13 +447,13 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     27505: { Might: 10 }, // Banish Enchantment (Legend4 utility)
     27917: { Might: 10 }, // Call to Anguish (Legend4 utility)
     28287: { Might: 10 }, // Embrace the Darkness (Legend4 elite)
-    45686: { Might: 10 }, // Breakrazor's Bastion (Legend5 heal)
+    45686: { Might: 10, Resistance: 4 }, // Breakrazor's Bastion (Legend5 heal) — Resistance is Ashen Demeanor's
     42949: { Might: 10 }, // Razorclaw's Rage (Legend5 utility)
     // Icerazor's Ire (40485) already has its own entry above (Immobilize: 1.5, Might: 10) — a
     // repeated key here would silently discard it, JS object literals can't merge duplicate keys.
     41220: { Might: 10 }, // Darkrazor's Daring (Legend5 utility)
     45773: { Might: 10 }, // Soulcleave's Summit (Legend5 elite)
-    28427: { Might: 10 }, // Ventari's Will (Legend6 heal)
+    28427: { Might: 10, Resistance: 4 }, // Ventari's Will (Legend6 heal) — Resistance is Ashen Demeanor's
     26821: { Might: 10 }, // Protective Solace (Legend6 utility)
     27025: { Might: 10 }, // Natural Harmony (Legend6 utility)
     27715: { Might: 10 }, // Purifying Essence (Legend6 utility)
@@ -466,7 +466,7 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     62941: { Might: 10 }, // Tree Song (Legend7 Saint Viktor utility)
     62796: { Might: 10 }, // Awakening (Legend7 Saint Viktor utility)
     62687: { Might: 10 }, // Urn of Saint Viktor (Legend7 Saint Viktor elite)
-    77043: { Might: 10 }, // Shielding Hands (Legend8 heal)
+    77043: { Might: 10, Resistance: 4 }, // Shielding Hands (Legend8 heal) — Resistance is Ashen Demeanor's
     77243: { Might: 10 }, // Hex-Eater Vortex (Legend8 utility)
     77291: { Might: 10 }, // Gladiator's Defense (Legend8 utility)
     76805: { Might: 10 }, // Beguiling Haze (Legend8 utility)
@@ -917,6 +917,46 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     75783: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Honey Toss
     78873: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Piercing Shriek
     79766: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Innocent Display
+
+    // Revenant leg (7th leg of the trait-granted-boons-on-skills sweep, 2026-08-14): "invoke a
+    // legend" category (all 10 Legendary ___ Stance swap skill ids) gets Spiritual Reckoning's
+    // Resolution mirror — pve(6)/wvw+pvp(3), wiki-confirmed
+    // (`{{skill fact|resolution|6|game mode = pve}}{{skill fact|resolution|3|game mode = wvw
+    // pvp}}`); Aggressive Arrival's Resistance (2s) and Invoker's Rage's Fury (5s) are both flat,
+    // no override needed. Mirrors trait 1810's own new entry below so both tooltips agree.
+    28085: { Resolution: 3, Protection: 2 }, // Legendary Dragon Stance — Protection is Spirit
+    // Boon's own Dragon-specific mirror (pve 3/wvw+pvp 2)
+    28134: { Resolution: 3, Might: 6 }, // Legendary Assassin Stance — + Spirit Boon's Might
+    // (pve 10/2 stacks, wvw+pvp 6/2 stacks; trait 1774's own entry below)
+    28195: { Resolution: 3 }, // Legendary Centaur Stance
+    28419: { Resolution: 3 }, // Legendary Dwarf Stance
+    28494: { Resolution: 3 }, // Legendary Demon Stance
+    41858: { Resolution: 3 }, // Legendary Renegade Stance
+    46409: { Resolution: 3 }, // Legendary Renegade Stance
+    62749: { Resolution: 3 }, // Legendary Alliance
+    62891: { Resolution: 3 }, // Legendary Alliance Stance
+    76610: { Resolution: 3 }, // Legendary Entity Stance
+    // Its Might/Stability/Regeneration/Resolution/Vigor mirrors onto the other legends' swap ids
+    // are all flat (no split), except Assassin's Might above.
+    // Balance in Discord (2254): Regeneration pve+wvw(6)/pvp(3) — WvW equals PvE here (only PvP
+    // differs), so no override needed at all, same "genuinely unsplit for this app's WvW-vs-PvE
+    // focus" shape as every PvP-only split elsewhere in this file.
+
+    // Ashen Demeanor (2166, Renegade Corruption, "gain might, resistance, and Kalla's Fervor when
+    // you use a healing skill", mirrored onto all 8 Revenant heal skill ids): Resistance pve(6)/
+    // wvw+pvp(4), wiki-confirmed (`{{skill fact|resistance|6|game mode=pve}}{{skill
+    // fact|resistance|4|game mode=wvw pvp}}`); Might (6s, 5 stacks) is flat. Kalla's Fervor is not
+    // a recognized boon (same exclusion as every other Kalla's Fervor mention in this project) so
+    // isn't mirrored at all. Mirrors trait 2166's own new entry below. 6 of the 8 heal ids already
+    // carry a Notoriety (trait 1765) `Might: 10` override from the earlier 2026-08-12 curation —
+    // merged into those existing entries above rather than duplicated here (JS object literals
+    // can't merge duplicate keys); only the 2 heal ids Notoriety's own override deliberately left
+    // unsplit (Empowering Misery, Selfish Spirit — see that entry's own comment above) are new here.
+    28219: { Resistance: 4 }, // Empowering Misery (Legend4 heal)
+    62719: { Resistance: 4 }, // Selfish Spirit (Legend7 heal)
+    // Redemptor's Sermon (2228, "heal allies in the area and grant them protection when you use a
+    // healing skill", also mirrored onto the same 8 heal ids) needs no entry — its Protection (3s)
+    // is flat, no split.
   },
   trait: {
     // Panic Strike (Thief/Deadly Arts trait 1292) and Be Quick or Be Killed (Thief/Trickery trait
@@ -1087,7 +1127,23 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // Superspeed is unsplit (`{{skill fact|effect|Superspeed|3}}`, one template, no split).
     // Mirrored onto Release Celestial Avatar's own synthetic copy of this fact in the `skill`
     // block above.
-    2053: { Stealth: 2 }
+    2053: { Stealth: 2 },
+
+    // Revenant leg (7th leg of the trait-granted-boons-on-skills sweep, 2026-08-14): 3 traits
+    // whose own raw API facts carry only the PvE value (no auto-detectable duplicate), same
+    // "not every case makes the automated candidate list" gap as Temporal Enchanter/Celestial
+    // Shadow above — all 3 confirmed via a direct wiki fetch and mirrored onto their triggering
+    // skill(s) in the `skill` block above so both tooltips agree.
+    // Spiritual Reckoning ("gain resolution when you invoke a legend"): pve(6)/wvw+pvp(3).
+    1810: { Resolution: 3 },
+    // Ashen Demeanor ("gain might, resistance, and Kalla's Fervor when you use a healing skill"):
+    // Resistance pve(6)/wvw+pvp(4); Might (6s/5 stacks) is flat.
+    2166: { Resistance: 4 },
+    // Spirit Boon ("invoking a legend grants boons to nearby allies based on the legend that was
+    // invoked"): Might (Legendary Assassin Stance) pve(10)/wvw+pvp(6), both 2 stacks; Protection
+    // (Legendary Dragon Stance) pve(3)/wvw+pvp(2). Its Resistance/Stability/Regeneration/
+    // Resolution/Vigor lines (Demon/Dwarf/Centaur/Renegade/Alliance) are all flat.
+    1774: { Might: 6, Protection: 2 }
   }
 }
 

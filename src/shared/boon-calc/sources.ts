@@ -2427,7 +2427,14 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // that file's own comment on skill 10311/10377): collapsing via override would have overridden
     // Time Warp's OWN unconditional fact instead of just the trait's.
     10311: { 'Superspeed@2@1#2': 'Temporal Enchanter' },
-    10377: { 'Superspeed@2@1#2': 'Temporal Enchanter' }
+    10377: { 'Superspeed@2@1#2': 'Temporal Enchanter' },
+    // --- Revenant leg (7th leg, trait-granted-boons-on-skills sweep, 2026-08-14) --- Legendary
+    // Demon Stance (28494, Mallyx's "invoke a legend" swap skill): Aggressive Arrival's (trait
+    // 1776, "gain resistance when you invoke a legend") mirrored Resistance@2@1 is occurrence 1,
+    // unlabeled — it's added first in `synthetic-facts.json`. Spirit Boon's (trait 1774,
+    // "invoking a legend grants boons... based on the legend that was invoked") own Demon-specific
+    // Resistance line happens to share the exact same 2s/1-stack tuple, added second — occurrence 2.
+    28494: { 'Resistance@2@1#2': 'Spirit Boon' }
   },
   trait: {
     // --- Thief leg (2nd leg, 2026-08-14) --- first-ever trait entries in this table; traits carry

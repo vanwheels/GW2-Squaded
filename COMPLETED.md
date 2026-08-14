@@ -2,6 +2,47 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 182 — Trait-granted-boons-on-skills sweep, Revenant leg (7th leg)
+
+Rescanned fresh — 47 raw not-yet-linked candidates (again undercounting the original "5" estimate),
+but the rescan also caught a bug in this sweep's own candidate-discovery script: it read
+`skill.traited_facts` (snake_case, doesn't exist on the real data) instead of `skill.traitedFacts`
+(camelCase) — so the original count included 10 traits the GW2 API *already* links correctly
+(Fiendish Tenacity, Permeating Pestilence, Notoriety, Draconic Echo, Demonic Defiance, Diabolic
+Inferno, Core Value, Lasting Legacy, Bold Reversal, Song of Arboreum), no action needed on any of
+those. Worth re-checking this field name before trusting a "not yet linked" candidate list on either
+remaining leg.
+
+8 traits cleanly curated via `synthetic-facts.json`: a 4-trait "invoke a legend" category cluster
+(Aggressive Arrival/Resistance, Invoker's Rage/Fury, Spiritual Reckoning/Resolution pve 6s-wvw+pvp
+3s, Balance in Discord/Regeneration pve+wvw 6s-pvp-only 3s so no WvW override needed) mirrored onto
+all 10 "Legendary ___ Stance" legend-swap skill ids game-wide (Balance in Discord also onto Alliance
+Tactics, its own 2nd trigger); Spirit Boon ("invoking a legend grants boons... based on the legend
+invoked") mirrored its own per-legend boon, read straight off the wiki's `linked skill=` field, onto
+that specific legend's own swap id — Might/Shiro (pve 10s/wvw+pvp 6s), Resistance/Mallyx, Stability/
+Jalis, Regeneration/Ventari, Protection/Glint (pve 3s/wvw+pvp 2s), Resolution/Kalla, Vigor/Alliance,
+leaving only Legendary Entity Stance's own sub-case open (dynamic "same boons as the other slot's
+legend", not a static fact); Set in Stone (Protection, "profession skill 2") mirrored onto the full
+wiki `improves skill=` list — 15 ids spanning Ancient Echo, all 5 True Nature variants, Heroic
+Command, both Energy Meld ids, and all 6 Release Potential variants; Ashen Demeanor (Might flat +
+Resistance pve 6s/wvw+pvp 4s, its Kalla's Fervor half excluded — not a recognized boon) and
+Redemptor's Sermon (Protection flat) both mirrored onto all 8 Revenant heal skill ids, the familiar
+heal-skill-category shape every prior leg has hit.
+
+Found+fixed 1 fresh same-tuple collision (`BUFF_INSTANCE_LABELS`): Aggressive Arrival's and Spirit
+Boon's Resistance@2@1 both landing on Legendary Demon Stance. Found 3 more genuinely-new
+wiki-confirmed WvW splits the automated scan had never resolved even at the trait level (Spiritual
+Reckoning, Ashen Demeanor, Spirit Boon's Might/Protection halves) — added by hand to
+`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES.trait`, same pattern as the Ranger leg's Celestial Shadow.
+Deliberately left open: Invoking Harmony and Unyielding Devotion both grant a custom-named "unique
+effect" per their own wiki pages (Invoking Harmony/Unyielding Spirit), not a recognized `BOON_NAMES`
+entry — same exclusion class as Kalla's Fervor/Death's Carapace. ~36 other raw candidates left open,
+not fitting this sweep's single-triggering-skill shape (weapon-swap/dodge/on-crit triggers with no
+skill id, overly-broad "applying a boon"/"gaining fury"/"removing a condition" triggers, health-
+threshold triggers, Kalla's Fervor/Battle Scars stat-steppers, and Legendary Alliance/Conduit's
+very-recently-added elite-spec mechanics) — full writeup in TODO.md's own entry and
+`docs/game-data.md`'s synthetic-facts.json section. 2 legs remain (Thief, Warrior).
+
 ## Session 181 — Trait-granted-boons-on-skills sweep, Ranger leg (6th leg)
 
 Rescanned fresh (27 raw zero-skill-linkage-with-a-Buff-fact candidates, vs. the original scoping

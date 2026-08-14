@@ -216,7 +216,10 @@
   "26937": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
-    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 5, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2228 }
   ],
   "27014": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
@@ -231,7 +234,10 @@
   "27220": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
-    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 5, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2228 }
   ],
   "27322": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
@@ -241,7 +247,10 @@
   "27372": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
-    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 5, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2228 }
   ],
   "27505": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
@@ -266,7 +275,10 @@
   "28219": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
-    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 5, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2228 }
   ],
   "28231": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
@@ -291,7 +303,10 @@
   "28427": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
-    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 5, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2228 }
   ],
   "28472": [
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
@@ -315,7 +330,10 @@
     { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 4 },
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
-    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 5, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2228 }
   ],
   "72389": [
     { "type": "AttributeAdjust", "target": "Healing", "text": "Initial Self Heal", "value": 4529 },
@@ -348,7 +366,10 @@
   "62719": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
-    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 5, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2228 }
   ],
   "62796": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
@@ -388,7 +409,10 @@
   "77043": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1760 },
-    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 }
+    { "type": "AttributeAdjust", "target": "Healing", "text": "Rapid Flow Healing", "value": 500, "requires_trait": 1760 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 5, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2166 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2228 }
   ],
   "77243": [
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 2, "requires_trait": 1765 },
@@ -1608,5 +1632,92 @@
     { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
     { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
     { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
-  ]
+  ],
+
+  "28085": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1776 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1778 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1810 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2254 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1774 }
+  ],
+  "28134": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1776 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1778 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1810 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2254 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 2, "requires_trait": 1774 }
+  ],
+  "28195": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1776 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1778 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1810 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2254 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1774 }
+  ],
+  "28419": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1776 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1778 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1810 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2254 },
+    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1774 }
+  ],
+  "28494": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1776 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1778 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1810 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2254 },
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1774 }
+  ],
+  "41858": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1776 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1778 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1810 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2254 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1774 }
+  ],
+  "46409": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1776 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1778 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1810 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2254 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1774 }
+  ],
+  "62749": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1776 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1778 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1810 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2254 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1774 }
+  ],
+  "62891": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1776 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1778 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1810 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2254 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1774 }
+  ],
+  "76610": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1776 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1778 },
+    { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1810 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2254 }
+  ],
+  "62729": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2254 }],
+
+  "55029": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+  "51667": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+  "51675": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+  "51696": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+  "51713": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+  "51714": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+  "44076": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+  "62757": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+  "72058": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+  "77896": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+  "78895": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+  "78501": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+  "78615": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+  "78661": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+  "78845": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }]
 }

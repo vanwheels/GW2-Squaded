@@ -376,11 +376,52 @@ run leg-by-leg like the buff-instance-label sweep, one profession per leg, check
       Etching (2016) — each Ranger Glyph has 3 separate skill ids for different form states, not
       confidently distinguishable this session. See `docs/game-data.md`'s synthetic-facts.json
       section (case 3) for the full writeup.
-- [ ] Revenant, Thief, Warrior legs (3 remaining). Revenant's own 5 candidates from the ORIGINAL
-      48-count scan are worth a second look even though Notoriety/Rapid Flow were already done —
-      every leg so far (Elementalist 5→41, Engineer 4→40, Guardian ~5→34, Mesmer 6→52, Ranger
-      5→27) has badly undercounted that original scan, so treat its "expected count" as a floor,
-      not a ceiling; rescan fresh.
+- [x] **Revenant leg (7th leg) done 2026-08-14.** Rescanned fresh — 47 raw not-yet-linked candidates
+      (again undercounting the original "5" estimate), but the rescan also caught a bug in this
+      sweep's own candidate-discovery method: it was reading `skill.traited_facts` (snake_case,
+      doesn't exist) instead of the real field `skill.traitedFacts` (camelCase), so the original 54
+      count included several traits the GW2 API *already* links correctly (Fiendish Tenacity/1720,
+      Permeating Pestilence/1721, Notoriety/1765, Draconic Echo/1772, Demonic Defiance/1789, Diabolic
+      Inferno/1795, Core Value/1806, Lasting Legacy/2100, Bold Reversal/2133, Song of Arboreum/2255)
+      — worth re-checking this field name on any future re-scan of this sweep's other legs. 8 traits
+      cleanly curated via `synthetic-facts.json`: Aggressive Arrival (1776, Resistance)/Invoker's Rage
+      (1778, Fury)/Spiritual Reckoning (1810, Resolution, pve 6s/wvw+pvp 3s)/Balance in Discord (2254,
+      Regeneration, pve+wvw 6s/pvp-only 3s so no WvW override needed) all mirrored onto all 10
+      "Legendary ___ Stance" legend-swap skill ids game-wide (Balance in Discord also onto Alliance
+      Tactics, its own 2nd trigger); Spirit Boon (1774, "invoking a legend grants boons... based on
+      the legend invoked") mirrored its own per-legend boon (wiki `linked skill=` field) onto that
+      specific legend's swap id — Might/Shiro (pve 10s/wvw+pvp 6s), Resistance/Mallyx, Stability/
+      Jalis, Regeneration/Ventari, Protection/Glint (pve 3s/wvw+pvp 2s), Resolution/Kalla, Vigor/
+      Alliance — leaving only Legendary Entity Stance's own sub-case uncurated (dynamic "gain the
+      same boons as the legend in the other slot", not a static fact); Set in Stone (1766,
+      Protection, "profession skill 2") mirrored onto the full wiki `improves skill=` list (15 ids:
+      Ancient Echo, all 5 True Nature variants, Heroic Command, both Energy Meld ids, all 6 Release
+      Potential variants); Ashen Demeanor (2166, Might flat + Resistance pve 6s/wvw+pvp 4s, Kalla's
+      Fervor half excluded) and Redemptor's Sermon (2228, Protection flat) both mirrored onto all 8
+      Revenant heal skill ids (heal-skill-category shape, same as every prior leg). Found+fixed 1
+      fresh same-tuple collision (`BUFF_INSTANCE_LABELS`): Aggressive Arrival's and Spirit Boon's
+      Resistance@2@1 both landing on Legendary Demon Stance. Also found 3 more genuinely-new
+      wiki-confirmed WvW splits the automated scan never resolved even at the trait level (added by
+      hand to `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES.trait`, same pattern as the Ranger leg's
+      Celestial Shadow) — Spiritual Reckoning, Ashen Demeanor, and Spirit Boon's Might/Protection
+      halves. Left open, not fitting this sweep's shape: Invoking Harmony (1823) and Unyielding
+      Devotion (1825) — both grant a custom-named "unique effect" (Invoking Harmony/Unyielding
+      Spirit per their own wiki pages), not a recognized `BOON_NAMES` entry, same exclusion class as
+      Kalla's Fervor/Death's Carapace. ~36 other raw candidates left open, not fitting this sweep's
+      single-triggering-skill shape: weapon-swap trigger with no skill id (Brutality), dodge triggers
+      (Unwavering Avoidance, Resolute Evasion, Wrought-Iron Will, Saint of zu Heltzer, Forerunner of
+      Death), on-crit (Endless Enmity), foe-facing debuffs not ally boons (Abyssal Chill, Dwarven
+      Battle Training, Expose Defenses), overly-broad triggers ("applying a boon"/"gaining fury"/
+      "removing a condition" — Shared Empowerment, Incensed Response, Brutal Momentum, Fortified
+      Blessing), passives with no discrete trigger (Rising Momentum, Vicious Reprisal, Assassin's
+      Presence, Steadfast Rejuvenation), health-threshold triggers (Elder's Respite), Kalla's Fervor/
+      Battle Scars stat-steppers (Dance of Death, Battle Scarred, Thrill of Combat, Blood Fury), and
+      Legendary Alliance/Conduit's very-recently-added elite-spec mechanics (Ambush Commander, Amnesty
+      of Shing Jea, Reaver's Curse, Found Purpose, Shared Wisdom, Mistfire, Numinous Gift) — no deep
+      prior knowledge, same reasoning as every other very-recent-elite-spec deferral this sweep.
+- [ ] Thief, Warrior legs (2 remaining) — rescan fresh, treat every prior leg's undercounted original
+      estimate as a floor not a ceiling, and check the `traitedFacts`-field-name bug noted in the
+      Revenant leg above before trusting a "not yet linked" candidate list.
 
 ## Coefficient curation — remaining exceptions
 
