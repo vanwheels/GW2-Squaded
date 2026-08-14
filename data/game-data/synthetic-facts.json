@@ -89,7 +89,8 @@
   "62672": [{ "type": "Buff", "status": "Torment", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 5 }],
   "63314": [
     { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 2.5, "apply_count": 8 },
-    { "type": "Number", "text": "Number of Allied Targets", "value": 5 }
+    { "type": "Number", "text": "Number of Allied Targets", "value": 5 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }
   ],
   "68081": [
     { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 8 },
@@ -120,7 +121,8 @@
   "68132": [{ "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 5 }],
   "69173": [
     { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 2.5, "apply_count": 8 },
-    { "type": "Number", "text": "Number of Allied Targets", "value": 1 }
+    { "type": "Number", "text": "Number of Allied Targets", "value": 1 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }
   ],
   "71828": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6 }],
   "71960": [
@@ -448,7 +450,8 @@
     { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2101 },
     { "type": "Buff", "status": "Light Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 2401 },
     { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 },
-    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 },
+    { "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1160 }
   ],
   "12440": [
     { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 },
@@ -461,7 +464,8 @@
     { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2101 },
     { "type": "Buff", "status": "Light Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 2401 },
     { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 },
-    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 },
+    { "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1160 }
   ],
   "21762": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
   "30488": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
@@ -1719,5 +1723,73 @@
   "78501": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
   "78615": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
   "78661": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
-  "78845": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }]
+  "78845": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1766 }],
+
+  "13014": [
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 4, "requires_trait": 1134 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1277 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 1277 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1277 },
+    { "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1297 }
+  ],
+  "43390": [
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 4, "requires_trait": 1134 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1277 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 1277 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1277 },
+    { "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1297 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 2093 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 12, "apply_count": 8, "requires_trait": 2146 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 12, "apply_count": 1, "requires_trait": 2146 }
+  ],
+  "63067": [
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 4, "requires_trait": 1134 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1277 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 1277 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1277 },
+    { "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1297 }
+  ],
+  "77397": [
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 4, "requires_trait": 1134 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1277 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 1277 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1277 },
+    { "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1297 }
+  ],
+  "42863": [
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 12, "apply_count": 8, "requires_trait": 2146 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 12, "apply_count": 1, "requires_trait": 2146 }
+  ],
+
+  "13021": [{ "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1160 }],
+  "13027": [{ "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1160 }],
+  "13050": [{ "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1160 }],
+  "21778": [{ "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1160 }],
+  "30400": [{ "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1160 }],
+  "45088": [{ "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1160 }],
+  "63292": [{ "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1160 }],
+  "76881": [{ "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1160 }],
+  "76886": [{ "type": "Buff", "status": "Dark Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1160 }],
+
+  "13005": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "13114": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "13115": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "13125": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "13126": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "13129": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "13138": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "30210": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "44087": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "50417": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "50449": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "50451": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "50466": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "50481": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "50484": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "69250": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "69316": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "71835": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "72034": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "72924": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }],
+  "73005": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1170 }]
 }

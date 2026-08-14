@@ -1143,7 +1143,8 @@
       "Blinded": 2
     },
     "42863": {
-      "Quickness": 3
+      "Quickness": 3,
+      "Might": 6
     },
     "42867": {
       "Bleeding": 8
@@ -1167,6 +1168,10 @@
     },
     "42983": {
       "Quickness": 1
+    },
+    "43390": {
+      "Quickness": 2.5,
+      "Might": 6
     },
     "43630": {
       "Burning": 2

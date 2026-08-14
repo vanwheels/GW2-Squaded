@@ -419,9 +419,52 @@ run leg-by-leg like the buff-instance-label sweep, one profession per leg, check
       Legendary Alliance/Conduit's very-recently-added elite-spec mechanics (Ambush Commander, Amnesty
       of Shing Jea, Reaver's Curse, Found Purpose, Shared Wisdom, Mistfire, Numinous Gift) — no deep
       prior knowledge, same reasoning as every other very-recent-elite-spec deferral this sweep.
-- [ ] Thief, Warrior legs (2 remaining) — rescan fresh, treat every prior leg's undercounted original
-      estimate as a floor not a ceiling, and check the `traitedFacts`-field-name bug noted in the
-      Revenant leg above before trusting a "not yet linked" candidate list.
+- [x] **Thief leg (8th leg) done 2026-08-14.** Rescanned fresh with the corrected `traitedFacts`
+      field name — 46 raw not-yet-linked candidates. 7 traits cleanly curated via
+      `synthetic-facts.json`: a 3-trait "when you steal" category cluster (Cover of Shadow/1134,
+      Protection; Bountiful Theft/1277, Vigor + Might pve-5-stacks/wvw+pvp-1-stack — both raw facts
+      mirrored as-is since the API encodes the split as apply_count not duration, which
+      `WvwFactOverrides` can't hold, same architecture limit `BUFF_INSTANCE_LABELS`'s own doc comment
+      already establishes for Feel the Burn!/Electric Discharge/Burning Rage/Toad's Fortitude; Shadow
+      Savior/1297, Dark Aura) all mirrored onto the wiki's own `improves skill=` list for all 4 —
+      Steal, Deadeye's Mark, Siphon, Skritt Swipe (the base-Thief/Deadeye/Specter/Antiquary variants
+      of the profession mechanic); Shielding Restoration (1160, Dark Aura) onto all 11 Thief heal
+      skill ids (heal-skill-category shape, same as every prior leg); Sundering Shade (1170, Fury
+      half only — its Vulnerability half is foe-facing, out of this sweep's scope) onto all 23
+      `StealthAttack`-category skill ids game-wide, found via `skills.json`'s own `categories` field
+      rather than guessed; Be Quick or Be Killed (2093, Quickness, pve 4s/wvw+pvp 2.5s) onto Deadeye's
+      Mark alone (the wiki's own `improves skill=` names just that one id); Fire for Effect (2146,
+      Might pve 12s/wvw+pvp 6s + Fury) onto BOTH Deadeye's Mark and Steal Time (42863) — the wiki's
+      `improves skill=` field names both even though the trait's own text says the stolen skill is
+      always forced to be Steal Time, so mirrored onto exactly what the wiki lists rather than
+      second-guessing it. 2 new `WvwFactOverrides` skill-side entries added (mirroring each trait's
+      own already-resolved override): Deadeye's Mark gets `Quickness: 2.5` (Be Quick or Be Killed) +
+      `Might: 6` (Fire for Effect); Steal Time gets `Might: 6` added alongside its pre-existing
+      `Quickness: 3` entry (unrelated, its own base fact's split). Same-tuple collision re-check came
+      back clean except 2 pre-existing collisions on the shared racial heals (Prayer to
+      Dwayna/Healing Seed) already labeled from prior legs — Shielding Restoration's Dark Aura is a
+      new status there, no fresh collision. Left open: Guarded Initiation (1241, Resistance,
+      "Movement skills grant resistance") — wiki confirms `improves type = Leap, Retreat` (an
+      unenumerable-from-this-app's-data combo-finisher-type category) plus 3 named skills
+      (Flanking Strike, Shadowstep, Shadow Return) and excludes Escape; deferred whole trait rather
+      than partially curate just the 3 named skills, since `skills.json` has no finisher-type field
+      to reliably enumerate the rest. ~38 other raw candidates left open in the usual excluded
+      shapes: self-named "unique effect" statuses not in `BOON_NAMES`/`AURA_NAMES` (Instant Reflexes,
+      Lead Attacks, Hidden Killer, Fluid Strikes, Lotus Training, Weakening Strikes, Unhindered
+      Combatant, Bounding Dodger, Silent Scope, Combat High, Exhilarating Ephemera, Scoundrel's Luck,
+      Prodigious Pincher), foe-facing debuffs not ally boons (Leeching Venoms, Deadly Ambition,
+      Pressure Striking, Serpent's Touch, Lotus Poison, Panic Strike, Cloaked in Shadow, Deadly
+      Ambush, Dark Sentry), dodge/evade triggers with no skill id (Feline Grace, Expeditious Dodger,
+      Upper Hand, Pumping Up), on-crit/on-gain-boon dynamic triggers (Assassin's Fury, Unrelenting
+      Strikes, No Quarter), "enter/exit stealth" too broad — no single skill id (Meld with Shadows,
+      Shadow's Embrace, Merciful Ambush's stealth half), condition-removal/manipulation not a boon
+      grant (Pain Response, Don't Stop), health-threshold/on-kill/on-revive dynamic triggers (Revealed
+      Training, Renewing Gaze, Merciful Ambush's revive half), and Antiquary's very-recently-added
+      artifact-mechanic cluster (Possessive Hoarder) — no deep prior knowledge, same reasoning as
+      every other very-recent-elite-spec deferral this sweep.
+- [ ] Warrior leg (9th and final leg remaining) — rescan fresh, treat every prior leg's undercounted
+      original estimate as a floor not a ceiling, and check the `traitedFacts`-field-name bug noted in
+      the Revenant leg above before trusting a "not yet linked" candidate list.
 
 ## Coefficient curation — remaining exceptions
 

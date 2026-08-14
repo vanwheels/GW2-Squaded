@@ -2,6 +2,42 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 183 — Trait-granted-boons-on-skills sweep, Thief leg (8th leg)
+
+Rescanned fresh with the corrected `traitedFacts` field name — 46 raw not-yet-linked candidates. 7
+traits cleanly curated via `synthetic-facts.json`: a 3-trait "when you steal" category cluster (Cover
+of Shadow/Protection, Bountiful Theft/Vigor + Might, Shadow Savior/Dark Aura) all mirrored onto the
+wiki's own `improves skill=` list for all 4 Steal-mechanic variants — Steal, Deadeye's Mark, Siphon,
+Skritt Swipe (base/Deadeye/Specter/Antiquary); Shielding Restoration (Dark Aura) onto all 11 Thief
+heal skill ids, the familiar heal-skill-category shape; Sundering Shade (Fury half only — its
+Vulnerability half is foe-facing, out of scope) onto all 23 `StealthAttack`-category skill ids,
+found via `skills.json`'s own `categories` field rather than guessed; Be Quick or Be Killed
+(Quickness, pve 4s/wvw+pvp 2.5s) onto Deadeye's Mark alone per the wiki's own `improves skill=`;
+Fire for Effect (Might pve 12s/wvw+pvp 6s + Fury) onto both Deadeye's Mark and Steal Time, again
+following the wiki's `improves skill=` field literally rather than second-guessing which one the
+trait's own "always Steal Time" text implied.
+
+Bountiful Theft's Might is a genuine pve-5-stacks/wvw+pvp-1-stack split, but the API encodes it as
+two raw duplicate facts differing only in `apply_count` (same 10s duration both modes) —
+`WvwFactOverrides` can only override duration, so both facts were mirrored as-is rather than forcing
+a fix, same architecture limit `BUFF_INSTANCE_LABELS`'s own doc comment already documents for Feel
+the Burn!/Electric Discharge/Burning Rage/Toad's Fortitude. 2 new `WvwFactOverrides` skill-side
+entries added, each mirroring a trait's own already-resolved override: Deadeye's Mark gets
+`Quickness: 2.5` + `Might: 6`; Steal Time gets `Might: 6` added alongside its pre-existing unrelated
+`Quickness: 3` entry. Same-tuple collision re-check came back clean except 2 pre-existing collisions
+on the shared racial heals (Prayer to Dwayna/Healing Seed) already labeled from prior legs —
+Shielding Restoration's Dark Aura is a new status there, no fresh collision introduced.
+
+Left open: Guarded Initiation (Resistance, "Movement skills grant resistance") — wiki confirms
+`improves type = Leap, Retreat`, an unenumerable-from-this-app's-data combo-finisher-type category
+(`skills.json` has no finisher-type field), plus 3 named skills and one exclusion; deferred the whole
+trait rather than partially curate just the named skills. ~38 other raw candidates left open in the
+usual excluded shapes (self-named "unique effect" statuses not in `BOON_NAMES`/`AURA_NAMES`,
+foe-facing debuffs, dodge/evade triggers with no skill id, on-crit/on-gain-boon dynamic triggers,
+"enter/exit stealth" too broad, condition-removal not a boon grant, health-threshold/on-kill/on-revive
+triggers, and Antiquary's very-recently-added artifact mechanic) — full writeup in TODO.md's own
+entry. 1 leg remains (Warrior, the final leg of this sweep).
+
 ## Session 182 — Trait-granted-boons-on-skills sweep, Revenant leg (7th leg)
 
 Rescanned fresh — 47 raw not-yet-linked candidates (again undercounting the original "5" estimate),
