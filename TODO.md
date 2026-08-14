@@ -42,7 +42,7 @@ that don't block a release.
       `${status}@${duration}@${applyCount}` (`#<occurrence>` suffix for same-tuple collisions) —
       rendered in `SkillsEditor.tsx`'s `factsBlock`. A `buff-instance-label-completeness.test.ts`
       staleness scan guards every curated key (skill AND trait sides) against game-data drift.
-      **6 legs done, smallest-remaining-pool-first** (full per-source reasoning for every leg lives
+      **7 legs done, smallest-remaining-pool-first** (full per-source reasoning for every leg lives
       in `BUFF_INSTANCE_LABELS`'s own doc comment, not duplicated here — this entry only tracks
       overall status): Revenant (1st, 2026-08-13, 11 skill ids labeled), Thief (2nd, 2026-08-14, 6
       sources labeled + fixed the scan methodology twice — excluded `overrides`-linked
@@ -58,27 +58,35 @@ that don't block a release.
       2026-08-14, 10 sources labeled — Blowtorch, Blunderbuss, Radiant Arc, Essence of Liquid Wrath,
       Essence of Animated Sand, Lightning Rod, Conduit Surge, Electric Artillery, plus traits New
       Genes and Hardened Chrome; New Genes' label is this table's first sourced from a version-
-      history note rather than a wiki fact line). Several sources across all 6 legs turned out to be
-      plain PvE/WvW(+PvP) splits with no `alt=` wording — redirected to
-      `WvwFactOverrides`/`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` instead (regenerate
-      `wvw-fact-overrides.json` by actually running `npm run fetch-wvw-splits` after editing that
-      file, never hand-edit the generated JSON) — the Guardian leg alone redirected 8 sources this
-      way, including 2 that hit the documented "API rounds a half-second duration up" quirk
-      (Permeating Wrath, Unrelenting Criticism) and one "trait fact copied onto the skill it
-      triggers from" case (Willbender Flames' Searing Pact-linked Burning, same shape as the
-      Notoriety cluster); the Engineer leg redirected 7 more this way (an Over Shield-linked and an
-      Expert Examination-linked Protection pair, each copied onto several skills) and found a new
-      failure mode — 3 sources (Toss Elixir H both ids, Reconstruction Field) carry that same
-      trait-linked pair PLUS their own genuine untraited base fact of the same status, which
-      `WvwFactOverride` can't safely fix (it overrides a whole status, not just the trait-gated
-      subset) — left unfixed rather than risk corrupting the untraited value. Also found but
-      deliberately deferred: a cross-profession "Convergence Artifact" skill/trait family (Forged
-      Surfer Dash, Holo-Dancer Decoy, Mistburn Mortar, Possessive Hoarder) with an entangled 3-way
-      pve/wvw/pvp split, worth its own dedicated pass rather than a per-profession fix. **Remaining**:
-      3 professions' `skills.json`/`traits.json` pools unswept (Ranger, Mesmer, Elementalist,
-      smallest-first), plus an unswept `synthetic-facts.json` remainder for those 3 — next leg picks
-      smallest pool first, same pattern as `TARGET_COUNT_OVERRIDES`'s sweep, and checks the
-      `classifyBoonCondition` recognized-name gate BEFORE drafting an entry, not after.
+      history note rather than a wiki fact line), Ranger (7th, 2026-08-14, 0 sources labeled — only 3
+      conflict sources total, far below the earlier "31" estimate, and all 3 turned out to redirect
+      elsewhere: see below). Several sources across all 7 legs turned out to be plain PvE/WvW(+PvP)
+      splits with no `alt=` wording — redirected to `WvwFactOverrides`/`fetch-wvw-splits.ts`'s
+      `MANUAL_OVERRIDES` instead (regenerate `wvw-fact-overrides.json` by actually running
+      `npm run fetch-wvw-splits` after editing that file, never hand-edit the generated JSON) — the
+      Guardian leg alone redirected 8 sources this way, including 2 that hit the documented "API
+      rounds a half-second duration up" quirk (Permeating Wrath, Unrelenting Criticism) and one "trait
+      fact copied onto the skill it triggers from" case (Willbender Flames' Searing Pact-linked
+      Burning, same shape as the Notoriety cluster); the Engineer leg redirected 7 more this way (an
+      Over Shield-linked and an Expert Examination-linked Protection pair, each copied onto several
+      skills) and found a new failure mode — 3 sources (Toss Elixir H both ids, Reconstruction Field)
+      carry that same trait-linked pair PLUS their own genuine untraited base fact of the same status,
+      which `WvwFactOverride` can't safely fix (it overrides a whole status, not just the trait-gated
+      subset) — left unfixed rather than risk corrupting the untraited value; the Ranger leg redirected
+      2 more (Storm Spirit's Fury, Stone Spirit's Protection — both elite spirit skills), finding yet
+      another sub-shape: the API duplicates the PvE duration onto BOTH raw facts instead of one fact
+      per mode, so the usual auto-detection (which needs both the wiki's PvE AND wvw+pvp values to
+      already appear among the raw durations) can't find it — Storm Spirit's wvw+pvp value had to come
+      from a version-history note instead, like New Genes above. Ranger's 3rd source, Frost Spirit's
+      identical-shaped Resolution pair, stays open — its wiki page has only ONE unsplit fact template,
+      nothing to attribute either raw fact to. Also found but deliberately deferred: a cross-profession
+      "Convergence Artifact" skill/trait family (Forged Surfer Dash, Holo-Dancer Decoy, Mistburn
+      Mortar, Possessive Hoarder) with an entangled 3-way pve/wvw/pvp split, worth its own dedicated
+      pass rather than a per-profession fix. **Remaining**: 2 professions' `skills.json`/`traits.json`
+      pools unswept (Mesmer, Elementalist, smallest-first), plus an unswept `synthetic-facts.json`
+      remainder for those 2 — next leg picks smallest pool first, same pattern as
+      `TARGET_COUNT_OVERRIDES`'s sweep, and checks the `classifyBoonCondition` recognized-name gate
+      BEFORE drafting an entry, not after.
 
 ## Scoped features, not yet built
 

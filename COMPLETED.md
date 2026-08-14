@@ -2,6 +2,67 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 177 — Buff instance-label sweep, Ranger leg (7th leg)
+
+Continued TODO.md's "unlabeled duplicate rows" bug sweep, picking the smallest remaining profession
+pool per [[buff_instance_label_sweep_2026-08-13]]/[[pacing_large_sweeps]] convention. Rebuilt the
+scan script (scratchpad, not committed) with all 6 prior legs' methodology fixes applied from the
+start — Ranger came out with only 3 skill conflict sources and 0 trait sources, far below the earlier
+"31" estimate (same stale-estimate pattern as Necromancer's "24"→4 drop).
+
+All 3 hits were the elite spirit skills' own pulsed-boon fact, each duplicated identically twice:
+Storm Spirit (Fury), Stone Spirit (Protection), Frost Spirit (Resolution). Storm Spirit and Stone
+Spirit turned out to be plain pve/wvw+pvp splits with no `alt=` wording — redirected to
+`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` and the JSON regenerated via `npm run fetch-wvw-splits`
+(never hand-edited). A new sub-shape of that pattern: the API duplicates the PvE duration onto BOTH
+raw facts instead of encoding one fact per mode, so the usual auto-detection (which requires both the
+wiki's PvE AND wvw+pvp values to already appear among the raw durations) can't find it on its own —
+Storm Spirit's wvw+pvp Fury value (1.5s) had to be confirmed via a 2023-07-18 version-history note
+instead, same sourcing shape as Engineer leg's New Genes. Frost Spirit's identical-shaped Resolution
+pair stays open — its wiki page carries only ONE `{{skill fact|resolution|2|stacks=4}}` line, no
+game-mode split and no `alt=`, so unlike its two spirit siblings there's no wiki text to attribute
+either raw fact to (same "one wiki concept, two raw facts" shape as the Thief leg's Dhuumfire).
+
+No new `BUFF_INSTANCE_LABELS` entries this leg (0 skill, 0 trait) — every real find redirected to
+`WvwFactOverrides` or stayed open. `npm run typecheck` clean; full suite 110/110 (no new tests needed,
+same reasoning as the Guardian leg). TODO.md entry updated to 7 legs done, 2 professions remaining
+(Mesmer/Elementalist, smallest-first).
+
+## Session 176 — Buff instance-label sweep, Engineer leg (6th leg)
+
+Continued the same sweep (commit c6c6e89; this session's COMPLETED.md entry was missed when the leg
+landed and is being logged retroactively). Rebuilt the scan script from scratch (scratchpad, not
+committed — a new session has no access to the prior session's scratchpad file) — 23 skill + 3 trait
+conflict sources (Fire Bomb, id 5823, was already curated from the Revenant leg since it's a shared
+cross-profession Bomb Kit skill, not a new find).
+
+10 sources got real `BUFF_INSTANCE_LABELS` entries: Blowtorch (4-tuple pve/wvw+pvp mode-variant set,
+all labeled, no unlabeled base — same shape as Arcing Slice), Blunderbuss, Radiant Arc (heat-scaled
+quickness, 3rd tuple gated by a DIFFERENT trait with no wiki text of its own, left open), Essence of
+Liquid Wrath, Essence of Animated Sand, Lightning Rod (id 73002 — wiki's bare "Lightning Rod" title
+belongs to an unrelated Elementalist trait; the real page is "Lightning Rod (engineer spear skill)",
+found via wiki search, not `titleVariants`), Conduit Surge, Electric Artillery (partial — its
+"Minimum Burning Duration" tuple labeled, but 2 "per Charge" pairs stayed unlabeled, same call as
+Warrior leg's Banner of Tactics), New Genes (this table's FIRST label sourced from a version-history
+note rather than a wiki fact line — the wiki's own Obliterate-linked Might fact is missing its
+wvw+pvp variant, but a 2025-12-09 patch note confirms the value), Hardened Chrome.
+
+7 more redirected to `WvwFactOverrides` instead: Magnetic Shield/Static Shield (an Over Shield/trait
+394-linked Protection pair, sourced from that trait's own version history since trait 394 has no Buff
+fact of its own), Blessing of Dwayna/Leafy Bandage/Static Shock/Bandage Self/Regenerating Mist (an
+Expert Examination/trait 1999-linked Protection pair, mirroring that trait's own pre-existing
+override). New failure mode found this leg: Toss Elixir H (both ids) and Reconstruction Field carry
+that exact same Expert-Examination-linked pair PLUS their own genuine untraited base Protection fact
+sharing the same status — since `WvwFactOverride` overrides a whole status (not scoped to just the
+trait-gated subset), mirroring the fix here would silently overwrite the legitimate untraited value
+even when the trait isn't selected; left unfixed rather than risk a wrong display. Also left open:
+Poison Dart Volley (2 raw-identical facts, wiki says pve=7/pvp+wvw=10, a data mismatch), Super Elixir
+(both ids, an HGH/trait-473-linked Might pair whose values don't match any of HGH's own 3 Might
+tiers), Throw Napalm (no `alt=` anywhere on its page).
+
+`npm run typecheck`/lint clean; full suite passing. TODO.md entry updated to 6 legs done, 3
+professions remaining (Ranger/Mesmer/Elementalist, smallest-first).
+
 ## Session 175 — Buff instance-label sweep, Guardian leg (5th leg)
 
 Continued TODO.md's "unlabeled duplicate rows" bug sweep, picking the smallest remaining profession

@@ -1785,6 +1785,22 @@ function resolveTargetCountFrom(
  * left open: Poison Dart Volley and Super Elixir (both ids), each a data mismatch between the local
  * raw facts and either the wiki or the gating trait's own facts, not confidently resolvable; Throw
  * Napalm, no `alt=` anywhere on its page.
+ *
+ * Ranger leg (7th leg, 2026-08-14): smallest remaining pool per a rescan — only 3 skill sources, 0
+ * trait sources (the earlier "31" estimate was as stale as Necromancer's "24" turned out to be, once
+ * the Thief leg's methodology fixes are applied from the start). All 3 are the elite spirit skills'
+ * own pulsed-boon fact, each duplicated identically twice: Storm Spirit (Fury), Stone Spirit
+ * (Protection), Frost Spirit (Resolution). Storm Spirit and Stone Spirit turned out to be plain
+ * pve/wvw+pvp splits with no `alt=` wording — fixed via `WvwFactOverrides`/`fetch-wvw-splits.ts`'s
+ * `MANUAL_OVERRIDES` instead, a new sub-shape of that pattern: the API duplicates the PvE duration
+ * onto BOTH raw facts rather than encoding one fact per mode, so the usual auto-detection (which
+ * requires both the wiki's PvE AND wvw+pvp values to already appear among the raw durations) can't
+ * find it — Storm Spirit's wvw+pvp Fury value (1.5s) is confirmed via a 2023-07-18 version-history
+ * note instead of a coincidental raw-fact match, same sourcing shape as Engineer leg's New Genes.
+ * Frost Spirit's identical-shaped Resolution pair stays open — its wiki page carries only ONE
+ * `{{skill fact|resolution|2|stacks=4}}` line, no game-mode split and no `alt=`, so unlike its two
+ * spirit siblings there's no wiki text to attribute either raw fact to (same "one wiki concept, two
+ * raw facts" shape as the Thief leg's Dhuumfire precedent).
  */
 export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string>>; trait: Record<number, Record<string, string>> } = {
   skill: {

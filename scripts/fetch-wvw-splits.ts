@@ -556,7 +556,22 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     12465: { Protection: 3 },
     21661: { Protection: 3 },
     29772: { Protection: 3 },
-    6176: { Protection: 3 }
+    6176: { Protection: 3 },
+
+    // Ranger leg (7th leg of the BUFF_INSTANCE_LABELS sweep, 2026-08-14): the 3 elite Ranger spirits
+    // (Storm/Stone/Frost Spirit) each carry a raw-identical duplicate Buff fact pair for their pulsed
+    // boon (both facts show the PvE duration twice — the API never encodes the wvw+pvp value at all
+    // here, unlike the usual {pve, wvw} pair auto-detection expects), confirmed via wiki as a plain
+    // pve/wvw+pvp split with no `alt=` wording. Storm Spirit's Fury: pve=2s (matches both raw facts),
+    // wvw+pvp=1.5s (2023-07-18 patch note: "Increased fury duration from 1.5 seconds to 2 seconds in
+    // PvE only" — confirms 1.5 predates the split and is still the wvw+pvp value). Stone Spirit's
+    // Protection: pve=2s (matches both raw facts), wvw+pvp=1.5s, same shape, no version-history note
+    // needed since the wiki states both values directly. Frost Spirit's own duplicate Resolution pair
+    // (2s×4 twice) is NOT included here — its wiki page has only ONE `{{skill fact|resolution|2|
+    // stacks=4}}` line with no game-mode split at all, so there's nothing to attribute either raw fact
+    // to; left open in BUFF_INSTANCE_LABELS's own doc comment instead.
+    12493: { Fury: 1.5 },
+    12495: { Protection: 1.5 }
   },
   trait: {
     // Panic Strike (Thief/Deadly Arts trait 1292) and Be Quick or Be Killed (Thief/Trickery trait
