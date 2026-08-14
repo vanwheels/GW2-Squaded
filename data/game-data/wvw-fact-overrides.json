@@ -71,6 +71,9 @@
     "9085": {
       "Fury": 10
     },
+    "9087": {
+      "Protection": 4
+    },
     "9099": {
       "Immobile": "omit"
     },
@@ -79,6 +82,9 @@
     },
     "9152": {
       "Protection": 4
+    },
+    "9168": {
+      "Vulnerability": 6
     },
     "9192": {
       "Fury": 2
@@ -302,6 +308,9 @@
     },
     "14548": {
       "Vulnerability": 6
+    },
+    "15834": {
+      "Protection": 4
     },
     "16426": {
       "Confusion": 3
@@ -661,6 +670,9 @@
     "44296": {
       "Might": 6
     },
+    "44364": {
+      "Burning": 2
+    },
     "44451": {
       "Burning": 8
     },
@@ -677,6 +689,9 @@
     },
     "44695": {
       "Might": 6
+    },
+    "44846": {
+      "Vulnerability": 6
     },
     "44926": {
       "Stability": 3,
@@ -757,6 +772,12 @@
     "51684": {
       "Stability": 4
     },
+    "55019": {
+      "Vulnerability": 6
+    },
+    "55027": {
+      "Vulnerability": 6
+    },
     "55050": {
       "Vulnerability": 6
     },
@@ -769,8 +790,14 @@
     "62521": {
       "Blinded": 3
     },
+    "62528": {
+      "Burning": 2
+    },
     "62530": {
       "Might": 6
+    },
+    "62552": {
+      "Burning": 2
     },
     "62565": {
       "Weakness": 1.5,
@@ -779,6 +806,12 @@
     "62573": {
       "Fury": 7,
       "Might": 6
+    },
+    "62618": {
+      "Burning": 2
+    },
+    "62650": {
+      "Immobile": 2
     },
     "62662": {
       "Quickness": 4
@@ -905,6 +938,9 @@
     },
     "68113": {
       "Quickness": 4
+    },
+    "68647": {
+      "Burning": 2
     },
     "69175": {
       "Protection": 3
@@ -1159,6 +1195,9 @@
     },
     "594": {
       "Protection": 1
+    },
+    "622": {
+      "Burning": 1.5
     },
     "633": {
       "Protection": 2
@@ -1463,6 +1502,9 @@
       "Fury": 6,
       "Quickness": 2
     },
+    "2075": {
+      "Bleeding": 3
+    },
     "2076": {
       "Quickness": 1.5
     },
@@ -1488,6 +1530,11 @@
     "2111": {
       "Might": 6,
       "Fury": 10
+    },
+    "2116": {
+      "Might": 8,
+      "Regeneration": 3,
+      "Protection": 2
     },
     "2134": {
       "Fury": 5,

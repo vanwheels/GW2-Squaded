@@ -2,6 +2,41 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 175 — Buff instance-label sweep, Guardian leg (5th leg)
+
+Continued TODO.md's "unlabeled duplicate rows" bug sweep, picking the smallest remaining profession
+pool per [[buff_instance_label_sweep_2026-08-13]]/[[pacing_large_sweeps]] convention. Rescanned
+`skills.json`/`traits.json` with all 4 prior legs' methodology fixes applied from the start —
+Guardian came out with 18 skill + 6 trait conflict sources (several split ids sharing one wiki page:
+Sword of Justice x4, Shield of Judgment/Tome of Justice x2 each), the smallest of the 5 remaining
+professions (Guardian 24 < Necromancer/Engineer 25-26 < Ranger 31 < Mesmer 34 < Elementalist 52).
+
+Most of this leg's real finds turned out to be plain `WvwFactOverrides` cases rather than genuine
+per-instance conflicts — a bare mode split with only ONE wiki concept, not two simultaneous ones —
+so they got redirected to `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` and the JSON regenerated via
+`npm run fetch-wvw-splits` (never hand-edited): Tome of Justice, Shield of Judgment, Sword of
+Justice, Advancing Strike (skills); Permeating Wrath, Unrelenting Criticism, Legendary Lore's 3
+Tome-linked grants (traits). Permeating Wrath and Unrelenting Criticism both hit the documented "API
+rounds a half-second duration up" quirk (1.5s→2s, 4.5s→5s). Willbender Flames' 3 split ids needed a
+skill-side override mirroring their Searing Pact trait's own already-curated one — a "trait fact
+copied onto the skill it triggers from" case, same shape as the Notoriety cluster.
+
+Only 2 sources got a genuine `BUFF_INSTANCE_LABELS` entry this leg: Rushing Justice's partial
+"Initial Burning" skill label (the other 3 raw Burning duplicates don't map cleanly onto the wiki's
+single Justice-effect concept, left unlabeled), and this table's first 2 multi-status-family trait
+entries — Zealous Scepter (Scepter/Non-Scepter Might Gain, 6 tuples all individually unique but
+labeled anyway since the wiki's own naming is real build info) and Phoenix Protocol (Trigger/
+Activation, split across BOTH Alacrity and Resolution depending on game mode). Left open, nothing to
+curate from: Virtue of Justice and its Dragonhunter flip Spear of Justice (ambiguous passive/active
+mode-value overlap, plus a wiki/local-data mismatch on Spear of Justice's Crippled duration), Crashing
+Courage (wiki's single unqualified Stability template doesn't cover either split id's real 2-fact
+shape), Dragon's Maw (2 raw-identical Slow facts, wiki's split value doesn't appear in the raw data
+at all), Resolute Subconscious (2 raw-identical Resolution facts, only one wiki template to quote).
+
+`npm run typecheck`/lint clean; full suite 110/110 (no new tests needed — the existing staleness scan
+already covers both table sides). TODO.md entry updated to 5 legs done, 4 professions remaining
+(Engineer/Ranger/Mesmer/Elementalist, smallest-first), next leg picks the smallest remaining pool.
+
 ## Session 174 — Buff instance-label sweep, Necromancer leg (4th leg)
 
 Continued TODO.md's "unlabeled duplicate rows" bug sweep, picking the smallest remaining profession

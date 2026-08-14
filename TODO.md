@@ -51,18 +51,25 @@ that don't block a release.
       2026-08-14, 8 sources labeled including this table's first `linked skill=`-derived trait
       label), Necromancer (4th, 2026-08-14, 3 sources labeled — Dark Pact, Rending Claws, "You Are
       All Weaklings!"; only 4 total conflict sources once the fixed methodology applied from the
-      start, confirming the original "24" estimate was stale). Several sources across all 4 legs
-      turned out to be plain PvE/WvW(+PvP) splits with no `alt=` wording — redirected to
-      `WvwFactOverrides`/`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` instead (regenerate
+      start, confirming the original "24" estimate was stale), Guardian (5th, 2026-08-14, 2 sources
+      labeled — Rushing Justice's partial "Initial Burning" skill entry, plus this table's first 2
+      multi-status-family trait entries, Zealous Scepter and Phoenix Protocol; most of this leg's
+      other finds turned out to be plain WvwFactOverride cases instead, see below). Several sources
+      across all 5 legs turned out to be plain PvE/WvW(+PvP) splits with no `alt=` wording —
+      redirected to `WvwFactOverrides`/`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` instead (regenerate
       `wvw-fact-overrides.json` by actually running `npm run fetch-wvw-splits` after editing that
-      file, never hand-edit the generated JSON). Also found but deliberately deferred: a
-      cross-profession "Convergence Artifact" skill/trait family (Forged Surfer Dash, Holo-Dancer
-      Decoy, Mistburn Mortar, Possessive Hoarder) with an entangled 3-way pve/wvw/pvp split, worth
-      its own dedicated pass rather than a per-profession fix. **Remaining**: 5 professions'
-      `skills.json`/`traits.json` pools unswept, plus an unswept `synthetic-facts.json` remainder
-      for those 5 — next leg picks smallest pool first, same pattern as `TARGET_COUNT_OVERRIDES`'s
-      sweep, and checks the `classifyBoonCondition` recognized-name gate BEFORE drafting an entry,
-      not after.
+      file, never hand-edit the generated JSON) — the Guardian leg alone redirected 8 sources this
+      way, including 2 that hit the documented "API rounds a half-second duration up" quirk
+      (Permeating Wrath, Unrelenting Criticism) and one "trait fact copied onto the skill it
+      triggers from" case (Willbender Flames' Searing Pact-linked Burning, same shape as the
+      Notoriety cluster). Also found but deliberately deferred: a cross-profession "Convergence
+      Artifact" skill/trait family (Forged Surfer Dash, Holo-Dancer Decoy, Mistburn Mortar,
+      Possessive Hoarder) with an entangled 3-way pve/wvw/pvp split, worth its own dedicated pass
+      rather than a per-profession fix. **Remaining**: 4 professions' `skills.json`/`traits.json`
+      pools unswept (Engineer, Ranger, Mesmer, Elementalist, smallest-first), plus an unswept
+      `synthetic-facts.json` remainder for those 4 — next leg picks smallest pool first, same
+      pattern as `TARGET_COUNT_OVERRIDES`'s sweep, and checks the `classifyBoonCondition`
+      recognized-name gate BEFORE drafting an entry, not after.
 
 ## Scoped features, not yet built
 

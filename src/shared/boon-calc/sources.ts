@@ -1748,6 +1748,23 @@ function resolveTargetCountFrom(
  * Burning pair, stays open — 2 raw-identical 3s facts, but the wiki page's base section carries only
  * ONE `{{skill fact|burning|3}}` template, nothing to distinguish them (same "one wiki concept, two
  * raw facts" shape as this leg's own Banner-of-Tactics precedent above).
+ *
+ * Guardian leg (5th leg, 2026-08-14): smallest remaining pool per a rescan (18 skill + 6 trait
+ * conflict sources, several split ids sharing one wiki page — Sword of Justice x4, Shield of
+ * Judgment/Tome of Justice x2 each). Most of this leg's real finds turned out to be plain
+ * WvwFactOverride cases rather than genuine per-instance conflicts — a bare mode split with only
+ * ONE wiki concept (Tome of Justice, Shield of Judgment, Sword of Justice, Advancing Strike,
+ * Permeating Wrath, Unrelenting Criticism, Legendary Lore's 3 Tome-linked grants, and Willbender
+ * Flames' Searing Pact-linked Burning, a "trait fact copied onto the skill it triggers from" case
+ * same shape as the Notoriety cluster) — fixed via `WvwFactOverrides`/`fetch-wvw-splits.ts`'s
+ * `MANUAL_OVERRIDES` instead, see that file's own comment block on this leg for the per-source
+ * writeup (2 of them, Permeating Wrath and Unrelenting Criticism, also hit the documented "API
+ * rounds a half-second duration up" quirk). Only 2 sources got a genuine BUFF_INSTANCE_LABELS entry
+ * this leg: Rushing Justice's partial "Initial Burning" label (skill) and both of this leg's first
+ * multi-status-family entries, Zealous Scepter's Scepter/Non-Scepter Might Gain and Phoenix
+ * Protocol's Trigger/Activation Alacrity+Resolution (traits) — see the `skill`/`trait` blocks' own
+ * comments below for the full per-source writeup, including everything left open (Virtue of Justice,
+ * Spear of Justice, Crashing Courage, Dragon's Maw, Resolute Subconscious).
  */
 export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string>>; trait: Record<number, Record<string, string>> } = {
   skill: {
@@ -1949,12 +1966,39 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // tuple, occurrence-indexed in wiki template order:
     // `{{skill fact|might|10|alt=Might per Hit|game mode = pve}}` then
     // `{{skill fact|might|10|alt=Might per Melee Hit|game mode = pve}}`.
-    29414: { 'Might@10@1#1': 'Might per Hit', 'Might@10@1#2': 'Might per Melee Hit' }
+    29414: { 'Might@10@1#1': 'Might per Hit', 'Might@10@1#2': 'Might per Melee Hit' },
     // Dhuumfire's (trait 905) base Burning pair (3s×1, both facts identical, the `overrides`-linked
     // Scourge/Harbinger-traited variants already excluded pre-scan) is a genuine raw-API duplicate
     // with nothing to curate from: the wiki page's base section carries only ONE
     // `{{skill fact|burning|3}}` template for the untraited case — same "one wiki concept, two raw
     // facts" shape as Warrior leg's Banner of Tactics Stability pair. Left open.
+
+    // --- Guardian leg (5th leg, 2026-08-14) ---
+
+    // Rushing Justice (Willbender virtue 1). Wiki:
+    // `{{skill fact|burning|4|alt=Initial Burning}}` (universal, no game-mode split) is followed by
+    // the "Justice"-effect burning (`{{skill fact|burning|2|game mode=pve}}{{skill fact|burning|1.5
+    // |game mode=wvw pvp}}`, 5-consecutive-attacks proc). The local raw facts carry 4 Burning
+    // instances, not the 2 this 2-concept/2-mode shape predicts: one clean 4s (matching Initial
+    // Burning exactly, unique tuple, labeled here) plus THREE identical 2s facts, not just one —
+    // that 3-way duplication doesn't map cleanly onto the wiki's single Justice-effect concept, so
+    // only the confidently-resolvable Initial Burning gets an entry; the 3 unexplained 2s duplicates
+    // stay unlabeled (documented gap, not an oversight — see TODO.md).
+    62668: { 'Burning@4@1': 'Initial Burning' }
+    // Several more Guardian conflicts investigated this leg turned out to be plain WvwFactOverride
+    // cases instead (Tome of Justice, Shield of Judgment, Sword of Justice, Advancing Strike,
+    // Willbender Flames' Searing Pact-linked Burning) — see fetch-wvw-splits.ts's own comment block
+    // on this leg for those. Left open, nothing to curate from: Virtue of Justice (9115, 2 identical
+    // "active effect" Burning@4 facts alongside a self-evidently-distinct Burning@2 passive fact —
+    // only ONE wiki alt= template ("Burning (active effect)") to quote for the 2 duplicates, same
+    // Dhuumfire shape); Spear of Justice (29887, Virtue of Justice's Dragonhunter flip — its Burning
+    // pair has the same passive/active mode-value overlap ambiguity, and its Crippled pair is a
+    // wiki/local-data mismatch, wiki says 1.5s/1s but raw is 2s/1s, same "possible data drift" shape
+    // as Death Blossom in the Thief leg); Crashing Courage (62532/62596, Willbender virtue 1's other
+    // flip — both ids carry 2 raw Stability facts each, but the wiki page has only ONE unqualified
+    // `{{skill fact|Stability|4}}` template for the whole page, nothing to quote for either); Dragon's
+    // Maw (68686, 2 raw-identical Slow@4 facts — the wiki's own pve(4)/wvw+pvp(3) split doesn't
+    // appear as a 2nd distinct raw value at all, a data mismatch, not confidently resolvable).
   },
   trait: {
     // --- Thief leg (2nd leg, 2026-08-14) --- first-ever trait entries in this table; traits carry
@@ -1997,7 +2041,7 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // occurrence-index is needed regardless of array order. This trait's Might pair (8s wvw+pvp/
     // 10s pve, both stacks=3, no `alt=`) is a plain mode split — fixed via `WvwFactOverrides`
     // instead, see that file's own comment on trait 2042.
-    2042: { 'Quickness@2@1': 'On Decapitate' }
+    2042: { 'Quickness@2@1': 'On Decapitate' },
     // Marching Orders' Might pair (1480) is a plain pve/wvw+pvp split with no `alt=` — fixed via
     // `WvwFactOverrides` instead. Its Protection pair (both gated by a DIFFERENT trait, 1474 —
     // Vengeance, not native to this trait's own description) isn't documented anywhere on this
@@ -2005,6 +2049,48 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // same "no wiki text to quote" shape as Deadly Strike/Hidden Thief in the Thief leg — left
     // uncurated. Feverish Pulse's Quickness pair (2369, 2s pvp-tagged/1s wvw-tagged, no `alt=`) is
     // also a plain mode split, fixed via `WvwFactOverrides` instead.
+
+    // --- Guardian leg (5th leg, 2026-08-14) ---
+
+    // Zealous Scepter (Zeal, scepter Might on Virtue of Justice's passive trigger). Wiki names 2
+    // distinct concepts via `linked skill=Virtue of Justice`, each split 3 ways (pve/wvw/pvp, no
+    // clean 2-value WvwFactOverride shape since all 3 differ):
+    // `{{skill fact|might|alt=Scepter Might Gain|...|10|stacks=2|pve}}` (+wvw=4, pvp=6) while
+    // wielding a scepter, and `{{skill fact|might|alt=Non-Scepter Might Gain|...|10|pve}}` (+wvw=4,
+    // pvp=6, stacks=1) otherwise. Every (duration, applyCount) tuple is already unique (stacks=2 vs
+    // stacks=1 alone would disambiguate), but the wiki's own naming is genuinely useful build info
+    // (whether a scepter is equipped changes the might gain) so every tuple gets the matching label,
+    // same "apply one label text to multiple mode-variant tuples" convention as the Revenant leg's
+    // Embrace the Darkness.
+    1925: {
+      'Might@10@2': 'Scepter Might Gain',
+      'Might@6@2': 'Scepter Might Gain',
+      'Might@4@2': 'Scepter Might Gain',
+      'Might@10@1': 'Non-Scepter Might Gain',
+      'Might@6@1': 'Non-Scepter Might Gain',
+      'Might@4@1': 'Non-Scepter Might Gain'
+    },
+    // Phoenix Protocol (Willbender, Flowing Resolve boons). Wiki names 2 distinct concepts, each
+    // split by mode into a DIFFERENT status entirely (Alacrity for pve/pvp, Resolution for wvw):
+    // "on Trigger" (`{{skill fact|alacrity|alt=Alacrity on Trigger|1|pve}}` +pvp=2;
+    // `{{skill fact|resolution|alt=Resolution on Trigger|2|wvw}}`) and "on Activation"
+    // (`{{skill fact|alacrity|alt=Alacrity on Activation|5|pve}}` +pvp=3;
+    // `{{skill fact|resolution|alt=Resolution on Activation|3|wvw}}`). Every tuple across both
+    // statuses is unique, so no occurrence-indexing needed — each of the 6 raw facts (4 Alacrity + 2
+    // Resolution) maps 1:1 onto one of these 4 label texts.
+    2195: {
+      'Alacrity@1@1': 'Alacrity on Trigger',
+      'Alacrity@2@1': 'Alacrity on Trigger',
+      'Alacrity@5@1': 'Alacrity on Activation',
+      'Alacrity@3@1': 'Alacrity on Activation',
+      'Resolution@2@1': 'Resolution on Trigger',
+      'Resolution@3@1': 'Resolution on Activation'
+    }
+    // Several more Guardian trait conflicts investigated this leg turned out to be plain
+    // WvwFactOverride cases instead (Permeating Wrath, Unrelenting Criticism, Legendary Lore) — see
+    // fetch-wvw-splits.ts's own comment block on this leg. Left open: Resolute Subconscious (625, 2
+    // raw-identical Resolution@3 facts, wiki's whole page only carries ONE unqualified
+    // `{{skill fact|resolution|3}}` template, nothing to quote — same Dhuumfire shape).
   }
 }
 

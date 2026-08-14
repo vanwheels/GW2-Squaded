@@ -502,7 +502,35 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // wiki only carries one `alt=`-labeled Stability template for the whole page (see
     // `BUFF_INSTANCE_LABELS`'s own comment on this id), so there's no 2nd concept to collapse away
     // — an override here would silently drop a real, distinct application.
-    14408: { Resistance: 1 }
+    14408: { Resistance: 1 },
+
+    // Guardian leg (5th leg of the BUFF_INSTANCE_LABELS sweep, 2026-08-14):
+    // Tome of Justice (44364, dormant id 68647): plain 3-way Passive Burning split, wiki-confirmed
+    // (`{{skill fact|Burning|alt=Burning (Passive)|1|game mode = pve}}{{skill fact|Burning|alt=
+    // Burning (Passive)|2|game mode = wvw}}{{skill fact|Burning|alt=Burning (Passive)|4|game mode =
+    // pvp}}`) — one wiki concept, single alt= text, so this belongs here rather than in
+    // BUFF_INSTANCE_LABELS. Both pve(1) and wvw(2) values are present among the 3 raw facts.
+    44364: { Burning: 2 },
+    68647: { Burning: 2 },
+    // Shield of Judgment (9087, split id 15834): plain pve+wvw(4)/pvp(2) Protection split, no alt=
+    // (`{{skill fact|protection|4|game mode = pve wvw}}{{skill fact|protection|2|game mode = pvp}}`).
+    9087: { Protection: 4 },
+    15834: { Protection: 4 },
+    // Sword of Justice (Dragonhunter trap, ids 9168/44846/55019/55027 all sharing one wiki page):
+    // plain pve(8)/pvp+wvw(6) Vulnerability split, no alt=.
+    9168: { Vulnerability: 6 },
+    44846: { Vulnerability: 6 },
+    55019: { Vulnerability: 6 },
+    55027: { Vulnerability: 6 },
+    // Advancing Strike (Willbender): plain pve(1)/wvw+pvp(2) Immobile split, no alt=.
+    62650: { Immobile: 2 },
+    // Willbender Flames' 3 variants (62528/62552/62618) each carry a Searing Pact
+    // (trait 2191)-linked Burning pair with NO `overrides` link (a real trait-granted-boon-copied-
+    // onto-the-skill-it-triggers-from case, same mechanism as the Notoriety cluster above) — mirrors
+    // trait 2191's own already-curated override below so both tooltips agree.
+    62528: { Burning: 2 },
+    62552: { Burning: 2 },
+    62618: { Burning: 2 }
   },
   trait: {
     // Panic Strike (Thief/Deadly Arts trait 1292) and Be Quick or Be Killed (Thief/Trickery trait
@@ -528,7 +556,28 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // "Marching Orders" is a naming collision with an unrelated story mission on the wiki — the
     // real trait page is titled "Marching Orders (trait)".
     1480: { Might: 6 },
-    2369: { Quickness: 1 }
+    2369: { Quickness: 1 },
+
+    // Guardian leg (5th leg of the BUFF_INSTANCE_LABELS sweep, 2026-08-14):
+    // Permeating Wrath (622): wiki `{{skill fact|burning|2|game mode=pve pvp}}{{skill fact|burning|
+    // 1.5|game mode=wvw}}` — the WvW value hits the documented "API rounds a half-second up" quirk
+    // (1.5 -> 2), same shape as Panic Strike/Be Quick or Be Killed above. Raw local data actually
+    // carries 3 identical Burning@2 facts, not the 2 the wiki's 2-value split would predict (1
+    // unexplained extra duplicate) — doesn't matter for this override: `extractFromFacts` collapses
+    // every fact sharing this status down to one row regardless of how many raw duplicates exist.
+    622: { Burning: 1.5 },
+    // Unrelenting Criticism (2075): wiki `{{skill fact|bleeding|4.5|game mode = pve}}{{skill fact|
+    // bleeding|3|game mode = pvp wvw}}` — same rounding quirk (4.5 -> 5; the raw facts are {5, 3}).
+    2075: { Bleeding: 3 },
+    // Legendary Lore (2116): all 3 of its conflicts (Might/Regeneration/Protection, one per Tome)
+    // turned out to be plain one-concept-per-status mode splits with `linked skill=` wiki text
+    // (naming which Tome each grants from) rather than genuinely distinct simultaneous concepts —
+    // Might (Tome of Justice, `{{skill fact|Might|...|10|stacks=2|game mode = pve}}{{skill fact|
+    // Might|...|8|stacks=2|game mode = wvw pvp}}`), Regeneration (Tome of Resolve, pve=6/wvw=3/
+    // pvp=4, 3-way) and Protection (Tome of Courage, pve=4/wvw=2/pvp=2.5 — the pvp value again hits
+    // the rounding quirk, rounding to 3 in the raw facts, but the wvw value(2) is an exact match so
+    // needs no special-casing here).
+    2116: { Might: 8, Regeneration: 3, Protection: 2 }
   }
 }
 
