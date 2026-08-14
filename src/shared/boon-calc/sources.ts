@@ -2393,8 +2393,12 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // Prayer to Dwayna / Healing Seed (12360/12440, shared racial heal skills): each already carries
     // Dark Defense's (Necromancer trait 860) synthetic Protection@3@1 from the Necromancer leg —
     // occurrence 1. Gale Song's copy is occurrence 2.
-    12360: { 'Protection@3@1#2': 'Gale Song' },
-    12440: { 'Protection@3@1#2': 'Gale Song' },
+    // --- Engineer leg (3rd leg, trait-granted-boons-on-skills sweep, 2026-08-14) --- Reconstruction
+    // Enclosure (trait 508, "grant protection to nearby allies when you use a heal skill") mirrored
+    // onto every Engineer heal skill via `synthetic-facts.json`, same heal-skill-category shape as
+    // Dark Defense/Gale Song above; on these 2 shared racial ids that's a 3rd Protection@3@1 copy.
+    12360: { 'Protection@3@1#2': 'Gale Song', 'Protection@3@1#3': 'Reconstruction Enclosure' },
+    12440: { 'Protection@3@1#2': 'Gale Song', 'Protection@3@1#3': 'Reconstruction Enclosure' },
     // Glyph of Elemental Harmony (34609): its own unconditional Protection@3@1 (the glyph's base
     // self-effect) is occurrence 1. Inscription's (trait 229, "gain boons upon casting a glyph based
     // on your attunement") own Protection upgrade is a different tuple (6s, `overrides: 2`) so it

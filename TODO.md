@@ -225,12 +225,52 @@ run leg-by-leg like the buff-instance-label sweep, one profession per leg, check
       on-crit/on-dodge/on-combo/on-aura-grant mechanics (Elemental Empowerment family, Invigorating
       Torrents, Elements of Rage, etc.) that don't name a single triggering skill either — not
       itemized individually, same reasoning as Elemental Bastion.
-- [ ] Engineer, Guardian, Mesmer, Ranger, Revenant, Thief, Warrior legs (7 remaining, not yet
-      started). Revenant's own 5 candidates from the 48-count scan are worth a second look even
-      though Notoriety/Rapid Flow were already curated 2026-08-12 — that scan says 5 Revenant traits
-      still have zero skill linkage, so the earlier pass may not have been fully exhaustive (the
-      Elementalist leg above found the same undercount pattern: rescanning fresh turned up 41
-      candidates against an original "5" estimate).
+- [x] **Engineer leg (3rd leg) done 2026-08-14.** Rescanned fresh (40 raw zero-linkage-with-a-
+      Buff-fact candidates). 8 cleanly curated via `synthetic-facts.json`: Reconstruction Enclosure
+      (508, Protection) mirrored onto all 15 Engineer heal skill ids (heal-skill-category trigger,
+      same shape as Necromancer's Dark Defense/Elementalist's trio); Streamlined Kits (512,
+      Swiftness) onto all 7 Engineering Kit equip ids (Med/Grenade/Bomb/Tool Kit, Flamethrower,
+      Elixir Gun, Elite Mortar Kit — identified via each skill's `flipSkill` field pointing at its
+      "Stow ___" counterpart, which was excluded); Grand Entrance (1541, Resistance + its own
+      "Grand Entrance" self-buff) onto Explosive Entrance (59562, Holosmith's Photon-Forge-entry
+      sub-skill); Automated Medical Response (1901, Regeneration) onto the 9 heal skills' own
+      tool-belt skill ids (a NEW category shape for this sweep — mirrors onto the tool-belt id, not
+      the heal skill itself); Optimized Activation (1979, Vigor) onto all 56 Engineer tool-belt
+      skill ids game-wide (every utility/heal/elite skill's toolbelt id, incl. racial utilities —
+      broad but mechanically well-defined, same "whole category" precedent as Elementalist's Overload
+      skills); Juggernaut (1984, Stability + Fire Aura, NOT its "might while wielding" passive half)
+      onto Napalm (5929, the shared Flamethrower-kit skill 5); Mech Core: Jade Dynamo (2292,
+      Quickness) onto Jade Mortar (63121) — the one Mech Command skill this same trait unlocks, safe
+      since the tier's 4 Mech Command traits are mutually exclusive. Also the first leg to target
+      skill ids with empty `professions`/`slot` in `skills.json` (Explosive Entrance, Jade Mortar —
+      real ids the API just doesn't tag; synthetic-fact merging is purely id-keyed so this works).
+      Found and fixed 1 fresh same-tuple collision this leg's own mirror introduced
+      (`BUFF_INSTANCE_LABELS`, sources.ts): Reconstruction Enclosure's Protection on Prayer to
+      Dwayna/Healing Seed (12360/12440) was a 3rd same-tuple copy, not a 2nd, since the Necromancer
+      and Elementalist legs' own mirrors already occupy occurrences 1-2 there. Also noticed (not
+      fixed, unrelated to this leg): Elixir H (5834) has a genuine pre-existing Protection@2@1
+      raw-duplicate between its base fact and an HGH-gated (trait 473) traitedFacts copy with no
+      wiki-quotable distinction — same "nothing to quote" shape as Water's Resolution/Earth's
+      Protection from the Elementalist leg, left unlabeled. Left open, not fitting this sweep's
+      single-triggering-skill shape: Mecha Legs (445) and Thermal Release Valve (2066), both
+      dodge-triggered (dodge has no skill id of its own to mirror onto); Mass Momentum (1867,
+      Stability — "Your Function Gyro applies stability to allies when cast") deferred, genuine
+      uncertainty over which 2 of Function Gyro's 4 raw skill ids (56920/56921/72103/72114) the
+      trait's 2 differently-valued Stability facts actually correspond to; Mech Frame: Channeling
+      Conduits (2276, "when you or your mech apply barrier, grant a boon" — barrier-application
+      trigger is too broad/ambiguous-source, same complexity class as Bountiful Power); Willing Host
+      (2356), Carbolic Composition (2383), and New Genes (2387) all key off "morph"/"Amalgam" skills
+      — a very recently added Engineer elite spec mechanic this session has no deep prior knowledge
+      of, same reasoning as the Necromancer leg's Empowering Spirits/Ritualist deferral. The
+      remaining ~25 raw candidates are on-crit/on-dodge/on-disable/on-combo procs with no single
+      triggering skill (Shrapnel, Sapping Device, Equal and Opposite Reaction, etc.) — not itemized
+      individually, same reasoning as prior legs.
+- [ ] Guardian, Mesmer, Ranger, Revenant, Thief, Warrior legs (6 remaining, not yet started).
+      Revenant's own 5 candidates from the 48-count scan are worth a second look even though
+      Notoriety/Rapid Flow were already curated 2026-08-12 — that scan says 5 Revenant traits still
+      have zero skill linkage, so the earlier pass may not have been fully exhaustive (the
+      Elementalist and Engineer legs above both found the same undercount pattern: rescanning fresh
+      turned up 41 and 40 candidates respectively against original "5"/"4" estimates).
 
 ## Coefficient curation — remaining exceptions
 

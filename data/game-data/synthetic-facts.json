@@ -2,7 +2,9 @@
   "6119": [
     { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 2 },
     { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4 },
-    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 4 }
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 4 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1901 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }
   ],
   "26821": [
     { "type": "Time", "text": "Duration", "duration": 20 },
@@ -417,14 +419,16 @@
     { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
     { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
     { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
-    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 }
   ],
   "12440": [
     { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 },
     { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 282 },
     { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
     { "type": "Buff", "status": "Frost Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 348 },
-    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 }
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1952 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 }
   ],
   "21762": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
   "30488": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
@@ -563,5 +567,115 @@
   "29415": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1948 }],
   "29618": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1948 }],
   "29706": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1948 }],
-  "29719": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1948 }]
+  "29719": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1948 }],
+  "5802": [
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 },
+    { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 20, "apply_count": 1, "requires_trait": 512 }
+  ],
+  "5805": [{ "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 20, "apply_count": 1, "requires_trait": 512 }],
+  "5812": [{ "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 20, "apply_count": 1, "requires_trait": 512 }],
+  "5824": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "5834": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 }],
+  "5857": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 }],
+  "5904": [{ "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 20, "apply_count": 1, "requires_trait": 512 }],
+  "5927": [{ "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 20, "apply_count": 1, "requires_trait": 512 }],
+  "5929": [
+    { "type": "Buff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 2, "requires_trait": 1984 },
+    { "type": "Buff", "status": "Fire Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1984 }
+  ],
+  "5933": [{ "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 20, "apply_count": 1, "requires_trait": 512 }],
+  "5961": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 }],
+  "5966": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "5973": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "5980": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 }],
+  "5982": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "5983": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "5999": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "6078": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "6082": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "6084": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "6086": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "6088": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "6109": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 }],
+  "6140": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 }],
+  "6159": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "6166": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "6172": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "6176": [
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1901 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }
+  ],
+  "6177": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "6178": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "6179": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "6180": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "6181": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "6182": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "12334": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "12335": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "12336": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "12354": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "12355": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "12357": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "12377": [
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1901 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }
+  ],
+  "12378": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "12379": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "12438": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "12439": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "12462": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "12463": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "12465": [
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1901 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }
+  ],
+  "21659": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 }],
+  "21661": [
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1901 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }
+  ],
+  "22573": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "29505": [
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1901 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }
+  ],
+  "29665": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "29716": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "29722": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "29772": [
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1901 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }
+  ],
+  "30262": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "30279": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "30357": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 }],
+  "30588": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "30599": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "30800": [{ "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 20, "apply_count": 1, "requires_trait": 512 }],
+  "30881": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 }],
+  "31167": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "40507": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 }],
+  "41843": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "42163": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "43176": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "43845": [
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1901 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }
+  ],
+  "45732": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "59562": [
+    { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 1541 },
+    { "type": "Buff", "status": "Grand Entrance", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 1541 }
+  ],
+  "63049": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 }],
+  "63121": [{ "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2292 }],
+  "68280": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "76500": [{ "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }],
+  "76613": [
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 1901 },
+    { "type": "Buff", "status": "Vigor", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 1979 }
+  ],
+  "76738": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 508 }]
 }

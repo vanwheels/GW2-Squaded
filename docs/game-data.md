@@ -636,7 +636,13 @@ Two cases warrant a new entry:
    way, mirroring Earth's Embrace/Soothing Ice/Gale Song onto all 16 Elementalist heal skills and
    One with Air/Rock Solid onto the Air/Earth Attunement skills and Hardy Conduit onto the 4
    Overload skills — the moral holds regardless of trait count: check every touched skill, not just
-   the ones a single trait's own mirror looks likely to collide on.
+   the ones a single trait's own mirror looks likely to collide on. Engineer leg (2026-08-14) added
+   one more (Reconstruction Enclosure's Protection onto the shared racial heal skills Prayer to
+   Dwayna/Healing Seed, already carrying 2 prior legs' copies — a 3rd occurrence, not just a 2nd);
+   also the first leg to mirror onto a skill's *tool belt* id rather than the skill itself
+   (Automated Medical Response, Optimized Activation) and to target a skill with empty
+   `professions`/`slot` fields in `skills.json` (Explosive Entrance, Jade Mortar — real ids, just not
+   profession-tagged by the API; the synthetic-fact merge is purely id-keyed so this works fine).
 
 ## Gear upgrades and consumables (`runes.json`, `sigils.json`, `infusions.json`, `relics.json`, `food.json`, `utility.json`)
 
