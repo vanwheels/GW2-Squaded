@@ -353,11 +353,34 @@ run leg-by-leg like the buff-instance-label sweep, one profession per leg, check
       as the already-excluded Arcane Prowess), and Troubadour's very-recently-added elite-spec mechanics
       (Raconteur/Tales, Symphonic Resonance, Mayhem/Flustering Flute) — no deep prior knowledge, same
       reasoning as every other very-recent-elite-spec deferral this sweep.
-- [ ] Ranger, Revenant, Thief, Warrior legs (4 remaining). Revenant's own 5 candidates from the
-      ORIGINAL 48-count scan are worth a second look even though Notoriety/Rapid Flow were already
-      done — every leg so far (Elementalist 5→41, Engineer 4→40, Guardian ~5→34, Mesmer 6→52) has badly
-      undercounted that original scan, so treat its "expected count" as a floor, not a ceiling; rescan
-      fresh.
+- [x] **Ranger leg (6th leg) done 2026-08-14.** 27 raw zero-linkage-with-a-Buff-fact candidates
+      (again undercounting the original "5" estimate). 11 traits cleanly curated: Wellspring (978,
+      Regeneration) onto all 14 heal skill ids; Stoneform (1021, Fury+Might) onto all 4 signets;
+      Wilderness Knowledge (1699, Fury) onto all 6 Survival skills; Let Loose (2271, Quickness+
+      Might) onto the 12 Soulbeast Unleashed Ambush skill ids; Fang and Claw (1016, Fury)/
+      Rejuvenation (1055, Regeneration)/Live Fast (2071, Fury+Quickness)/Flock Together (2408,
+      Quickness) — all "Beast skills grant ___" — onto all 76 Ranger pet skill ids game-wide at
+      once (5 of those 76 excluded from an override on just their one already-real-fact status,
+      synthetic fact still added unsplit); Unstoppable Union (2072, Protection) onto Beastmode
+      entry/exit; Celestial Shadow (2053, Stealth+Superspeed) onto Release Celestial Avatar —
+      found a genuinely new wiki-confirmed Stealth pve/wvw split the automated scan never resolved,
+      added by hand to `fetch-wvw-splits.ts`; Jetstream (2341, Superspeed) onto Hawkeye. Fixed one
+      fresh same-tuple collision (`BUFF_INSTANCE_LABELS`): Wellspring's Regeneration@6@1 vs. the
+      Mesmer leg's Metaphysical Rejuvenation mirror, both on the shared racial heals Prayer to
+      Dwayna/Healing Seed. Left open: Grace of the Land (2001) — a genuine mode-dependent
+      DIFFERENT-boon swap (PvE Alacrity vs. WvW/PvP Might) unresolved even at the trait's own
+      tooltip level, needs a base-trait fix before any skill mirror is meaningful, same shape as
+      the Mesmer leg's Stretched Time/Seize the Moment; Spirited Arrival/Quick Draw/Tail Wind/
+      Furious Grip (pet-swap/weapon-swap triggers, no skill id to mirror onto); Fortifying Bond/
+      Fresh Reinforcement (share/gain your PET's current dynamic boons, not a fixed grant); Verdant
+      Etching (2016) — each Ranger Glyph has 3 separate skill ids for different form states, not
+      confidently distinguishable this session. See `docs/game-data.md`'s synthetic-facts.json
+      section (case 3) for the full writeup.
+- [ ] Revenant, Thief, Warrior legs (3 remaining). Revenant's own 5 candidates from the ORIGINAL
+      48-count scan are worth a second look even though Notoriety/Rapid Flow were already done —
+      every leg so far (Elementalist 5→41, Engineer 4→40, Guardian ~5→34, Mesmer 6→52, Ranger
+      5→27) has badly undercounted that original scan, so treat its "expected count" as a floor,
+      not a ceiling; rescan fresh.
 
 ## Coefficient curation — remaining exceptions
 

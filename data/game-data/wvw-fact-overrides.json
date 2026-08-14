@@ -270,20 +270,40 @@
     "12480": {
       "Bleeding": 12
     },
+    "12483": {
+      "Regeneration": 4,
+      "Fury": 4
+    },
     "12489": {
       "Regeneration": 3
     },
     "12490": {
       "Weakness": 4
     },
+    "12491": {
+      "Fury": 6,
+      "Might": 8
+    },
     "12493": {
       "Fury": 1.5
+    },
+    "12494": {
+      "Fury": 4
     },
     "12495": {
       "Protection": 1.5
     },
+    "12500": {
+      "Fury": 6,
+      "Might": 8
+    },
     "12501": {
-      "Immobile": 2
+      "Immobile": 2,
+      "Fury": 4
+    },
+    "12502": {
+      "Fury": 6,
+      "Might": 8
     },
     "12509": {
       "Vulnerability": 6
@@ -292,8 +312,19 @@
       "Fury": 12,
       "Stability": 6
     },
+    "12537": {
+      "Fury": 4
+    },
+    "12542": {
+      "Fury": 6,
+      "Might": 8
+    },
     "12550": {
-      "Quickness": 4
+      "Quickness": 4,
+      "Fury": 4
+    },
+    "12580": {
+      "Fury": 4
     },
     "12597": {
       "Burning": 4
@@ -308,17 +339,265 @@
     "12639": {
       "Vulnerability": 6
     },
+    "12656": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
     "12658": {
-      "Might": 15
+      "Might": 15,
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12664": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12666": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12667": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12670": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12674": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12675": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12679": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12680": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12681": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12685": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12687": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12688": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12689": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12690": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12691": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12693": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12695": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12696": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12697": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12698": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12699": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12700": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12701": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12702": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12703": {
+      "Fury": 6,
+      "Quickness": 3
+    },
+    "12704": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12708": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12709": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12711": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
     },
     "12712": {
-      "Fury": 15
+      "Fury": 15,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12713": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12714": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12715": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12716": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12717": {
+      "Fury": 6,
+      "Quickness": 3
+    },
+    "12718": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12721": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12722": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12723": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
     },
     "12729": {
-      "Immobile": 2
+      "Immobile": 2,
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
     },
     "12730": {
-      "Vulnerability": 6
+      "Vulnerability": 6,
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12731": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12732": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12744": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12748": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12749": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12754": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12755": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12756": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "12757": {
+      "Fury": 6,
+      "Regeneration": 5
     },
     "13010": {
       "Torment": 6
@@ -421,13 +700,24 @@
       "Protection": 4
     },
     "16426": {
-      "Confusion": 3
+      "Confusion": 3,
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "16427": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
     },
     "19117": {
       "Regeneration": 6
     },
     "20975": {
-      "Bleeding": 15
+      "Bleeding": 15,
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
     },
     "21661": {
       "Protection": 3
@@ -436,6 +726,12 @@
       "Quickness": 1
     },
     "21750": {
+      "Regeneration": 4
+    },
+    "21773": {
+      "Regeneration": 4
+    },
+    "21776": {
       "Regeneration": 4
     },
     "24407": {
@@ -679,10 +975,42 @@
       "Crippled": 1
     },
     "31367": {
-      "Bleeding": 4
+      "Bleeding": 4,
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "31407": {
+      "Regeneration": 4
+    },
+    "31411": {
+      "Stealth": 2
     },
     "31451": {
-      "Fury": 10
+      "Fury": 10,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "31459": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "31568": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "31639": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "31819": {
+      "Regeneration": 4
+    },
+    "31867": {
+      "Regeneration": 4
     },
     "31914": {
       "Fury": 3,
@@ -731,6 +1059,11 @@
     "40963": {
       "Stability": 3
     },
+    "41156": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
     "41205": {
       "Vulnerability": 6
     },
@@ -761,6 +1094,11 @@
     "41988": {
       "Might": 6,
       "Quickness": 2.5
+    },
+    "42180": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
     },
     "42271": {
       "Burning": 8
@@ -795,11 +1133,21 @@
     "42960": {
       "Quickness": 1
     },
+    "42963": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
     "42983": {
       "Quickness": 1
     },
     "43630": {
       "Burning": 2
+    },
+    "43636": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
     },
     "43671": {
       "Poisoned": 4
@@ -857,6 +1205,14 @@
     "44926": {
       "Stability": 3,
       "Protection": 3
+    },
+    "44948": {
+      "Regeneration": 4
+    },
+    "44980": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
     },
     "45082": {
       "Burning": 2
@@ -1102,6 +1458,10 @@
       "Fury": 5,
       "Vigor": 5
     },
+    "63065": {
+      "Quickness": "omit",
+      "Might": 8
+    },
     "63113": {
       "Burning": 3
     },
@@ -1109,7 +1469,9 @@
       "Burning": 3
     },
     "63129": {
-      "Bleeding": 8
+      "Bleeding": 8,
+      "Quickness": "omit",
+      "Might": 8
     },
     "63141": {
       "Might": 8
@@ -1123,6 +1485,10 @@
     "63209": {
       "Vulnerability": 6
     },
+    "63225": {
+      "Quickness": "omit",
+      "Might": 8
+    },
     "63276": {
       "Torment": 8,
       "Bleeding": 8
@@ -1132,6 +1498,13 @@
       "Protection": 5,
       "Alacrity": "omit"
     },
+    "63301": {
+      "Quickness": "omit",
+      "Might": 8
+    },
+    "63319": {
+      "Regeneration": 4
+    },
     "63323": {
       "Stability": 5,
       "Might": 8,
@@ -1139,10 +1512,18 @@
       "Regeneration": 8
     },
     "63326": {
-      "Torment": 6
+      "Torment": 6,
+      "Quickness": "omit",
+      "Might": 8
+    },
+    "63336": {
+      "Quickness": "omit",
+      "Might": 8
     },
     "63350": {
-      "Vulnerability": 6
+      "Vulnerability": 6,
+      "Quickness": "omit",
+      "Might": 8
     },
     "63351": {
       "Might": "omit",
@@ -1152,6 +1533,30 @@
       "Slow": 1,
       "Confusion": 2,
       "Burning": 2
+    },
+    "63438": {
+      "Quickness": "omit",
+      "Might": 8
+    },
+    "63716": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "65109": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "65418": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "66622": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
     },
     "68105": {
       "Might": 6
@@ -1169,12 +1574,29 @@
       "Burning": 2
     },
     "69175": {
-      "Protection": 3
+      "Protection": 3,
+      "Quickness": "omit",
+      "Might": 8
     },
     "69223": {
       "Vulnerability": 8,
       "Bleeding": 8,
-      "Poisoned": 8
+      "Poisoned": 8,
+      "Quickness": "omit",
+      "Might": 8
+    },
+    "69244": {
+      "Regeneration": 4
+    },
+    "71002": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "71688": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
     },
     "71817": {
       "Burning": 1
@@ -1237,11 +1659,20 @@
       "Weakness": "omit",
       "Blinded": 3
     },
+    "72079": {
+      "Quickness": "omit",
+      "Might": 8
+    },
     "72359": {
       "Immobilize": 1.5
     },
     "72366": {
       "Protection": 3
+    },
+    "72843": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
     },
     "72915": {
       "Fury": 1
@@ -1255,6 +1686,10 @@
     "72931": {
       "Torment": 4,
       "Vulnerability": 4
+    },
+    "72932": {
+      "Quickness": "omit",
+      "Might": 8
     },
     "72946": {
       "Crippled": 2,
@@ -1295,6 +1730,16 @@
     "73149": {
       "Weakness": "omit",
       "Slow": "omit"
+    },
+    "74314": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "75783": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
     },
     "76493": {
       "Burning": 4,
@@ -1350,6 +1795,9 @@
       "Bleeding": 10,
       "Protection": 3
     },
+    "77271": {
+      "Regeneration": 4
+    },
     "77282": {
       "Fury": 8
     },
@@ -1369,6 +1817,16 @@
     },
     "78845": {
       "Immobile": 1
+    },
+    "78873": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
+    },
+    "79766": {
+      "Fury": 6,
+      "Regeneration": 5,
+      "Quickness": 3
     },
     "80247": {
       "Immobile": 1
@@ -1763,6 +2221,9 @@
       "Quickness": "omit",
       "Might": 5,
       "Fury": "omit"
+    },
+    "2053": {
+      "Stealth": 2
     },
     "2062": {
       "Quickness": 2

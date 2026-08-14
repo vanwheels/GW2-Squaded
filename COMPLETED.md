@@ -2,6 +2,36 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 181 — Trait-granted-boons-on-skills sweep, Ranger leg (6th leg)
+
+Rescanned fresh (27 raw zero-skill-linkage-with-a-Buff-fact candidates, vs. the original scoping
+pass's "5" estimate — same badly-undercounted pattern every leg so far has found). 11 traits cleanly
+curated via `synthetic-facts.json`: Wellspring (Regeneration) onto all 14 Ranger heal skill ids;
+Stoneform (Fury + Might) onto all 4 signet ids; Wilderness Knowledge (Fury) onto all 6 Survival skill
+ids; Let Loose (Quickness + Might) onto the 12 Soulbeast Unleashed Ambush skill ids (Quickness is
+PvE-only, omitted in WvW); a 4-trait "Beast skills grant ___" category cluster (Fang and Claw/Fury,
+Rejuvenation/Regeneration, Live Fast/Fury+Quickness, Flock Together/Quickness) onto all 76 Ranger pet
+skill ids game-wide at once — the largest single mirror target of the sweep so far (previous largest
+was Engineer's 56 tool-belt ids), 5 of those 76 ids individually excluded from an override on just
+their one already-real-fact status (their own unsplit Fury/Regeneration/Quickness), synthetic fact
+still added unsplit there; Unstoppable Union (Protection) onto Beastmode entry/exit; Celestial Shadow
+(Stealth + Superspeed) onto Release Celestial Avatar; Jetstream (Superspeed) onto Hawkeye.
+
+Found one genuinely new wiki-confirmed WvW split the automated scan had never resolved even at the
+trait level: Celestial Shadow's Stealth (pve 3s / wvw+pvp 2s) — added by hand to
+`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES.trait`, same pattern as that file's other manual entries.
+Fixed 1 fresh same-tuple collision (`BUFF_INSTANCE_LABELS`): Wellspring's Regeneration@6@1 vs. the
+Mesmer leg's Metaphysical Rejuvenation mirror, both landing on the shared racial heal skills Prayer
+to Dwayna/Healing Seed. Deliberately left open: Grace of the Land — a genuine mode-dependent
+DIFFERENT-boon swap (PvE grants Alacrity, WvW/PvP grant Might instead, wiki-confirmed) that isn't
+even correctly resolved on the trait's own tooltip yet, needing a base-trait fix before any skill
+mirror would be meaningful (same shape as the Mesmer leg's Stretched Time/Seize the Moment);
+Spirited Arrival/Quick Draw/Tail Wind/Furious Grip (pet-swap/weapon-swap triggers, no skill id to
+mirror onto); Fortifying Bond/Fresh Reinforcement (share/gain your pet's current dynamic boons, not
+a fixed grant); Verdant Etching (each Ranger Glyph has 3 separate skill ids for different form
+states, not confidently distinguishable this session). Full writeup in TODO.md's own entry and
+`docs/game-data.md`'s synthetic-facts.json section. 3 legs remain (Revenant, Thief, Warrior).
+
 ## Session 180 — Trait-granted-boons-on-skills sweep, Mesmer leg (5th leg)
 
 Rescanned fresh (52 raw zero-skill-linkage-with-a-Buff-fact candidates, vs. the original scoping

@@ -690,6 +690,43 @@ Two cases warrant a new entry:
    wvw) — see `sources.ts`'s own trait-side comments on trait ids 1942/2022 for the full wiki
    breakdown a future session could resume from.
 
+   Ranger leg (6th leg, 2026-08-14): 11 traits cleanly curated. Wellspring (978, "grant
+   regeneration when you use a healing skill") mirrored onto all 14 Ranger heal skill ids;
+   Stoneform (1021, "activating a Signet grants might and fury") onto all 4 signet ids;
+   Wilderness Knowledge (1699, "Survival skills grant fury") onto all 6 Survival skill ids; Let
+   Loose (2271, "Unleashed Ambush skills grant boons") onto the 12 Soulbeast Unleashed Ambush
+   skill ids (its Quickness is PvE-only, omitted in WvW). The largest cluster: Fang and Claw
+   (1016, Fury)/Rejuvenation (1055, Regeneration)/Live Fast (2071, Fury+Quickness)/Flock Together
+   (2408, Quickness) are all "Beast skills grant ___" — a whole-category trigger covering every
+   Ranger pet's own F2 skill — mirrored onto all 76 pet skill ids game-wide at once (same
+   full-category-sweep shape as Engineer's 56-tool-belt-id leg, just larger); 5 of those 76 ids
+   already carried a genuine, differently-valued real API fact of the exact same status (their own
+   unsplit Fury/Regeneration/Quickness), each individually excluded from an override on just that
+   one status/id, same "coexisting genuine application blocks a safe status-wide override" hazard
+   as every prior leg — the synthetic fact itself is still added there, just left unsplit. Also
+   fixed a fresh same-tuple collision on the 2 shared racial heal skills (Prayer to
+   Dwayna/Healing Seed): Wellspring's Regeneration@6@1 collided with the Mesmer leg's Metaphysical
+   Rejuvenation mirror already sitting there (`BUFF_INSTANCE_LABELS`, `sources.ts`). Found one
+   genuinely NEW wiki-confirmed WvW split the automated scan had never resolved even at the trait
+   level — Celestial Shadow (2053, "grant superspeed and stealth when leaving celestial avatar
+   form"): Stealth splits pve(3)/wvw+pvp(2), added by hand to `MANUAL_OVERRIDES.trait` in
+   `fetch-wvw-splits.ts` (same "wiki page confirmed a split the automation couldn't cross-validate
+   on its own" pattern as that file's other manual entries) and mirrored onto Release Celestial
+   Avatar (31411). Left open: Grace of the Land (2001, "grant boons within the radius of your
+   Celestial Avatar skills") is a genuine mode-dependent DIFFERENT-boon swap (PvE grants Alacrity,
+   WvW/PvP grant Might instead, wiki-confirmed) that isn't even correctly resolved on the trait's
+   own tooltip yet — `WvwFactOverrides` can omit a fact but can't introduce a different one in its
+   place, so this needs a base-trait-level fix before any skill mirror would be meaningful; same
+   shape as the Mesmer leg's Stretched Time/Seize the Moment deferrals. Also left open: pet-swap/
+   weapon-swap-triggered traits with no skill id to mirror onto (Spirited Arrival, Quick Draw, Tail
+   Wind, Furious Grip — same "no single triggering skill" exclusion class as every dodge/on-crit
+   trigger in prior legs), Fortifying Bond/Fresh Reinforcement (both "share/gain your pet's current
+   boons" — a dynamic pet-state mechanic, not a fixed boon grant, can't be modeled as a static Buff
+   fact), and Verdant Etching (2016, "Glyphs heal allies; in Celestial Avatar form, grant
+   protection instead") — each Ranger Glyph has 3 separate skill ids for its different
+   normal/Celestial-Avatar-form/other-state variants and this session didn't have enough confidence
+   distinguishing which id is which to mirror the Protection half safely.
+
 ## Gear upgrades and consumables (`runes.json`, `sigils.json`, `infusions.json`, `relics.json`, `food.json`, `utility.json`)
 
 `scripts/fetch-gear-upgrades.ts` (run via `npm run fetch-gear-upgrades`) fetches Superior runes,

@@ -2397,8 +2397,21 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // Enclosure (trait 508, "grant protection to nearby allies when you use a heal skill") mirrored
     // onto every Engineer heal skill via `synthetic-facts.json`, same heal-skill-category shape as
     // Dark Defense/Gale Song above; on these 2 shared racial ids that's a 3rd Protection@3@1 copy.
-    12360: { 'Protection@3@1#2': 'Gale Song', 'Protection@3@1#3': 'Reconstruction Enclosure' },
-    12440: { 'Protection@3@1#2': 'Gale Song', 'Protection@3@1#3': 'Reconstruction Enclosure' },
+    // --- Ranger leg (6th leg, trait-granted-boons-on-skills sweep, 2026-08-14) --- Wellspring
+    // (trait 978, "grant regeneration to nearby allies when you use a healing skill") mirrored onto
+    // every Ranger heal skill; on these 2 shared racial ids its Regeneration@6@1 collides with the
+    // Mesmer leg's Metaphysical Rejuvenation (trait 666) mirror, already occurrence 1 there (see
+    // that leg's own comment further down for why 12440 never got a WvW override for this status).
+    12360: {
+      'Protection@3@1#2': 'Gale Song',
+      'Protection@3@1#3': 'Reconstruction Enclosure',
+      'Regeneration@6@1#2': 'Wellspring'
+    },
+    12440: {
+      'Protection@3@1#2': 'Gale Song',
+      'Protection@3@1#3': 'Reconstruction Enclosure',
+      'Regeneration@6@1#2': 'Wellspring'
+    },
     // Glyph of Elemental Harmony (34609): its own unconditional Protection@3@1 (the glyph's base
     // self-effect) is occurrence 1. Inscription's (trait 229, "gain boons upon casting a glyph based
     // on your attunement") own Protection upgrade is a different tuple (6s, `overrides: 2`) so it

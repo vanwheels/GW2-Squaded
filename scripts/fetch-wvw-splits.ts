@@ -759,6 +759,164 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     34326: { Superspeed: 2, Resistance: 2 }, // Feedback (2nd id)
     10311: { Resistance: 2 }, // Time Warp
     10377: { Resistance: 2 }, // Time Warp (2nd id)
+
+    // Ranger leg (6th leg of the trait-granted-boons-on-skills sweep, 2026-08-14): each entry
+    // below mirrors a Ranger trait's own already-auto-detected override (see this table's `trait`
+    // block) onto that trait's synthetic copy of the fact on the skill(s) it triggers from
+    // (`synthetic-facts.json`), same mechanism as every prior leg. Wellspring (978, Druid Adept,
+    // "grant regeneration when you use a healing skill") mirrors onto all 14 Ranger heal skill
+    // ids; Stoneform (1021, Marksmanship Master, "activating a Signet grants might and fury")
+    // onto all 4 signet ids; Wilderness Knowledge (1699, Survival, "Survival skills grant fury")
+    // onto all 6 Survival skill ids; Let Loose (2271, Soulbeast, "Unleashed Ambush skills grant
+    // boons") onto the 12 Unleashed Ambush skill ids (Quickness is PvE-only, omitted in WvW).
+    // Fang and Claw (1016, Fury)/Rejuvenation (1055, Regeneration)/Live Fast (2071, Fury+
+    // Quickness)/Flock Together (2408, Quickness) are all "Beast skills grant ___" category
+    // triggers, mirrored onto all 76 Ranger pet skill ids game-wide (same full-category-sweep
+    // shape as Engineer's Optimized Activation/56-tool-belt-id leg) — 5 of those 76 ids already
+    // carry a genuine, differently-valued real API fact of the exact same status (Furious
+    // Screech/12712 and Furious Pounce/31451 both have their own unsplit Fury; Regenerate/12703
+    // and Regenerate/12717 their own Regeneration; Feeding Frenzy/12757 its own Quickness) —
+    // deliberately EXCLUDED from an override entry for just that one status on just that one id
+    // (synthetic-facts.json still carries the mirrored fact there, just left unsplit at its raw
+    // PvE value), same "coexisting genuine untraited application blocks a safe status-wide
+    // override" hazard as every prior leg. See docs/game-data.md's synthetic-facts.json section
+    // (case 3) for the full writeup.
+
+    // Heal-skill-category (Wellspring):
+    12483: { Regeneration: 4, Fury: 4 }, // Troll Unguent
+    21773: { Regeneration: 4 }, // Water Spirit
+    21776: { Regeneration: 4 }, // Aqua Surge
+    31407: { Regeneration: 4 }, // Glyph of Rejuvenation
+    31819: { Regeneration: 4 }, // Glyph of Rejuvenation
+    31867: { Regeneration: 4 }, // Glyph of Rejuvenation
+    44948: { Regeneration: 4 }, // Bear Stance
+    63319: { Regeneration: 4 }, // Perilous Gift
+    69244: { Regeneration: 4 }, // Water Spirit
+    77271: { Regeneration: 4 }, // Soothing Breeze
+    // Prayer to Dwayna (12360) already carries Regeneration: 4 from the Mesmer leg's Metaphysical
+    // Rejuvenation mirror — Wellspring's own WvW value happens to match, no new entry needed, just
+    // a fresh BUFF_INSTANCE_LABELS collision (see sources.ts). Healing Seed (12440), Healing Spring
+    // (12489), and "We Heal As One!" (31914) all already carry a genuine, differently-valued
+    // Regeneration fact of their own — Wellspring's mirror is deliberately left un-overridden
+    // (unsplit) on those 3 ids too, same hazard as every other coexisting-fact exclusion.
+
+    // Signet-category (Stoneform):
+    12491: { Fury: 6, Might: 8 }, // Signet of the Wild
+    12500: { Fury: 6, Might: 8 }, // Signet of Stone
+    12502: { Fury: 6, Might: 8 }, // Signet of Renewal
+    12542: { Fury: 6, Might: 8 }, // Signet of the Hunt
+
+    // Survival-category (Wilderness Knowledge) — Troll Unguent (12483) is both a heal skill AND a
+    // Survival skill, already merged into the single entry above:
+    12494: { Fury: 4 }, // Lightning Reflexes
+    12501: { Fury: 4 }, // Muddy Terrain
+    12537: { Fury: 4 }, // Sharpening Stone
+    12550: { Fury: 4 }, // Quickening Zephyr
+    12580: { Fury: 4 }, // Entangle
+
+    // Beastmode entry/exit (Unstoppable Union, 2072) needs no entry — its Protection fact is unsplit.
+
+    // Release Celestial Avatar (Celestial Shadow, 2053) — Stealth pve(3)/wvw+pvp(2) is a NEW
+    // manual entry (wiki-confirmed via `{{skill fact|stealth|3|game mode = pve}}{{skill
+    // fact|stealth|2|game mode = pvp wvw}}`), not previously auto-detected on the trait itself
+    // either — see the matching new `trait: { 2053: ... }` entry below:
+    31411: { Stealth: 2 }, // Release Celestial Avatar — Superspeed is unsplit
+
+    // Unleashed Ambush-category (Let Loose, 2271) — Quickness omitted in WvW entirely:
+    63065: { Quickness: 'omit', Might: 8 }, // Vicious Pike
+    63129: { Quickness: 'omit', Might: 8 }, // Sundering Volley
+    63225: { Quickness: 'omit', Might: 8 }, // Multishot
+    63301: { Quickness: 'omit', Might: 8 }, // Jagged Fan
+    63326: { Quickness: 'omit', Might: 8 }, // Toxic Shot
+    63336: { Quickness: 'omit', Might: 8 }, // Deft Strike
+    63350: { Quickness: 'omit', Might: 8 }, // Savage Slash
+    63438: { Quickness: 'omit', Might: 8 }, // Relentless Whirl
+    69175: { Quickness: 'omit', Might: 8 }, // Solar Brilliance
+    69223: { Quickness: 'omit', Might: 8 }, // Neurotoxin Burst
+    72079: { Quickness: 'omit', Might: 8 }, // Rampant Growth
+    72932: { Quickness: 'omit', Might: 8 }, // Ravager's Abandon
+
+    // Hawkeye (Jetstream, 2341) needs no entry — its Superspeed fact is unsplit.
+
+    // Beast-category ("Beast skills grant ___"), all 76 Ranger pet skill ids — Fang and Claw
+    // (Fury 6), Rejuvenation (Regeneration 5), Live Fast (Fury 6 + Quickness 2), Flock Together
+    // (Quickness 3); see the 5 exclusions noted in the leg comment above.
+    12656: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Icy Bite
+    12658: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Mighty Roar
+    12664: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Rending Maul
+    12666: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Shake It Off
+    12667: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Icy Roar
+    12670: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Fire Breath
+    12674: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Poison Barbs
+    12675: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Poisonous Cloud
+    12679: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Rending Barbs
+    12680: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Rending Pounce
+    12681: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Stalk
+    12685: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Enfeebling Roar
+    12687: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Poison Cloud
+    12688: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Enfeebling Maul
+    12689: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Icy Maul
+    12690: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Poisonous Maul
+    12691: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Purge Conditions
+    12693: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Icy Pounce
+    12695: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Boil
+    12696: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Frost Breath
+    12697: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Frost Nova
+    12698: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Lightning Breath
+    12699: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Electrocute
+    12700: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Poison Cloud
+    12701: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Insect Swarm
+    12702: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Poison Cloud
+    12703: { Fury: 6, Quickness: 3 }, // Regenerate
+    12704: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Lashtail Venom
+    12708: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Dazing Screech
+    12709: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Dazing Screech
+    12711: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Icy Screech
+    12712: { Regeneration: 5, Quickness: 3 }, // Furious Screech
+    12713: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Protecting Screech
+    12714: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Terrifying Howl
+    12715: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Intimidating Howl
+    12716: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Chilling Howl
+    12717: { Fury: 6, Quickness: 3 }, // Regenerate
+    12718: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Howl of the Pack
+    12721: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Chilling Slash
+    12722: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Brash Slash
+    12723: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Blinding Slash
+    12729: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Paralyzing Venom
+    12730: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Weakening Venom
+    12731: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Deadly Venom
+    12732: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Forage Sword
+    12744: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Stunning Rush
+    12748: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Chilling Whirl
+    12749: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Immobilizing Whirl
+    12754: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Forage Rock
+    12755: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Forage Scale
+    12756: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Forage Feathers
+    12757: { Fury: 6, Regeneration: 5 }, // Feeding Frenzy
+    16426: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Sonic Shriek
+    16427: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Sonic Barrier
+    20975: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Lacerating Slash
+    31367: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Spike Barrage
+    31451: { Regeneration: 5, Quickness: 3 }, // Furious Pounce
+    31459: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Consuming Flame
+    31568: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Smoke Cloud
+    31639: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Lightning Assault
+    41156: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Fang Grapple
+    42180: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Blinding Roar
+    42963: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Savannah Strike
+    43636: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Head Toss
+    44980: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Jacaranda's Embrace
+    63716: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Gale Breath
+    65109: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Guardian's Roar
+    65418: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Hunker Down
+    66622: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Bloodthirsty Charge
+    71002: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Dimension Breach
+    71688: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Ley Energy Pulse
+    72843: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Panopticon
+    74314: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Rallying Roar
+    75783: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Honey Toss
+    78873: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Piercing Shriek
+    79766: { Fury: 6, Regeneration: 5, Quickness: 3 }, // Innocent Display
   },
   trait: {
     // Panic Strike (Thief/Deadly Arts trait 1292) and Be Quick or Be Killed (Thief/Trickery trait
@@ -918,7 +1076,18 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // only Superspeed needed a manual entry here: plain pve(3)/wvw+pvp(2) split, no `alt=`
     // (`{{skill fact|effect|Superspeed|3|game mode = pve}}{{skill fact|effect|Superspeed|2|game mode
     // = wvw pvp}}`), both values already present verbatim among the trait's own raw facts.
-    1980: { Superspeed: 2 }
+    1980: { Superspeed: 2 },
+
+    // Celestial Shadow (2053, Ranger/Druid Master, "grant superspeed and stealth when leaving
+    // celestial avatar form", Ranger leg of the trait-granted-boons-on-skills sweep, 2026-08-14):
+    // a genuine pve(3)/wvw+pvp(2) Stealth split the automated scan never resolved (its own 2 raw
+    // Stealth facts already contain both values, same "not every case makes the automated
+    // candidate list" gap as Unrelenting Assault/Temporal Enchanter above) — wiki-confirmed via
+    // `{{skill fact|stealth|3|game mode = pve}}{{skill fact|stealth|2|game mode = pvp wvw}}`.
+    // Superspeed is unsplit (`{{skill fact|effect|Superspeed|3}}`, one template, no split).
+    // Mirrored onto Release Celestial Avatar's own synthetic copy of this fact in the `skill`
+    // block above.
+    2053: { Stealth: 2 }
   }
 }
 

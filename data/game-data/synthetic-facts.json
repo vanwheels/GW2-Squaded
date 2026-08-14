@@ -423,7 +423,8 @@
     { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 574 },
     { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2101 },
     { "type": "Buff", "status": "Light Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 2401 },
-    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 }
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }
   ],
   "12440": [
     { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 },
@@ -435,7 +436,8 @@
     { "type": "Buff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 574 },
     { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 2101 },
     { "type": "Buff", "status": "Light Aura", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 2401 },
-    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 }
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 666 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }
   ],
   "21762": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
   "30488": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 860 }],
@@ -983,5 +985,628 @@
     { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2005 },
     { "type": "Buff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 2005 },
     { "type": "Buff", "status": "Aegis", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2212 }
+  ],
+  "12483": [
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1699 }
+  ],
+  "12489": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }],
+  "12491": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1021 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 15, "apply_count": 3, "requires_trait": 1021 }
+  ],
+  "12494": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1699 }],
+  "12500": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1021 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 15, "apply_count": 3, "requires_trait": 1021 }
+  ],
+  "12501": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1699 }],
+  "12502": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1021 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 15, "apply_count": 3, "requires_trait": 1021 }
+  ],
+  "12537": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1699 }],
+  "12542": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1021 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 15, "apply_count": 3, "requires_trait": 1021 }
+  ],
+  "12550": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1699 }],
+  "12580": [{ "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 1699 }],
+  "12656": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12658": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12664": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12666": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12667": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12670": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12674": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12675": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12679": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12680": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12681": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12685": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12687": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12688": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12689": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12690": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12691": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12693": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12695": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12696": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12697": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12698": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12699": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12700": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12701": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12702": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12703": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12704": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12708": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12709": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12711": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12712": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12713": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12714": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12715": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12716": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12717": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12718": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12721": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12722": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12723": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12729": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12730": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12731": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12732": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12744": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12748": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12749": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12754": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12755": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12756": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "12757": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "16426": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "16427": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "20975": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "21773": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }],
+  "21776": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }],
+  "31367": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "31407": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }],
+  "31411": [
+    { "type": "Buff", "status": "Stealth", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2053 },
+    { "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2053 }
+  ],
+  "31451": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "31459": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "31568": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "31639": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "31819": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }],
+  "31867": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }],
+  "31914": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }],
+  "41156": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "42180": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "42944": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2072 }],
+  "42963": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "43014": [{ "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2072 }],
+  "43636": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "44948": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }],
+  "44980": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "63065": [
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2271 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 2271 }
+  ],
+  "63129": [
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2271 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 2271 }
+  ],
+  "63225": [
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2271 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 2271 }
+  ],
+  "63301": [
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2271 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 2271 }
+  ],
+  "63319": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }],
+  "63326": [
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2271 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 2271 }
+  ],
+  "63336": [
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2271 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 2271 }
+  ],
+  "63350": [
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2271 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 2271 }
+  ],
+  "63438": [
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2271 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 2271 }
+  ],
+  "63716": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "65109": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "65418": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "66622": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "69175": [
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2271 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 2271 }
+  ],
+  "69223": [
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2271 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 2271 }
+  ],
+  "69244": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }],
+  "71002": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "71688": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "72079": [
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2271 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 2271 }
+  ],
+  "72843": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "72932": [
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2271 },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 2271 }
+  ],
+  "74314": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "75783": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "76664": [{ "type": "Buff", "status": "Superspeed", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2341 }],
+  "77271": [{ "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 978 }],
+  "78873": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
+  ],
+  "79766": [
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 8, "apply_count": 1, "requires_trait": 1016 },
+    { "type": "Buff", "status": "Regeneration", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1055 },
+    { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 3, "apply_count": 1, "requires_trait": 2071 },
+    { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2408 }
   ]
 }
