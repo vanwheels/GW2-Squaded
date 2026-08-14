@@ -606,7 +606,56 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     72946: { Crippled: 2, Immobile: 1 },
     // Abstraction (72076): plain pve(5)/pvp+wvw(3) Blinded split, no `alt=`
     // (`{{skill fact|blindness|5|game mode = pve}}{{skill fact|blindness|3|game mode = pvp wvw}}`).
-    72076: { Blinded: 3 }
+    72076: { Blinded: 3 },
+
+    // Elementalist leg (9th leg of the BUFF_INSTANCE_LABELS sweep, FINAL leg, 2026-08-14):
+    // Frost Aura (5520): plain pve+pvp(2)/wvw(1) Chilled split, no `alt=`
+    // (`{{skill fact|chilled|2|game mode=pve pvp}}{{skill fact|chilled|1|game mode=wvw}}`).
+    5520: { Chilled: 1 },
+    // Shattering Ice (62698, Catalyst augment): plain pve(1)/pvp+wvw(0.5) Chilled split, no `alt=`
+    // — the wvw value hits the documented "API rounds a half-second duration up" quirk (0.5 -> 1),
+    // so both raw facts show 1 and the auto-detector can't find a literal 0.5 to cross-validate;
+    // hand-added same as every other rounding-quirk entry above.
+    62698: { Chilled: 0.5 },
+    // Conflagration (76585, Evoker Fox mechanic): plain pve(4.5)/pvp+wvw(5) Burning split, no
+    // `alt=` — the PvE value ALSO hits the rounding quirk (4.5 -> 5), landing on the exact same
+    // displayed number as the unrounded wvw+pvp value, so both raw facts already show 5 — this
+    // override exists purely to collapse the 2 raw-identical facts into one row, not to correct a
+    // number (same "value already matches, purpose is dedup" shape as Holo-Dancer Decoy/Over
+    // Shield above).
+    76585: { Burning: 5 },
+    // Fox's Fury's enhanced cast (77282): a plain pve(10)/pvp+wvw(8) Fury split, no `alt=`
+    // (`{{skill fact|fury|10|25|game mode = pve}}{{skill fact|fury|8|game mode = wvw pvp}}`) — found
+    // while re-examining this skill (already partially curated for the base cast, 76711, in the
+    // Revenant leg above) for its OTHER, left-open conflicts (see BUFF_INSTANCE_LABELS's own
+    // comment on this leg for the Might/Burning writeup); this Fury pair was simply never added
+    // back then.
+    77282: { Fury: 8 },
+
+    // Inscription cluster (trait 229, Air Master, "gain boons on glyph cast by attunement") — the
+    // trait's own entries live in the `trait` block below; these are the Glyph skills whose own
+    // Might/Regeneration comes SOLELY from that trait (copied onto each skill's own tooltip, same
+    // "trait fact copied onto the skill it triggers from" mechanism as Willbender Flames/Over
+    // Shield above), each mirroring trait 229's own already-curated override so every tooltip
+    // agrees. Fire-attuned copies (Might):
+    5736: { Might: 6 }, // Firestorm (Glyph of Storms, fire-attuned)
+    5762: { Might: 6 }, // Renewal of Fire
+    24407: { Might: 6 }, // Renewal of Fire (2nd split id)
+    25486: { Might: 6 }, // Glyph of Lesser Elementals (fire-attuned)
+    25488: { Might: 6 }, // Glyph of Elementals (elite)
+    34736: { Might: 6 }, // Glyph of Elemental Power (fire-attuned)
+    // Water-attuned copies (Regeneration):
+    5735: { Regeneration: 5 }, // Ice Storm (Glyph of Storms, water-attuned)
+    5763: { Regeneration: 5 }, // Renewal of Water
+    24410: { Regeneration: 5 }, // Renewal of Water (2nd split id)
+    25487: { Regeneration: 5 }, // Glyph of Lesser Elementals (water-attuned)
+    34772: { Regeneration: 5 } // Glyph of Elemental Power (water-attuned)
+    // Glyph of Elemental Harmony (34743, the Heal-slot glyph) carries this exact Inscription-linked
+    // Might pair TOO, but ALSO its own genuine unsplit 20s/3-stack Might grant (wiki-confirmed:
+    // `{{skill fact|might|20|stacks=3|linked skill=Fire Attunement}}`, no mode split at all) — the
+    // same "coexisting genuine untraited application blocks a safe status-wide override" hazard as
+    // Toss Elixir H/Reconstruction Field (Engineer leg), so deliberately NOT given an entry here;
+    // left open, see BUFF_INSTANCE_LABELS's own comment on this leg.
   },
   trait: {
     // Panic Strike (Thief/Deadly Arts trait 1292) and Be Quick or Be Killed (Thief/Trickery trait
@@ -699,7 +748,61 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // not {5, 2} — the wiki's wvw+pvp value doesn't appear among the raw data at all (same
     // "possible data drift" shape as Death Blossom/Spear of Justice's Crippled pair), so left open
     // rather than guessed.
-    1889: { Blinded: 1.5 }
+    1889: { Blinded: 1.5 },
+
+    // Elementalist leg (9th leg of the BUFF_INSTANCE_LABELS sweep, FINAL leg, 2026-08-14):
+    // Inscription (229, Air Master): plain pve/wvw+pvp splits, no `alt=`, `linked skill=`-tagged
+    // per attunement (`{{skill fact|linked skill=Fire Attunement|might|10|game mode = pve}}
+    // {{skill fact|linked skill=Fire Attunement|might|6|stacks=3|game mode = pvp wvw}}` and
+    // `{{skill fact|linked skill=Water Attunement|regeneration|10|game mode = pve}}
+    // {{skill fact|linked skill=Water Attunement|regeneration|5|game mode = pvp wvw}}`) — mirrored
+    // onto the Glyph skills that receive this trait's copy, see the `skill` block above.
+    229: { Might: 6, Regeneration: 5 },
+    // Elemental Attunement (264, Arcane): 2 independent single-concept pve/wvw+pvp splits, no
+    // `alt=`, each `linked skill=`-tagged: Might (`{{skill fact|linked skill=Fire Attunement|
+    // might|15|game mode = pve}}{{skill fact|linked skill=Fire Attunement|might|6|game mode = pvp
+    // wvw}}`) and Protection (`{{skill fact|linked skill=Earth Attunement|protection|5|game mode =
+    // pve}}{{skill fact|linked skill=Earth Attunement|protection|4|game mode = pvp wvw}}`). The
+    // wiki also documents an unresolved in-game bug ("Grants 5 seconds of Protection in WvW and
+    // PvP") where the nerf doesn't actually apply live — same as every other entry in this table,
+    // the DOCUMENTED (intended) value is used, not the buggy live one.
+    264: { Might: 6, Protection: 4 },
+    // Elemental Shielding (289, Earth Adept): `{{skill fact|protection|3|game mode=pve wvw}}
+    // {{skill fact|protection|2|game mode=pvp}}` — pve and wvw share one value (3), only pvp
+    // differs (2, out of this app's scope); this override exists purely to collapse the pvp-only
+    // 2nd raw fact into the correct single row, not to correct a number (same "value already
+    // matches, purpose is dedup" shape as Elemental Shielding's own Hardy Conduit sibling below,
+    // and Over Shield/Holo-Dancer Decoy above).
+    289: { Protection: 3 },
+    // Bountiful Power (1511, Arcane Grandmaster): plain pve(5)/wvw+pvp(3) Quickness split, no
+    // `alt=` (`{{skill fact|Quickness|5|game mode=pve}}{{skill fact|Quickness|3|game mode=wvw
+    // pvp}}`).
+    1511: { Quickness: 3 },
+    // Hardy Conduit (1948, Tempest Grandmaster): same pve+wvw(3)/pvp(2)-only-differs shape as
+    // Elemental Shielding above (`{{skill fact|protection|3|game mode = pve wvw}}
+    // {{skill fact|protection|2|game mode = pvp}}`), same dedup-only purpose.
+    1948: { Protection: 3 },
+    // Invigorating Torrents (2015, Tempest Master): a genuine 3-way pve(5)/pvp(3)/wvw(2) split for
+    // BOTH Vigor and Regeneration, no `alt=` (`{{skill fact|vigor|5|game mode = pve}}
+    // {{skill fact|vigor|3|game mode = pvp}}{{skill fact|vigor|2|game mode = wvw}}` and the
+    // identically-shaped Regeneration line) — wvw value used per this app's WvW focus, same
+    // "genuine 3-way split" shape as Echo of Truth (this file's own top comment).
+    2015: { Vigor: 2, Regeneration: 2 },
+    // Superior Elements (2177, Weaver Adept): plain pve(5)/wvw+pvp(2) Weakness split, no `alt=`
+    // (`{{skill fact|weakness|5|game mode = pve}}{{skill fact|weakness|2|game mode = wvw pvp}}`).
+    2177: { Weakness: 2 },
+    // Altruistic Aspect (2415, Evoker Adept, "meditation skills grant boons to allies"): of its 2
+    // conflicting statuses, only Might (Fox's Fury-linked) is a clean pve/wvw+pvp split with no
+    // `alt=` (`{{skill fact|Might|10|stacks=3|linked skill=Fox's Fury|game mode = pve}}
+    // {{skill fact|Might|8|stacks=3|linked skill=Fox's Fury|game mode = wvw pvp}}`); its Stability
+    // pair (Toad's Fortitude-linked) is NOT given an override — the split only changes STACK COUNT
+    // (3 -> 2, `{{skill fact|Stability|5|stacks=3|linked skill=Toad's Fortitude|game mode = pve}}
+    // {{skill fact|Stability|5|stacks=2|linked skill=Toad's Fortitude|game mode = wvw pvp}}`), with
+    // duration unchanged at 5s both modes — the same `apply_count` architecture limit as Icerazor's
+    // Ire's Torment/Vulnerability (Revenant leg); left at the PvE stack count, documented gap. The
+    // skill-side copy of this same Stability pair (Toad's Fortitude, 77247) is left open too, for
+    // the same reason.
+    2415: { Might: 8 }
   }
 }
 

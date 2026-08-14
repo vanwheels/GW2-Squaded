@@ -2,6 +2,60 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 179 — Buff instance-label sweep, Elementalist leg (9th leg, FINAL leg) — sweep complete
+
+Closed out TODO.md's "unlabeled duplicate rows" bug — Elementalist was the last profession pool
+([[buff_instance_label_sweep_2026-08-13]] convention). Rescanned with all 8 prior legs' methodology
+fixes applied — 48 skill + 13 trait conflict sources (61 total), the largest remaining pool since it
+was the only one left. One large entangled family accounted for a third of it: Catalyst's "Deploy
+Jade Sphere" mechanic, 20 skill ids across its 4 attunement variants' normal/no-energy/underwater/
+sphere-specialist sub-variants, plus its own trait (Spectacular Sphere, 2234).
+
+9 sources got a genuine `BUFF_INSTANCE_LABELS` entry: Flamestrike, Rock Spray (3 range-banded
+Bleeding stacks, all 3 wiki-labeled — no unlabeled base this time), Ring of Fire, Heat Sync ("Boon
+Copied" — a real wiki-`alt=`-labeled fact for the skill's copy-your-current-boons mechanic, API-
+encoded as a literal `duration: 0` marker), Pyro Vortex, Pyroclastic Blast, Molten End on the skill
+side; Lucid Singularity and Familiar's Blessing on the trait side. Both trait entries are a NEW
+failure mode: each grants a DIFFERENT boon per game mode rather than splitting one boon's duration —
+Lucid Singularity swaps Alacrity (PvE-only) for Might (WvW+PvP-only) between its "per Pulse"/"on
+Overload" triggers; Familiar's Blessing swaps a different boon per `linked skill=` AND per mode across
+4 familiar skills, with 2 of its PvE-side pairs colliding on one raw tuple (occurrence-indexed). Its
+WvW+PvP-side boons couldn't be surfaced via `WvwFactOverride` either, despite being single-instance —
+a direct `/v2/traits/2380` API pull confirmed the wiki's stated wvw+pvp values don't appear in the
+live API at all (an undocumented wiki/API mismatch, not just a stale local cache).
+
+23 sources (15 skill + 8 trait) turned out to be plain single-concept pve/wvw(+pvp) splits with no
+`alt=` wording — redirected to `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES`, JSON regenerated via
+`npm run fetch-wvw-splits` (never hand-edited) — a clean 50-insertion diff. Includes the whole
+"Inscription" cluster (the trait itself plus 10 Glyph skills whose Might/Regeneration comes solely
+from it, each mirroring the trait's own override), 2 more rounding-quirk hits, a "PvE value rounds up
+to exactly match WvW" dedup-only case (Conflagration, same shape as Ranger leg's spirits), a 3-way
+pve/pvp/wvw split (Invigorating Torrents), and a Fox's Fury Fury pair the Revenant leg's original
+synthetic-facts.json pass never added.
+
+29 sources stayed open. Most (20 skill ids + the Spectacular Sphere trait) are the Deploy Jade Sphere
+family: every one of its 20 base per-element conflicts looked cleanly fixable on paper (Fire's Might
+pve/wvw split, Air's Fury raw-duplicate collapse, both wiki-confirmed with no `alt=`), but EVERY id
+turned out to have a coexisting genuine Spectacular-Sphere-trait-linked copy of that exact status —
+the same "coexisting different application blocks a safe status-wide override" hazard as Toss Elixir
+H/Reconstruction Field (Engineer leg), just discovered after drafting the fix instead of before, for
+all 20 at once. Left as one documented gap rather than 20 separate ones — same conclusion the Thief
+leg reached for the Convergence Artifact family. The other 9 open sources: 2 data mismatches (Phoenix,
+Seismic Impact); Glyph of Elemental Harmony (its own genuine unsplit Might grant coexists with
+Inscription's copy, same hazard as the Jade Sphere family); "Feel the Burn!" and Electric Discharge/
+Burning Rage/Altruistic Aspect's Stability (all blocked by `WvwFactOverride`'s duration-only
+architecture — the pve/wvw split changes STACK COUNT, not duration); and a genuinely new failure mode
+on Flame Uprising — its apparent 2nd Burning fact is gated by a `requires_trait` id that belongs to
+Warrior's Shield Master, not any Elementalist line, so it's permanently inert (an Elementalist build
+can never have that trait active) rather than an actual bug to fix.
+
+`npm run typecheck`/`npm run lint` clean; full suite 110/110. TODO.md's "Multiple same-status Buff
+facts on one skill render as unlabeled duplicate rows" entry removed entirely (the whole `## Bugs`
+section is now empty and removed with it) — **the sweep is complete across all 9 professions**: 255
+sources from the original scan (`skills.json`/`traits.json`) plus a `synthetic-facts.json` overlay,
+every one of them either curated with a real wiki-sourced label, redirected to `WvwFactOverrides`, or
+individually documented as left-open with a specific, non-guessable reason.
+
 ## Session 178 — Buff instance-label sweep, Mesmer leg (8th leg)
 
 Continued TODO.md's "unlabeled duplicate rows" bug sweep, picking the smallest remaining pool

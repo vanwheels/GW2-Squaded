@@ -47,6 +47,18 @@
     "5695": {
       "Resistance": 4
     },
+    "5735": {
+      "Regeneration": 5
+    },
+    "5736": {
+      "Might": 6
+    },
+    "5762": {
+      "Might": 6
+    },
+    "5763": {
+      "Regeneration": 5
+    },
     "5822": {
       "Confusion": "omit"
     },
@@ -348,6 +360,21 @@
     "21661": {
       "Protection": 3
     },
+    "24407": {
+      "Might": 6
+    },
+    "24410": {
+      "Regeneration": 5
+    },
+    "25486": {
+      "Might": 6
+    },
+    "25487": {
+      "Regeneration": 5
+    },
+    "25488": {
+      "Might": 6
+    },
     "26557": {
       "Might": 10
     },
@@ -580,6 +607,12 @@
     },
     "34296": {
       "Vulnerability": 6
+    },
+    "34736": {
+      "Might": 6
+    },
+    "34772": {
+      "Regeneration": 5
     },
     "35637": {
       "Immobile": "omit"
@@ -868,6 +901,9 @@
       "Vulnerability": 6,
       "Aegis": 3
     },
+    "62698": {
+      "Chilled": 0.5
+    },
     "62702": {
       "Might": 10
     },
@@ -1116,6 +1152,9 @@
       "Poisoned": 8,
       "Protection": 3
     },
+    "76585": {
+      "Burning": 5
+    },
     "76674": {
       "Taunt": 3
     },
@@ -1184,6 +1223,14 @@
     },
     "227": {
       "Fury": 5
+    },
+    "229": {
+      "Might": 6,
+      "Regeneration": 5
+    },
+    "264": {
+      "Might": 6,
+      "Protection": 4
     },
     "268": {
       "Might": "omit"
@@ -1711,6 +1758,9 @@
     },
     "2408": {
       "Quickness": 3
+    },
+    "2415": {
+      "Might": 8
     },
     "2429": {
       "Burning": 4

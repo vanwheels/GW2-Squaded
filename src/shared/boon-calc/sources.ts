@@ -1825,6 +1825,108 @@ function resolveTargetCountFrom(
  * Stability and Blinding Dissipation's Confusion (trait), both blocked from a safe
  * `WvwFactOverride` fix by a coexisting genuine 2nd application (see that file's own writeup); Flow
  * of Time (trait), the "PvE and WvW now round to the same number" shape with nothing to quote.
+ *
+ * Elementalist leg (9th leg, FINAL leg, 2026-08-14): the only pool left, per a rescan with every
+ * prior leg's methodology fix applied — 48 skill + 13 trait conflict sources (several split ids
+ * sharing one wiki page, and one large entangled family: Catalyst's "Deploy Jade Sphere" mechanic,
+ * 20 skill ids across its 4 attunement variants × normal/no-energy/underwater/sphere-specialist
+ * sub-variants). 7 skill + 2 trait sources got a genuine label here: Flamestrike ("Secondary
+ * Burning"), Rock Spray (3 range-banded Bleeding stacks, all 3 wiki-`alt=`-labeled, no unlabeled
+ * base this time — same shape as Inspiring Reinforcement/Spear of Anguish), Ring of Fire ("Initial
+ * Burning"/"Pass-Through Burning"), Heat Sync ("Boon Copied" — its `alt=`-labeled Might/Fury facts
+ * are the skill's own copy-whatever-boons-you-currently-have mechanic, API-encoded as a literal
+ * `duration: 0` marker fact, distinct in tuple from the real base grant so no occurrence-indexing
+ * needed despite the value being meaningless on its own), Pyro Vortex (occurrence-indexed, "Initial
+ * Burning" only — its 2nd tuple-mate is the wiki's own unlabeled base line), Pyroclastic Blast
+ * ("Burning on Impact"/"Pulse Burning"), Molten End ("First Hit Might"/"Additional Hit Might"/
+ * "First Hit Fury"/"Additional Hit Fury", all 4 wiki-`alt=`-labeled) on the skill side; Lucid
+ * Singularity and Familiar's Blessing on the trait side, both a NEW failure mode: each grants a
+ * DIFFERENT boon per game mode (not a duration split of one boon) — Lucid Singularity's Alacrity
+ * (PvE only, "per Pulse"/"on Overload") and Might (WvW+PvP only, same 2 concepts) are 4 already-
+ * distinct tuples, straightforwardly labeled; Familiar's Blessing links a different boon per
+ * `linked skill=` AND per mode (4 familiar skills × PvE-boon/WvW+PvP-boon each), and 2 of its PvE-
+ * side pairs (Ignite+Zap's Quickness, Splash+Calcify's Alacrity) collide on one raw tuple, needing
+ * occurrence-indexed "On Ignite"/"On Zap"/"On Splash"/"On Calcify" labels — its WvW+PvP-side boons
+ * (Might/Vigor/Fury/Protection) couldn't also be surfaced via `WvwFactOverride` even though each is
+ * single-instance and would normally qualify: the wiki's stated wvw+pvp values (Might 6/Fury 3/
+ * Protection 2) don't appear anywhere in the live API data at all (confirmed via a direct
+ * `/v2/traits/2380` pull, not just the local cache) — every wvw+pvp-tagged raw fact actually returns
+ * its PvE-side sibling's own value instead (Might=2 matching Ignite's Quickness=2, Protection=4
+ * matching Calcify's Alacrity=4, etc.), an undocumented wiki/API mismatch with nothing trustworthy
+ * to override TO, so those 4 single-instance facts are left showing whatever the (mismatched) raw
+ * API value already is.
+ *
+ * 15 skill + 8 trait sources turned out to be plain single-concept `WvwFactOverride` cases —
+ * Frost Aura, Shattering Ice (both hit the documented "API rounds a half-second duration up" quirk),
+ * Conflagration (the API rounding a PvE 4.5s up to 5s happens to exactly match the WvW+PvP value,
+ * collapsing 2 raw-identical facts into the correct single row same as Ranger leg's Storm/Stone
+ * Spirit shape), Fox's Fury's enhanced cast (77282, a Fury pair the Revenant leg's original
+ * synthetic-facts.json curation of this skill family never added — found while re-examining this
+ * skill for its OTHER, left-open conflicts below), and the whole "Inscription" cluster (trait 229
+ * itself, plus 10 Glyph skills whose Might/Regeneration comes SOLELY from that trait, copied onto
+ * each skill's own tooltip with no coexisting untraited base — Ice Storm/Firestorm, Renewal of Fire/
+ * Water ×2 split ids, Glyph of Lesser Elementals ×2, Glyph of Elementals, Glyph of Elemental Power
+ * ×2 split ids) — see `fetch-wvw-splits.ts`'s own comment block on this leg for the per-source
+ * writeup. Elemental Attunement, Elemental Shielding, Hardy Conduit, Bountiful Power, Invigorating
+ * Torrents (a genuine 3-way pve/wvw/pvp split, wvw value used per this app's focus), Superior
+ * Elements, and Altruistic Aspect (its Might half only — see below) rounded out the trait side.
+ *
+ * Left open, nothing safely curatable: Phoenix (5675, 3 raw-identical Burning facts against only 2
+ * wiki concepts — one raw fact with nothing to attribute it to, same data-mismatch shape as Death
+ * Blossom); Seismic Impact (76707, an extra 8-stack/8s-duration Bleeding fact the wiki's single
+ * 10s/6-stack line doesn't account for, same shape); Glyph of Elemental Harmony (34743, its own
+ * unsplit 20s/3-stack Might is a real 3rd concept coexisting with Inscription's copied pair — the
+ * same "coexisting genuine untraited application blocks a safe status-wide override" hazard as
+ * Toss Elixir H/Reconstruction Field, Engineer leg); "Feel the Burn!" (30662, a Might pair that both
+ * hits the Ranger-leg "API duplicates the PvE duration onto both raw facts" encoding AND changes
+ * stack count between modes, the latter alone already blocking `WvwFactOverride` since it can only
+ * override `duration`); Electric Discharge (trait 222, Vulnerability pair changes stack count AND
+ * duration between modes — 8@1 pve vs 6@8 wvw+pvp — but the apply_count change alone already blocks
+ * a duration-only override) and Burning Rage (trait 325, Sunspot's Burning pair changes stack count
+ * only, 2->1, duration unchanged at 4s both modes) — same architecture limit; Toad's Fortitude
+ * (77247) and its gating trait Altruistic
+ * Aspect's (2415) own Stability half (Might got a clean override above, but Stability's pve/wvw+pvp
+ * split — wiki-confirmed via `linked skill=Toad's Fortitude` — only changes STACK COUNT, 3->2, with
+ * duration unchanged at 5s both modes, same architecture limit as Icerazor's Ire's Torment/
+ * Vulnerability). Fox's Fury's OTHER conflicts (77282's Might and Burning): Might extends an
+ * already-documented gap from the Revenant leg (`fetch-wvw-splits.ts`'s own comment on skill 76711)
+ * — 4 more trait-linked Might copies (2 from Evocation-gated synthetic facts, 2 from Altruistic
+ * Aspect) layer on top of the already-irreconcilable base pair, more entangled than that leg left it,
+ * not attempted; Burning's 3 raw facts don't cleanly map onto the wiki's 3 might-tier-conditional
+ * concepts either (a wiki-stated duration of 7 for the top tier appears nowhere in the raw {5, 5, 3}
+ * set), a data mismatch on top of the entanglement. Flame Uprising (45313) LOOKS like a conflict —
+ * a base Burning fact plus a 2nd copy gated `requires_trait: 1376` — but that trait id belongs to
+ * Warrior's "Shield Master" (`specializationId` 22), not any Elementalist line: a NEW failure mode,
+ * a `requires_trait` pointing cross-profession, permanently inert since an Elementalist build can
+ * never have a Warrior trait active — nothing to curate, the 2nd fact can never actually display.
+ *
+ * The single biggest left-open item is Catalyst's whole "Deploy Jade Sphere" family: the mechanic's
+ * own trait, Spectacular Sphere (2234), copies each attunement's boon onto every one of the 20
+ * skill ids as its own `requires_trait: 2234` fact (further modified by the Grandmaster upgrade
+ * Sphere Specialist, 2251, via `overrides`-linked variants already correctly excluded by this
+ * table's own methodology) — so EVERY one of the 20 base per-element conflicts that looked
+ * cleanly fixable on paper (Fire's Might 10/5 pve/wvw+pvp split, Air's Fury 1/1 raw-duplicate
+ * collapse, both wiki-confirmed with no `alt=`) turned out to have a coexisting genuine
+ * trait-linked copy of that exact status once actually checked — the same "coexisting different
+ * application blocks a safe status-wide override" hazard as Glyph of Elemental Harmony above, just
+ * discovered AFTER drafting the fix instead of before, for all 20 ids at once. Water's Resolution
+ * and Earth's Protection have no wiki split at all (one concept, 2 raw-identical facts, nothing to
+ * quote, same as Frost Spirit/Dhuumfire); Fire's underwater id (63458) has an undocumented 8s
+ * WvW+PvP Might value (wiki says 5s for every other id) live-API-reconfirmed but unexplained by any
+ * wiki text. Spectacular Sphere's own tooltip compounds this further: it mixes an unconditional
+ * pve-Quickness/wvw+pvp-Swiftness boon-swap with 4 attunement-conditional grants shown
+ * simultaneously (this app doesn't model attunement as a runtime-exclusive state for trait facts),
+ * one of which — Air's wvw-tagged Quickness — coincidentally shares both status AND duration with
+ * the unconditional pve-tagged Quickness, impossible to safely disentangle from raw data alone.
+ * Given the entanglement spans one whole mechanic (skill + trait + Grandmaster-upgrade-of-trait)
+ * rather than one isolated source, this is left as a single documented gap rather than 20 separate
+ * ones — worth a dedicated future pass over the whole Jade Sphere system as one unit, same
+ * conclusion the Thief leg reached for the Convergence Artifact family.
+ *
+ * With this leg done, every profession pool from the original 255-source `skills.json`/
+ * `traits.json` scan (plus the `synthetic-facts.json` overlay swept alongside it) has been curated
+ * or explicitly, individually documented as left-open — the whole sweep (TODO.md's "Multiple
+ * same-status Buff facts on one skill render as unlabeled duplicate rows" bug) is complete.
  */
 export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string>>; trait: Record<number, Record<string, string>> } = {
   skill: {
@@ -2217,7 +2319,7 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
       'Might@8@5#2': 'Bountiful Disillusionment',
       'Might@6@3#1': 'Life of the Party',
       'Might@6@3#2': 'Bountiful Disillusionment'
-    }
+    },
     // Several more Mesmer conflicts investigated this leg turned out to be plain WvwFactOverride
     // cases instead (Cry of Frustration, Rewinder, Bladesong Sorrow, Flustering Flute, Deafening
     // Drum, Crescendo, Phantasmal Lancer, Abstraction) — see fetch-wvw-splits.ts's own comment
@@ -2228,6 +2330,49 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // Tactics shape); Phantom Razor (69389, its Bleeding AND Torment pairs both have a wiki-stated
     // Clone value, 7s, that doesn't appear among either pair's locally-cached raw durations, {5, 5}
     // — a data mismatch, same "possible data drift" shape as Death Blossom/Spear of Justice);
+
+    // --- Elementalist leg (9th leg, FINAL leg, 2026-08-14) ---
+
+    // Flamestrike (Fire/Scepter 1). Wiki: base `{{skill fact|burning|1.5|game mode=pve}}
+    // {{skill fact|burning|1|game mode=wvw}}` is unlabeled; the 2nd-strike bonus carries
+    // `{{skill fact|burning|2.5|alt=Secondary Burning|game mode=pve}}...`. Locally cached raw facts
+    // only carry each concept's PvE-rounded value (2, 3) — the wvw-tagged variants aren't present at
+    // all, so no `WvwFactOverride` is possible here either; label-only.
+    5508: { 'Burning@3@1': 'Secondary Burning' },
+    // Rock Spray (Earth/Trident 2, aquatic). Wiki labels all 3 range-banded Bleeding facts, no
+    // unlabeled base this time (same "every tuple gets a label" shape as Inspiring Reinforcement/
+    // Spear of Anguish): `{{skill fact|bleeding|10|alt=300-400 Range}}{{skill fact|bleeding|10|
+    // stacks=2|alt=200-300 Range}}{{skill fact|bleeding|10|stacks=3|alt=0-200 Range}}`.
+    5658: { 'Bleeding@10@1': '300-400 Range', 'Bleeding@10@2': '200-300 Range', 'Bleeding@10@3': '0-200 Range' },
+    // Ring of Fire (Fire/Dagger-offhand 4). Wiki: `{{skill fact|burning|4|stacks=2|
+    // alt=Initial Burning}}{{skill fact|burning|2|alt=Pass-Through Burning}}` — both labeled.
+    5691: { 'Burning@4@2': 'Initial Burning', 'Burning@2@1': 'Pass-Through Burning' },
+    // Heat Sync (Tempest/Warhorn 4). Wiki: base `{{skill fact|might|stacks=3|10|game mode=pve}}` /
+    // `{{skill fact|fury|10|25|game mode=pve}}` are unlabeled; the skill's own "copy your current
+    // Might/Fury to allies" mechanic (per its own description) is separately encoded as
+    // `{{skill fact|might|alt=Boon Copied}}` / `{{skill fact|fury|alt=Boon Copied|0|25|...}}` — a
+    // real, wiki-labeled fact with no fixed numeric value (there's nothing fixed TO show, since it
+    // copies whatever the caster currently has), API-encoded as a literal `duration: 0` marker. The
+    // tuple is already distinct from the base grant (0 vs 10) so no occurrence-indexing is needed.
+    29548: { 'Might@0@1': 'Boon Copied', 'Fury@0@1': 'Boon Copied' },
+    // Pyro Vortex (Weaver, Fire+Air Sword Dual Attack). Wiki: `{{skill fact|burning|2|
+    // alt=Initial Burning|game mode=pve}}{{skill fact|burning|6|stacks=2|alt=Initial Burning|game
+    // mode=wvw pvp}}` then a 2nd, unlabeled `{{skill fact|burning|2|game mode=pve}}
+    // {{skill fact|burning|1|game mode=wvw pvp}}` line — both concepts' PvE values coincide (2),
+    // collapsing the locally-cached raw facts onto one shared tuple; occurrence-indexed in wiki
+    // template order (Initial Burning first), the 2nd occurrence stays unlabeled per this table's
+    // "unqualified base" convention.
+    43074: { 'Burning@2@1#1': 'Initial Burning' },
+    // Pyroclastic Blast (Weaver, Fire+Earth Staff Dual Attack). Wiki:
+    // `{{skill fact|burning|alt=Burning on Impact|3}}{{skill fact|burning|alt=Pulse Burning|1}}` —
+    // both labeled, no mode split at all.
+    43762: { 'Burning@3@1': 'Burning on Impact', 'Burning@1@1': 'Pulse Burning' },
+    // Molten End (Catalyst/Hammer 5). Wiki labels all 4 Might/Fury facts, no unlabeled base:
+    // `{{skill fact|might|alt=First Hit Might|10|stacks=6}}...{{skill fact|might|alt=Additional Hit
+    // Might|10}}...{{skill fact|fury|alt=First Hit Fury|6|25|game mode = pve}}...
+    // {{skill fact|fury|alt=Additional Hit Fury|1|25|game mode = pve}}...` — every tuple already
+    // unique (Might by stack count, Fury by duration), no occurrence-indexing needed.
+    62910: { 'Might@10@6': 'First Hit Might', 'Might@10@1': 'Additional Hit Might', 'Fury@6@1': 'First Hit Fury', 'Fury@1@1': 'Additional Hit Fury' }
   },
   trait: {
     // --- Thief leg (2nd leg, 2026-08-14) --- first-ever trait entries in this table; traits carry
@@ -2443,6 +2588,42 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
       'Might@8@5': 'Lively Lute',
       'Might@6@3': 'Lively Lute',
       'Might@15@8': 'Crescendo'
+    },
+
+    // --- Elementalist leg (9th leg, FINAL leg, 2026-08-14) ---
+
+    // Lucid Singularity (Tempest, overload boons). NEW failure mode: this trait grants a DIFFERENT
+    // boon per game mode rather than a duration split of one boon — Alacrity only in PvE
+    // (`{{skill fact|alacrity|alt=Alacrity per Pulse|1|game mode = pve}}
+    // {{skill fact|alacrity|alt=Alacrity on Overload|4.5|game mode = pve}}`), Might only in
+    // WvW+PvP (`{{skill fact|Might|alt=Might per Pulse|8|game mode = pvp wvw}}
+    // {{skill fact|Might|alt=Might on Overload|8|stacks=3|game mode = pvp wvw}}`) — all 4 tuples
+    // already distinct (Alacrity by duration, Might by stack count), straightforwardly labeled.
+    2033: {
+      'Alacrity@1@1': 'Alacrity per Pulse',
+      'Alacrity@5@1': 'Alacrity on Overload',
+      'Might@8@1': 'Might per Pulse',
+      'Might@8@3': 'Might on Overload'
+    },
+    // Familiar's Blessing (Evoker, familiar-skill boons). Same "different boon per mode" shape as
+    // Lucid Singularity above, but per `linked skill=` too — 4 familiar skills each grant one boon
+    // in PvE and a DIFFERENT boon in WvW+PvP: Ignite (PvE Quickness/WvW+PvP Might), Splash (PvE
+    // Alacrity/WvW+PvP Vigor), Zap (PvE Quickness/WvW+PvP Fury), Calcify (PvE Alacrity/WvW+PvP
+    // Protection). Ignite's and Zap's PvE Quickness (both 1.75s, rounds to 2) collide on one tuple,
+    // as do Splash's and Calcify's PvE Alacrity (both 4s) — occurrence-indexed in raw fact order
+    // (matches wiki template order: Ignite, Splash, Zap, Calcify), labeled by `linked skill=` name.
+    // The WvW+PvP-side boons (Might/Fury/Protection) are each single-instance so would normally
+    // qualify for `WvwFactOverride` instead, but a direct `/v2/traits/2380` pull confirms the wiki's
+    // stated wvw+pvp values (Might 6/Fury 3/Protection 2) don't appear in the live API at all —
+    // every wvw+pvp-tagged fact actually returns its PvE sibling's OWN value (Might/Fury/Protection
+    // all showing 2/2/4, matching Ignite/Zap's Quickness and Splash/Calcify's Alacrity exactly), an
+    // undocumented wiki/API mismatch with no trustworthy value to override to — left showing the
+    // (mismatched) raw API value as-is.
+    2380: {
+      'Quickness@2@1#1': 'On Ignite',
+      'Quickness@2@1#2': 'On Zap',
+      'Alacrity@4@1#1': 'On Splash',
+      'Alacrity@4@1#2': 'On Calcify'
     }
   }
 }
