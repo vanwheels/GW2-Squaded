@@ -571,7 +571,42 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // stacks=4}}` line with no game-mode split at all, so there's nothing to attribute either raw fact
     // to; left open in BUFF_INSTANCE_LABELS's own doc comment instead.
     12493: { Fury: 1.5 },
-    12495: { Protection: 1.5 }
+    12495: { Protection: 1.5 },
+
+    // Mesmer leg (8th leg of the BUFF_INSTANCE_LABELS sweep, 2026-08-14): Cry of Frustration
+    // (10190), Rewinder (56928), Bladesong Sorrow (62616), and Flustering Flute (76746) each carry
+    // a Bountiful Disillusionment (trait 1687)-linked Vigor pair with no `overrides` link (a
+    // trait-fact-copied-onto-the-skill-it-triggers-from case, same mechanism as Willbender Flames/
+    // Over Shield above) — each is the ONLY source of Vigor on its own skill (single concept, safe
+    // to collapse), mirrors trait 1687's own already-curated override below so every tooltip agrees.
+    // Wiki (on trait 1687's own page): `{{skill fact|vigor|8|linked skill=Cry of Frustration|game
+    // mode=pve}}{{skill fact|vigor|5|linked skill=Cry of Frustration|game mode=wvw pvp}}`.
+    10190: { Vigor: 5 },
+    56928: { Vigor: 5 },
+    62616: { Vigor: 5 },
+    76746: { Vigor: 5 },
+    // Deafening Drum (77079) carries the same trait 1687-linked Fury pair (Diversion-linked on the
+    // trait's own page: `{{skill fact|fury|10|25|linked skill=Diversion|game mode=pve}}
+    // {{skill fact|fury|6|linked skill=Diversion|game mode=wvw pvp}}`), also the only Fury source on
+    // this skill — safe single-concept collapse, mirrors trait 1687's own override.
+    77079: { Fury: 6 },
+    // Crescendo (76931) carries a Life of the Party (trait 2367)-linked Quickness triple, but ONLY
+    // its own "linked skill=Crescendo" concept (Lively Lute's separate Quickness concept lives on
+    // that skill's own id, not here) — safe single-concept collapse. Wiki (trait 2367's page):
+    // `{{skill fact|Quickness|8|linked skill=Crescendo|game mode = pve}}{{skill fact|Quickness|2|
+    // linked skill=Crescendo|game mode = wvw}}{{skill fact|Quickness|4|linked skill=Crescendo|game
+    // mode = pvp}}` — a 3-way split, wvw value used per this app's WvW focus.
+    76931: { Quickness: 2 },
+    // Phantasmal Lancer (72946): 2 independent single-concept pve/wvw+pvp splits, no `alt=`. Wiki:
+    // `{{skill fact|cripple|3|game mode = pve}}{{skill fact|cripple|2|game mode = pvp wvw}}` and
+    // `{{skill fact|immobilize|alt=Immobilize against Crippled Targets|2|game mode = pve}}
+    // {{skill fact|immobilize|alt=Immobilize against Crippled Targets|1|game mode = pvp wvw}}` — the
+    // Immobilize pair's `alt=` text is identical on both mode variants (one concept, not two), so
+    // still belongs here rather than BUFF_INSTANCE_LABELS.
+    72946: { Crippled: 2, Immobile: 1 },
+    // Abstraction (72076): plain pve(5)/pvp+wvw(3) Blinded split, no `alt=`
+    // (`{{skill fact|blindness|5|game mode = pve}}{{skill fact|blindness|3|game mode = pvp wvw}}`).
+    72076: { Blinded: 3 }
   },
   trait: {
     // Panic Strike (Thief/Deadly Arts trait 1292) and Be Quick or Be Killed (Thief/Trickery trait
@@ -626,7 +661,45 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // {{skill fact|Might|linked skill=Flame Turret|6|stacks=3|game mode = pvp wvw}}`) — its OTHER
     // Buff facts (Vigor/Swiftness/Fury/Resolution/Protection, each linked to a different turret) are
     // all single-instance, no conflict.
-    1678: { Might: 6 }
+    1678: { Might: 6 },
+
+    // Mesmer leg (8th leg of the BUFF_INSTANCE_LABELS sweep, 2026-08-14): Bountiful Disillusionment
+    // (1687) — 3 of its 4 conflicting statuses are single-concept pve/wvw+pvp splits with no `alt=`
+    // (each `linked skill=` names the one Shatter it rides on): Might (`{{skill fact|might|8|
+    // stacks=5|linked skill=Mind Wrack|game mode=pve}}{{skill fact|might|6|stacks=3|linked
+    // skill=Mind Wrack|game mode=wvw pvp}}`), Vigor (Cry of Frustration-linked, see the skill-side
+    // entries above), Fury (Diversion-linked, see Deafening Drum above). Stability is NOT given an
+    // override despite being an equally plain pve(5)/wvw+pvp(1) split
+    // (`{{skill fact|stability|5|game mode=pve}}{{skill fact|stability|1|game mode=wvw pvp}}`, no
+    // `alt=`): this trait ALSO grants a 2nd, genuinely additive Stability application (4s/3-stacks)
+    // through 3 mutually-exclusive elite-spec-gated `linked skill=`s (Continuum Split/Crescendo/
+    // Bladeturn Requiem) with NO `overrides` link of their own — collapsing the base pair here would
+    // silently swallow that bonus too whenever one of those elite specs is active, the same
+    // extractFromFacts-collapses-every-fact-sharing-a-status hazard as Toss Elixir H/Reconstruction
+    // Field (Engineer leg) and Fox's Fury/Darkrazor's Daring (Revenant leg) — and BUFF_INSTANCE_LABELS
+    // can't help either since the base pair's own page carries no `alt=` text to quote. Left open, a
+    // new documented gap (elite-spec-additive-bonus blocks a would-be-safe override).
+    1687: { Might: 6, Vigor: 5, Fury: 6 },
+    // Mental Defense (2005): plain pve(4)/wvw(2.5) Resistance split, no `alt=`
+    // (`{{skill fact|resistance|4|game mode=pve}}{{skill fact|resistance|2.5|game mode=wvw}}`) — the
+    // wvw value hits the documented "API rounds a half-second duration up" quirk (2.5 -> 3).
+    2005: { Resistance: 2.5 },
+    // Nomad's Endurance (2069): plain pve(3)/pvp+wvw(1.5) Vigor split, no `alt=`, same rounding
+    // quirk (1.5 -> 2).
+    2069: { Vigor: 1.5 },
+    // Renewing Oasis (2082): plain pve(4)/pvp+wvw(2.5) Regeneration split, no `alt=`, same rounding
+    // quirk (2.5 -> 3).
+    2082: { Regeneration: 2.5 },
+    // Blinding Dissipation (1889): its Blinded pair is a plain pve(3)/pvp+wvw(1.5) split, no `alt=`,
+    // same rounding quirk (1.5 -> 2) (`{{skill fact|blinded|3|game mode = pve}}{{skill fact|
+    // blinded|1.5|game mode = pvp wvw}}`). Its OTHER conflict, a Ineptitude (trait 1950)-linked
+    // Confusion pair, is NOT given an override: Ineptitude's own wiki page states pve=5/wvw+pvp=2
+    // (and even documents its OWN unresolved in-game bug: "{{trait icon|Blinding Dissipation}} does
+    // not show the correct duration in all game modes") but the locally-cached raw facts are {5, 3},
+    // not {5, 2} — the wiki's wvw+pvp value doesn't appear among the raw data at all (same
+    // "possible data drift" shape as Death Blossom/Spear of Justice's Crippled pair), so left open
+    // rather than guessed.
+    1889: { Blinded: 1.5 }
   }
 }
 

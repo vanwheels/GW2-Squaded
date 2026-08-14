@@ -1801,6 +1801,30 @@ function resolveTargetCountFrom(
  * `{{skill fact|resolution|2|stacks=4}}` line, no game-mode split and no `alt=`, so unlike its two
  * spirit siblings there's no wiki text to attribute either raw fact to (same "one wiki concept, two
  * raw facts" shape as the Thief leg's Dhuumfire precedent).
+ *
+ * Mesmer leg (8th leg, 2026-08-14): smallest of the 2 remaining pools per a rescan (22 skill + 12
+ * trait conflict sources, Axes of Symmetry/Lively Lute each split across 2 ids sharing one wiki
+ * page/trait data). 11 skill + 6 trait sources got a genuine label here — Temporal Curtain,
+ * Phantasmal Mage, The Prestige, Chaos Armor, Well of Precognition, Chaos Vortex, Axes of Symmetry
+ * (both ids), Imaginary Axes, Lacerating Chop, Lively Lute (both ids) on the skill side;
+ * Illusionary Defense, Master Fencer, Phantasmal Haste, Stretched Time, Seize the Moment, Life of
+ * the Party on the trait side. This leg's own new failure mode: Lively Lute's Might bonus is
+ * granted identically by 2 DIFFERENT traits at once (Bountiful Disillusionment and Life of the
+ * Party), so `WvwFactOverride` can't safely collapse either copy's own mode split without risking
+ * silently swallowing the other trait's contribution when a build picks both — occurrence-indexed
+ * `BUFF_INSTANCE_LABELS` entries instead, one per split id since their raw fact order (which
+ * trait's copy comes first) differs between the two. The same "2 concepts share one status"
+ * shape, without the cross-trait wrinkle, also ruled out `WvwFactOverride` for Phantasmal Haste and
+ * Life of the Party's own conflicts. 8 more sources (Cry of Frustration, Rewinder, Bladesong
+ * Sorrow, Flustering Flute, Deafening Drum, Crescendo, Phantasmal Lancer, Abstraction on the skill
+ * side; Bountiful Disillusionment's Might/Vigor/Fury, Blinding Dissipation's Blinded, Mental
+ * Defense, Nomad's Endurance, Renewing Oasis on the trait side) turned out to be plain
+ * single-concept `WvwFactOverride` cases instead — see `fetch-wvw-splits.ts`'s own comment block on
+ * this leg. Left open: Power Break and Phantom Razor (skill), each a data mismatch/nothing-to-quote
+ * case in the same shape as prior legs' Dhuumfire/Death Blossom; Bountiful Disillusionment's
+ * Stability and Blinding Dissipation's Confusion (trait), both blocked from a safe
+ * `WvwFactOverride` fix by a coexisting genuine 2nd application (see that file's own writeup); Flow
+ * of Time (trait), the "PvE and WvW now round to the same number" shape with nothing to quote.
  */
 export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string>>; trait: Record<number, Record<string, string>> } = {
   skill: {
@@ -2090,7 +2114,7 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // just apply an identical label to both copies without resolving anything — left unlabeled, same
     // "nothing to distinguish the 2nd from the 1st" call as Warrior leg's Banner of Tactics Stability
     // pair.
-    73143: { 'Burning@3@2': 'Minimum Burning Duration' }
+    73143: { 'Burning@3@2': 'Minimum Burning Duration' },
     // Several more Engineer conflicts investigated this leg turned out to be plain WvwFactOverride
     // cases instead (Magnetic Shield, Static Shield, Blessing of Dwayna, Leafy Bandage, Static Shock,
     // Bandage Self, Regenerating Mist) — see fetch-wvw-splits.ts's own comment block on this leg for
@@ -2106,6 +2130,104 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // untraited base Protection fact sharing that status — `WvwFactOverride` can only override a
     // whole status, not scope to just the trait-gated subset, so mirroring the fix here would wrongly
     // overwrite the legitimate untraited value; left unfixed rather than risk a wrong display.
+
+    // --- Mesmer leg (8th leg, 2026-08-14) ---
+
+    // Temporal Curtain (mantra of swiftness wall). Wiki:
+    // `{{skill fact|swiftness|alt=Initial Swiftness|12}}` (the wall's own cast) followed by a bare
+    // `{{skill fact|swiftness|1}}` (per-crossing pulse) with no `alt=` at all — same "partial label"
+    // shape as Rushing Justice (Guardian leg): only the wiki-named one gets an entry.
+    10186: { 'Swiftness@12@1': 'Initial Swiftness' },
+    // Phantasmal Mage (10189) and The Prestige (10285) both carry a base torch-strike Burning fact
+    // (unlabeled on both wiki pages) plus an identical The Pledge (trait 691)-linked Burning bonus
+    // with no `overrides` link — The Pledge's own page has a single unlabeled fact too
+    // (`{{skill fact|burning|3|stacks=2}}`), so the trait's own name is used as the label (same
+    // "trait fact copied onto the skill it triggers from" mechanism as Willbender Flames/Over
+    // Shield, just resolved here instead of `WvwFactOverrides` since this is a trait-gate addition,
+    // not a game-mode split).
+    10189: { 'Burning@3@2': 'The Pledge' },
+    10285: { 'Burning@3@2': 'The Pledge' },
+    // Chaos Armor (Chaos aura on dodge). Wiki: `{{skill fact|confusion|alt=Confusion on Cast|5|
+    // stacks=3}}` ... `{{skill fact|confusion|alt=Confusion on Attackers|5}}` — both labeled, no
+    // unlabeled base, already-unique tuples (differ by stack count).
+    10331: { 'Confusion@5@3': 'Confusion on Cast', 'Confusion@5@1': 'Confusion on Attackers' },
+    // Well of Precognition (elite well). Wiki: `{{skill fact|stability|1|alt = Initial Stability}}`
+    // and `{{skill fact|stability|5|stacks = 3|alt = First-Pulse Stability| game mode = pve wvw}}`
+    // (+pvp variant 3, not cached locally) — both labeled, no unlabeled base.
+    29526: { 'Stability@1@1': 'Initial Stability', 'Stability@5@3': 'First-Pulse Stability' },
+    // Chaos Vortex (staff 5, dual player/clone conditions). Wiki names 3 status pairs, each
+    // Player/Clone, no game-mode split: `{{skill fact|torment|10|alt=Player Torment}}
+    // {{skill fact|torment|4|alt=Clone Torment}}`, `{{skill fact|confusion|10|alt= Player
+    // Confusion}}{{skill fact|confusion|3|alt=Clone Confusion}}`, `{{skill fact|bleeding|10|alt=
+    // Player Bleeding}}{{skill fact|bleeding|4|alt= Clone Bleeding}}` — all 6 tuples already unique,
+    // every one labeled.
+    40184: {
+      'Torment@10@1': 'Player Torment',
+      'Torment@4@1': 'Clone Torment',
+      'Confusion@10@1': 'Player Confusion',
+      'Confusion@3@1': 'Clone Confusion',
+      'Bleeding@10@1': 'Player Bleeding',
+      'Bleeding@4@1': 'Clone Bleeding'
+    },
+    // Axes of Symmetry (Virtuoso axe-throw, both split ids share one wiki page/fact set). Wiki:
+    // `{{skill fact|confusion|6|stacks=5|alt=Player Confusion|game mode=pve}}{{skill fact|
+    // confusion|3|stacks=3|alt=Player Confusion|game mode=wvw pvp}}{{skill fact|confusion|6|alt=
+    // Clone Confusion|game mode=pve}}{{skill fact|confusion|3|alt=Clone Confusion|game
+    // mode=wvw pvp}}` — 2 concepts (Player/Clone), each independently mode-split, all 4 tuples
+    // already unique (distinguished by stack count and/or duration) so every one gets its matching
+    // label directly, same "apply one label to every mode-variant tuple of one concept" convention
+    // as Blowtorch/Zealous Scepter.
+    43761: {
+      'Confusion@6@5': 'Player Confusion',
+      'Confusion@3@3': 'Player Confusion',
+      'Confusion@6@1': 'Clone Confusion',
+      'Confusion@3@1': 'Clone Confusion'
+    },
+    69385: {
+      'Confusion@6@5': 'Player Confusion',
+      'Confusion@3@3': 'Player Confusion',
+      'Confusion@6@1': 'Clone Confusion',
+      'Confusion@3@1': 'Clone Confusion'
+    },
+    // Imaginary Axes (Virtuoso axe-throw 2, PvE-cached values only). Wiki:
+    // `{{skill fact|torment|alt=Player Torment|3.5|stacks=3|game mode = pve }}` (rounds to 4) and
+    // `{{skill fact|torment|alt=Clone Torment|4|game mode = pve}}` — both labeled, both pve-cached
+    // locally (the wvw+pvp variants, 8 and 2, aren't present).
+    44321: { 'Torment@4@3': 'Player Torment', 'Torment@4@1': 'Clone Torment' },
+    // Lacerating Chop (Virtuoso axe 2 chain). Wiki: base `{{skill fact|bleeding|2}}` is unlabeled;
+    // the clone's own hit carries `{{skill fact|bleeding|alt=Clone Bleeding|1}}`.
+    44791: { 'Bleeding@1@1': 'Clone Bleeding' },
+    // Lively Lute (Troubadour instrument, both split ids share one wiki-page-equivalent trait
+    // data). Both Bountiful Disillusionment (trait 1687, Chaos GM) and Life of the Party (trait
+    // 2367, Troubadour master) independently grant an identical-shaped Might bonus here
+    // (`linked skill=Lively Lute` on each trait's own page, no `overrides` link on either) — if a
+    // build picks both traits at once, the 2 grants coexist and share an EXACT tuple, so
+    // `WvwFactOverride` can't safely collapse either (would silently swallow the other trait's
+    // contribution, same hazard as Toss Elixir H/Fox's Fury). Occurrence-indexed by each id's own
+    // raw fact order (which trait's copy comes first differs between the 2 split ids), labeled with
+    // the granting trait's own name since neither trait's page gives this bonus its own `alt=` text.
+    76552: {
+      'Might@8@5#1': 'Bountiful Disillusionment',
+      'Might@8@5#2': 'Life of the Party',
+      'Might@6@3#1': 'Bountiful Disillusionment',
+      'Might@6@3#2': 'Life of the Party'
+    },
+    77306: {
+      'Might@8@5#1': 'Life of the Party',
+      'Might@8@5#2': 'Bountiful Disillusionment',
+      'Might@6@3#1': 'Life of the Party',
+      'Might@6@3#2': 'Bountiful Disillusionment'
+    }
+    // Several more Mesmer conflicts investigated this leg turned out to be plain WvwFactOverride
+    // cases instead (Cry of Frustration, Rewinder, Bladesong Sorrow, Flustering Flute, Deafening
+    // Drum, Crescendo, Phantasmal Lancer, Abstraction) — see fetch-wvw-splits.ts's own comment
+    // block on this leg for those. Left open, nothing safely curatable: Power Break (10238, 2
+    // raw-identical-duration Stability@3 facts differing only by stack count — the wiki's whole
+    // page carries only ONE `{{skill fact|stability|3|stacks=3}}` template, matching just the
+    // 3-stack fact and giving nothing to quote for the 5-stack one, same Dhuumfire/Banner-of-
+    // Tactics shape); Phantom Razor (69389, its Bleeding AND Torment pairs both have a wiki-stated
+    // Clone value, 7s, that doesn't appear among either pair's locally-cached raw durations, {5, 5}
+    // — a data mismatch, same "possible data drift" shape as Death Blossom/Spear of Justice);
   },
   trait: {
     // --- Thief leg (2nd leg, 2026-08-14) --- first-ever trait entries in this table; traits carry
@@ -2218,10 +2340,110 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // (`{{skill fact|protection|2.5}}`) is unlabeled (the local raw 3 is the documented half-second-
     // rounds-up quirk); the Evolve-triggered bonus carries `{{skill fact|protection|alt=Protection
     // on Evolve|4}}`.
-    2434: { 'Protection@4@1': 'Protection on Evolve' }
+    2434: { 'Protection@4@1': 'Protection on Evolve' },
     // Experimental Turrets' Might pair turned out to be a plain WvwFactOverride case instead (see
     // fetch-wvw-splits.ts's own comment block on this leg) — its other 5 Buff facts (Vigor/
     // Swiftness/Fury/Resolution/Protection, one per turret type) are all single-instance already.
+
+    // --- Mesmer leg (8th leg, 2026-08-14) ---
+
+    // Illusionary Defense (Dueling, Shatter 2 protection). Wiki names 2 concepts, each mode-split:
+    // `{{skill fact|protection|4|alt=Base Protection Duration|game mode = pve wvw}}
+    // {{skill fact|protection|2|alt=Base Protection Duration|game mode = pvp}}` and
+    // `{{skill fact|protection|2|alt=Additional Protection Duration|game mode = pve wvw}}
+    // {{skill fact|protection|1|alt=Additional Protection Duration|game mode = pvp}}` — Base's pvp
+    // value (2) collides with Additional's pve+wvw value (2), occurrence-indexed in wiki template
+    // order (matches this trait's own raw fact order); the other 2 tuples (4, 1) are already
+    // unique.
+    675: {
+      'Protection@4@1': 'Base Protection Duration',
+      'Protection@2@1#1': 'Base Protection Duration',
+      'Protection@2@1#2': 'Additional Protection Duration',
+      'Protection@1@1': 'Additional Protection Duration'
+    },
+    // Master Fencer (Dueling, on-crit fury). Wiki: base `{{skill fact|fury|4|25|game mode=pve}}`
+    // (+pvp/wvw=4, identical, no 2nd tuple) is unlabeled; the self bonus carries
+    // `{{skill fact|fury|8|25|game mode=pve|alt = Personal Fury}}` (+pvp/wvw=8, also identical) —
+    // both concepts' pve/pvp+wvw values coincide, so only 2 raw tuples exist locally, matching the
+    // 2 wiki concepts 1:1.
+    707: { 'Fury@8@1': 'Personal Fury' },
+    // Phantasmal Haste (Illusions, phantasm/personal quickness). Wiki: `{{skill fact|quickness|3|
+    // alt=Phantasm Quickness}}` (no mode split) and `{{skill fact|quickness|1.5|alt=Personal
+    // Quickness|game mode = pve}}` (rounds to 2) `{{skill fact|quickness|1|alt=Personal
+    // Quickness|game mode = pvp wvw}}` — 2 concepts share this trait's "Quickness" status, so
+    // `WvwFactOverride` can't safely collapse Personal Quickness's own mode split without also
+    // swallowing Phantasm Quickness (same hazard as Radiant Arc, Engineer leg) — labeled instead,
+    // reusing "Personal Quickness" across both its mode-variant tuples.
+    729: { 'Quickness@3@1': 'Phantasm Quickness', 'Quickness@2@1': 'Personal Quickness', 'Quickness@1@1': 'Personal Quickness' },
+    // Bountiful Disillusionment's Might/Vigor/Fury conflicts turned out to be plain single-concept
+    // WvwFactOverride cases instead (see fetch-wvw-splits.ts's own comment block on this leg); its
+    // Stability conflict is left open there too (a 2nd, genuinely-additive elite-spec-gated
+    // instance blocks a safe override, and its own page has no `alt=` to quote either).
+
+    // Blinding Dissipation's Blinded conflict turned out to be a plain WvwFactOverride case instead
+    // (see fetch-wvw-splits.ts's own comment block on this leg); its Ineptitude-linked Confusion
+    // conflict is left open there too (wiki/local data mismatch).
+
+    // Flow of Time (Chronomancer, shatter alacrity). Its 2 raw-identical Alacrity@1@1 facts are a
+    // NEW instance of the "pve and wvw+pvp happen to round to the same displayed number" shape
+    // (Warrior leg's Stomp, Engineer leg's Electric Artillery): a 2025-02-11 patch increased the
+    // WvW-only value from 0.75s to a full 1s, so it now numerically matches the PvE value exactly —
+    // one wiki concept (`{{skill fact|alacrity|1|alt=Alacrity per Clone}}`, no `alt=` differentiating
+    // a 2nd instance), 2 raw facts, nothing to distinguish the 2nd from the 1st. Left open.
+
+    // Stretched Time (Chaos, shatter/phantasm boons). Wiki names 2 Alacrity concepts and 2 Might
+    // concepts, matching this trait's own raw fact order exactly:
+    // `{{skill fact|alacrity|1|game mode = pve pvp|alt=Alacrity per Clone}}
+    // {{skill fact|might|6|game mode = wvw|alt=Might per Clone}}
+    // {{skill fact|alacrity|3|game mode = pve|alt=Alacrity on Phantasm Spawn}}
+    // {{skill fact|alacrity|1|game mode = pvp|alt=Alacrity on Phantasm Spawn}}
+    // {{skill fact|might|6|stacks=2|game mode = wvw|alt=Might on Phantasm Spawn}}` — Alacrity per
+    // Clone's pve/pvp value (1) collides with Alacrity on Phantasm Spawn's pvp value (1),
+    // occurrence-indexed; the Might pair is already unique (differs by stack count).
+    1942: {
+      'Alacrity@1@1#1': 'Alacrity per Clone',
+      'Alacrity@3@1': 'Alacrity on Phantasm Spawn',
+      'Alacrity@1@1#2': 'Alacrity on Phantasm Spawn',
+      'Might@6@1': 'Might per Clone',
+      'Might@6@2': 'Might on Phantasm Spawn'
+    },
+    // Mental Defense's Resistance conflict, Nomad's Endurance's Vigor conflict, and Renewing
+    // Oasis's Regeneration conflict all turned out to be plain single-concept WvwFactOverride cases
+    // instead (see fetch-wvw-splits.ts's own comment block on this leg).
+
+    // Seize the Moment (Illusions, shatter/phantasm quickness). Wiki: `{{Skill fact|quickness|1|
+    // alt=Quickness per Clone|game mode = pve}}{{Skill fact|quickness|0.75|alt=Quickness per
+    // Clone|game mode = pvp}}{{Skill fact|quickness|0.5|alt=Quickness per Clone|game mode = wvw}}`
+    // followed by an unlabeled base `{{Skill fact|quickness|3|game mode = pve}}
+    // {{Skill fact|quickness|1|game mode = pvp}}{{Skill fact|quickness|0.75|game mode = wvw}}` — all
+    // 3 "Quickness per Clone" values round to 1s locally, AND the base's own pvp/wvw values also
+    // round to 1s, so 5 of this trait's 6 raw facts collapse onto one shared tuple. Only the first 3
+    // occurrences (Quickness per Clone's own pve/pvp/wvw) are confidently labeled from the wiki's
+    // own `alt=` text, in template order; the base's pvp/wvw occurrences (#4/#5) stay unlabeled per
+    // this table's "unqualified base" convention, and the base's pve value (3) is already unique.
+    2022: {
+      'Quickness@1@1#1': 'Quickness per Clone',
+      'Quickness@1@1#2': 'Quickness per Clone',
+      'Quickness@1@1#3': 'Quickness per Clone'
+    },
+    // Life of the Party (Troubadour, Lively Lute/Crescendo boons). Wiki names 2 `linked skill=`
+    // concepts sharing this trait's "Quickness" and "Might" statuses at once (Lively Lute's own
+    // grant, and Crescendo's, each independently mode-split) — same 2-concepts-share-a-status
+    // hazard as Phantasmal Haste above, so labeled rather than collapsed via `WvwFactOverride`
+    // (which would silently swallow one `linked skill=`'s contribution). Every tuple here is
+    // already unique so no occurrence-indexing is needed; the matching label is applied per
+    // `linked skill=` regardless. Lively Lute's OWN copy of this same Might bonus (76552/77306, a
+    // 3rd source since it's also gated by Bountiful Disillusionment, trait 1687) is curated
+    // separately in the `skill` block above.
+    2367: {
+      'Quickness@6@1': 'Lively Lute',
+      'Quickness@8@1': 'Crescendo',
+      'Quickness@4@1': 'Crescendo',
+      'Quickness@2@1': 'Crescendo',
+      'Might@8@5': 'Lively Lute',
+      'Might@6@3': 'Lively Lute',
+      'Might@15@8': 'Crescendo'
+    }
   }
 }
 

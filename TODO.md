@@ -42,7 +42,7 @@ that don't block a release.
       `${status}@${duration}@${applyCount}` (`#<occurrence>` suffix for same-tuple collisions) —
       rendered in `SkillsEditor.tsx`'s `factsBlock`. A `buff-instance-label-completeness.test.ts`
       staleness scan guards every curated key (skill AND trait sides) against game-data drift.
-      **7 legs done, smallest-remaining-pool-first** (full per-source reasoning for every leg lives
+      **8 legs done, smallest-remaining-pool-first** (full per-source reasoning for every leg lives
       in `BUFF_INSTANCE_LABELS`'s own doc comment, not duplicated here — this entry only tracks
       overall status): Revenant (1st, 2026-08-13, 11 skill ids labeled), Thief (2nd, 2026-08-14, 6
       sources labeled + fixed the scan methodology twice — excluded `overrides`-linked
@@ -60,7 +60,15 @@ that don't block a release.
       Genes and Hardened Chrome; New Genes' label is this table's first sourced from a version-
       history note rather than a wiki fact line), Ranger (7th, 2026-08-14, 0 sources labeled — only 3
       conflict sources total, far below the earlier "31" estimate, and all 3 turned out to redirect
-      elsewhere: see below). Several sources across all 7 legs turned out to be plain PvE/WvW(+PvP)
+      elsewhere: see below), Mesmer (8th, 2026-08-14, 17 sources labeled — Temporal Curtain,
+      Phantasmal Mage, The Prestige, Chaos Armor, Well of Precognition, Chaos Vortex, Axes of
+      Symmetry ×2 ids, Imaginary Axes, Lacerating Chop, Lively Lute ×2 ids on the skill side;
+      Illusionary Defense, Master Fencer, Phantasmal Haste, Stretched Time, Seize the Moment, Life
+      of the Party on the trait side; found a new failure mode — Lively Lute's Might bonus is
+      granted identically by 2 different traits at once, so `WvwFactOverride` can't safely collapse
+      either copy without risking swallowing the other's contribution when a build picks both, fixed
+      with occurrence-indexed labels per split id instead; see below for the other 8 sources this leg
+      redirected to `WvwFactOverrides`). Several sources across all 8 legs turned out to be plain PvE/WvW(+PvP)
       splits with no `alt=` wording — redirected to `WvwFactOverrides`/`fetch-wvw-splits.ts`'s
       `MANUAL_OVERRIDES` instead (regenerate `wvw-fact-overrides.json` by actually running
       `npm run fetch-wvw-splits` after editing that file, never hand-edit the generated JSON) — the
@@ -82,11 +90,21 @@ that don't block a release.
       nothing to attribute either raw fact to. Also found but deliberately deferred: a cross-profession
       "Convergence Artifact" skill/trait family (Forged Surfer Dash, Holo-Dancer Decoy, Mistburn
       Mortar, Possessive Hoarder) with an entangled 3-way pve/wvw/pvp split, worth its own dedicated
-      pass rather than a per-profession fix. **Remaining**: 2 professions' `skills.json`/`traits.json`
-      pools unswept (Mesmer, Elementalist, smallest-first), plus an unswept `synthetic-facts.json`
-      remainder for those 2 — next leg picks smallest pool first, same pattern as
-      `TARGET_COUNT_OVERRIDES`'s sweep, and checks the `classifyBoonCondition` recognized-name gate
-      BEFORE drafting an entry, not after.
+      pass rather than a per-profession fix. The Mesmer leg redirected 8 more sources this way (Cry of
+      Frustration, Rewinder, Bladesong Sorrow, Flustering Flute, Deafening Drum, Crescendo,
+      Phantasmal Lancer, Abstraction on the skill side; Bountiful Disillusionment's Might/Vigor/Fury,
+      Blinding Dissipation's Blinded, Mental Defense, Nomad's Endurance, Renewing Oasis on the trait
+      side) and found its own new failure mode: Bountiful Disillusionment's base Stability pve/wvw
+      split can't be safely overridden either, since the trait ALSO grants a 2nd, genuinely-additive
+      elite-spec-gated Stability instance through 3 mutually-exclusive `linked skill=`s with no
+      `overrides` link of its own — collapsing the base pair would silently swallow that bonus
+      whenever an elite spec is selected, and there's no wiki `alt=` to label it with either — left
+      open. Blinding Dissipation's Ineptitude-linked Confusion conflict also stays open: a wiki/local
+      data mismatch (the wiki's own page documents this exact display bug as still unresolved
+      in-game). **Remaining**: 1 profession's `skills.json`/`traits.json` pool unswept (Elementalist),
+      plus an unswept `synthetic-facts.json` remainder for it — next leg picks it up (only pool left),
+      same pattern as `TARGET_COUNT_OVERRIDES`'s sweep, and checks the `classifyBoonCondition`
+      recognized-name gate BEFORE drafting an entry, not after.
 
 ## Scoped features, not yet built
 

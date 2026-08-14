@@ -2,6 +2,60 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 178 — Buff instance-label sweep, Mesmer leg (8th leg)
+
+Continued TODO.md's "unlabeled duplicate rows" bug sweep, picking the smallest remaining pool
+([[buff_instance_label_sweep_2026-08-13]]/[[pacing_large_sweeps]] convention). Rescanned with all 7
+prior legs' methodology fixes applied — Mesmer had 22 skill + 12 trait conflict sources (34 total,
+Axes of Symmetry and Lively Lute each split across 2 ids sharing one wiki page/trait data).
+
+Fetched raw wikitext directly via `curl` rather than the summarizing WebFetch tool, per
+[[healing_damage_coefficient_curation]]'s "always fetch raw wikitext, never paraphrase" rule — a
+couple of early WebFetch summaries turned out to misattribute duration/alt= pairings across
+skill-history bullet points, caught by cross-checking against the raw game-data JSON before trusting
+any of it.
+
+17 sources got a genuine `BUFF_INSTANCE_LABELS` entry: Temporal Curtain, Phantasmal Mage, The
+Prestige, Chaos Armor, Well of Precognition, Chaos Vortex, Axes of Symmetry (both ids), Imaginary
+Axes, Lacerating Chop, Lively Lute (both ids) on the skill side; Illusionary Defense, Master Fencer,
+Phantasmal Haste, Stretched Time, Seize the Moment, Life of the Party on the trait side. This leg's
+own new failure mode: Lively Lute's Might bonus is granted identically by 2 different traits at once
+(Bountiful Disillusionment, Chaos GM, and Life of the Party, Troubadour master) — since both can be
+slotted simultaneously, `WvwFactOverride` can't safely collapse either copy's own pve/wvw split
+without risking silently swallowing the other trait's contribution (the same
+extractFromFacts-collapses-every-fact-sharing-a-status hazard as Fox's Fury/Toss Elixir H from
+earlier legs), so it got occurrence-indexed `BUFF_INSTANCE_LABELS` entries instead — one per split id,
+since which trait's copy comes first in the raw fact array differs between the two. The same
+"2 concepts share one status" shape, without the cross-trait wrinkle, also ruled out
+`WvwFactOverride` for Phantasmal Haste and Life of the Party's own conflicts.
+
+8 more sources turned out to be plain single-concept pve/wvw(+pvp) splits with no `alt=` wording —
+redirected to `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` (Cry of Frustration, Rewinder, Bladesong
+Sorrow, Flustering Flute, Deafening Drum, Crescendo, Phantasmal Lancer, Abstraction on the skill side;
+Bountiful Disillusionment's Might/Vigor/Fury, Blinding Dissipation's Blinded, Mental Defense, Nomad's
+Endurance, Renewing Oasis on the trait side), JSON regenerated via `npm run fetch-wvw-splits` (never
+hand-edited) — clean diff, only the 13 new entries added.
+
+Left open, 5 sources: Power Break and Phantom Razor (skill) are each a wiki/local-data mismatch with
+nothing safely quotable, same shape as prior legs' Dhuumfire/Death Blossom. Bountiful
+Disillusionment's Stability conflict found a new sub-failure-mode: its base pve/wvw pair looks like a
+normal override candidate, but the trait ALSO grants a 2nd, genuinely-additive Stability instance
+through 3 mutually-exclusive elite-spec-gated `linked skill=`s with no `overrides` link of its own —
+collapsing the base pair would silently swallow that bonus whenever an elite spec is selected, and
+there's no wiki `alt=` to label it with either, so left open (same hazard class as Toss Elixir
+H/Fox's Fury, just newly encountered on the trait's own base facts rather than a linked skill).
+Blinding Dissipation's Ineptitude-linked Confusion conflict also stays open — a wiki/local data
+mismatch, and the wiki page itself documents this exact display bug as still unresolved in-game.
+Flow of Time's Alacrity pair is a new sub-shape of the "PvE and WvW round to the same number"
+pattern (Stomp/Electric Artillery precedent): a 2025-02-11 patch raised the WvW value to exactly
+match PvE, so what was a real split is now numerically a duplicate with nothing to distinguish it.
+
+`npm run typecheck`/`npm run lint` clean; full suite 110/110 (no new tests needed, same reasoning as
+prior legs — the completeness scan already covers new curated keys generically). Rescan confirms
+Mesmer's pool dropped from 34 to exactly the 5 sources deliberately left open. TODO.md entry updated
+to 8 legs done — only Elementalist remains (the last profession, no more "smallest pool" choice to
+make for the final leg).
+
 ## Session 177 — Buff instance-label sweep, Ranger leg (7th leg)
 
 Continued TODO.md's "unlabeled duplicate rows" bug sweep, picking the smallest remaining profession
