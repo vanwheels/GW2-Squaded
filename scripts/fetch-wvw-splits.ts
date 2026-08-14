@@ -492,7 +492,17 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // exactly, so this override exists purely to collapse the pvp-only 2nd fact out of the
     // pve+wvw-facing tooltip, not to correct a wrong number. 76800 (the other split id) doesn't
     // carry this 2nd Taunt fact at all, so needs no entry.
-    76674: { Taunt: 3 }
+    76674: { Taunt: 3 },
+
+    // Banner of Tactics (Warrior banner utility, id 14408 — found 2026-08-14 curating
+    // BUFF_INSTANCE_LABELS in sources.ts, Warrior leg): a clean Resistance split, wiki-confirmed
+    // (infobox `split = pve pvp, wvw`, `{{skill fact|resistance|2|game mode=pve pvp}}
+    // {{skill fact|resistance|1|game mode=wvw}}`) — both values already present among the raw facts.
+    // This skill's OTHER conflict, a raw-identical Stability pair, is NOT given an override: the
+    // wiki only carries one `alt=`-labeled Stability template for the whole page (see
+    // `BUFF_INSTANCE_LABELS`'s own comment on this id), so there's no 2nd concept to collapse away
+    // — an override here would silently drop a real, distinct application.
+    14408: { Resistance: 1 }
   },
   trait: {
     // Panic Strike (Thief/Deadly Arts trait 1292) and Be Quick or Be Killed (Thief/Trickery trait
@@ -506,7 +516,19 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // number rounded up by 1), so the wiki's own precise number is used here rather than the
     // rounded stand-in.
     1292: { Immobile: 1.5 },
-    2093: { Quickness: 2.5 }
+    2093: { Quickness: 2.5 },
+
+    // Marching Orders (Warrior/Tactics trait 1480) and Feverish Pulse (Warrior/Bladesworn trait
+    // 2369) — found alongside Banner of Tactics above, same Warrior leg. Both plain pve/wvw+pvp
+    // splits with no `alt=` wording: Marching Orders' Might
+    // (`{{trait fact|Might|15|stacks=3|game mode=pve}}{{trait fact|Might|6|stacks=3|game mode=pvp
+    // wvw}}`) and Feverish Pulse's Quickness (`{{trait fact|quickness|2|game mode=pvp}}
+    // {{trait fact|quickness|1|game mode=wvw}}`, an unusual pvp/wvw-only split with no separate pve
+    // line — the wvw-tagged value used here per this app's WvW focus). This app's page for
+    // "Marching Orders" is a naming collision with an unrelated story mission on the wiki — the
+    // real trait page is titled "Marching Orders (trait)".
+    1480: { Might: 6 },
+    2369: { Quickness: 1 }
   }
 }
 

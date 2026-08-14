@@ -1719,6 +1719,25 @@ function resolveTargetCountFrom(
  * order -- deliberately left uncurated rather than risk mis-assigning a label to the wrong fact;
  * worth a dedicated future pass across every profession's Artifact skills/traits as one unit rather
  * than piecemeal per-profession legs, since the mechanic itself isn't profession-specific.
+ *
+ * Warrior leg (3rd leg, 2026-08-14): smallest remaining pool per a rescan re-run with the Thief
+ * leg's 2 methodology fixes applied from the start (excluding `overrides`-linked facts AND
+ * pre-filtering to recognized `BOON_NAMES`/`CONDITION_NAMES` statuses) — 19 skill + 4 trait sources,
+ * several of them split ids sharing one wiki page/fact set (Arcing Slice x4, Bloodthirster x4).
+ * 8 got real labels here (5 skill entries, 2 of which cover 4 ids each so 8 ids total; 2 trait
+ * entries), including this table's 2nd `linked skill=`-sourced label (Heat the Soul's "On
+ * Decapitate", same convention as Shadestep in the Thief leg). 3 more were plain PvE/WvW(+PvP)
+ * splits with no `alt=` wording, fixed via `WvwFactOverrides` instead (Banner of Tactics' Resistance,
+ * Marching Orders' Might, Feverish Pulse's Quickness). The rest stay open: 2 were scan false
+ * positives (a `{{skill fact|condition|...}}` Condition-Removed marker fact with no `duration`,
+ * which `extractFromFacts` already filters out before this table is ever consulted — Knot Shot,
+ * Brutal Shot's Immobile pair); Brutal Shot's Vulnerability pair and Eviscerate's Might pair are
+ * pve/wvw+pvp splits where duration AND apply_count both change (the same `WvwFactOverride`
+ * limitation as Falling Spider in the Thief leg); Wounding Strike has no wiki page at all despite a
+ * live-API-confirmed name; Banner of Tactics' Stability pair has only ONE `alt=`-labeled Stability
+ * template on its whole wiki page for 2 raw-identical facts; Marching Orders' Protection pair is
+ * gated by a different trait (Vengeance) with no wiki text of its own to quote for it. See the
+ * `skill`/`trait` blocks' own comments below for the full per-source writeup.
  */
 export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string>>; trait: Record<number, Record<string, string>> } = {
   skill: {
@@ -1831,6 +1850,70 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     76674: { 'Might@8@4': 'Might on Self-Destruct' },
     76800: { 'Might@8@4': 'Might on Self-Destruct' },
 
+    // --- Warrior leg (3rd leg, 2026-08-14) ---
+
+    // Arcing Slice (Berserker axe burst, all 4 split ids share one wiki page and one fact set —
+    // same "page covers every id identically" shape as Holo-Dancer Decoy in the Thief leg). Wiki:
+    // {{skill fact|fury|alt=Level 1 Adrenaline|8|...}}, alt=Level 2 Adrenaline|12, alt=Level 3
+    // Adrenaline|16 — all 3 labeled (no unlabeled base; the pve and pvp+wvw variant of each level
+    // share the identical duration, so only 3 distinct tuples exist locally, matching the 3 wiki
+    // concepts 1:1).
+    14375: { 'Fury@8@1': 'Level 1 Adrenaline', 'Fury@12@1': 'Level 2 Adrenaline', 'Fury@16@1': 'Level 3 Adrenaline' },
+    14545: { 'Fury@8@1': 'Level 1 Adrenaline', 'Fury@12@1': 'Level 2 Adrenaline', 'Fury@16@1': 'Level 3 Adrenaline' },
+    14546: { 'Fury@8@1': 'Level 1 Adrenaline', 'Fury@12@1': 'Level 2 Adrenaline', 'Fury@16@1': 'Level 3 Adrenaline' },
+    14547: { 'Fury@8@1': 'Level 1 Adrenaline', 'Fury@12@1': 'Level 2 Adrenaline', 'Fury@16@1': 'Level 3 Adrenaline' },
+    // Stomp (Physical utility, stability + launch). Wiki gives BOTH Stability facts a real `alt=`
+    // (`{{skill fact|stability|alt=Initial Stability|6|pve}}...{{skill fact|stability|alt=On-Hit
+    // Stability|6|pve}}...`, each also pve/wvw+pvp split at 6/1 and 6/3 respectively) — no
+    // unlabeled base, matching Inspiring Reinforcement's shape: their pve values happen to be
+    // numerically identical (6=6), which is exactly why the locally-cached (pve-only) API data
+    // shows 2 identical Stability facts with nothing else to tell them apart without this entry.
+    14388: { 'Stability@6@1#1': 'Initial Stability', 'Stability@6@1#2': 'On-Hit Stability' },
+    // "Fear Me!" (shout, distance-scaled fear). Wiki:
+    // {{skill fact|fear|alt=Maximum Fear|3}}{{skill fact|fear|alt=Minimum Fear|1}} — matches the
+    // skill's own description (fear duration scales with caster distance).
+    14409: { 'Fear@3@1': 'Maximum Fear', 'Fear@1@1': 'Minimum Fear' },
+    // Flames of War (torch 4/Conjure Fire Axe-adjacent, mobile fire field). Wiki page title is
+    // "Flames of War (warrior skill)" (the bare title is a disambiguation page). Base Burning
+    // (`{{skill fact|burning|2}}`) is unlabeled; the field's expiry-detonation carries
+    // `{{skill fact|burning|6|stacks=2|alt=Final Burning}}`.
+    29940: { 'Burning@6@2': 'Final Burning' },
+    // Keen Strike (dagger chain finisher). Wiki: base `{{skill fact|might|5}}` is unlabeled; the
+    // critical-hit bonus carries `{{skill fact|might|alt=Critical Might|5}}` — occurrence-indexed
+    // since both share the identical 5s/1-stack tuple.
+    40275: { 'Might@5@1#2': 'Critical Might' },
+    // Overcharged Cartridges (Engineer-shared Armament, explosion-attack Burning buildup). Wiki:
+    // base `{{skill fact|Burning|3}}` is unlabeled; the supercharged (2nd use) variant carries
+    // `{{skill fact|Burning|alt=Supercharged Burning|5}}`.
+    68085: { 'Burning@5@1': 'Supercharged Burning' },
+    // "Find Their Weakness!" (Bladesworn command, vulnerability spread + echo might). Wiki: base
+    // Might (`{{skill fact|might|10|stacks=5|pve}}`, 8/stacks=5 wvw+pvp — local only carries the
+    // pve-tagged value) is unlabeled; the per-enemy-struck echo bonus carries
+    // `{{skill fact|might|alt=Bonus Might per Enemy Struck|10|stacks=2|pve}}` (8/stacks=2 wvw+pvp).
+    // Both wiki stack counts (5 and 2) match this id's own apply_count values exactly.
+    77040: { 'Might@10@2': 'Bonus Might per Enemy Struck' },
+    // Bloodthirster (Bladesworn Gunsaber burst, all 4 split ids share one wiki page/fact set, same
+    // shape as Arcing Slice above). Wiki: {{skill fact|bleeding|alt=Level 1 Bleeding|6|stacks=3}},
+    // alt=Level 2 Bleeding|6|stacks=6, alt=Level 3 Bleeding|6|stacks=9 — all 3 labeled, no
+    // unlabeled base (matches Arcing Slice's shape: 3 adrenaline-scaled tiers, all named).
+    80203: { 'Bleeding@6@3': 'Level 1 Bleeding', 'Bleeding@6@6': 'Level 2 Bleeding', 'Bleeding@6@9': 'Level 3 Bleeding' },
+    80221: { 'Bleeding@6@3': 'Level 1 Bleeding', 'Bleeding@6@6': 'Level 2 Bleeding', 'Bleeding@6@9': 'Level 3 Bleeding' },
+    80248: { 'Bleeding@6@3': 'Level 1 Bleeding', 'Bleeding@6@6': 'Level 2 Bleeding', 'Bleeding@6@9': 'Level 3 Bleeding' },
+    80263: { 'Bleeding@6@3': 'Level 1 Bleeding', 'Bleeding@6@6': 'Level 2 Bleeding', 'Bleeding@6@9': 'Level 3 Bleeding' },
+    // NOTE on this leg's open (uncurated) Warrior sources, nothing here since none reach this
+    // table's lookup or none are safely resolvable — see `BUFF_INSTANCE_LABELS`'s own top doc
+    // comment for the full writeup: Knot Shot (14467) and Brutal Shot's Immobile pair (34296) are
+    // scan false positives (the 2nd "fact" is a `{{skill fact|condition|immobile|...}}`
+    // Condition-Removed marker with no `duration`, filtered out by `extractFromFacts` before ever
+    // reaching this table — not a real duplicate); Brutal Shot's Vulnerability pair and Eviscerate's
+    // (43566) Might pair are genuine pve/wvw+pvp splits where BOTH duration AND apply_count change,
+    // the same `WvwFactOverride`-can't-express-`apply_count` limitation documented on Falling
+    // Spider (Thief leg)/Icerazor's Ire; Wounding Strike (41543, live-API-confirmed name) has no
+    // wiki page under that title at all (search turned up nothing skill-related); Banner of
+    // Tactics' Stability pair (14408, its Resistance pair got a normal `WvwFactOverrides` fix
+    // instead, see that file's own comment) is 2 raw-identical facts with only ONE `alt=`-labeled
+    // Stability template on the whole page — nothing to distinguish the 2nd from the 1st.
+
     // Darkrazor's Daring (41220/72366), also found via this same synthetic-facts.json sweep,
     // deliberately has NO entry here: `fetch-wvw-splits.ts`'s own comment on 72366 already documents
     // its 2 simultaneous Stability facts (1s unsplit + a separate 6s/3-stack pve-wvw-split one) as a
@@ -1848,7 +1931,7 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // stay unlabeled per this table's convention, already distinguishable by their own stack-count
     // numbers, and neither carries wiki `alt=` text anyway — plus
     // `{{skill fact|poisoned|2|alt=Poison When Downed}}` for the downed-state poison.
-    1279: { 'Poisoned@2@1': 'Poison When Downed' }
+    1279: { 'Poisoned@2@1': 'Poison When Downed' },
     // Shadestep's Heal (2289) and Unhindered Combatant's Exhaustion (1964) both looked like real
     // "linked skill="-sourced conflicts during this leg's rescan (see the `skill` block's own NOTE
     // above) but "Heal"/"Exhaustion" aren't recognized boon/condition names (`BOON_NAMES`/
@@ -1857,6 +1940,35 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // Killed's Quickness ARE real recognized statuses with genuine pve/wvw+pvp splits, but with NO
     // wiki `alt=` text distinguishing the 2 facts (a bare mode split, not 2 different concepts) —
     // fixed via `WvwFactOverrides`/`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` instead, not here.
+
+    // --- Warrior leg (3rd leg, 2026-08-14) ---
+
+    // Sundering Burst (Spellbreaker, burst-skill vulnerability). The wiki has since renamed this
+    // trait to "Rending Strikes" (its own page title, "Sundering Burst" redirects there) — local
+    // game-data's name is stale, doesn't affect curation. Wiki: base Vulnerability
+    // (`{{skill fact|vulnerability|8|stacks=5|pve}}{{skill fact|vulnerability|6|stacks=5|pvp
+    // wvw}}`) is unlabeled; the critical-hit bonus carries an IDENTICAL pve/wvw+pvp split, just
+    // `alt=Critical Vulnerability` on both variants. Local carries all 4 raw facts (pve/wvw pairs
+    // for both concepts), so both the 8@5 and 6@5 tuples need occurrence-indexing — 1st occurrence
+    // of each (array order matches wiki template order: base-pve, base-wvw, crit-pve, crit-wvw)
+    // stays unlabeled, 2nd occurrence of each gets the label.
+    1316: { 'Vulnerability@8@5#2': 'Critical Vulnerability', 'Vulnerability@6@5#2': 'Critical Vulnerability' },
+    // Heat the Soul (Berserker, burst-skill boons). Wiki's base Quickness
+    // (`{{skill fact|Quickness|5|pve}}`) is unlabeled; a 2nd, shorter Quickness application is
+    // tagged `linked skill=Decapitate` (`{{skill fact|Quickness|2|linked skill=Decapitate|pve}}`)
+    // — same "linked skill="-sourced label convention as Shadestep in the Thief leg (real wiki
+    // text, just a different template parameter than `alt=`). The tuples differ (5@1 vs 2@1) so no
+    // occurrence-index is needed regardless of array order. This trait's Might pair (8s wvw+pvp/
+    // 10s pve, both stacks=3, no `alt=`) is a plain mode split — fixed via `WvwFactOverrides`
+    // instead, see that file's own comment on trait 2042.
+    2042: { 'Quickness@2@1': 'On Decapitate' }
+    // Marching Orders' Might pair (1480) is a plain pve/wvw+pvp split with no `alt=` — fixed via
+    // `WvwFactOverrides` instead. Its Protection pair (both gated by a DIFFERENT trait, 1474 —
+    // Vengeance, not native to this trait's own description) isn't documented anywhere on this
+    // trait's own wiki page at all (no `{{trait fact}}` for it, external trait-granted bonus),
+    // same "no wiki text to quote" shape as Deadly Strike/Hidden Thief in the Thief leg — left
+    // uncurated. Feverish Pulse's Quickness pair (2369, 2s pvp-tagged/1s wvw-tagged, no `alt=`) is
+    // also a plain mode split, fixed via `WvwFactOverrides` instead.
   }
 }
 

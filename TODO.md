@@ -33,45 +33,33 @@ that don't block a release.
 - [ ] **Multiple same-status Buff facts on one skill render as unlabeled duplicate rows** — flagged
       by the user 2026-08-09 looking at Icerazor's Ire's tooltip (2 separate Vulnerability
       applications, 8s×10 on-summon + 8s×5 on-hit, both just labeled "Vulnerability" with no way to
-      tell them apart). **Mechanism built + 1st leg curated 2026-08-13** (user, re-asked, wanted real
-      wiki-sourced qualifiers, not a generic index — see `BoonConditionSource.instanceLabel`'s doc
-      comment in `src/shared/boon-calc/sources.ts`): a new `BUFF_INSTANCE_LABELS` curated table
-      (same `skill`/`trait` shape as `TARGET_COUNT_OVERRIDES`) resolves a per-instance qualifier from
-      each source's own wiki `{{skill fact|...|alt=...}}` labels, keyed by
-      `${status}@${duration}@${applyCount}` (falling back to an `#<occurrence>` suffix when 2+ facts
-      share that exact tuple) — rendered in `SkillsEditor.tsx`'s `factsBlock` next to the boon/
-      condition name. A `buff-instance-label-completeness.test.ts` staleness scan guards every
-      curated key against a future game-data refresh silently drifting the underlying facts.
-      **Corrected scope** (re-scanned 2026-08-13, filtering out sources `WvwFactOverrides` already
-      resolves — the original 214 figure didn't account for that mechanism): 255 sources across
-      `data/game-data/skills.json`/`traits.json` (204 skill + 51 trait), PLUS a separate smaller
-      universe in `data/game-data/synthetic-facts.json` (hand-curated facts for near-empty-API
-      skills, not yet fully swept — this leg found 4 more conflict sources there by hand while
-      curating Revenant). **Revenant leg (1st leg) done**: all 10 `skills.json`-sourced conflicts +
-      2 of 3 `synthetic-facts.json`-sourced ones resolved (9 + 2 got real wiki-`alt=` labels;
-      `Unrelenting Assault`/26699 turned out to be a plain PvE/WvW Might split with no `alt=` wording
-      at all — fixed via `WvwFactOverrides` instead, see `wvw-fact-overrides.json`'s `"26699"` entry
-      and `fetch-wvw-splits.ts`'s matching `MANUAL_OVERRIDES` entry; Darkrazor's Daring/41220+72366
-      stays open — its wiki page has no `alt=` text for either of its 2 Stability facts, nothing to
-      curate from). Icerazor's Ire's own 2nd Vulnerability fact (8s/5 stacks, no wiki `alt=`) also
-      labeled "On Hit" per the user's direct 2026-08-13 confirmation from live play, the one entry in
-      `BUFF_INSTANCE_LABELS` sourced from user observation rather than a literal wiki `alt=` string —
-      see that table's own doc comment. **Thief leg (2nd leg) done 2026-08-14**: a rescan (also
-      fixing the original scan's methodology — see `sources.ts`'s doc comment) found 17 skill + 9
-      trait conflict sources, several of which turned out to be dead ends the rescan itself couldn't
-      see (a conflicting `status` that isn't a recognized boon/condition name at all, e.g. a skill's
-      own self-named buff marker, or one handled by the separate `MISCELLANEOUS_MATCHERS` pipeline
-      like Stealth/Superspeed — `classifyBoonCondition` gates those out before `BUFF_INSTANCE_LABELS`
-      is ever consulted, curated or not). Of what remained, 6 got real labels (5 skill, the
-      first-ever trait entries), 3 more were plain PvE/WvW(+PvP) splits with no `alt=` wording fixed
-      via `WvwFactOverrides` instead (2 of them the documented "API rounds a half-second duration up"
-      quirk), and the rest stayed open — see `BUFF_INSTANCE_LABELS`'s own doc comment in `sources.ts`
-      for the full per-source writeup, including a newly-found "Convergence Artifact" skill/trait
-      family (Forged Surfer Dash, Holo-Dancer Decoy, Mistburn Mortar, Possessive Hoarder) whose
-      3-way pve/wvw/pvp splits are tangled enough to deserve its own dedicated cross-profession pass
-      rather than a piecemeal per-leg fix. Remaining: 7 professions' `skills.json`/`traits.json`
-      pools still unswept, plus an unswept remainder of `synthetic-facts.json` — next leg picks a
-      profession the same way `TARGET_COUNT_OVERRIDES`'s sweep did (smallest remaining pool first).
+      tell them apart). **Mechanism built 2026-08-13** (user, re-asked, wanted real wiki-sourced
+      qualifiers, not a generic index — see `BoonConditionSource.instanceLabel`'s doc comment in
+      `src/shared/boon-calc/sources.ts`): a `BUFF_INSTANCE_LABELS` curated table (same `skill`/
+      `trait` shape as `TARGET_COUNT_OVERRIDES`) resolves a per-instance qualifier from each
+      source's own wiki `{{skill fact|...|alt=...}}` (or, since the Thief leg, a `linked skill=`
+      parameter naming a specific other skill/condition) labels, keyed by
+      `${status}@${duration}@${applyCount}` (`#<occurrence>` suffix for same-tuple collisions) —
+      rendered in `SkillsEditor.tsx`'s `factsBlock`. A `buff-instance-label-completeness.test.ts`
+      staleness scan guards every curated key (skill AND trait sides) against game-data drift.
+      **3 legs done, smallest-remaining-pool-first** (full per-source reasoning for every leg lives
+      in `BUFF_INSTANCE_LABELS`'s own doc comment, not duplicated here — this entry only tracks
+      overall status): Revenant (1st, 2026-08-13, 11 skill ids labeled), Thief (2nd, 2026-08-14, 6
+      sources labeled + fixed the scan methodology twice — excluded `overrides`-linked
+      replace-not-add facts, and discovered several "conflicts" never reach the table at runtime
+      since `classifyBoonCondition` only recognizes `BOON_NAMES`/`CONDITION_NAMES`), Warrior (3rd,
+      2026-08-14, 8 sources labeled including this table's first `linked skill=`-derived trait
+      label). Several sources across all 3 legs turned out to be plain PvE/WvW(+PvP) splits with no
+      `alt=` wording — redirected to `WvwFactOverrides`/`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES`
+      instead (regenerate `wvw-fact-overrides.json` by actually running `npm run fetch-wvw-splits`
+      after editing that file, never hand-edit the generated JSON). Also found but deliberately
+      deferred: a cross-profession "Convergence Artifact" skill/trait family (Forged Surfer Dash,
+      Holo-Dancer Decoy, Mistburn Mortar, Possessive Hoarder) with an entangled 3-way pve/wvw/pvp
+      split, worth its own dedicated pass rather than a per-profession fix. **Remaining**: 6
+      professions' `skills.json`/`traits.json` pools unswept (Necromancer next-smallest), plus an
+      unswept `synthetic-facts.json` remainder for those 6 — next leg picks smallest pool first,
+      same pattern as `TARGET_COUNT_OVERRIDES`'s sweep, and checks the `classifyBoonCondition`
+      recognized-name gate BEFORE drafting an entry, not after.
 
 ## Scoped features, not yet built
 

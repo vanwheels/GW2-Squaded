@@ -278,6 +278,9 @@
     "14404": {
       "Might": 6
     },
+    "14408": {
+      "Resistance": 1
+    },
     "14413": {
       "Stability": 6
     },
@@ -1305,6 +1308,9 @@
     "1474": {
       "Protection": 3
     },
+    "1480": {
+      "Might": 6
+    },
     "1511": {
       "Quickness": 3
     },
@@ -1576,7 +1582,8 @@
       "Might": 6
     },
     "2369": {
-      "Alacrity": "omit"
+      "Alacrity": "omit",
+      "Quickness": 1
     },
     "2387": {
       "Alacrity": "omit"
