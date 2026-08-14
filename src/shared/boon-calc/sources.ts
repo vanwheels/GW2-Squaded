@@ -1678,6 +1678,47 @@ function resolveTargetCountFrom(
  * neighborhood — left for that profession's own future leg. A full synthetic-facts.json sweep for
  * the other 8 professions hasn't been done yet — noted as added scope in TODO.md alongside the
  * 245-source `skills.json`/`traits.json` remainder.
+ *
+ * Thief leg (2nd leg, 2026-08-14): smallest remaining profession pool per a rescan (17 skill + 9
+ * trait conflict sources -- the rescan also fixed the original scan methodology: it now excludes
+ * `overrides`-linked traitedFacts, which REPLACE the fact they point at rather than adding a 2nd
+ * simultaneous instance, same precedent as barrier-calc.ts's comment on Lava Skin/46447). Of those
+ * 26, several turned out to be dead ends the rescan itself couldn't see: their conflicting `status`
+ * isn't a recognized `BOON_NAMES`/`CONDITION_NAMES` entry at all (a skill's own self-named buff
+ * marker like "Assassin's Signet", or a status handled by the entirely separate
+ * `MISCELLANEOUS_MATCHERS` pipeline like Stealth/Superspeed, or "Heal"/"Exhaustion" on 2 trait
+ * facts) -- `classifyBoonCondition` gates every one of those out before this table's lookup is ever
+ * reached, so no entry (here or in `WvwFactOverrides`) would have any effect; see the `skill`/
+ * `trait` blocks' own NOTEs below for the full list this ruled out.
+ *
+ * Of the sources that DO reach this table's lookup, 6 got real labels here (5 skill, the
+ * first-ever trait entry -- `BUFF_INSTANCE_LABELS.trait` was empty before this leg): Venomous
+ * Knife, Deadly Aim, Brutal Aim, Malicious Ripper, Holo-Dancer Decoy (both split ids share one
+ * entry), and Serpent's Touch. 3 more turned out to be plain PvE/WvW(+PvP) splits with no `alt=`
+ * wording at all, fixed via `WvwFactOverrides`/`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` instead
+ * (same redirect as Unrelenting Assault in the Revenant leg) -- see that file's own comment on
+ * skill id 76674 and trait ids 1292/2093 for the reasoning (Be Quick or Be Killed is the
+ * documented "API rounds X.5s up" quirk, same shape as Potent Haste/Overwhelming Celerity).
+ *
+ * The remaining sources stay open, nothing to curate from: Choking Gas (13024) and Leeching
+ * Venoms' Spider Venom stacks (1130, a non-boon status so moot for THIS table but its Poisoned
+ * facts share the same shape) are genuine API duplicates/mode-splits with no wiki text to
+ * distinguish them, Leeching Venoms' also a duration-unchanged apply_count-only split which
+ * `WvwFactOverride` structurally can't express (it only overrides `duration`, same limitation
+ * documented on Icerazor's Ire/Fox's Fury in fetch-wvw-splits.ts); Spider Venom (13037) and Falling
+ * Spider (73076) are pve/wvw+pvp splits where duration AND apply_count both change, the same
+ * mechanism gap; Death Blossom (13006) has a wiki split whose exact values don't line up with the
+ * locally-cached raw facts (possible data drift, not confidently resolvable without a live-API
+ * cross-check); Deadly Strike (13125) and Malicious Deadly Strike (50417) each have a 2nd Weakness
+ * fact gated by the Hidden Thief trait (1284) with no wiki `alt=` anywhere on either skill's own
+ * page to quote; Forged Surfer Dash (76633) and Mistburn Mortar (77277/77288) are Convergence
+ * "Artifact" skills whose Burning facts tangle a 3-way pve/wvw/pvp split across 2 different
+ * `linked skill=` sources -- not confidently untangleable from the wiki alone. That same Artifact
+ * system also has its own trait side (Possessive Hoarder, 2393) with a 3-way-split Might/Alacrity/
+ * Protection/Regeneration/Fury shape too entangled to safely map onto this leg's local raw fact
+ * order -- deliberately left uncurated rather than risk mis-assigning a label to the wrong fact;
+ * worth a dedicated future pass across every profession's Artifact skills/traits as one unit rather
+ * than piecemeal per-profession legs, since the mechanic itself isn't profession-specific.
  */
 export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string>>; trait: Record<number, Record<string, string>> } = {
   skill: {
@@ -1751,7 +1792,44 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // `{{skill fact|resolution|alt=Initial Resolution|2.5}}` and
     // `{{skill fact|resolution|alt=Final Pulse Resolution|4}}`.
     45686: { 'Resolution@2.5@1': 'Initial Resolution', 'Resolution@4@1': 'Final Pulse Resolution' },
-    72389: { 'Resolution@2.5@1': 'Initial Resolution', 'Resolution@4@1': 'Final Pulse Resolution' }
+    72389: { 'Resolution@2.5@1': 'Initial Resolution', 'Resolution@4@1': 'Final Pulse Resolution' },
+
+    // --- Thief leg (2nd leg, 2026-08-14) ---
+
+    // NOTE: Assassin's Signet's passive/active pair (status "Assassin's Signet") and Shadow Meld's
+    // Stealth pve/wvw+pvp split both looked like real conflicts during this leg's rescan but turned
+    // out to be dead ends: `classifyBoonCondition` (this table's own gate, via `extractFromFacts`)
+    // only recognizes `BOON_NAMES`/`CONDITION_NAMES` (constants.ts) — a skill's own self-named
+    // buff-marker status ("Assassin's Signet", "Facet of Elements", ...) and "Stealth" (handled by
+    // the entirely separate `MISCELLANEOUS_MATCHERS`/`computeNamedFactSources` pipeline, which
+    // already dedupes by matcher name on its own) never reach this table's lookup at all, curated or
+    // not — an entry for either would be silently inert. Same reasoning ruled out Instant Reflexes/
+    // Meld with Shadows (Superspeed)/Unhindered Combatant (Exhaustion)/Shadestep (a `status: 'Heal'`
+    // Buff fact, also not a recognized boon/condition name) from this leg's trait side below.
+    // Venomous Knife (Deadeye rifle 4/underwater harpoon). Wiki:
+    // {{skill fact|poisoned|8|stacks=2}}{{skill fact|poisoned|2|alt=Poison When Downed}}.
+    13138: { 'Poisoned@2@1': 'Poison When Downed' },
+    // Deadly Aim (Deadeye rifle 2, kneeling). Wiki: base `{{skill fact|vulnerability|6|stacks=2}}`
+    // is unlabeled; the bonus against a marked target carries
+    // `{{skill fact|vulnerability|6|alt=Additional Vulnerability}}`.
+    40710: { 'Vulnerability@6@1': 'Additional Vulnerability' },
+    // Brutal Aim (unkneeled rifle 2, same skill concept as Deadly Aim above). Wiki lists both
+    // facts at the identical value (`{{skill fact|vulnerability|6}}` then
+    // `{{skill fact|vulnerability|6|alt=Additional Vulnerability}}`) — occurrence-indexed since they
+    // share one duration/count tuple, same shape as Inspiring Reinforcement.
+    41422: { 'Vulnerability@6@1#2': 'Additional Vulnerability' },
+    // Malicious Ripper (Deadeye harpoon gun 3, malice-consuming). Wiki: base
+    // `{{skill fact|bleeding|10|stacks=4}}` is unlabeled; the malice-consuming bonus carries
+    // `{{skill fact|bleeding|10|alt=Additional Bleeding per Malice}}`.
+    50449: { 'Bleeding@10@1': 'Additional Bleeding per Malice' },
+    // Holo-Dancer Decoy (Convergence "Defensive Artifact" skill, both split ids). Wiki's base Might
+    // (`{{skill fact|might|8|stacks=2}}`) is unlabeled; the self-destruct bonus carries
+    // `{{skill fact|might|alt=Might on Self-Destruct|8|stacks=4}}`. The skill's Taunt facts are a
+    // separate, unlabeled pve+wvw(3s)/pvp(1s) split with no `alt=` — fixed via `WvwFactOverrides`
+    // instead (id 76674 only; 76800 doesn't carry the pvp-only 2nd Taunt fact at all), see
+    // `fetch-wvw-splits.ts`'s own comment on that id.
+    76674: { 'Might@8@4': 'Might on Self-Destruct' },
+    76800: { 'Might@8@4': 'Might on Self-Destruct' },
 
     // Darkrazor's Daring (41220/72366), also found via this same synthetic-facts.json sweep,
     // deliberately has NO entry here: `fetch-wvw-splits.ts`'s own comment on 72366 already documents
@@ -1759,7 +1837,27 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // wiki page with NO `alt=` wording on either — nothing to curate from, not an oversight. Stays an
     // open item (see TODO.md) until/unless the wiki page is updated with real qualifiers.
   },
-  trait: {}
+  trait: {
+    // --- Thief leg (2nd leg, 2026-08-14) --- first-ever trait entries in this table; traits carry
+    // no `synthetic-facts.json` overlay, so their tuple keys resolve against `facts`+`traitedFacts`
+    // only (matches `buff-instance-label-completeness.test.ts`'s trait-side check, added alongside
+    // these entries).
+
+    // Serpent's Touch (Deadly Arts, stealing/downed poison). Local facts carry 3 Poisoned
+    // instances: a pve-tagged base (10s/2 stacks) and a pvp-tagged variant (10s/1 stack) — both
+    // stay unlabeled per this table's convention, already distinguishable by their own stack-count
+    // numbers, and neither carries wiki `alt=` text anyway — plus
+    // `{{skill fact|poisoned|2|alt=Poison When Downed}}` for the downed-state poison.
+    1279: { 'Poisoned@2@1': 'Poison When Downed' }
+    // Shadestep's Heal (2289) and Unhindered Combatant's Exhaustion (1964) both looked like real
+    // "linked skill="-sourced conflicts during this leg's rescan (see the `skill` block's own NOTE
+    // above) but "Heal"/"Exhaustion" aren't recognized boon/condition names (`BOON_NAMES`/
+    // `CONDITION_NAMES`, constants.ts) — `classifyBoonCondition` gates them out before this table's
+    // lookup is ever reached, so neither gets an entry. Panic Strike's Immobile and Be Quick or Be
+    // Killed's Quickness ARE real recognized statuses with genuine pve/wvw+pvp splits, but with NO
+    // wiki `alt=` text distinguishing the 2 facts (a bare mode split, not 2 different concepts) —
+    // fixed via `WvwFactOverrides`/`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` instead, not here.
+  }
 }
 
 /** `${status}@${duration}@${applyCount}` — see `BUFF_INSTANCE_LABELS`'s doc comment for why this

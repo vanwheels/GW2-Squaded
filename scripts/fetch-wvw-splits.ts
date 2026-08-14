@@ -469,7 +469,7 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     77043: { Might: 10 }, // Shielding Hands (Legend8 heal)
     77243: { Might: 10 }, // Hex-Eater Vortex (Legend8 utility)
     77291: { Might: 10 }, // Gladiator's Defense (Legend8 utility)
-    76805: { Might: 10 } // Beguiling Haze (Legend8 utility)
+    76805: { Might: 10 }, // Beguiling Haze (Legend8 utility)
     // Deliberately NOT given a Notoriety override, same "extractFromFacts collapses EVERY fact
     // sharing one status once an override for that status exists" hazard as Fox's Fury/Darkrazor's
     // Daring above:
@@ -484,8 +484,30 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     //     AND drop the new Notoriety one via the same dedup. Left unsplit: the Notoriety fact is
     //     present (synthetic-facts.json) and displays, just without the pve/wvw duration split
     //     (flat 5s), same documented-gap shape as Icerazor's Ire's stack counts above.
+
+    // Holo-Dancer Decoy (Thief/Deadeye-reachable Convergence "Defensive Artifact" skill, id 76674
+    // only — found 2026-08-14 curating BUFF_INSTANCE_LABELS in sources.ts, Thief leg): a clean
+    // Taunt split, wiki-confirmed (`{{skill fact|taunt|3|game mode=pve wvw}}{{skill fact|taunt|1|
+    // game mode=pvp}}`) — the pve+wvw value (3) already matches this id's first raw Taunt fact
+    // exactly, so this override exists purely to collapse the pvp-only 2nd fact out of the
+    // pve+wvw-facing tooltip, not to correct a wrong number. 76800 (the other split id) doesn't
+    // carry this 2nd Taunt fact at all, so needs no entry.
+    76674: { Taunt: 3 }
   },
-  trait: {}
+  trait: {
+    // Panic Strike (Thief/Deadly Arts trait 1292) and Be Quick or Be Killed (Thief/Trickery trait
+    // 2093) — found alongside Holo-Dancer Decoy above, same Thief leg. Both are plain pve/wvw+pvp
+    // splits with no `alt=` wording (Panic Strike: `{{trait fact|immobile|2.5|game mode=pve}}
+    // {{trait fact|immobile|1.5|game mode=wvw pvp}}`; Be Quick or Be Killed:
+    // `{{trait fact|quickness|4|game mode=pve}}{{trait fact|quickness|2.5|game mode=pvp wvw}}`) —
+    // both also hit the documented "API rounds a half-second duration up" quirk (this file's own
+    // top comment; same shape as Potent Haste/Overwhelming Celerity): neither wiki value (1.5, 2.5)
+    // appears literally among the local raw facts ({3, 2} and {4, 3} respectively, the wvw-side
+    // number rounded up by 1), so the wiki's own precise number is used here rather than the
+    // rounded stand-in.
+    1292: { Immobile: 1.5 },
+    2093: { Quickness: 2.5 }
+  }
 }
 
 function applyManualOverrides(result: WvwFactOverrides, log: string[]): void {

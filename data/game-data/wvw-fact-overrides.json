@@ -1036,6 +1036,9 @@
       "Poisoned": 8,
       "Protection": 3
     },
+    "76674": {
+      "Taunt": 3
+    },
     "76711": {
       "Might": 8,
       "Fury": 8
@@ -1277,7 +1280,8 @@
       "Might": 20
     },
     "1292": {
-      "Poisoned": 1
+      "Poisoned": 1,
+      "Immobile": 1.5
     },
     "1334": {
       "Fury": 3
@@ -1455,6 +1459,9 @@
     },
     "2076": {
       "Quickness": 1.5
+    },
+    "2093": {
+      "Quickness": 2.5
     },
     "2100": {
       "Might": 9

@@ -56,10 +56,22 @@ that don't block a release.
       curate from). Icerazor's Ire's own 2nd Vulnerability fact (8s/5 stacks, no wiki `alt=`) also
       labeled "On Hit" per the user's direct 2026-08-13 confirmation from live play, the one entry in
       `BUFF_INSTANCE_LABELS` sourced from user observation rather than a literal wiki `alt=` string —
-      see that table's own doc comment. Remaining: ~245 sources across the other 8 professions in
-      `skills.json`/`traits.json`, plus an unswept remainder of `synthetic-facts.json` — next leg
-      picks a profession the same way `TARGET_COUNT_OVERRIDES`'s sweep did (smallest remaining pool
-      first), see `BUFF_INSTANCE_LABELS`'s own doc comment in `sources.ts` for the full leg writeup.
+      see that table's own doc comment. **Thief leg (2nd leg) done 2026-08-14**: a rescan (also
+      fixing the original scan's methodology — see `sources.ts`'s doc comment) found 17 skill + 9
+      trait conflict sources, several of which turned out to be dead ends the rescan itself couldn't
+      see (a conflicting `status` that isn't a recognized boon/condition name at all, e.g. a skill's
+      own self-named buff marker, or one handled by the separate `MISCELLANEOUS_MATCHERS` pipeline
+      like Stealth/Superspeed — `classifyBoonCondition` gates those out before `BUFF_INSTANCE_LABELS`
+      is ever consulted, curated or not). Of what remained, 6 got real labels (5 skill, the
+      first-ever trait entries), 3 more were plain PvE/WvW(+PvP) splits with no `alt=` wording fixed
+      via `WvwFactOverrides` instead (2 of them the documented "API rounds a half-second duration up"
+      quirk), and the rest stayed open — see `BUFF_INSTANCE_LABELS`'s own doc comment in `sources.ts`
+      for the full per-source writeup, including a newly-found "Convergence Artifact" skill/trait
+      family (Forged Surfer Dash, Holo-Dancer Decoy, Mistburn Mortar, Possessive Hoarder) whose
+      3-way pve/wvw/pvp splits are tangled enough to deserve its own dedicated cross-profession pass
+      rather than a piecemeal per-leg fix. Remaining: 7 professions' `skills.json`/`traits.json`
+      pools still unswept, plus an unswept remainder of `synthetic-facts.json` — next leg picks a
+      profession the same way `TARGET_COUNT_OVERRIDES`'s sweep did (smallest remaining pool first).
 
 ## Scoped features, not yet built
 

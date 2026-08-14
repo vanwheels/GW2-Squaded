@@ -19,9 +19,9 @@ import { BUFF_INSTANCE_LABELS } from './sources'
  * labels through.
  *
  * Not a coverage scan (unlike the sibling `trait-attribute-completeness.test.ts`/
- * `sigil-named-fact-completeness.test.ts`): TODO.md's bug entry tracks the ~245 remaining
- * uncurated conflict sources as an open backlog item, not something CI should fail on — this test
- * only guards the entries that already exist.
+ * `sigil-named-fact-completeness.test.ts`): TODO.md's bug entry tracks the remaining uncurated
+ * conflict sources (across 7 professions now, after the Revenant/Thief legs) as an open backlog
+ * item, not something CI should fail on — this test only guards the entries that already exist.
  */
 
 interface SkillDataFile {
@@ -30,10 +30,18 @@ interface SkillDataFile {
   traitedFacts: Fact[]
 }
 
+interface TraitDataFile {
+  id: number
+  facts: Fact[]
+  traitedFacts: Fact[]
+}
+
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const skills: SkillDataFile[] = JSON.parse(readFileSync(resolve(__dirname, '../../../data/game-data/skills.json'), 'utf-8'))
+const traits: TraitDataFile[] = JSON.parse(readFileSync(resolve(__dirname, '../../../data/game-data/traits.json'), 'utf-8'))
 const syntheticFacts: Record<string, Fact[]> = JSON.parse(readFileSync(resolve(__dirname, '../../../data/game-data/synthetic-facts.json'), 'utf-8'))
 const skillsById = new Map(skills.map((s) => [s.id, s]))
+const traitsById = new Map(traits.map((t) => [t.id, t]))
 
 /** Every `${status}@${duration}@${applyCount}` tuple present on one source's combined
  *  facts/traitedFacts, keyed with a `#<occurrence>` suffix for the 2nd/3rd/... fact sharing a tuple —
@@ -73,10 +81,21 @@ describe('BUFF_INSTANCE_LABELS key staleness', () => {
     expect(stale, 'BUFF_INSTANCE_LABELS key(s) that no longer match any real fact on their source — re-derive from the source\'s current facts.').toEqual([])
   })
 
-  it('has no trait entries yet (update this test alongside the first trait leg)', () => {
-    // A reminder, not a real invariant: BUFF_INSTANCE_LABELS.trait is empty until a future leg
-    // curates a trait source, at which point this test should grow a trait-side check mirroring the
-    // skill-side one above (traits carry no synthetic-facts.json overlay).
-    expect(Object.keys(BUFF_INSTANCE_LABELS.trait)).toEqual([])
+  it('every curated trait key still resolves against current trait facts (no synthetic-facts.json overlay — traits don\'t get one)', () => {
+    const stale: string[] = []
+    for (const [idStr, labels] of Object.entries(BUFF_INSTANCE_LABELS.trait)) {
+      const id = Number(idStr)
+      const trait = traitsById.get(id)
+      if (!trait) {
+        stale.push(`trait ${id}: no longer exists in traits.json`)
+        continue
+      }
+      const combined = [...trait.facts, ...trait.traitedFacts]
+      const validKeys = buffTupleKeys(combined)
+      for (const key of Object.keys(labels)) {
+        if (!validKeys.has(key)) stale.push(`trait ${id} ("${key}" → "${labels[key]}"): no matching fact tuple`)
+      }
+    }
+    expect(stale, 'BUFF_INSTANCE_LABELS key(s) that no longer match any real fact on their source — re-derive from the source\'s current facts.').toEqual([])
   })
 })
