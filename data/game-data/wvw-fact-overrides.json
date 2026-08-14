@@ -62,11 +62,20 @@
     "6005": {
       "Vulnerability": 6
     },
+    "6053": {
+      "Protection": 3
+    },
+    "6054": {
+      "Protection": 3
+    },
     "6145": {
       "Immobile": 3
     },
     "6153": {
       "Might": 5
+    },
+    "6176": {
+      "Protection": 3
     },
     "9085": {
       "Fury": 10
@@ -158,6 +167,12 @@
     },
     "12338": {
       "Fury": 6
+    },
+    "12377": {
+      "Protection": 3
+    },
+    "12465": {
+      "Protection": 3
     },
     "12466": {
       "Might": 5
@@ -321,6 +336,9 @@
     "20975": {
       "Bleeding": 15
     },
+    "21661": {
+      "Protection": 3
+    },
     "26557": {
       "Might": 10
     },
@@ -450,6 +468,9 @@
     },
     "29719": {
       "Fury": 1
+    },
+    "29772": {
+      "Protection": 3
     },
     "29785": {
       "Vulnerability": 6
@@ -1356,6 +1377,9 @@
     "1667": {
       "Stability": 3,
       "Quickness": "omit"
+    },
+    "1678": {
+      "Might": 6
     },
     "1688": {
       "Weakness": 3

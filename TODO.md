@@ -42,7 +42,7 @@ that don't block a release.
       `${status}@${duration}@${applyCount}` (`#<occurrence>` suffix for same-tuple collisions) —
       rendered in `SkillsEditor.tsx`'s `factsBlock`. A `buff-instance-label-completeness.test.ts`
       staleness scan guards every curated key (skill AND trait sides) against game-data drift.
-      **4 legs done, smallest-remaining-pool-first** (full per-source reasoning for every leg lives
+      **6 legs done, smallest-remaining-pool-first** (full per-source reasoning for every leg lives
       in `BUFF_INSTANCE_LABELS`'s own doc comment, not duplicated here — this entry only tracks
       overall status): Revenant (1st, 2026-08-13, 11 skill ids labeled), Thief (2nd, 2026-08-14, 6
       sources labeled + fixed the scan methodology twice — excluded `overrides`-linked
@@ -54,22 +54,31 @@ that don't block a release.
       start, confirming the original "24" estimate was stale), Guardian (5th, 2026-08-14, 2 sources
       labeled — Rushing Justice's partial "Initial Burning" skill entry, plus this table's first 2
       multi-status-family trait entries, Zealous Scepter and Phoenix Protocol; most of this leg's
-      other finds turned out to be plain WvwFactOverride cases instead, see below). Several sources
-      across all 5 legs turned out to be plain PvE/WvW(+PvP) splits with no `alt=` wording —
-      redirected to `WvwFactOverrides`/`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` instead (regenerate
+      other finds turned out to be plain WvwFactOverride cases instead, see below), Engineer (6th,
+      2026-08-14, 10 sources labeled — Blowtorch, Blunderbuss, Radiant Arc, Essence of Liquid Wrath,
+      Essence of Animated Sand, Lightning Rod, Conduit Surge, Electric Artillery, plus traits New
+      Genes and Hardened Chrome; New Genes' label is this table's first sourced from a version-
+      history note rather than a wiki fact line). Several sources across all 6 legs turned out to be
+      plain PvE/WvW(+PvP) splits with no `alt=` wording — redirected to
+      `WvwFactOverrides`/`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` instead (regenerate
       `wvw-fact-overrides.json` by actually running `npm run fetch-wvw-splits` after editing that
       file, never hand-edit the generated JSON) — the Guardian leg alone redirected 8 sources this
       way, including 2 that hit the documented "API rounds a half-second duration up" quirk
       (Permeating Wrath, Unrelenting Criticism) and one "trait fact copied onto the skill it
       triggers from" case (Willbender Flames' Searing Pact-linked Burning, same shape as the
-      Notoriety cluster). Also found but deliberately deferred: a cross-profession "Convergence
-      Artifact" skill/trait family (Forged Surfer Dash, Holo-Dancer Decoy, Mistburn Mortar,
-      Possessive Hoarder) with an entangled 3-way pve/wvw/pvp split, worth its own dedicated pass
-      rather than a per-profession fix. **Remaining**: 4 professions' `skills.json`/`traits.json`
-      pools unswept (Engineer, Ranger, Mesmer, Elementalist, smallest-first), plus an unswept
-      `synthetic-facts.json` remainder for those 4 — next leg picks smallest pool first, same
-      pattern as `TARGET_COUNT_OVERRIDES`'s sweep, and checks the `classifyBoonCondition`
-      recognized-name gate BEFORE drafting an entry, not after.
+      Notoriety cluster); the Engineer leg redirected 7 more this way (an Over Shield-linked and an
+      Expert Examination-linked Protection pair, each copied onto several skills) and found a new
+      failure mode — 3 sources (Toss Elixir H both ids, Reconstruction Field) carry that same
+      trait-linked pair PLUS their own genuine untraited base fact of the same status, which
+      `WvwFactOverride` can't safely fix (it overrides a whole status, not just the trait-gated
+      subset) — left unfixed rather than risk corrupting the untraited value. Also found but
+      deliberately deferred: a cross-profession "Convergence Artifact" skill/trait family (Forged
+      Surfer Dash, Holo-Dancer Decoy, Mistburn Mortar, Possessive Hoarder) with an entangled 3-way
+      pve/wvw/pvp split, worth its own dedicated pass rather than a per-profession fix. **Remaining**:
+      3 professions' `skills.json`/`traits.json` pools unswept (Ranger, Mesmer, Elementalist,
+      smallest-first), plus an unswept `synthetic-facts.json` remainder for those 3 — next leg picks
+      smallest pool first, same pattern as `TARGET_COUNT_OVERRIDES`'s sweep, and checks the
+      `classifyBoonCondition` recognized-name gate BEFORE drafting an entry, not after.
 
 ## Scoped features, not yet built
 

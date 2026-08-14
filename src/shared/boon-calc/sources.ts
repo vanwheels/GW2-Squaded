@@ -1765,6 +1765,26 @@ function resolveTargetCountFrom(
  * Protocol's Trigger/Activation Alacrity+Resolution (traits) — see the `skill`/`trait` blocks' own
  * comments below for the full per-source writeup, including everything left open (Virtue of Justice,
  * Spear of Justice, Crashing Courage, Dragon's Maw, Resolute Subconscious).
+ *
+ * Engineer leg (6th leg, 2026-08-14): smallest remaining pool per a rescan (23 skill + 3 trait
+ * conflict sources — Toss Elixir H/Super Elixir each split across 2 ids sharing one wiki page).
+ * 8 skill + 2 trait sources got a genuine label here: Blowtorch, Blunderbuss, Radiant Arc, Essence
+ * of Liquid Wrath, Essence of Animated Sand, Lightning Rod, Conduit Surge, Electric Artillery
+ * (skills), New Genes and Hardened Chrome (traits — New Genes' Offensive Protocol: Obliterate label
+ * is this table's first sourced from a version-history note rather than a wiki fact line/`linked
+ * skill=`, since the wiki's own fact template for that line is missing its wvw+pvp variant). 7 more
+ * turned out to be plain WvwFactOverride cases — Magnetic Shield/Static Shield (an Over Shield-
+ * linked Protection pair with no wiki fact at all, sourced from that trait's own version history
+ * instead), Blessing of Dwayna/Leafy Bandage/Static Shock/Bandage Self/Regenerating Mist (an Expert
+ * Examination-linked Protection pair) — see `fetch-wvw-splits.ts`'s own comment block on this leg.
+ * New failure mode this leg: Toss Elixir H (both ids) and Reconstruction Field carry that exact
+ * same Expert-Examination-linked pair PLUS their own genuine untraited base Protection fact sharing
+ * the same status — `WvwFactOverride` can only override a whole status, not scope to just the
+ * trait-gated subset, so fixing them the same way would silently corrupt the untraited value; left
+ * unfixed rather than risk a wrong display (see the `skill` block's own comment for this leg). Also
+ * left open: Poison Dart Volley and Super Elixir (both ids), each a data mismatch between the local
+ * raw facts and either the wiki or the gating trait's own facts, not confidently resolvable; Throw
+ * Napalm, no `alt=` anywhere on its page.
  */
 export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string>>; trait: Record<number, Record<string, string>> } = {
   skill: {
@@ -1984,7 +2004,7 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // that 3-way duplication doesn't map cleanly onto the wiki's single Justice-effect concept, so
     // only the confidently-resolvable Initial Burning gets an entry; the 3 unexplained 2s duplicates
     // stay unlabeled (documented gap, not an oversight — see TODO.md).
-    62668: { 'Burning@4@1': 'Initial Burning' }
+    62668: { 'Burning@4@1': 'Initial Burning' },
     // Several more Guardian conflicts investigated this leg turned out to be plain WvwFactOverride
     // cases instead (Tome of Justice, Shield of Judgment, Sword of Justice, Advancing Strike,
     // Willbender Flames' Searing Pact-linked Burning) — see fetch-wvw-splits.ts's own comment block
@@ -1999,6 +2019,77 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // `{{skill fact|Stability|4}}` template for the whole page, nothing to quote for either); Dragon's
     // Maw (68686, 2 raw-identical Slow@4 facts — the wiki's own pve(4)/wvw+pvp(3) split doesn't
     // appear as a 2nd distinct raw value at all, a data mismatch, not confidently resolvable).
+
+    // --- Engineer leg (6th leg, 2026-08-14) ---
+
+    // Blowtorch (flamethrower 3). Wiki: {{skill fact|burning|alt=Maximum Burning|4.5|stacks=3|game
+    // mode = pve}}{{skill fact|burning|alt=Maximum Burning|12|stacks=2|game mode = pvp wvw}}
+    // {{skill fact|burning|alt=Minimum Burning|3|stacks=3|game mode = pve}}{{skill fact|burning|
+    // alt=Minimum Burning|6|stacks=2|game mode = pvp wvw}} — all 4 raw facts are unique tuples (the
+    // pve 4.5 rounds up to 5, the documented half-second quirk), no unlabeled base, matching Arcing
+    // Slice/Bloodthirster's "every mode-variant tuple gets the matching label" shape.
+    5831: { 'Burning@5@3': 'Maximum Burning', 'Burning@12@2': 'Maximum Burning', 'Burning@3@3': 'Minimum Burning', 'Burning@6@2': 'Minimum Burning' },
+    // Blunderbuss (shotgun 2, point-blank range scaling). Wiki:
+    // {{skill fact|bleeding|alt=Maximum Bleeding|stacks=3|9}}{{skill fact|bleeding|alt=Minimum
+    // Bleeding|stacks=3|3}} — both labeled, no unlabeled base, no game-mode split.
+    6153: { 'Bleeding@9@3': 'Maximum Bleeding', 'Bleeding@3@3': 'Minimum Bleeding' },
+    // Radiant Arc (Holosmith sword 3, heat-scaled quickness). Wiki: {{skill fact|quickness|alt=
+    // Quickness at or below 50% heat|2|game mode = pve}}{{skill fact|quickness|alt=Quickness over
+    // 50% heat|4|game mode = pve}} (each also pvp+wvw split, 1 and 2 respectively — not present
+    // locally). A 3rd raw Quickness fact (6@1, gated on Enhanced Capacity Storage Unit/trait 2137 —
+    // "Some skills and traits gain additional heat tiers") isn't documented anywhere on this skill's
+    // own wiki page at all, so stays unlabeled/uncurated.
+    40160: { 'Quickness@2@1': 'Quickness at or below 50% heat', 'Quickness@4@1': 'Quickness over 50% heat' },
+    // Essence of Liquid Wrath (short-bow 4 Chain Reaction bonus, WvW siege consumable-style skill).
+    // Wiki: base Protection (`{{skill fact|protection|5|game mode = pve pvp}}`) is unlabeled; the
+    // Chain Reaction bonus carries `{{skill fact|protection|3|alt=Chain Reaction Protection|game
+    // mode = pve pvp}}` (its wvw-mode variant flips to a same-named Resolution fact instead, already
+    // unconflicted locally since only 1 Resolution fact is cached).
+    71870: { 'Protection@3@1': 'Chain Reaction Protection' },
+    // Essence of Animated Sand (short-bow 2, same Chain Reaction family as above). Wiki: base Might
+    // has 3 mode variants (pve 8@5, wvw 5@5 — not cached locally, pvp 8@2) all unlabeled; the Chain
+    // Reaction bonus carries `{{skill fact|might|alt=Chain Reaction Might|stacks=3|8|game mode=pve
+    // pvp}}` (its wvw variant, 8@2, isn't distinguishable from the base's own pvp variant sharing
+    // that exact tuple — not cached locally either way, so no collision to resolve). Base's pve
+    // (8@5) and pvp (8@2) tuples both stay unlabeled, matching convention.
+    72052: { 'Might@8@3': 'Chain Reaction Might' },
+    // Lightning Rod (Weaponmaster spear 3, Mechanist-reachable — wiki page is disambiguated as
+    // "Lightning Rod (engineer spear skill)", the bare title belongs to an unrelated Elementalist
+    // trait). Wiki: {{skill fact|vulnerability|stacks=2|alt=Focused Target Vulnerability|8|game
+    // mode=pve}}{{skill fact|vulnerability|alt=Unfocused Target Vulnerability|8|game mode=pve}} —
+    // both labeled, no unlabeled base, identical pve duration but distinguished by stack count.
+    73002: { 'Vulnerability@8@2': 'Focused Target Vulnerability', 'Vulnerability@8@1': 'Unfocused Target Vulnerability' },
+    // Conduit Surge (spear 4, Lightning Rod's follow-up). Wiki: {{skill fact|burning|alt=Focused
+    // Target Burning|7|game mode=pve}}{{skill fact|burning|alt=Unfocused Target Burning|5|game
+    // mode=pve}} — both labeled, no unlabeled base.
+    73122: { 'Burning@7@1': 'Focused Target Burning', 'Burning@5@1': 'Unfocused Target Burning' },
+    // Electric Artillery (spear 5, consumes Lightning Rod Charges). Wiki: base Burning (`{{skill
+    // fact|burning|stacks=2|alt=Minimum Burning Duration|3|game mode=pve}}`, wvw+pvp variant 6, not
+    // cached locally) carries a real alt=; a "Focused/Unfocused Burning Duration Increase per
+    // Charge" pair (0.5/0.25, `linked skill=Lightning Rod Charges`) also carries alt= text, but each
+    // concept's single wiki line has no game-mode split of its own, while the local raw facts carry
+    // 2 IDENTICAL copies of EACH (rounding 0.5/0.25 to 1/0 — same "pve and wvw+pvp happen to round
+    // to the same displayed number" shape as Warrior leg's Stomp) — unlike Stomp, there's only ONE
+    // wiki concept per tuple here (not 2 distinct ones sharing a tuple), so occurrence-indexing would
+    // just apply an identical label to both copies without resolving anything — left unlabeled, same
+    // "nothing to distinguish the 2nd from the 1st" call as Warrior leg's Banner of Tactics Stability
+    // pair.
+    73143: { 'Burning@3@2': 'Minimum Burning Duration' }
+    // Several more Engineer conflicts investigated this leg turned out to be plain WvwFactOverride
+    // cases instead (Magnetic Shield, Static Shield, Blessing of Dwayna, Leafy Bandage, Static Shock,
+    // Bandage Self, Regenerating Mist) — see fetch-wvw-splits.ts's own comment block on this leg for
+    // those. Left open, nothing safely curatable: Poison Dart Volley (5828, 2 raw-identical
+    // Poisoned@7@5 facts — wiki says pve=7/pvp+wvw=10, a data mismatch, same "possible data drift"
+    // shape as Death Blossom/Spear of Justice's Crippled pair); Throw Napalm (6181, bare `{{skill
+    // fact|burning|4}}{{skill fact|burning|2}}` — no alt= anywhere on the page to quote for either);
+    // Super Elixir (5937/6102, an HGH/trait-473-linked Might pair whose own values, 15@2/6@3, don't
+    // cleanly match ANY of HGH's own 3 Might tiers, 15@2/8@3/10@2 — the "6" has no explanation on
+    // either page, an unresolvable mismatch rather than a clean mode split); Toss Elixir H (5978/
+    // 6118) and Reconstruction Field (29505) each carry the same Expert-Examination(1999)-linked
+    // Protection pair as the WvwFactOverride-fixed sources above, but ALSO carry their own genuine
+    // untraited base Protection fact sharing that status — `WvwFactOverride` can only override a
+    // whole status, not scope to just the trait-gated subset, so mirroring the fix here would wrongly
+    // overwrite the legitimate untraited value; left unfixed rather than risk a wrong display.
   },
   trait: {
     // --- Thief leg (2nd leg, 2026-08-14) --- first-ever trait entries in this table; traits carry
@@ -2085,12 +2176,36 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
       'Alacrity@3@1': 'Alacrity on Activation',
       'Resolution@2@1': 'Resolution on Trigger',
       'Resolution@3@1': 'Resolution on Activation'
-    }
+    },
     // Several more Guardian trait conflicts investigated this leg turned out to be plain
     // WvwFactOverride cases instead (Permeating Wrath, Unrelenting Criticism, Legendary Lore) — see
     // fetch-wvw-splits.ts's own comment block on this leg. Left open: Resolute Subconscious (625, 2
     // raw-identical Resolution@3 facts, wiki's whole page only carries ONE unqualified
     // `{{skill fact|resolution|3}}` template, nothing to quote — same Dhuumfire shape).
+
+    // --- Engineer leg (6th leg, 2026-08-14) ---
+
+    // New Genes (Amalgam GM, morph-skill boons). The bare, unconditioned Might
+    // (`{{skill fact|Might|12|stacks=4|game mode = pve}}{{skill fact|Might|6|stacks=3|game mode =
+    // pvp wvw}}`) has no `alt=`/`linked skill=` and stays unlabeled; the Offensive Protocol:
+    // Obliterate-linked Might (`{{skill fact|Might|12|stacks=5|linked skill=Offensive Protocol:
+    // Obliterate}}`) is distinguished from the bare grant by its own apply_count (5, vs. the bare
+    // grant's 4/3) so every tuple is already unique — but the wiki's own fact line only shows ONE
+    // flat value (12) for the Obliterate line, missing the wvw+pvp variant (6) the raw data and this
+    // trait's own 2025-12-09 version-history note ("Increased the Offensive Protocol: Obliterate
+    // might duration from 6 seconds to 12 seconds in PvE only") both confirm is real — same
+    // "linked skill=-sourced label applied to every mode-variant tuple of one concept" convention as
+    // Guardian leg's Zealous Scepter, just sourced from a version-history note instead of a 2nd
+    // wiki-fact line.
+    2387: { 'Might@12@5': 'Offensive Protocol: Obliterate', 'Might@6@5': 'Offensive Protocol: Obliterate' },
+    // Hardened Chrome (Amalgam adept, morph/evolve protection). Wiki: base
+    // (`{{skill fact|protection|2.5}}`) is unlabeled (the local raw 3 is the documented half-second-
+    // rounds-up quirk); the Evolve-triggered bonus carries `{{skill fact|protection|alt=Protection
+    // on Evolve|4}}`.
+    2434: { 'Protection@4@1': 'Protection on Evolve' }
+    // Experimental Turrets' Might pair turned out to be a plain WvwFactOverride case instead (see
+    // fetch-wvw-splits.ts's own comment block on this leg) — its other 5 Buff facts (Vigor/
+    // Swiftness/Fury/Resolution/Protection, one per turret type) are all single-instance already.
   }
 }
 

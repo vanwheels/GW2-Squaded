@@ -530,7 +530,33 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // trait 2191's own already-curated override below so both tooltips agree.
     62528: { Burning: 2 },
     62552: { Burning: 2 },
-    62618: { Burning: 2 }
+    62618: { Burning: 2 },
+
+    // Engineer leg (6th leg of the BUFF_INSTANCE_LABELS sweep, 2026-08-14): Magnetic Shield (6053)
+    // and Static Shield (6054) each carry an Over Shield (trait 394)-linked Protection pair with no
+    // `overrides` link (a real trait-granted-boon-copied-onto-the-skill case, same mechanism as
+    // Willbender Flames above) — Over Shield's own page has no `{{trait fact}}` for it (its only fact
+    // is a flat "Effectiveness Increased 20%" Percent fact, not a Buff), but its version history
+    // confirms the split directly: "Reduced protection duration from 3 seconds to 2 seconds in PvP
+    // only" — pve+wvw=3 (matching each skill's own first raw fact exactly, so this override exists
+    // purely to collapse the pvp-only 2nd fact, same "value matches the fact it's collapsing onto"
+    // shape as Holo-Dancer Decoy's Taunt override above), pvp=2.
+    6053: { Protection: 3 },
+    6054: { Protection: 3 },
+    // Blessing of Dwayna (12377), Leafy Bandage (12465), Static Shock (21661), Bandage Self (29772),
+    // and Regenerating Mist (6176) each carry an Expert Examination (trait 1999)-linked Protection
+    // pair, same mechanism — mirrors trait 1999's own already-curated override below so both
+    // tooltips agree. Toss Elixir H (5978/6118, both split ids) and Reconstruction Field (29505)
+    // carry the identical trait-1999-linked pair too, but ALSO carry their own genuine
+    // untraited base Protection fact (2s) sharing the same status — a flat override here would wrongly
+    // overwrite that legitimate untraited value too (this mechanism can only override a whole status,
+    // not scope to just the trait-gated subset), so those 3 ids are deliberately left unfixed; see
+    // BUFF_INSTANCE_LABELS's own doc comment on this leg for the full writeup.
+    12377: { Protection: 3 },
+    12465: { Protection: 3 },
+    21661: { Protection: 3 },
+    29772: { Protection: 3 },
+    6176: { Protection: 3 }
   },
   trait: {
     // Panic Strike (Thief/Deadly Arts trait 1292) and Be Quick or Be Killed (Thief/Trickery trait
@@ -577,7 +603,15 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // pvp=4, 3-way) and Protection (Tome of Courage, pve=4/wvw=2/pvp=2.5 — the pvp value again hits
     // the rounding quirk, rounding to 3 in the raw facts, but the wvw value(2) is an exact match so
     // needs no special-casing here).
-    2116: { Might: 8, Regeneration: 3, Protection: 2 }
+    2116: { Might: 8, Regeneration: 3, Protection: 2 },
+
+    // Engineer leg (6th leg of the BUFF_INSTANCE_LABELS sweep, 2026-08-14):
+    // Experimental Turrets (1678): its Flame-Turret-linked Might is a plain pve(10)/pvp+wvw(6) split,
+    // no `alt=` (`{{skill fact|Might|linked skill=Flame Turret|10|stacks=3|game mode =pve}}
+    // {{skill fact|Might|linked skill=Flame Turret|6|stacks=3|game mode = pvp wvw}}`) — its OTHER
+    // Buff facts (Vigor/Swiftness/Fury/Resolution/Protection, each linked to a different turret) are
+    // all single-instance, no conflict.
+    1678: { Might: 6 }
   }
 }
 
