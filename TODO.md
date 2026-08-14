@@ -33,19 +33,30 @@ that don't block a release.
 - [ ] **Multiple same-status Buff facts on one skill render as unlabeled duplicate rows** — flagged
       by the user 2026-08-09 looking at Icerazor's Ire's tooltip (2 separate Vulnerability
       applications, 8s×10 on-summon + 8s×5 on-hit, both just labeled "Vulnerability" with no way to
-      tell them apart). **Confirmed NOT specific to this skill or to synthetic-facts curation** — a
-      full scan of `data/game-data/skills.json` found 214 real-API skills with this exact shape
-      already (e.g. Skull Fear applies Fear 3 separate times, Blowtorch applies Burning 4 times), all
-      already rendering the same way today. Root cause: `extractFromFacts`
-      (`src/shared/boon-calc/sources.ts`) builds `BoonConditionSource` from only
-      `status`/`duration`/`apply_count`/`requires_trait` — never `fact.description` (which the real
-      API does populate, but with a generic per-status blurb, not a per-instance qualifier like the
-      wiki's own `alt=` labels) — and `factsBlock` (`SkillsEditor.tsx`) renders only
-      `f.boonOrConditionName`. No field exists anywhere in the pipeline to carry a per-instance label
-      like "on summon" vs "on hit". User picked "leave as-is for now" when asked about scope (options
-      were: leave as-is / add an optional label field populated only where hand-curated / a fully
-      automatic generic label for all 214+ skills at once) — this entry is that future design pass,
-      not started.
+      tell them apart). **Mechanism built + 1st leg curated 2026-08-13** (user, re-asked, wanted real
+      wiki-sourced qualifiers, not a generic index — see `BoonConditionSource.instanceLabel`'s doc
+      comment in `src/shared/boon-calc/sources.ts`): a new `BUFF_INSTANCE_LABELS` curated table
+      (same `skill`/`trait` shape as `TARGET_COUNT_OVERRIDES`) resolves a per-instance qualifier from
+      each source's own wiki `{{skill fact|...|alt=...}}` labels, keyed by
+      `${status}@${duration}@${applyCount}` (falling back to an `#<occurrence>` suffix when 2+ facts
+      share that exact tuple) — rendered in `SkillsEditor.tsx`'s `factsBlock` next to the boon/
+      condition name. A `buff-instance-label-completeness.test.ts` staleness scan guards every
+      curated key against a future game-data refresh silently drifting the underlying facts.
+      **Corrected scope** (re-scanned 2026-08-13, filtering out sources `WvwFactOverrides` already
+      resolves — the original 214 figure didn't account for that mechanism): 255 sources across
+      `data/game-data/skills.json`/`traits.json` (204 skill + 51 trait), PLUS a separate smaller
+      universe in `data/game-data/synthetic-facts.json` (hand-curated facts for near-empty-API
+      skills, not yet fully swept — this leg found 4 more conflict sources there by hand while
+      curating Revenant). **Revenant leg (1st leg) done**: all 10 `skills.json`-sourced conflicts +
+      2 of 3 `synthetic-facts.json`-sourced ones resolved (9 + 2 got real wiki-`alt=` labels;
+      `Unrelenting Assault`/26699 turned out to be a plain PvE/WvW Might split with no `alt=` wording
+      at all — fixed via `WvwFactOverrides` instead, see `wvw-fact-overrides.json`'s `"26699"` entry
+      and `fetch-wvw-splits.ts`'s matching `MANUAL_OVERRIDES` entry; Darkrazor's Daring/41220+72366
+      stays open — its wiki page has no `alt=` text for either of its 2 Stability facts, nothing to
+      curate from). Remaining: ~245 sources across the other 8 professions in
+      `skills.json`/`traits.json`, plus an unswept remainder of `synthetic-facts.json` — next leg
+      picks a profession the same way `TARGET_COUNT_OVERRIDES`'s sweep did (smallest remaining pool
+      first), see `BUFF_INSTANCE_LABELS`'s own doc comment in `sources.ts` for the full leg writeup.
 
 ## Scoped features, not yet built
 

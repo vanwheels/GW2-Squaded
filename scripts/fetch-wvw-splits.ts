@@ -338,6 +338,16 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     62662: { Quickness: 4 }, // Elixir of Anguish (GroundTargeted id) — PvE 5s, WvW/PvP 4s
     68113: { Quickness: 4 }, // Elixir of Anguish (canonical id)
 
+    // Unrelenting Assault (Revenant/Sword 3) — found 2026-08-13 while curating BUFF_INSTANCE_LABELS
+    // in sources.ts (TODO.md's "unlabeled duplicate rows" bug): a clean PvE(8s)/WvW+PvP(3s) Might
+    // split, wiki-confirmed (`{{skill fact|might|8|game mode = pve}}{{skill fact|might|3|game mode =
+    // pvp wvw}}`) — a different root cause than every other entry in this table (no rounding quirk,
+    // no empty-API-facts skill), it just wasn't in this script's own automated candidate list for an
+    // unconfirmed reason (not every `Category:Split skills` page necessarily resolves cleanly through
+    // `resolveOverride`'s cross-validation — see this file's top comment). Added by hand rather than
+    // left uncurated once found, same as every other entry above.
+    26699: { Might: 3 },
+
     // Weaver Pistol/Spear Dual Attacks cluster (Elementalist/Weaver, empty-effect-facts curation,
     // see synthetic-facts.json) — same root cause as the Elixir cluster above (zero real API Buff
     // facts, so this script's candidate discovery never reaches these ids).

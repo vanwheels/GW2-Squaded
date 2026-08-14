@@ -212,6 +212,7 @@ export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSou
                   <img className="tooltip-fact-icon" src={BOON_CONDITION_ICONS_BY_NAME[f.boonOrConditionName]} alt="" />
                 )}
                 <span>{f.boonOrConditionName}</span>
+                {f.instanceLabel && <span className="boon-source-instance-label">{f.instanceLabel}</span>}
                 {f.category === 'boon' && f.targetCount !== null && (
                   <span className="boon-source-target">{formatTargetCount(f.targetCount)}</span>
                 )}

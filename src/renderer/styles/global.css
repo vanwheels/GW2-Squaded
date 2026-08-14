@@ -1307,6 +1307,22 @@ input[type='text'] {
   content: '· ';
 }
 
+/* A wiki-sourced qualifier distinguishing 2+ facts on one skill/trait that share the same boon/
+   condition name (e.g. Fire Bomb's "Initial Burning" vs "Pulse Burning") — see
+   BoonConditionSource.instanceLabel's doc comment in sources.ts. Same muted/small/bullet-prefixed
+   treatment as .boon-source-target, its closest visual sibling in this same label row. */
+.boon-source-instance-label {
+  color: var(--muted);
+  font-size: 0.85em;
+  font-style: italic;
+  white-space: nowrap;
+}
+
+.boon-source-instance-label::before {
+  content: '· ';
+  font-style: normal;
+}
+
 .tooltip-popup {
   position: fixed;
   z-index: 1000;

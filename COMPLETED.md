@@ -2,6 +2,47 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 170 — Duplicate same-status buff row labeling: mechanism built, Revenant leg curated
+
+TODO.md's "unlabeled duplicate rows" bug (deferred 2026-08-09 as "leave as-is for now"): re-asked,
+user wanted real wiki-sourced qualifiers ("on-hit vs on-summon or other cases"), not a generic
+index — different applications "have very different consequences," so an uninformative label
+wouldn't actually fix the confusion.
+
+Built the mechanism: `BoonConditionSource.instanceLabel` (new optional field), populated by a new
+curated `BUFF_INSTANCE_LABELS` table (`skill`/`trait` shape, same convention as
+`TARGET_COUNT_OVERRIDES`) keyed by `${status}@${duration}@${applyCount}` — falling back to an
+`#<occurrence>` suffix for the rarer case where 2+ facts share that exact tuple, matching the wiki's
+own `{{skill fact}}` template order. `extractFromFacts` resolves it per fact via a new tuple-counting
+pre-pass; `SkillsEditor.tsx`'s `factsBlock` renders it next to the boon/condition name (new
+`.boon-source-instance-label` CSS, styled like the existing target-count qualifier).
+
+Re-scanned scope first (the original "214 real-API skills" estimate predates `WvwFactOverrides`,
+which already resolves a large chunk of same-status "duplicates" that are really just an unsplit
+PvE/WvW value baked into 2 raw facts): 255 genuine sources across `skills.json`/`traits.json` (204
+skill + 51 trait) once those are filtered out, PLUS a separate `synthetic-facts.json` universe the
+first scan couldn't see at all (facts for near-empty-API skills — this is where the ORIGINAL flagged
+example, Icerazor's Ire, actually lives).
+
+Revenant leg (1st leg): all 10 `skills.json`-sourced conflicts + 2 of 3 `synthetic-facts.json`-sourced
+ones resolved via real wiki `alt=` labels (11 ids labeled total, spanning Fire Bomb/Pain Absorption/
+Embrace the Darkness/Searing Fissure/Inspiring Reinforcement/Spear of Anguish/Reaver's Rage/Abyssal
+Raze/Release Potential: Mesmer/Icerazor's Ire/Breakrazor's Bastion). 2 exceptions found and handled
+differently: `Unrelenting Assault` (26699) turned out to be a plain PvE(8s)/WvW+PvP(3s) Might split
+with no `alt=` wording at all — fixed via `WvwFactOverrides` instead (added to both
+`wvw-fact-overrides.json` and `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES`, since editing the JSON
+output alone would get silently wiped by the next automated run); Darkrazor's Daring (41220/72366)
+stays genuinely open — its wiki page has no `alt=` text for either of its 2 simultaneous Stability
+facts, nothing to curate from (already a documented gap in `fetch-wvw-splits.ts`'s own comments).
+
+Added `buff-instance-label-completeness.test.ts` — a staleness scan (not a coverage scan) verifying
+every curated key still resolves against current `skills.json` + `synthetic-facts.json` data, so a
+future game-data refresh that reshuffles a fact's duration/apply_count fails loudly instead of
+silently reverting to the unlabeled-duplicate bug. `npm run typecheck` clean; full suite 110/110 (108
++ 2 new). TODO.md entry left open — ~245 sources remain across the other 8 professions plus an
+unswept `synthetic-facts.json` remainder; next leg picks up the same way the target-count sweep did
+(smallest remaining pool first).
+
 ## Session 169 — Assassin's Reward trait healing sweep, closing the last blocked Healing-sweep item
 
 TODO.md's one remaining blocked item from the Weapon-slot Healing sweep: Thief's Assassin's Reward

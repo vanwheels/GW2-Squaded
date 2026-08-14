@@ -102,6 +102,22 @@ export interface BoonConditionSource {
    */
   legendIcon?: string
   legendName?: string
+  /**
+   * A wiki-sourced qualifier distinguishing this fact from another on the SAME source sharing the
+   * SAME `boonOrConditionName` — e.g. Fire Bomb's "Initial Burning" (5s×2) vs "Pulse Burning" (2s),
+   * Pain Absorption's unlabeled base Resistance (3s) vs "Self-Resistance per Condition" (1s). TODO.md
+   * bug entry: "Multiple same-status Buff facts on one skill render as unlabeled duplicate rows" — a
+   * full scan of `data/game-data/{skills,traits}.json` (after excluding sources already resolved by
+   * `WvwFactOverrides`, which collapses a same-status PAIR that's really the SAME grant split
+   * per-game-mode with no `alt=` wording — see `Unrelenting Assault`'s WvW-override entry for that
+   * case) found 255 sources with 2+ genuinely simultaneous facts sharing one status: 204 skills + 51
+   * traits. `undefined` (renders no qualifier) both for sources with only one fact per status AND for
+   * an uncurated conflict source — this field is populated ONLY from `BUFF_INSTANCE_LABELS`, one
+   * source at a time, each entry checked against that source's own wiki page's `{{skill fact}}`
+   * `alt=` labels (see `BUFF_INSTANCE_LABELS`'s own doc comment for the key format and current
+   * curation coverage).
+   */
+  instanceLabel?: string
 }
 
 /** A wiki-confirmed decision for a source with no target-count fact of its own (`resolveTargetCount`
@@ -1615,6 +1631,157 @@ function resolveTargetCountFrom(
   return resolveOverrideValue(overrides[sourceKind][sourceId], fact, activeTraitIdSet, equippedLegendIdSet)
 }
 
+/**
+ * Curated per-instance qualifiers for sources with 2+ simultaneous `Buff`/`PrefixedBuff` facts
+ * sharing one `status` — see `BoonConditionSource.instanceLabel`'s doc comment for the bug this
+ * closes and the 255-source scope it found. Each entry is keyed by
+ * `${status}@${duration}@${applyCount}` — the same tuple the tooltip's own duration/count text
+ * already displays, so a lookup miss can't silently mislabel a fact whose numbers don't match. That
+ * tuple is unique for the overwhelming majority of conflicts (the two facts differ in duration
+ * and/or apply_count, e.g. Fire Bomb's 5s×2 vs 2s×1) — where it ISN'T unique (2+ facts share the
+ * EXACT same status/duration/apply_count, e.g. Inspiring Reinforcement's two identical 3s×1
+ * Stability facts, only distinguished by the wiki's own `alt=` template order), the key gets an
+ * `#<occurrence>` suffix instead, numbered by each fact's 1-based position among its own tuple-mates
+ * in the source's raw `facts`/`traitedFacts` array — the same order the wiki's `{{skill fact}}`
+ * templates are listed in (confirmed: this codebase's other alt-label-derived facts, e.g. Searing
+ * Fissure's "Initial Strike"/"Additional Strikes" damage lines, already rely on that same
+ * template-order-mirrors-API-order convention). A tuple with no entry renders unlabeled — always the
+ * source's unqualified "base" grant in every entry curated so far, its sibling instance(s) being the
+ * only one(s) that need a qualifier to read unambiguously.
+ *
+ * Revenant leg (1st leg, 2026-08-13): started from a scan of `data/game-data/{skills,traits}.json`
+ * (after excluding sources `WvwFactOverrides` already resolves) that found 255 sources across all 9
+ * professions with 2+ genuinely simultaneous same-status facts: 204 skills + 51 traits, 0 of the
+ * traits Revenant's. Of the profession's 10 `skills.json`-sourced conflicts (12 ids — Pain
+ * Absorption/Embrace the Darkness/Inspiring Reinforcement each have a 2nd split id), 9 got a real
+ * wiki-`alt=`-sourced label here; the 10th, `Unrelenting Assault` (26699), turned out during its
+ * wiki check to NOT be a genuine per-instance case at all — its "2 Might facts" are a bare
+ * PvE(8s)/WvW+PvP(3s) split with no `alt=` wording anywhere on its own page, the exact shape
+ * `WvwFactOverrides` already exists to collapse — fixed there instead (see
+ * `data/game-data/wvw-fact-overrides.json`'s `"26699"` entry), not here.
+ *
+ * That `skills.json`/`traits.json` scan is blind to a SEPARATE, smaller universe this leg also swept
+ * by hand after finding it: `data/game-data/synthetic-facts.json` (hand-curated facts for skills
+ * whose real API entry is near-empty — see e.g. `fetch-wvw-splits.ts`'s comment on Icerazor's Ire,
+ * this whole TODO.md bug's ORIGINAL flagged example, 2026-08-09). Of its 81 skill ids, 4 distinct
+ * concepts (8 ids, all Revenant/Renegade "Band Together" legend skills) had the same unlabeled-
+ * duplicate shape: Icerazor's Ire and Breakrazor's Bastion both got real wiki-`alt=` labels below;
+ * Darkrazor's Daring's wiki page has no `alt=` wording for either of its 2 simultaneous Stability
+ * facts (already documented as a gap in `fetch-wvw-splits.ts`'s own comment on 72366) so is
+ * deliberately left with no entry — nothing to curate from, not an oversight; Fox's Fury turned out
+ * to be Elementalist, not Revenant, despite living in this same Revenant-heavy synthetic-facts.json
+ * neighborhood — left for that profession's own future leg. A full synthetic-facts.json sweep for
+ * the other 8 professions hasn't been done yet — noted as added scope in TODO.md alongside the
+ * 245-source `skills.json`/`traits.json` remainder.
+ */
+export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string>>; trait: Record<number, Record<string, string>> } = {
+  skill: {
+    // Fire Bomb (shared Bomb Kit bundle skill, every profession that can pick one up). Wiki:
+    // {{skill fact|burning|alt=Initial Burning|5|stacks=2}}{{skill fact|burning|alt=Pulse Burning|2}}
+    5823: { 'Burning@5@2': 'Initial Burning', 'Burning@2@1': 'Pulse Burning' },
+    // Pain Absorption (Revenant/Demon, both split ids). Wiki: base `{{skill fact|resistance|3}}` is
+    // unlabeled (matches this table's "unqualified base stays unlabeled" convention); the 1s bonus
+    // carries `{{skill fact|resistance|1|alt=Self-Resistance per Condition|1}}` — matches the
+    // `TARGET_COUNT_OVERRIDES` table's own doc comment ("additional resistance per condition" bonus,
+    // self-only) for this exact source.
+    27322: { 'Resistance@1@1': 'Self-Resistance per Condition' },
+    78505: { 'Resistance@1@1': 'Self-Resistance per Condition' },
+    // Embrace the Darkness (Revenant/Demon elite, both split ids). Wiki's base Torment line
+    // (`{{skill fact|torment|5|game mode=pve}}{{skill fact|torment|6|game mode=pvp wvw}}`) carries no
+    // `alt=`; all 3 of its "Additional Torment" mode-variant lines do
+    // (`{{skill fact|torment|alt=Additional Torment|...}}` ×3 for pve/wvw/pvp) — the API bakes these
+    // down to 3 raw Torment facts per id with no game-mode discriminator (same shape
+    // `WvwFactOverrides`' own doc comment describes), so this can't be resolved to a clean
+    // duration/count-keyed table the way most sources here are — occurrence-indexed instead: each
+    // id's FIRST Torment fact (array order, matching the wiki template order above) is the unlabeled
+    // base, every fact after it is "Additional Torment" regardless of its own duration/count (28287's
+    // raw order is base/additional/additional; 78191's is base/additional/additional too, just with
+    // its 2 differently-valued "additional" facts swapped — hence both ids sharing this exact table).
+    28287: { 'Torment@5@2': 'Additional Torment', 'Torment@5@1#2': 'Additional Torment' },
+    78191: { 'Torment@5@2': 'Additional Torment', 'Torment@5@1#2': 'Additional Torment' },
+    // Searing Fissure (Revenant/Herald mace 2). Wiki:
+    // {{skill fact|burning|alt=Initial Burning|3|stacks=3|game mode=pve}}...
+    // {{skill fact|burning|alt=Additional Burning|1|game mode=pve}}...
+    28357: { 'Burning@3@3': 'Initial Burning', 'Burning@1@1': 'Additional Burning' },
+    // Inspiring Reinforcement (Revenant/Dwarf utility, both split ids). Wiki lists BOTH Stability
+    // facts with an `alt=` (no unlabeled base this time) at the identical PvE/WvW value (3), only
+    // distinguished by which alt= template comes first: `alt=Pulsing Stability` then
+    // `alt=Initial Stability` — occurrence-indexed since the 2 facts share one duration/count tuple.
+    28516: { 'Stability@3@1#1': 'Pulsing Stability', 'Stability@3@1#2': 'Initial Stability' },
+    50383: { 'Stability@3@1#1': 'Pulsing Stability', 'Stability@3@1#2': 'Initial Stability' },
+    // Spear of Anguish (Revenant spear 1, aquatic). Wiki:
+    // {{skill fact|torment|8|alt=Maximum Torment}}{{skill fact|torment|4|alt=Minimum Torment}} — both
+    // labeled (the skill's own description already explains why: torment scales with the foe's
+    // distance from the caster, "Minimum"/"Maximum" naming the 2 ends of that range).
+    28714: { 'Torment@8@1': 'Maximum Torment', 'Torment@4@1': 'Minimum Torment' },
+    // Reaver's Rage (Revenant/Vindicator utility). Wiki:
+    // {{skill fact|stability|alt=Initial Stability|1}}
+    // {{skill fact|stability|alt=Base Stability and Stability per Hit|6|game mode=pve wvw}}...
+    62878: { 'Stability@1@1': 'Initial Stability', 'Stability@6@1': 'Base Stability and Stability per Hit' },
+    // Abyssal Raze (Revenant spear 5, Weaponmaster). Wiki's base Torment (`{{skill fact|torment|6}}`)
+    // is unlabeled; the per-stack bonus carries
+    // `{{skill fact|torment|alt=Torment Per Crushing Abyss Count|5|stacks=2|game mode=pve}}`.
+    73059: { 'Torment@5@2': 'Torment Per Crushing Abyss Count' },
+    // Release Potential: Mesmer (Revenant/Conduit mechanic). Wiki's base (to-enemies) Torment
+    // (`{{skill fact|torment|stacks=2|3|game mode=pve}}`) is unlabeled; the self-inflicted echo
+    // carries `{{skill fact|torment|alt=Self Torment per Enemy Struck|8|game mode=pve}}` — matches
+    // the skill's own description ("For each enemy struck, inflict torment on yourself").
+    78615: { 'Torment@8@1': 'Self Torment per Enemy Struck' },
+
+    // Icerazor's Ire (Revenant/Renegade, both split ids) — the ORIGINAL skill this whole bug entry
+    // was flagged from (TODO.md, 2026-08-09), found again this leg via `synthetic-facts.json` (its
+    // real API facts are near-empty; see `fetch-wvw-splits.ts`'s own comment on 40485 for why). Wiki:
+    // `{{skill fact|Vulnerability|alt=Initial Vulnerability|8|stacks=10|game mode=pve}}` for the
+    // 10-stack fact; the skill's OTHER Vulnerability fact (8s/5 stacks) carries no `alt=` at all on
+    // the wiki page — stays unlabeled per this table's usual convention, not an oversight.
+    40485: { 'Vulnerability@8@10': 'Initial Vulnerability' },
+    72359: { 'Vulnerability@8@10': 'Initial Vulnerability' },
+    // Breakrazor's Bastion (Revenant/Renegade heal, both split ids) — same `synthetic-facts.json`
+    // root cause as Icerazor's Ire above, found via the same full sweep of that file. Wiki:
+    // `{{skill fact|resolution|alt=Initial Resolution|2.5}}` and
+    // `{{skill fact|resolution|alt=Final Pulse Resolution|4}}`.
+    45686: { 'Resolution@2.5@1': 'Initial Resolution', 'Resolution@4@1': 'Final Pulse Resolution' },
+    72389: { 'Resolution@2.5@1': 'Initial Resolution', 'Resolution@4@1': 'Final Pulse Resolution' }
+
+    // Darkrazor's Daring (41220/72366), also found via this same synthetic-facts.json sweep,
+    // deliberately has NO entry here: `fetch-wvw-splits.ts`'s own comment on 72366 already documents
+    // its 2 simultaneous Stability facts (1s unsplit + a separate 6s/3-stack pve-wvw-split one) as a
+    // wiki page with NO `alt=` wording on either — nothing to curate from, not an oversight. Stays an
+    // open item (see TODO.md) until/unless the wiki page is updated with real qualifiers.
+  },
+  trait: {}
+}
+
+/** `${status}@${duration}@${applyCount}` — see `BUFF_INSTANCE_LABELS`'s doc comment for why this
+ *  tuple (not a bare status) is the lookup key, and when the `#<occurrence>` suffix applies. */
+function buffInstanceKey(status: string, duration: number, applyCount: number): string {
+  return `${status}@${duration}@${applyCount}`
+}
+
+/** Resolves `BoonConditionSource.instanceLabel` for one buff fact via `BUFF_INSTANCE_LABELS`.
+ *  `tupleOccurrence`/`tupleTotal` are this fact's 1-based position among every fact on the SAME
+ *  source sharing its exact status/duration/apply_count tuple, and how many such facts exist —
+ *  computed by `extractFromFacts` from the same `combinedFacts` list it already walks, since the
+ *  suffix only matters when a tuple isn't unique (see `BUFF_INSTANCE_LABELS`'s doc comment). */
+function resolveInstanceLabel(
+  sourceKind: 'skill' | 'trait',
+  sourceId: number,
+  status: string,
+  duration: number,
+  applyCount: number,
+  tupleOccurrence: number,
+  tupleTotal: number
+): string | undefined {
+  const table = BUFF_INSTANCE_LABELS[sourceKind][sourceId]
+  if (!table) return undefined
+  const baseKey = buffInstanceKey(status, duration, applyCount)
+  if (tupleTotal > 1) {
+    const suffixedKey = `${baseKey}#${tupleOccurrence}`
+    if (suffixedKey in table) return table[suffixedKey]
+  }
+  return table[baseKey]
+}
+
 /** `resolveTargetCountFrom` against `TARGET_COUNT_OVERRIDES` specifically — the boon/condition
  *  case every existing caller uses. */
 function resolveTargetCount(
@@ -2128,6 +2295,19 @@ function extractFromFacts(
   const out: BoonConditionSource[] = []
   const emittedOverriddenStatuses = new Set<string>()
   const combinedFacts = [...facts, ...traitedFacts]
+
+  // Pre-pass for `resolveInstanceLabel`'s `tupleOccurrence`/`tupleTotal` — counts how many facts on
+  // this source share the exact same status/duration/apply_count tuple, unfiltered by
+  // `requires_trait`/WvW-override activity (the curated `BUFF_INSTANCE_LABELS` keys were derived by
+  // eye from the source's raw, unfiltered facts array, so this pre-pass has to match that exactly).
+  const tupleCounts = new Map<string, number>()
+  for (const fact of combinedFacts) {
+    if ((fact.type !== 'Buff' && fact.type !== 'PrefixedBuff') || typeof fact.status !== 'string' || typeof fact.duration !== 'number') continue
+    const key = buffInstanceKey(fact.status, fact.duration, fact.apply_count ?? 1)
+    tupleCounts.set(key, (tupleCounts.get(key) ?? 0) + 1)
+  }
+  const tupleSeen = new Map<string, number>()
+
   for (const fact of combinedFacts) {
     // `PrefixedBuff` (e.g. Revenant/Salvation's Serene Rejuvenation, "Legendary Centaur skills
     // apply boons in an area") carries the identical status/duration/apply_count/requires_trait
@@ -2136,6 +2316,12 @@ function extractFromFacts(
     if ((fact.type !== 'Buff' && fact.type !== 'PrefixedBuff') || typeof fact.status !== 'string' || typeof fact.duration !== 'number') {
       continue
     }
+    const applyCount = fact.apply_count ?? 1
+    const tupleKey = buffInstanceKey(fact.status, fact.duration, applyCount)
+    const tupleTotal = tupleCounts.get(tupleKey) ?? 1
+    const tupleOccurrence = (tupleSeen.get(tupleKey) ?? 0) + 1
+    tupleSeen.set(tupleKey, tupleOccurrence)
+
     const category = classify(fact.status)
     if (category === null) continue
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
@@ -2158,6 +2344,7 @@ function extractFromFacts(
     const { value: targetCount, nameSuffix } = resolveTargetCount(fact, combinedFacts, sourceKind, sourceId, activeIds, equippedLegendIdSet)
     const percent = category === 'condition' ? durationPercent.condition : category === 'boon' ? durationPercent.boon : 0
     const legend = fact.type === 'PrefixedBuff' ? resolveLegendFromPrefix(fact.prefix, legends) : undefined
+    const instanceLabel = resolveInstanceLabel(sourceKind, sourceId, fact.status, fact.duration, applyCount, tupleOccurrence, tupleTotal)
     out.push({
       sourceKind,
       sourceId,
@@ -2168,11 +2355,12 @@ function extractFromFacts(
       category,
       baseDurationSeconds: baseDuration,
       scaledDurationSeconds: baseDuration * (1 + percent / 100),
-      applyCount: fact.apply_count ?? 1,
+      applyCount,
       requiresTraitId: fact.requires_trait ?? null,
       targetCount,
       legendIcon: legend?.icon,
-      legendName: legend?.name
+      legendName: legend?.name,
+      instanceLabel
     })
   }
   return out
