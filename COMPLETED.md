@@ -2,6 +2,38 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 197 — Fix: profession-mechanic-bar tooltips never rendered `branchConditionalFacts`
+
+User-reported bug, found immediately after Session 196: Paragon's Chants showed only Recharge/
+Radius/Number of Targets/Interval + flavor text in the actual running app — none of the curated
+Motivation-tier boon sections from Sessions 195-196.
+
+Root cause: `ProfessionMechanicBar.tsx`'s own `skillTooltipFor` deliberately builds a plain
+title+description+facts tooltip instead of reusing `SkillsEditor.tsx`'s `skillTooltipContent` (to
+skip `relatedVariantSkills`, which is actively wrong for this bar — see that function's own doc
+comment) — but was never updated to also call `branchConditionalFacts`/`conditionalBranchesBlock`
+when those were introduced. Every skill rendered by this bar (the F1-F5 profession-mechanic row)
+went through this path exclusively, so any curated branch content on such a skill was silently
+invisible no matter how correct the underlying data was.
+
+Scope was bigger than just the Chants: Warrior's Burst Skill chain — including Dragon Slash's Sharp
+as the Wind/River's Flow branches (Session 193) — also renders *only* through this bar, so that
+curation had been silently broken since it landed too, not just today's Chant work. Otherworldly
+Bond (a weapon skill, `WeaponSkillBar.tsx`) and the Chant-modifying traits (`TraitsEditor.tsx`) were
+unaffected — both of those render paths already called the right helper.
+
+Fix: added the same `branchConditionalFacts(skill, durationPercent, healingPower)` +
+`conditionalBranchesBlock(branches)` calls `skillTooltipContent` and `TraitsEditor.tsx` already use.
+Added a doc-comment note on `ProfessionMechanicBar.tsx` flagging that any *future*
+`branchConditionalFacts` entry needs verifying against every render path a skill might reach, not
+just `SkillsEditor.tsx` — this bar bypasses that helper by design, so it's an easy blind spot.
+
+`npm run typecheck`/`lint`/`test` all clean (132 tests unchanged). Not caught by the earlier
+scratch-vitest spot-check in Session 196 since that only exercised the data functions directly, not
+each component's actual render path — worth remembering next time a `branchConditionalFacts` entry
+is added: check which component(s) actually render the skill, not just that the data function
+returns the right thing.
+
 ## Session 196 — Paragon's Chant-modifying traits (5 traits, closes the Motivation-tiered Chants item)
 
 Picks up the "5 traits" TODO.md left open after Session 195's Chant-skills pass. Wiki-verified all 5
