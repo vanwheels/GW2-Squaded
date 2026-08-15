@@ -2,6 +2,57 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 205 — Two more dodge-trigger calc gaps, found via a sweep-methodology bug
+
+User flagged Vindicator's 3 Grandmaster traits (Forerunner of Death, Vassals of the Empire, Saint of
+zu Heltzer) as looking like "just flavor text" with no facts, missing from the aggregate Boon/
+Condition panel. Saint of zu Heltzer was already fixed (Session 204); investigating the other two
+found the real root cause: Session 203's 28-candidate dodge sweep searched `traits.json` descriptions
+for the substring `"dodge"`, which never matches `"Dodging"` — both these traits' descriptions say
+"Dodging now...", so neither was ever considered by that sweep at all (not excluded on purpose, just
+never seen).
+
+Investigated each against the live API and the wiki:
+- **Forerunner of Death (2257)**: own trait facts already carry a self-only "Forerunner of Death"
+  buff (untracked custom status, correctly excluded same as Saint of zu Heltzer's own buff), but its
+  wiki-documented Vulnerability-to-foes grant ("Damage foes... inflict vulnerability") lives only on
+  proc skill Death Drop (62693) — confirmed via the wiki's raw `{{skill fact|vulnerability|10|
+  stacks=5}}` template, unsplit across game modes (matches the live API's own duration=10/apply_count=5
+  on that skill exactly).
+- **Vassals of the Empire (2232)**: `facts` array is entirely empty in the live API (worse than
+  Forerunner — zero facts of any kind, not even the self-buff). Its proc skill, Imperial Impact
+  (62859), does exist with real facts: Might and Protection to allies. Wiki raw wikitext confirmed the
+  PvE/WvW split ({{skill fact|might|10|stacks=5|game mode=pve}}{{skill fact|might|8|stacks=3|game
+  mode=wvw pvp}}, protection 5s pve / 2s wvw+pvp) — `wvw-fact-overrides.json` already had a
+  `"62859": { "Might": 8, "Protection": 2 }` entry from an earlier automated run (the script scans all
+  of `skills.json`, not just reachable skills, so this predates today), used directly rather than the
+  API's raw PvE values. Its Chill fact is PvE-only per the wiki's version history ("no longer inflicts
+  chill in PvP and WvW", 2023-02-14 patch) — omitted entirely, consistent with this app's WvW-first
+  convention.
+
+Fixed both the same way as Session 204: real Buff facts (Vulnerability for 2257; Might + Protection
+for 2232) added to `synthetic-trait-facts.json`, keyed by trait id with WvW-adjusted values baked in
+directly (the merge mechanism doesn't re-run `wvw-fact-overrides.json` resolution against a fact once
+it's re-keyed under the trait's id, so values are pre-resolved the same way Session 204's entries
+already were). Matching `TARGET_COUNT_OVERRIDES.trait`/`DODGE_TRIGGER_NOTES.trait` entries added
+(both party(5), reusing each proc skill's own pre-existing `TARGET_COUNT_OVERRIDES.skill` entry as
+corroboration — added `62693`/`62859` entries there too, alongside the pre-existing `62689`, since
+they'd been missing). Also fixed a pre-existing copy-paste error found while touching these lines:
+several existing comments mislabeled Vindicator as "Guardian/Vindicator" — it's a Revenant elite
+spec; corrected every occurrence in `sources.ts`/`docs/game-data.md` (barrier-calc.ts already had it
+right).
+
+Verified with a throwaway script (`readJson` + the exact `withSyntheticTraitFacts` merge logic,
+run directly via `tsx` since `load-game-data.ts` pulls in `electron`) confirming both traits now carry
+the correct merged facts; deleted after confirming. `npm run typecheck` and the full `vitest run`
+suite (135 tests) both pass unchanged.
+
+The same re-check (searching `traits.json` for `/dodg/i` but not `/dodge/i`) surfaced ~10 more
+"Dodging"-worded traits never considered by any prior sweep — not triaged this session, logged in
+TODO.md's dodge-roll item and `DODGE_TRIGGER_NOTES`' own doc comment in `sources.ts` for a future
+pass. TODO.md/`docs/game-data.md` updated; problems 2 and 3 of the parent dodge-roll item (whole
+dodge-replacement mechanics, relic dodge-triggers) remain open and out of scope for this fix.
+
 ## Session 204 — Dodge-trigger calc gap fix (spin-off from the dodge-roll labeling sweep)
 
 Closed the TODO.md spin-off item Session 203 raised: Warrior's Reckless Dodge (trait 1446) and

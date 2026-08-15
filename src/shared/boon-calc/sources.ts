@@ -585,6 +585,11 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOv
     // "gaining quickness. Gain additional quickness for each foe you hit" — self-only.
     62689: 5, // Saint's Shield, wiki page "Saint of zu Heltzer" (Guardian trait proc; id-matched). Wiki:
     // "applies alacrity to allies affected by your dodge" (PvE only, still party-wide when it applies).
+    62693: 5, // Death Drop, wiki page "Forerunner of Death" (Vindicator trait proc; id-matched). Wiki:
+    // "{{skill fact|vulnerability|10|stacks=5}}" alongside "{{skill fact|targets|5}}" — foes hit, not
+    // allies, but this table's target-count resolution is shared across boon and condition sources.
+    62859: 5, // Imperial Impact, wiki page "Vassals of the Empire" (Vindicator trait proc; id-matched).
+    // Wiki: "{{skill fact|allied targets|5}}" alongside its Might/Protection facts.
     62839: 5, // Water Sphere (Elementalist Catalyst trait proc, Depth of Elements; id-matched). Wiki:
     // "boons to allies within range based on your active attunement."
     62842: 5, // Air Sphere (same Depth of Elements proc family as Water Sphere above; id-matched).
@@ -1594,13 +1599,21 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOv
     // so this is a whole-source trait-conditional rather than a per-status map.
     2195: { gatedBy: 'trait', traitId: 554, traitName: 'Battle Presence', whenActive: 5, otherwise: 'self' },
 
-    // Dodge-trigger calc-gap fix (2026-08-15, TODO.md): these 2 traits' real Buff fact was copied
+    // Dodge-trigger calc-gap fix (2026-08-15, TODO.md): these traits' real Buff fact(s) were copied
     // onto the trait itself via `synthetic-trait-facts.json` (see that file's doc comment in
     // `load-game-data.ts`) from a separate un-equippable "proc skill" `skillIdsForBuild` never
     // reaches — each entry here just mirrors the SAME target-count value the proc skill's own
     // (now-orphaned but left in place) entry above already established.
     1446: 'self', // Reckless Dodge (Warrior/Discipline). Proc skill Reckless Impact (14268) above: self.
-    2238: 5 // Saint of zu Heltzer (Guardian/Vindicator). Proc skill Saint's Shield (62689) above: party(5).
+    2238: 5, // Saint of zu Heltzer (Revenant/Vindicator). Proc skill Saint's Shield (62689) above: party(5).
+    // Same fix, found in a follow-up 2026-08-15 pass once the original sweep's "dodge"-substring gap
+    // (see `load-game-data.ts`) was discovered — these two traits' descriptions say "Dodging," not
+    // "dodge," so the original 28-candidate sweep never looked at them at all.
+    2257: 5, // Forerunner of Death (Revenant/Vindicator). Proc skill Death Drop (62693) above: party(5)
+    // (Vulnerability hits up to 5 foes, not allies — see that entry's own comment).
+    2232: 5 // Vassals of the Empire (Revenant/Vindicator). Proc skill Imperial Impact (62859) above:
+    // party(5). Trait's own `facts` array is entirely empty in the live API; both Might and
+    // Protection come from the proc skill via `synthetic-trait-facts.json`.
   }
 }
 
@@ -2792,6 +2805,23 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
  * Vindicator) is ALSO excluded: its wiki page confirms the trait only "increases the effectiveness of
  * your NEXT dodge," modifying a different, already self-only-curated Might source
  * (`TARGET_COUNT_OVERRIDES`) rather than itself being granted "on dodge."
+ *
+ * 2 more (Forerunner of Death 2257, Vassals of the Empire 2232) were added in a follow-up 2026-08-15
+ * pass after a user report ("trait tooltips ... just flavor text") led to discovering the original
+ * 28-candidate sweep's search only matched the substring "dodge" — both these traits' descriptions
+ * say "Dodging," which never matched, so neither was ever considered by the original sweep at all
+ * (not excluded on purpose, simply never seen). Forerunner of Death's own trait facts already carried
+ * its self-only "Forerunner of Death" buff but no Vulnerability; Vassals of the Empire's `facts` array
+ * was entirely empty in the live API. Both now closed via `synthetic-trait-facts.json` the same way
+ * Reckless Dodge/Saint of zu Heltzer were, pulling from proc skills Death Drop (62693) and Imperial
+ * Impact (62859) respectively — see `load-game-data.ts`'s `withSyntheticTraitFacts` doc comment.
+ * That same re-check found ~10 more "Dodging"-worded traits (Stop, Drop, and Roll 360; Evasive Purity
+ * 1054; Pain Response 1237; Expeditious Dodger 1240; Weakening Strikes 1887; Light on your Feet 1912;
+ * Psychic Riposte 2211; Duelist's Reversal 2215; Tenacious Ruin 2262; Mayhem 2427) not yet triaged —
+ * some look like straightforward boon/condition-cleanse gaps of this same shape (Expeditious Dodger's
+ * Swiftness, Duelist's Reversal's boons), others are condition-cleanse or non-boon effects likely
+ * already out of this table's scope on inspection, same as the buckets above. Left for a dedicated
+ * follow-up pass rather than folded into this one — see TODO.md.
  */
 export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record<number, string> } = {
   skill: {},
@@ -2813,8 +2843,15 @@ export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record
     // an attack against nearby foes and grants vigor."
     1446: 'On Dodge', // Reckless Dodge (Warrior/Discipline). Wiki: "Damage foes at the end of a dodge
     // roll. Gain might for each foe struck" — Might fact merged in via `synthetic-trait-facts.json`.
-    2238: 'On Dodge' // Saint of zu Heltzer (Guardian/Vindicator). Wiki: "applies alacrity to allies
+    2238: 'On Dodge', // Saint of zu Heltzer (Revenant/Vindicator). Wiki: "applies alacrity to allies
     // affected by your dodge" — Alacrity fact merged in via `synthetic-trait-facts.json`.
+    // Found in a follow-up 2026-08-15 pass once the original 28-candidate sweep's "dodge"-substring
+    // gap was discovered (see `load-game-data.ts`'s `withSyntheticTraitFacts` doc comment) — both
+    // traits' descriptions say "Dodging," which the sweep's case-insensitive "dodge" search missed.
+    2257: 'On Dodge', // Forerunner of Death (Revenant/Vindicator). Wiki: "Dodging now deals more
+    // damage but affects a smaller area" — Vulnerability fact merged in via `synthetic-trait-facts.json`.
+    2232: 'On Dodge' // Vassals of the Empire (Revenant/Vindicator). Wiki: "Dodging now grants boons to
+    // allies and strikes foes when landing" — Might/Protection facts merged in via `synthetic-trait-facts.json`.
   }
 }
 

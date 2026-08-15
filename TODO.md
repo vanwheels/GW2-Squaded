@@ -44,14 +44,23 @@ fixed — see COMPLETED.md's 2026-08-15 `MISCELLANEOUS_MATCHERS` WvW-override en
          dodge-sourced in the aggregate Boon/Condition panel.~~ **DONE** — see COMPLETED.md for the
          full sweep/fix. Also surfaced 2 genuine calc gaps (not just labeling), spun off into their
          own item and **also DONE 2026-08-15** (see COMPLETED.md) via a new `synthetic-trait-facts.json`
-         mechanism.
+         mechanism. A same-day follow-up (user-flagged: "trait tooltips ... just flavor text",
+         Vindicator's 3 Grandmasters singled out) found the original sweep's "dodge"-substring search
+         had missed every trait worded "Dodging" instead — 2 more real calc gaps closed the same way
+         (Forerunner of Death 2257 ↔ proc skill Death Drop 62693's Vulnerability; Vassals of the Empire
+         2232, whose own `facts` were entirely empty ↔ proc skill Imperial Impact 62859's Might/
+         Protection), see COMPLETED.md. ~10 more "Dodging"-worded traits (Stop, Drop, and Roll 360;
+         Evasive Purity 1054; Pain Response 1237; Expeditious Dodger 1240; Weakening Strikes 1887;
+         Light on your Feet 1912; Psychic Riposte 2211; Duelist's Reversal 2215; Tenacious Ruin 2262;
+         Mayhem 2427) turned up in the same re-check and are NOT yet triaged — see
+         `DODGE_TRIGGER_NOTES`' doc comment in `sources.ts` for the full list and first-look guesses.
       2. Whole alternate dodge-replacement mechanics (Vindicator's Legendary Alliance dodge, Mirage's
          Mirage Cloak) have no skill id in `skills.json` at all and nothing in `src` references them
          by name — the GW2 API doesn't expose the dodge button as an activatable skill the way it
          does weapon/utility skills. Same "API gives nothing to render" shape as Revenant's
          Otherworldly Bond (see COMPLETED.md Session 131), not a wiring bug — would need hand-curated
          content. Same bucket: Daredevil's Lotus Training/Unhindered Combatant/Bounding Dodger (dodge
-         REPLACEMENT abilities, not procs) and Guardian/Vindicator's Saint of zu Heltzer (dodge's
+         REPLACEMENT abilities, not procs) and Revenant/Vindicator's Saint of zu Heltzer (dodge's
          affected area/effect changes) — none of these grant a `BOON_NAMES`/`CONDITION_NAMES`-tracked
          status at all, custom `Buff` statuses with no tracked consumer.
       3. Relics can grant dodge-triggered effects too (e.g. Relic of Rivers, "alacrity and

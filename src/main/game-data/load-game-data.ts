@@ -76,15 +76,24 @@ function withSyntheticFacts(skills: Skill[]): Skill[] {
  * `synthetic-trait-facts.json`'s merge — `withSyntheticFacts`'s trait counterpart, same `{
  * [id]: Fact[] }` shape and same once-at-load-time merge onto `.facts`, kept as a separate file/id
  * namespace rather than folded into `synthetic-facts.json` since skill ids and trait ids are
- * independent sequences that could collide. Narrower use case than the skill version: today it only
- * covers a dodge-roll trait whose real Buff fact lives on a separate un-equippable "proc skill"
- * entity `skillIdsForBuild` never includes (Warrior's Reckless Dodge 1446 ↔ proc skill Reckless
- * Impact 14268) and a trait that's missing ONE of its two real facts the same way (Guardian/
- * Vindicator's Saint of zu Heltzer 2238 already carries its own "Saint of zu Heltzer" buff fact, but
- * its Alacrity grant lives only on proc skill Saint's Shield 62689) — see TODO.md/docs/game-data.md
- * for the full writeup. Copied verbatim from each proc skill's own fact so `BUFF_INSTANCE_LABELS`/
+ * independent sequences that could collide. Covers dodge-roll traits whose real Buff fact lives on a
+ * separate un-equippable "proc skill" entity `skillIdsForBuild` never includes: Warrior's Reckless
+ * Dodge 1446 ↔ proc skill Reckless Impact 14268; Guardian/Vindicator's Saint of zu Heltzer 2238
+ * (already carries its own "Saint of zu Heltzer" buff fact, but its Alacrity grant lives only on proc
+ * skill Saint's Shield 62689); Vindicator's Forerunner of Death 2257 (own "Forerunner of Death" buff
+ * fact present, Vulnerability grant lives only on proc skill Death Drop 62693); and Vindicator's
+ * Vassals of the Empire 2232, whose `facts` array is entirely empty on the trait itself — every
+ * number here comes from proc skill Imperial Impact 62859 instead. The latter two were missed by the
+ * 2026-08-15 dodge sweep that seeded `DODGE_TRIGGER_NOTES` (see that table's own doc comment) because
+ * that sweep searched `traits.json` descriptions for the substring "dodge", and both of these traits'
+ * descriptions say "Dodging" — which doesn't contain "dodge" as a substring (no "e" before the "i").
+ * User-flagged 2026-08-15; TODO.md's dodge-roll item now also tracks the other ~10 "Dodging"-worded
+ * traits that same substring gap missed, not yet individually triaged. See TODO.md/docs/game-data.md
+ * for the full writeup. Copied verbatim from each proc skill's own fact (WvW value where the wiki
+ * splits by game mode — Imperial Impact's Might/Protection use `wvw-fact-overrides.json`'s existing
+ * 8s/2s WvW entry rather than the API's raw PvE 10s/5s) so `BUFF_INSTANCE_LABELS`/
  * `DODGE_TRIGGER_NOTES`/`TARGET_COUNT_OVERRIDES` (all keyed by `sourceKind`+`sourceId`) resolve
- * against the TRAIT's id once merged, not the proc skill's — the proc skill's own pre-existing
+ * against the TRAIT's id once merged, not the proc skill's — each proc skill's own pre-existing
  * `TARGET_COUNT_OVERRIDES` entry is left in place as historical documentation even though that skill
  * id is never reached by `skillIdsForBuild`.
  */

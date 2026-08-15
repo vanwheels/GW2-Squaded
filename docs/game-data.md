@@ -782,7 +782,7 @@ X"/named proc skill, e.g. Reckless Impact 14268 for Warrior's Reckless Dodge tra
 harmless, since `computeBoonConditionSources` only walks *equipped skill*/*chosen trait* facts and
 the proc skill was never meant to be equipped anyway, its Buff fact reachable some other way. Two
 traits (found during the 2026-08-15 dodge-roll sweep, TODO.md) turned out to have NO other way in:
-Reckless Dodge 1446 (real Might fact only on proc skill 14268) and Guardian/Vindicator's Saint of zu
+Reckless Dodge 1446 (real Might fact only on proc skill 14268) and Revenant/Vindicator's Saint of zu
 Heltzer 2238 (its own "Saint of zu Heltzer" self-buff fact IS on the trait directly, but its separate
 Alacrity-to-allies grant is only on proc skill Saint's Shield 62689) — `skillIdsForBuild` never
 includes either proc skill id, so both traits contributed nothing to the aggregate Boon/Condition
@@ -793,6 +793,19 @@ fact verbatim into a matching `synthetic-trait-facts.json` entry, then adding a 
 proc skill's) since every downstream consumer resolves by `sourceKind`+`sourceId` and the merged fact
 now reports `sourceKind: 'trait'`. Worth checking any future "trait proc summons a Lesser-X skill"
 finding against `skillIdsForBuild` the same way before assuming it's already covered.
+
+A same-day follow-up (also 2026-08-15, user-flagged "trait tooltips are just flavor text and lack
+their facts" on Vindicator's 3 Grandmasters specifically) found the original 28-candidate sweep had a
+methodology gap: it searched `traits.json` descriptions for the substring "dodge", which never
+matches "Dodging" (no "e" before the "i"). That silently skipped every "Dodging"-worded trait,
+including 2 more genuine instances of this exact bug: Forerunner of Death 2257 (own "Forerunner of
+Death" self-buff fact present, but its Vulnerability-to-foes grant lives only on proc skill Death Drop
+62693) and Vassals of the Empire 2232 (`facts` array entirely empty on the live trait — both its Might
+and Protection grants live only on proc skill Imperial Impact 62859, WvW values 8s×3/2s×1 per
+`wvw-fact-overrides.json`'s existing entry for that skill id, vs. the API's raw PvE 10s×5/5s). Fixed
+identically (`synthetic-trait-facts.json` + matching `TARGET_COUNT_OVERRIDES.trait`/
+`DODGE_TRIGGER_NOTES.trait` entries). ~10 more "Dodging"-worded traits turned up in the same re-check
+and are NOT yet triaged — see TODO.md's dodge-roll item for the full list.
 
 ## Gear upgrades and consumables (`runes.json`, `sigils.json`, `infusions.json`, `relics.json`, `food.json`, `utility.json`)
 
