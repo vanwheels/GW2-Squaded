@@ -60,32 +60,14 @@ don't have their own open-items table to hold these. Each is a genuine, wiki-con
 grant, not a proc/skill-tooltip coefficient, but needs a conditional-gate shape this codebase doesn't
 have infra for yet, so none are rushed into an existing curated table:
 
-Power Overwhelming (Elementalist, id 334) is **DONE 2026-08-15** — see COMPLETED.md.
+Power Overwhelming (Elementalist, id 334) and Deadly Strength (Necromancer, id 855) are both **DONE
+2026-08-15** — see COMPLETED.md. (Soul Comprehension/Armored Shroud/Dark Defense's own Carapace-
+*granting* sides stay uncurated by design, not a leftover gap: Soul Comprehension's separate "life
+force per stack" clause is a resource this codebase doesn't track anywhere, same "resource gain, not
+character-stat gain" exclusion already applied elsewhere; how stacks actually accumulate mid-fight is
+exactly what the new manual `deathsCarapaceStacks` stepper sidesteps, same reasoning `kallaFervorStacks`
+already established.)
 
-- [ ] **Deadly Strength (Necromancer/Harbinger, id 855) — per-Death's-Carapace-stack
-      Power/ConditionDamage.** "Carapace stacks grant power and condition damage." Wiki-verified
-      2026-08-12: +10 Power / +10 ConditionDamage per stack, no game-mode split (`{{skill
-      fact|attribute|Power|10}}` + `{{skill fact|attribute|Condition Damage|10}}`). No `CombatState`
-      field tracks stacks of this resource today (`mightStacks`/`kallaFervorStacks` are the only
-      stack counters that exist). Needs a new `CombatState.deathsCarapaceStacks` field (same UI shape
-      as `kallaFervorStacks`'s Renegade-gated stepper) before this can be curated. **Not
-      Harbinger-exclusive**, found 2026-08-14 while scoping the trait-granted-boons-on-skills
-      sweep's Necromancer leg: "Death's Carapace" is a real API `Buff` fact (`status: "Death's
-      Carapace"`, decays like a boon, grants Toughness per stack — its own `desc=` differs pve+wvw
-      vs pvp, another number this app doesn't model yet) built by Death Magic core traits too, not
-      just Harbinger's Blight — **Soul Comprehension** (839, "kills grant carapace; gain life force
-      per stack when you enter shroud" — the actual grant is on-kill, not skill-use), **Armored
-      Shroud** (856, "gain carapace when entering shroud," would mirror onto Death
-      Shroud/Reaper's/Desert/Sandstorm/Harbinger/Ritualist's Shroud the same way this leg's other
-      shroud-entry traits did), and **Dark Defense** (860, "gain carapace and protection when you
-      use a healing skill" — the Protection half is already curated onto all 13 Necromancer heal
-      skills this leg, `synthetic-facts.json`, trait 860; only the Carapace half is blocked here).
-      "Death's Carapace" is also not in `BOON_NAMES`/`CONDITION_NAMES`
-      (`src/shared/boon-calc/constants.ts`) — user-confirmed 2026-08-14 this should be modeled as a
-      `CombatState`-tracked stat-stepper resource (Kalla's-Fervor shape), NOT added to the generic
-      boon-tooltip name list, so don't just add it there as a shortcut. Once `deathsCarapaceStacks`
-      exists, Deadly Strength/Soul Comprehension/Armored Shroud/Dark Defense's granting+consuming
-      sides can all be wired against the same field.
 - [ ] **Seize the Moment (Mesmer/Illusions, trait 2022) — WvW tooltip shows wrong Quickness
       values, needs a new override mechanism.** Wiki splits 2 *different* concepts under the trait's
       one "Quickness" status at once — "Quickness per Clone" (pve 1s/pvp 0.75s/wvw 0.5s) and a

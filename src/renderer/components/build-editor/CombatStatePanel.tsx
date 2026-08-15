@@ -1,6 +1,9 @@
 import type { Build } from '@shared/types'
 import {
   CURATED_RELIC_DAMAGE_BONUSES,
+  DEATH_MAGIC_SPECIALIZATION_ID,
+  DEATHS_CARAPACE_MAX_STACKS,
+  DEATHS_CARAPACE_TOUGHNESS_PER_STACK,
   detectActiveStackingSigil,
   FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES,
   HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES,
@@ -15,7 +18,7 @@ import {
   type TargetArmorClass
 } from '@shared/gear-calc/combat-state'
 import { activeTraitIds } from '@shared/gear-calc/trait-attributes'
-import { BOON_CONDITION_ICONS, DAMAGE_ICON, KALLA_FERVOR_ICON, REVEALED_ICON } from '@shared/boon-calc/icons'
+import { BOON_CONDITION_ICONS, DAMAGE_ICON, DEATHS_CARAPACE_ICON, KALLA_FERVOR_ICON, REVEALED_ICON } from '@shared/boon-calc/icons'
 import { useGameData } from '@renderer/state/game-data-store'
 
 interface Props {
@@ -31,6 +34,10 @@ const STACK_OPTIONS = [0, 5, 10, 15, 20, 25]
 /** Kalla's Fervor stacks every value 0-5 (its own real max, unlike Might/stacking-sigils'
  *  0-25-by-5s above) — few enough values that every-integer options read fine as a dropdown. */
 const KALLA_FERVOR_STACK_OPTIONS = Array.from({ length: KALLA_FERVOR_MAX_STACKS + 1 }, (_, n) => n)
+
+/** Death's Carapace's own max (30) back to 5-increment options, same reasoning as `STACK_OPTIONS`
+ *  above (too many values for every-integer to read well, unlike Kalla's Fervor's small 0-5 range). */
+const DEATHS_CARAPACE_STACK_OPTIONS = Array.from({ length: DEATHS_CARAPACE_MAX_STACKS / 5 + 1 }, (_, n) => n * 5)
 
 const TARGET_ARMOR_OPTIONS: TargetArmorClass[] = ['Light', 'Medium', 'Heavy']
 
@@ -48,7 +55,8 @@ function iconClass(active: boolean): string {
 
 /**
  * Icon-based controls for `CombatState`, rendered inline inside `StatsPanel` to the right of the
- * stat grid. Might/stacking-sigil are steppers (icon + 5-increment dropdown); Fury/Regeneration/
+ * stat grid. Might/stacking-sigil/Death's Carapace are steppers (icon + 5-increment dropdown);
+ * Kalla's Fervor is a stepper too but every-integer (its own max is only 5); Fury/Regeneration/
  * Quickness/relic/mechanic-active are click-to-toggle icons (no dropdown, boolean on/off); target
  * armor is a 3-option dropdown (not a stepper — only Light/Medium/Heavy exist, no intermediate
  * values) — see `CombatState`'s doc comment for why each field takes the shape it does.
@@ -101,6 +109,10 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   // `kallaFervorPercentPerStack`'s doc comment.
   const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
 
+  // Only surfaced when Death Magic is actually equipped — Death's Carapace can't exist without it
+  // (see `combat-state.ts`'s `DEATH_MAGIC_SPECIALIZATION_ID`).
+  const hasDeathMagic = build.specializations.some((s) => s?.specializationId === DEATH_MAGIC_SPECIALIZATION_ID)
+
   return (
     <div className="combat-state-controls">
       <div className="combat-state-row">
@@ -136,6 +148,28 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
             onChange={(e) => onChange({ ...value, kallaFervorStacks: Number(e.target.value) })}
           >
             {KALLA_FERVOR_STACK_OPTIONS.map((n) => (
+              <option key={n} value={n}>
+                ×{n}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      {hasDeathMagic && (
+        <div className="combat-state-row">
+          <img
+            className={iconClass(value.deathsCarapaceStacks > 0)}
+            src={DEATHS_CARAPACE_ICON}
+            alt=""
+            title={`Death's Carapace: +${DEATHS_CARAPACE_TOUGHNESS_PER_STACK} Toughness per stack`}
+          />
+          <select
+            aria-label="Death's Carapace stacks"
+            value={value.deathsCarapaceStacks}
+            onChange={(e) => onChange({ ...value, deathsCarapaceStacks: Number(e.target.value) })}
+          >
+            {DEATHS_CARAPACE_STACK_OPTIONS.map((n) => (
               <option key={n} value={n}>
                 ×{n}
               </option>

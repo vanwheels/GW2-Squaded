@@ -3,6 +3,7 @@ import type { Build, Trait, TraitSlot } from '../types'
 import {
   combatStatePoints,
   CURATED_RELIC_DAMAGE_BONUSES,
+  DEATHS_CARAPACE_TOUGHNESS_PER_STACK,
   DEFAULT_COMBAT_STATE,
   FURY_CRITICAL_CHANCE_PERCENT,
   KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK,
@@ -120,6 +121,32 @@ describe('combatStatePoints — mightStacks', () => {
     const traitsById = new Map<number, Trait>([[915, { id: 915, tier: 1, order: 0, name: 'Awaken the Pain', description: '', slot: 'Minor', specializationId: 900, icon: '', facts: [], traitedFacts: [] }]])
     const points = combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, mightStacks: 25 }, traitsById)
     expect(points.Power).toBe(25 * MIGHT_POWER_PER_STACK)
+  })
+})
+
+describe("combatStatePoints — deathsCarapaceStacks (Death's Carapace)", () => {
+  it.each([0, 15, 30])('grants the baseline Toughness at %i stacks, no trait', (stacks) => {
+    const build = makeBuild()
+    const points = combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, deathsCarapaceStacks: stacks }, NO_TRAITS)
+    expect(points.Toughness ?? 0).toBe(stacks * DEATHS_CARAPACE_TOUGHNESS_PER_STACK)
+    expect(points.Power ?? 0).toBe(0)
+    expect(points.ConditionDamage ?? 0).toBe(0)
+  })
+
+  it.each([0, 15, 30])('adds Deadly Strength\'s per-stack Power/ConditionDamage on top of the baseline Toughness at %i stacks', (stacks) => {
+    const { build, traitsById } = buildWithTrait(855, 'Major') // Deadly Strength: +10 Power/+10 ConditionDamage per stack
+    const points = combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, deathsCarapaceStacks: stacks }, traitsById)
+    expect(points.Toughness ?? 0).toBe(stacks * DEATHS_CARAPACE_TOUGHNESS_PER_STACK)
+    expect(points.Power ?? 0).toBe(stacks * 10)
+    expect(points.ConditionDamage ?? 0).toBe(stacks * 10)
+  })
+
+  it('never applies the Deadly Strength bonus when the trait is not active, regardless of stack count', () => {
+    const build = makeBuild()
+    const traitsById = new Map<number, Trait>([[855, { id: 855, tier: 2, order: 0, name: 'Deadly Strength', description: '', slot: 'Major', specializationId: 900, icon: '', facts: [], traitedFacts: [] }]])
+    const points = combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, deathsCarapaceStacks: 30 }, traitsById)
+    expect(points.Toughness).toBe(30 * DEATHS_CARAPACE_TOUGHNESS_PER_STACK)
+    expect(points.Power ?? 0).toBe(0)
   })
 })
 

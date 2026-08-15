@@ -102,6 +102,14 @@ export const KALLA_FERVOR_ICON = 'https://render.guildwars2.com/file/4DDE151C71E
  *  "Revealed") — used for `CombatStatePanel`'s `revealedActive` toggle. */
 export const REVEALED_ICON = 'https://render.guildwars2.com/file/62BFF65D1CE99B1B2B0928152BCC596EAC0D372B/102887.png'
 
+/** Death's Carapace's own icon (Necromancer/Death Magic's stacking self-buff — +20 Toughness per
+ *  stack WvW/PvE, max 30, granted by Armored Shroud/Soul Comprehension/Dark Defense) — not in
+ *  `BOON_CONDITION_ICONS` since it's neither a boon nor a condition, same reasoning `KALLA_FERVOR_
+ *  ICON`/`REVEALED_ICON` get their own constants. Pulled from the buff's own `Buff`-type fact
+ *  (status "Death's Carapace", e.g. traits.json id 856 "Armored Shroud") — used for
+ *  `CombatStatePanel`'s `deathsCarapaceStacks` stepper. */
+export const DEATHS_CARAPACE_ICON = 'https://render.guildwars2.com/file/DC38F4623BFE773E681E37A0EAE11A364D52AACE/1012567.png'
+
 /** The API exposes exactly one icon per Combo Field fact and one per Combo Finisher fact,
  *  regardless of `field_type`/`finisher_type` (confirmed via a scan of data/game-data/skills.json)
  *  — unlike boons/conditions/auras, there's no per-type icon to look up here. */

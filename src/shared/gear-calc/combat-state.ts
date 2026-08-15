@@ -70,6 +70,14 @@ export interface CombatState {
    *  `stackingSigilStacks` (a build-conditional stepper) rather than a flat boolean like
    *  `furyActive` etc. */
   kallaFervorStacks: number
+  /** 0-30 stacks of Death's Carapace, Necromancer/Death Magic's own stacking self-buff (+20
+   *  Toughness per stack WvW/PvE, +10 PvP — see `DEATHS_CARAPACE_TOUGHNESS_PER_STACK`), granted by
+   *  Death Magic's Armored Shroud (on Shroud entry, both auto-granted minors so always live once the
+   *  line is equipped) and Soul Comprehension (on kill), or Dark Defense (on healing-skill use, a
+   *  Major pick). Only meaningful/surfaced when Death Magic is equipped (`CombatStatePanel` gates its
+   *  stepper on `DEATH_MAGIC_SPECIALIZATION_ID`), same shape as `kallaFervorStacks` (a
+   *  build-conditional stepper) rather than a flat boolean. */
+  deathsCarapaceStacks: number
 }
 
 export const DEFAULT_COMBAT_STATE: CombatState = {
@@ -84,7 +92,8 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   stackingSigilStacks: 0,
   relicActive: false,
   targetArmorClass: 'Medium',
-  kallaFervorStacks: 0
+  kallaFervorStacks: 0,
+  deathsCarapaceStacks: 0
 }
 
 // wiki-confirmed flat value at level 80, quoted directly (not derived from a per-level formula).
@@ -155,6 +164,70 @@ export function kallaFervorPercentPerStack(build: Build, traitsById: Map<number,
         lifeSteal: KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK,
         improved: false
       }
+}
+
+/**
+ * Death's Carapace (Necromancer/Death Magic core spec's own stacking self-buff, max 30 stacks) —
+ * wiki-verified via raw wikitext (wiki.guildwars2.com/index.php?title=Death%27s_Carapace&action=raw)
+ * 2026-08-15: "Increased toughness per stack" — split PvE/WvW 20 / PvP 10 (reduced from 20 by a 2020
+ * balance patch, PvP only); this app's WvW value is 20. Granted by Death Magic's Armored Shroud (856,
+ * Minor tier 1 — "Gain carapace when entering shroud", 5 stacks/entry) and Soul Comprehension (839,
+ * Minor tier 2 — "Kills grant carapace", 1 stack/kill), both auto-granted whenever Death Magic is
+ * equipped at all, or Dark Defense (860, Major tier 2 — "Gain carapace ... when you use a healing
+ * skill", 10 stacks/use, mutually exclusive with Deadly Strength below since both are Major tier 2).
+ * This baseline Toughness grant is the buff's own effect, not any one trait's — applies whenever the
+ * player holds stacks at all, same "unconditional per-stack baseline" shape `MIGHT_POWER_PER_STACK`/
+ * `MIGHT_CONDITION_DAMAGE_PER_STACK` already model for Might. `DEADLY_STRENGTH_ATTRIBUTE_TRAIT_
+ * BONUSES` below is Deadly Strength's own *additional* per-stack grant, the `MIGHT_STACK_ATTRIBUTE_
+ * TRAIT_BONUSES`-shaped trait add-on sibling to this baseline. Soul Comprehension's separate "gain
+ * life force per stack on shroud entry" clause and the granting traits' own apply-count mechanics are
+ * out of scope here — Life Force is a resource this codebase doesn't track anywhere (same "resource
+ * gain, not a character-stat gain" exclusion already applied to Boon of Creation's life-force-on-
+ * summon and Spiteful Fortitude's health-threshold life-force proc elsewhere in this file), and how
+ * stacks actually accumulate mid-fight is exactly what the manual `deathsCarapaceStacks` stepper
+ * exists to sidestep, same reasoning `kallaFervorStacks` above already documents.
+ */
+export const DEATHS_CARAPACE_MAX_STACKS = 30
+export const DEATHS_CARAPACE_TOUGHNESS_PER_STACK = 20 // WvW/PvE value; PvP is 10
+
+/** Death Magic (Necromancer core spec) — gates `CombatStatePanel`'s Carapace stepper, mirrors
+ *  `RENEGADE_SPECIALIZATION_ID`'s role for `kallaFervorStacks` above: Death's Carapace can't exist on
+ *  a build without this line equipped (both granting minors live here), so there's no reason to show
+ *  the stepper otherwise. */
+export const DEATH_MAGIC_SPECIALIZATION_ID = 2
+
+/**
+ * Trait id -> extra flat attribute points (by target) granted per stack of Death's Carapace — Deadly
+ * Strength (Necromancer/Death Magic, Major tier 2, id 855), TODO.md's "New attribute-bonus gaps
+ * needing new CombatState infra" second item. Wiki-verified via the live API's own `description`/
+ * `facts` (`data/game-data/traits.json`) 2026-08-15: "Carapace stacks grant power and condition
+ * damage" — `{{skill fact|attribute|Power|10}}` + `{{skill fact|attribute|Condition Damage|10}}`, no
+ * game-mode split (matches `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`'s per-stack shape, just keyed to
+ * this resource instead of Might). Mutually exclusive with Dark Defense (860, same Major tier 2 slot)
+ * — the two can never both be active on one build, but the calc doesn't need to special-case that
+ * since `activeTraitIds` already only ever contains the one actually chosen.
+ */
+export const DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<string, number>> = {
+  855: { Power: 10, ConditionDamage: 10 } // Deadly Strength (Necromancer/Death Magic, Major tier 2)
+}
+
+/**
+ * Resolves the baseline Toughness grant plus any curated Deadly-Strength-shaped per-stack trait
+ * bonus, grouped by target attribute, for the given `deathsCarapaceStacks` count (mirrors
+ * `mightStackAttributeTraitBonus`'s shape, folding the always-on baseline and the trait add-on into
+ * one function since — unlike Might, which every profession can have — nothing else in this file
+ * ever needs Death's Carapace's baseline alone).
+ */
+export function deathsCarapaceAttributePoints(build: Build, stacks: number, traitsById: Map<number, Trait>): Record<string, number> {
+  const bonus: Record<string, number> = {}
+  if (stacks <= 0) return bonus
+  bonus.Toughness = stacks * DEATHS_CARAPACE_TOUGHNESS_PER_STACK
+  const active = activeTraitIds(build, traitsById)
+  for (const [traitIdText, targets] of Object.entries(DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES)) {
+    if (!active.has(Number(traitIdText))) continue
+    for (const [target, valuePerStack] of Object.entries(targets)) bonus[target] = (bonus[target] ?? 0) + valuePerStack * stacks
+  }
+  return bonus
 }
 
 export const FURY_CRITICAL_CHANCE_PERCENT = 20
@@ -880,8 +953,9 @@ export function detectActiveStackingSigil(build: Build): ActiveStackingSigil | n
  * `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`, `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES`,
  * `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`, or `REVEALED_ATTRIBUTE_TRAIT_BONUSES` — plus any
  * curated `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES` for the current `state.healthTier` (always
- * applied, no separate on/off gate) — in the same `points` shape `computeGearAttributeTotals`
- * produces — merged into that total by
+ * applied, no separate on/off gate) — plus Death's Carapace's own baseline Toughness grant and any
+ * curated `DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES` for `state.deathsCarapaceStacks` — in the same
+ * `points` shape `computeGearAttributeTotals` produces — merged into that total by
  * `computeCharacterStats` before deriving the stats-panel values. Fury's own crit-*chance* bonus and
  * the relic bonus don't go through this path since they apply directly to derived stats, not raw
  * attribute points.
@@ -930,6 +1004,8 @@ export function combatStatePoints(build: Build, state: CombatState, traitsById: 
   }
 
   for (const [attribute, value] of Object.entries(healthThresholdAttributeTraitBonus(build, state.healthTier, traitsById))) add(attribute, value)
+
+  for (const [attribute, value] of Object.entries(deathsCarapaceAttributePoints(build, state.deathsCarapaceStacks, traitsById))) add(attribute, value)
 
   return points
 }

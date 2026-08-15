@@ -2,6 +2,49 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 212 — Deadly Strength: new deathsCarapaceStacks CombatState field
+
+Second of TODO.md's 3 "new attribute-bonus gaps needing new CombatState infra" items (Necromancer/
+Death Magic, Major tier 2, id 855). Confirmed via a fresh wiki lookup 2026-08-15
+(wiki.guildwars2.com/index.php?title=Death%27s_Carapace&action=raw) that Death's Carapace itself
+(the buff Deadly Strength scales off of) carries its own baseline effect not previously scoped:
+"Increased toughness per stack," +20 Toughness/stack WvW+PvE (PvP 10, reduced 2020), max 30 stacks —
+this is the *buff's* own grant, separate from Deadly Strength's trait-specific +10 Power/+10
+ConditionDamage per stack (unchanged from the 2026-08-14 scoping note).
+
+New `CombatState.deathsCarapaceStacks` field (0-30, defaults 0) — same "manual what-if stepper"
+shape as `kallaFervorStacks`, since how Carapace stacks actually accumulate mid-fight (on Shroud
+entry via Armored Shroud, on kill via Soul Comprehension, on heal-skill-use via Dark Defense) isn't
+something a static build snapshot can simulate. New `combat-state.ts` exports: `DEATHS_CARAPACE_
+TOUGHNESS_PER_STACK`/`DEATHS_CARAPACE_MAX_STACKS` (the buff's own baseline, applied whenever stacks
+> 0, mirrors `MIGHT_POWER_PER_STACK`'s always-on shape), `DEATH_MAGIC_SPECIALIZATION_ID` (gates the
+new UI stepper, mirrors `RENEGADE_SPECIALIZATION_ID`), `DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES` +
+`deathsCarapaceAttributePoints` (Deadly Strength's own per-stack add-on, mirrors `MIGHT_STACK_
+ATTRIBUTE_TRAIT_BONUSES`'s shape), wired into `combatStatePoints`. New `DEATHS_CARAPACE_ICON` in
+`icons.ts` (pulled from Armored Shroud's own Buff fact). `CombatStatePanel` gets a new stepper row,
+gated on Death Magic being equipped (same visibility pattern as every other build-conditional
+control in that file), with a 5-increment dropdown (0/5/.../30) matching `STACK_OPTIONS`'s own
+convention rather than Kalla's Fervor's every-integer one (its 0-30 range is too wide for that).
+
+Scoping decision, made this session: Soul Comprehension/Armored Shroud/Dark Defense's own Carapace-
+*granting* sides don't need separate curation — they're not character-stat formulas of their own,
+just descriptive mechanics already visible on each trait's own generic tooltip (unaffected by this
+change), and the manual stepper is deliberately how this app sidesteps needing to simulate them (same
+reasoning `kallaFervorStacks` already established for Kalla's Fervor's own granting side). Soul
+Comprehension's separate "gain life force per stack on shroud entry" clause stays out of scope too —
+Life Force is a resource this codebase doesn't track anywhere, same "resource gain, not a character-
+stat gain" exclusion already applied to Boon of Creation/Spiteful Fortitude elsewhere in this file.
+This closes the full family, not just Deadly Strength's own trait id.
+
+`trait-attribute-completeness.test.ts` updated: trait 855 moved from `EXCLUDED_TRAIT_IDS` into the
+covered-ids union via the new `DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES` table (Soul Comprehension/
+Armored Shroud/Dark Defense were never flagged by that scan in the first place — none of their facts
+are the `AttributeAdjust`/`BuffConversion` shape it checks for). 3 new unit tests in
+`combat-state.test.ts` cover the baseline-only, baseline+trait, and trait-inactive cases. `npm run
+typecheck`, `lint`, and the full `vitest run` suite (146 tests) all pass. TODO.md's item for this
+family is closed; only Seize the Moment (Mesmer 2022, needs a new multi-value WvW override mechanism,
+a different subsystem entirely — boon-calc, not gear-calc) remains open in that TODO.md section.
+
 ## Session 211 — Power Overwhelming: might-threshold + attunement-doubled Power bonus
 
 First of TODO.md's 3 "new attribute-bonus gaps needing new CombatState infra" items (Elementalist/

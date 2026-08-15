@@ -5,6 +5,7 @@ import { describe, expect, it } from 'vitest'
 import type { Fact } from '../types'
 import { CURATED_CONVERSIONS, CURATED_FLAT_BONUSES, ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES, WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES } from './trait-attributes'
 import {
+  DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES,
   FURY_ATTRIBUTE_TRAIT_BONUSES,
   FURY_CRIT_CHANCE_TRAIT_BONUSES,
   HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES,
@@ -42,10 +43,11 @@ import {
  * life-siphon-on-hit, pet-only stats, a temporary on-cast buff value, a condition-tick-damage
  * coefficient, and one `requires_trait` cross-reference) — same "fact type reused for skill-tooltip
  * math" shape the file-header comment on `trait-attributes.ts` already documents for Healer's Gift,
- * the original example that motivated this whole curated-whitelist design. Power Overwhelming (334)
- * was later built (2026-08-15, `MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES` in
- * `combat-state.ts`) and moved from the exclusion list below into the covered-ids union; Deadly
- * Strength (855) remains excluded, still blocked on a new `CombatState.deathsCarapaceStacks` field.
+ * the original example that motivated this whole curated-whitelist design. Both were later built
+ * (2026-08-15, `combat-state.ts`: Power Overwhelming via `MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_
+ * ATTRIBUTE_TRAIT_BONUSES`, Deadly Strength via the new `deathsCarapaceStacks` CombatState field +
+ * `DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES`) and moved from the exclusion list below into the
+ * covered-ids union.
  */
 
 interface TraitDataFile {
@@ -84,7 +86,8 @@ const COVERED_TRAIT_IDS = new Set<number>([
   ...Object.keys(QUICKNESS_ATTRIBUTE_TRAIT_BONUSES).map(Number),
   ...Object.keys(MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES).map(Number),
   ...Object.keys(REVEALED_ATTRIBUTE_TRAIT_BONUSES).map(Number),
-  ...Object.keys(HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES).map(Number)
+  ...Object.keys(HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES).map(Number),
+  ...Object.keys(DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES).map(Number)
 ])
 
 /**
@@ -197,8 +200,6 @@ const EXCLUDED_TRAIT_IDS: Record<number, string> = {
   1696: "Condition-damage-per-tick proc coefficient (Terror's Fear damage-over-time), not a character-stat gain — same shape as Healer's Gift.", // Terror
   // buff-proc (1)
   263: "Value of a temporary on-cast buff (Arcane Lightning, a 15s Ferocity effect granted only while using an Arcane skill), not a passive stat.", // Arcane Lightning
-  // gap-carapace-stacks (1)
-  855: "GENUINE STAT GAIN, not yet modeled — +10 Power/+10 ConditionDamage per stack of Necromancer/Harbinger's own ‘Carapace’ resource (unrelated to Might), which no CombatState field tracks. A new conditional family needing its own stack-count input — found by this completeness scan 2026-08-12, logged in TODO.md as a follow-up to build.", // Deadly Strength
   // requires_trait cross-reference (1)
   1480: "Same Healing-970 heal-proc coefficient already curated as excluded on trait 1474 (Soldier's Comfort) — this trait's own traitedFacts entry is a requires_trait:1474 cross-reference showing their combined tooltip, not a separate stat gain on this trait itself.", // Marching Orders
 }
