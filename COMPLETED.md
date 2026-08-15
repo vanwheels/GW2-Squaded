@@ -2,6 +2,32 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 200 — Fix: Elementalist Evoker's Familiar (F5) now contributes to the aggregate Boon/Condition panel
+
+Closed the one remaining gap Session 198 explicitly deferred: every other profession-mechanic (F1-F5)
+bar resolver was wired into `mechanicBarIdsForBuild`, but `evokerFamiliarBar` needed `Familiar[]` data
+that `computeBoonConditionSources`/`skillIdsForBuild`'s callers didn't have on hand.
+
+**Fix**: threaded `familiars: Familiar[]` all the way from each public entry point's `gameData` param
+down to `mechanicBarIdsForBuild` — `computeBoonConditionSources`, `equippedSkillsById` (shared by
+`computeAuraSources`/`computeNamedFactSources`/`computeComboSources`), and the 4
+`computePartyXSummary` functions in `squad-calc/party-summary.ts`, all of which declare their own
+inline `gameData` object-literal types rather than sharing one. `mechanicBarIdsForBuild` now calls
+`evokerFamiliarBar(build, skillsById, familiars)` when Evoker (`EVOKER_SPECIALIZATION_ID`, 80) is
+equipped, same "fold every entry's id + flip chain into the walked skill-id set" pattern as the other
+narrower bar resolvers. No renderer changes needed — every call site already passes the full
+`useGameData()` store object (which already carries `familiars`), not a hand-built literal, so the
+widened parameter types were satisfied automatically.
+
+Verified end-to-end via a throwaway vitest file (not committed, deleted after): built a minimal
+Elementalist/Evoker `Build` with `familiarId: 'Fox'` and confirmed `computeBoonConditionSources`
+now includes Conflagration's (id 76585) Burning fact; a build with `familiarId: null` (no familiar
+chosen yet) correctly contributes nothing from F5, matching `evokerFamiliarBar`'s own "no entry until
+chosen" behavior.
+
+`npm run typecheck`/`lint`/`test` all clean (132 tests unchanged — same "no existing coverage for
+this class of behavior" situation as Session 198).
+
 ## Session 199 — Fix: one-handed main-hand weapon with no off-hand wrongly mirrored into aggregate totals
 
 User-reported: a Warrior with only main-hand Sword equipped (no off-hand item) had the aggregate

@@ -3,6 +3,7 @@ import type {
   Consumable,
   EquipmentSlotKey,
   Fact,
+  Familiar,
   Infusion,
   ItemStat,
   ItemStatLegalIds,
@@ -30,9 +31,11 @@ import {
   conduitReleasePotentialBar,
   CONDUIT_SPEC_ID,
   engineerToolbeltBar,
+  evokerFamiliarBar,
   professionMechanicBar,
   RANGER_BEASTMODE_SPEC_ID
 } from '../skill-calc/profession-mechanic'
+import { EVOKER_SPECIALIZATION_ID } from '../skill-calc/familiar'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash'
 import { isNonActionableFlipTarget } from '../skill-calc/non-actionable-flip-targets'
 
@@ -3567,14 +3570,14 @@ function withFlipChain(startId: number, skillsById: Map<number, Skill>): number[
  * profession's bar is weapon-independent, so the extra calls are harmless no-ops for them (deduped
  * by the caller regardless).
  *
- * Deliberately still NOT covered: Elementalist Evoker's Familiar (`evokerFamiliarBar`) — the only
- * one of `ProfessionMechanicBar.tsx`'s bar-assembling resolvers needing data (`Familiar[]`) this
- * function's callers don't already have on hand; logged in TODO.md rather than threading a new
- * param through for one remaining case. Ranger's Soulbeast Beastmode is NOT a gap here despite also
- * being a separate resolver (`soulbeastBeastmodeBar`) — `skillIdsForBuild` already covers it
- * directly via `beastmodeSkillIds`.
+ * Elementalist Evoker's Familiar (`evokerFamiliarBar`) is covered too (added 2026-08-15, needs
+ * `Familiar[]` threaded all the way from `computeBoonConditionSources`/`equippedSkillsById`'s
+ * `gameData` param down through `skillIdsForBuild` to here — see TODO.md's now-closed item for why
+ * this was the one bar resolver missing before). Ranger's Soulbeast Beastmode is NOT a gap here
+ * despite also being a separate resolver (`soulbeastBeastmodeBar`) — `skillIdsForBuild` already
+ * covers it directly via `beastmodeSkillIds`.
  */
-function mechanicBarIdsForBuild(build: Build, professions: Profession[], skillsById: Map<number, Skill>): number[] {
+function mechanicBarIdsForBuild(build: Build, professions: Profession[], skillsById: Map<number, Skill>, familiars: Familiar[]): number[] {
   const profession = professions.find((p) => p.id === build.profession)
   if (!profession) return []
   const equippedSpecIds = new Set(build.specializations.filter((s): s is NonNullable<typeof s> => s !== null).map((s) => s.specializationId))
@@ -3595,6 +3598,9 @@ function mechanicBarIdsForBuild(build: Build, professions: Profession[], skillsB
   }
   if (build.profession === 'Elementalist' && equippedSpecIds.has(CATALYST_SPEC_ID)) {
     for (const entry of catalystJadeSphereBar(build, profession, skillsById)) ids.add(entry.skill.id)
+  }
+  if (build.profession === 'Elementalist' && equippedSpecIds.has(EVOKER_SPECIALIZATION_ID)) {
+    for (const entry of evokerFamiliarBar(build, skillsById, familiars)) ids.add(entry.skill.id)
   }
   return [...ids]
 }
@@ -3633,7 +3639,8 @@ function skillIdsForBuild(
   pets: Pet[],
   professions: Profession[],
   skillsById: Map<number, Skill>,
-  soulbeastBeastmode: SoulbeastBeastmodeMap
+  soulbeastBeastmode: SoulbeastBeastmodeMap,
+  familiars: Familiar[]
 ): number[] {
   const nonWeaponIds =
     build.skills.kind === 'revenant'
@@ -3666,7 +3673,7 @@ function skillIdsForBuild(
     ...petSkillIds,
     ...beastmodeSkillIds,
     ...stolenSkillIds,
-    ...mechanicBarIdsForBuild(build, professions, skillsById),
+    ...mechanicBarIdsForBuild(build, professions, skillsById, familiars),
     ...weaponSkillIdsForBuild(build, professions, skillsById, equippedSpecIds)
   ]
 }
@@ -3782,6 +3789,7 @@ export function computeBoonConditionSources(
     professions: Profession[]
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
+    familiars: Familiar[]
   }
 ): BoonConditionSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
@@ -3797,7 +3805,7 @@ export function computeBoonConditionSources(
 
   const bundleContributions = bundleContributionsForBuild(build, gameData.professions, skillsById, gameData.tomeChapters)
   const skillIds = [
-    ...skillIdsForBuild(build, gameData.legends, gameData.pets, gameData.professions, skillsById, gameData.soulbeastBeastmode),
+    ...skillIdsForBuild(build, gameData.legends, gameData.pets, gameData.professions, skillsById, gameData.soulbeastBeastmode, gameData.familiars),
     ...bundleContributions.kitSkillIds
   ]
   for (const id of skillIds) {
@@ -3878,12 +3886,13 @@ function equippedSkillsById(
     professions: Profession[]
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
+    familiars: Familiar[]
   }
 ): { skillsById: Map<number, Skill>; skillIds: number[] } {
   const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
   const bundleContributions = bundleContributionsForBuild(build, gameData.professions, skillsById, gameData.tomeChapters)
   const skillIds = [
-    ...skillIdsForBuild(build, gameData.legends, gameData.pets, gameData.professions, skillsById, gameData.soulbeastBeastmode),
+    ...skillIdsForBuild(build, gameData.legends, gameData.pets, gameData.professions, skillsById, gameData.soulbeastBeastmode, gameData.familiars),
     ...bundleContributions.kitSkillIds
   ]
   return { skillsById, skillIds }
@@ -3915,6 +3924,7 @@ export function computeAuraSources(
     professions: Profession[]
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
+    familiars: Familiar[]
   }
 ): BoonConditionSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
@@ -4190,6 +4200,7 @@ export function computeNamedFactSources(
     professions: Profession[]
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
+    familiars: Familiar[]
   },
   matchers: Record<string, (fact: Fact) => boolean>,
   targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>
@@ -4346,6 +4357,7 @@ export function computeComboSources(
     professions: Profession[]
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
+    familiars: Familiar[]
   }
 ): ComboSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)

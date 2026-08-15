@@ -2,6 +2,7 @@ import type {
   Build,
   Consumable,
   Fact,
+  Familiar,
   Infusion,
   ItemStat,
   ItemStatLegalIds,
@@ -119,6 +120,7 @@ export function computePartyBoonConditionSummary(
     professions: Profession[]
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
+    familiars: Familiar[]
   }
 ): PartyBoonConditionEntry[] {
   const map = new Map<string, PartyBoonConditionEntry>()
@@ -163,6 +165,7 @@ export function computePartyAuraSummary(
     professions: Profession[]
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
+    familiars: Familiar[]
   }
 ): PartyAuraEntry[] {
   const map = new Map<string, PartyAuraEntry>()
@@ -210,6 +213,7 @@ export function computePartyNamedFactSummary(
     professions: Profession[]
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
+    familiars: Familiar[]
   },
   matchers: Record<string, (fact: Fact) => boolean>,
   targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>
@@ -256,6 +260,7 @@ export function computePartyComboSummary(
     professions: Profession[]
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
+    familiars: Familiar[]
   }
 ): PartyComboEntry[] {
   const map = new Map<'field' | 'finisher', PartyComboEntry>()
