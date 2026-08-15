@@ -40,6 +40,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const skills: SkillDataFile[] = JSON.parse(readFileSync(resolve(__dirname, '../../../data/game-data/skills.json'), 'utf-8'))
 const traits: TraitDataFile[] = JSON.parse(readFileSync(resolve(__dirname, '../../../data/game-data/traits.json'), 'utf-8'))
 const syntheticFacts: Record<string, Fact[]> = JSON.parse(readFileSync(resolve(__dirname, '../../../data/game-data/synthetic-facts.json'), 'utf-8'))
+const syntheticTraitFacts: Record<string, Fact[]> = JSON.parse(readFileSync(resolve(__dirname, '../../../data/game-data/synthetic-trait-facts.json'), 'utf-8'))
 const skillsById = new Map(skills.map((s) => [s.id, s]))
 const traitsById = new Map(traits.map((t) => [t.id, t]))
 
@@ -81,7 +82,7 @@ describe('BUFF_INSTANCE_LABELS key staleness', () => {
     expect(stale, 'BUFF_INSTANCE_LABELS key(s) that no longer match any real fact on their source — re-derive from the source\'s current facts.').toEqual([])
   })
 
-  it('every curated trait key still resolves against current trait facts (no synthetic-facts.json overlay — traits don\'t get one)', () => {
+  it('every curated trait key still resolves against current trait facts (+ synthetic-trait-facts.json overlay)', () => {
     const stale: string[] = []
     for (const [idStr, labels] of Object.entries(BUFF_INSTANCE_LABELS.trait)) {
       const id = Number(idStr)
@@ -90,7 +91,7 @@ describe('BUFF_INSTANCE_LABELS key staleness', () => {
         stale.push(`trait ${id}: no longer exists in traits.json`)
         continue
       }
-      const combined = [...trait.facts, ...trait.traitedFacts]
+      const combined = [...trait.facts, ...trait.traitedFacts, ...(syntheticTraitFacts[idStr] ?? [])]
       const validKeys = buffTupleKeys(combined)
       for (const key of Object.keys(labels)) {
         if (!validKeys.has(key)) stale.push(`trait ${id} ("${key}" → "${labels[key]}"): no matching fact tuple`)

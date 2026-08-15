@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { app } from 'electron'
-import type { Fact, GameData, Skill } from '@shared/types'
+import type { Fact, GameData, Skill, Trait } from '@shared/types'
 import type { GameDataMeta } from '@shared/game-data/data-update-provider'
 
 let cached: GameData | null = null
@@ -72,12 +72,36 @@ function withSyntheticFacts(skills: Skill[]): Skill[] {
   })
 }
 
+/**
+ * `synthetic-trait-facts.json`'s merge — `withSyntheticFacts`'s trait counterpart, same `{
+ * [id]: Fact[] }` shape and same once-at-load-time merge onto `.facts`, kept as a separate file/id
+ * namespace rather than folded into `synthetic-facts.json` since skill ids and trait ids are
+ * independent sequences that could collide. Narrower use case than the skill version: today it only
+ * covers a dodge-roll trait whose real Buff fact lives on a separate un-equippable "proc skill"
+ * entity `skillIdsForBuild` never includes (Warrior's Reckless Dodge 1446 ↔ proc skill Reckless
+ * Impact 14268) and a trait that's missing ONE of its two real facts the same way (Guardian/
+ * Vindicator's Saint of zu Heltzer 2238 already carries its own "Saint of zu Heltzer" buff fact, but
+ * its Alacrity grant lives only on proc skill Saint's Shield 62689) — see TODO.md/docs/game-data.md
+ * for the full writeup. Copied verbatim from each proc skill's own fact so `BUFF_INSTANCE_LABELS`/
+ * `DODGE_TRIGGER_NOTES`/`TARGET_COUNT_OVERRIDES` (all keyed by `sourceKind`+`sourceId`) resolve
+ * against the TRAIT's id once merged, not the proc skill's — the proc skill's own pre-existing
+ * `TARGET_COUNT_OVERRIDES` entry is left in place as historical documentation even though that skill
+ * id is never reached by `skillIdsForBuild`.
+ */
+function withSyntheticTraitFacts(traits: Trait[]): Trait[] {
+  const syntheticTraitFacts = readJson<Record<string, Fact[]>>('synthetic-trait-facts.json')
+  return traits.map((trait) => {
+    const extra = syntheticTraitFacts[trait.id]
+    return extra ? { ...trait, facts: [...trait.facts, ...extra] } : trait
+  })
+}
+
 export function loadGameData(): GameData {
   if (!cached) {
     cached = {
       professions: readJson('professions.json'),
       specializations: readJson('specializations.json'),
-      traits: readJson('traits.json'),
+      traits: withSyntheticTraitFacts(readJson('traits.json')),
       skills: withSyntheticFacts(readJson('skills.json')),
       itemStats: readJson('itemstats.json'),
       itemStatIcons: readJson('itemstat-icons.json'),

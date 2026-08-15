@@ -42,7 +42,9 @@ fixed — see COMPLETED.md's 2026-08-15 `MISCELLANEOUS_MATCHERS` WvW-override en
       COMPLETED.md) — 2 and 3 are still open:
       1. ~~Trait procs already modeled as ordinary facts on the trait itself aren't labeled as
          dodge-sourced in the aggregate Boon/Condition panel.~~ **DONE** — see COMPLETED.md for the
-         full sweep/fix. Also surfaced 2 genuine calc gaps (not just labeling) spun off below.
+         full sweep/fix. Also surfaced 2 genuine calc gaps (not just labeling), spun off into their
+         own item and **also DONE 2026-08-15** (see COMPLETED.md) via a new `synthetic-trait-facts.json`
+         mechanism.
       2. Whole alternate dodge-replacement mechanics (Vindicator's Legendary Alliance dodge, Mirage's
          Mirage Cloak) have no skill id in `skills.json` at all and nothing in `src` references them
          by name — the GW2 API doesn't expose the dodge button as an activatable skill the way it
@@ -58,16 +60,6 @@ fixed — see COMPLETED.md's 2026-08-15 `MISCELLANEOUS_MATCHERS` WvW-override en
       User's proposed UI treatment for 2/3 once data exists: a small visual indicator above the skill
       bar (not a real skill slot) with its own custom tooltip for whatever a build's dodge grants
       beyond the normal evade frames.
-
-- [ ] Two genuine dodge-trigger calc gaps found by the above sweep (2026-08-15), left open rather than
-      folded into the labeling fix: Warrior's Reckless Dodge (trait 1446) and Guardian/Vindicator's
-      Saint of zu Heltzer's own alacrity grant (trait 2238) each have their real Might/Alacrity Buff
-      fact sitting on a separate un-equippable "proc skill" entity (Reckless Impact 14268, Saint's
-      Shield 62689 — both already have `TARGET_COUNT_OVERRIDES` entries from an earlier sweep) that
-      `skillIdsForBuild` never includes, so today they contribute NOTHING to the aggregate totals.
-      Fixing this needs a `withSyntheticFacts`-style merge onto the TRAIT itself (today's
-      `synthetic-facts.json` mechanism only merges onto skills, see `load-game-data.ts`) — a small,
-      scoped follow-up, not a full hand-curated-content effort like problem 2 above.
 
 - [ ] Discord bot — a guild-scoped, curated build/squad board (slash-command add/edit/remove/move,
       profession-sectioned board messages the bot keeps in sync, optional Manual-approval workflow

@@ -2,6 +2,42 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 204 — Dodge-trigger calc gap fix (spin-off from the dodge-roll labeling sweep)
+
+Closed the TODO.md spin-off item Session 203 raised: Warrior's Reckless Dodge (trait 1446) and
+Guardian/Vindicator's Saint of zu Heltzer's own alacrity grant (trait 2238) each have their real
+Might/Alacrity `Buff` fact sitting on a separate un-equippable "proc skill" entity (Reckless Impact
+14268, Saint's Shield 62689) that `skillIdsForBuild` never reaches, so neither trait contributed
+anything to the aggregate Boon/Condition panel despite each already having a `TARGET_COUNT_OVERRIDES`
+entry (orphaned metadata for an unreachable source) from an earlier sweep.
+
+Built a new, narrower counterpart to the existing `synthetic-facts.json` mechanism:
+`data/game-data/synthetic-trait-facts.json` (`{ [traitId]: Fact[] }`), merged onto `GameData.traits`
+by a new `withSyntheticTraitFacts` in `load-game-data.ts`, kept as a separate file/id-namespace from
+the skill version since skill and trait ids are independent sequences that could collide. Copied each
+proc skill's Buff fact verbatim onto its owning trait (Might@5×2 → 1446; Alacrity@4×1 → 2238,
+alongside the trait's own pre-existing "Saint of zu Heltzer" self-buff fact, which stays untracked/
+unlabeled as before). Added matching `TARGET_COUNT_OVERRIDES.trait` (1446: self, 2238: 5, mirroring
+each proc skill's now-dead `TARGET_COUNT_OVERRIDES.skill` entry) and `DODGE_TRIGGER_NOTES.trait`
+("On Dodge") entries keyed by the TRAIT's id — every downstream consumer resolves by
+`sourceKind`+`sourceId`, and the merged fact now reports as `sourceKind: 'trait'`, not the proc
+skill's id. Registered the new file in `GAME_DATA_FILE_NAMES` (`data-files.ts`) so it ships with the
+in-app data-update downloader. Updated `buff-instance-label-completeness.test.ts`'s trait case to
+overlay the new file too (its doc comment previously — and until now correctly — said traits get no
+synthetic overlay at all). Full writeup in `docs/game-data.md`'s new "Traits whose real fact lives on
+an un-equippable proc skill" section.
+
+Verified with a throwaway test exercising `boonConditionFactsForTrait` directly on both traits (both
+now emit the correct boon, target count, and "On Dodge" trigger note; deleted after confirming).
+`npm run typecheck`, `npm run lint`, and the full `vitest run` suite (135 tests) all pass.
+
+TODO.md: removed the calc-gap item entirely (folded its resolution into problem 1's note in the
+parent dodge-roll item). Problems 2 (whole dodge-replacement mechanics — Vindicator's Legendary
+Alliance dodge, Mirage Cloak, Daredevil's Lotus Training/Unhindered Combatant/Bounding Dodger, Saint
+of zu Heltzer's area/effect change itself) and 3 (relic dodge-triggers, e.g. Relic of Rivers) are
+still open — both need hand-curated content same shape as Revenant's Otherworldly Bond, no skill id
+exists for any of them in `skills.json` to hang a fix on.
+
 ## Session 203 — Dodge-roll trigger labeling (problem 1 of TODO.md's dodge-roll item)
 
 Picked up TODO.md's dodge-roll item, problem 1 only (user picked this slice when asked which of the

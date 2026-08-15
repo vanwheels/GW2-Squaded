@@ -1592,7 +1592,15 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOv
     // Guardian/Virtues: "Nearby allies gain the passive effect of Virtue skill 2") — when chosen,
     // ALL of Phoenix Protocol's boon lines broaden together (no per-status split in the data itself),
     // so this is a whole-source trait-conditional rather than a per-status map.
-    2195: { gatedBy: 'trait', traitId: 554, traitName: 'Battle Presence', whenActive: 5, otherwise: 'self' }
+    2195: { gatedBy: 'trait', traitId: 554, traitName: 'Battle Presence', whenActive: 5, otherwise: 'self' },
+
+    // Dodge-trigger calc-gap fix (2026-08-15, TODO.md): these 2 traits' real Buff fact was copied
+    // onto the trait itself via `synthetic-trait-facts.json` (see that file's doc comment in
+    // `load-game-data.ts`) from a separate un-equippable "proc skill" `skillIdsForBuild` never
+    // reaches — each entry here just mirrors the SAME target-count value the proc skill's own
+    // (now-orphaned but left in place) entry above already established.
+    1446: 'self', // Reckless Dodge (Warrior/Discipline). Proc skill Reckless Impact (14268) above: self.
+    2238: 5 // Saint of zu Heltzer (Guardian/Vindicator). Proc skill Saint's Shield (62689) above: party(5).
   }
 }
 
@@ -2760,32 +2768,30 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
 /**
  * `BoonConditionSource.triggerNote`'s source table — see that field's doc comment for scope/intent.
  * A one-time sweep (2026-08-15) of every `traits.json` entry whose `description` mentions "dodge"
- * (28 candidates) found these 9 are the full set already producing a real, `classifyBoonCondition`-
- * recognized Buff fact directly on the trait's own `facts` array (i.e. already counted in
+ * (28 candidates) found 9 already producing a real, `classifyBoonCondition`-recognized Buff fact
+ * directly on the trait's own `facts` array (i.e. already counted in
  * `computeBoonConditionSources`'s totals today, confirmed by tracing `computeBoonConditionSources`'s
  * chosen-trait loop — it walks every chosen major/minor trait's `facts` unconditionally, no
- * trigger-aware gating exists anywhere in that pipeline). The other 19 candidates fall into buckets
- * this table deliberately excludes: heal/barrier-on-dodge coefficients (Selfless Daring 551,
- * Healer's Gift 1816, Master's Fortitude 2180) already show their own trait tooltip with the dodge
- * wording still attached (Healing/Damage never enter the pooled aggregate panel this table targets,
- * see `BoonConditionSummaryPanel`'s own doc comment for why); a flat always-on stat bonus whose
- * dodge-roll wording only gates an unrelated stealth-attack-access clause (Silent Scope 2118's
- * Precision, `trait-attributes.ts`); non-`BOON_NAMES`/`CONDITION_NAMES` custom statuses with no
- * tracked consumer (Lotus Training 1833, Unhindered Combatant 1964, Bounding Dodger 2047, Mirage
- * Cloak 2150, Saint of zu Heltzer 2238's own "Saint of zu Heltzer" buff, Resolute Evasion 1782's
- * OWN second "Resolute Evasion" buff alongside its tracked Resolution — only Resolution is listed
- * below); non-boon effects (Deceptive Evasion 704's clone summon, Adrenal Implant 523/Power Wrench
- * 531's recharge reduction, Mark of Evasion 792/Uncatchable 1159/Explosive Entrance 432/Evasive
- * Arcana 238's empty-facts "Combat Only" markers — real effects with zero live API fact of the
- * needed shape); and 2 traits (Reckless Dodge 1446, Saint of zu Heltzer 2238's OWN alacrity grant)
- * whose real Might/Alacrity fact lives on a separate un-equippable "proc skill" entity (Reckless
- * Impact 14268, Saint's Shield 62689 — both already have `TARGET_COUNT_OVERRIDES` entries from an
- * earlier sweep, but neither skill id is ever included in `skillIdsForBuild`'s equipped-skill
- * gathering, so today they contribute nothing at all — a genuine calc gap, not a labeling one, left
- * open in TODO.md rather than silently glossed over here). Reaver's Curse (2259, Vindicator) is
- * ALSO excluded: its wiki page confirms the trait only "increases the effectiveness of your NEXT
- * dodge," modifying a different, already self-only-curated Might source (`TARGET_COUNT_OVERRIDES`)
- * rather than itself being granted "on dodge."
+ * trigger-aware gating exists anywhere in that pipeline), plus 2 more (Reckless Dodge 1446, Saint of
+ * zu Heltzer 2238) added the same day once `synthetic-trait-facts.json` closed their calc gap — see
+ * that file's own doc comment in `load-game-data.ts` for why their real Might/Alacrity fact wasn't on
+ * the trait at all until then. The other 17 candidates fall into buckets this table deliberately
+ * excludes: heal/barrier-on-dodge coefficients (Selfless Daring 551, Healer's Gift 1816, Master's
+ * Fortitude 2180) already show their own trait tooltip with the dodge wording still attached
+ * (Healing/Damage never enter the pooled aggregate panel this table targets, see
+ * `BoonConditionSummaryPanel`'s own doc comment for why); a flat always-on stat bonus whose dodge-roll
+ * wording only gates an unrelated stealth-attack-access clause (Silent Scope 2118's Precision,
+ * `trait-attributes.ts`); non-`BOON_NAMES`/`CONDITION_NAMES` custom statuses with no tracked consumer
+ * (Lotus Training 1833, Unhindered Combatant 1964, Bounding Dodger 2047, Mirage Cloak 2150, Saint of
+ * zu Heltzer 2238's OWN "Saint of zu Heltzer" buff — its separate, now-tracked Alacrity grant IS
+ * labeled below, only this custom status is excluded — Resolute Evasion 1782's OWN second "Resolute
+ * Evasion" buff alongside its tracked Resolution — only Resolution is listed below); non-boon effects
+ * (Deceptive Evasion 704's clone summon, Adrenal Implant 523/Power Wrench 531's recharge reduction,
+ * Mark of Evasion 792/Uncatchable 1159/Explosive Entrance 432/Evasive Arcana 238's empty-facts "Combat
+ * Only" markers — real effects with zero live API fact of the needed shape). Reaver's Curse (2259,
+ * Vindicator) is ALSO excluded: its wiki page confirms the trait only "increases the effectiveness of
+ * your NEXT dodge," modifying a different, already self-only-curated Might source
+ * (`TARGET_COUNT_OVERRIDES`) rather than itself being granted "on dodge."
  */
 export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record<number, string> } = {
   skill: {},
@@ -2803,8 +2809,12 @@ export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record
     1295: 'On Evade',
     1379: 'On Dodge', // Resilient Roll (Warrior/Defense). Wiki: "Gain resistance when you dodge."
     1782: 'On Dodge', // Resolute Evasion (Revenant/Retribution). Wiki: "Gain resolution after you dodge."
-    2066: 'On Dodge' // Thermal Release Valve (Engineer/Holosmith). Wiki: "Dodge rolling vents heat as
+    2066: 'On Dodge', // Thermal Release Valve (Engineer/Holosmith). Wiki: "Dodge rolling vents heat as
     // an attack against nearby foes and grants vigor."
+    1446: 'On Dodge', // Reckless Dodge (Warrior/Discipline). Wiki: "Damage foes at the end of a dodge
+    // roll. Gain might for each foe struck" — Might fact merged in via `synthetic-trait-facts.json`.
+    2238: 'On Dodge' // Saint of zu Heltzer (Guardian/Vindicator). Wiki: "applies alacrity to allies
+    // affected by your dodge" — Alacrity fact merged in via `synthetic-trait-facts.json`.
   }
 }
 

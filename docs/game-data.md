@@ -771,6 +771,29 @@ Two cases warrant a new entry:
    stat-steppers, and Legendary Alliance/Conduit's very-recently-added elite-spec mechanics (no deep
    prior knowledge, same reasoning as Ritualist's Empowering Spirits in the Necromancer leg).
 
+## Traits whose real fact lives on an un-equippable proc skill (`synthetic-trait-facts.json`)
+
+Same shape/mechanism as `synthetic-facts.json` above (`{ [id]: Fact[] }`, merged once at load time —
+`withSyntheticTraitFacts` in `load-game-data.ts`), but a separate file/id namespace merged onto
+`GameData.traits` instead, since skill ids and trait ids are independent sequences that could
+collide. Narrower trigger than any of `synthetic-facts.json`'s 3 cases: some trait procs summon a
+separate, real, `/v2/skills`-visible entity to actually deal the damage/apply the buff (a "Lesser
+X"/named proc skill, e.g. Reckless Impact 14268 for Warrior's Reckless Dodge trait 1446) — normally
+harmless, since `computeBoonConditionSources` only walks *equipped skill*/*chosen trait* facts and
+the proc skill was never meant to be equipped anyway, its Buff fact reachable some other way. Two
+traits (found during the 2026-08-15 dodge-roll sweep, TODO.md) turned out to have NO other way in:
+Reckless Dodge 1446 (real Might fact only on proc skill 14268) and Guardian/Vindicator's Saint of zu
+Heltzer 2238 (its own "Saint of zu Heltzer" self-buff fact IS on the trait directly, but its separate
+Alacrity-to-allies grant is only on proc skill Saint's Shield 62689) — `skillIdsForBuild` never
+includes either proc skill id, so both traits contributed nothing to the aggregate Boon/Condition
+panel despite each already having its own `TARGET_COUNT_OVERRIDES.skill` entry from an earlier sweep
+(dead code today, left in place as historical documentation). Fixed by copying each proc skill's Buff
+fact verbatim into a matching `synthetic-trait-facts.json` entry, then adding a same-value
+`TARGET_COUNT_OVERRIDES.trait`/`DODGE_TRIGGER_NOTES.trait` entry keyed by the TRAIT's id (not the
+proc skill's) since every downstream consumer resolves by `sourceKind`+`sourceId` and the merged fact
+now reports `sourceKind: 'trait'`. Worth checking any future "trait proc summons a Lesser-X skill"
+finding against `skillIdsForBuild` the same way before assuming it's already covered.
+
 ## Gear upgrades and consumables (`runes.json`, `sigils.json`, `infusions.json`, `relics.json`, `food.json`, `utility.json`)
 
 `scripts/fetch-gear-upgrades.ts` (run via `npm run fetch-gear-upgrades`) fetches Superior runes,
