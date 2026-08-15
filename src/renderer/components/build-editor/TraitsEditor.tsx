@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import type { Build, Legend, ProfessionId, Specialization, Trait, TraitLineSelection, TraitLineSlots, WvwFactOverride } from '@shared/types'
-import { numericFactLines } from '@shared/skill-calc/fact-numbers'
+import { numericFactLines, NUMERIC_FACT_WVW_OVERRIDES } from '@shared/skill-calc/fact-numbers'
+import { branchConditionalTraitFacts } from '@shared/skill-calc/branch-conditional-facts'
 import { boonConditionFactsForTrait, equippedLegendIds } from '@shared/boon-calc/sources'
 import { boonConditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
-import { factsBlock } from './SkillsEditor'
+import { factsBlock, conditionalBranchesBlock } from './SkillsEditor'
 
 interface Props {
   profession: ProfessionId
@@ -190,9 +191,10 @@ function TraitLineRow({
                       <>
                         <TooltipBody title={minor.name} description={minor.description} icon={minor.icon} />
                         {factsBlock(
-                          numericFactLines(minor.facts, minor.traitedFacts, activeIds),
+                          numericFactLines(minor.facts, minor.traitedFacts, activeIds, NUMERIC_FACT_WVW_OVERRIDES[minor.id]),
                           boonConditionFactsForTrait(minor, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[minor.id], legends)
                         )}
+                        {conditionalBranchesBlock(branchConditionalTraitFacts(minor))}
                       </>
                     }
                   >
@@ -214,9 +216,10 @@ function TraitLineRow({
                         <>
                           <TooltipBody title={t.name} description={t.description} icon={t.icon} />
                           {factsBlock(
-                            numericFactLines(t.facts, t.traitedFacts, activeIds),
+                            numericFactLines(t.facts, t.traitedFacts, activeIds, NUMERIC_FACT_WVW_OVERRIDES[t.id]),
                             boonConditionFactsForTrait(t, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[t.id], legends)
                           )}
+                          {conditionalBranchesBlock(branchConditionalTraitFacts(t))}
                         </>
                       }
                     >

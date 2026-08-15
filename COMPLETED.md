@@ -2,6 +2,68 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 196 — Paragon's Chant-modifying traits (5 traits, closes the Motivation-tiered Chants item)
+
+Picks up the "5 traits" TODO.md left open after Session 195's Chant-skills pass. Wiki-verified all 5
+via fresh raw wikitext (`?action=raw`, 2026-08-15) — the earlier `WebFetch`-summarized pass from
+this same session invented facts not in the actual wikitext (wrong page titles, wrong numbers), so
+every value below is off a direct `curl` of the raw page, not that summary. Investigating each
+trait's actual current rendering (rather than assuming all 5 needed a new mechanism, per TODO.md's
+original framing) turned up 4 very different outcomes:
+
+- **Feverish Pulse (2369)** — already fully correct, zero code changes. Its Quickness/Alacrity
+  game-mode split was already fixed via `WvwFactOverrides` back in Session 173 (`{Alacrity: 'omit',
+  Quickness: 1}`), and its "Recharge Time Reduced" fact is a plain `Time`-type fact `numericFactLines`
+  already renders generically (`fact-numbers.ts`'s `factLine`). Both already flowed into the trait's
+  own tooltip via the existing `boonConditionFactsForTrait`/`numericFactLines` calls.
+- **Enduring Refrain (2428)** — already shows everything the wiki actually quantifies. Its "Refrain
+  effects... are stronger" text has no number anywhere on the wiki (confirmed via raw wikitext — the
+  3 per-chant facts are bare qualitative descriptions, `desc=` only, no `effect bonus number=`); only
+  "+1 Motivation Stack" is a real number, and that's already a plain `Number` fact rendering as
+  "Motivation Stacks: 1". Nothing left to add without inventing a magnitude the wiki doesn't give.
+- **Calming Tongue (2433)** — real small bug, fixed. Its "Conditions Removed" pve+wvw(2)-vs-pvp(1)
+  split has no discriminator on the 2 raw `Number` facts, so `numericFactLines` showed both
+  "Conditions Removed: 2" and "Conditions Removed: 1" simultaneously. `fetch-wvw-splits.ts`'s
+  `WvwFactOverride` mechanism doesn't cover this — its candidate discovery is hard-filtered to
+  `Buff`-type facts only (`collectCandidates`), and `Number` facts have no `status` to key on
+  anyway. Added a small, separate `NUMERIC_FACT_WVW_OVERRIDES` table in `fact-numbers.ts` instead
+  (keyed by trait/skill id then fact `text`, same shape as `WvwFactOverride` but hand-curated rather
+  than scraper-generated) — `numericFactLines` now takes an optional 4th param and drops any
+  `Number` fact whose `value` doesn't match. `TraitsEditor.tsx` passes
+  `NUMERIC_FACT_WVW_OVERRIDES[trait.id]` in for both minor and major trait tooltips.
+- **Liberating Liaise (2357)** — investigated, genuinely blocked, NOT curated. Its Superspeed grant
+  (pve 3s / wvw+pvp 2s) turned out to be a dead end for the `WvwFactOverride` pipeline: Superspeed
+  isn't a `classifyBoonCondition`-recognized status (not one of GW2's own 12 real boons —
+  `BOON_NAMES`/`CONDITION_NAMES`), so `extractFromFacts` drops it before any override lookup ever
+  runs; it only surfaces via the separate `MISCELLANEOUS_MATCHERS`/`computeNamedFactSources` named-
+  fact pipeline, which has no WvW-override concept of its own at all (`namedFactsFrom` just reads
+  whichever raw fact's `duration` matches first, no dedup). Logged in TODO.md as a general
+  `namedFactsFrom` gap (affects any `MISCELLANEOUS_MATCHERS`/`CONTROL_MATCHERS` entry with a pve/wvw
+  split, not just this trait), not special-cased here.
+- **Strengthening Stanzas (2385)** — the one that actually needed TODO's proposed new mechanism.
+  "Refrains grant bonus effects to you while they are active" — only one of the 3 Chant Refrains can
+  be running at a time (activating a chant replaces whichever was already ticking), the same "one
+  cast, mutually exclusive outcomes" shape `otherworldlyBondBranches`/the Chant sections already
+  exist for, just on a trait instead of a skill. New `strengtheningStanzasBranches` +
+  `branchConditionalTraitFacts` (siblings of `otherworldlyBondBranches`/`branchConditionalFacts`) in
+  `branch-conditional-facts.ts` — 3 labeled sections (While Chant of Action/Recuperation/Freedom
+  Active), each a plain descriptive `FactLine` (WvW: +10% Damage/+10% Condition Damage; -7% Incoming
+  Damage/-7% Incoming Condition Damage; +50% Movement Speed — none of these is a tracked
+  boon/condition, so no `BoonConditionSource` facts, same "display-only" treatment the Chant
+  sections' own "Motivation Cost per Interval" lines get). Divider rendering itself was factored out
+  of `SkillsEditor.tsx`'s `skillTooltipContent` into a new exported `conditionalBranchesBlock`
+  helper so `TraitsEditor.tsx` draws the identical `.tooltip-divider`/`.tooltip-section-label` style
+  rather than reimplementing it — both minor and major trait tooltips in `TraitsEditor.tsx` now call
+  `branchConditionalTraitFacts`.
+
+Verified all 4 behavioral outcomes (Calming Tongue's dedup, Strengthening Stanzas' 3 branches,
+Feverish Pulse's/Enduring Refrain's already-correct rendering) via a throwaway vitest file exercising
+the real trait data before deleting it — not just typecheck-clean.
+
+`npm run typecheck`/`lint`/`test` all clean (132 tests unchanged — no dedicated test added for this
+trait-only rendering path, consistent with `branch-conditional-facts.ts` having none before this
+either).
+
 ## Session 195 — Paragon's Chant skills (Motivation-tiered Refrain effects)
 
 Picks up TODO.md's "Paragon's Motivation-tiered Chants" item (flagged 2026-08-14, not started until

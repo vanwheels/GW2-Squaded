@@ -30,23 +30,26 @@ that don't block a release.
 
 ## Scoped features, not yet built
 
-- [ ] **Paragon's Motivation-tiered Chants — traits still open.** Flagged by the user 2026-08-14; the
-      3 Chant skills themselves (Chant of Action/F2 id 77342, Chant of Recuperation/F3 id 76782, Chant
-      of Freedom/F4 id 77155) are now **DONE 2026-08-15** — see COMPLETED.md. Turned out a
-      `motivationStacks`/`CombatState` field wasn't actually needed: same as Otherworldly Bond,
-      `branchConditionalFacts` is tooltip-only (never feeds the aggregate boon-uptime totals), so all
-      4 sections per chant (Initial Cast + 1-3/4-6/7-10 Motivation) render as honestly-labeled
-      alternatives rather than needing a "which tier is current" gate. Still open: the **5 traits**
-      that further modify chant effects — Enduring Refrain (id 2428, stronger Refrain effects + extra
-      Motivation on chant activation), Feverish Pulse (id 2369, chant activation reduces other chants'
-      recharge + grants Alacrity/Quickness), Calming Tongue (id 2433, Chant of Recuperation removes
-      conditions), Liberating Liaise (id 2357, Chant of Freedom grants Superspeed), Strengthening
-      Stanzas (id 2385, Refrains grant the *caster* bonus damage/damage-reduction/move-speed while
-      active) — all wiki-verified 2026-08-15 (raw wikitext, values in COMPLETED.md), just not yet
-      wired up. These are trait tooltips, not skill tooltips — `TraitsEditor.tsx` renders traits
-      through a separate, plainer path than `SkillsEditor.tsx`'s `skillTooltipContent` and has no
-      `branchConditionalFacts`-style divider concept today, so this needs its own small mechanism (or
-      an extension of the existing one to accept a trait) before these 5 can be curated.
+Paragon's Motivation-tiered Chants (flagged by the user 2026-08-14) is now **FULLY DONE 2026-08-15**
+— the 3 Chant skills themselves (COMPLETED.md, same day) plus the 5 traits that further modify them
+(Enduring Refrain, Feverish Pulse, Calming Tongue, Liberating Liaise, Strengthening Stanzas — see
+COMPLETED.md for the per-trait writeup) are all curated. One genuine gap fell out of that pass and is
+tracked below rather than special-cased in the trait itself:
+
+- [ ] **`MISCELLANEOUS_MATCHERS`'s named-fact pipeline has no WvW-override concept at all.**
+      Found 2026-08-15 while curating Liberating Liaise (trait 2357, "Chant of Freedom grants
+      superspeed... when activated"): Superspeed isn't a `classifyBoonCondition`-recognized status
+      (not one of GW2's own 12 boons — see `BOON_NAMES`/`CONDITION_NAMES`, `boon-calc/constants.ts`),
+      so it never reaches `extractFromFacts`'s `WvwFactOverride` handling at all; it only surfaces via
+      `computeNamedFactSources`'s separate `MISCELLANEOUS_MATCHERS` pipeline (`namedFactsFrom` in
+      `sources.ts`), which shows a bare presence icon + whichever raw fact's `duration` happens to
+      match first — no override lookup, no dedup. Liberating Liaise's own 2 raw Superspeed facts
+      (pve 3s / wvw+pvp 2s) mean its named-fact detail could show either number depending on raw
+      array order, uncorrected. Not specific to this one trait — every `MISCELLANEOUS_MATCHERS`/
+      `CONTROL_MATCHERS` entry (Stealth, Superspeed, Evade, Stun, Daze, ...) with a pve/wvw split
+      would hit the same gap; Liberating Liaise is just the first case actually found. Worth a small
+      `namedFactsFrom` extension (consult the same per-source `WvwFactOverride` map skills/traits
+      already carry, keyed the same way) if more of these turn up.
 
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around

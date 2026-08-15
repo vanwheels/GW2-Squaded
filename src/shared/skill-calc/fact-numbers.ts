@@ -66,16 +66,41 @@ export function factLine(fact: Fact): FactLine | null {
 }
 
 /**
+ * Wiki-confirmed pve+wvw-vs-pvp (or similar) splits for non-`Buff` facts sharing one `text` label
+ * with no discriminator — same problem `WvwFactOverride`/`fetch-wvw-splits.ts` solves for `Buff`
+ * facts, but that script's own candidate discovery only ever considers `Buff`-type facts (see its
+ * top doc comment), so a split on a `Number`/`Time`/etc. fact can't just become a `Buff`-status
+ * entry in its generated `wvw-fact-overrides.json`. Hand-curated here instead, keyed by trait/skill
+ * id then by the fact's own `text` — `numericFactLines` keeps only the `Number` fact whose `value`
+ * matches, dropping any other raw fact sharing that same `text`.
+ */
+export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> = {
+  // Calming Tongue (Paragon/Warrior Adept trait, id 2433): "Chant of Recuperation removes
+  // conditions from affected allies when activated." Wiki (raw wikitext, 2026-08-15):
+  // `{{skill fact|conditions removed|2|game mode=pve wvw}}{{skill fact|conditions removed|1|
+  // game mode=pvp}}` — pve+wvw share 2, pvp alone drops to 1 (2026-06-02 Paragon balance patch).
+  // The 2 raw `Number` facts (`text: "Conditions Removed"`, `value: 2` / `value: 1`) carry no
+  // game-mode discriminator, so without this, both would render as separate, contradictory lines.
+  2433: { 'Conditions Removed': 2 }
+}
+
+/**
  * Gated by the same `requires_trait` rule as the boon/condition extractor in `boon-calc/sources.ts`
  * (a conditional fact only counts once the trait unlocking it is actually chosen). Deduplicates
  * identical lines (e.g. a skill with 2 near-identical Damage facts for a physical + condition
- * component both reporting the same hit count) rather than repeating them.
+ * component both reporting the same hit count) rather than repeating them. `wvwOverrides` (see
+ * `NUMERIC_FACT_WVW_OVERRIDES` above) additionally drops any `Number` fact whose `value` doesn't
+ * match the WvW-correct one for its `text` — optional/defaulted so every pre-existing caller
+ * without a matching entry keeps compiling and behaving unchanged.
  */
-export function numericFactLines(facts: Fact[], traitedFacts: Fact[], activeIds: ReadonlySet<number>): FactLine[] {
+export function numericFactLines(facts: Fact[], traitedFacts: Fact[], activeIds: ReadonlySet<number>, wvwOverrides?: Record<string, number>): FactLine[] {
   const lines: FactLine[] = []
   const seen = new Set<string>()
   for (const fact of [...facts, ...traitedFacts]) {
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
+    if (wvwOverrides && fact.type === 'Number' && typeof fact.text === 'string' && fact.text in wvwOverrides && fact.value !== wvwOverrides[fact.text]) {
+      continue
+    }
     const line = factLine(fact)
     if (line && !seen.has(line.text)) {
       seen.add(line.text)

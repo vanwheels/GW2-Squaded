@@ -19,7 +19,7 @@ import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
 import type { FactLine } from '@shared/skill-calc/fact-numbers'
 import { activeAttunementVariantSkill, flipTargetSkills } from '@shared/skill-calc/multi-effect'
 import { ADDITIVE_FLIP_PAIRS } from '@shared/skill-calc/additive-flip-pairs'
-import { branchConditionalFacts } from '@shared/skill-calc/branch-conditional-facts'
+import { branchConditionalFacts, type ConditionalBranch } from '@shared/skill-calc/branch-conditional-facts'
 import { EVOKER_FAMILIAR_SPECIALIZED_ELEMENT, evokerFamiliarFactSourceSkill } from '@shared/skill-calc/evoker-familiar-facts'
 import { VINDICATOR_SPEC_ID, vindicatorAspectSkillId } from '@shared/skill-calc/vindicator-aspect'
 import { CELESTIAL_AVATAR_SKILL_ID } from '@shared/skill-calc/bundle-skills'
@@ -277,6 +277,22 @@ export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSou
   )
 }
 
+/** Shared "labeled alternative-outcome section" renderer for `ConditionalBranch[]` — factored out
+ *  of `skillTooltipContent` so `TraitsEditor.tsx` can draw the exact same divider style for
+ *  `branchConditionalTraitFacts` (e.g. Strengthening Stanzas' 3 mutually-exclusive per-Refrain
+ *  self-buffs) rather than a trait-specific reimplementation. */
+export function conditionalBranchesBlock(branches: ConditionalBranch[] | null) {
+  return branches?.map((branch) => (
+    <div key={branch.label}>
+      <div className="tooltip-divider">
+        <span className="tooltip-section-label">{branch.label}</span>
+      </div>
+      {branch.description && <div className="tooltip-description">{branch.description}</div>}
+      {factsBlock(branch.numericLines, branch.facts)}
+    </div>
+  ))
+}
+
 /** Every non-boon/condition category a single skill's tooltip should show — Auras plus the 3
  *  `computeNamedFactSources` matcher tables (Control/Miscellaneous/Strip-Corrupt-Cleanse) plus
  *  Combo Field/Finisher, all bundled into one `SkillNamedFacts` for `factsBlock`. Shared by
@@ -378,15 +394,7 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
           {factsBlock(enhancement.numericLines, enhancement.facts, enhancement.namedFacts)}
         </>
       )}
-      {branches?.map((branch) => (
-        <div key={branch.label}>
-          <div className="tooltip-divider">
-            <span className="tooltip-section-label">{branch.label}</span>
-          </div>
-          {branch.description && <div className="tooltip-description">{branch.description}</div>}
-          {factsBlock(branch.numericLines, branch.facts)}
-        </div>
-      ))}
+      {conditionalBranchesBlock(branches)}
       {familiarBonus && (
         <>
           <div className="tooltip-divider">

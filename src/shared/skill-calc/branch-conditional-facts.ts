@@ -1,4 +1,4 @@
-import type { Skill } from '../types'
+import type { Skill, Trait } from '../types'
 import type { BoonConditionSource } from '../boon-calc/sources'
 import { BOON_CONDITION_ICONS, MISCELLANEOUS_ICONS } from '../boon-calc/icons'
 import type { FactLine } from './fact-numbers'
@@ -10,6 +10,7 @@ const DRAGON_SLASH_REACH_SHARP_AS_THE_WIND_ID = 80246
 const CHANT_OF_ACTION_ID = 77342
 const CHANT_OF_RECUPERATION_ID = 76782
 const CHANT_OF_FREEDOM_ID = 77155
+const STRENGTHENING_STANZAS_ID = 2385
 
 /**
  * One labeled alternative-outcome section of a skill's tooltip — a divider ("Enemy Target" / "Ally
@@ -221,11 +222,23 @@ function dragonSlashSharpAsTheWindBranches(
  * `CURATED_BARRIER_COEFFICIENTS`) computed directly here rather than through either curated table,
  * since both tables require a matching live API fact to attach a coefficient to (`Array.find` by
  * `factText`) and these skills have none — see each function's own doc comment. The 5 wiki-flagged
- * Chant-modifying traits (Enduring Refrain id 2428, Feverish Pulse id 2369, Calming Tongue id 2433,
- * Liberating Liaise id 2357, Strengthening Stanzas id 2385, TODO.md) are NOT curated here — traits
- * don't go through `skillTooltipContent`/`branchConditionalFacts` at all today (`TraitsEditor.tsx`
- * renders traits through a separate, plainer path with no divider/branch concept), so adding these
- * would need its own follow-up rather than fitting this pass.
+ * Chant-modifying traits (TODO.md) were picked up in a follow-up pass (2026-08-15) rather than this
+ * one: Feverish Pulse (2369) turned out to already render correctly with zero code changes (its
+ * Quickness/Alacrity split was already fixed via `WvwFactOverrides` in Session 173, and its
+ * "Recharge Time Reduced" fact is a generic `Time`-type line `numericFactLines` already handles);
+ * Enduring Refrain (2428) already shows everything the wiki quantifies (its "stronger Refrain
+ * effects" is genuinely never given a number — only "+1 Motivation Stack" is, and that's already a
+ * plain `Number` fact); Calming Tongue's (2433) "Conditions Removed" pve+wvw-vs-pvp duplicate got a
+ * small `NUMERIC_FACT_WVW_OVERRIDES` dedup entry in `fact-numbers.ts` instead of touching this file,
+ * since `Number`-type facts are outside `fetch-wvw-splits.ts`'s Buff-only scope; Liberating Liaise's
+ * (2357) Superspeed grant turned out to be a dead end — Superspeed isn't a
+ * `classifyBoonCondition`-recognized status (GW2's own boon/condition split; it only lives in
+ * `MISCELLANEOUS_MATCHERS`'s presence-only named-fact pipeline, which has no WvW-override concept
+ * of its own at all), logged as an open, general-not-just-this-trait gap in TODO.md rather than
+ * special-cased here. Strengthening Stanzas (2385) is the one that genuinely needed this file's own
+ * divider mechanism — see `strengtheningStanzasBranches` below, exposed through the sibling
+ * `branchConditionalTraitFacts` (not `branchConditionalFacts` itself, which is `Skill`-shaped) that
+ * `TraitsEditor.tsx` now calls the same way `SkillsEditor.tsx` calls this one.
  */
 function chantOfActionSections(skill: Skill, durationPercent: { boon: number; condition: number }): ConditionalBranch[] {
   const might = (applyCount: number): BoonConditionSource => ({
@@ -407,5 +420,54 @@ export function branchConditionalFacts(
   if (skill.id === CHANT_OF_ACTION_ID) return chantOfActionSections(skill, durationPercent)
   if (skill.id === CHANT_OF_RECUPERATION_ID) return chantOfRecuperationSections(skill, durationPercent, healingPower)
   if (skill.id === CHANT_OF_FREEDOM_ID) return chantOfFreedomSections(skill, durationPercent)
+  return null
+}
+
+/**
+ * Strengthening Stanzas (Paragon/Warrior Master trait, id 2385): "Refrains grant bonus effects to
+ * you while they are active." Only one of the 3 Chant Refrains can be running on the player at a
+ * time (activating a chant replaces whichever Refrain was already ticking) — the same "one cast,
+ * mutually exclusive outcomes" shape `otherworldlyBondBranches`/the Chant sections above already
+ * exist for, just applied to a trait instead of a skill. The live API's own `facts` for this trait
+ * are 3 bare "Chant of Action/Recuperation/Freedom" `Buff` markers with `duration: 0` and no
+ * numbers — `classifyBoonCondition` doesn't recognize those statuses (not real boons/conditions),
+ * so `numericFactLines`/`boonConditionFactsForTrait` silently drop them today regardless; every %
+ * below is wiki-only (raw wikitext, fetched 2026-08-15). WvW values used throughout (this app's
+ * usual convention); the wiki's PvE/PvP-only numbers are noted per line for anyone extending this
+ * later, not used here. None of "+Damage"/"-Incoming Damage"/"+Movement Speed" is a tracked
+ * boon/condition, so every branch's `facts` stays empty — the bonus is plain descriptive text via
+ * `numericLines` only, same "display-only, not fed into any aggregate total" treatment
+ * `chantOfActionSections`'s own "Motivation Cost per Interval" lines already get.
+ */
+function strengtheningStanzasBranches(): ConditionalBranch[] {
+  return [
+    {
+      label: 'While Chant of Action Active',
+      // PvE 15% Damage/10% Condition Damage (2026-04-14 patch dropped Condition Damage from 15%);
+      // PvP 7%/7% (2026-02-03 patch dropped Damage from 10%).
+      numericLines: [{ icon: null, text: '+10% Damage, +10% Condition Damage' }],
+      facts: []
+    },
+    {
+      label: 'While Chant of Recuperation Active',
+      numericLines: [{ icon: null, text: '-7% Incoming Damage, -7% Incoming Condition Damage' }], // PvE -15%/-15%
+      facts: []
+    },
+    {
+      label: 'While Chant of Freedom Active',
+      numericLines: [{ icon: null, text: '+50% Movement Speed' }], // no PvE/WvW/PvP split
+      facts: []
+    }
+  ]
+}
+
+/**
+ * `branchConditionalFacts`'s trait counterpart — `Trait`-shaped rather than `Skill`-shaped since a
+ * trait tooltip never needs a factSourceSkill/healingPower-style swap, called from
+ * `TraitsEditor.tsx` (both minor and major trait tooltips) the same way `skillTooltipContent` calls
+ * the skill version. `null` for every trait without one.
+ */
+export function branchConditionalTraitFacts(trait: Trait): ConditionalBranch[] | null {
+  if (trait.id === STRENGTHENING_STANZAS_ID) return strengtheningStanzasBranches()
   return null
 }
