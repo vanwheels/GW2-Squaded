@@ -38,8 +38,8 @@ fixed — see COMPLETED.md's 2026-08-15 `MISCELLANEOUS_MATCHERS` WvW-override en
 
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around
-      dodging). Splits into three problems on investigation; problem 1 is now **DONE 2026-08-15** (see
-      COMPLETED.md) — 2 and 3 are still open:
+      dodging). Splits into three problems on investigation; problem 1 is now **FULLY DONE 2026-08-15**
+      (see COMPLETED.md) — 2 and 3 are still open:
       1. ~~Trait procs already modeled as ordinary facts on the trait itself aren't labeled as
          dodge-sourced in the aggregate Boon/Condition panel.~~ **DONE** — see COMPLETED.md for the
          full sweep/fix. Also surfaced 2 genuine calc gaps (not just labeling), spun off into their
@@ -49,11 +49,13 @@ fixed — see COMPLETED.md's 2026-08-15 `MISCELLANEOUS_MATCHERS` WvW-override en
          had missed every trait worded "Dodging" instead — 2 more real calc gaps closed the same way
          (Forerunner of Death 2257 ↔ proc skill Death Drop 62693's Vulnerability; Vassals of the Empire
          2232, whose own `facts` were entirely empty ↔ proc skill Imperial Impact 62859's Might/
-         Protection), see COMPLETED.md. ~10 more "Dodging"-worded traits (Stop, Drop, and Roll 360;
-         Evasive Purity 1054; Pain Response 1237; Expeditious Dodger 1240; Weakening Strikes 1887;
-         Light on your Feet 1912; Psychic Riposte 2211; Duelist's Reversal 2215; Tenacious Ruin 2262;
-         Mayhem 2427) turned up in the same re-check and are NOT yet triaged — see
-         `DODGE_TRIGGER_NOTES`' doc comment in `sources.ts` for the full list and first-look guesses.
+         Protection), see COMPLETED.md. The ~10 more "Dodging"-worded traits that re-check turned up
+         (Stop, Drop, and Roll 360; Evasive Purity 1054; Pain Response 1237; Expeditious Dodger 1240;
+         Weakening Strikes 1887; Light on your Feet 1912; Psychic Riposte 2211; Duelist's Reversal
+         2215; Tenacious Ruin 2262; Mayhem 2427) are now **also DONE 2026-08-15** (Session 207) — 3
+         genuine labeling gaps added (Expeditious Dodger, Weakening Strikes, Duelist's Reversal), the
+         other 7 confirmed already out of scope; see `DODGE_TRIGGER_NOTES`' doc comment in `sources.ts`
+         and COMPLETED.md for the per-trait triage.
       2. Whole alternate dodge-replacement mechanics (Vindicator's Legendary Alliance dodge, Mirage's
          Mirage Cloak) have no skill id in `skills.json` at all and nothing in `src` references them
          by name — the GW2 API doesn't expose the dodge button as an activatable skill the way it

@@ -2,6 +2,43 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 207 — Dodge-trigger labeling: the "~10 more Dodging-worded traits" follow-up leg
+
+Closed out the last open piece of TODO.md's dodge-roll item's problem 1 (labeling): the ~10
+"Dodging"-worded traits (`/dodg/i`, not `/dodge/i`) that Session 203's original sweep missed and
+Session 205 logged but left untriaged (Stop, Drop, and Roll 360; Evasive Purity 1054; Pain Response
+1237; Expeditious Dodger 1240; Weakening Strikes 1887; Light on your Feet 1912; Psychic Riposte 2211;
+Duelist's Reversal 2215; Tenacious Ruin 2262; Mayhem 2427).
+
+Triage (wiki-verified via raw wikitext for the boundary cases):
+- **3 genuine labeling gaps, added to `DODGE_TRIGGER_NOTES.trait`**: Expeditious Dodger 1240 ("Gain
+  swiftness upon dodging" → `'On Dodge'`) and Weakening Strikes 1887 ("Your next attack after dodging
+  causes weakness to foes struck" → `'On Dodge'`, its Weakness fact's PvE/WvW split already deduped by
+  a pre-existing `wvw-fact-overrides.json` entry) both already carried a real, duration-bearing `Buff`
+  fact — no `synthetic-trait-facts.json` merge needed, unlike the Session 205 pair. Duelist's Reversal
+  2215 ("Blocking or dodging an attack grants boons," Quickness/Fury/Regeneration) triggers on block
+  OR dodge — broader than a bare dodge, so labeled distinctly (`'On Block or Dodge'`) rather than
+  folded into `'On Dodge'`, same treatment Upper Hand 1295 got in Session 203.
+- **7 confirmed already out of scope, no code change**: Stop, Drop, and Roll 360 and Pain Response 1237
+  are condition-CLEANSE traits — their removed-condition `Buff` facts carry no `duration` field at all,
+  so `extractFromFacts`'s existing `typeof fact.duration === 'number'` gate already filters them out
+  (same non-issue as Evasive Purity 1054, which has no `Buff`-type fact at all). Light on your Feet
+  1912's "Light on Your Feet" self-buff and Psychic Riposte 2211's "blades" resource counter are
+  non-`BOON_NAMES`/`CONDITION_NAMES` custom statuses with no tracked consumer. Tenacious Ruin 2262
+  (Vindicator dodge-replacement) has a real `Damage` fact already visible on its own trait tooltip, but
+  `Damage` facts are outside this Boon/Condition table's scope entirely — unlike Legendary Alliance
+  dodge/Mirage Cloak, the API doesn't give it nothing, it just gives it a different fact type. Mayhem
+  2427's Torment fact belongs to Flustering Flute (the skill it modifies), not to dodging — the trait's
+  actual dodge tie-in is only a non-boon recharge reduction, so labeling its Torment "On Dodge" would
+  have misattributed it.
+
+Updated `DODGE_TRIGGER_NOTES`'s doc comment in `sources.ts` to record the full triage inline (matching
+the file's existing convention for this table) instead of leaving it as an open list. `npm run
+typecheck` and the full `vitest run` suite (135 tests) both pass — no test file references this table
+directly. TODO.md's dodge-roll item's problem 1 is now fully closed; problems 2 (whole
+dodge-replacement mechanics: Vindicator's Legendary Alliance dodge, Mirage Cloak, Daredevil's Lotus
+Training/Unhindered Combatant/Bounding Dodger) and 3 (relic dodge-triggers) remain open.
+
 ## Session 206 — Correction: Saint of zu Heltzer's Alacrity fix (Session 204) was wrong, reverted
 
 Same-day user catch, via a wiki screenshot of Saint of zu Heltzer's version history: the June 2025

@@ -2844,13 +2844,31 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
  * `synthetic-trait-facts.json` the same way Reckless Dodge was, pulling from proc skills Death Drop
  * (62693) and Imperial Impact (62859) respectively — see `load-game-data.ts`'s
  * `withSyntheticTraitFacts` doc comment.
- * That same re-check found ~10 more "Dodging"-worded traits (Stop, Drop, and Roll 360; Evasive Purity
- * 1054; Pain Response 1237; Expeditious Dodger 1240; Weakening Strikes 1887; Light on your Feet 1912;
- * Psychic Riposte 2211; Duelist's Reversal 2215; Tenacious Ruin 2262; Mayhem 2427) not yet triaged —
- * some look like straightforward boon/condition-cleanse gaps of this same shape (Expeditious Dodger's
- * Swiftness, Duelist's Reversal's boons), others are condition-cleanse or non-boon effects likely
- * already out of this table's scope on inspection, same as the buckets above. Left for a dedicated
- * follow-up pass rather than folded into this one — see TODO.md.
+ * That same re-check found ~10 more "Dodging"-worded traits, triaged in a dedicated follow-up pass
+ * 2026-08-15 (same day). 2 were genuine gaps of this same shape, both already carrying a real,
+ * duration-bearing `Buff` fact needing only a label (no `synthetic-trait-facts.json` merge required,
+ * unlike the Vindicator pair above): Expeditious Dodger 1240 (Thief/Acrobatics, wiki: "Gain swiftness
+ * upon dodging") and Weakening Strikes 1887 (Thief/Daredevil, wiki: "Your next attack after dodging
+ * causes weakness to foes struck" — the Weakness fact's dual PvE/WvW-duration facts were already
+ * deduped by a pre-existing `wvw-fact-overrides.json` entry). 1 more, Duelist's Reversal 2215
+ * (Mesmer/Virtuoso, wiki: "activates when blocking OR dodging attacks"), grants real Quickness/Fury/
+ * Regeneration facts but on a broader trigger than a bare dodge — same shape as Upper Hand 1295 above,
+ * labeled distinctly rather than folded into "On Dodge". The other 7 confirmed out of scope on
+ * inspection: Stop, Drop, and Roll 360 and Pain Response 1237 are condition-CLEANSE traits whose
+ * removed-condition `Buff` facts carry no `duration` field at all, so `extractFromFacts`'s
+ * `typeof fact.duration === 'number'` gate already filters them out automatically (same non-issue as
+ * Evasive Purity 1054, which has no `Buff`-type fact at all — only `Number`/`AttributeAdjust`); Light
+ * on your Feet 1912's own "Light on Your Feet" self-buff and Psychic Riposte 2211's "blades" resource
+ * are non-`BOON_NAMES`/`CONDITION_NAMES` custom statuses/counters with no tracked consumer, same
+ * bucket as Lotus Training etc. above; Tenacious Ruin 2262 is a dodge-REPLACEMENT ability (Vindicator)
+ * with a real `Damage` fact already visible on its own trait tooltip, but `Damage` facts are outside
+ * this Boon/Condition table's scope entirely (unlike Vindicator's Legendary Alliance dodge/Mirage
+ * Cloak, it isn't a Problem-2 "API gives nothing to render" case — just a different fact type this
+ * table doesn't cover); Mayhem 2427's Torment fact belongs to Flustering Flute (the skill it modifies),
+ * not to dodging itself — the trait's own dodge tie-in is only a non-boon recharge reduction, so
+ * labeling its Torment "On Dodge" would misattribute it. This closes out every candidate this item's
+ * problem 1 (labeling) sweep produced — see TODO.md for problems 2/3 (whole dodge-replacement
+ * mechanics; relic dodge-triggers), still open.
  */
 export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record<number, string> } = {
   skill: {},
@@ -2884,8 +2902,15 @@ export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record
     // traits' descriptions say "Dodging," which the sweep's case-insensitive "dodge" search missed.
     2257: 'On Dodge', // Forerunner of Death (Revenant/Vindicator). Wiki: "Dodging now deals more
     // damage but affects a smaller area" — Vulnerability fact merged in via `synthetic-trait-facts.json`.
-    2232: 'On Dodge' // Vassals of the Empire (Revenant/Vindicator). Wiki: "Dodging now grants boons to
+    2232: 'On Dodge', // Vassals of the Empire (Revenant/Vindicator). Wiki: "Dodging now grants boons to
     // allies and strikes foes when landing" — Might/Protection facts merged in via `synthetic-trait-facts.json`.
+    //
+    // Found in the "~10 more Dodging-worded traits" follow-up leg, same day:
+    1240: 'On Dodge', // Expeditious Dodger (Thief/Acrobatics). Wiki: "Gain swiftness upon dodging."
+    1887: 'On Dodge', // Weakening Strikes (Thief/Daredevil). Wiki: "Your next attack after dodging
+    // causes weakness to foes struck."
+    2215: 'On Block or Dodge' // Duelist's Reversal (Mesmer/Virtuoso). Wiki: "Blocking or dodging an
+    // attack grants boons" — broader trigger than a bare dodge, same treatment as Upper Hand 1295 above.
   }
 }
 
