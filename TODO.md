@@ -126,9 +126,30 @@ that don't block a release.
       lists only `id = 43761`, 69385 isn't mentioned at all.
       **Full ~50-pair classification is now DONE across all 5 legs** (Revenant, Elementalist,
       Warrior, Guardian, Mesmer). Confirmed-additive pool: 10 pairs total (Revenant's Band Together
-      family x4, Elementalist's attunement familiars x4, Guardian's Crashing Courage x2). **Next
-      step**: design+build the actual divider rendering for these 10 pairs
-      (`skillTooltipContent`/`FlipSkillStack` in `SkillsEditor.tsx`) — not started.
+      family x4, Elementalist's attunement familiars x4, Guardian's Crashing Courage x2).
+      **Divider rendering DONE 2026-08-15 for 6 of the 10 pairs** (Revenant's Band Together family x4
+      + Guardian's Crashing Courage x2) — `additive-flip-pairs.ts` (new file, `ADDITIVE_FLIP_PAIRS`)
+      + `SkillsEditor.tsx`'s `additiveEnhancementFacts`/`skillTooltipContent` + `multi-effect.ts`'s
+      `flipTargetSkills` (stops the stacked-icon walk at a known additive target) +
+      `.tooltip-divider`/`.tooltip-section-label` in `global.css`. Computes the "When Enhanced"/"With
+      Indomitable Courage" delta LIVE (target's real current-build-scaled facts minus whatever the
+      base skill's own tooltip already shows) rather than hand-transcribing text, so it can't go stale
+      as gear/traits/duration % change — verified correct for all 6 pairs via a throwaway dry-run
+      before landing, now locked in by a permanent regression test
+      (`additive-flip-pairs.test.ts`, 9 tests, `npm run test` 119/119, typecheck clean).
+      **Elementalist's 4 attunement familiars deliberately NOT included** — a live-wiki check
+      (Fox's Fury, Hare's Agility raw wikitext) found the automatic diff would be WRONG for this
+      family: the base/equippable id's own facts are incomplete (the already-documented
+      `damage-calc.ts` Evoker "flip-architecture gap" — the API attaches the skill's real,
+      UNCONDITIONAL effect to the flip target id instead of the base), so target-minus-base bundles
+      always-on content (e.g. Fox's Fury's unconditional Burning, Hare's Agility's unconditional
+      Endurance/Swiftness/chain-lightning Damage) together with the genuinely specialization-gated
+      extras (breaks stun, extra might/blur, area damage) — labeling that bundle "Fire/Air
+      Specialized" would misrepresent unconditional content as conditional, the exact mistake this
+      feature exists to avoid. Full reasoning in `additive-flip-pairs.ts`'s doc comment. **Still
+      open**: hand-curate which exact facts on each familiar's target id are always-on vs.
+      specialization-gated (their own small wiki-verification pass, not a rendering problem) before
+      these 4 can join the table — until then they're unchanged, still 2 stacked icons.
 
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around

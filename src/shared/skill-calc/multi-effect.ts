@@ -2,6 +2,7 @@ import type { Skill } from '../types'
 import { MANTRA_FINAL_CHARGE_IDS } from './mantra-final-charge'
 import { VINDICATOR_ASPECT_ARCHEMORUS_IDS } from './vindicator-aspect'
 import { isNonActionableFlipTarget } from './non-actionable-flip-targets'
+import { ADDITIVE_FLIP_PAIR_TARGET_IDS } from './additive-flip-pairs'
 
 export interface SkillVariantEffect {
   label: string
@@ -72,6 +73,12 @@ export function activeAttunementVariantSkill(skill: Skill, activeAttunement: str
  * already have, not a real secondary action (see `revenant-flip-duplicates.ts`/
  * `other-profession-flip-duplicates.ts` for the per-id reasoning). The walk stops there rather than
  * appending a duplicate-looking icon with the same name and tooltip as the skill directly above it.
+ *
+ * Third exception: `ADDITIVE_FLIP_PAIR_TARGET_IDS` (`additive-flip-pairs.ts`) — same-name pairs
+ * where the target DOES carry genuinely new facts (unlike the exception above) but they're shown
+ * merged into the base skill's own tooltip behind a "When Enhanced"-style divider
+ * (`SkillsEditor.tsx`'s `additiveEnhancementFacts`) instead of as a 2nd stacked icon, so the walk
+ * stops here too rather than double-showing the same content two ways.
  */
 export function flipTargetSkills(skill: Skill, skillsById: Map<number, Skill>): SkillVariantEffect[] {
   const out: SkillVariantEffect[] = []
@@ -86,6 +93,7 @@ export function flipTargetSkills(skill: Skill, skillsById: Map<number, Skill>): 
     const next = skillsById.get(current.flipSkill)
     if (!next || seen.has(next.id)) break
     if (isNonActionableFlipTarget(next.id)) break
+    if (ADDITIVE_FLIP_PAIR_TARGET_IDS.has(next.id)) break
     seen.add(next.id)
     out.push({ label: next.name, skill: next })
     current = next

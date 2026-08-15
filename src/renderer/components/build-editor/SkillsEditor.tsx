@@ -18,6 +18,7 @@ import {
 import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
 import type { FactLine } from '@shared/skill-calc/fact-numbers'
 import { activeAttunementVariantSkill, flipTargetSkills } from '@shared/skill-calc/multi-effect'
+import { ADDITIVE_FLIP_PAIRS } from '@shared/skill-calc/additive-flip-pairs'
 import { VINDICATOR_SPEC_ID, vindicatorAspectSkillId } from '@shared/skill-calc/vindicator-aspect'
 import { CELESTIAL_AVATAR_SKILL_ID } from '@shared/skill-calc/bundle-skills'
 import { skillPickerCategory } from '@shared/skill-calc/skill-category-overrides'
@@ -355,12 +356,98 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
       )
     : facts
   const effectiveNamedFacts = skillNamedFacts(factSourceSkill, activeIds, variantContext.legendIds, variantContext.wvwFactOverrides.skill[factSourceSkill.id])
+  const enhancement = additiveEnhancementFacts(skill, numericLines, effectiveFacts, effectiveNamedFacts, activeIds, variantContext)
   return (
     <>
       <TooltipBody title={skill.name} description={factSourceSkill.description} icon={skill.icon} />
       {factsBlock(numericLines, effectiveFacts, effectiveNamedFacts)}
+      {enhancement && (
+        <>
+          <div className="tooltip-divider">
+            <span className="tooltip-section-label">{enhancement.triggerLabel}</span>
+          </div>
+          {factsBlock(enhancement.numericLines, enhancement.facts, enhancement.namedFacts)}
+        </>
+      )}
     </>
   )
+}
+
+/** Composite content-key for a `BoonConditionSource`/aura fact — deliberately excludes `sourceId`/
+ *  `sourceName`/`sourceIcon`/`legendIcon`, which differ between a base skill and its additive-
+ *  enhancement flip target by construction, so `additiveEnhancementFacts` can recognize "the same
+ *  boon/condition grant, computed off a different id" as already-shown rather than new. */
+function boonFactContentKey(f: BoonConditionSource): string {
+  return [f.category, f.boonOrConditionName, f.isCondition, f.scaledDurationSeconds, f.applyCount, f.requiresTraitId, f.targetCount, f.instanceLabel ?? '', f.legendName ?? ''].join('|')
+}
+
+function namedFactContentKey(f: NamedFactSource): string {
+  return [f.name, f.detail ?? '', f.targetCount].join('|')
+}
+
+function comboFactContentKey(f: ComboSource): string {
+  return [f.kind, f.fieldType, f.finisherType].join('|')
+}
+
+/**
+ * The "When Enhanced"-divider content for a same-name additive flip pair (`additive-flip-pairs.ts`
+ * — Revenant's Band Together family, Elementalist's attunement familiars, Guardian's Crashing
+ * Courage): every fact the flip target carries that the base skill's own tooltip doesn't already
+ * show, computed live off the target's real current-build-scaled facts (same functions/inputs the
+ * base skill's own tooltip uses) rather than hand-curated text, so it stays correct as gear/traits/
+ * duration % change. Returns `null` for any skill with no additive pair, or when every one of the
+ * target's facts turns out already present on the base (fails safe rather than rendering an empty
+ * divider — shouldn't happen for the 10 curated pairs, all individually verified to have a genuine
+ * delta, but a build-state edge case could still zero one out, e.g. an un-picked gating trait).
+ */
+function additiveEnhancementFacts(
+  skill: Skill,
+  baseNumericLines: FactLine[],
+  baseFacts: BoonConditionSource[],
+  baseNamedFacts: SkillNamedFacts,
+  activeIds: Set<number>,
+  variantContext: SkillVariantContext
+): { triggerLabel: string; numericLines: FactLine[]; facts: BoonConditionSource[]; namedFacts: SkillNamedFacts } | null {
+  const pair = ADDITIVE_FLIP_PAIRS.get(skill.id)
+  if (!pair) return null
+  const targetSkill = variantContext.skillsById.get(pair.targetId)
+  if (!targetSkill) return null
+
+  const { power, healingPower } = variantContext.characterAttributes
+  const targetNumericLines = skillFactLines(targetSkill, activeIds, power, healingPower, variantContext.targetArmor)
+  const targetFacts = boonConditionFactsForSkill(
+    targetSkill,
+    activeIds,
+    variantContext.legendIds,
+    variantContext.durationPercent,
+    variantContext.wvwFactOverrides.skill[targetSkill.id],
+    variantContext.legends
+  )
+  const targetNamedFacts = skillNamedFacts(targetSkill, activeIds, variantContext.legendIds, variantContext.wvwFactOverrides.skill[targetSkill.id])
+
+  const baseNumericKeys = new Set(baseNumericLines.map((l) => l.text))
+  const baseFactKeys = new Set(baseFacts.map(boonFactContentKey))
+  const baseAuraKeys = new Set((baseNamedFacts.auraFacts ?? []).map(boonFactContentKey))
+  const baseNamedKeys = new Set((baseNamedFacts.namedFactSources ?? []).map(namedFactContentKey))
+  const baseComboKeys = new Set((baseNamedFacts.comboFacts ?? []).map(comboFactContentKey))
+
+  const numericLines = targetNumericLines.filter((l) => !baseNumericKeys.has(l.text))
+  const facts = targetFacts.filter((f) => !baseFactKeys.has(boonFactContentKey(f)))
+  const namedFacts: SkillNamedFacts = {
+    auraFacts: (targetNamedFacts.auraFacts ?? []).filter((f) => !baseAuraKeys.has(boonFactContentKey(f))),
+    namedFactSources: (targetNamedFacts.namedFactSources ?? []).filter((f) => !baseNamedKeys.has(namedFactContentKey(f))),
+    comboFacts: (targetNamedFacts.comboFacts ?? []).filter((f) => !baseComboKeys.has(comboFactContentKey(f)))
+  }
+
+  const isEmpty =
+    numericLines.length === 0 &&
+    facts.length === 0 &&
+    (namedFacts.auraFacts?.length ?? 0) === 0 &&
+    (namedFacts.namedFactSources?.length ?? 0) === 0 &&
+    (namedFacts.comboFacts?.length ?? 0) === 0
+  if (isEmpty) return null
+
+  return { triggerLabel: pair.triggerLabel, numericLines, facts, namedFacts }
 }
 
 /**

@@ -2,6 +2,45 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 189 — Same-name flip-pair divider rendering (6 of 10 pairs)
+
+Built the "When Enhanced" divider rendering the classification sweep (Sessions 171, 186-188) was
+waiting on, for 6 of the 10 confirmed-additive pairs — Revenant's Band Together family (Icerazor's
+Ire, Darkrazor's Daring, Razorclaw's Rage, Breakrazor's Bastion) and Guardian's Crashing Courage (both
+the normal-cast and ground-targeted pairs).
+
+- New `additive-flip-pairs.ts`: `ADDITIVE_FLIP_PAIRS` (source id -> `{ targetId, triggerLabel }`) +
+  `ADDITIVE_FLIP_PAIR_TARGET_IDS` (reverse set).
+- `SkillsEditor.tsx`'s `skillTooltipContent` now appends a divider + trigger label + the enhancement's
+  own facts when the skill being rendered has an `ADDITIVE_FLIP_PAIRS` entry. The delta is computed
+  LIVE by a new `additiveEnhancementFacts` helper — target's real current-build-scaled numeric/boon/
+  named facts (`skillFactLines`/`boonConditionFactsForSkill`/`skillNamedFacts`, same functions the
+  base skill's own tooltip uses) minus whatever content-key-matches something already on the base's
+  tooltip — rather than hand-transcribed text, so it can't drift as gear/traits/duration % change.
+- `multi-effect.ts`'s `flipTargetSkills` now also stops its stacked-icon walk at an
+  `ADDITIVE_FLIP_PAIR_TARGET_IDS` member (3rd exception alongside `isNonActionableFlipTarget` and the
+  Vindicator Aspect check) — the merged divider replaces the 2nd icon instead of sitting next to it.
+  Deliberately did NOT touch `boon-calc/sources.ts`'s `withFlipChain` (the build-wide total walk) —
+  these targets carry real content that must keep counting toward totals, only the visual
+  representation changes.
+- New `.tooltip-divider`/`.tooltip-section-label` CSS in `global.css`.
+- New permanent regression test `additive-flip-pairs.test.ts` (9 tests): pair count, a guard against
+  re-adding an Elementalist familiar id without re-verifying, a per-pair "target has a real delta"
+  check, and a `flipTargetSkills` exclusion check. `npm run test` 119/119, typecheck clean.
+
+**Elementalist Evoker's 4 attunement familiars deliberately NOT included**, despite the classification
+sweep calling them additive too — caught by a dry run + live wiki fetch (Fox's Fury, Hare's Agility raw
+wikitext) before landing. Their base/equippable skill id's own facts are incomplete (the
+`damage-calc.ts` Evoker comment's already-documented "flip-architecture gap": the API attaches the
+skill's real, UNCONDITIONAL effect to the flip target id, not the base), so an automatic target-minus-
+base diff would bundle always-on content (Fox's Fury's unconditional Burning, Hare's Agility's
+unconditional Endurance/Swiftness/chain-lightning Damage — both confirmed unconditional by the wiki's
+own core description) together with the genuinely specialization-gated extras (breaks stun, extra
+might/blur, area damage — confirmed gated by the wiki's "if X is your specialized element" sentence).
+Labeling that bundle "Fire/Air Specialized" would misrepresent unconditional content as conditional.
+Needs its own hand-curated per-fact split before joining the table; TODO.md entry left open for it,
+these 4 pairs unchanged (still 2 stacked icons) in the meantime.
+
 ## Session 188 — Same-name flip-pair classification sweep, Mesmer leg (sweep COMPLETE)
 
 Final leg of the flip-pair classification sweep (Sessions 171, 186, 187). Confirmed the 4-pair Mesmer

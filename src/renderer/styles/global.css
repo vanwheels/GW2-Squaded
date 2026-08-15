@@ -1439,6 +1439,25 @@ input[type='text'] {
   white-space: pre-line;
 }
 
+/* Separates a merged same-name additive flip pair's base facts from its enhancement-only delta
+   (see `SkillsEditor.tsx`'s `additiveEnhancementFacts`/`ADDITIVE_FLIP_PAIRS`) — a labeled rule,
+   distinct from `.tooltip-numeric-facts`/`.tooltip-boon-facts`'s own plain `border-top` between
+   fact categories, so "When Enhanced"/"With Indomitable Courage"/etc. reads as its own section
+   rather than another fact row. */
+.tooltip-divider {
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px solid var(--border);
+}
+
+.tooltip-section-label {
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
 .upgrade-row {
   display: flex;
   gap: 5px;
