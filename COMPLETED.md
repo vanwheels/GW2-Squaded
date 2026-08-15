@@ -2,6 +2,51 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 190 — Revenant scepter 2/3 tooltip fixes: Blossoming Aura declutter + Otherworldly Bond
+re-curation (reopens Session 131's honest skip)
+
+User flagged both scepter off-hand skills while flipping through the app, with reference screenshots
+of the real in-game tooltips for both.
+
+**Blossoming Aura (scepter 2, id 71816)**: the live API duplicates 4 of its `Percent` facts once per
+game mode with no mode-selector field (unlike `Damage`'s own `dmg_multiplier`, already handled) — the
+skill's own tooltip was rendering all 8 raw percent lines flat and unfiltered. Fetched the wiki's raw
+`{{skill fact}}` templates fresh (not the API — no mode field to trust there, and not the screenshot —
+too easy to misread which duplicate is which mode) to get an authoritative PvE/WvW split, confirming
+one of the 4 "WvW" duplicates additionally comes back from the API mislabeled (`text: "Damage Increase
+per Interval"` when the wiki template says `Barrier Increase per Interval`, sharing the Barrier fact's
+own icon not the Damage facts'). New `CURATED_PERCENT_FACT_OVERRIDES` table in `skill-fact-lines.ts`
+(currently this one skill only) drops each PvE duplicate and relabels the mislabeled WvW one before
+`factLine` ever sees it — cuts the tooltip from 17 raw facts down to 12 real ones, matching this app's
+existing WvW-first convention for the skill's already-curated Damage/Barrier coefficients.
+
+**Otherworldly Bond (scepter 3, id 71952)**: reopened Session 131's (2026-08-07) "not curatable
+without misrepresenting it" conclusion at the user's request. That session's blocker was real at the
+time — no mechanism existed to inject facts the live API doesn't carry at all for a mutually-exclusive
+per-cast branch — but two things changed the calculus: `synthetic-facts.json` now exists (built for a
+later sweep) proving synthetic facts are an accepted pattern in this codebase, and the user supplied a
+fresh in-game screenshot of the real tooltip showing exactly how the client itself resolves the
+"can't know which branch a given cast picks" problem: it shows BOTH branches side by side, each under
+its own "Enemy Target"/"Ally Target" header, rather than picking one. New `branch-conditional-facts.ts`
+(`branchConditionalFacts`, keyed by skill id, only this skill today) mirrors that exact layout — two
+extra labeled divider sections rendered below the base facts, reusing the same `.tooltip-divider`/
+`.tooltip-section-label` CSS and `factsBlock` shape Session 189's enhancement dividers already
+established. Session 131's 2nd objection (open-ended tick count, no `stacks=`) is sidestepped rather
+than re-litigated: every boon/condition row uses `applyCount: 1` (never claims a total application
+count), and the "Might Stacks per Level (5x4s)" line — which doesn't cleanly fit the single-status/
+single-duration `BoonConditionSource` shape at all — stays a flat, unscaled text line matching the
+real tooltip's own wording instead of being force-fit into one. Wired into `skillTooltipContent` in
+`SkillsEditor.tsx` right after the existing `additiveEnhancementFacts` divider block. `Deactivate
+Otherworldly Bond` (71858) unchanged — Session 131 already confirmed it has nothing beyond Range.
+
+Left as an open door, not attempted here: the same "mutually exclusive branches, real screenshot
+available" shape likely applies to Twin Moon Sweep (Session 130, also an honest skip) — noted in
+`branchConditionalFacts`'s own doc comment for whoever picks that up next, not scoped into this fix.
+
+`npm run typecheck`/`npm run lint`/`npm run test` all clean (119/119), plus a manual script rendering
+both skills' real output against sample stats to confirm the fact lines/branches look right before
+calling it done (no Electron launch — see the sandbox-limitation note in memory).
+
 ## Session 189 — Same-name flip-pair divider rendering (6 of 10 pairs)
 
 Built the "When Enhanced" divider rendering the classification sweep (Sessions 171, 186-188) was

@@ -19,6 +19,7 @@ import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
 import type { FactLine } from '@shared/skill-calc/fact-numbers'
 import { activeAttunementVariantSkill, flipTargetSkills } from '@shared/skill-calc/multi-effect'
 import { ADDITIVE_FLIP_PAIRS } from '@shared/skill-calc/additive-flip-pairs'
+import { branchConditionalFacts } from '@shared/skill-calc/branch-conditional-facts'
 import { VINDICATOR_SPEC_ID, vindicatorAspectSkillId } from '@shared/skill-calc/vindicator-aspect'
 import { CELESTIAL_AVATAR_SKILL_ID } from '@shared/skill-calc/bundle-skills'
 import { skillPickerCategory } from '@shared/skill-calc/skill-category-overrides'
@@ -357,6 +358,7 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
     : facts
   const effectiveNamedFacts = skillNamedFacts(factSourceSkill, activeIds, variantContext.legendIds, variantContext.wvwFactOverrides.skill[factSourceSkill.id])
   const enhancement = additiveEnhancementFacts(skill, numericLines, effectiveFacts, effectiveNamedFacts, activeIds, variantContext)
+  const branches = branchConditionalFacts(factSourceSkill, variantContext.durationPercent)
   return (
     <>
       <TooltipBody title={skill.name} description={factSourceSkill.description} icon={skill.icon} />
@@ -369,6 +371,14 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
           {factsBlock(enhancement.numericLines, enhancement.facts, enhancement.namedFacts)}
         </>
       )}
+      {branches?.map((branch) => (
+        <div key={branch.label}>
+          <div className="tooltip-divider">
+            <span className="tooltip-section-label">{branch.label}</span>
+          </div>
+          {factsBlock(branch.numericLines, branch.facts)}
+        </div>
+      ))}
     </>
   )
 }
