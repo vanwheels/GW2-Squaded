@@ -3,6 +3,10 @@ import type { BoonConditionSource } from '../boon-calc/sources'
 import { BOON_CONDITION_ICONS } from '../boon-calc/icons'
 import type { FactLine } from './fact-numbers'
 
+const DRAGON_SLASH_FORCE_SHARP_AS_THE_WIND_ID = 80199
+const DRAGON_SLASH_BOOST_SHARP_AS_THE_WIND_ID = 80281
+const DRAGON_SLASH_REACH_SHARP_AS_THE_WIND_ID = 80246
+
 /**
  * One labeled alternative-outcome section of a skill's tooltip — a divider ("Enemy Target" / "Ally
  * Target") followed by that branch's own facts, same `factsBlock(numericLines, facts)` shape every
@@ -140,15 +144,62 @@ function otherworldlyBondBranches(skill: Skill, durationPercent: { boon: number;
 }
 
 /**
+ * Bladesworn's Sharp as the Wind reflavor of Dragon Slash—Force/Boost/Reach (see
+ * `dragon-slash-skills.ts`'s `DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS` for the full writeup):
+ * "consumes all charges to increase burning duration," wiki-verified with an explicit Minimum
+ * Burning Duration (lowest charge) / Maximum Burning Duration (full charge, WvW+PvP value per this
+ * app's convention) pair per skill, same "two real, mutually exclusive per-cast outcomes" shape as
+ * `otherworldlyBondBranches`'s Enemy/Ally Target split — 2 flat `Buff` facts directly on the skill
+ * would double-count into `computeBoonConditionSources`'s aggregate totals as if both durations
+ * apply on the same cast, since Burning (unlike Damage) is a tracked `CONDITION_NAMES` entry. No
+ * `numericLines` needed per branch — the base facts block (rendered once, above these branches)
+ * already carries Damage/Range/Recharge/targets; each branch only adds its own Burning row.
+ */
+function dragonSlashSharpAsTheWindBranches(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+  maxDurationSeconds: number,
+  minDurationSeconds: number
+): ConditionalBranch[] {
+  const burningRow = (baseDurationSeconds: number, applyCount: number): BoonConditionSource => ({
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Burning',
+    isCondition: true,
+    category: 'condition',
+    baseDurationSeconds,
+    scaledDurationSeconds: baseDurationSeconds * (1 + durationPercent.condition / 100),
+    applyCount,
+    requiresTraitId: null,
+    // "Number of Targets: 5" on the base facts block — a cleaving burst finisher, not single-target.
+    targetCount: 5
+  })
+
+  return [
+    { label: 'Minimum Charge', numericLines: [], facts: [burningRow(minDurationSeconds, 1)] },
+    // Maximum Charge stacks=4 is the WvW+PvP value on every one of the 3 skills; PvE's own
+    // (higher stack count, lower duration) reading is noted per-caller below, not used here.
+    { label: 'Maximum Charge', numericLines: [], facts: [burningRow(maxDurationSeconds, 4)] }
+  ]
+}
+
+/**
  * Per-skill mutually-exclusive-outcome fact sections for `skillTooltipContent` to render as extra
- * labeled dividers below the base facts — `null` for every skill without one. Only Otherworldly Bond
- * needs this today; kept as its own lookup (rather than folded into `synthetic-facts.json`) since
- * that file's shape has no concept of "these facts are alternatives, not simultaneous" — see this
- * function's own id check and `otherworldlyBondBranches`'s doc comment for why a flat merge would
- * misrepresent this specific skill. A future skill with the same "one cast, mutually exclusive
- * branches" shape (e.g. Twin Moon Sweep, COMPLETED.md Session 130) could reuse this same mechanism.
+ * labeled dividers below the base facts — `null` for every skill without one. Kept as its own
+ * lookup (rather than folded into `synthetic-facts.json`) since that file's shape has no concept of
+ * "these facts are alternatives, not simultaneous" — see `otherworldlyBondBranches`'s doc comment
+ * for why a flat merge would misrepresent a skill like this. A future skill with the same "one
+ * cast, mutually exclusive branches" shape (e.g. Twin Moon Sweep, COMPLETED.md Session 130) could
+ * reuse this same mechanism.
  */
 export function branchConditionalFacts(skill: Skill, durationPercent: { boon: number; condition: number }): ConditionalBranch[] | null {
   if (skill.id === 71952) return otherworldlyBondBranches(skill, durationPercent)
+  // Sharp as the Wind's Force/Boost/Reach — Minimum Burning Duration has no PvE/WvW+PvP split on
+  // the wiki (used as-is); Maximum is each skill's own WvW+PvP value (PvE noted in the comment).
+  if (skill.id === DRAGON_SLASH_FORCE_SHARP_AS_THE_WIND_ID) return dragonSlashSharpAsTheWindBranches(skill, durationPercent, 7, 2) // PvE max: 4s@20 stacks
+  if (skill.id === DRAGON_SLASH_BOOST_SHARP_AS_THE_WIND_ID) return dragonSlashSharpAsTheWindBranches(skill, durationPercent, 5.5, 1.5) // PvE max: 3.25s@20 stacks
+  if (skill.id === DRAGON_SLASH_REACH_SHARP_AS_THE_WIND_ID) return dragonSlashSharpAsTheWindBranches(skill, durationPercent, 3.5, 1) // PvE max: 2s@20 stacks
   return null
 }

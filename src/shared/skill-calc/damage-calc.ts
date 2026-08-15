@@ -3908,17 +3908,39 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   62951: [
     { factText: 'Maximum Damage', coefficient: 0.9075, weapon: 'bundle' },
     { factText: 'Minimum Damage', coefficient: 0.375, weapon: 'bundle' }
-  ]
+  ],
 
   // Triggerguard (62893) and Flicker Step (62926) — the other 2 skills available during Dragon
   // Trigger — carry no Damage fact at all (Aegis/Blink utility only), same as Gunsaber's non-damage
   // skills; not curated here for that reason, not an oversight.
+
+  // --- Sharp as the Wind / River's Flow: Bladesworn's 2 Dragon-Slash-reflavoring traits, follow-up
+  // to the leg above. Wiki-verified via raw wikitext 2026-08-15 (`dragon-slash-skills.ts` hand-
+  // authors all 6 ids — see that file's doc comment for the full writeup). Unlike the base skills'
+  // Minimum/Maximum Damage pair, charge level no longer scales Damage on either branch (it scales
+  // Burning duration / Might stacks / Healing / Daze duration instead — see that same doc comment),
+  // so each variant carries one flat `Damage` fact rather than two.
   //
-  // Deliberately NOT covered by this leg: Sharp as the Wind / River's Flow, the 2 Bladesworn traits
-  // that reflavor Dragon Slash into a differently-named, differently-described id per skill (a
-  // mutually-exclusive per-trait branch, same shape as `branch-conditional-facts.ts`'s existing
-  // Otherworldly Bond/Blossoming Aura treatment) — logged in TODO.md as a follow-up, not attempted
-  // here. This closes out the Warrior Burst Skill sweep's last open item.
+  // Sharp as the Wind (condition branch) — every skill splits PvE vs. WvW+PvP; WvW+PvP value used
+  // per this sweep's established convention (PvE noted in each comment).
+  // Dragon Slash—Force (Sharp as the Wind, 80199). WvW+PvP 1.0 (PvE 3.0).
+  80199: [{ factText: 'Damage', coefficient: 1.0, weapon: 'bundle' }],
+  // Dragon Slash—Boost (Sharp as the Wind, 80281). WvW+PvP 0.8 (PvE 2.4).
+  80281: [{ factText: 'Damage', coefficient: 0.8, weapon: 'bundle' }],
+  // Dragon Slash—Reach (Sharp as the Wind, 80246). WvW+PvP 0.5 (PvE 1.5).
+  80246: [{ factText: 'Damage', coefficient: 0.5, weapon: 'bundle' }],
+
+  // River's Flow (support branch) — none of the 3 Damage facts carry a game-mode split on the
+  // wiki, used as-is.
+  // Dragon Slash—Force (River's Flow, 80250).
+  80250: [{ factText: 'Damage', coefficient: 3.0, weapon: 'bundle' }],
+  // Dragon Slash—Boost (River's Flow, 80228).
+  80228: [{ factText: 'Damage', coefficient: 2.4, weapon: 'bundle' }],
+  // Dragon Slash—Reach (River's Flow, 80236).
+  80236: [{ factText: 'Damage', coefficient: 1.5, weapon: 'bundle' }]
+
+  // This closes out the Warrior Burst Skill sweep's last open item (see TODO.md's now-removed
+  // "Bladesworn's Sharp as the Wind / River's Flow Dragon Slash branches" entry).
 }
 
 export interface DamageLine {

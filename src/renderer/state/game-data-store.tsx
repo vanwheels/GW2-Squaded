@@ -16,7 +16,7 @@ import type {
 } from '@shared/types'
 import { visibleSkillsForSlot } from '@shared/skill-calc/skill-variants'
 import { GUNSABER_SKILLS } from '@shared/skill-calc/gunsaber-skills'
-import { DRAGON_SLASH_SKILLS } from '@shared/skill-calc/dragon-slash-skills'
+import { DRAGON_SLASH_RIVERS_FLOW_SKILLS, DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS, DRAGON_SLASH_SKILLS } from '@shared/skill-calc/dragon-slash-skills'
 
 export interface GameDataStore extends GameData {
   loading: boolean
@@ -98,7 +98,12 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
     // public API at all (see `gunsaber-skills.ts`/`dragon-slash-skills.ts`'s own doc comments) —
     // merged in here so every normal consumer of `skillsById` works unmodified, same as any other
     // skill.
-    const skillsById = new Map([...gameData.skills, ...GUNSABER_SKILLS, ...DRAGON_SLASH_SKILLS].map((s) => [s.id, s]))
+    const skillsById = new Map(
+      [...gameData.skills, ...GUNSABER_SKILLS, ...DRAGON_SLASH_SKILLS, ...DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS, ...DRAGON_SLASH_RIVERS_FLOW_SKILLS].map((s) => [
+        s.id,
+        s
+      ])
+    )
     const legendsById = new Map(gameData.legends.map((l) => [l.id, l]))
     const petsById = new Map(gameData.pets.map((p) => [p.id, p]))
     const familiarsById = new Map(gameData.familiars.map((f) => [f.id, f]))

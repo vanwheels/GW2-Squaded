@@ -30,16 +30,6 @@ that don't block a release.
 
 ## Scoped features, not yet built
 
-- [ ] **Bladesworn's Sharp as the Wind / River's Flow Dragon Slash branches** — spun off from the now-
-      closed Warrior Burst Skill damage coefficients item (see COMPLETED.md Session 191): the base
-      (untraited) Dragon Slash—Force/Boost/Reach chain is fully curated, but 2 Bladesworn traits each
-      reflavor the whole chain into a differently-named, differently-described id per skill (e.g.
-      "Dragon Slash—Force (Sharp as the Wind)"), per the wiki's own Dragon_Trigger skill table — a
-      mutually-exclusive per-trait branch, same shape as `branch-conditional-facts.ts`'s existing
-      Otherworldly Bond/Blossoming Aura treatment. Not started; would need each of the 6 variant ids
-      wiki-verified (raw wikitext) and hand-authored the same way as the base 3, then wired through
-      `branch-conditional-facts.ts` gated on whichever of the 2 traits is equipped.
-
 - [ ] **Paragon's Motivation-tiered Chants** — flagged by the user 2026-08-14, not started. Paragon
       (Warrior elite spec 74) has 3 Chant skills (Chant of Action/F2 id 77342, Chant of Recuperation/F3
       id 76782, Chant of Freedom/F4 id 77155), each simultaneously a Burst skill and a "Refrain" that

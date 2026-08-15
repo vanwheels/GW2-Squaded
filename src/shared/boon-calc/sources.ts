@@ -3615,7 +3615,7 @@ function bundleContributionsForBuild(
   const equippedSpecIds = new Set(build.specializations.filter((s): s is NonNullable<typeof s> => s !== null).map((s) => s.specializationId))
   const mechanicBarSkillIds = professionMechanicBar(profession, skillsById, equippedSpecIds, build.environment).map((e) => e.skill.id)
   const bundleCapableIds = bundleCapableSkillIds(build, skillsById, tomeChapters, mechanicBarSkillIds)
-  return bundleSkillIdsForBuild(bundleCapableIds, skillsById, tomeChapters, build.environment)
+  return bundleSkillIdsForBuild(build, bundleCapableIds, skillsById, tomeChapters, build.environment)
 }
 
 /** Boon/condition-shaped facts among a Tome chapter's wiki-sourced `RelicFactLine`s (e.g.

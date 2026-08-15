@@ -6287,10 +6287,28 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 8,
     },
   ],
+  "80199": [
+    {
+      "label": "Damage",
+      "value": 1101,
+    },
+  ],
   "80203": [
     {
       "label": "Damage",
       "value": 1591,
+    },
+  ],
+  "80228": [
+    {
+      "label": "Damage",
+      "value": 2641,
+    },
+  ],
+  "80236": [
+    {
+      "label": "Damage",
+      "value": 1651,
     },
   ],
   "80244": [
@@ -6311,6 +6329,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1125,
     },
   ],
+  "80246": [
+    {
+      "label": "Damage",
+      "value": 550,
+    },
+  ],
   "80247": [
     {
       "label": "Damage",
@@ -6321,10 +6345,22 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1420,
     },
   ],
+  "80250": [
+    {
+      "label": "Damage",
+      "value": 3302,
+    },
+  ],
   "80252": [
     {
       "label": "Damage",
       "value": 1591,
+    },
+  ],
+  "80281": [
+    {
+      "label": "Damage",
+      "value": 880,
     },
   ],
   "9080": [
@@ -8154,6 +8190,16 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Healing",
       "value": 7920,
+    },
+  ],
+  "80228": [
+    {
+      "label": "Minimum Healing",
+      "value": 4415,
+    },
+    {
+      "label": "Maximum Healing",
+      "value": 9003,
     },
   ],
   "9080": [

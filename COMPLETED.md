@@ -2,6 +2,47 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 193 — Bladesworn's Sharp as the Wind / River's Flow Dragon Slash branches
+
+Closes the TODO.md follow-up spun off by Session 191 (Warrior Burst Skill sweep's last leg): the 2
+Bladesworn traits that reflavor the whole Dragon Slash chain (Force/Boost/Reach) into differently-
+named, differently-described ids per skill.
+
+Wiki-verified via raw wikitext (`?action=raw`) for all 6 variant ids (`Dragon Slash—Force/Boost/Reach
+(Sharp as the Wind)` 80199/80281/80246, `... (River's Flow)` 80250/80228/80236) plus both trait pages
+(Sharp as the Wind 2260, River's Flow 2237). Hand-authored into 2 new `Skill[]` arrays in
+`dragon-slash-skills.ts` (`DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS`/`DRAGON_SLASH_RIVERS_FLOW_SKILLS`),
+reusing the base 3 skills' own `TRIGGERGUARD_ID`/`FLICKER_STEP_ID` objects rather than duplicating
+them (Triggerguard/Flicker Step are untouched by either trait).
+
+Each variant keeps the base skill's "consumes all charges to increase X" shape, but X is no longer
+Damage (now a single flat, unscaled-by-charge fact) — it's whatever the branch is themed around:
+- **Sharp as the Wind** (condition branch, all 3 skills inflict Burning): wiki gives an explicit
+  Minimum/Maximum Burning Duration pair per skill. Since Burning IS a tracked `CONDITION_NAMES`
+  entry (unlike Damage), 2 real `Buff` facts on one skill would double-count into
+  `computeBoonConditionSources`'s aggregate totals as if both applications happen on the same cast —
+  resolved via a new `branch-conditional-facts.ts` function, `dragonSlashSharpAsTheWindBranches`,
+  producing "Minimum Charge"/"Maximum Charge" labeled sections (same mechanism Otherworldly Bond's
+  Enemy/Ally Target split already established, first reuse of that mechanism for a 2nd skill).
+- **River's Flow** (support branch): Boost's Healing gets the same Minimum/Maximum pair, but
+  Healing tooltip lines are pure per-fact display (no aggregate total to double-count into) — curated
+  directly in `CURATED_HEALING_COEFFICIENTS`, no branch treatment needed. Reach's Daze isn't a
+  tracked `CONDITION_NAMES`/`BOON_NAMES` entry at all, so its Minimum/Maximum Daze Duration are
+  plain `Time` facts. Force's Might grant is the one genuinely ambiguous case (a flat per-charge
+  rate, no total-charges-consumed number to multiply it by) — kept as a plain `Number` fact rather
+  than a real `Buff` fact, same "honest, unscaled flat text" treatment Otherworldly Bond's own
+  "Might Stacks per Level" got.
+
+Trait-gated bar selection wired into `bundle-skills.ts`'s new `dragonSlashBarSkillIdsForBuild`
+(checks `chosenTraitIds` membership across every specialization line, same shape as
+`skill-variants.ts`'s `GADGETEER_GATED_SKILL_IDS`) — replaces the old static `DRAGON_SLASH_SLOT_SKILLS`
+map. `bundleSkillIdsForBuild` gained a new `build: Build` parameter (needed the trait choice, unlike
+every other bundle it already handled) — its one call site (`sources.ts`) already had `build` in
+scope. All 6 new ids curated in `CURATED_DAMAGE_COEFFICIENTS` (`damage-calc.ts`) plus 1 in
+`CURATED_HEALING_COEFFICIENTS` (`healing-calc.ts`); merged into `game-data-store.tsx`'s `skillsById`
+and `coefficient-snapshots.test.ts`'s local one, same pattern as the base `DRAGON_SLASH_SKILLS`.
+`npm run test` 132/132 (2 new snapshot entries accepted), `npm run typecheck`/`npm run lint` clean.
+
 ## Session 192 — Elementalist Evoker familiars: same-name flip-pair item's last leg (now fully closed)
 
 Closes out the "same-name enhanced flip targets merge into one tooltip" item (TODO.md entry removed;

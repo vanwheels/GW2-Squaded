@@ -8,7 +8,7 @@ import { CURATED_HEALING_COEFFICIENTS, healingLinesForSkill, type HealingLine } 
 import { CURATED_DAMAGE_COEFFICIENTS, damageLinesForSkill, type DamageLine } from './damage-calc'
 import { CURATED_BARRIER_COEFFICIENTS, barrierLinesForSkill, type BarrierLine } from './barrier-calc'
 import { GUNSABER_SKILLS } from './gunsaber-skills'
-import { DRAGON_SLASH_SKILLS } from './dragon-slash-skills'
+import { DRAGON_SLASH_RIVERS_FLOW_SKILLS, DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS, DRAGON_SLASH_SKILLS } from './dragon-slash-skills'
 
 /**
  * Tier 2 golden snapshot fixtures — TODO.md's "Automated testing strategy" (agreed 2026-08-12): pay
@@ -65,10 +65,13 @@ const skillsById = new Map<number, Skill>(
     return [skill.id, merged as unknown as Skill]
   })
 )
-// Hand-authored ids absent from `skills.json` entirely (see each file's own doc comment) — only
-// `DRAGON_SLASH_SKILLS` currently has any `CURATED_DAMAGE_COEFFICIENTS` entries, but `GUNSABER_SKILLS`
-// is merged in too for consistency/future-proofing, same set `game-data-store.tsx` merges for real.
-for (const skill of [...GUNSABER_SKILLS, ...DRAGON_SLASH_SKILLS]) skillsById.set(skill.id, skill)
+// Hand-authored ids absent from `skills.json` entirely (see each file's own doc comment) — the 3
+// `DRAGON_SLASH_*` arrays all have `CURATED_DAMAGE_COEFFICIENTS`/`CURATED_HEALING_COEFFICIENTS`
+// entries, but `GUNSABER_SKILLS` is merged in too for consistency/future-proofing, same set
+// `game-data-store.tsx` merges for real.
+for (const skill of [...GUNSABER_SKILLS, ...DRAGON_SLASH_SKILLS, ...DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS, ...DRAGON_SLASH_RIVERS_FLOW_SKILLS]) {
+  skillsById.set(skill.id, skill)
+}
 
 const REFERENCE_POWER = 2500
 const REFERENCE_HEALING_POWER = 1500

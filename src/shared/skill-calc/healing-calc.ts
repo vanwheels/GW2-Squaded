@@ -990,7 +990,17 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   77291: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Gladiator's Defense
   76805: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Beguiling Haze
   76968: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Twin Moon Sweep
-  28472: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }] // Shackling Wave (Sword weapon skill)
+  28472: [{ factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }], // Shackling Wave (Sword weapon skill)
+
+  // Dragon Slash—Boost (River's Flow, 80228, Bladesworn) — Bladesworn's support-branch reflavor of
+  // its Boost burst; the only one of the 6 Sharp as the Wind/River's Flow variant ids with a real
+  // Healing fact (see `dragon-slash-skills.ts`'s doc comment for the full writeup). No PvE/WvW+PvP
+  // split on the wiki, used as-is — Minimum = ending the channel at the lowest charge level,
+  // Maximum = at full charge (same shape as the base skill's own Minimum/Maximum Damage pair).
+  80228: [
+    { factText: 'Minimum Healing', baseValue: 3215, coefficient: 0.8 },
+    { factText: 'Maximum Healing', baseValue: 6558, coefficient: 1.63 }
+  ]
 }
 
 export interface HealingLine {

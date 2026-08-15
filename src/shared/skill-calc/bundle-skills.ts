@@ -1,7 +1,14 @@
 import type { Build, Environment, Skill, TomeChapter, TomeChaptersByTomeId } from '../types'
 import { resolveSkillBarIds } from '../weapon-calc/weapon-skills'
 import { GUNSABER_WEAPON_BAR_SKILL_IDS } from './gunsaber-skills'
-import { DRAGON_SLASH_BAR_SKILL_IDS, DRAGON_TRIGGER_SKILL_ID } from './dragon-slash-skills'
+import {
+  DRAGON_SLASH_BAR_SKILL_IDS,
+  DRAGON_SLASH_RIVERS_FLOW_BAR_SKILL_IDS,
+  DRAGON_SLASH_SHARP_AS_THE_WIND_BAR_SKILL_IDS,
+  DRAGON_TRIGGER_SKILL_ID,
+  RIVERS_FLOW_TRAIT_ID,
+  SHARP_AS_THE_WIND_TRAIT_ID
+} from './dragon-slash-skills'
 
 /** Druid's "Celestial Avatar" mechanic-bar (Profession_5) skill id. Exported so
  *  `skill-calc/glyph-forms.ts` can read `Build.activeBundleSkillId` against the same id this file
@@ -109,11 +116,22 @@ const GUNSABER_SLOT_SKILLS: Record<number, number[]> = {
   [GUNSABER_UNSHEATHE_SKILL_ID]: GUNSABER_WEAPON_BAR_SKILL_IDS
 }
 
-/** Bladesworn's "Dragon Trigger" id (Warrior's Profession_2 F2 button — a REAL API skill, unlike
- *  Gunsaber's F1 toggle, see `dragon-slash-skills.ts`'s doc comment) mapped to the Dragon Slash
- *  bundle's own 5 hand-authored ids — same bundle shape as Gunsaber above. */
-const DRAGON_SLASH_SLOT_SKILLS: Record<number, number[]> = {
-  [DRAGON_TRIGGER_SKILL_ID]: DRAGON_SLASH_BAR_SKILL_IDS
+/**
+ * Which of Dragon Trigger's 3 possible 5-skill bars applies for a build — untraited, or reflavored
+ * by whichever of Bladesworn's 2 Dragon-Slash traits (if either) is chosen (see
+ * `dragon-slash-skills.ts`'s doc comment for the full writeup). Checks `chosenTraitIds` membership
+ * across every specialization line, not just whichever one currently holds Bladesworn — a trait id
+ * is globally unique, so this is safe regardless of line index, same defensive shape as
+ * `boon-calc/sources.ts`'s own `activeTraitIds`. Both traits are real player-chosen Major traits
+ * (never auto-granted minors), so `chosenTraitIds` alone (no minor-trait scan needed) is enough,
+ * same "just check membership, no full trait-object lookup" shape as `skill-variants.ts`'s
+ * `GADGETEER_GATED_SKILL_IDS` resolution.
+ */
+function dragonSlashBarSkillIdsForBuild(build: Build): number[] {
+  const chosenTraitIds = new Set(build.specializations.flatMap((line) => line?.chosenTraitIds ?? []))
+  if (chosenTraitIds.has(SHARP_AS_THE_WIND_TRAIT_ID)) return DRAGON_SLASH_SHARP_AS_THE_WIND_BAR_SKILL_IDS
+  if (chosenTraitIds.has(RIVERS_FLOW_TRAIT_ID)) return DRAGON_SLASH_RIVERS_FLOW_BAR_SKILL_IDS
+  return DRAGON_SLASH_BAR_SKILL_IDS
 }
 
 /**
@@ -140,7 +158,7 @@ export function bundleCapableSkillIds(
   const celestialAvatarIds = mechanicBarSkillIds.filter((id) => id === CELESTIAL_AVATAR_SKILL_ID)
   const shroudIds = mechanicBarSkillIds.filter((id) => id in SHROUD_SLOT_SKILLS)
   const gunsaberIds = mechanicBarSkillIds.filter((id) => id in GUNSABER_SLOT_SKILLS)
-  const dragonSlashIds = mechanicBarSkillIds.filter((id) => id in DRAGON_SLASH_SLOT_SKILLS)
+  const dragonSlashIds = mechanicBarSkillIds.filter((id) => id === DRAGON_TRIGGER_SKILL_ID)
   return [...kitIds, ...tomeIds, ...celestialAvatarIds, ...shroudIds, ...gunsaberIds, ...dragonSlashIds]
 }
 
@@ -153,7 +171,7 @@ export function isMechanicBarBundleId(id: number, tomeChapters: TomeChaptersByTo
     id in SHROUD_SLOT_SKILLS ||
     id === CELESTIAL_AVATAR_SKILL_ID ||
     id in GUNSABER_SLOT_SKILLS ||
-    id in DRAGON_SLASH_SLOT_SKILLS
+    id === DRAGON_TRIGGER_SKILL_ID
   )
 }
 
@@ -232,12 +250,11 @@ export function resolveActiveBundle(
     }
   }
 
-  const dragonSlashSlotIds = DRAGON_SLASH_SLOT_SKILLS[id]
-  if (dragonSlashSlotIds) {
+  if (id === DRAGON_TRIGGER_SKILL_ID) {
     return {
       kind: 'kit',
       sourceSkill,
-      slots: dragonSlashSlotIds.map((skillId) => {
+      slots: dragonSlashBarSkillIdsForBuild(build).map((skillId) => {
         const skill = skillsById.get(skillId)
         return skill ? { kind: 'kit', skill } : null
       })
@@ -267,9 +284,12 @@ export function resolveActiveBundle(
  * be opened at will" reasoning as `Build.activeBundleSkillId`'s own doc comment). Kit ids resolve
  * to real `Skill` ids (folded into the normal skill-id list `sources.ts` already walks); Tome
  * chapters have no `Skill` id at all, so they're returned separately as `TomeChapter`s for a
- * dedicated fact-extraction path (see `sources.ts`'s `tomeChapterBoonSources`).
+ * dedicated fact-extraction path (see `sources.ts`'s `tomeChapterBoonSources`). `build` is only
+ * used for `dragonSlashBarSkillIdsForBuild`'s trait-gated bar selection (Dragon Slash is the one
+ * bundle whose resolved skill list depends on more than the mechanic-bar id itself).
  */
 export function bundleSkillIdsForBuild(
+  build: Build,
   bundleCapableIds: number[],
   skillsById: Map<number, Skill>,
   tomeChapters: TomeChaptersByTomeId,
@@ -302,9 +322,8 @@ export function bundleSkillIdsForBuild(
       kitSkillIds.push(...gunsaberSlotIds)
       continue
     }
-    const dragonSlashSlotIds = DRAGON_SLASH_SLOT_SKILLS[id]
-    if (dragonSlashSlotIds) {
-      kitSkillIds.push(...dragonSlashSlotIds)
+    if (id === DRAGON_TRIGGER_SKILL_ID) {
+      kitSkillIds.push(...dragonSlashBarSkillIdsForBuild(build))
       continue
     }
     const tomeChaptersForId = tomeChapters[id]
