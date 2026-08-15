@@ -2,6 +2,37 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 188 — Same-name flip-pair classification sweep, Mesmer leg (sweep COMPLETE)
+
+Final leg of the flip-pair classification sweep (Sessions 171, 186, 187). Confirmed the 4-pair Mesmer
+pool from the original ~50-pair scan: Mind Wrack (10191->49068), Axes of Symmetry (43761->69385),
+Split Second (56930->56925), Bladesong Harmony (62617->62586).
+
+All 4 excluded, surfacing a 4th shape not seen on earlier legs:
+- **3 pairs — "with Master of Misdirection trait" recharge-reduced variant**: Mind Wrack, Split
+  Second, Bladesong Harmony. Wiki-confirmed via each skill's own id-comment (e.g.
+  `id = 10191,49068 <!-- normal, with Shatter Storm -->` — "Shatter Storm" is the wiki's legacy name
+  for trait 731, now "Master of Misdirection," an always-on Illusions Grandmaster MINOR trait
+  ("Shatter skills gain recharge reduction," 15%, `improves type = Shatter, Bladesong, Instrument` —
+  matches all 3 skills here). The flip target only changes Recharge/Count Recharge/Maximum Count
+  charge-mechanic facts — no new Damage/Buff/Condition fact type appears that the source doesn't
+  already have. Bladesong Harmony's Infinite Forge (trait 2206) trait-conditional facts differ in
+  count (3 entries on source vs 2 on target) but both are still bare `Damage` values under the same
+  trait, read as a game-mode-split representation quirk rather than a new effect.
+- **1 pair — byte-identical facts, description-only difference**: Axes of Symmetry. Same
+  Damage/4x-Confusion-apply/breaks-targeting/leap-finisher facts on both ids; only the flavor text
+  differs (whether clones separately strike vs one strike scaled by clone count — same net effect
+  already baked into identical facts), same "flavor text differs, no new fact" shape as Warrior's
+  Whirling Strike. The live wiki infobox lists only `id = 43761`; 69385 isn't documented there at all.
+
+**This completes the full ~50-pair same-name flip-pair classification sweep** across all 5 legs
+(Revenant, Elementalist, Warrior, Guardian, Mesmer — Sessions 171, 186, 187, 188). Confirmed-additive
+pool stays at 10 pairs total (Revenant's Band Together family x4, Elementalist's attunement familiars
+x4, Guardian's Crashing Courage x2) — no new candidates found this leg. Divider-rendering design for
+those 10 is the next step, not yet started. Full citations in `other-profession-flip-
+duplicates.ts`'s doc comment and TODO.md. `npm run test` 110/110, typecheck clean — pure data-table
+addition, no code changes.
+
 ## Session 187 — Same-name flip-pair classification sweep, Guardian leg
 
 Continuation of the flip-pair classification sweep (Session 171, 186). Scanned every same-name

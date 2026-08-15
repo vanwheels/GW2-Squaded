@@ -62,6 +62,37 @@
  * fit this shape cleanly (byte-identical or reordered-only facts, cross-checked against each
  * source/target pair's raw facts directly):
  *
+ * 2026-08-14 addition — Mesmer leg of the same-name flip-pair classification sweep, the LAST
+ * unclassified pool from the original ~50-pair scan (4 pairs: Mind Wrack, Axes of Symmetry, Split
+ * Second, Bladesong Harmony). All 4 excluded — this leg surfaced a 4th shape, distinct from the
+ * prior 3 (byte-identical/reordered 2nd id, PvE-vs-competitive mode split via 2nd id, and
+ * genuine-multi-stage-action out-of-scope):
+ *   - **"With Master of Misdirection" trait-recharge variant, wiki-confirmed via the shared id=
+ *     comment.** Mind Wrack (10191->49068), Split Second (56930->56925), and Bladesong Harmony
+ *     (62617->62586) each carry the wiki's own `id = X,Y <!-- normal, with Shatter Storm -->`
+ *     annotation (the live wiki still uses the trait's old dev-era name "Shatter Storm"; its current
+ *     name is Master of Misdirection, id 731, an Illusions Grandmaster MINOR trait — always active
+ *     once that tier is slotted, not a pick — "Shatter skills gain recharge reduction" 15%, and its
+ *     `improves type` field explicitly lists Shatter/Bladesong/Instrument, matching all 3 skills
+ *     here). The flip target represents the recharge-reduced state: `Recharge` drops (12->1) and
+ *     `Count Recharge`/`Maximum Count` charge-mechanic facts appear, but no new Damage/Buff/Condition
+ *     fact type appears anywhere the source doesn't already have one — recharge/charges aren't combat
+ *     facts this app's calculators read, so there's no new content to merge. Bladesong Harmony's
+ *     Infinite Forge (trait 2206) trait-conditional facts differ in count (source has 3 damage-value
+ *     entries, target 2) but both are still bare `Damage` facts under the same trait — a game-mode-
+ *     split representation quirk, not a qualitatively new effect.
+ *   - **Axes of Symmetry (43761->69385): byte-identical facts, description-only difference.** Same
+ *     Damage(1.25/1.75)/4x Confusion-apply/breaks-targeting/leap-finisher facts on both ids; only the
+ *     flavor text differs ("you and your axe clones shadowstep and strike" vs "shadowstep and strike
+ *     ... apply extra stacks of confusion per active clone" — two descriptions of the same net
+ *     already-combined-into-facts effect), same "flavor text differs, no new fact" shape as Warrior's
+ *     Whirling Strike. The live wiki infobox for Axes of Symmetry lists only `id = 43761` (69385 not
+ *     mentioned at all), consistent with it being a non-canonical internal duplicate rather than a
+ *     documented 2nd effect.
+ * This completes the ~50-pair scan (Revenant + Elementalist + Warrior + Guardian + Mesmer legs) —
+ * confirmed-additive pool stays at 10 (Revenant's Band Together family x4, Elementalist's attunement
+ * familiars x4, Guardian's Crashing Courage x2); divider-rendering design is unblocked.
+ *
  * 2026-08-14 addition — Guardian leg of the same-name flip-pair classification sweep (TODO.md's
  * "Next leg" note), 15 raw pairs after excluding the 12 Spirit Weapon pairs already handled above.
  * Mixed bag, NOT a single shape like Warrior's:
@@ -173,5 +204,16 @@ export const NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS: ReadonlySet<number
   78514, // Radiant Resolve — byte-identical facts (Recharge)
   // Guardian mode split (2026-08-14 addition) — same "2nd id instead of an override" shape as
   // Utility Goggles/Spirit Weapons/Berserk above
-  30039 // Shield of Courage — wiki-confirmed `id = 30039, 30029`, `split = pve pvp, wvw`
+  30039, // Shield of Courage — wiki-confirmed `id = 30039, 30029`, `split = pve pvp, wvw`
+  // Mesmer (2026-08-14 addition, flip-pair sweep's Mesmer leg — the LAST unclassified pool)
+  49068, // Mind Wrack — "with Master of Misdirection" (wiki: "Shatter Storm") recharge-reduced
+  // variant, wiki id comment confirms `10191,49068 <!-- normal, with Shatter Storm -->`; only
+  // Recharge/Count Recharge/Maximum Count differ, no new Damage/Buff/Condition fact
+  56925, // Split Second — same Master of Misdirection recharge-reduced variant, wiki id comment
+  // `56930,56925 <!-- normal, with Shatter Storm -->`
+  62586, // Bladesong Harmony — same Master of Misdirection recharge-reduced variant, wiki id comment
+  // `62617, 62586 <!-- id with Shatter Storm -->`; Infinite Forge trait facts differ in count
+  // (3 vs 2 entries) but both are bare Damage values under the same trait, not a new effect
+  69385 // Axes of Symmetry — byte-identical facts to its source (43761); only the flavor-text
+  // description differs, no new fact; live wiki infobox lists only `id = 43761`, 69385 absent
 ])

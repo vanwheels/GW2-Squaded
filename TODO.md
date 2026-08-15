@@ -112,10 +112,23 @@ that don't block a release.
       transform, ~5 unrelated fact sets sharing one tooltip name) are genuinely out of scope — not a
       duplicate, not additive stacking, same "mode/mechanic-select button" category as Revenant's
       Legendary Renegade Stance. `npm run test` 110/110, typecheck clean.
-      **Next leg**: Mesmer (4 pairs: Mind Wrack, Axes of Symmetry, Split Second, Bladesong Harmony) —
-      the last unclassified pool, per the original scan. Once the full ~50-pair classification is
-      done, THEN design+build the actual divider rendering for the confirmed-additive family
-      (`skillTooltipContent`/`FlipSkillStack` in `SkillsEditor.tsx`).
+      **Mesmer leg classified 2026-08-14 (COMPLETED.md Session 188) — LAST leg, classification
+      sweep now COMPLETE.** All 4 pairs excluded, surfacing a 4th shape distinct from the prior 3
+      (byte-identical/reordered 2nd id, PvE-vs-competitive mode split via 2nd id, genuine-multi-stage
+      out-of-scope): Mind Wrack (10191->49068), Split Second (56930->56925), and Bladesong Harmony
+      (62617->62586) are each a "with Master of Misdirection trait" recharge-reduced variant —
+      wiki-confirmed via the shared id comment (`id = X,Y <!-- normal, with Shatter Storm -->`, the
+      wiki's legacy name for trait 731/Master of Misdirection, an always-on Illusions Grandmaster
+      minor trait that reduces Shatter/Bladesong/Instrument recharge 15%); only Recharge/Count
+      Recharge/Maximum Count charge-mechanic facts differ, no new Damage/Buff/Condition fact type.
+      Axes of Symmetry (43761->69385) is byte-identical facts, description-only difference (same
+      "flavor text differs, no new fact" shape as Warrior's Whirling Strike); the live wiki infobox
+      lists only `id = 43761`, 69385 isn't mentioned at all.
+      **Full ~50-pair classification is now DONE across all 5 legs** (Revenant, Elementalist,
+      Warrior, Guardian, Mesmer). Confirmed-additive pool: 10 pairs total (Revenant's Band Together
+      family x4, Elementalist's attunement familiars x4, Guardian's Crashing Courage x2). **Next
+      step**: design+build the actual divider rendering for these 10 pairs
+      (`skillTooltipContent`/`FlipSkillStack` in `SkillsEditor.tsx`) — not started.
 
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around
