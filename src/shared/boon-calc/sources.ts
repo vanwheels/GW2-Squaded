@@ -4037,7 +4037,18 @@ function namedFactDetail(fact: Fact): string | null {
 /** At most one entry per matcher name per source (a skill/trait with 2 facts both matching e.g.
  *  "Barrier" shouldn't produce 2 identical tooltip lines). `targetCountTables` is keyed by matcher
  *  name (e.g. `Cleanse`) — only names present there get a resolved `targetCount`, everything else
- *  gets `null` (see `NamedFactSource.targetCount`'s doc comment). */
+ *  gets `null` (see `NamedFactSource.targetCount`'s doc comment).
+ *
+ * `wvwOverrides` mirrors `extractFromFacts`'s handling exactly (same per-source, keyed-by-status
+ * map, same `'omit'`/number semantics), fixing TODO.md's "`MISCELLANEOUS_MATCHERS` has no WvW-
+ * override concept" gap: a `Buff`-typed fact whose `status` has a curated override is deduped by
+ * status (only the first of a pve/wvw-split pair is ever considered, so raw array order can't
+ * flip which duration wins) and has its `detail` replaced by the override's WvW-tagged duration;
+ * `'omit'` drops it as a candidate match entirely (no WvW variant). Only `Buff`-typed facts carry a
+ * `status` to look up, so this only ever affects Stealth/Superspeed (`MISCELLANEOUS_MATCHERS`) and
+ * the `Buff`-shaped half of Stun/Daze (`CONTROL_MATCHERS`) — every other matcher name reads
+ * `Time`/`Distance`/`Number`/`StunBreak`/`NoData`/`AttributeAdjust` facts with no `status`, so the
+ * override lookup is simply never consulted for them. */
 function namedFactsFrom(
   facts: Fact[],
   traitedFacts: Fact[],
@@ -4047,19 +4058,30 @@ function namedFactsFrom(
   sourceId: number,
   sourceName: string,
   sourceIcon: string,
+  wvwOverrides: Record<string, WvwFactOverride> | undefined,
   matchers: Record<string, (fact: Fact) => boolean>,
   targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>
 ): NamedFactSource[] {
   const out: NamedFactSource[] = []
   const matchedNames = new Set<string>()
+  const emittedOverriddenStatuses = new Set<string>()
   const combinedFacts = [...facts, ...traitedFacts]
   for (const fact of combinedFacts) {
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
+
+    const wvwOverride = fact.type === 'Buff' && typeof fact.status === 'string' ? wvwOverrides?.[fact.status] : undefined
+    if (wvwOverride !== undefined) {
+      if (emittedOverriddenStatuses.has(fact.status as string)) continue
+      emittedOverriddenStatuses.add(fact.status as string)
+    }
+    if (wvwOverride === 'omit') continue
+
     for (const [name, match] of Object.entries(matchers)) {
       if (matchedNames.has(name) || !match(fact)) continue
       const table = targetCountTables?.[name]
       const targetCount = table ? resolveTargetCountFrom(fact, combinedFacts, sourceKind, sourceId, table, activeIds, equippedLegendIdSet).value : null
-      out.push({ sourceKind, sourceId, sourceName, sourceIcon, name, detail: namedFactDetail(fact), targetCount })
+      const detail = typeof wvwOverride === 'number' ? `${wvwOverride}s` : namedFactDetail(fact)
+      out.push({ sourceKind, sourceId, sourceName, sourceIcon, name, detail, targetCount })
       matchedNames.add(name)
     }
   }
@@ -4195,6 +4217,7 @@ export function computeNamedFactSources(
     skills: Skill[]
     traits: Trait[]
     sigils: Sigil[]
+    wvwFactOverrides: WvwFactOverrides
     legends: Legend[]
     pets: Pet[]
     professions: Profession[]
@@ -4223,6 +4246,7 @@ export function computeNamedFactSources(
         skill.id,
         skill.name,
         skill.icon,
+        gameData.wvwFactOverrides.skill[skill.id],
         matchers,
         targetCountTables
       )
@@ -4246,6 +4270,7 @@ export function computeNamedFactSources(
           trait.id,
           trait.name,
           trait.icon,
+          gameData.wvwFactOverrides.trait[trait.id],
           matchers,
           targetCountTables
         )
@@ -4261,14 +4286,15 @@ export function computeNamedFactSources(
  * counterpart to `computeNamedFactSources`, same "`activeIds` is the caller's responsibility"
  * convention as `boonConditionFactsForSkill`/`auraFactsForSkill`. Call once per matcher table
  * (`CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/`BOON_STRIP_CORRUPT_MATCHERS`), same as the
- * whole-build version — `namedFactsFrom` takes no `wvwOverrides` param at all (unlike
- * `extractFromFacts`'s Buff-fact path), a known architecture limit documented on
- * `computeNamedFactSources` itself, so there's no override to thread through here either.
+ * whole-build version. `wvwOverride` is this skill's own per-status override map (same
+ * `gameData.wvwFactOverrides.skill[skill.id]` slice `boonConditionFactsForSkill`/
+ * `auraFactsForSkill` take) — see `namedFactsFrom`'s doc comment for what it does.
  */
 export function namedFactsForSkill(
   skill: Skill,
   activeIds: Set<number>,
   equippedLegendIdSet: Set<string>,
+  wvwOverride: Record<string, WvwFactOverride> | undefined,
   matchers: Record<string, (fact: Fact) => boolean>,
   targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>
 ): NamedFactSource[] {
@@ -4281,6 +4307,7 @@ export function namedFactsForSkill(
     skill.id,
     skill.name,
     skill.icon,
+    wvwOverride,
     matchers,
     targetCountTables
   )

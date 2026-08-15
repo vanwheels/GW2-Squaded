@@ -50,9 +50,9 @@ const durationPercent = { boon: 0, condition: 0 }
 
 function namedFactsFor(skill: Skill) {
   return [
-    ...namedFactsForSkill(skill, activeIds, legendIds, CONTROL_MATCHERS),
-    ...namedFactsForSkill(skill, activeIds, legendIds, MISCELLANEOUS_MATCHERS),
-    ...namedFactsForSkill(skill, activeIds, legendIds, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES)
+    ...namedFactsForSkill(skill, activeIds, legendIds, undefined, CONTROL_MATCHERS),
+    ...namedFactsForSkill(skill, activeIds, legendIds, undefined, MISCELLANEOUS_MATCHERS),
+    ...namedFactsForSkill(skill, activeIds, legendIds, undefined, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES)
   ]
 }
 

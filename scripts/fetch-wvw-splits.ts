@@ -1172,7 +1172,17 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // is safe here since neither of its 2 concepts has any wvw application to preserve — the 2 Might
     // rows stay distinct via their own already-curated BUFF_INSTANCE_LABELS entries, no override
     // needed on that status.
-    1942: { Alacrity: 'omit' }
+    1942: { Alacrity: 'omit' },
+
+    // Liberating Liaise (2357, Paragon/Motivation Adept, "Chant of Freedom grants superspeed to
+    // affected allies when activated") — found 2026-08-15 while investigating TODO.md's
+    // `MISCELLANEOUS_MATCHERS` WvW-override gap (Superspeed isn't a `classifyBoonCondition` status,
+    // so it never reached this table until `namedFactsFrom` itself gained an override lookup). Its
+    // own 2 raw Buff facts already contain both values verbatim, same "not every case makes the
+    // automated candidate list" gap as Temporal Enchanter/Celestial Shadow above — plain
+    // pve(3)/wvw+pvp(2) split, no `alt=` (`{{skill fact|effect|Superspeed|3|game mode = pve}}
+    // {{skill fact|effect|Superspeed|2|game mode = wvw pvp}}`).
+    2357: { Superspeed: 2 }
   }
 }
 

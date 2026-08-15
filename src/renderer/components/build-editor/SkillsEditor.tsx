@@ -308,9 +308,9 @@ export function skillNamedFacts(
   return {
     auraFacts: auraFactsForSkill(skill, activeIds, legendIds, wvwOverride),
     namedFactSources: [
-      ...namedFactsForSkill(skill, activeIds, legendIds, CONTROL_MATCHERS),
-      ...namedFactsForSkill(skill, activeIds, legendIds, MISCELLANEOUS_MATCHERS),
-      ...namedFactsForSkill(skill, activeIds, legendIds, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES)
+      ...namedFactsForSkill(skill, activeIds, legendIds, wvwOverride, CONTROL_MATCHERS),
+      ...namedFactsForSkill(skill, activeIds, legendIds, wvwOverride, MISCELLANEOUS_MATCHERS),
+      ...namedFactsForSkill(skill, activeIds, legendIds, wvwOverride, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES)
     ],
     comboFacts: comboFactsForSkill(skill, activeIds)
   }

@@ -2,6 +2,40 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 202 — `MISCELLANEOUS_MATCHERS`/`CONTROL_MATCHERS` WvW-override gap
+
+Closed the other open item `flat_crit_chance_sweep_2026-08-15` flagged (user picked this one when
+asked): `namedFactsFrom` (the shared engine behind `computeNamedFactSources`/`namedFactsForSkill` in
+`sources.ts`, covering Control/Miscellaneous/Strip-Corrupt-Cleanse) had no `WvwFactOverride` concept
+at all, unlike `extractFromFacts`'s boon/condition/aura path — a `Buff`-typed fact with a pve/wvw
+split (Stealth, Superspeed, or the `Buff`-shaped half of Stun/Daze) showed whichever raw duplicate
+`Fact` happened to be scanned first, uncorrected.
+
+Fix: `namedFactsFrom` now consults the same per-source `WvwFactOverride` map `extractFromFacts`
+already threads through — for a `Buff`-typed fact with a `status`, a `'omit'` entry drops it as a
+match candidate and a number entry replaces its displayed duration, with the same "only the first of
+a same-status pair is ever considered" dedup `extractFromFacts` uses. Threaded `wvwOverrides`/
+`wvwFactOverride` through `computeNamedFactSources` (now takes `wvwFactOverrides` in its `gameData`
+param, same object every other `compute*Sources` already receives) and `namedFactsForSkill` (new
+`wvwOverride` param, positioned like `auraFactsForSkill`'s) down to `namedFactsFrom` itself. Updated
+`SkillsEditor.tsx`'s `skillNamedFacts` (already had `wvwOverride` in scope for `auraFactsForSkill`,
+just wasn't forwarding it) and the 2 test files calling `namedFactsForSkill` directly
+(`additive-flip-pairs.test.ts`, `evoker-familiar-facts.test.ts`, both pass `undefined` — no override
+data relevant to what they assert). Every other `computeNamedFactSources`/`computePartyNamedFactSummary`
+call site (`BoonConditionSummaryPanel.tsx`, `SlotTile.tsx`, `PartyRow.tsx`, `party-summary.ts`) already
+passes the same whole-`gameData` object used for `computeBoonConditionSources`, which already carries
+`wvwFactOverrides` — no call-site changes needed there beyond the type widening.
+
+Fixed the motivating case for real, not just the mechanism: added a
+`2357: { Superspeed: 2 }` entry to `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` (wiki-verified via a
+live wikitext fetch — Liberating Liaise, Paragon/Motivation Adept, plain pve(3)/wvw+pvp(2) Superspeed
+split, no `alt=`) and hand-patched the corresponding entry into
+`data/game-data/wvw-fact-overrides.json` (matches what a full `fetch-wvw-splits` run would produce
+for this one manual-only id — not re-run in full, since it needs no other change and a full run is a
+slow, non-incremental wiki sweep). Verified end-to-end with a throwaway `tsx` script:
+`namedFactsForSkill` on trait 2357 now returns Superspeed `"2s"` (was `"3s"`, the PvE value) once the
+override is passed. TODO.md's item closed.
+
 ## Session 201 — Flat critical-hit-chance trait sweep
 
 Closed TODO.md's "Pinnacle of Strength's flat, unconditional +5% critical-hit chance fact is NOT

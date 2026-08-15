@@ -208,6 +208,7 @@ export function computePartyNamedFactSummary(
     skills: Skill[]
     traits: Trait[]
     sigils: Sigil[]
+    wvwFactOverrides: WvwFactOverrides
     legends: Legend[]
     pets: Pet[]
     professions: Profession[]

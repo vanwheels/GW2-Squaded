@@ -76,7 +76,7 @@ describe('EVOKER_FAMILIAR_SPECIALIZED_ELEMENT', () => {
       const target = byId.get(targetId)
       expect(target, `target id ${targetId} missing from skills.json`).toBeDefined()
       if (!target) continue
-      const stunBreaks = namedFactsForSkill(target, activeIds, legendIds, MISCELLANEOUS_MATCHERS).filter((f) => f.name === 'Breaks Stun')
+      const stunBreaks = namedFactsForSkill(target, activeIds, legendIds, undefined, MISCELLANEOUS_MATCHERS).filter((f) => f.name === 'Breaks Stun')
       expect(stunBreaks.length, `${target.name} (${targetId}) should carry exactly one StunBreak fact`).toBe(1)
     }
   })

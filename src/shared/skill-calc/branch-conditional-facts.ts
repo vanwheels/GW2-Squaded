@@ -254,11 +254,15 @@ function dragonSlashSharpAsTheWindBranches(
  * plain `Number` fact); Calming Tongue's (2433) "Conditions Removed" pve+wvw-vs-pvp duplicate got a
  * small `NUMERIC_FACT_WVW_OVERRIDES` dedup entry in `fact-numbers.ts` instead of touching this file,
  * since `Number`-type facts are outside `fetch-wvw-splits.ts`'s Buff-only scope; Liberating Liaise's
- * (2357) Superspeed grant turned out to be a dead end — Superspeed isn't a
+ * (2357) Superspeed grant wasn't special-cased here — Superspeed isn't a
  * `classifyBoonCondition`-recognized status (GW2's own boon/condition split; it only lives in
- * `MISCELLANEOUS_MATCHERS`'s presence-only named-fact pipeline, which has no WvW-override concept
- * of its own at all), logged as an open, general-not-just-this-trait gap in TODO.md rather than
- * special-cased here. Strengthening Stanzas (2385) is the one that genuinely needed this file's own
+ * `MISCELLANEOUS_MATCHERS`'s presence-only named-fact pipeline), so this file's divider mechanism
+ * didn't apply. The general "`namedFactsFrom` has no WvW-override concept" gap this trait exposed
+ * (TODO.md) was fixed properly instead (2026-08-15, `namedFactsFrom`/`computeNamedFactSources`/
+ * `namedFactsForSkill` in `sources.ts` now consult the same per-source `WvwFactOverride` map
+ * `extractFromFacts` does), with a `2357: { Superspeed: 2 }` entry added to `fetch-wvw-splits.ts`'s
+ * `MANUAL_OVERRIDES` to fix this trait's own tooltip as the first real case. Strengthening Stanzas
+ * (2385) is the one that genuinely needed this file's own
  * divider mechanism — see `strengtheningStanzasBranches` below, exposed through the sibling
  * `branchConditionalTraitFacts` (not `branchConditionalFacts` itself, which is `Skill`-shaped) that
  * `TraitsEditor.tsx` now calls the same way `SkillsEditor.tsx` calls this one.
