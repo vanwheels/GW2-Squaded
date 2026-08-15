@@ -1,11 +1,15 @@
 import type { Skill } from '../types'
 import type { BoonConditionSource } from '../boon-calc/sources'
-import { BOON_CONDITION_ICONS } from '../boon-calc/icons'
+import { BOON_CONDITION_ICONS, MISCELLANEOUS_ICONS } from '../boon-calc/icons'
 import type { FactLine } from './fact-numbers'
 
 const DRAGON_SLASH_FORCE_SHARP_AS_THE_WIND_ID = 80199
 const DRAGON_SLASH_BOOST_SHARP_AS_THE_WIND_ID = 80281
 const DRAGON_SLASH_REACH_SHARP_AS_THE_WIND_ID = 80246
+
+const CHANT_OF_ACTION_ID = 77342
+const CHANT_OF_RECUPERATION_ID = 76782
+const CHANT_OF_FREEDOM_ID = 77155
 
 /**
  * One labeled alternative-outcome section of a skill's tooltip — a divider ("Enemy Target" / "Ally
@@ -36,6 +40,11 @@ const ALLIED_TARGETS_ICON = 'https://render.guildwars2.com/file/BBE8191A494B0352
 // Bond's own "Duration: 7 seconds" line has no live API fact to pull an icon from at all.
 const DURATION_ICON = 'https://render.guildwars2.com/file/7B2193ACCF77E56C13E608191B082D68AA0FAA71/156659.png'
 const INTERVAL_ICON = 'https://render.guildwars2.com/file/B75E91EB22E0DFCC1D08030204055946506D56F6/1770206.png'
+// The exact icon a live `AttributeAdjust`/`target: 'Healing'`/`text: 'Healing'` fact carries
+// elsewhere in data/game-data/skills.json (e.g. skill 1125 "Eat Egg") — reused here since Chant of
+// Recuperation's own Healing facts don't exist in the live API at all (see
+// `chantOfRecuperationSections`'s doc comment).
+const HEALING_ICON = 'https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png'
 
 /**
  * Otherworldly Bond (Revenant scepter 3, id 71952): a tether the player casts at EITHER an ally or
@@ -186,6 +195,196 @@ function dragonSlashSharpAsTheWindBranches(
 }
 
 /**
+ * Paragon's 3 Chant skills (Warrior elite spec 74) are each simultaneously a Burst (an immediate,
+ * one-time effect on cast) and a "Refrain" (a self-buff that ticks its own boons every `Interval`
+ * seconds, scaling up in 3 bands as the wiki calls them out — 1-3/4-6/7-10 Motivation — until the
+ * player's Motivation stacks run out or another chant is activated). The live API's own `facts`
+ * array for all 3 stops at Recharge/Radius/Number of Targets/Interval; every number below comes
+ * from the wiki's raw `{{skill fact}}` templates cross-checked against the wiki's own *rendered*
+ * Skill Facts panel (fetched fresh 2026-08-15 via both `action=raw` and the normal page — the raw
+ * templates alone were ambiguous about which positional argument was which for Chant of Action's
+ * stacked Might/Fury facts, the rendered panel wasn't). WvW values used throughout (this app's usual
+ * convention) wherever a fact carries a PvE/WvW/PvP split.
+ *
+ * Same shape decision as `otherworldlyBondBranches`: no `motivationStacks` `CombatState` field was
+ * added for this (TODO.md had flagged that as a likely prerequisite before this was picked up, but
+ * on inspection this mechanism is tooltip-only — same as Otherworldly Bond's own branches — so a
+ * combat-state gate isn't actually required to render it correctly; every band is honestly labeled
+ * with its own Motivation range rather than picking one to imply is "current"). Every boon fact here
+ * uses `applyCount: 1` unless the wiki's own rendered text shows more than one stack applying at
+ * once (Chant of Action's Might), same "this is what one application looks like, not a projected
+ * total over the tether's lifetime" convention `otherworldlyBondBranches` already established.
+ *
+ * Deliberately still missing from this file: Chant of Recuperation's own Barrier (on cast) and
+ * Healing (per Refrain tick) numbers use a real Healing-Power-scaled formula
+ * (`baseValue + coefficient * healingPower`, same as `CURATED_HEALING_COEFFICIENTS`/
+ * `CURATED_BARRIER_COEFFICIENTS`) computed directly here rather than through either curated table,
+ * since both tables require a matching live API fact to attach a coefficient to (`Array.find` by
+ * `factText`) and these skills have none — see each function's own doc comment. The 5 wiki-flagged
+ * Chant-modifying traits (Enduring Refrain id 2428, Feverish Pulse id 2369, Calming Tongue id 2433,
+ * Liberating Liaise id 2357, Strengthening Stanzas id 2385, TODO.md) are NOT curated here — traits
+ * don't go through `skillTooltipContent`/`branchConditionalFacts` at all today (`TraitsEditor.tsx`
+ * renders traits through a separate, plainer path with no divider/branch concept), so adding these
+ * would need its own follow-up rather than fitting this pass.
+ */
+function chantOfActionSections(skill: Skill, durationPercent: { boon: number; condition: number }): ConditionalBranch[] {
+  const might = (applyCount: number): BoonConditionSource => ({
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Might',
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds: 4, // WvW value (PvE 8s, PvP 6s)
+    scaledDurationSeconds: 4 * (1 + durationPercent.boon / 100),
+    applyCount,
+    requiresTraitId: null,
+    targetCount: 5
+  })
+  const fury: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Fury',
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds: 2, // WvW+PvP value (PvE 5s)
+    scaledDurationSeconds: 2 * (1 + durationPercent.boon / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    targetCount: 5
+  }
+  const costLine = (n: number): FactLine => ({ icon: null, text: `Motivation Cost per Interval: ${n}` })
+
+  return [
+    { label: 'Initial Cast', numericLines: [], facts: [might(2), fury] },
+    { label: '1-3 Motivation', numericLines: [costLine(1)], facts: [might(1)] },
+    { label: '4-6 Motivation', numericLines: [costLine(2)], facts: [might(2), fury] },
+    { label: '7-10 Motivation', numericLines: [costLine(3)], facts: [might(3), fury] }
+  ]
+}
+
+function chantOfRecuperationSections(skill: Skill, durationPercent: { boon: number; condition: number }, healingPower: number): ConditionalBranch[] {
+  const vigor: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Vigor',
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds: 3, // WvW value (PvE+PvP 5s)
+    scaledDurationSeconds: 3 * (1 + durationPercent.boon / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    targetCount: 5
+  }
+  const regeneration: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Regeneration',
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds: 2, // WvW value (PvE+PvP 3s)
+    scaledDurationSeconds: 2 * (1 + durationPercent.boon / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    targetCount: 5
+  }
+  // Barrier/Healing formula (baseValue + coefficient * healingPower) is quoted straight off the
+  // wiki's own WvW+PvP facts, same math `barrierLinesForSkill`/`healingLinesForSkill` apply — just
+  // computed inline instead of through either curated table, since both match against a live
+  // `AttributeAdjust` fact by `factText` and this skill's API facts have no Barrier/Healing entry at
+  // all to match against (confirmed via a full dump of skill 76782's own `facts` array).
+  const barrierLine = (): FactLine => ({ icon: MISCELLANEOUS_ICONS.Barrier, text: `Barrier: ${Math.round(1615 + 0.5 * healingPower).toLocaleString()}` })
+  const healLine = (baseValue: number, coefficient: number): FactLine => ({
+    icon: HEALING_ICON,
+    text: `Healing: ${Math.round(baseValue + coefficient * healingPower).toLocaleString()}`
+  })
+  const costLine = (n: number): FactLine => ({ icon: null, text: `Motivation Cost per Interval: ${n}` })
+
+  return [
+    { label: 'Initial Cast', numericLines: [barrierLine()], facts: [vigor] },
+    { label: '1-3 Motivation', numericLines: [healLine(330, 0.1), costLine(2)], facts: [] },
+    { label: '4-6 Motivation', numericLines: [healLine(431, 0.15), costLine(2)], facts: [] },
+    { label: '7-10 Motivation', numericLines: [healLine(532, 0.2), costLine(3)], facts: [regeneration] }
+  ]
+}
+
+function chantOfFreedomSections(skill: Skill, durationPercent: { boon: number; condition: number }): ConditionalBranch[] {
+  const stability: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Stability',
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds: 3, // no PvE/WvW/PvP split
+    scaledDurationSeconds: 3 * (1 + durationPercent.boon / 100),
+    applyCount: 2,
+    requiresTraitId: null,
+    targetCount: 5
+  }
+  const swiftness: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Swiftness',
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds: 3, // no PvE/WvW/PvP split
+    scaledDurationSeconds: 3 * (1 + durationPercent.boon / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    targetCount: 5
+  }
+  const resolution: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Resolution',
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds: 2, // WvW value (PvE+PvP 3s)
+    scaledDurationSeconds: 2 * (1 + durationPercent.boon / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    targetCount: 5
+  }
+  const protection: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Protection',
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds: 2, // WvW value (PvE+PvP 3s)
+    scaledDurationSeconds: 2 * (1 + durationPercent.boon / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    targetCount: 5
+  }
+  const costLine = (n: number): FactLine => ({ icon: null, text: `Motivation Cost per Interval: ${n}` })
+
+  return [
+    // "Breaks Stun" is already a real live API fact on this skill (StunBreak type) — only Stability
+    // itself needs adding here.
+    { label: 'Initial Cast', numericLines: [], facts: [stability] },
+    { label: '1-3 Motivation', numericLines: [costLine(1)], facts: [swiftness] },
+    { label: '4-6 Motivation', numericLines: [costLine(2)], facts: [swiftness, resolution] },
+    { label: '7-10 Motivation', numericLines: [costLine(3)], facts: [swiftness, resolution, protection] }
+  ]
+}
+
+/**
  * Per-skill mutually-exclusive-outcome fact sections for `skillTooltipContent` to render as extra
  * labeled dividers below the base facts — `null` for every skill without one. Kept as its own
  * lookup (rather than folded into `synthetic-facts.json`) since that file's shape has no concept of
@@ -194,12 +393,19 @@ function dragonSlashSharpAsTheWindBranches(
  * cast, mutually exclusive branches" shape (e.g. Twin Moon Sweep, COMPLETED.md Session 130) could
  * reuse this same mechanism.
  */
-export function branchConditionalFacts(skill: Skill, durationPercent: { boon: number; condition: number }): ConditionalBranch[] | null {
+export function branchConditionalFacts(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+  healingPower: number
+): ConditionalBranch[] | null {
   if (skill.id === 71952) return otherworldlyBondBranches(skill, durationPercent)
   // Sharp as the Wind's Force/Boost/Reach — Minimum Burning Duration has no PvE/WvW+PvP split on
   // the wiki (used as-is); Maximum is each skill's own WvW+PvP value (PvE noted in the comment).
   if (skill.id === DRAGON_SLASH_FORCE_SHARP_AS_THE_WIND_ID) return dragonSlashSharpAsTheWindBranches(skill, durationPercent, 7, 2) // PvE max: 4s@20 stacks
   if (skill.id === DRAGON_SLASH_BOOST_SHARP_AS_THE_WIND_ID) return dragonSlashSharpAsTheWindBranches(skill, durationPercent, 5.5, 1.5) // PvE max: 3.25s@20 stacks
   if (skill.id === DRAGON_SLASH_REACH_SHARP_AS_THE_WIND_ID) return dragonSlashSharpAsTheWindBranches(skill, durationPercent, 3.5, 1) // PvE max: 2s@20 stacks
+  if (skill.id === CHANT_OF_ACTION_ID) return chantOfActionSections(skill, durationPercent)
+  if (skill.id === CHANT_OF_RECUPERATION_ID) return chantOfRecuperationSections(skill, durationPercent, healingPower)
+  if (skill.id === CHANT_OF_FREEDOM_ID) return chantOfFreedomSections(skill, durationPercent)
   return null
 }

@@ -30,21 +30,23 @@ that don't block a release.
 
 ## Scoped features, not yet built
 
-- [ ] **Paragon's Motivation-tiered Chants** — flagged by the user 2026-08-14, not started. Paragon
-      (Warrior elite spec 74) has 3 Chant skills (Chant of Action/F2 id 77342, Chant of Recuperation/F3
-      id 76782, Chant of Freedom/F4 id 77155), each simultaneously a Burst skill and a "Refrain" that
-      drains Motivation stacks over time for scaling effects. Same shape as Otherworldly Bond: the raw
-      API's own facts stop at the base cast (Recharge/Radius/Targets/Interval) and each skill's own
-      description trails off with "Gain increased effects depending on motivation stacks:" — the wiki
-      is the only source for the actual tier numbers. Confirmed via wiki fetch 2026-08-14: a 3-band
-      system (1-3 / 4-6 / 7-10 Motivation), each with its own PvE/WvW/PvP split, plus ~5 traits that
-      further modify chant effects (Enduring Refrain id 2428, Feverish Pulse id 2369, Calming Tongue id
-      2433, Liberating Liaise id 2357, Strengthening Stanzas id 2385). Unlike Otherworldly Bond's
-      branches (mutually exclusive per-cast choices), Motivation tiers are current-resource-level-
-      gated — closer in shape to `HealthTier` than to `ConditionalBranch` — so this will likely need a
-      new `motivationStacks`/`motivationTier` field on `CombatState` as a prerequisite before any
-      per-tier divider rendering, then wiki verification across all 3 chants × 3 tiers plus the 5
-      modifying traits.
+- [ ] **Paragon's Motivation-tiered Chants — traits still open.** Flagged by the user 2026-08-14; the
+      3 Chant skills themselves (Chant of Action/F2 id 77342, Chant of Recuperation/F3 id 76782, Chant
+      of Freedom/F4 id 77155) are now **DONE 2026-08-15** — see COMPLETED.md. Turned out a
+      `motivationStacks`/`CombatState` field wasn't actually needed: same as Otherworldly Bond,
+      `branchConditionalFacts` is tooltip-only (never feeds the aggregate boon-uptime totals), so all
+      4 sections per chant (Initial Cast + 1-3/4-6/7-10 Motivation) render as honestly-labeled
+      alternatives rather than needing a "which tier is current" gate. Still open: the **5 traits**
+      that further modify chant effects — Enduring Refrain (id 2428, stronger Refrain effects + extra
+      Motivation on chant activation), Feverish Pulse (id 2369, chant activation reduces other chants'
+      recharge + grants Alacrity/Quickness), Calming Tongue (id 2433, Chant of Recuperation removes
+      conditions), Liberating Liaise (id 2357, Chant of Freedom grants Superspeed), Strengthening
+      Stanzas (id 2385, Refrains grant the *caster* bonus damage/damage-reduction/move-speed while
+      active) — all wiki-verified 2026-08-15 (raw wikitext, values in COMPLETED.md), just not yet
+      wired up. These are trait tooltips, not skill tooltips — `TraitsEditor.tsx` renders traits
+      through a separate, plainer path than `SkillsEditor.tsx`'s `skillTooltipContent` and has no
+      `branchConditionalFacts`-style divider concept today, so this needs its own small mechanism (or
+      an extension of the existing one to accept a trait) before these 5 can be curated.
 
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around

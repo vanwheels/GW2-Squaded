@@ -2,6 +2,48 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 195 — Paragon's Chant skills (Motivation-tiered Refrain effects)
+
+Picks up TODO.md's "Paragon's Motivation-tiered Chants" item (flagged 2026-08-14, not started until
+now). Curates all 3 Chant skills — Chant of Action (F2, id 77342), Chant of Recuperation (F3, id
+76782), Chant of Freedom (F4, id 77155) — whose live API `facts` stop at Recharge/Radius/Number of
+Targets/Interval, same "API gives nothing to render" shape as Otherworldly Bond (COMPLETED.md
+Session 131).
+
+- Wiki-verified via raw wikitext (`?action=raw`) for all 3 skills, cross-checked against each page's
+  own *rendered* Skill Facts panel (fetched separately) since Chant of Action's stacked Might/Fury
+  facts share positional template arguments the raw templates alone don't disambiguate. WvW values
+  used throughout per this app's convention.
+- New `chantOfActionSections`/`chantOfRecuperationSections`/`chantOfFreedomSections` in
+  `branch-conditional-facts.ts`, dispatched from `branchConditionalFacts` (now also takes
+  `healingPower`) — 4 labeled tooltip sections per chant ("Initial Cast" for the Burst's own
+  one-time grant, then "1-3"/"4-6"/"7-10 Motivation" for the Refrain's 3 escalating bands), same
+  divider mechanism `otherworldlyBondBranches` established, extended to a 4-way split instead of 2.
+- Chant of Action: Initial Might(2 stacks/4s)+Fury(2s), then Might 1/2/3 stacks per tier (Fury joins
+  at tier 2+, unchanged into tier 3), Motivation cost 1/2/3 per interval.
+- Chant of Freedom: Initial Stability (2 stacks/3s, stun-break itself already a live API fact, no
+  action needed), then Swiftness (all 3 tiers) + Resolution (tier 2+) + Protection (tier 3 only).
+- Chant of Recuperation: Initial Vigor (3s) + Barrier (`1615 + 0.5 × healingPower`, WvW coefficient),
+  then Healing per tick (`330+0.1×hp` / `431+0.15×hp` / `532+0.2×hp`) + Regeneration (tier 3 only).
+  Barrier/Healing have no live fact for `CURATED_BARRIER_COEFFICIENTS`/`CURATED_HEALING_COEFFICIENTS`
+  to attach a coefficient to (both match by `factText` against a real API fact, and this skill has
+  none), so both are computed inline with the same formula instead of going through either table —
+  confirmed correct against a synthetic 1500-Healing-Power test (`Barrier: 2,365` / tier-1
+  `Healing: 480`, both match the formula by hand).
+- Turned out **no new `CombatState.motivationStacks` field was needed** — TODO.md's original scoping
+  guess assumed this would be closer to `HealthTier`'s shape (a combat-state gate gets stored,
+  bonuses apply through it), but `branchConditionalFacts` is tooltip-only (never touched by the
+  aggregate boon-uptime calculation, same as Otherworldly Bond), so all 4 sections just render as
+  honestly-labeled alternatives with no "current tier" state required.
+- Still open, logged in TODO.md: the 5 traits that further modify chant effects (Enduring Refrain
+  2428, Feverish Pulse 2369, Calming Tongue 2433, Liberating Liaise 2357, Strengthening Stanzas
+  2385) — all wiki-verified this session too (raw wikitext), but traits render through
+  `TraitsEditor.tsx`'s own separate, plainer path with no divider/branch concept, so wiring these in
+  needs its own small follow-up mechanism.
+
+`npm run typecheck`/`lint`/`test` all clean (132 tests unchanged — no existing test covers
+`branch-conditional-facts.ts`, same as the Otherworldly Bond/Dragon Slash branches before it).
+
 ## Session 194 — Build "last updated" framed against GW2 balance patches
 
 Closes TODO.md's "Nice-to-haves" stretch item scoped 2026-08-01: a build's card now shows "Not
