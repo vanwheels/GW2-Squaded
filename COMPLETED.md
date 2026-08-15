@@ -2,6 +2,39 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 206 — Correction: Saint of zu Heltzer's Alacrity fix (Session 204) was wrong, reverted
+
+Same-day user catch, via a wiki screenshot of Saint of zu Heltzer's version history: the June 2025
+patch note reads "This trait now applies alacrity to allies affected by your dodge **in PvE only**" —
+with no WvW-tagged fact on the page at all, not a PvE/WvW split. This app never displays a fact
+confirmed absent in WvW anywhere else: `wvw-fact-overrides.json` already independently resolves this
+exact shape to `'omit'` (`resolveOverride`'s `pveLines.length === 1 && wvwLines.length === 0` case in
+`fetch-wvw-splits.ts`, verified live against skill 62689's own entry — it already said
+`"Alacrity": "omit"` before this session started). Session 204's fix bypassed that: the synthetic-facts
+merge re-keys the fact under the TRAIT's id (2238), which has no `wvw-fact-overrides.json` entry of
+its own, so the normal omit-resolution never ran against it — the fact was copied over at its raw PvE
+value instead, with a comment rationalizing it as "still party-wide when it applies." In hindsight
+that was inconsistent with how every other PvE-only fact in this codebase is treated, and is also
+exactly why the original Session 203 sweep never flagged this trait as a gap in the first place — an
+`'omit'`-resolved fact and a genuinely-absent fact look identical to a sweep that only checks "does a
+tracked Buff fact reach the trait."
+
+Reverted cleanly: removed the `"2238"` entry from `synthetic-trait-facts.json` (its Alacrity fact was
+the only thing in it — the trait's own real "Saint of zu Heltzer" self-buff fact, untouched by this
+mechanism, stays exactly as before) and the matching `TARGET_COUNT_OVERRIDES.trait`/
+`DODGE_TRIGGER_NOTES.trait` "2238" entries in `sources.ts`. Updated every doc comment that described
+the now-reverted behavior (`sources.ts`'s `DODGE_TRIGGER_NOTES` doc comment, `load-game-data.ts`'s
+`withSyntheticTraitFacts` doc comment, `docs/game-data.md`'s synthetic-trait-facts section) to record
+both what happened and why, rather than silently deleting the history. Forerunner of Death (2257) and
+Vassals of the Empire (2232), fixed in the same Session 205 pass, were NOT affected — both are
+wiki-confirmed to genuinely apply in WvW (Death Drop's Vulnerability is unsplit across game modes;
+Imperial Impact's Might/Protection have a real, already-cached WvW value).
+
+Verified via a throwaway script (same `readJson`+merge logic as Session 205's, run via `tsx`) —
+trait 2238 now merges to only its own untracked self-buff fact, no Alacrity; 2257/2232/1446 unchanged.
+`npm run typecheck` and the full `vitest run` suite (135 tests) both pass. No TODO.md change needed —
+this corrects an already-closed item rather than reopening scope.
+
 ## Session 205 — Two more dodge-trigger calc gaps, found via a sweep-methodology bug
 
 User flagged Vindicator's 3 Grandmaster traits (Forerunner of Death, Vassals of the Empire, Saint of

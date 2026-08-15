@@ -807,6 +807,21 @@ identically (`synthetic-trait-facts.json` + matching `TARGET_COUNT_OVERRIDES.tra
 `DODGE_TRIGGER_NOTES.trait` entries). ~10 more "Dodging"-worded traits turned up in the same re-check
 and are NOT yet triaged — see TODO.md's dodge-roll item for the full list.
 
+**Correction, same day:** Saint of zu Heltzer 2238's Alacrity fix above was itself wrong and reverted
+a few hours later. The user spotted (via a wiki screenshot of the trait's version history) that the
+June 2025 patch note reads "applies alacrity to allies affected by your dodge **in PvE only**," with
+no WvW-tagged fact on the page at all — this app never shows a fact confirmed absent in WvW anywhere
+else (`wvw-fact-overrides.json` already independently resolves it to `'omit'`, the exact mechanism
+`fetch-wvw-splits.ts`'s `resolveOverride` uses for "PvE-only, no WvW line" facts), so showing it here
+was an inconsistency introduced by this synthetic-facts mechanism bypassing that normal override path
+(the merge re-keys the fact under the trait's id, which has no `wvw-fact-overrides.json` entry of its
+own — only the orphaned proc skill id 62689 does). This is also *why* the original sweep never flagged
+Saint of zu Heltzer's Alacrity as a gap in the first place: an `'omit'`-resolved fact and a genuinely
+absent fact look identical from the sweep's point of view. Removed the "2238" entry from
+`synthetic-trait-facts.json` and its `TARGET_COUNT_OVERRIDES.trait`/`DODGE_TRIGGER_NOTES.trait`
+entries entirely — 2238 now contributes nothing to the aggregate panel again, correctly. Forerunner of
+Death/Vassals of the Empire were NOT affected — both are wiki-confirmed to actually apply in WvW.
+
 ## Gear upgrades and consumables (`runes.json`, `sigils.json`, `infusions.json`, `relics.json`, `food.json`, `utility.json`)
 
 `scripts/fetch-gear-upgrades.ts` (run via `npm run fetch-gear-upgrades`) fetches Superior runes,

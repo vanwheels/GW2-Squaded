@@ -584,7 +584,13 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOv
     46854: 'self', // Call of the Assassin (Revenant trait proc, Song of the Mists; id-matched). Wiki:
     // "gaining quickness. Gain additional quickness for each foe you hit" — self-only.
     62689: 5, // Saint's Shield, wiki page "Saint of zu Heltzer" (Guardian trait proc; id-matched). Wiki:
-    // "applies alacrity to allies affected by your dodge" (PvE only, still party-wide when it applies).
+    // "applies alacrity to allies affected by your dodge" — target count only, NOT wired into the
+    // trait's own synthetic fact below: this app's own `wvw-fact-overrides.json` already resolves
+    // this Alacrity to `'omit'` (wiki-confirmed PvE-only, added 2025-06-24, no WvW-tagged line at
+    // all — see `resolveOverride`'s `pveLines.length === 1 && wvwLines.length === 0` case in
+    // `fetch-wvw-splits.ts`), and this app never displays a fact that's confirmed absent in WvW.
+    // Kept here purely as historical documentation of the proc skill's own reach, same as every
+    // other now-orphaned entry in this table.
     62693: 5, // Death Drop, wiki page "Forerunner of Death" (Vindicator trait proc; id-matched). Wiki:
     // "{{skill fact|vulnerability|10|stacks=5}}" alongside "{{skill fact|targets|5}}" — foes hit, not
     // allies, but this table's target-count resolution is shared across boon and condition sources.
@@ -1605,10 +1611,16 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOv
     // reaches — each entry here just mirrors the SAME target-count value the proc skill's own
     // (now-orphaned but left in place) entry above already established.
     1446: 'self', // Reckless Dodge (Warrior/Discipline). Proc skill Reckless Impact (14268) above: self.
-    2238: 5, // Saint of zu Heltzer (Revenant/Vindicator). Proc skill Saint's Shield (62689) above: party(5).
-    // Same fix, found in a follow-up 2026-08-15 pass once the original sweep's "dodge"-substring gap
-    // (see `load-game-data.ts`) was discovered — these two traits' descriptions say "Dodging," not
-    // "dodge," so the original 28-candidate sweep never looked at them at all.
+    //
+    // Saint of zu Heltzer (2238) has NO entry here (as of 2026-08-15, reversing an earlier one): its
+    // Alacrity grant is wiki-confirmed PvE-only (added 2025-06-24; `wvw-fact-overrides.json` already
+    // resolves it to `'omit'` — see `62689`'s own comment above), and this app never displays a fact
+    // confirmed absent in WvW. User-caught 2026-08-15; `synthetic-trait-facts.json`'s "2238" entry
+    // and `DODGE_TRIGGER_NOTES.trait`'s "2238" entry were both removed for the same reason.
+    //
+    // Found in a follow-up 2026-08-15 pass once the original 28-candidate sweep's "dodge"-substring
+    // gap (see `load-game-data.ts`) was discovered — these two traits' descriptions say "Dodging,"
+    // not "dodge," so the original sweep never looked at them at all.
     2257: 5, // Forerunner of Death (Revenant/Vindicator). Proc skill Death Drop (62693) above: party(5)
     // (Vulnerability hits up to 5 foes, not allies — see that entry's own comment).
     2232: 5 // Vassals of the Empire (Revenant/Vindicator). Proc skill Imperial Impact (62859) above:
@@ -2785,10 +2797,12 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
  * directly on the trait's own `facts` array (i.e. already counted in
  * `computeBoonConditionSources`'s totals today, confirmed by tracing `computeBoonConditionSources`'s
  * chosen-trait loop — it walks every chosen major/minor trait's `facts` unconditionally, no
- * trigger-aware gating exists anywhere in that pipeline), plus 2 more (Reckless Dodge 1446, Saint of
- * zu Heltzer 2238) added the same day once `synthetic-trait-facts.json` closed their calc gap — see
- * that file's own doc comment in `load-game-data.ts` for why their real Might/Alacrity fact wasn't on
- * the trait at all until then. The other 17 candidates fall into buckets this table deliberately
+ * trigger-aware gating exists anywhere in that pipeline), plus 1 more (Reckless Dodge 1446) added the
+ * same day once `synthetic-trait-facts.json` closed its calc gap — see that file's own doc comment in
+ * `load-game-data.ts` for why its real Might fact wasn't on the trait at all until then. A 2nd trait
+ * (Saint of zu Heltzer 2238) got the same fix that same day for its Alacrity grant, but that fix was
+ * ITSELF reverted the same day once found to be wrong (see below) — 2238 carries no entry in this
+ * table at all as a result. The other 17 candidates fall into buckets this table deliberately
  * excludes: heal/barrier-on-dodge coefficients (Selfless Daring 551, Healer's Gift 1816, Master's
  * Fortitude 2180) already show their own trait tooltip with the dodge wording still attached
  * (Healing/Damage never enter the pooled aggregate panel this table targets, see
@@ -2796,25 +2810,40 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
  * wording only gates an unrelated stealth-attack-access clause (Silent Scope 2118's Precision,
  * `trait-attributes.ts`); non-`BOON_NAMES`/`CONDITION_NAMES` custom statuses with no tracked consumer
  * (Lotus Training 1833, Unhindered Combatant 1964, Bounding Dodger 2047, Mirage Cloak 2150, Saint of
- * zu Heltzer 2238's OWN "Saint of zu Heltzer" buff — its separate, now-tracked Alacrity grant IS
- * labeled below, only this custom status is excluded — Resolute Evasion 1782's OWN second "Resolute
- * Evasion" buff alongside its tracked Resolution — only Resolution is listed below); non-boon effects
- * (Deceptive Evasion 704's clone summon, Adrenal Implant 523/Power Wrench 531's recharge reduction,
- * Mark of Evasion 792/Uncatchable 1159/Explosive Entrance 432/Evasive Arcana 238's empty-facts "Combat
- * Only" markers — real effects with zero live API fact of the needed shape). Reaver's Curse (2259,
- * Vindicator) is ALSO excluded: its wiki page confirms the trait only "increases the effectiveness of
- * your NEXT dodge," modifying a different, already self-only-curated Might source
- * (`TARGET_COUNT_OVERRIDES`) rather than itself being granted "on dodge."
+ * zu Heltzer 2238's OWN "Saint of zu Heltzer" buff — its separate Alacrity grant is ALSO excluded as
+ * of 2026-08-15, see below, so nothing from this trait is labeled here at all — Resolute Evasion
+ * 1782's OWN second "Resolute Evasion" buff alongside its tracked Resolution — only Resolution is
+ * listed below); non-boon effects (Deceptive Evasion 704's clone summon, Adrenal Implant 523/Power
+ * Wrench 531's recharge reduction, Mark of Evasion 792/Uncatchable 1159/Explosive Entrance 432/
+ * Evasive Arcana 238's empty-facts "Combat Only" markers — real effects with zero live API fact of the
+ * needed shape). Reaver's Curse (2259, Vindicator) is ALSO excluded: its wiki page confirms the trait
+ * only "increases the effectiveness of your NEXT dodge," modifying a different, already
+ * self-only-curated Might source (`TARGET_COUNT_OVERRIDES`) rather than itself being granted "on
+ * dodge."
  *
- * 2 more (Forerunner of Death 2257, Vassals of the Empire 2232) were added in a follow-up 2026-08-15
- * pass after a user report ("trait tooltips ... just flavor text") led to discovering the original
- * 28-candidate sweep's search only matched the substring "dodge" — both these traits' descriptions
- * say "Dodging," which never matched, so neither was ever considered by the original sweep at all
- * (not excluded on purpose, simply never seen). Forerunner of Death's own trait facts already carried
- * its self-only "Forerunner of Death" buff but no Vulnerability; Vassals of the Empire's `facts` array
- * was entirely empty in the live API. Both now closed via `synthetic-trait-facts.json` the same way
- * Reckless Dodge/Saint of zu Heltzer were, pulling from proc skills Death Drop (62693) and Imperial
- * Impact (62859) respectively — see `load-game-data.ts`'s `withSyntheticTraitFacts` doc comment.
+ * Saint of zu Heltzer's Alacrity grant was REMOVED from this table 2026-08-15, the same day it was
+ * added, once the user caught (via a wiki screenshot) that the June 2025 patch note reads "applies
+ * alacrity to allies affected by your dodge in PvE only" — a wiki page with no WvW-tagged line to
+ * split against at all, which is exactly why the original sweep's cross-validation never flagged it:
+ * `wvw-fact-overrides.json` already independently resolves this fact to `'omit'` (see
+ * `resolveOverride`'s `pveLines.length === 1 && wvwLines.length === 0` case in
+ * `fetch-wvw-splits.ts`), and this app never displays a fact confirmed absent in WvW anywhere else —
+ * showing it here was an inconsistency, not a deliberate exception. `synthetic-trait-facts.json`'s
+ * "2238" entry and `TARGET_COUNT_OVERRIDES.trait`'s "2238" entry were both removed for the same reason.
+ *
+ * 2 more (Forerunner of Death 2257, Vassals of the Empire 2232) were added in that same follow-up
+ * 2026-08-15 pass (the user report that started it: "trait tooltips ... just flavor text," Vindicator's
+ * 3 Grandmasters singled out) after discovering the original 28-candidate sweep's search only matched
+ * the substring "dodge" — both these traits' descriptions say "Dodging," which never matched, so
+ * neither was ever considered by the original sweep at all (not excluded on purpose, simply never
+ * seen). Forerunner of Death's own trait facts already carried its self-only "Forerunner of Death"
+ * buff but no Vulnerability; Vassals of the Empire's `facts` array was entirely empty in the live API.
+ * Unlike Saint of zu Heltzer's Alacrity, both of these ARE wiki-confirmed to apply in WvW (Death
+ * Drop's Vulnerability is unsplit across game modes; Imperial Impact's Might/Protection have a real
+ * WvW value, already present in `wvw-fact-overrides.json`) — no reversal needed. Both closed via
+ * `synthetic-trait-facts.json` the same way Reckless Dodge was, pulling from proc skills Death Drop
+ * (62693) and Imperial Impact (62859) respectively — see `load-game-data.ts`'s
+ * `withSyntheticTraitFacts` doc comment.
  * That same re-check found ~10 more "Dodging"-worded traits (Stop, Drop, and Roll 360; Evasive Purity
  * 1054; Pain Response 1237; Expeditious Dodger 1240; Weakening Strikes 1887; Light on your Feet 1912;
  * Psychic Riposte 2211; Duelist's Reversal 2215; Tenacious Ruin 2262; Mayhem 2427) not yet triaged —
@@ -2843,8 +2872,13 @@ export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record
     // an attack against nearby foes and grants vigor."
     1446: 'On Dodge', // Reckless Dodge (Warrior/Discipline). Wiki: "Damage foes at the end of a dodge
     // roll. Gain might for each foe struck" — Might fact merged in via `synthetic-trait-facts.json`.
-    2238: 'On Dodge', // Saint of zu Heltzer (Revenant/Vindicator). Wiki: "applies alacrity to allies
-    // affected by your dodge" — Alacrity fact merged in via `synthetic-trait-facts.json`.
+    //
+    // Saint of zu Heltzer (2238) has NO entry here (as of 2026-08-15, reversing an earlier one): its
+    // only synthetic-merged fact was Alacrity, which is wiki-confirmed PvE-only and now correctly
+    // omitted instead — see `TARGET_COUNT_OVERRIDES.trait`'s own "2238" comment above for the full
+    // reasoning. User-caught 2026-08-15 (a wiki screenshot showing the June 2025 patch note "applies
+    // alacrity...in PvE only," with no WvW-tagged line to have flagged this any other way).
+    //
     // Found in a follow-up 2026-08-15 pass once the original 28-candidate sweep's "dodge"-substring
     // gap was discovered (see `load-game-data.ts`'s `withSyntheticTraitFacts` doc comment) — both
     // traits' descriptions say "Dodging," which the sweep's case-insensitive "dodge" search missed.
