@@ -444,6 +444,54 @@ export function mightStackAttributeTraitBonus(build: Build, mightStacks: number,
 }
 
 /**
+ * Trait id -> a Power bonus gated on BOTH a Might-stack threshold AND doubled while attuned to a
+ * specific element — TODO.md's "New attribute-bonus gaps needing new CombatState infra" first item,
+ * Power Overwhelming (Elementalist/Air, Major tier 2, id 334). Distinct from every other family in
+ * this file: `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES` scales continuously per stack, this is a binary
+ * on/off once `mightStacks` reaches `mightThreshold`; `ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`
+ * (`trait-attributes.ts`) is a flat attunement-gated bonus, this is a *multiplier* on an
+ * already-threshold-gated bonus — the "doubling isn't its own fact" shape `WEAPON_EQUIPPED_
+ * ATTRIBUTE_TRAIT_BONUSES`'s Forceful Greatsword/Blood Reaction comments already flag elsewhere.
+ * Both facts wiki-verified via raw wikitext (`?action=raw`) 2026-08-15
+ * (wiki.guildwars2.com/index.php?title=Power_Overwhelming_(trait)&action=raw): "While at or above
+ * the might threshold, gain increased power. Power bonuses are doubled while attuned to fire."
+ * `{{skill fact|attribute|Power|150}}` (no split) + `{{skill fact|Stack Threshold|10|game mode =
+ * pve}}` / `...|8|game mode = pvp wvw}}` — this app's WvW value is the threshold 8, doubled to 300
+ * only while `build.activeAttunement === doubleAttunement`. No other trait in `traits.json` shares
+ * this combined-gate shape yet, so the table stays a `Record` (uniform with every other family here)
+ * even with a single entry.
+ */
+export interface MightThresholdAttunementDoubledTraitBonus {
+  target: string
+  value: number
+  mightThreshold: number
+  doubleAttunement: 'Fire' | 'Water' | 'Air' | 'Earth'
+}
+
+export const MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES: Record<number, MightThresholdAttunementDoubledTraitBonus> = {
+  334: { target: 'Power', value: 150, mightThreshold: 8, doubleAttunement: 'Fire' } // Power Overwhelming (Elementalist, Air, Major tier 2) — WvW threshold
+}
+
+/**
+ * Resolves every curated might-threshold+attunement-doubled trait bonus actually active on this
+ * build for the given `mightStacks` count, grouped by target attribute (mirrors
+ * `mightStackAttributeTraitBonus`'s shape/gating just above). Below `mightThreshold` a trait
+ * contributes nothing at all (not a smaller flat amount) — matches the wiki's own "at or above the
+ * threshold" wording, a hard gate rather than a taper.
+ */
+export function mightThresholdAttunementDoubledAttributeTraitBonus(build: Build, mightStacks: number, traitsById: Map<number, Trait>): Record<string, number> {
+  const active = activeTraitIds(build, traitsById)
+  const bonus: Record<string, number> = {}
+  for (const [traitIdText, { target, value, mightThreshold, doubleAttunement }] of Object.entries(MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES)) {
+    if (!active.has(Number(traitIdText))) continue
+    if (mightStacks < mightThreshold) continue
+    const amount = build.activeAttunement === doubleAttunement ? value * 2 : value
+    bonus[target] = (bonus[target] ?? 0) + amount
+  }
+  return bonus
+}
+
+/**
  * Trait id -> extra flat attribute points (by target) granted while Regeneration is active — the
  * "Boon-gated flat bonuses" family from TODO.md, first leg (Regeneration; Quickness follows
  * immediately below). Unlike the single-target `FURY_ATTRIBUTE_TRAIT_BONUSES`/
@@ -826,7 +874,8 @@ export function detectActiveStackingSigil(build: Build): ActiveStackingSigil | n
 
 /**
  * Raw core-attribute point deltas contributed by Might (including any curated
- * `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`), an active stacking sigil, and (while the corresponding
+ * `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES` and `MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_
+ * BONUSES`), an active stacking sigil, and (while the corresponding
  * `CombatState` boolean is on) any curated `FURY_ATTRIBUTE_TRAIT_BONUSES`,
  * `REGENERATION_ATTRIBUTE_TRAIT_BONUSES`, `QUICKNESS_ATTRIBUTE_TRAIT_BONUSES`,
  * `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`, or `REVEALED_ATTRIBUTE_TRAIT_BONUSES` — plus any
@@ -848,6 +897,7 @@ export function combatStatePoints(build: Build, state: CombatState, traitsById: 
     add('ConditionDamage', state.mightStacks * MIGHT_CONDITION_DAMAGE_PER_STACK)
     for (const [attribute, value] of Object.entries(mightStackAttributeTraitBonus(build, state.mightStacks, traitsById))) add(attribute, value)
   }
+  for (const [attribute, value] of Object.entries(mightThresholdAttunementDoubledAttributeTraitBonus(build, state.mightStacks, traitsById))) add(attribute, value)
 
   const sigil = detectActiveStackingSigil(build)
   if (sigil && state.stackingSigilStacks > 0) {

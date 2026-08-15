@@ -123,6 +123,32 @@ describe('combatStatePoints — mightStacks', () => {
   })
 })
 
+describe('combatStatePoints — might-threshold + attunement-doubled trait bonus (Power Overwhelming)', () => {
+  it('contributes nothing on top of the base per-stack Might grant below the threshold, even with Fire attuned', () => {
+    const { build, traitsById } = buildWithTrait(334, 'Major')
+    const points = combatStatePoints({ ...build, activeAttunement: 'Fire' }, { ...DEFAULT_COMBAT_STATE, mightStacks: 7 }, traitsById)
+    expect(points.Power).toBe(7 * MIGHT_POWER_PER_STACK) // no +150/+300 — below the 8-stack threshold
+  })
+
+  it('adds the flat 150 Power on top of the base per-stack grant at/above the threshold while NOT attuned to Fire', () => {
+    const { build, traitsById } = buildWithTrait(334, 'Major')
+    const points = combatStatePoints({ ...build, activeAttunement: 'Water' }, { ...DEFAULT_COMBAT_STATE, mightStacks: 8 }, traitsById)
+    expect(points.Power).toBe(8 * MIGHT_POWER_PER_STACK + 150)
+  })
+
+  it('doubles the bonus to 300 Power at/above the threshold while attuned to Fire', () => {
+    const { build, traitsById } = buildWithTrait(334, 'Major')
+    const points = combatStatePoints({ ...build, activeAttunement: 'Fire' }, { ...DEFAULT_COMBAT_STATE, mightStacks: 25 }, traitsById)
+    expect(points.Power).toBe(25 * MIGHT_POWER_PER_STACK + 300)
+  })
+
+  it('never applies when the trait is not active, regardless of stacks or attunement', () => {
+    const build = makeBuild({ activeAttunement: 'Fire' })
+    const points = combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, mightStacks: 25 }, NO_TRAITS)
+    expect(points.Power).toBe(25 * MIGHT_POWER_PER_STACK) // only the base grant, no trait bonus
+  })
+})
+
 describe('combatStatePoints — stacking sigil', () => {
   function buildWithSigil(sigilId: number, weaponSet: 'A' | 'B' = 'A'): Build {
     return makeBuild({

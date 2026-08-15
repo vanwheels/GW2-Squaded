@@ -60,16 +60,8 @@ don't have their own open-items table to hold these. Each is a genuine, wiki-con
 grant, not a proc/skill-tooltip coefficient, but needs a conditional-gate shape this codebase doesn't
 have infra for yet, so none are rushed into an existing curated table:
 
-- [ ] **Power Overwhelming (Elementalist, id 334) — might-stack-THRESHOLD-gated Power, doubled by
-      attunement.** "While at or above the might threshold, gain increased power. Power bonuses are
-      doubled while attuned to fire." Wiki-verified 2026-08-12: +150 Power once `mightStacks >= 8`
-      (WvW/PvP threshold; PvE is 10), doubled to +300 while `activeAttunement === 'Fire'`. Distinct
-      from `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`'s continuous per-stack scaling (this is a binary
-      on/off at a threshold) AND distinct from `ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`'s flat
-      attunement-gated bonus (this is a *multiplier* on an already-conditional bonus, same
-      "doubling isn't its own fact" shape `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`'s Forceful
-      Greatsword/Blood Reaction comments already flag) — needs its own combined-gate table, not a fit
-      for any existing one.
+Power Overwhelming (Elementalist, id 334) is **DONE 2026-08-15** — see COMPLETED.md.
+
 - [ ] **Deadly Strength (Necromancer/Harbinger, id 855) — per-Death's-Carapace-stack
       Power/ConditionDamage.** "Carapace stacks grant power and condition damage." Wiki-verified
       2026-08-12: +10 Power / +10 ConditionDamage per stack, no game-mode split (`{{skill

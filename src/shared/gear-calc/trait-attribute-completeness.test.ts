@@ -10,6 +10,7 @@ import {
   HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES,
   MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES,
   MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES,
+  MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES,
   QUICKNESS_ATTRIBUTE_TRAIT_BONUSES,
   REGENERATION_ATTRIBUTE_TRAIT_BONUSES,
   REVEALED_ATTRIBUTE_TRAIT_BONUSES
@@ -35,13 +36,16 @@ import {
  * Built 2026-08-12 by running exactly this scan by hand: 187 traits carry a qualifying fact; 90 were
  * already covered by the 12 curated tables below; of the remaining 98 candidates, 1 (Kinetic
  * Accelerators, id 2052) turned out to be a genuine miss and was wiki-verified and added to
- * `CURATED_CONVERSIONS`; 2 (Power Overwhelming id 334, Deadly Strength id 855) are genuine stat
- * gains this codebase has no infra for yet (new conditional-gate shapes) and are logged as TODO.md
+ * `CURATED_CONVERSIONS`; 2 (Power Overwhelming id 334, Deadly Strength id 855) were genuine stat
+ * gains this codebase had no infra for yet (new conditional-gate shapes) and were logged as TODO.md
  * follow-ups; the other 95 are proc/skill-tooltip coefficients (heal-on-X, barrier-on-X,
  * life-siphon-on-hit, pet-only stats, a temporary on-cast buff value, a condition-tick-damage
  * coefficient, and one `requires_trait` cross-reference) — same "fact type reused for skill-tooltip
  * math" shape the file-header comment on `trait-attributes.ts` already documents for Healer's Gift,
- * the original example that motivated this whole curated-whitelist design.
+ * the original example that motivated this whole curated-whitelist design. Power Overwhelming (334)
+ * was later built (2026-08-15, `MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES` in
+ * `combat-state.ts`) and moved from the exclusion list below into the covered-ids union; Deadly
+ * Strength (855) remains excluded, still blocked on a new `CombatState.deathsCarapaceStacks` field.
  */
 
 interface TraitDataFile {
@@ -75,6 +79,7 @@ const COVERED_TRAIT_IDS = new Set<number>([
   ...Object.keys(FURY_CRIT_CHANCE_TRAIT_BONUSES).map(Number),
   ...Object.keys(FURY_ATTRIBUTE_TRAIT_BONUSES).map(Number),
   ...Object.keys(MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES).map(Number),
+  ...Object.keys(MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES).map(Number),
   ...Object.keys(REGENERATION_ATTRIBUTE_TRAIT_BONUSES).map(Number),
   ...Object.keys(QUICKNESS_ATTRIBUTE_TRAIT_BONUSES).map(Number),
   ...Object.keys(MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES).map(Number),
@@ -192,8 +197,6 @@ const EXCLUDED_TRAIT_IDS: Record<number, string> = {
   1696: "Condition-damage-per-tick proc coefficient (Terror's Fear damage-over-time), not a character-stat gain — same shape as Healer's Gift.", // Terror
   // buff-proc (1)
   263: "Value of a temporary on-cast buff (Arcane Lightning, a 15s Ferocity effect granted only while using an Arcane skill), not a passive stat.", // Arcane Lightning
-  // gap-might-threshold (1)
-  334: "GENUINE STAT GAIN, not yet modeled — +150 Power (doubled to +300 while attuned to Fire) gated on a MIGHT-STACK THRESHOLD (>=8 stacks WvW/PvP, wiki-verified), not the continuous per-stack scaling MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES models. A new conditional family (threshold-gate x attunement-doubling) with no infra yet — found by this completeness scan 2026-08-12, logged in TODO.md as a follow-up to build.", // Power Overwhelming
   // gap-carapace-stacks (1)
   855: "GENUINE STAT GAIN, not yet modeled — +10 Power/+10 ConditionDamage per stack of Necromancer/Harbinger's own ‘Carapace’ resource (unrelated to Might), which no CombatState field tracks. A new conditional family needing its own stack-count input — found by this completeness scan 2026-08-12, logged in TODO.md as a follow-up to build.", // Deadly Strength
   // requires_trait cross-reference (1)

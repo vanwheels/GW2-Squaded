@@ -2,6 +2,32 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 211 — Power Overwhelming: might-threshold + attunement-doubled Power bonus
+
+First of TODO.md's 3 "new attribute-bonus gaps needing new CombatState infra" items (Elementalist/
+Air, Major tier 2, id 334). Re-verified live via raw wikitext 2026-08-15 (matches the 2026-08-12
+scoping note exactly): "While at or above the might threshold, gain increased power. Power bonuses
+are doubled while attuned to fire." — flat +150 Power once `mightStacks >= 8` (this app's WvW/PvP
+threshold; PvE is 10), doubled to +300 while `build.activeAttunement === 'Fire'`.
+
+Needed no new `CombatState` field — both inputs (`state.mightStacks`, `build.activeAttunement`)
+already exist and already have UI controls (the Might stepper, the F1-F4 attunement picker), so this
+was a pure calc-layer addition. New `MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES`
+table + `mightThresholdAttunementDoubledAttributeTraitBonus` in `combat-state.ts`, wired into
+`combatStatePoints` alongside the existing per-stack Might block. New shape, distinct from every
+sibling family already in that file: a hard threshold gate (nothing below 8 stacks, not a smaller
+scaled amount) combined with a doubling multiplier on top (same "doubling isn't its own fact" pattern
+Forceful Greatsword/Blood Reaction already documented elsewhere in this file) — no other trait in
+`traits.json` shares this combined shape yet, so the table stays single-entry for now.
+
+`trait-attribute-completeness.test.ts` updated: trait 334 moved from `EXCLUDED_TRAIT_IDS` (logged as
+a genuine-but-unmodeled gap) into the covered-ids union via the new table, keeping the completeness
+scan's invariant intact. 4 new unit tests in `combat-state.test.ts` cover below-threshold/at-threshold/
+doubled/trait-inactive. `npm run typecheck`, `lint`, and the full `vitest run` suite (139 tests) all
+pass. TODO.md's item for this trait is closed; Deadly Strength (855, needs a new
+`deathsCarapaceStacks` field) and Seize the Moment (Mesmer 2022, needs a new multi-value WvW override
+mechanism) are still open in the same TODO.md section.
+
 ## Session 210 — Problem 3 of TODO.md's dodge-roll item: relic dodge-triggers
 
 Closed the last of the 3-part dodge-roll item (Sessions 199-209 did problems 1/2). Full text scan of
