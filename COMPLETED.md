@@ -2,6 +2,56 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 192 — Elementalist Evoker familiars: same-name flip-pair item's last leg (now fully closed)
+
+Closes out the "same-name enhanced flip targets merge into one tooltip" item (TODO.md entry removed;
+classification finished Session 188, 6 of 10 pairs' rendering landed Session 189) — this session builds
+the last 4 (Fox's Fury, Otter's Compassion, Toad's Fortitude, Hare's Agility), deliberately excluded
+from Session 189's `ADDITIVE_FLIP_PAIRS` table because their shape doesn't fit that mechanism (a live
+target-minus-base diff): unlike the other 10 pairs, these 4 base ids' own facts are nearly EMPTY
+(Range/Recharge only) — the target carries the skill's entire real, mostly-unconditional effect, not
+an add-on, so diffing against the base would mislabel almost everything as "Fire Specialized" etc.
+
+Fetched fresh raw wikitext (`action=parse&prop=wikitext`) for all 4 skill pages to get an authoritative
+always-on/gated split (rather than trust the API's own fact grouping, already known incomplete here).
+Found one consistent shape across all 4: each skill's description ends "If [element] is your specialized
+element, this skill breaks stun[, grants more X]" — but of that gated text, only the StunBreak fact is
+actually present as a discrete API fact (`type: 'StunBreak'`) on any of the 4 targets. The other gated
+bonuses (Fox's extra Might, Toad's Resistance, Hare's Blur) have no matching API fact at all on either
+id — a 2nd, larger gap than the "wrong id" one, not just misplaced but genuinely absent — so those stay
+unrepresented (same "API gives nothing to render" posture as Gunsaber), not guessed at.
+
+Also newly confirmed via the wiki's own `Evoker` page: "specializing into an element" (F5, `Build.
+familiarId`) and choosing a familiar are literally the same one choice, not two — so `familiarId`
+resolved to its `Familiar.element` is exactly "your specialized element," a real, already-modeled build
+state to gate on (not a per-cast ambiguity like Otherworldly Bond's branches).
+
+- New `evoker-familiar-facts.ts`: `EVOKER_FAMILIAR_BASE_TO_TARGET_ID` (the 4 base->target id pairs),
+  `EVOKER_FAMILIAR_TARGET_IDS` (reverse set, for `flipTargetSkills`' 4th stop-condition), `EVOKER_
+  FAMILIAR_SPECIALIZED_ELEMENT` (target id -> required element), and `evokerFamiliarFactSourceSkill`
+  (the swap resolver). Full per-skill wiki citations in its doc comment.
+- `SkillsEditor.tsx`'s `skillTooltipContent`: `evokerFamiliarFactSourceSkill` joins the `glyphFormSkill
+  ?? attunementVariantSkill ?? ...` swap chain (unconditional — the target's content is the skill's own
+  real effect, always shown, not gated), then a new `evokerFamiliarBonusFacts` helper pulls the "Breaks
+  Stun" `NamedFactSource` out of the main list and only re-adds it (under a new `"${element} Specialized"`
+  divider) when `SkillVariantContext.familiarElement` matches. New `familiarElement` field threaded
+  through all 4 `SkillVariantContext` construction sites (`SkillsEditor.tsx` x2, `WeaponSkillBar.tsx`,
+  `PetsEditor.tsx`) — resolved from `build.familiarId` via `gameData.familiars` where meaningful (the
+  2 Standard-editor sites), `null` elsewhere (Revenant/pet skills never match an Evoker base id).
+- `multi-effect.ts`'s `flipTargetSkills` gets a 4th stop-condition (`EVOKER_FAMILIAR_TARGET_IDS`), same
+  outcome as the `ADDITIVE_FLIP_PAIR_TARGET_IDS` one but kept as its own set/doc-comment paragraph since
+  the underlying mechanism differs (swap, not diff).
+- Updated `additive-flip-pairs.ts`/`other-profession-flip-duplicates.ts`'s existing "Elementalist
+  familiars deliberately NOT included" paragraphs to point at the resolution instead of describing it as
+  still-open.
+- New `evoker-familiar-facts.test.ts` (11 tests): the 4 base->target mappings actually match `skills.
+  json`'s `flipSkill`/`name` fields, the swap resolver, the `flipTargetSkills` exclusion, each target
+  carries exactly one live StunBreak fact to split, and the element mapping matches the wiki's Fox=Fire/
+  Otter=Water/Toad=Earth/Hare=Air. `npm run test` 132/132, typecheck/lint clean.
+
+Not visually verified in the running app (Electron sandbox limitation, as usual) — same caveat as every
+other tooltip change this sweep landed.
+
 ## Session 191 — Bladesworn's Dragon Slash chain: Warrior Burst Skill sweep's last leg
 
 Closes out the Warrior Burst Skill damage coefficients item (all 4 legs now done; TODO.md entry

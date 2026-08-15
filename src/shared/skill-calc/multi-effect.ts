@@ -3,6 +3,7 @@ import { MANTRA_FINAL_CHARGE_IDS } from './mantra-final-charge'
 import { VINDICATOR_ASPECT_ARCHEMORUS_IDS } from './vindicator-aspect'
 import { isNonActionableFlipTarget } from './non-actionable-flip-targets'
 import { ADDITIVE_FLIP_PAIR_TARGET_IDS } from './additive-flip-pairs'
+import { EVOKER_FAMILIAR_TARGET_IDS } from './evoker-familiar-facts'
 
 export interface SkillVariantEffect {
   label: string
@@ -79,6 +80,12 @@ export function activeAttunementVariantSkill(skill: Skill, activeAttunement: str
  * merged into the base skill's own tooltip behind a "When Enhanced"-style divider
  * (`SkillsEditor.tsx`'s `additiveEnhancementFacts`) instead of as a 2nd stacked icon, so the walk
  * stops here too rather than double-showing the same content two ways.
+ *
+ * Fourth exception: `EVOKER_FAMILIAR_TARGET_IDS` (`evoker-familiar-facts.ts`) — Elementalist
+ * Evoker's 4 Meditation Utility skills, a related but distinct shape from the 3rd exception: the
+ * base id's own facts aren't just incomplete, they're nearly EMPTY (the target carries the skill's
+ * entire real effect, not an add-on), so `skillTooltipContent` swaps the whole fact source to the
+ * target instead of diffing — same walk-stopping outcome, different reason.
  */
 export function flipTargetSkills(skill: Skill, skillsById: Map<number, Skill>): SkillVariantEffect[] {
   const out: SkillVariantEffect[] = []
@@ -94,6 +101,7 @@ export function flipTargetSkills(skill: Skill, skillsById: Map<number, Skill>): 
     if (!next || seen.has(next.id)) break
     if (isNonActionableFlipTarget(next.id)) break
     if (ADDITIVE_FLIP_PAIR_TARGET_IDS.has(next.id)) break
+    if (EVOKER_FAMILIAR_TARGET_IDS.has(next.id)) break
     seen.add(next.id)
     out.push({ label: next.name, skill: next })
     current = next

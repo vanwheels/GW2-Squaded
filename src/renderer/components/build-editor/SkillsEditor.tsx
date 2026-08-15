@@ -20,6 +20,7 @@ import type { FactLine } from '@shared/skill-calc/fact-numbers'
 import { activeAttunementVariantSkill, flipTargetSkills } from '@shared/skill-calc/multi-effect'
 import { ADDITIVE_FLIP_PAIRS } from '@shared/skill-calc/additive-flip-pairs'
 import { branchConditionalFacts } from '@shared/skill-calc/branch-conditional-facts'
+import { EVOKER_FAMILIAR_SPECIALIZED_ELEMENT, evokerFamiliarFactSourceSkill } from '@shared/skill-calc/evoker-familiar-facts'
 import { VINDICATOR_SPEC_ID, vindicatorAspectSkillId } from '@shared/skill-calc/vindicator-aspect'
 import { CELESTIAL_AVATAR_SKILL_ID } from '@shared/skill-calc/bundle-skills'
 import { skillPickerCategory } from '@shared/skill-calc/skill-category-overrides'
@@ -322,6 +323,10 @@ export interface SkillVariantContext {
    *  `activeAttunementVariantSkill`. Harmless for every non-Elementalist build/context: no other
    *  profession's skills ever carry a non-null `Skill.attunement`, so this never matches. */
   activeAttunement: Build['activeAttunement']
+  /** The `Familiar.element` (Fire/Water/Earth/Air) the build's `familiarId` resolves to, or `null` —
+   *  see `evoker-familiar-facts.ts`'s `EVOKER_FAMILIAR_SPECIALIZED_ELEMENT`. Harmless for every
+   *  non-Evoker build/context: only the 4 Evoker Meditation target ids ever check this. */
+  familiarElement: string | null
 }
 
 /**
@@ -343,7 +348,8 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
   const { power, healingPower } = variantContext.characterAttributes
   const glyphFormSkill = glyphFormFactSourceSkill(skill, variantContext.celestialAvatarActive, variantContext.glyphFormVariants, variantContext.skillsById)
   const attunementVariantSkill = activeAttunementVariantSkill(skill, variantContext.activeAttunement, variantContext.skills)
-  const swappedFactSkill = glyphFormSkill ?? attunementVariantSkill
+  const familiarFactSkill = evokerFamiliarFactSourceSkill(skill, variantContext.skillsById)
+  const swappedFactSkill = glyphFormSkill ?? attunementVariantSkill ?? familiarFactSkill
   const factSourceSkill = swappedFactSkill ?? skill
   const numericLines = skillFactLines(factSourceSkill, activeIds, power, healingPower, variantContext.targetArmor)
   const effectiveFacts = swappedFactSkill
@@ -356,7 +362,8 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
         variantContext.legends
       )
     : facts
-  const effectiveNamedFacts = skillNamedFacts(factSourceSkill, activeIds, variantContext.legendIds, variantContext.wvwFactOverrides.skill[factSourceSkill.id])
+  const rawNamedFacts = skillNamedFacts(factSourceSkill, activeIds, variantContext.legendIds, variantContext.wvwFactOverrides.skill[factSourceSkill.id])
+  const { namedFacts: effectiveNamedFacts, bonus: familiarBonus } = evokerFamiliarBonusFacts(factSourceSkill.id, rawNamedFacts, variantContext.familiarElement)
   const enhancement = additiveEnhancementFacts(skill, numericLines, effectiveFacts, effectiveNamedFacts, activeIds, variantContext)
   const branches = branchConditionalFacts(factSourceSkill, variantContext.durationPercent)
   return (
@@ -380,6 +387,14 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
           {factsBlock(branch.numericLines, branch.facts)}
         </div>
       ))}
+      {familiarBonus && (
+        <>
+          <div className="tooltip-divider">
+            <span className="tooltip-section-label">{familiarBonus.triggerLabel}</span>
+          </div>
+          {factsBlock([], [], familiarBonus.namedFacts)}
+        </>
+      )}
     </>
   )
 }
@@ -459,6 +474,34 @@ function additiveEnhancementFacts(
   if (isEmpty) return null
 
   return { triggerLabel: pair.triggerLabel, numericLines, facts, namedFacts }
+}
+
+/**
+ * Splits the wiki-gated "Breaks Stun" fact out of an Evoker familiar target's own named facts (see
+ * `evoker-familiar-facts.ts` — Fox's Fury/Otter's Compassion/Toad's Fortitude/Hare's Agility) into
+ * its own bonus divider. `factSourceSkillId` not being one of the 4 target ids (every non-Evoker
+ * skill, plus the Evoker skills' own base ids before the swap in `skillTooltipContent`) is the
+ * overwhelmingly common case and returns `namedFacts` untouched with no bonus — cheap to call
+ * unconditionally. When it IS one of the 4: StunBreak always comes out of the main list (it's never
+ * unconditionally true, unlike the rest of the target's facts), and only reappears in `bonus` when
+ * `buildFamiliarElement` (the build's current `Familiar.element`, from `Build.familiarId`) actually
+ * matches this skill's own required element — same "only render when the gate is actually open"
+ * posture `additiveEnhancementFacts`'s `requires_trait`-filtered facts already have, just checked
+ * explicitly here since familiar choice isn't a trait the normal fact-gating machinery reads.
+ */
+function evokerFamiliarBonusFacts(
+  factSourceSkillId: number,
+  namedFacts: SkillNamedFacts,
+  buildFamiliarElement: string | null
+): { namedFacts: SkillNamedFacts; bonus: { triggerLabel: string; namedFacts: SkillNamedFacts } | null } {
+  const requiredElement = EVOKER_FAMILIAR_SPECIALIZED_ELEMENT.get(factSourceSkillId)
+  if (!requiredElement) return { namedFacts, bonus: null }
+
+  const stunBreak = (namedFacts.namedFactSources ?? []).filter((f) => f.name === 'Breaks Stun')
+  const rest: SkillNamedFacts = { ...namedFacts, namedFactSources: (namedFacts.namedFactSources ?? []).filter((f) => f.name !== 'Breaks Stun') }
+  if (stunBreak.length === 0 || buildFamiliarElement !== requiredElement) return { namedFacts: rest, bonus: null }
+
+  return { namedFacts: rest, bonus: { triggerLabel: `${requiredElement} Specialized`, namedFacts: { namedFactSources: stunBreak } } }
 }
 
 /**
@@ -575,7 +618,8 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
     targetArmor,
     glyphFormVariants: gameData.glyphFormVariants,
     celestialAvatarActive: build.activeBundleSkillId === CELESTIAL_AVATAR_SKILL_ID,
-    activeAttunement: build.activeAttunement
+    activeAttunement: build.activeAttunement,
+    familiarElement: gameData.familiars.find((f) => f.id === build.familiarId)?.element ?? null
   }
 
   function setUtility(slotIndex: 0 | 1 | 2, skillId: number | null): void {
@@ -735,12 +779,14 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
     durationPercent,
     characterAttributes,
     targetArmor,
-    // Revenant never equips a Druid or Elementalist Glyph — `glyphFormFactSourceSkill`/
-    // `activeAttunementVariantSkill` simply never match any Legend skill id, so this is a harmless
-    // empty/false/default trio, not a meaningful Revenant toggle.
+    // Revenant never equips a Druid or Elementalist Glyph, nor an Evoker Meditation —
+    // `glyphFormFactSourceSkill`/`activeAttunementVariantSkill`/`evokerFamiliarFactSourceSkill`
+    // simply never match any Legend skill id, so this is a harmless empty/false/null/default
+    // quartet, not a meaningful Revenant toggle.
     glyphFormVariants: gameData.glyphFormVariants,
     celestialAvatarActive: false,
-    activeAttunement: build.activeAttunement
+    activeAttunement: build.activeAttunement,
+    familiarElement: null
   }
 
   function skillTooltipFor(skillId: number) {

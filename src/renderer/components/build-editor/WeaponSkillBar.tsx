@@ -114,11 +114,12 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
     characterAttributes,
     targetArmor,
     // Never matches here either — the weapon bar's own skill ids are never a Glyph's canonical id
-    // — but kept accurate (rather than hardcoded `false`/empty) since this component already knows
-    // the real toggle state and attunement.
+    // or an Evoker Meditation's base id — but kept accurate (rather than hardcoded `false`/empty)
+    // since this component already knows the real toggle state, attunement, and familiar.
     glyphFormVariants: gameData.glyphFormVariants,
     celestialAvatarActive: build.activeBundleSkillId === CELESTIAL_AVATAR_SKILL_ID,
-    activeAttunement: build.activeAttunement
+    activeAttunement: build.activeAttunement,
+    familiarElement: gameData.familiars.find((f) => f.id === build.familiarId)?.element ?? null
   }
 
   const isUntamed = equippedSpecializationIds.has(UNTAMED_SPEC_ID)

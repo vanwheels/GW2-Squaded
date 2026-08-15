@@ -29,11 +29,14 @@
  * target, wiki-confirmed 2026-08-13 for all 4 (previously only Fox's Fury/Otter's Compassion were
  * individually checked, the other 2 "assumed") as a real, current, attunement-conditional
  * enhancement: "if fire/water/earth/air is your specialized element, this skill also breaks stun /
- * grants extra might / grants resistance / grants blur." These are the exact "additive enhancement"
- * shape TODO.md's "same-name flip pair" classification sweep (2026-08-13, see
- * `revenant-flip-duplicates.ts`'s own Band Together note) is tracking as future divider-merge
- * candidates — correctly still shown as a separate stacked icon today, pending that sweep deciding
- * how to render them differently.
+ * grants extra might / grants resistance / grants blur." These are the "additive enhancement" shape
+ * TODO.md's "same-name flip pair" classification sweep (2026-08-13, see `revenant-flip-duplicates.ts`'s
+ * own Band Together note) tracked as divider-merge candidates — **resolved 2026-08-15**, but not via
+ * `additive-flip-pairs.ts` like the other 10 (see that file's own Evoker paragraph for why): its own
+ * `evoker-familiar-facts.ts` swaps the base id's tooltip to the target's real content instead, with
+ * only the StunBreak fact split into a gated bonus divider (the only one of each skill's gated bonuses
+ * that's actually present as a discrete API fact — the rest are a documented gap, not guessed at). No
+ * longer a plain 2nd stacked icon.
  *
  * Also investigated 2026-08-13 as part of that same classification sweep, deliberately NOT
  * excluded here for a 3rd reason: **Thief's Deathstrike** (27074 -> 28625) is a genuine 2-hit combo

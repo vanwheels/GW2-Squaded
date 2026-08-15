@@ -35,9 +35,10 @@
  * extra might + area damage; Hare's Agility: breaks stun + blur — confirmed gated by the wiki's own
  * "if X is your specialized element" sentence). Labeling that whole bundle "Fire/Air/... Specialized"
  * would misrepresent unconditional content as conditional — the exact mistake this whole feature
- * exists to avoid. Needs its own hand-curated per-fact split (which exact facts are always-on vs.
- * specialization-gated) before these 4 can join this table; until then they're unchanged, still shown
- * as an ordinary 2nd stacked icon via `flipTargetSkills`.
+ * exists to avoid. **Resolved 2026-08-15 in `evoker-familiar-facts.ts` instead of this table** — a
+ * per-skill hand-curated split (wiki-confirmed which of the target's facts are always-on vs.
+ * specialization-gated) rather than a live diff, since only the always-on content matches an
+ * automatic diff's assumptions here.
  */
 export interface AdditiveFlipPair {
   targetId: number
