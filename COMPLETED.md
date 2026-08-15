@@ -2,6 +2,41 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 187 — Same-name flip-pair classification sweep, Guardian leg
+
+Continuation of the flip-pair classification sweep (Session 171, 186). Scanned every same-name
+`flipSkill` pair on Guardian and found 27 raw pairs; 12 were already excluded by the earlier Spirit
+Weapon mode-split sweep, leaving 15 to classify (not the originally-estimated 13 — the Glaring Burst
+chain turned out to be 4 pairs, not counted individually before).
+
+Mixed result, not one shape like Warrior's:
+- **10 excluded** (added to `NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS`): 9 byte-identical/
+  reordered-only pairs (Virtue of Courage, Virtue of Resolve, Wings of Resolve, Tome of Resolve, Tome
+  of Courage, Tome of Justice, Radiant Courage, Radiant Resolve, one of the 4 Glaring Burst pairs)
+  plus 1 wiki-confirmed PvE/PvP-vs-WvW mode split (Shield of Courage: `id = 30039, 30029`,
+  `split = pve pvp, wvw`), same "2nd id instead of an override" shape as Utility Goggles/Berserk.
+- **2 pairs are genuine additive enhancement, left alone as future divider-merge candidates**: both
+  Crashing Courage pairs (normal-cast and ground-targeted) gain StunBreak + extra Stability/
+  Resistance/Protection only with the Indomitable Courage trait equipped — wiki-confirmed on the
+  trait's own page ("The active effect of Virtue skill 3 breaks stun and grants stability to nearby
+  allies"). The API represents this trait bonus as a full 2nd skill id linked via `flipSkill` instead
+  of the usual `requires_trait`-gated facts on one id. Brings the confirmed-additive pool to 10 pairs
+  total (8 from Session 171 + these 2).
+- **3 pairs are genuinely out of scope, a 3rd shape not seen before**: Shield of Absorption
+  (cast forms a knockback dome; detonating it early swaps to an unrelated heal effect, not a superset
+  of the cast's facts — same "genuine multi-stage action" bucket as Thief's Deathstrike, just
+  replace-not-append) and the remaining 3 Glaring Burst pairs (Guardian's Radiant Forge transform
+  swaps which of ~5 unrelated fact sets "Glaring Burst" resolves to depending on equipped radiant
+  weapon, all sharing one tooltip name by design — wiki: "Apply an additional effect to Glaring Burst
+  until a new weapon is chosen") — same "mode/mechanic-select button, not a boon/condition duplicate"
+  category as Revenant's Legendary Renegade Stance.
+
+Full citations in `other-profession-flip-duplicates.ts`'s doc comment and TODO.md. `npm run test`
+110/110, typecheck clean — pure data-table addition, no code changes.
+
+**Next leg**: Mesmer (4 pairs: Mind Wrack, Axes of Symmetry, Split Second, Bladesong Harmony) — the
+last unclassified pool from the original scan.
+
 ## Session 186 — Same-name flip-pair classification sweep, Warrior leg
 
 Continuation of the flip-pair classification sweep TODO.md tracks (started 2026-08-13, see Session

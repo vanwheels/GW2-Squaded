@@ -61,6 +61,37 @@
  * this file's other entries, not a genuinely different tier. 11 of the 12 same-name Warrior pairs
  * fit this shape cleanly (byte-identical or reordered-only facts, cross-checked against each
  * source/target pair's raw facts directly):
+ *
+ * 2026-08-14 addition — Guardian leg of the same-name flip-pair classification sweep (TODO.md's
+ * "Next leg" note), 15 raw pairs after excluding the 12 Spirit Weapon pairs already handled above.
+ * Mixed bag, NOT a single shape like Warrior's:
+ *   - 9 byte-identical/reordered-only pairs (2nd id, no new content), same shape as everything else
+ *     in this file: Virtue of Courage, Virtue of Resolve, Wings of Resolve, Tome of Resolve, Tome of
+ *     Courage, Tome of Justice, Radiant Courage, Radiant Resolve, and one of the 4 Glaring Burst
+ *     pairs (77058->78674).
+ *   - 1 more PvE/PvP-vs-WvW mode split via 2nd id, wiki-confirmed (`id = 30039, 30029`,
+ *     `split = pve pvp, wvw`, Duration 3s vs 2s + WvW-only 60s recharge vs 45s): Shield of Courage.
+ *   - 2 pairs deliberately NOT excluded — genuine trait-conditional additive enhancement, the
+ *     target shape this whole sweep is hunting for: both Crashing Courage pairs (62555->62596 and
+ *     the ground-targeted 62648->62532) gain StunBreak + extra Stability/Resistance/Protection only
+ *     with the Indomitable Courage trait equipped (wiki-confirmed: "The active effect of Virtue
+ *     skill 3 breaks stun and grants stability to nearby allies"). The API represents this trait's
+ *     bonus as a full 2nd skill id linked via `flipSkill` instead of `requires_trait`-gated facts on
+ *     one id (unlike most trait bonuses elsewhere in this data). Left as 2 icons today, real
+ *     divider-merge candidates once the rendering is built, alongside Revenant's Band Together
+ *     family and Elementalist's attunement familiars.
+ *   - 4 pairs also NOT excluded but for a 3rd, different reason — not a duplicate, not additive
+ *     stacking, genuinely out of scope: Shield of Absorption (9091->9224) is a real cast-then-
+ *     detonate 2-stage skill (cast forms a knockback/projectile-block dome; detonating it early
+ *     swaps to an entirely different heal effect, not a superset of the cast's facts) — same
+ *     "genuine multi-stage action" bucket as Thief's Deathstrike, just replace-not-append. The 3
+ *     remaining Glaring Burst pairs (76982->77058, 78730->77058) are weapon-conditional mutually
+ *     exclusive variants — Guardian's Radiant Forge transform swaps which of ~5 differently-facted
+ *     skills "Glaring Burst" resolves to depending on which radiant weapon is currently equipped
+ *     (wiki: "Apply an additional effect to Glaring Burst until a new weapon is chosen"), all
+ *     sharing one tooltip name by design even though the facts are unrelated (heal burst vs damage
+ *     burst) — same "legend/mode-select button, not a boon/condition duplicate" category as
+ *     Revenant's Legendary Renegade Stance.
  */
 export const NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS: ReadonlySet<number> = new Set([
   // Engineer
@@ -127,5 +158,20 @@ export const NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS: ReadonlySet<number
   // via a 2nd id (30435 PvE: 8s recharge; 30185 PvP/WvW: 15s recharge + StunBreak), same "mode
   // split represented as a 2nd id instead of an override" category as Utility Goggles/Guardian
   // Spirit Weapons above, not a duplicate-content case
-  30185 // Berserk — PvP/WvW-recharge variant, flip target of the PvE entry id (30435)
+  30185, // Berserk — PvP/WvW-recharge variant, flip target of the PvE entry id (30435)
+  // Guardian (2026-08-14 addition, flip-pair sweep's Guardian leg) — identical/reordered-only
+  // facts, no genuinely new content over the source id
+  9268, // Virtue of Courage — byte-identical facts and traitedFacts
+  9250, // Virtue of Resolve — byte-identical facts and traitedFacts
+  30225, // Wings of Resolve — byte-identical facts and traitedFacts
+  68648, // Tome of Resolve — byte-identical facts and traitedFacts
+  68650, // Tome of Courage — byte-identical facts and traitedFacts
+  68647, // Tome of Justice — byte-identical facts and traitedFacts
+  78674, // Glaring Burst — byte-identical facts (Range/Damage/Vulnerability), one of 4 same-name
+  // Glaring Burst pairs; the other 3 are a different, NOT-excluded shape, see file doc comment
+  78770, // Radiant Courage — byte-identical facts (Recharge/StunBreak)
+  78514, // Radiant Resolve — byte-identical facts (Recharge)
+  // Guardian mode split (2026-08-14 addition) — same "2nd id instead of an override" shape as
+  // Utility Goggles/Spirit Weapons/Berserk above
+  30039 // Shield of Courage — wiki-confirmed `id = 30039, 30029`, `split = pve pvp, wvw`
 ])

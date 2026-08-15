@@ -96,10 +96,26 @@ that don't block a release.
       all (a separate, already-handled duplicate-candidate shape via `profession-mechanic.ts`'s
       `resolveMechanicSlot`, not this sweep's concern). Not guessed at — needs its own individual
       wiki-page verification pass before excluding or leaving as a real 2-icon case.
-      **Next leg**: Guardian (13 pairs, Tome/Virtue/Spirit Weapon chains) — largest remaining pool.
-      Once the full ~50-pair classification is done, THEN design+build the actual divider rendering
-      for the confirmed-additive family (`skillTooltipContent`/`FlipSkillStack` in
-      `SkillsEditor.tsx`).
+      **Guardian leg classified 2026-08-14** (15 pairs on rescan, not 13 — the earlier estimate
+      undercounted the Glaring Burst chain): full detail + wiki citations in
+      `other-profession-flip-duplicates.ts`'s doc comment. 10 of 15 excluded (9 byte-identical/
+      reordered pairs: Virtue of Courage, Virtue of Resolve, Wings of Resolve, Tome of Resolve, Tome
+      of Courage, Tome of Justice, Radiant Courage, Radiant Resolve, one of 4 Glaring Burst pairs;
+      plus 1 wiki-confirmed PvE/PvP-vs-WvW mode split, Shield of Courage). 5 of 15 deliberately left
+      as-is, for 2 different reasons: **Crashing Courage** (both the normal-cast and ground-targeted
+      pairs, 2 pairs) is a genuine trait-conditional additive enhancement — StunBreak + extra
+      Stability/Resistance/Protection only with Indomitable Courage equipped, wiki-confirmed — a real
+      divider-merge candidate once rendering is built (now 10 confirmed-additive pairs total: 8 from
+      before + these 2). **Shield of Absorption** (cast-then-detonate, facts don't stack — detonating
+      replaces the cast's effect with a different heal, not a superset) and the other 3 **Glaring
+      Burst** pairs (weapon-conditional mutually-exclusive variants from Guardian's Radiant Forge
+      transform, ~5 unrelated fact sets sharing one tooltip name) are genuinely out of scope — not a
+      duplicate, not additive stacking, same "mode/mechanic-select button" category as Revenant's
+      Legendary Renegade Stance. `npm run test` 110/110, typecheck clean.
+      **Next leg**: Mesmer (4 pairs: Mind Wrack, Axes of Symmetry, Split Second, Bladesong Harmony) —
+      the last unclassified pool, per the original scan. Once the full ~50-pair classification is
+      done, THEN design+build the actual divider rendering for the confirmed-additive family
+      (`skillTooltipContent`/`FlipSkillStack` in `SkillsEditor.tsx`).
 
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around
