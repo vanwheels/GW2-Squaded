@@ -126,30 +126,55 @@ that don't block a release.
       lists only `id = 43761`, 69385 isn't mentioned at all.
       **Full ~50-pair classification is now DONE across all 5 legs** (Revenant, Elementalist,
       Warrior, Guardian, Mesmer). Confirmed-additive pool: 10 pairs total (Revenant's Band Together
-      family x4, Elementalist's attunement familiars x4, Guardian's Crashing Courage x2).
-      **Divider rendering DONE 2026-08-15 for 6 of the 10 pairs** (Revenant's Band Together family x4
-      + Guardian's Crashing Courage x2) — `additive-flip-pairs.ts` (new file, `ADDITIVE_FLIP_PAIRS`)
-      + `SkillsEditor.tsx`'s `additiveEnhancementFacts`/`skillTooltipContent` + `multi-effect.ts`'s
-      `flipTargetSkills` (stops the stacked-icon walk at a known additive target) +
-      `.tooltip-divider`/`.tooltip-section-label` in `global.css`. Computes the "When Enhanced"/"With
-      Indomitable Courage" delta LIVE (target's real current-build-scaled facts minus whatever the
-      base skill's own tooltip already shows) rather than hand-transcribing text, so it can't go stale
-      as gear/traits/duration % change — verified correct for all 6 pairs via a throwaway dry-run
-      before landing, now locked in by a permanent regression test
-      (`additive-flip-pairs.test.ts`, 9 tests, `npm run test` 119/119, typecheck clean).
-      **Elementalist's 4 attunement familiars deliberately NOT included** — a live-wiki check
-      (Fox's Fury, Hare's Agility raw wikitext) found the automatic diff would be WRONG for this
-      family: the base/equippable id's own facts are incomplete (the already-documented
-      `damage-calc.ts` Evoker "flip-architecture gap" — the API attaches the skill's real,
-      UNCONDITIONAL effect to the flip target id instead of the base), so target-minus-base bundles
-      always-on content (e.g. Fox's Fury's unconditional Burning, Hare's Agility's unconditional
-      Endurance/Swiftness/chain-lightning Damage) together with the genuinely specialization-gated
-      extras (breaks stun, extra might/blur, area damage) — labeling that bundle "Fire/Air
-      Specialized" would misrepresent unconditional content as conditional, the exact mistake this
-      feature exists to avoid. Full reasoning in `additive-flip-pairs.ts`'s doc comment. **Still
-      open**: hand-curate which exact facts on each familiar's target id are always-on vs.
-      specialization-gated (their own small wiki-verification pass, not a rendering problem) before
-      these 4 can join the table — until then they're unchanged, still 2 stacked icons.
+      family x4, Elementalist's attunement familiars x4, Guardian's Crashing Courage x2). **Next
+      step**: design+build the actual divider rendering for these 10 pairs
+      (`skillTooltipContent`/`FlipSkillStack` in `SkillsEditor.tsx`) — not started.
+
+- [ ] **Warrior Burst Skill damage coefficients** — flagged by the user 2026-08-14: every burst skill
+      rendered a bare "Damage: N hit(s)" placeholder, never curated. First leg done (this session,
+      `damage-calc.ts`'s new "Warrior Burst Skill sweep" block): the 10 base-game (spec-less) burst
+      skills whose damage is a flat or Level-1/2/3-tiered `factText` the API actually exposes
+      (Eviscerate, Arcing Slice, Earthshaker, Kill Shot, Skull Crack, Forceful Shot, Breaching Strike,
+      Path to Victory, Bloodthirster, Whirling Strike) are curated, WvW-verified, `npm run test`
+      119/119. Confirmed while scoping: adrenaline level scales the raw hit damage for only 3 of these
+      (Eviscerate/Kill Shot/Forceful Shot); for the rest it scales a different fact entirely (Fury
+      duration, stun duration, bleed stacks, healing, boon-removal count) — not a gap, just a
+      per-skill design difference, already reflected in this leg's own per-entry comments. Considered
+      and explicitly rejected: a `CombatState.adrenalineTier` toggle mirroring `healthTier` — no
+      Warrior trait grants a flat attribute bonus gated by current adrenaline tier (unlike `healthTier`,
+      which has 2 real traits to gate), and all 3 tiers already render as separate always-visible
+      lines once curated, matching the real in-game tooltip's own behavior — nothing to toggle.
+      **Left open, deliberately not curated** (genuine per-tier scaling the raw API doesn't expose as
+      separate facts — same "don't force a number the fact shape can't support" call as Otherworldly
+      Bond): Combustive Shot (14506, Longbow — pulse COUNT scales 2/3/4 per tier per the wiki version
+      history, API only ever shows Level 1's 2-pulse total) and Harrier's Toss (72911, Spear land burst
+      — wiki's 2025-11-18 balance pass gives a genuine WvW-only 3-tier coefficient progression
+      0.9/1.05/1.2, API exposes only one flat PvE-value Damage fact).
+      **Not yet started**: Spellbreaker's own per-weapon burst ids (capped at Level 1 only per trait
+      2175 "Spellbreaker's Conviction" — different ids from the base-game ones curated this leg),
+      Berserker's reworked "Primal Burst" ids (Arc Divider, Gun Flame, Decapitate, etc. — single flat
+      multiplier each, no tiering), Full Counter (Spellbreaker's weapon-independent Profession_2
+      burst, id 44165), and Bladesworn's actual burst (the Dragon Slash chain) — the last of which
+      isn't even reachable via `professionMechanicBar` today (its ids carry `specializationId: null`
+      and no `Profession_` slot in the raw API at all; what currently shows for Bladesworn's F2 is
+      "Dragon Trigger," which has no Damage fact of its own) and would need the same kind of
+      hand-injection `gunsaber-skills.ts` already does for the rest of Bladesworn's kit.
+
+- [ ] **Paragon's Motivation-tiered Chants** — flagged by the user 2026-08-14, not started. Paragon
+      (Warrior elite spec 74) has 3 Chant skills (Chant of Action/F2 id 77342, Chant of Recuperation/F3
+      id 76782, Chant of Freedom/F4 id 77155), each simultaneously a Burst skill and a "Refrain" that
+      drains Motivation stacks over time for scaling effects. Same shape as Otherworldly Bond: the raw
+      API's own facts stop at the base cast (Recharge/Radius/Targets/Interval) and each skill's own
+      description trails off with "Gain increased effects depending on motivation stacks:" — the wiki
+      is the only source for the actual tier numbers. Confirmed via wiki fetch 2026-08-14: a 3-band
+      system (1-3 / 4-6 / 7-10 Motivation), each with its own PvE/WvW/PvP split, plus ~5 traits that
+      further modify chant effects (Enduring Refrain id 2428, Feverish Pulse id 2369, Calming Tongue id
+      2433, Liberating Liaise id 2357, Strengthening Stanzas id 2385). Unlike Otherworldly Bond's
+      branches (mutually exclusive per-cast choices), Motivation tiers are current-resource-level-
+      gated — closer in shape to `HealthTier` than to `ConditionalBranch` — so this will likely need a
+      new `motivationStacks`/`motivationTier` field on `CombatState` as a prerequisite before any
+      per-tier divider rendering, then wiki verification across all 3 chants × 3 tiers plus the 5
+      modifying traits.
 
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around

@@ -1559,6 +1559,20 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 682,
     },
   ],
+  "14353": [
+    {
+      "label": "Level 1 Damage",
+      "value": 1818,
+    },
+    {
+      "label": "Level 2 Damage",
+      "value": 2159,
+    },
+    {
+      "label": "Level 3 Damage",
+      "value": 2500,
+    },
+  ],
   "14354": [
     {
       "label": "Damage",
@@ -1613,6 +1627,16 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 534,
     },
   ],
+  "14375": [
+    {
+      "label": "Damage",
+      "value": 1516,
+    },
+    {
+      "label": "Damage against Foes under 50% Health",
+      "value": 2275,
+    },
+  ],
   "14376": [
     {
       "label": "Damage",
@@ -1635,10 +1659,30 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 2275,
     },
   ],
+  "14387": [
+    {
+      "label": "Damage",
+      "value": 853,
+    },
+  ],
   "14388": [
     {
       "label": "Damage",
       "value": 8,
+    },
+  ],
+  "14396": [
+    {
+      "label": "Level 1 Damage",
+      "value": 1830,
+    },
+    {
+      "label": "Level 2 Damage",
+      "value": 2222,
+    },
+    {
+      "label": "Level 3 Damage",
+      "value": 2614,
     },
   ],
   "14398": [
@@ -1669,6 +1713,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 392,
+    },
+  ],
+  "14414": [
+    {
+      "label": "Damage",
+      "value": 852,
     },
   ],
   "14415": [
@@ -1753,6 +1803,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 2500,
+    },
+  ],
+  "14443": [
+    {
+      "label": "Damage",
+      "value": 2273,
     },
   ],
   "14446": [
@@ -1887,6 +1943,20 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 1575,
+    },
+  ],
+  "14544": [
+    {
+      "label": "Level 1 Damage",
+      "value": 2557,
+    },
+    {
+      "label": "Level 2 Damage",
+      "value": 3125,
+    },
+    {
+      "label": "Level 3 Damage",
+      "value": 3693,
     },
   ],
   "14554": [
@@ -3362,6 +3432,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     },
   ],
   "45243": [
+    {
+      "label": "Damage",
+      "value": 1364,
+    },
+  ],
+  "45252": [
     {
       "label": "Damage",
       "value": 1364,
@@ -5325,6 +5401,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 540,
     },
   ],
+  "71932": [
+    {
+      "label": "Damage",
+      "value": 1875,
+    },
+  ],
   "71933": [
     {
       "label": "Damage",
@@ -6037,6 +6119,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 8,
+    },
+  ],
+  "80203": [
+    {
+      "label": "Damage",
+      "value": 1591,
     },
   ],
   "80244": [

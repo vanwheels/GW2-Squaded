@@ -3640,6 +3640,87 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Weapon-slot sweep: Warrior, Guardian, Revenant, Ranger, Thief, Engineer, Necromancer, Elementalist,
   // Mesmer done (9 of 9). **Weapon-slot sweep is now COMPLETE — the Damage coefficient category sweep
   // (Heal/Elite/Utility/Weapon-slot) is COMPLETE across all 9 professions.**
+
+  // --- Warrior Burst Skill sweep (Profession_1/_2 mechanic-bar slot) ---
+  // Flagged by the user 2026-08-14: every Warrior burst skill rendered a bare "Damage: N hit(s)"
+  // placeholder (the generic uncurated-fact fallback) since NONE had ever been curated here — the
+  // earlier same-name flip-pair classification sweep (`other-profession-flip-duplicates.ts`) only
+  // established which of each burst's several near-duplicate ids is the real, currently-equippable
+  // one; it never curated a damage number. This leg covers the 10 base-game (spec-less) burst skills
+  // whose damage IS cleanly representable as flat/tiered `factText` entries; canonical ids per skill
+  // are the ones NOT listed in `NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS` (that file's own
+  // Warrior section). Spellbreaker's own weapon-independent Full Counter, Berserker's reworked
+  // "Primal Burst" ids (Arc Divider, Gun Flame, etc. — single flat multiplier, no adrenaline tiering,
+  // confirmed via their wiki pages' own "always fires at full effect" framing), and the per-weapon
+  // Spellbreaker-specific ids (which cap at Level 1 only, per trait 2175 "Spellbreaker's Conviction")
+  // are NOT covered by this leg — left for a follow-up pass.
+  //
+  // Two skills confirmed to have genuine adrenaline-tier damage scaling that the raw API's `facts`
+  // array does NOT expose as separate per-tier entries (only ever the game's own PvE `dmg_multiplier`
+  // for a single tier) are deliberately left uncurated rather than guessed at, same "don't force a
+  // number the fact shape can't support" policy as Combustive Shot/Otherworldly Bond elsewhere in this
+  // codebase — logged in TODO.md:
+  //   - **Combustive Shot** (14506, Longbow): wiki version history: "Updated the pulses per adrenaline
+  //     tier to 2, 3, and 4 respectively for adrenaline levels 1, 2, and 3" — pulse COUNT scales, but
+  //     the API's own `hit_count` field only ever reflects Level 1's 2 pulses.
+  //   - **Harrier's Toss** (72911, Spear, land): wiki version history (2025-11-18 WvW balance pass)
+  //     gives a genuine 3-tier WvW-only coefficient progression (0.9/1.05/1.2) with PvE/PvP flat — but
+  //     the API exposes only one flat "Damage" fact (2.5, the PvE value), no per-tier factText to
+  //     curate against.
+  //
+  // Eviscerate — Axe. Wiki-verified via raw wikitext (`?action=raw`) 2026-08-14: genuine PvE/WvW+PvP
+  // split on all 3 tiers (2.0/2.5/3.0 PvE vs 1.6/1.9/2.2 WvW+PvP, the WvW+PvP side itself buffed from
+  // 1.333/1.666/2.0 by a 2025-06-24 patch) — WvW values used.
+  14353: [
+    { factText: 'Level 1 Damage', coefficient: 1.6, weapon: 'axe' },
+    { factText: 'Level 2 Damage', coefficient: 1.9, weapon: 'axe' },
+    { factText: 'Level 3 Damage', coefficient: 2.2, weapon: 'axe' }
+  ],
+  // Arcing Slice — Greatsword. Two independent Damage facts: the base hit (PvE 2.0/WvW 1.213/PvP
+  // 1.36, a genuine 3-way split — WvW value used) and a separate "against foes under 50% health" bonus
+  // hit (PvE 3.0/WvW+PvP 1.82, 2-way split). Adrenaline level scales this skill's granted Fury
+  // duration, not its damage (per the wiki's own description/version history) — no Level 1/2/3 Damage
+  // tiers exist for this skill.
+  14375: [
+    { factText: 'Damage', coefficient: 1.213, weapon: 'greatsword' },
+    { factText: 'Damage against Foes under 50% Health', coefficient: 1.82, weapon: 'greatsword' }
+  ],
+  // Earthshaker — Hammer. PvE/WvW+PvP split (2.75/0.682) — WvW value used. Adrenaline level scales
+  // this skill's knockdown/stun duration (1/1.5/2s per the wiki), not its damage.
+  14387: [{ factText: 'Damage', coefficient: 0.682, weapon: 'hammer' }],
+  // Kill Shot — Rifle. Genuine PvE/WvW+PvP split on all 3 tiers (2.25/2.75/3.25 PvE vs 1.4/1.7/2.0
+  // WvW+PvP) — WvW values used.
+  14396: [
+    { factText: 'Level 1 Damage', coefficient: 1.4, weapon: 'rifle' },
+    { factText: 'Level 2 Damage', coefficient: 1.7, weapon: 'rifle' },
+    { factText: 'Level 3 Damage', coefficient: 2.0, weapon: 'rifle' }
+  ],
+  // Skull Crack — Mace. PvE/WvW+PvP split (1.5/0.75) — WvW value used. Adrenaline level scales this
+  // skill's stun duration (1.25/2.25/3.25s per the wiki), not its damage.
+  14414: [{ factText: 'Damage', coefficient: 0.75, weapon: 'mace' }],
+  // Forceful Shot — Speargun. No split on any tier. Canonical id per
+  // `NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS` (14544 is the source, 14469 its excluded
+  // byte-identical flip target).
+  14544: [
+    { factText: 'Level 1 Damage', coefficient: 2.25, weapon: 'harpoon gun' },
+    { factText: 'Level 2 Damage', coefficient: 2.75, weapon: 'harpoon gun' },
+    { factText: 'Level 3 Damage', coefficient: 3.25, weapon: 'harpoon gun' }
+  ],
+  // Breaching Strike — Dagger. 3-way split PvE/WvW/PvP (2.5/1.2/1.32) — WvW value used. Canonical id
+  // is the wiki's own "other specs, stage 0" tag (45252); 69433 (stage 1) already excluded as its
+  // byte-identical flip target. Adrenaline level scales this skill's boon-removal count, not damage.
+  45252: [{ factText: 'Damage', coefficient: 1.2, weapon: 'dagger' }],
+  // Path to Victory — Staff. PvE+WvW grouped vs. a separate lower PvP value (1.5/0.5) — WvW value
+  // used. Adrenaline level scales this skill's self/ally healing (a separate Healing fact, not
+  // covered by this Damage-only leg), not its strike damage.
+  71932: [{ factText: 'Damage', coefficient: 1.5, weapon: 'staff' }],
+  // Bloodthirster — Sword. PvE/WvW+PvP split (2.0/1.4) — WvW value used. Adrenaline level scales this
+  // skill's applied Bleeding stacks (3/6/9 per the wiki), not its damage.
+  80203: [{ factText: 'Damage', coefficient: 1.4, weapon: 'sword' }],
+  // Whirling Strike — Spear (underwater burst; Harrier's Toss, this same weapon's land burst, is left
+  // uncurated per this leg's intro comment). No split. Adrenaline level scales this skill's stun
+  // duration (1/1.5/2s per the wiki), not its damage.
+  14443: [{ factText: 'Damage', coefficient: 2.0, weapon: 'spear' }]
 }
 
 export interface DamageLine {
