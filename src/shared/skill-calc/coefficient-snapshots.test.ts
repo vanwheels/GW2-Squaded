@@ -7,6 +7,8 @@ import { TARGET_ARMOR_VALUES } from '../gear-calc/combat-state'
 import { CURATED_HEALING_COEFFICIENTS, healingLinesForSkill, type HealingLine } from './healing-calc'
 import { CURATED_DAMAGE_COEFFICIENTS, damageLinesForSkill, type DamageLine } from './damage-calc'
 import { CURATED_BARRIER_COEFFICIENTS, barrierLinesForSkill, type BarrierLine } from './barrier-calc'
+import { GUNSABER_SKILLS } from './gunsaber-skills'
+import { DRAGON_SLASH_SKILLS } from './dragon-slash-skills'
 
 /**
  * Tier 2 golden snapshot fixtures — TODO.md's "Automated testing strategy" (agreed 2026-08-12): pay
@@ -27,7 +29,12 @@ import { CURATED_BARRIER_COEFFICIENTS, barrierLinesForSkill, type BarrierLine } 
  * `load-game-data.ts`'s `withSyntheticFacts` does, since that merge is Electron-`app`-path-dependent
  * and can't be imported directly into a plain vitest run — several curated entries (e.g. every
  * Legendary Stance skill's "Rapid Flow Healing" line) only resolve against a synthetic fact, not a
- * real API one, so skipping the merge would silently snapshot an incomplete/wrong picture.
+ * real API one, so skipping the merge would silently snapshot an incomplete/wrong picture. Also
+ * merges in `GUNSABER_SKILLS`/`DRAGON_SLASH_SKILLS` (plain data, no Electron dependency, so these
+ * import cleanly here unlike `load-game-data.ts`) — Bladesworn's Dragon Slash chain (see
+ * `dragon-slash-skills.ts`) is the first hand-authored-id source to actually get a
+ * `CURATED_DAMAGE_COEFFICIENTS` entry, so `snapshotFor`'s "fail loudly if missing" lookup needs to
+ * find these ids too, the same way `game-data-store.tsx` merges them for the real app.
  *
  * All three tables are evaluated at one fixed, documented reference point rather than a real build —
  * the specific numbers don't matter (they're not meant to represent any particular meta build, that's
@@ -58,6 +65,10 @@ const skillsById = new Map<number, Skill>(
     return [skill.id, merged as unknown as Skill]
   })
 )
+// Hand-authored ids absent from `skills.json` entirely (see each file's own doc comment) — only
+// `DRAGON_SLASH_SKILLS` currently has any `CURATED_DAMAGE_COEFFICIENTS` entries, but `GUNSABER_SKILLS`
+// is merged in too for consistency/future-proofing, same set `game-data-store.tsx` merges for real.
+for (const skill of [...GUNSABER_SKILLS, ...DRAGON_SLASH_SKILLS]) skillsById.set(skill.id, skill)
 
 const REFERENCE_POWER = 2500
 const REFERENCE_HEALING_POWER = 1500

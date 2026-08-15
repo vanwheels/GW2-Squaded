@@ -4947,6 +4947,16 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1138,
     },
   ],
+  "62797": [
+    {
+      "label": "Maximum Damage",
+      "value": 1425,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 589,
+    },
+  ],
   "62800": [
     {
       "label": "Damage per Bullet",
@@ -5075,6 +5085,16 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1250,
     },
   ],
+  "62951": [
+    {
+      "label": "Maximum Damage",
+      "value": 999,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 413,
+    },
+  ],
   "62958": [
     {
       "label": "Damage",
@@ -5103,6 +5123,16 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Damage",
       "value": 2131,
+    },
+  ],
+  "62980": [
+    {
+      "label": "Maximum Damage",
+      "value": 1141,
+    },
+    {
+      "label": "Minimum Damage",
+      "value": 472,
     },
   ],
   "63077": [

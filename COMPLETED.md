@@ -2,6 +2,45 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 191 — Bladesworn's Dragon Slash chain: Warrior Burst Skill sweep's last leg
+
+Closes out the Warrior Burst Skill damage coefficients item (all 4 legs now done; TODO.md entry
+removed, folded into a narrower Sharp as the Wind / River's Flow follow-up).
+
+Bladesworn's F2 "Dragon Trigger" (62803) is a real, already-correctly-resolving API skill (Flow
+Cost/Drain/Recharge only, no Damage fact of its own) — the actual burst damage lives on 3 of the 5
+skills shown while it channels (Dragon Slash—Force/Boost/Reach, chosen by the player to end the
+channel; Triggerguard/Flicker Step are the other 2, utility-only, don't end the channel). Live-
+verified against the live `/v2/skills` endpoint that all 5 of these ids ("all ids provided are
+invalid") are the same class of API gap as `gunsaber-skills.ts`'s Gunsaber weapon bar — real,
+wiki-documented, in-game skills entirely absent from the public API. New `dragon-slash-skills.ts`
+hand-authors all 5 (mirroring Gunsaber's structure/icon-sourcing exactly) and wires them into
+`bundle-skills.ts` as a new `DRAGON_SLASH_SLOT_SKILLS` bundle (Dragon Trigger's id -> these 5),
+merged into every function that already handled `GUNSABER_SLOT_SKILLS` the same way — no
+`ProfessionMechanicBar.tsx` changes needed at all, since `isMechanicBarBundleId` already generalizes
+over any registered bundle-source id.
+
+Unlike Gunsaber (deliberately left with zero Damage facts — none of its 5 skills has an unambiguous
+single coefficient), Dragon Slash—Force/Boost/Reach each have a clean wiki-quoted Minimum/Maximum
+Damage pair (Minimum = ending the channel at the lowest charge level, Maximum = at full charge) —
+curated into `CURATED_DAMAGE_COEFFICIENTS` as this sweep's 4th leg, WvW+PvP-shared values used per
+this sweep's established convention, `weapon: 'bundle'` (new `WEAPON_STRENGTH_MIDPOINTS` key, 968.5,
+matching the wiki's own `weapon=bundle` tag on each page — same value as the existing `kit`/`conjure`
+keys, kept separate to match what each skill's own wikitext literally says).
+
+This is the first hand-authored-id source to actually get a damage curation entry, which exposed a
+real gap in `coefficient-snapshots.test.ts`: its `snapshotFor` helper throws loudly if a curated id
+has no matching skill in the on-disk `skills.json` it reads directly (by design — the Gunsaber
+precedent never triggered this, since Gunsaber has no curated entries at all). Fixed by importing
+`GUNSABER_SKILLS`/`DRAGON_SLASH_SKILLS` directly into the test (both plain data with no Electron
+dependency, unlike `load-game-data.ts`) and merging them into the test's own local `skillsById`, the
+same merge `game-data-store.tsx` does for the real app. `npm run test` 119/119 (snapshot updated),
+`npm run typecheck`/`npm run lint` clean.
+
+Deliberately not attempted this session: Sharp as the Wind / River's Flow, the 2 Bladesworn traits
+that reflavor the whole Dragon Slash chain into differently-named/-described ids — spun off as its
+own TODO.md item (a `branch-conditional-facts.ts` candidate, same shape as Otherworldly Bond).
+
 ## Session 190 — Revenant scepter 2/3 tooltip fixes: Blossoming Aura declutter + Otherworldly Bond
 re-curation (reopens Session 131's honest skip)
 

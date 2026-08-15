@@ -130,65 +130,15 @@ that don't block a release.
       step**: design+build the actual divider rendering for these 10 pairs
       (`skillTooltipContent`/`FlipSkillStack` in `SkillsEditor.tsx`) — not started.
 
-- [ ] **Warrior Burst Skill damage coefficients** — flagged by the user 2026-08-14: every burst skill
-      rendered a bare "Damage: N hit(s)" placeholder, never curated. First leg done (this session,
-      `damage-calc.ts`'s new "Warrior Burst Skill sweep" block): the 10 base-game (spec-less) burst
-      skills whose damage is a flat or Level-1/2/3-tiered `factText` the API actually exposes
-      (Eviscerate, Arcing Slice, Earthshaker, Kill Shot, Skull Crack, Forceful Shot, Breaching Strike,
-      Path to Victory, Bloodthirster, Whirling Strike) are curated, WvW-verified, `npm run test`
-      119/119. Confirmed while scoping: adrenaline level scales the raw hit damage for only 3 of these
-      (Eviscerate/Kill Shot/Forceful Shot); for the rest it scales a different fact entirely (Fury
-      duration, stun duration, bleed stacks, healing, boon-removal count) — not a gap, just a
-      per-skill design difference, already reflected in this leg's own per-entry comments. Considered
-      and explicitly rejected: a `CombatState.adrenalineTier` toggle mirroring `healthTier` — no
-      Warrior trait grants a flat attribute bonus gated by current adrenaline tier (unlike `healthTier`,
-      which has 2 real traits to gate), and all 3 tiers already render as separate always-visible
-      lines once curated, matching the real in-game tooltip's own behavior — nothing to toggle.
-      **Left open, deliberately not curated** (genuine per-tier scaling the raw API doesn't expose as
-      separate facts — same "don't force a number the fact shape can't support" call as Otherworldly
-      Bond): Combustive Shot (14506, Longbow — pulse COUNT scales 2/3/4 per tier per the wiki version
-      history, API only ever shows Level 1's 2-pulse total) and Harrier's Toss (72911, Spear land burst
-      — wiki's 2025-11-18 balance pass gives a genuine WvW-only 3-tier coefficient progression
-      0.9/1.05/1.2, API exposes only one flat PvE-value Damage fact).
-      **2nd leg done 2026-08-14** (`damage-calc.ts`'s "Warrior Burst Skill sweep, 2nd leg" block):
-      all 11 Berserker "Primal Burst" ids (Gun Flame, Skull Grinder, Arc Divider, Scorched Earth,
-      Flaming Flurry, Decapitate, Rupturing Smash, Burning Shackles, Wild Whirl, Slicing Maelstrom,
-      Wild Throw) plus Spellbreaker's weapon-independent Full Counter (44165) — all single flat
-      multipliers, no adrenaline tiering (Berserker replaces the burst mechanic entirely). Wiki-
-      verified via raw wikitext, WvW(+PvP) value used per this sweep's convention, `npm run test`
-      119/119. Discovered but deliberately NOT curated: several of these (Decapitate, Flaming Flurry,
-      Burning Shackles) carry a `requires_trait: 1657` ("Burst Mastery," Discipline Grandmaster,
-      +15%/+7% PvE/competitive burst damage) override fact — skipped since it's a systemic "+X% to
-      ALL burst skills" modifier with no generic implementation anywhere in this app yet, and curating
-      it for only 3 of the ~23 total burst skills found so far would be inconsistent; would need its
-      own generic "burst damage %" modifier system as a prerequisite, not a per-skill curation.
-      **Left open, data conflict** (new discovery this leg, same "don't force a number when sources
-      disagree" policy as Combustive Shot/Harrier's Toss): Rampart Splitter (71875, Berserker's Staff
-      Primal Burst) — the API's raw `dmg_multiplier` (1.5) and the wiki's current infobox (PvE 0.94/
-      WvW 0.31/PvP 0.34, page last touched 2024-02-27) flatly disagree on the same single-hit fact;
-      unclear whether the local `game-data` snapshot is stale (an undocumented live buff) or the wiki
-      page is stale (no edits since Feb 2024) without an independent 3rd source.
-      **3rd leg done 2026-08-14** (`damage-calc.ts`'s "Warrior Burst Skill sweep, 3rd leg" block):
-      Spellbreaker's own per-weapon burst ids (`specializationId` 61, capped at Level 1 only per minor
-      trait 2175 "Spellbreaker's Conviction") — Earthshaker (40601), Skull Crack (41110), Forceful Shot
-      (41330), Kill Shot (42041), Arcing Slice (42707), Combustive Shot (42803), Eviscerate (43566),
-      Breaching Strike (69297), Path to Victory (72089), Harrier's Toss (73014), Bloodthirster (80252)
-      — 11 of 12 curated. Each wiki-confirmed via its own page's `id =` infobox field sharing the same
-      id group as leg 1's base-game id, so leg 1's already-verified Level 1 numbers apply unchanged.
-      Bonus: 2 of leg 1's "left open" skills turned out curatable here on their Spellbreaker-specific id
-      even though the base id stays open — Combustive Shot's Level-1-only cap sidesteps the pulse-count
-      ambiguity (this id's own wiki infobox states `coefficient=1.0|strikes=2`, no split, matching the
-      API fact exactly) and Harrier's Toss's cap lands exactly on the wiki's own WvW Level-1 tier value
-      (0.9) from the progression leg 1 couldn't otherwise resolve. `npm run test` 119/119 (snapshot
-      updated). **Left open, data conflict** (same policy as Rampart Splitter/leg 2): Whirling Strike
-      (41746, Spellbreaker's Spear, underwater) — its wiki id group states it shares leg 1's base
-      coefficient (2.0, no split), but the API's raw `dmg_multiplier` for this specific id is 1.5, a
-      flat contradiction with no independent 3rd source to resolve it.
-      **Not yet started**: Bladesworn's actual burst (the Dragon Slash chain) — not even reachable via
-      `professionMechanicBar` today (its ids carry `specializationId: null` and no `Profession_` slot in
-      the raw API at all; what currently shows for Bladesworn's F2 is "Dragon Trigger," which has no
-      Damage fact of its own) and would need the same kind of hand-injection `gunsaber-skills.ts`
-      already does for the rest of Bladesworn's kit.
+- [ ] **Bladesworn's Sharp as the Wind / River's Flow Dragon Slash branches** — spun off from the now-
+      closed Warrior Burst Skill damage coefficients item (see COMPLETED.md Session 191): the base
+      (untraited) Dragon Slash—Force/Boost/Reach chain is fully curated, but 2 Bladesworn traits each
+      reflavor the whole chain into a differently-named, differently-described id per skill (e.g.
+      "Dragon Slash—Force (Sharp as the Wind)"), per the wiki's own Dragon_Trigger skill table — a
+      mutually-exclusive per-trait branch, same shape as `branch-conditional-facts.ts`'s existing
+      Otherworldly Bond/Blossoming Aura treatment. Not started; would need each of the 6 variant ids
+      wiki-verified (raw wikitext) and hand-authored the same way as the base 3, then wired through
+      `branch-conditional-facts.ts` gated on whichever of the 2 traits is equipped.
 
 - [ ] **Paragon's Motivation-tiered Chants** — flagged by the user 2026-08-14, not started. Paragon
       (Warrior elite spec 74) has 3 Chant skills (Chant of Action/F2 id 77342, Chant of Recuperation/F3

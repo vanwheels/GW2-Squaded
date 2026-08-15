@@ -62,6 +62,13 @@ export const WEAPON_STRENGTH_MIDPOINTS: Record<string, number> = {
   // unique weapon strength" quote), kept as its own key purely to match what each skill's own wikitext
   // literally says, same "separate key, same value" precedent as `spear`/`harpoon gun`/`trident` above.
   conjure: 968.5,
+  // Bladesworn's hand-authored Dragon Slash chain skills (Dragon Slash—Force/Boost/Reach, see
+  // `dragon-slash-skills.ts` and the Warrior Burst Skill sweep's 4th leg below) — the wiki's own
+  // `weapon=bundle` template param on each of their pages, kept as its own key purely to match what
+  // each skill's own wikitext literally says, same "separate key, same 968.5 value" precedent as
+  // `kit`/`conjure` above (the wiki's Weapon Strength page: "most bundles, kits, conjures etc. share
+  // the same unique weapon strength").
+  bundle: 968.5,
   // Mesmer phantasm weapon-slot skills (Phantasmal Berserker/Duelist/Lancer/Mariner/Mage/Warlock/
   // Whaler/Warden etc., Weapon-slot sweep's Mesmer leg, 2026-08-05) — phantasms use their own fixed
   // weapon strength, wholly independent of the caster's actual equipped weapon (per the wiki's own
@@ -3865,7 +3872,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Percent facts on this id are conditional bonuses, out of scope same as elsewhere in this sweep.
   73014: [{ factText: 'Damage', coefficient: 0.9, weapon: 'spear' }],
   // Bloodthirster — Sword. Same id group/values as leg 1's base id (WvW+PvP 1.4).
-  80252: [{ factText: 'Damage', coefficient: 1.4, weapon: 'sword' }]
+  80252: [{ factText: 'Damage', coefficient: 1.4, weapon: 'sword' }],
 
   // Whirling Strike (41746, Spellbreaker's Spear, underwater) deliberately NOT curated: the wiki's own
   // id group (`id = 14443,14549,14550,14551, 41746 <!-- spellbreaker/paragon -->`) states this id shares
@@ -3874,6 +3881,44 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // per-hit/totaled ambiguity, a genuine 2-source disagreement). Could be a stale local `game-data`
   // snapshot or a stale wiki page section — no way to tell which without an independent 3rd source. Same
   // "don't force a number when 2 sources disagree" policy. Logged in TODO.md.
+
+  // --- Warrior Burst Skill sweep, 4th (final) leg: Bladesworn's actual burst, the Dragon Slash chain.
+  // Unlike every earlier leg, Bladesworn's F2 "Dragon Trigger" (62803) itself has no Damage fact at
+  // all — it's only the channel-prep skill (Flow Cost/Drain/Recharge). The real damage lives on 3
+  // hand-authored ids (`dragon-slash-skills.ts`, see that file's doc comment for the full "these ids
+  // don't exist in the public API at all" writeup, same data-gap shape as `gunsaber-skills.ts`) —
+  // Dragon Slash—Force/Boost/Reach, one of which the player picks to end the channel. Wiki-verified
+  // via raw wikitext (`?action=raw`) 2026-08-15. Each has a clean Minimum/Maximum Damage pair (Minimum
+  // = ending the channel at the lowest charge level, Maximum = at full charge — no ambiguous per-tier
+  // fact shape to worry about, unlike Combustive Shot/Harrier's Toss above) with a PvE vs. WvW+PvP-
+  // shared split — WvW value used, same convention as every earlier leg. `weapon: 'bundle'` per each
+  // page's own `weapon=bundle` wikitext tag (see `WEAPON_STRENGTH_MIDPOINTS` above).
+  //
+  // Dragon Slash—Force (62797, Weapon_1). Min 0.535/Max 1.295 (PvE 1.16/20.4).
+  62797: [
+    { factText: 'Maximum Damage', coefficient: 1.295, weapon: 'bundle' },
+    { factText: 'Minimum Damage', coefficient: 0.535, weapon: 'bundle' }
+  ],
+  // Dragon Slash—Boost (62980, Weapon_2). Min 0.429/Max 1.037 (PvE 0.92/16.3).
+  62980: [
+    { factText: 'Maximum Damage', coefficient: 1.037, weapon: 'bundle' },
+    { factText: 'Minimum Damage', coefficient: 0.429, weapon: 'bundle' }
+  ],
+  // Dragon Slash—Reach (62951, Weapon_3). Min 0.375/Max 0.9075 (PvE 0.58/10.21).
+  62951: [
+    { factText: 'Maximum Damage', coefficient: 0.9075, weapon: 'bundle' },
+    { factText: 'Minimum Damage', coefficient: 0.375, weapon: 'bundle' }
+  ]
+
+  // Triggerguard (62893) and Flicker Step (62926) — the other 2 skills available during Dragon
+  // Trigger — carry no Damage fact at all (Aegis/Blink utility only), same as Gunsaber's non-damage
+  // skills; not curated here for that reason, not an oversight.
+  //
+  // Deliberately NOT covered by this leg: Sharp as the Wind / River's Flow, the 2 Bladesworn traits
+  // that reflavor Dragon Slash into a differently-named, differently-described id per skill (a
+  // mutually-exclusive per-trait branch, same shape as `branch-conditional-facts.ts`'s existing
+  // Otherworldly Bond/Blossoming Aura treatment) — logged in TODO.md as a follow-up, not attempted
+  // here. This closes out the Warrior Burst Skill sweep's last open item.
 }
 
 export interface DamageLine {
