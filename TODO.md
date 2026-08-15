@@ -168,13 +168,27 @@ that don't block a release.
       WvW 0.31/PvP 0.34, page last touched 2024-02-27) flatly disagree on the same single-hit fact;
       unclear whether the local `game-data` snapshot is stale (an undocumented live buff) or the wiki
       page is stale (no edits since Feb 2024) without an independent 3rd source.
-      **Not yet started**: Spellbreaker's own per-weapon burst ids (capped at Level 1 only per trait
-      2175 "Spellbreaker's Conviction" — different ids from the base-game AND Berserker ones curated
-      so far), and Bladesworn's actual burst (the Dragon Slash chain) — the latter isn't even
-      reachable via `professionMechanicBar` today (its ids carry `specializationId: null` and no
-      `Profession_` slot in the raw API at all; what currently shows for Bladesworn's F2 is "Dragon
-      Trigger," which has no Damage fact of its own) and would need the same kind of hand-injection
-      `gunsaber-skills.ts` already does for the rest of Bladesworn's kit.
+      **3rd leg done 2026-08-14** (`damage-calc.ts`'s "Warrior Burst Skill sweep, 3rd leg" block):
+      Spellbreaker's own per-weapon burst ids (`specializationId` 61, capped at Level 1 only per minor
+      trait 2175 "Spellbreaker's Conviction") — Earthshaker (40601), Skull Crack (41110), Forceful Shot
+      (41330), Kill Shot (42041), Arcing Slice (42707), Combustive Shot (42803), Eviscerate (43566),
+      Breaching Strike (69297), Path to Victory (72089), Harrier's Toss (73014), Bloodthirster (80252)
+      — 11 of 12 curated. Each wiki-confirmed via its own page's `id =` infobox field sharing the same
+      id group as leg 1's base-game id, so leg 1's already-verified Level 1 numbers apply unchanged.
+      Bonus: 2 of leg 1's "left open" skills turned out curatable here on their Spellbreaker-specific id
+      even though the base id stays open — Combustive Shot's Level-1-only cap sidesteps the pulse-count
+      ambiguity (this id's own wiki infobox states `coefficient=1.0|strikes=2`, no split, matching the
+      API fact exactly) and Harrier's Toss's cap lands exactly on the wiki's own WvW Level-1 tier value
+      (0.9) from the progression leg 1 couldn't otherwise resolve. `npm run test` 119/119 (snapshot
+      updated). **Left open, data conflict** (same policy as Rampart Splitter/leg 2): Whirling Strike
+      (41746, Spellbreaker's Spear, underwater) — its wiki id group states it shares leg 1's base
+      coefficient (2.0, no split), but the API's raw `dmg_multiplier` for this specific id is 1.5, a
+      flat contradiction with no independent 3rd source to resolve it.
+      **Not yet started**: Bladesworn's actual burst (the Dragon Slash chain) — not even reachable via
+      `professionMechanicBar` today (its ids carry `specializationId: null` and no `Profession_` slot in
+      the raw API at all; what currently shows for Bladesworn's F2 is "Dragon Trigger," which has no
+      Damage fact of its own) and would need the same kind of hand-injection `gunsaber-skills.ts`
+      already does for the rest of Bladesworn's kit.
 
 - [ ] **Paragon's Motivation-tiered Chants** — flagged by the user 2026-08-14, not started. Paragon
       (Warrior elite spec 74) has 3 Chant skills (Chant of Action/F2 id 77342, Chant of Recuperation/F3

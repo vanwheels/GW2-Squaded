@@ -3787,7 +3787,7 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // directly as 2 separate byte-distinct "Damage" facts, rather than the usual single-fact-plus-wiki-
   // lookup shape seen elsewhere in this sweep — harmless, same `find()`-only-needs-one-match reasoning
   // as Arc Divider/Slicing Maelstrom above.)
-  44165: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }]
+  44165: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }],
 
   // Rampart Splitter (71875, Berserker's Staff Primal Burst) deliberately NOT curated: the API's raw
   // `dmg_multiplier` (1.5) and the wiki's current infobox (PvE 0.94/WvW 0.31/PvP 0.34, last touched by
@@ -3797,6 +3797,83 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // wiki page (nothing edited it since Feb 2024) — no way to tell which without an independent 3rd
   // source. Same "don't force a number when 2 sources disagree" policy as Combustive Shot/Harrier's
   // Toss. Logged in TODO.md.
+
+  // --- Warrior Burst Skill sweep, 3rd leg: Spellbreaker's own per-weapon burst ids (`specializationId`
+  // 61, distinct from both the base-game ids in leg 1 AND the Berserker "Primal Burst" ids in leg 2).
+  // Spellbreaker's own minor trait 2175 ("Spellbreaker's Conviction": "Maximum adrenaline is capped at
+  // 2 bars, and only level 1 bursts are available") locks every one of these ids to the base skill's
+  // Level 1 tier forever — confirmed per-skill via each wiki page's own `id =` infobox field, which
+  // lists the Spellbreaker id in the SAME id group as the base-game id curated in leg 1 (e.g. Eviscerate:
+  // `id = 14353,14422,14423,14424, 43566 <!-- spellbreaker/paragon -->`), meaning the Level 1 numbers
+  // already wiki-verified in leg 1 apply unchanged here — re-confirmed via each page's own version
+  // history, several of which explicitly patch "the spellbreaker version" of the skill's damage
+  // in/out of sync with the base tiers over the years. Full Counter (44165, weapon-independent) was
+  // already curated in leg 2 — not repeated here. WvW (or WvW+PvP shared) value used throughout, same
+  // convention as legs 1-2, `npm run test` 119/119.
+  //
+  // Two of leg 1's "left open" skills turn out to be curatable here even though their BASE ids remain
+  // uncurated, because Spellbreaker's Level-1-only cap sidesteps the exact ambiguity that blocked them:
+  //   - **Combustive Shot** (42803, Longbow): base id 14506 was left open because pulse COUNT scales
+  //     2/3/4 across tiers and the API only ever exposes Level 1's 2-pulse total. Spellbreaker's own id
+  //     IS Level 1 forever, and the wiki's own infobox for this id group states `coefficient=1.0|
+  //     strikes=2` with no PvE/WvW/PvP split — exactly matching this id's raw API fact (`hit_count=2,
+  //     dmg_multiplier=0.5`, totaling 1.0) — so the ambiguity simply doesn't apply to this id.
+  //   - **Harrier's Toss** (73014, Spear, land): base id 72911 was left open because the wiki's
+  //     2025-11-18 balance pass gives a genuine WvW-only 3-tier progression (0.9/1.05/1.2) the API
+  //     exposes only one flat PvE fact for. Spellbreaker's id group's own infobox states the coefficient
+  //     directly per mode (PvE 2.5/WvW 0.9/PvP 1.2) — the WvW value (0.9) IS this progression's own
+  //     Level 1 entry, so it's usable here as a genuine Level-1-only number, matching this sweep's
+  //     established "use the WvW value" convention.
+  //
+  // Earthshaker — Hammer. Same id group/values as leg 1's base id (WvW 0.682).
+  40601: [{ factText: 'Damage', coefficient: 0.682, weapon: 'hammer' }],
+  // Skull Crack — Mace. Same id group/values as leg 1's base id (WvW 0.75). API's raw facts array
+  // duplicates this single Damage fact byte-identically twice, same harmless shape as Arc Divider
+  // elsewhere in this sweep.
+  41110: [{ factText: 'Damage', coefficient: 0.75, weapon: 'mace' }],
+  // Forceful Shot — Speargun. Same id group/values as leg 1's base id (2.25, no split).
+  41330: [{ factText: 'Damage', coefficient: 2.25, weapon: 'harpoon gun' }],
+  // Kill Shot — Rifle. Same id group/values as leg 1's base id's Level 1 tier (WvW 1.4). This id also
+  // carries a newer (2025-02-11) "Damage Increase" Percent fact for foes under crowd control/health
+  // threshold — a conditional % modifier, not a separate hit, out of scope same as elsewhere in this
+  // sweep. API's raw facts array duplicates the base Damage fact byte-identically twice, same harmless
+  // shape as Arc Divider.
+  42041: [{ factText: 'Damage', coefficient: 1.4, weapon: 'rifle' }],
+  // Arcing Slice — Greatsword. Same id group/values as leg 1's base id: base hit (WvW 1.213) + separate
+  // "against foes under 50% health" bonus hit (WvW+PvP 1.82).
+  42707: [
+    { factText: 'Damage', coefficient: 1.213, weapon: 'greatsword' },
+    { factText: 'Damage against Foes under 50% Health', coefficient: 1.82, weapon: 'greatsword' }
+  ],
+  // Combustive Shot — Longbow. Curatable here despite the base id being left open — see this leg's
+  // intro comment. `strikes=2` totaled, no PvE/WvW/PvP split (1.0).
+  42803: [{ factText: 'Damage', coefficient: 1.0, weapon: 'longbow' }],
+  // Eviscerate — Axe. Same id group/values as leg 1's base id's Level 1 tier (WvW 1.6). API's raw facts
+  // array duplicates this single Damage fact byte-identically twice, same harmless shape as Arc Divider.
+  43566: [{ factText: 'Damage', coefficient: 1.6, weapon: 'axe' }],
+  // Breaching Strike — Dagger. Same id group/values as leg 1's base id (WvW 1.2). The 2 "Damage
+  // Increase" Percent facts on this id (Furious/vulnerability-conditional bonuses) are conditional
+  // modifiers, out of scope same as elsewhere in this sweep. API's raw facts array duplicates the base
+  // Damage fact byte-identically twice, same harmless shape as Arc Divider.
+  69297: [{ factText: 'Damage', coefficient: 1.2, weapon: 'dagger' }],
+  // Path to Victory — Staff. Same id group/values as leg 1's base id (WvW 1.5). Adrenaline level scales
+  // this skill's self/ally healing (a separate fact, not covered by this Damage-only leg), not its
+  // strike damage — same as leg 1's base id.
+  72089: [{ factText: 'Damage', coefficient: 1.5, weapon: 'staff' }],
+  // Harrier's Toss — Spear (land). Curatable here despite the base id being left open — see this leg's
+  // intro comment. WvW value (0.9, this progression's own Level 1 entry) used. The 2 "Damage Increase"
+  // Percent facts on this id are conditional bonuses, out of scope same as elsewhere in this sweep.
+  73014: [{ factText: 'Damage', coefficient: 0.9, weapon: 'spear' }],
+  // Bloodthirster — Sword. Same id group/values as leg 1's base id (WvW+PvP 1.4).
+  80252: [{ factText: 'Damage', coefficient: 1.4, weapon: 'sword' }]
+
+  // Whirling Strike (41746, Spellbreaker's Spear, underwater) deliberately NOT curated: the wiki's own
+  // id group (`id = 14443,14549,14550,14551, 41746 <!-- spellbreaker/paragon -->`) states this id shares
+  // leg 1's base coefficient (2.0, no split), but the API's raw `dmg_multiplier` for this specific id is
+  // 1.5 — a flat contradiction on the same single-hit fact, same shape as Rampart Splitter above (not a
+  // per-hit/totaled ambiguity, a genuine 2-source disagreement). Could be a stale local `game-data`
+  // snapshot or a stale wiki page section — no way to tell which without an independent 3rd source. Same
+  // "don't force a number when 2 sources disagree" policy. Logged in TODO.md.
 }
 
 export interface DamageLine {
