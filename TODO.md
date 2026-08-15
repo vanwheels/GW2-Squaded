@@ -36,55 +36,6 @@ Paragon's Motivation-tiered Chants (flagged by the user 2026-08-14) is now **FUL
 COMPLETED.md for the per-trait writeup) are all curated. One genuine gap fell out of that pass, since
 fixed — see COMPLETED.md's 2026-08-15 `MISCELLANEOUS_MATCHERS` WvW-override entry.
 
-- [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
-      flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around
-      dodging). Splits into three problems on investigation; problem 1 is now **FULLY DONE 2026-08-15**
-      (see COMPLETED.md) — 2 and 3 are still open:
-      1. ~~Trait procs already modeled as ordinary facts on the trait itself aren't labeled as
-         dodge-sourced in the aggregate Boon/Condition panel.~~ **DONE** — see COMPLETED.md for the
-         full sweep/fix. Also surfaced 2 genuine calc gaps (not just labeling), spun off into their
-         own item and **also DONE 2026-08-15** (see COMPLETED.md) via a new `synthetic-trait-facts.json`
-         mechanism. A same-day follow-up (user-flagged: "trait tooltips ... just flavor text",
-         Vindicator's 3 Grandmasters singled out) found the original sweep's "dodge"-substring search
-         had missed every trait worded "Dodging" instead — 2 more real calc gaps closed the same way
-         (Forerunner of Death 2257 ↔ proc skill Death Drop 62693's Vulnerability; Vassals of the Empire
-         2232, whose own `facts` were entirely empty ↔ proc skill Imperial Impact 62859's Might/
-         Protection), see COMPLETED.md. The ~10 more "Dodging"-worded traits that re-check turned up
-         (Stop, Drop, and Roll 360; Evasive Purity 1054; Pain Response 1237; Expeditious Dodger 1240;
-         Weakening Strikes 1887; Light on your Feet 1912; Psychic Riposte 2211; Duelist's Reversal
-         2215; Tenacious Ruin 2262; Mayhem 2427) are now **also DONE 2026-08-15** (Session 207) — 3
-         genuine labeling gaps added (Expeditious Dodger, Weakening Strikes, Duelist's Reversal), the
-         other 7 confirmed already out of scope; see `DODGE_TRIGGER_NOTES`' doc comment in `sources.ts`
-         and COMPLETED.md for the per-trait triage. A further terminology re-sweep (Session 208, same
-         day) widened the search past the literal substring "dodge" to catch profession-specific
-         synonyms ("Mirage Cloak", "evade") — 4 more genuine gaps found and closed (Mental Gymnastics,
-         Primal Reflexes, Wandering Mind, Renewing Oasis), 7 more confirmed out of scope. Problem 1 is
-         now believed fully exhausted across every wording the game actually uses for a dodge/evade
-         trigger.
-      2. Whole alternate dodge-replacement mechanics (Vindicator's Legendary Alliance dodge, Mirage's
-         Mirage Cloak) have no skill id in `skills.json` at all and nothing in `src` references them
-         by name — the GW2 API doesn't expose the dodge button as an activatable skill the way it
-         does weapon/utility skills. Same "API gives nothing to render" shape as Revenant's
-         Otherworldly Bond (see COMPLETED.md Session 131), not a wiring bug — would need hand-curated
-         content. Same bucket: Daredevil's Lotus Training/Unhindered Combatant/Bounding Dodger (dodge
-         REPLACEMENT abilities, not procs) and Revenant/Vindicator's Saint of zu Heltzer (dodge's
-         affected area/effect changes) — none of these grant a `BOON_NAMES`/`CONDITION_NAMES`-tracked
-         status at all, custom `Buff` statuses with no tracked consumer. **Vindicator + Daredevil now
-         DONE 2026-08-15** (Session 209, see COMPLETED.md) via a new `DodgeIndicator.tsx` +
-         `dodge-replacement-facts.ts` — the small above-skill-bar indicator the user proposed below,
-         built and wired in. Mirage Cloak deliberately excluded from this pass (user-scoped): it grants
-         no quantifiable facts of its own beyond unlocking Ambush skills (a separate, much larger
-         per-weapon-skill feature), and its few boon-granting modifier traits are already covered by
-         problem 1's `DODGE_TRIGGER_NOTES` labeling instead — revisit only if Ambush skills themselves
-         ever get built out.
-      3. Relics can grant dodge-triggered effects too (e.g. Relic of Rivers, "alacrity and
-         regeneration at the end of your dodge roll") with only flavor text — same empty-facts problem
-         again. Still open.
-      User's proposed UI treatment for 2/3: a small visual indicator above the skill bar (not a real
-      skill slot) with its own custom tooltip for whatever a build's dodge grants beyond the normal
-      evade frames — built for problem 2's Vindicator/Daredevil content (`DodgeIndicator.tsx`); relic
-      dodge-triggers (problem 3) could reuse the same component once curated.
-
 - [ ] Discord bot — a guild-scoped, curated build/squad board (slash-command add/edit/remove/move,
       profession-sectioned board messages the bot keeps in sync, optional Manual-approval workflow
       with role-gated buttons) mapped out in full 2026-08-12, not started. Full design-of-record —

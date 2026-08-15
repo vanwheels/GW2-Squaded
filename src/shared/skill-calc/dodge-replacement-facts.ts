@@ -1,6 +1,8 @@
 import type { FactLine } from './fact-numbers'
 import type { BoonConditionSource } from '../boon-calc/sources'
+import type { Relic, RelicEffectsById } from '../types'
 import { WEAPON_STRENGTH_MIDPOINTS } from './damage-calc'
+import { formatRelicDescription } from '../gear-calc/relic-effects-format'
 
 // Icons quoted straight off each mechanic's own live API fact (Death Drop 62693/Imperial Impact
 // 62859/Saint's Shield 62689's own `facts` arrays, fetched 2026-08-15) rather than invented —
@@ -43,6 +45,11 @@ const BOUNDING_DODGER_ICON = 'https://render.guildwars2.com/file/F3E22D0FDFDB436
  * panel correctly via `synthetic-trait-facts.json` + `DODGE_TRIGGER_NOTES` (Sessions 204/205) — this
  * component repeats them purely so a player can see "everything my dodge does" in one place without
  * separately double-counting them into any total.
+ *
+ * `relicDodgeContent` below (Problem 3, "relics can grant dodge-triggered effects too") is the same
+ * DISPLAY-ONLY idea applied to relics rather than traits — see its own doc comment for why it's
+ * deliberately never registered with `computeBoonConditionSources` either, and why that's actually
+ * correct rather than a leftover gap.
  */
 export interface DodgeReplacementContent {
   icon: string
@@ -239,4 +246,61 @@ export function daredevilDodgeContent(activeIds: ReadonlySet<number>): DodgeRepl
     }
   }
   return null
+}
+
+/**
+ * Relic ids whose full effect triggers on dodge rolling or evading an attack — TODO.md's dodge-roll
+ * item, Problem 3, curated 2026-08-15 from a full text scan of `data/game-data/relics.json` for
+ * "dodge"/"evad" (same terminology-sweep discipline Problem 1's re-checks established). `100614`/
+ * `100886` are the same relic (Relic of Evasion) under 2 ids — same "relics.json lists one relic
+ * twice" pattern `combat-state.ts`'s `CURATED_RELIC_DAMAGE_BONUSES` already documents for Relic of
+ * Fireworks, both included so either equipped id matches.
+ *
+ * Deliberately EXCLUDES Relic of the Living City (104928/104938, "Titanic Potential"): evading an
+ * attack is only 1 of 5 unrelated triggers (healing skill, elite skill, combo field, disabling a
+ * foe, evade) that each contribute one stack toward a 5-stack payoff — not a dodge-triggered effect
+ * in the sense this indicator means, same "much larger mechanic of its own, out of scope" reasoning
+ * `vindicatorDodgeContent`'s doc comment gives for excluding Mirage Cloak/Ambush skills.
+ */
+const DODGE_RELIC_IDS = new Set([
+  99997, // Relic of Isgarren
+  100158, // Relic of the Mirage
+  100345, // Relic of the Daredevil
+  100614, // Relic of Evasion
+  100886, // Relic of Evasion (duplicate relics.json id, identical effect)
+  101801, // Relic of Mosyn
+  103015, // Relic of Rivers
+  107030 // Relic of Fog
+])
+
+/**
+ * The equipped relic's content for the dodge indicator, when it's one of `DODGE_RELIC_IDS` —
+ * `null` for every other relic (including no relic equipped at all). Unlike the trait-sourced
+ * content above, this reuses `formatRelicDescription` wholesale (description + wiki-sourced facts +
+ * recharge, already relied on for the relic's own gear-picker tooltip in `EquipmentEditor.tsx`)
+ * rather than hand-building `numericLines`/`facts` — there's no new data to shape, just the same
+ * already-curated relic tooltip surfaced here too so a player can see "everything my dodge does" in
+ * one place without opening the gear picker.
+ *
+ * `facts` is always `[]` here, unlike Forerunner of Death/Vassals of the Empire's boon lines above —
+ * and deliberately so, not a leftover gap. `RelicEffect`'s own doc comment (`types/game-data.ts`)
+ * already documents why relic facts stay out of `computeBoonConditionSources` entirely: a relic
+ * fires on a conditional player action with no fixed "you get this every N seconds" guarantee the
+ * way an on-cast skill or minor trait does, so aggregating it into an uptime total would mean
+ * inventing a usage-frequency assumption this app doesn't model anywhere else. A dodge roll is just
+ * as conditional/player-paced as any other relic trigger ("after granting a boon," "upon dealing
+ * damage with a 20s+ recharge skill") — nothing about it being dodge-specific changes that. This
+ * indicator only ever renders the content, never feeds it into a total.
+ */
+export function relicDodgeContent(relicId: number | null, relicsById: Map<number, Relic>, relicEffects: RelicEffectsById): DodgeReplacementContent | null {
+  if (relicId === null || !DODGE_RELIC_IDS.has(relicId)) return null
+  const relic = relicsById.get(relicId)
+  if (!relic) return null
+  return {
+    icon: relic.icon,
+    name: relic.name,
+    description: formatRelicDescription(relic, relicEffects[relicId]),
+    numericLines: [],
+    facts: []
+  }
 }

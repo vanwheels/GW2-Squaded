@@ -2,6 +2,46 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 210 — Problem 3 of TODO.md's dodge-roll item: relic dodge-triggers
+
+Closed the last of the 3-part dodge-roll item (Sessions 199-209 did problems 1/2). Full text scan of
+`data/game-data/relics.json` for "dodge"/"evad" found 8 relic ids (7 distinct relics — Relic of
+Evasion has 2 ids for the same effect, same pattern `CURATED_RELIC_DAMAGE_BONUSES` already documents
+for Relic of Fireworks) whose full effect triggers on dodge rolling or evading an attack: Relic of
+Isgarren (99997, Eye of Isgarren debuff), Relic of the Mirage (100158, Torment 6s×2), Relic of the
+Daredevil (100345, guaranteed crit), Relic of Evasion (100614/100886, Vigor 5s), Relic of Mosyn
+(101801, cleanse 1 nondamaging condition), Relic of Rivers (103015, Alacrity 1s + Regeneration 3s),
+Relic of Fog (107030, guaranteed glancing blow on next incoming strike). Deliberately excluded Relic
+of the Living City (104928/104938, "Titanic Potential"): evade is only 1 of 5 unrelated triggers
+toward its payoff, not a dodge-triggered effect in the scope this item means — same "much larger
+mechanic of its own" reasoning Session 209 used to exclude Mirage Cloak/Ambush skills.
+
+TODO.md's original framing for this problem ("only flavor text — same empty-facts problem again") was
+actually wrong: `data/game-data/relic-effects.json`'s wiki-sourced facts already cover all 7 relics
+(Alacrity 1/Regeneration 3, Vigor 5, Torment 6×2, etc.) and were already showing correctly on the
+relic's own gear-picker tooltip via `formatRelicDescription`. There was no missing data to curate —
+just a missing surface to see it without opening the gear picker, which is what Session 209's
+`DodgeIndicator.tsx` was already built for.
+
+**`relicDodgeContent`, new in `dodge-replacement-facts.ts`** — looks up the equipped relic
+(`build.relicId`) against a curated `DODGE_RELIC_IDS` set and, when it matches, reuses
+`formatRelicDescription` wholesale (the same function `EquipmentEditor.tsx`'s relic picker already
+calls) rather than hand-building new `numericLines`/`facts` — there's no new data to shape, just the
+already-curated relic tooltip surfaced in one more place. `facts` is always `[]`: `RelicEffect`'s own
+doc comment in `types/game-data.ts` already documents why relic facts stay out of
+`computeBoonConditionSources` entirely (a relic fires on a conditional player action with no fixed
+uptime guarantee, same as any other relic trigger) — a dodge roll doesn't change that, so this stays
+display-only by design, not a leftover gap.
+
+**`DodgeIndicator.tsx`** changed from "at most 1 row" to "0-2 rows": Problem 2's trait-keyed content
+and Problem 3's relic-keyed content are independent (any profession can equip any relic), so e.g. a
+Vindicator running Relic of Rivers now shows both Tenacious Ruin's reskin AND Rivers' Alacrity/
+Regeneration as separate rows, filtered from `[professionContent, relicContent]`.
+
+`npm run typecheck`, `lint`, and the full `vitest run` suite (135 tests) all pass — no dedicated test
+file added, matching Session 209's own precedent (no completeness scan exists for this category yet).
+TODO.md's dodge-roll item is now **fully closed** — all 3 problems done.
+
 ## Session 209 — Problem 2 of TODO.md's dodge-roll item: Vindicator + Daredevil dodge indicator
 
 Built the small above-skill-bar indicator the user proposed for "whole alternate dodge-replacement
