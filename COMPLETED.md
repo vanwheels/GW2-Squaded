@@ -2,6 +2,105 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 209 — Problem 2 of TODO.md's dodge-roll item: Vindicator + Daredevil dodge indicator
+
+Built the small above-skill-bar indicator the user proposed for "whole alternate dodge-replacement
+mechanics" (no skill id in `skills.json` at all, same shape Otherworldly Bond had before it was
+curated) — scoped to Vindicator + Daredevil only, per user decision: Mirage Cloak itself grants no
+quantifiable facts beyond unlocking Ambush skills (a separate, much larger feature), and its real
+boon-granting modifier traits are already covered by Sessions 203-208's labeling work instead.
+
+**New `src/shared/skill-calc/dodge-replacement-facts.ts`** — `vindicatorDodgeContent`/
+`daredevilDodgeContent`, keyed by which traits are active (not a skill id, unlike
+`branchConditionalFacts`) since none of this has one. All numbers wiki-verified via raw wikitext
+2026-08-15 (WvW values, this app's usual convention):
+- **Vindicator**: Tenacious Ruin (minor trait 2262, always active once the spec line is equipped) is
+  the base "instead of dodging, deliver a blow" — Damage coefficient 1.0, unequipped weapon strength,
+  5 targets, radius 240, computed with the same `weaponStrength * coefficient * power / targetArmor`
+  formula `damage-calc.ts` uses (not threaded through `CURATED_DAMAGE_COEFFICIENTS` itself — that
+  table's scope is real `Skill` lookups via `damageLinesForSkill`, and these proc skills have no
+  skill-bar slot to hang one off). Reskinned by whichever of the 3 mutually-exclusive Grandmasters is
+  chosen: Forerunner of Death 2257 → Death Drop (proc skill 62693): coefficient 2.22 WvW, radius
+  shrinks to 180, Vulnerability 10s×5 (already reaches the aggregate panel via
+  `synthetic-trait-facts.json`, repeated here display-only for a single "everything my dodge does"
+  view), self "+15% Damage" 10s (non-tracked custom status, plain text). Vassals of the Empire 2232 →
+  Imperial Impact (62859): coefficient 0.625 WvW (the API's 3 "duplicate" Damage facts are actually 3
+  different game modes' single value, not 3 real hits), Might 8s×3/Protection 2s×1 WvW, 5 foes + 5
+  allies, radius unchanged at 240 — Chilled deliberately dropped, wiki tags it PvE-only with no WvW/PvP
+  line at all. Saint of zu Heltzer 2238 → a newly-found proc skill **Saint's Shield** (62689, same icon
+  as the trait, found via a wiki page fetch after `specializationId: null` hid it from the same lookup
+  that found the other 2 procs): replaces Damage with Healing AND Barrier, `300 + 0.2 × healingPower`
+  WvW each (same formula shape as `CURATED_HEALING_COEFFICIENTS`/`CURATED_BARRIER_COEFFICIENTS`,
+  computed inline since neither table has a live fact to attach to), radius grows to 300, self "+20%
+  Healing to Others" 6s. Alacrity is deliberately EXCLUDED — Saint's Shield's own live fact for it is
+  real but wiki-confirmed PvE-only (Session 206's reversal), and this indicator must stay consistent
+  with `synthetic-trait-facts.json`/`DODGE_TRIGGER_NOTES` already omitting it.
+- **Daredevil**: no default content (Physical Supremacy, the actual always-on mechanic, only grants a
+  3rd endurance bar) — returns content only when exactly one of the 3 mutually-exclusive GM traits is
+  chosen (Lotus Training 1833 "+15% Condition Damage", Unhindered Combatant 1964 "-10%
+  Incoming/Incoming Condition Damage" + its Exhaustion side-effect, Bounding Dodger 2047 "+15%
+  Damage"), all WvW 4s (PvE 6s, same percentage — a common 2025-06-24 patch pattern across all 3). All
+  3 grant a non-`BOON_NAMES` custom self-buff with no tracked consumer (already confirmed out of
+  `DODGE_TRIGGER_NOTES`' scope, Session 207) — plain text lines, same treatment
+  `strengtheningStanzasBranches` gives Paragon's Chant bonuses.
+
+**New `src/renderer/components/build-editor/DodgeIndicator.tsx`** — renders 0 or 1 small (24px,
+smaller than the 48px `skill-slot-button`) unclickable icon above `.ingame-skill-bar` (next to
+`WeaponSkillBar`'s existing "extras" row), with a `Tooltip`/`factsBlock` tooltip built the same way
+every other skill/trait tooltip in this app is. Wired into `SkillsEditor.tsx` right before the main
+bar div; new `.dodge-indicator-bar`/`.dodge-indicator-icon` CSS in `global.css`.
+
+All `facts` this module produces are DISPLAY-ONLY, passed straight to `factsBlock` for rendering —
+never registered with `computeBoonConditionSources`, so Vulnerability/Might/Protection showing here
+too (already counted via `synthetic-trait-facts.json` elsewhere) can't double-count into any total.
+
+Sanity-checked all 8 branches (3 Vindicator GMs + base + null, 3 Daredevil traits + null) via a
+throwaway `tsx` script against the real formula by hand before deleting it — Tenacious Ruin base
+Damage 665, Death Drop 1,476, Imperial Impact 415, Saint's Shield Healing/Barrier 600 (all at
+Power 2500/Healing Power 1500/target Armor 2597), matching hand-calculated formula results exactly.
+`npm run typecheck`, `lint`, and the full `vitest run` suite (135 tests) all pass.
+
+TODO.md's dodge-roll item's problem 2 is now DONE for Vindicator + Daredevil (Mirage Cloak
+deliberately out of scope, see TODO.md's own note). Problem 3 (relic dodge-triggers, e.g. Relic of
+Rivers) remains open — could reuse `DodgeIndicator.tsx`'s same component once curated.
+
+## Session 208 — Dodge-trigger labeling: terminology re-sweep (`mirage cloak|evade|evasion|death drop`)
+
+While scoping TODO.md's dodge-roll item's problem 2 (whole dodge-replacement mechanics), re-ran problem
+1's labeling sweep with a wider net: every prior sweep (Sessions 203/205/207) searched `traits.json`
+descriptions for the substring `dodge`/`dodging`, which can never match profession-specific synonyms —
+Mesmer's dodge roll is always narrated as gaining "Mirage Cloak," and several evade-frame traits across
+professions are worded "evade an attack" with no "dodge" anywhere in the description.
+
+Triage (wiki-verified via raw wikitext):
+- **4 genuine labeling gaps, added to `DODGE_TRIGGER_NOTES.trait`**: Mental Gymnastics 705 (Mesmer/
+  Dueling) and Primal Reflexes 1067 (Ranger/Skirmishing) — both "When you successfully evade an attack,
+  gain vigor" → `'On Evade'`, same breadth as Upper Hand 1295. Wandering Mind 1960 (Mesmer/Dueling) —
+  "Remove a nondamaging condition and gain swiftness whenever you evade an attack" → `'On Evade'`.
+  Renewing Oasis 2082 (Mesmer/Mirage) — "Gain regeneration when you gain Mirage Cloak" → `'On Mirage
+  Cloak'` rather than folded into `'On Dodge'`, since Dune Cloak (2169) can also grant Mirage Cloak via
+  Shatter, not just dodging — the real trigger is broader than a bare dodge roll, same "label the actual
+  breadth" call as `'On Block or Dodge'`. All 4 already carried a real, duration-bearing `Buff` fact
+  (Renewing Oasis's dual PvE/WvW Regeneration facts already deduped by a pre-existing
+  `wvw-fact-overrides.json` entry) — no `synthetic-trait-facts.json` merge needed.
+- **7 confirmed already out of scope, no code change**: Instant Reflexes 1112 GRANTS evasion (wrong
+  direction — a source of evade frames, not a trigger off them). Hunter's Fortification 1908 and
+  Escapist's Fortitude 2023 are heal/condition-cleanse only with no Buff fact — Healing never enters this
+  table's pooled aggregate panel, same standing exclusion as Selfless Daring/Healer's Gift/Master's
+  Fortitude. Infinite Horizon 2070 grants Mirage Cloak to the player's illusions, not a boon to the
+  player. Elusive Mind 2113's "Conditions Removed" is a `Number` fact with no `duration` field, same
+  non-issue as Stop, Drop, and Roll/Pain Response. Speed of Sand 2117 is a flat `Percent` movement-speed
+  bonus, not a `BOON_NAMES`-tracked Swiftness grant. Dune Cloak 2169 runs the mechanic in reverse
+  (Shatter grants Mirage Cloak, not the other way around) and has no Buff fact of its own.
+
+Updated `DODGE_TRIGGER_NOTES`'s doc comment in `sources.ts` with the same inline-triage convention the
+last 3 sessions established. `npm run typecheck`, `lint`, and the full `vitest run` suite (135 tests)
+all pass — no test file references this table directly. This closes out every candidate both the
+original and this sweep could find; problem 1 stays fully done. Problems 2 (whole dodge-replacement
+mechanics: Vindicator's Legendary Alliance dodge, Mirage Cloak, Daredevil's Lotus Training/Unhindered
+Combatant/Bounding Dodger) and 3 (relic dodge-triggers) remain open — picking up problem 2's design
+next in the same session.
+
 ## Session 207 — Dodge-trigger labeling: the "~10 more Dodging-worded traits" follow-up leg
 
 Closed out the last open piece of TODO.md's dodge-roll item's problem 1 (labeling): the ~10

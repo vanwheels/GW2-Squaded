@@ -2866,9 +2866,32 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
  * Cloak, it isn't a Problem-2 "API gives nothing to render" case — just a different fact type this
  * table doesn't cover); Mayhem 2427's Torment fact belongs to Flustering Flute (the skill it modifies),
  * not to dodging itself — the trait's own dodge tie-in is only a non-boon recharge reduction, so
- * labeling its Torment "On Dodge" would misattribute it. This closes out every candidate this item's
- * problem 1 (labeling) sweep produced — see TODO.md for problems 2/3 (whole dodge-replacement
- * mechanics; relic dodge-triggers), still open.
+ * labeling its Torment "On Dodge" would misattribute it. This closed out every candidate the original
+ * "dodge"/"Dodging" substring sweep could find at all.
+ *
+ * A follow-up terminology sweep (2026-08-15, while scoping TODO.md's Problem 2) widened the search to
+ * `/mirage cloak|evade|evasion|death drop/i` — profession-specific dodge synonyms the "dodge" substring
+ * itself can never match (Mesmer's dodge roll is always narrated as gaining "Mirage Cloak", and several
+ * evade-frame traits across professions are worded "evade an attack" with no "dodge" in sight at all).
+ * 4 more genuine gaps found, same shape as before — a real, already-counted Buff fact needing only a
+ * label: Mental Gymnastics 705 (Mesmer/Dueling, wiki: "When you successfully evade an attack, gain
+ * vigor") and Primal Reflexes 1067 (Ranger/Skirmishing, identical wording) both labeled 'On Evade' (Vigor,
+ * same trigger breadth as Upper Hand 1295); Wandering Mind 1960 (Mesmer/Dueling, wiki: "Remove a
+ * nondamaging condition and gain swiftness whenever you evade an attack") also 'On Evade' (Swiftness);
+ * Renewing Oasis 2082 (Mesmer/Mirage, wiki: "Gain regeneration when you gain Mirage Cloak") labeled 'On
+ * Mirage Cloak' rather than folded into 'On Dodge' — Mirage Cloak can also be granted by Dune Cloak's
+ * Shatter-triggered route (not just dodging), so a bare "On Dodge" would be narrower than the real
+ * trigger, same reasoning as 'On Block or Dodge'/'On Evade' above. The rest of that sweep's matches
+ * confirmed out of scope: Instant Reflexes 1112 GRANTS evasion rather than triggering on it (wrong
+ * direction for this table); Hunter's Fortification 1908 and Escapist's Fortitude 2023 are heal/condi-
+ * cleanse only, no Buff fact — same "Healing never enters this table's aggregate panel" exclusion as
+ * Selfless Daring/Healer's Gift/Master's Fortitude above; Infinite Horizon 2070 grants Mirage Cloak to
+ * illusions, not a boon to the player; Elusive Mind 2113's "Conditions Removed" is a `Number` fact with
+ * no `duration` field, same non-issue as Stop, Drop, and Roll/Pain Response; Speed of Sand 2117 is a
+ * flat `Percent` movement-speed bonus, not a `BOON_NAMES`-tracked Swiftness grant; Dune Cloak 2169 runs
+ * the mechanic in reverse (Shatter grants Mirage Cloak, not the other way around) and has no Buff fact
+ * of its own. This closes out every candidate both sweeps together could find — see TODO.md for
+ * problems 2/3 (whole dodge-replacement mechanics; relic dodge-triggers), still open.
  */
 export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record<number, string> } = {
   skill: {},
@@ -2909,8 +2932,19 @@ export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record
     1240: 'On Dodge', // Expeditious Dodger (Thief/Acrobatics). Wiki: "Gain swiftness upon dodging."
     1887: 'On Dodge', // Weakening Strikes (Thief/Daredevil). Wiki: "Your next attack after dodging
     // causes weakness to foes struck."
-    2215: 'On Block or Dodge' // Duelist's Reversal (Mesmer/Virtuoso). Wiki: "Blocking or dodging an
+    2215: 'On Block or Dodge', // Duelist's Reversal (Mesmer/Virtuoso). Wiki: "Blocking or dodging an
     // attack grants boons" — broader trigger than a bare dodge, same treatment as Upper Hand 1295 above.
+    //
+    // Found in the 2026-08-15 terminology re-sweep (`/mirage cloak|evade|evasion|death drop/i`,
+    // TODO.md Problem 2 scoping) — none of these 4 contain "dodge"/"Dodging" at all.
+    705: 'On Evade', // Mental Gymnastics (Mesmer/Dueling). Wiki: "When you successfully evade an
+    // attack, gain vigor."
+    1067: 'On Evade', // Primal Reflexes (Ranger/Skirmishing). Wiki: identical to Mental Gymnastics above.
+    1960: 'On Evade', // Wandering Mind (Mesmer/Dueling). Wiki: "Remove a nondamaging condition and
+    // gain swiftness whenever you evade an attack."
+    2082: 'On Mirage Cloak' // Renewing Oasis (Mesmer/Mirage). Wiki: "Gain regeneration when you gain
+    // Mirage Cloak." Not folded into 'On Dodge' — Dune Cloak (2169) can also grant Mirage Cloak via
+    // Shatter, not just dodging, so the real trigger is broader than a bare dodge roll.
   }
 }
 

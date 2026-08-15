@@ -41,6 +41,7 @@ import { WeaponSkillBar } from './WeaponSkillBar'
 import { ProfessionMechanicBar } from './ProfessionMechanicBar'
 import { PetsEditor } from './PetsEditor'
 import { SkillBarIcon } from './SkillBarIcon'
+import { DodgeIndicator } from './DodgeIndicator'
 
 interface Props {
   build: Build
@@ -96,6 +97,7 @@ export function SkillsEditor({ build, value, onChange, onBuildChange, equippedSp
         section="extras"
         combatState={combatState}
       />
+      <DodgeIndicator build={build} combatState={combatState} />
       <div className="ingame-skill-bar">
         <WeaponSkillBar
           build={build}
