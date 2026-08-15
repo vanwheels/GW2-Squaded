@@ -2,6 +2,43 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 184 — Trait-granted-boons-on-skills sweep, Warrior leg (9th and final leg) — sweep complete
+
+Rescanned fresh (specializations.json maps `specializationId`→profession since traits.json has no
+direct field) — 53 raw not-yet-linked candidates, again well past the original scoping estimate. 8
+traits cleanly curated via `synthetic-facts.json`: Thick Skin (Protection) + Restorative Strength
+(Might + Resistance pve-6/wvw+pvp-4) onto all 10 Warrior heal skill ids, the familiar heal-skill-
+category shape; Resilient Counter (Resistance) + Guard Counter (Protection) onto Full Counter alone;
+Bloody Roar (Resistance) + Burst of Aggression (Quickness pve-3/wvw+pvp-2 + Superspeed + Fury) +
+Eternal Champion (Stability x2 stacks) onto both Berserk-entry skill ids (a flip-skill pair, same
+shape as shroud-entry/beastmode-entry in earlier legs). Heat the Soul ("grant boons when you hit with
+a Burst skill") was the leg's largest single mirror: Might (pve-10/wvw+pvp-8 x3 stacks) + Fury
+(unsplit) onto all 79 Burst + PrimalBurst-category skill ids game-wide, Quickness onto 78 of them —
+Decapitate, the one skill the trait's own wiki `linked skill=` field names specifically (already
+independently confirmed by the closed buff-instance-label sweep), gets a different Quickness value
+instead of the blanket one.
+
+Found 2 fresh same-tuple `BUFF_INSTANCE_LABELS` collisions (Prayer to Dwayna/Healing Seed's
+Protection@3@1 became a 4th copy; Healing Signet's own pre-existing unconditional Resistance
+collided with Restorative Strength's mirror) — both labeled, full merge-and-group recheck across all
+91 touched skill ids came back clean otherwise. Skipped the `WvwFactOverrides` entry on Healing
+Signet and on 6 of Heat the Soul's 79 ids (5 Eviscerate variants + Decapitate already carry their own
+unrelated Might fact a status-wide override would have corrupted) — same "coexisting genuine
+application blocks a safe override" hazard every prior leg's version of this check has hit.
+
+Left open: Brave Stride (combo-finisher-category gap, same as Thief leg's Guarded Initiation);
+Marching Orders/Soldier's Comfort/Martial Cadence (all keyed off "Soldier's Focus," confirmed not a
+real skill id at all); the whole Bladesworn "Positive Flow"/Dragon Trigger cluster (custom stacking
+statuses, charge-scaling complexity, one target skill id with unlocalized placeholder API text); the
+whole Paragon "Chant" cluster (a very-recent elite spec whose own key trigger skill, "Chant of
+Freedom," isn't in `skills.json` yet). ~30 more raw candidates left open in the by-now-familiar
+excluded shapes (foe-facing debuffs, custom non-`BOON_NAMES` statuses, dodge/weapon-swap/on-disable/
+on-crit dynamic triggers with no skill id, health-threshold/condition-manipulation triggers) — full
+writeup in TODO.md's own entry, now removed from TODO.md since this closes the sweep: **all 9
+profession legs done** (Necromancer/Elementalist/Engineer/Guardian/Mesmer/Ranger/Revenant/Thief/
+Warrior), 48-candidate original scoping estimate confirmed unreliable on literally every single leg —
+every leg needs its own fresh rescan, never trust a prior scoping pass's count.
+
 ## Session 183 — Trait-granted-boons-on-skills sweep, Thief leg (8th leg)
 
 Rescanned fresh with the corrected `traitedFacts` field name — 46 raw not-yet-linked candidates. 7

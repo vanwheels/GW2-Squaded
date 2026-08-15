@@ -2405,11 +2405,13 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     12360: {
       'Protection@3@1#2': 'Gale Song',
       'Protection@3@1#3': 'Reconstruction Enclosure',
+      'Protection@3@1#4': 'Thick Skin',
       'Regeneration@6@1#2': 'Wellspring'
     },
     12440: {
       'Protection@3@1#2': 'Gale Song',
       'Protection@3@1#3': 'Reconstruction Enclosure',
+      'Protection@3@1#4': 'Thick Skin',
       'Regeneration@6@1#2': 'Wellspring'
     },
     // Glyph of Elemental Harmony (34609): its own unconditional Protection@3@1 (the glyph's base
@@ -2434,7 +2436,39 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // unlabeled — it's added first in `synthetic-facts.json`. Spirit Boon's (trait 1774,
     // "invoking a legend grants boons... based on the legend that was invoked") own Demon-specific
     // Resistance line happens to share the exact same 2s/1-stack tuple, added second — occurrence 2.
-    28494: { 'Resistance@2@1#2': 'Spirit Boon' }
+    28494: { 'Resistance@2@1#2': 'Spirit Boon' },
+    // --- Warrior leg (9th and final leg, trait-granted-boons-on-skills sweep, 2026-08-14) ---
+    // Thick Skin (trait 1350, "gain protection when you use a healing skill") mirrored onto all 10
+    // Warrior heal skill ids, same heal-skill-category shape as every prior leg. On the 2 shared
+    // racial heals its Protection@3@1 is a 4th copy (Necromancer/Elementalist/Engineer already sit
+    // at occurrences 1-3 there).
+    // Restorative Strength (trait 1451, "using a heal skill grants might [and resistance]") also
+    // mirrored onto all 10 heal ids: Might@6@5 and Resistance@6@1 (pve; wvw+pvp Resistance drops to
+    // 4, `WvwFactOverrides`) are both brand-new statuses on the 2 racial ids, no collision there —
+    // but Healing Signet (14389) already carries its own unconditional Resistance@6@1 (a genuine,
+    // always-on passive, unrelated to this trait): occurrence 1 stays that base fact, the trait's
+    // mirror is occurrence 2, and the WvW override was deliberately skipped on just this one id
+    // (adding it would have also dropped Healing Signet's own base Resistance in WvW/PvP — same
+    // "coexisting genuine application blocks a safe status-wide override" hazard the Ranger leg's
+    // Beast-skill mirror first ran into).
+    14389: { 'Resistance@6@1#2': 'Restorative Strength' }
+    // Resilient Counter (2097, Resistance) + Guard Counter (2153, Protection) both mirrored onto
+    // Full Counter (44165) alone — its own raw Buff fact is Stability, a different status, so no
+    // collision. Bloody Roar (1928, Resistance) + Burst of Aggression (1993, Quickness/pve 3s wvw+pvp
+    // 2s via WvwFactOverrides/Superspeed/Fury) + Eternal Champion (2307, Stability x2 stacks) all
+    // mirrored onto both Berserk-entry ids (30185/30435, the flip-skill pair) — each contributes a
+    // distinct status, no collisions among them or with Berserk's own pre-existing (non-Buff) facts.
+    // Heat the Soul (2042, "grant boons to allies when you hit with a Burst skill") is the leg's
+    // largest mirror: Might@10@3 (pve; wvw+pvp 8, override) + Fury@5@1 (unsplit) onto all 79 Burst +
+    // PrimalBurst-category skill ids game-wide (this app's own closed buff-instance-label sweep had
+    // already resolved this trait's own tuple ambiguity — see the `trait:` block's Warrior-leg entry
+    // below), plus Quickness@5@1 onto 78 of those 79 — Decapitate (30851, the one PrimalBurst skill
+    // the trait's wiki `linked skill=` field names by name) gets Quickness@2@1 instead, mirroring
+    // that trait-level distinction exactly. 6 of the 79 ids (5 Eviscerate variants + Decapitate
+    // itself) already carry their own unrelated Might@5@5 fact (base Eviscerate's own might-on-hit
+    // effect, a different tuple) — the Might WvW override was skipped on just those 6 to avoid
+    // corrupting that unrelated fact, same shape as Healing Signet above; no tuple collision so no
+    // label needed there either. Zero fresh same-tuple collisions found on the 79-id mirror itself.
   },
   trait: {
     // --- Thief leg (2nd leg, 2026-08-14) --- first-ever trait entries in this table; traits carry
