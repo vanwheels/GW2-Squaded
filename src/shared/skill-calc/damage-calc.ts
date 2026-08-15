@@ -3720,7 +3720,83 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Whirling Strike — Spear (underwater burst; Harrier's Toss, this same weapon's land burst, is left
   // uncurated per this leg's intro comment). No split. Adrenaline level scales this skill's stun
   // duration (1/1.5/2s per the wiki), not its damage.
-  14443: [{ factText: 'Damage', coefficient: 2.0, weapon: 'spear' }]
+  14443: [{ factText: 'Damage', coefficient: 2.0, weapon: 'spear' }],
+
+  // --- Warrior Burst Skill sweep, 2nd leg: Berserker's "Primal Burst" ids (all 11, single flat
+  // multiplier each, no adrenaline tiering — Berserker replaces the burst mechanic entirely, so these
+  // don't scale with adrenaline level at all) + Spellbreaker's weapon-independent Full Counter (also a
+  // flat multiplier, bundled in here for the same reason). Every id below is already the canonical
+  // "self" boon-source id used elsewhere in `sources.ts`. Wiki-verified via raw wikitext (`?action=raw`)
+  // 2026-08-14; WvW (or WvW+PvP shared, where the wiki groups them) value used throughout, matching
+  // this sweep's established convention. `strikes=N` skills store the wiki's own already-totaled
+  // coefficient directly (matches this file's documented convention, re-confirmed here per-skill by
+  // dividing the total by N and checking it lines up with the wiki's own separately-stated per-hit
+  // version-history deltas — see Scorched Earth/Flaming Flurry/Wild Throw comments below).
+  //
+  // Several of these (Decapitate, Flaming Flurry, Burning Shackles) carry a `requires_trait: 1657`
+  // ("Burst Mastery", Discipline Grandmaster: +15%/+7% PvE/competitive burst damage) traitedFact
+  // overriding the base Damage fact — NOT curated here, matching leg 1's precedent (none of that leg's
+  // 10 skills got a Burst Mastery variant either): it's a systemic "+X% to ALL burst skills" modifier,
+  // not a per-skill design difference, and nothing else in this app models Burst Mastery's effect yet
+  // (no generic "burst damage %" modifier system exists) — adding it to only some skills here would be
+  // inconsistent rather than complete. Logged in TODO.md as its own follow-up if that system ever gets
+  // built.
+  //
+  // Gun Flame — Rifle. PvE/WvW/PvP 3-way split (2.2/1.4/1.54) — WvW used. (2023-09-26's undocumented
+  // drop to 2.1 PvE was reverted 2023-11-07; current infobox re-confirmed at 2.2.)
+  29644: [{ factText: 'Damage', coefficient: 1.4, weapon: 'rifle' }],
+  // Skull Grinder — Mace. PvE/WvW+PvP split (1.5/1.33) — WvW+PvP used.
+  29679: [{ factText: 'Damage', coefficient: 1.33, weapon: 'mace' }],
+  // Arc Divider — Greatsword. PvE/WvW/PvP 3-way split (3.5/1.35/1.82) — WvW used. (API's raw facts
+  // array duplicates this single Damage fact byte-identically twice; harmless, `damageLinesForSkill`'s
+  // `find()` only needs one match to gate the line.)
+  29852: [{ factText: 'Damage', coefficient: 1.35, weapon: 'greatsword' }],
+  // Scorched Earth — Longbow. `strikes=3` totaled. PvE+PvP/WvW split (1.5/1.26) — WvW used (per-strike
+  // 1.26/3=0.42, exactly matching the wiki's own 2022-11-29 "increased power coefficient to 0.42 in WvW
+  // only" version-history entry).
+  29923: [{ factText: 'Damage', coefficient: 1.26, weapon: 'longbow' }],
+  // Flaming Flurry — Sword (wiki's own `weapon=unequipped` tag, not `sword`, despite the weapon-type
+  // slot). `strikes=6` totaled. PvE/WvW+PvP split (1.4/2.4) — WvW+PvP used (per-strike 2.4/6=0.4,
+  // exactly matching the wiki's own 2025-04 "increased power coefficient per hit from 0.33 to 0.4 in
+  // PvP and WvW" version-history entry).
+  30682: [{ factText: 'Damage', coefficient: 2.4, weapon: 'unequipped' }],
+  // Decapitate — Axe. PvE/WvW+PvP split (3.0/2.0) — WvW+PvP used. (2023-09-26's undocumented bump to
+  // 3.3 PvE was reverted 2023-11-07; current infobox re-confirmed at 3.0.)
+  30851: [{ factText: 'Damage', coefficient: 2.0, weapon: 'axe' }],
+  // Rupturing Smash — Hammer. PvE/WvW/PvP 3-way split (2.75/1.25/1.6, most recently rebalanced
+  // 2026-04-14) — WvW used.
+  30879: [{ factText: 'Damage', coefficient: 1.25, weapon: 'hammer' }],
+  // Burning Shackles — Speargun (underwater). No split.
+  30989: [{ factText: 'Damage', coefficient: 2.75, weapon: 'harpoon gun' }],
+  // Wild Whirl — Spear. No split (confirmed via full version-history check — no PvE/WvW/PvP-tagged
+  // damage entry has ever existed for this skill).
+  31048: [{ factText: 'Damage', coefficient: 1.5, weapon: 'spear' }],
+  // Slicing Maelstrom — Dagger. PvE/WvW/PvP 3-way split (2.5/1.15/1.5) — WvW used. (API's raw facts
+  // array duplicates this single Damage fact byte-identically twice, same harmless shape as Arc
+  // Divider above.) Adrenaline level scales this skill's Boons Removed count, not its damage; the
+  // separate "against foes with no boons" Damage Increase facts are a conditional bonus multiplier,
+  // out of scope for this flat-coefficient leg.
+  69290: [{ factText: 'Damage', coefficient: 1.15, weapon: 'dagger' }],
+  // Wild Throw — Spear (land; Wild Whirl above is this weapon's non-split counterpart — NOT an
+  // underwater/land pair the way base-game's Whirling Strike/Harrier's Toss are, per each skill's own
+  // wiki page). `strikes=7` totaled. PvE/WvW+PvP split (5.25/2.1) — WvW+PvP used (per-strike 2.1/7=0.3,
+  // internally consistent with the API's own PvE per-hit dmg_multiplier of 0.75 = 5.25/7).
+  73103: [{ factText: 'Damage', coefficient: 2.1, weapon: 'spear' }],
+  // Full Counter — Spellbreaker's weapon-independent Profession_2 burst (wiki's own `weapon=unequipped`
+  // tag). PvE/WvW+PvP split (2.0/0.1) — WvW+PvP used. (API's raw facts array exposes both split values
+  // directly as 2 separate byte-distinct "Damage" facts, rather than the usual single-fact-plus-wiki-
+  // lookup shape seen elsewhere in this sweep — harmless, same `find()`-only-needs-one-match reasoning
+  // as Arc Divider/Slicing Maelstrom above.)
+  44165: [{ factText: 'Damage', coefficient: 0.1, weapon: 'unequipped' }]
+
+  // Rampart Splitter (71875, Berserker's Staff Primal Burst) deliberately NOT curated: the API's raw
+  // `dmg_multiplier` (1.5) and the wiki's current infobox (PvE 0.94/WvW 0.31/PvP 0.34, last touched by
+  // a dated version-history entry 2024-02-27) disagree outright — not a per-hit/totaled ambiguity like
+  // the `strikes=N` skills above, a flat contradiction on the SAME single-hit fact. Could be a stale
+  // local `game-data` snapshot (a live undocumented buff the wiki never got updated for) or a stale
+  // wiki page (nothing edited it since Feb 2024) — no way to tell which without an independent 3rd
+  // source. Same "don't force a number when 2 sources disagree" policy as Combustive Shot/Harrier's
+  // Toss. Logged in TODO.md.
 }
 
 export interface DamageLine {

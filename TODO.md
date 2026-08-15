@@ -150,15 +150,31 @@ that don't block a release.
       history, API only ever shows Level 1's 2-pulse total) and Harrier's Toss (72911, Spear land burst
       — wiki's 2025-11-18 balance pass gives a genuine WvW-only 3-tier coefficient progression
       0.9/1.05/1.2, API exposes only one flat PvE-value Damage fact).
+      **2nd leg done 2026-08-14** (`damage-calc.ts`'s "Warrior Burst Skill sweep, 2nd leg" block):
+      all 11 Berserker "Primal Burst" ids (Gun Flame, Skull Grinder, Arc Divider, Scorched Earth,
+      Flaming Flurry, Decapitate, Rupturing Smash, Burning Shackles, Wild Whirl, Slicing Maelstrom,
+      Wild Throw) plus Spellbreaker's weapon-independent Full Counter (44165) — all single flat
+      multipliers, no adrenaline tiering (Berserker replaces the burst mechanic entirely). Wiki-
+      verified via raw wikitext, WvW(+PvP) value used per this sweep's convention, `npm run test`
+      119/119. Discovered but deliberately NOT curated: several of these (Decapitate, Flaming Flurry,
+      Burning Shackles) carry a `requires_trait: 1657` ("Burst Mastery," Discipline Grandmaster,
+      +15%/+7% PvE/competitive burst damage) override fact — skipped since it's a systemic "+X% to
+      ALL burst skills" modifier with no generic implementation anywhere in this app yet, and curating
+      it for only 3 of the ~23 total burst skills found so far would be inconsistent; would need its
+      own generic "burst damage %" modifier system as a prerequisite, not a per-skill curation.
+      **Left open, data conflict** (new discovery this leg, same "don't force a number when sources
+      disagree" policy as Combustive Shot/Harrier's Toss): Rampart Splitter (71875, Berserker's Staff
+      Primal Burst) — the API's raw `dmg_multiplier` (1.5) and the wiki's current infobox (PvE 0.94/
+      WvW 0.31/PvP 0.34, page last touched 2024-02-27) flatly disagree on the same single-hit fact;
+      unclear whether the local `game-data` snapshot is stale (an undocumented live buff) or the wiki
+      page is stale (no edits since Feb 2024) without an independent 3rd source.
       **Not yet started**: Spellbreaker's own per-weapon burst ids (capped at Level 1 only per trait
-      2175 "Spellbreaker's Conviction" — different ids from the base-game ones curated this leg),
-      Berserker's reworked "Primal Burst" ids (Arc Divider, Gun Flame, Decapitate, etc. — single flat
-      multiplier each, no tiering), Full Counter (Spellbreaker's weapon-independent Profession_2
-      burst, id 44165), and Bladesworn's actual burst (the Dragon Slash chain) — the last of which
-      isn't even reachable via `professionMechanicBar` today (its ids carry `specializationId: null`
-      and no `Profession_` slot in the raw API at all; what currently shows for Bladesworn's F2 is
-      "Dragon Trigger," which has no Damage fact of its own) and would need the same kind of
-      hand-injection `gunsaber-skills.ts` already does for the rest of Bladesworn's kit.
+      2175 "Spellbreaker's Conviction" — different ids from the base-game AND Berserker ones curated
+      so far), and Bladesworn's actual burst (the Dragon Slash chain) — the latter isn't even
+      reachable via `professionMechanicBar` today (its ids carry `specializationId: null` and no
+      `Profession_` slot in the raw API at all; what currently shows for Bladesworn's F2 is "Dragon
+      Trigger," which has no Damage fact of its own) and would need the same kind of hand-injection
+      `gunsaber-skills.ts` already does for the rest of Bladesworn's kit.
 
 - [ ] **Paragon's Motivation-tiered Chants** — flagged by the user 2026-08-14, not started. Paragon
       (Warrior elite spec 74) has 3 Chant skills (Chant of Action/F2 id 77342, Chant of Recuperation/F3
