@@ -77,10 +77,29 @@ that don't block a release.
             TARGET_IDS` this session, same mechanism as the original sweep — these were STILL showing
             a pointless 2nd icon until now): Ranger's Maul, Thief's Repeater/Spinning Axe/Death's
             Advance, Necromancer's 3 Charged Souls "Innervate" mechanic-slot skills. 7 pairs fixed.
-      **Next leg**: classify Warrior (14 pairs, likely needs its own "tiered, not additive" render
-      treatment decided) and Guardian (13 pairs) — largest remaining pools. Once the full ~50-pair
-      classification is done, THEN design+build the actual divider rendering for the confirmed-
-      additive family (`skillTooltipContent`/`FlipSkillStack` in `SkillsEditor.tsx`).
+      **Warrior leg classified 2026-08-14** (13 pairs found on rescan, not 14 — Kill Shot's chain
+      resolved to 3 flip hops, not the originally-estimated depth): overturns the working hypothesis
+      that these were mutually-exclusive adrenaline tiers needing their own render treatment. Every
+      Burst Skill's 3 adrenaline tiers ("Level 1/2/3" facts) already live together on ONE id
+      (wiki-confirmed for Eviscerate: one fact block lists all 3 levels at once) — the `flipSkill`
+      target in each pair is just a 2nd id with identical or reordered-only facts, the same
+      "2nd id, not 2nd effect" shape as the already-excluded pairs. 12 of 13 fit cleanly and are now
+      excluded in `other-profession-flip-duplicates.ts` (Eviscerate, Arcing Slice, Earthshaker, Kill
+      Shot's 3-hop chain, Skull Crack, Whirling Strike, Forceful Shot, Breaching Strike, Path to
+      Victory, Harrier's Toss, Bloodthirster — all byte-identical/reordered; Berserk is its own
+      sub-case, a genuine PvE-vs-competitive mode split via 2nd id, same category as Utility
+      Goggles/Guardian Spirit Weapons). `npm run test` 110/110, typecheck clean.
+      **Left open**: Combustive Shot (14506→14520) — its Burning fact's `apply_count` genuinely
+      differs (1 vs 2) between source and target, and doesn't cleanly match the wiki's stated
+      2/3/4-pulse-per-adrenaline-tier breakdown either way; the wiki also documents 3 more ids
+      (14521, 14522, 42803) that exist in local `skills.json` but aren't linked via `flipSkill` at
+      all (a separate, already-handled duplicate-candidate shape via `profession-mechanic.ts`'s
+      `resolveMechanicSlot`, not this sweep's concern). Not guessed at — needs its own individual
+      wiki-page verification pass before excluding or leaving as a real 2-icon case.
+      **Next leg**: Guardian (13 pairs, Tome/Virtue/Spirit Weapon chains) — largest remaining pool.
+      Once the full ~50-pair classification is done, THEN design+build the actual divider rendering
+      for the confirmed-additive family (`skillTooltipContent`/`FlipSkillStack` in
+      `SkillsEditor.tsx`).
 
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around

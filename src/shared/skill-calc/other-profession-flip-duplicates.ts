@@ -48,6 +48,19 @@
  * content, differing only in internal fact ordering/type representation or an unrelated numeric
  * field the boon/condition calculator doesn't read) — same "2nd id, not 2nd effect" shape as this
  * file's original 19.
+ *
+ * 2026-08-14 addition — Warrior leg of the same-name flip-pair classification sweep (TODO.md's
+ * "Next leg" note), the largest single-profession pool at the time (14 candidate pairs, all its
+ * adrenaline-gated Burst Skills). Overturns the sweep's own working hypothesis for this pool
+ * ("mutually EXCLUSIVE power tiers gated by current adrenaline, not additive... needs its own
+ * render treatment") — every Burst Skill here already reports all 3 adrenaline-tier "Level 1/2/3"
+ * facts together on ONE id (confirmed against the live wiki for Eviscerate: one fact block listing
+ * Level 1/2/3 damage together, not 3 separate skill entries), so the tiering itself was never the
+ * flip pair's shape at all. The `flipSkill` target in each pair is simply a 2nd id carrying the
+ * identical (or reordered-but-identical) fact set — the same "2nd id, not 2nd effect" pattern as
+ * this file's other entries, not a genuinely different tier. 11 of the 12 same-name Warrior pairs
+ * fit this shape cleanly (byte-identical or reordered-only facts, cross-checked against each
+ * source/target pair's raw facts directly):
  */
 export const NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS: ReadonlySet<number> = new Set([
   // Engineer
@@ -89,5 +102,30 @@ export const NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS: ReadonlySet<number
   // skills share one wiki page per pair (`id = X, Y`) with byte-identical facts on both ids
   76602, // Innervate Preservation — identical to its source (76647)
   76732, // Innervate Wanderlust — identical to its source (76758)
-  77003 // Innervate Anguish — identical to its source (77050)
+  77003, // Innervate Anguish — identical to its source (77050)
+  // Warrior Burst Skills (2026-08-14 addition, flip-pair sweep's Warrior leg) — identical or
+  // reordered-only fact sets, no genuinely new content over the source id
+  14422, // Eviscerate (Axe) — identical facts, reordered
+  14545, // Arcing Slice (Greatsword) — identical facts (same Damage/Fury/DamageU50% set), reordered
+  14512, // Earthshaker (Hammer) — byte-identical facts
+  14473, // Kill Shot (Rifle) — identical facts, reordered; first hop of the core (spec-less) chain
+  14474, // Kill Shot (Rifle) — identical facts, reordered; 2nd hop of the core chain AND the direct
+  // flip target of the Spellbreaker-specific entry id (42041) — excluding it collapses both
+  // entry paths, since `flipTargetSkills`' walk stops at the first excluded id it hits
+  14475, // Kill Shot (Rifle) — identical facts, reordered; 3rd/terminal hop, unreachable once 14474
+  // is excluded but included for clarity/defensiveness
+  14425, // Skull Crack (Mace) — byte-identical facts
+  14549, // Whirling Strike (Spear) — identical facts; only the flavor-text description differs
+  // ("stunning them" appended), no new fact
+  14469, // Forceful Shot (Speargun) — byte-identical facts, same order
+  69433, // Breaching Strike (Dagger) — byte-identical facts, same order
+  72029, // Path to Victory (Staff) — identical facts (self-heal + ally-heal Level 1/2/3 sets), reordered
+  72911, // Harrier's Toss (Spear) — identical facts, reordered
+  80263, // Bloodthirster (Sword) — byte-identical facts, same order
+  // Berserk (Warrior Berserker Profession_2 "Rage" toggle) — the 12th Warrior pair, a DIFFERENT
+  // shape from the 11 above: wiki-confirmed 2026-08-14 as a genuine PvE-vs-competitive mode split
+  // via a 2nd id (30435 PvE: 8s recharge; 30185 PvP/WvW: 15s recharge + StunBreak), same "mode
+  // split represented as a 2nd id instead of an override" category as Utility Goggles/Guardian
+  // Spirit Weapons above, not a duplicate-content case
+  30185 // Berserk — PvP/WvW-recharge variant, flip target of the PvE entry id (30435)
 ])

@@ -2,6 +2,48 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 186 — Same-name flip-pair classification sweep, Warrior leg
+
+Continuation of the flip-pair classification sweep TODO.md tracks (started 2026-08-13, see Session
+171). Scanned every same-name `flipSkill` pair on Warrior and found 13 (not the originally-estimated
+14 — Kill Shot's chain turned out to be 3 hops, all part of one pool): Eviscerate, Arcing Slice,
+Earthshaker, Kill Shot (14396→14473→14474→14475, plus a Spellbreaker-specific entry id 42041 that
+flips straight to 14474), Skull Crack, Whirling Strike, Combustive Shot, Forceful Shot, Breaching
+Strike, Path to Victory, Harrier's Toss, Bloodthirster, and Berserk.
+
+Overturned the sweep's own working hypothesis for this pool: TODO.md had guessed these were
+mutually-exclusive adrenaline-gated power tiers needing a dedicated "Tier N" render treatment.
+Checked the live wiki (Eviscerate) and confirmed the opposite — all 3 adrenaline tiers ("Level
+1/2/3" facts) already report together in ONE fact block on a single skill id. The `flipSkill` target
+in each pair turned out to just be a 2nd id carrying identical or reordered-only facts, the same
+"2nd id, not 2nd effect" shape `other-profession-flip-duplicates.ts` already tracks for other
+professions — not a genuinely different tier at all.
+
+12 of the 13 pairs fit that shape cleanly, cross-checked fact-by-fact against each source/target:
+Eviscerate, Arcing Slice, Earthshaker, all 3 Kill Shot hops, Skull Crack, Whirling Strike, Forceful
+Shot, Breaching Strike, Path to Victory, Harrier's Toss, Bloodthirster (byte-identical or
+reordered-only) plus Berserk, which is its own sub-case — wiki-confirmed as a genuine PvE-vs-
+competitive mode split via a 2nd id (30435 PvE: 8s recharge; 30185 PvP/WvW: 15s recharge +
+StunBreak), the same "mode split via 2nd id" category as Utility Goggles/Guardian Spirit Weapons.
+All 14 target ids (13 duplicate-content + Berserk's mode-split target) added to
+`NON_ACTIONABLE_OTHER_PROFESSION_FLIP_TARGET_IDS` in `other-profession-flip-duplicates.ts`.
+
+Left open, not guessed at: **Combustive Shot** (14506→14520) — its Burning fact's `apply_count`
+genuinely differs between source and target (1 vs 2), and doesn't cleanly match the wiki's own
+stated 2/3/4-pulse-per-adrenaline-tier breakdown either way. The wiki also documents 3 more ids
+(14521, 14522, 42803) that exist in local `skills.json` but aren't linked via `flipSkill` at all —
+confirmed this is a separate, already-handled duplicate-candidate shape (`profession-mechanic.ts`'s
+`resolveMechanicSlot`, which already dedupes same-slot candidates via spec-match + lowest-id
+tie-break), not part of this sweep. Left for a future individual wiki-page check.
+
+Also confirmed while investigating: Warrior's mechanic-bar F-buttons (Burst Skill, Rage) DO render
+`FlipSkillStack`'s 2nd-icon treatment today — `WeaponSkillBar.tsx` runs the same flip-chain logic
+over `professionMechanicBar`'s resolved skill as it does over weapon skills, so this was a real,
+user-visible extra-icon bug for every Warrior weapon, not a theoretical one. `npm run test` stays at
+110/110, typecheck clean — pure data-table addition, no code changes.
+
+**Next leg**: Guardian (13 pairs, Tome/Virtue/Spirit Weapon chains) — largest remaining pool.
+
 ## Session 185 — WvW mode-dependent boon-swap bug: Grace of the Land + Stretched Time fixed
 
 Follow-up after the trait-granted-boons-on-skills sweep closed (Session 184): re-examined the 3
