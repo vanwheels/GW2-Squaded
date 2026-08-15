@@ -2724,13 +2724,12 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
     // followed by an unlabeled base `{{Skill fact|quickness|3|game mode = pve}}
     // {{Skill fact|quickness|1|game mode = pvp}}{{Skill fact|quickness|0.75|game mode = wvw}}` — all
     // 3 "Quickness per Clone" values round to 1s locally, AND the base's own pvp/wvw values also
-    // round to 1s, so 5 of this trait's 6 raw facts collapse onto one shared tuple. Only the first 3
-    // occurrences (Quickness per Clone's own pve/pvp/wvw) are confidently labeled from the wiki's
-    // own `alt=` text, in template order; the base's pvp/wvw occurrences (#4/#5) stay unlabeled per
-    // this table's "unqualified base" convention, and the base's pve value (3) is already unique.
+    // round to 1s, so 5 of this trait's 6 raw facts collapse onto one shared tuple. RESOLVED
+    // 2026-08-15 via the new `BUFF_INSTANCE_VALUE_OVERRIDES` below (see its own doc comment for the
+    // full breakdown): occurrences #1/#2/#4 and the sole `Quickness@3@1` fact are now omitted
+    // outright as non-WvW duplicates, so only occurrence #3 (the real WvW "per Clone" value, 0.5s)
+    // ever gets emitted — this label entry is trimmed down to just that surviving occurrence.
     2022: {
-      'Quickness@1@1#1': 'Quickness per Clone',
-      'Quickness@1@1#2': 'Quickness per Clone',
       'Quickness@1@1#3': 'Quickness per Clone'
     },
     // Life of the Party (Troubadour, Lively Lute/Crescendo boons). Wiki names 2 `linked skill=`
@@ -2946,6 +2945,84 @@ export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record
     // Mirage Cloak." Not folded into 'On Dodge' — Dune Cloak (2169) can also grant Mirage Cloak via
     // Shatter, not just dodging, so the real trigger is broader than a bare dodge roll.
   }
+}
+
+/**
+ * A single Buff-fact occurrence's WvW duration, resolved per-instance rather than per-status —
+ * `WvwFactOverride` (in `types/game-data.ts`, keyed only by `status`) can hold exactly one number
+ * per status per source, which breaks down when a source's raw facts encode 2+ DIFFERENT concepts
+ * under the SAME status at once (see `BUFF_INSTANCE_VALUE_OVERRIDES`'s own doc comment for the
+ * motivating case). `'omit'` drops this specific occurrence entirely (it's a same-concept PvE/PvP
+ * duplicate of another occurrence that already carries the real WvW value, not a second real
+ * application) — same semantics as `WvwFactOverride`'s own `'omit'`, just scoped to one occurrence
+ * instead of the whole status.
+ */
+export type WvwInstanceOverride = number | 'omit'
+
+/**
+ * Occurrence-indexed WvW duration corrections — TODO.md's Seize the Moment follow-up to
+ * `BUFF_INSTANCE_LABELS` above (same `${status}@${duration}@${applyCount}[#${occurrence}]` key
+ * scheme, see that table's doc comment for the format/when-the-suffix-applies rules; `resolveInstance
+ * ValueOverride` below mirrors `resolveInstanceLabel`'s own lookup exactly). Where `BUFF_INSTANCE_
+ * LABELS` only adds a display qualifier on top of the API's own (possibly wrong) duration,
+ * this table replaces the duration itself, or removes the occurrence outright — for sources where
+ * the API's `duration` field has rounded 2+ genuinely different WvW values down to the same bucket,
+ * so no single override number could represent all of them.
+ *
+ * Only one entry so far: Seize the Moment (Mesmer/Illusions, Major tier 3, id 2022). Wiki-verified
+ * via raw wikitext (`?action=raw`) 2026-08-15 (matches the 2026-08-14 scoping note in TODO.md
+ * exactly): `{{Skill fact|quickness|1|alt=Quickness per Clone|game mode = pve}}` /
+ * `...|0.75|alt=Quickness per Clone|game mode = pvp}}` / `...|0.5|alt=Quickness per Clone|game mode
+ * = wvw}}`, followed by an unlabeled base grant `{{Skill fact|quickness|3|game mode = pve}}` /
+ * `...|1|game mode = pvp}}` / `...|0.75|game mode = wvw}}` — 2 real concepts (per-Clone, base), each
+ * independently pve/pvp/wvw-split, 6 raw values total. The live API's own `duration` field (`data/
+ * game-data/traits.json`, id 2022) rounds 5 of those 6 down to a shared `1` bucket (per-Clone's pve
+ * value IS 1 exactly; pvp's 0.75 and wvw's 0.5 both round up to 1; base's pvp value IS 1 exactly;
+ * base's wvw value 0.75 also rounds up to 1) — only base's pve value (3) stays unique. Raw fact
+ * order matches the wiki's own per-Clone-then-base, pve-then-pvp-then-wvw template order exactly, so
+ * tuple-occurrence position identifies each one unambiguously: occurrences #1/#2/#4 of the
+ * `Quickness@1@1` tuple (per-Clone pve/pvp, base pvp) and the sole `Quickness@3@1` occurrence (base
+ * pve) are omitted outright — real values, just not this app's WvW focus, none of them coincidentally
+ * equal to their own real WvW counterpart; #3 (per-Clone wvw, 0.5) and #5 (base wvw, 0.75) are the 2
+ * real WvW values, both previously indistinguishable from the pve/pvp occurrences they shared a
+ * rounded bucket with. Net result: the 6 raw facts collapse to exactly 2 emitted rows — "Quickness
+ * per Clone" 0.5s (label already curated in `BUFF_INSTANCE_LABELS` above, now trimmed to just this
+ * surviving occurrence) and an unlabeled base Quickness 0.75s, matching the wiki's 2-concept
+ * structure instead of the API's accidental 1s/3s bucketing.
+ */
+export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<string, WvwInstanceOverride>>; trait: Record<number, Record<string, WvwInstanceOverride>> } = {
+  skill: {},
+  trait: {
+    2022: {
+      'Quickness@1@1#1': 'omit', // per-Clone pve (1) — real value, not WvW
+      'Quickness@1@1#2': 'omit', // per-Clone pvp (0.75, rounds to 1)
+      'Quickness@1@1#3': 0.5, // per-Clone wvw — the real WvW value this app should show
+      'Quickness@3@1': 'omit', // base pve (3)
+      'Quickness@1@1#4': 'omit', // base pvp (1) — real value, not WvW
+      'Quickness@1@1#5': 0.75 // base wvw — the real WvW value this app should show
+    }
+  }
+}
+
+/** Resolves `BUFF_INSTANCE_VALUE_OVERRIDES` for one buff fact — mirrors `resolveInstanceLabel`'s
+ *  lookup exactly (bare key when the tuple is unique, `#<occurrence>`-suffixed key otherwise). */
+function resolveInstanceValueOverride(
+  sourceKind: 'skill' | 'trait',
+  sourceId: number,
+  status: string,
+  duration: number,
+  applyCount: number,
+  tupleOccurrence: number,
+  tupleTotal: number
+): WvwInstanceOverride | undefined {
+  const table = BUFF_INSTANCE_VALUE_OVERRIDES[sourceKind][sourceId]
+  if (!table) return undefined
+  const baseKey = buffInstanceKey(status, duration, applyCount)
+  if (tupleTotal > 1) {
+    const suffixedKey = `${baseKey}#${tupleOccurrence}`
+    if (suffixedKey in table) return table[suffixedKey]
+  }
+  return table[baseKey]
 }
 
 function resolveTriggerNote(sourceKind: 'skill' | 'trait', sourceId: number): string | undefined {
@@ -3526,20 +3603,33 @@ function extractFromFacts(
     if (category === null) continue
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
 
-    const wvwOverride = wvwOverrides?.[fact.status]
-    if (wvwOverride !== undefined) {
-      // A curated override means the API bakes this status's per-game-mode values into multiple
-      // raw facts with no discriminator (see fetch-wvw-splits.ts's "Multiple Buff facts sharing
-      // one status" doc comment) — those facts represent the SAME application seen in different
-      // modes, not separate simultaneous applications, so only the first is ever emitted. This is
-      // distinct from the common case of a real multi-hit/multi-pulse skill genuinely applying the
-      // same status more than once per cast (no override present there), which must still emit one
-      // row per hit.
-      if (emittedOverriddenStatuses.has(fact.status)) continue
-      emittedOverriddenStatuses.add(fact.status)
+    // Per-occurrence override takes priority over the per-status one below — when present, this
+    // specific occurrence's fate (kept with a corrected value, or dropped as a same-concept
+    // duplicate) is already fully decided, so the per-status collapse logic never applies to it (see
+    // `BUFF_INSTANCE_VALUE_OVERRIDES`'s doc comment for why a per-status override can't express this
+    // shape at all — 2+ genuinely different concepts sharing one status).
+    const instanceOverride = resolveInstanceValueOverride(sourceKind, sourceId, fact.status, fact.duration, applyCount, tupleOccurrence, tupleTotal)
+    if (instanceOverride === 'omit') continue
+
+    let baseDuration: number
+    if (typeof instanceOverride === 'number') {
+      baseDuration = instanceOverride
+    } else {
+      const wvwOverride = wvwOverrides?.[fact.status]
+      if (wvwOverride !== undefined) {
+        // A curated override means the API bakes this status's per-game-mode values into multiple
+        // raw facts with no discriminator (see fetch-wvw-splits.ts's "Multiple Buff facts sharing
+        // one status" doc comment) — those facts represent the SAME application seen in different
+        // modes, not separate simultaneous applications, so only the first is ever emitted. This is
+        // distinct from the common case of a real multi-hit/multi-pulse skill genuinely applying the
+        // same status more than once per cast (no override present there), which must still emit one
+        // row per hit.
+        if (emittedOverriddenStatuses.has(fact.status)) continue
+        emittedOverriddenStatuses.add(fact.status)
+      }
+      if (wvwOverride === 'omit') continue
+      baseDuration = typeof wvwOverride === 'number' ? wvwOverride : fact.duration
     }
-    if (wvwOverride === 'omit') continue
-    const baseDuration = typeof wvwOverride === 'number' ? wvwOverride : fact.duration
 
     const { value: targetCount, nameSuffix } = resolveTargetCount(fact, combinedFacts, sourceKind, sourceId, activeIds, equippedLegendIdSet)
     const percent = category === 'condition' ? durationPercent.condition : category === 'boon' ? durationPercent.boon : 0

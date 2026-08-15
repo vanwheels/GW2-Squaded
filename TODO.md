@@ -51,39 +51,6 @@ fixed — see COMPLETED.md's 2026-08-15 `MISCELLANEOUS_MATCHERS` WvW-override en
       seam or a Capacitor-side shim. Also: native HTML5 drag-and-drop in the squad editor has no
       touch-input fallback yet.
 
-## New attribute-bonus gaps needing new CombatState infra
-
-Spun off by the trait-attribute-bonus sweep (`trait-attributes.ts`, COMPLETED.md Session 148), its
-8-family conditional follow-on sweep (Sessions 149-156), and the trait attribute-bonus completeness
-scan (2026-08-12, TODO's now-closed "Automated testing strategy" section) — all now-closed sweeps that
-don't have their own open-items table to hold these. Each is a genuine, wiki-confirmed character-stat
-grant, not a proc/skill-tooltip coefficient, but needs a conditional-gate shape this codebase doesn't
-have infra for yet, so none are rushed into an existing curated table:
-
-Power Overwhelming (Elementalist, id 334) and Deadly Strength (Necromancer, id 855) are both **DONE
-2026-08-15** — see COMPLETED.md. (Soul Comprehension/Armored Shroud/Dark Defense's own Carapace-
-*granting* sides stay uncurated by design, not a leftover gap: Soul Comprehension's separate "life
-force per stack" clause is a resource this codebase doesn't track anywhere, same "resource gain, not
-character-stat gain" exclusion already applied elsewhere; how stacks actually accumulate mid-fight is
-exactly what the new manual `deathsCarapaceStacks` stepper sidesteps, same reasoning `kallaFervorStacks`
-already established.)
-
-- [ ] **Seize the Moment (Mesmer/Illusions, trait 2022) — WvW tooltip shows wrong Quickness
-      values, needs a new override mechanism.** Wiki splits 2 *different* concepts under the trait's
-      one "Quickness" status at once — "Quickness per Clone" (pve 1s/pvp 0.75s/wvw 0.5s) and a
-      separate base grant (pve 3s/pvp 1s/wvw 0.75s) — but `WvwFactOverride` can only hold one number
-      per status per source, so it can't represent both. Worse, the raw API `duration` field rounds
-      5 of the trait's 6 raw facts down to just 2 buckets (1s/3s), so the wvw-precise values (0.5s/
-      0.75s) don't even exist as literal numbers anywhere in `traits.json` — today's WvW-focused
-      tooltip shows up to 5 undifferentiated "Quickness 1s" rows instead of the correct 2 (0.5s
-      "per Clone" + 0.75s base). Needs either a new occurrence-indexed override type (same keying
-      scheme as `BUFF_INSTANCE_LABELS`'s `status@duration@applyCount#occurrence`, but injecting a
-      value instead of just a label) or some other mechanism that can hold >1 wvw value per status.
-      Found 2026-08-14 while closing out 2 sibling cases (Grace of the Land/2001, Stretched Time/1942
-      — both turned out to be plain single-value overrides after all, see COMPLETED.md Session 185)
-      from the trait-granted-boons-on-skills sweep's leftover items — this is the one of the 3 that's
-      genuinely blocked on missing infra, not just a missing data entry.
-
 ## Coefficient curation — remaining exceptions
 
 `CURATED_HEALING_COEFFICIENTS` and `CURATED_DAMAGE_COEFFICIENTS` are now complete sweeps across all

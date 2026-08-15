@@ -2,6 +2,37 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 213 — Seize the Moment: occurrence-indexed WvW instance-value overrides
+
+Third and last of TODO.md's "new attribute-bonus gaps needing new CombatState infra" item (Mesmer/
+Illusions, Major tier 3, id 2022) — closes the whole item. Re-verified via raw wikitext 2026-08-15
+(matches the 2026-08-14 scoping note exactly): the trait grants 2 *different* Quickness concepts —
+"Quickness per Clone" (pve 1s/pvp 0.75s/wvw 0.5s) and a separate unlabeled base grant on phantasm
+summon (pve 3s/pvp 1s/wvw 0.75s) — 6 raw values total, but the live API's own `duration` field rounds
+5 of the trait's 6 raw facts down onto a shared `1` bucket (only the base's pve value, 3, stays
+unique), so the wvw-precise values (0.5s/0.75s) don't exist as literal numbers anywhere in
+`traits.json`. `WvwFactOverride` (one number per status per source) structurally can't represent 2
+different concepts sharing one status, which is exactly why this sat blocked since 2026-08-14.
+
+New mechanism in `sources.ts`: `WvwInstanceOverride` (`number | 'omit'`) + `BUFF_INSTANCE_VALUE_
+OVERRIDES` (`{ skill; trait }`, same `${status}@${duration}@${applyCount}[#${occurrence}]` key scheme
+`BUFF_INSTANCE_LABELS` already uses) + `resolveInstanceValueOverride` (mirrors `resolveInstanceLabel`'s
+lookup exactly). Wired into `extractFromFacts` ahead of the existing per-status `wvwOverrides` check:
+when a per-occurrence override exists, it fully decides that occurrence's fate (a corrected duration,
+or dropped as a non-WvW duplicate) and the per-status collapse logic never runs for it; everything
+without a curated entry falls through unchanged. Seize the Moment's own entry: occurrences #1/#2/#4 of
+the `Quickness@1@1` tuple (per-Clone pve/pvp, base pvp) and the sole `Quickness@3@1` fact (base pve)
+are omitted; #3 (per-Clone) corrected to 0.5, #5 (base) corrected to 0.75 — 6 raw facts collapse to
+exactly 2 emitted rows matching the wiki's real structure. `BUFF_INSTANCE_LABELS`' existing 2022 entry
+trimmed from 3 keys down to 1 (occurrences #1/#2 now never emit at all, so their labels were dead).
+
+New `buff-instance-value-override.test.ts`, run directly against the real `traits.json` entry for
+2022 (not a synthetic fixture): confirms exactly 2 rows emit, the labeled one carries 0.5s, the
+unlabeled one carries 0.75s. `npm run typecheck`, `lint`, and the full `vitest run` suite (149 tests)
+all pass. TODO.md's "new attribute-bonus gaps needing new CombatState infra" section is now fully
+closed and removed (Power Overwhelming/Deadly Strength from the prior 2 sessions, Seize the Moment
+this one) — all 3 items resolved across 3 sessions in one day.
+
 ## Session 212 — Deadly Strength: new deathsCarapaceStacks CombatState field
 
 Second of TODO.md's 3 "new attribute-bonus gaps needing new CombatState infra" items (Necromancer/
