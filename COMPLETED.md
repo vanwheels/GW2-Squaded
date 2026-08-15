@@ -52,7 +52,19 @@ contradicting the fix. Both corrected to wiki base values, left for the normal `
 scaling to reproduce per-build (verified: a synthetic +50% boon-duration test run reproduces the
 original screenshot's 3s Fury exactly). **Lesson: a reference screenshot shows a scaled tooltip, not a
 base-value one — always source curated base numbers from the wiki, use a screenshot only to confirm
-which facts exist/how they're grouped, never for the numbers themselves.**
+which facts exist/how they're grouped, never for the numbers themselves.** User then independently
+verified by supplying their own character's actual Boon/Condition Duration % (46.66%/0.00%) and
+confirming the fix's live-scaled output reproduces their original screenshot exactly, then separately
+confirmed the wiki's own rendered fact table matches this file's curated WvW/PvP values line for line.
+
+**Follow-up same session — phase-by-phase branch descriptions**: user flagged that a flat bullet list
+of Vulnerability/Cripple/Slow under "Enemy Target" reads as "all three apply the instant you cast,"
+losing the escalating-over-time structure the skill is built around. `ConditionalBranch` gained an
+optional `description` field — the wiki's own 0-2s/2-4s/4-6s narrative prose (quoted verbatim, same
+sourcing rigor as every number in this file), rendered via the existing `.tooltip-description` CSS
+`TooltipBody` already uses for a skill's own description, right below each branch's divider label and
+above its fact list. `npm run typecheck`/`lint`/`test` clean, manual script confirmed both branches'
+description text renders as expected.
 
 Left as an open door, not attempted here: the same "mutually exclusive branches, real screenshot
 available" shape likely applies to Twin Moon Sweep (Session 130, also an honest skip) — noted in
