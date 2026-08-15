@@ -103,6 +103,19 @@ export function withUnderwaterSetting(build: Build, showUnderwater: boolean): Bu
 }
 
 /**
+ * Whether `build` was last saved under an older GW2 patch than `currentGw2Build` — the signal
+ * behind `BuildsView`'s "not reviewed since the last patch" card note (TODO.md's balance-patch
+ * stretch item). `false` (never "stale") whenever either side is `null`: `build.updatedAtGw2Build`
+ * is `null` for records saved before that field existed or imported from another user's local
+ * game-data snapshot (see `Build.updatedAtGw2Build`'s doc comment), and `currentGw2Build` is `null`
+ * until `useDataUpdate()`'s first `getLocalMeta()` read resolves — neither case has anything
+ * meaningful to compare, so "unknown" reads as "not stale" rather than a false-positive warning.
+ */
+export function isBuildStaleSincePatch(build: Build, currentGw2Build: number | null): boolean {
+  return build.updatedAtGw2Build !== null && currentGw2Build !== null && build.updatedAtGw2Build !== currentGw2Build
+}
+
+/**
  * A theoretical stat build: profession + specialization/trait choices + skills +
  * equipment stat selections. Comparable in scope to a gw2skills.net build link.
  */
@@ -235,6 +248,18 @@ export interface Build {
   thiefStolenSkillId: number | null
   createdAt: Timestamp
   updatedAt: Timestamp
+  /**
+   * The GW2 API's own `/v2/build` id (`GameDataMeta.gw2Build`, see `data-update-provider.ts`) that
+   * was current at the moment `updatedAt` was last stamped — lets a build's "last updated" display
+   * (`BuildsView`) distinguish "reviewed under the current patch" from "not reviewed since a balance
+   * patch shipped," instead of only ever showing a raw relative timestamp (stretch item scoped
+   * 2026-08-01, built 2026-08-15 once the in-app game-data refresh's `gw2Build` signal existed to
+   * reuse — see TODO.md). `null` if never stamped (records saved before this field existed, or
+   * stamped at a moment the locally-loaded `meta.json` itself predated `gw2Build`) — treated as
+   * "unknown," never as "stale," since there's nothing to compare. Not bumped by non-content edits
+   * (`order`/`favorite` toggles) for the same reason `updatedAt` itself isn't.
+   */
+  updatedAtGw2Build: number | null
   /**
    * User-defined labels for search/filtering (`BuildsView`, `BuildsSidebar`). Doesn't include the
    * profession/elite-spec labels shown alongside them in the UI — those are derived on the fly

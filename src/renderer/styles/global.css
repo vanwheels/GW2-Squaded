@@ -255,6 +255,14 @@ button:hover {
   font-size: 0.72rem;
 }
 
+/* Replaces the normal muted relative-time line when a build's `updatedAtGw2Build` no longer
+   matches the currently-loaded game data's build id — see `isBuildStaleSincePatch`. Reuses
+   `--rarity-exotic` (orange) rather than `--accent` (reserved for destructive/error UI) since this
+   is a "worth a look" nudge, not a failure. */
+.record-updated-stale {
+  color: var(--rarity-exotic);
+}
+
 .record-list li {
   cursor: grab;
 }

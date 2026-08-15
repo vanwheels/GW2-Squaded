@@ -1,9 +1,11 @@
 import { useCallback, useMemo, useState } from 'react'
 import type { Build } from '@shared/types'
 import { isLikelyBuild } from '@shared/share/validate'
+import { isBuildStaleSincePatch } from '@shared/types/build'
 import { getBuildAutoTags } from '@shared/tags/auto-tags'
 import { useBuildsStore, makeBlankBuild } from '@renderer/state/builds-store'
 import { useGameData } from '@renderer/state/game-data-store'
+import { useDataUpdate } from '@renderer/state/data-update-store'
 import { useTagFilter } from '@renderer/state/use-tag-filter'
 import { reorderBefore } from '@renderer/lib/reorder'
 import { sortFavoritesFirst, middleClickToggle } from '@renderer/lib/favorites'
@@ -15,6 +17,7 @@ import { TagFilterBar } from '@renderer/components/common/TagFilterBar'
 export function BuildsView() {
   const { builds, loading, createBuild, updateBuild, removeBuild } = useBuildsStore()
   const { professions, specializationsById } = useGameData()
+  const { localGw2Build } = useDataUpdate()
   const [editing, setEditing] = useState<{ build: Build; isNew: boolean } | null>(null)
   const [dragId, setDragId] = useState<string | null>(null)
   const [dropTargetId, setDropTargetId] = useState<string | null>(null)
@@ -33,7 +36,9 @@ export function BuildsView() {
   async function handleImport(data: unknown): Promise<void> {
     if (!isLikelyBuild(data)) throw new Error('This link does not contain a valid build.')
     const now = new Date().toISOString()
-    await createBuild({ ...data, id: crypto.randomUUID(), createdAt: now, updatedAt: now })
+    // `updatedAtGw2Build` refers to the sharer's own local game-data snapshot, not this
+    // importer's — nulled out (== "unknown") rather than carried over, see `Build.updatedAtGw2Build`.
+    await createBuild({ ...data, id: crypto.randomUUID(), createdAt: now, updatedAt: now, updatedAtGw2Build: null })
   }
 
   function handleDrop(beforeId: string | null): void {
@@ -132,8 +137,17 @@ export function BuildsView() {
                       <span className="record-open-text">
                         <strong>{build.name}</strong>
                         <span className="muted">{profession?.name ?? build.profession}</span>
-                        <span className="muted record-updated" title={new Date(build.updatedAt).toLocaleString()}>
-                          Updated {formatRelativeTime(build.updatedAt)}
+                        <span
+                          className={
+                            isBuildStaleSincePatch(build, localGw2Build)
+                              ? 'record-updated record-updated-stale'
+                              : 'muted record-updated'
+                          }
+                          title={new Date(build.updatedAt).toLocaleString()}
+                        >
+                          {isBuildStaleSincePatch(build, localGw2Build)
+                            ? 'Not reviewed since latest patch'
+                            : `Updated ${formatRelativeTime(build.updatedAt)}`}
                         </span>
                       </span>
                     </button>

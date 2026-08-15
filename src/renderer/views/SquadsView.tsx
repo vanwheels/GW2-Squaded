@@ -36,7 +36,10 @@ export function SquadsView() {
       const newId = crypto.randomUUID()
       idMap.set(oldId, newId)
       const now = new Date().toISOString()
-      await createBuild({ ...build, id: newId, createdAt: now, updatedAt: now })
+      // `updatedAtGw2Build` refers to the sharer's own local game-data snapshot, not this
+      // importer's — nulled out (== "unknown") rather than carried over, same reasoning as
+      // `BuildsView.handleImport`.
+      await createBuild({ ...build, id: newId, createdAt: now, updatedAt: now, updatedAtGw2Build: null })
     }
     const now = new Date().toISOString()
     await createSquadComp({

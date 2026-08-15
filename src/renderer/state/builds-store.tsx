@@ -25,7 +25,8 @@ function normalizeBuild(build: Build): Build {
     tags: build.tags ?? [],
     order: build.order ?? Date.parse(build.createdAt),
     favorite: build.favorite ?? false,
-    weaverPreviousAttunement: build.weaverPreviousAttunement ?? (isWeaver ? build.activeAttunement : null)
+    weaverPreviousAttunement: build.weaverPreviousAttunement ?? (isWeaver ? build.activeAttunement : null),
+    updatedAtGw2Build: build.updatedAtGw2Build ?? null
   }
 }
 
@@ -56,6 +57,7 @@ export function makeBlankBuild(): Build {
     vindicatorAspectFlipped: false,
     createdAt: now,
     updatedAt: now,
+    updatedAtGw2Build: null,
     tags: [],
     order: Date.now(),
     favorite: false

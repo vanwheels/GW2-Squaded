@@ -6,6 +6,13 @@ interface DataUpdateValue {
   checkForUpdate: () => void
   downloadUpdate: () => void
   restartAndApply: () => void
+  /** The currently-loaded local game data's `GameDataMeta.gw2Build` (`null` until the first read
+   *  resolves, or if the local `meta.json` predates that field) — the "is this build stale
+   *  relative to the current patch" signal `Build.updatedAtGw2Build` gets compared against, see
+   *  `BuildsView`'s card "last updated" line. Re-read on every status change, not just once, same
+   *  reasoning as `SettingsView`'s own `localMeta` read: a completed download updates the on-disk
+   *  copy immediately even though the loaded-in-memory game data stays the old copy until restart. */
+  localGw2Build: number | null
 }
 
 const DataUpdateContext = createContext<DataUpdateValue | null>(null)
@@ -18,14 +25,20 @@ const DataUpdateContext = createContext<DataUpdateValue | null>(null)
  */
 export function DataUpdateStoreProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<DataUpdateStatus>({ state: 'idle' })
+  const [localGw2Build, setLocalGw2Build] = useState<number | null>(null)
 
   useEffect(() => window.gw2DataUpdate.onStatus(setStatus), [])
+
+  useEffect(() => {
+    void window.gw2DataUpdate.getLocalMeta().then((meta) => setLocalGw2Build(meta.gw2Build))
+  }, [status.state])
 
   const value: DataUpdateValue = {
     status,
     checkForUpdate: () => void window.gw2DataUpdate.checkForUpdate(),
     downloadUpdate: () => void window.gw2DataUpdate.downloadUpdate(),
-    restartAndApply: () => void window.gw2DataUpdate.restartAndApply()
+    restartAndApply: () => void window.gw2DataUpdate.restartAndApply(),
+    localGw2Build
   }
 
   return <DataUpdateContext.Provider value={value}>{children}</DataUpdateContext.Provider>

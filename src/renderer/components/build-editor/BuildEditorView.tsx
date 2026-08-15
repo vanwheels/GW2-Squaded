@@ -17,6 +17,7 @@ import { withUnderwaterSetting } from '@shared/types/build'
 import { useGameData } from '@renderer/state/game-data-store'
 import { useBuildsStore } from '@renderer/state/builds-store'
 import { useAppSettings } from '@renderer/state/app-settings-store'
+import { useDataUpdate } from '@renderer/state/data-update-store'
 import { SharePanel } from '@renderer/components/common/SharePanel'
 import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
 import { TagInput } from '@renderer/components/common/TagInput'
@@ -48,6 +49,7 @@ export function BuildEditorView({ build, onBack }: Props) {
   const { eliteSpecSkills, legends, professions, specializationsById } = useGameData()
   const { builds } = useBuildsStore()
   const { showUnderwater } = useAppSettings()
+  const { localGw2Build } = useDataUpdate()
   const columnsRef = useRef<HTMLDivElement>(null)
 
   /** Display/calc-only view of `draft` — never passed to `onBack`. See `withUnderwaterSetting`'s
@@ -184,11 +186,14 @@ export function BuildEditorView({ build, onBack }: Props) {
   }
 
   /** Saves the current draft, then navigates back — there's no separate Save button; leaving the
-   *  editor is what commits the build (see the "auto-save on back" behavior this replaced). */
+   *  editor is what commits the build (see the "auto-save on back" behavior this replaced). Stamps
+   *  `updatedAtGw2Build` alongside `updatedAt` so `BuildsView`'s card can later tell "reviewed under
+   *  the current patch" apart from "not reviewed since a balance patch shipped" — see that field's
+   *  doc comment on `Build`. */
   async function handleBack(): Promise<void> {
     setSaving(true)
     try {
-      await onBack({ ...draft, updatedAt: new Date().toISOString() })
+      await onBack({ ...draft, updatedAt: new Date().toISOString(), updatedAtGw2Build: localGw2Build })
     } finally {
       setSaving(false)
     }

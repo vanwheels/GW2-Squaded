@@ -81,15 +81,6 @@ that don't block a release.
       seam or a Capacitor-side shim. Also: native HTML5 drag-and-drop in the squad editor has no
       touch-input fallback yet.
 
-- [ ] Stretch, deferred 2026-08-01: frame a build's "last updated" (shown today as a plain relative
-      timestamp) relative to GW2 balance patches instead — e.g. "not reviewed since the last patch."
-      Was blocked on a `/v2/build`-polling mechanism not existing yet; that's no longer true as of
-      2026-08-11's in-app game-data refresh (`src/main/game-data/data-update.ts` now fetches and
-      compares `/v2/build` via `meta.json`'s `gw2Build` — see `docs/game-data.md`'s "In-app
-      game-data refresh" section). Not itself built — this stretch item can now reuse that same
-      `gw2Build` value (the currently-loaded local `meta.json`'s, via `getLocalMeta()`) instead of
-      polling a second, parallel patch-tracking path.
-
 ## New attribute-bonus gaps needing new CombatState infra
 
 Spun off by the trait-attribute-bonus sweep (`trait-attributes.ts`, COMPLETED.md Session 148), its

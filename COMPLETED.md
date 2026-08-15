@@ -2,6 +2,32 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 194 — Build "last updated" framed against GW2 balance patches
+
+Closes TODO.md's "Nice-to-haves" stretch item scoped 2026-08-01: a build's card now shows "Not
+reviewed since latest patch" (orange, `--rarity-exotic`) instead of the normal relative-time line
+when it was last saved under an older GW2 build than the currently-loaded game data.
+
+- New `Build.updatedAtGw2Build: number | null` field — the `GameDataMeta.gw2Build` id current at
+  the moment `updatedAt` was last stamped. `null` = unknown (pre-existing records via
+  `normalizeBuild`'s backfill, or builds imported from someone else's local snapshot via
+  `BuildsView`/`SquadsView`'s `handleImport` — deliberately nulled rather than carried over, since
+  the sharer's `gw2Build` isn't comparable to the importer's).
+- `DataUpdateStoreProvider` (already the single mounted-near-the-top source for
+  `window.gw2DataUpdate` status) gained `localGw2Build`, re-read via `getLocalMeta()` on every
+  status change — same "on-disk copy updates immediately, in-memory game data waits for restart"
+  reasoning `SettingsView`'s own local reads already used.
+- `BuildEditorView.handleBack` (the single save path for both new and edited builds) stamps
+  `updatedAtGw2Build: localGw2Build` alongside `updatedAt`.
+- New `isBuildStaleSincePatch(build, currentGw2Build)` in `shared/types/build.ts` — `false`
+  whenever either side is `null` (unknown reads as "not stale," never a false-positive warning),
+  drives `BuildsView`'s card display.
+- Scoped to `Build` only, not `SquadComp` — a squad comp has no traits/skills of its own to go
+  stale, it only references builds that already carry the signal.
+
+`npm run typecheck`/`lint`/`test` all clean (132 tests, 4 fixture files needed the new required
+field added).
+
 ## Session 193 — Bladesworn's Sharp as the Wind / River's Flow Dragon Slash branches
 
 Closes the TODO.md follow-up spun off by Session 191 (Warrior Burst Skill sweep's last leg): the 2
