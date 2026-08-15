@@ -30,9 +30,19 @@ const INTERVAL_ICON = 'https://render.guildwars2.com/file/B75E91EB22E0DFCC1D0803
  * Otherworldly Bond (Revenant scepter 3, id 71952): a tether the player casts at EITHER an ally or
  * an enemy (their choice at cast time), escalating over 3 time tiers while it survives (0-2s/2-4s/
  * 4-6s, severed early by range or a weapon swap, 7s max). The live API's own `facts` array for this
- * skill carries only Range/Recharge — every other number here is transcribed from the real in-game
- * tooltip (both branches shown together, exactly as the client renders them, screenshot supplied
- * 2026-08-14) since the GW2 API exposes nothing else to pull from.
+ * skill carries only Range/Recharge — every other number here comes from the wiki's raw
+ * `{{skill fact}}` templates + its own rendered Skill Facts table (fetched fresh 2026-08-14), NOT
+ * from the reference screenshot the user originally supplied: that screenshot was captured on a live
+ * character with its own boon-duration gear equipped, and a first draft of this file that transcribed
+ * numbers straight off it got 2 of them wrong as a result — Fury read 3s (actually the character's own
+ * base-2s × a +50% boon-duration bonus, not a base value) and "Might Stacks per Level" read "(5x4s):
+ * 20 Condition Damage, 40 Power" (a live-scaled reading; the wiki's flat base is "(4s): 30 Condition
+ * Damage, 30 Power" — standard, un-split Might scaling). Vulnerability/Crippled/Slow happened to
+ * already match the wiki's base WvW values exactly, consistent with that same character having boon
+ * duration but no condition duration equipped — corroborating, not contradicting, the fix. Every
+ * duration below is now the wiki's own WvW+PvP base value (this app's usual WvW-first convention),
+ * left for `boonConditionFactsForSkill`'s normal scaling to reproduce whatever a given build's own
+ * gear should show — never a number read off any one specific build's tooltip again.
  *
  * `COMPLETED.md` Session 131 (2026-08-07) looked at curating this and concluded a single flat fact
  * list would misrepresent it: the two branches are mutually exclusive per cast with no discriminator
@@ -76,12 +86,14 @@ function otherworldlyBondBranches(skill: Skill, durationPercent: { boon: number;
     {
       label: 'Ally Target',
       numericLines: [
-        // The wiki/in-game tooltip itself keeps this one as flat descriptive text rather than a
-        // scaled duration row — it describes an escalating per-tier stack/attribute combination
-        // ("Level" 1/2/3, each 5 stacks × 4s), not a single fixed application this app's
-        // BoonConditionSource shape (one status, one duration) could represent without inventing
-        // numbers the tooltip doesn't actually give.
-        { icon: BOON_CONDITION_ICONS.Might, text: 'Might Stacks per Level (5x4s): 20 Condition Damage, 40 Power' },
+        // The wiki's own rendered fact table keeps this one as flat text ("Might Stacks per Level
+        // (4s): 30 Condition Damage, 30 Power" at WvW+PvP base) rather than a scaled duration row —
+        // it labels an escalating per-tier grant ("Level" 1/2/3 across the tether's 3 phases), not a
+        // single fixed application this app's BoonConditionSource shape (one status, one duration)
+        // could represent without inventing numbers the wiki doesn't actually give a duration-% split
+        // for. Left unscaled by `durationPercent` for the same reason — the wiki gives no basis to
+        // scale it correctly, so showing the flat base is honest where guessing wouldn't be.
+        { icon: BOON_CONDITION_ICONS.Might, text: 'Might Stacks per Level (4s): 30 Condition Damage, 30 Power' },
         { icon: ALLIED_TARGETS_ICON, text: 'Number of Allied Targets: 3' },
         { icon: DURATION_ICON, text: 'Duration: 7 seconds' },
         { icon: INTERVAL_ICON, text: 'Interval: 1 second' },
@@ -97,8 +109,8 @@ function otherworldlyBondBranches(skill: Skill, durationPercent: { boon: number;
           boonOrConditionName: 'Fury',
           isCondition: false,
           category: 'boon',
-          baseDurationSeconds: 3,
-          scaledDurationSeconds: 3 * (1 + durationPercent.boon / 100),
+          baseDurationSeconds: 2,
+          scaledDurationSeconds: 2 * (1 + durationPercent.boon / 100),
           applyCount: 1,
           requiresTraitId: null,
           // Reaches the linked ally and nearby allies alike, same reach as the Might ticks above it

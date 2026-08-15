@@ -33,11 +33,26 @@ extra labeled divider sections rendered below the base facts, reusing the same `
 `.tooltip-section-label` CSS and `factsBlock` shape Session 189's enhancement dividers already
 established. Session 131's 2nd objection (open-ended tick count, no `stacks=`) is sidestepped rather
 than re-litigated: every boon/condition row uses `applyCount: 1` (never claims a total application
-count), and the "Might Stacks per Level (5x4s)" line — which doesn't cleanly fit the single-status/
-single-duration `BoonConditionSource` shape at all — stays a flat, unscaled text line matching the
-real tooltip's own wording instead of being force-fit into one. Wired into `skillTooltipContent` in
-`SkillsEditor.tsx` right after the existing `additiveEnhancementFacts` divider block. `Deactivate
-Otherworldly Bond` (71858) unchanged — Session 131 already confirmed it has nothing beyond Range.
+count), and the "Might Stacks per Level" line — which doesn't cleanly fit the single-status/single-
+duration `BoonConditionSource` shape at all — stays a flat, unscaled text line instead of being
+force-fit into one. Wired into `skillTooltipContent` in `SkillsEditor.tsx` right after the existing
+`additiveEnhancementFacts` divider block. `Deactivate Otherworldly Bond` (71858) unchanged — Session
+131 already confirmed it has nothing beyond Range.
+
+**Correction mid-session**: the first draft transcribed its numbers straight off the user's reference
+screenshot, which the user then correctly flagged — that screenshot was captured on a live character
+with its own boon-duration gear equipped, not a base-value tooltip. Re-fetched the wiki's raw
+`{{skill fact}}` templates + its own rendered Skill Facts table (same rigor as Blossoming Aura's fix
+above) and found 2 of the 5 curated values were indeed live-scaled, not base: Fury read 3s (really the
+wiki's base-2s × the character's own +50% boon duration) and "Might Stacks per Level" read "(5x4s): 20
+Condition Damage, 40 Power" (really the wiki's flat, un-split "(4s): 30 Condition Damage, 30 Power").
+Vulnerability/Crippled/Slow already matched the wiki's base WvW values exactly, consistent with that
+same character having boon duration but no condition duration equipped — corroborating rather than
+contradicting the fix. Both corrected to wiki base values, left for the normal `durationPercent`
+scaling to reproduce per-build (verified: a synthetic +50% boon-duration test run reproduces the
+original screenshot's 3s Fury exactly). **Lesson: a reference screenshot shows a scaled tooltip, not a
+base-value one — always source curated base numbers from the wiki, use a screenshot only to confirm
+which facts exist/how they're grouped, never for the numbers themselves.**
 
 Left as an open door, not attempted here: the same "mutually exclusive branches, real screenshot
 available" shape likely applies to Twin Moon Sweep (Session 130, also an honest skip) — noted in
