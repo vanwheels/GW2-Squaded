@@ -3488,7 +3488,13 @@ function weaponSkillIdsForBuild(
     const mainType = build.equipment[mainKey]?.weaponType
     const offType = offKey ? build.equipment[offKey]?.weaponType : undefined
     const mainWeapon = mainType ? profession.weapons[mainType] : undefined
-    const offWeapon = offType ? profession.weapons[offType] : mainWeapon
+    // Mirror main-hand into off-hand only for an actual two-handed weapon, same restriction
+    // `WeaponSkillBar.tsx` documents: a one-handed weapon (Sword, Dagger, ...) with no off-hand
+    // item equipped must NOT fall back to mainWeapon here, or its own off-hand (4-5) skill
+    // variants would wrongly get counted into the aggregate Boon/Condition totals before an
+    // off-hand is ever equipped.
+    const mainIsTwoHanded = mainWeapon?.flags.includes('TwoHand') ?? false
+    const offWeapon = offType ? profession.weapons[offType] : mainIsTwoHanded ? mainWeapon : undefined
     if (!mainWeapon && !offWeapon) continue
     for (const [current, previous] of attunementPairs) {
       for (const id of weaponSkillIdsForPair(

@@ -2,6 +2,36 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 199 — Fix: one-handed main-hand weapon with no off-hand wrongly mirrored into aggregate totals
+
+User-reported: a Warrior with only main-hand Sword equipped (no off-hand item) had the aggregate
+Boon/Condition panel behave as if an off-hand Sword were also equipped — same shape of bug as a
+Revenant issue fixed before (`WeaponSkillBar.tsx`'s "must NOT mirror a one-handed weapon into the
+off-hand slot" comment), but in a different code path.
+
+**Root cause**: `weaponSkillIdsForBuild` (`sources.ts`), which feeds the aggregate panel, had
+`const offWeapon = offType ? profession.weapons[offType] : mainWeapon` — an unconditional
+fallback to `mainWeapon` whenever no off-hand item is equipped, regardless of whether the
+main-hand weapon is actually two-handed. `WeaponSkillBar.tsx` (the on-screen skill bar) already
+had the correct, explicitly-commented gate for this — `mainIsTwoHanded` — but that fix was never
+carried over to the aggregate-totals function, same "tooltip-correctness and aggregate-
+contribution are separate code paths" shape as Session 198.
+
+**Fix**: added the same `mainIsTwoHanded` (`flags.includes('TwoHand')`) gate to
+`weaponSkillIdsForBuild`, mirroring `WeaponSkillBar.tsx`'s logic exactly. Underwater weapon types
+(Trident/Speargun/Harpoon Gun) all carry `TwoHand` themselves, so the underwater pairs (which have
+no off-hand key at all) are unaffected.
+
+**Swept for the same pattern**: grepped every `mainWeapon`/`offWeapon` construction site in the
+codebase (`sources.ts`, `WeaponSkillBar.tsx`, `EquipmentEditor.tsx`, `weapon-skills.ts`) — this was
+the only unguarded fallback; `EquipmentEditor.tsx`'s two sites already gate correctly.
+`damage-calc.ts`/`barrier-calc.ts` don't construct `offWeapon` themselves, they consume ids already
+resolved via `weaponSkillIdsForPair`. Since the fix is in a shared, profession-agnostic function,
+it applies to every profession/weapon combination at once, not just Warrior/Sword — no separate
+per-spec sweep needed.
+
+`npm run typecheck` clean.
+
 ## Session 198 — Fix: profession-mechanic-bar skills entirely missing from the aggregate Boon/Condition panel
 
 User follow-up to Session 197: after that fix, Paragon's Chants' Motivation-tier boons showed
