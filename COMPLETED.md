@@ -2,6 +2,63 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 203 — Dodge-roll trigger labeling (problem 1 of TODO.md's dodge-roll item)
+
+Picked up TODO.md's dodge-roll item, problem 1 only (user picked this slice when asked which of the
+3 to start with): label boons/conditions in the aggregate Boon/Condition summary panel that only
+apply "on dodge," which today look identical to an unconditional source once pooled by boon name.
+
+Investigation first, since the TODO note's "likely already flow into totals today" was only partly
+right: scanned every `traits.json` entry whose `description` mentions "dodge" (28 candidates) and
+classified each by tracing whether its real API `facts` actually reach `computeBoonConditionSources`'s
+totals. Found:
+- **9 traits** (Mecha Legs 445, Vigorous Precision 564, Malicious Sorcery 753, Companion's Defense
+  1090, Pumping Up 1289, Upper Hand 1295, Resilient Roll 1379, Resolute Evasion 1782, Thermal Release
+  Valve 2066) carry a real, `classifyBoonCondition`-recognized `Buff` fact (Resistance/Vigor/
+  Confusion/Protection/Might/Regeneration/Resolution) directly on the trait's own `facts` array —
+  confirmed reachable by tracing `computeBoonConditionSources`'s chosen-trait loop, which walks every
+  chosen major/minor trait's facts unconditionally with no trigger-aware gating anywhere. These were
+  the real target for this fix.
+- **3 traits** (Selfless Daring 551, Healer's Gift 1816, Master's Fortitude 2180) are heal/barrier-on-
+  dodge coefficients that only ever render in the trait's OWN tooltip (Healing/Damage never enter the
+  pooled aggregate panel — moved out of it entirely per that panel's own doc comment) — that tooltip
+  already shows the trait's full wiki description above its facts, so no labeling gap exists there at
+  all.
+- **1 trait** (Silent Scope 2118) grants a flat, always-on Precision bonus; its dodge-roll wording only
+  gates an unrelated stealth-attack-access clause — correctly excluded.
+- **6 traits** (Lotus Training 1833, Unhindered Combatant 1964, Bounding Dodger 2047, Mirage Cloak
+  2150, Saint of zu Heltzer 2238's own buff, Resolute Evasion 1782's second buff) grant a custom
+  status outside `BOON_NAMES`/`CONDITION_NAMES` with no tracked consumer anywhere in the app.
+- **6 traits** (Deceptive Evasion 704, Adrenal Implant 523, Power Wrench 531, Mark of Evasion 792,
+  Uncatchable 1159, Explosive Entrance 432, Evasive Arcana 238) are non-boon effects (clone summon,
+  recharge reduction) or carry zero real fact data beyond an empty "Combat Only" marker.
+- **2 traits** (Reckless Dodge 1446, Saint of zu Heltzer 2238's alacrity grant) turned out to be a
+  genuine CALC gap, not a labeling one: their real Might/Alacrity fact lives on a separate
+  un-equippable "proc skill" entity (Reckless Impact 14268, Saint's Shield 62689) that
+  `skillIdsForBuild` never includes — both already had `TARGET_COUNT_OVERRIDES` entries from an
+  earlier sweep, which turned out to be orphaned metadata for an unreachable source, not evidence the
+  pipeline actually uses them. Spun off as a new, narrowly-scoped TODO.md item (needs a
+  `withSyntheticFacts`-style merge onto traits, which `synthetic-facts.json` today only does for
+  skills) rather than silently left unlabeled.
+- **1 trait** (Reaver's Curse 2259) excluded: its wiki page confirms it modifies a different,
+  already-curated Might source's effectiveness rather than itself granting anything "on dodge."
+
+Implementation: added `BoonConditionSource.triggerNote?: string` (`sources.ts`), populated by a new
+`DODGE_TRIGGER_NOTES` curated table (`{skill: {}, trait: {...9 entries...}}`, same
+`{skill, trait}` shape as `TARGET_COUNT_OVERRIDES`/`BUFF_INSTANCE_LABELS`) and a `resolveTriggerNote`
+lookup wired into `extractFromFacts` right alongside `resolveInstanceLabel`. 8 of the 9 read "On
+Dodge"; Upper Hand reads "On Evade" instead since its tracked Regeneration specifically triggers "when
+you evade an attack" per the wiki (broader than a bare dodge roll — dodging alone only grants
+untracked Initiative). Rendered as a small bordered pill (`.boon-source-trigger-note` in global.css,
+new rule) next to the source name in `BoonConditionSummaryPanel.tsx`'s per-boon source list; `SlotTile.tsx`'s
+squad-view equivalent (plain-string tooltips, not JSX) gets the same info as a trailing `[On Dodge]`
+suffix. Individual trait tooltips (`TraitsEditor.tsx`) deliberately left untouched — they already show
+the trait's full wiki description above its facts, where "Gain might when you dodge" is already
+visible; the gap only existed in the pooled aggregate view. `npm run typecheck` clean, all 135 existing
+tests still pass (no new completeness test added — this is a small, one-time 9-entry curation, not an
+open-ended sweep needing regression coverage). TODO.md's problem-1 sub-item closed; problems 2/3 and
+the new Reckless-Dodge/Saint-of-zu-Heltzer calc-gap item remain open.
+
 ## Session 202 — `MISCELLANEOUS_MATCHERS`/`CONTROL_MATCHERS` WvW-override gap
 
 Closed the other open item `flat_crit_chance_sweep_2026-08-15` flagged (user picked this one when

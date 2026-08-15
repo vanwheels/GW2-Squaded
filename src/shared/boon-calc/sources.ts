@@ -130,6 +130,24 @@ export interface BoonConditionSource {
    * curation coverage).
    */
   instanceLabel?: string
+  /**
+   * A short, wiki-quoted trigger qualifier for a source whose boon/condition only applies on a
+   * specific player action rather than unconditionally on cast/equip — currently only "On Dodge"/
+   * "On Evade" (TODO.md's dodge-roll item, flagged by the user 2026-08-07: "trait procs already
+   * modeled as ordinary facts... likely already flow into totals today... not a calc gap, just
+   * nothing labels it 'from dodging' anywhere in the UI"). Populated ONLY from
+   * `DODGE_TRIGGER_NOTES` — every OTHER source (the overwhelming majority) leaves this `undefined`
+   * and renders no qualifier, same "opt-in curated table, fails open" convention as `instanceLabel`/
+   * `BUFF_INSTANCE_LABELS`. Deliberately narrow in scope: a trait/skill's OWN tooltip already shows
+   * its full wiki description above its facts (where "Gain might when you dodge" is already
+   * visible), so this field only matters for the AGGREGATE Boon/Condition summary panel
+   * (`BoonConditionSummaryPanel`/`SlotTile`), which pools sources by boon name and shows only
+   * name/icon/duration with no per-source description — that's the one place a dodge-gated source
+   * looks indistinguishable from an unconditional one. Whole alternate dodge-replacement mechanics
+   * (Vindicator's Legendary Alliance dodge, Mirage Cloak) and relic dodge-triggers with no skill id
+   * at all are a separate, still-open TODO.md problem this field doesn't attempt to solve.
+   */
+  triggerNote?: string
 }
 
 /** A wiki-confirmed decision for a source with no target-count fact of its own (`resolveTargetCount`
@@ -2739,6 +2757,61 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
   }
 }
 
+/**
+ * `BoonConditionSource.triggerNote`'s source table — see that field's doc comment for scope/intent.
+ * A one-time sweep (2026-08-15) of every `traits.json` entry whose `description` mentions "dodge"
+ * (28 candidates) found these 9 are the full set already producing a real, `classifyBoonCondition`-
+ * recognized Buff fact directly on the trait's own `facts` array (i.e. already counted in
+ * `computeBoonConditionSources`'s totals today, confirmed by tracing `computeBoonConditionSources`'s
+ * chosen-trait loop — it walks every chosen major/minor trait's `facts` unconditionally, no
+ * trigger-aware gating exists anywhere in that pipeline). The other 19 candidates fall into buckets
+ * this table deliberately excludes: heal/barrier-on-dodge coefficients (Selfless Daring 551,
+ * Healer's Gift 1816, Master's Fortitude 2180) already show their own trait tooltip with the dodge
+ * wording still attached (Healing/Damage never enter the pooled aggregate panel this table targets,
+ * see `BoonConditionSummaryPanel`'s own doc comment for why); a flat always-on stat bonus whose
+ * dodge-roll wording only gates an unrelated stealth-attack-access clause (Silent Scope 2118's
+ * Precision, `trait-attributes.ts`); non-`BOON_NAMES`/`CONDITION_NAMES` custom statuses with no
+ * tracked consumer (Lotus Training 1833, Unhindered Combatant 1964, Bounding Dodger 2047, Mirage
+ * Cloak 2150, Saint of zu Heltzer 2238's own "Saint of zu Heltzer" buff, Resolute Evasion 1782's
+ * OWN second "Resolute Evasion" buff alongside its tracked Resolution — only Resolution is listed
+ * below); non-boon effects (Deceptive Evasion 704's clone summon, Adrenal Implant 523/Power Wrench
+ * 531's recharge reduction, Mark of Evasion 792/Uncatchable 1159/Explosive Entrance 432/Evasive
+ * Arcana 238's empty-facts "Combat Only" markers — real effects with zero live API fact of the
+ * needed shape); and 2 traits (Reckless Dodge 1446, Saint of zu Heltzer 2238's OWN alacrity grant)
+ * whose real Might/Alacrity fact lives on a separate un-equippable "proc skill" entity (Reckless
+ * Impact 14268, Saint's Shield 62689 — both already have `TARGET_COUNT_OVERRIDES` entries from an
+ * earlier sweep, but neither skill id is ever included in `skillIdsForBuild`'s equipped-skill
+ * gathering, so today they contribute nothing at all — a genuine calc gap, not a labeling one, left
+ * open in TODO.md rather than silently glossed over here). Reaver's Curse (2259, Vindicator) is
+ * ALSO excluded: its wiki page confirms the trait only "increases the effectiveness of your NEXT
+ * dodge," modifying a different, already self-only-curated Might source (`TARGET_COUNT_OVERRIDES`)
+ * rather than itself being granted "on dodge."
+ */
+export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record<number, string> } = {
+  skill: {},
+  trait: {
+    445: 'On Dodge', // Mecha Legs (Engineer/Inventions). Wiki: "Gain resistance when you dodge."
+    564: 'On Dodge', // Vigorous Precision (Guardian/Honor). Wiki: "Gain vigor at the end of your dodge roll."
+    753: 'On Dodge', // Malicious Sorcery (Mesmer/Illusions). Wiki: "When you dodge an attack, inflict
+    // confusion on your attacker" — both curated Confusion facts (PvE/WvW+PvP split) come from this.
+    1090: 'On Dodge', // Companion's Defense (Ranger/Wilderness Survival). Wiki: "You and your pet gain
+    // protection when you dodge roll."
+    1289: 'On Dodge', // Pumping Up (Thief/Acrobatics). Wiki: "Gain might when you dodge."
+    // Upper Hand (Thief/Acrobatics): its tracked Regeneration specifically triggers "when you evade
+    // an attack" per the wiki, not a bare dodge roll (dodging alone only grants untracked Initiative)
+    // — a broader trigger than the other 8 entries here, labeled distinctly rather than folded in.
+    1295: 'On Evade',
+    1379: 'On Dodge', // Resilient Roll (Warrior/Defense). Wiki: "Gain resistance when you dodge."
+    1782: 'On Dodge', // Resolute Evasion (Revenant/Retribution). Wiki: "Gain resolution after you dodge."
+    2066: 'On Dodge' // Thermal Release Valve (Engineer/Holosmith). Wiki: "Dodge rolling vents heat as
+    // an attack against nearby foes and grants vigor."
+  }
+}
+
+function resolveTriggerNote(sourceKind: 'skill' | 'trait', sourceId: number): string | undefined {
+  return DODGE_TRIGGER_NOTES[sourceKind][sourceId]
+}
+
 /** `${status}@${duration}@${applyCount}` — see `BUFF_INSTANCE_LABELS`'s doc comment for why this
  *  tuple (not a bare status) is the lookup key, and when the `#<occurrence>` suffix applies. */
 function buffInstanceKey(status: string, duration: number, applyCount: number): string {
@@ -3332,6 +3405,7 @@ function extractFromFacts(
     const percent = category === 'condition' ? durationPercent.condition : category === 'boon' ? durationPercent.boon : 0
     const legend = fact.type === 'PrefixedBuff' ? resolveLegendFromPrefix(fact.prefix, legends) : undefined
     const instanceLabel = resolveInstanceLabel(sourceKind, sourceId, fact.status, fact.duration, applyCount, tupleOccurrence, tupleTotal)
+    const triggerNote = resolveTriggerNote(sourceKind, sourceId)
     out.push({
       sourceKind,
       sourceId,
@@ -3347,7 +3421,8 @@ function extractFromFacts(
       targetCount,
       legendIcon: legend?.icon,
       legendName: legend?.name,
-      instanceLabel
+      instanceLabel,
+      triggerNote
     })
   }
   return out

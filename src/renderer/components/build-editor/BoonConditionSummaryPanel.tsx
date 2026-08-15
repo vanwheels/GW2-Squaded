@@ -56,6 +56,7 @@ function iconItemsFor(groups: BoonConditionGroup[], names: readonly string[], ic
                   {s.category === 'boon' && s.targetCount !== null && (
                     <span className="boon-source-target">{formatTargetCount(s.targetCount)}</span>
                   )}
+                  {s.triggerNote && <span className="boon-source-trigger-note">{s.triggerNote}</span>}
                 </span>
                 <span className="boon-source-duration">
                   {formatBoonDuration(s.scaledDurationSeconds)}s

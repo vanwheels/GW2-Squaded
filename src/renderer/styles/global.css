@@ -1331,6 +1331,22 @@ input[type='text'] {
   font-style: normal;
 }
 
+/* A short trigger qualifier ("On Dodge"/"On Evade") for a source that only applies on a specific
+   player action rather than unconditionally — see BoonConditionSource.triggerNote's doc comment in
+   sources.ts. A bordered pill rather than plain text (unlike its closest sibling,
+   .boon-source-instance-label) since this is actionable info about WHEN the source applies, not
+   just a disambiguating name — worth standing out at a glance in the pooled aggregate panel this
+   exists for. */
+.boon-source-trigger-note {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.75em;
+  white-space: nowrap;
+}
+
 .tooltip-popup {
   position: fixed;
   z-index: 1000;

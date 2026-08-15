@@ -174,7 +174,8 @@ export function SlotTile({
             description={g.sources
               .map((s) => {
                 const target = s.category === 'boon' ? formatTargetCount(s.targetCount) : null
-                return `${s.sourceName}: ${formatBoonDuration(s.scaledDurationSeconds)}s${target ? ` (${target})` : ''}`
+                const trigger = s.triggerNote ? ` [${s.triggerNote}]` : ''
+                return `${s.sourceName}: ${formatBoonDuration(s.scaledDurationSeconds)}s${target ? ` (${target})` : ''}${trigger}`
               })
               .join('\n')}
           />
