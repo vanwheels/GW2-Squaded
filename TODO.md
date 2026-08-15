@@ -51,6 +51,15 @@ tracked below rather than special-cased in the trait itself:
       `namedFactsFrom` extension (consult the same per-source `WvwFactOverride` map skills/traits
       already carry, keyed the same way) if more of these turn up.
 
+- [ ] **Elementalist Evoker's Familiar (F5) is the one profession-mechanic-bar case still missing
+      from the aggregate Boon/Condition panel.** Found 2026-08-15 fixing the broader "no
+      profession-mechanic-bar skill contributed to the aggregate at all" gap (COMPLETED.md Session
+      198, `mechanicBarIdsForBuild` in `boon-calc/sources.ts`) — every other bar resolver
+      (`professionMechanicBar` itself, Engineer Toolbelt, Revenant Conduit's Release Potential,
+      Elementalist Catalyst's Jade Sphere) is now wired in, but `evokerFamiliarBar` needs `Familiar[]`
+      data `computeBoonConditionSources`'/`skillIdsForBuild`'s callers don't currently receive. Small
+      fix (thread `gameData.familiars` through both signatures) whenever this specific gap matters.
+
 - [ ] Dodge-roll-sourced boons/conditions/heals/damage aren't tracked as their own category —
       flagged by the user 2026-08-07 (Vindicator and Mirage in particular build entire kits around
       dodging). Splits into two different problems on investigation:

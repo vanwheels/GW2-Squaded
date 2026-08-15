@@ -2,6 +2,69 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 198 — Fix: profession-mechanic-bar skills entirely missing from the aggregate Boon/Condition panel
+
+User follow-up to Session 197: after that fix, Paragon's Chants' Motivation-tier boons showed
+correctly in the Chants' own tooltip, but still weren't contributing to the build-wide Boon/
+Condition summary panel. Investigation found this was much bigger than the Chants.
+
+**Root cause, confirmed via direct test**: `computeBoonConditionSources` (the aggregate calc)
+builds its skill-id list from `skillIdsForBuild`, which enumerated every OTHER "always contributes"
+category (weapon skills, Revenant legend kit, pets, Beastmode, Stolen Skill) but never the
+profession-mechanic (F1-F5) bar at all. `bundleContributionsForBuild`'s `kitSkillIds` only pulls in
+BUNDLE-capable mechanic-bar ids' own nested sub-skills (Tome chapters, Shroud/Gunsaber/Dragon
+Trigger's 5 slot skills) — never the F-button's own id, and never a non-bundle mechanic-bar id at
+all. So EVERY profession's plain F-buttons (Guardian's 3 Virtues, Warrior's base Burst Skill,
+Vindicator's Energy Meld, Paragon's Chants, Elementalist's F1-F4 Attunement buttons, Thief's Steal,
+...) had never contributed their real live-API facts to the aggregate panel, not just curated
+branch content — confirmed live: a bare core Guardian build (no weapon, no heal/utility/elite)
+correctly showed nothing before the fix, but should have shown Virtue of Justice's Burning and
+Virtue of Courage's Aegis.
+
+**Fix 1 (foundational)**: new `mechanicBarIdsForBuild` in `sources.ts`, folded into
+`skillIdsForBuild`'s return — calls the same `professionMechanicBar` resolver
+`ProfessionMechanicBar.tsx` renders from (once per distinct main-hand weapon type across both
+equipped weapon sets, since Warrior's Profession_1/Burst Skill is the one slot that resolves
+differently per weapon), plus the narrower `engineerToolbeltBar`/`conduitReleasePotentialBar`/
+`catalystJadeSphereBar` resolvers. `withFlipChain` applied to each id, same "both toggle states
+contribute" reasoning as everywhere else in this file. Verified live: core Guardian now correctly
+shows Virtue of Justice/Courage, Firebrand shows both Tome (already-working bundle path) AND
+Virtue of Resolve/Courage (newly-working). Deliberately still NOT covered: Elementalist Evoker's
+Familiar (`evokerFamiliarBar`, needs `Familiar[]` data this function's callers don't have) — logged
+in TODO.md rather than threading a new param through for one remaining case.
+
+**Fix 2 (branches)**: this alone still didn't surface the Chants' OWN Might/Fury/Vigor/etc, since
+those live entirely in `branchConditionalFacts` (tooltip-only), never in `skill.facts` —
+`extractFromFacts` correctly finds zero real Buff facts on Chant of Action's id even once it's in
+the walked list. New `ConditionalBranch.countsTowardTotals?: boolean` flag (`branch-conditional-
+facts.ts`) — `computeBoonConditionSources` now also consults `branchConditionalFacts` per walked
+skill and folds in any flagged branch's `.facts`. Flagged, after discussing the design trade-off
+with the user (fixed steady-state assumption, no new CombatState UI toggle — same "idealized
+sustained rotation" idea this app's boon uptime already assumes everywhere else, not a live
+simulation): each Chant's "Initial Cast" (recurs every cast, not mutually exclusive with a tier) +
+"7-10 Motivation" (best-maintained tier) branches; Dragon Slash Sharp as the Wind/River's Flow's
+"Maximum Charge" (a well-played Bladesworn charges to max before releasing). Deliberately NOT
+flagged: Otherworldly Bond's Enemy/Ally Target branches — unlike the tiers above, that's a genuine
+build-time CHOICE with no defensible single "always true" pick (a control build only ever uses
+Enemy Target, a support build only Ally Target); flagging either would silently inflate one
+archetype's totals with a boon/condition it may never apply. `healingPower` passed as `0` into this
+new `branchConditionalFacts` call site — none of the flagged branches' `.facts` (as opposed to
+their display-only `numericLines`) currently use it, documented as a note for whoever adds the next
+flagged branch.
+
+Both fixes verified end-to-end via throwaway vitest files (not just typecheck) before deleting them:
+confirmed Chant of Action/Recuperation/Freedom's Might/Fury/Vigor/Regeneration/Stability/Swiftness/
+Resolution/Protection now appear in `computeBoonConditionSources`' output, and confirmed Otherworldly
+Bond correctly still contributes nothing.
+
+`npm run typecheck`/`lint`/`test` all clean (132 tests unchanged — this class of behavior, "does a
+build's whole-aggregate total include X," has no existing test coverage to update or break).
+
+**User-visible effect**: previously-saved builds using Guardian Virtues, Warrior Burst Skill,
+Vindicator Energy Meld, Paragon Chants, or similar F-button-sourced boons/conditions will now show
+correctly higher totals in the Boon/Condition summary panel — this is the totals becoming more
+accurate, not a regression, but worth knowing if a user asks why a build's numbers moved.
+
 ## Session 197 — Fix: profession-mechanic-bar tooltips never rendered `branchConditionalFacts`
 
 User-reported bug, found immediately after Session 196: Paragon's Chants showed only Recharge/

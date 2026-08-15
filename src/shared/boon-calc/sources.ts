@@ -23,7 +23,16 @@ import { isAuraName, isBoonName, isConditionName } from './constants'
 import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPercent, isActiveWeaponSlot } from '../gear-calc/attribute-totals'
 import { WEAVER_SPEC_ID, weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
 import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bundle-skills'
-import { professionMechanicBar, RANGER_BEASTMODE_SPEC_ID } from '../skill-calc/profession-mechanic'
+import { branchConditionalFacts } from '../skill-calc/branch-conditional-facts'
+import {
+  catalystJadeSphereBar,
+  CATALYST_SPEC_ID,
+  conduitReleasePotentialBar,
+  CONDUIT_SPEC_ID,
+  engineerToolbeltBar,
+  professionMechanicBar,
+  RANGER_BEASTMODE_SPEC_ID
+} from '../skill-calc/profession-mechanic'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash'
 import { isNonActionableFlipTarget } from '../skill-calc/non-actionable-flip-targets'
 
@@ -3528,6 +3537,63 @@ function withFlipChain(startId: number, skillsById: Map<number, Skill>): number[
 }
 
 /**
+ * Every skill id shown on the build's profession-mechanic (F1-F5) bar — Guardian's Virtues,
+ * Warrior's Burst Skill (Paragon's Chants included, since Bladesworn's Dragon Trigger is the only
+ * one of these already bundle-capable), Necromancer's Shroud F1 own id, Ranger's Celestial Avatar
+ * toggle's own id, Vindicator's Energy Meld, Elementalist's F1-F4 Attunement buttons, Thief's Steal/
+ * Specter's own F1, Engineer's base Toolbelt, Revenant Conduit's Release Potential, and Elementalist
+ * Catalyst's Jade Sphere.
+ *
+ * Missing entirely before 2026-08-15 (found investigating a user report that Paragon's Chants
+ * weren't contributing to the aggregate Boon/Condition panel): `skillIdsForBuild`'s own doc comment
+ * lists every OTHER "always contributes" category (weapon skills, Revenant legend kit, pets,
+ * Beastmode, Stolen Skill) but never this one, and `bundleContributionsForBuild`'s `kitSkillIds`
+ * only pulls in BUNDLE-capable mechanic-bar ids' own nested sub-skills (Tome chapters, Shroud/
+ * Gunsaber/Dragon Trigger's 5 slot skills) — never the F-button's own id, and never a non-bundle
+ * mechanic-bar id at all. Every `professionMechanicBar` entry's id (plus its own `flipSkill` chain,
+ * same "both toggle states always contribute" reasoning `withFlipChain` documents above) is folded
+ * in here now, alongside the other narrower per-mechanic resolvers `ProfessionMechanicBar.tsx`
+ * calls directly (`engineerToolbeltBar`/`conduitReleasePotentialBar`/`catalystJadeSphereBar`).
+ * Warrior's Profession_1 (Burst Skill) is the one slot `professionMechanicBar` itself resolves
+ * differently per equipped weapon type, so this calls it once per distinct main-hand weapon type
+ * across BOTH equipped weapon sets (mirroring `weaponSkillIdsForBuild`'s own "both weapon sets
+ * always contribute" loop) rather than just once for whichever set happens active — every other
+ * profession's bar is weapon-independent, so the extra calls are harmless no-ops for them (deduped
+ * by the caller regardless).
+ *
+ * Deliberately still NOT covered: Elementalist Evoker's Familiar (`evokerFamiliarBar`) — the only
+ * one of `ProfessionMechanicBar.tsx`'s bar-assembling resolvers needing data (`Familiar[]`) this
+ * function's callers don't already have on hand; logged in TODO.md rather than threading a new
+ * param through for one remaining case. Ranger's Soulbeast Beastmode is NOT a gap here despite also
+ * being a separate resolver (`soulbeastBeastmodeBar`) — `skillIdsForBuild` already covers it
+ * directly via `beastmodeSkillIds`.
+ */
+function mechanicBarIdsForBuild(build: Build, professions: Profession[], skillsById: Map<number, Skill>): number[] {
+  const profession = professions.find((p) => p.id === build.profession)
+  if (!profession) return []
+  const equippedSpecIds = new Set(build.specializations.filter((s): s is NonNullable<typeof s> => s !== null).map((s) => s.specializationId))
+  const mainKeys: EquipmentSlotKey[] = build.environment === 'land' ? ['weaponA1', 'weaponB1'] : ['weaponU1', 'weaponU2']
+  const weaponTypes = [...new Set(mainKeys.map((k) => build.equipment[k]?.weaponType ?? null))]
+
+  const ids = new Set<number>()
+  for (const weaponType of weaponTypes.length > 0 ? weaponTypes : [null]) {
+    for (const entry of professionMechanicBar(profession, skillsById, equippedSpecIds, build.environment, weaponType)) {
+      for (const id of withFlipChain(entry.skill.id, skillsById)) ids.add(id)
+    }
+  }
+  if (build.profession === 'Engineer') {
+    for (const entry of engineerToolbeltBar(build, skillsById)) ids.add(entry.skill.id)
+  }
+  if (build.profession === 'Revenant' && equippedSpecIds.has(CONDUIT_SPEC_ID)) {
+    for (const entry of conduitReleasePotentialBar(build, skillsById)) ids.add(entry.skill.id)
+  }
+  if (build.profession === 'Elementalist' && equippedSpecIds.has(CATALYST_SPEC_ID)) {
+    for (const entry of catalystJadeSphereBar(build, profession, skillsById)) ids.add(entry.skill.id)
+  }
+  return [...ids]
+}
+
+/**
  * Every skill id "equipped" by a build's skill selection — for a standard profession, the chosen
  * Heal/Utility/Elite skills; for Revenant, every skill (swap + heal + 3 utility + elite) belonging
  * to either of the 2 equipped legends, since a legend's kit is fixed rather than picked skill-by-
@@ -3551,7 +3617,9 @@ function withFlipChain(startId: number, skillsById: Map<number, Skill>): number[
  * toggled to either merged pet at will mid-fight), plus, for Thief, the manually-picked Stolen
  * Skill (`Build.thiefStolenSkillId` — unlike every other id folded in here, this one has no
  * automatic in-build resolution at all, see that field's doc comment; contributes directly, not
- * via `withFlipChain`, since none of `THIEF_STOLEN_SKILL_IDS` has an outgoing `flipSkill`).
+ * via `withFlipChain`, since none of `THIEF_STOLEN_SKILL_IDS` has an outgoing `flipSkill`), plus
+ * every profession-mechanic (F1-F5) bar id (`mechanicBarIdsForBuild` — see its own doc comment;
+ * added 2026-08-15, previously missing entirely).
  */
 function skillIdsForBuild(
   build: Build,
@@ -3592,6 +3660,7 @@ function skillIdsForBuild(
     ...petSkillIds,
     ...beastmodeSkillIds,
     ...stolenSkillIds,
+    ...mechanicBarIdsForBuild(build, professions, skillsById),
     ...weaponSkillIdsForBuild(build, professions, skillsById, equippedSpecIds)
   ]
 }
@@ -3744,6 +3813,18 @@ export function computeBoonConditionSources(
         gameData.legends
       )
     )
+    // `branchConditionalFacts`' own `countsTowardTotals`-flagged branch(es), if any — see
+    // `ConditionalBranch.countsTowardTotals`'s doc comment for which branches get this and why.
+    // `healingPower` is passed as `0` rather than threaded through from gear: every branch flagged
+    // `countsTowardTotals` today grants only flat-duration Buff facts with no Healing-Power-scaled
+    // component (the Chants' own Barrier/Healing numbers are `numericLines`, display-only, never
+    // built into a `BoonConditionSource` — see `chantOfRecuperationSections`), so this only matters
+    // if a future flagged branch's `.facts` ever needs it, at which point this would need real
+    // `characterAttributes.healingPower` threaded in instead (this function doesn't compute
+    // character attributes today, only gear-derived duration %).
+    for (const branch of branchConditionalFacts(skill, durationPercent, 0) ?? []) {
+      if (branch.countsTowardTotals) out.push(...branch.facts)
+    }
   }
   for (const chapter of bundleContributions.tomeChapters) {
     out.push(...tomeChapterBoonSources(chapter, durationPercent))

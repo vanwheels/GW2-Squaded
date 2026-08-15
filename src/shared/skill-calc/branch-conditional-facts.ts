@@ -31,6 +31,18 @@ export interface ConditionalBranch {
   description?: string
   numericLines: FactLine[]
   facts: BoonConditionSource[]
+  /** `true` when this branch's `facts` should ALSO count toward the aggregate Boon/Condition panel
+   *  (`computeBoonConditionSources`), not just this skill's own tooltip — see that function's
+   *  `mechanicBarIdsForBuild`/branch-consulting doc comments in `boon-calc/sources.ts` for the full
+   *  reasoning. Defaults to falsy (tooltip-only, the original behavior every branch had before
+   *  2026-08-15) since most branches are a genuine build-time CHOICE with no defensible single
+   *  "always true" pick (e.g. `otherworldlyBondBranches`' Enemy vs. Ally Target) — only set this on
+   *  a branch that represents the steady-state/best-case outcome of a skill this app already treats
+   *  as "always sustained" everywhere else (every other boon source's duration/uptime number is
+   *  already an idealized, not live-simulated, figure). At most ONE branch per skill should be
+   *  flagged for any given mutually-exclusive GROUP (e.g. a Motivation tier) — an "Initial Cast"
+   *  addable ADDITIONALLY alongside one tier is fine, since it's not exclusive with the tiers. */
+  countsTowardTotals?: boolean
 }
 
 const RANGE_ICON = 'https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png'
@@ -77,6 +89,13 @@ const HEALING_ICON = 'https://render.guildwars2.com/file/D4347C52157B040943051D7
  * for up to 7s" without this function pretending to know how long any given tether actually survives.
  * `Deactivate Otherworldly Bond` (71858, this skill's flip target) has nothing beyond Range to add —
  * Session 131 already confirmed that, unchanged here.
+ *
+ * Neither branch gets `countsTowardTotals` (added 2026-08-15, see that field's doc comment): unlike
+ * the Chants'/Dragon Slash's tiers (a single skill's own value escalating over time, where "assume
+ * the best-maintained state" is a defensible idealization), Enemy vs. Ally Target is a genuine
+ * build-time CHOICE the player makes per cast — a control-focused build would only ever use Enemy
+ * Target, a support/might build only Ally Target. Counting either unconditionally would silently
+ * inflate one archetype's totals with a boon/condition it may never actually apply.
  */
 function otherworldlyBondBranches(skill: Skill, durationPercent: { boon: number; condition: number }): ConditionalBranch[] {
   const conditionRow = (name: 'Vulnerability' | 'Crippled' | 'Slow', baseDurationSeconds: number): BoonConditionSource => ({
@@ -191,7 +210,11 @@ function dragonSlashSharpAsTheWindBranches(
     { label: 'Minimum Charge', numericLines: [], facts: [burningRow(minDurationSeconds, 1)] },
     // Maximum Charge stacks=4 is the WvW+PvP value on every one of the 3 skills; PvE's own
     // (higher stack count, lower duration) reading is noted per-caller below, not used here.
-    { label: 'Maximum Charge', numericLines: [], facts: [burningRow(maxDurationSeconds, 4)] }
+    // `countsTowardTotals` steady-state pick (see `ConditionalBranch`'s doc comment): a
+    // well-played Bladesworn charges to max before releasing for the strongest Burning, the same
+    // "idealized best-case, not live-simulated" assumption every other boon/condition source in
+    // this app already makes — Minimum Charge stays a tooltip-only alternative.
+    { label: 'Maximum Charge', numericLines: [], facts: [burningRow(maxDurationSeconds, 4)], countsTowardTotals: true }
   ]
 }
 
@@ -272,10 +295,15 @@ function chantOfActionSections(skill: Skill, durationPercent: { boon: number; co
   const costLine = (n: number): FactLine => ({ icon: null, text: `Motivation Cost per Interval: ${n}` })
 
   return [
-    { label: 'Initial Cast', numericLines: [], facts: [might(2), fury] },
+    // Initial Cast + 7-10 Motivation are this skill's `countsTowardTotals` steady-state pick (see
+    // `ConditionalBranch.countsTowardTotals`'s doc comment) — Initial Cast recurs on every cast
+    // (not mutually exclusive with a Motivation tier), and 7-10 is the best-maintained band, same
+    // "idealized sustained rotation" assumption this app's boon uptime already makes everywhere
+    // else. The 1-3/4-6 tiers stay tooltip-only alternatives, same as before.
+    { label: 'Initial Cast', numericLines: [], facts: [might(2), fury], countsTowardTotals: true },
     { label: '1-3 Motivation', numericLines: [costLine(1)], facts: [might(1)] },
     { label: '4-6 Motivation', numericLines: [costLine(2)], facts: [might(2), fury] },
-    { label: '7-10 Motivation', numericLines: [costLine(3)], facts: [might(3), fury] }
+    { label: '7-10 Motivation', numericLines: [costLine(3)], facts: [might(3), fury], countsTowardTotals: true }
   ]
 }
 
@@ -321,10 +349,12 @@ function chantOfRecuperationSections(skill: Skill, durationPercent: { boon: numb
   const costLine = (n: number): FactLine => ({ icon: null, text: `Motivation Cost per Interval: ${n}` })
 
   return [
-    { label: 'Initial Cast', numericLines: [barrierLine()], facts: [vigor] },
+    // Same `countsTowardTotals` steady-state pick as `chantOfActionSections` — Initial Cast's Vigor
+    // recurs every cast, 7-10 Motivation's Regeneration is the best-maintained band.
+    { label: 'Initial Cast', numericLines: [barrierLine()], facts: [vigor], countsTowardTotals: true },
     { label: '1-3 Motivation', numericLines: [healLine(330, 0.1), costLine(2)], facts: [] },
     { label: '4-6 Motivation', numericLines: [healLine(431, 0.15), costLine(2)], facts: [] },
-    { label: '7-10 Motivation', numericLines: [healLine(532, 0.2), costLine(3)], facts: [regeneration] }
+    { label: '7-10 Motivation', numericLines: [healLine(532, 0.2), costLine(3)], facts: [regeneration], countsTowardTotals: true }
   ]
 }
 
@@ -389,11 +419,11 @@ function chantOfFreedomSections(skill: Skill, durationPercent: { boon: number; c
 
   return [
     // "Breaks Stun" is already a real live API fact on this skill (StunBreak type) — only Stability
-    // itself needs adding here.
-    { label: 'Initial Cast', numericLines: [], facts: [stability] },
+    // itself needs adding here. Same `countsTowardTotals` steady-state pick as the other 2 Chants.
+    { label: 'Initial Cast', numericLines: [], facts: [stability], countsTowardTotals: true },
     { label: '1-3 Motivation', numericLines: [costLine(1)], facts: [swiftness] },
     { label: '4-6 Motivation', numericLines: [costLine(2)], facts: [swiftness, resolution] },
-    { label: '7-10 Motivation', numericLines: [costLine(3)], facts: [swiftness, resolution, protection] }
+    { label: '7-10 Motivation', numericLines: [costLine(3)], facts: [swiftness, resolution, protection], countsTowardTotals: true }
   ]
 }
 
