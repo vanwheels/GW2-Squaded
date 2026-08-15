@@ -2,6 +2,44 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 185 — WvW mode-dependent boon-swap bug: Grace of the Land + Stretched Time fixed
+
+Follow-up after the trait-granted-boons-on-skills sweep closed (Session 184): re-examined the 3
+"genuine mode-dependent DIFFERENT-boon swap" traits that sweep left open (Grace of the Land/Ranger,
+Stretched Time + Seize the Moment/Mesmer), each flagged at the time as needing a new
+`WvwFactOverrides` mechanism since the existing one can only omit or reduce-duration an existing
+status, not substitute a different one. On closer look, 2 of the 3 fit the *existing* single-value-
+per-status override shape after all — the mechanism wasn't missing, the override entries just hadn't
+been added:
+
+- **Grace of the Land (2001)**: pve grants 1-stack Alacrity, wvw grants Might (4s/2 stacks), pvp
+  grants Might (6s/2 stacks). The automated wiki scan had already found+omitted the pve-only Alacrity
+  concept, but left both raw Might facts (4s and 6s) un-deduped since neither alone is PvE-only — so
+  the trait tooltip was showing Might twice at once instead of picking the wvw-correct value. Added
+  `Might: 4` alongside the existing `Alacrity: 'omit'`.
+- **Stretched Time (1942)**: BOTH its Alacrity concepts ("per Clone", "on Phantasm Spawn") are pve/pvp
+  only with no wvw value at all — only its 2 Might concepts (already correctly distinguished via
+  existing `BUFF_INSTANCE_LABELS` entries) are wvw-tagged. The automated scan never flagged this
+  (neither individual Alacrity fact is a plain pve-vs-wvw+pvp split, so its pattern-match missed it
+  entirely) — added `Alacrity: 'omit'`, which correctly clears both concepts at once since neither has
+  a wvw application worth preserving.
+
+Both fixes are pure `wvw-fact-overrides.json` additions (hand-patched directly + mirrored into
+`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES.trait`, same "hand-patch + verify `git diff --stat` stays
+minimal" pattern the Guardian leg established) — no code changes, no new architecture. `npm run test`
+stays at 110/110, typecheck clean.
+
+**Seize the Moment (2022) is still genuinely blocked**, unlike the other two: its wiki breakdown
+splits 2 *different* concepts ("Quickness per Clone" and a separate base "Quickness", each with its
+own pve/wvw/pvp values) under the same "Quickness" status at once — `WvwFactOverride` can only hold
+one number per status per source, so it can't represent both simultaneously. Worse, the raw API
+duration field rounds 5 of its 6 facts down to the same 2 buckets (1s/3s), destroying the wvw-precise
+values (0.5s/0.75s) entirely — a real WvW-focused fix needs either a new occurrence-indexed override
+type (paralleling `BUFF_INSTANCE_LABELS`'s own keying scheme) or some other value-injection mechanism,
+not just a missing data entry. Left open, TODO.md not touched (this was never a formal TODO.md item —
+tracked only in COMPLETED.md/docs/game-data.md leg writeups and
+[[trait_granted_boons_on_skills_sweep_2026-08-14]]).
+
 ## Session 184 — Trait-granted-boons-on-skills sweep, Warrior leg (9th and final leg) — sweep complete
 
 Rescanned fresh (specializations.json maps `specializationId`→profession since traits.json has no

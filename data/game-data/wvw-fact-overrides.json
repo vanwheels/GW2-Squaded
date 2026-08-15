@@ -2466,6 +2466,9 @@
     "1935": {
       "Bleeding": 8
     },
+    "1942": {
+      "Alacrity": "omit"
+    },
     "1948": {
       "Protection": 3
     },
@@ -2495,7 +2498,8 @@
       "Protection": 3
     },
     "2001": {
-      "Alacrity": "omit"
+      "Alacrity": "omit",
+      "Might": 4
     },
     "2005": {
       "Resistance": 2.5

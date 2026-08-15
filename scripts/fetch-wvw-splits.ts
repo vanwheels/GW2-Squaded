@@ -1143,7 +1143,36 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // invoked"): Might (Legendary Assassin Stance) pve(10)/wvw+pvp(6), both 2 stacks; Protection
     // (Legendary Dragon Stance) pve(3)/wvw+pvp(2). Its Resistance/Stability/Regeneration/
     // Resolution/Vigor lines (Demon/Dwarf/Centaur/Renegade/Alliance) are all flat.
-    1774: { Might: 6, Protection: 2 }
+    1774: { Might: 6, Protection: 2 },
+
+    // Follow-up fix (2026-08-14) to 2 of the 3 "mode-dependent DIFFERENT-boon swap" traits left open
+    // by the trait-granted-boons-on-skills sweep (Ranger/Mesmer legs) — re-examined after the sweep
+    // closed and found BOTH fit the existing single-value-per-status override shape after all, no new
+    // mechanism needed; only Seize the Moment (2022, still open, see its own comment above in the
+    // BUFF_INSTANCE_LABELS block) genuinely needs one, since it splits 2 *different* concepts
+    // ("per Clone" / base) under the one "Quickness" status at once, which this override can't hold.
+    //
+    // Grace of the Land (2001, Ranger/Druid, "grant boons to allies within the radius of your
+    // Celestial Avatar skills"): wiki confirms pve grants 1 stack Alacrity, wvw grants Might (4s,
+    // 2 stacks), pvp grants Might (6s, 2 stacks) — the automated scan already found+omitted the
+    // pve-only Alacrity concept, but left both raw Might facts (4s and 6s, both apply_count 2)
+    // un-deduped since neither is individually PvE-only, so the trait tooltip today shows Might
+    // twice at once (both durations) instead of picking the wvw one. This override collapses that
+    // down to a single wvw-correct row, same "first-encountered fact wins, extras suppressed" dedup
+    // every other single-concept trait/skill override in this file already relies on.
+    2001: { Might: 4 },
+
+    // Stretched Time (1942, Mesmer/Chaos, "nearby allies gain boons for each clone you shatter /
+    // when you summon a phantasm"): per its own decoded wiki breakdown in the BUFF_INSTANCE_LABELS
+    // block above, BOTH its Alacrity concepts ("per Clone" pve+pvp only, "on Phantasm Spawn" pve/pvp
+    // only) have no wvw value at all — only its 2 Might concepts are wvw-tagged. The automated scan
+    // never flagged this (no single Alacrity fact is a plain pve-vs-wvw+pvp duration split, so its
+    // pattern-match missed it), so today's trait tooltip incorrectly shows both Alacrity rows
+    // alongside the correct Might rows in a wvw-focused view. Omitting the whole "Alacrity" status
+    // is safe here since neither of its 2 concepts has any wvw application to preserve — the 2 Might
+    // rows stay distinct via their own already-curated BUFF_INSTANCE_LABELS entries, no override
+    // needed on that status.
+    1942: { Alacrity: 'omit' }
   }
 }
 
