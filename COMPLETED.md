@@ -2,6 +2,44 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 201 — Flat critical-hit-chance trait sweep
+
+Closed TODO.md's "Pinnacle of Strength's flat, unconditional +5% critical-hit chance fact is NOT
+curated anywhere" follow-up from the trait-attribute-bonus completeness scan. Ran a full
+`data/game-data/traits.json` scan for `Percent`-typed facts whose `text` matches
+"critical...chance" (covers "Critical Chance Increase", "Critical Chance per Stack", and any
+`alt=`-renamed variant) — 26 candidate traits found, 6 already covered by the existing
+`FURY_CRIT_CHANCE_TRAIT_BONUSES`/`FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES` tables.
+
+Of the remaining 20, 5 fit existing `CombatState` infra and are now curated (`combat-state.ts`, all
+wiki-verified via raw wikitext 2026-08-15):
+- **`FLAT_CRIT_CHANCE_TRAIT_BONUSES`** (new, unconditional — no gate at all): Zephyr's Speed
+  (Elementalist/Air, id 221, +5%, no split), Death Perception (Necromancer/Soul Reaping, id 893,
+  +15% WvW, its crit-*damage* half stays Shroud-gated but crit-*chance* is unconditional), Pinnacle
+  of Strength (Warrior/Strength, id 1453, +5%, no split — the trait's Power-per-Might-stack half
+  was already curated in `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES`).
+- **`HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES`** (new, gated by the existing `HealthTier` from
+  `combatState.healthTier` — no new state needed): Keen Observer (Thief/Deadly Arts, id 1281), WvW
+  5% base / 10% above the (~90%, approximated to the `'above75'` tier bucket) health threshold.
+- **`MECHANIC_ACTIVE_CRIT_CHANCE_TRAIT_BONUSES`** (new, gated by the existing `combatState.mechanicActive`
+  toggle — no new state needed): Smash Brawler (Warrior/Berserker, id 2049), WvW +5% while berserk.
+
+All 3 new tables wired into `derived-stats.ts`'s `criticalChance` formula alongside the existing
+Fury/Endurance ones.
+
+The other 15 candidates are foe-state-gated (vs. Defiant/Disabled/Burning/Weakened/behind-or-side/
+in-range/bleeding foes, or scaling per condition/Vulnerability stack on the *foe*), own-resource-gated
+(Guardian's Resolution, Ranger's Opening Strike, Mesmer's per-clone-shatter Alacrity), or a
+proc/temporary-buff-on-cast value (Burst Precision) — none of these have any `CombatState` concept to
+gate against, same "genuine stat gain, no infra yet" shape TODO.md's "New attribute-bonus gaps
+needing new CombatState infra" section already tracks for other attributes. Not re-logged there
+individually — instead captured as a permanent CI-enforced completeness scan
+(`crit-chance-completeness.test.ts`, new, same "coverage not correctness" shape as
+`trait-attribute-completeness.test.ts`) so a future balance patch adding a new crit-chance trait, or
+one of these 15 gaining new infra elsewhere, gets caught instead of silently staying stale.
+
+`npm run typecheck`/`lint`/`test` all clean (135 tests, +3 new).
+
 ## Session 200 — Fix: Elementalist Evoker's Familiar (F5) now contributes to the aggregate Boon/Condition panel
 
 Closed the one remaining gap Session 198 explicitly deferred: every other profession-mechanic (F1-F5)

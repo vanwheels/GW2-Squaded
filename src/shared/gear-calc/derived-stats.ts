@@ -14,11 +14,14 @@ import {
   combatStatePoints,
   CURATED_RELIC_DAMAGE_BONUSES,
   DEFAULT_COMBAT_STATE,
+  flatCritChanceTraitBonus,
   fullEnduranceCritChanceTraitBonus,
   furyCritChanceTraitBonus,
   FURY_CRITICAL_CHANCE_PERCENT,
   healthThresholdConsumableBonus,
+  highHealthCritChanceTraitBonus,
   kallaFervorPercentPerStack,
+  mechanicActiveCritChanceTraitBonus,
   type CombatState
 } from './combat-state'
 import { applyTraitBonuses } from './trait-attributes'
@@ -216,7 +219,10 @@ export function computeCharacterStats(
       (combatState.furyActive
         ? FURY_CRITICAL_CHANCE_PERCENT + furyCritChanceTraitBonus(build, traitsById)
         : 0) +
-      fullEnduranceCritChanceTraitBonus(build, traitsById, combatState.fullEnduranceActive),
+      fullEnduranceCritChanceTraitBonus(build, traitsById, combatState.fullEnduranceActive) +
+      flatCritChanceTraitBonus(build, traitsById) +
+      highHealthCritChanceTraitBonus(build, combatState.healthTier, traitsById) +
+      (combatState.mechanicActive ? mechanicActiveCritChanceTraitBonus(build, traitsById) : 0),
     criticalDamage: BASE_CRITICAL_DAMAGE_PERCENT + attributes.ferocity / FEROCITY_PER_CRITICAL_DAMAGE_PERCENT,
     boonDuration: boonDurationPercent(totals),
     conditionDuration: conditionDurationPercent(totals),

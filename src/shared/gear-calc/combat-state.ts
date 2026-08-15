@@ -299,6 +299,51 @@ export function fullEnduranceCritChanceTraitBonus(build: Build, traitsById: Map<
 }
 
 /**
+ * Trait id -> flat critical-hit-chance bonus granted unconditionally (no Fury/Endurance/health/
+ * mechanic gate at all) — TODO.md's "Pinnacle of Strength flat-crit sweep" follow-up to
+ * `FURY_CRIT_CHANCE_TRAIT_BONUSES`/`FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES` above, run 2026-08-15
+ * as a full `traits.json` scan for every `Percent` fact whose text matches "Critical Chance
+ * Increase" (26 candidate traits found; the other 20 turned out to be foe-state-gated (e.g. vs.
+ * Defiant/Disabled/Burning/Weakened/behind-target foes), own-resource-gated (Guardian's Resolution,
+ * Ranger's Opening Strike), range-gated, or already covered by the Fury/Endurance tables above — see
+ * `HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES`/`MECHANIC_ACTIVE_CRIT_CHANCE_TRAIT_BONUSES` below for the
+ * 2 that fit *other* existing gates instead of this unconditional one). All 3 wiki-verified via raw
+ * wikitext (`?action=raw`) 2026-08-15:
+ * - Zephyr's Speed (wiki.guildwars2.com/index.php?title=Zephyr's_Speed_(elementalist), Elementalist/
+ *   Air, Minor tier 1, id 221): `{{skill fact|critical chance increase|5}}`, no game-mode split. The
+ *   trait's other effect (+25% movement speed while attuned to air) is attunement-gated, out of
+ *   scope for this unconditional table.
+ * - Death Perception (wiki.guildwars2.com/wiki/Death_Perception, Necromancer/Soul Reaping, Major
+ *   tier 3, id 893): `{{skill fact|critical chance increase|15|game mode = pve wvw}}` /
+ *   `...|10|game mode = pvp}}` — WvW value 15, and genuinely unconditional despite the trait's other
+ *   half ("gain increased critical-strike damage while in shroud") being Shroud-gated — the crit-
+ *   *chance* grant itself always applies, confirmed by the wiki's own fact template carrying no
+ *   `requires`/shroud qualifier unlike the separate Critical Damage Increase facts.
+ * - Pinnacle of Strength (wiki.guildwars2.com/wiki/Pinnacle_of_Strength, Warrior/Strength, Minor
+ *   tier 3, id 1453): `{{skill fact|Critical Chance Increase|5}}`, no game-mode split (added by the
+ *   2022-07-19 balance patch per the wiki's own Version History). The trait's other effect (+10
+ *   Power per Might stack) is already curated in `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES` above.
+ */
+export const FLAT_CRIT_CHANCE_TRAIT_BONUSES: Record<number, number> = {
+  221: 5, // Zephyr's Speed (Elementalist, Air, Minor tier 1) — no mode split
+  893: 15, // Death Perception (Necromancer, Soul Reaping, Major tier 3) — WvW value (PvP is 10)
+  1453: 5 // Pinnacle of Strength (Warrior, Strength, Minor tier 3) — no mode split
+}
+
+/**
+ * Sums every curated unconditional flat-crit-chance trait bonus active on this build (mirrors
+ * `furyCritChanceTraitBonus`'s shape, minus the caller-side gate — this one always contributes).
+ */
+export function flatCritChanceTraitBonus(build: Build, traitsById: Map<number, Trait>): number {
+  const active = activeTraitIds(build, traitsById)
+  let bonus = 0
+  for (const [traitIdText, value] of Object.entries(FLAT_CRIT_CHANCE_TRAIT_BONUSES)) {
+    if (active.has(Number(traitIdText))) bonus += value
+  }
+  return bonus
+}
+
+/**
  * Trait id -> extra flat attribute point granted while Fury is active, on top of any curated
  * critical-*chance* bonus above — a sibling family for traits whose Fury-gated bonus instead
  * targets a raw attribute (Ferocity/Condition Damage). Found via the trait-attribute-bonus sweep
@@ -366,9 +411,8 @@ export function furyAttributeTraitBonus(build: Build, traitsById: Map<number, Tr
  * - Pinnacle of Strength (wiki.guildwars2.com/wiki/Pinnacle_of_Strength, Warrior/Strength, Minor,
  *   id 1453): "Might applied to you grants more power", raw API `AttributeAdjust` value 10/target
  *   Power, same +10 Power/stack shape. Also carries a flat, unconditional +5% critical-hit chance
- *   ("Critical Chance Increase" fact, added 2022-07-19) — NOT curated here or anywhere else yet, no
- *   unconditional flat-crit-chance table exists in this codebase (only the Fury-gated one above);
- *   logged in TODO.md as a follow-up.
+ *   ("Critical Chance Increase" fact, added 2022-07-19) — curated separately in
+ *   `FLAT_CRIT_CHANCE_TRAIT_BONUSES` below (2026-08-15 flat-crit sweep).
  * - Applied Force (wiki.guildwars2.com/wiki/Applied_Force, Engineer/Scrapper, Major, id 1849):
  *   `split = pve, wvw, pvp`, raw facts dump all 3 untagged (30/15/10) same ambiguous shape as other
  *   split traits elsewhere in this codebase; WvW value is 10 (reduced from 15 on 2026-01-13). The
@@ -522,6 +566,36 @@ export function mechanicActiveAttributeTraitBonus(build: Build, traitsById: Map<
 }
 
 /**
+ * Trait id -> flat critical-hit-chance bonus while the profession mechanic is active — the
+ * mechanic-active-gated sibling to `FLAT_CRIT_CHANCE_TRAIT_BONUSES` above, found by the same
+ * 2026-08-15 "Critical Chance Increase" scan. Only one candidate: Smash Brawler
+ * (wiki.guildwars2.com/wiki/Smash_Brawler, Warrior/Berserker, Major tier 1, id 2049) —
+ * "Critical-hit chance is increased while berserk." Raw wikitext (`?action=raw`) confirms a
+ * genuine 2-way split, `{{skill fact|Critical Chance Increase|15|game mode = pve pvp}}` /
+ * `...|5|game mode = wvw}}` — WvW value 5. Reuses `CombatState.mechanicActive` (Berserk mode is one
+ * of the 3 mechanics that toggle already, see `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`'s doc
+ * comment), no new state needed. The trait's other effect (extends Berserk duration on Primal Burst
+ * hit) is a proc/duration effect, not a character-stat gain — out of scope here.
+ */
+export const MECHANIC_ACTIVE_CRIT_CHANCE_TRAIT_BONUSES: Record<number, number> = {
+  2049: 5 // Smash Brawler (Warrior, Berserker, Major tier 1) — WvW value (PvE/PvP is 15)
+}
+
+/**
+ * Sums every curated mechanic-active flat-crit-chance trait bonus active on this build (mirrors
+ * `furyCritChanceTraitBonus`'s shape). Only meaningful when combined with `combatState.mechanicActive`
+ * by the caller.
+ */
+export function mechanicActiveCritChanceTraitBonus(build: Build, traitsById: Map<number, Trait>): number {
+  const active = activeTraitIds(build, traitsById)
+  let bonus = 0
+  for (const [traitIdText, value] of Object.entries(MECHANIC_ACTIVE_CRIT_CHANCE_TRAIT_BONUSES)) {
+    if (active.has(Number(traitIdText))) bonus += value
+  }
+  return bonus
+}
+
+/**
  * Trait id -> extra flat attribute point granted while the Revealed debuff is active — the
  * "Revealed-state-gated flat bonuses" family from TODO.md, 7th leg of the conditional-trait-
  * attribute-bonus sweep. Only one candidate turned up (Thief only): Revealed Training
@@ -604,6 +678,42 @@ export function healthThresholdAttributeTraitBonus(build: Build, tier: HealthTie
   for (const [traitIdText, tiers] of Object.entries(HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES)) {
     if (!active.has(Number(traitIdText))) continue
     for (const [target, value] of Object.entries(tiers[tier])) bonus[target] = (bonus[target] ?? 0) + value
+  }
+  return bonus
+}
+
+/**
+ * Trait id -> { above the health threshold / otherwise } flat critical-hit-chance bonus — the
+ * health-tier-gated sibling to `FLAT_CRIT_CHANCE_TRAIT_BONUSES`/`MECHANIC_ACTIVE_CRIT_CHANCE_TRAIT_BONUSES`
+ * above, found by the same 2026-08-15 "Critical Chance Increase" scan. Only one candidate: Keen
+ * Observer (wiki.guildwars2.com/wiki/Keen_Observer, Thief/Deadly Arts, Minor tier 1, id 1281) —
+ * "Critical-hit chance is increased, and it is further increased while your health is above the
+ * threshold." Raw wikitext (`?action=raw`) shows the threshold itself splits by mode (`{{skill
+ * fact|health threshold|50|game mode = pve}}` / `...|90|game mode = wvw pvp}}` — WvW is 90%) and
+ * the trait stacks 2 independent facts: an always-on base (`{{skill fact|critical chance
+ * increase|10|game mode=pve}}` / `...|5|game mode=wvw pvp}}` — WvW 5%) plus a `alt=High-Health
+ * Critical Chance Increase` bonus on top while above the threshold (`...|5|game mode=pve}}` /
+ * `...|5|game mode=wvw pvp}}` — WvW 5% either mode). WvW total: 5% base, 10% while above 90%
+ * health. Reuses the existing `HealthTier`/`state.healthTier` (no new `CombatState` field), same
+ * `'above75'`-bucket approximation `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES` already documents for
+ * a >75%-but-not-exactly-90% threshold — `aboveThreshold` only fires at the `'above75'` tier, not
+ * `'between50and75'`.
+ */
+export const HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES: Record<number, { aboveThreshold: number; otherwise: number }> = {
+  1281: { aboveThreshold: 10, otherwise: 5 } // Keen Observer (Thief, Deadly Arts, Minor tier 1) — WvW values
+}
+
+/**
+ * Sums every curated health-tier-gated flat-crit-chance trait bonus active on this build for the
+ * given tier (mirrors `fullEnduranceCritChanceTraitBonus`'s "override, not stack" shape, keyed by
+ * `HealthTier` instead of a boolean). Unlike the Fury/mechanic-active crit-chance tables, this isn't
+ * gated by a separate boolean — `state.healthTier` itself always has a value.
+ */
+export function highHealthCritChanceTraitBonus(build: Build, tier: HealthTier, traitsById: Map<number, Trait>): number {
+  const active = activeTraitIds(build, traitsById)
+  let bonus = 0
+  for (const [traitIdText, { aboveThreshold, otherwise }] of Object.entries(HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES)) {
+    if (active.has(Number(traitIdText))) bonus += tier === 'above75' ? aboveThreshold : otherwise
   }
   return bonus
 }

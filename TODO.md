@@ -129,10 +129,6 @@ have infra for yet, so none are rushed into an existing curated table:
       boon-tooltip name list, so don't just add it there as a shortcut. Once `deathsCarapaceStacks`
       exists, Deadly Strength/Soul Comprehension/Armored Shroud/Dark Defense's granting+consuming
       sides can all be wired against the same field.
-- [ ] Pinnacle of Strength's flat, unconditional +5% critical-hit chance fact is NOT curated
-      anywhere — no unconditional flat-crit-chance table exists yet in this codebase (only the
-      Fury-gated `FURY_CRIT_CHANCE_TRAIT_BONUSES`). Worth a future small sweep if more unconditional
-      flat-crit traits turn up.
 - [ ] **Seize the Moment (Mesmer/Illusions, trait 2022) — WvW tooltip shows wrong Quickness
       values, needs a new override mechanism.** Wiki splits 2 *different* concepts under the trait's
       one "Quickness" status at once — "Quickness per Clone" (pve 1s/pvp 0.75s/wvw 0.5s) and a
