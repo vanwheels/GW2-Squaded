@@ -3,6 +3,7 @@ import type { Build } from '@shared/types'
 import type { CombatState } from '@shared/gear-calc/combat-state'
 import { boonConditionFactsForSkill } from '@shared/boon-calc/sources'
 import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
+import { branchConditionalFacts } from '@shared/skill-calc/branch-conditional-facts'
 import {
   ALLIANCE_TACTICS_SKILL_ID,
   CATALYST_SPEC_ID,
@@ -25,7 +26,7 @@ import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
 import { usePickerOpen } from '@renderer/state/picker-registry'
-import { factsBlock, skillNamedFacts, useDurationContext } from './SkillsEditor'
+import { factsBlock, skillNamedFacts, useDurationContext, conditionalBranchesBlock } from './SkillsEditor'
 
 interface Props {
   build: Build
@@ -120,7 +121,7 @@ const THIEF_STOLEN_SKILL_SLOT = 'Profession_2'
  * `Build.weaverPreviousAttunement`'s doc comment.
  *
  * Unlike every other tooltip in the app, this bar's own `skillTooltipFor` deliberately builds a
- * plain title+description+facts tooltip rather than reusing `SkillsEditor`'s
+ * plain title+description+facts(+branches) tooltip rather than reusing `SkillsEditor`'s
  * `skillTooltipContent` — that helper also appends `relatedVariantSkills` (every other skill
  * sharing this one's name with a non-null `attunement`), meant for a genuinely-picked skill like a
  * Glyph whose per-attunement effects the player can't otherwise see. Every entry rendered here is
@@ -130,6 +131,18 @@ const THIEF_STOLEN_SKILL_SLOT = 'Profession_2'
  * ~24-candidate pool has multiple near-identical orphaned duplicate ids per attunement (see that
  * constant's own doc comment), so `relatedVariantSkills` matching by name alone rendered the same
  * attunement's facts repeated several times over instead of once each.
+ *
+ * `branchConditionalFacts`/`conditionalBranchesBlock` (added 2026-08-15, see TODO.md/COMPLETED.md
+ * — user-reported: Paragon's Chants showed only Recharge/Radius/Number of Targets/Interval, none of
+ * their curated Motivation-tier boons) IS still called here despite the paragraph above, since it's
+ * unrelated to `relatedVariantSkills` — every branch-having skill curated so far (Otherworldly
+ * Bond's own weapon-skill slot aside) is either Warrior's Burst Skill chain (Dragon Slash Sharp as
+ * the Wind/River's Flow, Session 193) or a Paragon Chant (Session 195/196), both of which render
+ * ONLY through this bar, never through `SkillsEditor`'s own `skillTooltipContent` — so without this
+ * call, curated branch content for an entire profession-mechanic-bar skill would silently never
+ * reach the tooltip no matter how correct the underlying data was. Verify any *future*
+ * `branchConditionalFacts` entry against both possible render paths (this bar and
+ * `SkillsEditor.tsx`), not just one.
  */
 export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuildChange, combatState }: Props) {
   const { gameData, activeIds, legendIds, durationPercent, characterAttributes, targetArmor } = useDurationContext(build, combatState)
@@ -160,10 +173,12 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
     const facts = boonConditionFactsForSkill(skill, activeIds, legendIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id], gameData.legends)
     const numericLines = skillFactLines(skill, activeIds, characterAttributes.power, characterAttributes.healingPower, targetArmor)
     const namedFacts = skillNamedFacts(skill, activeIds, legendIds, gameData.wvwFactOverrides.skill[skill.id])
+    const branches = branchConditionalFacts(skill, durationPercent, characterAttributes.healingPower)
     return (
       <>
         <TooltipBody title={skill.name} description={skill.description} />
         {factsBlock(numericLines, facts, namedFacts)}
+        {conditionalBranchesBlock(branches)}
       </>
     )
   }
