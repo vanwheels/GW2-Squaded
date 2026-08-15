@@ -376,6 +376,7 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
           <div className="tooltip-divider">
             <span className="tooltip-section-label">{branch.label}</span>
           </div>
+          {branch.description && <div className="tooltip-description">{branch.description}</div>}
           {factsBlock(branch.numericLines, branch.facts)}
         </div>
       ))}

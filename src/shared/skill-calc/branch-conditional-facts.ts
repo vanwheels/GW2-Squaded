@@ -13,6 +13,13 @@ import type { FactLine } from './fact-numbers'
  */
 export interface ConditionalBranch {
   label: string
+  /** The wiki's own phase-by-phase narrative for this branch (e.g. "0-2 Seconds: ... / 2-4 Seconds:
+   *  Additionally ... / 4-6 Seconds: ..."), rendered the same `.tooltip-description` way
+   *  `TooltipBody` renders a skill's own description — without this, a flat bullet list of every
+   *  status the branch ever grants reads as "all of these apply from the moment of cast," which
+   *  misrepresents a skill built entirely around escalating over time. Optional since not every
+   *  future branch necessarily has (or needs) wiki prose to quote. */
+  description?: string
   numericLines: FactLine[]
   facts: BoonConditionSource[]
 }
@@ -77,6 +84,12 @@ function otherworldlyBondBranches(skill: Skill, durationPercent: { boon: number;
   return [
     {
       label: 'Enemy Target',
+      // Verbatim off the wiki's own infobox prose (`{{skill fact|enemy target|...}}`, fetched
+      // 2026-08-14) — quoted, not paraphrased, same as every other curated fact in this file.
+      description:
+        '0-2 Seconds: Inflict vulnerability on linked enemy each interval.\n' +
+        '2-4 Seconds: Additionally inflicts cripple.\n' +
+        '4-6 Seconds: Additionally inflicts slow. Gain access to Otherworldly Attraction.',
       numericLines: [
         { icon: DURATION_ICON, text: 'Duration: 7 seconds' },
         { icon: INTERVAL_ICON, text: 'Interval: 1 second' }
@@ -85,6 +98,10 @@ function otherworldlyBondBranches(skill: Skill, durationPercent: { boon: number;
     },
     {
       label: 'Ally Target',
+      description:
+        '0-2 Seconds: Grant might to the linked ally and players around you each interval.\n' +
+        '2-4 Seconds: Grant more might.\n' +
+        '4-6 Seconds: Grant even more might. In addition, grant fury. Gain access to Otherworldly Attraction.',
       numericLines: [
         // The wiki's own rendered fact table keeps this one as flat text ("Might Stacks per Level
         // (4s): 30 Condition Damage, 30 Power" at WvW+PvP base) rather than a scaled duration row —
