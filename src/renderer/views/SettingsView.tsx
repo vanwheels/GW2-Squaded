@@ -3,6 +3,7 @@ import type { UpdateStatus } from '@shared/updater/updater-provider'
 import type { DataUpdateStatus, GameDataMeta } from '@shared/game-data/data-update-provider'
 import { useAppSettings } from '@renderer/state/app-settings-store'
 import { useDataUpdate } from '@renderer/state/data-update-store'
+import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch'
 
 export function SettingsView() {
   const [version, setVersion] = useState('')
@@ -33,32 +34,12 @@ export function SettingsView() {
 
       <div className="settings-panel">
         <h3>Display</h3>
-        <label className="settings-toggle-row">
-          <input
-            type="checkbox"
-            checked={showUnderwater}
-            onChange={(e) => setShowUnderwater(e.target.checked)}
-          />
-          <span>Show underwater equipment &amp; skills</span>
-        </label>
-        <p className="muted">
-          When off, the Equipment tab's underwater weapon panel and the in-game skill bar's
-          land/underwater toggle stay hidden, and underwater weapon skills are excluded from
-          boon/condition totals — same as if nothing were equipped underwater. Off by default since
-          underwater combat rarely comes up in WvW.
-        </p>
-        <label className="settings-toggle-row">
-          <input
-            type="checkbox"
-            checked={showRacialSkills}
-            onChange={(e) => setShowRacialSkills(e.target.checked)}
-          />
-          <span>Show racial skills</span>
-        </label>
-        <p className="muted">
-          When off, Human/Charr/Asura/Norn/Sylvari racial skills are hidden from the Heal/Utility/
-          Elite pickers. Off by default since racial skills rarely see competitive WvW use.
-        </p>
+        <ToggleSwitch
+          checked={showUnderwater}
+          onChange={setShowUnderwater}
+          label="Show underwater equipment & skills"
+        />
+        <ToggleSwitch checked={showRacialSkills} onChange={setShowRacialSkills} label="Show racial skills" />
       </div>
 
       <div className="settings-panel settings-panel-spaced">

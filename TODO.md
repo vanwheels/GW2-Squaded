@@ -27,17 +27,6 @@ Paragon's Motivation-tiered Chants (flagged by the user 2026-08-14) is now **FUL
 COMPLETED.md for the per-trait writeup) are all curated. One genuine gap fell out of that pass, since
 fixed — see COMPLETED.md's 2026-08-15 `MISCELLANEOUS_MATCHERS` WvW-override entry.
 
-- [ ] Settings toggle-switch restyle (flagged 2026-08-16, reference screenshot: iOS-style pill
-      switch, teal when on) — replace the 2 plain `<input type="checkbox">` rows in `SettingsView.tsx`
-      (Show underwater equipment & skills / Show racial skills) with a styled toggle-switch control,
-      and delete both `<p className="muted">` explainer paragraphs under them (user wants the toggles
-      self-explanatory, no description text). Open call: color — the app's only defined accent
-      (`--accent`, crimson) is reserved for destructive/error UI per its own doc comment in
-      `global.css`, so reusing it for an "on" toggle would be a semantic clash; the reference
-      screenshot's teal doesn't exist anywhere in this app's palette yet. Needs a decision (new
-      "affirmative" color token, or repurpose one of the existing `--rarity-*` colors) before
-      building, not guessed silently.
-
 - [ ] Party-wide-only filter for boon/condition/effect summaries (flagged 2026-08-16) — a new toggle
       on the build editor (`BoonConditionSummaryPanel`) and squad editor (`SlotTile`/`PartyRow`) that,
       when on, only shows boons/auras/miscellaneous effects (stealth, superspeed, etc.) and cleanses
