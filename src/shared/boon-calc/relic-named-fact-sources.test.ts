@@ -14,7 +14,9 @@ import { CONTROL_MATCHERS, MISCELLANEOUS_MATCHERS, BOON_STRIP_CORRUPT_MATCHERS, 
  * `docs/relic-trigger-classification.md`'s "Leg 5" section for the full per-relic writeup. Leg 6
  * (2026-08-16) added a 9th: Relic of the Citadel (100448), whose Stun turned out to be a
  * deterministic function of the triggering elite skill's own recharge after all — see
- * `citadelStunDurationSeconds`'s doc comment in `sources.ts`.
+ * `citadelStunDurationSeconds`'s doc comment in `sources.ts`. Leg 7 (2026-08-16) added a 10th:
+ * Relic of the Astral Ward (100388), whose "2-step signet mechanic" turned out to fit the same
+ * `ability`-gated shape as every other relic here.
  */
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -199,11 +201,30 @@ describe("Relic of the Citadel (100448) — elite-skill gate, Stun duration comp
   })
 })
 
+describe('Relic of the Astral Ward (100388) — ability-category gate (Signet), Cleanse', () => {
+  const SIGNET_OF_FIRE_ID = 5542 // Elementalist Signet, carries the 'Signet' category
+
+  it('contributes Cleanse with targetCount 5 when an equipped skill carries the Signet category', () => {
+    const build = baseBuild({
+      profession: 'Elementalist',
+      relicId: 100388,
+      skills: { kind: 'standard', heal: null, utility: [SIGNET_OF_FIRE_ID, null, null], elite: null }
+    })
+    const sources = computeNamedFactSources(build, gameData, BOON_STRIP_CORRUPT_MATCHERS)
+    const cleanse = sources.find((s) => s.sourceKind === 'relic' && s.name === 'Cleanse')
+    expect(cleanse?.targetCount).toBe(5)
+  })
+
+  it('contributes nothing when no equipped skill carries the Signet category', () => {
+    const build = baseBuild({ relicId: 100388, skills: { kind: 'standard', heal: null, utility: [null, null, null], elite: NECRO_ELITE_ID } })
+    expect(computeNamedFactSources(build, gameData, BOON_STRIP_CORRUPT_MATCHERS).some((s) => s.sourceKind === 'relic')).toBe(false)
+  })
+})
+
 describe('Relics deliberately left out of RELIC_NAMED_FACT_SOURCES', () => {
-  // Astral Ward (rides the already-deferred 2-step signet mechanic), Unseen Invasion/Wayfinder
-  // (non-deterministic trigger), Founding/Mists Tide (combo-gated, non-deterministic), Mosyn
-  // (dodge-gated, already excluded).
-  const excludedRelicIds = [100388, 100694, 101943, 101737, 103901, 101801]
+  // Unseen Invasion/Wayfinder (non-deterministic trigger), Founding/Mists Tide (combo-gated,
+  // non-deterministic), Mosyn (dodge-gated, already excluded).
+  const excludedRelicIds = [100694, 101943, 101737, 103901, 101801]
 
   it.each(excludedRelicIds)('relic %i contributes nothing to computeNamedFactSources', (relicId) => {
     const build = baseBuild({

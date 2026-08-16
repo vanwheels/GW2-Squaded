@@ -2,6 +2,95 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 227 — Relic proc integration sweep leg 7: Firebrand/Astral Ward, closing the sweep
+
+Resolved the sweep's last 2 open relics (TODO.md's "Relic proc integration sweep"), closing the
+whole section — no relics left open. Neither needed a wiki re-check; both were resolved by
+re-examining the *shape* of the existing infra against each relic's already-known payload.
+
+Relic of the Astral Ward (100388) wired after all: legs 2/5/6 had all deferred it as "a 2-step
+signet mechanic worth its own leg" without testing that assumption against `RELIC_TRIGGER_GATES`'s
+real behavior — the table never modeled per-relic proc frequency/cooldown to begin with (Relic of
+the Chronomancer fires its Quickness on every single Well cast with no accounting for how often a
+well is actually up). Astral Ward firing its payload on every 2nd Signet cast instead of every cast
+(spawns "Signet of the Astral Ward" on the first, consumes it on the second) is the same category of
+frequency detail this table already glosses over elsewhere, not a new non-deterministic-trigger
+problem like the dodge relics. Wired as `{ kind: 'ability', categories: ['Signet'] }` in
+`RELIC_TRIGGER_GATES`: its Resistance fact (2s, 5 allied targets) goes through the normal
+`extractFromRelicFacts`/`computeBoonConditionSources` boon pipeline; its Conditions-Removed fact goes
+into `RELIC_NAMED_FACT_SOURCES` as a `Cleanse` entry — the same split-payload shape (one boon, one
+separate named-fact Cleanse) Relic of Febe already uses. The "every 2nd cast" nuance is stated
+honestly in that entry's `detail` text rather than silently assumed away.
+
+Relic of the Firebrand (100453) is permanently excluded instead, joining Sorrow/Leadership in that
+bucket. Its payload ("+20% Boon Duration" for 4s after using the final charge of a mantra skill) was
+already known not to fit `RELIC_TRIGGER_GATES`'s shape (a duration-percent modifier, not a discrete
+boon status) — the open question was whether it fit the permanent-attribute-bonus infra
+[[new_attribute_bonus_infra_2026-08-15]] built for Power Overwhelming/Deadly Strength. It doesn't:
+that infra models a steady-state condition (an attunement held, a stack count accumulated) this app's
+static build view can evaluate directly, while Firebrand's buff only exists for 4 seconds after a
+trigger whose real-world frequency depends on how many charges the build's mantras carry and how the
+player actually casts them — the same "no fixed frequency this app could assume without inventing
+one" reasoning that already excludes the dodge relics and Unseen Invasion/Wayfinder's Superspeed. No
+shape (existing or new) gives a temporary event-triggered percent-modifier anywhere honest to go, so
+it's closed the same way Sorrow/Leadership were — excluded for good, not deferred; it was never in
+`RELIC_TRIGGER_GATES` to remove, so no runtime code change for this half.
+
+New/updated tests: `relic-sources.test.ts` (Astral Ward's Resistance, ability-gated on Signet, +2
+tests), `relic-named-fact-sources.test.ts` (Astral Ward's Cleanse, moved out of the exclusion list),
+`relic-named-fact-completeness.test.ts` (Astral Ward's exclusion entry removed, now covered by
+`RELIC_NAMED_FACT_SOURCES`). `npm run typecheck` clean; all 3 relic test files pass (46 tests). See
+`docs/relic-trigger-classification.md`'s "Leg 7" section for the full writeup. TODO.md's "Relic proc
+integration sweep" section closed and removed entirely — this leg was its last open item.
+
+## Session 226 — Relic proc integration sweep leg 6: Leadership/Twin Generals/Citadel wiki re-check
+
+Closed 3 of the 5 relics legs 2/5 left open, via a direct wiki re-check of each (raw wikitext, not
+paraphrased) rather than re-guessing from `relic-effects.json` alone. Relic of Leadership (100625):
+permanently excluded — the wiki's own infobox confirms the payload is genuinely boon-less
+(`Conditions Converted to Boons` names a count but never which boon(s) result, and no separate
+mapping table exists on the wiki either). Relic of the Twin Generals (101767): wired for its flat
+portion — the wiki confirms leg 2's read (a flat "6 stacks, 10s" Might grant plus a separate
+per-enemy-hit-scaling "Might per Hit" fact) and surfaces a third fact this app had never considered,
+Weakness (4s, on nearby enemies), also unconditional; `relicSources` now filters out only the
+per-hit fact before parsing, letting Might + Weakness through as a `HEAL`-gated entry. Relic of the
+Citadel (100448): wired, correcting leg 5's own assumption — leg 5 guessed the Stun's 1s-3s range
+scaled with the triggering hit's defiance damage, but the wiki's Mechanics section says it's actually
+a deterministic linear function of the *equipped Elite skill's own recharge* (1s at ≤60s cooldown up
+to 3s at ≥180s), the same quantity Zephyrite's crystal duration already reads; new
+`citadelStunDurationSeconds`/`citadelBuildStunDurationSeconds` in `sources.ts`, added to
+`RELIC_TRIGGER_GATES` as `ELITE`-gated, moved out of `relic-named-fact-completeness.test.ts`'s
+`EXCLUDED_RELIC_IDS`. New/updated tests: `relic-sources.test.ts` (Twin Generals base-Might + Weakness,
+no double-count), `relic-named-fact-sources.test.ts` (Citadel's computed Stun duration at 2 different
+elite-skill recharges), `relic-named-fact-completeness.test.ts`. Left Firebrand (100453) and Astral
+Ward (100388) open — closed next in leg 7 (Session 227, above). See
+`docs/relic-trigger-classification.md`'s "Leg 6" section for the full writeup. (Committed as
+d8da623, prior to this session's own COMPLETED.md entry being written — the entry was missed at
+commit time and backfilled here.)
+
+## Session 225 — Relic proc integration sweep leg 5: Pack/Febe `MISCELLANEOUS_MATCHERS` follow-up
+
+TODO.md's "Smaller follow-up" to leg 2: re-ran leg 1's audit discipline against
+`computeNamedFactSources`'s `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/`BOON_STRIP_CORRUPT_MATCHERS`
+matcher names instead of `BOON_NAMES`/`AURA_NAMES` — turned up 6 more real candidates beyond the 2
+the TODO note already named (never in scope for leg 1's boon/aura-only audit): Relic of Cerus
+(Corrupt), Relic of the Wizard's Tower (Pull), Relic of Dagda (Daze), Relic of the Water (Cleanse),
+Relic of the Trooper (Cleanse), Relic of Bava Nisos (Cleanse) — plus Relic of the Pack (Superspeed)
+and Relic of Febe (Cleanse) from the original note, 8 wired total. New `RELIC_NAMED_FACT_SOURCES`
+table + `computeRelicNamedFactSources` in `sources.ts`, gated by `RELIC_TRIGGER_GATES` (extended with
+6 new entries for the relics that were never boon/aura candidates). 7 other candidates reviewed and
+excluded with a stated reason each: Citadel (assumed non-deterministic at the time — corrected and
+wired in leg 6), Astral Ward (its own already-deferred 2-step mechanic — wired in leg 7), Unseen
+Invasion/Wayfinder (non-deterministic stealth/combat-enter trigger), Founding/Mists Tide
+(combo-gated), Mosyn (already dodge-excluded). New tests: `relic-named-fact-sources.test.ts`
+(per-relic gate-satisfied/gate-unsatisfied regression, mirroring `relic-sources.test.ts`) and
+`relic-named-fact-completeness.test.ts` (full-sweep regression guard, mirroring
+`sigil-named-fact-completeness.test.ts`, so a future balance patch adding a new
+Control/Miscellaneous/Strip/Corrupt/Cleanse relic fact fails CI instead of going unnoticed). See
+`docs/relic-trigger-classification.md`'s "Leg 5" section for the full writeup. (Committed as f092bd0,
+prior to this session's own COMPLETED.md entry being written — the entry was missed at commit time
+and backfilled here.)
+
 ## Session 224 — Relic proc integration sweep leg 4: Relic of Sorrow, wiki-confirmed and closed for good
 
 Closed the first of the 5 relics leg 2's `RELIC_TRIGGER_GATES` deferred (TODO.md's "Relic proc

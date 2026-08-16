@@ -4097,9 +4097,11 @@ export function tomeChapterBoonSources(chapter: TomeChapter, durationPercent: { 
  * frequency for (`docs/relic-trigger-classification.md`, TODO.md's "Relic proc integration sweep,"
  * leg 1): the equipped Elite skill slot, the equipped Heal skill slot, or any equipped Heal/
  * Utility/Elite skill carrying one of `Skill.categories`' ability-type strings (Well, Signet,
- * Mantra, ...). Mantra-final-charge (Relic of the Firebrand) and the 2-step signet mechanic (Relic
- * of the Astral Ward) are deliberately absent from this type — see `RELIC_TRIGGER_GATES`'s doc
- * comment for why neither has a candidate worth wiring in yet.
+ * Mantra, ...) — Relic of the Astral Ward's own 2-step signet mechanic fits this `ability` shape
+ * fine (leg 7, 2026-08-16, see `RELIC_TRIGGER_GATES`'s doc comment). Mantra-final-charge (Relic of
+ * the Firebrand) is the one trigger shape genuinely absent from this type — its payload is a
+ * duration-percent modifier, not a discrete boon/named-fact grant, so no `RelicTriggerGate` shape
+ * would give it anywhere to go; see `RELIC_TRIGGER_GATES`'s doc comment for the full reasoning.
  */
 type RelicTriggerGate = { kind: 'elite' } | { kind: 'heal' } | { kind: 'ability'; categories: string[] }
 
@@ -4135,12 +4137,30 @@ type RelicTriggerGate = { kind: 'elite' } | { kind: 'heal' } | { kind: 'ability'
  *   filters out the *other* Might fact (`alt=Might per Hit`, scales with enemies struck, same
  *   "don't invent a magnitude this app doesn't model" reasoning the whole sweep exists to apply)
  *   before calling `extractFromRelicFacts`, rather than wiring a blind pass-through of both.
- * - Relic of the Firebrand (100453): payload is "+20% Boon Duration," a passive attribute-style
- *   modifier, not a discrete boon status with its own duration — doesn't fit this table's shape at
- *   all (would need new infra shaped like Power Overwhelming's, not this one).
- * - Relic of the Astral Ward (100388): already flagged in the classification doc itself as complex
- *   enough to defer to its own leg (2-step signet mechanic: spawns on one signet use, consumed by
- *   the next) — kept deferred here.
+ * - Relic of the Firebrand (100453): **Permanently excluded 2026-08-16** (leg 7), same bucket as
+ *   Sorrow/Leadership above, reached for a different reason. Its payload is "+20% Boon Duration," a
+ *   passive attribute-style modifier, not a discrete boon status with its own duration — no
+ *   `BoonConditionSource`/`AuraSource` shape fits it at all, so it was never a candidate for this
+ *   table regardless of trigger. It also isn't a fit for `new_attribute_bonus_infra`-style permanent
+ *   attribute infra (Power Overwhelming/Deadly Strength's shape): those model a *steady-state*
+ *   condition (an attunement, a stack count) this app's static build view can evaluate directly: the
+ *   buff here only exists for 4s after "the final charge of a mantra skill," and how often that
+ *   recurs depends on how many charges the build's mantras carry and how the player actually plays
+ *   them — the same "no fixed frequency this app could assume without inventing one" reasoning that
+ *   already excludes the dodge relics and Unseen Invasion/Wayfinder's Superspeed. No code change;
+ *   already excluded (never added to `RELIC_TRIGGER_GATES`).
+ * - Relic of the Astral Ward (100388): **Wired 2026-08-16** (leg 7) after all — re-examining the
+ *   "2-step signet mechanic" this app previously deferred on found it isn't actually a different
+ *   shape than every other `ability`-gated relic here, just a different-looking trigger condition.
+ *   This table already doesn't model any relic's per-fire cooldown/frequency (e.g. Chronomancer
+ *   fires its Quickness on every single Well cast with no accounting for how often a well is
+ *   actually available) — Astral Ward firing its Resistance payload on every *2nd* Signet cast
+ *   instead of every cast is the same kind of frequency detail this table already glosses over
+ *   everywhere else, not a new non-deterministic-trigger problem. Wired as `ability`-gated on
+ *   `Signet` (51 skills carry that category per `skills.json`); its "spawns then consumes" 2-step
+ *   detail is called out honestly in `RELIC_NAMED_FACT_SOURCES`'s Cleanse entry below instead of
+ *   silently assumed away. See Relic of Febe (101116) for the same "boon here, Cleanse in the other
+ *   table" split payload shape.
  * - Relic of the Pack's Superspeed fact / Relic of Febe's condition-removed facts: real facts, but
  *   `Superspeed`/condition-cleanse are tracked via the separate `computeNamedFactSources`/
  *   `MISCELLANEOUS_MATCHERS` pipeline, not `BOON_NAMES` — `extractFromRelicFacts`'s strict
@@ -4187,7 +4207,10 @@ const RELIC_TRIGGER_GATES: Record<number, RelicTriggerGate> = {
   // Leg 6 (2026-08-16) — wiki re-check turned up 2 more real candidates from the "needs a real
   // decision" pile TODO.md's leg-5 note left open.
   101767: { kind: 'heal' }, // Relic of the Twin Generals — Might + Weakness, Might-per-Hit fact excluded (see above)
-  100448: { kind: 'elite' } // Relic of the Citadel — Stun, duration computed per citadelBuildStunDurationSeconds
+  100448: { kind: 'elite' }, // Relic of the Citadel — Stun, duration computed per citadelBuildStunDurationSeconds
+  // Leg 7 (2026-08-16) — closes the sweep's last 2 open items (see this table's own doc comment):
+  // Astral Ward wired after all, Firebrand permanently excluded (never added here).
+  100388: { kind: 'ability', categories: ['Signet'] } // Relic of the Astral Ward — Resistance (Cleanse in RELIC_NAMED_FACT_SOURCES)
 }
 
 const ZEPHYRITE_RELIC_ID = 100893
@@ -4917,8 +4940,13 @@ function computeSigilNamedFactSources(build: Build, sigils: Sigil[], matchers: R
  *   `citadelStunDurationSeconds`'s doc comment. `computeRelicNamedFactSources` below overrides this
  *   entry's static `detail` with the build's actual computed duration, same pattern `relicSources`
  *   uses for Zephyrite.
- * - Relic of the Astral Ward (100388): its Cleanse rides the already-deferred 2-step signet mechanic
- *   (spawns on one signet use, consumed by the next) — still deferred, not re-litigated here.
+ * - Relic of the Astral Ward (100388): **Wired 2026-08-16** (leg 7) — re-examining the "2-step
+ *   signet mechanic" this table previously deferred on found it's the same `ability`-gated shape
+ *   every other relic here already uses, just with a trigger condition ("every 2nd Signet cast,"
+ *   not every cast) this table doesn't otherwise model the frequency nuance of anyway — see
+ *   `RELIC_TRIGGER_GATES`'s own doc comment for the full reasoning. Its Resistance boon is wired via
+ *   that table/`extractFromRelicFacts` instead; this entry is just its Cleanse half, same split
+ *   payload shape as Relic of Febe above.
  * - Relic of the Unseen Invasion (100694) / Relic of the Wayfinder (101943): both carry a literal
  *   `"Superspeed"`-labeled fact, but `docs/relic-trigger-classification.md`'s leg-1 audit already
  *   flagged their triggers as non-deterministic for this app (stealth enter/exit "circular/
@@ -4947,7 +4975,10 @@ export const RELIC_NAMED_FACT_SOURCES: Record<number, { name: string; detail: st
   104848: { name: 'Cleanse', detail: '2 conditions (on Stance use)' }, // Relic of Bava Nisos
   // Leg 6 (2026-08-16) — see this table's own doc comment for why Citadel moved out of the
   // "genuinely variable" pile; `detail` here is a placeholder, always overridden below.
-  100448: { name: 'Stun', detail: '1s–3s (on Elite skill use, 30s CD)' } // Relic of the Citadel
+  100448: { name: 'Stun', detail: '1s–3s (on Elite skill use, 30s CD)' }, // Relic of the Citadel
+  // Leg 7 (2026-08-16) — see this table's own doc comment for why Astral Ward moved out of the
+  // deferred pile; Resistance (its other half) is wired via RELIC_TRIGGER_GATES instead.
+  100388: { name: 'Cleanse', detail: '2 conditions (on every 2nd Signet cast — spawns then consumes, no fixed CD)' } // Relic of the Astral Ward
 }
 
 /** `RELIC_NAMED_FACT_SOURCES`' entry for the build's equipped relic, or `[]` when no relic is

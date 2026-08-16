@@ -21,7 +21,9 @@ import { CONTROL_MATCHERS, MISCELLANEOUS_MATCHERS, BOON_STRIP_CORRUPT_MATCHERS, 
  * Leg 6 (2026-08-16) moved Relic of the Citadel (100448) out of the exclusion list and into
  * `RELIC_NAMED_FACT_SOURCES` — a wiki Mechanics-section re-check found its Stun is actually a
  * deterministic function of the triggering elite skill's own recharge, not the triggering hit's
- * defiance damage as originally assumed (see `citadelStunDurationSeconds`'s doc comment).
+ * defiance damage as originally assumed (see `citadelStunDurationSeconds`'s doc comment). Leg 7
+ * (2026-08-16) did the same for Relic of the Astral Ward (100388) — its "2-step signet mechanic"
+ * fits the same `ability`-gated shape every other relic here already uses.
  */
 
 interface RelicFactLineFile {
@@ -72,8 +74,6 @@ const COVERED_RELIC_IDS = new Set<number>(Object.keys(RELIC_NAMED_FACT_SOURCES).
 /** Reviewed-and-excluded relics (see `RELIC_NAMED_FACT_SOURCES`'s doc comment in `sources.ts` for
  *  the full writeup behind each). */
 const EXCLUDED_RELIC_IDS: Record<number, string> = {
-  100388:
-    'Relic of the Astral Ward — Cleanse rides the already-deferred 2-step signet mechanic (spawns on one signet use, consumed by the next). Still deferred, not a new decision for this leg.',
   100694:
     'Relic of the Unseen Invasion — literal "Superspeed" fact, but docs/relic-trigger-classification.md\'s leg-1 audit already flagged its stealth-enter/exit trigger as "circular/unbounded," not deterministic for this app.',
   101737:

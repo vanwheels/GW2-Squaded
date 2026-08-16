@@ -230,12 +230,17 @@ one had:
 
 - ~~Zephyrite (100893) — stepped-duration curation still open.~~ **DONE, leg 3 (see below).**
 - ~~Sorrow (103424) — correction to this doc's own leg-1 table.~~ **CLOSED, leg 4 (see below).**
-- Leadership (100625) — "Convert conditions into boons" doesn't name a specific boon.
-- Twin Generals (101767) — carries a second, variable "Might per Hit" fact alongside its flat base
-  Might; needs a real decision before it can be wired without inventing a number.
-- Firebrand (100453) — "+20% Boon Duration" doesn't fit this table's shape (needs attribute-modifier
-  infra, not a boon-status entry).
-- Astral Ward (100388) — already flagged above as a 2-step mechanic worth its own leg; still true.
+- ~~Leadership (100625) — "Convert conditions into boons" doesn't name a specific boon.~~
+  **CLOSED, leg 6 (see below) — permanently excluded, wiki-confirmed no boon mapping exists.**
+- ~~Twin Generals (101767) — carries a second, variable "Might per Hit" fact alongside its flat base
+  Might; needs a real decision before it can be wired without inventing a number.~~ **DONE, leg 6
+  (see below).**
+- ~~Firebrand (100453) — "+20% Boon Duration" doesn't fit this table's shape (needs attribute-modifier
+  infra, not a boon-status entry).~~ **CLOSED, leg 7 (see below) — permanently excluded, no shape
+  (existing or new) fits a temporary event-triggered percent modifier.**
+- ~~Astral Ward (100388) — already flagged above as a 2-step mechanic worth its own leg; still
+  true.~~ **DONE, leg 7 (see below) — the 2-step mechanic fits this table's existing `ability` shape
+  after all.**
 
 Also surfaced, not attempted this leg: Pack's Superspeed and Febe's condition-removal facts are real
 and deterministic but belong to `computeNamedFactSources`/`MISCELLANEOUS_MATCHERS`, not this table —
@@ -317,7 +322,8 @@ it":
   `RELIC_TRIGGER_GATES`'s Twin Generals entry already had open. **Corrected in leg 6** — see below;
   the assumption was wrong.
 - Relic of the Astral Ward (100388) — its Cleanse rides the already-deferred 2-step signet mechanic.
-  Still deferred.
+  Still deferred at this leg. **Wired in leg 7** — see below; the 2-step mechanic turned out to fit
+  this table's existing `ability` shape after all.
 - Relic of the Unseen Invasion (100694) / Relic of the Wayfinder (101943) — both carry a literal
   "Superspeed"-labeled fact, but leg 1's own audit already flagged their triggers (stealth enter/
   exit; combat-enter) as non-deterministic for this app — same category of exclusion as dodge, just
@@ -378,3 +384,45 @@ TODO.md.
 New/updated tests: `relic-sources.test.ts` (Twin Generals base-Might + Weakness, no double-count),
 `relic-named-fact-sources.test.ts` (Citadel's computed Stun duration at 2 different elite-skill
 recharges), `relic-named-fact-completeness.test.ts` (Citadel moved out of `EXCLUDED_RELIC_IDS`).
+
+## Leg 7 — Firebrand/Astral Ward final decision, DONE 2026-08-16
+
+Closes the sweep's last 2 open relics — no wiki re-check needed this time, both were resolved by
+re-examining the *shape* of the existing infra against each relic's already-known payload:
+
+- **Relic of the Astral Ward (100388) — wired after all.** Legs 2/5/6 all deferred this one as "a
+  2-step signet mechanic worth its own leg" without ever actually testing that assumption against
+  `RELIC_TRIGGER_GATES`'s real behavior. On inspection, the table never modeled per-relic proc
+  frequency/cooldown at all — Relic of the Chronomancer fires its Quickness on *every* Well cast
+  with no accounting for how often a well is actually up, Relic of the Trooper's Cleanse fires on
+  every Shout with no ICD tracked, etc. Astral Ward firing its payload on every *2nd* Signet cast
+  instead of every cast (spawns "Signet of the Astral Ward" on the first, consumes it on the
+  second) is the same category of frequency detail this table already glosses over everywhere —
+  not a new non-deterministic-trigger problem like the dodge relics or Unseen Invasion/Wayfinder.
+  Wired as `{ kind: 'ability', categories: ['Signet'] }` in `RELIC_TRIGGER_GATES`: its Resistance
+  fact (2s, 5 allied targets) goes through `extractFromRelicFacts` into
+  `computeBoonConditionSources` same as any other boon; its Conditions-Removed fact goes into
+  `RELIC_NAMED_FACT_SOURCES` as a `Cleanse` entry, same split-payload shape Relic of Febe already
+  uses (a boon plus a separate named-fact Cleanse from one relic). The "every 2nd cast" nuance is
+  stated honestly in that entry's `detail` text rather than silently assumed away.
+- **Relic of the Firebrand (100453) — permanently excluded, joining Sorrow/Leadership.** Its
+  payload ("+20% Boon Duration" for 4s after using the final charge of a mantra skill) was already
+  correctly identified as not fitting `RELIC_TRIGGER_GATES`'s shape (a duration-percent modifier,
+  not a discrete boon status) — the open question was whether it fit a *different* shape, the
+  permanent-attribute-bonus infra `new_attribute_bonus_infra_2026-08-15` built for Power
+  Overwhelming/Deadly Strength. It doesn't: that infra models a steady-state condition (an
+  attunement held, a stack count accumulated) this app's static build view can evaluate directly.
+  Firebrand's buff only exists for 4 seconds after a trigger whose real-world frequency depends on
+  how many charges the build's mantras carry and how the player actually casts them — the same "no
+  fixed frequency this app could assume without inventing one" reasoning that already excludes the
+  dodge relics and Unseen Invasion/Wayfinder's Superspeed. No `RelicTriggerGate` shape (existing or
+  new) gives a temporary event-triggered percent-modifier anywhere honest to go, so this is closed
+  the same way Sorrow/Leadership were: excluded for good, not deferred. No code change beyond
+  documentation — it was never in `RELIC_TRIGGER_GATES` to remove.
+
+Closes TODO.md's "Relic proc integration sweep" entirely — no relics remain open.
+
+New/updated tests: `relic-sources.test.ts` (Astral Ward's Resistance, ability-gated on Signet),
+`relic-named-fact-sources.test.ts` (Astral Ward's Cleanse, moved out of the exclusion list),
+`relic-named-fact-completeness.test.ts` (Astral Ward's exclusion entry removed, now covered by
+`RELIC_NAMED_FACT_SOURCES`).

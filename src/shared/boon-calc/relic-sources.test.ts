@@ -206,12 +206,36 @@ describe("Relic of the Twin Generals (101767) — heal-skill gate, flat Might + 
   })
 })
 
+describe("Relic of the Astral Ward (100388) — ability-category gate (Signet), Resistance", () => {
+  const SIGNET_OF_FIRE_ID = 5542 // Elementalist Signet, carries the 'Signet' category
+
+  it('contributes Resistance (2s) with targetCount 5 when an equipped skill carries the Signet category', () => {
+    const build = baseBuild({
+      profession: 'Elementalist',
+      relicId: 100388,
+      skills: { kind: 'standard', heal: null, utility: [SIGNET_OF_FIRE_ID, null, null], elite: null }
+    })
+    const sources = computeBoonConditionSources(build, gameData)
+    const resistance = sources.find((s) => s.sourceKind === 'relic' && s.boonOrConditionName === 'Resistance')
+    expect(resistance?.baseDurationSeconds).toBe(2)
+    expect(resistance?.targetCount).toBe(5)
+  })
+
+  it('contributes nothing when no equipped skill carries the Signet category', () => {
+    const build = baseBuild({
+      relicId: 100388,
+      skills: { kind: 'standard', heal: WELL_OF_BLOOD_ID, utility: [null, null, null], elite: NECRO_ELITE_ID }
+    })
+    expect(computeBoonConditionSources(build, gameData).some((s) => s.sourceKind === 'relic')).toBe(false)
+  })
+})
+
 describe('Relics deliberately left out of RELIC_TRIGGER_GATES', () => {
   // Leadership (no literal boon name, wiki-confirmed no separate mapping table exists either),
   // Sorrow (custom effect misread as "Protection" by leg 1's gloss, wiki-confirmed excluded for
-  // good in leg 4), Firebrand (a % modifier, not a discrete boon) — every gate gets maximally
-  // satisfied (Elite equipped) so a false wiring would show up immediately rather than being
-  // masked by an unmet trigger.
+  // good in leg 4), Firebrand (a % modifier, not a discrete boon — permanently excluded leg 7) —
+  // every gate gets maximally satisfied (Elite equipped) so a false wiring would show up
+  // immediately rather than being masked by an unmet trigger.
   const deferredRelicIds = [100625, 103424, 100453]
 
   it.each(deferredRelicIds)('relic %i contributes nothing to computeBoonConditionSources/computeAuraSources', (relicId) => {
