@@ -27,6 +27,47 @@ Paragon's Motivation-tiered Chants (flagged by the user 2026-08-14) is now **FUL
 COMPLETED.md for the per-trait writeup) are all curated. One genuine gap fell out of that pass, since
 fixed — see COMPLETED.md's 2026-08-15 `MISCELLANEOUS_MATCHERS` WvW-override entry.
 
+- [ ] Settings toggle-switch restyle (flagged 2026-08-16, reference screenshot: iOS-style pill
+      switch, teal when on) — replace the 2 plain `<input type="checkbox">` rows in `SettingsView.tsx`
+      (Show underwater equipment & skills / Show racial skills) with a styled toggle-switch control,
+      and delete both `<p className="muted">` explainer paragraphs under them (user wants the toggles
+      self-explanatory, no description text). Open call: color — the app's only defined accent
+      (`--accent`, crimson) is reserved for destructive/error UI per its own doc comment in
+      `global.css`, so reusing it for an "on" toggle would be a semantic clash; the reference
+      screenshot's teal doesn't exist anywhere in this app's palette yet. Needs a decision (new
+      "affirmative" color token, or repurpose one of the existing `--rarity-*` colors) before
+      building, not guessed silently.
+
+- [ ] Party-wide-only filter for boon/condition/effect summaries (flagged 2026-08-16) — a new toggle
+      on the build editor (`BoonConditionSummaryPanel`) and squad editor (`SlotTile`/`PartyRow`) that,
+      when on, only shows boons/auras/miscellaneous effects (stealth, superspeed, etc.) and cleanses
+      whose `targetCount` reaches the full party: **`targetCount !== null && targetCount >= 5`**
+      (user-confirmed 2026-08-16: "just the buffs that target 5+ players, a full party" — a squad-wide
+      10-target effect still counts, since it covers the party as a subset; self-only (1) and
+      small-group (2-4) sources don't). Sources with unresolved/uncurated `targetCount` (`null`) are
+      **hidden** when the filter is on (conservative — don't claim party-wide for uncurated data).
+      Scope is the ally-facing categories only (Boons, Auras, Miscellaneous, and the Cleanse line of
+      Strips/Corrupts/Cleanses) — Conditions/Control/Strip/Corrupt are enemy-facing and "party wide"
+      doesn't apply the same way to them, unaffected by this toggle. Filtering happens per-source
+      within each group (a group with a mix of qualifying and non-qualifying sources still shows, just
+      with only the qualifying sources listed in its tooltip); a group hides entirely only when NONE of
+      its sources qualify. Needs a new `useAppSettings`-style boolean (or per-view local state — decide
+      whether this should persist like `showUnderwater`/`showRacialSkills` or reset per session) wired
+      through `computeBoonConditionSources`/`computeNamedFactSources`'s existing `targetCount` field —
+      no new data modeling needed, the field already exists on every source.
+
+- [ ] Exclusion filter on the Builds tab (flagged 2026-08-16) — extend `useTagFilter`
+      (`src/renderer/state/use-tag-filter.ts`, shared by `BuildsView`/`SquadsView`/`BuildsSidebar`)
+      from OR-inclusion-only to support excluding specific tags/professions too. User-confirmed
+      interaction (2026-08-16): click-cycle the same chip through off → include → exclude → off, no
+      new UI controls — reuses `TagChipDropdown`/`ProfessionTagPicker`'s existing chip click handlers,
+      just needs a 3-state model (`Map<string, 'include' | 'exclude'>` instead of `Set<string>`) and a
+      visual "excluded" chip state (e.g. a strike-through or red outline) distinct from "selected."
+      Filter logic: keep OR-across-includes, AND NOT any excluded tag/profession present. Scoped to
+      the Builds tab per the user's request — decide separately whether `BuildsSidebar`/`SquadsView`
+      should get the same treatment since they share the hook (likely yes, low extra cost once the
+      hook itself supports it).
+
 - [ ] Discord bot — a guild-scoped, curated build/squad board (slash-command add/edit/remove/move,
       profession-sectioned board messages the bot keeps in sync, optional Manual-approval workflow
       with role-gated buttons) mapped out in full 2026-08-12, not started. Full design-of-record —
