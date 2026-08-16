@@ -35,19 +35,23 @@ relics (`data/game-data/relics.json` / `relic-effects.json`) as a proper integra
 shape as the other per-category sweeps logged elsewhere in this file/COMPLETED.md — not a Zephyrite
 one-off.
 
-- [ ] Audit all 112 relics and classify each proc's trigger by whether this app already models a
-      deterministic frequency/timing for it: elite-skill-use (Zephyrite — its own crystal duration
-      is *already* a function of the equipped Elite's Recharge, a value already read off
-      `Skill.facts`, so "assume the elite is used on cooldown" is no more invented than this app's
-      existing "assume every skill is used on cooldown" convention baked into Chants/Virtue
-      Activates), weapon-swap, dodge (already deliberately excluded per the 2026-08-15 sweep — keep
-      that exclusion, don't re-litigate it), on-hit/on-crit, boon/condition-application, health
-      -threshold, and genuinely-unbounded player-action triggers (leave those as prose-only, same
-      as today — this sweep is about finding the deterministic subset, not modeling everything).
+- [x] Audit all 112 relics and classify each proc's trigger by whether this app already models a
+      deterministic frequency/timing for it. **DONE 2026-08-16** — full classification in
+      `docs/relic-trigger-classification.md`. Turned out broader than scoped: `Skill.categories`
+      already carries GW2's profession-mechanic category strings (Meditation/Signet/Consecration/
+      etc.) for every equipped Heal/Utility/Elite skill, so ability-type-gated relics ("upon using a
+      well/signet/mantra/cantrip/... skill") are just as deterministic as the elite/heal-skill case,
+      not merely "possible" — that widened the deterministic bucket. Of 112 relics, 19 land in a
+      deterministic-trigger bucket AND grant a real ally/self boon or aura payload (the only ones
+      worth wiring into `computeBoonConditionSources`) — full list + full 112-row table in the doc.
+      Dodge exclusion kept as-is, not re-litigated.
 - [ ] Design a general "relic effects gated on an already-modeled trigger" mechanism (rather than a
       one-off special case per relic, like `branchConditionalFacts`' skill-id dispatch) that
-      `computeBoonConditionSources` can consult, sized for however many relics land in the
-      deterministic buckets above.
+      `computeBoonConditionSources` can consult, sized for the 19 candidates in
+      `docs/relic-trigger-classification.md` — likely 3 shapes: single-slot (Elite/Heal, like
+      existing Chants), category-matched (ability-type — needs a small "does any equipped Heal/
+      Utility/Elite skill carry category X" helper), and Relic of the Firebrand's mantra-final-charge
+      case, which can reuse the existing `MANTRA_FINAL_CHARGE_IDS` mechanism wholesale.
 - [ ] Zephyrite specifically also needs its stepped duration table hand-curated into
       `relic-effects.json` (wiki: 0s→4s, 1-20s→5s, 21-40s→6s, 41-60s→7s, ≥61s→8s recharge) — only
       Min/Max (4/7, itself stale vs. the wiki's current Max of 8, a preexisting wiki infobox/prose
