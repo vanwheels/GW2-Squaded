@@ -653,6 +653,25 @@ input[type='text'] {
   letter-spacing: 0.06em;
 }
 
+/* Armor/Accessories panel title row (2026-08-15): title plus its "Clear All" button, sharing the
+   title's own border-bottom rather than each having one — same override pattern as
+   `.gear-panel-weapon-header .gear-panel-title` below. */
+.gear-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 2px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.gear-panel-header .gear-panel-title {
+  margin: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
 .gear-slot {
   display: flex;
   align-items: center;
@@ -713,6 +732,15 @@ input[type='text'] {
   margin: 0;
   padding-bottom: 0;
   border-bottom: none;
+}
+
+/* Groups the Land/Underwater toggle and "Clear All" button on the right of the Weapon panel
+   header — the toggle is conditionally rendered (`showUnderwater`), so this wrapper is what
+   actually keeps `justify-content: space-between` behaving with 1 or 2 right-side children. */
+.gear-panel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* Weapon I and Weapon II side by side as one row of 4 slots: Mainhand 1, Offhand 1, Mainhand 2,

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-export type SkillBarIconKind = 'cycle' | 'land' | 'water' | 'applyAll'
+export type SkillBarIconKind = 'cycle' | 'land' | 'water' | 'applyAll' | 'clearAll'
 
 const PATHS: Record<SkillBarIconKind, ReactNode> = {
   cycle: (
@@ -23,6 +23,12 @@ const PATHS: Record<SkillBarIconKind, ReactNode> = {
       <line x1="12" y1="19" x2="12" y2="5" />
       <polyline points="5 12 12 5 19 12" />
     </>
+  ),
+  clearAll: (
+    <>
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </>
   )
 }
 
@@ -38,8 +44,10 @@ interface Props {
  * explicit two-state pick), Land/Underwater environment glyphs (rolling ground / a water drop)
  * colored via CSS (`--land-green`/`--water-blue`, applied by the caller's active-state class)
  * rather than a generic muted stroke, since which one is active is otherwise hard to scan at this
- * size, and a plain up-arrow ("applyAll") for bulk-filling every eligible gear slot from one
- * chosen value.
+ * size, a plain up-arrow ("applyAll") for bulk-filling every eligible gear slot from one chosen
+ * value, and an "X" ("clearAll", 2026-08-15) for the Equipment panel's "Clear All" buttons —
+ * wiping a whole panel (Armor/Accessories/Weapon) or one upgrade type (Rune/Sigil/Infusion) back
+ * to empty in one click, see `EquipmentEditor`.
  */
 export function SkillBarIcon({ kind }: Props) {
   return (

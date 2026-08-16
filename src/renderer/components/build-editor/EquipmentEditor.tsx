@@ -468,6 +468,38 @@ export function EquipmentEditor({
     onChange(next)
   }
 
+  /**
+   * Panel-level "Clear All" (2026-08-15): wipes every slot in one panel — Armor, Accessories, or
+   * Weapon — back to fully empty (stat prefix included, plus that slot's runes/sigils/infusions
+   * since they're keyed on the same `EquipmentSlot` object). Distinct from the copy-paste bar's
+   * per-upgrade-type clears below (`applyRuneToAll(null)` etc.), which touch only one upgrade
+   * type across every slot regardless of which panel it lives in.
+   */
+  function clearArmorAll(): void {
+    const next = { ...value }
+    for (const { key } of ARMOR_SLOTS) next[key] = { itemStatId: null }
+    onChange(next)
+  }
+
+  function clearAccessoriesAll(): void {
+    const next = { ...value }
+    for (const { key } of TRINKET_SLOTS) next[key] = { itemStatId: null }
+    onChange(next)
+  }
+
+  /** Clears only the weapon sets currently visible via `effectiveWeaponMode` (land Set I/II, or
+   *  the underwater sets) rather than silently also wiping the hidden half — matches what the
+   *  panel's "Clear All" button visually promises to clear. */
+  function clearWeaponsAll(): void {
+    const keys: EquipmentSlotKey[] =
+      effectiveWeaponMode === 'land'
+        ? ['weaponA1', 'weaponA2', 'weaponB1', 'weaponB2']
+        : ['weaponU1', 'weaponU2']
+    const next = { ...value }
+    for (const key of keys) next[key] = { itemStatId: null, weaponType: null }
+    onChange(next)
+  }
+
   function infusionRow(key: EquipmentSlotKey, capacity: number) {
     if (capacity === 0) return null
     const ids = resizeUpgradeIds(value[key]?.infusionIds, capacity)
@@ -713,11 +745,18 @@ export function EquipmentEditor({
     )
   }
 
+  /**
+   * `onClearAll` (2026-08-15) is only ever passed for Rune/Sigil/Infusion, not Stat Prefix — a
+   * stat prefix can't be "cleared" back to a meaningful default the way an optional upgrade can
+   * (every armor/trinket/weapon slot needs *some* stat combo), and clearing it per-slot already
+   * happens for free via the panel-level "Clear All" buttons above each panel.
+   */
   function copyPasteSlot(
     categoryLabel: string,
     dragCategory: 'stat' | 'rune' | 'sigil' | 'infusion',
     options: UpgradeOption[],
-    applyToAll: (id: number | null) => void
+    applyToAll: (id: number | null) => void,
+    onClearAll?: () => void
   ) {
     const chosenId = templates[dragCategory]
     return (
@@ -740,6 +779,11 @@ export function EquipmentEditor({
         >
           <SkillBarIcon kind="applyAll" />
         </button>
+        {onClearAll && (
+          <button type="button" className="skill-bar-icon-button" title={`Clear All ${categoryLabel}s`} onClick={onClearAll}>
+            <SkillBarIcon kind="clearAll" />
+          </button>
+        )}
       </div>
     )
   }
@@ -780,18 +824,33 @@ export function EquipmentEditor({
     <div className="equipment-editor">
       <div className="gear-copy-paste-bar">
         {copyPasteSlot('Stat Prefix', 'stat', templateStatOptions, applyStatToAll)}
-        {copyPasteSlot('Rune', 'rune', runeOptions, applyRuneToAll)}
-        {copyPasteSlot('Sigil', 'sigil', sigilOptions, applySigilToAll)}
-        {copyPasteSlot('Infusion', 'infusion', infusionOptions, applyInfusionToAll)}
+        {copyPasteSlot('Rune', 'rune', runeOptions, applyRuneToAll, () => applyRuneToAll(null))}
+        {copyPasteSlot('Sigil', 'sigil', sigilOptions, applySigilToAll, () => applySigilToAll(null))}
+        {copyPasteSlot('Infusion', 'infusion', infusionOptions, applyInfusionToAll, () => applyInfusionToAll(null))}
       </div>
       <div className="gear-panels">
         <div className="gear-panels-top">
           <div className="gear-panel gear-panel-armor">
-            <h4 className="gear-panel-title">Armor</h4>
+            <div className="gear-panel-header">
+              <h4 className="gear-panel-title">Armor</h4>
+              <button type="button" className="skill-bar-icon-button" title="Clear All Armor" onClick={clearArmorAll}>
+                <SkillBarIcon kind="clearAll" />
+              </button>
+            </div>
             {ARMOR_SLOTS.map((s) => renderSlot(s.key, s.label))}
           </div>
           <div className="gear-panel gear-panel-accessories">
-            <h4 className="gear-panel-title">Accessories</h4>
+            <div className="gear-panel-header">
+              <h4 className="gear-panel-title">Accessories</h4>
+              <button
+                type="button"
+                className="skill-bar-icon-button"
+                title="Clear All Accessories"
+                onClick={clearAccessoriesAll}
+              >
+                <SkillBarIcon kind="clearAll" />
+              </button>
+            </div>
             {TRINKET_SLOTS.map((s) => renderSlot(s.key, s.label))}
           </div>
           <div className="gear-panel gear-panel-other">
@@ -827,18 +886,30 @@ export function EquipmentEditor({
         <div className="gear-panel gear-panel-weapon">
           <div className="gear-panel-weapon-header">
             <h4 className="gear-panel-title">Weapon</h4>
-            {showUnderwater && (
-              <div className="weapon-mode-toggle">
-                <button
-                  type="button"
-                  className={weaponMode === 'land' ? 'skill-bar-icon-button env-land active' : 'skill-bar-icon-button env-water active'}
-                  title={weaponMode === 'land' ? 'Switch to Underwater' : 'Switch to Land'}
-                  onClick={() => setWeaponMode(weaponMode === 'land' ? 'underwater' : 'land')}
-                >
-                  <SkillBarIcon kind={weaponMode === 'land' ? 'land' : 'water'} />
-                </button>
-              </div>
-            )}
+            <div className="gear-panel-header-actions">
+              {showUnderwater && (
+                <div className="weapon-mode-toggle">
+                  <button
+                    type="button"
+                    className={
+                      weaponMode === 'land' ? 'skill-bar-icon-button env-land active' : 'skill-bar-icon-button env-water active'
+                    }
+                    title={weaponMode === 'land' ? 'Switch to Underwater' : 'Switch to Land'}
+                    onClick={() => setWeaponMode(weaponMode === 'land' ? 'underwater' : 'land')}
+                  >
+                    <SkillBarIcon kind={weaponMode === 'land' ? 'land' : 'water'} />
+                  </button>
+                </div>
+              )}
+              <button
+                type="button"
+                className="skill-bar-icon-button"
+                title={effectiveWeaponMode === 'land' ? 'Clear All Weapons' : 'Clear All Underwater Weapons'}
+                onClick={clearWeaponsAll}
+              >
+                <SkillBarIcon kind="clearAll" />
+              </button>
+            </div>
           </div>
           {effectiveWeaponMode === 'land' ? (
             <div className="gear-weapon-row">
