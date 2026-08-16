@@ -14,38 +14,47 @@ that already shipped.
 
 User-flagged during personal testing. 3 of 4 fixed same day (COMPLETED.md Session 220): the Flock
 relic duplicate (a systemic `relics.json` dedup, ~10 pairs), and Luminary's F1-F4 gap (both the
-Virtue tooltip facts AND the F4 Radiant Forge Shroud-style bundle wiring). Zephyrite remains open —
-a bigger, separate wiring gap (elite-skill-use trigger, not dodge/passive/on-hit).
+Virtue tooltip facts AND the F4 Radiant Forge Shroud-style bundle wiring). The 4th finding
+(Zephyrite) reshaped into a full relic-integration sweep — see "Relic proc integration sweep"
+below.
 
-- [ ] Relic of the Zephyrite (id 100893): "Summon crystals that apply Protection and Resolution to
-      allies after using an elite skill. Crystal duration scales with the recharge of the used
-      skill." Investigated 2026-08-16 — this is NOT a Zephyrite-specific formatting bug, it's the
-      answer to the TODO question that used to be here ("check whether an elite-skill-triggered
-      relic proc has been modeled anywhere in this codebase yet"): it hasn't, and neither has ANY
-      relic's proc, anywhere. `RelicEffect`'s own doc comment
-      (`src/shared/types/game-data.ts`) documents this as deliberate: every relic's tooltip is
-      plain wiki-quoted text (`formatRelicDescription`/`formatFactLine`, no icon-row treatment like
-      a skill's boon facts get), and NO relic feeds `computeBoonConditionSources` — confirmed by a
-      full grep of `sources.ts`, zero relic-id references anywhere in that file. The stated
-      reasoning: most relic procs are conditional on a player action with no fixed frequency this
-      app could assume without inventing one (same reasoning the 2026-08-15 dodge-relic sweep used
-      to deliberately exclude `DODGE_RELIC_IDS` from this same calculator).
-      Zephyrite is a genuinely different shape worth reconsidering that policy for, not just
-      reproducing it: its own effect duration is *already* a deterministic function of the
-      equipped Elite skill's Recharge (a value this app already reads off `Skill.facts`), so
-      "assume the elite skill is used on cooldown" is no more invented an assumption than this
-      app's existing "assume every skill is used on cooldown" convention baked into Chants/Virtue
-      Activates elsewhere. Before building this: (1) the wiki's stepped duration table (0s→4s,
-      1-20s→5s, 21-40s→6s, 41-60s→7s, ≥61s→8s recharge) isn't in `relic-effects.json` at all —
-      only Min/Max (4/7, itself stale vs. the wiki's current Max of 8, a preexisting wiki
-      infobox/prose inconsistency, not an app bug) — would need hand-curating separately, same
-      "prose supplements the facts" shape as Otherworldly Bond; (2) decide whether this becomes a
-      one-off special case (like `branchConditionalFacts`' skill-id dispatch) or the first entry in
-      a new general "relic effects gated on a specific skill-use" mechanism other relics could
-      reuse later; (3) worth a quick scan for any other relic whose proc is similarly tied to a
-      fixed, already-modeled cooldown (elite skill, weapon swap, dodge) before committing to a
-      one-off vs. general design. Real, scoped work — not a quick formatting fix, budget it as its
-      own pass.
+## Relic proc integration sweep
+
+Grew out of the Zephyrite bug report above (2026-08-16). Investigating Zephyrite surfaced that this
+isn't a one-relic gap: `RelicEffect`'s own doc comment (`src/shared/types/game-data.ts`) documents,
+as deliberate policy, that **no** relic proc is modeled anywhere in this codebase — every relic's
+tooltip is plain wiki-quoted text (`formatRelicDescription`/`formatFactLine`, no icon-row treatment
+like a skill's boon facts get), and NO relic feeds `computeBoonConditionSources` (confirmed by a
+full grep of `sources.ts`, zero relic-id references anywhere in that file). The stated reasoning:
+most relic procs are conditional on a player action with no fixed frequency this app could assume
+without inventing one (same reasoning the 2026-08-15 dodge-relic sweep used to deliberately exclude
+`DODGE_RELIC_IDS` from this same calculator).
+
+The user's call (2026-08-16): stop treating that as a closed policy and instead re-look at all 112
+relics (`data/game-data/relics.json` / `relic-effects.json`) as a proper integration pass, the same
+shape as the other per-category sweeps logged elsewhere in this file/COMPLETED.md — not a Zephyrite
+one-off.
+
+- [ ] Audit all 112 relics and classify each proc's trigger by whether this app already models a
+      deterministic frequency/timing for it: elite-skill-use (Zephyrite — its own crystal duration
+      is *already* a function of the equipped Elite's Recharge, a value already read off
+      `Skill.facts`, so "assume the elite is used on cooldown" is no more invented than this app's
+      existing "assume every skill is used on cooldown" convention baked into Chants/Virtue
+      Activates), weapon-swap, dodge (already deliberately excluded per the 2026-08-15 sweep — keep
+      that exclusion, don't re-litigate it), on-hit/on-crit, boon/condition-application, health
+      -threshold, and genuinely-unbounded player-action triggers (leave those as prose-only, same
+      as today — this sweep is about finding the deterministic subset, not modeling everything).
+- [ ] Design a general "relic effects gated on an already-modeled trigger" mechanism (rather than a
+      one-off special case per relic, like `branchConditionalFacts`' skill-id dispatch) that
+      `computeBoonConditionSources` can consult, sized for however many relics land in the
+      deterministic buckets above.
+- [ ] Zephyrite specifically also needs its stepped duration table hand-curated into
+      `relic-effects.json` (wiki: 0s→4s, 1-20s→5s, 21-40s→6s, 41-60s→7s, ≥61s→8s recharge) — only
+      Min/Max (4/7, itself stale vs. the wiki's current Max of 8, a preexisting wiki infobox/prose
+      inconsistency, not an app bug) is there today. Same "prose supplements the facts" curation
+      shape as Otherworldly Bond.
+      Real, scoped work across the whole relic catalog — not a quick formatting fix, budget it as
+      its own multi-leg pass (classification leg, then infra, then per-bucket curation legs).
 
 ## Scoped features, not yet built
 
