@@ -1,5 +1,5 @@
 import type { Build, Consumable, EquipmentSlotKey, Trait } from '../types'
-import { ALL_CORE_ATTRIBUTE_KEYS, isActiveWeaponSlot } from './attribute-totals'
+import { ALL_CORE_ATTRIBUTE_KEYS } from './attribute-totals'
 import { activeTraitIds } from './trait-attributes'
 
 /**
@@ -52,8 +52,9 @@ export interface CombatState {
    *  `revealedActive` need one to pick an icon) since a tier is always selected, just defaults to
    *  full health. */
   healthTier: HealthTier
-  /** 0-25 stacks of whichever stacking sigil is equipped on the active weapon set, if any — see
-   *  `detectActiveStackingSigil`. Meaningless when no stacking sigil is equipped. */
+  /** 0-25 stacks of whichever stacking sigil is equipped on either weapon set, if any — stacks
+   *  persist across a weapon swap, unlike passive sigil bonuses, so this isn't gated to the active
+   *  set — see `detectActiveStackingSigil`. Meaningless when no stacking sigil is equipped. */
   stackingSigilStacks: number
   /** Only meaningful when the equipped relic has a curated entry in
    *  `CURATED_RELIC_DAMAGE_BONUSES` below. */
@@ -928,14 +929,25 @@ export interface ActiveStackingSigil {
 
 /**
  * Auto-detects the stacking sigil to show a stepper for, from whichever sigil is actually
- * equipped — no separate picker. Mirrors `isActiveWeaponSlot`'s "only the active weapon set
- * counts" gating so this matches the in-game rule that only one stacking sigil can be active at a
- * time; returns the first match found since a build should never legally have 2 different
- * stacking sigils equipped on the same active set anyway.
+ * equipped — no separate picker. Deliberately does *not* use `isActiveWeaponSlot`'s "only the
+ * active weapon set counts" gating that every other sigil bonus goes through
+ * (`computeGearAttributeTotals`, which already carves out this same exception in its own sigil
+ * loop's comment — see there): unlike passive/stat sigil bonuses, a stacking sigil's stacks persist
+ * across a weapon swap (confirmed live by the user 2026-08-06), so the stepper should stay
+ * available whenever the sigil is equipped on *either* weapon set, not just the one currently
+ * active. Still scoped to the current environment
+ * (land sets A/B vs. underwater sets U1/U2) since those are separate weapons entirely, not a
+ * swap-hotkey pair — no evidence stacks carry over between land and underwater. Returns the first
+ * match found in slot order; a build with two *different* stacking sigils across its two sets (one
+ * per set is legal — only "two on the same set" isn't) would need two independent stack counters to
+ * model correctly, which `CombatState.stackingSigilStacks` doesn't support since it's a single
+ * scalar. Rare/advanced enough to leave as a known simplification rather than block this fix.
  */
 export function detectActiveStackingSigil(build: Build): ActiveStackingSigil | null {
-  for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
-    if (!slotKey.startsWith('weapon') || !isActiveWeaponSlot(slotKey, build)) continue
+  const relevantSlots: EquipmentSlotKey[] = build.environment === 'underwater'
+    ? ['weaponU1', 'weaponU2']
+    : ['weaponA1', 'weaponA2', 'weaponB1', 'weaponB2']
+  for (const slotKey of relevantSlots) {
     for (const sigilId of build.equipment[slotKey]?.sigilIds ?? []) {
       if (sigilId == null) continue
       const entry = STACKING_SIGILS[sigilId]

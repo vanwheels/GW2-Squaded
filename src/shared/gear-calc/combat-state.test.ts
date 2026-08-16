@@ -199,10 +199,10 @@ describe('combatStatePoints — stacking sigil', () => {
     }
   })
 
-  it('ignores a stacking sigil equipped on the inactive weapon set, at any stack count', () => {
+  it('still applies a stacking sigil equipped on the inactive weapon set — stacks persist across swap', () => {
     const build = buildWithSigil(24575, 'B') // sigil lives on weaponA1, but set B is active
     const points = combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, stackingSigilStacks: 25 }, NO_TRAITS)
-    expect(points.Power ?? 0).toBe(0)
+    expect(points.Power ?? 0).toBe(25 * 10)
   })
 })
 
