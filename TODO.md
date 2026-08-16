@@ -57,6 +57,32 @@ fixed — see COMPLETED.md's 2026-08-15 `MISCELLANEOUS_MATCHERS` WvW-override en
       should get the same treatment since they share the hook (likely yes, low extra cost once the
       hook itself supports it).
 
+- [ ] Switch profession icon artwork to the wiki's dedicated profession-icon sets (flagged
+      2026-08-16, user says they'd meant to push for this for a while) — currently every profession
+      icon in the app (`profession.icon` in `data/game-data/professions.json`) is the single generic
+      GW2 API badge (`https://render.guildwars2.com/file/.../...png`), used identically everywhere:
+      `BuildsView.tsx` record cards, `BuildsSidebar.tsx`, `SlotTile.tsx` squad-editor slots,
+      `ProfessionTagPicker.tsx`/`TagFilterBar.tsx` Builds-tab profession filter, and
+      `ProfessionSpecPicker.tsx` in the build editor. Source: wiki's
+      [Category:Profession icons](https://wiki.guildwars2.com/wiki/Category:Profession_icons) has two
+      distinct icon families per profession — an "overhead icon" (small, used for map/party UI in-game)
+      and a "highres" icon (large, detailed emblem). Split planned:
+        - **Overhead icons** → individual build cards (`BuildsView.tsx`, `BuildsSidebar.tsx`) and the
+          squad editor's saved-build slots (`SlotTile.tsx`).
+        - **Highres icons** → the Builds-tab profession filter (`ProfessionTagPicker.tsx`/
+          `TagFilterBar.tsx`) and the profession selector in the build editor
+          (`ProfessionSpecPicker.tsx`).
+      Needs new fields/assets sourced from the wiki (not the GW2 API, which only exposes the one
+      generic badge) — likely a new `overheadIcon`/`highresIcon` pair per profession, either fetched
+      into `professions.json` alongside the existing `icon` field or stored as local asset files;
+      decide which when picking this up. Not started — do not implement without the user re-confirming
+      scope, session/week usage is tight as of 2026-08-16.
+      - **Follow-up (not scoped yet):** a new "Simple Icons" toggle (`useAppSettings`-style, alongside
+        `showUnderwater`/`showRacialSkills`) that, when on, swaps the squad editor's roster-line
+        artwork (currently elite-spec/profession icons via `eliteSpecIconFor`/`profession.icon` in
+        `SlotTile.tsx`) to the highres wiki icons instead. Explicitly a later step — don't build
+        alongside the icon-source switch above without the user asking for it.
+
 - [ ] Discord bot — a guild-scoped, curated build/squad board (slash-command add/edit/remove/move,
       profession-sectioned board messages the bot keeps in sync, optional Manual-approval workflow
       with role-gated buttons) mapped out in full 2026-08-12, not started. Full design-of-record —
