@@ -34,6 +34,17 @@ DONE** — see COMPLETED.md Sessions 221-227 (leg 1 through leg 7) and
       `src/renderer/styles/global.css:498`) matching the fully-expanded case. Not started — flagged
       for later, session/week usage tight as of 2026-08-16.
 
+- [ ] Trait-line connector (the blue zigzag line, `useTraitConnector` in `TraitsEditor.tsx`) draws
+      segments between all 3 minor traits even when no major trait is chosen in that line (flagged
+      2026-08-16, screenshot) — it looks odd running minor→minor→minor across an otherwise-unselected
+      line. Wanted fix: only render the connector segment(s) once a trait has actually been picked —
+      i.e. don't draw a minor→minor segment unless there's a chosen major between them (or otherwise
+      gate the whole line's connector on at least one selection existing), rather than always drawing
+      the full minor-to-minor backbone regardless of selection state. Likely touches the `chain`-building
+      loop in `useTraitConnector` (~line 71-78) so it skips straight from one minor to the next only
+      when nothing was chosen at the tier in between, instead of always chaining minors together. Not
+      started — flagged for later, session/week usage tight as of 2026-08-16.
+
 ## Scoped features, not yet built
 
 Paragon's Motivation-tiered Chants (flagged by the user 2026-08-14) is now **FULLY DONE 2026-08-15**
