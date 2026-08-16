@@ -1331,8 +1331,17 @@ input[type='text'] {
   gap: 16px;
 }
 
-.boon-summary-row-pair .boon-summary-row {
-  flex: 1 1 0;
+/* Left column grows to claim whatever the right column doesn't need, rather than a fixed 50/50
+   split — the left column (Conditions/Boons/Control/Combo Fields) tends to have far more icons
+   than its right-side partner (Auras/Misc./Strips-Corrupts-Cleanses/Combo Finishers), so a fixed
+   half-width was forcing it to scroll while the right half sat mostly empty. */
+.boon-summary-row-pair .boon-summary-row:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.boon-summary-row-pair .boon-summary-row:last-child {
+  flex: 0 1 auto;
   min-width: 0;
 }
 
