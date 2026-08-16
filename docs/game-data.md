@@ -988,21 +988,25 @@ prefers the WvW-tagged value when present.
 
 **Consumed by** `src/shared/gear-calc/relic-effects-format.ts` (`formatRelicDescription`), which
 appends each fact's formatted line (and the recharge, if documented) below the relic's prose
-description — wired into `ConsumablesEditor.tsx`'s relic tooltip. Result counts as of the last run:
+description — wired into `ConsumablesEditor.tsx`'s relic tooltip — and, for the curated subset in
+`RELIC_TRIGGER_GATES`, by `src/shared/boon-calc/sources.ts` (`relicSources`) for the aggregate
+Boon/Condition calculator (see the paragraph above). Result counts as of the last run:
 204 of 211 relic ids got a `RelicEffect` entry (108 relic names have at least one `{{skill fact}}`
 line; 5 names — all "summon a creature while in combat" relics like Relic of the Lich — have none
 at all, just a recharge; 7 ids were excluded per the differing-description rule above; 1 fact line
 across the whole catalog was dropped as unparseable).
 
-**Deliberately NOT done**: wiring relic facts into the boon/condition uptime calculator
-(`src/shared/boon-calc/sources.ts`), even for facts whose label is a real boon/condition name
-(e.g. "might", "protection" facts do appear on some relics). Skill/trait Buff facts represent a
-guaranteed "you get this boon when you use this skill" — fully within player control (equipped +
-cast). A relic's facts fire on a conditional in-combat trigger ("after granting a boon to an
-ally", "upon dealing damage with a 20s+-recharge skill") with no fixed per-rotation frequency this
-app models anywhere — folding them into an aggregate uptime total would silently overstate a
-guaranteed number the app doesn't actually have. This is a display-layer enrichment only; see
-TODO.md if a future session wants to revisit modeling relic proc frequency.
+**Partially wired into the boon/condition uptime calculator** (`src/shared/boon-calc/sources.ts`),
+as of the 2026-08-16 "Relic proc integration sweep": most relic facts still stay display-only, since
+most relics fire on a conditional in-combat trigger ("after granting a boon to an ally", "upon
+dealing damage with a 20s+-recharge skill") with no fixed per-rotation frequency this app models
+anywhere — folding those into an aggregate uptime total would silently overstate a guaranteed number
+the app doesn't actually have. But a curated subset of relics DO trigger on something this app
+already treats as deterministic (an equipped Elite/Heal skill, or any equipped skill of a given
+ability-type category — the same "assume it's used on cooldown" convention Chants/Virtue-Activates
+already rely on), and those are wired via `RELIC_TRIGGER_GATES`/`relicSources` — see that table's own
+doc comment for the full curated list, and `docs/relic-trigger-classification.md` for how every one
+of the 112 relics was bucketed. TODO.md tracks the still-deferred candidates.
 
 **Note:** this file's data is NOT re-derivable from `fetch-game-data.ts` or
 `fetch-gear-upgrades.ts` — re-run `fetch-relic-effects` too whenever a balance patch might

@@ -75,7 +75,7 @@ Status column added after leg 2 (2026-08-16) — ✅ wired into `RELIC_TRIGGER_G
 | 100435 | Relic of the Earth | Elite skill | Protection + magnetic aura (allies) | ✅ |
 | 100625 | Relic of Leadership | Elite skill | Convert conditions → boons (allies) | ⏸ no literal boon name |
 | 100752 | Relic of the Pack | Elite skill | Superspeed + might + fury (allies) | ✅ (Might/Fury only — Superspeed belongs to `MISCELLANEOUS_MATCHERS`) |
-| 100893 | Relic of the Zephyrite | Elite skill | Protection + resolution (allies) — motivating case | ⏸ stepped-duration curation still open |
+| 100893 | Relic of the Zephyrite | Elite skill | Protection + resolution (allies) — motivating case | ✅ (leg 3, 2026-08-16 — duration computed per-build from the triggering elite skill's own recharge, see `sources.ts`'s `ZEPHYRITE_CRYSTAL_DURATION_TIERS`) |
 | 103424 | Relic of Sorrow | Elite skill | ~~Protection (allies)~~ actually a custom reflect zone, not a boon | ⏸ this doc's original gloss was wrong, see correction above |
 | 100385 | Relic of the Centaur | Healing skill | Stability (self) | ✅ |
 | 100455 | Relic of Durability | Healing skill | Protection + regeneration + resolution (self) | ✅ |
@@ -224,11 +224,11 @@ its trigger resolves.
 Went further than "design" alone and also curated + wired 10 of the 19 candidates whose facts were
 unambiguous, literal `BOON_NAMES`/`AURA_NAMES` matches: Surging, Earth, Pack, Centaur, Durability,
 Resistance, Febe, Reunification, Altruism, Fire, Chronomancer, Phenom, Sacred Grounds. The remaining
-9 stay deliberately unwired — see `RELIC_TRIGGER_GATES`'s own doc comment in `sources.ts` for the
+9 stayed deliberately unwired — see `RELIC_TRIGGER_GATES`'s own doc comment in `sources.ts` for the
 full per-relic reasoning, and TODO.md's "Relic proc integration sweep" for the follow-up items each
-one now has:
+one had:
 
-- Zephyrite (100893) — stepped-duration curation still open (TODO.md, unchanged).
+- ~~Zephyrite (100893) — stepped-duration curation still open.~~ **DONE, leg 3 (see below).**
 - Sorrow (103424) — **correction to this doc's own leg-1 table**: its "Protection (allies)" payload
   gloss was wrong. Re-checking `relic-effects.json` for leg 2 found its real effect is a custom
   damage-reduction/reflect zone (`effect` fact literally named "Relic of Sorrow"), not the
@@ -242,4 +242,29 @@ one now has:
 
 Also surfaced, not attempted this leg: Pack's Superspeed and Febe's condition-removal facts are real
 and deterministic but belong to `computeNamedFactSources`/`MISCELLANEOUS_MATCHERS`, not this table —
-extending relics into that pipeline too is a separate follow-up (TODO.md).
+extending relics into that pipeline too is a separate follow-up (TODO.md), still open.
+
+## Leg 3 (partial) — Zephyrite, DONE 2026-08-16
+
+Closed the sweep's own motivating case. Two separate fixes, both in `RELIC_TRIGGER_GATES`'s orbit:
+
+1. **Display data**: the wiki infobox's `{{skill fact}}` template only ever exposed a Min/Max pair
+   (and had gone stale — Max read 7 against the wiki's current 8). The real stepped table ("Elite
+   Skill Recharge" -> "Crystal Duration": 0s->4s, 1-20s->5s, 21-40s->6s, 41-60s->7s, 61s+->8s) lives
+   in the wiki's prose, not its infobox, so `fetch-relic-effects.ts` could never have parsed it. Fixed
+   via a new `CURATED_RELIC_FACT_OVERRIDES` table in `src/shared/gear-calc/relic-effects-format.ts`
+   (same "curated table sits downstream of the generated JSON" shape `CURATED_PERCENT_FACT_OVERRIDES`
+   already uses for skill facts) — the relic's tooltip now shows all 5 tiers.
+2. **Aggregate wiring**: Zephyrite is now in `RELIC_TRIGGER_GATES` (`{ kind: 'elite' }`), but unlike
+   every other entry, its granted duration isn't a flat pass-through of `relic-effects.json`'s own
+   `protection`/`resolution` facts (those are `1`s — the crystal's per-pulse tick, not its lifetime).
+   `relicSources` instead reads the build's actual equipped elite skill's own `Recharge` fact, maps it
+   through the same stepped table (`ZEPHYRITE_CRYSTAL_DURATION_TIERS`), and overrides
+   `baseDurationSeconds`/`scaledDurationSeconds` with the result. Revenant (2 legends, no single "the"
+   elite skill) takes the shorter of the two — the same "don't overstate a number this app doesn't
+   actually guarantee" bias the whole sweep already applies elsewhere, not a guess about which legend
+   is "active" (`RevenantSkillSelection.activeLegendIndex` is explicitly display-only and deliberately
+   unread here). 5 new tests in `relic-sources.test.ts` + 3 in the new `relic-effects-format.test.ts`.
+
+The other 5 relics from leg 2's deferred list (Sorrow, Leadership, Twin Generals, Firebrand, Astral
+Ward) plus the Pack/Febe `MISCELLANEOUS_MATCHERS` follow-up remain open — see TODO.md.

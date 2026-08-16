@@ -2,6 +2,72 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 223 — Relic proc integration sweep leg 3: Relic of the Zephyrite, fully curated + wired
+
+Closes the sweep's own motivating case (Session 220's 4th user-flagged bug). Two parts:
+
+**Display data.** The wiki infobox's own `{{skill fact}}` template only ever exposed a Min/Max pair
+(and had gone stale — Max read 7 against the wiki's current 8). The real stepped table ("Elite Skill
+Recharge" → "Crystal Duration": 0s→4s, 1-20s→5s, 21-40s→6s, 41-60s→7s, ≥61s→8s) lives in the wiki's
+prose, not its infobox, so `fetch-relic-effects.ts` could never have parsed it. Fixed via a new
+`CURATED_RELIC_FACT_OVERRIDES` table in `src/shared/gear-calc/relic-effects-format.ts` (same "curated
+table sits downstream of the generated JSON" shape `CURATED_PERCENT_FACT_OVERRIDES` already uses for
+skill facts, so a `fetch-relic-effects` re-run can never silently wipe it) — the relic's tooltip now
+shows all 5 tiers instead of a stale Min/Max pair.
+
+**Aggregate wiring.** Zephyrite joins `RELIC_TRIGGER_GATES` (`{ kind: 'elite' }`), but unlike every
+other entry, its granted duration isn't a flat pass-through of `relic-effects.json`'s own facts —
+those (`protection`/`resolution`, both `1`) are the crystal's per-pulse tick, not its lifetime.
+`relicSources` now reads the build's actual equipped elite skill's own `Recharge` fact and maps it
+through the same stepped table (`ZEPHYRITE_CRYSTAL_DURATION_TIERS` in `boon-calc/sources.ts`),
+overriding `baseDurationSeconds`/`scaledDurationSeconds` with the result. Revenant (2 legends, no
+single "the" elite skill) takes the shorter of the two rather than guessing which legend is active —
+`RevenantSkillSelection.activeLegendIndex` is explicitly display-only, so it stays unread here, same
+as everywhere else in this file. Also fixed 2 stale doc comments this surfaced along the way
+(`RelicEffect`'s own type doc comment and `docs/game-data.md`'s relic section both still said relic
+facts are "deliberately NOT wired" into the uptime calculator — no longer true since leg 2).
+
+5 new tests in `relic-sources.test.ts` (recharge tiers at both endpoints and the middle, no-elite-
+equipped, Revenant min-across-legends including one legend whose elite carries no `Recharge` fact at
+all) + a new `relic-effects-format.test.ts` (3 tests) locking in the curated display override.
+`npm run typecheck`/`lint`/`test` all clean (179 tests). See `docs/relic-trigger-classification.md`'s
+"Leg 3" section for the full writeup; TODO.md's "Relic proc integration sweep" narrowed from 6 to 5
+remaining relics (Sorrow, Leadership, Twin Generals, Firebrand, Astral Ward) plus the separate
+Pack/Febe `MISCELLANEOUS_MATCHERS` follow-up.
+
+## Session 222 — Relic proc integration sweep leg 2: `RELIC_TRIGGER_GATES` mechanism + 10 relics wired
+
+Designed and built the general "relic effect gated on an already-modeled trigger" mechanism leg 1
+scoped: `RELIC_TRIGGER_GATES` + `relicSources`/`extractFromRelicFacts` in `src/shared/boon-calc/
+sources.ts`, wired into both `computeBoonConditionSources` AND `computeAuraSources` (auras needed
+their own pass — that field's own "'aura' entries only ever come from `computeAuraSources`" contract).
+Only 2 of the 3 scoped gate shapes turned out real (single-slot Elite/Heal, category-matched
+ability-type via a new `healUtilityEliteSkillIds` helper); the 3rd (mantra-final-charge) had no real
+candidate — Relic of the Firebrand's payload is a "+20% Boon Duration" passive modifier, not a
+discrete boon status.
+
+Went further than "design only" and also curated + wired 10 of the 19 leg-1 candidates whose facts
+were unambiguous literal `BOON_NAMES`/`AURA_NAMES` matches: Surging, Earth, Pack, Centaur, Durability,
+Resistance, Febe, Reunification, Altruism, Fire, Chronomancer, Phenom, Sacred Grounds. The other 9
+stayed deliberately unwired, each for a real reason (Zephyrite's stepped-duration gap, Sorrow's
+misidentified payload, Leadership's unnamed boon, Twin Generals' variable per-hit Might, Firebrand's
+attribute-modifier shape, Astral Ward's 2-step mechanic, plus Pack/Febe's facts belonging to a
+different pipeline) — full list in `RELIC_TRIGGER_GATES`'s own doc comment and TODO.md. 9 tests in
+`relic-sources.test.ts`.
+
+## Session 221 — Relic proc integration sweep leg 1: classify all 112 relics' triggers
+
+Full audit of every relic in `data/game-data/relics.json`, classifying each proc's trigger by whether
+this app already models a deterministic frequency/timing for it — `docs/relic-trigger-classification.md`.
+Turned out broader than scoped: `Skill.categories` already carries GW2's profession-mechanic category
+strings (Meditation/Signet/Consecration/...) for every equipped Heal/Utility/Elite skill, so
+ability-type-gated relics ("upon using a well/signet/mantra/cantrip/... skill") are just as
+deterministic as the elite/heal-skill case already assumed elsewhere (Chants, Virtue Activates) — not
+merely "possible." That widened the deterministic bucket. Of 112 relics, 19 land in a
+deterministic-trigger bucket AND grant a real ally/self boon or aura payload — the only ones worth
+wiring into `computeBoonConditionSources`; full 112-row classification table in the doc. The existing
+dodge-relic exclusion (`DODGE_RELIC_IDS`) was kept as-is, not re-litigated.
+
 ## Session 220 — Relic of the Flock duplicate entry + Guardian Luminary's F1-F4 tooltip/Radiant Forge gaps
 
 3 of the 4 bugs the user flagged 2026-08-16 during personal testing:

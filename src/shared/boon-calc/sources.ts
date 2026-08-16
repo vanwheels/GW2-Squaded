@@ -4115,11 +4115,8 @@ type RelicTriggerGate = { kind: 'elite' } | { kind: 'heal' } | { kind: 'ability'
  * `BUFF_INSTANCE_LABELS`: a relic id absent here contributes nothing to either aggregate, same as
  * before this mechanism existed — `formatRelicDescription` still shows its full tooltip either way.
  *
- * 10 of the 19 candidates are wired below; the other 9 stay unwired, each for a reason the
+ * 11 of the 19 candidates are wired below; the other 8 stay unwired, each for a reason the
  * classification doc's one-line payload gloss didn't capture:
- * - Relic of the Zephyrite (100893): still needs its wiki stepped-duration table hand-curated
- *   (TODO.md's own open item, separate from this leg) — wiring it now would lock in the stale flat
- *   Min value instead.
  * - Relic of Leadership (100625): "Conditions Converted to Boons" doesn't name a specific boon —
  *   no literal `BOON_NAMES` status for `extractFromRelicFacts` to match.
  * - Relic of Sorrow (103424): re-checked against its own `relic-effects.json` facts for this leg —
@@ -4145,11 +4142,21 @@ type RelicTriggerGate = { kind: 'elite' } | { kind: 'heal' } | { kind: 'ability'
  *   `classify` match silently drops them, same as it silently drops every non-boon/aura fact below
  *   (Relic of Fire's own "Damage Increase," every relic's `targets`/`radius`/recharge facts, ...).
  *   Extending relics into `computeNamedFactSources` too is a follow-up, not this leg.
+ *
+ * Relic of the Zephyrite (100893) — the sweep's own motivating case — is the one entry below whose
+ * payload isn't a flat pass-through of `extractFromRelicFacts`: its crystal duration scales with the
+ * recharge of the elite skill that triggered it (a wiki-curated stepped table, see
+ * `zephyriteCrystalDurationSeconds`), unlike every other relic here, which grants the same fixed
+ * duration regardless of which qualifying skill fired it. `relicSources` below overrides its
+ * `Protection`/`Resolution` entries' duration after the normal parse, rather than trusting
+ * `relic-effects.json`'s own `protection`/`resolution` facts (`1`s — the crystal's per-pulse tick,
+ * not its total lifetime).
  */
 const RELIC_TRIGGER_GATES: Record<number, RelicTriggerGate> = {
   100063: { kind: 'elite' }, // Relic of Surging — Shocking Aura
   100435: { kind: 'elite' }, // Relic of the Earth — Protection + Magnetic Aura
   100752: { kind: 'elite' }, // Relic of the Pack — Might + Fury (Superspeed excluded, see above)
+  100893: { kind: 'elite' }, // Relic of the Zephyrite — Protection + Resolution, duration computed per zephyriteCrystalDurationSeconds
   100385: { kind: 'heal' }, // Relic of the Centaur — Stability
   100455: { kind: 'heal' }, // Relic of Durability — Protection + Regeneration + Resolution
   100794: { kind: 'heal' }, // Relic of Resistance — Resistance
@@ -4160,6 +4167,66 @@ const RELIC_TRIGGER_GATES: Record<number, RelicTriggerGate> = {
   100450: { kind: 'ability', categories: ['Well'] }, // Relic of the Chronomancer — Quickness
   104733: { kind: 'ability', categories: ['Cantrip', 'Meditation'] }, // Relic of the Phenom — Protection
   109267: { kind: 'ability', categories: ['Well', 'Consecration'] } // Relic of the Sacred Grounds — Protection
+}
+
+const ZEPHYRITE_RELIC_ID = 100893
+
+/**
+ * Relic of the Zephyrite's (100893) crystal duration tiers, hand-curated from the wiki (TODO.md's
+ * "Relic proc integration sweep" leg-3 note): the wiki documents this as a stepped table keyed by
+ * the *triggering elite skill's own recharge*, not a formula, so this is kept the same shape rather
+ * than approximated by one. Ascending `maxRecharge`; the last entry's `Infinity` covers the wiki's
+ * open-ended "61+ seconds" tier.
+ */
+const ZEPHYRITE_CRYSTAL_DURATION_TIERS: Array<{ maxRecharge: number; durationSeconds: number }> = [
+  { maxRecharge: 0, durationSeconds: 4 },
+  { maxRecharge: 20, durationSeconds: 5 },
+  { maxRecharge: 40, durationSeconds: 6 },
+  { maxRecharge: 60, durationSeconds: 7 },
+  { maxRecharge: Infinity, durationSeconds: 8 }
+]
+
+/** `ZEPHYRITE_CRYSTAL_DURATION_TIERS`, applied to one elite skill's recharge in seconds. */
+function zephyriteCrystalDurationSeconds(eliteRechargeSeconds: number): number {
+  const tier = ZEPHYRITE_CRYSTAL_DURATION_TIERS.find((t) => eliteRechargeSeconds <= t.maxRecharge)
+  return (tier ?? ZEPHYRITE_CRYSTAL_DURATION_TIERS[ZEPHYRITE_CRYSTAL_DURATION_TIERS.length - 1]).durationSeconds
+}
+
+/**
+ * The equipped Elite skill id(s) a build carries, read straight off `Skill.facts`' own `Recharge`
+ * fact below — `[build.skills.elite]` for a standard profession (`[]` when unset), or every equipped
+ * legend's own `elite` id for Revenant. Deliberately reads BOTH equipped legends when present, never
+ * preferring `RevenantSkillSelection.activeLegendIndex` — that field's own doc comment says it's
+ * "display-only, doesn't affect computed totals," and both legends' kits already contribute equally
+ * everywhere else in this file (`healUtilityEliteSkillIds`).
+ */
+function equippedEliteSkillIds(build: Build, legends: Legend[]): number[] {
+  if (build.skills.kind === 'revenant') {
+    return build.skills.legends
+      .filter((id): id is string => id !== null)
+      .map((id) => legends.find((l) => l.id === id)?.elite)
+      .filter((id): id is number => id !== undefined)
+  }
+  return build.skills.elite !== null ? [build.skills.elite] : []
+}
+
+/**
+ * Relic of the Zephyrite's actual crystal duration for `build` — the minimum
+ * `zephyriteCrystalDurationSeconds` across every equipped elite skill that carries a `Recharge`
+ * fact. `Math.min` (not the first id, not an average) is the same "don't invent/overstate a number
+ * this app doesn't actually guarantee" bias `RELIC_TRIGGER_GATES`'s own doc comment applies
+ * elsewhere: a Revenant with 2 legends can't guarantee which one is active when the relic fires, so
+ * this reports the shorter of the two rather than assuming the longer. Falls back to the shortest
+ * tier (4s) when no equipped elite skill carries a `Recharge` fact at all — shouldn't happen once
+ * `relicTriggerSatisfied` confirms an elite skill is equipped, but stays conservative rather than
+ * throwing.
+ */
+function zephyriteBuildCrystalDurationSeconds(build: Build, legends: Legend[], skillsById: Map<number, Skill>): number {
+  const recharges = equippedEliteSkillIds(build, legends)
+    .map((id) => skillsById.get(id)?.facts.find((f) => f.type === 'Recharge'))
+    .map((fact) => (fact && typeof fact.value === 'number' ? fact.value : null))
+    .filter((v): v is number => v !== null)
+  return zephyriteCrystalDurationSeconds(recharges.length > 0 ? Math.min(...recharges) : 0)
 }
 
 /**
@@ -4274,7 +4341,7 @@ function relicSources(
   if (!relicTriggerSatisfied(gate, build, gameData.legends, skillsById)) return []
   const targetsFact = effect.facts.find((f) => f.label === 'targets' || f.label === 'allied targets')
   const targetCount = targetsFact ? Number(targetsFact.values[0]) : null
-  return extractFromRelicFacts(
+  const parsed = extractFromRelicFacts(
     effect.facts,
     durationPercent,
     relic.id,
@@ -4283,6 +4350,15 @@ function relicSources(
     Number.isFinite(targetCount) ? targetCount : null,
     classify
   )
+  if (relic.id !== ZEPHYRITE_RELIC_ID) return parsed
+  // Zephyrite's own `protection`/`resolution` facts carry the crystal's 1s per-pulse tick, not its
+  // total lifetime — see `zephyriteBuildCrystalDurationSeconds`'s doc comment for why the real
+  // duration is computed instead of read off `relic-effects.json` directly.
+  const duration = zephyriteBuildCrystalDurationSeconds(build, gameData.legends, skillsById)
+  return parsed.map((source) => {
+    const percent = source.category === 'condition' ? durationPercent.condition : durationPercent.boon
+    return { ...source, baseDurationSeconds: duration, scaledDurationSeconds: duration * (1 + percent / 100) }
+  })
 }
 
 /**

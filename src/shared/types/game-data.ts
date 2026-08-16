@@ -458,13 +458,15 @@ export interface RelicFactLine {
  * A relic's wiki-sourced numeric effect data: every WvW-relevant `{{skill fact}}` line from its
  * infobox, plus its internal cooldown if the wiki documents one (`rechargeSeconds` prefers a
  * `recharge wvw=` override over the plain `recharge=` field, since a handful of relics have a
- * WvW/PvP-specific recharge distinct from PvE — see docs/game-data.md). Purely a display-layer
- * enrichment of `Relic.description` — deliberately NOT wired into the boon/condition uptime
- * calculator (`src/shared/boon-calc/sources.ts`), unlike skill/trait Buff facts: a relic's facts
- * fire on conditional player actions ("after granting a boon", "upon dealing damage with a
- * skill on 20s+ recharge") rather than on-cast like a skill, so there's no fixed "you get this
- * boon for this duration" guarantee to aggregate into an uptime total without inventing a usage-
- * frequency assumption this app doesn't model anywhere else. See TODO.md.
+ * WvW/PvP-specific recharge distinct from PvE — see docs/game-data.md). Primarily a display-layer
+ * enrichment of `Relic.description` (`formatRelicDescription`) — but AS OF the 2026-08-16 "Relic
+ * proc integration sweep," a curated subset of relics whose proc trigger this app already models a
+ * deterministic frequency for (an equipped Elite/Heal skill, or a skill of a given ability-type
+ * category) also feed the boon/condition/aura uptime calculator, via `RELIC_TRIGGER_GATES` in
+ * `src/shared/boon-calc/sources.ts` — see that table's own doc comment for the full curated list and
+ * the reasoning for every relic deliberately still excluded. Every relic NOT in that table remains
+ * display-only, for the reason this comment used to state universally: its facts fire on a
+ * conditional player action with no fixed per-rotation frequency this app models.
  */
 export interface RelicEffect {
   facts: RelicFactLine[]

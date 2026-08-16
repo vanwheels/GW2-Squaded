@@ -60,14 +60,21 @@ one-off.
       Durability, Resistance, Febe, Reunification, Altruism, Fire, Chronomancer, Phenom, Sacred
       Grounds — see `RELIC_TRIGGER_GATES`'s doc comment for the exact list and per-relic payload).
       9 tests in `relic-sources.test.ts`.
-- [ ] 6 relics still need real follow-up work before they can join `RELIC_TRIGGER_GATES` (found/
+- [x] Relic of the Zephyrite (100893) — the sweep's own motivating case — is now fully curated AND
+      wired. **DONE 2026-08-16.** Two parts: (1) the wiki's stepped crystal-duration table (0s→4s,
+      1-20s→5s, 21-40s→6s, 41-60s→7s, ≥61s→8s) lives in wiki prose, not the `{{skill fact}}` infobox
+      `fetch-relic-effects.ts` parses, so it's hand-curated via a new `CURATED_RELIC_FACT_OVERRIDES`
+      table in `relic-effects-format.ts` (survives a `fetch-relic-effects` re-run, unlike editing
+      `relic-effects.json` directly) — also fixes the stale Max (was 7, wiki now says 8). (2) added to
+      `RELIC_TRIGGER_GATES`; unlike every other entry, its duration isn't a flat pass-through of
+      `relic-effects.json`'s facts (those are the crystal's 1s per-pulse tick, not its lifetime) —
+      `relicSources` reads the build's actual equipped elite skill's own `Recharge` fact and maps it
+      through the same stepped table (`ZEPHYRITE_CRYSTAL_DURATION_TIERS` in `sources.ts`); Revenant
+      (2 legends, no single "active" elite skill by design) takes the shorter of the two rather than
+      guessing. See `docs/relic-trigger-classification.md`'s "Leg 3" section for the full writeup.
+- [ ] 5 relics still need real follow-up work before they can join `RELIC_TRIGGER_GATES` (found/
       re-confirmed while building the mechanism above — see that table's doc comment for the full
       per-relic reasoning):
-      - Relic of the Zephyrite (100893): still needs its wiki stepped-duration table hand-curated
-        into `relic-effects.json` (wiki: 0s→4s, 1-20s→5s, 21-40s→6s, 41-60s→7s, ≥61s→8s recharge) —
-        only Min/Max (4/7, itself stale vs. the wiki's current Max of 8, a preexisting wiki
-        infobox/prose inconsistency, not an app bug) is there today. Same "prose supplements the
-        facts" curation shape as Otherworldly Bond.
       - Relic of Sorrow (103424): the classification doc's "Protection (allies)" payload gloss was
         wrong — its real effect is a custom damage-reduction/reflect zone, not the Protection boon.
         Needs its own wiki re-check to figure out what (if anything) it should show as, since it's
