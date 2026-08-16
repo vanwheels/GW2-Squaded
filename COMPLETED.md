@@ -2,6 +2,18 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 218 — v1.0.1 patch: Boons/Condis Conditions-row scrollbar
+
+`BoonConditionSummaryPanel`'s row-pairs (Conditions/Auras, Boons/Misc., Control/Strips-Corrupts-
+Cleanses, Combo Fields/Finishers) split their two columns 50/50 via a fixed flex ratio. The left
+column routinely has far more icons than its right-side partner (e.g. 12+ Conditions vs. 6
+Auras), so it hit its per-row horizontal scrollbar while the right column's half sat mostly
+empty. Left column (`:first-child`) now grows to absorb whatever width the right column
+(`:last-child`) doesn't need instead of a rigid even split — fixes the scrollbar without touching
+layout for pairs that were already balanced. `package.json`/`package-lock.json` bumped
+1.0.0 → 1.0.1; tagged `v1.0.1` and published via the same electron-builder GitHub-publish recipe
+Session 217 used.
+
 ## Session 217 — v1.0.0 release
 
 Cut the 1.0 release per the user's 2026-08-12 goal (see TODO.md's now-closed "Path to 1.0" entry).
