@@ -2,6 +2,17 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 217 — v1.0.0 release
+
+Cut the 1.0 release per the user's 2026-08-12 goal (see TODO.md's now-closed "Path to 1.0" entry).
+Both blocking gaps (visual click-through pass, automated test suite) closed 2026-08-13; this session
+is just the mechanical release: `package.json`/`package-lock.json` bumped 0.3.0 → 1.0.0, README
+Status/Roadmap updated to reflect that roadmap items 1-4 (scaffolding, build editor + boon/condition
+calculator, squad preview builder, sync/share backend) are all implemented and released — Discord bot
+and Capacitor port remain later, out-of-scope roadmap stages. Tagged `v1.0.0` and published via the
+electron-builder GitHub-publish recipe (pre-created draft release to avoid the known duplicate-release
+race, see COMPLETED.md's earlier `electron-builder-github-publish-race` note).
+
 ## Session 216 — Food catalog: closing the 76-buffless-entries TODO item
 
 Closes the long-open TODO.md item about Food entries with no buff data. Investigation went well

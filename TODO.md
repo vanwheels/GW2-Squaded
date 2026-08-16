@@ -2,31 +2,13 @@
 
 Completed work is tracked in COMPLETED.md, not here — this file only holds what's still open.
 
-## Path to 1.0 (target: ship this week for community testing/feedback)
+## 1.0 shipped 2026-08-15
 
-User's explicit goal, stated 2026-08-12: cut a 1.0 release this week so the community can start using
-it and giving feedback — the user isn't deeply familiar with every profession's own meta/quirks and is
-relying on wider playtesting to catch what solo curation can't. 1.0 scope = README roadmap items 1-4
-(scaffolding, build editor + boon/condition calculator, squad preview builder, sync/share backend) —
-the Discord bot and the Capacitor mobile port are explicitly OUT of 1.0 scope (later roadmap stages,
-own sub-projects). Already shipping releases (v0.1.0-v0.3.0 tagged, electron-builder + auto-update
-live) — the app is feature-complete for this scope; the open question is correctness confidence, not
-missing features.
-
-Both gaps that stood between here and 1.0 are now closed:
-1. ~~**Never visually verified in a running app.**~~ **DONE 2026-08-13** — user did a manual
-   click-through pass. Found one real bug along the way: Revenant's skill bar was showing phantom
-   duplicate icon rows for skills with no real secondary action — fixed same day (COMPLETED.md
-   Session 165), including its non-Revenant sibling sweep (Session 166) and its last curation
-   loose end, Breakrazor's Bastion (Session 167) — fully closed.
-2. ~~**Zero automated tests.**~~ **DONE 2026-08-13** — 108 tests across 3 completeness scans + 3
-   value-correctness tiers; full history in COMPLETED.md (Sessions 158-164). Also found and fixed 7
-   real bugs as a byproduct (stale `factText` matches, missing health-threshold/full-endurance combat
-   state dimensions, one live ArenaNet API data bug) — see COMPLETED.md for details.
-
-**1.0 is otherwise unblocked** — what's left in this file below is post-1.0 polish, deliberately
-deferred features (Discord bot, Capacitor port — always out of 1.0 scope), and open curation gaps
-that don't block a release.
+v1.0.0 released (see COMPLETED.md). README roadmap items 1-4 (scaffolding, build editor +
+boon/condition calculator, squad preview builder, sync/share backend) are all implemented and
+released; Discord bot and Capacitor mobile port remain later roadmap stages, out of scope. What's
+left in this file below is post-1.0 polish and open curation gaps — none of it blocks the release
+that already shipped.
 
 ## Scoped features, not yet built
 

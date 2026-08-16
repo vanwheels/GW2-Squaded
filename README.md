@@ -13,9 +13,10 @@ is used under [ArenaNet's Content Terms of Use](https://www.guildwars2.com/en/le
 
 ## Status
 
-Early scaffolding — see [TODO.md](./TODO.md) / [COMPLETED.md](./COMPLETED.md) for progress.
-The build editor UI, boon/condition calculator, squad preview builder, sync/sharing backend,
-and Discord bot are not implemented yet.
+**1.0** — the build editor, boon/condition uptime calculator, squad preview builder, and
+sync/sharing backend (roadmap items 1-4) are all implemented and released. See
+[TODO.md](./TODO.md) / [COMPLETED.md](./COMPLETED.md) for ongoing work; the Discord bot and
+Capacitor mobile port are later roadmap stages, not part of 1.0.
 
 ## Project structure
 
@@ -46,10 +47,9 @@ npm run dev                # launches the Electron shell with the React app insi
 
 1. ✅ Project scaffolding, static GW2 game data pipeline, core data model, local storage,
    minimal UI shell.
-2. Build editor UI + theoretical boon/condition uptime calculator, scoped incrementally by
-   profession (starting with 2-3 meta WvW support builds).
-3. Squad preview builder (offline, local saves).
-4. Sync/sharing via a thin backend (unique immutable links — "copy into your own app", not
+2. ✅ Build editor UI + theoretical boon/condition uptime calculator, covering all 9 professions.
+3. ✅ Squad preview builder (offline, local saves).
+4. ✅ Sync/sharing via a thin backend (unique immutable links — "copy into your own app", not
    collaborative editing).
 5. Discord bot (client of the same backend API).
 6. Mobile via Capacitor (iOS first, then Android).
