@@ -179,9 +179,9 @@ describe('Relic of the Zephyrite (100893) — elite-skill gate, duration compute
 
 describe('Relics deliberately left out of RELIC_TRIGGER_GATES', () => {
   // Leadership (no literal boon name), Sorrow (custom effect misread as "Protection" by leg 1's
-  // gloss), Firebrand (a % modifier, not a discrete boon) — every gate gets maximally satisfied
-  // (Elite equipped) so a false wiring would show up immediately rather than being masked by an
-  // unmet trigger.
+  // gloss, wiki-confirmed excluded for good in leg 4), Firebrand (a % modifier, not a discrete
+  // boon) — every gate gets maximally satisfied (Elite equipped) so a false wiring would show up
+  // immediately rather than being masked by an unmet trigger.
   const deferredRelicIds = [100625, 103424, 100453]
 
   it.each(deferredRelicIds)('relic %i contributes nothing to computeBoonConditionSources/computeAuraSources', (relicId) => {

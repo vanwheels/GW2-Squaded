@@ -72,13 +72,16 @@ one-off.
       through the same stepped table (`ZEPHYRITE_CRYSTAL_DURATION_TIERS` in `sources.ts`); Revenant
       (2 legends, no single "active" elite skill by design) takes the shorter of the two rather than
       guessing. See `docs/relic-trigger-classification.md`'s "Leg 3" section for the full writeup.
-- [ ] 5 relics still need real follow-up work before they can join `RELIC_TRIGGER_GATES` (found/
+- [x] Relic of Sorrow (103424) — **CLOSED 2026-08-16.** Wiki re-check confirms leg 2's correction
+      word for word: its "protects allies" effect is a custom damage-reduction/reflect zone plus
+      pulsing healing (`Healing` 660@0.25, `Duration` 4, `Radius` 240, `Damage reduced` 20% — all
+      already-rendered plain tooltip facts via `formatRelicDescription`), never the Protection boon
+      or any other boon/aura. Permanently excluded from `RELIC_TRIGGER_GATES`, not deferred — no
+      code change needed, `relic-sources.test.ts` already covers it. See
+      `docs/relic-trigger-classification.md`'s "Leg 4" section.
+- [ ] 4 relics still need real follow-up work before they can join `RELIC_TRIGGER_GATES` (found/
       re-confirmed while building the mechanism above — see that table's doc comment for the full
       per-relic reasoning):
-      - Relic of Sorrow (103424): the classification doc's "Protection (allies)" payload gloss was
-        wrong — its real effect is a custom damage-reduction/reflect zone, not the Protection boon.
-        Needs its own wiki re-check to figure out what (if anything) it should show as, since it's
-        not a `BoonConditionSource` candidate at all.
       - Relic of Leadership (100625): "Convert conditions into boons" doesn't name which boon(s) —
         would need a wiki check of whether the conversion is deterministic enough to model at all.
       - Relic of the Twin Generals (101767): base Might (6 stacks) is safe, but its "Might per Hit"

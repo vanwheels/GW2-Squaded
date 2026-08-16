@@ -4119,11 +4119,13 @@ type RelicTriggerGate = { kind: 'elite' } | { kind: 'heal' } | { kind: 'ability'
  * classification doc's one-line payload gloss didn't capture:
  * - Relic of Leadership (100625): "Conditions Converted to Boons" doesn't name a specific boon —
  *   no literal `BOON_NAMES` status for `extractFromRelicFacts` to match.
- * - Relic of Sorrow (103424): re-checked against its own `relic-effects.json` facts for this leg —
- *   its "protects allies" prose describes a custom "Relic of Sorrow" damage-reduction/reflect zone
- *   (`effect` fact literally named "Relic of Sorrow," not "Protection"), not the Protection boon.
- *   The classification doc's plain-English payload gloss was imprecise here; correcting that, not
- *   re-litigating leg 1's trigger classification itself (still correctly bucketed as `ELITE`).
+ * - Relic of Sorrow (103424): re-checked against its own `relic-effects.json` facts for leg 2, then
+ *   wiki-confirmed word for word in leg 4 (`docs/relic-trigger-classification.md`) — its "protects
+ *   allies" prose describes a custom "Relic of Sorrow" damage-reduction/reflect zone plus pulsing
+ *   healing (`effect` fact literally named "Relic of Sorrow," not "Protection"), never the Protection
+ *   boon. The classification doc's plain-English payload gloss was imprecise here; correcting that,
+ *   not re-litigating leg 1's trigger classification itself (still correctly bucketed as `ELITE`).
+ *   Permanently excluded, not deferred — no `BoonConditionSource`/`AuraSource` shape fits it at all.
  * - Relic of the Twin Generals (101767): carries 2 same-status Might facts — a flat "6 stacks" AND
  *   a separate "Might per Hit" that scales with how many enemies the triggering hit struck, i.e.
  *   genuinely variable rather than a fixed grant. Same "don't invent a frequency/magnitude this app

@@ -229,10 +229,7 @@ full per-relic reasoning, and TODO.md's "Relic proc integration sweep" for the f
 one had:
 
 - ~~Zephyrite (100893) — stepped-duration curation still open.~~ **DONE, leg 3 (see below).**
-- Sorrow (103424) — **correction to this doc's own leg-1 table**: its "Protection (allies)" payload
-  gloss was wrong. Re-checking `relic-effects.json` for leg 2 found its real effect is a custom
-  damage-reduction/reflect zone (`effect` fact literally named "Relic of Sorrow"), not the
-  Protection boon — no `BOON_NAMES` match exists to wire.
+- ~~Sorrow (103424) — correction to this doc's own leg-1 table.~~ **CLOSED, leg 4 (see below).**
 - Leadership (100625) — "Convert conditions into boons" doesn't name a specific boon.
 - Twin Generals (101767) — carries a second, variable "Might per Hit" fact alongside its flat base
   Might; needs a real decision before it can be wired without inventing a number.
@@ -266,5 +263,23 @@ Closed the sweep's own motivating case. Two separate fixes, both in `RELIC_TRIGG
    is "active" (`RevenantSkillSelection.activeLegendIndex` is explicitly display-only and deliberately
    unread here). 5 new tests in `relic-sources.test.ts` + 3 in the new `relic-effects-format.test.ts`.
 
-The other 5 relics from leg 2's deferred list (Sorrow, Leadership, Twin Generals, Firebrand, Astral
-Ward) plus the Pack/Febe `MISCELLANEOUS_MATCHERS` follow-up remain open — see TODO.md.
+The other 4 relics from leg 2's deferred list (Leadership, Twin Generals, Firebrand, Astral Ward)
+plus the Pack/Febe `MISCELLANEOUS_MATCHERS` follow-up remain open — see TODO.md.
+
+## Leg 4 (partial) — Relic of Sorrow, CLOSED 2026-08-16
+
+Closed the first of the 5 relics leg 2 deferred, no code change needed — leg 2 had already reached
+the right answer from `relic-effects.json` alone; this leg just did the wiki re-check TODO.md asked
+for before calling it closed. The GW2 Wiki's raw wikitext for Relic of Sorrow confirms leg 2's
+correction word for word: "After using an elite skill, create an area that protects allies and
+destroys enemy projectiles," with "pulsing healing and projectile destruction" plus "20% incoming
+strike damage reduction" as its actual mechanics — no boon, and specifically no Protection, anywhere
+in the wiki prose. That matches `relic-effects.json`'s facts exactly (`Healing` 660@0.25 coefficient,
+a custom `effect` fact literally named "Relic of Sorrow," `Duration` 4, `Radius` 240, `Damage
+reduced` 20) — every fact is either already-rendered plain tooltip text (`formatRelicDescription`,
+no curation gap) or outside what `BoonConditionSource`/`AuraSource` can represent (a flat damage-
+reduction zone and projectile destruction aren't boons, auras, or named facts this app tracks
+anywhere). Conclusion: Relic of Sorrow is correctly and permanently excluded from
+`RELIC_TRIGGER_GATES` — not a deferred candidate, just not a fit for this table's shape at all. No
+code changed; `relic-sources.test.ts`'s existing "contributes nothing" regression test for 103424
+already covers this. TODO.md's bullet for it removed.

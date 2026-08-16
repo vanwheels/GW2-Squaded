@@ -2,6 +2,30 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 224 — Relic proc integration sweep leg 4: Relic of Sorrow, wiki-confirmed and closed for good
+
+Closed the first of the 5 relics leg 2's `RELIC_TRIGGER_GATES` deferred (TODO.md's "Relic proc
+integration sweep"). No code change — leg 2 had already reached the right answer purely from
+`relic-effects.json`'s facts; this leg did the wiki re-check TODO.md still asked for before calling
+it closed. The GW2 Wiki's raw wikitext for Relic of Sorrow confirms leg 2's correction word for word:
+"After using an elite skill, create an area that protects allies and destroys enemy projectiles,"
+with "pulsing healing and projectile destruction" plus "20% incoming strike damage reduction" as its
+actual mechanics — no boon anywhere in the prose, and specifically never Protection. That matches
+`relic-effects.json`'s facts exactly (`Healing` 660@0.25 coefficient, a custom `effect` fact literally
+named "Relic of Sorrow," `Duration` 4, `Radius` 240, `Damage reduced` 20) — every one of those is
+either already-rendered plain tooltip text via `formatRelicDescription` (no display gap to fix) or
+outside what `BoonConditionSource`/`AuraSource` can represent at all (a flat damage-reduction zone and
+projectile destruction aren't boons, auras, or named facts this app tracks anywhere).
+
+Conclusion: Relic of Sorrow is permanently excluded from `RELIC_TRIGGER_GATES`, not a deferred
+candidate — it was never a fit for that table's shape regardless of further curation.
+`relic-sources.test.ts`'s existing "contributes nothing" regression test for 103424 already covers
+this; only doc comments (`sources.ts`, `docs/relic-trigger-classification.md`'s new "Leg 4" section)
+and the test's own comment were updated for accuracy. TODO.md's "Relic proc integration sweep"
+narrowed from 5 to 4 remaining relics (Leadership, Twin Generals, Firebrand, Astral Ward) plus the
+separate Pack/Febe `MISCELLANEOUS_MATCHERS` follow-up. `npm run test` clean (13/13 in
+`relic-sources.test.ts`).
+
 ## Session 223 — Relic proc integration sweep leg 3: Relic of the Zephyrite, fully curated + wired
 
 Closes the sweep's own motivating case (Session 220's 4th user-flagged bug). Two parts:
@@ -32,8 +56,8 @@ equipped, Revenant min-across-legends including one legend whose elite carries n
 all) + a new `relic-effects-format.test.ts` (3 tests) locking in the curated display override.
 `npm run typecheck`/`lint`/`test` all clean (179 tests). See `docs/relic-trigger-classification.md`'s
 "Leg 3" section for the full writeup; TODO.md's "Relic proc integration sweep" narrowed from 6 to 5
-remaining relics (Sorrow, Leadership, Twin Generals, Firebrand, Astral Ward) plus the separate
-Pack/Febe `MISCELLANEOUS_MATCHERS` follow-up.
+remaining relics (Sorrow, Leadership, Twin Generals, Firebrand, Astral Ward — Sorrow closed next,
+Session 224) plus the separate Pack/Febe `MISCELLANEOUS_MATCHERS` follow-up.
 
 ## Session 222 — Relic proc integration sweep leg 2: `RELIC_TRIGGER_GATES` mechanism + 10 relics wired
 
