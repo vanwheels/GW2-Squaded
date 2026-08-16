@@ -311,8 +311,22 @@ const SHARED_CONTAINER_PREFIXES = ['Feast of ', 'Tray of ', 'Pot of ', 'Plate of
 
 /** Container word the matching *individually-eaten* item might itself be prefixed with — tried in
  *  this priority order (empty string, i.e. no prefix at all, first) alongside the bare de-prefixed
- *  name when resolving a shared item's match. */
-const INDIVIDUAL_CONTAINER_PREFIXES = ['', 'Bowl of ', 'Plate of ', 'Cup of ', 'Mug of ', 'Demitasse of ', 'Slice of ', 'Piece of ']
+ *  name when resolving a shared item's match. `Filet of `/`Loaf of ` added 2026-08-15: confirmed
+ *  live that 9 "Feast of .../Tray of ..." items DO have a real buffed sibling under one of these
+ *  two prefixes (e.g. "Filet of Rosemary-Roasted Meat", "Loaf of Banana Bread") that the original
+ *  list simply didn't try — 0 new ambiguous matches introduced across the rest of the catalog. */
+const INDIVIDUAL_CONTAINER_PREFIXES = [
+  '',
+  'Bowl of ',
+  'Plate of ',
+  'Cup of ',
+  'Mug of ',
+  'Demitasse of ',
+  'Slice of ',
+  'Piece of ',
+  'Filet of ',
+  'Loaf of '
+]
 
 /** `word` re-singularized, every plausible way — "Cookies" -> "Cookie"/"Cooky" (only one is ever a
  *  real word; whichever one is an existing item's name wins), "Pizzas" -> "Pizza", "Salad" (already
@@ -468,6 +482,154 @@ function applyAscendedFeastFormula(items: Consumable[]): void {
   }
 }
 
+/**
+ * Individual buff data for real, purchasable/craftable Food items whose `details` object comes
+ * back completely empty from the API — the same "buff data not exposed" shape as the Ascended
+ * Gourmet Feast family above, just not gated behind a `Gourmet Feast:` prefix or a clean
+ * type/herb formula, so each needed its own wiki lookup. Curated 2026-08-15 from each item's own
+ * raw wikitext `{{nourishment|duration|bonus lines}}` template (not a rendered/summarized table,
+ * per [[healing_damage_coefficient_curation]]'s lesson) — confirmed these are real Desert
+ * Highlands (PoF)/Domain of Kourna (LWS5) recipes, not the ~48 karma/Mastery-currency/crafting-
+ * material/tonic items also found buffless in the same sweep (see `EXCLUDED_FOOD_IDS` below,
+ * which is the disjoint "genuinely not a food pick" half of this same investigation).
+ *
+ * A few borrow their line-for-line bonus text from a sibling instead of duplicating a wiki
+ * lookup, per that sibling's own wiki Notes section: Pitcher of Desert-Spiced Coffee/Mocha of the
+ * Mists Coffee Pitcher both explicitly "grant the same effect as Cup of Light-Roasted Coffee" (id
+ * 82642) just for a shorter 20-minute duration (not the usual "shared version lasts longer"
+ * pattern — confirmed via each item's own Notes, not assumed); Feast of Carne Khan Chili grants
+ * Bowl of Carne Khan Chili's (id 91954) effect for 1 hour; Feast of Dill Meatball Dinners (whose
+ * own in-game display name is actually "Feast of Krytan Meatball Dinners", see its `description`)
+ * grants "Bowl of Krytan Meatball Dinner"'s effect (already resolved elsewhere in the catalog via
+ * `borrowSharedContainerBonuses`, so reproduced here directly) for 1 hour.
+ */
+const CURATED_FOOD_BUFFS: Record<number, { durationMs: number; bonuses: string[] }> = {
+  // Feast of Dill Meatball Dinners
+  12609: { durationMs: 3_600_000, bonuses: ['+50 Toughness', '+40 Precision', '+10% Experience from Kills'] },
+  // Bowl of "Elon Red"
+  82541: { durationMs: 1_800_000, bonuses: ['+100 Expertise', '+70 Toughness', '+1% All Experience Gained'] },
+  // Cup of Light-Roasted Coffee
+  82642: {
+    durationMs: 1_800_000,
+    bonuses: ['Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)', '+70 Precision', '+10% Karma', '+1% All Experience Gained']
+  },
+  // Red Lentil and Flatbread Feast
+  82657: { durationMs: 3_600_000, bonuses: ['-15% Incoming Condition Duration', '+45 to All Attributes', '+1% All Experience Gained'] },
+  // Bowl of Spiced Red Lentil Stew
+  83345: {
+    durationMs: 1_800_000,
+    bonuses: ['Lose a Condition on Successful Evade (Cooldown: 10 Seconds)', '+70 Toughness', '+1% All Experience Gained']
+  },
+  // Pitcher of Desert-Spiced Coffee — see doc comment above
+  83545: {
+    durationMs: 1_200_000,
+    bonuses: ['Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)', '+70 Precision', '+10% Karma', '+1% All Experience Gained']
+  },
+  // Plate of Sugar Rib Roast
+  83622: {
+    durationMs: 1_800_000,
+    bonuses: [
+      '25% Chance on Critical Hit to Inflict Chill (1 Second), Burning (2 Seconds), and Poison (3 Seconds) (Cooldown: 20 Seconds)',
+      '+70 Condition Damage',
+      '+1% All Experience Gained'
+    ]
+  },
+  // Bowl of Red Lentil Soup
+  83955: { durationMs: 1_800_000, bonuses: ['Gain Health Every Second', '+70 Condition Damage', '+1% All Experience Gained'] },
+  // Red-Lentil Saobosa
+  84550: { durationMs: 1_800_000, bonuses: ['+100 Expertise', '+70 Condition Damage', '+1% All Experience Gained'] },
+  // Chef's Tasting Platter
+  91689: {
+    durationMs: 1_800_000,
+    bonuses: ['+80 Power for 30 Seconds on Kill', '+50 Precision', '+50 Condition Damage', '+30% Magic Find', '+10% Experience from Kills']
+  },
+  // Plate of Eggs Benedict
+  91842: { durationMs: 1_800_000, bonuses: ['+100 Concentration', '+70 Expertise', '+10% Experience from Kills'] },
+  // Plate of Spicy Moa Wings
+  91917: {
+    durationMs: 1_800_000,
+    bonuses: ['+100 Power', '+70 Ferocity', '+1% All Experience Gained', 'May Cause Intermittent Gastric Distress']
+  },
+  // Feast of Carne Khan Chili — see doc comment above
+  91943: { durationMs: 3_600_000, bonuses: ['+100 Concentration', '+70 Expertise', '+1% All Experience Gained'] },
+  // Bowl of Firebreather Chili
+  91950: {
+    durationMs: 1_800_000,
+    bonuses: ['+100 Concentration', '+70 Expertise', '+1% All Experience Gained', 'May Cause Intermittent Gastric Distress']
+  },
+  // Bowl of Carne Khan Chili
+  91954: { durationMs: 1_800_000, bonuses: ['+100 Concentration', '+70 Expertise', '+1% All Experience Gained'] },
+  // Bowl of Green Chile Ice Cream
+  92078: { durationMs: 1_800_000, bonuses: ['+100 Concentration', '+70 Expertise', '+10% Karma Gained'] },
+  // Tray of Decade Desserts
+  98924: {
+    durationMs: 7_200_000,
+    bonuses: ['+3% to All Attributes', '+10% Magic Find', '+10% Gold from Monsters', '+10% Karma', '+10% Experience from Kills']
+  },
+  // Mocha of the Mists Coffee Pitcher — see doc comment above
+  99379: {
+    durationMs: 1_200_000,
+    bonuses: ['Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)', '+70 Precision', '+10% Karma', '+1% All Experience Gained']
+  }
+}
+
+/** Fills in `bonuses`/`effectName`/`durationMs` from `CURATED_FOOD_BUFFS` above. Must run after
+ *  `borrowSharedContainerBonuses`/`applyAscendedFeastFormula` (only touches items still buffless)
+ *  but doesn't depend on either. */
+function applyCuratedFoodBuffs(items: Consumable[]): void {
+  for (const item of items) {
+    if (item.effectName !== null) continue
+    const curated = CURATED_FOOD_BUFFS[item.id]
+    if (!curated) continue
+    item.effectName = 'Nourishment'
+    item.durationMs = curated.durationMs
+    item.applyCount = 1
+    item.bonuses = curated.bonuses.map(parseAttributeBonusText)
+    item.description = curated.bonuses.join('\n')
+  }
+}
+
+/**
+ * Food-typed items confirmed, individually, to NOT be a real food buff pick — the disjoint
+ * "genuinely not food" half of the same buffless-Food investigation `CURATED_FOOD_BUFFS` above
+ * resolves the other half of. The GW2 API buckets all of these as `Consumable`/`details.type:
+ * 'Food'` same as real food (so that field alone can't filter them), but each is confirmed via
+ * its own wiki page and/or raw item `description` to be one of:
+ *  - Mastery-point currency ("Elixir/Draught of X Mastery", "Threat Report: ...") or karma
+ *    currency ("Snowglobe" and 4 siblings — Wintersday Gauntlet rewards, "Wish for
+ *    Freedom"/"Wish For Truth", "Debbie's Cake") — the item's own `description` says "Grants ...
+ *    karma"/"... Mastery experience" outright.
+ *  - Home-instance/crafting material delivery ("Gift of Quartz" and its Candy Corn siblings,
+ *    "Offering to Koda"/"Offering Basket", "Light of Deldrimor Plate" halves, "Ectoplasm-Infused
+ *    Vision Crystal") — `description` says "Double-click to have/grow/upgrade/present/combine...".
+ *  - Transformation tonics ("Golem Swarm Potion"/"Pulsating Crystal", both flagged `Tonic`;
+ *    "Unstable Branded Awakened Wind-Up", confirmed via its own wiki page to be a `Bundle`-type
+ *    toy, not a Nourishment food).
+ *  - Achievement/collection-only fodder ("Jungle Wurm Omelet (Mossman Style)", whose own
+ *    description says "This item only has value as part of a collection").
+ *  - "Bottle of Spider Brew" — wiki confirms `type = alcohol` (Brewmaster collection), not food.
+ *  - "Pile of Golden/Pink Sand" — wiki confirms outright: "Consuming/Using this item doesn't seem
+ *    to do anything."
+ *  - "Magic-Imbued Peach" — wiki confirms its "Blessing of the Harvest Forest" buff is removed on
+ *    leaving the Lake Doric map, making it unusable as a general WvW/PvE build pick.
+ *  - "Candy Cane" — wiki confirms a real "Minty Breath" effect, but it's explicitly NOT a
+ *    Nourishment (stacks with real food rather than occupying the Food slot, per its own wiki
+ *    Notes) and grants only a non-combat "+10% Karma Bonus" — outside this app's Food-slot model
+ *    and not worth adding a one-off mechanic for.
+ *  - The 8-item "Bloodstone" joke-food family (Bowl of Bloodstone Ice Cream and 7 siblings, all
+ *    from the "Seimur Was Wrong"/Rata Sum vendor gag) — each individually confirmed via its own
+ *    wiki page to deal real damage to the player on consumption before granting, at best, a
+ *    trivial non-combat "+5% Karma"/"+5% Experience" for 30 minutes (one, Demitasse of Bloodstone
+ *    Espresso, grants no lasting buff at all; another, Bowl of Bloodstone Bisque, has an entirely
+ *    different achievement-puzzle-only mechanic) — none grant a combat-relevant attribute, so none
+ *    belong in a build-planning Food picker.
+ */
+const EXCLUDED_FOOD_IDS = new Set<number>([
+  8602, 43902, 48804, 68404, 68405, 68407, 68408, 68409, 68410, 68411, 70628, 71176, 74065, 77586, 77616, 77620, 77631, 77633, 77651,
+  78005, 79646, 79729, 79848, 80272, 82531, 83171, 83389, 83591, 83613, 87631, 88101, 88330, 88573, 88973, 89692, 89828, 93992, 94454,
+  94457, 94459, 95283, 95286, 95290, 95294, 98929, 106982, 107031, 107063
+])
+
 const INSIGNIA_SUFFIX = ' Insignia'
 
 /**
@@ -543,15 +705,30 @@ async function main(): Promise<void> {
   const sigils = sigilItems.map(normalizeSigil)
   const infusions = infusionItems.map(normalizeInfusion)
   const relics = relicItems.map(normalizeRelic)
-  const food = foodItems.map((i) => normalizeConsumable(i, 'Food'))
   const utility = utilityItems.map((i) => normalizeConsumable(i, 'Utility'))
   // Utility "Station" items (bucketed into utilityItems above) already carry their own full buff
   // data — only Food's "Feast"/"Tray"/"Pot" items need bonus-borrowing (see
   // `Consumable.sharedBuffSource`'s doc comment).
+  let food = foodItems.map((i) => normalizeConsumable(i, 'Food'))
   borrowSharedContainerBonuses(food)
   // Ascended Gourmet Feasts have no sibling to borrow from at all (see `applyAscendedFeastFormula`'s
   // doc comment) — resolved separately, after borrowing, since it only touches items still buffless.
   applyAscendedFeastFormula(food)
+  // Individually wiki-curated real food (see `CURATED_FOOD_BUFFS` doc comment) — also only touches
+  // items still buffless, so ordering relative to the two calls above doesn't matter.
+  applyCuratedFoodBuffs(food)
+  // Drop the disjoint "confirmed genuinely not food" half of the same investigation (see
+  // `EXCLUDED_FOOD_IDS` doc comment) rather than leaving them in the catalog buffless.
+  const foodBeforeExclusion = food.length
+  food = food.filter((f) => !EXCLUDED_FOOD_IDS.has(f.id))
+  const stillBuffless = food.filter((f) => f.effectName === null)
+  if (stillBuffless.length > 0) {
+    console.warn(
+      `\n[warn] ${stillBuffless.length} Food entries are still buffless after borrowing+curation+exclusion — ` +
+        'a future API patch may have added new ones; sample:',
+      stillBuffless.slice(0, 10).map((f) => ({ id: f.id, name: f.name }))
+    )
+  }
 
   const itemStats = JSON.parse(await readFile(join(OUTPUT_DIR, 'itemstats.json'), 'utf-8')) as { name: string }[]
   const itemStatNames = [...new Set(itemStats.map((s) => s.name))]
@@ -579,7 +756,7 @@ async function main(): Promise<void> {
 
   console.log(
     `\nDone. runes=${runes.length} sigils=${sigils.length} infusions=${infusions.length} ` +
-      `relics=${relics.length} food=${food.length} utility=${utility.length} ` +
+      `relics=${relics.length} food=${food.length} (${foodBeforeExclusion - food.length} excluded non-food) utility=${utility.length} ` +
       `itemStatIcons=${Object.keys(itemStatIcons).length}/${itemStatNames.length} ` +
       `itemStatLegalIds=${itemStatLegalIds.armorWeapon.length}armor/weapon+${itemStatLegalIds.trinket.length}trinket`
   )

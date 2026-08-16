@@ -132,15 +132,6 @@ that before extending either further.
       heal-modifier concept yet (distinct from the boon/condition uptime system); needs scoping, not
       a one-off patch for this skill.
 
-- [ ] 76 Food catalog entries still have no buff data after `borrowSharedContainerBonuses` +
-      `applyAscendedFeastFormula` (`fetch-gear-upgrades.ts`) — genuinely buff-less items that don't
-      belong being offered as a "Food" pick at all: Mastery-point currency ("Elixir/Draught of X
-      Mastery"), crafting materials ("Gift of Quartz"/"Pile of Golden Sand"), and achievement/
-      collection rewards ("Threat Report: ..."). These came back in the picker when the (wrong)
-      blanket exclusion was reverted 2026-08-06; whether to filter them back out by a narrower,
-      verified rule (not the blanket `effectName === null` check that wrongly caught Feasts too) is
-      an open question, not decided either way yet.
-
 ## Stats panel / boon-condition bar polish
 
 - [ ] Minor, unconfirmed: possible Ascended-vs-Exotic filter tabs on the itemstat-combo picker — no

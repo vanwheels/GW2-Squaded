@@ -1736,19 +1736,6 @@
     "sharedBuffSource": null
   },
   {
-    "id": 8602,
-    "name": "Bottle of Spider Brew",
-    "icon": "https://render.guildwars2.com/file/6FFF955822D0C9ACF2EDFF0B0C114C57D691FAE5/66531.png",
-    "kind": "Food",
-    "rarity": "Fine",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
     "id": 8605,
     "name": "Bowl of Meaty Wurm Surprise",
     "icon": "https://render.guildwars2.com/file/1F0595F2252BEFA1396235A0A56DFD499C95D455/63085.png",
@@ -12331,12 +12318,34 @@
     "icon": "https://render.guildwars2.com/file/F561AD4B2A5F43265E0117133579A1B730F790B9/455560.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
+    "effectName": "Nourishment",
     "durationMs": null,
     "applyCount": null,
     "description": "Meal Feast: Double-click to set out a Feast of Rosemary-Roasted Meat to share with anyone in the area. Feast stays active for 5 minutes.",
-    "bonuses": [],
-    "sharedBuffSource": null
+    "bonuses": [
+      {
+        "raw": "+50 Power",
+        "attribute": "Power",
+        "value": 50,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+40 Vitality",
+        "attribute": "Vitality",
+        "value": 40,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": "Filet of Rosemary-Roasted Meat"
   },
   {
     "id": 12606,
@@ -12449,11 +12458,33 @@
     "icon": "https://render.guildwars2.com/file/F561AD4B2A5F43265E0117133579A1B730F790B9/455560.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Meal Feast: Double-click to set out a Feast of Krytan Meatball Dinners to share with anyone in the area. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+50 Toughness\n+40 Precision\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "+50 Toughness",
+        "attribute": "Toughness",
+        "value": 50,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+40 Precision",
+        "attribute": "Precision",
+        "value": 40,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -12532,12 +12563,34 @@
     "icon": "https://render.guildwars2.com/file/F561AD4B2A5F43265E0117133579A1B730F790B9/455560.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
+    "effectName": "Nourishment",
     "durationMs": null,
     "applyCount": null,
     "description": "Meal Feast: Double-click to set out a Feast of Sesame-Roasted Meat to share with anyone in the area. Feast stays active for 5 minutes.",
-    "bonuses": [],
-    "sharedBuffSource": null
+    "bonuses": [
+      {
+        "raw": "+50 Power",
+        "attribute": "Power",
+        "value": 50,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+40 Precision",
+        "attribute": "Precision",
+        "value": 40,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": "Filet of Sesame-Roasted Meat"
   },
   {
     "id": 12613,
@@ -13595,12 +13648,27 @@
     "icon": "https://render.guildwars2.com/file/9210EB9180989FC0ECA94E14FE5F376825A606E4/455573.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
+    "effectName": "Nourishment",
     "durationMs": null,
     "applyCount": null,
     "description": "Snack Feast: Double-click to set out a Tray of Banana Bread to share with anyone in the area. Tray stays active for 5 minutes.",
-    "bonuses": [],
-    "sharedBuffSource": null
+    "bonuses": [
+      {
+        "raw": "+30 Vitality",
+        "attribute": "Vitality",
+        "value": 30,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": "Loaf of Banana Bread"
   },
   {
     "id": 12644,
@@ -13839,12 +13907,34 @@
     "icon": "https://render.guildwars2.com/file/FECF79AA512676752BAEEF924804144BA0D213B6/455574.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
+    "effectName": "Nourishment",
     "durationMs": null,
     "applyCount": null,
     "description": "Snack Feast: Double-click to set out a Tray of Rosemary Bread to share with anyone in the area. Tray stays active for 5 minutes.",
-    "bonuses": [],
-    "sharedBuffSource": null
+    "bonuses": [
+      {
+        "raw": "-14% Incoming Damage while Stunned, Knocked Down, or Knocked Back",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "-6% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": "Loaf of Rosemary Bread"
   },
   {
     "id": 12653,
@@ -13887,12 +13977,34 @@
     "icon": "https://render.guildwars2.com/file/FECF79AA512676752BAEEF924804144BA0D213B6/455574.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
+    "effectName": "Nourishment",
     "durationMs": null,
     "applyCount": null,
     "description": "Snack Feast: Double-click to set out a Tray of Zucchini Bread to share with anyone in the area. Tray stays active for 5 minutes.",
-    "bonuses": [],
-    "sharedBuffSource": null
+    "bonuses": [
+      {
+        "raw": "+50 Vitality",
+        "attribute": "Vitality",
+        "value": 50,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+40 Toughness",
+        "attribute": "Toughness",
+        "value": 40,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": "Loaf of Zucchini Bread"
   },
   {
     "id": 12655,
@@ -14425,12 +14537,34 @@
     "icon": "https://render.guildwars2.com/file/512B53CDD8D7EB0B26E120BE150E2E682BDC0620/455576.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
+    "effectName": "Nourishment",
     "durationMs": null,
     "applyCount": null,
     "description": "Snack Feast: Double-click to set out a Tray of Tarragon Bread to share with anyone in the area. Tray stays active for 5 minutes.",
-    "bonuses": [],
-    "sharedBuffSource": null
+    "bonuses": [
+      {
+        "raw": " -18% Incoming Damage while Stunned, Knocked Down, or Knocked Back",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "-14% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": "Loaf of Tarragon Bread"
   },
   {
     "id": 12672,
@@ -14438,12 +14572,34 @@
     "icon": "https://render.guildwars2.com/file/512B53CDD8D7EB0B26E120BE150E2E682BDC0620/455576.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
+    "effectName": "Nourishment",
     "durationMs": null,
     "applyCount": null,
     "description": "Snack Feast: Double-click to set out a Tray of Raspberry Peach Bread to share with anyone in the area. Tray stays active for 5 minutes.",
-    "bonuses": [],
-    "sharedBuffSource": null
+    "bonuses": [
+      {
+        "raw": "+80 Vitality",
+        "attribute": "Vitality",
+        "value": 80,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+60 Toughness",
+        "attribute": "Toughness",
+        "value": 60,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": "Loaf of Raspberry Peach Bread"
   },
   {
     "id": 12673,
@@ -14731,12 +14887,34 @@
     "icon": "https://render.guildwars2.com/file/03CE3219F13CC5AABE99F438A87E73F3725BCB4F/455577.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
+    "effectName": "Nourishment",
     "durationMs": null,
     "applyCount": null,
     "description": "Snack Feast: Double-click to set out a Tray of Omnomberry Bread to share with anyone in the area. Tray stays active for 5 minutes.",
-    "bonuses": [],
-    "sharedBuffSource": null
+    "bonuses": [
+      {
+        "raw": "+100 Vitality",
+        "attribute": "Vitality",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Toughness",
+        "attribute": "Toughness",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": "Loaf of Omnomberry Bread"
   },
   {
     "id": 12682,
@@ -14779,12 +14957,34 @@
     "icon": "https://render.guildwars2.com/file/03CE3219F13CC5AABE99F438A87E73F3725BCB4F/455577.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
+    "effectName": "Nourishment",
     "durationMs": null,
     "applyCount": null,
     "description": "Snack Feast: Double-click to set out a Tray of Saffron Bread to share with anyone in the area. Tray stays active for 5 minutes.",
-    "bonuses": [],
-    "sharedBuffSource": null
+    "bonuses": [
+      {
+        "raw": " -20% Incoming Damage while Stunned, Knocked Down, or Knocked Back",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "-20% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": "Loaf of Saffron Bread"
   },
   {
     "id": 12684,
@@ -18280,32 +18480,6 @@
     "sharedBuffSource": null
   },
   {
-    "id": 43902,
-    "name": "Gift of Quartz",
-    "icon": "https://render.guildwars2.com/file/7D3C5D0F98CA60A6090137A09B7AF6AD4C454F06/603263.png",
-    "kind": "Food",
-    "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Double-click to have a quartz node delivered to your home instance.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 48804,
-    "name": "Gift of Candy Corn",
-    "icon": "https://render.guildwars2.com/file/78800504E7182AE8ADD90C532308D070459A2658/648141.png",
-    "kind": "Food",
-    "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Double-click to grow a candy-corn node in your home instance and homestead. Node can be mined once per day.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
     "id": 48921,
     "name": "Bowl of Marjory's Experimental Chili",
     "icon": "https://render.guildwars2.com/file/1C01E3FC4C220148A7DBF813D57BEC0421A7A538/665782.png",
@@ -18922,97 +19096,6 @@
     "sharedBuffSource": null
   },
   {
-    "id": 68404,
-    "name": "Bowl of Bloodstone Ice Cream",
-    "icon": "https://render.guildwars2.com/file/010E650C71750F112E18D248D0E445E017E8425F/526285.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "<c=flavor>\"For the millionth time, there are no culinary applications for bloodstone dust. None.\"<br>—Chef Robertus</c>",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 68405,
-    "name": "Mug of Bloodstone Coffee",
-    "icon": "https://render.guildwars2.com/file/2609979B2212480A41CA2ACBB2E70B031E0DA00C/102864.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "<c=flavor>\"For the millionth time, there are no culinary applications for bloodstone dust. None.\"<br>—Chef Robertus</c>",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 68407,
-    "name": "Complete Bloodstone Breakfast",
-    "icon": "https://render.guildwars2.com/file/9210EB9180989FC0ECA94E14FE5F376825A606E4/455573.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "<c=flavor>\"For the millionth time, there are no culinary applications for bloodstone dust. None.\"<br>—Chef Robertus</c>",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 68408,
-    "name": "Plate of Bloodstone Waffles",
-    "icon": "https://render.guildwars2.com/file/785B041B5F192D0EC491F3910B40B69F4A51281E/831451.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "<c=flavor>\"For the millionth time, there are no culinary applications for bloodstone dust. None.\"<br>—Chef Robertus</c>",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 68409,
-    "name": "Bowl of Bloodstone Goulash",
-    "icon": "https://render.guildwars2.com/file/EB933E073AEDC9A36BE4F96548C85BDB0D933B4F/223237.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "<c=flavor>\"For the millionth time, there are no culinary applications for bloodstone dust. None.\"<br>—Chef Robertus</c>",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 68410,
-    "name": "Demitasse of Bloodstone Espresso",
-    "icon": "https://render.guildwars2.com/file/5909B7DFB9FC1F54F51652FFCD0CC5C1042B049C/66533.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "<c=flavor>\"For the millionth time, there are no culinary applications for bloodstone dust. None.\"<br>—Chef Robertus</c>",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 68411,
-    "name": "Bloodstone Bearclaw Pastry",
-    "icon": "https://render.guildwars2.com/file/0D796631E0367B73EB174AF92C40105602BBA60B/339967.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "<c=flavor>\"For the millionth time, there are no culinary applications for bloodstone dust. None.\"<br>—Chef Robertus</c>",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
     "id": 68562,
     "name": "Bloodstone Pot Pie",
     "icon": "https://render.guildwars2.com/file/981EA539473DDD77F718180FE0091544B87548F3/63381.png",
@@ -19284,12 +19367,34 @@
     "icon": "https://render.guildwars2.com/file/FECF79AA512676752BAEEF924804144BA0D213B6/455574.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
+    "effectName": "Nourishment",
     "durationMs": null,
     "applyCount": null,
     "description": "Snack Feast: Double-click to set out a Tray of Zucchini Bread to share with anyone in the area. Tray stays active for 5 minutes.",
-    "bonuses": [],
-    "sharedBuffSource": null
+    "bonuses": [
+      {
+        "raw": "+50 Vitality",
+        "attribute": "Vitality",
+        "value": 50,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+40 Toughness",
+        "attribute": "Toughness",
+        "value": 40,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": "Loaf of Zucchini Bread"
   },
   {
     "id": 70496,
@@ -19324,32 +19429,6 @@
         "sourceAttribute": null
       }
     ],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 70628,
-    "name": "Pile of Golden Sand",
-    "icon": "https://render.guildwars2.com/file/3501C2BBADF95BE5F14E31484850E851EFCA33CB/434536.png",
-    "kind": "Food",
-    "rarity": "Exotic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "<c=@flavor>Coarse Sand turned to gold in the Pyrite Peninsula.<c>",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 71176,
-    "name": "Pile of Pink Sand",
-    "icon": "https://render.guildwars2.com/file/F438A5EFB89C4ED6F8A04FE6E7060D05C294C4C6/434532.png",
-    "kind": "Food",
-    "rarity": "Exotic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "<c=@flavor>Pink sand from the sunny shores of Southsun Cove.<c>",
-    "bonuses": [],
     "sharedBuffSource": null
   },
   {
@@ -19840,19 +19919,6 @@
         "sourceAttribute": null
       }
     ],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 74065,
-    "name": "Jungle Wurm Omelet (Mossman Style)",
-    "icon": "https://render.guildwars2.com/file/98A8FD4DAAD9FE5DE7760AC51DB4E2FC72250BE7/1202343.png",
-    "kind": "Food",
-    "rarity": "Basic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Obtain a jungle wurm egg by defeating the Greater Nightmare Vine in Twilight Arbor. Bring it to the Mossman's hut in the Swampland fractal.\nThis item only has value as part of a collection. Consume to add to collection.",
-    "bonuses": [],
     "sharedBuffSource": null
   },
   {
@@ -20556,45 +20622,6 @@
     "sharedBuffSource": null
   },
   {
-    "id": 77586,
-    "name": "Snowglobe",
-    "icon": "https://render.guildwars2.com/file/57F02F5C98B0060C1B9C5F52600D9D3BAFA1712F/1322551.png",
-    "kind": "Food",
-    "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants 10,000 karma.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 77616,
-    "name": "Refurbished Toy",
-    "icon": "https://render.guildwars2.com/file/BD402E05C74900F103AF7F041E79D96B0E3F6167/1322550.png",
-    "kind": "Food",
-    "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants 10,000 karma.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 77620,
-    "name": "Winter Music Score",
-    "icon": "https://render.guildwars2.com/file/060313A0594F90AF3333F47CB80E6DB829DAD658/1322553.png",
-    "kind": "Food",
-    "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants 10,000 karma.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
     "id": 77630,
     "name": "Scoop of Mintberry Swirl Ice Cream",
     "icon": "https://render.guildwars2.com/file/EE0A6A47AB3209436E7AACEED16533F2F47E0B7F/1322558.png",
@@ -20634,32 +20661,6 @@
         "sourceAttribute": null
       }
     ],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 77631,
-    "name": "Icy Aura",
-    "icon": "https://render.guildwars2.com/file/30C7D050611E029C77E822EB16F6CC34F4FB98CB/1322548.png",
-    "kind": "Food",
-    "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants 10,000 karma.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 77633,
-    "name": "Masterful Toast",
-    "icon": "https://render.guildwars2.com/file/A809AE9EC220779205214648060D71EF2128155E/1322554.png",
-    "kind": "Food",
-    "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants 10,000 karma.",
-    "bonuses": [],
     "sharedBuffSource": null
   },
   {
@@ -20705,19 +20706,6 @@
     "sharedBuffSource": null
   },
   {
-    "id": 77651,
-    "name": "Candy Cane",
-    "icon": "https://render.guildwars2.com/file/7F31B1026D9A4FD30A1AA237D7E134CB21CB1B07/1322543.png",
-    "kind": "Food",
-    "rarity": "Fine",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
     "id": 78000,
     "name": "Bowl of Tomato Soup",
     "icon": "https://render.guildwars2.com/file/54E1DBAC45EF375C9F9DDD9BCE5037D24D2E3F2C/219426.png",
@@ -20743,19 +20731,6 @@
         "sourceAttribute": null
       }
     ],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 78005,
-    "name": "Bowl of Bloodstone Bisque",
-    "icon": "https://render.guildwars2.com/file/CF2526C03DFAAF71BE1B73100CD4A81AA1B106EA/1377372.png",
-    "kind": "Food",
-    "rarity": "Basic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Consuming this will replace your current nutrition effect.\n\n<c=@flavor>\"For the millionth time, there are no culinary applications for bloodstone dust. None.\"<br>—Chef Robertus</c>",
-    "bonuses": [],
     "sharedBuffSource": null
   },
   {
@@ -21935,32 +21910,6 @@
     "sharedBuffSource": null
   },
   {
-    "id": 79646,
-    "name": "Greater Gift of Candy Corn",
-    "icon": "https://render.guildwars2.com/file/78800504E7182AE8ADD90C532308D070459A2658/648141.png",
-    "kind": "Food",
-    "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Double-click to upgrade your home-instance candy corn node. Node can be mined once per day.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 79729,
-    "name": "Offering to Koda",
-    "icon": "https://render.guildwars2.com/file/0BE938F7CF679475AC2EB70E4C01B2C637C1E51B/1601519.png",
-    "kind": "Food",
-    "rarity": "Basic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Double-click to present a burnt offering to Koda.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
     "id": 79748,
     "name": "Winterberry Pie",
     "icon": "https://render.guildwars2.com/file/D6DD40187338A5E4067012FB0A1ADE6D93559A53/1601460.png",
@@ -22129,19 +22078,6 @@
     "sharedBuffSource": null
   },
   {
-    "id": 79848,
-    "name": "Offering Basket",
-    "icon": "https://render.guildwars2.com/file/406E4FB20CFB2AE91F5DBEC89FE5CE7FA2D7CEC5/1601500.png",
-    "kind": "Food",
-    "rarity": "Basic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Double-click to combine 25 Elder Wood Logs, 50 Globs of Ectoplasm, 10 Icy Runestones, and 5 Winterberries to create an offering for Koda.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
     "id": 79988,
     "name": "Super-Hot Lemongrass Poultry Soup",
     "icon": "https://render.guildwars2.com/file/802BBD3174CBA5F017CE294907DDC558713078C9/433668.png",
@@ -22279,19 +22215,6 @@
         "sourceAttribute": null
       }
     ],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 80272,
-    "name": "Magic-Imbued Peach",
-    "icon": "https://render.guildwars2.com/file/4374964038F1FB0C9F1158FAF70A040E17211D49/1633934.png",
-    "kind": "Food",
-    "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "This fruit was grown on a lone glowing peach tree in the far north of Lake Doric, and given to you by the spirit of the Harvest Forest. It smells delicious.",
-    "bonuses": [],
     "sharedBuffSource": null
   },
   {
@@ -22603,29 +22526,38 @@
     "sharedBuffSource": null
   },
   {
-    "id": 82531,
-    "name": "Wish for Freedom",
-    "icon": "https://render.guildwars2.com/file/C549ED70C7E471A8C5E8E4B8513A465D5C1667AC/1765817.png",
-    "kind": "Food",
-    "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Double-click to gain a moderate amount of karma.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
     "id": 82541,
     "name": "Bowl of \"Elon Red\"",
     "icon": "https://render.guildwars2.com/file/D3672A4880FFD9DE726DD43ADE01EFEEC6CB510F/1766616.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 1800000,
+    "applyCount": 1,
+    "description": "+100 Expertise\n+70 Toughness\n+1% All Experience Gained",
+    "bonuses": [
+      {
+        "raw": "+100 Expertise",
+        "attribute": "Expertise",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Toughness",
+        "attribute": "Toughness",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+1% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 1,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22634,11 +22566,40 @@
     "icon": "https://render.guildwars2.com/file/08A63E35222D0775DE4D010CFAC2A408545A270D/1766606.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 1800000,
+    "applyCount": 1,
+    "description": "Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)\n+70 Precision\n+10% Karma\n+1% All Experience Gained",
+    "bonuses": [
+      {
+        "raw": "Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Precision",
+        "attribute": "Precision",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+1% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 1,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22647,24 +22608,33 @@
     "icon": "https://render.guildwars2.com/file/05BF230FCF11A9643E6C99D5AFBD74FFC16E22B9/1766621.png",
     "kind": "Food",
     "rarity": "Exotic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Snack Feast: Double-click to set out a Feast of Red Lentil and Flatbread to share with anyone in the area. Feast stays active for 5 minutes.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 83171,
-    "name": "Threat Report: Missing Sacred Text",
-    "icon": "https://render.guildwars2.com/file/07180C1E0AA108A31D589CD41AB31A21F6F6176D/1765799.png",
-    "kind": "Food",
-    "rarity": "Exotic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Double-click to gain a large amount of Mastery experience.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "-15% Incoming Condition Duration\n+45 to All Attributes\n+1% All Experience Gained",
+    "bonuses": [
+      {
+        "raw": "-15% Incoming Condition Duration",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+45 to All Attributes",
+        "attribute": "to All Attributes",
+        "value": 45,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+1% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 1,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22673,24 +22643,33 @@
     "icon": "https://render.guildwars2.com/file/B50F0715B851021BB644216C2B6F5A7E7FBCC30E/1766620.png",
     "kind": "Food",
     "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 83389,
-    "name": "Wish For Truth",
-    "icon": "https://render.guildwars2.com/file/4E1A2CBFAD0A7BC707E4FB410D0D596AC6FEABB4/1765822.png",
-    "kind": "Food",
-    "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Double-click to gain a moderate amount of karma.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 1800000,
+    "applyCount": 1,
+    "description": "Lose a Condition on Successful Evade (Cooldown: 10 Seconds)\n+70 Toughness\n+1% All Experience Gained",
+    "bonuses": [
+      {
+        "raw": "Lose a Condition on Successful Evade (Cooldown: 10 Seconds)",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Toughness",
+        "attribute": "Toughness",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+1% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 1,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22699,37 +22678,40 @@
     "icon": "https://render.guildwars2.com/file/99392BB8003E93F0B567B6B1A4645DE9A35B6E2E/1766607.png",
     "kind": "Food",
     "rarity": "Exotic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Snack Feast: Double-click to set out a Feast of Coffee to share with anyone in the area. Feast stays active for 5 minutes.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 83591,
-    "name": "Threat Report: Thermoptic Flux Readings",
-    "icon": "https://render.guildwars2.com/file/45FF0D57B552F07C29D9AF34183468AB155C7176/1765803.png",
-    "kind": "Food",
-    "rarity": "Exotic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Double-click to gain a large amount of Mastery experience.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 83613,
-    "name": "Show of Support: Highjump Ranch",
-    "icon": "https://render.guildwars2.com/file/45CD9AAC6CDEF8574906CAC5B7E139E6BEA11DD5/1861940.png",
-    "kind": "Food",
-    "rarity": "Exotic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Double-click to gain a moderate amount of trade contracts.\n<c=@Flavor>By gathering support from nearby settlements, you can put Amnoon at ease with their independence.</c>",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 1200000,
+    "applyCount": 1,
+    "description": "Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)\n+70 Precision\n+10% Karma\n+1% All Experience Gained",
+    "bonuses": [
+      {
+        "raw": "Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Precision",
+        "attribute": "Precision",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+1% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 1,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22738,11 +22720,33 @@
     "icon": "https://render.guildwars2.com/file/5C3663433DCB2C9C9AE69295290D096906EBC098/1766602.png",
     "kind": "Food",
     "rarity": "Exotic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 1800000,
+    "applyCount": 1,
+    "description": "25% Chance on Critical Hit to Inflict Chill (1 Second), Burning (2 Seconds), and Poison (3 Seconds) (Cooldown: 20 Seconds)\n+70 Condition Damage\n+1% All Experience Gained",
+    "bonuses": [
+      {
+        "raw": "25% Chance on Critical Hit to Inflict Chill (1 Second), Burning (2 Seconds), and Poison (3 Seconds) (Cooldown: 20 Seconds)",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+1% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 1,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22751,11 +22755,33 @@
     "icon": "https://render.guildwars2.com/file/519FAB32DC91CFB45A144750F670077DF3A30F73/1766619.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 1800000,
+    "applyCount": 1,
+    "description": "Gain Health Every Second\n+70 Condition Damage\n+1% All Experience Gained",
+    "bonuses": [
+      {
+        "raw": "Gain Health Every Second",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+1% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 1,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22792,11 +22818,33 @@
     "icon": "https://render.guildwars2.com/file/2B3EC23CDF996009130F1AA762A10C500863FF9D/1766617.png",
     "kind": "Food",
     "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 1800000,
+    "applyCount": 1,
+    "description": "+100 Expertise\n+70 Condition Damage\n+1% All Experience Gained",
+    "bonuses": [
+      {
+        "raw": "+100 Expertise",
+        "attribute": "Expertise",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+1% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 1,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -22940,71 +22988,6 @@
     "sharedBuffSource": null
   },
   {
-    "id": 87631,
-    "name": "Golem Swarm Potion",
-    "icon": "https://render.guildwars2.com/file/D46466DF900E5A09CBC2F47F916880D933C52792/1998869.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Double-click to transform into a swarm of miniature golems.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 88101,
-    "name": "Debbie's Cake",
-    "icon": "https://render.guildwars2.com/file/2603D225A7B05FCA96EF31E94468EB03F9C9C945/223215.png",
-    "kind": "Food",
-    "rarity": "Basic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Made with love. Grants a small amount of karma when consumed.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 88330,
-    "name": "Ectoplasm-Infused Vision Crystal",
-    "icon": "https://render.guildwars2.com/file/F9A697A2D1AE40FC979BAE7FCAB89F239EB102F8/2022067.png",
-    "kind": "Food",
-    "rarity": "Exotic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "A lesser vision crystal imbued with ectoplasm, used to interact with dormant souls.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 88573,
-    "name": "Unstable Branded Awakened Wind-Up",
-    "icon": "https://render.guildwars2.com/file/DEAF379A4A516E549FDB506E900C1CDC0E559365/2038805.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "<c=@flavor>Too soon? Or too fast and too fun?</c>",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 88973,
-    "name": "Pulsating Crystal",
-    "icon": "https://render.guildwars2.com/file/A23305DCB835FFA4A42FB3963CE9C6D37D02419E/2038602.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "The crystal glimmers with malice. Use to temporarily transform into a crystalline form.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
     "id": 89002,
     "name": "Soul Pastry",
     "icon": "https://render.guildwars2.com/file/5905C8207CDB4A2122FC465BD7D4A4A9BA36B0F6/2056189.png",
@@ -23096,42 +23079,52 @@
     "sharedBuffSource": null
   },
   {
-    "id": 89692,
-    "name": "Light of Deldrimor Plate—Bottom Half",
-    "icon": "https://render.guildwars2.com/file/0BEB92B7DA617D915F5051CDC6A8287A1341302C/2083071.png",
-    "kind": "Food",
-    "rarity": "Exotic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Use with the Light of Deldrimor Plate—Top Half to gain the Reassembled Light of Deldrimor Plate. This will consume both halves.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 89828,
-    "name": "Light of Deldrimor Plate—Top Half",
-    "icon": "https://render.guildwars2.com/file/22A4E939F2242FE000CA07E935F0EF0AE0A10831/2083070.png",
-    "kind": "Food",
-    "rarity": "Exotic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Use with the Light of Deldrimor Plate—Bottom Half to gain the Reassembled Light of Deldrimor Plate. This will consume both halves.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
     "id": 91689,
     "name": "Chef's Tasting Platter",
     "icon": "https://render.guildwars2.com/file/ED950E772DD27355E953D94DAD08E526C19AE906/455571.png",
     "kind": "Food",
     "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 1800000,
+    "applyCount": 1,
+    "description": "+80 Power for 30 Seconds on Kill\n+50 Precision\n+50 Condition Damage\n+30% Magic Find\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "+80 Power for 30 Seconds on Kill",
+        "attribute": "Power for 30 Seconds on Kill",
+        "value": 80,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+50 Precision",
+        "attribute": "Precision",
+        "value": 50,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+50 Condition Damage",
+        "attribute": "Condition Damage",
+        "value": 50,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+30% Magic Find",
+        "attribute": "Magic Find",
+        "value": 30,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -26535,11 +26528,33 @@
     "icon": "https://render.guildwars2.com/file/D4276027EE4A9C47F418373965493D2BF2C3F81E/2191051.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 1800000,
+    "applyCount": 1,
+    "description": "+100 Concentration\n+70 Expertise\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -27318,11 +27333,40 @@
     "icon": "https://render.guildwars2.com/file/3C5D0299592CB49644D41F9DF29843A95DDA71F5/2199298.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 1800000,
+    "applyCount": 1,
+    "description": "+100 Power\n+70 Ferocity\n+1% All Experience Gained\nMay Cause Intermittent Gastric Distress",
+    "bonuses": [
+      {
+        "raw": "+100 Power",
+        "attribute": "Power",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Ferocity",
+        "attribute": "Ferocity",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+1% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 1,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "May Cause Intermittent Gastric Distress",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -27331,11 +27375,33 @@
     "icon": "https://render.guildwars2.com/file/939A4A2BA410963A4204C532620B0292622444B0/2199294.png",
     "kind": "Food",
     "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Meal Feast: Double-click to set out a Feast of Carne Khan Chili to share with anyone in the area. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 3600000,
+    "applyCount": 1,
+    "description": "+100 Concentration\n+70 Expertise\n+1% All Experience Gained",
+    "bonuses": [
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+1% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 1,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -27344,11 +27410,40 @@
     "icon": "https://render.guildwars2.com/file/913974B01DE36DBFAE60EE2402F269E1A3D5B497/2199297.png",
     "kind": "Food",
     "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 1800000,
+    "applyCount": 1,
+    "description": "+100 Concentration\n+70 Expertise\n+1% All Experience Gained\nMay Cause Intermittent Gastric Distress",
+    "bonuses": [
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+1% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 1,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "May Cause Intermittent Gastric Distress",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -27357,11 +27452,33 @@
     "icon": "https://render.guildwars2.com/file/95046E37A1AFB0280C973C714624F1DCCB4DF34C/2199293.png",
     "kind": "Food",
     "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 1800000,
+    "applyCount": 1,
+    "description": "+100 Concentration\n+70 Expertise\n+1% All Experience Gained",
+    "bonuses": [
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+1% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 1,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -27370,11 +27487,33 @@
     "icon": "https://render.guildwars2.com/file/AC253CF4E66C630624931EB39D17F066D7EFE837/2199296.png",
     "kind": "Food",
     "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 1800000,
+    "applyCount": 1,
+    "description": "+100 Concentration\n+70 Expertise\n+10% Karma Gained",
+    "bonuses": [
+      {
+        "raw": "+100 Concentration",
+        "attribute": "Concentration",
+        "value": 100,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Expertise",
+        "attribute": "Expertise",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma Gained",
+        "attribute": "Karma Gained",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -27476,58 +27615,6 @@
     "sharedBuffSource": null
   },
   {
-    "id": 93992,
-    "name": "Draught of Path of Fire Mastery",
-    "icon": "https://render.guildwars2.com/file/04B872090F0FCA612CF9189F45310C60B0CB4ACE/2384392.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants a small amount of Path of Fire Mastery experience.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 94454,
-    "name": "Draught of Central Tyria Mastery",
-    "icon": "https://render.guildwars2.com/file/ADE03D7D4E451BF60A522755B4CABA9AFB270DDD/2384388.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants a small amount of Central Tyria Mastery experience.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 94457,
-    "name": "Draught of Heart of Thorns Mastery",
-    "icon": "https://render.guildwars2.com/file/D6F997C45843B60D61440ABE5A3E6A9DC2330D31/2384389.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants a small amount of Heart of Thorns Mastery experience.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 94459,
-    "name": "Draught of Icebrood Saga Mastery",
-    "icon": "https://render.guildwars2.com/file/92ACECFD4922E0DAEFC3CCCAB257FB5824010B0A/2384390.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants a small amount of Icebrood Saga Mastery experience.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
     "id": 95277,
     "name": "Fried Banana Chips",
     "icon": "https://render.guildwars2.com/file/D3B645CC95059D0A58A507A8CA9E7801BC6AAC1F/2485567.png",
@@ -27553,58 +27640,6 @@
         "sourceAttribute": null
       }
     ],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 95283,
-    "name": "Elixir of Heart of Thorns Mastery",
-    "icon": "https://render.guildwars2.com/file/D6F997C45843B60D61440ABE5A3E6A9DC2330D31/2384389.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants a large amount of Heart of Thorns Mastery experience.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 95286,
-    "name": "Elixir of Central Tyria Mastery",
-    "icon": "https://render.guildwars2.com/file/ADE03D7D4E451BF60A522755B4CABA9AFB270DDD/2384388.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants a large amount of Central Tyria Mastery experience.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 95290,
-    "name": "Elixir of Icebrood Saga Mastery",
-    "icon": "https://render.guildwars2.com/file/92ACECFD4922E0DAEFC3CCCAB257FB5824010B0A/2384390.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants a large amount of Icebrood Saga Mastery experience.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 95294,
-    "name": "Elixir of Path of Fire Mastery",
-    "icon": "https://render.guildwars2.com/file/04B872090F0FCA612CF9189F45310C60B0CB4ACE/2384392.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants a large amount of Path of Fire Mastery experience.",
-    "bonuses": [],
     "sharedBuffSource": null
   },
   {
@@ -28488,24 +28523,47 @@
     "icon": "https://render.guildwars2.com/file/C906FF1EEC19D519B8C76B1B0B095B90C8DAB103/2724221.png",
     "kind": "Food",
     "rarity": "Rare",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Dessert Feast: Double-click to set out a Tray of Decade Desserts to share with anyone in the area. Tray stays active for 10 minutes.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 98929,
-    "name": "Elixir of End of Dragons Mastery",
-    "icon": "https://render.guildwars2.com/file/BD7F65993ACAE6B19699DE4B12FA12B6F7767948/2723782.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants a large amount of End of Dragons Mastery experience.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 7200000,
+    "applyCount": 1,
+    "description": "+3% to All Attributes\n+10% Magic Find\n+10% Gold from Monsters\n+10% Karma\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "+3% to All Attributes",
+        "attribute": "to All Attributes",
+        "value": 3,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Magic Find",
+        "attribute": "Magic Find",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Gold from Monsters",
+        "attribute": "Gold from Monsters",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -28514,11 +28572,40 @@
     "icon": "https://render.guildwars2.com/file/99392BB8003E93F0B567B6B1A4645DE9A35B6E2E/1766607.png",
     "kind": "Food",
     "rarity": "Exotic",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Snack Feast: Double-click to set out a Feast of Coffee to share with anyone in the area. Feast stays active for 5 minutes.",
-    "bonuses": [],
+    "effectName": "Nourishment",
+    "durationMs": 1200000,
+    "applyCount": 1,
+    "description": "Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)\n+70 Precision\n+10% Karma\n+1% All Experience Gained",
+    "bonuses": [
+      {
+        "raw": "Gain 5 Seconds of Quickness on Dismount (Cooldown: 20 Seconds)",
+        "attribute": null,
+        "value": null,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+70 Precision",
+        "attribute": "Precision",
+        "value": 70,
+        "isPercent": false,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Karma",
+        "attribute": "Karma",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+1% All Experience Gained",
+        "attribute": "All Experience Gained",
+        "value": 1,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
     "sharedBuffSource": null
   },
   {
@@ -28855,45 +28942,6 @@
         "sourceAttribute": null
       }
     ],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 106982,
-    "name": "Elixir of Janthir Wilds Mastery",
-    "icon": "https://render.guildwars2.com/file/C5B22A531A0ABB1F099DF0363E93AD9B05B73608/3744751.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants a large amount of Janthir Wilds Mastery experience.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 107031,
-    "name": "Elixir of Secrets of the Obscure Mastery",
-    "icon": "https://render.guildwars2.com/file/1DF8349CC7E306B3A70651A61C0B317BA80835E3/3744750.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants a large amount of Secrets of the Obscure Mastery experience.",
-    "bonuses": [],
-    "sharedBuffSource": null
-  },
-  {
-    "id": 107063,
-    "name": "Elixir of Visions of Eternity Mastery",
-    "icon": "https://render.guildwars2.com/file/E0A15432049C75EC7C36000244F044BF0C010DC2/3744752.png",
-    "kind": "Food",
-    "rarity": "Masterwork",
-    "effectName": null,
-    "durationMs": null,
-    "applyCount": null,
-    "description": "Grants a large amount of Visions of Eternity Mastery experience.",
-    "bonuses": [],
     "sharedBuffSource": null
   },
   {

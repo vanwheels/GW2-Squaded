@@ -2,6 +2,41 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 216 — Food catalog: closing the 76-buffless-entries TODO item
+
+Closes the long-open TODO.md item about Food entries with no buff data. Investigation went well
+past the original "76 dead items, filter them out" framing:
+
+1. **Real bug in `borrowSharedContainerBonuses`** (`fetch-gear-upgrades.ts`): its sibling-matching
+   `INDIVIDUAL_CONTAINER_PREFIXES` list was missing `Filet of `/`Loaf of ` — 9 "Feast of .../Tray
+   of ..." items had a real buffed sibling under one of those two prefixes that the matcher simply
+   never tried (e.g. "Filet of Rosemary-Roasted Meat" for "Feast of Rosemary-Roasted Meat").
+   Verified 0 new ambiguous matches introduced across the rest of the catalog before landing it.
+2. Individually wiki-checked (raw wikitext, not a rendered table, per
+   [[healing_damage_coefficient_curation]]) every one of the remaining 66 buffless entries — found
+   they split into two genuinely disjoint groups, not one:
+   - **~18 real, wiki-documented Food items** the API's own `details` object comes back completely
+     empty for (same shape as the pre-existing Ascended Gourmet Feast gap) — new
+     `CURATED_FOOD_BUFFS` table + `applyCuratedFoodBuffs()` hard-codes each one's Nourishment
+     duration/bonus lines from its own wiki page. A few (Pitcher of Desert-Spiced Coffee/Mocha of
+     the Mists Coffee Pitcher/Feast of Carne Khan Chili/Feast of Dill Meatball Dinners) borrow
+     their bonus text from a sibling per that sibling's own wiki Notes rather than a fresh lookup.
+   - **48 confirmed genuinely-not-food items** — Mastery-point/karma currency, home-instance/
+     crafting-material delivery, transformation tonics, achievement/collection fodder, one real
+     "alcohol"-type collectible, two literal dead items ("Pile of Golden/Pink Sand" — wiki says
+     outright "doesn't seem to do anything"), a zone-gated quest buff, a non-Nourishment festival
+     curiosity (Candy Cane), and an 8-item "Bloodstone" joke-food family individually confirmed to
+     deal real damage before granting, at best, a trivial non-combat buff. New `EXCLUDED_FOOD_IDS`
+     set + filter drops these from the catalog entirely (documented per-category in the code
+     comment) rather than leaving them buff-less.
+3. `main()` now warns if any Food entry is still buffless after all three passes (borrow + curate +
+   exclude) — a signal a future API/wiki patch added a new one — and logs the exclusion count.
+
+Regenerated `food.json` from the existing `.cache/items-raw.json` dump (no network refetch needed).
+Result: 859 → 811 Food entries, **0 buffless** (previously 76). Restored `itemstat-icons.json` from
+git after the run per [[gw2skills_icon_permission_request]]'s known re-run side effect.
+`npm run typecheck`/`lint` clean, `npm test` 149/149 passing.
+
 ## Session 215 — Food/Utility per-item rarity, closing the tooltip visual-pass item
 
 Closes the last open piece of TODO.md's "Dedicated visual pass over every tooltip type" item
