@@ -34,6 +34,22 @@ DONE** — see COMPLETED.md Sessions 221-227 (leg 1 through leg 7) and
       `src/renderer/styles/global.css:498`) matching the fully-expanded case. Not started — flagged
       for later, session/week usage tight as of 2026-08-16.
 
+- [ ] Light Aura shows up in the Boons bar in the Squad Builder but not in the Build Editor, for a
+      Luminary Guardian (flagged 2026-08-16). Traced to Radiant Resolve (F2 Virtue, id in
+      `branch-conditional-facts.ts`'s `radiantResolveSections`) — its "Activate" branch legitimately
+      grants Light Aura (`countsTowardTotals: true`, `targetCount: 5`, wiki-verified 2026-08-16, see
+      COMPLETED.md Sessions 197-198-200 for the mechanism this reuses). Both the Build Editor's
+      `BoonConditionSummaryPanel` and the Squad Builder's `SlotTile`/party summary ultimately call the
+      same `computeBoonConditionSources` (`party-summary.ts:137` confirmed reusing it, not a separate
+      computation), and that function unconditionally includes any `countsTowardTotals`-flagged branch
+      whenever the branch's skill is on the build's skill bar (`sources.ts:4550-4552`) — so if Radiant
+      Resolve is genuinely on this build's F2, both views should be seeing the same source. Since only
+      one view shows it, the divergence is more likely a **display-side filter** that only one of
+      `BoonConditionSummaryPanel.tsx` / `SlotTile.tsx` applies (e.g. a self-only/aura-category filter,
+      or a targetCount gate) rather than the source itself being wrong — didn't chase further, next
+      step is diffing what each component does with the `'aura'` category / `targetCount` field after
+      `computeBoonConditionSources` returns. Not started.
+
 - [ ] Trait-line connector (the blue zigzag line, `useTraitConnector` in `TraitsEditor.tsx`) draws
       segments between all 3 minor traits even when no major trait is chosen in that line (flagged
       2026-08-16, screenshot) — it looks odd running minor→minor→minor across an otherwise-unselected
@@ -44,6 +60,37 @@ DONE** — see COMPLETED.md Sessions 221-227 (leg 1 through leg 7) and
       loop in `useTraitConnector` (~line 71-78) so it skips straight from one minor to the next only
       when nothing was chosen at the tier in between, instead of always chaining minors together. Not
       started — flagged for later, session/week usage tight as of 2026-08-16.
+
+## UI/UX polish — discussion only, not scoped (flagged 2026-08-16)
+
+User feels the overall UI/UX is "a little off" but isn't settled on approach yet — logged as a
+discussion starting point, not ready to implement. Revisit by asking the user to firm up specifics
+before building any of this.
+
+- [ ] **Builds tab** (`BuildsView.tsx`): a lot of empty vertical space, and the record cards feel too
+      similar to each other at a glance. Ideas floated: shrink each card's "Delete" text-button down
+      to a small "X" icon (probably corner-positioned); give each card a colored outline/accent
+      matching the build's profession color (`professions.json`/existing profession color tokens, if
+      any exist yet — check); the profession-icon filter row (`ProfessionTagPicker.tsx`/
+      `TagFilterBar.tsx`) reads as unintuitive on first impression even though it's fine once you know
+      what it does — no concrete alternative proposed yet.
+- [ ] **Squads tab** (`SquadsView.tsx`): same empty-space issue as Builds, plus squad cards currently
+      have zero visual distinguishability from each other — no colors, no icons, nothing but the name/
+      party-count/updated-date text. Needs its own pass, likely after Builds' card redesign lands
+      (reuse whatever accent/color system gets built there).
+- [ ] **Settings tab** (`SettingsView.tsx` or equivalent): the page reads as hollow/underfilled given
+      how much horizontal space it has vs. how few controls currently exist (Display toggles, Updates,
+      Game data, Credits). User acknowledges more settings will fill this in naturally over time —
+      flagged mainly as "don't forget this looks sparse right now," not asking for filler content.
+- [ ] **Gear Optimizer entry point + UI** (build editor): move the optimizer's trigger from wherever
+      it currently launches from into an inline button next to the "Equipment" section header, right-
+      aligned. Pressing it would open the optimizer in a popup/modal (exact chrome TBD) showing what
+      the optimizer already surfaces today, **plus** a live side-by-side stat comparison — currently
+      equipped gear's totals vs. the proposed optimized build's totals — so the user can see the delta
+      before committing. User expects this to be iterative/take a few passes to get right; this entry
+      is just to capture the idea, not a spec. Worth checking `docs/discord-bot.md`-style
+      design-of-record treatment once shape firms up, given past features (Discord bot, target-count
+      per-buff-line) benefited from writing the design down before implementing.
 
 ## Scoped features, not yet built
 
