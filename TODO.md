@@ -17,18 +17,35 @@ relic duplicate (a systemic `relics.json` dedup, ~10 pairs), and Luminary's F1-F
 Virtue tooltip facts AND the F4 Radiant Forge Shroud-style bundle wiring). Zephyrite remains open —
 a bigger, separate wiring gap (elite-skill-use trigger, not dodge/passive/on-hit).
 
-- [ ] Relic of the Zephyrite (id 100893) doesn't display its boons in the same formatted style
-      other skills' boons use, and its boons are also missing from the aggregate Boon/Condition
-      summary section. Its proc is on **Elite Skill use** (not dodge — corrected by the user
-      2026-08-16, don't confuse with the dodge-relic-trigger precedent in COMPLETED.md 2026-08-15,
-      which is a different mechanic and deliberately does *not* feed `computeBoonConditionSources`):
-      "Summon crystals that apply Protection and Resolution to allies after using an elite skill.
-      Crystal duration scales with the recharge of the used skill." Since it's an on-elite-skill-use
-      trigger (not passive/on-hit), it likely needs its own wiring similar to how other on-cast /
-      on-skill-use relic or trait effects are modeled — see `src/shared/boon-calc/sources.ts` for
-      how other relics' effects feed `computeBoonConditionSources`, and check whether an
-      elite-skill-triggered relic proc has been modeled anywhere in this codebase yet before
-      assuming it's a simple formatting fix.
+- [ ] Relic of the Zephyrite (id 100893): "Summon crystals that apply Protection and Resolution to
+      allies after using an elite skill. Crystal duration scales with the recharge of the used
+      skill." Investigated 2026-08-16 — this is NOT a Zephyrite-specific formatting bug, it's the
+      answer to the TODO question that used to be here ("check whether an elite-skill-triggered
+      relic proc has been modeled anywhere in this codebase yet"): it hasn't, and neither has ANY
+      relic's proc, anywhere. `RelicEffect`'s own doc comment
+      (`src/shared/types/game-data.ts`) documents this as deliberate: every relic's tooltip is
+      plain wiki-quoted text (`formatRelicDescription`/`formatFactLine`, no icon-row treatment like
+      a skill's boon facts get), and NO relic feeds `computeBoonConditionSources` — confirmed by a
+      full grep of `sources.ts`, zero relic-id references anywhere in that file. The stated
+      reasoning: most relic procs are conditional on a player action with no fixed frequency this
+      app could assume without inventing one (same reasoning the 2026-08-15 dodge-relic sweep used
+      to deliberately exclude `DODGE_RELIC_IDS` from this same calculator).
+      Zephyrite is a genuinely different shape worth reconsidering that policy for, not just
+      reproducing it: its own effect duration is *already* a deterministic function of the
+      equipped Elite skill's Recharge (a value this app already reads off `Skill.facts`), so
+      "assume the elite skill is used on cooldown" is no more invented an assumption than this
+      app's existing "assume every skill is used on cooldown" convention baked into Chants/Virtue
+      Activates elsewhere. Before building this: (1) the wiki's stepped duration table (0s→4s,
+      1-20s→5s, 21-40s→6s, 41-60s→7s, ≥61s→8s recharge) isn't in `relic-effects.json` at all —
+      only Min/Max (4/7, itself stale vs. the wiki's current Max of 8, a preexisting wiki
+      infobox/prose inconsistency, not an app bug) — would need hand-curating separately, same
+      "prose supplements the facts" shape as Otherworldly Bond; (2) decide whether this becomes a
+      one-off special case (like `branchConditionalFacts`' skill-id dispatch) or the first entry in
+      a new general "relic effects gated on a specific skill-use" mechanism other relics could
+      reuse later; (3) worth a quick scan for any other relic whose proc is similarly tied to a
+      fixed, already-modeled cooldown (elite skill, weapon swap, dodge) before committing to a
+      one-off vs. general design. Real, scoped work — not a quick formatting fix, budget it as its
+      own pass.
 
 ## Scoped features, not yet built
 
