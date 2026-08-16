@@ -312,9 +312,10 @@ boon/aura candidates):
 
 **7 reviewed and excluded**, each for a reason distinct from "Pack/Febe's TODO note didn't mention
 it":
-- Relic of the Citadel (100448) — Stun is a genuine 1s-3s range scaling with the triggering hit's
-  defiance damage, the same "variable magnitude, needs a real decision" problem
-  `RELIC_TRIGGER_GATES`'s Twin Generals entry already has open. Left alongside it, not decided here.
+- Relic of the Citadel (100448) — assumed at the time to be a genuine 1s-3s range scaling with the
+  triggering hit's defiance damage, the same "variable magnitude, needs a real decision" problem
+  `RELIC_TRIGGER_GATES`'s Twin Generals entry already had open. **Corrected in leg 6** — see below;
+  the assumption was wrong.
 - Relic of the Astral Ward (100388) — its Cleanse rides the already-deferred 2-step signet mechanic.
   Still deferred.
 - Relic of the Unseen Invasion (100694) / Relic of the Wayfinder (101943) — both carry a literal
@@ -333,3 +334,47 @@ Control/Miscellaneous/Strip/Corrupt/Cleanse relic fact fails CI instead of going
 
 The 4 relics from leg 2's deferred list (Leadership, Twin Generals, Firebrand, Astral Ward) and
 Citadel's variable-Stun decision (surfaced this leg) remain open — see TODO.md.
+
+## Leg 6 — Leadership/Twin Generals/Citadel wiki re-check, DONE 2026-08-16
+
+Closed 3 of the 5 relics leg 2/5 left open, via a direct wiki re-check of each (raw wikitext, not
+paraphrased) rather than re-guessing from `relic-effects.json` alone:
+
+- **Relic of Leadership (100625) — permanently excluded, not deferred.** The wiki's own
+  `{{Relic infobox}}` confirms the payload really is boon-less: `{{skill fact|Conditions Converted
+  to Boons|5|game mode=pve}}` (3 in WvW/PvP) names a count but never which boon(s) result, and no
+  separate "condition → boon" mapping table exists anywhere on the wiki either (checked the
+  [[Condition]] page). No literal `BOON_NAMES` status exists for `extractFromRelicFacts` to match,
+  so no code change is possible here — same conclusion as Sorrow (leg 4), just reached for a
+  different relic.
+- **Relic of the Twin Generals (101767) — wired for its flat portion.** The wiki confirms leg 2's
+  read: 2 same-status Might facts, a flat "6 stacks, 10s" grant (`{{skill fact|might|10|stacks=6|game
+  mode=wvw}}`) and a separate "Might per Hit" (`alt=Might per Hit`) that scales with how many
+  enemies the triggering hit struck. The flat grant, plus a third fact this app had never
+  considered — `Weakness` (4s, on nearby enemies), also unconditional — are both fixed, so
+  `relicSources` in `sources.ts` now filters out only the `alt=Might per Hit` fact before calling
+  `extractFromRelicFacts`, letting the other two through normally. Added to `RELIC_TRIGGER_GATES` as
+  a `HEAL`-gated entry.
+- **Relic of the Citadel (100448) — wired, correcting leg 5's own assumption.** Leg 5 assumed the
+  Stun's 1s-3s range scaled with "the triggering hit's defiance damage" (a plausible read of the
+  `defiance break` fact's `sic=` note, "100 for 1 second stun, up to 300 for a 3 second stun"). The
+  wiki's own Mechanics section for this relic says otherwise: "The minimum duration of 1 second
+  applies to any elite ability with a cooldown shorter than 60 seconds. The duration scales linearly
+  with [cooldown], capping at 180 seconds (3 minutes) for the maximum 3 second stun duration" — i.e.
+  the Stun duration is a deterministic function of the *equipped Elite skill's own recharge*, the
+  exact same quantity Zephyrite's crystal duration already reads (leg 3), just a continuous linear
+  formula instead of a stepped table. `sources.ts` gained `citadelStunDurationSeconds`/
+  `citadelBuildStunDurationSeconds` (mirroring `zephyriteCrystalDurationSeconds`/
+  `zephyriteBuildCrystalDurationSeconds`) and `computeRelicNamedFactSources` now overrides this
+  relic's static `RELIC_NAMED_FACT_SOURCES` `detail` with the build's actual computed duration, the
+  same per-build-override pattern `relicSources` already used for Zephyrite. Added to
+  `RELIC_TRIGGER_GATES` as an `ELITE`-gated entry; moved out of `relic-named-fact-completeness.test.ts`'s
+  `EXCLUDED_RELIC_IDS`.
+
+Still open: Relic of the Firebrand (100453, needs new passive-attribute-bonus infra, not
+`RELIC_TRIGGER_GATES`'s shape) and Relic of the Astral Ward (100388, 2-step signet mechanic) — see
+TODO.md.
+
+New/updated tests: `relic-sources.test.ts` (Twin Generals base-Might + Weakness, no double-count),
+`relic-named-fact-sources.test.ts` (Citadel's computed Stun duration at 2 different elite-skill
+recharges), `relic-named-fact-completeness.test.ts` (Citadel moved out of `EXCLUDED_RELIC_IDS`).

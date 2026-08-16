@@ -79,24 +79,38 @@ one-off.
       or any other boon/aura. Permanently excluded from `RELIC_TRIGGER_GATES`, not deferred — no
       code change needed, `relic-sources.test.ts` already covers it. See
       `docs/relic-trigger-classification.md`'s "Leg 4" section.
-- [ ] 5 relics still need real follow-up work before they can join `RELIC_TRIGGER_GATES`/
-      `RELIC_NAMED_FACT_SOURCES` (found/re-confirmed while building the mechanism above — see those
-      tables' doc comments in `sources.ts` for the full per-relic reasoning):
-      - Relic of Leadership (100625): "Convert conditions into boons" doesn't name which boon(s) —
-        would need a wiki check of whether the conversion is deterministic enough to model at all.
-      - Relic of the Twin Generals (101767): base Might (6 stacks) is safe, but its "Might per Hit"
-        bonus scales with enemies struck — needs a real decision on whether/how to bound that before
-        it can be wired without inventing a number.
+- [x] Relic of Leadership (100625) — **CLOSED 2026-08-16, leg 6.** Wiki re-check confirms the payload
+      is genuinely boon-less: `Conditions Converted to Boons` names a count (5 PvE / 3 WvW/PvP) but
+      never which boon(s) result, and no separate condition→boon mapping table exists on the wiki
+      either. Permanently excluded, same as Sorrow — no `BOON_NAMES` status exists to match. No code
+      change; `relic-sources.test.ts` already covered it.
+- [x] Relic of the Twin Generals (101767) — **WIRED 2026-08-16, leg 6.** Base Might (6 stacks, 10s)
+      and Weakness (4s) are both fixed grants; `relicSources` in `sources.ts` filters out only the
+      variable "Might per Hit" fact (`alt=Might per Hit`) before parsing, rather than inventing a
+      magnitude for it. Added to `RELIC_TRIGGER_GATES` as `HEAL`-gated. New tests in
+      `relic-sources.test.ts`.
+- [x] Relic of the Citadel (100448) — **WIRED 2026-08-16, leg 6.** A wiki Mechanics-section re-check
+      corrected leg 5's own assumption ("scales with the triggering hit's defiance damage") — the
+      Stun's duration is actually a deterministic linear function of the equipped Elite skill's own
+      recharge (1s at ≤60s cooldown up to 3s at ≥180s), the same quantity Zephyrite's crystal
+      duration already reads. New `citadelStunDurationSeconds`/`citadelBuildStunDurationSeconds` in
+      `sources.ts` (mirrors the Zephyrite helpers); `computeRelicNamedFactSources` now overrides this
+      relic's static `RELIC_NAMED_FACT_SOURCES` `detail` with the build's actual computed duration.
+      Moved out of `relic-named-fact-completeness.test.ts`'s `EXCLUDED_RELIC_IDS`; new tests in
+      `relic-named-fact-sources.test.ts`. See `docs/relic-trigger-classification.md`'s "Leg 6"
+      section for the full writeup (all 3 items above).
+- [ ] 2 relics still need real follow-up work before they can join `RELIC_TRIGGER_GATES`/
+      `RELIC_NAMED_FACT_SOURCES` (see those tables' doc comments in `sources.ts` for the full
+      per-relic reasoning):
       - Relic of the Firebrand (100453): "+20% Boon Duration" is a passive attribute-style modifier,
         not a discrete boon — would need new infra shaped like
-        [[new_attribute_bonus_infra_2026-08-15]]'s Power Overwhelming, not `RELIC_TRIGGER_GATES`.
+        [[new_attribute_bonus_infra_2026-08-15]]'s Power Overwhelming, not `RELIC_TRIGGER_GATES`
+        (its trigger — "upon using the final charge of a mantra skill" — is also a genuinely new
+        shape: a temporary, event-triggered self-buff rather than a permanently-gated attribute
+        bonus, so even that infra wouldn't be a direct fit without its own design pass).
       - Relic of the Astral Ward (100388): 2-step signet mechanic (spawns on one signet use,
         consumed by the next) — already flagged in `docs/relic-trigger-classification.md` as complex
         enough to design separately.
-      - Relic of the Citadel (100448): its Stun is a genuine 1s-3s range scaling with the triggering
-        hit's defiance damage — same "variable magnitude, needs a real decision" shape as Twin
-        Generals above (found 2026-08-16 while auditing `computeNamedFactSources` candidates for the
-        leg below).
 - [x] Smaller follow-up (Pack's Superspeed / Febe's condition-removal) — **CLOSED 2026-08-16, leg 5.**
       Re-ran the same audit discipline leg 1 used, this time against `computeNamedFactSources`'
       matcher names instead of `BOON_NAMES`/`AURA_NAMES` — turned up 6 more real candidates beyond
@@ -106,9 +120,10 @@ one-off.
       `RELIC_NAMED_FACT_SOURCES` table + `computeRelicNamedFactSources` in `sources.ts`, gated by
       `RELIC_TRIGGER_GATES` (extended with 6 new trigger entries for the relics that were never
       boon/aura candidates). 7 other candidates reviewed and excluded with a stated reason each
-      (Citadel — folded into the item above; Astral Ward — rides its own already-deferred mechanic;
-      Unseen Invasion/Wayfinder — non-deterministic trigger; Founding/Mists Tide — combo-gated;
-      Mosyn — already dodge-excluded). New tests: `relic-named-fact-sources.test.ts` +
+      (Citadel — assumed non-deterministic here, **corrected and wired in leg 6, see above**; Astral
+      Ward — rides its own already-deferred mechanic; Unseen Invasion/Wayfinder — non-deterministic
+      trigger; Founding/Mists Tide — combo-gated; Mosyn — already dodge-excluded). New tests:
+      `relic-named-fact-sources.test.ts` +
       `relic-named-fact-completeness.test.ts` (full-sweep regression guard, mirrors
       `sigil-named-fact-completeness.test.ts`). See `docs/relic-trigger-classification.md`'s "Leg 5"
       section for the full writeup.

@@ -4115,10 +4115,13 @@ type RelicTriggerGate = { kind: 'elite' } | { kind: 'heal' } | { kind: 'ability'
  * `BUFF_INSTANCE_LABELS`: a relic id absent here contributes nothing to either aggregate, same as
  * before this mechanism existed — `formatRelicDescription` still shows its full tooltip either way.
  *
- * 11 of the 19 candidates are wired below; the other 8 stay unwired, each for a reason the
+ * 12 of the 19 candidates are wired below; the other 7 stay unwired, each for a reason the
  * classification doc's one-line payload gloss didn't capture:
- * - Relic of Leadership (100625): "Conditions Converted to Boons" doesn't name a specific boon —
- *   no literal `BOON_NAMES` status for `extractFromRelicFacts` to match.
+ * - Relic of Leadership (100625): wiki-confirmed (2026-08-16 follow-up) the payload is genuinely
+ *   boon-less — `{{skill fact|Conditions Converted to Boons|5|game mode=pve}}` names a count (5
+ *   PvE / 3 WvW/PvP) but never which boon(s) result, and no separate mapping table exists on the
+ *   wiki either (checked). No literal `BOON_NAMES` status for `extractFromRelicFacts` to match.
+ *   Permanently excluded, not deferred — same "no shape fits it" conclusion as Sorrow below.
  * - Relic of Sorrow (103424): re-checked against its own `relic-effects.json` facts for leg 2, then
  *   wiki-confirmed word for word in leg 4 (`docs/relic-trigger-classification.md`) — its "protects
  *   allies" prose describes a custom "Relic of Sorrow" damage-reduction/reflect zone plus pulsing
@@ -4126,12 +4129,12 @@ type RelicTriggerGate = { kind: 'elite' } | { kind: 'heal' } | { kind: 'ability'
  *   boon. The classification doc's plain-English payload gloss was imprecise here; correcting that,
  *   not re-litigating leg 1's trigger classification itself (still correctly bucketed as `ELITE`).
  *   Permanently excluded, not deferred — no `BoonConditionSource`/`AuraSource` shape fits it at all.
- * - Relic of the Twin Generals (101767): carries 2 same-status Might facts — a flat "6 stacks" AND
- *   a separate "Might per Hit" that scales with how many enemies the triggering hit struck, i.e.
- *   genuinely variable rather than a fixed grant. Same "don't invent a frequency/magnitude this app
- *   doesn't model" reasoning the whole sweep exists to apply, just hitting the stack count instead
- *   of the cadence — needs the same kind of hand curation `BUFF_INSTANCE_LABELS` gives other
- *   multi-fact sources, not a blind pass-through.
+ * - Relic of the Twin Generals (101767): **Wired 2026-08-16** (leg 6) for its flat portion only —
+ *   base Might (6 stacks, 10s, on Heal skill use) and Weakness (4s, on nearby enemies) are both
+ *   fixed grants regardless of how many enemies the triggering hit struck, so `relicSources` below
+ *   filters out the *other* Might fact (`alt=Might per Hit`, scales with enemies struck, same
+ *   "don't invent a magnitude this app doesn't model" reasoning the whole sweep exists to apply)
+ *   before calling `extractFromRelicFacts`, rather than wiring a blind pass-through of both.
  * - Relic of the Firebrand (100453): payload is "+20% Boon Duration," a passive attribute-style
  *   modifier, not a discrete boon status with its own duration — doesn't fit this table's shape at
  *   all (would need new infra shaped like Power Overwhelming's, not this one).
@@ -4180,10 +4183,52 @@ const RELIC_TRIGGER_GATES: Record<number, RelicTriggerGate> = {
   100942: { kind: 'elite' }, // Relic of Dagda — Daze (on enemies)
   100659: { kind: 'heal' }, // Relic of the Water — Cleanse
   100411: { kind: 'ability', categories: ['Shout'] }, // Relic of the Trooper — Cleanse
-  104848: { kind: 'ability', categories: ['Stance'] } // Relic of Bava Nisos — Cleanse
+  104848: { kind: 'ability', categories: ['Stance'] }, // Relic of Bava Nisos — Cleanse
+  // Leg 6 (2026-08-16) — wiki re-check turned up 2 more real candidates from the "needs a real
+  // decision" pile TODO.md's leg-5 note left open.
+  101767: { kind: 'heal' }, // Relic of the Twin Generals — Might + Weakness, Might-per-Hit fact excluded (see above)
+  100448: { kind: 'elite' } // Relic of the Citadel — Stun, duration computed per citadelBuildStunDurationSeconds
 }
 
 const ZEPHYRITE_RELIC_ID = 100893
+const TWIN_GENERALS_RELIC_ID = 101767
+const CITADEL_RELIC_ID = 100448
+
+const CITADEL_STUN_MIN_RECHARGE_SECONDS = 60
+const CITADEL_STUN_MAX_RECHARGE_SECONDS = 180
+
+/**
+ * Relic of the Citadel's (100448) actual Stun duration for one elite skill's own recharge in
+ * seconds. TODO.md's leg-5 note assumed this scaled with "the triggering hit's defiance damage" —
+ * a 2026-08-16 wiki re-check of the page's own Mechanics section corrects that: "The minimum
+ * duration of 1 second applies to any elite ability with a cooldown shorter than 60 seconds. The
+ * duration scales linearly with [cooldown], capping at 180 seconds (3 minutes) for the maximum 3
+ * second stun duration" — i.e. a deterministic function of the equipped Elite skill's own
+ * `Recharge` fact, the same quantity `zephyriteCrystalDurationSeconds` already reads, just a
+ * continuous linear formula here instead of a stepped table (how the wiki documents this one).
+ */
+function citadelStunDurationSeconds(eliteRechargeSeconds: number): number {
+  if (eliteRechargeSeconds <= CITADEL_STUN_MIN_RECHARGE_SECONDS) return 1
+  if (eliteRechargeSeconds >= CITADEL_STUN_MAX_RECHARGE_SECONDS) return 3
+  return (
+    1 +
+    ((eliteRechargeSeconds - CITADEL_STUN_MIN_RECHARGE_SECONDS) / (CITADEL_STUN_MAX_RECHARGE_SECONDS - CITADEL_STUN_MIN_RECHARGE_SECONDS)) * 2
+  )
+}
+
+/**
+ * `citadelStunDurationSeconds`, applied to `build`'s actual equipped Elite skill(s) — `Math.min`
+ * across every equipped Elite (same Revenant dual-legend "don't assume which legend is active"
+ * bias `zephyriteBuildCrystalDurationSeconds` uses), falling back to the minimum 1s tier when no
+ * equipped Elite skill carries a `Recharge` fact at all.
+ */
+function citadelBuildStunDurationSeconds(build: Build, legends: Legend[], skillsById: Map<number, Skill>): number {
+  const recharges = equippedEliteSkillIds(build, legends)
+    .map((id) => skillsById.get(id)?.facts.find((f) => f.type === 'Recharge'))
+    .map((fact) => (fact && typeof fact.value === 'number' ? fact.value : null))
+    .filter((v): v is number => v !== null)
+  return citadelStunDurationSeconds(recharges.length > 0 ? Math.min(...recharges) : 0)
+}
 
 /**
  * Relic of the Zephyrite's (100893) crystal duration tiers, hand-curated from the wiki (TODO.md's
@@ -4355,8 +4400,14 @@ function relicSources(
   if (!relicTriggerSatisfied(gate, build, gameData.legends, skillsById)) return []
   const targetsFact = effect.facts.find((f) => f.label === 'targets' || f.label === 'allied targets')
   const targetCount = targetsFact ? Number(targetsFact.values[0]) : null
+  // Twin Generals carries 2 same-status Might facts — a flat "6 stacks" grant and a separate
+  // "Might per Hit" that scales with how many enemies the triggering hit struck. Only the flat one
+  // is a fixed grant this app can safely report; the per-hit fact is filtered out here (rather than
+  // wired) so `extractFromRelicFacts` never sees it, see `RELIC_TRIGGER_GATES`'s own doc comment.
+  const factsToParse =
+    relic.id === TWIN_GENERALS_RELIC_ID ? effect.facts.filter((f) => f.params.alt !== 'Might per Hit') : effect.facts
   const parsed = extractFromRelicFacts(
-    effect.facts,
+    factsToParse,
     durationPercent,
     relic.id,
     relic.name,
@@ -4856,13 +4907,16 @@ function computeSigilNamedFactSources(build: Build, sigils: Sigil[], matchers: R
  *
  * Found via a full regex sweep of every relic's `relic-effects.json` facts for Control/Miscellaneous/
  * Strip/Corrupt/Cleanse verb+noun patterns (`relic-named-fact-completeness.test.ts` runs the same
- * scan as a regression guard). 8 candidates landed in the `RELIC_TRIGGER_GATES`-deterministic bucket
+ * scan as a regression guard). 9 candidates landed in the `RELIC_TRIGGER_GATES`-deterministic bucket
  * with a fixed (non-variable) magnitude — wired below. The rest stayed out, each for a reason:
- * - Relic of the Citadel (100448): its Stun is a genuine range (`alt: "Minimum Stun"` 1s /
- *   `"Maximum Stun"` 3s, scaling with how much defiance damage the triggering hit dealt) — same
- *   "don't invent a number this app doesn't actually guarantee" problem `RELIC_TRIGGER_GATES`'s own
- *   Twin Generals entry hit, needs the same kind of real curation decision, not a blind pick of one
- *   endpoint.
+ * - Relic of the Citadel (100448): **Wired 2026-08-16** (leg 6) — its Stun looked like a genuine
+ *   range (`alt: "Minimum Stun"` 1s / `"Maximum Stun"` 3s) scaling with the triggering hit's
+ *   defiance damage, but a wiki Mechanics-section re-check corrects that: the duration is actually a
+ *   deterministic linear function of the equipped Elite skill's own `Recharge` (1s at ≤60s cooldown
+ *   up to 3s at ≥180s), the same quantity Zephyrite's crystal duration already reads — see
+ *   `citadelStunDurationSeconds`'s doc comment. `computeRelicNamedFactSources` below overrides this
+ *   entry's static `detail` with the build's actual computed duration, same pattern `relicSources`
+ *   uses for Zephyrite.
  * - Relic of the Astral Ward (100388): its Cleanse rides the already-deferred 2-step signet mechanic
  *   (spawns on one signet use, consumed by the next) — still deferred, not re-litigated here.
  * - Relic of the Unseen Invasion (100694) / Relic of the Wayfinder (101943): both carry a literal
@@ -4890,16 +4944,22 @@ export const RELIC_NAMED_FACT_SOURCES: Record<number, { name: string; detail: st
   100942: { name: 'Daze', detail: '2s (on Elite skill use, 30s CD)' }, // Relic of Dagda
   100659: { name: 'Cleanse', detail: '2 conditions (on Heal skill use, 20s CD)' }, // Relic of the Water
   100411: { name: 'Cleanse', detail: '1 condition (on Shout use)' }, // Relic of the Trooper
-  104848: { name: 'Cleanse', detail: '2 conditions (on Stance use)' } // Relic of Bava Nisos
+  104848: { name: 'Cleanse', detail: '2 conditions (on Stance use)' }, // Relic of Bava Nisos
+  // Leg 6 (2026-08-16) — see this table's own doc comment for why Citadel moved out of the
+  // "genuinely variable" pile; `detail` here is a placeholder, always overridden below.
+  100448: { name: 'Stun', detail: '1s–3s (on Elite skill use, 30s CD)' } // Relic of the Citadel
 }
 
 /** `RELIC_NAMED_FACT_SOURCES`' entry for the build's equipped relic, or `[]` when no relic is
- *  equipped, it isn't one of the 8 curated candidates, its name isn't a key of the caller's
+ *  equipped, it isn't one of the curated candidates, its name isn't a key of the caller's
  *  `matchers` table, or (same `RELIC_TRIGGER_GATES` gating `relicSources` uses for the boon/aura
  *  pipeline) its trigger gate isn't satisfied. `targetCount` is read straight off the relic's own
  *  `targets`/`allied targets` fact when present (`null` — self-only/unknown — otherwise), same
  *  resolution `relicSources` uses; unlike sigils, which have no such fact at all and so always
- *  report `null`. */
+ *  report `null`. Relic of the Citadel (100448) gets one further step: its static table `detail` is
+ *  replaced with the build's actual computed Stun duration (`citadelBuildStunDurationSeconds`), the
+ *  same "compute per-build rather than trust a static fact" override `relicSources` applies to
+ *  Zephyrite. */
 function computeRelicNamedFactSources(
   build: Build,
   gameData: { relics: Relic[]; relicEffects: RelicEffectsById; skills: Skill[]; legends: Legend[] },
@@ -4917,6 +4977,10 @@ function computeRelicNamedFactSources(
   if (!relic || !effect) return []
   const targetsFact = effect.facts.find((f) => f.label === 'targets' || f.label === 'allied targets')
   const targetCount = targetsFact ? Number(targetsFact.values[0]) : null
+  const detail =
+    relic.id === CITADEL_RELIC_ID
+      ? `${citadelBuildStunDurationSeconds(build, gameData.legends, skillsById).toFixed(1)}s (on Elite skill use, 30s CD)`
+      : entry.detail
   return [
     {
       sourceKind: 'relic',
@@ -4924,7 +4988,7 @@ function computeRelicNamedFactSources(
       sourceName: relic.name,
       sourceIcon: relic.icon,
       name: entry.name,
-      detail: entry.detail,
+      detail,
       targetCount: Number.isFinite(targetCount) ? targetCount : null
     }
   ]

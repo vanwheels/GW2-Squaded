@@ -18,6 +18,10 @@ import { CONTROL_MATCHERS, MISCELLANEOUS_MATCHERS, BOON_STRIP_CORRUPT_MATCHERS, 
  * `RELIC_NAMED_FACT_SOURCES` (Pack, Febe, Cerus, Wizard's Tower, Water, Trooper, Dagda, Bava Nisos).
  * 7 were reviewed and excluded, each for a stated reason in `EXCLUDED_RELIC_IDS` below — see
  * `RELIC_NAMED_FACT_SOURCES`'s own doc comment in `sources.ts` for the full per-relic writeup.
+ * Leg 6 (2026-08-16) moved Relic of the Citadel (100448) out of the exclusion list and into
+ * `RELIC_NAMED_FACT_SOURCES` — a wiki Mechanics-section re-check found its Stun is actually a
+ * deterministic function of the triggering elite skill's own recharge, not the triggering hit's
+ * defiance damage as originally assumed (see `citadelStunDurationSeconds`'s doc comment).
  */
 
 interface RelicFactLineFile {
@@ -68,8 +72,6 @@ const COVERED_RELIC_IDS = new Set<number>(Object.keys(RELIC_NAMED_FACT_SOURCES).
 /** Reviewed-and-excluded relics (see `RELIC_NAMED_FACT_SOURCES`'s doc comment in `sources.ts` for
  *  the full writeup behind each). */
 const EXCLUDED_RELIC_IDS: Record<number, string> = {
-  100448:
-    'Relic of the Citadel — Stun is a genuine range (1s-3s, "Minimum"/"Maximum Stun" facts) scaling with the triggering hit\'s defiance damage, not a fixed grant. Needs its own curation decision (same shape as RELIC_TRIGGER_GATES\' Twin Generals entry), not a blind pick of one endpoint.',
   100388:
     'Relic of the Astral Ward — Cleanse rides the already-deferred 2-step signet mechanic (spawns on one signet use, consumed by the next). Still deferred, not a new decision for this leg.',
   100694:

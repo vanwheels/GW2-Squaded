@@ -11,7 +11,10 @@ import { CONTROL_MATCHERS, MISCELLANEOUS_MATCHERS, BOON_STRIP_CORRUPT_MATCHERS, 
  * Corrupt/Daze/Pull), not a boon/aura, now reach `computeNamedFactSources` via
  * `RELIC_NAMED_FACT_SOURCES`/`computeRelicNamedFactSources` — gated by the same `RELIC_TRIGGER_GATES`
  * trigger classification `relicSources` uses for the boon/aura pipeline. See
- * `docs/relic-trigger-classification.md`'s "Leg 5" section for the full per-relic writeup.
+ * `docs/relic-trigger-classification.md`'s "Leg 5" section for the full per-relic writeup. Leg 6
+ * (2026-08-16) added a 9th: Relic of the Citadel (100448), whose Stun turned out to be a
+ * deterministic function of the triggering elite skill's own recharge after all — see
+ * `citadelStunDurationSeconds`'s doc comment in `sources.ts`.
  */
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -169,11 +172,38 @@ describe('Relic of Bava Nisos (104848) — ability-category gate (Stance), Clean
   })
 })
 
+describe("Relic of the Citadel (100448) — elite-skill gate, Stun duration computed from the triggering elite skill's own recharge", () => {
+  const PLAGUELANDS_ID = 10549 // Necromancer Elite, 90s recharge -> 1.5s stun (linear between the 60s/1s and 180s/3s endpoints)
+  const MASS_INVISIBILITY_ID = 10245 // Mesmer Elite, 35s recharge -> below the 60s floor -> 1s stun
+
+  it('contributes Stun with a duration scaled to the equipped elite skill\'s recharge (90s -> 1.5s)', () => {
+    const build = baseBuild({ relicId: 100448, skills: { kind: 'standard', heal: null, utility: [null, null, null], elite: PLAGUELANDS_ID } })
+    const sources = computeNamedFactSources(build, gameData, CONTROL_MATCHERS)
+    const stun = sources.find((s) => s.sourceKind === 'relic' && s.name === 'Stun')
+    expect(stun?.detail).toBe('1.5s (on Elite skill use, 30s CD)')
+  })
+
+  it('floors at 1s for a short-recharge elite skill (35s)', () => {
+    const build = baseBuild({
+      profession: 'Mesmer',
+      relicId: 100448,
+      skills: { kind: 'standard', heal: null, utility: [null, null, null], elite: MASS_INVISIBILITY_ID }
+    })
+    const sources = computeNamedFactSources(build, gameData, CONTROL_MATCHERS)
+    expect(sources.find((s) => s.sourceKind === 'relic' && s.name === 'Stun')?.detail).toBe('1.0s (on Elite skill use, 30s CD)')
+  })
+
+  it('contributes nothing when no Elite skill is equipped', () => {
+    const build = baseBuild({ relicId: 100448 })
+    expect(computeNamedFactSources(build, gameData, CONTROL_MATCHERS).some((s) => s.sourceKind === 'relic')).toBe(false)
+  })
+})
+
 describe('Relics deliberately left out of RELIC_NAMED_FACT_SOURCES', () => {
-  // Citadel (variable Stun magnitude, needs a real curation decision), Astral Ward (rides the
-  // already-deferred 2-step signet mechanic), Unseen Invasion/Wayfinder (non-deterministic trigger),
-  // Founding/Mists Tide (combo-gated, non-deterministic), Mosyn (dodge-gated, already excluded).
-  const excludedRelicIds = [100448, 100388, 100694, 101943, 101737, 103901, 101801]
+  // Astral Ward (rides the already-deferred 2-step signet mechanic), Unseen Invasion/Wayfinder
+  // (non-deterministic trigger), Founding/Mists Tide (combo-gated, non-deterministic), Mosyn
+  // (dodge-gated, already excluded).
+  const excludedRelicIds = [100388, 100694, 101943, 101737, 103901, 101801]
 
   it.each(excludedRelicIds)('relic %i contributes nothing to computeNamedFactSources', (relicId) => {
     const build = baseBuild({

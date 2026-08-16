@@ -177,11 +177,41 @@ describe('Relic of the Zephyrite (100893) — elite-skill gate, duration compute
   })
 })
 
+describe("Relic of the Twin Generals (101767) — heal-skill gate, flat Might + Weakness only (Might-per-Hit excluded)", () => {
+  it('contributes base Might (6 stacks, 10s) once a Heal skill is equipped, not a doubled-up entry from the per-hit fact', () => {
+    const build = baseBuild({
+      relicId: 101767,
+      skills: { kind: 'standard', heal: WELL_OF_BLOOD_ID, utility: [null, null, null], elite: null }
+    })
+    const sources = computeBoonConditionSources(build, gameData)
+    const mightSources = sources.filter((s) => s.sourceKind === 'relic' && s.boonOrConditionName === 'Might')
+    expect(mightSources).toHaveLength(1)
+    expect(mightSources[0]?.applyCount).toBe(6)
+    expect(mightSources[0]?.baseDurationSeconds).toBe(10)
+  })
+
+  it('also contributes Weakness (4s) on the same trigger', () => {
+    const build = baseBuild({
+      relicId: 101767,
+      skills: { kind: 'standard', heal: WELL_OF_BLOOD_ID, utility: [null, null, null], elite: null }
+    })
+    const sources = computeBoonConditionSources(build, gameData)
+    const weakness = sources.find((s) => s.sourceKind === 'relic' && s.boonOrConditionName === 'Weakness')
+    expect(weakness?.baseDurationSeconds).toBe(4)
+  })
+
+  it('contributes nothing when no Heal skill is equipped', () => {
+    const build = baseBuild({ relicId: 101767 })
+    expect(computeBoonConditionSources(build, gameData).some((s) => s.sourceKind === 'relic')).toBe(false)
+  })
+})
+
 describe('Relics deliberately left out of RELIC_TRIGGER_GATES', () => {
-  // Leadership (no literal boon name), Sorrow (custom effect misread as "Protection" by leg 1's
-  // gloss, wiki-confirmed excluded for good in leg 4), Firebrand (a % modifier, not a discrete
-  // boon) — every gate gets maximally satisfied (Elite equipped) so a false wiring would show up
-  // immediately rather than being masked by an unmet trigger.
+  // Leadership (no literal boon name, wiki-confirmed no separate mapping table exists either),
+  // Sorrow (custom effect misread as "Protection" by leg 1's gloss, wiki-confirmed excluded for
+  // good in leg 4), Firebrand (a % modifier, not a discrete boon) — every gate gets maximally
+  // satisfied (Elite equipped) so a false wiring would show up immediately rather than being
+  // masked by an unmet trigger.
   const deferredRelicIds = [100625, 103424, 100453]
 
   it.each(deferredRelicIds)('relic %i contributes nothing to computeBoonConditionSources/computeAuraSources', (relicId) => {
