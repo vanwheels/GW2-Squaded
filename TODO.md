@@ -45,20 +45,50 @@ one-off.
       deterministic-trigger bucket AND grant a real ally/self boon or aura payload (the only ones
       worth wiring into `computeBoonConditionSources`) — full list + full 112-row table in the doc.
       Dodge exclusion kept as-is, not re-litigated.
-- [ ] Design a general "relic effects gated on an already-modeled trigger" mechanism (rather than a
+- [x] Design a general "relic effects gated on an already-modeled trigger" mechanism (rather than a
       one-off special case per relic, like `branchConditionalFacts`' skill-id dispatch) that
       `computeBoonConditionSources` can consult, sized for the 19 candidates in
-      `docs/relic-trigger-classification.md` — likely 3 shapes: single-slot (Elite/Heal, like
-      existing Chants), category-matched (ability-type — needs a small "does any equipped Heal/
-      Utility/Elite skill carry category X" helper), and Relic of the Firebrand's mantra-final-charge
-      case, which can reuse the existing `MANTRA_FINAL_CHARGE_IDS` mechanism wholesale.
-- [ ] Zephyrite specifically also needs its stepped duration table hand-curated into
-      `relic-effects.json` (wiki: 0s→4s, 1-20s→5s, 21-40s→6s, 41-60s→7s, ≥61s→8s recharge) — only
-      Min/Max (4/7, itself stale vs. the wiki's current Max of 8, a preexisting wiki infobox/prose
-      inconsistency, not an app bug) is there today. Same "prose supplements the facts" curation
-      shape as Otherworldly Bond.
-      Real, scoped work across the whole relic catalog — not a quick formatting fix, budget it as
-      its own multi-leg pass (classification leg, then infra, then per-bucket curation legs).
+      `docs/relic-trigger-classification.md`. **DONE 2026-08-16** — `RELIC_TRIGGER_GATES` +
+      `relicSources`/`extractFromRelicFacts` in `sources.ts`, 2 of the 3 scoped shapes built (single-
+      slot Elite/Heal, category-matched ability-type via a new `healUtilityEliteSkillIds` helper);
+      the 3rd (mantra-final-charge) turned out to have no real candidate — Relic of the Firebrand's
+      payload is a "+20% Boon Duration" passive modifier, not a discrete boon status, so it doesn't
+      fit this table's shape regardless of trigger. Wired into both `computeBoonConditionSources`
+      AND `computeAuraSources` (auras needed their own pass — see that field's "'aura' entries only
+      ever come from `computeAuraSources`" contract). Went further than "design" alone: also curated
+      and wired 10 of the 19 candidates whose facts were unambiguous (Surging, Earth, Pack, Centaur,
+      Durability, Resistance, Febe, Reunification, Altruism, Fire, Chronomancer, Phenom, Sacred
+      Grounds — see `RELIC_TRIGGER_GATES`'s doc comment for the exact list and per-relic payload).
+      9 tests in `relic-sources.test.ts`.
+- [ ] 6 relics still need real follow-up work before they can join `RELIC_TRIGGER_GATES` (found/
+      re-confirmed while building the mechanism above — see that table's doc comment for the full
+      per-relic reasoning):
+      - Relic of the Zephyrite (100893): still needs its wiki stepped-duration table hand-curated
+        into `relic-effects.json` (wiki: 0s→4s, 1-20s→5s, 21-40s→6s, 41-60s→7s, ≥61s→8s recharge) —
+        only Min/Max (4/7, itself stale vs. the wiki's current Max of 8, a preexisting wiki
+        infobox/prose inconsistency, not an app bug) is there today. Same "prose supplements the
+        facts" curation shape as Otherworldly Bond.
+      - Relic of Sorrow (103424): the classification doc's "Protection (allies)" payload gloss was
+        wrong — its real effect is a custom damage-reduction/reflect zone, not the Protection boon.
+        Needs its own wiki re-check to figure out what (if anything) it should show as, since it's
+        not a `BoonConditionSource` candidate at all.
+      - Relic of Leadership (100625): "Convert conditions into boons" doesn't name which boon(s) —
+        would need a wiki check of whether the conversion is deterministic enough to model at all.
+      - Relic of the Twin Generals (101767): base Might (6 stacks) is safe, but its "Might per Hit"
+        bonus scales with enemies struck — needs a real decision on whether/how to bound that before
+        it can be wired without inventing a number.
+      - Relic of the Firebrand (100453): "+20% Boon Duration" is a passive attribute-style modifier,
+        not a discrete boon — would need new infra shaped like
+        [[new_attribute_bonus_infra_2026-08-15]]'s Power Overwhelming, not `RELIC_TRIGGER_GATES`.
+      - Relic of the Astral Ward (100388): 2-step signet mechanic (spawns on one signet use,
+        consumed by the next) — already flagged in `docs/relic-trigger-classification.md` as complex
+        enough to design separately.
+- [ ] Smaller follow-up noticed while wiring the 10 above: Relic of the Pack's Superspeed and Relic
+      of Febe's condition-removal are real, deterministic-trigger facts, but `Superspeed`/cleanse
+      are tracked via the separate `computeNamedFactSources`/`MISCELLANEOUS_MATCHERS` pipeline
+      (`NamedFactSource` already supports a `'sigil'` `sourceKind` as precedent for a non-skill/trait
+      equipment source) — extending relics into that pipeline too is unscoped, not attempted this
+      leg.
 
 ## Scoped features, not yet built
 

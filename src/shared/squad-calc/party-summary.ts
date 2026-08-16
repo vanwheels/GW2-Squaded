@@ -10,6 +10,8 @@ import type {
   Party,
   Pet,
   Profession,
+  Relic,
+  RelicEffectsById,
   Rune,
   Sigil,
   Skill,
@@ -121,6 +123,8 @@ export function computePartyBoonConditionSummary(
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
     familiars: Familiar[]
+    relics: Relic[]
+    relicEffects: RelicEffectsById
   }
 ): PartyBoonConditionEntry[] {
   const map = new Map<string, PartyBoonConditionEntry>()
@@ -166,6 +170,8 @@ export function computePartyAuraSummary(
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
     familiars: Familiar[]
+    relics: Relic[]
+    relicEffects: RelicEffectsById
   }
 ): PartyAuraEntry[] {
   const map = new Map<string, PartyAuraEntry>()

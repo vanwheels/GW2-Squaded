@@ -10,6 +10,9 @@ import type {
   Legend,
   Pet,
   Profession,
+  Relic,
+  RelicEffectsById,
+  RelicFactLine,
   Rune,
   Sigil,
   Skill,
@@ -44,7 +47,7 @@ import { MANTRA_FINAL_CHARGE_IDS } from '../skill-calc/mantra-final-charge'
 export type BoonConditionCategory = 'boon' | 'condition' | 'aura'
 
 export interface BoonConditionSource {
-  sourceKind: 'skill' | 'trait'
+  sourceKind: 'skill' | 'trait' | 'relic'
   sourceId: number
   sourceName: string
   sourceIcon: string
@@ -4090,6 +4093,199 @@ export function tomeChapterBoonSources(chapter: TomeChapter, durationPercent: { 
 }
 
 /**
+ * A relic's proc trigger, restricted to the shapes this app already models a deterministic
+ * frequency for (`docs/relic-trigger-classification.md`, TODO.md's "Relic proc integration sweep,"
+ * leg 1): the equipped Elite skill slot, the equipped Heal skill slot, or any equipped Heal/
+ * Utility/Elite skill carrying one of `Skill.categories`' ability-type strings (Well, Signet,
+ * Mantra, ...). Mantra-final-charge (Relic of the Firebrand) and the 2-step signet mechanic (Relic
+ * of the Astral Ward) are deliberately absent from this type — see `RELIC_TRIGGER_GATES`'s doc
+ * comment for why neither has a candidate worth wiring in yet.
+ */
+type RelicTriggerGate = { kind: 'elite' } | { kind: 'heal' } | { kind: 'ability'; categories: string[] }
+
+/**
+ * Leg 2 of TODO.md's "Relic proc integration sweep": the curated subset of
+ * `docs/relic-trigger-classification.md`'s 19 deterministic-trigger/real-boon-payload candidates
+ * that are ALSO safely representable as ordinary `BoonConditionSource`/aura entries — i.e. every
+ * fact this relic grants that matters here is a literal `BOON_NAMES`/`CONDITION_NAMES`/
+ * `AURA_NAMES` status with a plain fixed duration, parsed via `extractFromRelicFacts` below (same
+ * `RelicFactLine` shape `tomeChapterBoonSources` already parses for Firebrand Tome chapters — relic
+ * wiki pages reuse the identical `{{skill fact}}` template, see `RelicFactLine`'s doc comment).
+ * Opt-in only, same "curated table, fails open" discipline as `DODGE_TRIGGER_NOTES`/
+ * `BUFF_INSTANCE_LABELS`: a relic id absent here contributes nothing to either aggregate, same as
+ * before this mechanism existed — `formatRelicDescription` still shows its full tooltip either way.
+ *
+ * 10 of the 19 candidates are wired below; the other 9 stay unwired, each for a reason the
+ * classification doc's one-line payload gloss didn't capture:
+ * - Relic of the Zephyrite (100893): still needs its wiki stepped-duration table hand-curated
+ *   (TODO.md's own open item, separate from this leg) — wiring it now would lock in the stale flat
+ *   Min value instead.
+ * - Relic of Leadership (100625): "Conditions Converted to Boons" doesn't name a specific boon —
+ *   no literal `BOON_NAMES` status for `extractFromRelicFacts` to match.
+ * - Relic of Sorrow (103424): re-checked against its own `relic-effects.json` facts for this leg —
+ *   its "protects allies" prose describes a custom "Relic of Sorrow" damage-reduction/reflect zone
+ *   (`effect` fact literally named "Relic of Sorrow," not "Protection"), not the Protection boon.
+ *   The classification doc's plain-English payload gloss was imprecise here; correcting that, not
+ *   re-litigating leg 1's trigger classification itself (still correctly bucketed as `ELITE`).
+ * - Relic of the Twin Generals (101767): carries 2 same-status Might facts — a flat "6 stacks" AND
+ *   a separate "Might per Hit" that scales with how many enemies the triggering hit struck, i.e.
+ *   genuinely variable rather than a fixed grant. Same "don't invent a frequency/magnitude this app
+ *   doesn't model" reasoning the whole sweep exists to apply, just hitting the stack count instead
+ *   of the cadence — needs the same kind of hand curation `BUFF_INSTANCE_LABELS` gives other
+ *   multi-fact sources, not a blind pass-through.
+ * - Relic of the Firebrand (100453): payload is "+20% Boon Duration," a passive attribute-style
+ *   modifier, not a discrete boon status with its own duration — doesn't fit this table's shape at
+ *   all (would need new infra shaped like Power Overwhelming's, not this one).
+ * - Relic of the Astral Ward (100388): already flagged in the classification doc itself as complex
+ *   enough to defer to its own leg (2-step signet mechanic: spawns on one signet use, consumed by
+ *   the next) — kept deferred here.
+ * - Relic of the Pack's Superspeed fact / Relic of Febe's condition-removed facts: real facts, but
+ *   `Superspeed`/condition-cleanse are tracked via the separate `computeNamedFactSources`/
+ *   `MISCELLANEOUS_MATCHERS` pipeline, not `BOON_NAMES` — `extractFromRelicFacts`'s strict
+ *   `classify` match silently drops them, same as it silently drops every non-boon/aura fact below
+ *   (Relic of Fire's own "Damage Increase," every relic's `targets`/`radius`/recharge facts, ...).
+ *   Extending relics into `computeNamedFactSources` too is a follow-up, not this leg.
+ */
+const RELIC_TRIGGER_GATES: Record<number, RelicTriggerGate> = {
+  100063: { kind: 'elite' }, // Relic of Surging — Shocking Aura
+  100435: { kind: 'elite' }, // Relic of the Earth — Protection + Magnetic Aura
+  100752: { kind: 'elite' }, // Relic of the Pack — Might + Fury (Superspeed excluded, see above)
+  100385: { kind: 'heal' }, // Relic of the Centaur — Stability
+  100455: { kind: 'heal' }, // Relic of Durability — Protection + Regeneration + Resolution
+  100794: { kind: 'heal' }, // Relic of Resistance — Resistance
+  101116: { kind: 'heal' }, // Relic of Febe — Swiftness (condition-removed facts excluded, see above)
+  103984: { kind: 'heal' }, // Relic of Reunification — Frost Aura + Light Aura
+  104256: { kind: 'heal' }, // Relic of Altruism — Might + Fury
+  104501: { kind: 'heal' }, // Relic of Fire — Fire Aura (Damage Increase excluded, not a boon)
+  100450: { kind: 'ability', categories: ['Well'] }, // Relic of the Chronomancer — Quickness
+  104733: { kind: 'ability', categories: ['Cantrip', 'Meditation'] }, // Relic of the Phenom — Protection
+  109267: { kind: 'ability', categories: ['Well', 'Consecration'] } // Relic of the Sacred Grounds — Protection
+}
+
+/**
+ * Every id a build's own Heal/Utility/Elite skill selection contributes — deliberately narrower
+ * than `skillIdsForBuild` (excludes weapon skills, pets, the profession-mechanic bar, Revenant's
+ * own legend-swap skill): `RELIC_TRIGGER_GATES`'s `ability` shape means "does an equipped
+ * Heal/Utility/Elite skill carry this category," matching `docs/relic-trigger-classification.md`'s
+ * own scoping exactly, not "does anything on the bar."
+ */
+function healUtilityEliteSkillIds(build: Build, legends: Legend[]): number[] {
+  if (build.skills.kind === 'revenant') {
+    return build.skills.legends
+      .filter((id): id is string => id !== null)
+      .map((id) => legends.find((l) => l.id === id))
+      .filter((l): l is Legend => l !== undefined)
+      .flatMap((l) => [l.heal, l.elite, ...l.utilities])
+  }
+  return [build.skills.heal, ...build.skills.utility, build.skills.elite].filter((id): id is number => id !== null)
+}
+
+/**
+ * Whether `build` satisfies a `RelicTriggerGate`. For Revenant, both `elite`/`heal` are trivially
+ * true whenever at least 1 legend is equipped — a legend's kit always includes both slots (see
+ * `RevenantSkillSelection`'s doc comment), unlike a standard profession where either slot can still
+ * be `null` mid-edit.
+ */
+function relicTriggerSatisfied(gate: RelicTriggerGate, build: Build, legends: Legend[], skillsById: Map<number, Skill>): boolean {
+  if (build.skills.kind === 'revenant') {
+    if (gate.kind === 'elite' || gate.kind === 'heal') return build.skills.legends.some((id) => id !== null)
+  } else {
+    if (gate.kind === 'elite') return build.skills.elite !== null
+    if (gate.kind === 'heal') return build.skills.heal !== null
+  }
+  return healUtilityEliteSkillIds(build, legends).some((id) => skillsById.get(id)?.categories.some((c) => gate.categories.includes(c)))
+}
+
+/**
+ * Parses a relic's wiki-sourced `RelicFactLine[]` (`RelicEffect.facts`) into `BoonConditionSource`
+ * entries — the relic counterpart to `tomeChapterBoonSources`, reusing the exact same `{label,
+ * values, params}` parsing since relic wiki pages carry the identical `{{skill fact}}` template.
+ * Two label shapes appear in `relic-effects.json`:
+ * - A literal boon/condition/aura name as the label itself (`protection`, `might`, `resistance`,
+ *   ...), duration as the fact's first bare value, `stacks=` (when present) as `apply_count` — same
+ *   convention `tomeChapterBoonSources` already established.
+ * - `effect`, wrapping the proc's display name in its first value (occasionally suffixed
+ *   `" (effect)"`, e.g. `"Shocking Aura (effect)"`) with duration as the second value — how every
+ *   aura-granting relic below (and several non-aura custom effects `classify` correctly rejects,
+ *   e.g. "Relic of Sorrow") is written on the wiki.
+ * Every other fact shape (`targets`, `radius`, `recharge`, a bare stack-count with no boon name, a
+ * custom-named effect) is silently skipped — `classify` returning `null` is the only exclusion rule
+ * this function applies; `RELIC_TRIGGER_GATES`'s own doc comment explains why the harder exclusions
+ * (Twin Generals' variable per-hit Might, Leadership's boon-less conversion) are handled by omitting
+ * the relic from that table entirely rather than by a smarter parse here.
+ */
+function extractFromRelicFacts(
+  facts: RelicFactLine[],
+  durationPercent: { boon: number; condition: number },
+  sourceId: number,
+  sourceName: string,
+  sourceIcon: string,
+  targetCount: number | null,
+  classify: (status: string) => BoonConditionCategory | null
+): BoonConditionSource[] {
+  const out: BoonConditionSource[] = []
+  for (const fact of facts) {
+    const isEffect = fact.label.toLowerCase() === 'effect'
+    const status = isEffect ? (fact.values[0]?.replace(/\s*\(effect\)$/, '') ?? '') : fact.label.charAt(0).toUpperCase() + fact.label.slice(1)
+    const duration = Number(isEffect ? fact.values[1] : fact.values[0])
+    const category = classify(status)
+    if (!category || !Number.isFinite(duration)) continue
+    const percent = category === 'condition' ? durationPercent.condition : category === 'boon' ? durationPercent.boon : 0
+    out.push({
+      sourceKind: 'relic',
+      sourceId,
+      sourceName,
+      sourceIcon,
+      boonOrConditionName: status,
+      isCondition: category === 'condition',
+      category,
+      baseDurationSeconds: duration,
+      scaledDurationSeconds: duration * (1 + percent / 100),
+      applyCount: fact.params.stacks ? Number(fact.params.stacks) : 1,
+      requiresTraitId: null,
+      targetCount
+    })
+  }
+  return out
+}
+
+/**
+ * The build's equipped relic's `RELIC_TRIGGER_GATES`-eligible boon/condition/aura sources, or `[]`
+ * when no relic is equipped, the equipped relic isn't in `RELIC_TRIGGER_GATES`, its trigger gate
+ * isn't satisfied, or (aura callers) it grants no aura facts at all. `targetCount` is resolved once
+ * from the relic's own `targets`/`allied targets` fact (`null`, i.e. self-only/unknown, when
+ * absent) — every relic in `RELIC_TRIGGER_GATES` grants its whole payload to the same reach, unlike
+ * a skill/trait source that can mix self- and party-wide facts on one id, so a single value per
+ * relic (rather than `extractFromFacts`'s per-fact `resolveTargetCount`) is sufficient here.
+ */
+function relicSources(
+  build: Build,
+  gameData: { relics: Relic[]; relicEffects: RelicEffectsById; skills: Skill[]; legends: Legend[] },
+  durationPercent: { boon: number; condition: number },
+  classify: (status: string) => BoonConditionCategory | null
+): BoonConditionSource[] {
+  if (build.relicId === null) return []
+  const gate = RELIC_TRIGGER_GATES[build.relicId]
+  if (!gate) return []
+  const relic = gameData.relics.find((r) => r.id === build.relicId)
+  const effect = gameData.relicEffects[build.relicId]
+  if (!relic || !effect) return []
+  const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
+  if (!relicTriggerSatisfied(gate, build, gameData.legends, skillsById)) return []
+  const targetsFact = effect.facts.find((f) => f.label === 'targets' || f.label === 'allied targets')
+  const targetCount = targetsFact ? Number(targetsFact.values[0]) : null
+  return extractFromRelicFacts(
+    effect.facts,
+    durationPercent,
+    relic.id,
+    relic.name,
+    relic.icon,
+    Number.isFinite(targetCount) ? targetCount : null,
+    classify
+  )
+}
+
+/**
  * Every boon/condition source (skill or trait) a build provides. Walks
  * equipped heal/utility/elite skills, auto-granted minor traits on equipped
  * specialization lines, and chosen major traits — gated by requires_trait so
@@ -4110,6 +4306,13 @@ export function tomeChapterBoonSources(chapter: TomeChapter, durationPercent: { 
  * that map: an `'omit'` entry drops the fact (PvE-only, no WvW variant), a number entry replaces
  * `fact.duration` with the WvW-tagged value. Facts with no entry are used as-is (either unsplit,
  * or a split the fetch script couldn't confidently resolve — see TODO.md).
+ *
+ * Also includes the equipped relic's boon/condition facts, when it's one of `RELIC_TRIGGER_GATES`'
+ * curated candidates AND that gate is satisfied (`relicSources`) — added 2026-08-16 as leg 2 of
+ * TODO.md's "Relic proc integration sweep." Every OTHER relic, and every fact even a wired relic
+ * grants that isn't a literal `BOON_NAMES`/`CONDITION_NAMES` status, still contributes nothing here
+ * (unchanged from before this existed) — see `RELIC_TRIGGER_GATES`'s own doc comment for the full
+ * scope/exclusion reasoning.
  */
 export function computeBoonConditionSources(
   build: Build,
@@ -4130,6 +4333,8 @@ export function computeBoonConditionSources(
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
     familiars: Familiar[]
+    relics: Relic[]
+    relicEffects: RelicEffectsById
   }
 ): BoonConditionSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
@@ -4142,6 +4347,8 @@ export function computeBoonConditionSources(
     boon: boonDurationPercent(gearTotals),
     condition: conditionDurationPercent(gearTotals)
   }
+
+  out.push(...relicSources(build, gameData, durationPercent, classifyBoonCondition))
 
   const bundleContributions = bundleContributionsForBuild(build, gameData.professions, skillsById, gameData.tomeChapters)
   const skillIds = [
@@ -4252,6 +4459,11 @@ function equippedSkillsById(
  * data/game-data/tome-chapters.json this session). Control/Hard-CC (Stun, Daze, Knockdown,
  * Knockback, Launch, Pull) turned out not to share auras' `Buff`-status shape — see
  * `computeNamedFactSources`/`CONTROL_MATCHERS` below instead.
+ *
+ * Also includes the equipped relic's aura facts, under the same `RELIC_TRIGGER_GATES` curation
+ * `computeBoonConditionSources` uses for boons/conditions — see that function's own doc comment
+ * and `RELIC_TRIGGER_GATES`'s for the full scope (e.g. Relic of Surging's Shocking Aura, Relic of
+ * the Earth's Magnetic Aura).
  */
 export function computeAuraSources(
   build: Build,
@@ -4265,6 +4477,8 @@ export function computeAuraSources(
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
     familiars: Familiar[]
+    relics: Relic[]
+    relicEffects: RelicEffectsById
   }
 ): BoonConditionSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
@@ -4272,6 +4486,8 @@ export function computeAuraSources(
   const out: BoonConditionSource[] = []
   const unscaled = { boon: 0, condition: 0 }
   const { skillsById, skillIds } = equippedSkillsById(build, gameData)
+
+  out.push(...relicSources(build, gameData, unscaled, classifyAura))
 
   for (const id of skillIds) {
     const skill = skillsById.get(id)

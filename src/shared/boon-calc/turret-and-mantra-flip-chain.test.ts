@@ -40,7 +40,9 @@ const gameData = {
   professions: loadGameData('professions.json'),
   tomeChapters: loadGameData('tome-chapters.json'),
   soulbeastBeastmode: loadGameData('soulbeast-beastmode.json'),
-  familiars: loadGameData('familiars.json')
+  familiars: loadGameData('familiars.json'),
+  relics: loadGameData('relics.json'),
+  relicEffects: loadGameData('relic-effects.json')
 } as Parameters<typeof computeBoonConditionSources>[1]
 
 function baseBuild(overrides: Partial<Build>): Build {

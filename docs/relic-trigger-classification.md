@@ -66,27 +66,30 @@ Healing-skill-use since that's its first/primary trigger.)
 These ~19 are where the actual integration payoff is — deterministic trigger AND a boon/aura grant
 this calculator would otherwise be blind to:
 
-| Id | Name | Trigger | Payload |
-|---|---|---|---|
-| 100063 | Relic of Surging | Elite skill | Shocking aura (self) |
-| 100435 | Relic of the Earth | Elite skill | Protection + magnetic aura (allies) |
-| 100625 | Relic of Leadership | Elite skill | Convert conditions → boons (allies) |
-| 100752 | Relic of the Pack | Elite skill | Superspeed + might + fury (allies) |
-| 100893 | Relic of the Zephyrite | Elite skill | Protection + resolution (allies) — motivating case |
-| 103424 | Relic of Sorrow | Elite skill | Protection (allies) |
-| 100385 | Relic of the Centaur | Healing skill | Stability (self) |
-| 100455 | Relic of Durability | Healing skill | Protection + regeneration + resolution (self) |
-| 100794 | Relic of Resistance | Healing skill | Resistance (self) |
-| 101116 | Relic of Febe | Healing skill | Swiftness (allies) |
-| 101767 | Relic of the Twin Generals | Healing skill | Might (allies) |
-| 103984 | Relic of Reunification | Healing skill | Frost aura + light aura (self) |
-| 104256 | Relic of Altruism | Healing skill | Might + fury (allies) |
-| 104501 | Relic of Fire | Healing skill | Fire aura (self) |
-| 100450 | Relic of the Chronomancer | Well skill | Quickness (self) |
-| 100453 | Relic of the Firebrand | Mantra final charge | Boon duration buff (self) — reuses `MANTRA_FINAL_CHARGE_IDS` |
-| 104733 | Relic of the Phenom | Cantrip/meditation skill | Protection (self) |
-| 109267 | Relic of the Sacred Grounds | Well/consecration skill | Protection (self) |
-| 100388 | Relic of the Astral Ward | Signet skill (2-step: spawns then consumed by next signet use) | Resistance + cleanse (allies) — complex payload, may want to defer to its own leg |
+Status column added after leg 2 (2026-08-16) — ✅ wired into `RELIC_TRIGGER_GATES`, ⏸ deferred (see
+"Leg 2 — DONE" section above for why each ⏸ is deferred and what it needs).
+
+| Id | Name | Trigger | Payload | Status |
+|---|---|---|---|---|
+| 100063 | Relic of Surging | Elite skill | Shocking aura (self) | ✅ |
+| 100435 | Relic of the Earth | Elite skill | Protection + magnetic aura (allies) | ✅ |
+| 100625 | Relic of Leadership | Elite skill | Convert conditions → boons (allies) | ⏸ no literal boon name |
+| 100752 | Relic of the Pack | Elite skill | Superspeed + might + fury (allies) | ✅ (Might/Fury only — Superspeed belongs to `MISCELLANEOUS_MATCHERS`) |
+| 100893 | Relic of the Zephyrite | Elite skill | Protection + resolution (allies) — motivating case | ⏸ stepped-duration curation still open |
+| 103424 | Relic of Sorrow | Elite skill | ~~Protection (allies)~~ actually a custom reflect zone, not a boon | ⏸ this doc's original gloss was wrong, see correction above |
+| 100385 | Relic of the Centaur | Healing skill | Stability (self) | ✅ |
+| 100455 | Relic of Durability | Healing skill | Protection + regeneration + resolution (self) | ✅ |
+| 100794 | Relic of Resistance | Healing skill | Resistance (self) | ✅ |
+| 101116 | Relic of Febe | Healing skill | Swiftness (allies) | ✅ (Swiftness only — condition-removal belongs to `MISCELLANEOUS_MATCHERS`) |
+| 101767 | Relic of the Twin Generals | Healing skill | Might (allies) | ⏸ variable "Might per Hit" bonus needs a decision first |
+| 103984 | Relic of Reunification | Healing skill | Frost aura + light aura (self) | ✅ |
+| 104256 | Relic of Altruism | Healing skill | Might + fury (allies) | ✅ |
+| 104501 | Relic of Fire | Healing skill | Fire aura (self) | ✅ |
+| 100450 | Relic of the Chronomancer | Well skill | Quickness (self) | ✅ |
+| 100453 | Relic of the Firebrand | Mantra final charge | Boon duration buff (self) — reuses `MANTRA_FINAL_CHARGE_IDS` | ⏸ a % modifier, not a discrete boon status |
+| 104733 | Relic of the Phenom | Cantrip/meditation skill | Protection (self) | ✅ |
+| 109267 | Relic of the Sacred Grounds | Well/consecration skill | Protection (self) | ✅ |
+| 100388 | Relic of the Astral Ward | Signet skill (2-step: spawns then consumed by next signet use) | Resistance + cleanse (allies) — complex payload, may want to defer to its own leg | ⏸ still deferred |
 
 ## Full classification table
 
@@ -208,13 +211,35 @@ Bucket key: `ELITE` `HEAL` `ABILITY(<type>)` `MANTRA-FC` `SWAP` `DODGE(excluded)
 | 109664 | Relic of the Cruel Overseer | STACK | No |
 | 109709 | Relic of Watch | COND-INFLICT | No |
 
-## Next legs
+## Leg 2 — DONE 2026-08-16
 
-1. Design the general "relic effect gated on an already-modeled trigger" mechanism (TODO.md leg 2),
-   sized for the ~19-candidate table above — likely 3 shapes: single-slot (Elite/Heal, like existing
-   Chants), category-matched (ability-type, needs a small "does any equipped Heal/Utility/Elite
-   skill carry category X" helper), and the 1 mantra-final-charge reuse.
-2. Curate per-relic numeric facts (duration, recharge) into `relic-effects.json` where missing —
-   Zephyrite's stepped-duration table is the known example, there may be others in the 19.
-3. Wire the 19 into `computeBoonConditionSources`, starting with Zephyrite since it's already fully
-   scoped.
+The general mechanism (`RELIC_TRIGGER_GATES` + `relicSources`/`extractFromRelicFacts` in
+`src/shared/boon-calc/sources.ts`) is built and wired into both `computeBoonConditionSources` and
+`computeAuraSources`. 2 of the 3 shapes sketched below turned out to cover everything real: single-
+slot (Elite/Heal) and category-matched (ability-type, via a new `healUtilityEliteSkillIds` helper).
+The 3rd (mantra-final-charge) had no actual candidate — Relic of the Firebrand's payload is a "+20%
+Boon Duration" passive modifier, not a discrete boon status, so it was never a fit regardless of how
+its trigger resolves.
+
+Went further than "design" alone and also curated + wired 10 of the 19 candidates whose facts were
+unambiguous, literal `BOON_NAMES`/`AURA_NAMES` matches: Surging, Earth, Pack, Centaur, Durability,
+Resistance, Febe, Reunification, Altruism, Fire, Chronomancer, Phenom, Sacred Grounds. The remaining
+9 stay deliberately unwired — see `RELIC_TRIGGER_GATES`'s own doc comment in `sources.ts` for the
+full per-relic reasoning, and TODO.md's "Relic proc integration sweep" for the follow-up items each
+one now has:
+
+- Zephyrite (100893) — stepped-duration curation still open (TODO.md, unchanged).
+- Sorrow (103424) — **correction to this doc's own leg-1 table**: its "Protection (allies)" payload
+  gloss was wrong. Re-checking `relic-effects.json` for leg 2 found its real effect is a custom
+  damage-reduction/reflect zone (`effect` fact literally named "Relic of Sorrow"), not the
+  Protection boon — no `BOON_NAMES` match exists to wire.
+- Leadership (100625) — "Convert conditions into boons" doesn't name a specific boon.
+- Twin Generals (101767) — carries a second, variable "Might per Hit" fact alongside its flat base
+  Might; needs a real decision before it can be wired without inventing a number.
+- Firebrand (100453) — "+20% Boon Duration" doesn't fit this table's shape (needs attribute-modifier
+  infra, not a boon-status entry).
+- Astral Ward (100388) — already flagged above as a 2-step mechanic worth its own leg; still true.
+
+Also surfaced, not attempted this leg: Pack's Superspeed and Febe's condition-removal facts are real
+and deterministic but belong to `computeNamedFactSources`/`MISCELLANEOUS_MATCHERS`, not this table —
+extending relics into that pipeline too is a separate follow-up (TODO.md).
