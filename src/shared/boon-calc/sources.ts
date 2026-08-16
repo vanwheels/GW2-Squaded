@@ -38,6 +38,8 @@ import {
 import { EVOKER_SPECIALIZATION_ID } from '../skill-calc/familiar'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash'
 import { isNonActionableFlipTarget } from '../skill-calc/non-actionable-flip-targets'
+import { TURRET_SUB_ABILITY_IDS } from '../skill-calc/turret-sub-abilities'
+import { MANTRA_FINAL_CHARGE_IDS } from '../skill-calc/mantra-final-charge'
 
 export type BoonConditionCategory = 'boon' | 'condition' | 'aura'
 
@@ -3937,6 +3939,21 @@ function mechanicBarIdsForBuild(build: Build, professions: Profession[], skillsB
  * via `withFlipChain`, since none of `THIEF_STOLEN_SKILL_IDS` has an outgoing `flipSkill`), plus
  * every profession-mechanic (F1-F5) bar id (`mechanicBarIdsForBuild` — see its own doc comment;
  * added 2026-08-15, previously missing entirely).
+ *
+ * The non-Revenant branch below now also walks each equipped id's own `withFlipChain` (fixed
+ * 2026-08-16, found investigating a user report that Supply Crate's sub-abilities weren't showing
+ * up anywhere) — every OTHER category folded into this function's return value already gets this
+ * treatment (weapon skills, Revenant's own branch just above, the mechanic bar), but the plain
+ * standard-profession Heal/Utility/Elite branch never did, so any equipped skill whose release/
+ * detonate/final-charge effect carries its own Buff/Condition fact (e.g. Engineer Net Turret's
+ * "Electrified Net") silently never contributed to the aggregate totals even though it correctly
+ * appeared as a `FlipSkillStack` icon on the tooltip — same "tooltip-correctness and aggregate-
+ * contribution are separate code paths" trap as the 2026-08-15 `ProfessionMechanicBar` bug. Engineer
+ * Turrets additionally get `TURRET_SUB_ABILITY_IDS` folded in directly (not via `withFlipChain`,
+ * which only follows a skill's raw `flipSkill` — see that table's own doc comment for why the raw
+ * field alone is insufficient for this family specifically), and a Firebrand mantra's chain gets its
+ * orphaned `MANTRA_FINAL_CHARGE_IDS` sibling appended past wherever `withFlipChain` stops, same
+ * extra hop `flipTargetSkills` already appends for the tooltip.
  */
 function skillIdsForBuild(
   build: Build,
@@ -3955,7 +3972,25 @@ function skillIdsForBuild(
           .filter((l): l is Legend => l !== undefined)
           .flatMap((l) => [l.swap, l.heal, l.elite, ...l.utilities])
           .flatMap((id) => withFlipChain(id, skillsById))
-      : [build.skills.heal, ...build.skills.utility, build.skills.elite].filter((id): id is number => id !== null)
+      : [build.skills.heal, ...build.skills.utility, build.skills.elite]
+          .filter((id): id is number => id !== null)
+          .flatMap((id) => {
+            // Turret ids are fully overridden by `TURRET_SUB_ABILITY_IDS` rather than walked via
+            // `withFlipChain` — see that table's doc comment for why the raw `flipSkill` field alone
+            // is unreliable for this family; using both here would double-count whichever sub-ability
+            // the raw field happens to already link.
+            const turretSubAbilityIds = TURRET_SUB_ABILITY_IDS.get(id)
+            if (turretSubAbilityIds) return [id, ...turretSubAbilityIds]
+            // A Firebrand mantra's `flipSkill` chain only ever reaches its regular charge — the
+            // enhanced Final Charge sibling is structurally orphaned (see `mantra-final-charge.ts`'s
+            // doc comment) and needs appending separately, same extra hop `flipTargetSkills` already
+            // adds for the tooltip. Every Final Charge skill carries several `Buff` facts of its own
+            // (found 2026-08-16 investigating the turret gap above), so this was silently missing
+            // from every Mantra Firebrand build's aggregate Boon/Condition totals until now.
+            const chain = withFlipChain(id, skillsById)
+            const finalChargeId = MANTRA_FINAL_CHARGE_IDS[chain[chain.length - 1]]
+            return finalChargeId !== undefined ? [...chain, finalChargeId] : chain
+          })
 
   const equippedPetIds = build.profession === 'Ranger' ? build.equippedPetIds.filter((id): id is number => id !== null) : []
   const petSkillIds = equippedPetIds

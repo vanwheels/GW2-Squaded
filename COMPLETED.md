@@ -2,6 +2,35 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 219 — Engineer Turret sub-abilities + a standard-profession `flipSkill`-chain gap
+
+User-flagged 2026-08-16: Supply Crate's 2 flip skills ("Overcharge Supply Crate," "Detonate Supply
+Crate Turrets") didn't show up anywhere in the app. Investigating found this wasn't Supply-Crate-
+specific — the raw API's `Skill.flipSkill` field links AT MOST one of a Turret's 2 sub-abilities
+(which one varies per turret with no pattern; Rifle Turret and Supply Crate link neither, since the
+API's link happens to sit on a duplicate id the picker doesn't equip). New hand-curated
+`TURRET_SUB_ABILITY_IDS` (`skill-calc/turret-sub-abilities.ts`, all 8 turret families) overrides the
+raw field entirely, consumed by both `multi-effect.ts`'s `flipTargetSkills` (tooltip stacked icons —
+the reported bug) and `boon-calc/sources.ts`'s `skillIdsForBuild` (aggregate Boon/Condition totals).
+
+That 2nd consumer surfaced a separate, bigger gap while wiring it in: `skillIdsForBuild`'s standard-
+profession (non-Revenant) branch never called `withFlipChain` at all — every OTHER category folded
+into the aggregate totals already does (weapon skills, Revenant's own legends, the mechanic bar), but
+the plain Heal/Utility/Elite branch was simply missing the call. Same "tooltip-correctness and
+aggregate-contribution are separate code paths" trap as the 2026-08-15 `ProfessionMechanicBar` bug.
+Concretely, this means every Firebrand Mantra build was missing its regular-charge skill's own Buff
+facts (e.g. Mantra of Solace's "Restoring Reprieve" — Regeneration/Protection/Aegis) from the
+aggregate panel entirely, not just the already-known-missing `MANTRA_FINAL_CHARGE_IDS` Final Charge
+sibling — a real gap for what's a very commonly-played WvW support build. Fixed by adding the
+`withFlipChain` walk (plus the Final Charge append `flipTargetSkills` already did for the tooltip) to
+that branch; Turret ids use the new override table directly instead of trusting the raw field.
+
+6 new tests: `turret-sub-abilities.test.ts` (table staleness + `flipTargetSkills` wiring, including
+Supply Crate and Rifle Turret specifically) and `turret-and-mantra-flip-chain.test.ts` (an Engineer
+Rifle Turret build and a Guardian Firebrand Mantra-of-Solace build, asserting the previously-missing
+facts now appear in `computeBoonConditionSources`' output). `npm run typecheck`/`lint`/`test` all
+clean (155 tests). TODO.md's Supply Crate bug entry closed.
+
 ## Session 218 — v1.0.1 patch: Boons/Condis Conditions-row scrollbar
 
 `BoonConditionSummaryPanel`'s row-pairs (Conditions/Auras, Boons/Misc., Control/Strips-Corrupts-

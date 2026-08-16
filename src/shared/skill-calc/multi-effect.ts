@@ -4,6 +4,7 @@ import { VINDICATOR_ASPECT_ARCHEMORUS_IDS } from './vindicator-aspect'
 import { isNonActionableFlipTarget } from './non-actionable-flip-targets'
 import { ADDITIVE_FLIP_PAIR_TARGET_IDS } from './additive-flip-pairs'
 import { EVOKER_FAMILIAR_TARGET_IDS } from './evoker-familiar-facts'
+import { TURRET_SUB_ABILITY_IDS } from './turret-sub-abilities'
 
 export interface SkillVariantEffect {
   label: string
@@ -86,11 +87,26 @@ export function activeAttunementVariantSkill(skill: Skill, activeAttunement: str
  * base id's own facts aren't just incomplete, they're nearly EMPTY (the target carries the skill's
  * entire real effect, not an add-on), so `skillTooltipContent` swaps the whole fact source to the
  * target instead of diffing — same walk-stopping outcome, different reason.
+ *
+ * Fifth exception: `TURRET_SUB_ABILITY_IDS` (`turret-sub-abilities.ts`) — Engineer Turrets' pair of
+ * sub-abilities (Overcharge + Detonate). Unlike every case above, this isn't a single-hop
+ * `flipSkill` walk at all: the raw API data links at most one of the 2 per turret (which one varies
+ * per turret with no pattern), so a matching turret id returns both hand-curated ids directly
+ * instead of following `current.flipSkill`, see that table's own doc comment for the full survey.
  */
 export function flipTargetSkills(skill: Skill, skillsById: Map<number, Skill>): SkillVariantEffect[] {
   const out: SkillVariantEffect[] = []
 
   if (VINDICATOR_ASPECT_ARCHEMORUS_IDS.has(skill.id)) {
+    return out
+  }
+
+  const turretSubAbilityIds = TURRET_SUB_ABILITY_IDS.get(skill.id)
+  if (turretSubAbilityIds) {
+    for (const id of turretSubAbilityIds) {
+      const sub = skillsById.get(id)
+      if (sub) out.push({ label: sub.name, skill: sub })
+    }
     return out
   }
 

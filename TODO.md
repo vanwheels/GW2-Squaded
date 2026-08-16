@@ -14,12 +14,6 @@ that already shipped.
 
 User-flagged during personal testing, not yet investigated:
 
-- [ ] Engineer's Supply Crate elite skill doesn't show its 2 flip skills, "Overcharge Supply Crate"
-      and "Detonate Supply Crate," in the app. Likely needs a flip-skill wiring entry similar to
-      others in `src/shared/skill-calc/` (e.g. `additive-flip-pairs.ts`,
-      `other-profession-flip-duplicates.ts`, `non-actionable-flip-targets.ts`) — check whether these
-      two are simply missing from whatever table associates flip skills with their parent skill.
-
 - [ ] Flock Relic shows up twice (likely in the relic picker). Check `data/game-data/relics.json`
       for a duplicate entry and whatever relic-picker component renders the list.
 
