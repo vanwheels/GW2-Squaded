@@ -19,6 +19,21 @@ Virtue tooltip facts AND the F4 Radiant Forge Shroud-style bundle wiring). The 4
 DONE** — see COMPLETED.md Sessions 221-227 (leg 1 through leg 7) and
 `docs/relic-trigger-classification.md` for the full writeup.
 
+- [ ] Build editor's Traits section boxes (`TraitsEditor.tsx`) aren't a consistent height (flagged
+      2026-08-16, screenshots) — each of the 3 trait-line boxes only renders its
+      `.trait-line-tiers-horizontal` tier grid when a specialization is chosen for that line
+      (`{chosenSpec && line && (...)}` around line 179); an empty line renders just the
+      "Specialization" picker, so its box is much shorter than a filled one, and the boxes visibly
+      jump/reflow in height as specs are picked (see screenshots: 1 spec chosen vs. 2 vs. 3, box
+      heights don't line up). Wanted fix: all 3 boxes should default to the max height of a fully
+      expanded box (tier grid always reserved/laid out), and render **hollow** (empty tier-slot
+      outlines, no icons) when no spec is chosen for that line yet, rather than collapsing away.
+      Likely needs the `{chosenSpec && line && (...)}` gate in `TraitLineRow` replaced with an
+      always-rendered tier grid whose minor/major slots conditionally show icons vs. an empty/dashed
+      placeholder state, plus a CSS min-height on `.trait-line` (styles around
+      `src/renderer/styles/global.css:498`) matching the fully-expanded case. Not started — flagged
+      for later, session/week usage tight as of 2026-08-16.
+
 ## Scoped features, not yet built
 
 Paragon's Motivation-tiered Chants (flagged by the user 2026-08-14) is now **FULLY DONE 2026-08-15**
