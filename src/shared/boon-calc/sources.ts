@@ -4143,7 +4143,11 @@ type RelicTriggerGate = { kind: 'elite' } | { kind: 'heal' } | { kind: 'ability'
  *   `MISCELLANEOUS_MATCHERS` pipeline, not `BOON_NAMES` — `extractFromRelicFacts`'s strict
  *   `classify` match silently drops them, same as it silently drops every non-boon/aura fact below
  *   (Relic of Fire's own "Damage Increase," every relic's `targets`/`radius`/recharge facts, ...).
- *   Extending relics into `computeNamedFactSources` too is a follow-up, not this leg.
+ *   **Wired 2026-08-16** (leg 5, `RELIC_NAMED_FACT_SOURCES`/`computeRelicNamedFactSources` below) —
+ *   this table now also gates 6 more relics whose only real payload is a `computeNamedFactSources`
+ *   name rather than a `BOON_NAMES` boon (Cerus, Trooper, Wizard's Tower, Water, Dagda, Bava
+ *   Nisos) — never candidates for `extractFromRelicFacts` above, so absent from the 19-candidate
+ *   count, but the same trigger-classification table gates both pipelines.
  *
  * Relic of the Zephyrite (100893) — the sweep's own motivating case — is the one entry below whose
  * payload isn't a flat pass-through of `extractFromRelicFacts`: its crystal duration scales with the
@@ -4168,7 +4172,15 @@ const RELIC_TRIGGER_GATES: Record<number, RelicTriggerGate> = {
   104501: { kind: 'heal' }, // Relic of Fire — Fire Aura (Damage Increase excluded, not a boon)
   100450: { kind: 'ability', categories: ['Well'] }, // Relic of the Chronomancer — Quickness
   104733: { kind: 'ability', categories: ['Cantrip', 'Meditation'] }, // Relic of the Phenom — Protection
-  109267: { kind: 'ability', categories: ['Well', 'Consecration'] } // Relic of the Sacred Grounds — Protection
+  109267: { kind: 'ability', categories: ['Well', 'Consecration'] }, // Relic of the Sacred Grounds — Protection
+  // Leg 5 (2026-08-16) — gates 6 relics whose only wireable payload is a `computeNamedFactSources`
+  // name, not a boon/aura (`RELIC_NAMED_FACT_SOURCES` below consumes these too).
+  100074: { kind: 'elite' }, // Relic of Cerus — Corrupt (1 boon converted, on enemies)
+  100557: { kind: 'elite' }, // Relic of the Wizard's Tower — Pull
+  100942: { kind: 'elite' }, // Relic of Dagda — Daze (on enemies)
+  100659: { kind: 'heal' }, // Relic of the Water — Cleanse
+  100411: { kind: 'ability', categories: ['Shout'] }, // Relic of the Trooper — Cleanse
+  104848: { kind: 'ability', categories: ['Stance'] } // Relic of Bava Nisos — Cleanse
 }
 
 const ZEPHYRITE_RELIC_ID = 100893
@@ -4646,7 +4658,7 @@ export function auraFactsForSkill(
 }
 
 export interface NamedFactSource {
-  sourceKind: 'skill' | 'trait' | 'sigil'
+  sourceKind: 'skill' | 'trait' | 'sigil' | 'relic'
   sourceId: number
   sourceName: string
   sourceIcon: string
@@ -4834,6 +4846,91 @@ function computeSigilNamedFactSources(build: Build, sigils: Sigil[], matchers: R
 }
 
 /**
+ * Relic-derived Control/Miscellaneous/Strip/Corrupt/Cleanse sources — TODO.md's "Smaller follow-up"
+ * to leg 2 of the relic proc integration sweep, closed 2026-08-16 as leg 5. Unlike sigils, a relic
+ * DOES carry a real `Fact[]`-shaped array (`RelicEffect.facts`, via `relic-effects.json`), but its
+ * shape is `RelicFactLine` (`{label, values, params}`, wiki-template-sourced), not the GW2 API's
+ * `Fact` — none of `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/`BOON_STRIP_CORRUPT_MATCHERS` (all
+ * matched against `Fact`) can see it, so this is hand-curated the same shape
+ * `SIGIL_NAMED_FACT_SOURCES` is, not derived from a generic parse.
+ *
+ * Found via a full regex sweep of every relic's `relic-effects.json` facts for Control/Miscellaneous/
+ * Strip/Corrupt/Cleanse verb+noun patterns (`relic-named-fact-completeness.test.ts` runs the same
+ * scan as a regression guard). 8 candidates landed in the `RELIC_TRIGGER_GATES`-deterministic bucket
+ * with a fixed (non-variable) magnitude — wired below. The rest stayed out, each for a reason:
+ * - Relic of the Citadel (100448): its Stun is a genuine range (`alt: "Minimum Stun"` 1s /
+ *   `"Maximum Stun"` 3s, scaling with how much defiance damage the triggering hit dealt) — same
+ *   "don't invent a number this app doesn't actually guarantee" problem `RELIC_TRIGGER_GATES`'s own
+ *   Twin Generals entry hit, needs the same kind of real curation decision, not a blind pick of one
+ *   endpoint.
+ * - Relic of the Astral Ward (100388): its Cleanse rides the already-deferred 2-step signet mechanic
+ *   (spawns on one signet use, consumed by the next) — still deferred, not re-litigated here.
+ * - Relic of the Unseen Invasion (100694) / Relic of the Wayfinder (101943): both carry a literal
+ *   `"Superspeed"`-labeled fact, but `docs/relic-trigger-classification.md`'s leg-1 audit already
+ *   flagged their triggers as non-deterministic for this app (stealth enter/exit "circular/
+ *   unbounded"; generic combat-enter) — same exclusion reasoning as the dodge-relic policy, just
+ *   for a different non-deterministic trigger shape.
+ * - Relic of the Founding (101737) / Relic of the Mists Tide (103901): Barrier/Cleanse respectively,
+ *   both gated on a Combo field/finisher interaction — this app doesn't model combo timing/positioning
+ *   any more deterministically than dodge timing, so `COMBO`-bucket relics stay excluded same as
+ *   `DODGE(excluded)` ones.
+ * - Relic of Mosyn (101801): already covered by the existing dodge-relic exclusion policy
+ *   (`DODGE_RELIC_IDS`) — its Cleanse fires on dodge, not a modeled trigger.
+ *
+ * `detail` states the trigger + any fixed cooldown (`relic-effects.json`'s own `rechargeSeconds`,
+ * `null` when the wiki lists no ICD) alongside the magnitude, mirroring `SIGIL_NAMED_FACT_SOURCES`'
+ * "trigger + CD" convention — a relic's `sourceName` alone ("Relic of the Pack") doesn't tell the
+ * reader what gates it the way a skill/trait's own name usually does.
+ */
+export const RELIC_NAMED_FACT_SOURCES: Record<number, { name: string; detail: string }> = {
+  100752: { name: 'Superspeed', detail: '4s (on Elite skill use, 30s CD)' }, // Relic of the Pack
+  101116: { name: 'Cleanse', detail: 'Immobile, Chilled, Crippled (on Heal skill use, 10s CD)' }, // Relic of Febe
+  100074: { name: 'Corrupt', detail: '1 boon (on Elite skill use, 30s CD)' }, // Relic of Cerus
+  100557: { name: 'Pull', detail: '240 (on Elite skill use, 30s CD)' }, // Relic of the Wizard's Tower
+  100942: { name: 'Daze', detail: '2s (on Elite skill use, 30s CD)' }, // Relic of Dagda
+  100659: { name: 'Cleanse', detail: '2 conditions (on Heal skill use, 20s CD)' }, // Relic of the Water
+  100411: { name: 'Cleanse', detail: '1 condition (on Shout use)' }, // Relic of the Trooper
+  104848: { name: 'Cleanse', detail: '2 conditions (on Stance use)' } // Relic of Bava Nisos
+}
+
+/** `RELIC_NAMED_FACT_SOURCES`' entry for the build's equipped relic, or `[]` when no relic is
+ *  equipped, it isn't one of the 8 curated candidates, its name isn't a key of the caller's
+ *  `matchers` table, or (same `RELIC_TRIGGER_GATES` gating `relicSources` uses for the boon/aura
+ *  pipeline) its trigger gate isn't satisfied. `targetCount` is read straight off the relic's own
+ *  `targets`/`allied targets` fact when present (`null` — self-only/unknown — otherwise), same
+ *  resolution `relicSources` uses; unlike sigils, which have no such fact at all and so always
+ *  report `null`. */
+function computeRelicNamedFactSources(
+  build: Build,
+  gameData: { relics: Relic[]; relicEffects: RelicEffectsById; skills: Skill[]; legends: Legend[] },
+  matchers: Record<string, (fact: Fact) => boolean>
+): NamedFactSource[] {
+  if (build.relicId === null) return []
+  const entry = RELIC_NAMED_FACT_SOURCES[build.relicId]
+  if (!entry || !(entry.name in matchers)) return []
+  const gate = RELIC_TRIGGER_GATES[build.relicId]
+  if (!gate) return []
+  const skillsById = new Map(gameData.skills.map((s) => [s.id, s]))
+  if (!relicTriggerSatisfied(gate, build, gameData.legends, skillsById)) return []
+  const relic = gameData.relics.find((r) => r.id === build.relicId)
+  const effect = gameData.relicEffects[build.relicId]
+  if (!relic || !effect) return []
+  const targetsFact = effect.facts.find((f) => f.label === 'targets' || f.label === 'allied targets')
+  const targetCount = targetsFact ? Number(targetsFact.values[0]) : null
+  return [
+    {
+      sourceKind: 'relic',
+      sourceId: relic.id,
+      sourceName: relic.name,
+      sourceIcon: relic.icon,
+      name: entry.name,
+      detail: entry.detail,
+      targetCount: Number.isFinite(targetCount) ? targetCount : null
+    }
+  ]
+}
+
+/**
  * Generic counterpart to `computeAuraSources`/`computeComboSources` for named facts that don't
  * share boons/conditions/auras' `Buff`-with-`status` shape — Control/Miscellaneous/Strip&Corrupt
  * each read a mix of fact `type`s (`Time`/`Distance`/`Number`/`StunBreak`/`NoData`/`AttributeAdjust`),
@@ -4841,9 +4938,11 @@ function computeSigilNamedFactSources(build: Build, sigils: Sigil[], matchers: R
  * above) instead of a single classify function. Same skill/trait-walking rules as
  * `computeAuraSources`/`computeComboSources`, plus equipped sigils via
  * `computeSigilNamedFactSources` (sigils have no `Fact` shape to match at all, see that function's
- * doc comment); call once per matcher table. `targetCountTables` is optional and forwarded straight
- * to `namedFactsFrom` — pass `NAMED_FACT_TARGET_COUNT_TABLES` for `BOON_STRIP_CORRUPT_MATCHERS`,
- * omit it for `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`.
+ * doc comment), plus the equipped relic via `computeRelicNamedFactSources` (added 2026-08-16, leg 5
+ * of the relic proc integration sweep — relics carry a `Fact`-shaped array too, but a different one,
+ * see that function's doc comment); call once per matcher table. `targetCountTables` is optional and
+ * forwarded straight to `namedFactsFrom` — pass `NAMED_FACT_TARGET_COUNT_TABLES` for
+ * `BOON_STRIP_CORRUPT_MATCHERS`, omit it for `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`.
  */
 export function computeNamedFactSources(
   build: Build,
@@ -4858,13 +4957,15 @@ export function computeNamedFactSources(
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
     familiars: Familiar[]
+    relics: Relic[]
+    relicEffects: RelicEffectsById
   },
   matchers: Record<string, (fact: Fact) => boolean>,
   targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>
 ): NamedFactSource[] {
   const activeIds = activeTraitIds(build, gameData.traits)
   const legendIds = equippedLegendIds(build)
-  const out: NamedFactSource[] = [...computeSigilNamedFactSources(build, gameData.sigils, matchers)]
+  const out: NamedFactSource[] = [...computeSigilNamedFactSources(build, gameData.sigils, matchers), ...computeRelicNamedFactSources(build, gameData, matchers)]
   const { skillsById, skillIds } = equippedSkillsById(build, gameData)
 
   for (const id of skillIds) {

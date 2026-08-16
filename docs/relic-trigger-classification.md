@@ -264,7 +264,8 @@ Closed the sweep's own motivating case. Two separate fixes, both in `RELIC_TRIGG
    unread here). 5 new tests in `relic-sources.test.ts` + 3 in the new `relic-effects-format.test.ts`.
 
 The other 4 relics from leg 2's deferred list (Leadership, Twin Generals, Firebrand, Astral Ward)
-plus the Pack/Febe `MISCELLANEOUS_MATCHERS` follow-up remain open — see TODO.md.
+remain open — see TODO.md. The Pack/Febe `MISCELLANEOUS_MATCHERS` follow-up is now closed, see leg 5
+below.
 
 ## Leg 4 (partial) — Relic of Sorrow, CLOSED 2026-08-16
 
@@ -283,3 +284,52 @@ anywhere). Conclusion: Relic of Sorrow is correctly and permanently excluded fro
 `RELIC_TRIGGER_GATES` — not a deferred candidate, just not a fit for this table's shape at all. No
 code changed; `relic-sources.test.ts`'s existing "contributes nothing" regression test for 103424
 already covers this. TODO.md's bullet for it removed.
+
+## Leg 5 — Pack/Febe `MISCELLANEOUS_MATCHERS` follow-up, DONE 2026-08-16
+
+Closed TODO.md's "smaller follow-up" item: Relic of the Pack's Superspeed fact and Relic of Febe's
+condition-removed facts are real and deterministic but were never wired anywhere, since
+`extractFromRelicFacts` (leg 2) only recognizes literal `BOON_NAMES`/`AURA_NAMES` statuses.
+
+Ran the same audit discipline leg 1 used (full scan of every relic's `relic-effects.json` facts, this
+time against `computeNamedFactSources`' `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS`/
+`BOON_STRIP_CORRUPT_MATCHERS` matcher names instead of `BOON_NAMES`/`AURA_NAMES`) rather than only
+chasing the 2 relics the TODO note already named — turned up 6 more real candidates leg 1/2 had no
+reason to have noticed (their payload isn't a boon/aura, so they were never in scope for that audit).
+15 relics matched a Control/Miscellaneous/Strip/Corrupt/Cleanse candidate pattern total:
+
+**8 wired** (`RELIC_NAMED_FACT_SOURCES` in `sources.ts`, new `computeRelicNamedFactSources`, both
+gated by `RELIC_TRIGGER_GATES` — extended with 6 new entries for the relics below that were never
+boon/aura candidates):
+- Relic of the Pack (100752, ELITE) — Superspeed
+- Relic of Febe (101116, HEAL) — Cleanse
+- Relic of Cerus (100074, ELITE) — Corrupt (1 boon converted, on enemies)
+- Relic of the Wizard's Tower (100557, ELITE) — Pull
+- Relic of Dagda (100942, ELITE) — Daze (on enemies)
+- Relic of the Water (100659, HEAL) — Cleanse
+- Relic of the Trooper (100411, ABILITY(shout)) — Cleanse
+- Relic of Bava Nisos (104848, ABILITY(stance)) — Cleanse
+
+**7 reviewed and excluded**, each for a reason distinct from "Pack/Febe's TODO note didn't mention
+it":
+- Relic of the Citadel (100448) — Stun is a genuine 1s-3s range scaling with the triggering hit's
+  defiance damage, the same "variable magnitude, needs a real decision" problem
+  `RELIC_TRIGGER_GATES`'s Twin Generals entry already has open. Left alongside it, not decided here.
+- Relic of the Astral Ward (100388) — its Cleanse rides the already-deferred 2-step signet mechanic.
+  Still deferred.
+- Relic of the Unseen Invasion (100694) / Relic of the Wayfinder (101943) — both carry a literal
+  "Superspeed"-labeled fact, but leg 1's own audit already flagged their triggers (stealth enter/
+  exit; combat-enter) as non-deterministic for this app — same category of exclusion as dodge, just
+  a different unbounded trigger shape.
+- Relic of the Founding (101737) / Relic of the Mists Tide (103901) — Barrier/Cleanse respectively,
+  both gated on a Combo field/finisher interaction, which this app doesn't model deterministically
+  any more than dodge timing.
+- Relic of Mosyn (101801) — already covered by the existing dodge-relic exclusion policy.
+
+New tests: `relic-named-fact-sources.test.ts` (per-relic gate-satisfied/gate-unsatisfied regression,
+mirroring `relic-sources.test.ts`) and `relic-named-fact-completeness.test.ts` (full-sweep regression
+guard, mirroring `sigil-named-fact-completeness.test.ts`, so a future balance patch adding a new
+Control/Miscellaneous/Strip/Corrupt/Cleanse relic fact fails CI instead of going unnoticed).
+
+The 4 relics from leg 2's deferred list (Leadership, Twin Generals, Firebrand, Astral Ward) and
+Citadel's variable-Stun decision (surfaced this leg) remain open — see TODO.md.

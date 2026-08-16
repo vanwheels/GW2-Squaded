@@ -221,6 +221,8 @@ export function computePartyNamedFactSummary(
     tomeChapters: TomeChaptersByTomeId
     soulbeastBeastmode: SoulbeastBeastmodeMap
     familiars: Familiar[]
+    relics: Relic[]
+    relicEffects: RelicEffectsById
   },
   matchers: Record<string, (fact: Fact) => boolean>,
   targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>

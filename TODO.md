@@ -79,9 +79,9 @@ one-off.
       or any other boon/aura. Permanently excluded from `RELIC_TRIGGER_GATES`, not deferred — no
       code change needed, `relic-sources.test.ts` already covers it. See
       `docs/relic-trigger-classification.md`'s "Leg 4" section.
-- [ ] 4 relics still need real follow-up work before they can join `RELIC_TRIGGER_GATES` (found/
-      re-confirmed while building the mechanism above — see that table's doc comment for the full
-      per-relic reasoning):
+- [ ] 5 relics still need real follow-up work before they can join `RELIC_TRIGGER_GATES`/
+      `RELIC_NAMED_FACT_SOURCES` (found/re-confirmed while building the mechanism above — see those
+      tables' doc comments in `sources.ts` for the full per-relic reasoning):
       - Relic of Leadership (100625): "Convert conditions into boons" doesn't name which boon(s) —
         would need a wiki check of whether the conversion is deterministic enough to model at all.
       - Relic of the Twin Generals (101767): base Might (6 stacks) is safe, but its "Might per Hit"
@@ -93,12 +93,25 @@ one-off.
       - Relic of the Astral Ward (100388): 2-step signet mechanic (spawns on one signet use,
         consumed by the next) — already flagged in `docs/relic-trigger-classification.md` as complex
         enough to design separately.
-- [ ] Smaller follow-up noticed while wiring the 10 above: Relic of the Pack's Superspeed and Relic
-      of Febe's condition-removal are real, deterministic-trigger facts, but `Superspeed`/cleanse
-      are tracked via the separate `computeNamedFactSources`/`MISCELLANEOUS_MATCHERS` pipeline
-      (`NamedFactSource` already supports a `'sigil'` `sourceKind` as precedent for a non-skill/trait
-      equipment source) — extending relics into that pipeline too is unscoped, not attempted this
-      leg.
+      - Relic of the Citadel (100448): its Stun is a genuine 1s-3s range scaling with the triggering
+        hit's defiance damage — same "variable magnitude, needs a real decision" shape as Twin
+        Generals above (found 2026-08-16 while auditing `computeNamedFactSources` candidates for the
+        leg below).
+- [x] Smaller follow-up (Pack's Superspeed / Febe's condition-removal) — **CLOSED 2026-08-16, leg 5.**
+      Re-ran the same audit discipline leg 1 used, this time against `computeNamedFactSources`'
+      matcher names instead of `BOON_NAMES`/`AURA_NAMES` — turned up 6 more real candidates beyond
+      the 2 the note above named (never in scope for leg 1's boon/aura-only audit): Relic of Cerus
+      (Corrupt), Relic of the Wizard's Tower (Pull), Relic of Dagda (Daze), Relic of the Water
+      (Cleanse), Relic of the Trooper (Cleanse), Relic of Bava Nisos (Cleanse) — 8 wired total. New
+      `RELIC_NAMED_FACT_SOURCES` table + `computeRelicNamedFactSources` in `sources.ts`, gated by
+      `RELIC_TRIGGER_GATES` (extended with 6 new trigger entries for the relics that were never
+      boon/aura candidates). 7 other candidates reviewed and excluded with a stated reason each
+      (Citadel — folded into the item above; Astral Ward — rides its own already-deferred mechanic;
+      Unseen Invasion/Wayfinder — non-deterministic trigger; Founding/Mists Tide — combo-gated;
+      Mosyn — already dodge-excluded). New tests: `relic-named-fact-sources.test.ts` +
+      `relic-named-fact-completeness.test.ts` (full-sweep regression guard, mirrors
+      `sigil-named-fact-completeness.test.ts`). See `docs/relic-trigger-classification.md`'s "Leg 5"
+      section for the full writeup.
 
 ## Scoped features, not yet built
 
