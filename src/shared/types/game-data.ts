@@ -539,6 +539,12 @@ export interface Consumable {
   name: string
   icon: string
   kind: ConsumableKind
+  /** Raw GW2 API rarity string ("Basic", "Fine", "Masterwork", "Rare", "Exotic", "Ascended" — the
+   *  full spread actually seen across Food/Utility; no Junk or Legendary items in either catalog).
+   *  Unlike every other gear-upgrade category, Food/Utility have no single fixed rarity, so this
+   *  travels with the item itself rather than being a picker-level constant — see `UpgradeRarity`/
+   *  `toUpgradeRarity` in `UpgradePicker.tsx` for how it's mapped onto the tooltip/border color. */
+  rarity: string
   effectName: string | null
   durationMs: number | null
   applyCount: number | null

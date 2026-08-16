@@ -5,6 +5,34 @@ import { usePickerOpen } from '@renderer/state/picker-registry'
 import { middleClickToggle, sortFavoritesFirst } from '@renderer/lib/favorites'
 import { readGearDragData, setGearDragData } from './gear-drag-payload'
 
+/** GW2 item-rarity tiers this app renders a border/tooltip-title color for. `'basic'` is
+ *  deliberately excluded from the CSS class set below — GW2 itself doesn't highlight Basic-rarity
+ *  items, so an option/prop resolving to `'basic'` falls back to the same unstyled default as no
+ *  rarity at all, matching the live game. */
+export type UpgradeRarity = 'basic' | 'fine' | 'masterwork' | 'rare' | 'exotic' | 'ascended'
+
+/** Maps a raw GW2 API rarity string (`Consumable.rarity`, e.g. "Masterwork") onto the lowercase
+ *  `UpgradeRarity` this component renders. Returns `undefined` for anything outside the tiers
+ *  Food/Utility actually use (no Junk or Legendary consumables exist in either catalog). */
+export function toUpgradeRarity(raw: string): UpgradeRarity | undefined {
+  switch (raw) {
+    case 'Basic':
+      return 'basic'
+    case 'Fine':
+      return 'fine'
+    case 'Masterwork':
+      return 'masterwork'
+    case 'Rare':
+      return 'rare'
+    case 'Exotic':
+      return 'exotic'
+    case 'Ascended':
+      return 'ascended'
+    default:
+      return undefined
+  }
+}
+
 export interface UpgradeOption<T extends number | string = number> {
   id: T
   name: string
@@ -18,6 +46,11 @@ export interface UpgradeOption<T extends number | string = number> {
    * nothing, which is correct since relic effects are procs, not stat levers.
    */
   statKeywords?: string[]
+  /** Per-option rarity override, for categories whose real GW2 rarity varies per item (Food,
+   *  Utility) rather than being one fixed tier for the whole category. Takes priority over the
+   *  picker-level `rarity` prop when both are present (they're mutually exclusive in practice —
+   *  no category sets both). */
+  rarity?: UpgradeRarity
 }
 
 interface Props<T extends number | string = number> {
@@ -36,9 +69,9 @@ interface Props<T extends number | string = number> {
   /** GW2 item-rarity border/tooltip-title color for the chosen item, when this category has a
    *  single fixed rarity: every gear stat-prefix combo is Ascended, every relic/rune/sigil is
    *  Exotic, every WvW infusion is Fine (confirmed live 2026-08-11 — see TODO.md's
-   *  item-rarity-color-coding scoping notes). Omit for categories with no single confirmed
-   *  rarity (food/utility, whose real rarity varies per item). */
-  rarity?: 'ascended' | 'exotic' | 'rare' | 'fine'
+   *  item-rarity-color-coding scoping notes). Omit for categories whose rarity instead varies per
+   *  item (food/utility) — those set `rarity` on each `UpgradeOption` instead. */
+  rarity?: UpgradeRarity
   /**
    * Opts this picker into the copy/paste feature (2026-07-30): when set, a chosen value can be
    * dragged out of this button, and the button accepts drops from any other picker sharing the
@@ -147,9 +180,12 @@ export function UpgradePicker<T extends number | string = number>({
     }
   }
 
+  // `chosen.rarity` (per-item, food/utility) wins over the picker-level `rarity` prop (single
+  // fixed tier, every other category) — see `UpgradeOption.rarity`'s doc comment.
+  const chosenRarity = chosen?.rarity ?? rarity
   const baseClass = variant === 'badge' ? 'upgrade-badge' : 'skill-slot-button'
   const sizeClass = variant === 'badge' && size !== 'sm' ? ` upgrade-badge-${size}` : ''
-  const rarityClass = chosen && rarity ? ` rarity-${rarity}` : ''
+  const rarityClass = chosen && chosenRarity && chosenRarity !== 'basic' ? ` rarity-${chosenRarity}` : ''
   const buttonClass = `${baseClass}${sizeClass}${rarityClass}`
 
   return (
@@ -157,7 +193,7 @@ export function UpgradePicker<T extends number | string = number>({
       <Tooltip
         content={
           chosen ? (
-            <TooltipBody title={chosen.name} description={chosen.description} icon={chosen.icon} rarity={rarity} />
+            <TooltipBody title={chosen.name} description={chosen.description} icon={chosen.icon} rarity={chosenRarity} />
           ) : (
             <TooltipBody title={label} />
           )
@@ -213,7 +249,10 @@ export function UpgradePicker<T extends number | string = number>({
           {ordered.map((o) => {
             const favorited = isFavorite?.(o.id) ?? false
             return (
-              <Tooltip key={o.id} content={<TooltipBody title={o.name} description={o.description} icon={o.icon} rarity={rarity} />}>
+              <Tooltip
+                key={o.id}
+                content={<TooltipBody title={o.name} description={o.description} icon={o.icon} rarity={o.rarity ?? rarity} />}
+              >
                 <button
                   type="button"
                   className={chosenId === o.id ? 'skill-option-button chosen' : 'skill-option-button'}

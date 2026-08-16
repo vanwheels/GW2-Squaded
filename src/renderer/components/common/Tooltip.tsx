@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { stripGw2Markup } from '@shared/gear-calc/format-description'
+import type { UpgradeRarity } from '@renderer/components/build-editor/UpgradePicker'
 
 interface Props {
   /** Tooltip body. `null`/`undefined` suppresses the tooltip entirely (no hover popup). */
@@ -83,11 +84,12 @@ interface TooltipBodyProps {
    *  convention. Omit for entries with no icon of their own (empty slots, "Unknown skill"
    *  placeholders, tome chapters). */
   icon?: string
-  /** GW2 item-rarity color for the title text, same fixed-rarity-per-category scoping as
-   *  `UpgradePicker`'s badge-border `rarity` prop (see that prop's doc comment) — omit for
-   *  categories with no single confirmed rarity (traits/skills have none at all; runes/sigils/
-   *  food/utility are handled elsewhere). */
-  rarity?: 'ascended' | 'exotic' | 'rare' | 'fine'
+  /** GW2 item-rarity color for the title text — same `UpgradeRarity` set as `UpgradePicker`'s
+   *  badge-border `rarity` prop (see that prop's doc comment), fixed-per-category for most gear-
+   *  upgrade types or resolved per-item for food/utility. Omit for categories with no rarity at
+   *  all (traits/skills). `'basic'` renders unstyled, same as omitting it — GW2 itself doesn't
+   *  color Basic-rarity item names. */
+  rarity?: UpgradeRarity
 }
 
 /**
@@ -102,7 +104,7 @@ export function TooltipBody({ title, description, icon, rarity }: TooltipBodyPro
     <>
       <div className="tooltip-header">
         {icon && <img className="tooltip-icon" src={icon} alt="" />}
-        <div className={rarity ? `tooltip-title rarity-${rarity}` : 'tooltip-title'}>{title}</div>
+        <div className={rarity && rarity !== 'basic' ? `tooltip-title rarity-${rarity}` : 'tooltip-title'}>{title}</div>
       </div>
       {clean && <div className="tooltip-description">{clean}</div>}
     </>

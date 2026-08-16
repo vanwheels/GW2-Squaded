@@ -386,8 +386,8 @@ describe('computeGearAttributeTotals', () => {
   })
 
   it('sums the active food and utility bonus lines', () => {
-    const food: Consumable = { id: 200, name: 'Test Food', icon: '', kind: 'Food', effectName: null, durationMs: null, applyCount: null, description: '', bonuses: [bonus({ attribute: 'Condition Damage', value: 100 })], sharedBuffSource: null }
-    const utility: Consumable = { id: 201, name: 'Test Utility', icon: '', kind: 'Utility', effectName: null, durationMs: null, applyCount: null, description: '', bonuses: [bonus({ attribute: 'Concentration', value: 100 })], sharedBuffSource: null }
+    const food: Consumable = { id: 200, name: 'Test Food', icon: '', kind: 'Food', rarity: 'Fine', effectName: null, durationMs: null, applyCount: null, description: '', bonuses: [bonus({ attribute: 'Condition Damage', value: 100 })], sharedBuffSource: null }
+    const utility: Consumable = { id: 201, name: 'Test Utility', icon: '', kind: 'Utility', rarity: 'Fine', effectName: null, durationMs: null, applyCount: null, description: '', bonuses: [bonus({ attribute: 'Concentration', value: 100 })], sharedBuffSource: null }
     const build = makeBuild({ foodId: 200, utilityId: 201 })
     const totals = computeGearAttributeTotals(build, gameDataWith({ food: [food], utility: [utility] }))
     expect(totals.points.ConditionDamage).toBe(100)

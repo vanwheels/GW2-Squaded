@@ -124,25 +124,13 @@ never in scope for the sweep; would need their own wiki-verification pass
 extending `CURATED_DAMAGE_COEFFICIENTS` to cover one.
 
 **Both tables**: never visually spot-checked in the running app (Electron sandbox limitation) — do
-that before extending either further, and before the tooltip visual-pass item below.
+that before extending either further.
 
 - [ ] Mesmer's Tale of the Second Scion (id 76695) also grants "Scion's Reprieve," a self-buff
       (+15% WvW/PvP Heal Effectiveness) that nothing in the app accounts for — not a Healing fact
       itself, it modifies *other* incoming/outgoing heals. App has no general outgoing/incoming
       heal-modifier concept yet (distinct from the boon/condition uptime system); needs scoping, not
       a one-off patch for this skill.
-
-- [ ] Dedicated visual pass over every tooltip type — icon-next-to-title and rarity-colored name
-      header now landed (Session 141, visually confirmed live) for traits, skills, gear stat
-      prefixes, runes, sigils, relics, and infusions, via `TooltipBody`'s new `icon`/`rarity` props
-      in `Tooltip.tsx` + `.tooltip-header`/`.tooltip-icon`/`.tooltip-title.rarity-*` in
-      `global.css`. Divider, tidy-list stat lines, and muted-vs-bright text were already in place
-      from earlier work. Still open: **food/utility** — no icon-header work needed (already
-      inherited via the shared `UpgradePicker`), but their real GW2 rarity varies per item (unlike
-      every other category's single fixed tier), so they still render title-only, no rarity color.
-      Needs each food/utility item's actual rarity plumbed from game data into `UpgradePicker`'s
-      per-option tooltip (not just its single fixed `rarity` prop) before extending
-      `.tooltip-title.rarity-*` to them.
 
 - [ ] 76 Food catalog entries still have no buff data after `borrowSharedContainerBonuses` +
       `applyAscendedFeastFormula` (`fetch-gear-upgrades.ts`) — genuinely buff-less items that don't

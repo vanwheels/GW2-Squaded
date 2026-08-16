@@ -16,7 +16,7 @@ import { formatRelicDescription } from '@shared/gear-calc/relic-effects-format'
 import { useGameData } from '@renderer/state/game-data-store'
 import { useAppSettings } from '@renderer/state/app-settings-store'
 import { useFavoriteConsumables } from '@renderer/state/favorite-consumables-store'
-import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
+import { UpgradePicker, toUpgradeRarity, type UpgradeOption, type UpgradeRarity } from './UpgradePicker'
 import { SkillBarIcon } from './SkillBarIcon'
 
 type Consumables = Pick<Build, 'relicId' | 'foodId' | 'utilityId'>
@@ -334,7 +334,8 @@ export function EquipmentEditor({
       name: f.name,
       icon: f.icon,
       description: formatConsumableDescription(f),
-      statKeywords: bonusesStatKeywords(f.bonuses)
+      statKeywords: bonusesStatKeywords(f.bonuses),
+      rarity: toUpgradeRarity(f.rarity)
     }))
     .sort(byName)
   const utilityOptions: UpgradeOption[] = utility
@@ -343,7 +344,8 @@ export function EquipmentEditor({
       name: u.name,
       icon: u.icon,
       description: formatConsumableDescription(u),
-      statKeywords: bonusesStatKeywords(u.bonuses)
+      statKeywords: bonusesStatKeywords(u.bonuses),
+      rarity: toUpgradeRarity(u.rarity)
     }))
     .sort(byName)
 
@@ -796,7 +798,7 @@ export function EquipmentEditor({
     options: UpgradeOption[],
     chosenId: number | null,
     onChoose: (id: number | null) => void,
-    rarity?: 'exotic' | 'rare' | 'fine',
+    rarity?: UpgradeRarity,
     emptyIcon?: string,
     favorites?: { isFavorite: (id: number) => boolean; onToggleFavorite: (id: number) => void }
   ) {

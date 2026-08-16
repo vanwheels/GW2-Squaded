@@ -2,6 +2,36 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 215 — Food/Utility per-item rarity, closing the tooltip visual-pass item
+
+Closes the last open piece of TODO.md's "Dedicated visual pass over every tooltip type" item
+(traits/skills/gear stat prefixes/runes/sigils/relics/infusions were already done as of Session
+141). Food and Utility are the only gear-upgrade categories whose real GW2 rarity varies per item
+rather than being one fixed tier for the whole category, so they'd been left title-only, no rarity
+border/color, pending this.
+
+`Consumable.rarity` (raw GW2 API string, e.g. "Masterwork") added to `game-data.ts` and
+`fetch-gear-upgrades.ts`'s `normalizeConsumable`; `food.json`/`utility.json` regenerated from the
+existing `.cache/items-raw.json` dump (no network refetch needed — the raw API records already
+carried `rarity`, it just wasn't copied through). Confirmed live data spans all 6 tiers Food/
+Utility actually use: Basic (129), Fine (543), Masterwork (303), Rare (39), Exotic (36), Ascended
+(69) — no Junk or Legendary consumables exist in either catalog.
+
+`UpgradePicker.tsx` gained an exported `UpgradeRarity` type (`'basic' | 'fine' | 'masterwork' |
+'rare' | 'exotic' | 'ascended'`) and `toUpgradeRarity()` mapper, plus a new optional `rarity` field
+on `UpgradeOption` — per-option rarity now wins over the picker-level fixed `rarity` prop wherever
+both could apply. `Tooltip.tsx`'s `TooltipBody` and `global.css` extended with a `--rarity-
+masterwork` (green) token and `.rarity-masterwork` border/title rules to cover the one tier that
+had no color defined yet; `'basic'` deliberately renders unstyled (no CSS rule), matching GW2's own
+convention of not highlighting Basic-rarity items. `EquipmentEditor.tsx`'s `foodOptions`/
+`utilityOptions` now pass `rarity: toUpgradeRarity(item.rarity)` through.
+
+As always in this environment, the Electron sandbox limitation (see memory) blocked launching the
+real app to eyeball it — re-confirmed unchanged (`npm run dev`'s Electron process still crashes on
+`electron.app.isPackaged` being undefined, same signature as every prior attempt). Verified instead
+via `npm run typecheck`/`lint` (both clean) and `npm run test` (149/149 passing), plus a direct read
+of the regenerated JSON confirming real rarity variety lands where the picker will render it.
+
 ## Session 214 — Equipment editor "Clear All" buttons
 
 Closes the TODO.md nice-to-have flagged by the user 2026-08-11 ("a 'clear all' button per row").

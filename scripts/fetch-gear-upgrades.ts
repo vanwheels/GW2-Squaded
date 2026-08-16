@@ -292,6 +292,7 @@ function normalizeConsumable(item: RawItem, kind: ConsumableKind): Consumable {
     name: item.name,
     icon: item.icon ?? '',
     kind,
+    rarity: item.rarity,
     effectName: item.details?.name ?? null,
     durationMs: item.details?.duration_ms ?? null,
     applyCount: item.details?.apply_count ?? null,
