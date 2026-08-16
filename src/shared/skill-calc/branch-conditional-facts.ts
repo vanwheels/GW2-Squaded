@@ -12,6 +12,13 @@ const CHANT_OF_RECUPERATION_ID = 76782
 const CHANT_OF_FREEDOM_ID = 77155
 const STRENGTHENING_STANZAS_ID = 2385
 
+// Guardian Luminary (specialization id 81)'s 3 reworked Virtues — see `radiantJusticeSections`'s
+// doc comment below for the full writeup. Ids are each virtue's F1/F2/F3 mechanic-bar entry point,
+// same ones `profession-mechanic.ts`'s generic resolver already picks (no hand-injection needed).
+const RADIANT_JUSTICE_ID = 78837
+const RADIANT_RESOLVE_ID = 78604
+const RADIANT_COURAGE_ID = 78358
+
 /**
  * One labeled alternative-outcome section of a skill's tooltip — a divider ("Enemy Target" / "Ally
  * Target") followed by that branch's own facts, same `factsBlock(numericLines, facts)` shape every
@@ -431,6 +438,252 @@ function chantOfFreedomSections(skill: Skill, durationPercent: { boon: number; c
   ]
 }
 
+// Same generic "Number"-type fact icon core Virtue of Justice's own live API fact uses for its
+// "Number of Attacks to Trigger" line (skill 9115) — reused here since Radiant Justice's own copy
+// of that same fact doesn't exist in the live API at all (see `radiantJusticeSections` below).
+const NUMBER_FACT_ICON = 'https://render.guildwars2.com/file/9352ED3244417304995F26CB01AE76BB7E547052/156661.png'
+
+/**
+ * Guardian Luminary (specialization id 81, released 2025-10-28)'s 3 reworked Virtues — TODO.md bug
+ * flagged 2026-08-16 ("Luminary's F1-F4 skills don't display boon/condition/damage info on their
+ * tooltips at all"). Live-verified: the mechanic-bar resolver already picks the right id for each
+ * slot with zero hand-injection needed (unlike Dragonhunter/Specter/Vindicator's gaps in
+ * `profession-mechanic.ts` — Luminary's ids are correctly tagged `specializationId: 81` and DO
+ * appear in `Profession.professionSkills`), so the F1-F4 icons/names were never the problem. The
+ * real gap: all 3 Virtues' own `facts` arrays in the live API carry only `Recharge` (Courage also
+ * gets `StunBreak`) — every actual boon/condition/heal number lives entirely in the wiki's
+ * structured `{{skill fact}}` templates instead, the same "empty API facts" shape as Otherworldly
+ * Bond/the Chants above. Fetched fresh 2026-08-16 directly from each Virtue's own wiki page
+ * (Radiant Justice/Radiant Resolve/Radiant Courage). WvW+PvP values used throughout (this app's
+ * usual convention) wherever the wiki carries a PvE/WvW/PvP split; PvE-only numbers are noted per
+ * line for anyone extending this later, not used here.
+ *
+ * Each Virtue has 2 real components — a passive ("Virtue:" prefix in the in-game description,
+ * always ticking while this line is equipped, no player action needed) and an active one
+ * ("Activate:" prefix, the F-key press) — plus, for all 3, a bonus "Empowered <weapon>" effect
+ * primed on the NEXT use of a specific Radiant Forge weapon-bar skill (Dazzling Hammer/Luminous
+ * Staff/Gleaming Blade/Radiant Bulwark — see `bundle-skills.ts`'s `RADIANT_FORGE_SLOT_SKILLS` for
+ * how those 4 skills themselves get wired into the F4 bundle). The Empowered bonus is a real,
+ * separate secondary hit/effect (confirmed by Justice's own description, "creates a delayed
+ * secondary impact" — not a modifier of Dazzling Hammer's own base damage fact), so it's shown as
+ * its own labeled section rather than folded into the base Virtue/Activate facts.
+ *
+ * `countsTowardTotals` (see `ConditionalBranch`'s doc comment): the Virtue and Activate sections are
+ * flagged true — same "idealized always-maintained" assumption every other boon/condition source in
+ * this app already makes, and the closest equivalent to how a normal skill's live API facts feed
+ * `computeBoonConditionSources` unconditionally (these 3 skills have none to feed, so the flag is
+ * what stands in for that). The 4 "Empowered <weapon>" sections stay tooltip-only: each needs a
+ * genuine follow-up choice (casting a specific Radiant Forge weapon skill next rather than any
+ * other), a real build-time/rotation decision closer to `otherworldlyBondBranches`' Enemy/Ally
+ * Target split than to a Chant's passively-ticking Motivation band.
+ *
+ * Left as descriptive `numericLines` text rather than a tracked `BoonConditionSource`, and so
+ * NOT counted in any aggregate total: Radiant Resolve's own "Radiant Resolve (effect)" self-heal
+ * (84 + 0.06×Healing Power — the wiki gives no interval/duration to compute a real uptime rate
+ * from, only the per-tick amount) and its Healing-Power-scaled Heal-on-Activate/Empowered-Staff
+ * numbers (same `baseValue + coefficient × healingPower` shape `chantOfRecuperationSections` uses,
+ * computed inline for the same reason — no live API fact to attach a coefficient to); Radiant
+ * Courage's "Luminary's Blessing" effect (a brand-new custom status, not one of this app's
+ * `BOON_NAMES`/`CONDITION_NAMES`/`AURA_NAMES` — `classifyBoonCondition`/`classifyAura` would both
+ * return `null` for it) and its Empowered-Shield Barrier (WvW+PvP is a flat value, no coefficient
+ * at all per the wiki, so nothing to scale) and Stun Break (this app's `BoonConditionSource` has no
+ * concept of a control-break flag, same as every other skill's own live `StunBreak` fact type,
+ * which is handled by a completely separate numeric-fact code path, not this one).
+ */
+function radiantJusticeSections(skill: Skill, durationPercent: { boon: number; condition: number }): ConditionalBranch[] {
+  const burning: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Burning',
+    isCondition: true,
+    category: 'condition',
+    baseDurationSeconds: 2, // WvW+PvE value (PvP 4s)
+    scaledDurationSeconds: 2 * (1 + durationPercent.condition / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    // Procs off the player's own attack landing — no AoE/allied-target fact on the wiki page,
+    // unlike Resolve/Courage's party-wide bursts below.
+    targetCount: 1
+  }
+  const quickness: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Quickness',
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds: 2, // WvW+PvP value (PvE 3s)
+    scaledDurationSeconds: 2 * (1 + durationPercent.boon / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    // Description reads "Activate: Gain quickness" — no "you and your allies" (contra core Virtue
+    // of Justice's own wording) and no targets/radius fact on the wiki page — self-only.
+    targetCount: 1
+  }
+  const empoweredHammerVulnerability: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Vulnerability',
+    isCondition: true,
+    category: 'condition',
+    baseDurationSeconds: 8, // no PvE/WvW/PvP split
+    scaledDurationSeconds: 8 * (1 + durationPercent.condition / 100),
+    applyCount: 4, // WvW+PvP stack count (PvE 8 stacks)
+    requiresTraitId: null,
+    targetCount: 5
+  }
+
+  return [
+    {
+      label: 'Virtue (Passive)',
+      numericLines: [{ icon: NUMBER_FACT_ICON, text: 'Number of Attacks to Trigger: 5' }],
+      facts: [burning],
+      countsTowardTotals: true
+    },
+    { label: 'Activate', numericLines: [], facts: [quickness], countsTowardTotals: true },
+    {
+      label: 'Empowered Hammer (next Dazzling Hammer use)',
+      numericLines: [{ icon: null, text: 'Damage Coefficient: 1.05 (delayed secondary impact)' }], // PvE 1.5
+      facts: [empoweredHammerVulnerability]
+    }
+  ]
+}
+
+function radiantResolveSections(skill: Skill, durationPercent: { boon: number; condition: number }, healingPower: number): ConditionalBranch[] {
+  const lightAura: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Light Aura',
+    isCondition: false,
+    category: 'aura',
+    baseDurationSeconds: 4, // no PvE/WvW/PvP split
+    scaledDurationSeconds: 4 * (1 + durationPercent.boon / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    targetCount: 5
+  }
+  const empoweredStaffRegeneration: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Regeneration',
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds: 4, // no PvE/WvW/PvP split
+    scaledDurationSeconds: 4 * (1 + durationPercent.boon / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    targetCount: 5
+  }
+  // WvW+PvP base 985, coefficient 1.0 (PvE base 1,625, coefficient 1.4) — same shared formula for
+  // both the base Activate heal and the Empowered Staff bonus (the wiki repeats the identical
+  // {{skill fact|healing}} pair under both blocks).
+  const activateHealLine = (): FactLine => ({
+    icon: HEALING_ICON,
+    text: `Healing: ${Math.round(985 + 1.0 * healingPower).toLocaleString()}`
+  })
+
+  return [
+    {
+      label: 'Virtue (Passive)',
+      numericLines: [{ icon: null, text: `Radiant Resolve (self effect): ${Math.round(84 + 0.06 * healingPower).toLocaleString()} Heal` }],
+      facts: []
+    },
+    {
+      label: 'Activate',
+      numericLines: [activateHealLine(), { icon: null, text: 'Self Condition Removal: 2' }],
+      facts: [lightAura],
+      countsTowardTotals: true
+    },
+    {
+      label: 'Empowered Staff (next Luminous Staff use)',
+      numericLines: [activateHealLine()],
+      facts: [empoweredStaffRegeneration]
+    }
+  ]
+}
+
+function radiantCourageSections(skill: Skill, durationPercent: { boon: number; condition: number }): ConditionalBranch[] {
+  const aegis: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Aegis',
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds: 20, // no PvE/WvW/PvP split
+    scaledDurationSeconds: 20 * (1 + durationPercent.boon / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    targetCount: 5
+  }
+  const resistance: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Resistance',
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds: 4, // no PvE/WvW/PvP split
+    scaledDurationSeconds: 4 * (1 + durationPercent.boon / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    targetCount: 5
+  }
+  const empoweredSwordImmobile: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Immobile',
+    isCondition: true,
+    category: 'condition',
+    baseDurationSeconds: 2, // no PvE/WvW/PvP split
+    scaledDurationSeconds: 2 * (1 + durationPercent.condition / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    targetCount: 1
+  }
+
+  return [
+    { label: 'Virtue (Passive)', numericLines: [{ icon: INTERVAL_ICON, text: 'Aegis Refresh: 40 seconds' }], facts: [] },
+    {
+      label: 'Activate',
+      numericLines: [
+        {
+          icon: null,
+          text: "Luminary's Blessing (6s PvE / 3s WvW+PvP): Reduced incoming strike damage; heals when it expires"
+        }
+      ],
+      facts: [aegis, resistance],
+      countsTowardTotals: true
+    },
+    {
+      label: 'Empowered Sword (next Gleaming Blade use)',
+      numericLines: [{ icon: null, text: 'Damage Increase: 50%' }],
+      facts: [empoweredSwordImmobile]
+    },
+    {
+      label: 'Empowered Shield (next Radiant Bulwark use)',
+      numericLines: [
+        { icon: MISCELLANEOUS_ICONS.Barrier, text: 'Barrier: 2,265' }, // PvE 3,225 base + 1.0 coefficient x Healing Power
+        { icon: MISCELLANEOUS_ICONS['Breaks Stun'], text: 'Breaks Stun' }
+      ],
+      facts: []
+    }
+  ]
+}
+
 /**
  * Per-skill mutually-exclusive-outcome fact sections for `skillTooltipContent` to render as extra
  * labeled dividers below the base facts — `null` for every skill without one. Kept as its own
@@ -454,6 +707,9 @@ export function branchConditionalFacts(
   if (skill.id === CHANT_OF_ACTION_ID) return chantOfActionSections(skill, durationPercent)
   if (skill.id === CHANT_OF_RECUPERATION_ID) return chantOfRecuperationSections(skill, durationPercent, healingPower)
   if (skill.id === CHANT_OF_FREEDOM_ID) return chantOfFreedomSections(skill, durationPercent)
+  if (skill.id === RADIANT_JUSTICE_ID) return radiantJusticeSections(skill, durationPercent)
+  if (skill.id === RADIANT_RESOLVE_ID) return radiantResolveSections(skill, durationPercent, healingPower)
+  if (skill.id === RADIANT_COURAGE_ID) return radiantCourageSections(skill, durationPercent)
   return null
 }
 

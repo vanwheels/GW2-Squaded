@@ -106,6 +106,40 @@ const SPECTER_SHROUD_SLOT_SKILLS: Record<number, number[]> = {
  *  `slot: "Downed_*"` alone doesn't mean unreachable for Necromancer's 4 Shroud variants. */
 export const SHROUD_SLOT_SKILLS: Record<number, number[]> = { ...NECRO_SHROUD_SLOT_SKILLS, ...SPECTER_SHROUD_SLOT_SKILLS }
 
+/**
+ * Guardian Luminary (specialization id 81)'s "Enter Radiant Forge" (77073, F4 — see
+ * `profession-mechanic.ts`'s generic per-slot resolver, which already picks this id correctly
+ * once Luminary is equipped, no hand-injection needed unlike Dragonhunter/Specter/Vindicator's
+ * gaps): same bundle shape as Necromancer's Shroud above — entering Radiant Forge replaces the
+ * weapon-skill bar with 5 fixed skills. Wiki-verified 2026-08-16 (`Enter Radiant Forge`'s own page,
+ * "Skills" section): Weapon_1 "Glaring Burst" has 5 raw API ids whose effect (damage vs. healing,
+ * which boon/condition it applies) depends on which of the other 4 slots' skill was cast most
+ * recently — "There are 5 different versions of this skill. Auto-attack is turned off every time
+ * it changes" (the wiki's own Mechanics note) — genuinely state-dependent, not a fixed pick, same
+ * shape as Ele Catalyst/Evoker's attunement/familiar-conditional F5. Unlike those, this app has no
+ * "which radiant weapon was last primed" build-state field to key off, so the wiki's OWN canonical
+ * infobox id (76982 — the one `id=` the Glaring Burst wiki page itself documents, consolidating all
+ * 4 variants' linked-skill facts into one page rather than 5) is used as a fixed representative
+ * entry, a documented simplification rather than a guess. Slots 2-5 are each a real 2-hit chain
+ * (Dazzling Hammer -> Shining Spin, Luminous Staff -> Restorative Glow, Gleaming Blade -> Lucent
+ * Thrust, Radiant Bulwark -> Brilliant Slam, per the wiki page's own "Weapon skill table" listing,
+ * `chain=chain`-marked second half) — only the entry-point ids are listed below, same "flip targets
+ * aren't independently equippable" convention as `NECRO_SHROUD_SLOT_SKILLS` above. These entry ids
+ * are also exactly the 4 skills each Radiant Virtue (F1-F3, Radiant Justice/Resolve/Courage) primes
+ * for a bonus "Empowered" effect on next use — confirmed by name cross-reference against each
+ * virtue's own wiki-quoted Activate text.
+ */
+const RADIANT_FORGE_ENTER_SKILL_ID = 77073
+const RADIANT_FORGE_SLOT_SKILLS: Record<number, number[]> = {
+  [RADIANT_FORGE_ENTER_SKILL_ID]: [
+    76982, // Glaring Burst (wiki's own canonical id of the 5 weapon-state variants)
+    77339, // Dazzling Hammer
+    76708, // Luminous Staff
+    76924, // Gleaming Blade
+    77197 // Radiant Bulwark
+  ]
+}
+
 /** Bladesworn's "Unsheathe Gunsaber" id (Warrior's Profession_1 F1 button — see
  *  `profession-mechanic.ts`'s Warrior weapon-type-filter carve-out for why it survives that
  *  filter) mapped to Gunsaber's own 5 weapon-bar skills — same bundle shape as Necromancer's
@@ -158,19 +192,21 @@ export function bundleCapableSkillIds(
   const celestialAvatarIds = mechanicBarSkillIds.filter((id) => id === CELESTIAL_AVATAR_SKILL_ID)
   const shroudIds = mechanicBarSkillIds.filter((id) => id in SHROUD_SLOT_SKILLS)
   const gunsaberIds = mechanicBarSkillIds.filter((id) => id in GUNSABER_SLOT_SKILLS)
+  const radiantForgeIds = mechanicBarSkillIds.filter((id) => id in RADIANT_FORGE_SLOT_SKILLS)
   const dragonSlashIds = mechanicBarSkillIds.filter((id) => id === DRAGON_TRIGGER_SKILL_ID)
-  return [...kitIds, ...tomeIds, ...celestialAvatarIds, ...shroudIds, ...gunsaberIds, ...dragonSlashIds]
+  return [...kitIds, ...tomeIds, ...celestialAvatarIds, ...shroudIds, ...gunsaberIds, ...radiantForgeIds, ...dragonSlashIds]
 }
 
 /** Ids `ProfessionMechanicBar` makes clickable directly on their own F-bar icon rather than
- *  through the separate toggle row — Tomes, Shroud, Celestial Avatar, Gunsaber, and Dragon Trigger
- *  (Engineer Kits still use the row; see that component's doc comment for why). */
+ *  through the separate toggle row — Tomes, Shroud, Celestial Avatar, Gunsaber, Radiant Forge, and
+ *  Dragon Trigger (Engineer Kits still use the row; see that component's doc comment for why). */
 export function isMechanicBarBundleId(id: number, tomeChapters: TomeChaptersByTomeId): boolean {
   return (
     id in tomeChapters ||
     id in SHROUD_SLOT_SKILLS ||
     id === CELESTIAL_AVATAR_SKILL_ID ||
     id in GUNSABER_SLOT_SKILLS ||
+    id in RADIANT_FORGE_SLOT_SKILLS ||
     id === DRAGON_TRIGGER_SKILL_ID
   )
 }
@@ -250,6 +286,18 @@ export function resolveActiveBundle(
     }
   }
 
+  const radiantForgeSlotIds = RADIANT_FORGE_SLOT_SKILLS[id]
+  if (radiantForgeSlotIds) {
+    return {
+      kind: 'kit',
+      sourceSkill,
+      slots: radiantForgeSlotIds.map((skillId) => {
+        const skill = skillsById.get(skillId)
+        return skill ? { kind: 'kit', skill } : null
+      })
+    }
+  }
+
   if (id === DRAGON_TRIGGER_SKILL_ID) {
     return {
       kind: 'kit',
@@ -320,6 +368,11 @@ export function bundleSkillIdsForBuild(
     const gunsaberSlotIds = GUNSABER_SLOT_SKILLS[id]
     if (gunsaberSlotIds) {
       kitSkillIds.push(...gunsaberSlotIds)
+      continue
+    }
+    const radiantForgeSlotIds = RADIANT_FORGE_SLOT_SKILLS[id]
+    if (radiantForgeSlotIds) {
+      kitSkillIds.push(...radiantForgeSlotIds)
       continue
     }
     if (id === DRAGON_TRIGGER_SKILL_ID) {

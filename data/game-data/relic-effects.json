@@ -290,20 +290,6 @@
     ],
     "rechargeSeconds": 1
   },
-  "100165": {
-    "facts": [
-      {
-        "label": "movement speed increase",
-        "values": [
-          "50"
-        ],
-        "params": {
-          "alt": "Movement Speed Decrease"
-        }
-      }
-    ],
-    "rechargeSeconds": null
-  },
   "100177": {
     "facts": [
       {
@@ -436,106 +422,6 @@
   "100238": {
     "facts": [],
     "rechargeSeconds": 120
-  },
-  "100248": {
-    "facts": [
-      {
-        "label": "defiance break",
-        "values": [
-          "400"
-        ],
-        "params": {
-          "sic": "100 for 1 second stun, up to 300 for a 3 second stun"
-        }
-      },
-      {
-        "label": "damage",
-        "values": [],
-        "params": {
-          "weapon": "unequipped",
-          "coefficient": "0.01"
-        }
-      },
-      {
-        "label": "stun",
-        "values": [
-          "1"
-        ],
-        "params": {
-          "alt": "Minimum Stun"
-        }
-      },
-      {
-        "label": "stun",
-        "values": [
-          "3"
-        ],
-        "params": {
-          "alt": "Maximum Stun"
-        }
-      },
-      {
-        "label": "targets",
-        "values": [
-          "5"
-        ],
-        "params": {}
-      },
-      {
-        "label": "radius",
-        "values": [
-          "240"
-        ],
-        "params": {
-          "icon": "Miscellaneous effect.png",
-          "alt": "Blast Radius"
-        }
-      },
-      {
-        "label": "range",
-        "values": [
-          "600"
-        ],
-        "params": {}
-      }
-    ],
-    "rechargeSeconds": 30
-  },
-  "100262": {
-    "facts": [
-      {
-        "label": "Damage Increase",
-        "values": [
-          "7"
-        ],
-        "params": {}
-      },
-      {
-        "label": "effect",
-        "values": [
-          "Relic of Fireworks (effect)",
-          "6"
-        ],
-        "params": {
-          "alt": "Relic of Fireworks"
-        }
-      }
-    ],
-    "rechargeSeconds": null
-  },
-  "100299": {
-    "facts": [
-      {
-        "label": "Weapon Swap Recharge Reduction",
-        "values": [
-          "25%"
-        ],
-        "params": {
-          "icon": "Radius.png"
-        }
-      }
-    ],
-    "rechargeSeconds": null
   },
   "100311": {
     "facts": [],
@@ -1010,25 +896,6 @@
     ],
     "rechargeSeconds": 8
   },
-  "100531": {
-    "facts": [
-      {
-        "label": "Conditions Removed",
-        "values": [
-          "2"
-        ],
-        "params": {}
-      },
-      {
-        "label": "radius",
-        "values": [
-          "360"
-        ],
-        "params": {}
-      }
-    ],
-    "rechargeSeconds": 20
-  },
   "100542": {
     "facts": [
       {
@@ -1118,32 +985,6 @@
     ],
     "rechargeSeconds": 20
   },
-  "100562": {
-    "facts": [
-      {
-        "label": "protection",
-        "values": [
-          "4"
-        ],
-        "params": {}
-      },
-      {
-        "label": "regeneration",
-        "values": [
-          "4"
-        ],
-        "params": {}
-      },
-      {
-        "label": "resolution",
-        "values": [
-          "4"
-        ],
-        "params": {}
-      }
-    ],
-    "rechargeSeconds": 15
-  },
   "100579": {
     "facts": [
       {
@@ -1231,34 +1072,6 @@
       }
     ],
     "rechargeSeconds": 30
-  },
-  "100633": {
-    "facts": [
-      {
-        "label": "healing",
-        "values": [
-          "1460"
-        ],
-        "params": {
-          "coefficient": "1.0"
-        }
-      },
-      {
-        "label": "targets",
-        "values": [
-          "5"
-        ],
-        "params": {}
-      },
-      {
-        "label": "radius",
-        "values": [
-          "600"
-        ],
-        "params": {}
-      }
-    ],
-    "rechargeSeconds": 20
   },
   "100659": {
     "facts": [
@@ -1516,18 +1329,6 @@
         "params": {
           "icon": "Maximum Count.png"
         }
-      }
-    ],
-    "rechargeSeconds": 1
-  },
-  "100886": {
-    "facts": [
-      {
-        "label": "vigor",
-        "values": [
-          "5"
-        ],
-        "params": {}
       }
     ],
     "rechargeSeconds": 1
@@ -1810,37 +1611,6 @@
         ],
         "params": {
           "alt": "Relic of Fireworks"
-        }
-      }
-    ],
-    "rechargeSeconds": null
-  },
-  "100976": {
-    "facts": [
-      {
-        "label": "Damage Increase",
-        "values": [
-          "1"
-        ],
-        "params": {}
-      },
-      {
-        "label": "effect",
-        "values": [
-          "Relic of the Thief (effect)",
-          "6"
-        ],
-        "params": {
-          "alt": "Relic of the Thief"
-        }
-      },
-      {
-        "label": "Maximum Stacks",
-        "values": [
-          "5"
-        ],
-        "params": {
-          "icon": "Maximum Count.png"
         }
       }
     ],
@@ -2722,33 +2492,6 @@
     "rechargeSeconds": null
   },
   "104928": {
-    "facts": [
-      {
-        "label": "effect",
-        "values": [
-          "Soul of the Titan",
-          "5"
-        ],
-        "params": {
-          "desc": "+15% [[All Stats]]"
-        }
-      },
-      {
-        "label": "Gain All Boons for Base Duration",
-        "values": [
-          "5 seconds"
-        ],
-        "params": {}
-      },
-      {
-        "label": "combat",
-        "values": [],
-        "params": {}
-      }
-    ],
-    "rechargeSeconds": 60
-  },
-  "104938": {
     "facts": [
       {
         "label": "effect",

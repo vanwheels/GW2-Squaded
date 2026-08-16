@@ -12,21 +12,10 @@ that already shipped.
 
 ## Bugs found in testing (2026-08-16)
 
-User-flagged during personal testing, not yet investigated:
-
-- [ ] Flock Relic shows up twice (likely in the relic picker). Check `data/game-data/relics.json`
-      for a duplicate entry and whatever relic-picker component renders the list.
-
-- [ ] Luminary's F1-F4 skills don't display boon/condition/damage info on their tooltips at all —
-      sounds like a bigger gap than a single missing fact, worth checking whether Luminary's
-      mechanic skills are wired into the tooltip/fact pipeline at all yet.
-
-- [ ] Luminary's F4 ("Forge") is architecturally the same kind of mechanic as Reaper Shroud — it
-      replaces the weapon skill bar with 5 unique skills — but the app isn't treating it that way
-      yet. Likely needs the same profession-mechanic-bar / shroud-swap handling used for Reaper,
-      see `src/shared/skill-calc/profession-mechanic.ts` and `src/shared/gear-calc/combat-state.ts`
-      for how Shroud is modeled today. Probably related to/blocking the F1-F4 tooltip gap above —
-      investigate together.
+User-flagged during personal testing. 3 of 4 fixed same day (COMPLETED.md Session 220): the Flock
+relic duplicate (a systemic `relics.json` dedup, ~10 pairs), and Luminary's F1-F4 gap (both the
+Virtue tooltip facts AND the F4 Radiant Forge Shroud-style bundle wiring). Zephyrite remains open —
+a bigger, separate wiring gap (elite-skill-use trigger, not dodge/passive/on-hit).
 
 - [ ] Relic of the Zephyrite (id 100893) doesn't display its boons in the same formatted style
       other skills' boons use, and its boons are also missing from the aggregate Boon/Condition

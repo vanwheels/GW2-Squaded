@@ -2,6 +2,48 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 220 — Relic of the Flock duplicate entry + Guardian Luminary's F1-F4 tooltip/Radiant Forge gaps
+
+3 of the 4 bugs the user flagged 2026-08-16 during personal testing:
+
+**Relic duplicate entries.** `relics.json` carried ~10 duplicate-name pairs (Flock, Warrior,
+Necromancer, Citadel, Fireworks, Durability, Water, Evasion, Thief, Living City) — confirmed live
+against the API: every pair is mechanically identical (same icon/description/effect), differing
+only in acquisition flags (one member `SoulBindOnUse` only/tradeable, the other adds
+`SoulbindOnAcquire`/`NoSell`/`NoMysticForge`/`NoSalvage`, a reward-track-bound copy). This was a
+known, documented gap (`fetch-gear-upgrades.ts`'s own comment called it "left as-is, out of
+scope"). Added `dedupeRelicsByName` (keeps the openly-obtainable member, falls back to lowest id)
+and ran it by hand against the current `relics.json`/`relic-effects.json` (122→112 relics; both
+files' existing entries for the surviving ids were unaffected, confirmed identical content between
+each removed/kept pair first) rather than a full `fetch-gear-upgrades` re-run, to avoid the known
+itemstat-icons.json revert risk (see memory). `combat-state.ts`'s `CURATED_RELIC_DAMAGE_BONUSES`
+and `dodge-replacement-facts.ts`'s `DODGE_RELIC_IDS` already carried both ids of their own pairs
+defensively, so nothing broke there.
+
+**Luminary (Guardian's newest elite spec, released 2025-10-28) F1-F4.** Investigation found the
+mechanic-bar icons themselves were never the problem — `profession-mechanic.ts`'s generic resolver
+already picks the right id per slot with zero hand-injection (unlike Dragonhunter/Specter/
+Vindicator's real API gaps). The actual gap: Radiant Justice/Resolve/Courage's own `facts` arrays
+in the live API carry almost nothing (Recharge only, Courage also StunBreak) — same "real effect
+lives entirely in the wiki's structured templates" shape as Otherworldly Bond/the Paragon Chants.
+Added `radiantJusticeSections`/`radiantResolveSections`/`radiantCourageSections` to
+`branch-conditional-facts.ts` (wiki-verified 2026-08-16), each modeling the Virtue's passive +
+Activate effect plus its "Empowered `<weapon>`" bonus on the next Radiant Forge weapon-bar skill
+use (Dazzling Hammer/Luminous Staff/Gleaming Blade/Radiant Bulwark) as its own labeled section.
+
+**F4 "Radiant Forge"** turned out to be architecturally identical to Reaper Shroud, exactly as the
+user suspected: entering it replaces the weapon bar with 5 fixed skills. Added
+`RADIANT_FORGE_SLOT_SKILLS` to `bundle-skills.ts` (same shape as `NECRO_SHROUD_SLOT_SKILLS`/
+`GUNSABER_SLOT_SKILLS`, wired into all 4 consumer functions) — Weapon_1 ("Glaring Burst") uses the
+wiki's own canonical id since its real effect depends on a "which radiant weapon is currently
+primed" sub-state this app has no field for yet (documented simplification, same class as Ele
+Catalyst/Evoker's attunement/familiar-conditional F5); slots 2-5 use their real 2-hit chains' entry
+ids. New `luminary.test.ts` (8 tests) locks in both the mechanic-bar resolution and the bundle/fact
+wiring. `npm run typecheck`/`lint`/`test` all clean (163 tests).
+
+Not fixed this session (documented, not re-scoped): Relic of the Zephyrite's elite-skill-use
+trigger — a bigger, separate wiring gap, left for its own pass.
+
 ## Session 219 — Engineer Turret sub-abilities + a standard-profession `flipSkill`-chain gap
 
 User-flagged 2026-08-16: Supply Crate's 2 flip skills ("Overcharge Supply Crate," "Detonate Supply

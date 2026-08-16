@@ -76,6 +76,10 @@ interface RawItem {
   icon?: string
   type: string
   rarity: string
+  /** Top-level acquisition/tradeability flags (e.g. "SoulbindOnAcquire", "NoSell") — distinct from
+   *  `details.flags` (upgrade-slot compatibility flags on runes/sigils). Used to disambiguate the
+   *  reward-track-bound relic duplicates handled in `dedupeRelicsByName` below. */
+  flags?: string[]
   details?: {
     type?: string
     flags?: string[]
@@ -153,7 +157,8 @@ function bucketItem(item: RawItem): void {
   // downstream. Runes/sigils turn out to be exact 1:1 Exotic/Legendary pairs (dropping Legendary
   // leaves zero duplicate names); relics keep ~10 duplicate-name Exotic pairs even after this
   // filter (reward-track-bound variants of the same relic, a separate/preexisting wrinkle, not
-  // Legendary-related) — left as-is, out of scope here.
+  // Legendary-related) — resolved downstream by `dedupeRelicsByName`, since unlike the
+  // rune/sigil case both members of a relic pair are Exotic (no rarity field to filter on here).
   if (item.rarity === 'Legendary') return
 
   if (item.type === 'UpgradeComponent' && detailsType === 'Rune' && item.name.startsWith('Superior Rune of')) {
@@ -280,6 +285,31 @@ function normalizeRelic(item: RawItem): Relic {
     icon: item.icon ?? '',
     description: item.description ?? ''
   }
+}
+
+/**
+ * Collapses the ~10 duplicate-name relic pairs (see the `bucketItem` comment above) down to one
+ * item id per relic name. Confirmed live 2026-08-16 against every pair: same icon/description
+ * (mechanically identical), differing only in top-level acquisition flags — one member carries
+ * just `SoulBindOnUse` (openly tradeable/craftable), the other adds `SoulbindOnAcquire`,
+ * `NoSell`, `NoMysticForge`, `NoSalvage` (a reward-track/vendor-bound copy of the same relic).
+ * Keeps the more openly-obtainable member (no `SoulbindOnAcquire`) so the picker shows each relic
+ * exactly once; falls back to the lowest id if neither/both members match (keeps the function safe
+ * against a future pair that doesn't follow this exact flag pattern).
+ */
+function dedupeRelicsByName(items: RawItem[]): RawItem[] {
+  const byName = new Map<string, RawItem[]>()
+  for (const item of items) {
+    const group = byName.get(item.name)
+    if (group) group.push(item)
+    else byName.set(item.name, [item])
+  }
+  return [...byName.values()].map((group) => {
+    if (group.length === 1) return group[0]
+    const openlyObtainable = group.filter((i) => !(i.flags ?? []).includes('SoulbindOnAcquire'))
+    const candidates = openlyObtainable.length === 1 ? openlyObtainable : group
+    return candidates.reduce((lowest, i) => (i.id < lowest.id ? i : lowest))
+  })
 }
 
 function normalizeConsumable(item: RawItem, kind: ConsumableKind): Consumable {
@@ -704,7 +734,7 @@ async function main(): Promise<void> {
   const runes = runeItems.map(normalizeRune)
   const sigils = sigilItems.map(normalizeSigil)
   const infusions = infusionItems.map(normalizeInfusion)
-  const relics = relicItems.map(normalizeRelic)
+  const relics = dedupeRelicsByName(relicItems).map(normalizeRelic)
   const utility = utilityItems.map((i) => normalizeConsumable(i, 'Utility'))
   // Utility "Station" items (bucketed into utilityItems above) already carry their own full buff
   // data — only Food's "Feast"/"Tray"/"Pot" items need bonus-borrowing (see

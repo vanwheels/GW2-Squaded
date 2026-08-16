@@ -72,12 +72,6 @@
     "description": "Inflict torment upon successfully evading an attack."
   },
   {
-    "id": 100165,
-    "name": "Relic of the Necromancer",
-    "icon": "https://render.guildwars2.com/file/B20C589B0915915F5AB55BDA6EC52670B29706F2/3122362.png",
-    "description": "Fear you inflict causes foes to move slower."
-  },
-  {
     "id": 100177,
     "name": "Relic of Peitha",
     "icon": "https://render.guildwars2.com/file/949A6A4179F514FCDEF3AC3D9C292B38D5E0047D/3122365.png",
@@ -106,24 +100,6 @@
     "name": "Relic of the Lich",
     "icon": "https://render.guildwars2.com/file/045D16259918EFA90A76B4D1B1400AA8D9CC0D4B/3592837.png",
     "description": "Summon a jagged horror while in combat."
-  },
-  {
-    "id": 100248,
-    "name": "Relic of the Citadel",
-    "icon": "https://render.guildwars2.com/file/B21C5A6DFCDB0A729358A22CA76547150E7C541E/3122339.png",
-    "description": "After using an elite skill, call down an artillery strike that inflicts stun on the skill target or nearest enemy."
-  },
-  {
-    "id": 100262,
-    "name": "Relic of Fireworks",
-    "icon": "https://render.guildwars2.com/file/2999CCF7C94267B2EE3DDA7459050864622927C9/3122349.png",
-    "description": "Upon dealing strike damage using a weapon skill with a recharge time of 20 seconds or more, deal increased strike damage for a duration. Refreshes duration on stack."
-  },
-  {
-    "id": 100299,
-    "name": "Relic of the Warrior",
-    "icon": "https://render.guildwars2.com/file/1D3CF82C05450A605921F6EB9D0AC23421C9CFA5/3122375.png",
-    "description": "Weapon swap recharge time is reduced."
   },
   {
     "id": 100311,
@@ -246,12 +222,6 @@
     "description": "Deal increased strike damage for a duration when granting protection or resolution to yourself."
   },
   {
-    "id": 100531,
-    "name": "Relic of the Water",
-    "icon": "https://render.guildwars2.com/file/A202CF0CF4314C049B16A89A595CCC9534B0A90E/3122376.png",
-    "description": "Cleanse conditions from yourself and nearby allies after using a healing skill."
-  },
-  {
     "id": 100542,
     "name": "Relic of the Cavalier",
     "icon": "https://render.guildwars2.com/file/C3AFC50F654E2749ADD9033CE007033F6F9B0D7A/3122335.png",
@@ -268,12 +238,6 @@
     "name": "Relic of the Adventurer",
     "icon": "https://render.guildwars2.com/file/9A76D8C27FCAB8F66D0DC531906808B134D80EAD/3122328.png",
     "description": "Gain endurance after using a healing skill."
-  },
-  {
-    "id": 100562,
-    "name": "Relic of Durability",
-    "icon": "https://render.guildwars2.com/file/A8F61493030863CAB537780398D64D80554D959D/3122345.png",
-    "description": "Gain protection, regeneration, and resolution after using a healing skill."
   },
   {
     "id": 100579,
@@ -298,12 +262,6 @@
     "name": "Relic of Leadership",
     "icon": "https://render.guildwars2.com/file/077C30D957D30B0D282BB21199A193A2D74971DF/3122356.png",
     "description": "Convert conditions into boons on nearby allies after using an elite skill."
-  },
-  {
-    "id": 100633,
-    "name": "Relic of the Flock",
-    "icon": "https://render.guildwars2.com/file/2F7AE267BA29B35DEC7F2C0FCE5C30D806E31E0D/3122350.png",
-    "description": "Heal yourself and nearby allies after you use a healing skill. Excess healing is converted to barrier."
   },
   {
     "id": 100659,
@@ -360,12 +318,6 @@
     "description": "Gain increased condition duration when inflicting weakness or vulnerability on a foe."
   },
   {
-    "id": 100886,
-    "name": "Relic of Evasion",
-    "icon": "https://render.guildwars2.com/file/19296379D120EF9FF10EE0B0CDD7711DA5E7A9AF/3122347.png",
-    "description": "Gain vigor after evading an attack."
-  },
-  {
     "id": 100893,
     "name": "Relic of the Zephyrite",
     "icon": "https://render.guildwars2.com/file/070E32046C250E32DA76F2CBDFC504D6C0AB0344/3122379.png",
@@ -406,12 +358,6 @@
     "name": "Relic of Fireworks",
     "icon": "https://render.guildwars2.com/file/2999CCF7C94267B2EE3DDA7459050864622927C9/3122349.png",
     "description": "Upon dealing strike damage using a weapon skill with a recharge time of 20 seconds or more, deal increased strike damage for a duration. Refreshes duration on stack."
-  },
-  {
-    "id": 100976,
-    "name": "Relic of the Thief",
-    "icon": "https://render.guildwars2.com/file/3523AC08EB04347CF371E9A91F4B985D12FB4ED3/3122371.png",
-    "description": "Upon striking an enemy with a weapon skill that has a recharge or resource cost, gain increased strike damage. <c=@reminder>When this triggers, refresh the duration of all stacks.</c>"
   },
   {
     "id": 101116,
@@ -607,12 +553,6 @@
   },
   {
     "id": 104928,
-    "name": "Relic of the Living City",
-    "icon": "https://render.guildwars2.com/file/6CAF0358FBD9DDD84AB3302E2D67329A3AA83DEC/3629398.png",
-    "description": "Complete each trigger once to gain stacks of Titanic Potential:\n• Use a healing skill\n• Use an elite skill\n• Finish a combo field\n• Disable an enemy\n• Evade an attack\nAt 5 stacks, gain Soul of the Titan, providing increased attributes and all boons for its duration."
-  },
-  {
-    "id": 104938,
     "name": "Relic of the Living City",
     "icon": "https://render.guildwars2.com/file/6CAF0358FBD9DDD84AB3302E2D67329A3AA83DEC/3629398.png",
     "description": "Complete each trigger once to gain stacks of Titanic Potential:\n• Use a healing skill\n• Use an elite skill\n• Finish a combo field\n• Disable an enemy\n• Evade an attack\nAt 5 stacks, gain Soul of the Titan, providing increased attributes and all boons for its duration."
