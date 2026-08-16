@@ -2,6 +2,15 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 214 — Equipment editor "Clear All" buttons
+
+Closes the TODO.md nice-to-have flagged by the user 2026-08-11 ("a 'clear all' button per row").
+Landed as panel-level clears (Armor, Accessories, Weapon — each wipes every slot in that panel,
+stat prefix included) plus per-upgrade-type clears on the copy-paste bar (Rune/Sigil/Infusion —
+not Stat Prefix, which has no meaningful empty state). New `clearAll` glyph in `SkillBarIcon`;
+`.gear-panel-header`/`.gear-panel-header-actions` in `global.css` for the button layout. Commit
+c581568.
+
 ## Session 213 — Seize the Moment: occurrence-indexed WvW instance-value overrides
 
 Third and last of TODO.md's "new attribute-bonus gaps needing new CombatState infra" item (Mesmer/

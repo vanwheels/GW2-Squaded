@@ -161,11 +161,6 @@ that before extending either further, and before the tooltip visual-pass item be
 
 ## Nice-to-haves
 
-- [ ] Equipment editor: a "clear all" button per row (weapons, sigils, armor, runes, accessories,
-      infusions, relic, food, utility) — flagged by the user 2026-08-11, not scoped yet (which rows
-      count as one "row" vs. several, e.g. armor is 6 slots/trinkets are 6 slots — needs a UI pass to
-      decide grouping before implementing).
-
 - [ ] Gear Optimizer's rune/infusion search (2026-08-11, see COMPLETED.md) adds up to ~18 extra
       per-slot infusion search variables + 1 rune slot on top of the existing ~12-14 gear/food/
       utility slots — a synthetic stress case (2 floors, 3 maximize tiers, food/utility AND
