@@ -61,36 +61,52 @@ DONE** — see COMPLETED.md Sessions 221-227 (leg 1 through leg 7) and
       when nothing was chosen at the tier in between, instead of always chaining minors together. Not
       started — flagged for later, session/week usage tight as of 2026-08-16.
 
-## UI/UX polish — discussion only, not scoped (flagged 2026-08-16)
+## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
 
-User feels the overall UI/UX is "a little off" but isn't settled on approach yet — logged as a
-discussion starting point, not ready to implement. Revisit by asking the user to firm up specifics
-before building any of this.
+User felt the overall UI/UX was "a little off." Talked through each area and landed on concrete
+directions below (see this session's transcript for the fuller reasoning) — **still not started**,
+this is a firmed-up plan, not a spec ready to code from; worth a `docs/`-style design-of-record
+writeup once implementation starts, same pattern as the Discord bot/target-count features.
 
-- [ ] **Builds tab** (`BuildsView.tsx`): a lot of empty vertical space, and the record cards feel too
-      similar to each other at a glance. Ideas floated: shrink each card's "Delete" text-button down
-      to a small "X" icon (probably corner-positioned); give each card a colored outline/accent
-      matching the build's profession color (`professions.json`/existing profession color tokens, if
-      any exist yet — check); the profession-icon filter row (`ProfessionTagPicker.tsx`/
-      `TagFilterBar.tsx`) reads as unintuitive on first impression even though it's fine once you know
-      what it does — no concrete alternative proposed yet.
-- [ ] **Squads tab** (`SquadsView.tsx`): same empty-space issue as Builds, plus squad cards currently
-      have zero visual distinguishability from each other — no colors, no icons, nothing but the name/
-      party-count/updated-date text. Needs its own pass, likely after Builds' card redesign lands
-      (reuse whatever accent/color system gets built there).
-- [ ] **Settings tab** (`SettingsView.tsx` or equivalent): the page reads as hollow/underfilled given
-      how much horizontal space it has vs. how few controls currently exist (Display toggles, Updates,
-      Game data, Credits). User acknowledges more settings will fill this in naturally over time —
-      flagged mainly as "don't forget this looks sparse right now," not asking for filler content.
-- [ ] **Gear Optimizer entry point + UI** (build editor): move the optimizer's trigger from wherever
-      it currently launches from into an inline button next to the "Equipment" section header, right-
-      aligned. Pressing it would open the optimizer in a popup/modal (exact chrome TBD) showing what
-      the optimizer already surfaces today, **plus** a live side-by-side stat comparison — currently
-      equipped gear's totals vs. the proposed optimized build's totals — so the user can see the delta
-      before committing. User expects this to be iterative/take a few passes to get right; this entry
-      is just to capture the idea, not a spec. Worth checking `docs/discord-bot.md`-style
-      design-of-record treatment once shape firms up, given past features (Discord bot, target-count
-      per-buff-line) benefited from writing the design down before implementing.
+- [ ] **Builds tab** (`BuildsView.tsx`): record cards feel too similar and the page has a lot of
+      empty vertical space.
+        - Delete button → a small "X" icon, **hover-reveal** (invisible until the card is
+          moused over, decided over always-visible-but-small) — replaces the current full-width
+          "Delete" text button competing with "Open" for attention.
+        - Each card gets a colored outline/accent matching the build's profession, sourced from
+          **real GW2 in-game class colors** (not an invented palette) — needs its own small wiki
+          curation pass first, same shape as the profession-icon-artwork TODO item below, since
+          `professions.json` has no color field today. Note this only differentiates *across*
+          professions, not between two builds of the same profession.
+        - Profession filter row (`ProfessionTagPicker.tsx`) → collapse behind a disclosure toggle
+          by default, closed on first paint, consistent with how `TagChipDropdown` already behaves
+          next to it. Today it's an always-expanded 9-icon profession row + up to 27-icon elite-spec
+          grid with no real affordance beyond a plain "Profession" text label — that wall of icons
+          right above the build list is the likely source of "unintuitive first impression."
+- [ ] **Squads tab** (`SquadsView.tsx`): same empty-space issue as Builds, plus squad cards have zero
+      visual distinguishability today (no colors, no icons). Decided against per-slot profession
+      icons (a squad can have several 5-slot parties — `PartySlots` is a fixed 5-tuple per `Party` in
+      `squad-comp.ts` — so a full icon grid could hit 15+ icons on one small card, too cluttered) and
+      against a de-duplicated "which classes appear anywhere" row (loses the actual per-party shape).
+      Landed on a **per-party color mosaic**: one row of small dots per party, reusing the same
+      profession-color system built for Builds above, with empty slots rendered visually distinct
+      (dimmer/hollow dot) rather than omitted — shows the real composition shape compactly without
+      needing full icon detail.
+- [ ] **Settings tab** (`SettingsView.tsx`): reads as hollow/underfilled for its horizontal space
+      (Display/Updates/Game data/Credits currently stack single-column). Not urgent — more settings
+      will fill it in naturally — but whenever it's next touched, switch the panels to a 2-column
+      layout rather than full-width single-column stacking; no new content needed to justify it.
+- [ ] **Gear Optimizer entry point + UI** (build editor): today it's `GearOptimizerPanel.tsx`, a
+      collapsible full-width panel living *below* the entire 3-column editor grid
+      (`build-editor-optimizer-row` in `BuildEditorView.tsx:268`), disconnected from "Equipment."
+      Plan: move its trigger to an inline button next to the "Equipment" `<h3>`
+      (`BuildEditorView.tsx:244`), right-aligned. Pressing it opens the optimizer in a **centered
+      modal dialog** (decided over a slide-over side panel) showing the same controls/results it has
+      today, **plus** a live side-by-side stat comparison — currently-equipped totals vs. the
+      proposed optimized build's totals. The comparison itself is cheap to build: both sides just call
+      `computeGearAttributeTotals` (already used by the Stats panel today) against `draft.equipment`
+      and `result.build.equipment` respectively — the new work is almost entirely modal/layout UI, not
+      new calculation. Expected to be iterative to get right.
 
 ## Scoped features, not yet built
 
