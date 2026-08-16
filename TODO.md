@@ -10,6 +10,38 @@ released; Discord bot and Capacitor mobile port remain later roadmap stages, out
 left in this file below is post-1.0 polish and open curation gaps — none of it blocks the release
 that already shipped.
 
+## Bugs found in testing (2026-08-16)
+
+User-flagged during personal testing, not yet investigated:
+
+- [ ] Engineer's Supply Crate elite skill doesn't show its 2 flip skills, "Overcharge Supply Crate"
+      and "Detonate Supply Crate," in the app. Likely needs a flip-skill wiring entry similar to
+      others in `src/shared/skill-calc/` (e.g. `additive-flip-pairs.ts`,
+      `other-profession-flip-duplicates.ts`, `non-actionable-flip-targets.ts`) — check whether these
+      two are simply missing from whatever table associates flip skills with their parent skill.
+
+- [ ] Flock Relic shows up twice (likely in the relic picker). Check `data/game-data/relics.json`
+      for a duplicate entry and whatever relic-picker component renders the list.
+
+- [ ] Luminary's F1-F4 skills don't display boon/condition/damage info on their tooltips at all —
+      sounds like a bigger gap than a single missing fact, worth checking whether Luminary's
+      mechanic skills are wired into the tooltip/fact pipeline at all yet.
+
+- [ ] Luminary's F4 ("Forge") is architecturally the same kind of mechanic as Reaper Shroud — it
+      replaces the weapon skill bar with 5 unique skills — but the app isn't treating it that way
+      yet. Likely needs the same profession-mechanic-bar / shroud-swap handling used for Reaper,
+      see `src/shared/skill-calc/profession-mechanic.ts` and `src/shared/gear-calc/combat-state.ts`
+      for how Shroud is modeled today. Probably related to/blocking the F1-F4 tooltip gap above —
+      investigate together.
+
+- [ ] Relic of Zephyrite doesn't display its boons in the same formatted style other skills' boons
+      use, and its boons are also missing from the aggregate Boon/Condition summary section. Likely
+      the same shape as past relic gaps — see `src/shared/boon-calc/sources.ts` and how other
+      relics' effects feed `computeBoonConditionSources` (compare against the dodge-relic-trigger
+      precedent in COMPLETED.md 2026-08-15, which deliberately does *not* feed that path — confirm
+      Zephyrite's boons *should* feed it, unlike that precedent, before assuming this is a simple
+      oversight).
+
 ## Scoped features, not yet built
 
 Paragon's Motivation-tiered Chants (flagged by the user 2026-08-14) is now **FULLY DONE 2026-08-15**
