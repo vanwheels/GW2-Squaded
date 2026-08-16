@@ -938,10 +938,11 @@ export interface ActiveStackingSigil {
  * active. Still scoped to the current environment
  * (land sets A/B vs. underwater sets U1/U2) since those are separate weapons entirely, not a
  * swap-hotkey pair — no evidence stacks carry over between land and underwater. Returns the first
- * match found in slot order; a build with two *different* stacking sigils across its two sets (one
- * per set is legal — only "two on the same set" isn't) would need two independent stack counters to
- * model correctly, which `CombatState.stackingSigilStacks` doesn't support since it's a single
- * scalar. Rare/advanced enough to leave as a known simplification rather than block this fix.
+ * match found in slot order; confirmed by the user 2026-08-16 that this is correct even if a build
+ * has two *different* stacking sigils across its two sets (legal to equip — only "two on the same
+ * set" isn't) — only one stacking sigil can ever be actively accruing stacks at a time in-game, so
+ * `CombatState.stackingSigilStacks` being a single scalar isn't a simplification, it matches the
+ * real mechanic.
  */
 export function detectActiveStackingSigil(build: Build): ActiveStackingSigil | null {
   const relevantSlots: EquipmentSlotKey[] = build.environment === 'underwater'

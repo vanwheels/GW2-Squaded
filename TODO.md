@@ -34,13 +34,18 @@ User-flagged during personal testing, not yet investigated:
       for how Shroud is modeled today. Probably related to/blocking the F1-F4 tooltip gap above —
       investigate together.
 
-- [ ] Relic of Zephyrite doesn't display its boons in the same formatted style other skills' boons
-      use, and its boons are also missing from the aggregate Boon/Condition summary section. Likely
-      the same shape as past relic gaps — see `src/shared/boon-calc/sources.ts` and how other
-      relics' effects feed `computeBoonConditionSources` (compare against the dodge-relic-trigger
-      precedent in COMPLETED.md 2026-08-15, which deliberately does *not* feed that path — confirm
-      Zephyrite's boons *should* feed it, unlike that precedent, before assuming this is a simple
-      oversight).
+- [ ] Relic of the Zephyrite (id 100893) doesn't display its boons in the same formatted style
+      other skills' boons use, and its boons are also missing from the aggregate Boon/Condition
+      summary section. Its proc is on **Elite Skill use** (not dodge — corrected by the user
+      2026-08-16, don't confuse with the dodge-relic-trigger precedent in COMPLETED.md 2026-08-15,
+      which is a different mechanic and deliberately does *not* feed `computeBoonConditionSources`):
+      "Summon crystals that apply Protection and Resolution to allies after using an elite skill.
+      Crystal duration scales with the recharge of the used skill." Since it's an on-elite-skill-use
+      trigger (not passive/on-hit), it likely needs its own wiring similar to how other on-cast /
+      on-skill-use relic or trait effects are modeled — see `src/shared/boon-calc/sources.ts` for
+      how other relics' effects feed `computeBoonConditionSources`, and check whether an
+      elite-skill-triggered relic proc has been modeled anywhere in this codebase yet before
+      assuming it's a simple formatting fix.
 
 ## Scoped features, not yet built
 
