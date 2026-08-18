@@ -28,6 +28,14 @@ export function BuildsSidebar() {
   })
   const customTags = useMemo(() => [...new Set(builds.flatMap((b) => b.tags))].sort(), [builds])
 
+  /** Same elite-spec-over-profession icon convention as `SlotTile`'s `eliteSpecIconFor` and
+   *  `BuildsView`'s copy of it. */
+  function eliteSpecIconFor(build: Build): string | undefined {
+    const eliteSpecId = build.specializations[2]?.specializationId
+    const eliteSpec = eliteSpecId != null ? specializationsById.get(eliteSpecId) : undefined
+    return eliteSpec?.elite ? eliteSpec.tangoIcon : undefined
+  }
+
   return (
     <aside className="builds-sidebar">
       <h3>Saved builds</h3>
@@ -64,7 +72,9 @@ export function BuildsSidebar() {
                           setBuildDragData(e, { buildId: build.id, sourcePartyIndex: null, sourceSlotIndex: null })
                         }
                       >
-                        {profession && <img className="builds-sidebar-icon" src={profession.tangoIcon} alt="" />}
+                        {profession && (
+                          <img className="builds-sidebar-icon" src={eliteSpecIconFor(build) ?? profession.tangoIcon} alt="" />
+                        )}
                         <span className="builds-sidebar-name">{build.name}</span>
                       </div>
                     </Tooltip>

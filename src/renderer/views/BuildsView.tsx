@@ -34,6 +34,15 @@ export function BuildsView() {
   })
   const customTags = useMemo(() => [...new Set(builds.flatMap((b) => b.tags))].sort(), [builds])
 
+  /** Show the equipped elite spec's own icon (matches the in-game/gw2skills convention of
+   *  identifying a character by its elite spec, not its base profession) when one's chosen —
+   *  same pattern as `SlotTile`'s `eliteSpecIconFor`. */
+  function eliteSpecIconFor(build: Build): string | undefined {
+    const eliteSpecId = build.specializations[2]?.specializationId
+    const eliteSpec = eliteSpecId != null ? specializationsById.get(eliteSpecId) : undefined
+    return eliteSpec?.elite ? eliteSpec.tangoIcon : undefined
+  }
+
   async function handleImport(data: unknown): Promise<void> {
     if (!isLikelyBuild(data)) throw new Error('This link does not contain a valid build.')
     const now = new Date().toISOString()
@@ -145,7 +154,14 @@ export function BuildsView() {
                       {build.favorite ? '★' : '☆'}
                     </span>
                     <button className="record-open" onClick={() => setEditing({ build, isNew: false })}>
-                      {profession && <img className="record-open-icon" src={profession.tangoIcon} alt="" draggable={false} />}
+                      {profession && (
+                        <img
+                          className="record-open-icon"
+                          src={eliteSpecIconFor(build) ?? profession.tangoIcon}
+                          alt=""
+                          draggable={false}
+                        />
+                      )}
                       <span className="record-open-text">
                         <strong>{build.name}</strong>
                         <span className="muted">{profession?.name ?? build.profession}</span>
