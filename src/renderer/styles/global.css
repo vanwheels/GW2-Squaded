@@ -237,16 +237,17 @@ button:hover {
 }
 
 /**
- * Builds card delete-X (2026-08-18): sits just left of the favorite-star badge in the card's
- * top-right corner (own absolute offset, not a shared wrapper — `.favorite-star` is reused as-is
- * by SquadsView/UpgradePicker too, so its own positioning stays untouched here). Invisible until
- * the card is hovered/focused — replaces the old always-visible full-width "Delete" text button
- * that competed with "Open" for attention.
+ * Builds card delete-X (2026-08-18, moved to top-right corner 2026-08-18): sits in the card's
+ * top-right corner, now that `.favorite-star` moved to the top-left corner to make room for it
+ * (own absolute offset, not a shared wrapper — `.favorite-star` is reused as-is by
+ * SquadsView/UpgradePicker too, so its own positioning stays untouched here). Invisible until the
+ * card is hovered/focused — replaces the old always-visible full-width "Delete" text button that
+ * competed with "Open" for attention.
  */
 .record-delete {
   position: absolute;
   top: -6px;
-  right: 12px;
+  right: -6px;
   border: none;
   background: none;
   color: var(--muted);
@@ -274,16 +275,17 @@ button:hover {
 }
 
 /**
- * Favorites (2026-08-06): a gold star pinned to a card/option's top-right corner, toggled via
- * middle-click (`renderer/lib/favorites.ts`). `.is-favorite` is always shown (filled, gold);
- * `.favorite-star-hint` is an unfavorited item's hollow-star affordance, invisible until the parent
- * is hovered — see the `:hover` rules below for each list this appears in (record cards,
- * food/utility picker options).
+ * Favorites (2026-08-06, moved to top-left corner 2026-08-18): a gold star pinned to a card/
+ * option's top-left corner, toggled via middle-click (`renderer/lib/favorites.ts`). Moved from
+ * top-right to free that corner for the Builds card's `.record-delete` X. `.is-favorite` is
+ * always shown (filled, gold); `.favorite-star-hint` is an unfavorited item's hollow-star
+ * affordance, invisible until the parent is hovered — see the `:hover` rules below for each list
+ * this appears in (record cards, food/utility picker options).
  */
 .favorite-star {
   position: absolute;
   top: -6px;
-  right: -6px;
+  left: -6px;
   font-size: 0.85rem;
   line-height: 1;
   pointer-events: none;
