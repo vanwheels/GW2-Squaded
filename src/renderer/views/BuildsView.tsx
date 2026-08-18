@@ -132,6 +132,15 @@ export function BuildsView() {
                       handleDrop(build.id)
                     }}
                   >
+                    <button
+                      type="button"
+                      className="record-delete"
+                      onClick={() => void removeBuild(build.id)}
+                      aria-label={`Delete ${build.name}`}
+                      title="Delete build"
+                    >
+                      ×
+                    </button>
                     <span className={build.favorite ? 'favorite-star is-favorite' : 'favorite-star favorite-star-hint'}>
                       {build.favorite ? '★' : '☆'}
                     </span>
@@ -154,7 +163,6 @@ export function BuildsView() {
                         </span>
                       </span>
                     </button>
-                    <button onClick={() => void removeBuild(build.id)}>Delete</button>
                   </li>
                 )
               })}

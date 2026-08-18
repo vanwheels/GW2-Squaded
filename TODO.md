@@ -72,7 +72,12 @@ writeup once implementation starts, same pattern as the Discord bot/target-count
       empty vertical space.
         - Delete button → a small "X" icon, **hover-reveal** (invisible until the card is
           moused over, decided over always-visible-but-small) — replaces the current full-width
-          "Delete" text button competing with "Open" for attention.
+          "Delete" text button competing with "Open" for attention. **Done 2026-08-18**:
+          `.record-delete` in `global.css`, positioned absolutely just left of the existing
+          favorite-star badge in the card's top-right corner (own offset, not a shared wrapper —
+          `.favorite-star` is reused as-is by SquadsView/UpgradePicker, so its positioning stays
+          untouched). Opacity 0 at rest, revealed via `.record-list li:hover` or `:focus-visible`
+          so keyboard users can still reach it.
         - Each card gets a colored outline/accent matching the build's profession, sourced from
           **real GW2 in-game class colors** (not an invented palette). **Done 2026-08-18**: color
           data lives in `src/renderer/lib/profession-colors.ts` (`PROFESSION_COLORS`,

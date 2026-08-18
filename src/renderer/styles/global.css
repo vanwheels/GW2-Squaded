@@ -237,6 +237,43 @@ button:hover {
 }
 
 /**
+ * Builds card delete-X (2026-08-18): sits just left of the favorite-star badge in the card's
+ * top-right corner (own absolute offset, not a shared wrapper — `.favorite-star` is reused as-is
+ * by SquadsView/UpgradePicker too, so its own positioning stays untouched here). Invisible until
+ * the card is hovered/focused — replaces the old always-visible full-width "Delete" text button
+ * that competed with "Open" for attention.
+ */
+.record-delete {
+  position: absolute;
+  top: -6px;
+  right: 12px;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 999px;
+  opacity: 0;
+  z-index: 1;
+  transition:
+    opacity 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
+}
+
+.record-list li:hover .record-delete,
+.record-delete:focus-visible {
+  opacity: 1;
+}
+
+.record-delete:hover {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
+  border-color: transparent;
+}
+
+/**
  * Favorites (2026-08-06): a gold star pinned to a card/option's top-right corner, toggled via
  * middle-click (`renderer/lib/favorites.ts`). `.is-favorite` is always shown (filled, gold);
  * `.favorite-star-hint` is an unfavorited item's hollow-star affordance, invisible until the parent
