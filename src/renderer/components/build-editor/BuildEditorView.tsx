@@ -206,6 +206,7 @@ export function BuildEditorView({ build, onBack }: Props) {
           {saving ? 'Saving…' : '← Back'}
         </button>
         <input
+          type="text"
           className="build-name-input"
           value={draft.name}
           onChange={(e) => setDraft({ ...draft, name: e.target.value })}

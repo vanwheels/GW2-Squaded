@@ -267,6 +267,7 @@ export function SlotTile({
         <div className="slot-tile-name slot-tile-ghost-name">{ghostName}</div>
       ) : (
         <input
+          type="text"
           className="slot-tile-label-input"
           placeholder="Role (optional)"
           value={slot.placeholderLabel ?? ''}
