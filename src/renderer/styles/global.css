@@ -321,6 +321,37 @@ button:hover {
   font-size: 0.72rem;
 }
 
+/**
+ * Squad card composition mosaic (2026-08-18) — one row of small dots per party, colored by each
+ * slot's profession via `professionAccentColor()` (same real-GW2-color system as the Builds card
+ * accent stripe above). Deliberately per-party rather than a de-duplicated "which classes appear
+ * anywhere" row — that would lose the actual per-party shape (see TODO.md "UI/UX polish"). Empty
+ * slots render as a hollow dot (`.party-mosaic-dot-empty`) rather than being omitted, so the shape
+ * of a partially-filled party still reads correctly.
+ */
+.party-mosaic {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.party-mosaic-row {
+  display: flex;
+  gap: 3px;
+}
+
+.party-mosaic-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.party-mosaic-dot-empty {
+  background: none;
+  border: 1px solid var(--border);
+}
+
 /* Replaces the normal muted relative-time line when a build's `updatedAtGw2Build` no longer
    matches the currently-loaded game data's build id — see `isBuildStaleSincePatch`. Reuses
    `--rarity-exotic` (orange) rather than `--accent` (reserved for destructive/error UI) since this

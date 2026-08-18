@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import type { PartySlots, SquadComp } from '@shared/types'
+import type { Build, PartySlots, SquadComp, SquadSlot } from '@shared/types'
 import { isLikelySquadCompSharePayload } from '@shared/share/validate'
 import { useSquadCompsStore, makeBlankSquadComp } from '@renderer/state/squad-comps-store'
 import { useBuildsStore } from '@renderer/state/builds-store'
@@ -7,13 +7,22 @@ import { useTagFilter } from '@renderer/state/use-tag-filter'
 import { reorderBefore } from '@renderer/lib/reorder'
 import { sortFavoritesFirst, middleClickToggle } from '@renderer/lib/favorites'
 import { formatRelativeTime } from '@renderer/lib/format-relative-time'
+import { professionAccentColor } from '@renderer/lib/profession-colors'
 import { SquadCompEditorView } from '@renderer/components/squad-editor/SquadCompEditorView'
 import { ImportFromLinkButton } from '@renderer/components/common/ImportFromLinkButton'
 import { TagFilterBar } from '@renderer/components/common/TagFilterBar'
 
+/** A slot's profession for mosaic purposes — an assigned build wins, then a `GhostPick`'s
+ *  profession, else `null` (empty slot, rendered as a hollow dot). */
+function slotProfession(slot: SquadSlot, buildsById: Map<string, Build>): Build['profession'] | null {
+  if (slot.buildId) return buildsById.get(slot.buildId)?.profession ?? null
+  return slot.ghostPick?.profession ?? null
+}
+
 export function SquadsView() {
   const { squadComps, loading, createSquadComp, updateSquadComp, removeSquadComp } = useSquadCompsStore()
-  const { createBuild } = useBuildsStore()
+  const { builds, createBuild } = useBuildsStore()
+  const buildsById = useMemo(() => new Map(builds.map((b) => [b.id, b])), [builds])
   const [editing, setEditing] = useState<{ squadComp: SquadComp; isNew: boolean } | null>(null)
   const [dragId, setDragId] = useState<string | null>(null)
   const [dropTargetId, setDropTargetId] = useState<string | null>(null)
@@ -148,6 +157,23 @@ export function SquadsView() {
                     <button className="record-open" onClick={() => setEditing({ squadComp, isNew: false })}>
                       <span className="record-open-text">
                         <strong>{squadComp.name}</strong>
+                        <span className="party-mosaic">
+                          {squadComp.parties.map((party, partyIndex) => (
+                            <span className="party-mosaic-row" key={partyIndex}>
+                              {party.slots.map((slot, slotIndex) => {
+                                const profession = slotProfession(slot, buildsById)
+                                const color = profession ? professionAccentColor(profession) : undefined
+                                return (
+                                  <span
+                                    key={slotIndex}
+                                    className={color ? 'party-mosaic-dot' : 'party-mosaic-dot party-mosaic-dot-empty'}
+                                    style={color ? { backgroundColor: color } : undefined}
+                                  />
+                                )
+                              })}
+                            </span>
+                          ))}
+                        </span>
                         <span className="muted">
                           {squadComp.parties.length} part{squadComp.parties.length === 1 ? 'y' : 'ies'}
                         </span>

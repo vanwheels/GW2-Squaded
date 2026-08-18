@@ -88,15 +88,17 @@ writeup once implementation starts, same pattern as the Discord bot/target-count
           next to it. Today it's an always-expanded 9-icon profession row + up to 27-icon elite-spec
           grid with no real affordance beyond a plain "Profession" text label — that wall of icons
           right above the build list is the likely source of "unintuitive first impression."
-- [ ] **Squads tab** (`SquadsView.tsx`): same empty-space issue as Builds, plus squad cards have zero
-      visual distinguishability today (no colors, no icons). Decided against per-slot profession
-      icons (a squad can have several 5-slot parties — `PartySlots` is a fixed 5-tuple per `Party` in
-      `squad-comp.ts` — so a full icon grid could hit 15+ icons on one small card, too cluttered) and
-      against a de-duplicated "which classes appear anywhere" row (loses the actual per-party shape).
-      Landed on a **per-party color mosaic**: one row of small dots per party, reusing the same
-      profession-color system built for Builds above, with empty slots rendered visually distinct
-      (dimmer/hollow dot) rather than omitted — shows the real composition shape compactly without
-      needing full icon detail.
+- [ ] **Squads tab** (`SquadsView.tsx`): same empty-space issue as Builds — **still open** — plus
+      squad cards had zero visual distinguishability (no colors, no icons). Decided against
+      per-slot profession icons (a squad can have several 5-slot parties — `PartySlots` is a fixed
+      5-tuple per `Party` in `squad-comp.ts` — so a full icon grid could hit 15+ icons on one small
+      card, too cluttered) and against a de-duplicated "which classes appear anywhere" row (loses
+      the actual per-party shape). **Distinguishability done 2026-08-18**: a **per-party color
+      mosaic** — one `.party-mosaic-row` of small dots per party (`global.css`), reusing
+      `professionAccentColor()` from the same profession-color system built for Builds above. Each
+      slot resolves to a profession via a saved build (`buildId`) or a `GhostPick`, else renders as
+      a hollow `.party-mosaic-dot-empty` dot rather than being omitted, so a partially-filled
+      party's shape still reads correctly.
 - [ ] **Settings tab** (`SettingsView.tsx`): reads as hollow/underfilled for its horizontal space
       (Display/Updates/Game data/Credits currently stack single-column). Not urgent — more settings
       will fill it in naturally — but whenever it's next touched, switch the panels to a 2-column
