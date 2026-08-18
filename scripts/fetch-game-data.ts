@@ -234,7 +234,10 @@ function normalizeWeapon(raw: RawProfessionWeapon): ProfessionWeapon {
   }
 }
 
-function normalizeProfession(raw: RawProfession): Profession {
+// `tangoIcon` isn't produced here — it's a separate wiki-sourced field merged in at load time by
+// `withTangoIcons` in src/main/game-data/load-game-data.ts (see scripts/fetch-tango-icons.ts),
+// so professions.json itself is written without it.
+function normalizeProfession(raw: RawProfession): Omit<Profession, 'tangoIcon'> {
   return {
     id: raw.id,
     name: raw.name,
@@ -414,7 +417,8 @@ async function main(): Promise<void> {
     | 'itemStatLegalIds'
     | 'tomeChapters'
     | 'soulbeastBeastmode'
-  > = {
+    | 'professions' // written without `tangoIcon` — see normalizeProfession's doc comment
+  > & { professions: Omit<Profession, 'tangoIcon'>[] } = {
     professions,
     specializations,
     traits,

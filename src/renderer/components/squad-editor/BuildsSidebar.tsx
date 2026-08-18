@@ -64,7 +64,7 @@ export function BuildsSidebar() {
                           setBuildDragData(e, { buildId: build.id, sourcePartyIndex: null, sourceSlotIndex: null })
                         }
                       >
-                        {profession && <img className="builds-sidebar-icon" src={profession.icon} alt="" />}
+                        {profession && <img className="builds-sidebar-icon" src={profession.tangoIcon} alt="" />}
                         <span className="builds-sidebar-name">{build.name}</span>
                       </div>
                     </Tooltip>

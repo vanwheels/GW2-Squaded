@@ -98,6 +98,8 @@ needing to run the fetch script immediately:
 - `soulbeast-beastmode.json` — see "Soulbeast's Beastmode F1-F3" below; sourced from the wiki, not
   `fetch-game-data.ts`
 - `familiars.json` — Elementalist Evoker familiars; see below
+- `tango-icons.json` — see "Profession/elite-spec icon artwork" below; sourced from the wiki, not
+  `fetch-game-data.ts`
 - `meta.json` — `{ fetchedAt, gw2Build }`. `gw2Build` is the GW2 API's own `/v2/build` id at fetch
   time (added 2026-08-11; `null` on copies fetched before this field existed — the app's update
   check falls back to comparing `fetchedAt` in that case). Surfaced in the Settings tab and used
@@ -243,6 +245,53 @@ always `null`, elsewhere), reset on a profession change away from Elementalist o
 Evoker trait line (`BuildEditorView.tsx`, same pattern as `equippedPetIds`'s reset). Consumed in
 `src/renderer/components/build-editor/EvokerFamiliarSelect.tsx` (single-pick icon row, same
 template as `EliteSpecSelect`).
+
+## Profession/elite-spec icon artwork (`tango-icons.json`)
+
+Every profession- and elite-spec-identifying icon in the app (build cards, squad-editor slots, the
+Builds-tab profession filter, the build editor's profession/spec picker) originally used
+`Profession.icon`/`Specialization.icon` — the plain GW2 API render-service badge, identical
+everywhere. 2026-08-16, the user asked to switch to better-looking wiki artwork.
+
+**Investigated and rejected**: the wiki's `Category:Profession_icons` (the "overhead icon"/
+"highres" families the switch was originally planned around) is tagged `{{ArenaNet image}}` on
+every file — confirmed 2026-08-18 by reading the raw wikitext of `File:Guardian_(overhead_icon).png`,
+whose license template reads *"used with permission. The terms of the permission do not include
+third party use."* Same restriction, same conclusion, as the `Category:Equipment_slot_icons`
+rejection that led to the gw2skills.net icon work (see "Gear upgrades and consumables" below) —
+wiki display rights don't extend to reuse in this app.
+
+**What's actually usable**: the wiki's **"Tango icons"** (`Category:Profession tango icons`,
+filenames like `Firebrand tango icon 48px.png`) are a separate, community-drawn set tagged
+`{{GFDL image}}` instead — the GNU Free Documentation License, which does permit third-party reuse
+(with conditions: preserve the license notice/link, credit — see the Settings tab's Credits panel).
+Confirmed live 2026-08-18 to cover all 9 base professions and all 36 current elite specs, including
+the newest expansion's, at all 3 published sizes (20/48/200px) — an actively-maintained set, not a
+stale 2011-era leftover. Visually it's a different, flatter/glossier style than the official emblem
+art the rejected plan chased, not a strict upgrade — a deliberate user-confirmed tradeoff (legally
+usable art over unlicensed nicer-looking art).
+
+`scripts/fetch-tango-icons.ts` resolves one URL per profession/elite-spec (48px — nothing in the UI
+renders one above 36px, `.spec-icon-button`) and writes `tango-icons.json`, keyed by
+`Profession.id`/`Specialization.id`. Verifies the `{{GFDL image}}` template is actually present on
+each file's raw wikitext (`action=raw`, which — unlike the shared `fetchWikiPage` cache's
+`redirects=1` query — never follows the soft `#redirect` several of the 9 base-profession files use
+for wiki categorization, which would otherwise silently resolve to the profession's own article and
+lose the license template) before accepting a URL; a missing or unlicensed file fails the whole run
+loudly rather than shipping a gap. One real gap found: Thief's `48px`/`20px` files are missing the
+tag even though the sibling `200px` file (same upload, same categories) has it — almost certainly a
+tagging omission, not an actual license difference, so the script falls back to the `200px` file for
+any name whose `48px` fails the check (same real, tagged asset, just a higher-resolution source —
+downscales fine).
+
+Kept as its own wiki-sourced file (same "separate from `fetch-game-data.ts`'s official-API output"
+shape as `elite-spec-skills.json`/`relic-effects.json`/etc.) rather than a field baked into
+`professions.json`/`specializations.json`, so re-running `fetch-game-data.ts` for an unrelated
+reason can never silently blow it away — the exact landmine `itemstat-icons.json`'s local gw2skills
+paths hit once before this pattern was established. `withTangoIcons` in
+`src/main/game-data/load-game-data.ts` merges `tangoIcon` onto each `Profession`/elite
+`Specialization` at load time; every consumer reads `p.tangoIcon`/`s.tangoIcon` directly rather than
+a separate lookup map, matching how `.icon` was already consumed everywhere.
 
 ## Elite-spec-gated skills (`elite-spec-skills.json`)
 

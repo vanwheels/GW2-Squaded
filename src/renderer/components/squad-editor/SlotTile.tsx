@@ -94,19 +94,19 @@ export function SlotTile({
     // identifying a character by its elite spec, not its base profession) when one's chosen.
     const eliteSpecId = build.specializations[2]?.specializationId
     const eliteSpec = eliteSpecId != null ? gameData.specializationsById.get(eliteSpecId) : undefined
-    return eliteSpec?.elite ? eliteSpec.icon : undefined
+    return eliteSpec?.elite ? eliteSpec.tangoIcon : undefined
   }
 
   const buildOptions: UpgradeOption<string>[] = builds.map((b) => {
     const profession = gameData.professions.find((p) => p.id === b.profession)
-    return { id: b.id, name: b.name, icon: eliteSpecIconFor(b) ?? profession?.icon ?? '', description: profession?.name ?? b.profession }
+    return { id: b.id, name: b.name, icon: eliteSpecIconFor(b) ?? profession?.tangoIcon ?? '', description: profession?.name ?? b.profession }
   })
 
   const ghostOptions: UpgradeOption<string>[] = gameData.professions.flatMap((p) => {
     const coreOption: UpgradeOption<string> = {
       id: encodeGhostId({ profession: p.id, specializationId: null }),
       name: `${p.name} (Core)`,
-      icon: p.icon,
+      icon: p.tangoIcon,
       description: GHOST_PLACEHOLDER_DESCRIPTION
     }
     const eliteOptions: UpgradeOption<string>[] = gameData
@@ -115,7 +115,7 @@ export function SlotTile({
       .map((s) => ({
         id: encodeGhostId({ profession: p.id, specializationId: s.id }),
         name: s.name,
-        icon: s.icon,
+        icon: s.tangoIcon ?? p.tangoIcon,
         description: GHOST_PLACEHOLDER_DESCRIPTION
       }))
     return [coreOption, ...eliteOptions]

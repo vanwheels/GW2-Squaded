@@ -145,7 +145,7 @@ export function BuildsView() {
                       {build.favorite ? '★' : '☆'}
                     </span>
                     <button className="record-open" onClick={() => setEditing({ build, isNew: false })}>
-                      {profession && <img className="record-open-icon" src={profession.icon} alt="" draggable={false} />}
+                      {profession && <img className="record-open-icon" src={profession.tangoIcon} alt="" draggable={false} />}
                       <span className="record-open-text">
                         <strong>{build.name}</strong>
                         <span className="muted">{profession?.name ?? build.profession}</span>

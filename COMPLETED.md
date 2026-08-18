@@ -2,6 +2,49 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 228 — Profession/elite-spec icon artwork switch: Tango icons (GFDL), not the official wiki art
+
+Picked up TODO.md's 2026-08-16 "switch profession icon artwork" item. Investigating the planned
+source first (wiki's `Category:Profession_icons`, the "overhead"/"highres" official art) found the
+same blocker that ruled out `Category:Equipment_slot_icons` before it: every file is tagged
+`{{ArenaNet image}}` — "used with permission... does not include third party use" — confirmed live
+2026-08-18 by reading `File:Guardian_(overhead_icon).png`'s raw wikitext. Not usable, so the original
+overhead/highres plan is dead as scoped.
+
+Found and verified a real alternative: the wiki's **Tango icons** (`Category:Profession tango
+icons`), a separate community-drawn set tagged `{{GFDL image}}` — genuinely third-party-reusable,
+unlike the official art. Confirmed coverage live for all 9 professions and all 36 current elite
+specs (including the newest expansion's), all still actively tagged GFDL. User confirmed proceeding
+with these despite the different (flatter, older fan-art) visual style, after seeing sample icons.
+
+Also found: nothing in the current UI renders a profession/elite-spec icon above 36px
+(`.spec-icon-button`), so the original overhead(small)/highres(large) split has no real use case —
+one 48px size covers every location. User confirmed scoping to just that one size.
+
+Built `scripts/fetch-tango-icons.ts` — resolves each profession/elite-spec's 48px Tango file URL via
+the MediaWiki imageinfo API, and independently verifies the `{{GFDL image}}` template is present on
+each file's raw wikitext (`action=raw`, not the shared `fetchWikiPage` cache — several base-profession
+files have a soft `#redirect` to their profession's own article for wiki categorization, and the
+cache's `redirects=1` query follows that and loses the license template entirely). Found one real gap
+while writing it: Thief's `48px`/`20px` files are missing the GFDL tag even though the sibling
+`200px` file has it — almost certainly a tagging omission, not an actual license difference, so the
+script falls back to `200px` for any name whose `48px` fails the check. Fails the whole run loudly on
+any unresolved name rather than shipping a silent gap. Output: `data/game-data/tango-icons.json`,
+kept as its own wiki-sourced file (same shape as `elite-spec-skills.json`/`relic-effects.json`) so a
+routine `fetch-game-data.ts` re-run can never silently blow it away — the same landmine
+`itemstat-icons.json` hit once before this pattern was established.
+
+Wired: `Profession.tangoIcon`/`Specialization.tangoIcon` (optional, elite-only) merged in at load
+time by a new `withTangoIcons` in `load-game-data.ts`; all 5 consumers (`BuildsView.tsx`,
+`BuildsSidebar.tsx`, `SlotTile.tsx`'s `eliteSpecIconFor`/ghost options, `ProfessionTagPicker.tsx`,
+`ProfessionSpecPicker.tsx`) switched from `.icon` to `.tangoIcon`. Added to
+`GAME_DATA_FILE_NAMES`/`electron-builder.yml`'s already-whole-directory `extraResources`, so it ships
+in both packaged builds and the in-app data-refresh download. Added a GFDL credit line (with a link
+to the wiki's Tango-icon page and the FDL license text) to the Settings tab's Credits panel, next to
+the existing gw2skills.net one. `npm run typecheck`/`lint`/`test` all clean (212 tests). Full writeup
+in `docs/game-data.md`'s new "Profession/elite-spec icon artwork" section. TODO.md's item closed and
+removed.
+
 ## Session 227 — Relic proc integration sweep leg 7: Firebrand/Astral Ward, closing the sweep
 
 Resolved the sweep's last 2 open relics (TODO.md's "Relic proc integration sweep"), closing the

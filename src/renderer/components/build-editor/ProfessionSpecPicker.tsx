@@ -46,7 +46,7 @@ export function ProfessionSpecPicker({ profession, specializations, onChoose }: 
             <button
               type="button"
               className={p.id === profession && currentEliteSpecId === null ? 'spec-icon-button chosen' : 'spec-icon-button'}
-              style={{ backgroundImage: `url(${p.icon})` }}
+              style={{ backgroundImage: `url(${p.tangoIcon})` }}
               onClick={() => onChoose(p.id, null)}
             />
           </Tooltip>
@@ -63,7 +63,7 @@ export function ProfessionSpecPicker({ profession, specializations, onChoose }: 
               <button
                 type="button"
                 className={s.id === currentEliteSpecId ? 'spec-icon-button chosen' : 'spec-icon-button'}
-                style={{ backgroundImage: `url(${s.icon})` }}
+                style={{ backgroundImage: `url(${s.tangoIcon})` }}
                 onClick={() => onChoose(s.profession, s.id)}
               />
             </Tooltip>

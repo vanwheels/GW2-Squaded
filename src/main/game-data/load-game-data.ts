@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { app } from 'electron'
-import type { Fact, GameData, Skill, Trait } from '@shared/types'
+import type { Fact, GameData, Profession, Specialization, Skill, Trait } from '@shared/types'
 import type { GameDataMeta } from '@shared/game-data/data-update-provider'
 
 let cached: GameData | null = null
@@ -115,11 +115,29 @@ function withSyntheticTraitFacts(traits: Trait[]): Trait[] {
   })
 }
 
+/** `tango-icons.json`'s merge — see `Profession.tangoIcon`/`Specialization.tangoIcon` and
+ *  `scripts/fetch-tango-icons.ts` for why this is a separate wiki-sourced file rather than a field
+ *  `fetch-game-data.ts` itself produces (same "kept apart from the official-API script" shape as
+ *  `withSyntheticFacts`/`withSyntheticTraitFacts` above, `elite-spec-skills.json`, etc.) — the icon
+ *  set here is GFDL-licensed community art, not something the GW2 API exposes at all. */
+function withTangoIcons(professions: Profession[], specializations: Specialization[]): [Profession[], Specialization[]] {
+  const tangoIcons = readJson<{ professions: Record<string, string>; specializations: Record<string, string> }>(
+    'tango-icons.json'
+  )
+  const mergedProfessions = professions.map((p) => ({ ...p, tangoIcon: tangoIcons.professions[p.id] }))
+  const mergedSpecializations = specializations.map((s) => {
+    const tangoIcon = tangoIcons.specializations[String(s.id)]
+    return tangoIcon ? { ...s, tangoIcon } : s
+  })
+  return [mergedProfessions, mergedSpecializations]
+}
+
 export function loadGameData(): GameData {
   if (!cached) {
+    const [professions, specializations] = withTangoIcons(readJson('professions.json'), readJson('specializations.json'))
     cached = {
-      professions: readJson('professions.json'),
-      specializations: readJson('specializations.json'),
+      professions,
+      specializations,
       traits: withSyntheticTraitFacts(readJson('traits.json')),
       skills: withSyntheticFacts(readJson('skills.json')),
       itemStats: readJson('itemstats.json'),

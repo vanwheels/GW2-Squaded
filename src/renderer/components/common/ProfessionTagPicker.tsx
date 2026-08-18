@@ -36,7 +36,7 @@ export function ProfessionTagPicker({ selectedTags, onToggleTag }: Props) {
             <button
               type="button"
               className={selectedTags.has(p.name) ? 'spec-icon-button chosen' : 'spec-icon-button'}
-              style={{ backgroundImage: `url(${p.icon})` }}
+              style={{ backgroundImage: `url(${p.tangoIcon})` }}
               onClick={() => onToggleTag(p.name)}
             />
           </Tooltip>
@@ -53,7 +53,7 @@ export function ProfessionTagPicker({ selectedTags, onToggleTag }: Props) {
               <button
                 type="button"
                 className={selectedTags.has(s.name) ? 'spec-icon-button chosen' : 'spec-icon-button'}
-                style={{ backgroundImage: `url(${s.icon})` }}
+                style={{ backgroundImage: `url(${s.tangoIcon})` }}
                 onClick={() => onToggleTag(s.name)}
               />
             </Tooltip>

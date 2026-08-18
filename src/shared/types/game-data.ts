@@ -90,6 +90,13 @@ export interface Profession {
   name: string
   icon: string
   iconBig: string
+  /** The wiki's community-drawn "Tango icon" (GFDL-licensed, unlike the wiki's official ArenaNet
+   *  art — see scripts/fetch-tango-icons.ts for why), merged in at load time from
+   *  tango-icons.json by `withTangoIcons` in load-game-data.ts. Always present (all 9 professions
+   *  have one, verified by that script's own hard failure if any are missing); preferred over
+   *  `icon`/`iconBig` for the profession/elite-spec-identifying UI (build cards, squad-editor
+   *  slots, the profession/spec pickers) per the 2026-08-18 icon-artwork switch. */
+  tangoIcon: string
   specializationIds: number[]
   /** Keyed by weapon type name (e.g. "Greatsword", "Axe"). */
   weapons: Record<string, ProfessionWeapon>
@@ -106,6 +113,10 @@ export interface Specialization {
   elite: boolean
   icon: string
   background: string
+  /** Same Tango-icon merge as `Profession.tangoIcon`, only ever present for elite specs (core
+   *  specializations aren't individually icon-identified anywhere in the UI, so were never
+   *  fetched) — undefined for every non-elite entry. */
+  tangoIcon?: string
   minorTraitIds: number[]
   majorTraitIds: number[]
 }

@@ -85,6 +85,17 @@ export function SettingsView() {
           <strong>gw2skills.net</strong> — thanks to Connor McLeoud for granting reuse.
         </p>
         <p>
+          Profession and elite-specialization icons are the{' '}
+          <a href="https://wiki.guildwars2.com/wiki/Guild_Wars_2_Wiki:Profession_icons" target="_blank" rel="noreferrer">
+            Guild Wars 2 Wiki's "Tango icon"
+          </a>{' '}
+          set, licensed under the{' '}
+          <a href="https://www.gnu.org/licenses/fdl-1.3.html" target="_blank" rel="noreferrer">
+            GNU Free Documentation License
+          </a>
+          .
+        </p>
+        <p>
           Reference data and imagery also draw on the{' '}
           <strong>Guild Wars 2 Wiki</strong> community.
         </p>
