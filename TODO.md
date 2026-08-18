@@ -74,9 +74,12 @@ writeup once implementation starts, same pattern as the Discord bot/target-count
           moused over, decided over always-visible-but-small) — replaces the current full-width
           "Delete" text button competing with "Open" for attention.
         - Each card gets a colored outline/accent matching the build's profession, sourced from
-          **real GW2 in-game class colors** (not an invented palette) — needs its own small wiki
-          curation pass first, same shape as the profession-icon-artwork TODO item below, since
-          `professions.json` has no color field today. Note this only differentiates *across*
+          **real GW2 in-game class colors** (not an invented palette). **Color data curated and
+          wired 2026-08-18**: `src/renderer/lib/profession-colors.ts` (`PROFESSION_COLORS`,
+          `professionAccentColor`/`professionColorSet`) has the wiki's 4-shade set per profession,
+          kept out of `professions.json` on purpose since `fetch-game-data.ts` fully regenerates
+          that file and would silently wipe a hand-added field. **Still open:** actually applying it
+          as the card outline/accent in `BuildsView.tsx`. Note this only differentiates *across*
           professions, not between two builds of the same profession.
         - Profession filter row (`ProfessionTagPicker.tsx`) → collapse behind a disclosure toggle
           by default, closed on first paint, consistent with how `TagChipDropdown` already behaves
