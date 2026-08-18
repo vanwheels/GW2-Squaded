@@ -160,8 +160,12 @@ button:hover {
   inset: -1px;
   border-radius: inherit;
   padding: 2px;
+  /* The comet's brightest point sits at gradient-relative 60deg; offsetting "from" by 210deg puts
+     that peak at absolute 270deg (the card's left edge, conic-gradient's 0deg = top, clockwise) when
+     --profession-spin-angle is still 0deg — so the ring visually picks up right where the ::before
+     stripe left off instead of popping in on the opposite side. */
   background: conic-gradient(
-    from var(--profession-spin-angle),
+    from calc(var(--profession-spin-angle) + 210deg),
     transparent 0deg,
     var(--profession-accent, transparent) 60deg,
     transparent 140deg
