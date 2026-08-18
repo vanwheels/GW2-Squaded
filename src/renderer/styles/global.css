@@ -123,6 +123,11 @@ button:hover {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
+  /* Per-card profession accent stripe (2026-08-18) — `--profession-accent` is set inline per card
+     from `professionAccentColor()` (real GW2 wiki class colors, see profession-colors.ts). A
+     box-shadow inset rather than a border-left/outline so it never competes with the drag-and-drop
+     `border-color` feedback below; falls back to transparent (no stripe) if the color is unset. */
+  box-shadow: inset 3px 0 0 0 var(--profession-accent, transparent);
 }
 
 /**

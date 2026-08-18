@@ -9,6 +9,7 @@ import { useDataUpdate } from '@renderer/state/data-update-store'
 import { useTagFilter } from '@renderer/state/use-tag-filter'
 import { reorderBefore } from '@renderer/lib/reorder'
 import { sortFavoritesFirst, middleClickToggle } from '@renderer/lib/favorites'
+import { professionAccentColor } from '@renderer/lib/profession-colors'
 import { formatRelativeTime } from '@renderer/lib/format-relative-time'
 import { BuildEditorView } from '@renderer/components/build-editor/BuildEditorView'
 import { ImportFromLinkButton } from '@renderer/components/common/ImportFromLinkButton'
@@ -106,10 +107,12 @@ export function BuildsView() {
                 ]
                   .filter(Boolean)
                   .join(' ')
+                const accentColor = professionAccentColor(build.profession)
                 return (
                   <li
                     key={build.id}
                     className={className || undefined}
+                    style={accentColor ? ({ '--profession-accent': accentColor } as React.CSSProperties) : undefined}
                     draggable
                     title={build.favorite ? 'Middle-click to unfavorite' : 'Middle-click to favorite'}
                     {...middleClickToggle(() => toggleFavorite(build))}

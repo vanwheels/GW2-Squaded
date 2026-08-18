@@ -74,13 +74,15 @@ writeup once implementation starts, same pattern as the Discord bot/target-count
           moused over, decided over always-visible-but-small) — replaces the current full-width
           "Delete" text button competing with "Open" for attention.
         - Each card gets a colored outline/accent matching the build's profession, sourced from
-          **real GW2 in-game class colors** (not an invented palette). **Color data curated and
-          wired 2026-08-18**: `src/renderer/lib/profession-colors.ts` (`PROFESSION_COLORS`,
-          `professionAccentColor`/`professionColorSet`) has the wiki's 4-shade set per profession,
-          kept out of `professions.json` on purpose since `fetch-game-data.ts` fully regenerates
-          that file and would silently wipe a hand-added field. **Still open:** actually applying it
-          as the card outline/accent in `BuildsView.tsx`. Note this only differentiates *across*
-          professions, not between two builds of the same profession.
+          **real GW2 in-game class colors** (not an invented palette). **Done 2026-08-18**: color
+          data lives in `src/renderer/lib/profession-colors.ts` (`PROFESSION_COLORS`,
+          `professionAccentColor`/`professionColorSet`, the wiki's 4-shade set per profession, kept
+          out of `professions.json` on purpose since `fetch-game-data.ts` fully regenerates that file
+          and would silently wipe a hand-added field); `BuildsView.tsx` now sets a per-card
+          `--profession-accent` CSS var from `professionAccentColor()` and `global.css`'s
+          `.record-list li` renders it as a left-edge `box-shadow` inset stripe (not a border, so it
+          never competes with the drag-and-drop `border-color` feedback). Note this only
+          differentiates *across* professions, not between two builds of the same profession.
         - Profession filter row (`ProfessionTagPicker.tsx`) → collapse behind a disclosure toggle
           by default, closed on first paint, consistent with how `TagChipDropdown` already behaves
           next to it. Today it's an always-expanded 9-icon profession row + up to 27-icon elite-spec
