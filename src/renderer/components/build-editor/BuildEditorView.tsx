@@ -46,6 +46,7 @@ export function BuildEditorView({ build, onBack }: Props) {
   const [draft, setDraft] = useState<Build>(build)
   const [saving, setSaving] = useState(false)
   const [combatState, setCombatState] = useState<CombatState>(DEFAULT_COMBAT_STATE)
+  const [optimizerOpen, setOptimizerOpen] = useState(false)
   const { eliteSpecSkills, legends, professions, specializationsById } = useGameData()
   const { builds } = useBuildsStore()
   const { showUnderwater } = useAppSettings()
@@ -242,7 +243,12 @@ export function BuildEditorView({ build, onBack }: Props) {
           </div>
         </div>
         <div className="build-editor-column">
-          <h3>Equipment</h3>
+          <div className="column-header-row">
+            <h3>Equipment</h3>
+            <button type="button" onClick={() => setOptimizerOpen(true)}>
+              Gear Optimizer
+            </button>
+          </div>
           <EquipmentEditor
             value={draft.equipment}
             onChange={(equipment) => setDraft({ ...draft, equipment })}
@@ -266,13 +272,13 @@ export function BuildEditorView({ build, onBack }: Props) {
         </div>
       </div>
 
-      <div className="build-editor-optimizer-row">
-        <GearOptimizerPanel
-          build={draft}
-          combatState={combatState}
-          onApply={(patch) => setDraft({ ...draft, ...patch })}
-        />
-      </div>
+      <GearOptimizerPanel
+        build={draft}
+        combatState={combatState}
+        onApply={(patch) => setDraft({ ...draft, ...patch })}
+        open={optimizerOpen}
+        onClose={() => setOptimizerOpen(false)}
+      />
     </section>
   )
 }

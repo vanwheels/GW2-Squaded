@@ -108,17 +108,6 @@ writeup once implementation starts, same pattern as the Discord bot/target-count
       (Display/Updates/Game data/Credits currently stack single-column). Not urgent — more settings
       will fill it in naturally — but whenever it's next touched, switch the panels to a 2-column
       layout rather than full-width single-column stacking; no new content needed to justify it.
-- [ ] **Gear Optimizer entry point + UI** (build editor): today it's `GearOptimizerPanel.tsx`, a
-      collapsible full-width panel living *below* the entire 3-column editor grid
-      (`build-editor-optimizer-row` in `BuildEditorView.tsx:268`), disconnected from "Equipment."
-      Plan: move its trigger to an inline button next to the "Equipment" `<h3>`
-      (`BuildEditorView.tsx:244`), right-aligned. Pressing it opens the optimizer in a **centered
-      modal dialog** (decided over a slide-over side panel) showing the same controls/results it has
-      today, **plus** a live side-by-side stat comparison — currently-equipped totals vs. the
-      proposed optimized build's totals. The comparison itself is cheap to build: both sides just call
-      `computeGearAttributeTotals` (already used by the Stats panel today) against `draft.equipment`
-      and `result.build.equipment` respectively — the new work is almost entirely modal/layout UI, not
-      new calculation. Expected to be iterative to get right.
 
 ## Build "Updated"/staleness tracking is currently untrustworthy (flagged 2026-08-18)
 

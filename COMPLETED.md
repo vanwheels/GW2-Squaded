@@ -2,6 +2,30 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 229 — Gear Optimizer entry point + UI: inline trigger, centered modal, live stat comparison
+
+Closed TODO.md's "Gear Optimizer entry point + UI" item. `GearOptimizerPanel` was a collapsible
+full-width panel living below the entire 3-column build editor grid, disconnected from
+"Equipment" — moved its trigger to an inline "Gear Optimizer" button next to the Equipment column's
+`<h3>` (right-aligned via a new `.column-header-row` class), and the panel itself now renders as a
+centered modal dialog (decided over a slide-over side panel) instead of an in-flow row.
+
+Built a new generic `Modal` component (`src/renderer/components/common/Modal.tsx`) — portaled to
+`document.body`, closes on Escape or a backdrop click — distinct from the existing anchor-relative
+`FloatingPanel` popover. `GearOptimizerPanel` now takes `open`/`onClose` from `BuildEditorView`
+instead of managing its own collapse state, but stays mounted regardless of `open` so its
+floors/tiers/checkbox state survives being closed and reopened.
+
+Added the live side-by-side stat comparison the TODO item asked for: a "Current vs. proposed" table
+in the results, both sides calling `computeGearAttributeTotals` (same function the Stats panel's
+left column already uses) against `draft.equipment` and `result.build.equipment` respectively — all
+9 core attributes, with a color-coded delta column (`--toggle-on`/`--danger`, reusing existing
+tokens). No new calculation needed, exactly as scoped.
+
+Verified via `npm run typecheck`, `npm run lint`, `npm test` (212 passing), `npm run build` — all
+clean. Electron sandbox limitation still applies (see memory), so this hasn't been visually
+clicked-through in the running app yet.
+
 ## Session 228 — Profession/elite-spec icon artwork switch: Tango icons (GFDL), not the official wiki art
 
 Picked up TODO.md's 2026-08-16 "switch profession icon artwork" item. Investigating the planned
