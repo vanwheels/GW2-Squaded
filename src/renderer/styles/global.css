@@ -123,11 +123,72 @@ button:hover {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  /* Per-card profession accent stripe (2026-08-18) — `--profession-accent` is set inline per card
-     from `professionAccentColor()` (real GW2 wiki class colors, see profession-colors.ts). A
-     box-shadow inset rather than a border-left/outline so it never competes with the drag-and-drop
-     `border-color` feedback below; falls back to transparent (no stripe) if the color is unset. */
+}
+
+/**
+ * Per-card profession accent (2026-08-18, animated 2026-08-18) — `--profession-accent` is set
+ * inline per card from `professionAccentColor()` (real GW2 wiki class colors, see
+ * profession-colors.ts); both layers fall back to `transparent` and simply render invisible when
+ * it's unset (e.g. Squads cards, which use the party-mosaic dots instead).
+ *
+ * At rest, `::before` draws a static left-edge stripe via `box-shadow` rather than a
+ * border-left/outline so it never competes with the drag-and-drop `.record-card-drop-target`
+ * `border-color` feedback. On hover it fades out as `::after` fades in: a comet-style ring
+ * (`conic-gradient`, masked down to a thin outline with `mask-composite: exclude`) that
+ * continuously rotates around the card via the animated `--profession-spin-angle` custom property
+ * — a "loading spinner" traveling around the border, per the user's request.
+ */
+@property --profession-spin-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.record-list li::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
   box-shadow: inset 3px 0 0 0 var(--profession-accent, transparent);
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.record-list li::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--profession-spin-angle),
+    transparent 0deg,
+    var(--profession-accent, transparent) 60deg,
+    transparent 140deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.record-list li:hover::before {
+  opacity: 0;
+}
+
+.record-list li:hover::after {
+  opacity: 1;
+  animation: profession-accent-spin 1.6s linear infinite;
+}
+
+@keyframes profession-accent-spin {
+  to {
+    --profession-spin-angle: 360deg;
+  }
 }
 
 /**
