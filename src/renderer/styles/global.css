@@ -532,7 +532,8 @@ button:hover {
 
 .tag-filter-bar {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
   margin-bottom: 16px;
 }
@@ -540,6 +541,33 @@ button:hover {
 .tag-filter-search {
   width: 100%;
   max-width: 320px;
+}
+
+/* Collapsed trigger for `ProfessionTagPicker`'s popover — sized to line up with the search
+   input/tag-filter `<select>` it sits next to in `.tag-filter-bar`. `.active` (a filter is
+   currently applied) reuses the accent border `.tag-filter-dropdown select` would get from focus,
+   so the collapsed control still visibly says "a profession filter is narrowing this list". */
+.profession-tag-picker {
+  position: relative;
+  flex: none;
+}
+
+.profession-filter-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.profession-filter-toggle.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.profession-filter-toggle .nav-item-badge {
+  position: static;
+  width: 6px;
+  height: 6px;
 }
 
 .tag-filter-dropdown {

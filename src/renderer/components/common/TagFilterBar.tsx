@@ -15,7 +15,10 @@ interface Props {
   placeholder?: string
 }
 
-/** Search box + tag filters, shared by BuildsView/SquadsView/BuildsSidebar. */
+/** Search box + tag filters, shared by BuildsView/SquadsView/BuildsSidebar. Search box, tag-filter
+ *  dropdown, and (when shown) the profession/elite-spec filter sit in that order in one row —
+ *  the tag dropdown is next to the search box since it's the more frequently reached-for filter,
+ *  profession is the "further out" one, per 2026-08-18 layout request. */
 export function TagFilterBar({
   query,
   onQueryChange,
@@ -34,8 +37,8 @@ export function TagFilterBar({
         onChange={(e) => onQueryChange(e.target.value)}
         placeholder={placeholder ?? 'Search…'}
       />
-      {showProfessionPicker && <ProfessionTagPicker selectedTags={selectedTags} onToggleTag={onToggleTag} />}
       <TagChipDropdown allTags={customTags} selectedTags={selectedTags} onToggleTag={onToggleTag} />
+      {showProfessionPicker && <ProfessionTagPicker selectedTags={selectedTags} onToggleTag={onToggleTag} />}
     </div>
   )
 }

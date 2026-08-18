@@ -45,15 +45,13 @@ export function BuildsSidebar() {
         <p className="empty-state">No saved builds yet — create one in the Builds tab.</p>
       ) : (
         <>
-          {/* No `showProfessionPicker` here — the sidebar is a fixed 200px column, too narrow for
-              the elite-spec grid's per-profession-column layout (see `ProfessionTagPicker`); the
-              full picker lives on the Builds tab (`BuildsView`), which has the width for it. */}
           <TagFilterBar
             query={query}
             onQueryChange={setQuery}
             customTags={customTags}
             selectedTags={selectedTags}
             onToggleTag={toggleTag}
+            showProfessionPicker
             placeholder="Search…"
           />
           {filtered.length === 0 ? (
