@@ -4,12 +4,20 @@ import type { DataUpdateStatus, GameDataMeta } from '@shared/game-data/data-upda
 import { useAppSettings } from '@renderer/state/app-settings-store'
 import { useDataUpdate } from '@renderer/state/data-update-store'
 import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch'
+import { ThemeModeToggle } from '@renderer/components/common/ThemeModeToggle'
 
 export function SettingsView() {
   const [version, setVersion] = useState('')
   const [supported, setSupported] = useState(false)
   const [status, setStatus] = useState<UpdateStatus>({ state: 'idle' })
-  const { showUnderwater, setShowUnderwater, showRacialSkills, setShowRacialSkills } = useAppSettings()
+  const {
+    showUnderwater,
+    setShowUnderwater,
+    showRacialSkills,
+    setShowRacialSkills,
+    themeMode,
+    setThemeMode
+  } = useAppSettings()
   const dataUpdate = useDataUpdate()
   const [localMeta, setLocalMeta] = useState<GameDataMeta | null>(null)
 
@@ -34,6 +42,10 @@ export function SettingsView() {
 
       <div className="settings-panel">
         <h3>Display</h3>
+        <div className="field">
+          <span>Theme</span>
+          <ThemeModeToggle value={themeMode} onChange={setThemeMode} />
+        </div>
         <ToggleSwitch
           checked={showUnderwater}
           onChange={setShowUnderwater}

@@ -1,13 +1,36 @@
+/**
+ * Theme tokens (2026-08-18 palette rework) — two full token sets, dark (default, matching the
+ * "Dark (default)" pane of the light/dark palette design pass) and light (`[data-theme='light']`
+ * override, applied by `app-settings-store.tsx` setting `<html data-theme>` — see its doc comment
+ * for the 3-way System/Light/Dark resolution). `--accent` and `--danger` are deliberately split:
+ * `--accent` is the app's one selection/active-state color (nav tab, chosen trait/skill/gear
+ * slot, drag-over target, "open" skill picker) — `--danger` is reserved for destructive/error UI
+ * (`.error-text`, `.share-error`) only, so errors stay red-adjacent in both themes regardless of
+ * what `--accent` is doing. `--accent-strong` is a higher-contrast accent variant for text sitting
+ * on an accent-tinted background (not yet used anywhere in this file, but part of the same
+ * palette pass — reserved for that case when it comes up, e.g. a future "primary" button).
+ * `--shadow` replaces the old hardcoded `rgba(0, 0, 0, 0.4)` popover/tooltip shadow so it can be
+ * softer in light mode.
+ *
+ * The item-rarity/misc tokens below (`--rarity-rare`, `--rarity-fine`, `--rarity-masterwork`,
+ * `--tooltip-title`, `--land-green`, `--water-blue`, `--toggle-on`) were NOT part of this palette
+ * pass and are intentionally left the same in both themes for now — several of them (the gold
+ * tooltip title, rarity-rare's bright yellow) are low-contrast on the light surface and may need
+ * their own light-mode-specific values in a follow-up.
+ */
 :root {
   color-scheme: dark;
-  --bg: #14141a;
-  --surface: #1e1e26;
-  --border: #2c2c36;
-  --text: #e8e8ec;
-  --muted: #8a8a96;
-  --accent: #c0392b;
-  /* GW2's own skill/trait tooltip title color (gold) — distinct from --accent (used for
-     destructive/warning UI elsewhere), matching the in-game and gw2skills.net tooltip look. */
+  --bg: #291e26;
+  --surface: #382730;
+  --border: #553b4c;
+  --text: #f8e9f1;
+  --muted: #c79bb7;
+  --accent: #e3b3d0;
+  --accent-strong: #cd83b2;
+  --danger: #e8695c;
+  --shadow: rgba(0, 0, 0, 0.4);
+  /* GW2's own skill/trait tooltip title color (gold), matching the in-game and gw2skills.net
+     tooltip look. */
   --tooltip-title: #e5c988;
   /* GW2's own item-rarity colors (Ascended pink/magenta, Exotic orange, Rare yellow, Fine blue,
      Masterwork green) — see TODO.md's item-rarity-color-coding item for which slot categories use
@@ -26,9 +49,27 @@
   --land-green: #5cb85c;
   --water-blue: #4aa8e0;
   /* "On" color for toggle switches (SettingsView, etc.) — a dedicated affirmative color, distinct
-     from --accent (reserved for destructive/error UI, see its own comment above) and from
-     --rarity-masterwork (semantically tied to item rarity, not reused here). */
+     from --accent (the selection color) and from --rarity-masterwork (semantically tied to item
+     rarity, not reused here). */
   --toggle-on: #1fa787;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #fff3f9;
+  --surface: #ffffff;
+  --border: #f3cbe6;
+  --text: #3a2030;
+  --muted: #8c5c79;
+  --accent: #a1558a;
+  --accent-strong: #7a3b69;
+  --danger: #c0392b;
+  --shadow: rgba(84, 40, 74, 0.15);
+  /* Rarity-ascended/exotic get light-mode-specific values (darker/more saturated) so they stay
+     legible on the near-white surface — everything else in the rarity/misc block above is left
+     unset here and simply inherits its dark-mode value, see the top-of-file note. */
+  --rarity-ascended: #e0338a;
+  --rarity-exotic: #c77a00;
 }
 
 * {
@@ -261,6 +302,19 @@ button:hover {
   flex-wrap: wrap;
 }
 
+/* ThemeModeToggle (SettingsView's Display panel) — plain buttons in a row, "active" reusing the
+   same border-color/color: var(--accent) treatment every other selected-state control in this app
+   already uses rather than a bespoke segmented-control look. */
+.theme-mode-row {
+  display: flex;
+  gap: 6px;
+}
+
+.theme-mode-option.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 /* iOS-style pill toggle switch — see ToggleSwitch.tsx's doc comment. The real checkbox
    (`.toggle-switch-input`) is visually hidden but stays in the tab order/hit-tested by the label,
    so keyboard and screen-reader behavior is unchanged; the track/thumb are plain `<span>`s driven
@@ -339,7 +393,7 @@ button:hover {
 }
 
 .error-text {
-  color: var(--accent);
+  color: var(--danger);
 }
 
 .record-open {
@@ -751,7 +805,7 @@ input[type='text'] {
 
 .major-trait.selected {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.35);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 .equipment-editor {
@@ -1247,7 +1301,7 @@ input[type='text'] {
   width: max-content;
   min-width: 220px;
   max-width: calc(100vw - 16px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 16px var(--shadow);
 }
 
 .skill-picker-header {
@@ -1337,7 +1391,7 @@ input[type='text'] {
 
 .skill-option-button.chosen {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.35);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 /* Heal/Utility/Elite skill picker: columns grouped by GW2's own skill category (Meditation,
@@ -1388,7 +1442,7 @@ input[type='text'] {
 
 .skill-icon-button.chosen {
   border-color: var(--accent);
-  box-shadow: 0 0 0 2px rgba(192, 57, 43, 0.35);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
 .stats-panel {
@@ -1592,7 +1646,7 @@ input[type='text'] {
   border: 1px solid var(--border);
   border-radius: 6px;
   padding: 8px 10px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 16px var(--shadow);
   pointer-events: none;
   font-size: 0.78rem;
   line-height: 1.4;
@@ -1888,7 +1942,7 @@ input[type='text'] {
 .slot-tile.drag-over {
   border-color: var(--accent);
   border-style: solid;
-  background: rgba(192, 57, 43, 0.08);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
 .slot-tile .skill-slot-button {
@@ -2041,7 +2095,7 @@ input[type='text'] {
 }
 
 .share-error {
-  color: var(--accent);
+  color: var(--danger);
   font-size: 0.8rem;
   margin: 0;
 }
