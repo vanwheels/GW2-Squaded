@@ -2,6 +2,23 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 238 — v1.1.0 release
+
+Cut the first post-1.0 feature release, covering everything since v1.0.1 (Sessions 219-237 plus the
+2026-08-16/18 UI/UX-polish and theme commits that landed without their own session write-up):
+Light/Dark/System theme, real-class-color Build/Squad card accents, Tango-icon profession art, the
+Gear Optimizer modal + live stat comparison, the Build/Squad editor UI polish batch, the Build and
+Squad screenshot layout redesigns (including the multi-line squad stitch-capture fix), the full
+112-relic proc integration sweep, the Revenant/Renegade/Engineer/Icerazor's Ire tooltip-accuracy
+fixes, and the build "Updated"-timestamp gating fix. `package.json`/`package-lock.json` bumped
+1.0.1 → 1.1.0 (`npm version 1.1.0 --no-git-tag-version`); `CHANGELOG.md` got a full in-depth entry
+(user request) and `README.md` picked up the user-facing surface of this batch (theme, gear
+optimizer comparison table, profession-colored cards, squad editor context menu, Tango-icon
+credit). `npm run typecheck`/`lint`/`vitest run` all clean (224 tests) immediately before tagging.
+Tagged `v1.1.0` and published via the same electron-builder GitHub-publish recipe prior releases
+used (pre-created draft release to avoid the known duplicate-release race, see this file's earlier
+`electron-builder-github-publish-race` note).
+
 ## Session 237 — Build "Updated" timestamp fix: gate on real edits, add manual review confirm
 
 Closes TODO.md's "Build 'Updated'/staleness tracking is currently untrustworthy" item (flagged

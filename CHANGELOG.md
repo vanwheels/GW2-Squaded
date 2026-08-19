@@ -2,6 +2,77 @@
 
 User-facing release notes. For the detailed development log, see `COMPLETED.md`.
 
+## 1.1.0 — 2026-08-18
+
+### Appearance
+
+- New **Light / Dark / System** theme toggle in Settings, backed by a full color-palette rework —
+  the app follows your OS theme by default, or you can pin one.
+- Build cards now show a colored accent stripe matching the build's profession/elite spec, drawn
+  from real GW2 in-game class colors; hovering animates it into a full rotating ring.
+- Squad cards show a small colored dot per roster slot per party (a "mosaic") so a squad's overall
+  composition shape reads at a glance without opening it.
+- Profession and elite-specialization icons switched to the wiki's community-drawn Tango icon set
+  (properly reusable art — see Settings > Credits).
+- Settings toggles restyled as compact pill switches.
+
+### Gear Optimizer
+
+- Moved from a full-width panel below the editor to an inline "Gear Optimizer" button next to
+  Equipment that opens a centered dialog, so it no longer competes for space with the rest of the
+  editor.
+- Results now include a live "Current vs. proposed" stat comparison table instead of just the raw
+  suggested gear.
+
+### Build & Squad editors
+
+- Builds tab: delete is now a hover-reveal "X" icon instead of a full-width Delete button, the
+  favorite star moved to the top-left corner, and the profession/elite-spec filter row collapses
+  behind a popover instead of always showing every icon.
+- Squad editor: slot borders removed for a cleaner look, the saved-builds sidebar is now
+  sticky/scrollable, and both sidebar cards and party-line slots support right-click →
+  Preview/Edit. Header and tag layout now match the Build editor.
+- Trait rows reserve their full height immediately, so picking a specialization no longer shifts
+  the surrounding layout.
+- Fixed 3 Build editor display bugs: inconsistent trait-box heights before a specialization is
+  chosen, a trait-connector line drawing before any trait was actually picked, and Light Aura not
+  showing consistently between the Build editor and Squad builder.
+
+### Screenshots
+
+- Build editor screenshot output redesigned end-to-end (equipment text manifest, weapon-type bar,
+  combat-state strip, reflowed Boons/Stats/Skills) so a full build now fits on one screenshot
+  without scrolling.
+- Squad screenshots no longer include the sidebar, "Remove line" buttons, or the per-slot boon
+  dropdown, and squads with more than 4 lines now correctly capture every line via a new
+  scroll-and-stitch capture (previously cut off past line 4).
+
+### Boon/Condition accuracy
+
+- Full audit of all 112 Relics: every relic whose proc fires on a trigger this app can already
+  model (Elite/Heal skill use, ability type, etc.) with a real boon/aura/cleanse/strip payload now
+  counts toward your totals. Also fixed roughly 10 duplicate relic catalog entries.
+- Guardian Luminary: F1-F4 (Radiant Justice/Resolve/Courage/Forge) now show real tooltip facts, and
+  entering Radiant Forge (F4) is modeled as a full weapon-bar swap, matching how other shroud-style
+  mechanics already work.
+- Engineer Turrets' flip skills (Overcharge/Detonate) now display correctly, and a broader gap is
+  fixed where standard-profession Heal/Utility/Elite flip-chain skills (e.g. Firebrand's Mantra
+  final charges) were missing from the aggregate Boon/Condition panel.
+- Revenant fixes: Sword 4's flip icon (was pointing at a removed skill), Facet of Elements' flip
+  icon, Draconic Fortitude's Health bonus (wasn't affecting Health at all), Draconic Echo's
+  per-facet bonus text, Elevated Compassion's WvW boon (Vigor, not Quickness), Icerazor's Ire's
+  missing Immobile, and Renegade's "Band Together" skills double-counting facts they share with
+  their base skill.
+- Fixed a stacking-sigil stepper bug where it ignored stacks that should still count from a stowed
+  weapon set.
+
+### Reliability
+
+- A build's "Updated" timestamp/staleness flag now only changes on a real edit, not just from
+  opening and closing the editor; a new "Mark as up to date" button lets you manually confirm a
+  build still holds up after a balance patch.
+- Fixed name/tag text inputs not picking up the app's themed input styling.
+
 ## 0.3.0 — 2026-08-06
 
 ### Favorites

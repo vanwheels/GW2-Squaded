@@ -34,7 +34,8 @@ you want to run it there.
   so the numbers match the fight you're theorycrafting for.
 - **Gear optimizer** — set minimum stat floors (shown in their translated Health/Armor/Critical
   Chance/Critical Damage form) and up to 3 stats to maximize, and it searches the full legal gear
-  stat-combo pool (including runes, infusions, and food/utility) for the best combination.
+  stat-combo pool (including runes, infusions, and food/utility) for the best combination, with a
+  live "current vs. proposed" stat comparison before you apply it.
 - **Squad composition builder** — a roster grid of up to 10 parties of 5. Drag saved builds in
   from the sidebar, or drop in a lightweight "ghost pick" (just a profession/elite-spec icon) or a
   free-text placeholder for a slot you haven't planned out yet.
@@ -43,7 +44,10 @@ you want to run it there.
   also a one-click *Copy screenshot* button that puts an image straight on your clipboard, handy
   for pasting into Discord.
 - **Organization** — tags, free-text/keyword search (gear-upgrade pickers support `#stat` search,
-  e.g. `#power`), and middle-click-to-favorite on any build/squad/food/utility item.
+  e.g. `#power`), and middle-click-to-favorite on any build/squad/food/utility item. Build and
+  squad cards are colored by profession (real GW2 class colors) so a list or squad roster reads at
+  a glance.
+- **Light / Dark / System theme** — follows your OS theme by default, or pin one from Settings.
 - **Offline-first** — your builds and squad comps are saved locally (SQLite); the app works
   without a network connection once game data has been fetched once.
 
@@ -80,11 +84,12 @@ Create a squad comp, then build out your roster: drag a build from the sidebar o
 or click a slot to search/pick a saved build *or* a lightweight "ghost pick" (just a profession/
 elite-spec icon, for a role you haven't built out yet) from the same picker. Each slot also has an
 optional free-text role label (e.g. "any DPS"). Parties can be added up to the real WvW squad cap
-(10 parties of 5). Tags, search, favorites, screenshots, sharing, and link import all work the
-same way as Builds.
+(10 parties of 5). Right-click a sidebar card or a filled party slot for a quick Preview/Edit menu.
+Tags, search, favorites, screenshots, sharing, and link import all work the same way as Builds.
 
 ### Settings tab
 
+- **Appearance** — Light/Dark/System theme toggle.
 - **Display** toggles for underwater equipment/skills and racial skills (both off by default —
   hidden from pickers and excluded from Stats/boon-condition totals when off).
 - **Updates** — check for and install new app versions (Windows only).
@@ -143,4 +148,6 @@ Discord bot and Capacitor mobile port are later roadmap stages, not part of 1.0.
 
 Equipment-slot and stat-prefix icons are used with permission from
 [gw2skills.net](https://en.gw2skills.net/) — thanks to Connor McLeoud for granting reuse.
+Profession and elite-specialization icons are the Guild Wars 2 Wiki's community-drawn Tango icon
+set, used under the [GNU Free Documentation License](https://www.gnu.org/licenses/fdl-1.3.html).
 Reference data and imagery also draw on the Guild Wars 2 Wiki community.
