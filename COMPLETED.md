@@ -2,6 +2,48 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 249 — Discord bot Phase 4 leg 3: `/squaddisplay`, closes out Phase 4
+
+Built `/squaddisplay`, the last unbuilt piece of the Discord bot's phased build order
+(`docs/discord-bot.md`) — mirrors `/builddisplay`'s design exactly rather than inventing a new
+shape: `SquadCompScreenshotGrid.tsx` (new) factors the party-rows-plus-Add-line markup out of
+`SquadCompEditorView.tsx`, the same extraction `BuildScreenshotGrid.tsx` made for the build editor
+so a read-only render can reuse the exact layout without a second copy drifting out of sync. New
+`src/web-preview/squad-preview.html` + `SquadPreviewPage.tsx` + `main-squad.tsx` entry point
+(`vite.web-preview.config.ts`'s `rollupOptions.input` now builds both HTML entries in one pass,
+sharing the `global.js` chunk), fed straight from the share payload's own bundled `builds` map — no
+store needed for roster content. `worker/src/render/squad-screenshot.ts` mirrors
+`build-screenshot.ts` exactly (`.party-rows` selector, same viewport/timeout). `squadDisplay`
+(`commands/display.ts`) mirrors `buildDisplay`'s exactly-one-of-name/link shape, using
+`getSquadByName`/`asLikelySquadCompFields` (both already existed, unused until now). Wired into
+`dispatch.ts`, `autocomplete.ts`, `register-commands.ts`.
+
+One provider addition pre-empted rather than rediscovered live: `SlotTile` calls `useBuildsStore()`
+unconditionally (dead code under `interactive={false}`, but the hook still throws without a
+provider) — added `BuildsStoreProvider` to `main-squad.tsx`'s stack up front, same "missing
+provider crashes the tree silently" failure mode leg 2's live-verify pass caught for builds.
+
+Deployed and registered (Version ID `e5052a97...`, command id `1539741117862641765`), then
+**live-verified in a real Discord server 2026-08-19**. Live testing caught one real gap anyway,
+same-day fixed (commit `8a8d230`): party names and boon/condition summaries rendered correctly, but
+every slot's own profession/elite-spec icon badge showed the empty-slot placeholder instead of the
+real icon. Root cause — `SlotTile`'s icon badge is resolved by `UpgradePicker` matching `chosenId`
+against its `options` list, built from the `builds` array *prop*, a separate list from
+`buildsById`/`build` (used for the slot's name/summary, which is why those rendered fine).
+`SquadPreviewPage` passed `builds={[]}`, assuming the assign-dropdown was fully dead code under
+`interactive={false}` — true for interaction, but `options` still needs real entries for the icon
+lookup itself to resolve. Fixed by deriving `builds` from `buildsById`'s own values instead of
+hardcoding it empty; redeployed (Version ID `a68043a3...`), no command re-registration needed.
+Local typecheck/lint/`build:web-preview`/`wrangler deploy --dry-run` all stayed clean through this
+bug the whole time — it only ever showed up live, same caution leg 2's own write-up gives.
+
+This closes out Phase 4 and, with it, the Discord bot's entire phased build order (Phases 1-4, all
+deployed/registered/live-verified). Two follow-on integration points were explicitly deferred, not
+built in this session: the approval-card Preview button still refuses squad requests, and the board
+list's per-section "Preview a build…" select menu has no squad equivalent — both are now trivially
+wireable to `renderSquadScreenshot` if picked up later. `docs/discord-bot.md`'s Phase 4 checkbox and
+Status section, and TODO.md's Discord bot entry, updated/closed accordingly.
+
 ## Session 248 — Discord bot Phase 2: live verification + a real reliability fix
 
 User manually tested Phase 2 in a real Discord server: board setup (Guardian/Warrior/…/Revenant

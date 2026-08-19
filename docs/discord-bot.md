@@ -312,7 +312,7 @@ should update this section's checkbox when done.
         touched by a Preview click. No approver-role gate on Preview itself, since viewing a render
         isn't privileged the way deciding the request is. Deployed and confirmed working live
         2026-08-19.
-- [ ] **Phase 4 — display + game-data resolution.** Bundling a synced slice of
+- [x] **Phase 4 — display + game-data resolution.** Bundling a synced slice of
       `data/game-data/*.json` into the worker (the real unknown-sized piece of this whole
       project — see "The game-data gap this surfaces" above), then `/buildDisplay`/
       `/squadDisplay` built on top of it, including the link-only ad-hoc preview path.
@@ -362,14 +362,9 @@ should update this section's checkbox when done.
             mirrors `buildDisplay`'s exactly-one-of-name/link shape, using `getSquadByName`/
             `asLikelySquadCompFields` (both already existed, unused until now). Wired into
             `dispatch.ts`'s `COMMANDS`, `autocomplete.ts`'s `SQUAD_NAME_COMMANDS`, and
-            `register-commands.ts`. **Code complete 2026-08-19**: root `npm run typecheck`/`lint`,
-            worker `npm run typecheck`, `npm run build:web-preview` (both HTML entries build
-            correctly), and worker `wrangler deploy --dry-run` all clean. **Not yet deployed,
-            registered, or live-verified** — unlike legs 1-2, this hasn't been pushed to production
-            or exercised against a real Discord server yet; the render page in particular has never
-            actually run in a headless browser, so the same category of live-only bug leg 2's
-            write-up documents (missing providers, CSP, viewport) could still be lurking here despite
-            being pre-empted where the same shape was already known.
+            `register-commands.ts`. **Deployed, registered, and confirmed working end-to-end in a
+            real Discord server 2026-08-19** — see "Status" below for the one real bug the
+            live-verify pass caught (per-slot build icons not resolving) and its same-day fix.
       - [ ] **Follow-on integration, not built here**: the approval-card Preview button
             (`dispatch.ts`'s `runApprovalPreview`) still replies "Preview isn't available for squad
             requests yet" for squad requests, and the board list's per-section "Preview a
@@ -474,13 +469,21 @@ vanishing as a silent unhandled rejection.
 
 Phase 4 (display) leg 2 (`/builddisplay`) is deployed, registered, and **confirmed working
 end-to-end in a real Discord server as of 2026-08-19** (final Version ID `aa30c7d8`).
-`/squaddisplay` (leg 3) is **code complete as of 2026-08-19** (see its own bullet above) but not
-yet deployed, registered with Discord, or exercised against a real headless-browser render —
-needs `wrangler deploy` (which also picks up `build:web-preview`'s freshly-built `squad-preview`
-bundle via `worker/public`) and `npm run register-commands` to publish the new `squaddisplay`
-command, then a live `/squaddisplay` call to actually confirm the render page works outside local
-typecheck/lint/dry-run, same caution leg 2's own write-up gives for why those checks alone weren't
-enough proof there.
+
+`/squaddisplay` (leg 3) is **deployed, registered, and confirmed working end-to-end in a real
+Discord server as of 2026-08-19** (`wrangler deploy` Version ID `e5052a97...`, `npm run
+register-commands` registered command id `1539741117862641765`). Live testing caught one real gap,
+same-day fixed (commit `8a8d230`): party names and boon/condition summaries rendered correctly, but
+every slot's own profession/elite-spec icon badge showed the empty-slot placeholder instead of the
+real icon. Root cause — `SlotTile`'s icon badge is resolved by `UpgradePicker` matching `chosenId`
+against its `options` list, built from the `builds` array *prop*, a separate list from
+`buildsById`/`build` (used for the slot's name/summary, which is why those rendered fine).
+`SquadPreviewPage` passed `builds={[]}`, assuming the assign-dropdown was fully dead code under
+`interactive={false}` — true for interaction, but `options` still needs real entries for the icon
+lookup itself to resolve. Fixed by deriving `builds` from `buildsById`'s own values instead of
+hardcoding it empty; redeployed (Version ID `a68043a3...`), no command re-registration needed (no
+command shape changed). Confirms the caution leg 2's own write-up gives: local typecheck/lint/
+dry-run/`build:web-preview` all stayed clean through this bug — it only ever showed up live.
 
 Phase 3 (approval workflow) is **deployed, registered, and confirmed working end-to-end in a real
 Discord server as of 2026-08-19**: `/buildboardconfig approvalmode manual` →

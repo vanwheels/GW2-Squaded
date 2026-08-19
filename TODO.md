@@ -219,33 +219,17 @@ alone but the wiki's own fact template disambiguates them), 108 via a bare quali
 (GW2's own defaults-to-self convention). This closes out the whole `MISCELLANEOUS_MATCHERS`
 party-wide-targetCount item — see `BREAKS_STUN_PARTY_WIDE`'s own doc comment for the full writeup.
 
-- [ ] Discord bot — a guild-scoped, curated build/squad board (slash-command add/edit/remove/move,
-      profession-sectioned board messages the bot keeps in sync, optional Manual-approval workflow
-      with role-gated buttons) mapped out in full 2026-08-12. Full design-of-record — command
-      list, D1 schema, approval workflow, architecture decisions, explicit v1 non-goals, phased
-      build order — lives in `docs/discord-bot.md`, not here; read that first before picking this
-      up. **Phases 1-3 all done, deployed, registered, and live-verified in a real Discord server**
-      (Phase 1: 2026-08-19; Phase 2 core CRUD/board sync: 2026-08-19, setup/add/remove/edit/move/
-      autocomplete all confirmed; Phase 3 approval workflow: 2026-08-19, approvalmode/
-      setapproverrole/approvalschannel + gated add + both Approve and Reject confirmed, plus a
-      same-day Preview-button follow-up after live testing showed the card gave an approver
-      nothing to inspect before deciding). **Phase 4 leg 1-2 (display) done and live-verified
-      2026-08-19** (`/builddisplay` screenshot render) — the live-verify pass caught 4 real bugs
-      invisible to local typecheck/lint/dry-run (a game-data race, 3 missing context providers,
-      missing local icon assets + a too-narrow image CSP, and a too-narrow render viewport); see
-      `docs/discord-bot.md`'s "Status" section for the full writeup. **Phase 4 leg 3
-      (`/squaddisplay`) is code complete 2026-08-19** — mirrors leg 2's design exactly
-      (`SquadCompScreenshotGrid.tsx` extracted the same way `BuildScreenshotGrid.tsx` was, a new
-      `squad-preview.html`/`SquadPreviewPage.tsx` web-preview entry, `render/squad-screenshot.ts`
-      mirroring `build-screenshot.ts`); root/worker typecheck, lint, `build:web-preview`, and
-      `wrangler deploy --dry-run` all clean. **Not yet deployed, registered, or live-verified** —
-      unlike legs 1-2 this hasn't run in a real headless browser yet, so the same category of
-      live-only bug leg 2 caught (missing providers, CSP, viewport) could still be lurking despite
-      being pre-empted where the shape was already known (added `BuildsStoreProvider` up front for
-      `SlotTile`'s unconditional `useBuildsStore()` call). Needs a deploy + `register-commands` +
-      a real `/squaddisplay` call to close out. The approval-card Preview button and the board
-      list's per-section select menu still have no squad equivalent (see `docs/discord-bot.md`'s
-      "Follow-on integration, not built here" note) — natural next steps, not done in this leg.
+- [ ] Discord bot follow-on: squad equivalents for two build-only affordances. Full design-of-record
+      (now entirely built — Phases 1-4, deployed/registered/live-verified in a real Discord server,
+      see `docs/discord-bot.md`'s Status section and COMPLETED.md Session 249 for the closing leg)
+      lives in `docs/discord-bot.md`; the base bot (add/edit/remove/move, board sync, approval
+      workflow, `/builddisplay` + `/squaddisplay` screenshot previews) is done, this entry is just
+      the two things deliberately deferred out of Phase 4 leg 3: (1) the approval-card Preview
+      button (`dispatch.ts`'s `runApprovalPreview`) still replies "Preview isn't available for squad
+      requests yet" for squad requests instead of reusing the now-existing `renderSquadScreenshot`;
+      (2) the board list's per-section "Preview a build…" select menu (`render/board.ts`) has no
+      squad-board equivalent. Both are trivial wiring now that `renderSquadScreenshot` exists — not
+      picked up yet because they weren't asked for in the session that built the renderer.
 
 - [ ] Capacitor port for iOS/Android — scoped 2026-08-01, two-part seam: (1)
       `StorageAdapter`/`Repository<T>` (`src/shared/storage/storage-interface.ts`) is already
