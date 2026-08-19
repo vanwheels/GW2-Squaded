@@ -390,8 +390,11 @@ profession/elite-spec emoji next to each build's name. Feasibility + scope decis
    Squad board entries get no equivalent: there's still no `/squaddisplay` renderer to reuse (Phase
    4 leg 3, not built). A section past 25 builds silently only lists the first 25 in the dropdown
    rather than paging — no real section is close to that today, logged as an acceptable v1 gap
-   rather than built out. Typecheck/lint/`wrangler deploy --dry-run` all clean; **not yet deployed
-   or live-verified** as of this writing.
+   rather than built out. Typecheck/lint/`wrangler deploy --dry-run` all clean; **deployed
+   2026-08-19** (Version ID `fb36fefb`), **not yet live-verified in a real Discord server**. No
+   `register-commands` step was needed — no new slash command, just a message-component route.
+   Existing board messages won't show the new dropdown until they're next PATCHed (any `/buildAdd`/
+   `Edit`/`Remove`/`Move`, or `/buildBoardRebuild` to force it without a real change).
 3. **Profession/elite-spec emoji next to the name — built this session.** Uses Discord
    **application emojis** (bot-owned, usable in every guild the bot is in, don't consume a guild's
    own emoji slots), uploaded once from the already-curated, license-checked
