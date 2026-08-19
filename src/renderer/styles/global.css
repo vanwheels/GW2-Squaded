@@ -1514,6 +1514,37 @@ input[type='text'] {
   box-shadow: 0 4px 16px var(--shadow);
 }
 
+/* `ContextMenu.tsx` — same floating-popover treatment as `.skill-picker` (border/surface/shadow),
+   just a plain stack of full-width click targets instead of a search+grid. `z-index` above
+   `.modal-backdrop` (1000) so a right-click menu can still open on content underneath an open
+   modal without being hidden by it. */
+.context-menu {
+  z-index: 1100;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px;
+  background: var(--surface);
+  width: max-content;
+  min-width: 120px;
+  box-shadow: 0 4px 16px var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.context-menu-item {
+  text-align: left;
+  border: none;
+  background: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+}
+
+.context-menu-item:hover {
+  background: var(--bg);
+  border-color: transparent;
+}
+
 .skill-picker-header {
   font-size: 0.75rem;
   color: var(--muted);
@@ -2057,10 +2088,23 @@ input[type='text'] {
 
 /* Same bordered-box treatment as `.build-editor-column` (surface bg, 1px border, 8px radius,
    14px/16px padding) — kept as its own class rather than sharing `.build-editor-column` directly
-   since this box is a fixed 200px sidebar, not a grid column. */
+   since this box is a fixed 200px sidebar, not a grid column.
+   Sticky + height-capped (2026-08-19 user feedback): a roster can run up to `MAX_PARTIES` (10)
+   lines deep, far taller than the viewport, so the sidebar pins itself in place while the lines
+   scroll past instead of scrolling away with them. `top`/the `-48px` in `max-height` both mirror
+   `.app-content`'s 24px padding (top+bottom) so the box has the same breathing room stuck as it
+   does at the top of the page. Flex-column so `.builds-sidebar-list` below can be the one child
+   that actually scrolls (`flex:1; min-height:0` there) while the title and search/filter bar
+   above it stay put — "the search should be more than enough" alongside the scrollbar itself,
+   per that same feedback. */
 .builds-sidebar {
   flex: none;
   width: 200px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -2079,6 +2123,9 @@ input[type='text'] {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .builds-sidebar-card {
@@ -2152,6 +2199,9 @@ input[type='text'] {
   gap: 10px;
 }
 
+/* No border by default (2026-08-19 user feedback, "don't like the dotted border around each
+   class") — the `2px solid transparent` (not just omitting `border` outright) reserves the same
+   box space a real border would, so nothing shifts when `.drag-over` below turns it visible. */
 .slot-tile {
   display: flex;
   flex-direction: column;
@@ -2159,19 +2209,24 @@ input[type='text'] {
   gap: 4px;
   width: 92px;
   padding: 8px 6px;
-  border: 2px dashed var(--border);
+  border: 2px solid transparent;
   border-radius: 8px;
 }
 
 .slot-tile.drag-over {
   border-color: var(--accent);
-  border-style: solid;
   background: color-mix(in srgb, var(--accent) 8%, transparent);
 }
 
+/* Drops `.skill-slot-button`'s own border/surface box (2026-08-19 user feedback, "on top of the
+   box around the icons, which we can definitely get rid of") — just the bare icon at slot size,
+   same treatment for both a real build's profession/elite-spec icon and the empty-slot "?"/label
+   placeholder. Border-radius/overflow stay so a square build icon still gets clipped corners. */
 .slot-tile .skill-slot-button {
   width: 64px;
   height: 64px;
+  border: none;
+  background: transparent;
 }
 
 .slot-tile-label-input,
@@ -2382,6 +2437,14 @@ input[type='text'] {
 
 .optimizer-modal {
   max-width: 860px;
+}
+
+/* `BuildPreviewModal.tsx` — wide enough to give `BuildScreenshotGrid`'s `1fr` Stats+Skills column
+   (see `.build-editor-grid`) a real width to fill, unlike the default `.modal-dialog`'s 480px cap
+   which was sized for small confirmation-style dialogs. */
+.build-preview-modal {
+  width: min(1400px, calc(100vw - 48px));
+  max-width: none;
 }
 
 .optimizer-tier-list {

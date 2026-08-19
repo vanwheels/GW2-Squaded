@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Build } from '@shared/types'
 import { isLikelyBuild } from '@shared/share/validate'
 import { isBuildStaleSincePatch } from '@shared/types/build'
@@ -15,13 +15,33 @@ import { BuildEditorView } from '@renderer/components/build-editor/BuildEditorVi
 import { ImportFromLinkButton } from '@renderer/components/common/ImportFromLinkButton'
 import { TagFilterBar } from '@renderer/components/common/TagFilterBar'
 
-export function BuildsView() {
+interface Props {
+  /** Set by `App.tsx` when the Squads tab's right-click "Edit" jumps here for a specific build —
+   *  opens that build in `BuildEditorView` exactly like clicking its card would, then immediately
+   *  reports back via `onRequestedEditBuildHandled` so `App` can clear the request (otherwise
+   *  switching away and back to Builds would keep reopening it). `null`/omitted is the normal
+   *  "no pending cross-tab request" case. */
+  requestedEditBuildId?: string | null
+  onRequestedEditBuildHandled?: () => void
+}
+
+export function BuildsView({ requestedEditBuildId, onRequestedEditBuildHandled }: Props) {
   const { builds, loading, createBuild, updateBuild, removeBuild } = useBuildsStore()
   const { professions, specializationsById } = useGameData()
   const { localGw2Build } = useDataUpdate()
   const [editing, setEditing] = useState<{ build: Build; isNew: boolean } | null>(null)
   const [dragId, setDragId] = useState<string | null>(null)
   const [dropTargetId, setDropTargetId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!requestedEditBuildId) return
+    const build = builds.find((b) => b.id === requestedEditBuildId)
+    if (build) setEditing({ build, isNew: false })
+    onRequestedEditBuildHandled?.()
+    // Fires once per incoming request id, not on every `builds`/`onRequestedEditBuildHandled`
+    // identity change — same single-measure-per-transition reasoning as `FloatingPanel`'s effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requestedEditBuildId])
 
   const getTags = useCallback(
     (build: Build) => [...getBuildAutoTags(build, { professions, specializationsById }), ...build.tags],

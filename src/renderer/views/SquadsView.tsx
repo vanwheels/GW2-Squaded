@@ -19,7 +19,13 @@ function slotProfession(slot: SquadSlot, buildsById: Map<string, Build>): Build[
   return slot.ghostPick?.profession ?? null
 }
 
-export function SquadsView() {
+interface Props {
+  /** Jumps to the Builds tab with a given build open for editing — see `BuildsSidebar`'s doc
+   *  comment on the same prop name for why this has to come from `App.tsx`. */
+  onEditBuild: (buildId: string) => void
+}
+
+export function SquadsView({ onEditBuild }: Props) {
   const { squadComps, loading, createSquadComp, updateSquadComp, removeSquadComp } = useSquadCompsStore()
   const { builds, createBuild } = useBuildsStore()
   const buildsById = useMemo(() => new Map(builds.map((b) => [b.id, b])), [builds])
@@ -89,6 +95,7 @@ export function SquadsView() {
           await (editing.isNew ? createSquadComp(squadComp) : updateSquadComp(squadComp))
           setEditing(null)
         }}
+        onEditBuild={onEditBuild}
       />
     )
   }

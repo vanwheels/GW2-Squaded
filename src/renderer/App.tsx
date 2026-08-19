@@ -13,6 +13,15 @@ import { DataUpdateStoreProvider } from '@renderer/state/data-update-store'
 
 export function App() {
   const [activeView, setActiveView] = useState<ViewKey>('builds')
+  // Cross-tab "open this build in the editor" request — set by the Squads tab's right-click
+  // "Edit" (see `BuildsSidebar`'s doc comment), consumed and cleared by `BuildsView` once it's
+  // acted on it.
+  const [requestedEditBuildId, setRequestedEditBuildId] = useState<string | null>(null)
+
+  function editBuildFromSquads(buildId: string): void {
+    setRequestedEditBuildId(buildId)
+    setActiveView('builds')
+  }
 
   return (
     <AppSettingsProvider>
@@ -28,10 +37,13 @@ export function App() {
                         Settings) so each tab's in-progress editor screen — and its scroll/filter/drag
                         state — is exactly as you left it when you switch back. */}
                     <div style={{ display: activeView === 'builds' ? 'contents' : 'none' }}>
-                      <BuildsView />
+                      <BuildsView
+                        requestedEditBuildId={requestedEditBuildId}
+                        onRequestedEditBuildHandled={() => setRequestedEditBuildId(null)}
+                      />
                     </div>
                     <div style={{ display: activeView === 'squads' ? 'contents' : 'none' }}>
-                      <SquadsView />
+                      <SquadsView onEditBuild={editBuildFromSquads} />
                     </div>
                     {activeView === 'settings' && <SettingsView />}
                   </PickerRegistryProvider>

@@ -13,12 +13,14 @@ import type { BuildDragPayload } from './drag-payload'
 interface Props {
   squadComp: SquadComp
   onBack: (squadComp: SquadComp) => Promise<void>
+  /** Passed straight through to `BuildsSidebar` — see its doc comment on the same prop name. */
+  onEditBuild: (buildId: string) => void
 }
 
 /** WvW's real squad cap is 50 players (10 parties of 5) — see TODO.md. */
 const MAX_PARTIES = 10
 
-export function SquadCompEditorView({ squadComp, onBack }: Props) {
+export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
   const [draft, setDraft] = useState<SquadComp>(squadComp)
   const [saving, setSaving] = useState(false)
   const { builds } = useBuildsStore()
@@ -136,7 +138,7 @@ export function SquadCompEditorView({ squadComp, onBack }: Props) {
       </div>
 
       <div className="squad-editor-body" ref={bodyRef}>
-        <BuildsSidebar />
+        <BuildsSidebar onEditBuild={onEditBuild} />
         <div className="party-rows">
           {draft.parties.map((party, partyIndex) => (
             <PartyRow
