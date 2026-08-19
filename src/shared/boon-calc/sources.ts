@@ -4983,10 +4983,11 @@ export const BOON_STRIP_CORRUPT_MATCHERS: Record<string, (fact: Fact) => boolean
  * `"Number of Allied Targets"` fact (`resolveTargetCountFrom` checks that before ever consulting this
  * table) — e.g. "Save Yourselves!", "Protect Me!", Banner of Tactics, "Never Surrender!".
  * Remaining scope for a future sweep leg: the ~120 still-uncurated Breaks-Stun sources (mostly
- * self-only by inspection, but not individually confirmed), plus Superspeed (51 remaining) and
- * Barrier (68 remaining) — neither of which have had the same manual description read this leg gave
- * Breaks Stun (Stealth got its own leg next, see `STEALTH_PARTY_WIDE` below), so they currently only
- * benefit from the free `"Number of Allied Targets"`-fact resolutions wired below.
+ * self-only by inspection, but not individually confirmed) — Stealth/Superspeed/Barrier all got
+ * their own legs next (see `STEALTH_PARTY_WIDE`/`SUPERSPEED_PARTY_WIDE`/`BARRIER_PARTY_WIDE` below)
+ * and are done; Breaks Stun's own ~120 leftover sources are the only piece of this table's original
+ * scope still open, and only benefit from the free `"Number of Allied Targets"`-fact resolutions
+ * wired below.
  */
 export const BREAKS_STUN_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
   skill: {
@@ -5135,8 +5136,9 @@ export const STEALTH_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverri
  * curated reach, matching the fact's absence of any real grant — otherwise), the same mechanism
  * `TARGET_COUNT_OVERRIDES` already uses for Willbender's Phoenix Protocol/Gladiator's Defense: a
  * source's reach flipping on an unrelated trait choice, not on its own fact data.
- * Remaining scope: Barrier (68) still hasn't had this manual pass; ~120 Breaks-Stun sources also
- * remain (see `BREAKS_STUN_PARTY_WIDE`'s own doc comment).
+ * Barrier got its own leg next — see `BARRIER_PARTY_WIDE` below, now also done; ~120 Breaks-Stun
+ * sources remain the only open piece of this whole sweep (see `BREAKS_STUN_PARTY_WIDE`'s own doc
+ * comment).
  */
 export const SUPERSPEED_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
   skill: {
@@ -5164,24 +5166,134 @@ export const SUPERSPEED_PARTY_WIDE: { skill: Record<number, SourceTargetCountOve
   }
 }
 
-/** Placeholder table with no curated overrides of its own — still meaningfully different from
- *  omitting the matcher name from `NAMED_FACT_TARGET_COUNT_TABLES` entirely: `resolveTargetCountFrom`
- *  checks a source's own `"Number of Allied Targets"` fact BEFORE ever consulting the override table,
- *  so wiring even an empty table in unlocks that free resolution for any source that already carries
- *  one. Used for Barrier below, which hasn't had a manual description-read pass yet (see
- *  `BREAKS_STUN_PARTY_WIDE`'s doc comment for the scope that's still open). */
-const NO_MANUAL_TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
-  skill: {},
-  trait: {}
+/**
+ * Party-wide entries for `MISCELLANEOUS_MATCHERS`' "Barrier" row — fourth and last sweep leg
+ * (TODO.md's "party-wide-only filter" Misc-row scoping, 2026-08-19 continued), same "confirmed
+ * party-wide only, leave the self-only majority uncurated" approach `BREAKS_STUN_PARTY_WIDE`'s doc
+ * comment explains. 79 skills + traits carry an `AttributeAdjust` fact whose `text` matches /barrier/i;
+ * 11 already resolve for free via their own `"Number of Allied Targets"` fact; of the remaining 68, a
+ * full read of local API `facts`/`description` data (plus 2 live wiki checks for the genuinely
+ * ambiguous ones) found 15 skills + 7 traits confirmed party-wide:
+ *  - 14394 Call of Valor — own desc "Removes conditions from allies... Affected targets also gain
+ *    barrier," own `Number of Targets: 5`.
+ *  - 30101 Bulwark Gyro — own desc "grant barrier to allies in the area," own `Number of Targets: 5`.
+ *  - 31740 Glyph of Burgeoning — own desc "Grant barrier...to nearby allies," own `Number of Targets: 5`.
+ *  - 34714 Glyph of Elemental Power — own desc doesn't name Barrier at all ("effect will differ based
+ *    on your attunement"), own `Number of Targets: 5` — live wiki check confirmed the Earth-attunement
+ *    branch "Grants Barrier to five nearby allies," the only branch of the 4 that grants Barrier.
+ *  - 41615 Serpent Siphon — own desc "granting barrier and boons to nearby allies," own
+ *    `Number of Targets: 5`.
+ *  - 42917 Sand Swell — own desc "Grant allies using this passage a health barrier," no explicit
+ *    `Number` fact — default-5 convention (same as Veil in `STEALTH_PARTY_WIDE`).
+ *  - 43148 Sand Flare — own facts explicitly split `Self Barrier`(2420) from `Ally Barrier`(1220),
+ *    own `Number of Targets: 5` — the split labeling is itself the ally-reach evidence, independent
+ *    of the generic description text ("Gain barrier").
+ *  - 62689 Saint's Shield — own desc "granting barrier and healing to allies in the affected area,"
+ *    own `Number of Targets: 5`.
+ *  - 63141 Barrier Burst (Mechanist Mech Command) — own desc "Pulse a barrier and boons to all nearby
+ *    allies," own `Number of Targets: 5`.
+ *  - 63169 Energizing Slam — own desc "granting barrier and boons to allies," own `Number of Targets: 5`.
+ *  - 63220 Dawn's Repose (Range 450 leap variant) — own desc "Grant barrier to your tethered ally and
+ *    NEARBY ALLIES based on targets struck," own `Number of Targets: 5`. Its same-named sibling 63227
+ *    (Range 600 dash variant) is deliberately EXCLUDED below — that id's own description reads "Grant
+ *    barrier to your tethered ally and YOURSELF" instead (no "nearby allies" wording at all), a
+ *    genuinely different mechanic despite sharing a name, same "read each id's own description, don't
+ *    group by name" discipline `STEALTH_PARTY_WIDE`'s Toss Elixir S entries already established.
+ *  - 76562 "We Will Never Yield!" — own desc "Your allies' health cannot be reduced below zero... grant
+ *    barrier proportionate to their missing health," own `Number of Targets: 5`. Already curated in
+ *    `SUPERSPEED_PARTY_WIDE` for its separate Superspeed line — this is a second, independent entry
+ *    for this table's own Barrier row on the same source id.
+ *  - 76813 Effulgent Stance — own desc "Grant barrier and light aura to nearby allies," no explicit
+ *    `Number` fact — default-5 convention.
+ *  - 76816 Chak Shield — own desc "granting barrier to allies within it," own `Number of Targets: 5`.
+ *  - 76934 "Brace Yourselves!" — own desc "Apply barrier to yourself and allies around you... Apply
+ *    barrier again to allies," own `Number of Targets: 5`.
+ *  - Trait 1060 Allies' Aid — own desc "Moa pets grant barrier to nearby allies," own
+ *    `Number of Targets: 5`.
+ *  - Trait 1854 Chain Reactivity — own desc "a larger barrier that is shared with allies," own facts
+ *    explicitly carry 2 `Ally Barrier` entries (likely a PvE/competitive split, same shape as Sand
+ *    Flare above) — no `Number` fact, default-5 convention.
+ *  - Trait 1971 System Shocker — own desc "Disabling a foe grants barrier to nearby allies," no
+ *    explicit `Number` fact — default-5 convention.
+ *  - Trait 1981 Ex Machina — own desc "grants barrier to nearby allies," no explicit `Number` fact —
+ *    default-5 convention.
+ *  - Trait 2253 Unshakable Mountain — own desc "Grant barrier to nearby allies," own
+ *    `Number of Targets: 5`.
+ *  - Trait 2280 Panaku's Ambition — own desc's 2nd sentence "When you apply stealth to allies, you
+ *    also grant them barrier," own facts explicitly split `Stealth Attack Barrier`(714, the self-only
+ *    1st-sentence case) from `Stealth Barrier`(2122, the ally-facing 2nd-sentence case) — no `Number`
+ *    fact, default-5 convention.
+ *  - Trait 2281 Mech Core: Barrier Engine — own desc "your mech will automatically grant a small
+ *    barrier each interval to nearby allies," own `Number of Targets: 5`.
+ * Explicitly excluded as self/pet/single-ally-only (own description has no "nearby allies"/"allies
+ * around you" reach): every Elementalist Earth-line self-barrier-stack skill (Armor of Earth, Rock
+ * Barrier, Stone Sheath, Lesser/regular Stone Resonance, Molten Burst, Fortified Earth, Immutable
+ * Stone — all "gain barrier" tied to the Tectonic Shift self-buff mechanic, no ally wording on any of
+ * them), every "gain barrier per foe struck/disabled" personal-payoff skill (Magnetic Shield,
+ * Zealot's Embrace, Pommel Bash, Imminent Threat, Desert Shroud, Lava Skin, Call of the Dwarf,
+ * Overbearing Smash (both ids), Wild Swing (both ids), Crystal Configuration: Eclipse, Release
+ * Potential: Warrior (both ids)), self-only gadgets/stances (Utility Goggles, Lesser Utility Goggles,
+ * Shock Shield, Symbiotic Shielding, Earthen Blast, Last Stand, Resilient Spirit, Blast Shield, Feed
+ * from Corruption, Elemental Refreshment (explicit "to yourself"), Master's Fortitude, Nature's
+ * Shield (explicit "you and your pet," not party), Magpie's Defense (explicit "yourself" despite a
+ * stray `Number of Targets`/`Range` fact — same "explicit self-wording wins over an unrelated fact"
+ * reading `fetch-target-counts.ts`'s doc comment documents for "Guard!"/Lightning Flash), Enterprising
+ * Aristocrat (explicit "You take reduced... damage," same reasoning), Hybrid Vigor). Also excluded:
+ * 63155 Enter Shadow Shroud — grants barrier to a single targeted/tethered ally only ("Ally Target:
+ * ...tether a targeted...ally, granting them barrier"), never reaching the party-wide threshold even
+ * if curated, so left uncurated per this table's own "curating a non-qualifying entry has zero
+ * functional effect" convention; 76931 Crescendo — live-wiki-fetched raw wikitext confirms its own
+ * `{{skill fact|targets|5}}` template is the same BARE, unlabeled shape used elsewhere on this page for
+ * the skill's own foe-facing Damage fact, with no ally wording anywhere in the description and no
+ * `allied targets`-labeled template of its own — most likely describes the Damage foe count, not an
+ * ally reach for Barrier, so left uncurated as unresolved rather than guessed (same "fail safe into a
+ * logged bucket" convention `fetch-target-counts.ts` follows for this exact shape).
+ * This closes out the whole `MISCELLANEOUS_MATCHERS` party-wide-targetCount scoping item — Stealth/
+ * Superspeed/Breaks-Stun(partial)/Barrier have all now had their leg; only the ~120 leftover
+ * Breaks-Stun sources remain open (see `BREAKS_STUN_PARTY_WIDE`'s own doc comment).
+ */
+export const BARRIER_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
+  skill: {
+    14394: 5, // Call of Valor — "Affected targets also gain barrier," own Number(5)
+    30101: 5, // Bulwark Gyro — "grant barrier to allies in the area," own Number(5)
+    31740: 5, // Glyph of Burgeoning — "nearby allies," own Number(5)
+    34714: 5, // Glyph of Elemental Power — wiki-confirmed Earth branch "grants barrier to five nearby
+    // allies," own Number(5)
+    41615: 5, // Serpent Siphon — "granting barrier...to nearby allies," own Number(5)
+    42917: 5, // Sand Swell — "Grant allies...a health barrier," default-5 (no Number fact)
+    43148: 5, // Sand Flare — explicit "Ally Barrier" fact split from "Self Barrier," own Number(5)
+    62689: 5, // Saint's Shield — "barrier and healing to allies in the affected area," own Number(5)
+    63141: 5, // Barrier Burst — "Pulse a barrier and boons to all nearby allies," own Number(5)
+    63169: 5, // Energizing Slam — "granting barrier and boons to allies," own Number(5)
+    63220: 5, // Dawn's Repose (leap variant) — "tethered ally and nearby allies," own Number(5).
+    // Sibling id 63227 (dash variant) deliberately excluded — its own desc says "tethered ally and
+    // yourself" instead, no ally-wide wording
+    76562: 5, // "We Will Never Yield!" — "allies' health...grant barrier proportionate," own Number(5)
+    76813: 5, // Effulgent Stance — "barrier and light aura to nearby allies," default-5 (no Number fact)
+    76816: 5, // Chak Shield — "granting barrier to allies within it," own Number(5)
+    76934: 5 // "Brace Yourselves!" — "barrier to yourself and allies around you," own Number(5)
+  },
+  trait: {
+    1060: 5, // Allies' Aid — "Moa pets grant barrier to nearby allies," own Number(5)
+    1854: 5, // Chain Reactivity — "larger barrier...shared with allies," explicit "Ally Barrier" facts,
+    // default-5 (no Number fact)
+    1971: 5, // System Shocker — "grants barrier to nearby allies," default-5 (no Number fact)
+    1981: 5, // Ex Machina — "grants barrier to nearby allies," default-5 (no Number fact)
+    2253: 5, // Unshakable Mountain — "Grant barrier to nearby allies," own Number(5)
+    2280: 5, // Panaku's Ambition — "you also grant them barrier," explicit "Stealth Barrier" fact split
+    // from "Stealth Attack Barrier," default-5 (no Number fact)
+    2281: 5 // Mech Core: Barrier Engine — "grant a small barrier each interval to nearby allies," own
+    // Number(5)
+  }
 }
 
 /** Matcher names in `BOON_STRIP_CORRUPT_MATCHERS`/`MISCELLANEOUS_MATCHERS` (or any other matcher
  *  table) that resolve `NamedFactSource.targetCount` — passed to `computeNamedFactSources` alongside
- *  the matcher table itself. `Cleanse`/`Breaks Stun`/`Stealth`/`Superspeed` carry real curated
- *  overrides; `Barrier` only gets the free `"Number of Allied Targets"`-fact resolution (see
- *  `NO_MANUAL_TARGET_COUNT_OVERRIDES`'s doc comment) until its own sweep leg lands. Strip/
- *  Corrupt (how many enemies a boon is stripped/corrupted from) and every Control name were never
- *  scoped for this and stay `null` — omitted from this table entirely, not just uncurated within it. */
+ *  the matcher table itself. `Cleanse`/`Breaks Stun`/`Stealth`/`Superspeed`/`Barrier` all carry real
+ *  curated overrides now (the whole `MISCELLANEOUS_MATCHERS` sweep, see `BARRIER_PARTY_WIDE`'s own doc
+ *  comment for how it wraps up). Strip/Corrupt (how many enemies a boon is stripped/corrupted from)
+ *  and every Control name were never scoped for this and stay `null` — omitted from this table
+ *  entirely, not just uncurated within it. */
 export const NAMED_FACT_TARGET_COUNT_TABLES: Record<
   string,
   { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }
@@ -5190,7 +5302,7 @@ export const NAMED_FACT_TARGET_COUNT_TABLES: Record<
   Stealth: STEALTH_PARTY_WIDE,
   Superspeed: SUPERSPEED_PARTY_WIDE,
   'Breaks Stun': BREAKS_STUN_PARTY_WIDE,
-  Barrier: NO_MANUAL_TARGET_COUNT_OVERRIDES
+  Barrier: BARRIER_PARTY_WIDE
 }
 
 /**

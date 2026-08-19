@@ -2,6 +2,39 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 242 — Party-wide filter sweep leg 4: Barrier manual description read (closes the sweep)
+
+Fourth and last leg of the Misc-row `targetCount` sweep (`BREAKS_STUN_PARTY_WIDE` leg 1,
+`STEALTH_PARTY_WIDE` leg 2, `SUPERSPEED_PARTY_WIDE` leg 3). New `BARRIER_PARTY_WIDE` table
+(`sources.ts`) replaces the empty `NO_MANUAL_TARGET_COUNT_OVERRIDES` placeholder: of 79
+Barrier-fact-carrying skills/traits, 11 already resolved for free via their own `"Number of Allied
+Targets"` fact; of the remaining 68, a full local `facts`/`description` read found 15 skill ids + 7
+trait ids confirmed party-wide (Call of Valor, Bulwark Gyro, Glyph of Burgeoning, Glyph of Elemental
+Power, Serpent Siphon, Sand Swell, Sand Flare, Saint's Shield, Barrier Burst, Energizing Slam, Dawn's
+Repose (leap variant), "We Will Never Yield!", Effulgent Stance, Chak Shield, "Brace Yourselves!";
+traits Allies' Aid, Chain Reactivity, System Shocker, Ex Machina, Unshakable Mountain, Panaku's
+Ambition, Mech Core: Barrier Engine), plus 2 live wiki checks. Two same-name-but-different-mechanic
+sibling pairs turned up, same discipline `STEALTH_PARTY_WIDE`'s Toss Elixir S entries already
+established (read each id's own description, never group by name): Dawn's Repose's leap variant
+(63220, "tethered ally and nearby allies") is party-wide but its dash-variant sibling (63227,
+"tethered ally and yourself") isn't. Several sources had their ally-reach evidence sitting in an
+explicitly split fact label rather than the free-text description (Sand Flare's `Self Barrier`/`Ally
+Barrier` pair, Chain Reactivity's `Ally Barrier` facts, Panaku's Ambition's `Stealth Attack
+Barrier`/`Stealth Barrier` pair) — trusted as ally-reach evidence in place of prose, all defaulting to
+5 since none carry their own `Number` fact. The Elementalist Earth line's self-barrier-stack skills
+(Armor of Earth, Rock Barrier, Stone Sheath, both Stone Resonance ids, Molten Burst, Fortified Earth,
+Immutable Stone) turned out to be a clean recurring self-only pattern, all tied to the Tectonic Shift
+self-buff mechanic with zero ally wording. Live wiki checks: Glyph of Elemental Power's own local
+description never names Barrier at all ("effect differs based on attunement") — wiki confirmed the
+Earth branch specifically grants it to "five nearby allies," now curated; Crescendo's raw wikitext
+showed its own `{{skill fact|targets|5}}` is the same bare, unlabeled shape the page also uses for its
+foe-facing Damage fact, no ally wording anywhere — left uncurated rather than guessed. Also excluded:
+63155 Enter Shadow Shroud grants barrier to one single targeted/tethered ally only, never reaching the
+party-wide threshold even if curated. This closes the whole `MISCELLANEOUS_MATCHERS`
+party-wide-targetCount item; only Breaks Stun's own ~120 leftover self-only-by-inspection sources
+remain open, logged in TODO.md. `npm run typecheck`/`lint`/`vitest run` all clean (66 boon-calc tests,
+no new ones needed — this is curated data, not new logic).
+
 ## Session 241 — Time Warp Superspeed correction (same-day follow-up to Session 240)
 
 User corrected Session 240's "left uncurated as ambiguous" call on Time Warp: real-game knowledge says

@@ -219,10 +219,22 @@ reach) — the same conditional mechanism `TARGET_COUNT_OVERRIDES` already uses 
 Gladiator's Defense. See the table's own doc comment for the full per-entry reasoning, including
 everything excluded as self/pet/illusion-only.
 
+Fourth leg landed 2026-08-18: `BARRIER_PARTY_WIDE` gives Barrier the same manual-description-read
+treatment — 15 skill ids + 7 trait ids (Call of Valor, Bulwark Gyro, Glyph of Burgeoning, Glyph of
+Elemental Power, Serpent Siphon, Sand Swell, Sand Flare, Saint's Shield, Barrier Burst, Energizing
+Slam, Dawn's Repose (leap variant only — its same-named dash-variant sibling stays excluded, see the
+table's own doc comment), "We Will Never Yield!", Effulgent Stance, Chak Shield, "Brace Yourselves!";
+traits Allies' Aid, Chain Reactivity, System Shocker, Ex Machina, Unshakable Mountain, Panaku's
+Ambition, Mech Core: Barrier Engine) confirmed party-wide from their own local API facts/descriptions
+plus 2 live wiki checks (Glyph of Elemental Power's attunement-branch text, Crescendo's raw wikitext —
+the latter turned out NOT party-wide, its bare `targets` template most likely describes its own foe-
+facing Damage fact instead, so it stays uncurated). This closes out the whole
+`MISCELLANEOUS_MATCHERS` party-wide-targetCount item — see `BARRIER_PARTY_WIDE`'s own doc comment for
+the full per-entry reasoning, including everything excluded as self/pet/single-ally-only.
+
 - [ ] **Remaining scope, not started**: ~120 still-uncurated Breaks-Stun sources (mostly self-only by
-      inspection, not individually confirmed), plus a full manual description read for Barrier (68
-      left) — hasn't gotten the same pass Breaks Stun/Stealth/Superspeed did their legs. Same "one
-      leg, then check in" pacing as the original Cleanse/target-count sweeps — see
+      inspection, not individually confirmed) — the only piece of this whole sweep still open. Same
+      "one leg, then check in" pacing as the original Cleanse/target-count sweeps — see
       `pacing_large_sweeps` memory.
 
 - [ ] Exclusion filter on the Builds tab (flagged 2026-08-16) — extend `useTagFilter`
