@@ -2,6 +2,27 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 235 — Squad screenshot stitch failing on >4-line squads: CSP blocked the tile `<img>`s
+
+Same-day follow-up to Session 234: user reported the new stitched capture path itself failing
+("Failed — try again") for any squad over 4 lines — exactly the case that now takes the stitch path
+instead of the single-shot fast path. Root cause: `index.html`'s CSP `img-src` was
+`'self' https://render.guildwars2.com https://wiki.guildwars2.com` — no `data:` scheme. `captureElement`'s
+stitch loads each `captureRegionToDataUrl` tile into an offscreen `<img>` (`loadImage`) so it can be
+drawn onto the compositing canvas; every one of those `img.src = <data: URL>` assignments violated
+the CSP and silently fired `onerror` instead of `onload`, which `loadImage` turns into a rejected
+promise, caught by `ScreenshotButton` as a capture failure. The single-shot fast path (≤4 lines, and
+the Build editor, which always takes that path) never creates an `<img>` at all, so it was
+unaffected — matching exactly the reported "only breaks over 4 lines" shape.
+
+Fix: added `data:` to `img-src` in `index.html`'s CSP (one line). Scoped narrowly — the only `data:`
+image consumer anywhere in the app is this same locally-generated screenshot-tile compositing, not
+remote/user content, so this isn't loosening anything a real attacker could leverage.
+
+Verified via `npm run typecheck`, `npm run lint`, `npx vitest run` (221 passing, unchanged). Not
+visually confirmed in a running window (standing Electron-sandbox limitation) — recommend
+`npm run dev` with a 5+ line squad to confirm Copy Screenshot now succeeds end-to-end.
+
 ## Session 234 — Squad screenshot: drop editing chrome, stitch content taller than the viewport
 
 User flagged 3 problems with the Squad editor's Copy Screenshot: the Saved Builds sidebar and each
