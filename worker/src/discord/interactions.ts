@@ -1,9 +1,10 @@
 import { getGuildSettings } from '../db'
 import type { Env } from '../env'
 import { json } from '../http'
+import { BOARD_BUILD_PREVIEW_CUSTOM_ID } from '../render/board'
 import { parseDecisionCustomId, parsePreviewCustomId } from './approvals'
 import { autocompleteChoices } from './autocomplete'
-import { runApprovalDecision, runApprovalPreview, runCommand, resolveHandler } from './dispatch'
+import { runApprovalDecision, runApprovalPreview, runBoardBuildPreview, runCommand, resolveHandler } from './dispatch'
 import { EPHEMERAL, InteractionResponseType, InteractionType, isAdministrator, type DiscordInteraction } from './interaction-types'
 import { verifyDiscordRequest } from './verify'
 
@@ -63,6 +64,19 @@ export async function handleInteraction(request: Request, env: Env, ctx: Executi
     const previewRequestId = parsePreviewCustomId(interaction.data?.custom_id ?? '')
     if (previewRequestId !== null) {
       ctx.waitUntil(runApprovalPreview(env, interaction, previewRequestId))
+      return json({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE, data: { flags: EPHEMERAL } })
+    }
+
+    // The board's "Preview a build…" select menu (`render/board.ts`'s `buildPreviewSelectRow`) —
+    // same no-gate, own-ephemeral-message shape as the Preview button above, just sourced from a
+    // selected build id instead of a pending request. `values` is always present and non-empty for
+    // a string select the user actually interacted with; the `?? []`/`[0]` guard is defensive only.
+    if (interaction.data?.custom_id === BOARD_BUILD_PREVIEW_CUSTOM_ID) {
+      const buildId = Number(interaction.data.values?.[0])
+      if (!Number.isInteger(buildId)) {
+        return json({ type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE, data: { content: 'Unrecognized selection.', flags: EPHEMERAL } })
+      }
+      ctx.waitUntil(runBoardBuildPreview(env, interaction, buildId))
       return json({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE, data: { flags: EPHEMERAL } })
     }
 

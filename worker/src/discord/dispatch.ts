@@ -1,4 +1,4 @@
-import { getPendingRequest, type BoardType } from '../db'
+import { getBuildById, getPendingRequest, type BoardType } from '../db'
 import type { Env } from '../env'
 import { renderBuildScreenshot } from '../render/build-screenshot'
 import { editOriginalInteractionResponse, type DiscordMessagePayload } from './api'
@@ -169,6 +169,34 @@ export async function runApprovalPreview(env: Env, interaction: DiscordInteracti
       payload = { content: err.message }
     } else {
       console.error(`Previewing pending request ${requestId} failed:`, err)
+      payload = { content: 'Something went wrong rendering that preview.' }
+    }
+  }
+
+  await deliverInteractionResult(interaction, payload)
+}
+
+/** Renders and delivers a board section's "Preview a build…" select menu pick — the
+ *  `MESSAGE_COMPONENT` counterpart to `runApprovalPreview` above for the board itself rather than
+ *  an approval card, so it looks the build up directly by id (`render/board.ts`'s
+ *  `buildPreviewSelectRow` uses `builds.id` as each option's value) instead of going through a
+ *  `pending_requests` row. Same ack shape as a slash command (`DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE`,
+ *  a new ephemeral message) — the board message itself is never touched by a Preview selection. */
+export async function runBoardBuildPreview(env: Env, interaction: DiscordInteraction, buildId: number): Promise<void> {
+  let payload: DiscordMessagePayload
+  try {
+    const build = await getBuildById(env, buildId)
+    if (!build) {
+      payload = { content: 'That build is no longer on the board — try picking again, the list may be stale.' }
+    } else {
+      const png = await renderBuildScreenshot(env, build.share_id)
+      payload = { file: { filename: 'build.png', contentType: 'image/png', data: png } }
+    }
+  } catch (err) {
+    if (err instanceof UserError) {
+      payload = { content: err.message }
+    } else {
+      console.error(`Previewing board build ${buildId} failed:`, err)
       payload = { content: 'Something went wrong rendering that preview.' }
     }
   }

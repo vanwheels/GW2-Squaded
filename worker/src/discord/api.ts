@@ -18,9 +18,12 @@ export interface DiscordMessagePayload {
   file?: DiscordAttachment
 }
 
-/** Subset of Discord's message component object shapes this bot actually sends — one action row
- *  holding the Approve/Reject buttons on a pending-approval card, per
- *  https://discord.com/developers/docs/interactions/message-components. */
+/** Subset of Discord's message component object shapes this bot actually sends — action rows
+ *  holding either the Approve/Reject/Preview buttons on a pending-approval card, or a "Preview a
+ *  build…" string select menu on a board section message (`render/board.ts`'s
+ *  `renderBuildSection`), per https://discord.com/developers/docs/interactions/message-components.
+ *  Discord doesn't allow mixing buttons and a select menu in the same row, but this type doesn't
+ *  enforce that — callers just don't do it. */
 export interface DiscordButton {
   type: 2 // ComponentType.BUTTON
   style: number
@@ -28,9 +31,25 @@ export interface DiscordButton {
   custom_id: string
 }
 
+export interface DiscordSelectOption {
+  label: string
+  value: string
+}
+
+/** A string select (`ComponentType.STRING_SELECT`) — the "Preview a build…" dropdown per board
+ *  section. Discord caps `options` at 25 entries and 100 characters per `label`/`value`; callers
+ *  are responsible for staying under both (`render/board.ts` truncates/caps before building one of
+ *  these). */
+export interface DiscordStringSelectMenu {
+  type: 3 // ComponentType.STRING_SELECT
+  custom_id: string
+  placeholder?: string
+  options: DiscordSelectOption[]
+}
+
 export interface DiscordActionRow {
   type: 1 // ComponentType.ACTION_ROW
-  components: DiscordButton[]
+  components: (DiscordButton | DiscordStringSelectMenu)[]
 }
 
 export interface DiscordAttachment {

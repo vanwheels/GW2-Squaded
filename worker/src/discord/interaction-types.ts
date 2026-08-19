@@ -22,9 +22,10 @@ export const InteractionResponseType = {
   APPLICATION_COMMAND_AUTOCOMPLETE_RESULT: 8
 } as const
 
-/** Subset of Discord's Message Component Types enum — just enough to build the Approve/Reject
- *  buttons `discord/approvals.ts` posts. */
-export const ComponentType = { ACTION_ROW: 1, BUTTON: 2 } as const
+/** Subset of Discord's Message Component Types enum — just enough to build the Approve/Reject/
+ *  Preview buttons `discord/approvals.ts` posts and the "Preview a build…" select menu
+ *  `render/board.ts` posts. */
+export const ComponentType = { ACTION_ROW: 1, BUTTON: 2, STRING_SELECT: 3 } as const
 
 /** Subset of Discord's Button Style enum. */
 export const ButtonStyle = { SECONDARY: 2, SUCCESS: 3, DANGER: 4 } as const
@@ -74,11 +75,17 @@ export interface DiscordInteraction {
   data?: {
     name: string
     options?: InteractionOption[]
-    /** Only present on a `MESSAGE_COMPONENT` interaction — the `custom_id` of the button that was
-     *  pressed (e.g. `approve:42`/`preview:42`, built by `discord/approvals.ts`'s
-     *  `decisionButtons`). `interactions.ts` parses this via that file's `parseDecisionCustomId`/
-     *  `parsePreviewCustomId`. */
+    /** Only present on a `MESSAGE_COMPONENT` interaction — the `custom_id` of the component that
+     *  fired it: a button's own id (e.g. `approve:42`/`preview:42`, built by `discord/
+     *  approvals.ts`'s `decisionButtons`, parsed by that file's `parseDecisionCustomId`/
+     *  `parsePreviewCustomId`) or a select menu's id (`render/board.ts`'s
+     *  `BOARD_BUILD_PREVIEW_CUSTOM_ID`). */
     custom_id?: string
+    /** Only present on a string-select `MESSAGE_COMPONENT` interaction — the selected option
+     *  values (this bot's only select menu, the board's "Preview a build…" dropdown, has
+     *  `min_values`/`max_values` left at their default of 1, so this is always a single-element
+     *  array in practice). */
+    values?: string[]
   }
 }
 

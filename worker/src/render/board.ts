@@ -1,4 +1,4 @@
-import type { DiscordMessagePayload } from '../discord/api'
+import type { DiscordActionRow, DiscordMessagePayload } from '../discord/api'
 import type { BuildRow, SquadRow } from '../db'
 import emojiMapData from '../discord/emoji-map.json'
 
@@ -42,6 +42,41 @@ function buildNameLink(name: string, url: string): string {
   return `**[${name}](${url})**`
 }
 
+/** `custom_id` of every "Preview a build…" select menu a board section posts — the same literal
+ *  on every profession's message, since the selected *option value* (a build id) already
+ *  identifies the build unambiguously; nothing about which section a click came from needs to
+ *  round-trip through the id. `discord/interactions.ts` checks a `MESSAGE_COMPONENT`'s custom_id
+ *  against this before treating `interaction.data.values[0]` as a build id. */
+export const BOARD_BUILD_PREVIEW_CUSTOM_ID = 'boardpreview:build'
+
+/** Discord caps a select option's `label`/`value` at 100 characters — build names are free text
+ *  (no length limit enforced at add time), so this is a real, if rare, possibility. */
+function truncateForSelectOption(text: string, maxLength = 100): string {
+  return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text
+}
+
+/** A "Preview a build…" select menu row for a profession section, one option per build (screenshot
+ *  render reuses `render/build-screenshot.ts`'s `renderBuildScreenshot`, the same pipeline the
+ *  approval card's Preview button already uses — see `discord/dispatch.ts`'s
+ *  `runBoardBuildPreview`). Board-polish decision 2026-08-19, see docs/discord-bot.md — chosen over
+ *  a Preview button per build, since Discord's 25-component-per-message cap would be hit fast by a
+ *  busy profession section. Discord also caps a select menu at 25 options; a section past that
+ *  point just doesn't get the rest listed here (no realistic profession section is close to 25
+ *  builds today, so truncating silently rather than paging is an acceptable v1 gap). */
+function buildPreviewSelectRow(builds: BuildRow[]): DiscordActionRow {
+  return {
+    type: 1,
+    components: [
+      {
+        type: 3,
+        custom_id: BOARD_BUILD_PREVIEW_CUSTOM_ID,
+        placeholder: 'Preview a build…',
+        options: builds.slice(0, 25).map((b) => ({ label: truncateForSelectOption(b.name), value: String(b.id) }))
+      }
+    ]
+  }
+}
+
 /** Renders one profession's board section — the message `/buildBoardSetup`/`/buildBoardRebuild`
  *  create and every `/buildAdd`/`/buildEdit`/`/buildRemove`/`/buildMove` re-PATCHes in place.
  *  Builds are numbered by their `sort_order` position so `/buildMove [Build Name] [position]`'s
@@ -58,7 +93,11 @@ export function renderBuildSection(profession: string, builds: BuildRow[], publi
           .join('\n')
 
   return {
-    embeds: [{ title: profession, description, color: BOARD_EMBED_COLOR }]
+    embeds: [{ title: profession, description, color: BOARD_EMBED_COLOR }],
+    // An empty array (not just omitting the field) is what clears a stale select menu on a
+    // `/buildRemove` that empties out a section — same reasoning as `DiscordMessagePayload.components`'s
+    // own doc comment (a PATCH only touches fields present in the body).
+    components: builds.length === 0 ? [] : [buildPreviewSelectRow(builds)]
   }
 }
 

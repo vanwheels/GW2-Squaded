@@ -371,11 +371,27 @@ profession/elite-spec emoji next to each build's name. Feasibility + scope decis
    main-process code to catch that URL and drive the import flow. **Still deferred** — the user
    chose to land the simple copy version first as its own session rather than bundle it with the
    bigger protocol-handler piece. **Not yet deployed** as of this writing — needs `wrangler deploy`.
-2. **Preview button per build.** Discord caps a message at 25 components (5 rows × 5) — one button
-   per build in a busy profession section would hit that fast. A **select menu** per section
-   ("Preview a build…", up to 25 options) was the user's chosen direction, reusing the same
-   `renderBuildScreenshot` pipeline the approval card's Preview button already uses. **Deferred,
-   not built yet.**
+2. **Preview select menu per section — built 2026-08-19.** Discord caps a message at 25 components
+   (5 rows × 5) — one button per build in a busy profession section would hit that fast. A **select
+   menu** per section ("Preview a build…", up to 25 options, `render/board.ts`'s
+   `buildPreviewSelectRow`) was the user's chosen direction, reusing the same
+   `renderBuildScreenshot` pipeline the approval card's Preview button already uses
+   (`discord/dispatch.ts`'s new `runBoardBuildPreview`). Each option's value is the build's own
+   `id` (not its name), so a rename between message render and click can't select the wrong build;
+   `discord/interactions.ts` routes any `MESSAGE_COMPONENT` interaction whose `custom_id` matches
+   the shared `BOARD_BUILD_PREVIEW_CUSTOM_ID` constant here — one literal reused across every
+   profession's message, since the selected option value already identifies the build without
+   needing the section threaded through. Same no-permission-gate, own-new-ephemeral-message shape
+   as the approval card's Preview button (viewing a render isn't privileged); the board message
+   itself is never touched by a preview pick. `renderBuildSection` now also sets `components: []`
+   explicitly when a section is emptied out by a `/buildRemove`, clearing a stale select menu whose
+   last option no longer exists — Discord's message-edit semantics only touch fields present in the
+   PATCH body, same reasoning as the Approve/Reject card's own `components: []` on decision.
+   Squad board entries get no equivalent: there's still no `/squaddisplay` renderer to reuse (Phase
+   4 leg 3, not built). A section past 25 builds silently only lists the first 25 in the dropdown
+   rather than paging — no real section is close to that today, logged as an acceptable v1 gap
+   rather than built out. Typecheck/lint/`wrangler deploy --dry-run` all clean; **not yet deployed
+   or live-verified** as of this writing.
 3. **Profession/elite-spec emoji next to the name — built this session.** Uses Discord
    **application emojis** (bot-owned, usable in every guild the bot is in, don't consume a guild's
    own emoji slots), uploaded once from the already-curated, license-checked
