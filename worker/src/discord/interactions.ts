@@ -1,10 +1,10 @@
 import { getGuildSettings } from '../db'
 import type { Env } from '../env'
 import { json } from '../http'
-import { BOARD_BUILD_PREVIEW_CUSTOM_ID } from '../render/board'
+import { BOARD_BUILD_PREVIEW_CUSTOM_ID, BOARD_SQUAD_PREVIEW_CUSTOM_ID } from '../render/board'
 import { parseDecisionCustomId, parsePreviewCustomId } from './approvals'
 import { autocompleteChoices } from './autocomplete'
-import { runApprovalDecision, runApprovalPreview, runBoardBuildPreview, runCommand, resolveHandler } from './dispatch'
+import { runApprovalDecision, runApprovalPreview, runBoardBuildPreview, runBoardSquadPreview, runCommand, resolveHandler } from './dispatch'
 import { EPHEMERAL, InteractionResponseType, InteractionType, isAdministrator, type DiscordInteraction } from './interaction-types'
 import { verifyDiscordRequest } from './verify'
 
@@ -77,6 +77,17 @@ export async function handleInteraction(request: Request, env: Env, ctx: Executi
         return json({ type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE, data: { content: 'Unrecognized selection.', flags: EPHEMERAL } })
       }
       ctx.waitUntil(runBoardBuildPreview(env, interaction, buildId))
+      return json({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE, data: { flags: EPHEMERAL } })
+    }
+
+    // Squad-board equivalent of the build select menu above (`render/board.ts`'s
+    // `squadPreviewSelectRow`).
+    if (interaction.data?.custom_id === BOARD_SQUAD_PREVIEW_CUSTOM_ID) {
+      const squadId = Number(interaction.data.values?.[0])
+      if (!Number.isInteger(squadId)) {
+        return json({ type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE, data: { content: 'Unrecognized selection.', flags: EPHEMERAL } })
+      }
+      ctx.waitUntil(runBoardSquadPreview(env, interaction, squadId))
       return json({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE, data: { flags: EPHEMERAL } })
     }
 

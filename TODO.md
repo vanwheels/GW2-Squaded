@@ -219,17 +219,20 @@ alone but the wiki's own fact template disambiguates them), 108 via a bare quali
 (GW2's own defaults-to-self convention). This closes out the whole `MISCELLANEOUS_MATCHERS`
 party-wide-targetCount item — see `BREAKS_STUN_PARTY_WIDE`'s own doc comment for the full writeup.
 
-- [ ] Discord bot follow-on: squad equivalents for two build-only affordances. Full design-of-record
-      (now entirely built — Phases 1-4, deployed/registered/live-verified in a real Discord server,
-      see `docs/discord-bot.md`'s Status section and COMPLETED.md Session 249 for the closing leg)
-      lives in `docs/discord-bot.md`; the base bot (add/edit/remove/move, board sync, approval
-      workflow, `/builddisplay` + `/squaddisplay` screenshot previews) is done, this entry is just
-      the two things deliberately deferred out of Phase 4 leg 3: (1) the approval-card Preview
-      button (`dispatch.ts`'s `runApprovalPreview`) still replies "Preview isn't available for squad
-      requests yet" for squad requests instead of reusing the now-existing `renderSquadScreenshot`;
-      (2) the board list's per-section "Preview a build…" select menu (`render/board.ts`) has no
-      squad-board equivalent. Both are trivial wiring now that `renderSquadScreenshot` exists — not
-      picked up yet because they weren't asked for in the session that built the renderer.
+- [ ] Discord bot follow-on: squad equivalents for two build-only affordances — **code-complete and
+      deployed 2026-08-19** (Version ID `a286a027-8017-4249-b3b0-84caf437f637`), only live-verify
+      left. Full design-of-record lives in `docs/discord-bot.md` (see its Status section's
+      "Squad-equivalent follow-ons" note). (1) The approval-card Preview button
+      (`dispatch.ts`'s `runApprovalPreview`) now reuses `renderSquadScreenshot` for squad requests
+      instead of replying "Preview isn't available for squad requests yet" — `commands/squads.ts`
+      grew `resolvePendingSquadPreviewShareId`, mirroring `builds.ts`'s resolver, and
+      `approvals.ts`'s `decisionButtons` now puts the Preview button on squad requests too. (2) The
+      board list's per-section "Preview a build…" select menu (`render/board.ts`) has a squad-board
+      equivalent (`squadPreviewSelectRow` / `BOARD_SQUAD_PREVIEW_CUSTOM_ID`, routed in
+      `interactions.ts`, rendered via `dispatch.ts`'s new `runBoardSquadPreview`). No new slash
+      command, so no `register-commands` step. Typecheck + `wrangler deploy --dry-run` clean; not
+      yet exercised live — needs a manual-mode squad add/edit/remove to click the approval card's
+      Preview button, and a populated squad board to click its new select menu.
 
 - [ ] Capacitor port for iOS/Android — scoped 2026-08-01, two-part seam: (1)
       `StorageAdapter`/`Repository<T>` (`src/shared/storage/storage-interface.ts`) is already

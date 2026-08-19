@@ -177,6 +177,18 @@ async function requireTargetSquad(env: Env, request: PendingRequestRow): Promise
   return squad
 }
 
+/** Which share id the approval card's Preview button (`dispatch.ts`'s `runApprovalPreview`) should
+ *  render for a pending squad request — same reasoning as `builds.ts`'s
+ *  `resolvePendingBuildPreviewShareId`: the proposed new link if this request is introducing or
+ *  replacing one (`add`, or `edit` with a new link), otherwise the target squad's existing link
+ *  (`edit` with no new link, `remove` — squads have no `/squadMove`, see this file's Phase 3
+ *  section header). */
+export async function resolvePendingSquadPreviewShareId(env: Env, request: PendingRequestRow): Promise<string> {
+  if (request.proposed_share_id) return request.proposed_share_id
+  const squad = await requireTargetSquad(env, request)
+  return squad.share_id
+}
+
 export async function describePendingSquadRequest(env: Env, request: PendingRequestRow): Promise<string> {
   if (request.action === 'add') {
     return `Add **${escapeMarkdown(request.proposed_name ?? 'unnamed')}** to the squad board.`

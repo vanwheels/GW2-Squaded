@@ -43,16 +43,11 @@ export interface PendingRequestHandlers {
   apply: (env: Env, request: PendingRequestRow) => Promise<string>
 }
 
-/** `build` requests get a Preview button ahead of Approve/Reject, so an approver isn't deciding
- *  off the card's one-line text summary alone — it reuses `/builddisplay`'s own screenshot render
- *  (see `dispatch.ts`'s `runApprovalPreview`). `squad` requests don't get one: there's no
- *  `/squaddisplay` yet (docs/discord-bot.md's Phase 4 leg 3, not built), so there's nothing to
- *  render. Revisit once that lands. */
+/** Both request kinds get a Preview button ahead of Approve/Reject, so an approver isn't deciding
+ *  off the card's one-line text summary alone — it reuses `/builddisplay`'s/`/squaddisplay`'s own
+ *  screenshot render (see `dispatch.ts`'s `runApprovalPreview`). */
 function decisionButtons(request: PendingRequestRow): DiscordActionRow[] {
-  const components: DiscordActionRow['components'] = []
-  if (request.board_type === 'build') {
-    components.push({ type: 2, style: 2, label: 'Preview', custom_id: `preview:${request.id}` })
-  }
+  const components: DiscordActionRow['components'] = [{ type: 2, style: 2, label: 'Preview', custom_id: `preview:${request.id}` }]
   components.push(
     { type: 2, style: 3, label: 'Approve', custom_id: `approve:${request.id}` },
     { type: 2, style: 4, label: 'Reject', custom_id: `reject:${request.id}` }

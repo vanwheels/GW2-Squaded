@@ -1,6 +1,7 @@
-import { getBuildById, getPendingRequest, type BoardType } from '../db'
+import { getBuildById, getPendingRequest, getSquadById, type BoardType } from '../db'
 import type { Env } from '../env'
 import { renderBuildScreenshot } from '../render/build-screenshot'
+import { renderSquadScreenshot } from '../render/squad-screenshot'
 import { editOriginalInteractionResponse, type DiscordMessagePayload } from './api'
 import { decideApprovalRequest, type PendingRequestHandlers } from './approvals'
 import {
@@ -23,7 +24,14 @@ import {
   resolvePendingBuildPreviewShareId
 } from './commands/builds'
 import { buildDisplay, squadDisplay } from './commands/display'
-import { applyPendingSquadRequest, squadAdd, squadEdit, squadRemove, describePendingSquadRequest } from './commands/squads'
+import {
+  applyPendingSquadRequest,
+  squadAdd,
+  squadEdit,
+  squadRemove,
+  describePendingSquadRequest,
+  resolvePendingSquadPreviewShareId
+} from './commands/squads'
 import type { CommandContext } from './commands/context'
 import { UserError } from './errors'
 import type { DiscordInteraction, InteractionOption } from './interaction-types'
@@ -149,21 +157,23 @@ export async function runApprovalDecision(
  *  to `runCommand` that behaves like a *command*, not a decision: `interactions.ts` acks this one
  *  with `DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE` (ephemeral), same as a slash command, rather than
  *  `DEFERRED_UPDATE_MESSAGE` — a new message, so `editOriginalInteractionResponse`'s `@original`
- *  resolves to that new ephemeral message and the approval card underneath is never touched. Only
- *  wired for `build` requests (`decisionButtons` in `approvals.ts` only puts the button on those),
- *  but checks `board_type` again here anyway rather than trusting the button that was clicked. */
+ *  resolves to that new ephemeral message and the approval card underneath is never touched. Wired
+ *  for both request kinds (`decisionButtons` in `approvals.ts` puts the button on both) — branches
+ *  on `board_type` to pick the matching share-id resolver + screenshot renderer. */
 export async function runApprovalPreview(env: Env, interaction: DiscordInteraction, requestId: number): Promise<void> {
   let payload: DiscordMessagePayload
   try {
     const request = await getPendingRequest(env, requestId)
     if (!request) {
       payload = { content: 'This approval request no longer exists.' }
-    } else if (request.board_type !== 'build') {
-      payload = { content: "Preview isn't available for squad requests yet." }
-    } else {
+    } else if (request.board_type === 'build') {
       const shareId = await resolvePendingBuildPreviewShareId(env, request)
       const png = await renderBuildScreenshot(env, shareId)
       payload = { file: { filename: 'build.png', contentType: 'image/png', data: png } }
+    } else {
+      const shareId = await resolvePendingSquadPreviewShareId(env, request)
+      const png = await renderSquadScreenshot(env, shareId)
+      payload = { file: { filename: 'squad.png', contentType: 'image/png', data: png } }
     }
   } catch (err) {
     if (err instanceof UserError) {
@@ -198,6 +208,32 @@ export async function runBoardBuildPreview(env: Env, interaction: DiscordInterac
       payload = { content: err.message }
     } else {
       console.error(`Previewing board build ${buildId} failed:`, err)
+      payload = { content: 'Something went wrong rendering that preview.' }
+    }
+  }
+
+  await deliverInteractionResult(interaction, payload)
+}
+
+/** Squad-board equivalent of `runBoardBuildPreview` above — looks a squad up directly by id
+ *  (`render/board.ts`'s `squadPreviewSelectRow` uses `squads.id` as each option's value) and
+ *  reuses `render/squad-screenshot.ts`'s `renderSquadScreenshot`, the same pipeline `/squaddisplay`
+ *  and the approval card's Preview button both already use. */
+export async function runBoardSquadPreview(env: Env, interaction: DiscordInteraction, squadId: number): Promise<void> {
+  let payload: DiscordMessagePayload
+  try {
+    const squad = await getSquadById(env, squadId)
+    if (!squad) {
+      payload = { content: 'That squad is no longer on the board — try picking again, the list may be stale.' }
+    } else {
+      const png = await renderSquadScreenshot(env, squad.share_id)
+      payload = { file: { filename: 'squad.png', contentType: 'image/png', data: png } }
+    }
+  } catch (err) {
+    if (err instanceof UserError) {
+      payload = { content: err.message }
+    } else {
+      console.error(`Previewing board squad ${squadId} failed:`, err)
       payload = { content: 'Something went wrong rendering that preview.' }
     }
   }

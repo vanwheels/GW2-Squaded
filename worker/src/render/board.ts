@@ -49,6 +49,11 @@ function buildNameLink(name: string, url: string): string {
  *  against this before treating `interaction.data.values[0]` as a build id. */
 export const BOARD_BUILD_PREVIEW_CUSTOM_ID = 'boardpreview:build'
 
+/** Squad-board equivalent of `BOARD_BUILD_PREVIEW_CUSTOM_ID` above — squads have one section, not
+ *  one per profession, but the same "one literal custom_id, the option value carries the id"
+ *  reasoning applies. */
+export const BOARD_SQUAD_PREVIEW_CUSTOM_ID = 'boardpreview:squad'
+
 /** Discord caps a select option's `label`/`value` at 100 characters — build names are free text
  *  (no length limit enforced at add time), so this is a real, if rare, possibility. */
 function truncateForSelectOption(text: string, maxLength = 100): string {
@@ -72,6 +77,23 @@ function buildPreviewSelectRow(builds: BuildRow[]): DiscordActionRow {
         custom_id: BOARD_BUILD_PREVIEW_CUSTOM_ID,
         placeholder: 'Preview a build…',
         options: builds.slice(0, 25).map((b) => ({ label: truncateForSelectOption(b.name), value: String(b.id) }))
+      }
+    ]
+  }
+}
+
+/** Squad-board equivalent of `buildPreviewSelectRow` above (render reuses `render/squad-screenshot.
+ *  ts`'s `renderSquadScreenshot` via `discord/dispatch.ts`'s `runBoardSquadPreview`) — same 25-
+ *  option Discord cap and same silent-truncation-past-that acceptable-v1-gap reasoning. */
+function squadPreviewSelectRow(squads: SquadRow[]): DiscordActionRow {
+  return {
+    type: 1,
+    components: [
+      {
+        type: 3,
+        custom_id: BOARD_SQUAD_PREVIEW_CUSTOM_ID,
+        placeholder: 'Preview a squad…',
+        options: squads.slice(0, 25).map((s) => ({ label: truncateForSelectOption(s.name), value: String(s.id) }))
       }
     ]
   }
@@ -110,7 +132,9 @@ export function renderSquadSection(squads: SquadRow[], publicOrigin: string): Di
       : squads.map((s, i) => `${i + 1}. ${buildNameLink(escapeMarkdown(s.name), shareLandingUrl(publicOrigin, s.share_id))}`).join('\n')
 
   return {
-    embeds: [{ title: 'Squads', description, color: BOARD_EMBED_COLOR }]
+    embeds: [{ title: 'Squads', description, color: BOARD_EMBED_COLOR }],
+    // Same empty-array-clears-a-stale-menu reasoning as `renderBuildSection` above.
+    components: squads.length === 0 ? [] : [squadPreviewSelectRow(squads)]
   }
 }
 
