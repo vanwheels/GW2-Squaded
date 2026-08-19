@@ -10,42 +10,30 @@ released; Discord bot and Capacitor mobile port remain later roadmap stages, out
 left in this file below is post-1.0 polish and open curation gaps — none of it blocks the release
 that already shipped.
 
-## Build screenshot layout redesign (2026-08-19)
+## Build screenshot layout redesign (2026-08-19) — DONE, one cosmetic follow-up unconfirmed
 
 Goal: redesign the Build editor's screenshot output (`ScreenshotButton`/`EquipmentTextManifest`),
-Discord-bot-facing down the road. Equipment portion is done — see COMPLETED.md Session 230 (text
-manifest, weapon-type bar, profession-picker collapse, Weapon panel moved into the top row). Traits/
-Skills/Stats/Boons-Conditions were left as-is per original scoping, but reworking them turned out to
-be necessary too since the manifest band still wasn't confirmed to fully fit on screen after the
-Equipment pass alone.
-
-Agreed plan for the next leg — first 3 steps implemented 2026-08-19 (not yet visually confirmed,
-see the last item below):
-- [x] Reflow `CombatStatePanel` (Might stacks, Fury/Regen/Quickness toggles, target armor, Kalla's
-      Fervor, etc. — `StatsPanel.tsx`/`CombatStatePanel.tsx`) from its current narrow vertical column
-      squeezed right of the Stats grid into a compact horizontal strip. **Must stay inside
-      `.build-editor-capture`** (e.g. a slim row above/below the Stats grid) — do NOT move it into
-      `.editor-profession-weapon-bar`, which sits outside the capture region on purpose (same
-      treatment as Back/Name/Tags). Combat-state isn't editing chrome the way Profession/Weapon-type
-      is — it's the simulation assumptions (25 might? Fury on? targeting Medium armor?) that explain
-      why the shown Stats numbers are what they are, so it needs to stay visible in the screenshot.
-      Landed as its own full-width wrapping strip below the new Stats+Boons row (`.stats-combat-block`
-      in `BuildEditorView.tsx`/`global.css`), not squeezed under just the Stats grid.
-- [x] Move `BoonConditionSummaryPanel` to sit beside `StatsPanel` (right of it) instead of below —
-      there's substantial unused horizontal space in that column already (confirmed via user
-      screenshots, not just "a little tight"), freed further once combat-state stops occupying it.
-- [x] Move `SkillsEditor` up to fill the vertical space `BoonConditionSummaryPanel` vacates.
-- [ ] After the above: re-check which of the 3 columns (Traits / Equipment / Stats+Skills) is
-      tallest. `.build-editor-columns` uses `align-items: stretch`, so the row's total height is set
-      by whichever column's *content* is naturally tallest — trimming a column that isn't the
-      bottleneck doesn't shrink anything. Last visual check (2026-08-19 screenshots) suggested Traits
-      may be tied with or taller than Stats+Skills, with Equipment already shorter than both after
-      Session 230's changes — if Traits is still the bottleneck after this pass, it's the next thing
-      to address (no concrete plan for shrinking Traits yet). Related but separate: TODO.md already
-      has an open item below about Traits' 3 boxes not being a consistent height.
-- [ ] Once all of the above lands, confirm (via user screenshot) whether the manifest band actually
-      fits fully on screen without scrolling — that's the actual success criterion for this whole
-      redesign, not any individual column's height.
+Discord-bot-facing down the road, so it fully fits on one screen without scrolling. Landed across 6
+same-day rounds of real user-screenshot feedback (COMPLETED.md Session 230 + commits 0700228,
+509f770, 29f2711, f9cf075, 386966d, 9d59966):
+- Equipment: text manifest, weapon-type bar, profession-picker collapse (Session 230).
+- `CombatStatePanel` moved out of the Stats column entirely into its own toolbar cell; toolbar row
+  and the 3 editing columns merged into one CSS Grid (`.build-editor-grid`) so the toolbar's cells
+  line up exactly above their matching column (Profession/Traits, Weapon-type/Equipment,
+  Combat-state/Stats).
+- `BoonConditionSummaryPanel` moved beside `StatsPanel`; its icon rows wrap onto multiple lines
+  instead of scrolling (Conditions is the one row wide enough to need 2 lines).
+- "Skills" heading folded into "Stats & Skills"; manifest's own redundant heading removed.
+- Several vertical-spacing trims (row-gap, column/manifest padding) once every section was already
+  as compact as it'd get on its own.
+- **User confirmed 2026-08-19: "it all fits now"** — the actual success criterion for this whole
+  redesign is met.
+- [ ] Cosmetic follow-up, NOT yet confirmed: content fits but a small residual page overflow was
+      still showing a scrollbar on the right edge. Trimmed ~20px more of build-editor-scoped
+      spacing (commit 9d59966) as a blind fix (electron sandbox limitation, can't verify directly)
+      — needs a screenshot to confirm the scrollbar is actually gone. If it persists, next
+      candidate is `.app-content`'s 24px padding (app-wide, lower priority since it'd touch every
+      other view's edge spacing too).
 
 ## Bugs found in testing (2026-08-16)
 
