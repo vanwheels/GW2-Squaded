@@ -3,6 +3,7 @@
 export const InteractionType = {
   PING: 1,
   APPLICATION_COMMAND: 2,
+  MESSAGE_COMPONENT: 3,
   APPLICATION_COMMAND_AUTOCOMPLETE: 4
 } as const
 
@@ -11,8 +12,22 @@ export const InteractionResponseType = {
   PONG: 1,
   CHANNEL_MESSAGE_WITH_SOURCE: 4,
   DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE: 5,
+  /** Acks a `MESSAGE_COMPONENT` interaction (a button click) without changing the message yet —
+   *  the eventual `PATCH .../messages/@original` (`editOriginalInteractionResponse`) resolves to
+   *  the message the button is attached to for this interaction type, same "defer now, deliver via
+   *  @original later" shape `DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE` gives commands. Used by the
+   *  Approve/Reject buttons (`discord/approvals.ts`) since deciding a request involves a D1 write
+   *  that can exceed the 3-second window. */
+  DEFERRED_UPDATE_MESSAGE: 6,
   APPLICATION_COMMAND_AUTOCOMPLETE_RESULT: 8
 } as const
+
+/** Subset of Discord's Message Component Types enum — just enough to build the Approve/Reject
+ *  buttons `discord/approvals.ts` posts. */
+export const ComponentType = { ACTION_ROW: 1, BUTTON: 2 } as const
+
+/** Subset of Discord's Button Style enum. */
+export const ButtonStyle = { SUCCESS: 3, DANGER: 4 } as const
 
 /** Discord's "ephemeral" message flag — only the invoking user sees the reply. Every command
  *  followup in this bot is ephemeral: the *board message* is the public artifact a command
@@ -59,6 +74,10 @@ export interface DiscordInteraction {
   data?: {
     name: string
     options?: InteractionOption[]
+    /** Only present on a `MESSAGE_COMPONENT` interaction — the `custom_id` of the button that was
+     *  pressed (e.g. `approve:42`, built by `discord/approvals.ts`'s `decisionButtons`).
+     *  `interactions.ts` parses this via that file's `parseDecisionCustomId`. */
+    custom_id?: string
   }
 }
 

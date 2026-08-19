@@ -1,12 +1,14 @@
+import { getGuildSettings } from '../db'
 import type { Env } from '../env'
 import { json } from '../http'
+import { parseDecisionCustomId } from './approvals'
 import { autocompleteChoices } from './autocomplete'
-import { runCommand, resolveHandler } from './dispatch'
-import { EPHEMERAL, InteractionResponseType, InteractionType, type DiscordInteraction } from './interaction-types'
+import { runApprovalDecision, runCommand, resolveHandler } from './dispatch'
+import { EPHEMERAL, InteractionResponseType, InteractionType, isAdministrator, type DiscordInteraction } from './interaction-types'
 import { verifyDiscordRequest } from './verify'
 
 /** Handles `POST /interactions`, the single HTTP endpoint Discord calls for every slash command,
- *  autocomplete request, and (future — Phase 3) button click in this design (see
+ *  autocomplete request, and (Phase 3) Approve/Reject button click in this design (see
  *  docs/discord-bot.md's "Architecture" section — an interactions endpoint, not a persistent
  *  gateway connection).
  *
@@ -15,7 +17,10 @@ import { verifyDiscordRequest } from './verify'
  *  writes + board-message PATCH in the background via `ctx.waitUntil` and delivers the real result
  *  by editing that placeholder afterward (`dispatch.ts`'s `runCommand`). Autocomplete has no
  *  deferred variant, so it's answered synchronously — a single indexed `LIKE` query comfortably
- *  fits the 3-second window on its own. */
+ *  fits the 3-second window on its own. A button click (`MESSAGE_COMPONENT`) is a hybrid: the
+ *  approver-role permission check runs synchronously (cheap, and needs to decide the response type
+ *  before acking), then the actual decide-and-apply work defers the same way a command does, via
+ *  `dispatch.ts`'s `runApprovalDecision`. */
 export async function handleInteraction(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
   const signature = request.headers.get('X-Signature-Ed25519')
   const timestamp = request.headers.get('X-Signature-Timestamp')
@@ -38,6 +43,41 @@ export async function handleInteraction(request: Request, env: Env, ctx: Executi
   if (interaction.type === InteractionType.APPLICATION_COMMAND_AUTOCOMPLETE) {
     const choices = await autocompleteChoices(env, interaction.guild_id, interaction.data?.name ?? '', interaction.data?.options)
     return json({ type: InteractionResponseType.APPLICATION_COMMAND_AUTOCOMPLETE_RESULT, data: { choices } })
+  }
+
+  if (interaction.type === InteractionType.MESSAGE_COMPONENT) {
+    if (!interaction.guild_id || !interaction.member) {
+      return json({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: { content: 'This bot only works inside a server.', flags: EPHEMERAL }
+      })
+    }
+
+    const parsed = parseDecisionCustomId(interaction.data?.custom_id ?? '')
+    if (!parsed) {
+      return json({ type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE, data: { content: 'Unrecognized button.', flags: EPHEMERAL } })
+    }
+
+    // Load-bearing, not just UX — button visibility in Discord isn't restricted to a specific
+    // user, so anyone in the channel can see and click Approve/Reject (docs/discord-bot.md's
+    // approval-workflow step 3). Checked synchronously here, before acking, so a rejected clicker
+    // gets an immediate ephemeral reply that leaves the card (and its buttons) untouched for a
+    // legitimate approver — only a real decision goes through the deferred apply path below.
+    const settings = await getGuildSettings(env, interaction.guild_id)
+    const approverRoleId = settings?.approver_role_id ?? null
+    const allowed = isAdministrator(interaction.member) || (approverRoleId !== null && interaction.member.roles.includes(approverRoleId))
+    if (!allowed) {
+      return json({
+        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        data: {
+          content: approverRoleId ? `You need the <@&${approverRoleId}> role to decide this.` : 'No approver role is configured for this server.',
+          flags: EPHEMERAL
+        }
+      })
+    }
+
+    ctx.waitUntil(runApprovalDecision(env, interaction, parsed.requestId, parsed.decision))
+    return json({ type: InteractionResponseType.DEFERRED_UPDATE_MESSAGE })
   }
 
   if (interaction.type === InteractionType.APPLICATION_COMMAND) {

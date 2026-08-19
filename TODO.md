@@ -227,14 +227,19 @@ party-wide-targetCount item — see `BREAKS_STUN_PARTY_WIDE`'s own doc comment f
       up. **Phase 1 (foundational plumbing) done and live 2026-08-19**; **Phase 2 (core CRUD +
       board sync) done, deployed, registered, and manually verified live 2026-08-19** (setup,
       add/remove/edit/move, autocomplete all confirmed by the user in a real server; permission
-      gating deferred to a later session). **Phase 4 (display) picked up ahead of Phase 3**
-      (approval workflow) — leg 1 (web-preview render page) and leg 2 (screenshot render +
-      `/builddisplay` command) both done and **live-verified working end-to-end in a real Discord
-      server 2026-08-19**. The live-verify pass caught 4 real bugs invisible to local typecheck/
-      lint/dry-run (a game-data race, 3 missing context providers, missing local icon assets + a
-      too-narrow image CSP, and a too-narrow render viewport blowing out the boon/condition
-      summary's height) — see `docs/discord-bot.md`'s "Status" section for the full writeup.
-      `/squaddisplay` is a later leg, not started.
+      gating deferred to a later session). **Phase 4 leg 1-2 (display) done and live-verified
+      2026-08-19** (`/builddisplay` screenshot render; `/squaddisplay` is leg 3, not started) — the
+      live-verify pass caught 4 real bugs invisible to local typecheck/lint/dry-run (a game-data
+      race, 3 missing context providers, missing local icon assets + a too-narrow image CSP, and a
+      too-narrow render viewport); see `docs/discord-bot.md`'s "Status" section for the full
+      writeup. **Phase 3 (approval workflow) code-complete 2026-08-19** — `pending_requests`,
+      `/buildBoardConfig approvalMode`/`setApproverRole`/`approvalsChannel`, the Approve/Reject
+      button interactions, race-safe decision claiming, and the approver-role re-check on click,
+      all typecheck/lint/dry-run clean — but **not yet deployed, registered
+      (`npm run register-commands`), or live-verified in a real Discord server**, which per every
+      prior phase's own history is where the real bugs actually surface. `docs/discord-bot.md`'s
+      "Status" section spells out the specific live run-through still needed before this checkbox
+      moves to done.
 
 - [ ] Capacitor port for iOS/Android — scoped 2026-08-01, two-part seam: (1)
       `StorageAdapter`/`Repository<T>` (`src/shared/storage/storage-interface.ts`) is already

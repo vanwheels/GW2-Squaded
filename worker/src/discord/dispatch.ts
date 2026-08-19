@@ -1,13 +1,33 @@
+import type { BoardType } from '../db'
 import type { Env } from '../env'
 import { editOriginalInteractionResponse, type DiscordMessagePayload } from './api'
-import { buildBoardConfigSetPermission, buildBoardRebuild, buildBoardSetup, squadBoardRebuild, squadBoardSetup } from './commands/board-admin'
-import { buildAdd, buildEdit, buildMove, buildRemove } from './commands/builds'
+import { decideApprovalRequest, type PendingRequestHandlers } from './approvals'
+import {
+  buildBoardConfigApprovalMode,
+  buildBoardConfigApprovalsChannel,
+  buildBoardConfigSetApproverRole,
+  buildBoardConfigSetPermission,
+  buildBoardRebuild,
+  buildBoardSetup,
+  squadBoardRebuild,
+  squadBoardSetup
+} from './commands/board-admin'
+import { applyPendingBuildRequest, buildAdd, buildEdit, buildMove, buildRemove, describePendingBuildRequest } from './commands/builds'
 import { buildDisplay } from './commands/display'
-import { squadAdd, squadEdit, squadRemove } from './commands/squads'
+import { applyPendingSquadRequest, squadAdd, squadEdit, squadRemove, describePendingSquadRequest } from './commands/squads'
 import type { CommandContext } from './commands/context'
 import { UserError } from './errors'
 import type { DiscordInteraction, InteractionOption } from './interaction-types'
 import { subcommand } from './interaction-types'
+
+/** Supplies `approvals.ts`'s `decideApprovalRequest` with each board type's describe/apply pair —
+ *  kept here (not in `approvals.ts` itself) to avoid a module import cycle, since `commands/
+ *  builds.ts`/`squads.ts` import `checkApprovalGate` from `approvals.ts`. See that file's
+ *  `PendingRequestHandlers` doc comment. */
+const BOARD_REQUEST_HANDLERS: Record<BoardType, PendingRequestHandlers> = {
+  build: { describe: describePendingBuildRequest, apply: applyPendingBuildRequest },
+  squad: { describe: describePendingSquadRequest, apply: applyPendingSquadRequest }
+}
 
 type CommandHandler = (ctx: CommandContext) => Promise<DiscordMessagePayload>
 
@@ -42,6 +62,9 @@ export function resolveHandler(
   if (commandName === 'buildboardconfig') {
     const sub = subcommand(topLevelOptions)
     if (sub?.name === 'setpermission') return { handler: buildBoardConfigSetPermission, options: sub.options ?? [] }
+    if (sub?.name === 'approvalmode') return { handler: buildBoardConfigApprovalMode, options: sub.options ?? [] }
+    if (sub?.name === 'setapproverrole') return { handler: buildBoardConfigSetApproverRole, options: sub.options ?? [] }
+    if (sub?.name === 'approvalschannel') return { handler: buildBoardConfigApprovalsChannel, options: sub.options ?? [] }
     return null
   }
   const handler = COMMANDS[commandName]
@@ -85,17 +108,49 @@ export async function runCommand(
     }
   }
 
+  await deliverInteractionResult(interaction, payload)
+}
+
+/** Runs the Approve/Reject decision behind a Phase 3 button click and delivers the result — the
+ *  `MESSAGE_COMPONENT` counterpart to `runCommand` above, called the same way (`ctx.waitUntil`
+ *  from `interactions.ts`, after that file already acked with `DEFERRED_UPDATE_MESSAGE` and
+ *  checked the clicker holds `approver_role_id`). See `approvals.ts`'s `decideApprovalRequest` for
+ *  the actual decide-and-apply logic; this just supplies the board-type handler table and reuses
+ *  `deliverInteractionResult`'s retry-wrapped `@original` PATCH, which for this interaction type
+ *  edits the approval card message itself rather than a command's ephemeral followup. */
+export async function runApprovalDecision(
+  env: Env,
+  interaction: DiscordInteraction,
+  requestId: number,
+  decision: 'approved' | 'rejected'
+): Promise<void> {
+  let payload: DiscordMessagePayload
+  try {
+    payload = await decideApprovalRequest(env, requestId, decision, interaction.member!.user.id, BOARD_REQUEST_HANDLERS)
+  } catch (err) {
+    console.error(`Deciding approval request ${requestId} failed:`, err)
+    payload = { content: 'Something went wrong deciding this request.' }
+  }
+
+  await deliverInteractionResult(interaction, payload)
+}
+
+/** Shared tail of both `runCommand` and `runApprovalDecision` — PATCHes the interaction's
+ *  `@original` response with one retry, per the doc comment above on why a lost followup here
+ *  reads to the user as "nothing happened" even when the underlying D1 write/apply already
+ *  succeeded. */
+async function deliverInteractionResult(interaction: DiscordInteraction, payload: DiscordMessagePayload): Promise<void> {
   try {
     await editOriginalInteractionResponse(interaction.application_id, interaction.token, payload)
   } catch (err) {
-    console.error(`Delivering the result of /${interaction.data?.name} failed, retrying once:`, err)
+    console.error(`Delivering the result of interaction ${interaction.id} failed, retrying once:`, err)
     try {
       await editOriginalInteractionResponse(interaction.application_id, interaction.token, payload)
     } catch (retryErr) {
       // Nothing left to do — Discord's own client-side "the application did not respond"-style
       // messaging is the honest outcome here. Logged so `wrangler tail`/the dashboard surfaces it
       // rather than it vanishing as a silent unhandled rejection.
-      console.error(`Delivering the result of /${interaction.data?.name} failed twice, giving up:`, retryErr)
+      console.error(`Delivering the result of interaction ${interaction.id} failed twice, giving up:`, retryErr)
     }
   }
 }

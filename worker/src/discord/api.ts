@@ -6,11 +6,31 @@ const API_BASE = 'https://discord.com/api/v10'
 export interface DiscordMessagePayload {
   content?: string
   embeds?: DiscordEmbed[]
+  /** Only `discord/approvals.ts`'s pending-approval cards set this (the Approve/Reject buttons).
+   *  An explicit `[]` on the decided-card edit is what clears a card's buttons — Discord's message
+   *  edit only touches fields present in the request body, so omitting `components` entirely would
+   *  leave the old buttons in place. */
+  components?: DiscordActionRow[]
   flags?: number
   /** Only `/builddisplay`'s followup sets this (`render/build-screenshot.ts`'s PNG) — never part
    *  of the JSON body itself. `editOriginalInteractionResponse` pulls it out and uploads it as a
    *  `multipart/form-data` part instead, switching request shape based on its presence. */
   file?: DiscordAttachment
+}
+
+/** Subset of Discord's message component object shapes this bot actually sends — one action row
+ *  holding the Approve/Reject buttons on a pending-approval card, per
+ *  https://discord.com/developers/docs/interactions/message-components. */
+export interface DiscordButton {
+  type: 2 // ComponentType.BUTTON
+  style: number
+  label: string
+  custom_id: string
+}
+
+export interface DiscordActionRow {
+  type: 1 // ComponentType.ACTION_ROW
+  components: DiscordButton[]
 }
 
 export interface DiscordAttachment {

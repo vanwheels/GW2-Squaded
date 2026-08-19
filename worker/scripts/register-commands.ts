@@ -13,8 +13,9 @@
  * here) — `src/discord/dispatch.ts`'s `COMMANDS` map uses the same lowercase names.
  *
  * Phase 1 registered a single no-op `/ping`, kept below as a standing plumbing healthcheck. Phase
- * 2 adds the real board CRUD + setup/config commands; Phase 3's approval-workflow config
- * subcommands (approvalMode/setApproverRole/approvalsChannel) extend `buildboardconfig` later.
+ * 2 added the real board CRUD + setup/config commands. Phase 3 extends `buildboardconfig` with its
+ * approval-workflow subcommands (approvalMode/setApproverRole/approvalsChannel) — no new top-level
+ * commands, since Approve/Reject are message-component buttons, not slash commands.
  */
 
 import { PROFESSIONS } from '../src/professions'
@@ -57,6 +58,10 @@ const actionChoices = [
   { name: 'Edit', value: 'edit' },
   { name: 'Remove', value: 'remove' },
   { name: 'Move', value: 'move' }
+]
+const approvalModeChoices = [
+  { name: 'Automatic — changes apply immediately', value: 'automatic' },
+  { name: 'Manual — changes need an approver', value: 'manual' }
 ]
 
 const nameOption = (description: string, required = true) => ({
@@ -187,7 +192,7 @@ const commands = [
   },
   {
     name: 'buildboardconfig',
-    description: 'Configure board permissions.',
+    description: 'Configure board permissions and the approval workflow.',
     type: 1,
     default_member_permissions: MANAGE_GUILD_DEFAULT,
     options: [
@@ -199,6 +204,26 @@ const commands = [
           { name: 'boardtype', description: 'Which board.', type: OPT.STRING, required: true, choices: boardTypeChoices },
           { name: 'action', description: 'Which action to gate.', type: OPT.STRING, required: true, choices: actionChoices },
           { name: 'role', description: 'Role required to perform it.', type: OPT.ROLE, required: true }
+        ]
+      },
+      {
+        name: 'approvalmode',
+        description: 'Switch between changes applying immediately and requiring approval.',
+        type: OPT.SUB_COMMAND,
+        options: [{ name: 'mode', description: 'Automatic or Manual.', type: OPT.STRING, required: true, choices: approvalModeChoices }]
+      },
+      {
+        name: 'setapproverrole',
+        description: 'Set the role that can approve/reject pending requests (Manual mode).',
+        type: OPT.SUB_COMMAND,
+        options: [{ name: 'role', description: 'Role allowed to approve/reject.', type: OPT.ROLE, required: true }]
+      },
+      {
+        name: 'approvalschannel',
+        description: 'Set the channel where pending-approval cards are posted (Manual mode).',
+        type: OPT.SUB_COMMAND,
+        options: [
+          { name: 'channel', description: 'Channel for pending-approval cards.', type: OPT.CHANNEL, channel_types: [GUILD_TEXT_CHANNEL], required: true }
         ]
       }
     ]

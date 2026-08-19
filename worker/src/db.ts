@@ -75,6 +75,59 @@ export async function setActionPermission(
     .run()
 }
 
+export type ApprovalMode = 'automatic' | 'manual'
+
+export interface GuildSettingsRow {
+  guild_id: string
+  approval_mode: ApprovalMode
+  approver_role_id: string | null
+  display_visibility: 'public' | 'private'
+  approvals_channel_id: string | null
+}
+
+/** `null` = this guild has never touched any `/buildBoardConfig` setting — every mutating command
+ *  treats that the same as an explicit row holding every column's schema `DEFAULT`
+ *  (`approval_mode = 'automatic'`, in particular), so Automatic-mode boards keep working with zero
+ *  setup, same "no row = the open/default behavior" pattern as `getActionPermission` above. */
+export async function getGuildSettings(env: Env, guildId: string): Promise<GuildSettingsRow | null> {
+  return env.DB.prepare(
+    'SELECT guild_id, approval_mode, approver_role_id, display_visibility, approvals_channel_id FROM guild_settings WHERE guild_id = ?'
+  )
+    .bind(guildId)
+    .first<GuildSettingsRow>()
+}
+
+/** Each setter upserts just its own column via `ON CONFLICT`, letting every *other* column fall
+ *  back to `guild_settings`' own schema `DEFAULT` the first time a guild's row is created — so
+ *  running `/buildBoardConfig setApproverRole` before ever touching `approvalMode` doesn't
+ *  clobber `approval_mode` back to 'automatic', and vice versa. */
+export async function setApprovalMode(env: Env, guildId: string, mode: ApprovalMode): Promise<void> {
+  await env.DB.prepare(
+    `INSERT INTO guild_settings (guild_id, approval_mode) VALUES (?, ?)
+     ON CONFLICT (guild_id) DO UPDATE SET approval_mode = excluded.approval_mode`
+  )
+    .bind(guildId, mode)
+    .run()
+}
+
+export async function setApproverRole(env: Env, guildId: string, roleId: string): Promise<void> {
+  await env.DB.prepare(
+    `INSERT INTO guild_settings (guild_id, approver_role_id) VALUES (?, ?)
+     ON CONFLICT (guild_id) DO UPDATE SET approver_role_id = excluded.approver_role_id`
+  )
+    .bind(guildId, roleId)
+    .run()
+}
+
+export async function setApprovalsChannel(env: Env, guildId: string, channelId: string): Promise<void> {
+  await env.DB.prepare(
+    `INSERT INTO guild_settings (guild_id, approvals_channel_id) VALUES (?, ?)
+     ON CONFLICT (guild_id) DO UPDATE SET approvals_channel_id = excluded.approvals_channel_id`
+  )
+    .bind(guildId, channelId)
+    .run()
+}
+
 function escapeLike(input: string): string {
   return input.replace(/[\\%_]/g, (ch) => `\\${ch}`)
 }
@@ -106,6 +159,13 @@ export async function listBuildsByProfession(env: Env, guildId: string, professi
 
 export async function getBuildByName(env: Env, guildId: string, name: string): Promise<BuildRow | null> {
   return env.DB.prepare('SELECT * FROM builds WHERE guild_id = ? AND name = ?').bind(guildId, name).first<BuildRow>()
+}
+
+/** Looked up by id rather than name — `pending_requests.target_id` is how a Manual-mode
+ *  edit/remove/move request references its build (see `applyPendingBuildRequest` in
+ *  `discord/commands/builds.ts`), since the name itself might be the very thing an edit changes. */
+export async function getBuildById(env: Env, id: number): Promise<BuildRow | null> {
+  return env.DB.prepare('SELECT * FROM builds WHERE id = ?').bind(id).first<BuildRow>()
 }
 
 export async function searchBuildNames(env: Env, guildId: string, query: string): Promise<string[]> {
@@ -269,6 +329,11 @@ export async function getSquadByName(env: Env, guildId: string, name: string): P
   return env.DB.prepare('SELECT * FROM squads WHERE guild_id = ? AND name = ?').bind(guildId, name).first<SquadRow>()
 }
 
+/** Same "id, not name" reasoning as `getBuildById` above. */
+export async function getSquadById(env: Env, id: number): Promise<SquadRow | null> {
+  return env.DB.prepare('SELECT * FROM squads WHERE id = ?').bind(id).first<SquadRow>()
+}
+
 export async function searchSquadNames(env: Env, guildId: string, query: string): Promise<string[]> {
   const result = await env.DB.prepare(
     "SELECT name FROM squads WHERE guild_id = ? AND name LIKE ? ESCAPE '\\' ORDER BY name ASC LIMIT 25"
@@ -329,4 +394,83 @@ export async function updateSquad(env: Env, id: number, fields: SquadUpdateField
   await env.DB.prepare(`UPDATE squads SET ${sets.join(', ')} WHERE id = ?`)
     .bind(...binds)
     .run()
+}
+
+// ---------------------------------------------------------------------------------------------
+// Pending requests (Manual approval mode — see docs/discord-bot.md's "Approval workflow")
+// ---------------------------------------------------------------------------------------------
+
+export type PendingStatus = 'pending' | 'approved' | 'rejected'
+
+export interface PendingRequestRow {
+  id: number
+  guild_id: string
+  board_type: BoardType
+  action: BoardAction
+  target_id: number | null
+  proposed_name: string | null
+  proposed_share_id: string | null
+  proposed_position: number | null
+  requested_by: string
+  requested_at: string
+  status: PendingStatus
+  decided_by: string | null
+  decided_at: string | null
+}
+
+export async function insertPendingRequest(
+  env: Env,
+  fields: Omit<PendingRequestRow, 'id' | 'status' | 'decided_by' | 'decided_at'>
+): Promise<PendingRequestRow> {
+  const result = await env.DB.prepare(
+    `INSERT INTO pending_requests
+       (guild_id, board_type, action, target_id, proposed_name, proposed_share_id, proposed_position, requested_by, requested_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+     RETURNING *`
+  )
+    .bind(
+      fields.guild_id,
+      fields.board_type,
+      fields.action,
+      fields.target_id,
+      fields.proposed_name,
+      fields.proposed_share_id,
+      fields.proposed_position,
+      fields.requested_by,
+      fields.requested_at
+    )
+    .first<PendingRequestRow>()
+  if (!result) throw new Error('insertPendingRequest: RETURNING produced no row')
+  return result
+}
+
+export async function getPendingRequest(env: Env, id: number): Promise<PendingRequestRow | null> {
+  return env.DB.prepare('SELECT * FROM pending_requests WHERE id = ?').bind(id).first<PendingRequestRow>()
+}
+
+/** Atomically claims a still-`pending` request for a decision — the `WHERE status = 'pending'`
+ *  clause plus `RETURNING` make this the race-safe half of the Approve/Reject flow: Discord button
+ *  visibility isn't restricted to one user (per docs/discord-bot.md's approval-workflow step 3),
+ *  so two people can click at once. Only the first `UPDATE` matches a row and gets it back;
+ *  a second concurrent call gets `null`, and `discord/approvals.ts` reports "already decided"
+ *  instead of double-applying. Doesn't itself touch `builds`/`squads` — that's
+ *  `applyPendingBuildRequest`/`applyPendingSquadRequest`'s job, run only after this claim
+ *  succeeds. Note: if that later apply throws, this row is left `status = 'approved'` with nothing
+ *  actually changed — accepted for v1 as a rare failure path (network/D1 blip) that surfaces
+ *  clearly in the edited card rather than silently vanishing; see `approvals.ts`'s
+ *  `decideApprovalRequest`. */
+export async function decidePendingRequest(
+  env: Env,
+  id: number,
+  status: 'approved' | 'rejected',
+  decidedBy: string,
+  decidedAt: string
+): Promise<PendingRequestRow | null> {
+  return env.DB.prepare(
+    `UPDATE pending_requests SET status = ?, decided_by = ?, decided_at = ?
+     WHERE id = ? AND status = 'pending'
+     RETURNING *`
+  )
+    .bind(status, decidedBy, decidedAt, id)
+    .first<PendingRequestRow>()
 }

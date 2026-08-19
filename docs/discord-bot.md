@@ -262,10 +262,45 @@ should update this section's checkbox when done.
       - Discord requires slash command names to be all-lowercase, so the doc's camelCase names
         above are registered as e.g. `buildadd`, `buildboardconfig` — see
         `scripts/register-commands.ts`.
-- [ ] **Phase 3 — approval workflow.** `pending_requests`, `/buildBoardConfig approvalMode` /
+- [x] **Phase 3 — approval workflow.** `pending_requests`, `/buildBoardConfig approvalMode` /
       `setApproverRole` / `approvalsChannel`, the Approve/Reject button interactions and the
       permission re-check on click. Layers entirely on top of Phase 2's write paths without
-      changing them (Automatic mode keeps working exactly as before).
+      changing them (Automatic mode keeps working exactly as before). **Code complete
+      2026-08-19** (commit pending) — typecheck/lint/`wrangler deploy --dry-run` all clean; not
+      yet deployed, registered, or live-verified in a real Discord server (see "Status" below for
+      the pattern every prior phase followed: local static checks catch nothing about the real
+      Discord round-trip). Implementation notes beyond the design doc's own text:
+      - Every mutating build/squad command (`buildAdd`/`Edit`/`Remove`/`Move`,
+        `squadAdd`/`Edit`/`Remove`) now does its full pre-flight validation (share resolved, name/
+        profession derived, target found, board section exists) *before* branching on approval
+        mode — `discord/approvals.ts`'s `checkApprovalGate` runs after that, so a bad `/buildAdd`
+        in Manual mode still gets an immediate, specific error instead of creating a junk pending
+        request. Automatic mode (or no `guild_settings` row at all) is untouched: `checkApprovalGate`
+        returns `null` and the command applies exactly as it did before this phase.
+      - `pending_requests` stores only `target_id` + the raw `proposed_*` columns, no snapshot
+        text. Both the approval card's description and the eventual apply-on-Approve re-derive
+        everything live (re-fetch the target build/squad by id, re-resolve a proposed share link)
+        — `describePendingBuildRequest`/`applyPendingBuildRequest` in `commands/builds.ts` and
+        their squad equivalents. This means a request can go stale between submission and decision
+        (target renamed, board un-set-up) and Approve will surface that as a clear failure on the
+        card rather than silently applying something wrong.
+      - `decidePendingRequest` (`db.ts`) claims a request with a single `UPDATE ... WHERE status =
+        'pending' RETURNING *` — race-safe against two people clicking Approve/Reject on the same
+        card at once (Discord doesn't restrict button visibility to one user). If the apply step
+        after a won claim throws, the row is left `status = 'approved'` with nothing actually
+        changed, reported inline on the card (`⚠️ Approved, but applying it failed: ...`) rather
+        than rolled back — accepted as a rare-failure-path simplification for v1.
+      - `commands/builds.ts`/`squads.ts` import `checkApprovalGate` from `discord/approvals.ts`,
+        but `approvals.ts` itself never imports those command modules back (it takes their
+        describe/apply functions as plain parameters instead) — avoids a module cycle. The
+        board-type → handler-pair wiring lives in `dispatch.ts`'s `BOARD_REQUEST_HANDLERS`, the one
+        module that already legitimately imports both `approvals.ts` and every command module.
+      - A button click is a hybrid interaction: `interactions.ts` checks the clicker's
+        `approver_role_id` *synchronously* (cheap D1 read) before acking, since a failed check
+        replies ephemerally without touching the card at all, while a real decision acks with
+        `DEFERRED_UPDATE_MESSAGE` and does the actual apply + card edit in the background — same
+        "defer the slow part, delegate delivery to `@original`" shape `runCommand` already used for
+        slash commands, factored into a shared `deliverInteractionResult` both now call.
 - [ ] **Phase 4 — display + game-data resolution.** Bundling a synced slice of
       `data/game-data/*.json` into the worker (the real unknown-sized piece of this whole
       project — see "The game-data gap this surfaces" above), then `/buildDisplay`/
@@ -313,9 +348,21 @@ application did not respond" with no indication anything happened. Fixed same-da
 e0b7d52): one retry on that followup, with the second failure at least logged instead of
 vanishing as a silent unhandled rejection.
 
-Phase 4 (display) is now in progress, picked up ahead of Phase 3 (approval workflow) — see the
-leg breakdown above. Leg 2 (`/builddisplay`) is deployed, registered, and **confirmed working
+Phase 4 (display) leg 2 (`/builddisplay`) is deployed, registered, and **confirmed working
 end-to-end in a real Discord server as of 2026-08-19** (final Version ID `aa30c7d8`).
+`/squaddisplay` (leg 3) is not started.
+
+Phase 3 (approval workflow), picked up next, is **code-complete as of 2026-08-19** — typecheck,
+lint, and `wrangler deploy --dry-run` all clean — but not yet deployed, registered, or
+live-verified in a real Discord server. Every prior phase's own history here is the reason that
+distinction matters: Phase 2 needed one same-day followup fix after live testing, and Phase 4 leg
+2 needed four, none of which any local check caught (see below). Before calling Phase 3 done,
+still needed: `wrangler d1 migrations apply` isn't required (the schema shipped in Phase 1's single
+init migration already), but `npm run register-commands` is, to publish `buildboardconfig`'s three
+new subcommands, then a live run-through of at least: `/buildboardconfig approvalmode manual` →
+`/buildboardconfig setapproverrole` → `/buildboardconfig approvalschannel` → a gated `/buildadd` →
+clicking both Approve and Reject on the resulting card → confirming the board message only updates
+on Approve.
 
 The live-verify pass caught 4 real bugs invisible to typecheck/lint/`wrangler deploy --dry-run`
 (all local-only checks — none of them run the render page in an actual browser), diagnosed live

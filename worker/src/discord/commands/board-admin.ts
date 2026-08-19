@@ -3,7 +3,11 @@ import {
   listBuildsByProfession,
   listSquads,
   setActionPermission,
+  setApprovalMode,
+  setApprovalsChannel,
+  setApproverRole,
   upsertBoardMessage,
+  type ApprovalMode,
   type BoardAction,
   type BoardType
 } from '../../db'
@@ -17,6 +21,7 @@ import { stringOption } from '../interaction-types'
 
 const BOARD_ACTIONS: readonly BoardAction[] = ['add', 'edit', 'remove', 'move']
 const BOARD_TYPES: readonly BoardType[] = ['build', 'squad']
+const APPROVAL_MODES: readonly ApprovalMode[] = ['automatic', 'manual']
 
 function requireChannelOption(ctx: CommandContext): string {
   return stringOption(ctx.options, 'channel') ?? ctx.channelId
@@ -83,9 +88,9 @@ export async function squadBoardRebuild(ctx: CommandContext): Promise<DiscordMes
   return { content: `Squad board rebuilt in <#${channelId}>.` }
 }
 
-/** `/buildBoardConfig setPermission` — the only Phase 2 subcommand of `buildBoardConfig` (the
- *  approval-mode/approver-role/visibility/approvals-channel subcommands from
- *  docs/discord-bot.md's design land in Phase 3). Governs both board types despite the command's
+/** `/buildBoardConfig setPermission` — Phase 2's subcommand of `buildBoardConfig`; the three
+ *  approval-mode/approver-role/approvals-channel subcommands below are Phase 3's
+ *  (`display_visibility` remains unbuilt). Governs both board types despite the command's
  *  `build`-flavored name — see that doc's "Board admin" table; a single admin-facing config
  *  command was chosen over separate `/buildBoardConfig`/`/squadBoardConfig` commands, so it takes
  *  its own `boardType` argument instead. */
@@ -101,4 +106,43 @@ export async function buildBoardConfigSetPermission(ctx: CommandContext): Promis
   await setActionPermission(ctx.env, ctx.guildId, boardType as BoardType, action as BoardAction, roleId)
 
   return { content: `\`${boardType} ${action}\` now requires the <@&${roleId}> role.` }
+}
+
+/** `/buildBoardConfig approvalMode` — Phase 3. Switching to `manual` doesn't itself validate that
+ *  an approver role/approvals channel are set; `discord/approvals.ts`'s `checkApprovalGate` checks
+ *  that lazily on the next mutating command instead, so admins can run these three subcommands in
+ *  any order without one blocking another. */
+export async function buildBoardConfigApprovalMode(ctx: CommandContext): Promise<DiscordMessagePayload> {
+  const mode = stringOption(ctx.options, 'mode')
+  if (!mode || !(APPROVAL_MODES as string[]).includes(mode)) throw new UserError('Unknown approval mode.')
+
+  await setApprovalMode(ctx.env, ctx.guildId, mode as ApprovalMode)
+
+  return {
+    content:
+      mode === 'manual'
+        ? 'Manual approval mode is on — add/edit/remove/move requests now need an approver before they apply. Make sure `/buildBoardConfig setApproverRole` and `/buildBoardConfig approvalsChannel` are both set.'
+        : 'Automatic mode is on — role-gated changes apply immediately again.'
+  }
+}
+
+/** `/buildBoardConfig setApproverRole` — one global approver role for every action/board type, per
+ *  docs/discord-bot.md's "Explicitly out of scope" note on why per-action approvers weren't built. */
+export async function buildBoardConfigSetApproverRole(ctx: CommandContext): Promise<DiscordMessagePayload> {
+  const roleId = stringOption(ctx.options, 'role')
+  if (!roleId) throw new UserError('A role is required.')
+
+  await setApproverRole(ctx.env, ctx.guildId, roleId)
+
+  return { content: `<@&${roleId}> can now approve/reject pending requests.` }
+}
+
+/** `/buildBoardConfig approvalsChannel` — where Manual-mode's pending-request cards get posted. */
+export async function buildBoardConfigApprovalsChannel(ctx: CommandContext): Promise<DiscordMessagePayload> {
+  const channelId = stringOption(ctx.options, 'channel')
+  if (!channelId) throw new UserError('A channel is required.')
+
+  await setApprovalsChannel(ctx.env, ctx.guildId, channelId)
+
+  return { content: `Pending-approval cards will be posted in <#${channelId}>.` }
 }

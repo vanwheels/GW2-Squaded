@@ -34,7 +34,9 @@ export function renderSquadSection(squads: SquadRow[]): DiscordMessagePayload {
 }
 
 /** Discord markdown treats `*_~\`|` as formatting characters — escape them in user-supplied build/
- *  squad names so e.g. a build literally named "Power * Precision" doesn't render as italics. */
-function escapeMarkdown(text: string): string {
+ *  squad names so e.g. a build literally named "Power * Precision" doesn't render as italics.
+ *  Exported for `discord/commands/builds.ts`/`squads.ts`'s pending-approval card descriptions,
+ *  which quote the same user-supplied names outside a board section. */
+export function escapeMarkdown(text: string): string {
   return text.replace(/[*_~`|\\]/g, (ch) => `\\${ch}`)
 }
