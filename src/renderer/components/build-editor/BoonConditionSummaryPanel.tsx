@@ -163,13 +163,14 @@ function comboIconItems(sources: ComboSource[]): BoonConditionIconItem[] {
  * Laid out as a single stacked column of rows (Conditions, Boons, Auras, Control, Misc.,
  * Strips/Corrupts/Cleanses, Combo Fields, Combo Finishers) — briefly a 2-column grid pairing them
  * up to halve this panel's height (Sessions 2026-08-xx), reverted 2026-08-19 once this panel moved
- * beside `StatsPanel` (see `BuildEditorView`'s `.stats-boons-row`): the 2-column grid's per-row
- * `overflow-x: auto` needs real horizontal room to avoid becoming a permanent horizontal scrollbar,
- * which the narrower half-width column no longer has. A single column trades some height for
- * every row getting the full column width to itself. Combo Fields/Finishers is the one pair still
- * sharing a single generic icon each (see `comboIconItems`'s doc comment) rather than being broken
- * out per `field_type`/`finisher_type` like every other row here — a proper per-type split is
- * future work.
+ * beside `StatsPanel` (see `BuildEditorView`'s `.stats-boons-row`), which cost the 2-column grid
+ * the horizontal room its per-row icon list needed. Each row's own icon list wraps onto as many
+ * lines as it needs rather than scrolling horizontally (see `.boon-summary-row .boon-icon-row` in
+ * global.css) — Conditions (14 names) is the one category wide enough to actually wrap into a
+ * 2nd line in practice; every shorter row stays on one line. Combo Fields/Finishers is the one
+ * pair still sharing a single generic icon each (see `comboIconItems`'s doc comment) rather than
+ * being broken out per `field_type`/`finisher_type` like every other row here — a proper per-type
+ * split is future work.
  */
 export function BoonConditionSummaryPanel({ build }: Props) {
   const gameData = useGameData()

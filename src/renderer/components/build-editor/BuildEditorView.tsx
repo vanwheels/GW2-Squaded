@@ -233,90 +233,85 @@ export function BuildEditorView({ build, onBack }: Props) {
         <SharePanel kind="build" getData={() => draft} />
       </div>
 
-      {/* Profession/elite-spec + weapon-type picks, both single-button-opens-a-popover controls,
-          share this row above the 3-column layout (2026-08-19) — freed up by moving Tags into the
-          header row above. Bumps Traits up to the top of its own column (no more picker sitting
-          above it) and gives weapon-type selection its own dedicated gw2skills.net-style strip
-          instead of living inside any one gear slot — see `WeaponTypeBar`'s doc comment.
+      {/* Single CSS Grid (2026-08-19) spanning both the "toolbar" row and the 3 editing columns —
+          `grid-template-columns` is shared by every row, so the toolbar's 3 cells (Profession,
+          Weapon-type, Combat-state) line up exactly above their corresponding column (Traits,
+          Equipment, Stats+Skills) below, without hand-tuned widths. Cells are listed in row-major
+          source order (no explicit `grid-row`/`grid-column`) — CSS Grid auto-placement fills a
+          `max-content max-content 1fr` row 3-at-a-time, so the 6th item always lands under the 3rd.
 
-          Included in `columnsRef`'s capture region (2026-08-19) — briefly excluded as "pure editing
-          chrome, like Back/Name/Tags" (see COMPLETED.md Session 230), but the profession/weapon-type
-          identity is exactly what a shared screenshot needs to be self-explanatory, and the bar's own
-          popover triggers are compact enough not to fight the ongoing compaction effort. Only the
-          bar's *trigger* renders in a still image, same as the already-captured "Gear Optimizer"
-          button in the Equipment column — the popover itself never appears in a screenshot. */}
-      <div className="build-editor-screenshot-region" ref={columnsRef}>
-        <div className="editor-profession-weapon-bar">
+          The whole grid is `columnsRef`'s capture region — Profession/Weapon-type were briefly
+          excluded as "pure editing chrome, like Back/Name/Tags" (see COMPLETED.md Session 230),
+          reversed once Combat-state joined them up here too: only each cell's compact *trigger*
+          renders in a still image (same as the already-captured "Gear Optimizer" button in the
+          Equipment column), and the profession/weapon-type/combat-state identity is exactly what a
+          shared screenshot needs to be self-explanatory. */}
+      <div className="build-editor-grid" ref={columnsRef}>
+        <div className="build-editor-top-cell">
           <ProfessionSpecPicker
             profession={draft.profession}
             specializations={draft.specializations}
             onChoose={handleEliteSpecChoose}
           />
-          <div className="editor-profession-weapon-divider" />
+        </div>
+        <div className="build-editor-top-cell">
           <WeaponTypeBar build={draft} onEquipmentChange={(equipment) => setDraft({ ...draft, equipment })} />
         </div>
-
-        <div className="build-editor-capture">
-          <div className="build-editor-columns">
-            <div className="build-editor-column">
-              <h3>Traits</h3>
-              <TraitsEditor
-                profession={draft.profession}
-                build={displayBuild}
-                value={draft.specializations}
-                onChange={handleSpecializationsChange}
-              />
-            </div>
-            <div className="build-editor-column">
-              <div className="column-header-row">
-                <h3>Equipment</h3>
-                <button type="button" onClick={() => setOptimizerOpen(true)}>
-                  Gear Optimizer
-                </button>
-              </div>
-              <EquipmentEditor
-                value={draft.equipment}
-                onChange={(equipment) => setDraft({ ...draft, equipment })}
-                profession={draft.profession}
-                consumables={{ relicId: draft.relicId, foodId: draft.foodId, utilityId: draft.utilityId }}
-                onConsumablesChange={(patch) => setDraft({ ...draft, ...patch })}
-              />
-            </div>
-            <div className="build-editor-column build-editor-column-fill build-editor-column-stretch">
-              {/* Stats+Boons share a row (2026-08-19) — BoonConditionSummaryPanel used to sit in
-                  its own full-width block below StatsPanel, leaving the space right of the narrow
-                  stat grid empty; CombatStatePanel (simulation-assumption toggles, must stay
-                  inside `.build-editor-capture` — see its own doc comment) reflows into its own
-                  full-width strip below the row instead of squeezing into that same narrow
-                  column, freeing Skills to move up into the space both changes vacate. */}
-              <div className="stats-combat-block">
-                <div className="stats-boons-row">
-                  <StatsPanel build={displayBuild} combatState={combatState} />
-                  <BoonConditionSummaryPanel build={displayBuild} />
-                </div>
-                <CombatStatePanel build={displayBuild} value={combatState} onChange={setCombatState} />
-              </div>
-              <h3>Skills</h3>
-              <SkillsEditor
-                build={displayBuild}
-                value={draft.skills}
-                onChange={(skills) => setDraft({ ...draft, skills })}
-                onBuildChange={(patch) => setDraft({ ...draft, ...patch })}
-                equippedSpecializationIds={equippedSpecializationIds}
-                combatState={combatState}
-              />
-            </div>
-          </div>
-          {screenshotPreviewOpen && (
-            <div className="equipment-text-manifest-wrap">
-              <h4 className="equip-manifest-heading">Equipment (screenshot layout)</h4>
-              <EquipmentTextManifest build={draft} />
-            </div>
-          )}
+        <div className="build-editor-top-cell">
+          <CombatStatePanel build={displayBuild} value={combatState} onChange={setCombatState} />
         </div>
+
+        <div className="build-editor-column">
+          <h3>Traits</h3>
+          <TraitsEditor
+            profession={draft.profession}
+            build={displayBuild}
+            value={draft.specializations}
+            onChange={handleSpecializationsChange}
+          />
+        </div>
+        <div className="build-editor-column">
+          <div className="column-header-row">
+            <h3>Equipment</h3>
+            <button type="button" onClick={() => setOptimizerOpen(true)}>
+              Gear Optimizer
+            </button>
+          </div>
+          <EquipmentEditor
+            value={draft.equipment}
+            onChange={(equipment) => setDraft({ ...draft, equipment })}
+            profession={draft.profession}
+            consumables={{ relicId: draft.relicId, foodId: draft.foodId, utilityId: draft.utilityId }}
+            onConsumablesChange={(patch) => setDraft({ ...draft, ...patch })}
+          />
+        </div>
+        <div className="build-editor-column build-editor-column-stretch">
+          {/* Stats+Boons share a row (2026-08-19) — BoonConditionSummaryPanel used to sit in its
+              own full-width block below StatsPanel, leaving the space right of the narrow stat grid
+              empty; CombatStatePanel moved out entirely into the toolbar row above (see the grid
+              doc comment above), freeing Skills to move up into the space both changes vacate. */}
+          <div className="stats-boons-row">
+            <StatsPanel build={displayBuild} combatState={combatState} />
+            <BoonConditionSummaryPanel build={displayBuild} />
+          </div>
+          <h3>Skills</h3>
+          <SkillsEditor
+            build={displayBuild}
+            value={draft.skills}
+            onChange={(skills) => setDraft({ ...draft, skills })}
+            onBuildChange={(patch) => setDraft({ ...draft, ...patch })}
+            equippedSpecializationIds={equippedSpecializationIds}
+            combatState={combatState}
+          />
+        </div>
+
+        {screenshotPreviewOpen && (
+          <div className="equipment-text-manifest-wrap build-editor-grid-fullwidth">
+            <h4 className="equip-manifest-heading">Equipment (screenshot layout)</h4>
+            <EquipmentTextManifest build={draft} />
+          </div>
+        )}
       </div>
-      {/* ^ .build-editor-capture, then .build-editor-screenshot-region (opened above the
-          profession/weapon bar) */}
 
       <GearOptimizerPanel
         build={draft}

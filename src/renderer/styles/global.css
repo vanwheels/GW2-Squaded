@@ -143,8 +143,9 @@ button:hover {
 }
 
 /* Build editor's header (2026-08-19): Tags moved in here, inline with the Name field, to free up
-   the row below for `.editor-profession-weapon-bar` — see that class's doc comment. Name shrinks
-   to a fixed width instead of soaking up all the leftover space so Tags actually gets room. */
+   the row below for the Profession/Weapon-type/Combat-state toolbar cells — see
+   `.build-editor-grid`'s doc comment. Name shrinks to a fixed width instead of soaking up all the
+   leftover space so Tags actually gets room. */
 .view-header .tag-input {
   flex: 1;
   min-width: 160px;
@@ -599,25 +600,37 @@ button:hover {
   margin-bottom: 16px;
 }
 
-/* Wraps `.editor-profession-weapon-bar` + `.build-editor-capture` — this outer element, not
-   `.build-editor-capture` alone, is what `ScreenshotButton`'s `targetRef` measures/captures
-   (2026-08-19), so the profession/weapon-type identity strip is included in every screenshot. Pure
-   layout wrapper (block flow is fine — the bar's own `margin-bottom` already spaces it from the
-   columns below), no visual styling of its own. */
-.build-editor-screenshot-region {
-  display: flex;
-  flex-direction: column;
+/* One CSS Grid holding both the toolbar row (Profession/Weapon-type/Combat-state) and the 3
+   editing columns (Traits/Equipment/Stats+Skills) below it (2026-08-19) — see `BuildEditorView`'s
+   JSX comment on this element. `max-content max-content 1fr` means columns 1-2 size to whichever
+   row's content in that column is widest (a `.build-editor-column` box, always wider than its
+   toolbar cell), and column 3 absorbs whatever's left — shared across every row, so cell 3/6 (the
+   toolbar's combat-state strip and the Stats+Skills column) always line up. Default `align-items:
+   stretch` equalizes every row's own 3 cells to its own tallest, same as the old flex row did for
+   the 3 columns alone. This whole element is what `ScreenshotButton`'s `targetRef` captures. */
+.build-editor-grid {
+  display: grid;
+  grid-template-columns: max-content max-content 1fr;
+  column-gap: 24px;
+  row-gap: 16px;
 }
 
-/* Profession/elite-spec picker + weapon-type bar, side by side above the 3-column build editor
-   layout (2026-08-19) — see `BuildEditorView`'s JSX comment for why these two ended up sharing a
-   row (Tags moved into the header to make room). */
-.editor-profession-weapon-bar {
+/* Spans every grid column (2026-08-19) — the screenshot-only equipment manifest doesn't belong to
+   any one of the 3 columns above it, unlike every other direct child of `.build-editor-grid`. */
+.build-editor-grid-fullwidth {
+  grid-column: 1 / -1;
+}
+
+/* Toolbar row cells (Profession picker / Weapon-type bar / Combat-state strip) — same bordered-box
+   treatment `.build-editor-column` uses below, just shorter (single-line content by default,
+   Combat-state's own icon rows wrap internally via `.combat-state-controls` if it runs out of the
+   width the grid gives this cell). */
+.build-editor-top-cell {
   display: flex;
   align-items: center;
   gap: 20px;
   padding: 8px 16px;
-  margin-bottom: 16px;
+  min-width: 0;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface);
@@ -625,12 +638,6 @@ button:hover {
 
 .profession-picker-root {
   flex: none;
-}
-
-.editor-profession-weapon-divider {
-  align-self: stretch;
-  width: 1px;
-  background: var(--border);
 }
 
 .weapon-type-bar {
@@ -743,55 +750,24 @@ input[type='text'] {
   width: 220px;
 }
 
-/* 3 columns side by side (Traits / Equipment / Stats+Boons+Skills), stretched to match each
-   other's height — Traits and Equipment size to their own content, the 3rd column absorbs
-   whatever width is left (its text/icon-row content benefits from extra width more than the
-   other two's icon grids do). */
-.build-editor-columns {
-  display: flex;
-  align-items: stretch;
-  gap: 24px;
-}
-
-/* Wraps `.build-editor-columns` plus the optional screenshot-only equipment manifest below it (see
-   `EquipmentTextManifest`) — this outer element, not the columns row itself, ensures the manifest
-   is included whenever it's toggled open. Itself wrapped by `.build-editor-screenshot-region`,
-   which is the actual element `ScreenshotButton` captures (2026-08-19, to also include the
-   profession/weapon-type bar above it). */
-.build-editor-capture {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
 .build-editor-column {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 16px;
-  /* Flex items shrink by default (initial `flex-shrink: 1`) — without this, Traits/Equipment would
-     get proportionally compressed below their natural content width whenever column 3's own
-     content (e.g. Stats+Boons sitting side by side, 2026-08-19) wants more horizontal room than
-     the row has to spare, visibly squishing their icon grids. `.build-editor-column-fill` (column
-     3 only, defined below) overrides this back to shrinkable — it's the one column meant to
-     absorb the squeeze. */
-  flex-shrink: 0;
+  min-width: 0;
 }
 
 .build-editor-column h3 {
   margin-top: 0;
 }
 
-.build-editor-column-fill {
-  flex: 1;
-}
-
 /* Makes a column a flex column internally (Skills/Stats/Boons, column 3) — `align-items: stretch`
-   on `.build-editor-columns` already equalizes every column's own height to the tallest one; this
-   is just about that column's children stacking as flex items rather than plain block flow. Traits
-   (column 1) used to need this too, to let a "push to the bottom" treatment work when the
-   profession picker sat above it — removed 2026-08-19 when that picker moved out into
-   `editor-profession-weapon-bar` above the whole 3-column row, so Traits is plain block flow now. */
+   on `.build-editor-grid` already equalizes every row's own cells to its tallest one; this is just
+   about that column's children stacking as flex items rather than plain block flow. Traits (column
+   1) used to need this too, to let a "push to the bottom" treatment work when the profession picker
+   sat above it — removed 2026-08-19 when that picker moved into its own toolbar cell above the
+   whole grid (see `.build-editor-top-cell`), so Traits is plain block flow now. */
 .build-editor-column-stretch {
   display: flex;
   flex-direction: column;
@@ -888,7 +864,7 @@ input[type='text'] {
    current pick (there's always exactly one, unlike that multi-select filter) rather than a text
    label, so "which profession/elite-spec is equipped" stays visible at a glance without the full
    grid open. No border/background circle (2026-08-19 user feedback: read as clunky against the
-   bare weapon-type badges it now sits next to in `.editor-profession-weapon-bar`) — just the bare
+   bare weapon-type badges it originally sat next to in the same toolbar row) — just the bare
    icon, with a focus-ring-style highlight only while its popover is open.  */
 .profession-picker-trigger {
   width: 48px;
@@ -1108,10 +1084,11 @@ input[type='text'] {
   border-color: var(--rarity-masterwork);
 }
 
-/* Screenshot-only equipment text manifest (`EquipmentTextManifest`) — a full-width band below
-   `.build-editor-columns`, toggled via BuildEditorView's "Preview screenshot layout" button.
-   Sized/bordered like a `.build-editor-column` (not part of that flex row, so it can't just
-   reuse the class) so it reads as one more panel in the same screenshot, not a bolted-on extra. */
+/* Screenshot-only equipment text manifest (`EquipmentTextManifest`) — a full-width band below the
+   3 columns (spans every `.build-editor-grid` column via `.build-editor-grid-fullwidth`), toggled
+   via BuildEditorView's "Preview screenshot layout" button. Sized/bordered like a
+   `.build-editor-column` (not itself a grid column, so it can't just reuse the class) so it reads
+   as one more panel in the same screenshot, not a bolted-on extra. */
 .equipment-text-manifest-wrap {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -1417,7 +1394,7 @@ input[type='text'] {
    with its own independent tooltip carrying that target's real facts. Same 48px footprint as
    `skill-slot-button` (2026-08-04 user feedback: matching size reads better than a shrunk-down
    secondary icon) — the column layout costs vertical space instead, offset by the "Skills" section
-   no longer being pushed to the bottom of its 3-column box, see `.build-editor-columns` in
+   no longer being pushed to the bottom of its column, see `.build-editor-grid` in
    BuildEditorView.tsx. */
 .skill-slot-flip-stack {
   display: flex;
@@ -1658,9 +1635,8 @@ input[type='text'] {
 }
 
 /* Sits inside `.stats-boons-row` beside `BoonConditionSummaryPanel` (2026-08-19) — sized to its
-   own grid content (`flex: none`, set on the row below) rather than the margin/border-bottom
-   block treatment it used to own directly; `.stats-combat-block` owns that divider now, since it
-   wraps this row plus `CombatStatePanel`'s strip as one unit. */
+   own grid content (`flex: none`, set on the row below) rather than the margin/border-bottom block
+   treatment it used to own directly; `.stats-boons-row` owns that divider now. */
 .stats-panel h3 {
   margin-top: 0;
 }
@@ -1691,22 +1667,15 @@ input[type='text'] {
   text-align: right;
 }
 
-/* Wraps `.stats-boons-row` (Stats grid + Boon/Condition summary, side by side) plus
-   `CombatStatePanel`'s strip below it as one unit, with the divider that used to live directly on
-   `.stats-panel` before combat-state moved out into its own strip (2026-08-19). */
-.stats-combat-block {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
-}
-
+/* Stats grid + Boon/Condition summary, side by side (2026-08-19) — carries the margin/border-bottom
+   block treatment `.stats-panel` used to own directly, separating this pair from Skills below. */
 .stats-boons-row {
   display: flex;
   align-items: flex-start;
   gap: 24px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
 }
 
 .stats-boons-row .stats-panel {
@@ -1718,10 +1687,11 @@ input[type='text'] {
   min-width: 0;
 }
 
-/* Compact horizontal strip (2026-08-19) — was a narrow vertical column squeezed right of the
-   Stats grid inside `.stats-panel-body`; now a full-width row of icon/dropdown controls that wraps
-   as needed, same treatment `.editor-profession-weapon-bar` gets above the 3-column layout. See
-   `CombatStatePanel`'s doc comment for why this stays inside `.build-editor-capture` at all. */
+/* Fills its `.build-editor-top-cell` (2026-08-19) — was a narrow vertical column squeezed right of
+   the Stats grid, then a full-width strip below it inside the Stats+Skills column; now lives in its
+   own toolbar cell aligned above that column instead (see `.build-editor-grid`'s doc comment).
+   Still wraps (rather than a fixed row) since the cell's width varies with the grid's own 3rd
+   column. See `CombatStatePanel`'s doc comment for why it moved up to the toolbar row at all. */
 .combat-state-controls {
   display: flex;
   flex-direction: row;
@@ -1760,8 +1730,8 @@ input[type='text'] {
 }
 
 /* Sits inside `.stats-boons-row` beside `StatsPanel` (2026-08-19) — the margin/border-bottom block
-   treatment this used to own directly moved to the shared `.stats-combat-block` wrapper, since a
-   border under this alone wouldn't line up with `StatsPanel`'s (usually shorter) height next to it. */
+   treatment this used to own directly moved to `.stats-boons-row` itself, since a border under
+   this alone wouldn't line up with `StatsPanel`'s (usually shorter) height next to it. */
 .boon-summary-panel {
   display: flex;
   flex-direction: column;
@@ -1772,7 +1742,7 @@ input[type='text'] {
    doc comment for why that got reverted); each row now claims the panel's full width. */
 .boon-summary-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   min-width: 0;
 }
@@ -1784,17 +1754,22 @@ input[type='text'] {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   white-space: nowrap;
+  /* Matches `.boon-icon-row-icon`'s own height so a wrapped multi-line icon block (Conditions
+     usually needs 2, see below) still lines its first line up with the label instead of looking
+     top-shifted relative to it. */
+  padding-top: 1px;
 }
 
+/* Wraps onto as many lines as the row needs (2026-08-19) rather than a fixed single line with
+   internal horizontal scroll — a scrolled-off icon wouldn't show up in a screenshot, which this
+   whole redesign is trying to avoid entirely. Conditions (14 names) is the one category wide
+   enough to actually wrap in practice; every shorter row still renders on its natural single line. */
 .boon-summary-row .boon-icon-row {
   flex: 1 1 auto;
   min-width: 0;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: flex-start;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: thin;
-  padding-bottom: 2px;
+  row-gap: 4px;
 }
 
 .boon-summary-row .boon-icon-row-icon {

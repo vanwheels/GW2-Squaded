@@ -17,13 +17,14 @@ function toIconOptions(entries: [string, unknown][], isAquatic: boolean): Upgrad
  * gw2skills.net-style top strip for weapon-*type* selection (2026-08-19), replacing an earlier
  * attempt to fold weapon type into a small badge overlaid on `EquipmentEditor`'s stat-prefix slot
  * — confirmed unintuitive and hard to click, whereas this bar/tab shape is the one interaction
- * gw2skills.net users already know from that reference site. Lives above the whole Equipment
- * column, next to the "Equipment" header, rather than inside any one panel — Weapon I/II (and the
- * Underwater sets, when that Settings toggle is on) are always shown here regardless of which one
- * `EquipmentEditor`'s own land/underwater toggle currently has expanded below, matching gw2skills'
- * own bar. `EquipmentEditor`'s Weapon panel keeps only stat/sigil/infusion editing now; weapon type
- * is set exclusively from here (`weaponPairHandlers`/`chooseSingleWeapon`, shared so both apply the
- * identical two-handed-mirroring rule).
+ * gw2skills.net users already know from that reference site. Rendered in its own
+ * `.build-editor-top-cell`, aligned via the shared `.build-editor-grid` directly above the
+ * Equipment column below it (see `BuildEditorView`'s JSX comment on that grid) — Weapon I/II (and
+ * the Underwater sets, when that Settings toggle is on) are always shown here regardless of which
+ * one `EquipmentEditor`'s own land/underwater toggle currently has expanded below, matching
+ * gw2skills' own bar. `EquipmentEditor`'s Weapon panel keeps only stat/sigil/infusion editing now;
+ * weapon type is set exclusively from here (`weaponPairHandlers`/`chooseSingleWeapon`, shared so
+ * both apply the identical two-handed-mirroring rule).
  */
 export function WeaponTypeBar({ build, onEquipmentChange }: Props) {
   const { professions } = useGameData()

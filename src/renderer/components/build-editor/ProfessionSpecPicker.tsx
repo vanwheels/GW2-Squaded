@@ -26,9 +26,10 @@ const ELITE_LINE_INDEX = 2
  * single icon to show), this is single-select: the trigger shows one icon for the current pick —
  * the elite spec's icon if one's equipped, else the Core profession's portrait, borderless/no text
  * label (2026-08-19 user feedback: a circle outline read as clunky next to the bare weapon-type
- * badges it now shares `editor-profession-weapon-bar` with) — and choosing any option closes the
- * popover immediately, matching every other "single button opens an overlay, picking closes it"
- * picker in this editor (see `WeaponTypeBar`).
+ * badges it originally shared a toolbar row with) — and choosing any option closes the popover
+ * immediately, matching every other "single button opens an overlay, picking closes it" picker in
+ * this editor (see `WeaponTypeBar`). Now rendered in its own `.build-editor-top-cell`, aligned via
+ * `.build-editor-grid` above the Traits column (see `BuildEditorView`'s JSX comment on that grid).
  *
  * Still resolves a profession+elite-spec pick in one click same as before (see class doc comment
  * history): clicking any elite-spec icon switches to its owning profession AND equips that spec;
