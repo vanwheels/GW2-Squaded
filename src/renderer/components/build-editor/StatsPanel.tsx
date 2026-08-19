@@ -4,12 +4,14 @@ import { computeCharacterStats } from '@shared/gear-calc/derived-stats'
 import { DEFAULT_COMBAT_STATE, type CombatState } from '@shared/gear-calc/combat-state'
 import { formatBoonPercent } from '@shared/boon-calc/format'
 import { useGameData } from '@renderer/state/game-data-store'
-import { CombatStatePanel } from './CombatStatePanel'
 
 interface Props {
   build: Build
+  /** Still needed here even though `CombatStatePanel`'s controls render elsewhere now
+   *  (2026-08-19, see `BuildEditorView`) — Might/Fury/target-armor/etc. feed directly into
+   *  `computeCharacterStats`, so the numbers below must reflect the same `CombatState` the
+   *  standalone strip is editing. */
   combatState?: CombatState
-  onCombatStateChange?: (value: CombatState) => void
 }
 
 interface StatRow {
@@ -29,7 +31,7 @@ interface StatRow {
  * Rendered as a single flat grid (rather than two independent lists) so left/right rows share
  * the same grid row tracks and line up pixel-for-pixel.
  */
-export function StatsPanel({ build, combatState = DEFAULT_COMBAT_STATE, onCombatStateChange = () => {} }: Props) {
+export function StatsPanel({ build, combatState = DEFAULT_COMBAT_STATE }: Props) {
   const gameData = useGameData()
 
   const stats = useMemo(
@@ -55,20 +57,16 @@ export function StatsPanel({ build, combatState = DEFAULT_COMBAT_STATE, onCombat
   return (
     <div className="stats-panel">
       <h3>Stats</h3>
-      <div className="stats-panel-body">
-        <div className="stats-panel-grid">
-          {rows.map((row) => (
-            <Fragment key={`${row.leftLabel}-${row.rightLabel}`}>
-              <span className="stat-cell stat-label">{row.leftLabel}</span>
-              <span className="stat-cell stat-value">{row.leftValue}</span>
-              <span className="stat-gap" aria-hidden="true" />
-              <span className="stat-cell stat-label">{row.rightLabel ?? ''}</span>
-              <span className="stat-cell stat-value">{row.rightValue ?? ''}</span>
-            </Fragment>
-          ))}
-        </div>
-        <div className="stats-panel-divider" aria-hidden="true" />
-        <CombatStatePanel build={build} value={combatState} onChange={onCombatStateChange} />
+      <div className="stats-panel-grid">
+        {rows.map((row) => (
+          <Fragment key={`${row.leftLabel}-${row.rightLabel}`}>
+            <span className="stat-cell stat-label">{row.leftLabel}</span>
+            <span className="stat-cell stat-value">{row.leftValue}</span>
+            <span className="stat-gap" aria-hidden="true" />
+            <span className="stat-cell stat-label">{row.rightLabel ?? ''}</span>
+            <span className="stat-cell stat-value">{row.rightValue ?? ''}</span>
+          </Fragment>
+        ))}
       </div>
     </div>
   )

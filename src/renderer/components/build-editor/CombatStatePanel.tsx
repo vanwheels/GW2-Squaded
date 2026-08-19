@@ -54,12 +54,19 @@ function iconClass(active: boolean): string {
 }
 
 /**
- * Icon-based controls for `CombatState`, rendered inline inside `StatsPanel` to the right of the
- * stat grid. Might/stacking-sigil/Death's Carapace are steppers (icon + 5-increment dropdown);
- * Kalla's Fervor is a stepper too but every-integer (its own max is only 5); Fury/Regeneration/
- * Quickness/relic/mechanic-active are click-to-toggle icons (no dropdown, boolean on/off); target
- * armor is a 3-option dropdown (not a stepper — only Light/Medium/Heavy exist, no intermediate
- * values) — see `CombatState`'s doc comment for why each field takes the shape it does.
+ * Icon-based controls for `CombatState`, rendered by `BuildEditorView` as its own compact
+ * horizontal strip below the Stats/Boons row (2026-08-19) — previously squeezed into a narrow
+ * vertical column to the right of `StatsPanel`'s stat grid, which left little room to breathe as
+ * more curated fields (Death's Carapace, health tiers, etc.) were added over time. Deliberately
+ * still lives inside `.build-editor-capture` (unlike Profession/Weapon-type, which moved out into
+ * `.editor-profession-weapon-bar`) — these are simulation assumptions (25 might? Fury on?
+ * targeting Medium armor?) that explain the shown Stats numbers, not editing chrome, so they need
+ * to stay visible in the screenshot. Might/stacking-sigil/Death's Carapace are steppers (icon +
+ * 5-increment dropdown); Kalla's Fervor is a stepper too but every-integer (its own max is only
+ * 5); Fury/Regeneration/Quickness/relic/mechanic-active are click-to-toggle icons (no dropdown,
+ * boolean on/off); target armor is a 3-option dropdown (not a stepper — only Light/Medium/Heavy
+ * exist, no intermediate values) — see `CombatState`'s doc comment for why each field takes the
+ * shape it does.
  */
 export function CombatStatePanel({ build, value, onChange }: Props) {
   const { sigilsById, relicsById, traitsById, foodById, utilityById } = useGameData()

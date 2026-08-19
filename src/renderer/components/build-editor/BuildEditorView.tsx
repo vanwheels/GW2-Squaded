@@ -28,6 +28,7 @@ import { EquipmentEditor } from './EquipmentEditor'
 import { EquipmentTextManifest } from './EquipmentTextManifest'
 import { WeaponTypeBar } from './WeaponTypeBar'
 import { StatsPanel } from './StatsPanel'
+import { CombatStatePanel } from './CombatStatePanel'
 import { BoonConditionSummaryPanel } from './BoonConditionSummaryPanel'
 import { GearOptimizerPanel } from './GearOptimizerPanel'
 
@@ -274,8 +275,19 @@ export function BuildEditorView({ build, onBack }: Props) {
             />
           </div>
           <div className="build-editor-column build-editor-column-fill build-editor-column-stretch">
-            <StatsPanel build={displayBuild} combatState={combatState} onCombatStateChange={setCombatState} />
-            <BoonConditionSummaryPanel build={displayBuild} />
+            {/* Stats+Boons share a row (2026-08-19) — BoonConditionSummaryPanel used to sit in its
+                own full-width block below StatsPanel, leaving the space right of the narrow stat
+                grid empty; CombatStatePanel (simulation-assumption toggles, must stay inside
+                `.build-editor-capture` — see its own doc comment) reflows into its own full-width
+                strip below the row instead of squeezing into that same narrow column, freeing
+                Skills to move up into the space both changes vacate. */}
+            <div className="stats-combat-block">
+              <div className="stats-boons-row">
+                <StatsPanel build={displayBuild} combatState={combatState} />
+                <BoonConditionSummaryPanel build={displayBuild} />
+              </div>
+              <CombatStatePanel build={displayBuild} value={combatState} onChange={setCombatState} />
+            </div>
             <h3>Skills</h3>
             <SkillsEditor
               build={displayBuild}

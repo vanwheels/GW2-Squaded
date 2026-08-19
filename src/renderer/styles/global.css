@@ -1638,12 +1638,10 @@ input[type='text'] {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
-.stats-panel {
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
-}
-
+/* Sits inside `.stats-boons-row` beside `BoonConditionSummaryPanel` (2026-08-19) — sized to its
+   own grid content (`flex: none`, set on the row below) rather than the margin/border-bottom
+   block treatment it used to own directly; `.stats-combat-block` owns that divider now, since it
+   wraps this row plus `CombatStatePanel`'s strip as one unit. */
 .stats-panel h3 {
   margin-top: 0;
 }
@@ -1674,23 +1672,43 @@ input[type='text'] {
   text-align: right;
 }
 
-.stats-panel-body {
-  display: flex;
-  align-items: stretch;
-  gap: 14px;
-}
-
-.stats-panel-divider {
-  width: 1px;
-  background: var(--border);
-}
-
-.combat-state-controls {
+/* Wraps `.stats-boons-row` (Stats grid + Boon/Condition summary, side by side) plus
+   `CombatStatePanel`'s strip below it as one unit, with the divider that used to live directly on
+   `.stats-panel` before combat-state moved out into its own strip (2026-08-19). */
+.stats-combat-block {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.stats-boons-row {
+  display: flex;
   align-items: flex-start;
-  padding-top: 2px;
+  gap: 24px;
+}
+
+.stats-boons-row .stats-panel {
+  flex: none;
+}
+
+.stats-boons-row .boon-summary-panel {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Compact horizontal strip (2026-08-19) — was a narrow vertical column squeezed right of the
+   Stats grid inside `.stats-panel-body`; now a full-width row of icon/dropdown controls that wraps
+   as needed, same treatment `.editor-profession-weapon-bar` gets above the 3-column layout. See
+   `CombatStatePanel`'s doc comment for why this stays inside `.build-editor-capture` at all. */
+.combat-state-controls {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
 }
 
 .combat-state-row {
@@ -1722,13 +1740,13 @@ input[type='text'] {
   line-height: 0;
 }
 
+/* Sits inside `.stats-boons-row` beside `StatsPanel` (2026-08-19) — the margin/border-bottom block
+   treatment this used to own directly moved to the shared `.stats-combat-block` wrapper, since a
+   border under this alone wouldn't line up with `StatsPanel`'s (usually shorter) height next to it. */
 .boon-summary-panel {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--border);
 }
 
 .boon-summary-row-pair {

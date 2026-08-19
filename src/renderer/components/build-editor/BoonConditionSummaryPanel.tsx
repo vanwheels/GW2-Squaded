@@ -150,8 +150,9 @@ function comboIconItems(sources: ComboSource[]): BoonConditionIconItem[] {
 
 /**
  * gw2skills.net-style "Conditions / Boons / Control / Auras / Combo" summary, relocated here
- * (beneath `StatsPanel`, in the build editor's right column) from the icon rows that used to sit
- * inline in the Skills bar itself (see COMPLETED.md), plus 1 row gw2skills doesn't have at all
+ * (beside `StatsPanel`, in the build editor's right column — see `BuildEditorView`'s
+ * `.stats-boons-row`) from the icon rows that used to sit inline in the Skills bar itself (see
+ * COMPLETED.md), plus 1 row gw2skills doesn't have at all
  * ("Strips / Corrupts / Cleanses" — see `BOON_STRIP_CORRUPT_MATCHERS`; Cleanse folded into this
  * row rather than a separate one, per TODO.md's Condition Cleanse item). Healing/Damage briefly
  * lived here as their own aggregated rows (Sessions 54-55) but moved into each skill's own tooltip

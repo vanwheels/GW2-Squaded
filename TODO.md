@@ -19,8 +19,9 @@ Skills/Stats/Boons-Conditions were left as-is per original scoping, but reworkin
 be necessary too since the manifest band still wasn't confirmed to fully fit on screen after the
 Equipment pass alone.
 
-Agreed plan for the next leg (discussed, not yet implemented):
-- [ ] Reflow `CombatStatePanel` (Might stacks, Fury/Regen/Quickness toggles, target armor, Kalla's
+Agreed plan for the next leg — first 3 steps implemented 2026-08-19 (not yet visually confirmed,
+see the last item below):
+- [x] Reflow `CombatStatePanel` (Might stacks, Fury/Regen/Quickness toggles, target armor, Kalla's
       Fervor, etc. — `StatsPanel.tsx`/`CombatStatePanel.tsx`) from its current narrow vertical column
       squeezed right of the Stats grid into a compact horizontal strip. **Must stay inside
       `.build-editor-capture`** (e.g. a slim row above/below the Stats grid) — do NOT move it into
@@ -28,10 +29,12 @@ Agreed plan for the next leg (discussed, not yet implemented):
       treatment as Back/Name/Tags). Combat-state isn't editing chrome the way Profession/Weapon-type
       is — it's the simulation assumptions (25 might? Fury on? targeting Medium armor?) that explain
       why the shown Stats numbers are what they are, so it needs to stay visible in the screenshot.
-- [ ] Move `BoonConditionSummaryPanel` to sit beside `StatsPanel` (right of it) instead of below —
+      Landed as its own full-width wrapping strip below the new Stats+Boons row (`.stats-combat-block`
+      in `BuildEditorView.tsx`/`global.css`), not squeezed under just the Stats grid.
+- [x] Move `BoonConditionSummaryPanel` to sit beside `StatsPanel` (right of it) instead of below —
       there's substantial unused horizontal space in that column already (confirmed via user
       screenshots, not just "a little tight"), freed further once combat-state stops occupying it.
-- [ ] Move `SkillsEditor` up to fill the vertical space `BoonConditionSummaryPanel` vacates.
+- [x] Move `SkillsEditor` up to fill the vertical space `BoonConditionSummaryPanel` vacates.
 - [ ] After the above: re-check which of the 3 columns (Traits / Equipment / Stats+Skills) is
       tallest. `.build-editor-columns` uses `align-items: stretch`, so the row's total height is set
       by whichever column's *content* is naturally tallest — trimming a column that isn't the
