@@ -138,8 +138,16 @@ button:hover {
 .view-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 16px;
+}
+
+/* Build editor's header (2026-08-19): Tags moved in here, inline with the Name field, to free up
+   the row below for `.editor-profession-weapon-bar` — see that class's doc comment. Name shrinks
+   to a fixed width instead of soaking up all the leftover space so Tags actually gets room. */
+.view-header .tag-input {
+  flex: 1;
+  min-width: 160px;
 }
 
 .empty-state {
@@ -591,6 +599,57 @@ button:hover {
   margin-bottom: 16px;
 }
 
+/* Profession/elite-spec picker + weapon-type bar, side by side above the 3-column build editor
+   layout (2026-08-19) — see `BuildEditorView`'s JSX comment for why these two ended up sharing a
+   row (Tags moved into the header to make room). */
+.editor-profession-weapon-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 8px 16px;
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.profession-picker-root {
+  flex: none;
+}
+
+.editor-profession-weapon-divider {
+  align-self: stretch;
+  width: 1px;
+  background: var(--border);
+}
+
+.weapon-type-bar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.weapon-type-bar-set {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.weapon-type-bar-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 2px;
+}
+
+.weapon-type-bar-locked {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
 .tag-input {
   display: flex;
   flex-wrap: wrap;
@@ -666,6 +725,14 @@ input[type='text'] {
   padding: 6px 10px;
 }
 
+/* Build editor only (2026-08-19) — Squads' header still wants the full-flex Name field above,
+   since it has no inline Tags competing for the same row; the Build editor's header now shows
+   Tags right after Name, so Name gives up most of its space instead of soaking up all of it. */
+.build-name-input-narrow {
+  flex: none;
+  width: 220px;
+}
+
 /* 3 columns side by side (Traits / Equipment / Stats+Boons+Skills), stretched to match each
    other's height — Traits and Equipment size to their own content, the 3rd column absorbs
    whatever width is left (its text/icon-row content benefits from extra width more than the
@@ -674,6 +741,15 @@ input[type='text'] {
   display: flex;
   align-items: stretch;
   gap: 24px;
+}
+
+/* Wraps `.build-editor-columns` plus the optional screenshot-only equipment manifest below it
+   (see `EquipmentTextManifest`) — this outer element, not the columns row itself, is what
+   `ScreenshotButton` captures, so the manifest is included whenever it's toggled open. */
+.build-editor-capture {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .build-editor-column {
@@ -691,22 +767,15 @@ input[type='text'] {
   flex: 1;
 }
 
-/* Columns whose last child (`.build-editor-column-pushed`) should sit flush with the bottom —
-   `align-items: stretch` on `.build-editor-columns` already equalizes every column's height to the
-   tallest one (Equipment); this makes that column a flex column internally so the pushed child's
-   `margin-top: auto` has somewhere to expand into. Only Traits (column 1) uses the pushed treatment
-   now — Skills (column 3, BuildEditorView.tsx) deliberately stopped (2026-08-04 user feedback): with
-   flip-skill icons now full-size (see `.skill-slot-flip-icon`), pushing Skills to the bottom would
-   grow the whole row's height instead of just eating the blank space `margin-top: auto` used to
-   leave above it — Skills now sits in normal flow right after the Boons/Conditions divider, and any
-   leftover slack lands below it (out of view) instead. */
+/* Makes a column a flex column internally (Skills/Stats/Boons, column 3) — `align-items: stretch`
+   on `.build-editor-columns` already equalizes every column's own height to the tallest one; this
+   is just about that column's children stacking as flex items rather than plain block flow. Traits
+   (column 1) used to need this too, to let a "push to the bottom" treatment work when the
+   profession picker sat above it — removed 2026-08-19 when that picker moved out into
+   `editor-profession-weapon-bar` above the whole 3-column row, so Traits is plain block flow now. */
 .build-editor-column-stretch {
   display: flex;
   flex-direction: column;
-}
-
-.build-editor-column-pushed {
-  margin-top: auto;
 }
 
 /* Each of the 3 lines (e.g. Zeal/Virtues/Firebrand) is its own horizontal row, stacked vertically —
@@ -793,6 +862,28 @@ input[type='text'] {
 
 .spec-icon-button.chosen {
   border-color: var(--accent);
+}
+
+/* Collapsed trigger for `ProfessionSpecPicker`'s popover (2026-08-19) — same collapse-behind-a-
+   popover move `ProfessionTagPicker` made for the Builds-page filter, but shown as one icon for the
+   current pick (there's always exactly one, unlike that multi-select filter) rather than a text
+   label, so "which profession/elite-spec is equipped" stays visible at a glance without the full
+   grid open. No border/background circle (2026-08-19 user feedback: read as clunky against the
+   bare weapon-type badges it now sits next to in `.editor-profession-weapon-bar`) — just the bare
+   icon, with a focus-ring-style highlight only while its popover is open.  */
+.profession-picker-trigger {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: transparent;
+  background-size: cover;
+  background-position: center;
+}
+
+.profession-picker-trigger.open {
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
 .profession-picker-row {
@@ -905,15 +996,11 @@ input[type='text'] {
 }
 
 
-/* Armor / Accessories / Other side by side on top, Weapon spans the full width below — each
-   top-row panel sizes to its own content (no flex-grow) rather than stretching across the column. */
+/* Armor / Accessories / Weapon / Other side by side in one row (2026-08-19: Weapon used to be a
+   full-width row below the other three, but that cost a large fixed chunk of vertical height for
+   no real reason once weapon-type selection moved out to `WeaponTypeBar`, see that component).
+   Each panel sizes to its own content (no flex-grow) rather than stretching across the column. */
 .gear-panels {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.gear-panels-top {
   display: flex;
   align-items: flex-start;
   gap: 20px;
@@ -1002,12 +1089,55 @@ input[type='text'] {
   border-color: var(--rarity-masterwork);
 }
 
-/* Weapon panel spans the full width beneath Armor/Accessories/Other, with a divider line above
-   it separating it from the top row (matches the reference layout: armor+accessories on top,
-   weapon slots as one horizontal row below). */
-.gear-panel-weapon {
-  padding-top: 12px;
-  border-top: 1px solid var(--border);
+/* Screenshot-only equipment text manifest (`EquipmentTextManifest`) — a full-width band below
+   `.build-editor-columns`, toggled via BuildEditorView's "Preview screenshot layout" button.
+   Sized/bordered like a `.build-editor-column` (not part of that flex row, so it can't just
+   reuse the class) so it reads as one more panel in the same screenshot, not a bolted-on extra. */
+.equipment-text-manifest-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.equip-manifest-heading {
+  margin: 0 0 10px;
+}
+
+.equipment-text-manifest {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.equip-manifest-col {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 0.78rem;
+  color: var(--text);
+}
+
+.equip-manifest-title {
+  margin: 0 0 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.equip-manifest-block {
+  margin-top: 6px;
+}
+
+.equip-manifest-subtitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 2px;
 }
 
 .gear-panel-weapon-header {
@@ -1032,22 +1162,18 @@ input[type='text'] {
   gap: 8px;
 }
 
-/* Weapon I and Weapon II side by side as one row of 4 slots: Mainhand 1, Offhand 1, Mainhand 2,
-   Offhand 2 — separated by a vertical divider between the two weapon sets. */
-.gear-weapon-row {
+/* Weapon I and Weapon II stacked (2026-08-19: was side by side, back when the Weapon panel spanned
+   the full width below Armor/Accessories/Other — now that it's a same-height 4th column alongside
+   them, stacking keeps the column narrow instead of doubling its width), separated by a
+   horizontal divider between the two weapon sets. */
+.gear-weapon-stack {
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-.gear-weapon-row > .gear-weapon-set {
-  flex: 1;
-  min-width: 0;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .gear-weapon-divider {
-  align-self: stretch;
-  width: 1px;
+  height: 1px;
   background: var(--border);
 }
 

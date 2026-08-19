@@ -25,6 +25,8 @@ import { ProfessionSpecPicker } from './ProfessionSpecPicker'
 import { TraitsEditor } from './TraitsEditor'
 import { SkillsEditor } from './SkillsEditor'
 import { EquipmentEditor } from './EquipmentEditor'
+import { EquipmentTextManifest } from './EquipmentTextManifest'
+import { WeaponTypeBar } from './WeaponTypeBar'
 import { StatsPanel } from './StatsPanel'
 import { BoonConditionSummaryPanel } from './BoonConditionSummaryPanel'
 import { GearOptimizerPanel } from './GearOptimizerPanel'
@@ -47,6 +49,11 @@ export function BuildEditorView({ build, onBack }: Props) {
   const [saving, setSaving] = useState(false)
   const [combatState, setCombatState] = useState<CombatState>(DEFAULT_COMBAT_STATE)
   const [optimizerOpen, setOptimizerOpen] = useState(false)
+  // Screenshot-only equipment text manifest (see EquipmentTextManifest's doc comment) — hidden by
+  // default so it never clutters normal editing; toggled on right before using ScreenshotButton,
+  // same as a print-preview. Included in the capture whenever it's open since it lives inside
+  // `columnsRef`'s own subtree, below the normal 3-column layout.
+  const [screenshotPreviewOpen, setScreenshotPreviewOpen] = useState(false)
   const { eliteSpecSkills, legends, professions, specializationsById } = useGameData()
   const { builds } = useBuildsStore()
   const { showUnderwater } = useAppSettings()
@@ -208,31 +215,41 @@ export function BuildEditorView({ build, onBack }: Props) {
         </button>
         <input
           type="text"
-          className="build-name-input"
+          className="build-name-input build-name-input-narrow"
           value={draft.name}
           onChange={(e) => setDraft({ ...draft, name: e.target.value })}
         />
-        <ScreenshotButton targetRef={columnsRef} />
-        <SharePanel kind="build" getData={() => draft} />
-      </div>
-
-      <div className="editor-tags-row">
         <TagInput
           tags={draft.tags}
           onChange={(tags) => setDraft({ ...draft, tags })}
           suggestions={tagSuggestions}
           autoTags={autoTags}
         />
+        <button type="button" onClick={() => setScreenshotPreviewOpen((open) => !open)}>
+          {screenshotPreviewOpen ? 'Hide screenshot layout' : 'Preview screenshot layout'}
+        </button>
+        <ScreenshotButton targetRef={columnsRef} />
+        <SharePanel kind="build" getData={() => draft} />
       </div>
 
-      <div className="build-editor-columns" ref={columnsRef}>
-        <div className="build-editor-column build-editor-column-stretch">
-          <ProfessionSpecPicker
-            profession={draft.profession}
-            specializations={draft.specializations}
-            onChoose={handleEliteSpecChoose}
-          />
-          <div className="build-editor-column-pushed">
+      {/* Profession/elite-spec + weapon-type picks, both single-button-opens-a-popover controls,
+          share this row above the 3-column layout (2026-08-19) — freed up by moving Tags into the
+          header row above. Bumps Traits up to the top of its own column (no more picker sitting
+          above it) and gives weapon-type selection its own dedicated gw2skills.net-style strip
+          instead of living inside any one gear slot — see `WeaponTypeBar`'s doc comment. */}
+      <div className="editor-profession-weapon-bar">
+        <ProfessionSpecPicker
+          profession={draft.profession}
+          specializations={draft.specializations}
+          onChoose={handleEliteSpecChoose}
+        />
+        <div className="editor-profession-weapon-divider" />
+        <WeaponTypeBar build={draft} onEquipmentChange={(equipment) => setDraft({ ...draft, equipment })} />
+      </div>
+
+      <div className="build-editor-capture" ref={columnsRef}>
+        <div className="build-editor-columns">
+          <div className="build-editor-column">
             <h3>Traits</h3>
             <TraitsEditor
               profession={draft.profession}
@@ -241,35 +258,41 @@ export function BuildEditorView({ build, onBack }: Props) {
               onChange={handleSpecializationsChange}
             />
           </div>
-        </div>
-        <div className="build-editor-column">
-          <div className="column-header-row">
-            <h3>Equipment</h3>
-            <button type="button" onClick={() => setOptimizerOpen(true)}>
-              Gear Optimizer
-            </button>
+          <div className="build-editor-column">
+            <div className="column-header-row">
+              <h3>Equipment</h3>
+              <button type="button" onClick={() => setOptimizerOpen(true)}>
+                Gear Optimizer
+              </button>
+            </div>
+            <EquipmentEditor
+              value={draft.equipment}
+              onChange={(equipment) => setDraft({ ...draft, equipment })}
+              profession={draft.profession}
+              consumables={{ relicId: draft.relicId, foodId: draft.foodId, utilityId: draft.utilityId }}
+              onConsumablesChange={(patch) => setDraft({ ...draft, ...patch })}
+            />
           </div>
-          <EquipmentEditor
-            value={draft.equipment}
-            onChange={(equipment) => setDraft({ ...draft, equipment })}
-            profession={draft.profession}
-            consumables={{ relicId: draft.relicId, foodId: draft.foodId, utilityId: draft.utilityId }}
-            onConsumablesChange={(patch) => setDraft({ ...draft, ...patch })}
-          />
+          <div className="build-editor-column build-editor-column-fill build-editor-column-stretch">
+            <StatsPanel build={displayBuild} combatState={combatState} onCombatStateChange={setCombatState} />
+            <BoonConditionSummaryPanel build={displayBuild} />
+            <h3>Skills</h3>
+            <SkillsEditor
+              build={displayBuild}
+              value={draft.skills}
+              onChange={(skills) => setDraft({ ...draft, skills })}
+              onBuildChange={(patch) => setDraft({ ...draft, ...patch })}
+              equippedSpecializationIds={equippedSpecializationIds}
+              combatState={combatState}
+            />
+          </div>
         </div>
-        <div className="build-editor-column build-editor-column-fill build-editor-column-stretch">
-          <StatsPanel build={displayBuild} combatState={combatState} onCombatStateChange={setCombatState} />
-          <BoonConditionSummaryPanel build={displayBuild} />
-          <h3>Skills</h3>
-          <SkillsEditor
-            build={displayBuild}
-            value={draft.skills}
-            onChange={(skills) => setDraft({ ...draft, skills })}
-            onBuildChange={(patch) => setDraft({ ...draft, ...patch })}
-            equippedSpecializationIds={equippedSpecializationIds}
-            combatState={combatState}
-          />
-        </div>
+        {screenshotPreviewOpen && (
+          <div className="equipment-text-manifest-wrap">
+            <h4 className="equip-manifest-heading">Equipment (screenshot layout)</h4>
+            <EquipmentTextManifest build={draft} />
+          </div>
+        )}
       </div>
 
       <GearOptimizerPanel

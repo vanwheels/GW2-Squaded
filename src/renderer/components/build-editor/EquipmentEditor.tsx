@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { AttributeBonusText, Build, EquipmentSlot, EquipmentSlotKey, ItemStat, ProfessionId, ProfessionWeapon } from '@shared/types'
+import type { AttributeBonusText, Build, EquipmentSlot, EquipmentSlotKey, ItemStat, ProfessionId } from '@shared/types'
 import { armorTrinketInfusionCapacity, resizeUpgradeIds, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from '@shared/gear-calc/upgrade-slots'
 import {
   ATTRIBUTE_DISPLAY_NAME,
@@ -18,6 +18,7 @@ import { useAppSettings } from '@renderer/state/app-settings-store'
 import { useFavoriteConsumables } from '@renderer/state/favorite-consumables-store'
 import { UpgradePicker, toUpgradeRarity, type UpgradeOption, type UpgradeRarity } from './UpgradePicker'
 import { SkillBarIcon } from './SkillBarIcon'
+import { weaponMiniIcon, weaponPairHandlers, weaponPlaceholderIcon } from './weapon-slot-logic'
 
 type Consumables = Pick<Build, 'relicId' | 'foodId' | 'utilityId'>
 
@@ -130,54 +131,6 @@ const SLOT_ICON_KIND: Partial<Record<EquipmentSlotKey, string>> = {
   ring1: 'ring',
   ring2: 'ring',
   amulet: 'amulet'
-}
-
-/** GW2 API weapon-type key (`ProfessionWeapon`'s key in `profession.weapons`) to gw2skills icon
- *  filename slug — both `weapon-mini/` (corner overlay) and `weapon-placeholder/` (large empty-
- *  slot art) use the same slugs, except `Spear` on land: the gw2skills source sprite has a
- *  distinct land-Spear mini icon (`spear-land`, no wave decoration) but no separate large-render
- *  placeholder for it, so `weaponMiniIcon` special-cases `Spear` by `isAquatic` while
- *  `weaponPlaceholderIcon` always uses this table's plain `spear` (the underwater art) for both.
- *  `Speargun` is the Harpoon Gun. */
-const WEAPON_ICON_SLUG: Record<string, string> = {
-  Axe: 'axe',
-  Dagger: 'dagger',
-  Focus: 'focus',
-  Greatsword: 'greatsword',
-  Hammer: 'hammer',
-  Longbow: 'longbow',
-  Mace: 'mace',
-  Pistol: 'pistol',
-  Rifle: 'rifle',
-  Scepter: 'scepter',
-  Shield: 'shield',
-  Shortbow: 'shortbow',
-  Spear: 'spear',
-  Speargun: 'harpoon-gun',
-  Staff: 'staff',
-  Sword: 'sword',
-  Torch: 'torch',
-  Trident: 'trident',
-  Warhorn: 'warhorn'
-}
-
-/** `Trident`/`Speargun` are `Aquatic`-flagged and never usable on land. `Spear` is also
- *  `Aquatic`-flagged but, as of the Janthir Wilds expansion, usable on land too (with its own
- *  `NoUnderwater`-flagged land skill ids — see `profession-mechanic.ts`/`weapon-skills.ts`) — so
- *  it can't be excluded from land weapon options by the `Aquatic` flag alone. */
-const AQUATIC_ONLY_WEAPON_NAMES = new Set(['Trident', 'Speargun'])
-
-function weaponMiniIcon(weaponType: string | null | undefined, isAquatic: boolean): string | undefined {
-  const slug = weaponType === 'Spear' && !isAquatic ? 'spear-land' : weaponType ? WEAPON_ICON_SLUG[weaponType] : undefined
-  // Relative (no leading slash): the packaged app loads index.html via `file://`, where a
-  // root-absolute path resolves against the OS filesystem root, not the app's own directory —
-  // broke every local icon in production (see COMPLETED.md/git history, discovered post-release).
-  return slug ? `icons/weapon-mini/${slug}.png` : undefined
-}
-
-function weaponPlaceholderIcon(weaponType: string | null | undefined): string | undefined {
-  const slug = weaponType ? WEAPON_ICON_SLUG[weaponType] : undefined
-  return slug ? `icons/weapon-placeholder/${slug}.png` : undefined
 }
 
 function byName(a: UpgradeOption, b: UpgradeOption): number {
@@ -578,64 +531,20 @@ export function EquipmentEditor({
     )
   }
 
-  /** Weapon types this profession can use in a given hand context. Not gated by equipped elite
-   *  specs — Weaponmaster Training makes every weapon type an elite spec unlocks for this
-   *  profession permanently available, regardless of which spec is currently equipped. */
-  function weaponOptions(filter: (name: string, w: ProfessionWeapon) => boolean): [string, ProfessionWeapon][] {
-    if (!profession) return []
-    return Object.entries(profession.weapons).filter(([name, w]) => filter(name, w))
-  }
-
-  /** Weapon-type choice, like the trait specialization picker, is a single button showing the
-   *  current pick that opens a small overlay of the available types on click — not an always-
-   *  visible row of every weapon-type icon (confirmed 2026-07-30, same "selection button" tech).
-   *  Icons are the gw2skills placeholder renders (not the profession's own skill-1 icon) so every
-   *  profession's weapon-type picker looks the same regardless of which class is selected. */
-  function weaponTypeRow(
-    options: [string, ProfessionWeapon][],
-    chosen: string | null,
-    onChoose: (weaponType: string | null) => void
-  ) {
-    const weaponOptions: UpgradeOption<string>[] = options.map(([name]) => ({
-      id: name,
-      name,
-      icon: weaponPlaceholderIcon(name) ?? ''
-    }))
-    return <UpgradePicker label="Weapon" options={weaponOptions} chosenId={chosen} onChoose={onChoose} variant="slot" />
-  }
-
   /**
-   * A main+off hand pair (land Set A/B). A two-handed main-hand weapon mirrors its `weaponType`
-   * and `itemStatId` onto the off-hand key and locks it (matches the real game: a two-handed
-   * weapon occupies both slots as one item) — see `attribute-totals.ts` for why mirroring the
-   * one-handed attribute constant onto both slots, rather than special-casing a two-handed
-   * constant, already produces the correct total.
+   * A main+off hand pair (land Set A/B). Weapon-*type* is no longer chosen here at all (2026-08-19:
+   * moved to `WeaponTypeBar`, a dedicated top strip above the whole Equipment column, gw2skills.net-
+   * style — an earlier attempt to fold it into a small badge on this stat slot proved unintuitive/
+   * hard to click) — this only renders the stat-prefix + sigil/infusion editing for whichever weapon
+   * type is currently chosen up there, same shape as an armor slot. `weaponPairHandlers` (shared
+   * with `WeaponTypeBar`) supplies `mainSlot`/`offSlot`/`isTwoHanded` so this still knows a
+   * two-handed weapon's off-hand stat is locked/mirrored, matching the real game.
    */
   function renderWeaponPair(mainKey: EquipmentSlotKey, offKey: EquipmentSlotKey, mainLabel: string, offLabel: string) {
-    const mainSlot = value[mainKey]
-    const mainWeapon = mainSlot?.weaponType ? profession?.weapons[mainSlot.weaponType] : undefined
-    const isTwoHanded = mainWeapon?.flags.includes('TwoHand') ?? false
-
-    const mainOptions = weaponOptions(
-      (name, w) => (w.flags.includes('Mainhand') || w.flags.includes('TwoHand')) && !AQUATIC_ONLY_WEAPON_NAMES.has(name)
-    )
-    const offOptions = weaponOptions((_name, w) => w.flags.includes('Offhand'))
+    const { mainSlot, offSlot, isTwoHanded } = weaponPairHandlers(profession, value, onChange, mainKey, offKey)
 
     const mainCapacity = weaponUpgradeCapacity(Boolean(mainSlot?.weaponType), isTwoHanded)
-    const offCapacity = weaponUpgradeCapacity(Boolean(value[offKey]?.weaponType), false)
-
-    function chooseMain(weaponType: string | null): void {
-      const newWeapon = weaponType ? profession?.weapons[weaponType] : undefined
-      const newIsTwoHanded = newWeapon?.flags.includes('TwoHand') ?? false
-      const itemStatId = mainSlot?.itemStatId ?? null
-      const nextMain: EquipmentSlot = { itemStatId, weaponType }
-      const nextOff: EquipmentSlot = newIsTwoHanded
-        ? { itemStatId, weaponType }
-        : isTwoHanded
-          ? { itemStatId: null, weaponType: null }
-          : (value[offKey] ?? { itemStatId: null, weaponType: null })
-      onChange({ ...value, [mainKey]: nextMain, [offKey]: nextOff })
-    }
+    const offCapacity = weaponUpgradeCapacity(Boolean(offSlot?.weaponType), false)
 
     function setMainItemStat(itemStatId: number | null): void {
       const nextMain: EquipmentSlot = { ...(mainSlot ?? {}), itemStatId, weaponType: mainSlot?.weaponType ?? null }
@@ -645,25 +554,17 @@ export function EquipmentEditor({
         // A two-handed weapon's itemStatId is mirrored onto the off-hand slot too (see class doc
         // comment), but its rune/sigil/infusion picks live independently per slot key — only the
         // stat combo mirrors, not the upgrades.
-        ...(isTwoHanded ? { [offKey]: { ...(value[offKey] ?? {}), itemStatId, weaponType: mainSlot?.weaponType ?? null } } : {})
+        ...(isTwoHanded ? { [offKey]: { ...(offSlot ?? {}), itemStatId, weaponType: mainSlot?.weaponType ?? null } } : {})
       })
     }
 
-    function chooseOff(weaponType: string | null): void {
-      onChange({ ...value, [offKey]: { itemStatId: value[offKey]?.itemStatId ?? null, weaponType } })
-    }
-
     function setOffItemStat(itemStatId: number | null): void {
-      onChange({ ...value, [offKey]: { ...(value[offKey] ?? {}), itemStatId, weaponType: value[offKey]?.weaponType ?? null } })
+      onChange({ ...value, [offKey]: { ...(offSlot ?? {}), itemStatId, weaponType: offSlot?.weaponType ?? null } })
     }
 
     return (
       <div className="gear-weapon-pair" key={mainKey}>
         <div className="gear-slot weapon-slot">
-          {weaponTypeRow(mainOptions, mainSlot?.weaponType ?? null, chooseMain)}
-          <label className="gear-slot-body">
-            <span className="gear-slot-label">{mainLabel}</span>
-          </label>
           <UpgradePicker
             label={mainLabel}
             options={statOptionsFor(mainKey, isTwoHanded ? 'weaponTwoHanded' : undefined)}
@@ -675,6 +576,9 @@ export function EquipmentEditor({
             cornerIcon={weaponMiniIcon(mainSlot?.weaponType, false)}
             emptyIcon={weaponPlaceholderIcon(mainSlot?.weaponType)}
           />
+          <label className="gear-slot-body">
+            <span className="gear-slot-label">{mainLabel}</span>
+          </label>
           {sigilRow(mainKey, mainCapacity)}
           {infusionRow(mainKey, mainCapacity)}
         </div>
@@ -683,21 +587,20 @@ export function EquipmentEditor({
             <div className="weapon-slot-locked">(2-handed)</div>
           ) : (
             <>
-              {weaponTypeRow(offOptions, value[offKey]?.weaponType ?? null, chooseOff)}
-              <label className="gear-slot-body">
-                <span className="gear-slot-label">{offLabel}</span>
-              </label>
               <UpgradePicker
                 label={offLabel}
                 options={statOptionsFor(offKey)}
-                chosenId={displayedItemStatId(offKey, value[offKey]?.itemStatId ?? null)}
+                chosenId={displayedItemStatId(offKey, offSlot?.itemStatId ?? null)}
                 onChoose={setOffItemStat}
                 variant="slot"
                 rarity="ascended"
                 dragCategory="stat"
-                cornerIcon={weaponMiniIcon(value[offKey]?.weaponType, false)}
-                emptyIcon={weaponPlaceholderIcon(value[offKey]?.weaponType)}
+                cornerIcon={weaponMiniIcon(offSlot?.weaponType, false)}
+                emptyIcon={weaponPlaceholderIcon(offSlot?.weaponType)}
               />
+              <label className="gear-slot-body">
+                <span className="gear-slot-label">{offLabel}</span>
+              </label>
               {sigilRow(offKey, offCapacity)}
               {infusionRow(offKey, offCapacity)}
             </>
@@ -708,17 +611,13 @@ export function EquipmentEditor({
   }
 
   /** A single underwater weapon slot — no hand pairing, since every aquatic weapon type is
-   *  confirmed `TwoHand` (verified against the live API for every profession). */
+   *  confirmed `TwoHand` (verified against the live API for every profession). Weapon type is
+   *  chosen in `WeaponTypeBar`, same as the land pairs above — this only edits stat/sigil/infusion. */
   function renderUnderwaterSlot(key: EquipmentSlotKey, label: string) {
     const slot = value[key]
-    const options = weaponOptions((_name, w) => w.flags.includes('Aquatic'))
     // Every aquatic weapon type is confirmed TwoHand (see class doc comment on this function), so
     // an underwater slot always gets the 2-slot upgrade capacity once a weapon is equipped.
     const capacity = weaponUpgradeCapacity(Boolean(slot?.weaponType), true)
-
-    function choose(weaponType: string | null): void {
-      onChange({ ...value, [key]: { itemStatId: slot?.itemStatId ?? null, weaponType } })
-    }
 
     function setStat(itemStatId: number | null): void {
       onChange({ ...value, [key]: { ...(slot ?? {}), itemStatId, weaponType: slot?.weaponType ?? null } })
@@ -726,10 +625,6 @@ export function EquipmentEditor({
 
     return (
       <div className="gear-slot weapon-slot" key={key}>
-        {weaponTypeRow(options, slot?.weaponType ?? null, choose)}
-        <label className="gear-slot-body">
-          <span className="gear-slot-label">{label}</span>
-        </label>
         <UpgradePicker
           label={label}
           options={statOptionsFor(key)}
@@ -741,6 +636,9 @@ export function EquipmentEditor({
           cornerIcon={weaponMiniIcon(slot?.weaponType, true)}
           emptyIcon={weaponPlaceholderIcon(slot?.weaponType)}
         />
+        <label className="gear-slot-body">
+          <span className="gear-slot-label">{label}</span>
+        </label>
         {sigilRow(key, capacity)}
         {infusionRow(key, capacity)}
       </div>
@@ -831,59 +729,23 @@ export function EquipmentEditor({
         {copyPasteSlot('Infusion', 'infusion', infusionOptions, applyInfusionToAll, () => applyInfusionToAll(null))}
       </div>
       <div className="gear-panels">
-        <div className="gear-panels-top">
-          <div className="gear-panel gear-panel-armor">
-            <div className="gear-panel-header">
-              <h4 className="gear-panel-title">Armor</h4>
-              <button type="button" className="skill-bar-icon-button" title="Clear All Armor" onClick={clearArmorAll}>
-                <SkillBarIcon kind="clearAll" />
-              </button>
-            </div>
-            {ARMOR_SLOTS.map((s) => renderSlot(s.key, s.label))}
+        <div className="gear-panel gear-panel-armor">
+          <div className="gear-panel-header">
+            <h4 className="gear-panel-title">Armor</h4>
+            <button type="button" className="skill-bar-icon-button" title="Clear All Armor" onClick={clearArmorAll}>
+              <SkillBarIcon kind="clearAll" />
+            </button>
           </div>
-          <div className="gear-panel gear-panel-accessories">
-            <div className="gear-panel-header">
-              <h4 className="gear-panel-title">Accessories</h4>
-              <button
-                type="button"
-                className="skill-bar-icon-button"
-                title="Clear All Accessories"
-                onClick={clearAccessoriesAll}
-              >
-                <SkillBarIcon kind="clearAll" />
-              </button>
-            </div>
-            {TRINKET_SLOTS.map((s) => renderSlot(s.key, s.label))}
+          {ARMOR_SLOTS.map((s) => renderSlot(s.key, s.label))}
+        </div>
+        <div className="gear-panel gear-panel-accessories">
+          <div className="gear-panel-header">
+            <h4 className="gear-panel-title">Accessories</h4>
+            <button type="button" className="skill-bar-icon-button" title="Clear All Accessories" onClick={clearAccessoriesAll}>
+              <SkillBarIcon kind="clearAll" />
+            </button>
           </div>
-          <div className="gear-panel gear-panel-other">
-            <h4 className="gear-panel-title">Other</h4>
-            {renderOtherSlot(
-              'Relic',
-              relicOptions,
-              consumables.relicId,
-              (id) => onConsumablesChange({ ...consumables, relicId: id }),
-              'exotic',
-              'icons/weapon-placeholder/relic.png'
-            )}
-            {renderOtherSlot(
-              'Food',
-              foodOptions,
-              consumables.foodId,
-              (id) => onConsumablesChange({ ...consumables, foodId: id }),
-              undefined,
-              undefined,
-              { isFavorite: isFoodFavorite, onToggleFavorite: toggleFoodFavorite }
-            )}
-            {renderOtherSlot(
-              'Utility',
-              utilityOptions,
-              consumables.utilityId,
-              (id) => onConsumablesChange({ ...consumables, utilityId: id }),
-              undefined,
-              undefined,
-              { isFavorite: isUtilityFavorite, onToggleFavorite: toggleUtilityFavorite }
-            )}
-          </div>
+          {TRINKET_SLOTS.map((s) => renderSlot(s.key, s.label))}
         </div>
         <div className="gear-panel gear-panel-weapon">
           <div className="gear-panel-weapon-header">
@@ -914,7 +776,7 @@ export function EquipmentEditor({
             </div>
           </div>
           {effectiveWeaponMode === 'land' ? (
-            <div className="gear-weapon-row">
+            <div className="gear-weapon-stack">
               <div className="gear-weapon-set">
                 <h5>Weapon I</h5>
                 {renderWeaponPair('weaponA1', 'weaponA2', 'Main hand', 'Off hand')}
@@ -926,10 +788,39 @@ export function EquipmentEditor({
               </div>
             </div>
           ) : (
-            <div className="gear-weapon-row">
+            <div className="gear-weapon-stack">
               {renderUnderwaterSlot('weaponU1', 'Set 1')}
               {renderUnderwaterSlot('weaponU2', 'Set 2')}
             </div>
+          )}
+        </div>
+        <div className="gear-panel gear-panel-other">
+          <h4 className="gear-panel-title">Other</h4>
+          {renderOtherSlot(
+            'Relic',
+            relicOptions,
+            consumables.relicId,
+            (id) => onConsumablesChange({ ...consumables, relicId: id }),
+            'exotic',
+            'icons/weapon-placeholder/relic.png'
+          )}
+          {renderOtherSlot(
+            'Food',
+            foodOptions,
+            consumables.foodId,
+            (id) => onConsumablesChange({ ...consumables, foodId: id }),
+            undefined,
+            undefined,
+            { isFavorite: isFoodFavorite, onToggleFavorite: toggleFoodFavorite }
+          )}
+          {renderOtherSlot(
+            'Utility',
+            utilityOptions,
+            consumables.utilityId,
+            (id) => onConsumablesChange({ ...consumables, utilityId: id }),
+            undefined,
+            undefined,
+            { isFavorite: isUtilityFavorite, onToggleFavorite: toggleUtilityFavorite }
           )}
         </div>
       </div>

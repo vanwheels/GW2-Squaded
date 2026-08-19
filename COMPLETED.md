@@ -2,6 +2,55 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 230 — Build screenshot layout redesign, part 1: Equipment manifest, weapon-type bar, profession collapse
+
+Kicked off a redesign of the Build editor's screenshot output (Discord-bot-facing down the road),
+scoped to Equipment first per user direction — Traits/Skills/Stats/Boons-Conditions left as-is for
+now. Iterated through 3 rounds based on user screenshots of the actual running app (electron sandbox
+still blocks running it myself, per memory — this was the first time real screenshots drove fixes
+mid-session).
+
+**Equipment text manifest** (`EquipmentTextManifest.tsx`, new): a read-only, screenshot-only full
+manifest of the equipment loadout — one line per armor/trinket slot, grouped Rune/Infusion counts
+("Scholar ×6"), weapon sets with inline sigils, Relic/Food/Utility by name. Toggled into view via a
+"Preview screenshot layout" button in `BuildEditorView`'s header (off by default, zero effect on
+normal editing); renders as a full-width band below the 3-column layout, inside the same
+`.build-editor-capture` ref `ScreenshotButton` captures, so it's included whenever it's open.
+
+**Weapon-type selection moved out of the gear slots entirely**, twice-iterated:
+1st attempt merged weapon-type into a small interactive corner badge overlaid on the stat-prefix
+slot — confirmed via screenshot feedback to be unintuitive/hard to click, no other control in the
+app works that way. Replaced with `WeaponTypeBar.tsx` (new): a dedicated gw2skills.net-style top
+strip (badge per hand, "2H" label when locked) living in a new `.editor-profession-weapon-bar` row
+above the 3-column layout — **outside** `.build-editor-capture` (deliberately, same as
+Back/Name/Tags — pure editing chrome, not meant to appear in the screenshot).
+`EquipmentEditor`'s Weapon panel is back to stat/sigil/infusion-only slots (structurally identical
+to Armor slots again), and the shared two-handed-mirroring logic that used to live only in
+`EquipmentEditor` moved to a new `weapon-slot-logic.ts` so both it and `WeaponTypeBar` stay in sync
+off the same source of truth.
+
+**Weapon panel moved into the top row** alongside Armor/Accessories/Other (was previously a
+full-width row below them) — Weapon I/II now stack vertically inside their own panel instead of
+sitting side by side, keeping the panel narrow rather than doubling the column's width. This plus
+the weapon-type-bar move shrank the Equipment column's height substantially.
+
+**Profession/elite-spec picker collapsed behind a popover** (`ProfessionSpecPicker.tsx`, rewritten):
+same `FloatingPanel`/`usePickerOpen` mechanism `ProfessionTagPicker` already uses for the Builds-page
+filter, single-select flavor — trigger is a bare icon (no circle border, no text label; a first pass
+with both was flagged as clunky) showing the current pick, click opens the same profession-row +
+elite-spec-grid popover, picking auto-closes it. Moved out of the Traits column entirely into the
+new `.editor-profession-weapon-bar`, so Traits now starts right at the top of its own column (the
+old "profession picker up top, Traits pushed down to fill slack" flex trick was removed as
+dead weight along with it).
+
+**Not done yet** — see TODO.md's "Build screenshot layout redesign" entry for the agreed next step
+(Stats/Boons-Conditions/Skills reorg) and the open question of whether Traits ends up the height
+bottleneck once that's done; the manifest band still isn't confirmed to fully fit on screen.
+
+Verified via `npm run typecheck`, `npm run lint`, `npm test` (212 passing), `npm run build` — all
+clean each round. No visual click-through beyond the user's own screenshots (electron sandbox
+limitation, see memory).
+
 ## Session 229 — Gear Optimizer entry point + UI: inline trigger, centered modal, live stat comparison
 
 Closed TODO.md's "Gear Optimizer entry point + UI" item. `GearOptimizerPanel` was a collapsible
