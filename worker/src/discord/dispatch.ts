@@ -50,7 +50,14 @@ export function resolveHandler(
  *  called via `ctx.waitUntil` from `interactions.ts` after the initial DEFERRED response has
  *  already been sent, so it has no return value Discord is waiting on. A `UserError` becomes its
  *  own message verbatim; anything else is logged and replaced with a generic failure message so a
- *  raw stack trace never reaches a Discord user. */
+ *  raw stack trace never reaches a Discord user.
+ *
+ *  Note this means `handler`'s own work (D1 writes, board-message PATCHes) can succeed even when
+ *  the *followup* below fails to reach Discord — the caller would then see no response at all
+ *  despite the action having actually gone through. That gap is why the followup itself gets one
+ *  retry rather than a bare `await`: a transient failure here is otherwise silent (nothing else
+ *  is watching this `ctx.waitUntil`'d call), and a lost followup reads to the user as "nothing
+ *  happened" even when it did. */
 export async function runCommand(
   env: Env,
   interaction: DiscordInteraction,
@@ -76,5 +83,17 @@ export async function runCommand(
     }
   }
 
-  await editOriginalInteractionResponse(interaction.application_id, interaction.token, payload)
+  try {
+    await editOriginalInteractionResponse(interaction.application_id, interaction.token, payload)
+  } catch (err) {
+    console.error(`Delivering the result of /${interaction.data?.name} failed, retrying once:`, err)
+    try {
+      await editOriginalInteractionResponse(interaction.application_id, interaction.token, payload)
+    } catch (retryErr) {
+      // Nothing left to do — Discord's own client-side "the application did not respond"-style
+      // messaging is the honest outcome here. Logged so `wrangler tail`/the dashboard surfaces it
+      // rather than it vanishing as a silent unhandled rejection.
+      console.error(`Delivering the result of /${interaction.data?.name} failed twice, giving up:`, retryErr)
+    }
+  }
 }
