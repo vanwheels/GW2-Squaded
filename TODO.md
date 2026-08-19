@@ -228,14 +228,21 @@ traits Allies' Aid, Chain Reactivity, System Shocker, Ex Machina, Unshakable Mou
 Ambition, Mech Core: Barrier Engine) confirmed party-wide from their own local API facts/descriptions
 plus 2 live wiki checks (Glyph of Elemental Power's attunement-branch text, Crescendo's raw wikitext —
 the latter turned out NOT party-wide, its bare `targets` template most likely describes its own foe-
-facing Damage fact instead, so it stays uncurated). This closes out the whole
-`MISCELLANEOUS_MATCHERS` party-wide-targetCount item — see `BARRIER_PARTY_WIDE`'s own doc comment for
+facing Damage fact instead, so it stays uncurated). See `BARRIER_PARTY_WIDE`'s own doc comment for
 the full per-entry reasoning, including everything excluded as self/pet/single-ally-only.
 
-- [ ] **Remaining scope, not started**: ~120 still-uncurated Breaks-Stun sources (mostly self-only by
-      inspection, not individually confirmed) — the only piece of this whole sweep still open. Same
-      "one leg, then check in" pacing as the original Cleanse/target-count sweeps — see
-      `pacing_large_sweeps` memory.
+Fifth and final leg landed 2026-08-19: a full wiki pass over the ~120 still-uncurated Breaks-Stun
+sources left open above (113 after excluding blank-data placeholder ids) — resolved each candidate's
+wiki page and read its own `breakstun`/`stun break` fact template, whose optional `applies to=`
+parameter is the wiki's own explicit self-vs-allies signal (discovered via Otter's Compassion, then
+confirmed reliable against the already-known Blinding Powder/"Shake It Off!" cases). Exactly ONE
+source turned out party-wide: Otter's Compassion (76563, Evoker meditation — `applies to=allies`
+when water is your specialized element; its sibling boon facts were already curated at 5). The other
+112 are now CONFIRMED (not just inspected) self-only — 4 via an explicit `applies to=self` qualifier
+(Elixir S, Hare's Agility, Toad's Fortitude, Fox's Fury — the latter two read ambiguously from prose
+alone but the wiki's own fact template disambiguates them), 108 via a bare qualifier-less template
+(GW2's own defaults-to-self convention). This closes out the whole `MISCELLANEOUS_MATCHERS`
+party-wide-targetCount item — see `BREAKS_STUN_PARTY_WIDE`'s own doc comment for the full writeup.
 
 - [ ] Exclusion filter on the Builds tab (flagged 2026-08-16) — extend `useTagFilter`
       (`src/renderer/state/use-tag-filter.ts`, shared by `BuildsView`/`SquadsView`/`BuildsSidebar`)

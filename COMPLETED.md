@@ -2,6 +2,28 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 243 — Party-wide filter sweep leg 5: Breaks-Stun wiki pass (fully closes the sweep)
+
+Fifth and final leg of the Misc-row `targetCount` sweep, closing the one item legs 1-4 left open: the
+~120 still-uncurated Breaks-Stun sources, previously only "self-only by inspection." Instead of
+another local-description read, this leg fetched each of the 113 real candidates' (after excluding
+blank-data placeholder ids like skill 72441) own wiki page and read its `{{skill/trait
+fact|breakstun}}` / `{{skill fact|stun break|applies to=...}}` template directly — the wiki's own
+explicit self-vs-allies signal, discovered while confirming Otter's Compassion and then verified
+reliable against the already-known Blinding Powder/"Shake It Off!" cases (spot-checked the full local
+wiki-page cache for any hidden `applies to=` parameter under the older `breakstun` template spelling;
+found only on the already-curated "Shake It Off!"). Result: exactly ONE source in the entire leftover
+set is party-wide — Otter's Compassion (76563, Evoker meditation, `applies to=allies` when water is
+your specialized element; its sibling boon facts were already curated at 5), now added to
+`BREAKS_STUN_PARTY_WIDE`. The other 112 are now CONFIRMED (not just inspected) self-only: 4 via an
+explicit `applies to=self` qualifier (Elixir S, Hare's Agility, Toad's Fortitude, Fox's Fury — the
+latter two read ambiguously from prose alone, e.g. Toad's Fortitude's "grants resistance to allies and
+breaks stun," but the wiki's own fact template disambiguates both as self), 108 via a bare
+qualifier-less template (GW2's own defaults-to-self convention). This fully closes the whole
+`MISCELLANEOUS_MATCHERS` party-wide-targetCount item — nothing left open. `npm run
+typecheck`/`lint`/`vitest run` all clean (66 boon-calc tests, no new ones needed — curated data, not
+new logic).
+
 ## Session 242 — Party-wide filter sweep leg 4: Barrier manual description read (closes the sweep)
 
 Fourth and last leg of the Misc-row `targetCount` sweep (`BREAKS_STUN_PARTY_WIDE` leg 1,

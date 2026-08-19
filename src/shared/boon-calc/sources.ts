@@ -4965,29 +4965,30 @@ export const BOON_STRIP_CORRUPT_MATCHERS: Record<string, (fact: Fact) => boolean
 
 /**
  * Party-wide entries for `MISCELLANEOUS_MATCHERS`' "Breaks Stun" row (TODO.md's "party-wide-only
- * filter," Misc-row scoping pass, 2026-08-19) — a first leg, NOT a full wiki-verified sweep like
- * `CONDITION_CLEANSE_TARGETS`/`TARGET_COUNT_OVERRIDES`: 136 skill + 3 trait ids carry a `StunBreak`/
- * `Breaks Stun` fact, and the overwhelming majority (dodge/utility skills breaking the caster's own
- * stun) are genuinely self-only — but curating a self entry has zero functional effect here (`'self'`
- * resolves to `targetCount: null`, see `resolveOverrideValue`, identical to leaving a source
- * uncurated), so this table only lists sources CONFIRMED party-wide, and leaves everything else
- * uncurated rather than spending a full self/party classification pass on sources whose curation
- * wouldn't change any observable behavior. Each entry below has its own description explicitly tying
- * "breaks stun" to allies (not just ally wording elsewhere on the same source, which stays
- * uncurated/excluded per this codebase's "skip+log rather than guess" convention), corroborated by
- * a `"Number of Targets": 5` fact each one also carries — normally the untrusted enemy-facing label
- * (see `BoonConditionSource.targetCount`'s doc comment), but these sources have no foe-facing
- * component at all, so — like the already-curated Healing Rain/Heat Wave exceptions
- * `TARGET_COUNT_OVERRIDES` documents — the mislabeled fact is trusted as the real ally count here too.
- * Many more Breaks-Stun sources already resolve for free with no entry needed at all, via their own
- * `"Number of Allied Targets"` fact (`resolveTargetCountFrom` checks that before ever consulting this
- * table) — e.g. "Save Yourselves!", "Protect Me!", Banner of Tactics, "Never Surrender!".
- * Remaining scope for a future sweep leg: the ~120 still-uncurated Breaks-Stun sources (mostly
- * self-only by inspection, but not individually confirmed) — Stealth/Superspeed/Barrier all got
- * their own legs next (see `STEALTH_PARTY_WIDE`/`SUPERSPEED_PARTY_WIDE`/`BARRIER_PARTY_WIDE` below)
- * and are done; Breaks Stun's own ~120 leftover sources are the only piece of this table's original
- * scope still open, and only benefit from the free `"Number of Allied Targets"`-fact resolutions
- * wired below.
+ * filter," Misc-row scoping pass, 2026-08-19). First leg (2026-08-19) covered the 8 skill + 2 trait
+ * sources below whose own description explicitly ties "breaks stun" to allies; the ~120 remaining
+ * sources were left open as "mostly self-only by inspection, but not individually confirmed."
+ *
+ * Final leg (2026-08-19, closes this table's scope entirely): a full wiki pass over every one of
+ * those ~120 (113 after excluding blank-data placeholder ids with no name at all, e.g. skill 72441)
+ * — resolved each candidate's wiki page and read its own `{{skill/trait fact|breakstun}}` /
+ * `{{skill fact|stun break|applies to=...}}` template (the wiki's own explicit self-vs-allies
+ * signal, discovered via Otter's Compassion below and confirmed reliable against the already-known
+ * Blinding Powder/"Shake It Off!" cases). Result: exactly ONE source in the entire leftover set
+ * carries an explicit `applies to=allies` qualifier — Otter's Compassion, added below. The other 112
+ * are now CONFIRMED (not just inspected) self-only: 4 carry an explicit `applies to=self` qualifier
+ * (Elixir S, Hare's Agility, Toad's Fortitude, Fox's Fury — the latter two initially looked
+ * ambiguous from prose alone, e.g. Toad's Fortitude's "grants resistance to allies and breaks stun"
+ * reads ambiguously in English but the wiki's own fact template disambiguates it as self), and 108
+ * carry the template with zero qualifier at all (GW2's bare-`breakstun`-defaults-to-self convention
+ * — spot-checked across the full local wiki-page cache for any hidden `applies to=` parameter under
+ * this alternate template spelling, found only on the already-curated "Shake It Off!"). Curating a
+ * self entry has zero functional effect regardless (`'self'` resolves to `targetCount: null`, same
+ * as leaving a source uncurated), so none of the 112 get an entry — this table still only lists
+ * sources CONFIRMED party-wide. Many more Breaks-Stun sources resolve for free with no entry needed
+ * at all, via their own `"Number of Allied Targets"` fact (`resolveTargetCountFrom` checks that
+ * before ever consulting this table) — e.g. "Save Yourselves!", "Protect Me!", Banner of Tactics,
+ * "Never Surrender!".
  */
 export const BREAKS_STUN_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
   skill: {
@@ -4996,6 +4997,10 @@ export const BREAKS_STUN_PARTY_WIDE: { skill: Record<number, SourceTargetCountOv
     31401: 5, // Glyph of Equality — "Break stun for nearby allies"
     62796: 5, // Awakening (Legendary Alliance) — "Break stun on nearby allies"
     63293: 5, // Crisis Zone (Mechanist) — "breaks stuns...to itself and nearby allies"
+    76563: 5, // Otter's Compassion (Evoker meditation) — wiki: "this skill breaks stun for nearby
+    // allies" when water is your specialized element, confirmed via the fact template itself
+    // (`{{skill fact|stun break|applies to=allies}}`); its sibling boon facts are already curated
+    // at 5 in `TARGET_COUNT_OVERRIDES`.
     77155: 5, // Chant of Freedom — "Breaks stun from allies in an area around you"
     77178: 5, // Tale of the Valiant Marshal — "Break their stuns" (nearby allies called to action)
     77321: 5 // Stalwart Stance — "Break stun for nearby allies"
