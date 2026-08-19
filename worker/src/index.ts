@@ -63,7 +63,7 @@ async function handleGet(id: string, env: Env): Promise<Response> {
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: CORS_HEADERS })
     }
@@ -80,7 +80,7 @@ export default {
     }
 
     if (request.method === 'POST' && pathParts.length === 1 && pathParts[0] === 'interactions') {
-      return handleInteraction(request, env)
+      return handleInteraction(request, env, ctx)
     }
 
     return json({ error: 'not_found' }, 404)

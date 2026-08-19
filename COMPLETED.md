@@ -2,6 +2,53 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 247 — Discord bot Phase 2: core CRUD + board sync (code-complete, not yet deployed)
+
+Built out `docs/discord-bot.md`'s Phase 2 in full: board admin (`buildboardsetup`/`rebuild`,
+`squadboardsetup`/`rebuild`, `buildboardconfig setpermission`), build CRUD (`buildadd`/`remove`/
+`edit`/`move`), squad CRUD (`squadadd`/`remove`/`edit`), and name autocomplete on every existing-
+entry `name` argument — all in Automatic mode (no approval workflow yet, that's Phase 3). New
+files: `worker/src/db.ts` (D1 query layer for all 5 Phase-2-relevant tables), `worker/src/discord/
+api.ts` (Discord REST helpers), `worker/src/discord/dispatch.ts` + `interaction-types.ts` +
+`permissions.ts` + `errors.ts` + `autocomplete.ts`, `worker/src/discord/commands/{board-admin,
+builds,squads}.ts`, `worker/src/render/board.ts`, `worker/src/professions.ts`, `worker/src/share-
+{resolve,validate}.ts` (duplicated share-reading/validation logic, same "separate deployable"
+reasoning as the existing `ShareKind` duplication in `index.ts`). Rewrote `interactions.ts`/
+`index.ts` to route by interaction type and thread an `ExecutionContext` through.
+
+Three design decisions the doc left open, resolved with the user before writing code (see
+`docs/discord-bot.md`'s Phase 2 checkbox for the fuller writeup): `action_permissions` with no
+configured role defaults to **open**, not locked down; `/buildAdd` etc. **require** `/
+buildBoardSetup` to have run first rather than auto-creating a section; **autocomplete built now**
+rather than deferred. Added one safety valve beyond what was asked: guild Administrators always
+bypass a configured role gate, so a misconfigured/never-configured gate can't lock an admin out of
+their own board.
+
+Every mutating command uses Discord's deferred-response pattern (ack immediately, do the D1 write
++ board-message PATCH via `ctx.waitUntil`, edit the placeholder with the real result) since that
+combined work isn't reliably under Discord's 3-second window — a step beyond what Phase 1 needed.
+Caught and fixed one real ordering bug during self-review: `buildEdit` was reshuffling
+`sort_order` for a cross-profession move *before* the name-uniqueness-checked D1 write, so a
+rejected rename (duplicate name) after a profession change would have left `sort_order` corrupted;
+reordered so the constraint-checked write always happens first.
+
+Verified with a throwaway smoke-test script (`_smoke.ts`, deleted before commit — not part of the
+repo) that called the exported command handlers directly against a real local D1 database (via
+wrangler's `getPlatformProxy`, sharing `.wrangler/state` with local dev) with `global.fetch`
+stubbed for `discord.com` calls only. 17/17 assertions passed: board setup + its re-setup guard,
+buildAdd (including duplicate-name rejection and the Guardian section's board message actually
+getting PATCHed), autocomplete finding a freshly-added build, permission gating (open by default,
+then blocked once a role is configured via `buildboardconfig setpermission`, then allowed for a
+member holding that role), buildMove, buildEdit's cross-profession move, squadAdd/Edit/Remove, and
+buildBoardRebuild. `npm run typecheck` and `eslint` both clean.
+
+**Not yet done**: deployed to production or registered with Discord — `register-commands` would
+replace the live global command set (currently just `/ping`) with the full Phase 2 list, and
+`wrangler deploy` would push the new `/interactions` handling live; both are outward-facing/hard-
+to-instantly-reverse, held for explicit user go-ahead same as Phase 1's live steps were.
+`docs/discord-bot.md`'s Phase 2 checkbox and Status section, and TODO.md's Discord bot entry,
+updated accordingly.
+
 ## Session 246 — Discord bot Phase 1: live end-to-end (deploy, secret, endpoint, /ping confirmed)
 
 Closed out Phase 1 of `docs/discord-bot.md`'s phased build order, continuing from commit 8ace700's

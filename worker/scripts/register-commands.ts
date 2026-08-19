@@ -1,6 +1,6 @@
 /**
  * Registers this bot's slash commands with Discord's REST API, keeping the Developer Portal's
- * command list in sync with what `src/discord/interactions.ts` actually handles (per the
+ * command list in sync with what `src/discord/dispatch.ts` actually handles (per the
  * "command-registration script" called for in docs/discord-bot.md's Phase 1).
  *
  * Run with `npm run register-commands` (loads DISCORD_BOT_TOKEN from .dev.vars via Node's
@@ -8,11 +8,16 @@
  * hour to propagate) rather than guild-scoped — appropriate here since Phase 2+ commands are the
  * same for every server, per docs/discord-bot.md's design (no per-guild command variation).
  *
- * Phase 1 registers a single no-op `/ping` command — its only purpose is proving the full round
- * trip (Developer Portal → Discord → this worker's /interactions route → signature verification
- * → response) works before any real board logic exists. Real commands (/buildAdd, /squadAdd,
- * etc.) replace/extend this list in later phases.
+ * Discord requires CHAT_INPUT command names to be all-lowercase, so these don't match
+ * docs/discord-bot.md's camelCase names verbatim (`/buildAdd` there is registered as `buildadd`
+ * here) — `src/discord/dispatch.ts`'s `COMMANDS` map uses the same lowercase names.
+ *
+ * Phase 1 registered a single no-op `/ping`, kept below as a standing plumbing healthcheck. Phase
+ * 2 adds the real board CRUD + setup/config commands; Phase 3's approval-workflow config
+ * subcommands (approvalMode/setApproverRole/approvalsChannel) extend `buildboardconfig` later.
  */
+
+import { PROFESSIONS } from '../src/professions'
 
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN
 if (!DISCORD_BOT_TOKEN) {
@@ -31,11 +36,163 @@ function applicationIdFromToken(token: string): string {
 
 const applicationId = applicationIdFromToken(DISCORD_BOT_TOKEN)
 
+// Application Command Option Types (subset used below).
+// https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-option-type
+const OPT = { SUB_COMMAND: 1, STRING: 3, INTEGER: 4, CHANNEL: 7, ROLE: 8 } as const
+const GUILD_TEXT_CHANNEL = 0
+
+/** Restricts a board-admin command to members Discord itself resolves as having Manage Server
+ *  (0x20) by default — server admins can still widen/narrow this per-command in Discord's own
+ *  Integrations settings UI, per docs/discord-bot.md's "presumably gated to server admins by
+ *  Discord's own native per-command permission UI, not by action_permissions" note. */
+const MANAGE_GUILD_DEFAULT = '32'
+
+const professionChoices = PROFESSIONS.map((p) => ({ name: p, value: p }))
+const boardTypeChoices = [
+  { name: 'Build board', value: 'build' },
+  { name: 'Squad board', value: 'squad' }
+]
+const actionChoices = [
+  { name: 'Add', value: 'add' },
+  { name: 'Edit', value: 'edit' },
+  { name: 'Remove', value: 'remove' },
+  { name: 'Move', value: 'move' }
+]
+
+const nameOption = (description: string) => ({
+  name: 'name',
+  description,
+  type: OPT.STRING,
+  required: true,
+  autocomplete: true
+})
+const channelOption = (description: string) => ({
+  name: 'channel',
+  description,
+  type: OPT.CHANNEL,
+  channel_types: [GUILD_TEXT_CHANNEL],
+  required: false
+})
+
 const commands = [
   {
     name: 'ping',
-    description: 'Phase 1 plumbing check — replies pong.',
+    description: 'Plumbing healthcheck — replies pong.',
     type: 1 // CHAT_INPUT
+  },
+
+  // --- Builds ---------------------------------------------------------------------------------
+  {
+    name: 'buildadd',
+    description: 'Add a build to the board from a share link.',
+    type: 1,
+    options: [
+      { name: 'link', description: 'A GW2-Squaded build share link or id.', type: OPT.STRING, required: true },
+      { name: 'name', description: 'Name to list it under (defaults to the build’s own name).', type: OPT.STRING, required: false }
+    ]
+  },
+  {
+    name: 'buildremove',
+    description: 'Remove a build from the board.',
+    type: 1,
+    options: [nameOption('The build to remove.')]
+  },
+  {
+    name: 'buildedit',
+    description: 'Rename a build and/or replace its share link.',
+    type: 1,
+    options: [
+      nameOption('The build to edit.'),
+      { name: 'newname', description: 'New name.', type: OPT.STRING, required: false },
+      { name: 'newlink', description: 'New share link or id.', type: OPT.STRING, required: false }
+    ]
+  },
+  {
+    name: 'buildmove',
+    description: 'Move a build to a new position within its profession section.',
+    type: 1,
+    options: [
+      nameOption('The build to move.'),
+      { name: 'position', description: '1 = top of the section.', type: OPT.INTEGER, required: true, min_value: 1 }
+    ]
+  },
+
+  // --- Squads -----------------------------------------------------------------------------------
+  {
+    name: 'squadadd',
+    description: 'Add a squad composition to the board from a share link.',
+    type: 1,
+    options: [
+      { name: 'link', description: 'A GW2-Squaded squad share link or id.', type: OPT.STRING, required: true },
+      { name: 'name', description: 'Name to list it under (defaults to the squad’s own name).', type: OPT.STRING, required: false }
+    ]
+  },
+  {
+    name: 'squadremove',
+    description: 'Remove a squad composition from the board.',
+    type: 1,
+    options: [nameOption('The squad to remove.')]
+  },
+  {
+    name: 'squadedit',
+    description: 'Rename a squad composition and/or replace its share link.',
+    type: 1,
+    options: [
+      nameOption('The squad to edit.'),
+      { name: 'newname', description: 'New name.', type: OPT.STRING, required: false },
+      { name: 'newlink', description: 'New share link or id.', type: OPT.STRING, required: false }
+    ]
+  },
+
+  // --- Board admin ------------------------------------------------------------------------------
+  {
+    name: 'buildboardsetup',
+    description: 'One-time: post the 9 profession board sections into a channel.',
+    type: 1,
+    default_member_permissions: MANAGE_GUILD_DEFAULT,
+    options: [channelOption('Channel to post into (defaults to this channel).')]
+  },
+  {
+    name: 'buildboardrebuild',
+    description: 'Recreate a profession section’s board message if it was deleted.',
+    type: 1,
+    default_member_permissions: MANAGE_GUILD_DEFAULT,
+    options: [
+      { name: 'profession', description: 'Which section to rebuild.', type: OPT.STRING, required: true, choices: professionChoices },
+      channelOption('Channel to post into (defaults to the section’s previous channel).')
+    ]
+  },
+  {
+    name: 'squadboardsetup',
+    description: 'One-time: post the squad board into a channel.',
+    type: 1,
+    default_member_permissions: MANAGE_GUILD_DEFAULT,
+    options: [channelOption('Channel to post into (defaults to this channel).')]
+  },
+  {
+    name: 'squadboardrebuild',
+    description: 'Recreate the squad board message if it was deleted.',
+    type: 1,
+    default_member_permissions: MANAGE_GUILD_DEFAULT,
+    options: [channelOption('Channel to post into (defaults to its previous channel).')]
+  },
+  {
+    name: 'buildboardconfig',
+    description: 'Configure board permissions.',
+    type: 1,
+    default_member_permissions: MANAGE_GUILD_DEFAULT,
+    options: [
+      {
+        name: 'setpermission',
+        description: 'Require a role to add/edit/remove/move board entries.',
+        type: OPT.SUB_COMMAND,
+        options: [
+          { name: 'boardtype', description: 'Which board.', type: OPT.STRING, required: true, choices: boardTypeChoices },
+          { name: 'action', description: 'Which action to gate.', type: OPT.STRING, required: true, choices: actionChoices },
+          { name: 'role', description: 'Role required to perform it.', type: OPT.ROLE, required: true }
+        ]
+      }
+    ]
   }
 ]
 

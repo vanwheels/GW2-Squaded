@@ -224,8 +224,10 @@ party-wide-targetCount item — see `BREAKS_STUN_PARTY_WIDE`'s own doc comment f
       with role-gated buttons) mapped out in full 2026-08-12. Full design-of-record — command
       list, D1 schema, approval workflow, architecture decisions, explicit v1 non-goals, phased
       build order — lives in `docs/discord-bot.md`, not here; read that first before picking this
-      up. **Phase 1 (foundational plumbing) done and live 2026-08-19**; Phase 2 (core CRUD +
-      board sync) is next.
+      up. **Phase 1 (foundational plumbing) done and live 2026-08-19**; **Phase 2 (core CRUD +
+      board sync) code-complete and locally smoke-tested 2026-08-19, not yet deployed/registered
+      with Discord** — see `docs/discord-bot.md`'s "Status" section. Phase 3 (approval workflow)
+      is next after Phase 2 goes live.
 
 - [ ] Capacitor port for iOS/Android — scoped 2026-08-01, two-part seam: (1)
       `StorageAdapter`/`Repository<T>` (`src/shared/storage/storage-interface.ts`) is already

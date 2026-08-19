@@ -238,12 +238,30 @@ should update this section's checkbox when done.
       `https://gw2-squaded-share.vanwheelstheman.workers.dev`, `DISCORD_BOT_TOKEN` set as a
       production secret, Interactions Endpoint URL saved in the Developer Portal, `/ping`
       registered and confirmed working live in a real server.
-- [ ] **Phase 2 — core CRUD + board sync, Automatic mode only.** `/buildAdd`/`Edit`/`Remove`/
+- [x] **Phase 2 — core CRUD + board sync, Automatic mode only.** `/buildAdd`/`Edit`/`Remove`/
       `Move`, `/squadAdd`/`Edit`/`Remove`, `/buildBoardSetup`/`Rebuild` + squad equivalents,
       `/buildBoardConfig setPermission`. No approval workflow, no `/*Display` — every mutating
       command executes immediately once the caller's role checks out. **This phase alone is a
       usable v1** — a curated, permissioned board with no display/approval polish. Good candidate
-      for an actual release checkpoint before continuing.
+      for an actual release checkpoint before continuing. **Code complete and smoke-tested
+      2026-08-19** (17-assertion local-D1 smoke test covering setup/idempotency, all build/squad
+      CRUD including cross-profession moves, permission gating, autocomplete, and rebuild — all
+      passing); not yet deployed to production or registered with Discord, see "Status" below.
+      Notable implementation decisions beyond the design doc's own text:
+      - Every mutating command uses Discord's **deferred response** pattern (ack immediately,
+        edit the placeholder once D1 + the board-message PATCH finish via `ctx.waitUntil`) since
+        that combined work isn't reliably under Discord's 3-second initial-response window.
+        Autocomplete has no deferred variant and is answered synchronously (a single indexed
+        `LIKE` query comfortably fits).
+      - `action_permissions` with **no configured role for an action defaults to open** (any
+        server member can do it) rather than locked down — an admin opts into gating via
+        `/buildBoardConfig setPermission`. Guild admins (Discord's own resolved Administrator
+        permission) always bypass every gate regardless, as a lockout safety valve.
+      - `/buildBoardSetup`/`/squadBoardSetup` refuse to run a second time for a guild (use
+        `/buildBoardRebuild`/`/squadBoardRebuild` instead) rather than silently reposting.
+      - Discord requires slash command names to be all-lowercase, so the doc's camelCase names
+        above are registered as e.g. `buildadd`, `buildboardconfig` — see
+        `scripts/register-commands.ts`.
 - [ ] **Phase 3 — approval workflow.** `pending_requests`, `/buildBoardConfig approvalMode` /
       `setApproverRole` / `approvalsChannel`, the Approve/Reject button interactions and the
       permission re-check on click. Layers entirely on top of Phase 2's write paths without
@@ -255,5 +273,9 @@ should update this section's checkbox when done.
 
 ## Status
 
-Designed 2026-08-12. Phase 1 (foundational plumbing) complete and live as of 2026-08-19 — see
-its checkbox above. Phase 2 (core CRUD + board sync, Automatic mode) not started next.
+Designed 2026-08-12. Phase 1 (foundational plumbing) complete and live as of 2026-08-19. Phase 2
+(core CRUD + board sync, Automatic mode) code-complete and locally smoke-tested 2026-08-19 — see
+its checkbox above for what's built — but not yet deployed to production or registered with
+Discord (`npm run register-commands` would replace the live global command set, currently just
+`/ping`, with the full Phase 2 list — deliberately not run yet). Phase 3 (approval workflow) next
+after Phase 2 goes live.
