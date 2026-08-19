@@ -61,8 +61,13 @@ function emojiNameFromIconUrl(url: string): string {
   return match[1]
 }
 
+/** The wiki's image server 403s requests with no `User-Agent` (confirmed 2026-08-19) — same header
+ *  `scripts/fetch-tango-icons.ts` already sends for its API calls, needed here too since this
+ *  fetches the actual image files. */
+const USER_AGENT = 'GW2-Squaded-DataFetch/1.0 (local dev tool; github.com/vanwheels/GW2-Squaded)'
+
 async function fetchAsDataUri(url: string): Promise<string> {
-  const res = await fetch(url)
+  const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
   if (!res.ok) throw new Error(`Failed to fetch ${url}: ${res.status}`)
   const buf = Buffer.from(await res.arrayBuffer())
   const contentType = res.headers.get('content-type') || 'image/png'
