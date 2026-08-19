@@ -2,6 +2,30 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 237 — Build "Updated" timestamp fix: gate on real edits, add manual review confirm
+
+Closes TODO.md's "Build 'Updated'/staleness tracking is currently untrustworthy" item (flagged
+2026-08-18). Two-part fix in `BuildEditorView.tsx`:
+
+- **`handleBack`** previously stamped `updatedAt`/`updatedAtGw2Build` unconditionally on every
+  back-navigation, so just opening a build and immediately leaving cleared the "Not reviewed since
+  latest patch" flag (`isBuildStaleSincePatch`) with no real edit having happened. Now compares
+  `JSON.stringify(draft)` against `JSON.stringify(build)` (the prop the editor opened with) — `Build`
+  is plain JSON-serializable data (no `Date`/`Set`/`Map` fields), so this is a safe, dependency-free
+  deep-equality stand-in — and only stamps fresh timestamps when they actually differ.
+- **New "Mark as up to date" button** in the editor header, shown only when
+  `isBuildStaleSincePatch(draft, localGw2Build)` is true, lets the user explicitly confirm a build
+  still holds up under the current patch (stamps `updatedAt`/`updatedAtGw2Build` into `draft`) without
+  needing a throwaway content edit to clear the flag. It only touches local `draft` state — persisted
+  by the normal save-on-`handleBack` flow like every other field, not immediately — so it composes
+  with the diff check above rather than bypassing it.
+
+A brand-new blank build (`makeBlankBuild`) already stamps `createdAt`/`updatedAt` at creation time, so
+backing out of a new build with zero changes still creates the record with a sensible "just now"
+timestamp — this fix only changes behavior for re-opening an *existing* build. Typecheck/lint clean;
+no view-level test infra exists in this repo to extend (existing 224 tests are all shared-logic
+level). TODO.md's item removed.
+
 ## Session 236 — 3 Build editor UI bugs from the 2026-08-16 batch: trait-box heights, connector, Light Aura routing
 
 All 3 remaining items from TODO.md's "Bugs found in testing (2026-08-16)" section:

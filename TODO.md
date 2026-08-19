@@ -157,35 +157,6 @@ writeup once implementation starts, same pattern as the Discord bot/target-count
       will fill it in naturally — but whenever it's next touched, switch the panels to a 2-column
       layout rather than full-width single-column stacking; no new content needed to justify it.
 
-## Build "Updated"/staleness tracking is currently untrustworthy (flagged 2026-08-18)
-
-User noticed the Builds tab's "Updated just now" label appears even when no actual edit was made —
-just clicking into a build and immediately backing out marks it as freshly updated. Traced the root
-cause: `BuildEditorView.handleBack` (`BuildEditorView.tsx:193-200`) unconditionally stamps both
-`updatedAt: new Date().toISOString()` and `updatedAtGw2Build: localGw2Build` on every `onBack`, with
-no check for whether `draft` actually differs from the `build` the editor was opened with.
-
-This is worse than a cosmetic timestamp bug: the codebase already has a patch-staleness mechanism
-built for exactly what the user wants — `isBuildStaleSincePatch` (`@shared/types/build`) compares
-`build.updatedAtGw2Build` against the current `localGw2Build` snapshot and shows "Not reviewed since
-latest patch" instead of the relative-time label (`BuildsView.tsx:170-178`, see COMPLETED.md for
-when `updatedAtGw2Build` was introduced). But because `updatedAtGw2Build` gets silently re-stamped on
-every back-navigation — not just on a real edit — merely glancing at a build and leaving clears the
-staleness flag, defeating the one thing it exists to track. So the "Updated" label isn't really
-tracking edits *or* patch-relevant review right now; it's tracking "was the editor closed."
-
-Two-part fix, not started:
-- [ ] Only bump `updatedAt`/`updatedAtGw2Build` in `handleBack` when `draft` is actually different
-      from the `build` prop the editor opened with (a real content edit), not on every `onBack` call.
-- [ ] Separately, add a **manual** "mark as up to date" checkbox/button inside the build editor —
-      user-initiated, not automatic — that the user clicks after a balance patch drops to confirm
-      they've reviewed the build and it's still good, stamping `updatedAtGw2Build: localGw2Build`
-      (and probably `updatedAt` too) at that point. This decouples "I edited something" from "I
-      reviewed this build against the current patch and it's still valid as-is" — today's mechanism
-      conflates the two by only ever stamping `updatedAtGw2Build` as a side effect of saving,
-      requiring an edit (however trivial) to clear a stale flag even when no edit was actually
-      needed.
-
 ## Scoped features, not yet built
 
 Paragon's Motivation-tiered Chants (flagged by the user 2026-08-14) is now **FULLY DONE 2026-08-15**
