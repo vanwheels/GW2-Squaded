@@ -599,6 +599,16 @@ button:hover {
   margin-bottom: 16px;
 }
 
+/* Wraps `.editor-profession-weapon-bar` + `.build-editor-capture` — this outer element, not
+   `.build-editor-capture` alone, is what `ScreenshotButton`'s `targetRef` measures/captures
+   (2026-08-19), so the profession/weapon-type identity strip is included in every screenshot. Pure
+   layout wrapper (block flow is fine — the bar's own `margin-bottom` already spaces it from the
+   columns below), no visual styling of its own. */
+.build-editor-screenshot-region {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Profession/elite-spec picker + weapon-type bar, side by side above the 3-column build editor
    layout (2026-08-19) — see `BuildEditorView`'s JSX comment for why these two ended up sharing a
    row (Tags moved into the header to make room). */
@@ -743,9 +753,11 @@ input[type='text'] {
   gap: 24px;
 }
 
-/* Wraps `.build-editor-columns` plus the optional screenshot-only equipment manifest below it
-   (see `EquipmentTextManifest`) — this outer element, not the columns row itself, is what
-   `ScreenshotButton` captures, so the manifest is included whenever it's toggled open. */
+/* Wraps `.build-editor-columns` plus the optional screenshot-only equipment manifest below it (see
+   `EquipmentTextManifest`) — this outer element, not the columns row itself, ensures the manifest
+   is included whenever it's toggled open. Itself wrapped by `.build-editor-screenshot-region`,
+   which is the actual element `ScreenshotButton` captures (2026-08-19, to also include the
+   profession/weapon-type bar above it). */
 .build-editor-capture {
   display: flex;
   flex-direction: column;
@@ -757,6 +769,13 @@ input[type='text'] {
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 16px;
+  /* Flex items shrink by default (initial `flex-shrink: 1`) — without this, Traits/Equipment would
+     get proportionally compressed below their natural content width whenever column 3's own
+     content (e.g. Stats+Boons sitting side by side, 2026-08-19) wants more horizontal room than
+     the row has to spare, visibly squishing their icon grids. `.build-editor-column-fill` (column
+     3 only, defined below) overrides this back to shrinkable — it's the one column meant to
+     absorb the squeeze. */
+  flex-shrink: 0;
 }
 
 .build-editor-column h3 {
@@ -1749,30 +1768,13 @@ input[type='text'] {
   gap: 8px;
 }
 
-.boon-summary-row-pair {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-}
-
-/* Left column grows to claim whatever the right column doesn't need, rather than a fixed 50/50
-   split — the left column (Conditions/Boons/Control/Combo Fields) tends to have far more icons
-   than its right-side partner (Auras/Misc./Strips-Corrupts-Cleanses/Combo Finishers), so a fixed
-   half-width was forcing it to scroll while the right half sat mostly empty. */
-.boon-summary-row-pair .boon-summary-row:first-child {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.boon-summary-row-pair .boon-summary-row:last-child {
-  flex: 0 1 auto;
-  min-width: 0;
-}
-
+/* Single stacked column (2026-08-19) — was a 2-up row-pair grid (see `BoonConditionSummaryPanel`'s
+   doc comment for why that got reverted); each row now claims the panel's full width. */
 .boon-summary-row {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 .boon-summary-row-label {
