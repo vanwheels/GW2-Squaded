@@ -190,11 +190,20 @@ more from explicit "breaks stun for/on allies" wording in their own description,
 `"Number of Targets": 5` fact each also carries (normally the untrusted enemy-facing label, but trusted
 here since these sources have no foe-facing component at all — see the table's own doc comment).
 
+Second leg landed 2026-08-19: `STEALTH_PARTY_WIDE` gives Stealth the same manual-description-read
+treatment Breaks Stun got — 7 skill ids (5972/6090 Toss Elixir S, 10187/50414 Veil, 10245 Mass
+Invisibility, 13117 Shadow Refuge, 30815 Sneak Gyro) confirmed party-wide from their own local API
+facts plus live wiki wikitext for the 2 with no local `Number` fact at all; 13044 Blinding Powder
+excluded as genuinely ambiguous (a foe-facing Blinded fact and the ally-facing Stealth fact compete for
+the same single generic `"Number of Targets"` label — needs the per-buff-line mechanism this flat
+table doesn't have, same shape `TARGET_COUNT_OVERRIDES` already documents elsewhere). See the table's
+own doc comment for the full per-entry reasoning.
+
 - [ ] **Remaining scope, not started**: ~120 still-uncurated Breaks-Stun sources (mostly self-only by
-      inspection, not individually confirmed), plus a full manual description read for Stealth (32
-      candidates left after the free resolutions), Superspeed (51 left), and Barrier (68 left) — none
-      of which got the same pass Breaks Stun did this leg. Same "one leg, then check in" pacing as the
-      original Cleanse/target-count sweeps — see `pacing_large_sweeps` memory.
+      inspection, not individually confirmed), plus a full manual description read for Superspeed (51
+      left) and Barrier (68 left) — neither of which got the same pass Breaks Stun/Stealth did their
+      legs. Same "one leg, then check in" pacing as the original Cleanse/target-count sweeps — see
+      `pacing_large_sweeps` memory.
 
 - [ ] Exclusion filter on the Builds tab (flagged 2026-08-16) — extend `useTagFilter`
       (`src/renderer/state/use-tag-filter.ts`, shared by `BuildsView`/`SquadsView`/`BuildsSidebar`)

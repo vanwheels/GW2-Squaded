@@ -4983,10 +4983,10 @@ export const BOON_STRIP_CORRUPT_MATCHERS: Record<string, (fact: Fact) => boolean
  * `"Number of Allied Targets"` fact (`resolveTargetCountFrom` checks that before ever consulting this
  * table) — e.g. "Save Yourselves!", "Protect Me!", Banner of Tactics, "Never Surrender!".
  * Remaining scope for a future sweep leg: the ~120 still-uncurated Breaks-Stun sources (mostly
- * self-only by inspection, but not individually confirmed), plus Stealth (32 remaining after the
- * free API-fact resolutions), Superspeed (51 remaining), and Barrier (68 remaining) — none of which
- * got the same manual description read this leg gave Breaks Stun, so they currently only benefit
- * from the free `"Number of Allied Targets"`-fact resolutions wired below.
+ * self-only by inspection, but not individually confirmed), plus Superspeed (51 remaining) and
+ * Barrier (68 remaining) — neither of which have had the same manual description read this leg gave
+ * Breaks Stun (Stealth got its own leg next, see `STEALTH_PARTY_WIDE` below), so they currently only
+ * benefit from the free `"Number of Allied Targets"`-fact resolutions wired below.
  */
 export const BREAKS_STUN_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
   skill: {
@@ -5006,12 +5006,61 @@ export const BREAKS_STUN_PARTY_WIDE: { skill: Record<number, SourceTargetCountOv
   }
 }
 
+/**
+ * Party-wide entries for `MISCELLANEOUS_MATCHERS`' "Stealth" row — second sweep leg after Breaks
+ * Stun (TODO.md's "party-wide-only filter" Misc-row scoping, 2026-08-19), same "confirmed party-wide
+ * only, leave the self-only majority uncurated" approach `BREAKS_STUN_PARTY_WIDE`'s doc comment
+ * explains (curating a self entry is undocumented value with zero functional effect — `'self'`
+ * resolves to `targetCount: null`, identical to leaving a source uncurated). 40 skills + 3 traits
+ * carry a `Buff`/`Stealth` fact; 10 already resolve for free via their own `"Number of Allied
+ * Targets"` fact (`resolveTargetCountFrom` checks that before ever consulting this table); of the
+ * remaining 32, a full read of local API `facts`/`description` data plus live wiki wikitext (for the
+ * 2 sources with no local `Number` fact at all) found:
+ *  - 5972/6090 "Toss Elixir S" (land/underwater pair) — own `"Number of Targets": 5` fact, no
+ *    foe-facing fact on the source at all (pure ally stealth toss), so the normally-untrusted generic
+ *    label is trusted here exactly like `BREAKS_STUN_PARTY_WIDE`'s entries.
+ *  - 10245 Mass Invisibility — own `"Number of Targets": 10` fact (not the usual 5 — trusted as-is
+ *    since it's the source's real API value, not a guess), zero foe-facing component
+ *    ("You and all your allies gain stealth").
+ *  - 13117 Shadow Refuge — own `"Number of Targets": 5` fact, zero foe-facing component (Healing +
+ *    Stealth + a self/ally damage-reduction buff, no enemy-facing fact at all).
+ *  - 10187/50414 "Veil" (duplicate ids, same facts) — no `Number` fact of any kind in the local data
+ *    (confirmed live on the wiki too — no `{{skill fact|targets|...}}` template on the page at all),
+ *    but explicit "grants stealth to you and your allies" wording — the established default-5
+ *    convention `TARGET_COUNT_OVERRIDES` already documents for this exact shape.
+ *  - 30815 Sneak Gyro — no `Number` fact locally either, but live wikitext has `targets|5` inside the
+ *    infobox's `missing facts=` field; trusted despite being a skill (not trait) page because, like
+ *    the entries above, the source has zero foe-facing component to compete with it for meaning
+ *    (contrast `fetch-target-counts.ts`'s doc comment, which restricts that specific shape to traits
+ *    ONLY because its candidate set includes skills with a competing foe-facing reading — not the
+ *    case here).
+ * Excluded as genuinely ambiguous rather than guessed: 13044 Blinding Powder carries a foe-facing
+ * Blinded fact alongside its ally-facing Stealth fact, both competing for the same single generic
+ * `"Number of Targets": 5` label with no way to tell which effect it actually describes — the same
+ * per-buff-line-conflict shape `TARGET_COUNT_OVERRIDES`'s doc comment already names as needing the
+ * dedicated per-buff-line mechanism this flat table doesn't have.
+ * Remaining scope: Superspeed (51) and Barrier (68) still haven't had this manual pass; ~120
+ * Breaks-Stun sources also remain (see `BREAKS_STUN_PARTY_WIDE`'s own doc comment).
+ */
+export const STEALTH_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
+  skill: {
+    5972: 5, // Toss Elixir S — own "Number of Targets: 5" fact, no foe-facing component
+    6090: 5, // Toss Elixir S (underwater variant) — same
+    10187: 5, // Veil — "grants stealth to you and your allies", no Number fact, default-5 convention
+    50414: 5, // Veil (duplicate id, identical facts) — same
+    10245: 10, // Mass Invisibility — own "Number of Targets: 10" fact, no foe-facing component
+    13117: 5, // Shadow Refuge — own "Number of Targets: 5" fact, no foe-facing component
+    30815: 5 // Sneak Gyro — wiki "missing facts" targets|5, no foe-facing component
+  },
+  trait: {}
+}
+
 /** Placeholder table with no curated overrides of its own — still meaningfully different from
  *  omitting the matcher name from `NAMED_FACT_TARGET_COUNT_TABLES` entirely: `resolveTargetCountFrom`
  *  checks a source's own `"Number of Allied Targets"` fact BEFORE ever consulting the override table,
  *  so wiring even an empty table in unlocks that free resolution for any source that already carries
- *  one. Used for Stealth/Superspeed/Barrier below, none of which have had a manual description-read
- *  pass yet (see `BREAKS_STUN_PARTY_WIDE`'s doc comment for the scope that's still open). */
+ *  one. Used for Superspeed/Barrier below, neither of which have had a manual description-read pass
+ *  yet (see `BREAKS_STUN_PARTY_WIDE`'s doc comment for the scope that's still open). */
 const NO_MANUAL_TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
   skill: {},
   trait: {}
@@ -5019,9 +5068,9 @@ const NO_MANUAL_TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCoun
 
 /** Matcher names in `BOON_STRIP_CORRUPT_MATCHERS`/`MISCELLANEOUS_MATCHERS` (or any other matcher
  *  table) that resolve `NamedFactSource.targetCount` — passed to `computeNamedFactSources` alongside
- *  the matcher table itself. `Cleanse`/`Breaks Stun` carry real curated overrides;
- *  `Stealth`/`Superspeed`/`Barrier` only get the free `"Number of Allied Targets"`-fact resolution
- *  (see `NO_MANUAL_TARGET_COUNT_OVERRIDES`'s doc comment) until their own sweep leg lands. Strip/
+ *  the matcher table itself. `Cleanse`/`Breaks Stun`/`Stealth` carry real curated overrides;
+ *  `Superspeed`/`Barrier` only get the free `"Number of Allied Targets"`-fact resolution (see
+ *  `NO_MANUAL_TARGET_COUNT_OVERRIDES`'s doc comment) until their own sweep leg lands. Strip/
  *  Corrupt (how many enemies a boon is stripped/corrupted from) and every Control name were never
  *  scoped for this and stay `null` — omitted from this table entirely, not just uncurated within it. */
 export const NAMED_FACT_TARGET_COUNT_TABLES: Record<
@@ -5029,7 +5078,7 @@ export const NAMED_FACT_TARGET_COUNT_TABLES: Record<
   { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }
 > = {
   Cleanse: CONDITION_CLEANSE_TARGETS,
-  Stealth: NO_MANUAL_TARGET_COUNT_OVERRIDES,
+  Stealth: STEALTH_PARTY_WIDE,
   Superspeed: NO_MANUAL_TARGET_COUNT_OVERRIDES,
   'Breaks Stun': BREAKS_STUN_PARTY_WIDE,
   Barrier: NO_MANUAL_TARGET_COUNT_OVERRIDES

@@ -2,6 +2,25 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 239 — Party-wide filter sweep leg 2: Stealth manual description read
+
+Second leg of the Misc-row `targetCount` sweep TODO.md opened 2026-08-16 (`BREAKS_STUN_PARTY_WIDE` was
+leg 1). New `STEALTH_PARTY_WIDE` table (`sources.ts`) gives Stealth the same manual read: of 40
+Stealth-granting skills + 3 traits, 10 already resolved for free via their own `"Number of Allied
+Targets"` fact; of the remaining 32, 7 skill ids confirmed party-wide from local API `facts` data
+(5972/6090 Toss Elixir S, 10245 Mass Invisibility, 13117 Shadow Refuge — each carries its own
+`"Number of Targets"` fact with zero competing foe-facing fact on the source, so the normally-untrusted
+generic label is trusted here) plus live wiki wikitext for 2 more with no local `Number` fact at all
+(10187/50414 Veil — default-5 convention off explicit "you and your allies" wording; 30815 Sneak Gyro
+— `missing facts=` `targets|5`, same zero-foe-facing-component trust). 13044 Blinding Powder excluded
+as genuinely ambiguous: it carries a foe-facing Blinded fact alongside the ally-facing Stealth fact,
+both competing for the same single generic `"Number of Targets": 5` label with no way to tell which
+one it describes — same per-buff-line-conflict shape `TARGET_COUNT_OVERRIDES` already has a documented
+exclusion pattern for, not solvable by this flat table. `NAMED_FACT_TARGET_COUNT_TABLES['Stealth']`
+now points at the real table instead of the empty placeholder. `npm run typecheck`/`lint`/`vitest run`
+all clean (224 tests, no new ones needed — this only adds curated data consumed by existing resolution
+code). TODO.md's item updated in place; Superspeed (51) and Barrier (68) remain for future legs.
+
 ## Session 238 — v1.1.0 release
 
 Cut the first post-1.0 feature release, covering everything since v1.0.1 (Sessions 219-237 plus the
