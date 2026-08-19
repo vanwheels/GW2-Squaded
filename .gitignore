@@ -26,5 +26,10 @@ npm-debug.log*
 # not the normalized output (that's data/game-data/*.json, which IS committed).
 .cache/
 
+# Build output of `npm run build:web-preview` (vite.web-preview.config.ts) — the Discord bot's
+# /builddisplay render page + its staged game-data JSON copy (scripts/sync-web-preview-game-data.ts).
+# Entirely a build artifact regenerated from src/web-preview/ + data/game-data/, never committed.
+worker/public/
+
 .vscode/*
 !.vscode/extensions.json

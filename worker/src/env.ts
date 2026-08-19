@@ -9,4 +9,8 @@ export interface Env {
   DISCORD_APPLICATION_ID: string
   /** Secret — set via `wrangler secret put DISCORD_BOT_TOKEN` in production, `.dev.vars` locally. */
   DISCORD_BOT_TOKEN: string
+  /** Cloudflare Browser Rendering — a headless Chromium instance `render/build-screenshot.ts`
+   *  drives via `@cloudflare/puppeteer` to screenshot the web-preview render page for
+   *  `/builddisplay`. Free at this project's scale (10 browser-min/day, no paid plan needed). */
+  MYBROWSER: Fetcher
 }

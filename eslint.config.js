@@ -3,7 +3,7 @@ import tseslint from 'typescript-eslint'
 import reactHooks from 'eslint-plugin-react-hooks'
 
 export default tseslint.config(
-  { ignores: ['dist/**', 'out/**', 'node_modules/**', 'data/game-data/**', 'worker/.wrangler/**', 'worker/dist/**'] },
+  { ignores: ['dist/**', 'out/**', 'node_modules/**', 'data/game-data/**', 'worker/.wrangler/**', 'worker/dist/**', 'worker/public/**'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {

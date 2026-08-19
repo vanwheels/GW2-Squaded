@@ -24,3 +24,18 @@ database_id = "c576654c-d93a-4ca6-a9ca-f9b393ec2add"
 [vars]
 DISCORD_PUBLIC_KEY = "b8b40d6c5e595decb9b37d2be5bbc0f90c45ad58285c8f5171c52870ef6743ee"
 DISCORD_APPLICATION_ID = "1539526394634305609"
+
+# Headless-Chromium binding for /builddisplay's screenshot render (worker/src/render/
+# build-screenshot.ts). See src/env.ts's doc comment on Env.MYBROWSER for the free-tier framing.
+[browser]
+binding = "MYBROWSER"
+
+# Serves the Discord bot's build-screenshot render page (a standalone Vite build, NOT the
+# Electron app — see vite.web-preview.config.ts / docs/discord-bot.md) from the same worker
+# deployable, per this project's "one self-contained deployable" pattern. `npm run
+# build:web-preview` (root package.json) populates ./public; it's gitignored, a build artifact
+# only. Static-asset-first routing (Cloudflare's default) means this doesn't collide with
+# /shares/:id or /interactions below — neither matches any built filename here.
+[assets]
+directory = "./public"
+html_handling = "none"
