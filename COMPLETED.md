@@ -15,16 +15,18 @@ generic label is trusted here) plus live wiki wikitext for 2 more with no local 
 — `missing facts=` `targets|5`, same zero-foe-facing-component trust). 13044 Blinding Powder was
 initially excluded as ambiguous — it carries a foe-facing Blinded fact alongside the ally-facing
 Stealth fact, both apparently competing for the same single generic `"Number of Targets": 5` label —
-but the user immediately corrected this in the same session: the skill's `StunBreak` fact is
-personal-only, and real-game knowledge confirms the shared count actually describes the Stealth grant
-(Blind hits nearby foes with no target cap of its own), so it's curated as party-wide(5) after all.
-`NAMED_FACT_TARGET_COUNT_TABLES['Stealth']` now points at the real table instead of the empty
-placeholder. `npm run typecheck`/`lint`/`vitest run` all clean (224 tests, no new ones needed — this
-only adds curated data consumed by existing resolution code). TODO.md's item updated in place;
-Superspeed (51) and Barrier (68) remain for future legs. **Lesson for future legs**: when a source
-mixes a foe-facing and ally-facing effect under one shared count fact, check which effect the skill's
-*other* facts (stun-break scope, etc.) rule out before defaulting to "ambiguous, skip" — in-game
-mechanic knowledge can resolve what the raw fact data alone can't.
+but the user corrected this twice in the same session: first that the skill's `StunBreak` fact is
+personal-only (not evidence either way on its own), then that Blind and Stealth both independently cap
+at 5 targets (foes/allies respectively) — the two readings aren't actually competing, both are true
+simultaneously. Curated as party-wide(5) for Stealth; Blind's own enemy-facing count doesn't need (and
+isn't consumed by) any curation here, since `targetCount` is documented as only meaningful for
+non-condition sources. `NAMED_FACT_TARGET_COUNT_TABLES['Stealth']` now points at the real table
+instead of the empty placeholder. `npm run typecheck`/`lint`/`vitest run` all clean (224 tests, no new
+ones needed — this only adds curated data consumed by existing resolution code). TODO.md's item
+updated in place; Superspeed (51) and Barrier (68) remain for future legs. **Lesson for future legs**:
+a source with facts that "compete" under one shared count label may not actually be ambiguous at all —
+both readings can be simultaneously true (an AoE cap applied identically to both its foe and ally
+component), so don't stop at "two candidate meanings found" without checking whether they conflict.
 
 ## Session 238 — v1.1.0 release
 

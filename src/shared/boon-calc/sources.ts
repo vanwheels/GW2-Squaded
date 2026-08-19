@@ -5035,10 +5035,14 @@ export const BREAKS_STUN_PARTY_WIDE: { skill: Record<number, SourceTargetCountOv
  *    ONLY because its candidate set includes skills with a competing foe-facing reading — not the
  *    case here).
  *  - 13044 Blinding Powder — user-confirmed 2026-08-19 (real-game knowledge, not derivable from the
- *    API facts alone): the `StunBreak` fact is personal only, so the source's single
- *    `"Number of Targets": 5` label describes its Stealth grant (Blind hits nearby foes with no
- *    target cap of its own). Initially excluded here as ambiguous between the two effects before that
- *    correction — see this table's git history / COMPLETED.md for the reversal.
+ *    API facts alone): Blind and Stealth both independently cap at 5 targets (foes/allies
+ *    respectively) despite sharing one `"Number of Targets": 5` label — not actually ambiguous
+ *    between the two effects, both readings are simultaneously true. Only the Stealth (ally) reading
+ *    matters here since this table only resolves `MISCELLANEOUS_MATCHERS`' Stealth row; Blind's own
+ *    enemy-facing count isn't tracked by any `targetCount`-consuming code path (`targetCount` is
+ *    documented as only meaningful for `isCondition === false` sources — see
+ *    `BoonConditionSource.targetCount`'s doc comment). Initially excluded here as unresolvably
+ *    ambiguous before the correction — see this table's git history / COMPLETED.md for the reversal.
  * Remaining scope: Superspeed (51) and Barrier (68) still haven't had this manual pass; ~120
  * Breaks-Stun sources also remain (see `BREAKS_STUN_PARTY_WIDE`'s own doc comment).
  */
