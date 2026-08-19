@@ -280,7 +280,7 @@ should update this section's checkbox when done.
             `buildGameData()`. Signals readiness via `document.body.dataset.renderState`. The
             worker gained `[browser]` (Cloudflare Browser Rendering) and `[assets]` (serves the
             built page from the same deployable) bindings.
-      - [x] **Leg 2 — screenshot render + `/builddisplay` command** (2026-08-19, this commit).
+      - [x] **Leg 2 — screenshot render + `/builddisplay` command** (commit cf47d2d, 2026-08-19).
             `worker/src/render/build-screenshot.ts` drives Browser Rendering
             (`@cloudflare/puppeteer`) to the leg-1 page and screenshots `.build-editor-grid`;
             `worker/src/discord/api.ts`'s `editOriginalInteractionResponse` grew a
@@ -290,10 +290,11 @@ should update this section's checkbox when done.
             existing board entries) is the command itself — no board write, so no
             `action_permissions` gate, same as autocomplete. Also required adding
             `compatibility_flags = ["nodejs_compat"]` to `wrangler.toml` (`@cloudflare/puppeteer`
-            imports `node:buffer`; `wrangler deploy --dry-run` warned without it). Typechecked,
-            linted, and `wrangler deploy --dry-run` verified clean; **not yet deployed to
-            production or registered with Discord** — squad display (`/squaddisplay`) is a later
-            leg, not built here.
+            imports `node:buffer`; `wrangler deploy --dry-run` warned without it). **Deployed to
+            production and registered with Discord 2026-08-19** (Version ID `de4acfb2`; build
+            page and game-data assets spot-checked live, both 200); **not yet live-verified in a
+            real Discord server** — squad display (`/squaddisplay`) is a later leg, not built
+            here.
 
 ## Status
 
@@ -313,7 +314,6 @@ e0b7d52): one retry on that followup, with the second failure at least logged in
 vanishing as a silent unhandled rejection.
 
 Phase 4 (display) is now in progress, picked up ahead of Phase 3 (approval workflow) — see the
-leg breakdown above. Leg 2 (this commit) is code-complete and locally verified but **not deployed
-or registered live yet**: it needs `wrangler deploy`, `npm run register-commands`, and a real
-Discord server + Browser Rendering minutes to exercise end-to-end, same "code first, deploy as a
-separate checked-in step" split Phase 2 followed.
+leg breakdown above. Leg 2 is deployed to production and registered with Discord as of
+2026-08-19 (Version ID `de4acfb2`); what's left is exercising `/builddisplay` end-to-end in a
+real Discord server (Browser Rendering minutes, the actual screenshot attachment) — not yet done.
