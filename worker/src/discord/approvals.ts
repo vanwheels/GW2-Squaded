@@ -43,16 +43,21 @@ export interface PendingRequestHandlers {
   apply: (env: Env, request: PendingRequestRow) => Promise<string>
 }
 
-function decisionButtons(requestId: number): DiscordActionRow[] {
-  return [
-    {
-      type: 1,
-      components: [
-        { type: 2, style: 3, label: 'Approve', custom_id: `approve:${requestId}` },
-        { type: 2, style: 4, label: 'Reject', custom_id: `reject:${requestId}` }
-      ]
-    }
-  ]
+/** `build` requests get a Preview button ahead of Approve/Reject, so an approver isn't deciding
+ *  off the card's one-line text summary alone — it reuses `/builddisplay`'s own screenshot render
+ *  (see `dispatch.ts`'s `runApprovalPreview`). `squad` requests don't get one: there's no
+ *  `/squaddisplay` yet (docs/discord-bot.md's Phase 4 leg 3, not built), so there's nothing to
+ *  render. Revisit once that lands. */
+function decisionButtons(request: PendingRequestRow): DiscordActionRow[] {
+  const components: DiscordActionRow['components'] = []
+  if (request.board_type === 'build') {
+    components.push({ type: 2, style: 2, label: 'Preview', custom_id: `preview:${request.id}` })
+  }
+  components.push(
+    { type: 2, style: 3, label: 'Approve', custom_id: `approve:${request.id}` },
+    { type: 2, style: 4, label: 'Reject', custom_id: `reject:${request.id}` }
+  )
+  return [{ type: 1, components }]
 }
 
 /** Parses a decision button's `custom_id` (`approve:<id>` / `reject:<id>`, built by
@@ -63,6 +68,18 @@ export function parseDecisionCustomId(customId: string): { decision: 'approved' 
   const match = /^(approve|reject):(\d+)$/.exec(customId)
   if (!match) return null
   return { decision: match[1] === 'approve' ? 'approved' : 'rejected', requestId: Number(match[2]) }
+}
+
+/** Parses a Preview button's `custom_id` (`preview:<id>`, built by `decisionButtons` above) back
+ *  into a `pending_requests.id`. Deliberately separate from `parseDecisionCustomId` above rather
+ *  than folded into one union-returning function — `interactions.ts` needs to know *before*
+ *  acking whether a click is a decision (which needs the synchronous approver-role check and a
+ *  `DEFERRED_UPDATE_MESSAGE` ack) or a preview (no permission gate — seeing a render of a proposed
+ *  build isn't privileged the way deciding it is — and a `DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE`
+ *  ack instead, since it posts a new ephemeral message rather than editing the card). */
+export function parsePreviewCustomId(customId: string): number | null {
+  const match = /^preview:(\d+)$/.exec(customId)
+  return match ? Number(match[1]) : null
 }
 
 function actionLabel(action: BoardAction): string {
@@ -82,7 +99,7 @@ function renderPendingApprovalCard(request: PendingRequestRow, description: stri
         color: CARD_COLOR_PENDING
       }
     ],
-    components: decisionButtons(request.id)
+    components: decisionButtons(request)
   }
 }
 

@@ -1,14 +1,14 @@
 import { getGuildSettings } from '../db'
 import type { Env } from '../env'
 import { json } from '../http'
-import { parseDecisionCustomId } from './approvals'
+import { parseDecisionCustomId, parsePreviewCustomId } from './approvals'
 import { autocompleteChoices } from './autocomplete'
-import { runApprovalDecision, runCommand, resolveHandler } from './dispatch'
+import { runApprovalDecision, runApprovalPreview, runCommand, resolveHandler } from './dispatch'
 import { EPHEMERAL, InteractionResponseType, InteractionType, isAdministrator, type DiscordInteraction } from './interaction-types'
 import { verifyDiscordRequest } from './verify'
 
 /** Handles `POST /interactions`, the single HTTP endpoint Discord calls for every slash command,
- *  autocomplete request, and (Phase 3) Approve/Reject button click in this design (see
+ *  autocomplete request, and (Phase 3) Preview/Approve/Reject button click in this design (see
  *  docs/discord-bot.md's "Architecture" section — an interactions endpoint, not a persistent
  *  gateway connection).
  *
@@ -17,10 +17,12 @@ import { verifyDiscordRequest } from './verify'
  *  writes + board-message PATCH in the background via `ctx.waitUntil` and delivers the real result
  *  by editing that placeholder afterward (`dispatch.ts`'s `runCommand`). Autocomplete has no
  *  deferred variant, so it's answered synchronously — a single indexed `LIKE` query comfortably
- *  fits the 3-second window on its own. A button click (`MESSAGE_COMPONENT`) is a hybrid: the
- *  approver-role permission check runs synchronously (cheap, and needs to decide the response type
- *  before acking), then the actual decide-and-apply work defers the same way a command does, via
- *  `dispatch.ts`'s `runApprovalDecision`. */
+ *  fits the 3-second window on its own. A button click (`MESSAGE_COMPONENT`) is one of two shapes:
+ *  Preview acks and defers exactly like a command (new ephemeral message, no permission gate —
+ *  `dispatch.ts`'s `runApprovalPreview`); Approve/Reject is a hybrid where the approver-role
+ *  permission check runs synchronously first (cheap, and needs to decide the response type before
+ *  acking), then the actual decide-and-apply work defers via `dispatch.ts`'s
+ *  `runApprovalDecision`. */
 export async function handleInteraction(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
   const signature = request.headers.get('X-Signature-Ed25519')
   const timestamp = request.headers.get('X-Signature-Timestamp')
@@ -51,6 +53,17 @@ export async function handleInteraction(request: Request, env: Env, ctx: Executi
         type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
         data: { content: 'This bot only works inside a server.', flags: EPHEMERAL }
       })
+    }
+
+    // Preview is checked first and handled entirely separately from a decision: no approver-role
+    // gate (seeing a render of a proposed build isn't privileged the way deciding it is), and it
+    // acks the same way a slash command does (`DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE`, a *new*
+    // ephemeral message) rather than `DEFERRED_UPDATE_MESSAGE` (which would target the card
+    // itself) — see `dispatch.ts`'s `runApprovalPreview` doc comment.
+    const previewRequestId = parsePreviewCustomId(interaction.data?.custom_id ?? '')
+    if (previewRequestId !== null) {
+      ctx.waitUntil(runApprovalPreview(env, interaction, previewRequestId))
+      return json({ type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE, data: { flags: EPHEMERAL } })
     }
 
     const parsed = parseDecisionCustomId(interaction.data?.custom_id ?? '')

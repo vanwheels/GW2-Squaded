@@ -1,5 +1,6 @@
-import type { BoardType } from '../db'
+import { getPendingRequest, type BoardType } from '../db'
 import type { Env } from '../env'
+import { renderBuildScreenshot } from '../render/build-screenshot'
 import { editOriginalInteractionResponse, type DiscordMessagePayload } from './api'
 import { decideApprovalRequest, type PendingRequestHandlers } from './approvals'
 import {
@@ -12,7 +13,15 @@ import {
   squadBoardRebuild,
   squadBoardSetup
 } from './commands/board-admin'
-import { applyPendingBuildRequest, buildAdd, buildEdit, buildMove, buildRemove, describePendingBuildRequest } from './commands/builds'
+import {
+  applyPendingBuildRequest,
+  buildAdd,
+  buildEdit,
+  buildMove,
+  buildRemove,
+  describePendingBuildRequest,
+  resolvePendingBuildPreviewShareId
+} from './commands/builds'
 import { buildDisplay } from './commands/display'
 import { applyPendingSquadRequest, squadAdd, squadEdit, squadRemove, describePendingSquadRequest } from './commands/squads'
 import type { CommandContext } from './commands/context'
@@ -130,6 +139,38 @@ export async function runApprovalDecision(
   } catch (err) {
     console.error(`Deciding approval request ${requestId} failed:`, err)
     payload = { content: 'Something went wrong deciding this request.' }
+  }
+
+  await deliverInteractionResult(interaction, payload)
+}
+
+/** Renders and delivers a Preview button click's screenshot — the `MESSAGE_COMPONENT` counterpart
+ *  to `runCommand` that behaves like a *command*, not a decision: `interactions.ts` acks this one
+ *  with `DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE` (ephemeral), same as a slash command, rather than
+ *  `DEFERRED_UPDATE_MESSAGE` — a new message, so `editOriginalInteractionResponse`'s `@original`
+ *  resolves to that new ephemeral message and the approval card underneath is never touched. Only
+ *  wired for `build` requests (`decisionButtons` in `approvals.ts` only puts the button on those),
+ *  but checks `board_type` again here anyway rather than trusting the button that was clicked. */
+export async function runApprovalPreview(env: Env, interaction: DiscordInteraction, requestId: number): Promise<void> {
+  let payload: DiscordMessagePayload
+  try {
+    const request = await getPendingRequest(env, requestId)
+    if (!request) {
+      payload = { content: 'This approval request no longer exists.' }
+    } else if (request.board_type !== 'build') {
+      payload = { content: "Preview isn't available for squad requests yet." }
+    } else {
+      const shareId = await resolvePendingBuildPreviewShareId(env, request)
+      const png = await renderBuildScreenshot(env, shareId)
+      payload = { file: { filename: 'build.png', contentType: 'image/png', data: png } }
+    }
+  } catch (err) {
+    if (err instanceof UserError) {
+      payload = { content: err.message }
+    } else {
+      console.error(`Previewing pending request ${requestId} failed:`, err)
+      payload = { content: 'Something went wrong rendering that preview.' }
+    }
   }
 
   await deliverInteractionResult(interaction, payload)

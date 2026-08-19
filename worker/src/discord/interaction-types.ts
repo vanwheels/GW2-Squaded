@@ -27,7 +27,7 @@ export const InteractionResponseType = {
 export const ComponentType = { ACTION_ROW: 1, BUTTON: 2 } as const
 
 /** Subset of Discord's Button Style enum. */
-export const ButtonStyle = { SUCCESS: 3, DANGER: 4 } as const
+export const ButtonStyle = { SECONDARY: 2, SUCCESS: 3, DANGER: 4 } as const
 
 /** Discord's "ephemeral" message flag — only the invoking user sees the reply. Every command
  *  followup in this bot is ephemeral: the *board message* is the public artifact a command
@@ -75,8 +75,9 @@ export interface DiscordInteraction {
     name: string
     options?: InteractionOption[]
     /** Only present on a `MESSAGE_COMPONENT` interaction — the `custom_id` of the button that was
-     *  pressed (e.g. `approve:42`, built by `discord/approvals.ts`'s `decisionButtons`).
-     *  `interactions.ts` parses this via that file's `parseDecisionCustomId`. */
+     *  pressed (e.g. `approve:42`/`preview:42`, built by `discord/approvals.ts`'s
+     *  `decisionButtons`). `interactions.ts` parses this via that file's `parseDecisionCustomId`/
+     *  `parsePreviewCustomId`. */
     custom_id?: string
   }
 }

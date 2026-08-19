@@ -291,6 +291,17 @@ export async function describePendingBuildRequest(env: Env, request: PendingRequ
   return `Edit ${label} — ${changes.join(', ') || 'no changes'}.`
 }
 
+/** Which share id the approval card's Preview button (`dispatch.ts`'s `runApprovalPreview`)
+ *  should render for a pending build request — the proposed new link if this request is
+ *  introducing or replacing one (`add`, or `edit` with a new link), otherwise the target build's
+ *  existing link (`edit` with no new link, `remove`, `move` — none of which change what the build
+ *  itself contains, only its name/position). */
+export async function resolvePendingBuildPreviewShareId(env: Env, request: PendingRequestRow): Promise<string> {
+  if (request.proposed_share_id) return request.proposed_share_id
+  const build = await requireTargetBuild(env, request)
+  return build.share_id
+}
+
 /** Applies a decided (Approved) build request for real — called once per request, right after
  *  `decidePendingRequest` wins the claim race. Re-validates everything (share link still resolves,
  *  target build still exists, board section still set up) rather than trusting the state at
