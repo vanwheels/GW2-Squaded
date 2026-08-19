@@ -2,6 +2,30 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 240 — Party-wide filter sweep leg 3: Superspeed manual description read
+
+Third leg of the Misc-row `targetCount` sweep (`BREAKS_STUN_PARTY_WIDE` leg 1, `STEALTH_PARTY_WIDE`
+leg 2). New `SUPERSPEED_PARTY_WIDE` table (`sources.ts`) gives Superspeed the same manual read: of 47
+Superspeed-granting skills + 13 traits, 9 already resolved for free via their own `"Number of Allied
+Targets"` fact; of the remaining 51 (40 skills + 11 traits), 12 skill ids + 3 trait ids confirmed
+party-wide from local API `facts`/`description` data (Windborne Speed, both Toss Elixir U ids,
+Detonate Elixir U, Symbol of Swiftness, Slipstream, Chaotic Release, "Eye of the Storm!", Well of
+Action, Essence of Borrowed Time, Rallying Roar, "We Will Never Yield!"; traits Temporal Enchanter,
+Speed of Synergy, Liberating Liaise) plus one live wiki check (Windborne Speed — own description only
+mentions Swiftness, not Superspeed, despite carrying an unconditioned Superspeed fact; wiki confirmed
+both are "you and nearby allies"). Found a clean systemic pattern along the way: 7 Engineer
+heal-adjacent skills (Toss Elixir H x2, Regenerating Mist, Blessing of Dwayna, Leafy Bandage, Static
+Shock, Bandage Self) all carry a Speed-of-Synergy-gated Superspeed fact, but Speed of Synergy's own
+description splits two cases — "using a heal skill" (party-wide radius) vs. "the associated tool-belt
+skill" (self-only) — and all 7 turned out to be API `slot: "Toolbelt"`, so none were curated, matching
+the trait's own wording exactly rather than guessing per-skill. Time Warp (both ids) was left
+deliberately uncurated despite carrying an unconditioned local Superspeed fact: a live wiki check
+found the current tooltip doesn't mention Superspeed at all, attributing any Superspeed near a glamour
+to the separate (already-curated) Temporal Enchanter trait instead — conflicting enough to skip rather
+than guess. `NAMED_FACT_TARGET_COUNT_TABLES['Superspeed']` now points at the real table instead of the
+empty placeholder. `npm run typecheck`/`lint`/`vitest run` all clean (224 tests, no new ones needed).
+TODO.md's item updated in place; Barrier (68) remains for a future leg.
+
 ## Session 239 — Party-wide filter sweep leg 2: Stealth manual description read
 
 Second leg of the Misc-row `targetCount` sweep TODO.md opened 2026-08-16 (`BREAKS_STUN_PARTY_WIDE` was

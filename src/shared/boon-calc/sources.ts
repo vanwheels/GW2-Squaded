@@ -5043,8 +5043,9 @@ export const BREAKS_STUN_PARTY_WIDE: { skill: Record<number, SourceTargetCountOv
  *    documented as only meaningful for `isCondition === false` sources — see
  *    `BoonConditionSource.targetCount`'s doc comment). Initially excluded here as unresolvably
  *    ambiguous before the correction — see this table's git history / COMPLETED.md for the reversal.
- * Remaining scope: Superspeed (51) and Barrier (68) still haven't had this manual pass; ~120
- * Breaks-Stun sources also remain (see `BREAKS_STUN_PARTY_WIDE`'s own doc comment).
+ * Remaining scope at the time this table was written: Superspeed (51) and Barrier (68) still hadn't
+ * had this manual pass; ~120 Breaks-Stun sources also remain (see `BREAKS_STUN_PARTY_WIDE`'s own doc
+ * comment). Superspeed got its own leg next — see `SUPERSPEED_PARTY_WIDE` below; Barrier is still open.
  */
 export const STEALTH_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
   skill: {
@@ -5061,12 +5062,106 @@ export const STEALTH_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverri
   trait: {}
 }
 
+/**
+ * Party-wide entries for `MISCELLANEOUS_MATCHERS`' "Superspeed" row — third sweep leg (TODO.md's
+ * "party-wide-only filter" Misc-row scoping, 2026-08-19 continued), same "confirmed party-wide only,
+ * leave the self/pet/illusion-only majority uncurated" approach `BREAKS_STUN_PARTY_WIDE`'s doc
+ * comment explains. 47 skills + 13 traits carry a `Buff`/`Superspeed` fact; 9 already resolved for
+ * free via their own `"Number of Allied Targets"` fact; of the remaining 51 (40 skills + 11 traits),
+ * a full read of local API `facts`/`traitedFacts`/`description` data (plus one live wiki check for
+ * the one skill whose own description doesn't mention Superspeed at all) found 12 skills + 3 traits
+ * confirmed party-wide:
+ *  - 5682 Windborne Speed — own description only mentions Swiftness ("You and nearby allies gain
+ *    swiftness..."), not Superspeed, despite carrying an unconditioned Superspeed fact — live wiki
+ *    check confirmed the Superspeed itself is also "you and nearby allies," own `Number of Targets: 5`
+ *    + `Radius(300)` facts.
+ *  - 5970/6089 Toss Elixir U (two ids, identical Superspeed/Number(5)/Radius facts, same "Toss Elixir
+ *    S"-style land/underwater-style duplicate `STEALTH_PARTY_WIDE` already established a precedent
+ *    for) — 5970's own description: "breaking stuns on allies and granting them superspeed."
+ *  - 6088 Detonate Elixir U — own description: "grant allies superspeed and break them out of stun."
+ *    Its Superspeed fact is gated on trait 473 (HGH, "Elixirs gain increased durations and grant
+ *    might") — that's a real in-game gate (this "detonate" variant only exists with HGH traited), not
+ *    a self/party ambiguity, so the entry applies whenever the fact is emitted at all.
+ *  - 9143 Symbol of Swiftness — own description: "Allies in the area gain a burst of speed when the
+ *    symbol is created," own `Number of Targets: 5`.
+ *  - 10325 Slipstream — own description: "grants superspeed to allies passing through it," no
+ *    explicit `Number`/`Radius` fact — default-5 convention (same as Veil in `STEALTH_PARTY_WIDE`).
+ *  - 28075 Chaotic Release — own description: "granting superspeed to allies," own
+ *    `Number of Targets: 5`.
+ *  - 30047 "Eye of the Storm!" — own description: "massively increasing speed...for nearby allies"
+ *    (already curated in `BREAKS_STUN_PARTY_WIDE` for its separate StunBreak fact; this is the same
+ *    ally-only shout granting its Superspeed reach too), own `Number of Targets: 5`.
+ *  - 30814 Well of Action — own description: "time snaps back, granting boons to allies," with
+ *    Might/Fury/Superspeed all appearing as the well's pulse facts under that one ally-scoped
+ *    sentence, own `Number of Targets: 5`.
+ *  - 71888 Essence of Borrowed Time — own description: "applying superspeed to allies," own
+ *    `Number of Targets: 5`.
+ *  - 74314 Rallying Roar (pet Beast skill) — own description: "granting superspeed to nearby allies,"
+ *    own `Number of Targets: 5`.
+ *  - 76562 "We Will Never Yield!" — own description's 2nd paragraph: "Echo. Grant superspeed to
+ *    nearby allies after a set interval or after you use a burst skill," own `Number of Targets: 5`.
+ *  - Trait 1980 Temporal Enchanter — own description: "allies near the glamour gain resistance and
+ *    superspeed," own `Number of Targets: 5`.
+ *  - Trait 2014 Speed of Synergy — own description explicitly splits two cases: "Using a heal skill
+ *    grants superspeed in a radius around you" (party-wide, this entry) vs. "Using a healing skill's
+ *    associated tool-belt skill grants you personal superspeed" (self-only) — its own
+ *    `Ally Superspeed Radius` fact confirms the party-wide case. This trait gates the Superspeed fact
+ *    on 7 different Engineer heal-adjacent skills in this sweep's candidate set (5978/6118 Toss Elixir
+ *    H, 6176 Regenerating Mist, 12377 Blessing of Dwayna, 12465 Leafy Bandage, 21661 Static Shock,
+ *    29772 Bandage Self) — every one of them has API `slot: "Toolbelt"`, matching the trait's own
+ *    "associated tool-belt skill" (personal) wording exactly, so none of those 7 skill ids are entered
+ *    here despite carrying a trait-2014-gated Superspeed fact.
+ *  - Trait 2357 Liberating Liaise — own description: "Chant of Freedom grants superspeed to affected
+ *    allies when activated" — already wiki-verified as part of the 2026-08-15
+ *    `MISCELLANEOUS_MATCHERS` WvW-override fix (see TODO.md/COMPLETED.md), corroborated here.
+ * Explicitly excluded as self/pet/illusion-only (own description has no "allies" reach): Wind Blast,
+ * Slick Shoes' "Superspeed" cast skill, Rocket Boots (both ids — "gain superspeed" is self, ends on
+ * skill completion), Signet of the Hunt/Quickening Zephyr/Lesser Quickening Zephyr/Soothing Breeze
+ * (self+pet only, not party), Holo Leap (trait 2091 upgrades the caster's own landing Swiftness fact,
+ * not the pad's separate untracked ally-swiftness-on-contact effect), Polaric Leap/Griffon
+ * Stance/Featherfoot Grace/Twist of Fate/Wind Storm/Invigorating Air/Energize/Whirlwind (all "gain
+ * superspeed," no ally wording), Spider's Web (pet-only), One with Air/Meld with
+ * Shadows/Kinetic Battery/Burst of Aggression/Crystal Configuration: Zephyr/Jetstream (self-only
+ * triggers), Object in Motion (a damage modifier reading the caster's own current boons, not a grant),
+ * Time Catches Up (grants illusions/clones Superspeed, not player allies). Left genuinely ambiguous
+ * and uncurated rather than guessed: 10311/10377 Time Warp — carries an unconditioned Superspeed fact
+ * in the local data, but a live wiki check found the current tooltip doesn't mention Superspeed at
+ * all and attributes any Superspeed near a glamour to the separate Temporal Enchanter trait (already
+ * curated above) — conflicting enough with the local fact's existence to leave uncurated pending a
+ * clearer source.
+ * Remaining scope: Barrier (68) still hasn't had this manual pass; ~120 Breaks-Stun sources also
+ * remain (see `BREAKS_STUN_PARTY_WIDE`'s own doc comment).
+ */
+export const SUPERSPEED_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
+  skill: {
+    5682: 5, // Windborne Speed — wiki-confirmed "you and nearby allies," own Number(5)/Radius(300)
+    5970: 5, // Toss Elixir U — own desc "granting them superspeed" (allies), own Number(5)
+    6089: 5, // Toss Elixir U (duplicate id, identical facts) — same
+    6088: 5, // Detonate Elixir U — own desc "grant allies superspeed," own Number(5), HGH-gated
+    9143: 5, // Symbol of Swiftness — own desc "Allies in the area gain a burst of speed," Number(5)
+    10325: 5, // Slipstream — own desc "grants superspeed to allies passing through it," default-5
+    28075: 5, // Chaotic Release — own desc "granting superspeed to allies," own Number(5)
+    30047: 5, // "Eye of the Storm!" — own desc "for nearby allies," own Number(5)
+    30814: 5, // Well of Action — own desc "granting boons to allies," own Number(5)
+    71888: 5, // Essence of Borrowed Time — own desc "applying superspeed to allies," own Number(5)
+    74314: 5, // Rallying Roar — own desc "granting superspeed to nearby allies," own Number(5)
+    76562: 5 // "We Will Never Yield!" — own desc "Grant superspeed to nearby allies," own Number(5)
+  },
+  trait: {
+    1980: 5, // Temporal Enchanter — own desc "allies...gain resistance and superspeed," Number(5)
+    2014: 5, // Speed of Synergy — own desc's "using a heal skill" (party) case; the "associated
+    // tool-belt skill" case is self-only per the same sentence, see this table's doc comment
+    2357: 5 // Liberating Liaise — own desc "grants superspeed to affected allies," wiki-verified
+    // 2026-08-15 as part of the MISCELLANEOUS_MATCHERS WvW-override fix
+  }
+}
+
 /** Placeholder table with no curated overrides of its own — still meaningfully different from
  *  omitting the matcher name from `NAMED_FACT_TARGET_COUNT_TABLES` entirely: `resolveTargetCountFrom`
  *  checks a source's own `"Number of Allied Targets"` fact BEFORE ever consulting the override table,
  *  so wiring even an empty table in unlocks that free resolution for any source that already carries
- *  one. Used for Superspeed/Barrier below, neither of which have had a manual description-read pass
- *  yet (see `BREAKS_STUN_PARTY_WIDE`'s doc comment for the scope that's still open). */
+ *  one. Used for Barrier below, which hasn't had a manual description-read pass yet (see
+ *  `BREAKS_STUN_PARTY_WIDE`'s doc comment for the scope that's still open). */
 const NO_MANUAL_TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
   skill: {},
   trait: {}
@@ -5074,9 +5169,9 @@ const NO_MANUAL_TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCoun
 
 /** Matcher names in `BOON_STRIP_CORRUPT_MATCHERS`/`MISCELLANEOUS_MATCHERS` (or any other matcher
  *  table) that resolve `NamedFactSource.targetCount` — passed to `computeNamedFactSources` alongside
- *  the matcher table itself. `Cleanse`/`Breaks Stun`/`Stealth` carry real curated overrides;
- *  `Superspeed`/`Barrier` only get the free `"Number of Allied Targets"`-fact resolution (see
- *  `NO_MANUAL_TARGET_COUNT_OVERRIDES`'s doc comment) until their own sweep leg lands. Strip/
+ *  the matcher table itself. `Cleanse`/`Breaks Stun`/`Stealth`/`Superspeed` carry real curated
+ *  overrides; `Barrier` only gets the free `"Number of Allied Targets"`-fact resolution (see
+ *  `NO_MANUAL_TARGET_COUNT_OVERRIDES`'s doc comment) until its own sweep leg lands. Strip/
  *  Corrupt (how many enemies a boon is stripped/corrupted from) and every Control name were never
  *  scoped for this and stay `null` — omitted from this table entirely, not just uncurated within it. */
 export const NAMED_FACT_TARGET_COUNT_TABLES: Record<
@@ -5085,7 +5180,7 @@ export const NAMED_FACT_TARGET_COUNT_TABLES: Record<
 > = {
   Cleanse: CONDITION_CLEANSE_TARGETS,
   Stealth: STEALTH_PARTY_WIDE,
-  Superspeed: NO_MANUAL_TARGET_COUNT_OVERRIDES,
+  Superspeed: SUPERSPEED_PARTY_WIDE,
   'Breaks Stun': BREAKS_STUN_PARTY_WIDE,
   Barrier: NO_MANUAL_TARGET_COUNT_OVERRIDES
 }

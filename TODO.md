@@ -199,10 +199,25 @@ fact both compete for one generic `"Number of Targets"` label) but the user conf
 `StunBreak` is personal-only, so the shared count describes the Stealth grant — corrected in place. See
 the table's own doc comment for the full per-entry reasoning.
 
+Third leg landed 2026-08-18: `SUPERSPEED_PARTY_WIDE` gives Superspeed the same treatment — 12 skill
+ids + 3 trait ids (Windborne Speed, both Toss Elixir U ids, Detonate Elixir U, Symbol of Swiftness,
+Slipstream, Chaotic Release, "Eye of the Storm!", Well of Action, Essence of Borrowed Time, Rallying
+Roar, "We Will Never Yield!"; traits Temporal Enchanter, Speed of Synergy, Liberating Liaise)
+confirmed party-wide from their own local API facts/descriptions plus one live wiki check (Windborne
+Speed, whose own description never mentions Superspeed at all despite carrying an unconditioned
+fact for it). Notably found 7 Engineer heal-adjacent skills (Toss Elixir H x2, Regenerating Mist,
+Blessing of Dwayna, Leafy Bandage, Static Shock, Bandage Self) that all carry a Speed-of-Synergy-
+gated Superspeed fact but are correctly excluded as self-only: they're all API `slot: "Toolbelt"`,
+matching that trait's own text distinguishing the party-wide "heal skill" case from the self-only
+"associated tool-belt skill" case. Time Warp (both ids) was left deliberately uncurated — an
+unconditioned local Superspeed fact conflicts with a live wiki check that found no Superspeed
+mentioned in the current tooltip at all. See the table's own doc comment for the full per-entry
+reasoning, including everything excluded as self/pet/illusion-only.
+
 - [ ] **Remaining scope, not started**: ~120 still-uncurated Breaks-Stun sources (mostly self-only by
-      inspection, not individually confirmed), plus a full manual description read for Superspeed (51
-      left) and Barrier (68 left) — neither of which got the same pass Breaks Stun/Stealth did their
-      legs. Same "one leg, then check in" pacing as the original Cleanse/target-count sweeps — see
+      inspection, not individually confirmed), plus a full manual description read for Barrier (68
+      left) — hasn't gotten the same pass Breaks Stun/Stealth/Superspeed did their legs. Same "one
+      leg, then check in" pacing as the original Cleanse/target-count sweeps — see
       `pacing_large_sweeps` memory.
 
 - [ ] Exclusion filter on the Builds tab (flagged 2026-08-16) — extend `useTagFilter`
