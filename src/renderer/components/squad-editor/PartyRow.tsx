@@ -48,6 +48,11 @@ interface Props {
   /** Passed straight through to each `SlotTile` — see `BuildsSidebar`'s doc comment on the same
    *  prop name. */
   onEditBuild: (buildId: string) => void
+  /** True while `SquadCompEditorView` is mid-`ScreenshotButton` capture — hides the "Remove line"
+   *  button and the expand/collapse toggle (and forces each `SlotTile`'s own summary closed
+   *  regardless of `expanded`'s current value), since none of that editing chrome belongs in a
+   *  shared squad screenshot. Defaults to `false` so every other caller is unaffected. */
+  screenshotMode?: boolean
 }
 
 /** Disambiguates contributions from identical/duplicate builds in different slots — without this,
@@ -130,7 +135,10 @@ function toComboIconItems(entries: PartyComboEntry[], party: Party): BoonConditi
  * Miscellaneous/Strips-Corrupts-Cleanses/Combo presence summary (always visible, see
  * `computePartyBoonConditionSummary`'s doc comment for why it's presence-only, not a merged
  * uptime %). The expand/collapse toggle only affects each slot's own per-build summary rows
- * (`SlotTile`'s `showSummary`) — it's ephemeral UI state, not persisted on the squad comp.
+ * (`SlotTile`'s `showSummary`) — it's ephemeral UI state, not persisted on the squad comp. The
+ * party-wide summary itself always renders regardless of that toggle; `screenshotMode` (see its
+ * own doc comment) only ever hides the toggle/per-slot dropdown and the Remove-line button, never
+ * this summary.
  */
 export function PartyRow({
   party,
@@ -143,7 +151,8 @@ export function PartyRow({
   onDropBuild,
   onRemove,
   canRemove,
-  onEditBuild
+  onEditBuild,
+  screenshotMode = false
 }: Props) {
   const gameData = useGameData()
   const { showUnderwater } = useAppSettings()
@@ -195,16 +204,18 @@ export function PartyRow({
   return (
     <div className="party-row">
       <div className="party-row-header">
-        <button
-          type="button"
-          className="party-row-toggle"
-          onClick={() => setExpanded(!expanded)}
-          aria-label={expanded ? 'Collapse boon/condition summary' : 'Expand boon/condition summary'}
-        >
-          {expanded ? '▾' : '▸'}
-        </button>
+        {!screenshotMode && (
+          <button
+            type="button"
+            className="party-row-toggle"
+            onClick={() => setExpanded(!expanded)}
+            aria-label={expanded ? 'Collapse boon/condition summary' : 'Expand boon/condition summary'}
+          >
+            {expanded ? '▾' : '▸'}
+          </button>
+        )}
         <span className="party-row-label">Line {partyIndex + 1}</span>
-        {canRemove && (
+        {canRemove && !screenshotMode && (
           <button type="button" onClick={onRemove}>
             Remove line
           </button>
@@ -218,7 +229,7 @@ export function PartyRow({
               slot={slot}
               build={slot.buildId !== null ? effectiveBuildsById.get(slot.buildId) : undefined}
               builds={builds}
-              showSummary={expanded}
+              showSummary={!screenshotMode && expanded}
               partyIndex={partyIndex}
               slotIndex={slotIndex}
               onAssign={(buildId) => onAssignBuild(slotIndex, buildId)}

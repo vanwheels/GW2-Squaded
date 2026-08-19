@@ -2,6 +2,44 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 234 — Squad screenshot: drop editing chrome, stitch content taller than the viewport
+
+User flagged 3 problems with the Squad editor's Copy Screenshot: the Saved Builds sidebar and each
+line's "Remove line" button shouldn't be in the capture, the per-line expand/collapse dropdown
+(individual per-slot boon icons) shouldn't render in the screenshot either way (collapsed or
+dropped-down), and squads over 4 lines didn't fit — capture should accommodate all `MAX_PARTIES`
+(10) lines.
+
+- **Editing chrome**: `SquadCompEditorView` now moves `ScreenshotButton`'s capture target from
+  `.squad-editor-body` (sidebar + party rows) down to a ref on `.party-rows` alone, so
+  `BuildsSidebar` is never in the captured rect. New `screenshotMode` state, flipped on/off via
+  `ScreenshotButton`'s new `onBeforeCapture`/`onAfterCapture` hooks, threads down to `PartyRow` as a
+  prop: hides the ▸/▾ expand toggle and the Remove-line button, and forces `SlotTile`'s
+  `showSummary` false regardless of whatever the toggle's live `expanded` state is (so a line left
+  expanded from normal editing doesn't leak into the screenshot). The always-visible party-wide
+  Boons/Conditions/etc. summary column is untouched — that's core squad content, not editing chrome.
+- **Content taller than the window**: root cause is `capturePage` only ever grabs the currently
+  on-screen portion of the page (documented as a known "v1 limitation" back when `ScreenshotButton`
+  first shipped) — a squad with more than ~4 lines runs off the bottom of the window with nothing
+  capturing what's scrolled out of view. Rewrote `captureElement` (in `ScreenshotButton.tsx`) to
+  scroll+stitch: when the target doesn't already fit the viewport at its current scroll position, it
+  scrolls the window in slices covering the target's full height (`getBoundingClientRect().height`
+  reports the true layout height regardless of what's currently scrolled into view), captures each
+  slice as a data URL via a new `captureRegionToDataUrl` IPC method, draws every tile onto one
+  offscreen `<canvas>`, and writes the composited PNG to the clipboard via a new `writeImageDataUrl`
+  IPC method — original scroll position restored in a `finally`. The original single-shot
+  `captureRegion` path is kept as a fast path for content that already fits (the common case), so
+  behavior for the Build editor's own screenshot is unchanged apart from now also being correct if
+  it ever runs long enough not to fit.
+- New IPC surface: `CaptureIpcChannel.captureRegionToDataUrl`/`writeImageDataUrl` (`capture-ipc.ts`,
+  `capture-provider.ts`, preload bridge) alongside the existing `captureRegion`.
+
+Verified via `npm run typecheck`, `npm run lint`, `npx vitest run` (221 passing, unchanged — no
+existing test covered `ScreenshotButton`, which has no unit test since it's IPC/DOM-measurement-
+driven). Not visually confirmed in a running window (standing Electron-sandbox limitation) —
+recommend `npm run dev` locally with a squad of 5+ lines to confirm the stitched screenshot both
+excludes the sidebar/chrome and captures every line.
+
 ## Session 233 — Renegade "Band Together" pairs double-counting into the aggregate Boon/Condition totals
 
 User flagged (screenshot: a doubled "Daze — Darkrazor's Daring 2s" row in the Control section) that

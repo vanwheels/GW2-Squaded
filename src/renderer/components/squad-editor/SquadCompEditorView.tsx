@@ -23,10 +23,19 @@ const MAX_PARTIES = 10
 export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
   const [draft, setDraft] = useState<SquadComp>(squadComp)
   const [saving, setSaving] = useState(false)
+  // Screenshot-only display mode (see ScreenshotButton's onBeforeCapture/onAfterCapture) — flipped
+  // on right before a capture, off again right after. Strips the editing chrome a screenshot
+  // shouldn't include (each line's Remove button and its individual-boons dropdown, see
+  // `PartyRow`'s own `screenshotMode` prop) without needing to lift/duplicate any of that state.
+  const [screenshotMode, setScreenshotMode] = useState(false)
   const { builds } = useBuildsStore()
   const { squadComps } = useSquadCompsStore()
   const buildsById = useMemo(() => new Map(builds.map((b) => [b.id, b])), [builds])
-  const bodyRef = useRef<HTMLDivElement>(null)
+  // Capture target is the party-rows column only, not `.squad-editor-body` — deliberately excludes
+  // `BuildsSidebar`, which isn't part of what a shared squad screenshot should show (it's an
+  // editing aid, not squad content). `ScreenshotButton` stitches this even when it's taller than
+  // the window (a squad can run up to `MAX_PARTIES` lines deep).
+  const partyRowsRef = useRef<HTMLDivElement>(null)
   const tagSuggestions = useMemo(() => [...new Set(squadComps.flatMap((s) => s.tags))].sort(), [squadComps])
 
   /** Bundles every build referenced by the current roster into the share payload as a full
@@ -133,13 +142,17 @@ export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
           onChange={(e) => setDraft({ ...draft, name: e.target.value })}
         />
         <TagInput tags={draft.tags} onChange={(tags) => setDraft({ ...draft, tags })} suggestions={tagSuggestions} />
-        <ScreenshotButton targetRef={bodyRef} />
+        <ScreenshotButton
+          targetRef={partyRowsRef}
+          onBeforeCapture={() => setScreenshotMode(true)}
+          onAfterCapture={() => setScreenshotMode(false)}
+        />
         <SharePanel kind="squadComp" getData={buildSharePayload} />
       </div>
 
-      <div className="squad-editor-body" ref={bodyRef}>
-        <BuildsSidebar onEditBuild={onEditBuild} />
-        <div className="party-rows">
+      <div className="squad-editor-body">
+        {!screenshotMode && <BuildsSidebar onEditBuild={onEditBuild} />}
+        <div className="party-rows" ref={partyRowsRef}>
           {draft.parties.map((party, partyIndex) => (
             <PartyRow
               key={partyIndex}
@@ -154,11 +167,14 @@ export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
               onRemove={() => removeParty(partyIndex)}
               canRemove={draft.parties.length > 1}
               onEditBuild={onEditBuild}
+              screenshotMode={screenshotMode}
             />
           ))}
-          <button type="button" className="party-row-add" onClick={addParty} disabled={draft.parties.length >= MAX_PARTIES}>
-            + Add line
-          </button>
+          {!screenshotMode && (
+            <button type="button" className="party-row-add" onClick={addParty} disabled={draft.parties.length >= MAX_PARTIES}>
+              + Add line
+            </button>
+          )}
         </div>
       </div>
     </section>

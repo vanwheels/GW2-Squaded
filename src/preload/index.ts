@@ -37,7 +37,9 @@ const gameData: GameDataProvider = {
 }
 
 const capture: CaptureProvider = {
-  captureRegion: (rect: CaptureRect) => ipcRenderer.invoke(CaptureIpcChannel.captureRegion, rect)
+  captureRegion: (rect: CaptureRect) => ipcRenderer.invoke(CaptureIpcChannel.captureRegion, rect),
+  captureRegionToDataUrl: (rect: CaptureRect) => ipcRenderer.invoke(CaptureIpcChannel.captureRegionToDataUrl, rect),
+  writeImageDataUrl: (dataUrl: string) => ipcRenderer.invoke(CaptureIpcChannel.writeImageDataUrl, dataUrl)
 }
 
 const updater: UpdaterProvider = {
