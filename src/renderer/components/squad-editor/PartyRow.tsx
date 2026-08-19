@@ -45,6 +45,9 @@ interface Props {
   onDropBuild: (slotIndex: number, payload: BuildDragPayload) => void
   onRemove: () => void
   canRemove: boolean
+  /** Passed straight through to each `SlotTile` — see `BuildsSidebar`'s doc comment on the same
+   *  prop name. */
+  onEditBuild: (buildId: string) => void
 }
 
 /** Disambiguates contributions from identical/duplicate builds in different slots — without this,
@@ -139,7 +142,8 @@ export function PartyRow({
   onLabelChange,
   onDropBuild,
   onRemove,
-  canRemove
+  canRemove,
+  onEditBuild
 }: Props) {
   const gameData = useGameData()
   const { showUnderwater } = useAppSettings()
@@ -221,6 +225,7 @@ export function PartyRow({
               onAssignGhost={(ghostPick) => onAssignGhost(slotIndex, ghostPick)}
               onLabelChange={(label) => onLabelChange(slotIndex, label)}
               onDropBuild={(payload) => onDropBuild(slotIndex, payload)}
+              onEditBuild={onEditBuild}
             />
           ))}
         </div>

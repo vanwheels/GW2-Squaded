@@ -3,7 +3,9 @@ import type { Build, GhostPick, SquadSlot } from '@shared/types'
 import { useGameData } from '@renderer/state/game-data-store'
 import { useBuildsStore } from '@renderer/state/builds-store'
 import { TooltipBody } from '@renderer/components/common/Tooltip'
+import { ContextMenu } from '@renderer/components/common/ContextMenu'
 import { UpgradePicker, type UpgradeOption } from '@renderer/components/build-editor/UpgradePicker'
+import { BuildPreviewModal } from '@renderer/components/build-editor/BuildPreviewModal'
 import {
   BOON_STRIP_CORRUPT_MATCHERS,
   CONTROL_MATCHERS,
@@ -41,6 +43,9 @@ interface Props {
   onAssignGhost: (ghostPick: GhostPick | null) => void
   onLabelChange: (label: string | null) => void
   onDropBuild: (payload: BuildDragPayload) => void
+  /** Passed straight through to a right-click "Edit" — see `BuildsSidebar`'s doc comment on the
+   *  same prop name. */
+  onEditBuild: (buildId: string) => void
 }
 
 const GHOST_PREFIX = 'ghost:'
@@ -72,6 +77,11 @@ function decodeGhostId(id: string): GhostPick {
  * string-id option list as the real builds (`ghost:<profession>:<specializationId>`), decoded back
  * in `handleChoose` — deliberately not a separate second picker, to avoid building a whole parallel
  * UI for what's otherwise the exact same "pick one icon" interaction.
+ *
+ * Right-clicking a filled slot (2026-08-19) opens the same Preview/Edit `ContextMenu` as
+ * `BuildsSidebar`'s cards, for the same build — a slot tile already knows its own `build`, so
+ * unlike the sidebar (one menu shared across many cards) this just needs local x/y + open state.
+ * No-op on an empty/ghost slot, which has no real build to preview or edit.
  */
 export function SlotTile({
   slot,
@@ -83,11 +93,14 @@ export function SlotTile({
   onAssign,
   onAssignGhost,
   onLabelChange,
-  onDropBuild
+  onDropBuild,
+  onEditBuild
 }: Props) {
   const gameData = useGameData()
   const { updateBuild } = useBuildsStore()
   const [dragOver, setDragOver] = useState(false)
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
+  const [previewBuild, setPreviewBuild] = useState<Build | null>(null)
 
   function eliteSpecIconFor(build: Build): string | undefined {
     // Show the equipped elite spec's own icon (matches the in-game/gw2skills convention of
@@ -251,6 +264,11 @@ export function SlotTile({
         const payload = readBuildDragData(e)
         if (payload) onDropBuild(payload)
       }}
+      onContextMenu={(e) => {
+        if (!build) return
+        e.preventDefault()
+        setContextMenu({ x: e.clientX, y: e.clientY })
+      }}
     >
       <UpgradePicker
         label={slot.placeholderLabel && slot.placeholderLabel.length > 0 ? slot.placeholderLabel : 'Build'}
@@ -285,6 +303,18 @@ export function SlotTile({
           <BoonConditionIconRow items={comboItems(comboSources)} />
         </div>
       )}
+      {contextMenu && build && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+          items={[
+            { label: 'Preview', onSelect: () => setPreviewBuild(build) },
+            { label: 'Edit', onSelect: () => onEditBuild(build.id) }
+          ]}
+        />
+      )}
+      <BuildPreviewModal build={previewBuild} onClose={() => setPreviewBuild(null)} />
     </div>
   )
 }

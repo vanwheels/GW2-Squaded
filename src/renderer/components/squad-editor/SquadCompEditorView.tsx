@@ -153,6 +153,7 @@ export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
               onDropBuild={(slotIndex, payload) => dropBuild(partyIndex, slotIndex, payload)}
               onRemove={() => removeParty(partyIndex)}
               canRemove={draft.parties.length > 1}
+              onEditBuild={onEditBuild}
             />
           ))}
           <button type="button" className="party-row-add" onClick={addParty} disabled={draft.parties.length >= MAX_PARTIES}>

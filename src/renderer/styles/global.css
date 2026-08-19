@@ -2091,12 +2091,19 @@ input[type='text'] {
    since this box is a fixed 200px sidebar, not a grid column.
    Sticky + height-capped (2026-08-19 user feedback): a roster can run up to `MAX_PARTIES` (10)
    lines deep, far taller than the viewport, so the sidebar pins itself in place while the lines
-   scroll past instead of scrolling away with them. `top`/the `-48px` in `max-height` both mirror
-   `.app-content`'s 24px padding (top+bottom) so the box has the same breathing room stuck as it
-   does at the top of the page. Flex-column so `.builds-sidebar-list` below can be the one child
-   that actually scrolls (`flex:1; min-height:0` there) while the title and search/filter bar
-   above it stay put — "the search should be more than enough" alongside the scrollbar itself,
-   per that same feedback. */
+   scroll past instead of scrolling away with them. Flex-column so `.builds-sidebar-list` below can
+   be the one child that actually scrolls (`flex:1; min-height:0` there) while the title and
+   search/filter bar above it stay put — "the search should be more than enough" alongside the
+   scrollbar itself, per that same feedback.
+   `max-height`'s `-190px` (2026-08-19, 2nd pass — the first cut, `100vh - 48px`, still ran off the
+   bottom of the window) accounts for everything stacked *above* the sidebar's own natural
+   position, not just its own top/bottom breathing room: `.nav-bar` (~55px) + `.app-content`'s 24px
+   top padding + the `.view-header` row (~34px content + 16px margin-bottom) + `.squad-editor`'s
+   20px gap down to `.squad-editor-body`, plus a little slack — since `position: sticky` only
+   controls where the box pins *once scrolled to*, not how tall it's allowed to render at its
+   initial unscrolled position, an under-sized subtraction here still clips off-window before the
+   user ever scrolls. Deliberately errs shorter than a pixel-perfect measurement would, per "can be
+   shorter" in that same feedback. */
 .builds-sidebar {
   flex: none;
   width: 200px;
@@ -2104,7 +2111,7 @@ input[type='text'] {
   flex-direction: column;
   position: sticky;
   top: 24px;
-  max-height: calc(100vh - 48px);
+  max-height: calc(100vh - 190px);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
@@ -2439,11 +2446,17 @@ input[type='text'] {
   max-width: 860px;
 }
 
-/* `BuildPreviewModal.tsx` — wide enough to give `BuildScreenshotGrid`'s `1fr` Stats+Skills column
-   (see `.build-editor-grid`) a real width to fill, unlike the default `.modal-dialog`'s 480px cap
-   which was sized for small confirmation-style dialogs. */
+/* `BuildPreviewModal.tsx` — matches `.app-content`'s own effective width (100vw minus its 24px
+   side padding) rather than some smaller fixed cap. This isn't just "wide enough to give
+   `BuildScreenshotGrid`'s `1fr` Stats+Skills column a real width to fill" (true of any sufficiently
+   large width) — a first pass at 1400px (2026-08-19 user feedback) was *still* narrower than the
+   real `BuildEditorView` page normally renders at on anything but a small window, and several
+   pieces of the grid (notably `EquipmentTextManifest`, the screenshot-only text manifest row) don't
+   reflow gracefully when squeezed, so the preview's whole point — "look like the real screenshot"
+   — broke under that cap. Matching the real page's width sidesteps reflow entirely instead of
+   trying to make the grid degrade well at an arbitrary narrower size. */
 .build-preview-modal {
-  width: min(1400px, calc(100vw - 48px));
+  width: calc(100vw - 48px);
   max-width: none;
 }
 
