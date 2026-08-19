@@ -191,13 +191,13 @@ more from explicit "breaks stun for/on allies" wording in their own description,
 here since these sources have no foe-facing component at all — see the table's own doc comment).
 
 Second leg landed 2026-08-19: `STEALTH_PARTY_WIDE` gives Stealth the same manual-description-read
-treatment Breaks Stun got — 7 skill ids (5972/6090 Toss Elixir S, 10187/50414 Veil, 10245 Mass
-Invisibility, 13117 Shadow Refuge, 30815 Sneak Gyro) confirmed party-wide from their own local API
-facts plus live wiki wikitext for the 2 with no local `Number` fact at all; 13044 Blinding Powder
-excluded as genuinely ambiguous (a foe-facing Blinded fact and the ally-facing Stealth fact compete for
-the same single generic `"Number of Targets"` label — needs the per-buff-line mechanism this flat
-table doesn't have, same shape `TARGET_COUNT_OVERRIDES` already documents elsewhere). See the table's
-own doc comment for the full per-entry reasoning.
+treatment Breaks Stun got — 8 skill ids (5972/6090 Toss Elixir S, 10187/50414 Veil, 10245 Mass
+Invisibility, 13117 Shadow Refuge, 30815 Sneak Gyro, 13044 Blinding Powder) confirmed party-wide from
+their own local API facts plus live wiki wikitext for the 2 with no local `Number` fact at all.
+Blinding Powder was initially flagged ambiguous (a foe-facing Blinded fact and the ally-facing Stealth
+fact both compete for one generic `"Number of Targets"` label) but the user confirmed same-day that its
+`StunBreak` is personal-only, so the shared count describes the Stealth grant — corrected in place. See
+the table's own doc comment for the full per-entry reasoning.
 
 - [ ] **Remaining scope, not started**: ~120 still-uncurated Breaks-Stun sources (mostly self-only by
       inspection, not individually confirmed), plus a full manual description read for Superspeed (51

@@ -5034,11 +5034,11 @@ export const BREAKS_STUN_PARTY_WIDE: { skill: Record<number, SourceTargetCountOv
  *    (contrast `fetch-target-counts.ts`'s doc comment, which restricts that specific shape to traits
  *    ONLY because its candidate set includes skills with a competing foe-facing reading — not the
  *    case here).
- * Excluded as genuinely ambiguous rather than guessed: 13044 Blinding Powder carries a foe-facing
- * Blinded fact alongside its ally-facing Stealth fact, both competing for the same single generic
- * `"Number of Targets": 5` label with no way to tell which effect it actually describes — the same
- * per-buff-line-conflict shape `TARGET_COUNT_OVERRIDES`'s doc comment already names as needing the
- * dedicated per-buff-line mechanism this flat table doesn't have.
+ *  - 13044 Blinding Powder — user-confirmed 2026-08-19 (real-game knowledge, not derivable from the
+ *    API facts alone): the `StunBreak` fact is personal only, so the source's single
+ *    `"Number of Targets": 5` label describes its Stealth grant (Blind hits nearby foes with no
+ *    target cap of its own). Initially excluded here as ambiguous between the two effects before that
+ *    correction — see this table's git history / COMPLETED.md for the reversal.
  * Remaining scope: Superspeed (51) and Barrier (68) still haven't had this manual pass; ~120
  * Breaks-Stun sources also remain (see `BREAKS_STUN_PARTY_WIDE`'s own doc comment).
  */
@@ -5050,7 +5050,9 @@ export const STEALTH_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverri
     50414: 5, // Veil (duplicate id, identical facts) — same
     10245: 10, // Mass Invisibility — own "Number of Targets: 10" fact, no foe-facing component
     13117: 5, // Shadow Refuge — own "Number of Targets: 5" fact, no foe-facing component
-    30815: 5 // Sneak Gyro — wiki "missing facts" targets|5, no foe-facing component
+    30815: 5, // Sneak Gyro — wiki "missing facts" targets|5, no foe-facing component
+    13044: 5 // Blinding Powder — user-confirmed: StunBreak is personal, so "Number of Targets: 5"
+    // describes the Stealth grant, not the foe-facing Blind
   },
   trait: {}
 }
