@@ -2,6 +2,20 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 241 — Time Warp Superspeed correction (same-day follow-up to Session 240)
+
+User corrected Session 240's "left uncurated as ambiguous" call on Time Warp: real-game knowledge says
+Time Warp (and every Mesmer Glamour skill) only grants Superspeed with the Temporal Enchanter trait
+(1980) equipped — confirmed via a scan of every Glamour-category skill that Time Warp is the only one
+carrying a Superspeed fact of its own at all (Veil/Portal Entre+Exeunt/Null Field/Feedback have none),
+so every other Glamour skill's party-wide Superspeed is already fully covered by Temporal Enchanter's
+own trait row. `SUPERSPEED_PARTY_WIDE`'s skill entries for 10311/10377 Time Warp now use a
+`TraitConditionalTargetCountOverride` (party-wide(5) when trait 1980 is active, `'self'` otherwise) —
+the same conditional mechanism `TARGET_COUNT_OVERRIDES` already uses for Willbender's Phoenix
+Protocol/Gladiator's Defense (a source's reach flipping on an unrelated trait choice, not its own fact
+data). `npm run typecheck`/`lint`/`vitest run` all clean (224 tests, no new ones needed). TODO.md/the
+table's own doc comment updated in place.
+
 ## Session 240 — Party-wide filter sweep leg 3: Superspeed manual description read
 
 Third leg of the Misc-row `targetCount` sweep (`BREAKS_STUN_PARTY_WIDE` leg 1, `STEALTH_PARTY_WIDE`

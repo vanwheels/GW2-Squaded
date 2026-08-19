@@ -209,10 +209,15 @@ fact for it). Notably found 7 Engineer heal-adjacent skills (Toss Elixir H x2, R
 Blessing of Dwayna, Leafy Bandage, Static Shock, Bandage Self) that all carry a Speed-of-Synergy-
 gated Superspeed fact but are correctly excluded as self-only: they're all API `slot: "Toolbelt"`,
 matching that trait's own text distinguishing the party-wide "heal skill" case from the self-only
-"associated tool-belt skill" case. Time Warp (both ids) was left deliberately uncurated — an
-unconditioned local Superspeed fact conflicts with a live wiki check that found no Superspeed
-mentioned in the current tooltip at all. See the table's own doc comment for the full per-entry
-reasoning, including everything excluded as self/pet/illusion-only.
+"associated tool-belt skill" case. Time Warp (both ids) was initially left uncurated as ambiguous — an
+unconditioned local Superspeed fact conflicted with a live wiki check that found no Superspeed
+mentioned in the current tooltip — until the user corrected this same-day: Time Warp (and every
+Glamour skill) only grants Superspeed with the Temporal Enchanter trait equipped, confirmed as the
+only Glamour skill carrying a Superspeed fact of its own at all. Now curated as a
+`TraitConditionalTargetCountOverride` (party-wide(5) when Temporal Enchanter is active, otherwise no
+reach) — the same conditional mechanism `TARGET_COUNT_OVERRIDES` already uses for Phoenix Protocol/
+Gladiator's Defense. See the table's own doc comment for the full per-entry reasoning, including
+everything excluded as self/pet/illusion-only.
 
 - [ ] **Remaining scope, not started**: ~120 still-uncurated Breaks-Stun sources (mostly self-only by
       inspection, not individually confirmed), plus a full manual description read for Barrier (68

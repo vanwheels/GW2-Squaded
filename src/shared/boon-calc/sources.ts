@@ -5123,12 +5123,18 @@ export const STEALTH_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverri
  * superspeed," no ally wording), Spider's Web (pet-only), One with Air/Meld with
  * Shadows/Kinetic Battery/Burst of Aggression/Crystal Configuration: Zephyr/Jetstream (self-only
  * triggers), Object in Motion (a damage modifier reading the caster's own current boons, not a grant),
- * Time Catches Up (grants illusions/clones Superspeed, not player allies). Left genuinely ambiguous
- * and uncurated rather than guessed: 10311/10377 Time Warp — carries an unconditioned Superspeed fact
- * in the local data, but a live wiki check found the current tooltip doesn't mention Superspeed at
- * all and attributes any Superspeed near a glamour to the separate Temporal Enchanter trait (already
- * curated above) — conflicting enough with the local fact's existence to leave uncurated pending a
- * clearer source.
+ * Time Catches Up (grants illusions/clones Superspeed, not player allies). Initially left uncurated
+ * as ambiguous — 10311/10377 Time Warp carries an unconditioned Superspeed fact locally, but an
+ * earlier live wiki check found the current tooltip doesn't mention Superspeed at all — until the
+ * user corrected this same-day with real-game knowledge: Time Warp (and every Glamour skill) only
+ * grants Superspeed with the Temporal Enchanter trait (1980) equipped; confirmed no OTHER Glamour
+ * skill (Veil/Portal Entre+Exeunt/Null Field/Feedback) carries a Superspeed fact of its own at all, so
+ * Time Warp is the only skill-side entry this mechanic needs — every other Glamour skill's party-wide
+ * Superspeed is fully covered by Temporal Enchanter's own already-curated trait row above. Modeled as
+ * a `TraitConditionalTargetCountOverride` (party-wide(5) when 1980 is active, `'self'` — i.e. no
+ * curated reach, matching the fact's absence of any real grant — otherwise), the same mechanism
+ * `TARGET_COUNT_OVERRIDES` already uses for Willbender's Phoenix Protocol/Gladiator's Defense: a
+ * source's reach flipping on an unrelated trait choice, not on its own fact data.
  * Remaining scope: Barrier (68) still hasn't had this manual pass; ~120 Breaks-Stun sources also
  * remain (see `BREAKS_STUN_PARTY_WIDE`'s own doc comment).
  */
@@ -5140,6 +5146,8 @@ export const SUPERSPEED_PARTY_WIDE: { skill: Record<number, SourceTargetCountOve
     6088: 5, // Detonate Elixir U — own desc "grant allies superspeed," own Number(5), HGH-gated
     9143: 5, // Symbol of Swiftness — own desc "Allies in the area gain a burst of speed," Number(5)
     10325: 5, // Slipstream — own desc "grants superspeed to allies passing through it," default-5
+    10311: { gatedBy: 'trait', traitId: 1980, traitName: 'Temporal Enchanter', whenActive: 5, otherwise: 'self' }, // Time Warp
+    10377: { gatedBy: 'trait', traitId: 1980, traitName: 'Temporal Enchanter', whenActive: 5, otherwise: 'self' }, // Time Warp (duplicate id)
     28075: 5, // Chaotic Release — own desc "granting superspeed to allies," own Number(5)
     30047: 5, // "Eye of the Storm!" — own desc "for nearby allies," own Number(5)
     30814: 5, // Well of Action — own desc "granting boons to allies," own Number(5)
