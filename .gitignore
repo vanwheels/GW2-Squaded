@@ -18,6 +18,10 @@ npm-debug.log*
 .env
 .env.local
 
+# Wrangler local secrets (Discord bot token/public key, etc.) — production secrets go through
+# `wrangler secret put` instead, never a committed file.
+.dev.vars
+
 # Raw /v2/items dump cache for scripts/fetch-gear-upgrades.ts (~74k items, slow to refetch) —
 # not the normalized output (that's data/game-data/*.json, which IS committed).
 .cache/
