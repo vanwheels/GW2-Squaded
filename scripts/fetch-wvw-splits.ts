@@ -354,7 +354,7 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     71960: { Stability: 3 }, // Flowing Finesse — PvE 5s, WvW/PvP 3s (Regeneration 5s is unsplit)
 
     // Icerazor's Ire (Revenant/Renegade, empty-effect-facts curation, see synthetic-facts.json) —
-    // same zero-API-facts root cause. Only Immobilize's split fits this override mechanism (a plain
+    // same zero-API-facts root cause. Only Immobile's split fits this override mechanism (a plain
     // duration change, 2s pve -> 1.5s wvw/pvp). The wiki ALSO splits this skill's Torment and
     // "Initial Vulnerability" facts, but only by STACK COUNT (Torment 3->2, Vulnerability 10->6)
     // with duration unchanged (6s/8s in both modes) — WvwFactOverride only overrides `duration`,
@@ -365,8 +365,17 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // 72359`) — both share every fact above; 72359 alone adds an unsplit Chilled 1.5s.
     // Might: 10 added 2026-08-12 (Notoriety trait-linking, see the dedicated block below) —
     // merged into this same key since a JS object literal can't repeat a key.
-    40485: { Immobilize: 1.5, Might: 10 },
-    72359: { Immobilize: 1.5 },
+    //
+    // 2026-08-19: `synthetic-facts.json`'s own status for this fact was misspelled "Immobilize"
+    // (not "Immobile," the real `CONDITION_NAMES` entry) ever since it was first added — so
+    // `classifyBoonCondition` silently dropped the fact entirely (not a duration bug, a total
+    // no-show) and this override's own key never actually matched anything either, since
+    // `extractFromFacts` looks the override up by `fact.status`. Fixed at the source
+    // (`synthetic-facts.json`) and here together; flagged by the user noticing Icerazor's Ire's
+    // Immobile had vanished from a build (COMPLETED.md Session 231's fixes shipped the same day,
+    // but this typo predates them — confirmed unchanged at the prior commit).
+    40485: { Immobile: 1.5, Might: 10 },
+    72359: { Immobile: 1.5 },
 
     // Fox's Fury (Elementalist/Evoker meditation, empty-effect-facts curation, see
     // synthetic-facts.json) — same zero-real-API-Buff-facts root cause for the base cast (76711).
@@ -449,7 +458,7 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     28287: { Might: 10 }, // Embrace the Darkness (Legend4 elite)
     45686: { Might: 10, Resistance: 4 }, // Breakrazor's Bastion (Legend5 heal) — Resistance is Ashen Demeanor's
     42949: { Might: 10 }, // Razorclaw's Rage (Legend5 utility)
-    // Icerazor's Ire (40485) already has its own entry above (Immobilize: 1.5, Might: 10) — a
+    // Icerazor's Ire (40485) already has its own entry above (Immobile: 1.5, Might: 10) — a
     // repeated key here would silently discard it, JS object literals can't merge duplicate keys.
     41220: { Might: 10 }, // Darkrazor's Daring (Legend5 utility)
     45773: { Might: 10 }, // Soulcleave's Summit (Legend5 elite)

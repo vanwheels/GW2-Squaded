@@ -1200,7 +1200,7 @@
       "Regeneration": 4
     },
     "40485": {
-      "Immobilize": 1.5,
+      "Immobile": 1.5,
       "Might": 10
     },
     "40497": {
@@ -1917,7 +1917,7 @@
       "Might": 8
     },
     "72359": {
-      "Immobilize": 1.5
+      "Immobile": 1.5
     },
     "72366": {
       "Protection": 3

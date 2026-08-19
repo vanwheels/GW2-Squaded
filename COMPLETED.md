@@ -2,6 +2,22 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 232 — Icerazor's Ire's missing Immobile: pre-existing typo, not a Session 231 regression
+
+User reported Icerazor's Ire (Revenant/Renegade) had "lost its Immob condition application" right
+after Session 231 shipped. Traced it down: `synthetic-facts.json`'s entries for both 40485 (base
+cast) and 72359 (Band Together-enhanced cast) spelled the status `"Immobilize"` instead of
+`CONDITION_NAMES`' real `"Immobile"` — `classifyBoonCondition` does an exact-set-membership check,
+so the fact was silently dropped on every extraction (not a duration bug, a total no-show).
+Confirmed via `git show` against the commit immediately before Session 231's changes: the typo was
+already there, byte-identical — genuinely pre-existing, not something that session caused. The
+matching `wvw-fact-overrides.json` entries (`Immobile: 1.5` on both ids, PvE 2s -> WvW/PvP 1.5s)
+were keyed off the same misspelled status, so fixing only `synthetic-facts.json` would have left
+those silently unmatched too — fixed both together, plus the generating script's own
+`MANUAL_OVERRIDES` comment/keys in `fetch-wvw-splits.ts` for consistency. New regression test
+`icerazors-ire.test.ts`. Verified via `npm run typecheck`, `npm run lint`, `npx vitest run` (218
+passing, 2 new).
+
 ## Session 231 — Revenant tooltip bug batch: Sword 4 flip, Facet of Elements flip, Draconic Fortitude health, Draconic Echo, Elevated Compassion WvW
 
 User brain-dumped 7 Revenant bugs in one message (2026-08-19), flagging that the real list was
