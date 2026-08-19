@@ -87,6 +87,12 @@ optional free-text role label (e.g. "any DPS"). Parties can be added up to the r
 (10 parties of 5). Right-click a sidebar card or a filled party slot for a quick Preview/Edit menu.
 Tags, search, favorites, screenshots, sharing, and link import all work the same way as Builds.
 
+### Discord bot
+
+A companion Discord bot lets a server curate shared build/squad boards and preview them without
+opening the app — see [docs/discord-bot-commands.md](./docs/discord-bot-commands.md) for the full
+command reference, or run `/help` once it's in your server.
+
 ### Settings tab
 
 - **Appearance** — Light/Dark/System theme toggle.
@@ -128,10 +134,12 @@ be reused in a Capacitor shell (iOS/Android) with only the storage adapter swapp
 ## Status
 
 **1.0** — the build editor, boon/condition uptime calculator, squad preview builder, and
-sync/sharing backend (roadmap items 1-4) are all implemented and released. See
+sync/sharing backend (roadmap items 1-4) are all implemented and released. The Discord bot
+(roadmap item 5, see [docs/discord-bot-commands.md](./docs/discord-bot-commands.md)) is also
+built, deployed, and live-verified, though it ships separately from the desktop app itself. See
 [CHANGELOG.md](./CHANGELOG.md) for user-facing release notes, or
 [TODO.md](./TODO.md) / [COMPLETED.md](./COMPLETED.md) for the ongoing development log; the
-Discord bot and Capacitor mobile port are later roadmap stages, not part of 1.0.
+Capacitor mobile port is the one remaining later roadmap stage, not part of 1.0.
 
 ## Roadmap
 
@@ -141,7 +149,7 @@ Discord bot and Capacitor mobile port are later roadmap stages, not part of 1.0.
 3. ✅ Squad preview builder (offline, local saves).
 4. ✅ Sync/sharing via a thin backend (unique immutable links — "copy into your own app", not
    collaborative editing).
-5. Discord bot (client of the same backend API).
+5. ✅ Discord bot (client of the same backend API).
 6. Mobile via Capacitor (iOS first, then Android).
 
 ## Credits

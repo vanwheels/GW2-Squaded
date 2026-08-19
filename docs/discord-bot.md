@@ -1,8 +1,10 @@
-# Discord bot — design (not yet built)
+# Discord bot — design-of-record
 
-Mapped out 2026-08-12, in a design conversation, not a build session. Nothing described here
-exists yet — no worker route, no D1 database, no Discord application registered. This doc is
-the design-of-record so a future session can pick it up without re-deriving the reasoning.
+Mapped out 2026-08-12, in a design conversation, not a build session at the time — as of
+2026-08-19 every phase here (1-4, plus the squad-preview follow-ons) is built, deployed, and
+live-verified in a real Discord server. This doc is the running design-of-record/build log, not a
+user guide — **for how to actually use the bot's commands once it's in your server, see
+[discord-bot-commands.md](./discord-bot-commands.md) instead** (or run `/help` in Discord).
 `TODO.md`'s "Discord bot" entry points here instead of holding this detail inline.
 
 ## What it is

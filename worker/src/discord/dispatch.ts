@@ -24,6 +24,7 @@ import {
   resolvePendingBuildPreviewShareId
 } from './commands/builds'
 import { buildDisplay, squadDisplay } from './commands/display'
+import { help } from './commands/help'
 import {
   applyPendingSquadRequest,
   squadAdd,
@@ -48,11 +49,21 @@ const BOARD_REQUEST_HANDLERS: Record<BoardType, PendingRequestHandlers> = {
 
 type CommandHandler = (ctx: CommandContext) => Promise<DiscordMessagePayload>
 
+/** `/ping`'s handler — trivial enough it doesn't need its own `commands/*.ts` file. Was registered
+ *  in `command-catalog.ts` (née `register-commands.ts`) since Phase 1 but had never actually been
+ *  wired into `COMMANDS` below, so it silently fell through to "Unknown command." — a pre-existing
+ *  gap noticed while adding `/help` below it; fixed here since it's a one-line handler. */
+async function ping(_ctx: CommandContext): Promise<DiscordMessagePayload> {
+  return { content: 'pong' }
+}
+
 /** Every flat (no-subcommand) command this bot handles, keyed by its registered name — Discord
  *  requires CHAT_INPUT command names to be all-lowercase, so these don't match
  *  docs/discord-bot.md's camelCase command names verbatim (`/buildAdd` there is `buildadd` here);
- *  `scripts/register-commands.ts` registers the same lowercase names. */
+ *  `command-catalog.ts` registers the same lowercase names. */
 const COMMANDS: Record<string, CommandHandler | undefined> = {
+  ping,
+  help,
   buildadd: buildAdd,
   buildremove: buildRemove,
   buildedit: buildEdit,
