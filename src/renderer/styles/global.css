@@ -814,6 +814,12 @@ input[type='text'] {
      row below. */
   padding: 24px 12px 10px;
   background: rgba(255, 255, 255, 0.03);
+  /* Reserves the height a fully-populated row needs (3 stacked 38px majors + 2x6px gaps = 126px,
+     matching .trait-tier-group's math above, plus this row's own 24+10px padding) so an empty line
+     (spec not yet chosen -> .trait-line-tiers-horizontal doesn't render at all) doesn't collapse to
+     just the 48px spec-select icon's height. Without this, the three trait-line rows on a fresh
+     build render at visibly different heights until every line has a spec picked. */
+  min-height: 160px;
 }
 
 /* The spec name used to sit in a text row below the icon, but its width varied with the name's
