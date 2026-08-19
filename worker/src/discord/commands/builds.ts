@@ -44,7 +44,15 @@ function isUniqueConstraintError(err: unknown): boolean {
 // click claims a pending request — see docs/discord-bot.md's "Approval workflow").
 // -------------------------------------------------------------------------------------------
 
-async function applyAdd(env: Env, guildId: string, name: string, shareId: string, profession: string, addedBy: string): Promise<BuildRow> {
+async function applyAdd(
+  env: Env,
+  guildId: string,
+  name: string,
+  shareId: string,
+  profession: string,
+  specializationId: number | null,
+  addedBy: string
+): Promise<BuildRow> {
   const now = new Date().toISOString()
   let build: BuildRow
   try {
@@ -53,6 +61,7 @@ async function applyAdd(env: Env, guildId: string, name: string, shareId: string
       name,
       share_id: shareId,
       profession,
+      specialization_id: specializationId,
       added_by: addedBy,
       added_at: now,
       updated_at: now
@@ -81,7 +90,8 @@ async function applyEdit(
   build: BuildRow,
   newName: string | undefined,
   newShareId: string | undefined,
-  newProfession: string | undefined
+  newProfession: string | undefined,
+  newSpecializationId: number | null | undefined
 ): Promise<EditResult> {
   const now = new Date().toISOString()
   const oldProfession = build.profession
@@ -89,7 +99,13 @@ async function applyEdit(
     // `build`'s own `profession`/`sort_order` fields still hold their pre-edit values here (this
     // row was never re-fetched), so the reshuffle below — which only runs once this write has
     // already succeeded — still has the correct "old section" to compact.
-    await updateBuild(env, build.id, { name: newName || undefined, shareId: newShareId, profession: newProfession, updatedAt: now })
+    await updateBuild(env, build.id, {
+      name: newName || undefined,
+      shareId: newShareId,
+      profession: newProfession,
+      specializationId: newSpecializationId,
+      updatedAt: now
+    })
     if (newProfession) await moveBuildToProfession(env, build, newProfession)
   } catch (err) {
     if (isUniqueConstraintError(err)) throw new UserError(`A build named "${newName}" already exists on this server.`)
@@ -157,7 +173,7 @@ export async function buildAdd(ctx: CommandContext): Promise<DiscordMessagePaylo
   )
   if (gated) return gated
 
-  const build = await applyAdd(ctx.env, ctx.guildId, name, shareId, fields.profession, ctx.member.user.id)
+  const build = await applyAdd(ctx.env, ctx.guildId, name, shareId, fields.profession, fields.specializationId, ctx.member.user.id)
   return { content: `Added **${name}** to ${build.profession}'s section.` }
 }
 
@@ -212,14 +228,19 @@ export async function buildEdit(ctx: CommandContext): Promise<DiscordMessagePayl
   if (gated) return gated
 
   let newProfession: string | undefined
+  let newSpecializationId: number | null | undefined
   if (newShareId) {
     // Re-derive rather than trust a captured closure value — cheap (already-resolved KV read) and
-    // keeps this path identical in shape to `applyPendingBuildRequest`'s edit case below.
+    // keeps this path identical in shape to `applyPendingBuildRequest`'s edit case below. Always
+    // pass specializationId through (not just when the profession changes) — a new link can swap
+    // elite specs within the same profession (Reaper -> Scourge, both Necromancer), which still
+    // needs the board's emoji to update.
     const fields = await resolveAndValidateBuildLink(ctx.env, newShareId)
     if (fields.profession !== build.profession) newProfession = fields.profession
+    newSpecializationId = fields.specializationId
   }
 
-  const result = await applyEdit(ctx.env, build, newName, newShareId, newProfession)
+  const result = await applyEdit(ctx.env, build, newName, newShareId, newProfession, newSpecializationId)
   return {
     content: result.newProfession
       ? `Updated **${result.finalName}** — moved from ${result.oldProfession} to ${result.newProfession}'s section.`
@@ -315,7 +336,15 @@ export async function applyPendingBuildRequest(env: Env, request: PendingRequest
       const fields = asLikelyBuildFields(share.data)
       if (!fields) throw new UserError('That build link is no longer valid.')
       await requireBoardSetUp(env, request.guild_id, fields.profession)
-      const build = await applyAdd(env, request.guild_id, request.proposed_name, request.proposed_share_id, fields.profession, request.requested_by)
+      const build = await applyAdd(
+        env,
+        request.guild_id,
+        request.proposed_name,
+        request.proposed_share_id,
+        fields.profession,
+        fields.specializationId,
+        request.requested_by
+      )
       return `Added **${build.name}** to ${build.profession}'s section.`
     }
     case 'remove': {
@@ -326,6 +355,7 @@ export async function applyPendingBuildRequest(env: Env, request: PendingRequest
     case 'edit': {
       const build = await requireTargetBuild(env, request)
       let newProfession: string | undefined
+      let newSpecializationId: number | null | undefined
       if (request.proposed_share_id) {
         const share = await resolveShare(env, request.proposed_share_id)
         if (!share || share.kind !== 'build') throw new UserError('That build link is no longer available.')
@@ -335,8 +365,16 @@ export async function applyPendingBuildRequest(env: Env, request: PendingRequest
           await requireBoardSetUp(env, request.guild_id, fields.profession)
           newProfession = fields.profession
         }
+        newSpecializationId = fields.specializationId
       }
-      const result = await applyEdit(env, build, request.proposed_name ?? undefined, request.proposed_share_id ?? undefined, newProfession)
+      const result = await applyEdit(
+        env,
+        build,
+        request.proposed_name ?? undefined,
+        request.proposed_share_id ?? undefined,
+        newProfession,
+        newSpecializationId
+      )
       return result.newProfession
         ? `Updated **${result.finalName}** — moved from ${result.oldProfession} to ${result.newProfession}'s section.`
         : `Updated **${result.finalName}**.`

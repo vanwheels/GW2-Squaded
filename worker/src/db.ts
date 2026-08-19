@@ -142,6 +142,9 @@ export interface BuildRow {
   name: string
   share_id: string
   profession: string
+  /** Elite specialization id from trait line slot 2, or `null` for a core build — see
+   *  `share-validate.ts`'s `LikelyBuildFields.specializationId` doc comment. */
+  specialization_id: number | null
   sort_order: number
   added_by: string
   added_at: string
@@ -193,8 +196,8 @@ export async function insertBuild(
   const sortOrder = order?.next ?? 0
 
   const result = await env.DB.prepare(
-    `INSERT INTO builds (guild_id, name, share_id, profession, sort_order, added_by, added_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `INSERT INTO builds (guild_id, name, share_id, profession, specialization_id, sort_order, added_by, added_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
      RETURNING *`
   )
     .bind(
@@ -202,6 +205,7 @@ export async function insertBuild(
       fields.name,
       fields.share_id,
       fields.profession,
+      fields.specialization_id,
       sortOrder,
       fields.added_by,
       fields.added_at,
@@ -228,6 +232,10 @@ interface BuildUpdateFields {
   name?: string
   shareId?: string
   profession?: string
+  /** `undefined` = not part of this edit, leave the column alone. `null` is a real value here (a
+   *  new link with no elite spec chosen), distinct from "don't touch" — same optional-vs-null
+   *  split `proposed_share_id` etc. use elsewhere in this file. */
+  specializationId?: number | null
   updatedAt: string
 }
 
@@ -249,6 +257,10 @@ export async function updateBuild(env: Env, id: number, fields: BuildUpdateField
   if (fields.profession !== undefined) {
     sets.push('profession = ?')
     binds.push(fields.profession)
+  }
+  if (fields.specializationId !== undefined) {
+    sets.push('specialization_id = ?')
+    binds.push(fields.specializationId)
   }
   binds.push(id)
   await env.DB.prepare(`UPDATE builds SET ${sets.join(', ')} WHERE id = ?`)

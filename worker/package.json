@@ -8,7 +8,8 @@
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
-    "register-commands": "tsx --env-file=.dev.vars scripts/register-commands.ts"
+    "register-commands": "tsx --env-file=.dev.vars scripts/register-commands.ts",
+    "register-emojis": "tsx --env-file=.dev.vars scripts/register-emojis.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260731.1",

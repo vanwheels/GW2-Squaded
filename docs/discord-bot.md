@@ -342,6 +342,47 @@ should update this section's checkbox when done.
             up in local typecheck/lint/dry-run. Squad display (`/squaddisplay`) is a later leg,
             not built here.
 
+## Board list polish (raised 2026-08-19)
+
+Three board-list improvements were raised in a follow-up conversation, before starting Phase 4
+leg 3 (`/squaddisplay`): (1) a build's name as a hyperlink that gets the build into the user's
+hands with as little friction as possible, ideally opening it straight in the desktop app; (2) a
+Preview affordance directly on the board, not just via typing `/builddisplay`; (3) a
+profession/elite-spec emoji next to each build's name. Feasibility + scope decisions:
+
+1. **Hyperlink → clipboard / auto-open.** A raw Discord markdown link only navigates — it can't
+   run JS to write the clipboard on click. The real version of "copy" is a small worker-hosted
+   landing page with a one-click Copy button (cheap, no Electron changes). "Auto-open in the app"
+   is a real, separate feature: a custom URL protocol (`app.setAsDefaultProtocolClient`,
+   electron-builder's NSIS `protocols` config wires the Windows registry) that the landing page
+   tries before falling back to the copy button, plus new main-process code to catch that URL and
+   drive the import flow. **Deferred, not built yet** — the user chose to land the simple version
+   first as its own future session rather than bundle it with the bigger protocol-handler piece.
+2. **Preview button per build.** Discord caps a message at 25 components (5 rows × 5) — one button
+   per build in a busy profession section would hit that fast. A **select menu** per section
+   ("Preview a build…", up to 25 options) was the user's chosen direction, reusing the same
+   `renderBuildScreenshot` pipeline the approval card's Preview button already uses. **Deferred,
+   not built yet.**
+3. **Profession/elite-spec emoji next to the name — built this session.** Uses Discord
+   **application emojis** (bot-owned, usable in every guild the bot is in, don't consume a guild's
+   own emoji slots), uploaded once from the already-curated, license-checked
+   `data/game-data/tango-icons.json` via a new `worker/scripts/register-emojis.ts`
+   (`npm run register-emojis`, idempotent — re-run whenever a new elite spec ships) that writes
+   `worker/src/discord/emoji-map.json` (name/id pairs; starts out an empty-but-valid placeholder so
+   the build doesn't depend on the script having run). `render/board.ts`'s `renderBuildSection`
+   prefixes each list entry with `<:Name:id>` — the build's elite spec if it chose one, else its
+   plain profession, else nothing if that icon hasn't been uploaded yet. **Elite-spec-aware** (the
+   user's own example: a Reaper build shows Reaper's icon, not plain Necromancer's), which needed a
+   new nullable `builds.specialization_id` column (migration `0002_add_build_specialization.sql`)
+   derived from the share data at add/edit time the same "never typed by hand" way `profession`
+   already is (`share-validate.ts`'s `LikelyBuildFields.specializationId`, trait line slot 2 —
+   `commands/builds.ts`'s `applyAdd`/`applyEdit` and the pending-request apply paths all thread it
+   through). Squad board entries deliberately get no emoji — a squad spans multiple professions,
+   so no single icon applies the way it does for one build. **Not yet live**: needs
+   `wrangler d1 migrations apply` for the new column and `npm run register-emojis` (a live write to
+   the bot's Discord application) run by the user, then a deploy — none of those run yet as of this
+   writing.
+
 ## Status
 
 Designed 2026-08-12. Phase 1 (foundational plumbing) complete and live as of 2026-08-19. Phase 2

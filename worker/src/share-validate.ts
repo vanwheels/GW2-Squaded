@@ -9,6 +9,12 @@ import { isProfession } from './professions'
 export interface LikelyBuildFields {
   name: string
   profession: string
+  /** The elite specialization chosen in trait line slot 2 (conventionally the elite line — see
+   *  `TraitLineSlots`' doc comment in `src/shared/types/build.ts`), or `null` for a core build.
+   *  Derived the same "never typed by hand" way `profession` is — feeds the board's per-build
+   *  emoji (`render/board.ts`) so e.g. a Necromancer build using the Reaper line shows Reaper's
+   *  icon rather than the plain profession one. */
+  specializationId: number | null
 }
 
 export function asLikelyBuildFields(data: unknown): LikelyBuildFields | null {
@@ -27,7 +33,12 @@ export function asLikelyBuildFields(data: unknown): LikelyBuildFields | null {
   ) {
     return null
   }
-  return { name: d.name, profession: d.profession }
+  const eliteLine = d.specializations[2] as { specializationId?: unknown } | null
+  const specializationId =
+    eliteLine !== null && typeof eliteLine === 'object' && typeof eliteLine.specializationId === 'number'
+      ? eliteLine.specializationId
+      : null
+  return { name: d.name, profession: d.profession, specializationId }
 }
 
 export interface LikelySquadCompFields {
