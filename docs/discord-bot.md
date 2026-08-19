@@ -370,7 +370,9 @@ profession/elite-spec emoji next to each build's name. Feasibility + scope decis
    registry) that the landing page would try before falling back to the copy button, plus new
    main-process code to catch that URL and drive the import flow. **Still deferred** — the user
    chose to land the simple copy version first as its own session rather than bundle it with the
-   bigger protocol-handler piece. **Not yet deployed** as of this writing — needs `wrangler deploy`.
+   bigger protocol-handler piece. **Deployed and live-verified 2026-08-19** (commit 38d0a51,
+   Version ID `3046d3e9`) — confirmed via curl against the deployed worker (landing page 200s with
+   correct CSP nonce + HTML escaping, raw `/shares/:id` JSON API unchanged, unknown id → 404 page).
 2. **Preview select menu per section — built 2026-08-19.** Discord caps a message at 25 components
    (5 rows × 5) — one button per build in a busy profession section would hit that fast. A **select
    menu** per section ("Preview a build…", up to 25 options, `render/board.ts`'s
@@ -390,8 +392,8 @@ profession/elite-spec emoji next to each build's name. Feasibility + scope decis
    Squad board entries get no equivalent: there's still no `/squaddisplay` renderer to reuse (Phase
    4 leg 3, not built). A section past 25 builds silently only lists the first 25 in the dropdown
    rather than paging — no real section is close to that today, logged as an acceptable v1 gap
-   rather than built out. Typecheck/lint/`wrangler deploy --dry-run` all clean; **deployed
-   2026-08-19** (Version ID `fb36fefb`), **not yet live-verified in a real Discord server**. No
+   rather than built out. Typecheck/lint/`wrangler deploy --dry-run` all clean; **deployed and
+   confirmed working live in a real Discord server 2026-08-19** (Version ID `fb36fefb`). No
    `register-commands` step was needed — no new slash command, just a message-component route.
    Existing board messages won't show the new dropdown until they're next PATCHed (any `/buildAdd`/
    `Edit`/`Remove`/`Move`, or `/buildBoardRebuild` to force it without a real change).
