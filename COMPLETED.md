@@ -42,12 +42,15 @@ then blocked once a role is configured via `buildboardconfig setpermission`, the
 member holding that role), buildMove, buildEdit's cross-profession move, squadAdd/Edit/Remove, and
 buildBoardRebuild. `npm run typecheck` and `eslint` both clean.
 
-**Not yet done**: deployed to production or registered with Discord — `register-commands` would
-replace the live global command set (currently just `/ping`) with the full Phase 2 list, and
-`wrangler deploy` would push the new `/interactions` handling live; both are outward-facing/hard-
-to-instantly-reverse, held for explicit user go-ahead same as Phase 1's live steps were.
-`docs/discord-bot.md`'s Phase 2 checkbox and Status section, and TODO.md's Discord bot entry,
-updated accordingly.
+With the user's explicit go-ahead, deployed and went live: `wrangler deploy` pushed the new
+`/interactions` handling to production; `wrangler d1 migrations apply DB --remote` confirmed
+production's schema already had everything Phase 2 needs (no new migration, all 5 relevant tables
+came from Phase 1's `0001_init_schema.sql`); `register-commands` run against production registered
+all 13 commands (`ping` + the 12 Phase 2 commands) globally — propagation can take up to an hour.
+Not yet manually click-through-verified in a live server (the smoke test exercised the handlers
+directly, bypassing the real HTTP/signature-verification path) — natural next check once
+propagation completes. `docs/discord-bot.md`'s Phase 2 checkbox and Status section, and TODO.md's
+Discord bot entry, updated accordingly.
 
 ## Session 246 — Discord bot Phase 1: live end-to-end (deploy, secret, endpoint, /ping confirmed)
 

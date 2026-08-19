@@ -274,8 +274,10 @@ should update this section's checkbox when done.
 ## Status
 
 Designed 2026-08-12. Phase 1 (foundational plumbing) complete and live as of 2026-08-19. Phase 2
-(core CRUD + board sync, Automatic mode) code-complete and locally smoke-tested 2026-08-19 — see
-its checkbox above for what's built — but not yet deployed to production or registered with
-Discord (`npm run register-commands` would replace the live global command set, currently just
-`/ping`, with the full Phase 2 list — deliberately not run yet). Phase 3 (approval workflow) next
-after Phase 2 goes live.
+(core CRUD + board sync, Automatic mode) code-complete, locally smoke-tested, deployed, and
+registered with Discord as of 2026-08-19 — see its checkbox above for what's built. All 13
+commands (`ping` + the 12 Phase 2 commands) registered globally; global registration can take up
+to an hour to propagate to any given server. Not yet manually click-through-verified in a live
+Discord server (the smoke test exercised the command handlers directly, not the real HTTP/
+signature-verification path) — that's the natural next check once propagation completes. Phase 3
+(approval workflow) is next after that.
