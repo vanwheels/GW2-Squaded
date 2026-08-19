@@ -13,7 +13,7 @@ import { SPECTER_SPEC_ID } from '@shared/skill-calc/profession-mechanic'
 import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills'
 import { DEFAULT_COMBAT_STATE, type CombatState } from '@shared/gear-calc/combat-state'
 import { getBuildAutoTags } from '@shared/tags/auto-tags'
-import { withUnderwaterSetting } from '@shared/types/build'
+import { isBuildStaleSincePatch, withUnderwaterSetting } from '@shared/types/build'
 import { useGameData } from '@renderer/state/game-data-store'
 import { useBuildsStore } from '@renderer/state/builds-store'
 import { useAppSettings } from '@renderer/state/app-settings-store'
@@ -188,16 +188,32 @@ export function BuildEditorView({ build, onBack }: Props) {
 
   /** Saves the current draft, then navigates back — there's no separate Save button; leaving the
    *  editor is what commits the build (see the "auto-save on back" behavior this replaced). Stamps
-   *  `updatedAtGw2Build` alongside `updatedAt` so `BuildsView`'s card can later tell "reviewed under
-   *  the current patch" apart from "not reviewed since a balance patch shipped" — see that field's
-   *  doc comment on `Build`. */
+   *  `updatedAtGw2Build` alongside `updatedAt`, but only when `draft` actually differs from the
+   *  `build` prop the editor was opened with — merely opening the editor and immediately backing
+   *  out must NOT touch either timestamp, or `BuildsView`'s "reviewed under the current patch" vs.
+   *  "not reviewed since a balance patch shipped" distinction (`isBuildStaleSincePatch`, see
+   *  `updatedAtGw2Build`'s doc comment on `Build`) gets silently cleared by just glancing at a
+   *  build. `Build` is plain JSON-serializable data (no `Date`/`Set`/`Map` fields), so a
+   *  `JSON.stringify` comparison is a safe, dependency-free stand-in for deep-equality here. */
   async function handleBack(): Promise<void> {
     setSaving(true)
     try {
-      await onBack({ ...draft, updatedAt: new Date().toISOString(), updatedAtGw2Build: localGw2Build })
+      const edited = JSON.stringify(draft) !== JSON.stringify(build)
+      await onBack(
+        edited ? { ...draft, updatedAt: new Date().toISOString(), updatedAtGw2Build: localGw2Build } : draft
+      )
     } finally {
       setSaving(false)
     }
+  }
+
+  /** User-initiated counterpart to the automatic stamping above: confirms "I reviewed this build
+   *  against the current patch and it's still good" without requiring a throwaway content edit to
+   *  clear the "Not reviewed since latest patch" flag (`isBuildStaleSincePatch`). Only touches
+   *  `draft` — like every other field here, it's persisted by the normal save-on-`handleBack` flow,
+   *  not immediately, so it composes with the diff check above instead of bypassing it. */
+  function handleMarkReviewed(): void {
+    setDraft({ ...draft, updatedAt: new Date().toISOString(), updatedAtGw2Build: localGw2Build })
   }
 
   return (
@@ -218,6 +234,11 @@ export function BuildEditorView({ build, onBack }: Props) {
           suggestions={tagSuggestions}
           autoTags={autoTags}
         />
+        {isBuildStaleSincePatch(draft, localGw2Build) && (
+          <button type="button" onClick={handleMarkReviewed} title="Confirm this build is still good under the current patch">
+            Mark as up to date
+          </button>
+        )}
         <button type="button" onClick={() => setScreenshotPreviewOpen((open) => !open)}>
           {screenshotPreviewOpen ? 'Hide screenshot layout' : 'Preview screenshot layout'}
         </button>
