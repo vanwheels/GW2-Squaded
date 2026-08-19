@@ -2,6 +2,23 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 248 — Discord bot Phase 2: live verification + a real reliability fix
+
+User manually tested Phase 2 in a real Discord server: board setup (Guardian/Warrior/…/Revenant
+sections + squad board posted correctly), `/buildadd`/`/squadadd`, `/buildremove`/`/squadremove`
+(name autocomplete confirmed working after a retest — the first attempt looked broken but was
+propagation lag, not a bug), `/buildedit`, and `/buildmove` all confirmed working end-to-end.
+Permission gating deferred to a later session (only covered by the local smoke test so far).
+
+One real gap surfaced during testing: a `/squadremove` call actually deleted the squad and synced
+the board message, but Discord showed "the application did not respond" anyway — traced (via a
+live `wrangler tail` session during a retest, which came back clean) to the deferred-response
+followup PATCH having no error handling; a transient failure there is silently swallowed since
+nothing else observes that `ctx.waitUntil`'d call. Fixed same-day (commit e0b7d52): one retry on
+the followup, second failure now logged instead of vanishing. Redeployed (no re-registration
+needed — only interaction-handling code changed, not command definitions).
+`docs/discord-bot.md`'s Status section and TODO.md's Discord bot entry updated.
+
 ## Session 247 — Discord bot Phase 2: core CRUD + board sync (code-complete, not yet deployed)
 
 Built out `docs/discord-bot.md`'s Phase 2 in full: board admin (`buildboardsetup`/`rebuild`,

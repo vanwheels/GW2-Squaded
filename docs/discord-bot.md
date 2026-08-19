@@ -274,10 +274,18 @@ should update this section's checkbox when done.
 ## Status
 
 Designed 2026-08-12. Phase 1 (foundational plumbing) complete and live as of 2026-08-19. Phase 2
-(core CRUD + board sync, Automatic mode) code-complete, locally smoke-tested, deployed, and
-registered with Discord as of 2026-08-19 — see its checkbox above for what's built. All 13
-commands (`ping` + the 12 Phase 2 commands) registered globally; global registration can take up
-to an hour to propagate to any given server. Not yet manually click-through-verified in a live
-Discord server (the smoke test exercised the command handlers directly, not the real HTTP/
-signature-verification path) — that's the natural next check once propagation completes. Phase 3
-(approval workflow) is next after that.
+(core CRUD + board sync, Automatic mode) complete, deployed, registered, and **manually verified
+live in a real Discord server 2026-08-19**: `/buildboardsetup`/`/squadboardsetup`, `/buildadd`/
+`/squadadd`, `/buildremove`/`/squadremove` (including name autocomplete), `/buildedit`, and
+`/buildmove` all confirmed working end-to-end by the user. Permission gating
+(`/buildboardconfig setpermission` + the role-gate enforcement it configures) exercised only by
+the local smoke test so far — live verification deferred by the user to a later session.
+
+Live testing caught one real gap (not a registration/autocomplete problem, which turned out fine
+on retest): the deferred-response followup PATCH had no error handling, so a transient failure
+there could leave a command's D1 write successfully applied while the user saw Discord's "the
+application did not respond" with no indication anything happened. Fixed same-day (commit
+e0b7d52): one retry on that followup, with the second failure at least logged instead of
+vanishing as a silent unhandled rejection.
+
+Phase 3 (approval workflow) is next.
