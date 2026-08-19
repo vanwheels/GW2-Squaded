@@ -84,31 +84,6 @@ showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). What's left
       2 items above. Not started; Salvation itself would be the natural first leg since it's already
       fully triaged above.
 
-## Build screenshot layout redesign (2026-08-19) — DONE, one cosmetic follow-up unconfirmed
-
-Goal: redesign the Build editor's screenshot output (`ScreenshotButton`/`EquipmentTextManifest`),
-Discord-bot-facing down the road, so it fully fits on one screen without scrolling. Landed across 6
-same-day rounds of real user-screenshot feedback (COMPLETED.md Session 230 + commits 0700228,
-509f770, 29f2711, f9cf075, 386966d, 9d59966):
-- Equipment: text manifest, weapon-type bar, profession-picker collapse (Session 230).
-- `CombatStatePanel` moved out of the Stats column entirely into its own toolbar cell; toolbar row
-  and the 3 editing columns merged into one CSS Grid (`.build-editor-grid`) so the toolbar's cells
-  line up exactly above their matching column (Profession/Traits, Weapon-type/Equipment,
-  Combat-state/Stats).
-- `BoonConditionSummaryPanel` moved beside `StatsPanel`; its icon rows wrap onto multiple lines
-  instead of scrolling (Conditions is the one row wide enough to need 2 lines).
-- "Skills" heading folded into "Stats & Skills"; manifest's own redundant heading removed.
-- Several vertical-spacing trims (row-gap, column/manifest padding) once every section was already
-  as compact as it'd get on its own.
-- **User confirmed 2026-08-19: "it all fits now"** — the actual success criterion for this whole
-  redesign is met.
-- [ ] Cosmetic follow-up, NOT yet confirmed: content fits but a small residual page overflow was
-      still showing a scrollbar on the right edge. Trimmed ~20px more of build-editor-scoped
-      spacing (commit 9d59966) as a blind fix (electron sandbox limitation, can't verify directly)
-      — needs a screenshot to confirm the scrollbar is actually gone. If it persists, next
-      candidate is `.app-content`'s 24px padding (app-wide, lower priority since it'd touch every
-      other view's edge spacing too).
-
 ## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
 
 User felt the overall UI/UX was "a little off." Talked through each area and landed on concrete

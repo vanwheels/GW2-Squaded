@@ -2,6 +2,14 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 245 — Build screenshot layout redesign: scrollbar follow-up confirmed
+
+User confirmed the residual right-edge scrollbar from Session 230's redesign is gone after the blind
+~20px spacing trim (commit 9d59966). Closes the whole "Build screenshot layout redesign (2026-08-19)"
+TODO item — the earlier "it all fits now" success criterion plus this scrollbar cleanup are both now
+user-verified. No further action; `.app-content`'s padding was the fallback candidate if this hadn't
+worked and is no longer needed.
+
 ## Session 244 — Builds-tab exclusion filter
 
 Extended `useTagFilter` (`src/renderer/state/use-tag-filter.ts`) from OR-inclusion-only to a
