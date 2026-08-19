@@ -16,11 +16,16 @@ type RenderState = 'loading' | 'ready' | 'error'
  * `BuildPreviewPage.tsx` — see that file's doc comments for the reasoning behind the game-data
  * race gate and the `data-render-state` contract, not re-explained here.
  *
- * `buildsById` comes straight from the share payload's own `SquadCompSharePayload.builds` (every
- * build referenced by the roster, bundled in as a full snapshot at share time — see that type's
- * doc comment) rather than any store, so unlike `SlotTile`'s `builds` prop (only used for the
- * assign-dropdown, irrelevant to a read-only preview) there's no need to reach into
- * `useBuildsStore` for the roster's actual content.
+ * `buildsById`/`builds` both come straight from the share payload's own
+ * `SquadCompSharePayload.builds` (every build referenced by the roster, bundled in as a full
+ * snapshot at share time — see that type's doc comment) rather than any store. Both are needed
+ * despite `interactive={false}` making the assign-dropdown itself dead: `SlotTile`'s own icon
+ * badge is rendered by `UpgradePicker`, whose `chosen` lookup matches `chosenId` against its
+ * `options` list — built from the `builds` array prop, a *separate* list from `buildsById`/`build`
+ * (used for the slot's name/summary). Passing `builds={[]}` here left `options` empty, so `chosen`
+ * never matched and every slot silently fell back to its empty-slot placeholder icon despite
+ * `build`/`buildsById` resolving correctly — caught live 2026-08-19 (names/summaries rendered,
+ * icons didn't).
  */
 export function SquadPreviewPage() {
   const { loading: gameDataLoading } = useGameData()
@@ -91,7 +96,7 @@ export function SquadPreviewPage() {
     <SquadCompScreenshotGrid
       parties={squadComp.parties}
       buildsById={buildsById}
-      builds={[]}
+      builds={Array.from(buildsById.values())}
       gridRef={gridRef}
       interactive={false}
       screenshotMode
