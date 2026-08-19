@@ -24,7 +24,7 @@ import {
   mechanicActiveCritChanceTraitBonus,
   type CombatState
 } from './combat-state'
-import { applyTraitBonuses } from './trait-attributes'
+import { applyTraitBonuses, maxHealthPercentTraitBonus } from './trait-attributes'
 
 /** A level-80 character's base attributes before any gear/upgrade contribution. Precision/
  *  Toughness/Vitality/Power all start at 1000 (confirmed via wiki.guildwars2.com/wiki/Ferocity,
@@ -210,9 +210,11 @@ export function computeCharacterStats(
   const baseHealth = BASE_HEALTH_BY_PROFESSION[build.profession] ?? 0
   const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
 
+  const maxHealthPercent = maxHealthPercentTraitBonus(build, traitsById)
+
   const derived: DerivedStats = {
     armor: attributes.toughness + defense,
-    health: baseHealth + attributes.vitality * HEALTH_PER_VITALITY,
+    health: (baseHealth + attributes.vitality * HEALTH_PER_VITALITY) * (1 + maxHealthPercent / 100),
     criticalChance:
       BASE_CRITICAL_CHANCE_PERCENT +
       (attributes.precision - 1000) / PRECISION_PER_CRITICAL_CHANCE_PERCENT +

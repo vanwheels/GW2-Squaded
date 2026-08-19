@@ -5,6 +5,7 @@ import { isNonActionableFlipTarget } from './non-actionable-flip-targets'
 import { ADDITIVE_FLIP_PAIR_TARGET_IDS } from './additive-flip-pairs'
 import { EVOKER_FAMILIAR_TARGET_IDS } from './evoker-familiar-facts'
 import { TURRET_SUB_ABILITY_IDS } from './turret-sub-abilities'
+import { resolvedFlipSkillId } from './flip-skill-overrides'
 
 export interface SkillVariantEffect {
   label: string
@@ -55,11 +56,14 @@ export function activeAttunementVariantSkill(skill: Skill, activeAttunement: str
 
 /**
  * The flip/activation-chain targets a skill leads to — its `flipSkill` hop(s) (e.g. Revenant's
- * Chaotic Release, Elementalist's Tailored Victory) plus, for a Firebrand mantra, the hand-curated
- * enhanced Final Charge appended after the chain (`MANTRA_FINAL_CHARGE_IDS` — the API never
- * structurally links that last hop). Rendered by `SkillsEditor`'s `FlipSkillStack` as its own small
- * stacked icon per target, directly above/below the base skill's normal slot, each with an
- * independent tooltip — gw2skills.net's convention, and always visible together (not a toggle).
+ * Chaotic Release, Elementalist's Tailored Victory), resolved through `resolvedFlipSkillId` rather
+ * than the raw field directly so the handful of ids `FLIP_SKILL_OVERRIDES` hand-patches (e.g.
+ * Facet of Elements -> Elemental Blast, missing from the live API entirely) walk the same as every
+ * genuinely-linked pair, plus, for a Firebrand mantra, the hand-curated enhanced Final Charge
+ * appended after the chain (`MANTRA_FINAL_CHARGE_IDS` — the API never structurally links that last
+ * hop). Rendered by `SkillsEditor`'s `FlipSkillStack` as its own small stacked icon per target,
+ * directly above/below the base skill's normal slot, each with an independent tooltip —
+ * gw2skills.net's convention, and always visible together (not a toggle).
  *
  * One deliberate exception: Legend7 (Legendary Alliance)'s 5 canonical "Aspect of the Archemorus"
  * ids (`VINDICATOR_ASPECT_ARCHEMORUS_IDS`) each flip to a wholly different-named "Aspect of Saint
@@ -112,8 +116,9 @@ export function flipTargetSkills(skill: Skill, skillsById: Map<number, Skill>): 
 
   let current = skill
   const seen = new Set<number>([skill.id])
-  while (current.flipSkill !== null) {
-    const next = skillsById.get(current.flipSkill)
+  let currentFlipId = resolvedFlipSkillId(current)
+  while (currentFlipId !== null) {
+    const next = skillsById.get(currentFlipId)
     if (!next || seen.has(next.id)) break
     if (isNonActionableFlipTarget(next.id)) break
     if (ADDITIVE_FLIP_PAIR_TARGET_IDS.has(next.id)) break
@@ -121,6 +126,7 @@ export function flipTargetSkills(skill: Skill, skillsById: Map<number, Skill>): 
     seen.add(next.id)
     out.push({ label: next.name, skill: next })
     current = next
+    currentFlipId = resolvedFlipSkillId(current)
   }
 
   const finalChargeId = MANTRA_FINAL_CHARGE_IDS[current.id]

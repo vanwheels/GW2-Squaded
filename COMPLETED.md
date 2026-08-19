@@ -2,6 +2,56 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 231 — Revenant tooltip bug batch: Sword 4 flip, Facet of Elements flip, Draconic Fortitude health, Draconic Echo, Elevated Compassion WvW
+
+User brain-dumped 7 Revenant bugs in one message (2026-08-19), flagging that the real list was
+probably bigger than what they'd written down. Investigated all 7 to find precise root causes; fixed
+the 5 that were cleanly scoped, left 2 (Herald F2/Core Value's shared "True Nature" legend-variant
+mechanism, Rising Momentum's per-upkeep formula) as documented TODO.md follow-ups rather than guess
+at unverified numbers — see that file's new "Revenant tooltip/data bugs" section for the full
+writeup, including a related pattern the investigation surfaced (unlabeled multi-value trait facts,
+confirmed at least in Salvation, scoped as its own future sweep).
+
+**Sword 4 flip ("displaying a flip skill for a skill that doesn't exist")**: wiki-confirmed
+Duelist's Preparation (28571, Revenant off-hand Sword 4) was removed from the game 2017-11-07 — the
+live API still returns it as a Weapon_4 candidate with a stale `flipSkill: 28472` (Shackling Wave)
+pointer, which `resolveSkillBarIds`' flip-target-removal heuristic read backwards (dropping the real
+current skill, keeping the retired one). New `RETIRED_WEAPON_SKILL_IDS` table in `weapon-skills.ts`
+excludes it up front; new regression test `weapon-skills.test.ts`.
+
+**Facet of Elements missing its flip icon**: the live API's `flipSkill` is `null` for this one Facet
+only (every sibling Facet has a real pointer) — wiki-confirmed it should flip to Elemental Blast
+(51698, the auto-target id of a ground-targeted/auto-target duplicate pair, matching the id
+`skill-variants.ts` already treats as canonical elsewhere). New `flip-skill-overrides.ts`
+(`FLIP_SKILL_OVERRIDES`/`resolvedFlipSkillId`) is now consulted by `multi-effect.ts`'s
+`flipTargetSkills` (tooltip), `boon-calc/sources.ts`'s `withFlipChain` (aggregate Boon/Condition
+panel), and `skill-variants.ts`'s `stripFlipTargets` (picker — also generalized to drop a dropped
+target's own same-name duplicate sibling, so Elemental Blast's ground-targeted twin doesn't surface
+standalone). New regression test `flip-skill-overrides.test.ts`.
+
+**Draconic Fortitude not changing the Health value**: genuinely new gap, not a curation miss —
+`derived-stats.ts`'s `health` formula had no percent-bonus hook at all, only
+`baseHealth + vitality * HEALTH_PER_VITALITY`. New `MAX_HEALTH_PERCENT_BONUSES`/
+`maxHealthPercentTraitBonus` in `trait-attributes.ts` (same hand-curated-whitelist shape as
+`CURATED_FLAT_BONUSES`), applied multiplicatively in `derived-stats.ts`. New test case in
+`derived-stats.test.ts`.
+
+**Draconic Echo missing its per-facet bonus text**: its 6 "Facet of Light/Darkness/Elements/
+Strength/Chaos/Nature" facts are bare `duration: 0` `Buff` markers with no numbers — not a real
+`classifyBoonCondition` status, so both `numericFactLines` and `boonConditionFactsForTrait` silently
+dropped all 6 (same empty-marker-fact shape `strengtheningStanzasBranches` already solved for
+Paragon's Chant markers). New `draconicEchoSections` in `branch-conditional-facts.ts`, wiki-verified
+raw-wikitext numbers (pve 10% / wvw+pvp 5% per facet, no `alt=` split).
+
+**Elevated Compassion showing Quickness in WvW**: wiki raw wikitext confirms Quickness is PvE-only —
+WvW/PvP gets Vigor instead (2 different statuses per mode, not a duration split of one, so the
+automated `fetch-wvw-splits.ts` scanner never had a chance to flag it). New
+`1746: { Quickness: 'omit' }` entry in that script's `MANUAL_OVERRIDES.trait`, plus a matching
+hand-edit of the already-generated `data/game-data/wvw-fact-overrides.json` (not a full script
+re-run, to avoid touching any other already-curated entry).
+
+Verified via `npm run typecheck`, `npm run lint`, `npx vitest run` (216 passing, 4 new).
+
 ## Session 230 — Build screenshot layout redesign, part 1: Equipment manifest, weapon-type bar, profession collapse
 
 Kicked off a redesign of the Build editor's screenshot output (Discord-bot-facing down the road),

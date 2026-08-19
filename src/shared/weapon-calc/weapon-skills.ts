@@ -110,6 +110,28 @@ const THIEF_DUAL_WIELD_OFFHAND: Record<number, string | null> = {
 }
 
 /**
+ * Raw candidate skill ids that are retired/historical content the live API still returns for a
+ * weapon slot alongside its current replacement — flagged 2026-08-19 by the user ("rev sword 4 is
+ * displaying a flip skill for a skill that doesn't exist, it should just be Shackling Wave").
+ *
+ * Revenant off-hand Sword's "Duelist's Preparation" (28571): per the wiki, this skill "has been
+ * removed from the game as of November 7, 2017" — its November 2017 rework replaced the whole
+ * block/flip pair with Shackling Wave (28472) standing alone as skill 4. The API still returns
+ * 28571 as a Weapon_4 candidate, still carrying its old `flipSkill: 28472` pointer (and a bogus
+ * leftover `specializationId: 61`, Warrior's Spellbreaker — further evidence this id is stale,
+ * unmaintained data, not live content). Left in raw candidates, `resolveSkillBarIds`'s own
+ * flip-target-removal step (see its doc comment, signal 1) reads that stale pointer backwards: it
+ * assumes a flip TARGET is never the bar's real starting skill, so it drops Shackling Wave (28472)
+ * and keeps the retired Duelist's Preparation as the base — the opposite of today's actual skill 4,
+ * with a "flip" to a skill (Shackling Wave, correctly) that no longer exists as a preceding step in
+ * live content. Filtering 28571 out before any other signal runs leaves Shackling Wave as the sole
+ * Weapon_4 candidate, standalone with no flip stack — matching the current live tooltip.
+ */
+const RETIRED_WEAPON_SKILL_IDS: ReadonlySet<number> = new Set([
+  28571 // Duelist's Preparation (Revenant off-hand Sword 4) — removed from the game 2017-11-07
+])
+
+/**
  * Elementalist Weaver (specialization id 56). Weaver tracks two simultaneously-active attunements
  * — "current" (`Build.activeAttunement`, main-hand, weapon skills 1-2) and "previous"
  * (`Build.weaverPreviousAttunement`, off-hand, weapon skills 4-5) — and weapon skill 3 depends on
@@ -267,12 +289,16 @@ export function weaverWeaponThreeSkillId(
  * Engineer Kit's `Skill.bundleSkills` — both use the identical slot-naming/land-underwater-
  * duplication shape) down to one id per slot, scoped to the given environment. Most weapons/kits
  * have exactly one entry per slot (used as-is); the rest resolve via these signals, tried in order
- * per slot until one narrows to a single id:
+ * per slot until one narrows to a single id — but first, every candidate in
+ * `RETIRED_WEAPON_SKILL_IDS` (see its own doc comment) is dropped unconditionally, before any
+ * numbered signal below runs:
  *
  * 1. **Flip-target removal**: a candidate that's another same-slot candidate's `flipSkill` target
- *    (e.g. Revenant off-hand Sword's "Duelist's Preparation" (28571) flips to "Shackling Wave"
- *    (28472), both raw candidates for Weapon_4) is never itself the bar's starting skill — dropped
- *    before anything else, same reasoning as `skill-calc/skill-variants.ts`'s flip-root signal.
+ *    is never itself the bar's starting skill — dropped before anything else, same reasoning as
+ *    `skill-calc/skill-variants.ts`'s flip-root signal. (Revenant off-hand Sword's Weapon_4 used to
+ *    be the textbook example here — "Duelist's Preparation" (28571) flips to "Shackling Wave"
+ *    (28472) — until 2026-08-19 found that pairing itself was stale: 28571 is retired content, now
+ *    excluded up front by `RETIRED_WEAPON_SKILL_IDS` instead of reaching this step at all.)
  * 2. **Land/underwater `NoUnderwater`-flag disambiguation** (e.g. the `Spear` weapon type; every
  *    Engineer Kit, always 10 raw entries — 5 land + 5 underwater): only fires when exactly 2
  *    candidates remain and they cleanly split land-only vs. not.
@@ -319,6 +345,9 @@ export function resolveSkillBarIds(
   return slots.map((slotName) => {
     let candidates = candidateSkills.filter((s) => s.slot === slotName)
     if (candidates.length === 0) return null
+
+    const live = candidates.filter((c) => !RETIRED_WEAPON_SKILL_IDS.has(c.id))
+    if (live.length > 0) candidates = live
 
     if (attunement) {
       const attuned = candidates.filter(

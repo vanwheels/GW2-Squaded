@@ -1182,7 +1182,21 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // automated candidate list" gap as Temporal Enchanter/Celestial Shadow above — plain
     // pve(3)/wvw+pvp(2) split, no `alt=` (`{{skill fact|effect|Superspeed|3|game mode = pve}}
     // {{skill fact|effect|Superspeed|2|game mode = wvw pvp}}`).
-    2357: { Superspeed: 2 }
+    2357: { Superspeed: 2 },
+
+    // Elevated Compassion (1746, Revenant/Herald Grandmaster, "grant boons to allies when your
+    // upkeep cost is equal to or higher than the threshold") — flagged 2026-08-19 by the user
+    // ("displaying quickness when they removed that from wvw"). The wiki's raw wikitext (re-fetched
+    // 2026-08-19) grants Quickness on a `game mode=pve` line and Vigor on a separate `game mode=wvw
+    // pvp` line — two entirely DIFFERENT statuses per mode, not a duration split of the same one, so
+    // this isn't the "automated scan missed a duration split" shape every entry above is; it never
+    // had a chance to be found since the scanner only pattern-matches same-status duration pairs.
+    // The live API's own facts carry both Quickness and Vigor unconditionally (both duration=1,
+    // apply_count=1) with no mode tag at all — omitting Quickness here leaves Vigor (already correct
+    // for wvw+pvp, no override needed on that status) as the only boon this trait's wvw-focused
+    // tooltip shows, same "no wvw application to preserve" reasoning as Stretched Time's Alacrity
+    // omit above.
+    1746: { Quickness: 'omit' }
   }
 }
 

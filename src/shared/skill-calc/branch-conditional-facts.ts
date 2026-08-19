@@ -11,6 +11,7 @@ const CHANT_OF_ACTION_ID = 77342
 const CHANT_OF_RECUPERATION_ID = 76782
 const CHANT_OF_FREEDOM_ID = 77155
 const STRENGTHENING_STANZAS_ID = 2385
+const DRACONIC_ECHO_ID = 1772
 
 // Guardian Luminary (specialization id 81)'s 3 reworked Virtues — see `radiantJusticeSections`'s
 // doc comment below for the full writeup. Ids are each virtue's F1/F2/F3 mechanic-bar entry point,
@@ -752,6 +753,42 @@ function strengtheningStanzasBranches(): ConditionalBranch[] {
 }
 
 /**
+ * Draconic Echo (Revenant/Herald Master trait, id 1772): "You retain your facet passives for a
+ * duration after using their consume skills. Your facet passives grant you additional bonuses."
+ * Flagged 2026-08-19 by the user ("draconic echoes doesn't display full details"). The live API's
+ * own `facts` carry the Recharge/Duration numbers fine (already rendered by `numericFactLines`) but
+ * name each of the 6 facet passives only as bare `Buff` markers with `duration: 0` and no numbers
+ * (`status: "Facet of Light"`, etc.) — not a real `classifyBoonCondition` status, so both
+ * `numericFactLines` (no case for `Buff`-type facts at all) and `boonConditionFactsForTrait`
+ * (`classify` returns null for a made-up marker name) silently drop all 6, same "empty/marker API
+ * facts" shape `strengtheningStanzasBranches` above already documents for the Chant markers. Every
+ * percent below is wiki-only (raw wikitext, fetched 2026-08-19): each facet has a plain pve(10%)/
+ * wvw+pvp(5%) split with no `alt=` wording. Not tracked boon/condition sources (Damage/Condition
+ * Damage/Critical Chance/Boon Duration/Healing-to-others/incoming-damage-reduction aren't any of
+ * this app's `BOON_NAMES`/`CONDITION_NAMES`), so every branch's `facts` stays empty — same
+ * "display-only" treatment `strengtheningStanzasBranches`'s own bonus lines get. Unlike that
+ * trait's branches (only one Refrain is ever active, genuinely mutually exclusive), all 6 facets
+ * here can be simultaneously true — this still reuses the labeled-divider mechanism for the display
+ * treatment (one small section per facet) even though "branch" undersells that they can co-occur;
+ * nothing about the rendering claims otherwise.
+ */
+function draconicEchoSections(): ConditionalBranch[] {
+  const facet = (name: string, text: string): ConditionalBranch => ({
+    label: `Facet of ${name}`,
+    numericLines: [{ icon: null, text: `${text} (WvW+PvP; PvE 10%/-10%)` }],
+    facts: []
+  })
+  return [
+    facet('Light', '+5% Healing Increase to Others'),
+    facet('Darkness', '+5% Critical Chance'),
+    facet('Elements', '+5% Condition Damage'),
+    facet('Strength', '+5% Damage'),
+    facet('Chaos', '-5% Incoming Damage, -5% Incoming Condition Damage'),
+    facet('Nature', '+5% Boon Duration')
+  ]
+}
+
+/**
  * `branchConditionalFacts`'s trait counterpart — `Trait`-shaped rather than `Skill`-shaped since a
  * trait tooltip never needs a factSourceSkill/healingPower-style swap, called from
  * `TraitsEditor.tsx` (both minor and major trait tooltips) the same way `skillTooltipContent` calls
@@ -759,5 +796,6 @@ function strengtheningStanzasBranches(): ConditionalBranch[] {
  */
 export function branchConditionalTraitFacts(trait: Trait): ConditionalBranch[] | null {
   if (trait.id === STRENGTHENING_STANZAS_ID) return strengtheningStanzasBranches()
+  if (trait.id === DRACONIC_ECHO_ID) return draconicEchoSections()
   return null
 }

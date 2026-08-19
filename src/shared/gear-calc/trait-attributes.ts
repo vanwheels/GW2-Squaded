@@ -663,3 +663,33 @@ export function applyTraitBonuses(totals: AttributeTotals, build: Build, traitsB
 
   applyConversions(totals, activeTraitConversions(build, traitsById))
 }
+
+/**
+ * Traits granting a flat PERCENT increase to maximum Health directly (a `Percent`-type fact, not
+ * an `AttributeAdjust`/Vitality gain — `derived-stats.ts`'s `health` has never had a percent-bonus
+ * hook at all, only `baseHealth + vitality * HEALTH_PER_VITALITY`) — same "hand-curated whitelist,
+ * not an automatic parse" convention as `CURATED_FLAT_BONUSES` above, and the same reasoning for
+ * why: a bare `Percent` fact alone doesn't mean "you passively gain this" (could just as easily be
+ * a skill's own damage-reduction or coefficient number), so each entry here is individually
+ * description-verified as an unconditional character-stat gain.
+ *
+ * - Draconic Fortitude (Revenant/Herald minor, id 1737) — "Gain increased maximum health." Flagged
+ *   2026-08-19 by the user ("draconic fortitude isn't changing the health value"): the live API's
+ *   own `facts` already carry a plain `{ type: 'Percent', percent: 10 }` with no game-mode split,
+ *   this app just never had anywhere to apply a Health percent bonus to before now.
+ */
+export const MAX_HEALTH_PERCENT_BONUSES: Record<number, number> = {
+  1737: 10 // Draconic Fortitude
+}
+
+/** Sum of every currently-active, curated `MAX_HEALTH_PERCENT_BONUSES` entry (0 if none apply) —
+ *  applied multiplicatively to `baseHealth + vitality * HEALTH_PER_VITALITY` by `derived-stats.ts`,
+ *  the same "gear-independent, safe to compute once" shape as `activeTraitFlatBonuses`. */
+export function maxHealthPercentTraitBonus(build: Build, traitsById: Map<number, Trait>): number {
+  const active = activeTraitIds(build, traitsById)
+  let percent = 0
+  for (const [traitIdStr, bonus] of Object.entries(MAX_HEALTH_PERCENT_BONUSES)) {
+    if (active.has(Number(traitIdStr))) percent += bonus
+  }
+  return percent
+}

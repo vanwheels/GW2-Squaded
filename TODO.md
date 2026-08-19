@@ -10,6 +10,80 @@ released; Discord bot and Capacitor mobile port remain later roadmap stages, out
 left in this file below is post-1.0 polish and open curation gaps — none of it blocks the release
 that already shipped.
 
+## Revenant tooltip/data bugs (2026-08-19) — 5 of 7 fixed, 2 scoped below, plus a related sweep
+
+User brain-dumped 7 Revenant bugs in one message, flagging the real list was probably bigger than
+what they'd written down. 5 were fixed same day (COMPLETED.md Session 231): Sword 4's flip (retired
+"Duelist's Preparation" data, `RETIRED_WEAPON_SKILL_IDS`), Facet of Elements' missing flip
+(`FLIP_SKILL_OVERRIDES`), Draconic Fortitude's Health value (new `MAX_HEALTH_PERCENT_BONUSES`
+mechanism), Draconic Echo's per-facet bonus text (`draconicEchoSections`), and Elevated Compassion
+showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). What's left:
+
+- [ ] **Herald F2 ("lacks linked tooltips") + Core Value ("lacks its details")** — both trace to the
+      same underlying mechanism, genuinely bigger than a one-off fix. Facet of Nature (29371, the F2
+      skill itself) has `flipSkill: null` in the live API, same gap shape as Facet of Elements — but
+      unlike that one, its real Consume target isn't a single skill: wiki confirms it flips into
+      "True Nature," which exists as 6 different ids — one generic/un-legend-specific (29393, whose
+      own facts are ALSO unclassified marker names, same empty-marker shape Draconic Echo just got
+      fixed for) plus 5 real per-legend replacements (51667 Assassin/Shiro "strip boons", 51675
+      Dwarf/Jalis "stability", 51696 Dragon/Glint "boon duration increase", 51713 Centaur/Ventari
+      "condition cleanse + heal", 51714 Demon/Mallyx "condition transfer + might") — only ONE is
+      live at a time, depending on whichever OTHER legend (not Dragon/Glint itself, which Herald
+      always has via Facet of Nature) the player currently has invoked. This is the same "swap, not
+      diff" shape `vindicator-aspect.ts` already solves for Aspect of the Archemorus, just with a
+      2nd dimension (WHICH replacement) that Vindicator's case doesn't have — needs its own new
+      mechanism (a `revenant-true-nature.ts` or similar), not a reuse of `flipTargetSkills`'s
+      single-hop walk. Core Value (1806, Herald major) improves whichever True Nature variant is
+      live — its own raw `facts` are 5 "True Nature" `PrefixedBuff` markers per legend (same
+      unclassified-marker-name shape, needs `branchConditionalTraitFacts`), and each real True
+      Nature variant's own `traitedFacts` entry (`requires_trait: 1806`) carries an `overrides`
+      field this app's `Fact` type doesn't even model (confirmed via a full grep — `overrides` is
+      dropped entirely today, not read anywhere) alongside a `value` that doesn't obviously match
+      the base fact 1-for-1 (e.g. 51667's own "Boons Removed" base fact is 2, its `requires_trait:
+      1806` traitedFact reads `value: 3, overrides: 4` — the `4` doesn't correspond to anything
+      visible in that skill's own facts, needs the wiki's own explicit Core-Value-upgraded numbers
+      per legend rather than inferring `overrides`' meaning from the raw data alone). Also
+      wiki-fetched but NOT yet verified precisely enough to hard-code: Facet of Nature's own 5
+      base (non-Core-Value) per-legend numbers — Assassin's Life Siphon is Power/Healing-Power
+      coefficient-scaled (53 dmg @ 0.0666, 85 heal @ 0.0333, same shape `CURATED_DAMAGE_COEFFICIENTS`/
+      `CURATED_HEALING_COEFFICIENTS` already model elsewhere), Centaur's heal is 471 @ 0.4 coefficient,
+      Dwarf is a flat -10% incoming damage (no game-mode split seen), Dragon's own boon-duration %
+      number wasn't present in the raw wikitext fetch that got the other 4 (needs a follow-up fetch),
+      Demon has no flat number at all (a condition-transfer mechanic, not a stat). Full order once
+      picked up: (1) wiki-verify Facet of Nature's 5 base numbers + Core Value's 5 boosted numbers,
+      (2) `FLIP_SKILL_OVERRIDES`-style entry for 29371, (3) new legend-variant resolver, (4)
+      `branchConditionalFacts`/`branchConditionalTraitFacts` entries for both skill and trait.
+
+- [ ] **Rising Momentum** (1716, Herald major) — "Gain increased movement speed for each point of
+      upkeep currently in use." A real per-upkeep-point formula, not a flat/curated bonus — this app
+      has no "current upkeep cost" concept anywhere (Facets/Ventari's Tablet/etc. all have per-skill
+      negative energy-per-second costs, but nothing sums "how many of the player's currently-equipped
+      upkeep skills are toggled on" into a `CombatState` field the way `deathsCarapaceStacks`/Kalla
+      Fervor stacks already do for other per-stack formulas — see
+      `new_attribute_bonus_infra_2026-08-15` memory for that precedent). Needs scoping: likely a new
+      `CombatState.activeUpkeepCount` (or similar) field plus a UI control to set it, before this
+      trait's movement-speed number can be computed at all. Not started.
+
+- [ ] **Related pattern the investigation surfaced**: multiple raw API facts sharing one label with
+      no discriminator, beyond the already-solved Buff-status/PvE-WvW-PvP case
+      `WvwFactOverride`/`fetch-wvw-splits.ts` handles. Confirmed live across Salvation's own majors
+      (a full facts dump, 2026-08-19) — Serene Rejuvenation has 2 unlabeled "Effectiveness Increased
+      Percent" facts (20/15, likely pve/wvw+pvp) plus `PrefixedBuff` facts naming SKILLS not legends
+      (Natural Harmony/Purifying Essence/etc. — `resolveLegendFromPrefix` deliberately doesn't
+      attribute these, per its own doc comment, so they render unlabeled); Generous Abundance has 2x
+      "Centaur Skill Healing" and 3x "Other Legend Healing" (per-skill breakdown, unlabeled which
+      skill each is); Resilient Spirit has 2 identical "Barrier per Boon" facts; Invigorating
+      Dismissal has 3 "Endurance Gained" values; Life Attunement has 2 "Attribute Conversion"
+      percents; Invoking Harmony has 3 "Healing Increase to Others Percent" values; Unyielding
+      Devotion has 2 "Damage Reduced Percent" values. `NUMERIC_FACT_WVW_OVERRIDES` (`fact-numbers.ts`)
+      already exists for exactly this shape but has exactly 1 entry today (Calming Tongue) — every
+      Salvation case above is a fresh, uncurated instance of the same gap. Given the pattern held for
+      100% of Salvation's majors checked, it likely recurs across Invocation/Retribution/Corruption/
+      Devastation/Renegade/Vindicator/Conduit too — scope as its own dedicated sweep (one leg at a
+      time, per the pacing lesson in `pacing_large_sweeps` memory) rather than folding into the
+      2 items above. Not started; Salvation itself would be the natural first leg since it's already
+      fully triaged above.
+
 ## Build screenshot layout redesign (2026-08-19) — DONE, one cosmetic follow-up unconfirmed
 
 Goal: redesign the Build editor's screenshot output (`ScreenshotButton`/`EquipmentTextManifest`),

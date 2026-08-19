@@ -41,6 +41,7 @@ import {
 import { EVOKER_SPECIALIZATION_ID } from '../skill-calc/familiar'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash'
 import { isNonActionableFlipTarget } from '../skill-calc/non-actionable-flip-targets'
+import { resolvedFlipSkillId } from '../skill-calc/flip-skill-overrides'
 import { TURRET_SUB_ABILITY_IDS } from '../skill-calc/turret-sub-abilities'
 import { MANTRA_FINAL_CHARGE_IDS } from '../skill-calc/mantra-final-charge'
 
@@ -3835,13 +3836,16 @@ function weaponSkillIdsForBuild(
 /** Every id reachable from `startId` by following `Skill.flipSkill` (its own activated/toggled-off
  *  alternate, e.g. a Revenant channel's release effect, or — for Legendary Alliance's aspect-paired
  *  skills specifically — the other aspect's version of the same slot; see `skillIdsForBuild`'s doc
- *  comment). Same walk as `relatedVariantSkills`'s tooltip-chain logic and `untamed-unleash.ts`'s
- *  private `flipChainIds`, duplicated locally rather than shared since each caller's return shape
- *  differs (a flat id list here vs. a `Set` there). Stops before appending an
- *  `isNonActionableFlipTarget` id — same reasoning as `multi-effect.ts`'s `flipTargetSkills`, which
- *  shares that check: those ids carry no facts genuinely absent from their own source skill (stale
- *  orphans, near-identical mode-split copies), so folding them into the boon/condition totals here
- *  would double-count the source's own facts under a different id rather than add anything real. */
+ *  comment), resolved through `resolvedFlipSkillId` rather than the raw field directly so
+ *  `FLIP_SKILL_OVERRIDES`-patched ids (e.g. Facet of Elements -> Elemental Blast, missing from the
+ *  live API entirely) feed the aggregate the same as any genuinely-linked pair. Same walk as
+ *  `relatedVariantSkills`'s tooltip-chain logic and `untamed-unleash.ts`'s private `flipChainIds`,
+ *  duplicated locally rather than shared since each caller's return shape differs (a flat id list
+ *  here vs. a `Set` there). Stops before appending an `isNonActionableFlipTarget` id — same
+ *  reasoning as `multi-effect.ts`'s `flipTargetSkills`, which shares that check: those ids carry no
+ *  facts genuinely absent from their own source skill (stale orphans, near-identical mode-split
+ *  copies), so folding them into the boon/condition totals here would double-count the source's own
+ *  facts under a different id rather than add anything real. */
 function withFlipChain(startId: number, skillsById: Map<number, Skill>): number[] {
   const ids: number[] = []
   const seen = new Set<number>()
@@ -3849,7 +3853,8 @@ function withFlipChain(startId: number, skillsById: Map<number, Skill>): number[
   while (current !== null && !seen.has(current)) {
     seen.add(current)
     ids.push(current)
-    const next = skillsById.get(current)?.flipSkill ?? null
+    const currentSkill = skillsById.get(current)
+    const next = currentSkill ? resolvedFlipSkillId(currentSkill) : null
     current = next !== null && isNonActionableFlipTarget(next) ? null : next
   }
   return ids

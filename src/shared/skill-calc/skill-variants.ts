@@ -1,4 +1,5 @@
 import type { GlyphFormVariantMap, Skill } from '../types'
+import { resolvedFlipSkillId } from './flip-skill-overrides'
 
 const GROUND_TARGETED_FLAG = 'GroundTargeted'
 
@@ -213,20 +214,33 @@ export function visibleSkillsForSlot(
 
 /**
  * Removes any candidate that's the `flipSkill` target of a *different-named* candidate — e.g.
- * "Med Kit" -> "Stow Med Kit", "Healing Turret" -> "Detonate Healing Turret". Same-named flip
- * pairs (e.g. "Renewed Focus" -> "Renewed Focus") are left alone here since they land in the same
- * name-group and `resolveGroup`'s signals (specialization first, flip-root as a fallback) need
- * both ids present to pick the right one.
+ * "Med Kit" -> "Stow Med Kit", "Healing Turret" -> "Detonate Healing Turret", or (via
+ * `resolvedFlipSkillId`'s `FLIP_SKILL_OVERRIDES` fallback) "Facet of Elements" -> "Elemental
+ * Blast", a real Consume pair the live API itself never links. Same-named flip pairs (e.g.
+ * "Renewed Focus" -> "Renewed Focus") are left alone here since they land in the same name-group
+ * and `resolveGroup`'s signals (specialization first, flip-root as a fallback) need both ids
+ * present to pick the right one.
+ *
+ * Also drops any OTHER candidate sharing the dropped target's own name (e.g. Elemental Blast's own
+ * ground-targeted/auto-target duplicate pair, signal 4 below) — this runs before per-name grouping,
+ * so without it, a flip target's same-name sibling would never meet the id this function actually
+ * removed and would surface standalone as its own single-member group instead of going through
+ * `resolveGroup`'s own GroundTargeted dedup.
  */
 function stripFlipTargets(candidates: Skill[]): Skill[] {
   const byId = new Map(candidates.map((s) => [s.id, s]))
   const targetIdsToDrop = new Set<number>()
+  const targetNamesToDrop = new Set<string>()
   for (const skill of candidates) {
-    if (skill.flipSkill === null) continue
-    const target = byId.get(skill.flipSkill)
-    if (target && target.name !== skill.name) targetIdsToDrop.add(target.id)
+    const flipId = resolvedFlipSkillId(skill)
+    if (flipId === null) continue
+    const target = byId.get(flipId)
+    if (target && target.name !== skill.name) {
+      targetIdsToDrop.add(target.id)
+      targetNamesToDrop.add(target.name)
+    }
   }
-  return candidates.filter((s) => !targetIdsToDrop.has(s.id))
+  return candidates.filter((s) => !targetIdsToDrop.has(s.id) && !targetNamesToDrop.has(s.name))
 }
 
 /** Drops empty-`categories` skills that share a `toolbeltSkill` value with an equippable

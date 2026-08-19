@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { Build, GameData, ItemStat } from '../types'
+import type { Build, GameData, ItemStat, Trait } from '../types'
 import {
   BASE_ATTRIBUTES,
   BASE_CRITICAL_CHANCE_PERCENT,
@@ -159,6 +159,31 @@ describe('computeCharacterStats — health formula', () => {
     expect(eleStats.derived.health).toBe(BASE_HEALTH_BY_PROFESSION.Elementalist + 1000 * HEALTH_PER_VITALITY)
     expect(warStats.derived.health).toBe(BASE_HEALTH_BY_PROFESSION.Warrior + 1000 * HEALTH_PER_VITALITY)
     expect(eleStats.derived.health).not.toBe(warStats.derived.health)
+  })
+
+  // Regression guard for "draconic fortitude isn't changing the health value" (flagged 2026-08-19)
+  // — see MAX_HEALTH_PERCENT_BONUSES' doc comment in trait-attributes.ts for the root cause (no
+  // Health-percent hook existed at all before this).
+  it('Draconic Fortitude (Revenant/Herald, id 1737) adds 10% to the baseline+Vitality health total', () => {
+    const draconicFortitude: Trait = {
+      id: 1737,
+      tier: 2,
+      order: 0,
+      name: 'Draconic Fortitude',
+      description: 'Gain increased maximum health.',
+      slot: 'Minor',
+      specializationId: 52,
+      icon: '',
+      facts: [],
+      traitedFacts: []
+    }
+    const build = makeBuild({
+      profession: 'Revenant',
+      specializations: [{ specializationId: 52, chosenTraitIds: [null, null, null] }, null, null]
+    })
+    const withoutTrait = computeCharacterStats(makeBuild({ profession: 'Revenant' }), EMPTY_GAME_DATA)
+    const withTrait = computeCharacterStats(build, { ...EMPTY_GAME_DATA, traits: [draconicFortitude] })
+    expect(withTrait.derived.health).toBeCloseTo(withoutTrait.derived.health * 1.1, 6)
   })
 })
 
