@@ -228,13 +228,16 @@ effort at a time rather than chaining straight through (see the "pacing large sw
 convention from other multi-part sweeps in this project). Each phase's own doc-comment/commit
 should update this section's checkbox when done.
 
-- [ ] **Phase 1 — foundational plumbing.** Discord application registration (public key, bot
+- [x] **Phase 1 — foundational plumbing.** Discord application registration (public key, bot
       token), the `/interactions` route with Ed25519 signature verification and the
       `PING`/`PONG` handshake (Discord won't accept the endpoint URL in its Developer Portal
       until this works), the D1 database and its bindings, and a command-registration script
       that keeps Discord's slash-command definitions in sync with what the bot actually handles.
       Nothing user-facing yet — this phase is done when Discord successfully validates the
-      endpoint and an empty/no-op command round-trips.
+      endpoint and an empty/no-op command round-trips. **Done 2026-08-19**: worker deployed to
+      `https://gw2-squaded-share.vanwheelstheman.workers.dev`, `DISCORD_BOT_TOKEN` set as a
+      production secret, Interactions Endpoint URL saved in the Developer Portal, `/ping`
+      registered and confirmed working live in a real server.
 - [ ] **Phase 2 — core CRUD + board sync, Automatic mode only.** `/buildAdd`/`Edit`/`Remove`/
       `Move`, `/squadAdd`/`Edit`/`Remove`, `/buildBoardSetup`/`Rebuild` + squad equivalents,
       `/buildBoardConfig setPermission`. No approval workflow, no `/*Display` — every mutating
@@ -252,5 +255,5 @@ should update this section's checkbox when done.
 
 ## Status
 
-Designed 2026-08-12. Not started — no worker route, no D1 schema applied, no Discord
-application registered yet.
+Designed 2026-08-12. Phase 1 (foundational plumbing) complete and live as of 2026-08-19 — see
+its checkbox above. Phase 2 (core CRUD + board sync, Automatic mode) not started next.

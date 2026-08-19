@@ -2,6 +2,20 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 246 — Discord bot Phase 1: live end-to-end (deploy, secret, endpoint, /ping confirmed)
+
+Closed out Phase 1 of `docs/discord-bot.md`'s phased build order, continuing from commit 8ace700's
+foundational plumbing (interactions route, D1 schema, command registration script). Remaining
+steps all touched live infra, done with the user's explicit go-ahead: `wrangler deploy` pushed the
+worker (including `/interactions`) to `https://gw2-squaded-share.vanwheelstheman.workers.dev`;
+`wrangler secret put DISCORD_BOT_TOKEN` set the production secret (previously only in local
+`.dev.vars`); user saved the Interactions Endpoint URL in the Discord Developer Portal, which
+Discord only accepts after a live PING/PONG round trip succeeds; `register-commands` run against
+production registered `/ping` globally. User confirmed `/ping` responding live in a real Discord
+server (screenshot: "pong from /ping"). `docs/discord-bot.md`'s Phase 1 checkbox and Status
+section updated; TODO.md's Discord bot entry updated to point at Phase 2 (core CRUD + board sync,
+Automatic mode) as the next phase, per the doc's own phased build order.
+
 ## Session 245 — Build screenshot layout redesign: scrollbar follow-up confirmed
 
 User confirmed the residual right-edge scrollbar from Session 230's redesign is gone after the blind

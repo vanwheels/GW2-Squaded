@@ -221,9 +221,11 @@ party-wide-targetCount item — see `BREAKS_STUN_PARTY_WIDE`'s own doc comment f
 
 - [ ] Discord bot — a guild-scoped, curated build/squad board (slash-command add/edit/remove/move,
       profession-sectioned board messages the bot keeps in sync, optional Manual-approval workflow
-      with role-gated buttons) mapped out in full 2026-08-12, not started. Full design-of-record —
-      command list, D1 schema, approval workflow, architecture decisions, explicit v1 non-goals —
-      now lives in `docs/discord-bot.md` rather than here; read that first before picking this up.
+      with role-gated buttons) mapped out in full 2026-08-12. Full design-of-record — command
+      list, D1 schema, approval workflow, architecture decisions, explicit v1 non-goals, phased
+      build order — lives in `docs/discord-bot.md`, not here; read that first before picking this
+      up. **Phase 1 (foundational plumbing) done and live 2026-08-19**; Phase 2 (core CRUD +
+      board sync) is next.
 
 - [ ] Capacitor port for iOS/Android — scoped 2026-08-01, two-part seam: (1)
       `StorageAdapter`/`Repository<T>` (`src/shared/storage/storage-interface.ts`) is already
