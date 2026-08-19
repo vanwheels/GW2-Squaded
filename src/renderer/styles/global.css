@@ -1108,10 +1108,6 @@ input[type='text'] {
   padding: 16px;
 }
 
-.equip-manifest-heading {
-  margin: 0 0 10px;
-}
-
 .equipment-text-manifest {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

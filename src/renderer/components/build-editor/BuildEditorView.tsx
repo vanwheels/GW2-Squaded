@@ -306,9 +306,13 @@ export function BuildEditorView({ build, onBack }: Props) {
           />
         </div>
 
+        {/* No heading above this (2026-08-19 user feedback, "just shy" of fitting on screen) — its
+            4 column headers (ARMOR/ACCESSORIES/WEAPONS/OTHER) already make it self-explanatory,
+            and the "Equipment (screenshot layout)" line was purely a live-editor label (the toggle
+            button above already says "Hide screenshot layout") that cost a line of height in every
+            actual screenshot for no reader-facing benefit. */}
         {screenshotPreviewOpen && (
           <div className="equipment-text-manifest-wrap build-editor-grid-fullwidth">
-            <h4 className="equip-manifest-heading">Equipment (screenshot layout)</h4>
             <EquipmentTextManifest build={draft} />
           </div>
         )}
