@@ -4,9 +4,11 @@
  * override, applied by `app-settings-store.tsx` setting `<html data-theme>` — see its doc comment
  * for the 3-way System/Light/Dark resolution). `--accent` and `--danger` are deliberately split:
  * `--accent` is the app's one selection/active-state color (nav tab, chosen trait/skill/gear
- * slot, drag-over target, "open" skill picker) — `--danger` is reserved for destructive/error UI
- * (`.error-text`, `.share-error`) only, so errors stay red-adjacent in both themes regardless of
- * what `--accent` is doing. `--accent-strong` is a higher-contrast accent variant for text sitting
+ * slot, drag-over target, "open" skill picker) — `--danger` is reserved for destructive/error/
+ * negative UI (`.error-text`, `.share-error`, and — 2026-08-19 — the Builds-tab exclusion filter's
+ * `.tag-chip-excluded`/`.spec-icon-button.excluded`, since "this hides matches" is the same kind
+ * of negative signal) so that class of UI stays red-adjacent in both themes regardless of what
+ * `--accent` is doing. `--accent-strong` is a higher-contrast accent variant for text sitting
  * on an accent-tinted background (not yet used anywhere in this file, but part of the same
  * palette pass — reserved for that case when it comes up, e.g. a future "primary" button).
  * `--shadow` replaces the old hardcoded `rgba(0, 0, 0, 0.4)` popover/tooltip shadow so it can be
@@ -716,6 +718,26 @@ button:hover {
   border-color: transparent;
 }
 
+/* Bare-button wrapper for a filter chip's own label (`TagChipDropdown`) — click-cycles the tag's
+   state (include → exclude), distinct from `.tag-chip-remove`'s "clear outright". Reset to look
+   like the plain text it replaces. */
+.tag-chip-label {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  line-height: 1;
+}
+
+/* Exclude-state filter chip (2026-08-19 Builds-tab exclusion filter) — red-adjacent like
+   `--danger`'s other uses, so "this chip removes matches" reads as a negative action at a glance
+   distinct from the accent-colored "include" chips. */
+.tag-chip-excluded {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
 .tag-input .tag-input-field {
   flex: 1;
   min-width: 100px;
@@ -880,6 +902,14 @@ input[type='text'] {
 
 .spec-icon-button.chosen {
   border-color: var(--accent);
+}
+
+/* Exclude-state for `ProfessionTagPicker`'s filter icons (2026-08-19), same `--danger` reasoning
+   as `.tag-chip-excluded`. Dims the icon itself (not just the border) so "this profession is
+   being hidden" is legible even before noticing the border color. */
+.spec-icon-button.excluded {
+  border-color: var(--danger);
+  opacity: 0.5;
 }
 
 /* Collapsed trigger for `ProfessionSpecPicker`'s popover (2026-08-19) — same collapse-behind-a-

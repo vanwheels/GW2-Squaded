@@ -1,3 +1,4 @@
+import type { TagFilterState } from '@renderer/state/use-tag-filter'
 import { ProfessionTagPicker } from './ProfessionTagPicker'
 import { TagChipDropdown } from './TagChipDropdown'
 
@@ -7,8 +8,9 @@ interface Props {
   /** User-created tags in use across the current records (not profession/elite-spec auto tags —
    *  those get their own icon picker, see `showProfessionPicker`). */
   customTags: string[]
-  selectedTags: Set<string>
+  tagStates: Map<string, TagFilterState>
   onToggleTag: (tag: string) => void
+  onClearTag: (tag: string) => void
   /** Show the profession/elite-spec icon picker above the custom-tag dropdown — only meaningful
    *  for build-listing views (`BuildsView`/`BuildsSidebar`); squads have no single profession. */
   showProfessionPicker?: boolean
@@ -23,8 +25,9 @@ export function TagFilterBar({
   query,
   onQueryChange,
   customTags,
-  selectedTags,
+  tagStates,
   onToggleTag,
+  onClearTag,
   showProfessionPicker,
   placeholder
 }: Props) {
@@ -37,8 +40,8 @@ export function TagFilterBar({
         onChange={(e) => onQueryChange(e.target.value)}
         placeholder={placeholder ?? 'Search…'}
       />
-      <TagChipDropdown allTags={customTags} selectedTags={selectedTags} onToggleTag={onToggleTag} />
-      {showProfessionPicker && <ProfessionTagPicker selectedTags={selectedTags} onToggleTag={onToggleTag} />}
+      <TagChipDropdown allTags={customTags} tagStates={tagStates} onToggleTag={onToggleTag} onClearTag={onClearTag} />
+      {showProfessionPicker && <ProfessionTagPicker tagStates={tagStates} onToggleTag={onToggleTag} />}
     </div>
   )
 }

@@ -33,7 +33,7 @@ export function SquadsView({ onEditBuild }: Props) {
   const [dragId, setDragId] = useState<string | null>(null)
   const [dropTargetId, setDropTargetId] = useState<string | null>(null)
 
-  const { query, setQuery, selectedTags, toggleTag, filtered } = useTagFilter({
+  const { query, setQuery, tagStates, toggleTag, clearTag, filtered } = useTagFilter({
     records: squadComps,
     getName: (squadComp) => squadComp.name,
     getTags: (squadComp) => squadComp.tags
@@ -120,8 +120,9 @@ export function SquadsView({ onEditBuild }: Props) {
             query={query}
             onQueryChange={setQuery}
             customTags={customTags}
-            selectedTags={selectedTags}
+            tagStates={tagStates}
             onToggleTag={toggleTag}
+            onClearTag={clearTag}
             placeholder="Search squads…"
           />
           {filtered.length === 0 ? (

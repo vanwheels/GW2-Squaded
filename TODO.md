@@ -244,18 +244,6 @@ alone but the wiki's own fact template disambiguates them), 108 via a bare quali
 (GW2's own defaults-to-self convention). This closes out the whole `MISCELLANEOUS_MATCHERS`
 party-wide-targetCount item — see `BREAKS_STUN_PARTY_WIDE`'s own doc comment for the full writeup.
 
-- [ ] Exclusion filter on the Builds tab (flagged 2026-08-16) — extend `useTagFilter`
-      (`src/renderer/state/use-tag-filter.ts`, shared by `BuildsView`/`SquadsView`/`BuildsSidebar`)
-      from OR-inclusion-only to support excluding specific tags/professions too. User-confirmed
-      interaction (2026-08-16): click-cycle the same chip through off → include → exclude → off, no
-      new UI controls — reuses `TagChipDropdown`/`ProfessionTagPicker`'s existing chip click handlers,
-      just needs a 3-state model (`Map<string, 'include' | 'exclude'>` instead of `Set<string>`) and a
-      visual "excluded" chip state (e.g. a strike-through or red outline) distinct from "selected."
-      Filter logic: keep OR-across-includes, AND NOT any excluded tag/profession present. Scoped to
-      the Builds tab per the user's request — decide separately whether `BuildsSidebar`/`SquadsView`
-      should get the same treatment since they share the hook (likely yes, low extra cost once the
-      hook itself supports it).
-
 - [ ] Discord bot — a guild-scoped, curated build/squad board (slash-command add/edit/remove/move,
       profession-sectioned board messages the bot keeps in sync, optional Manual-approval workflow
       with role-gated buttons) mapped out in full 2026-08-12, not started. Full design-of-record —

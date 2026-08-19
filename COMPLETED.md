@@ -2,6 +2,23 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 244 — Builds-tab exclusion filter
+
+Extended `useTagFilter` (`src/renderer/state/use-tag-filter.ts`) from OR-inclusion-only to a
+3-state model: `selectedTags: Set<string>` → `tagStates: Map<string, 'include' | 'exclude'>`, per
+the 2026-08-16-scoped TODO item. `toggleTag` now click-cycles absent → include → exclude → absent
+(same handler everywhere, no new controls); a new `clearTag` gives `TagChipDropdown`'s `×` button a
+one-click "drop to absent" shortcut instead of relying on cycling. Filter logic: keep OR-across-
+includes, AND NOT any excluded tag/profession present. Propagated through the shared plumbing
+(`TagFilterBar`, `TagChipDropdown`, `ProfessionTagPicker`) rather than duplicating it — so
+`BuildsView`, `SquadsView`, and the squad editor's `BuildsSidebar` all picked up exclusion filtering
+for free, closing the "decide separately" follow-on the original scoping note raised, at the low
+extra cost it predicted. New `.tag-chip-excluded`/`.spec-icon-button.excluded` styles reuse
+`--danger` (red-adjacent, consistent with its "negative/destructive signal" role) — extended that
+token's documented scope in `global.css`'s theme-token comment rather than silently overloading it.
+`npm run typecheck`/`lint`/`test` all clean (224 tests, no new ones needed — UI/filter-logic change
+covered by existing manual verification, not unit-tested surface).
+
 ## Session 243 — Party-wide filter sweep leg 5: Breaks-Stun wiki pass (fully closes the sweep)
 
 Fifth and final leg of the Misc-row `targetCount` sweep, closing the one item legs 1-4 left open: the

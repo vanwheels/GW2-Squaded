@@ -36,7 +36,7 @@ export function BuildsSidebar({ onEditBuild }: Props) {
     (build: Build) => [...getBuildAutoTags(build, { professions, specializationsById }), ...build.tags],
     [professions, specializationsById]
   )
-  const { query, setQuery, selectedTags, toggleTag, filtered } = useTagFilter({
+  const { query, setQuery, tagStates, toggleTag, clearTag, filtered } = useTagFilter({
     records: builds,
     getName: (build) => build.name,
     getTags
@@ -64,8 +64,9 @@ export function BuildsSidebar({ onEditBuild }: Props) {
             query={query}
             onQueryChange={setQuery}
             customTags={customTags}
-            selectedTags={selectedTags}
+            tagStates={tagStates}
             onToggleTag={toggleTag}
+            onClearTag={clearTag}
             showProfessionPicker
             placeholder="Search…"
           />

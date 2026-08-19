@@ -4,9 +4,10 @@ import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { FloatingPanel } from '@renderer/components/common/FloatingPanel'
 import { usePickerOpen } from '@renderer/state/picker-registry'
+import type { TagFilterState } from '@renderer/state/use-tag-filter'
 
 interface Props {
-  selectedTags: Set<string>
+  tagStates: Map<string, TagFilterState>
   onToggleTag: (tag: string) => void
 }
 
@@ -14,8 +15,9 @@ interface Props {
  * Filter-by-profession/elite-spec picker for BuildsView/BuildsSidebar — visually identical to
  * `ProfessionSpecPicker` (same profession row + elite-spec grid, same `.spec-icon-button`/`.chosen`
  * styling) per user request, but toggle-multi-select instead of single-select: a build's editor
- * picker chooses exactly one profession/spec, while this filters by any number of them at once
- * (OR'd together, see `useTagFilter`). Operates directly on the profession/elite-spec name strings
+ * picker chooses exactly one profession/spec, while this filters by any number of them at once —
+ * included ones OR'd together, excluded ones subtracted regardless of what else matches (see
+ * `useTagFilter`). Operates directly on the profession/elite-spec name strings
  * `shared/tags/auto-tags.ts` already produces, so no separate tag vocabulary is needed.
  *
  * Collapsed behind a click-to-open popover (2026-08-18, same `FloatingPanel`/`usePickerOpen`
@@ -24,8 +26,12 @@ interface Props {
  * was in use. The trigger sits in `TagFilterBar`'s row next to the search box and tag dropdown; a
  * dot badge (matches `.nav-item-badge`) marks it when a profession/elite-spec filter is active so
  * collapsing it doesn't hide that a filter is silently narrowing the list.
+ *
+ * Each icon click-cycles absent → include → exclude → absent (2026-08-19, see `useTagFilter`) —
+ * same handler as before, just 3 states instead of 2; `.chosen` marks `include`, `.excluded`
+ * marks `exclude`.
  */
-export function ProfessionTagPicker({ selectedTags, onToggleTag }: Props) {
+export function ProfessionTagPicker({ tagStates, onToggleTag }: Props) {
   const { professions, specializations: allSpecializations } = useGameData()
   const { open, openThis, close } = usePickerOpen()
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -41,7 +47,14 @@ export function ProfessionTagPicker({ selectedTags, onToggleTag }: Props) {
 
   const professionNames = new Set(professions.map((p) => p.name))
   const specNames = new Set(allSpecializations.map((s) => s.name))
-  const active = [...selectedTags].some((tag) => professionNames.has(tag) || specNames.has(tag))
+  const active = [...tagStates.keys()].some((tag) => professionNames.has(tag) || specNames.has(tag))
+
+  function iconClass(name: string): string {
+    const state = tagStates.get(name)
+    if (state === 'include') return 'spec-icon-button chosen'
+    if (state === 'exclude') return 'spec-icon-button excluded'
+    return 'spec-icon-button'
+  }
 
   return (
     <div className="profession-tag-picker">
@@ -61,7 +74,7 @@ export function ProfessionTagPicker({ selectedTags, onToggleTag }: Props) {
             <Tooltip key={p.id} content={<TooltipBody title={p.name} />}>
               <button
                 type="button"
-                className={selectedTags.has(p.name) ? 'spec-icon-button chosen' : 'spec-icon-button'}
+                className={iconClass(p.name)}
                 style={{ backgroundImage: `url(${p.tangoIcon})` }}
                 onClick={() => onToggleTag(p.name)}
               />
@@ -78,7 +91,7 @@ export function ProfessionTagPicker({ selectedTags, onToggleTag }: Props) {
               >
                 <button
                   type="button"
-                  className={selectedTags.has(s.name) ? 'spec-icon-button chosen' : 'spec-icon-button'}
+                  className={iconClass(s.name)}
                   style={{ backgroundImage: `url(${s.tangoIcon})` }}
                   onClick={() => onToggleTag(s.name)}
                 />
