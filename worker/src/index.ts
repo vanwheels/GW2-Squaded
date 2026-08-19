@@ -1,6 +1,8 @@
-export interface Env {
-  SHARES: KVNamespace
-}
+import { handleInteraction } from './discord/interactions'
+import type { Env } from './env'
+import { CORS_HEADERS, json } from './http'
+
+export type { Env }
 
 /** Matches `src/shared/share/types.ts`'s `ShareKind` in the main app — duplicated here rather than
  *  shared via a package/path reference since this Worker is a separate deployable with its own
@@ -19,19 +21,6 @@ interface StoredShare {
   kind: ShareKind
   data: unknown
   createdAt: string
-}
-
-const CORS_HEADERS: Record<string, string> = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type'
-}
-
-function json(body: unknown, status = 200): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
-  })
 }
 
 function isShareKind(value: unknown): value is ShareKind {
@@ -88,6 +77,10 @@ export default {
 
     if (request.method === 'GET' && pathParts.length === 2 && pathParts[0] === 'shares') {
       return handleGet(pathParts[1], env)
+    }
+
+    if (request.method === 'POST' && pathParts.length === 1 && pathParts[0] === 'interactions') {
+      return handleInteraction(request, env)
     }
 
     return json({ error: 'not_found' }, 404)

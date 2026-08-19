@@ -7,10 +7,12 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "register-commands": "tsx --env-file=.dev.vars scripts/register-commands.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20260731.1",
+    "tsx": "^4.23.12",
     "typescript": "^5.7.3",
     "wrangler": "^4.118.0"
   }
