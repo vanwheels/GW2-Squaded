@@ -126,16 +126,13 @@ export function SquadCompEditorView({ squadComp, onBack }: Props) {
         </button>
         <input
           type="text"
-          className="build-name-input"
+          className="build-name-input build-name-input-narrow"
           value={draft.name}
           onChange={(e) => setDraft({ ...draft, name: e.target.value })}
         />
+        <TagInput tags={draft.tags} onChange={(tags) => setDraft({ ...draft, tags })} suggestions={tagSuggestions} />
         <ScreenshotButton targetRef={bodyRef} />
         <SharePanel kind="squadComp" getData={buildSharePayload} />
-      </div>
-
-      <div className="editor-tags-row">
-        <TagInput tags={draft.tags} onChange={(tags) => setDraft({ ...draft, tags })} suggestions={tagSuggestions} />
       </div>
 
       <div className="squad-editor-body" ref={bodyRef}>

@@ -145,7 +145,8 @@ button:hover {
 /* Build editor's header (2026-08-19): Tags moved in here, inline with the Name field, to free up
    the row below for the Profession/Weapon-type/Combat-state toolbar cells — see
    `.build-editor-grid`'s doc comment. Name shrinks to a fixed width instead of soaking up all the
-   leftover space so Tags actually gets room. */
+   leftover space so Tags actually gets room. Squad editor's header (2026-08-19) adopted the same
+   inline-Tags treatment for consistency, even though it has no toolbar row to free up space for. */
 .view-header .tag-input {
   flex: 1;
   min-width: 160px;
@@ -594,10 +595,6 @@ button:hover {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-}
-
-.editor-tags-row {
-  margin-bottom: 16px;
 }
 
 /* One CSS Grid holding both the toolbar row (Profession/Weapon-type/Combat-state) and the 3
@@ -2058,13 +2055,16 @@ input[type='text'] {
   gap: 24px;
 }
 
+/* Same bordered-box treatment as `.build-editor-column` (surface bg, 1px border, 8px radius,
+   14px/16px padding) — kept as its own class rather than sharing `.build-editor-column` directly
+   since this box is a fixed 200px sidebar, not a grid column. */
 .builds-sidebar {
   flex: none;
   width: 200px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 12px;
+  padding: 14px 16px;
 }
 
 .builds-sidebar h3 {
@@ -2115,11 +2115,13 @@ input[type='text'] {
   min-width: 0;
 }
 
+/* Same bordered-box treatment as `.build-editor-column` (surface bg, 1px border, 8px radius,
+   14px/16px padding), see `.builds-sidebar`'s doc comment above. */
 .party-row {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 12px;
+  padding: 14px 16px;
 }
 
 .party-row-header {
