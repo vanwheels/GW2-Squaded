@@ -317,7 +317,8 @@ should update this section's checkbox when done.
         pick `resolvePendingBuildPreviewShareId`+`renderBuildScreenshot` or the new
         `resolvePendingSquadPreviewShareId` (`commands/squads.ts`, mirrors the build resolver
         exactly)+`renderSquadScreenshot`. Closes one half of the "Follow-on integration" gap Phase 4
-        leg 3 below left open.
+        leg 3 below left open. **Deployed and confirmed working live 2026-08-19** — Preview,
+        Approve, and Reject all verified for squad requests.
 - [x] **Phase 4 — display + game-data resolution.** Bundling a synced slice of
       `data/game-data/*.json` into the worker (the real unknown-sized piece of this whole
       project — see "The game-data gap this surfaces" above), then `/buildDisplay`/
@@ -439,6 +440,8 @@ profession/elite-spec emoji next to each build's name. Feasibility + scope decis
    `components: []`-clears-a-stale-menu behavior on an empty board, and
    `discord/dispatch.ts`'s new `runBoardSquadPreview` mirrors `runBoardBuildPreview` reusing
    `renderSquadScreenshot`. Closes the other half of Phase 4 leg 3's "Follow-on integration" gap.
+   **Deployed and confirmed working live 2026-08-19** — the board's "Preview a squad…" select menu
+   verified.
 3. **Profession/elite-spec emoji next to the name — built this session.** Uses Discord
    **application emojis** (bot-owned, usable in every guild the bot is in, don't consume a guild's
    own emoji slots), uploaded once from the already-curated, license-checked
@@ -512,11 +515,12 @@ summary before deciding. Added a Preview button reusing `/builddisplay`'s render
 **Squad-equivalent follow-ons (2026-08-19, later session):** the two Phase 4 leg 3 "not built here"
 items are wired — approval-card Preview button now covers squad requests too, and the board list
 grew a squad-board "Preview a squad…" select menu, both reusing `renderSquadScreenshot`. No new
-slash command (message-component routes only), so no `register-commands` step needed.
-Typecheck clean, `wrangler deploy --dry-run` clean, and **deployed** (Version ID
-`a286a027-8017-4249-b3b0-84caf437f637`) — not yet live-verified in a real Discord server (needs a
-manual-mode squad add/edit/remove to exercise the approval-card Preview button, and a populated
-squad board to exercise the select menu).
+slash command (message-component routes only), so no `register-commands` step needed. Typecheck
+clean, `wrangler deploy --dry-run` clean, deployed (Version ID
+`a286a027-8017-4249-b3b0-84caf437f637`), and **confirmed working live in a real Discord server
+2026-08-19**: approval-card Preview/Approve/Reject all work for squad requests, and the board's
+"Preview a squad…" select menu works too — no bugs surfaced this time. This closes out the Discord
+bot follow-on entirely.
 
 The live-verify pass caught 4 real bugs invisible to typecheck/lint/`wrangler deploy --dry-run`
 (all local-only checks — none of them run the render page in an actual browser), diagnosed live

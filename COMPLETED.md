@@ -2,6 +2,32 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 250 — Discord bot: squad equivalents for approval Preview + board select menu, live-verified
+
+Closed the two follow-on integration points Session 249 deliberately left open: squad requests had
+no way to preview a screenshot before approving/rejecting, and the squad board had no per-entry
+preview select menu the way each profession's build section does.
+
+`dispatch.ts`'s `runApprovalPreview` now branches on `board_type` and reuses
+`renderSquadScreenshot` for squad requests instead of replying "Preview isn't available for squad
+requests yet" — backed by a new `resolvePendingSquadPreviewShareId` in `commands/squads.ts`
+mirroring `builds.ts`'s resolver exactly. `approvals.ts`'s `decisionButtons` now puts the Preview
+button on squad requests too (previously build-only).
+
+`render/board.ts` grew a squad-board equivalent of `buildPreviewSelectRow`
+(`squadPreviewSelectRow` / `BOARD_SQUAD_PREVIEW_CUSTOM_ID`), wired into `renderSquadSection`'s
+`components` the same `components: []`-clears-a-stale-menu way `renderBuildSection` already does.
+`interactions.ts` routes the new custom_id to `dispatch.ts`'s new `runBoardSquadPreview`, mirroring
+`runBoardBuildPreview`.
+
+No new slash command (message-component routes only), so no `register-commands` step. Typecheck +
+`wrangler deploy --dry-run` clean, deployed (Version ID `a286a027-8017-4249-b3b0-84caf437f637`),
+and **live-verified in a real Discord server 2026-08-19**: approval-card Preview, Approve, and
+Reject all confirmed working for squad requests, and the board's "Preview a squad…" select menu
+confirmed working too — no bugs surfaced this time (unlike every other Phase 4 leg). This closes
+out the Discord bot follow-on entirely; TODO.md's entry removed, `docs/discord-bot.md`'s Status
+section updated.
+
 ## Session 249 — Discord bot Phase 4 leg 3: `/squaddisplay`, closes out Phase 4
 
 Built `/squaddisplay`, the last unbuilt piece of the Discord bot's phased build order
