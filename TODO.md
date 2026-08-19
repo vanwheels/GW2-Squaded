@@ -328,3 +328,29 @@ that before extending either further.
       tightening the branch-order heuristics for infusion-shaped (single-attribute, low-spread)
       slots specifically, or collapsing same-key infusion slots that end up with identical option
       sets before they hit the solver.
+
+- [ ] Discord bot latency (flagged 2026-08-19, not urgent) — previews (`/builddisplay`/
+      `/squaddisplay`/board select-menu previews/approval-card previews) take ~5-10s;
+      `/buildadd`/`/squadadd`/etc. take a few seconds. Diagnosed from reading the code (not yet
+      profiled live via `wrangler tail`, so treat the ranking below as a hypothesis to confirm
+      before spending real effort):
+      - **Previews, the bigger one**: `render/build-screenshot.ts`/`squad-screenshot.ts` do
+        `puppeteer.launch()` fresh on every call (documented, deliberate no-pooling tradeoff at
+        the time — "low-frequency command, not worth the complexity" — worth revisiting now that
+        it's visibly bothering the user), so each request pays full headless-Chromium cold-start
+        cost. On top of that, the fresh browser's `load-game-data-web.ts` re-fetches all 26
+        game-data JSON files (11MB total, ~9.3MB of which is just `skills.json`+`traits.json`)
+        with no cache surviving between requests, for a preview that only needs one profession's
+        worth of data. Two independent, stackable fixes: (1) reuse a warm session via
+        `@cloudflare/puppeteer`'s own `puppeteer.sessions()`/`puppeteer.connect()` instead of
+        always `launch()` — the standard Cloudflare-recommended fix for exactly this cold-start
+        cost, likely the single biggest win; (2) fetch only the specific profession(s) actually in
+        the build/squad being rendered instead of the full 9-profession catalog — bigger refactor
+        since `buildGameData()`/`GameDataProvider` is shared with Electron's load-everything-once
+        design, but would cut the dominant chunk of the 11MB.
+      - **Add/edit/remove, the smaller one**: `/buildadd` alone chains ~7 sequential network
+        round-trips (D1 permission check → KV share lookup → D1 board-setup check → D1
+        approval-mode check → D1 insert → D1 re-read → Discord API PATCH) rather than running the
+        independent ones (e.g. the permission check doesn't depend on resolving the share link)
+        concurrently. Moderate-effort, more modest win than the preview fix.
+      - Logged per the user's "come back to it later" — not blocking anything, no urgency.
