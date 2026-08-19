@@ -208,6 +208,14 @@ export function BoonConditionSummaryPanel({ build }: Props) {
 
   return (
     <div className="boon-summary-panel">
+      {/* Invisible spacer matching `StatsPanel`'s own "Stats & Skills" `<h3>` (2026-08-19 user
+       *  feedback) — this panel has no heading of its own, so without it the first row
+       *  ("Conditions") lined up with that h3's text instead of with the stat grid's first row
+       *  (Power/Condition Damage) beside it. Same element type + no local override, so it renders
+       *  at an identical height without hardcoding a magic-number margin. */}
+      <h3 className="boon-summary-spacer" aria-hidden="true">
+        &nbsp;
+      </h3>
       {rows.map((row) => (
         <div className="boon-summary-row" key={row.label}>
           <span className="boon-summary-row-label">{row.label}</span>

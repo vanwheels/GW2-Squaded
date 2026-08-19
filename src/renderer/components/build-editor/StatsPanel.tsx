@@ -56,7 +56,10 @@ export function StatsPanel({ build, combatState = DEFAULT_COMBAT_STATE }: Props)
 
   return (
     <div className="stats-panel">
-      <h3>Stats</h3>
+      {/* Reads "Stats & Skills" rather than a separate "Skills" heading further down (2026-08-19
+       *  user feedback) — folds the two into one line to reclaim the vertical space the standalone
+       *  "Skills" h3 used to cost, part of getting the whole capture region to fit on one screen. */}
+      <h3>Stats &amp; Skills</h3>
       <div className="stats-panel-grid">
         {rows.map((row) => (
           <Fragment key={`${row.leftLabel}-${row.rightLabel}`}>

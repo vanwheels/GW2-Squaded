@@ -247,14 +247,14 @@ export function BuildEditorView({ build, onBack }: Props) {
           Equipment column), and the profession/weapon-type/combat-state identity is exactly what a
           shared screenshot needs to be self-explanatory. */}
       <div className="build-editor-grid" ref={columnsRef}>
-        <div className="build-editor-top-cell">
+        <div className="build-editor-top-cell build-editor-top-cell-snug">
           <ProfessionSpecPicker
             profession={draft.profession}
             specializations={draft.specializations}
             onChoose={handleEliteSpecChoose}
           />
         </div>
-        <div className="build-editor-top-cell">
+        <div className="build-editor-top-cell build-editor-top-cell-snug">
           <WeaponTypeBar build={draft} onEquipmentChange={(equipment) => setDraft({ ...draft, equipment })} />
         </div>
         <div className="build-editor-top-cell">
@@ -289,12 +289,13 @@ export function BuildEditorView({ build, onBack }: Props) {
           {/* Stats+Boons share a row (2026-08-19) — BoonConditionSummaryPanel used to sit in its
               own full-width block below StatsPanel, leaving the space right of the narrow stat grid
               empty; CombatStatePanel moved out entirely into the toolbar row above (see the grid
-              doc comment above), freeing Skills to move up into the space both changes vacate. */}
+              doc comment above), freeing Skills to move up into the space both changes vacate.
+              No separate "Skills" heading below — folded into StatsPanel's own "Stats & Skills"
+              h3 (2026-08-19 user feedback) to reclaim that line's vertical space. */}
           <div className="stats-boons-row">
             <StatsPanel build={displayBuild} combatState={combatState} />
             <BoonConditionSummaryPanel build={displayBuild} />
           </div>
-          <h3>Skills</h3>
           <SkillsEditor
             build={displayBuild}
             value={draft.skills}

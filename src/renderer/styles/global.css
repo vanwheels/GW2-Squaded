@@ -624,7 +624,10 @@ button:hover {
 /* Toolbar row cells (Profession picker / Weapon-type bar / Combat-state strip) — same bordered-box
    treatment `.build-editor-column` uses below, just shorter (single-line content by default,
    Combat-state's own icon rows wrap internally via `.combat-state-controls` if it runs out of the
-   width the grid gives this cell). */
+   width the grid gives this cell). Default grid `justify-self: stretch` fills its whole column
+   (matching the wider Traits/Equipment box sharing that column, see `.build-editor-grid`'s doc
+   comment) — right for the Combat-state cell, which wants the Stats column's full width so its
+   icons have room to wrap, but not for Profession/Weapon-type below, hence `-snug`. */
 .build-editor-top-cell {
   display: flex;
   align-items: center;
@@ -634,6 +637,15 @@ button:hover {
   border: 1px solid var(--border);
   border-radius: 8px;
   background: var(--surface);
+}
+
+/* Profession/Weapon-type cells only (2026-08-19 user feedback) — hug their own compact content
+   width instead of stretching to match the much wider Traits/Equipment box below, which just left
+   dead space inside the border. Still starts at the shared grid column's left edge (`justify-self:
+   start` doesn't change that), so "sits above Traits/Equipment" still holds — only the trailing
+   empty width is cut. */
+.build-editor-top-cell-snug {
+  justify-self: start;
 }
 
 .profession-picker-root {
@@ -1641,6 +1653,13 @@ input[type='text'] {
   margin-top: 0;
 }
 
+/* Matches `.stats-panel h3` (2026-08-19) — see `BoonConditionSummaryPanel`'s doc comment on this
+   spacer for why it needs the exact same margin-top override to line up correctly. */
+.boon-summary-spacer {
+  margin-top: 0;
+  visibility: hidden;
+}
+
 .stats-panel-grid {
   display: grid;
   grid-template-columns: max-content max-content 20px max-content max-content;
@@ -1735,16 +1754,19 @@ input[type='text'] {
 .boon-summary-panel {
   display: flex;
   flex-direction: column;
-  gap: 8px;
 }
 
 /* Single stacked column (2026-08-19) — was a 2-up row-pair grid (see `BoonConditionSummaryPanel`'s
-   doc comment for why that got reverted); each row now claims the panel's full width. */
+   doc comment for why that got reverted); each row now claims the panel's full width. Spacing
+   between rows is each row's own `margin-bottom` (not a `gap` on `.boon-summary-panel`) so the
+   space right after `.boon-summary-spacer` is exactly that spacer's own margin — matching
+   `StatsPanel`'s h3-to-grid spacing — rather than that margin plus an extra flex `gap` on top. */
 .boon-summary-row {
   display: flex;
   align-items: flex-start;
   gap: 10px;
   min-width: 0;
+  margin-bottom: 8px;
 }
 
 .boon-summary-row-label {
