@@ -7,6 +7,16 @@ export interface DiscordMessagePayload {
   content?: string
   embeds?: DiscordEmbed[]
   flags?: number
+  /** Only `/builddisplay`'s followup sets this (`render/build-screenshot.ts`'s PNG) — never part
+   *  of the JSON body itself. `editOriginalInteractionResponse` pulls it out and uploads it as a
+   *  `multipart/form-data` part instead, switching request shape based on its presence. */
+  file?: DiscordAttachment
+}
+
+export interface DiscordAttachment {
+  filename: string
+  contentType: string
+  data: Uint8Array
 }
 
 export interface DiscordEmbed {
@@ -65,15 +75,33 @@ export async function editChannelMessage(
  *  command's real result after acking with a DEFERRED response (see that file's doc comment for
  *  why every mutating command defers: D1 + a board-message PATCH can exceed Discord's 3-second
  *  initial-response window). Uses the interaction token, not the bot token — no `Authorization`
- *  header needed, same as any interaction followup. */
+ *  header needed, same as any interaction followup.
+ *
+ *  When `payload.file` is set (`/builddisplay` only, so far), this sends `multipart/form-data`
+ *  instead of a bare JSON body — Discord's file-upload shape for this route: the JSON half goes in
+ *  a `payload_json` part, the bytes in a `files[0]` part, and `payload_json.attachments` must list
+ *  the new file by its `files[]` index or Discord silently drops it (this isn't optional the way
+ *  it might look — Discord's edit-message attachment model treats a missing `attachments` entry as
+ *  "remove this attachment", including ones being added in the same request). */
 export async function editOriginalInteractionResponse(
   applicationId: string,
   interactionToken: string,
   payload: DiscordMessagePayload
 ): Promise<void> {
-  await discordFetch(`/webhooks/${applicationId}/${interactionToken}/messages/@original`, {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
+  const path = `/webhooks/${applicationId}/${interactionToken}/messages/@original`
+  const { file, ...jsonPayload } = payload
+
+  if (!file) {
+    await discordFetch(path, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(jsonPayload)
+    })
+    return
+  }
+
+  const form = new FormData()
+  form.append('payload_json', JSON.stringify({ ...jsonPayload, attachments: [{ id: 0 }] }))
+  form.append('files[0]', new Blob([file.data], { type: file.contentType }), file.filename)
+  await discordFetch(path, { method: 'PATCH', body: form })
 }

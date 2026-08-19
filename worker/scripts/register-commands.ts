@@ -59,11 +59,11 @@ const actionChoices = [
   { name: 'Move', value: 'move' }
 ]
 
-const nameOption = (description: string) => ({
+const nameOption = (description: string, required = true) => ({
   name: 'name',
   description,
   type: OPT.STRING,
-  required: true,
+  required,
   autocomplete: true
 })
 const channelOption = (description: string) => ({
@@ -114,6 +114,15 @@ const commands = [
     options: [
       nameOption('The build to move.'),
       { name: 'position', description: '1 = top of the section.', type: OPT.INTEGER, required: true, min_value: 1 }
+    ]
+  },
+  {
+    name: 'builddisplay',
+    description: 'Post an image preview of a build. Give a name or a link, not both.',
+    type: 1,
+    options: [
+      nameOption('An existing board entry to preview.', false),
+      { name: 'link', description: 'A build share link or id to preview (instead of a name).', type: OPT.STRING, required: false }
     ]
   },
 

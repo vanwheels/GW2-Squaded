@@ -227,8 +227,11 @@ party-wide-targetCount item — see `BREAKS_STUN_PARTY_WIDE`'s own doc comment f
       up. **Phase 1 (foundational plumbing) done and live 2026-08-19**; **Phase 2 (core CRUD +
       board sync) done, deployed, registered, and manually verified live 2026-08-19** (setup,
       add/remove/edit/move, autocomplete all confirmed by the user in a real server; permission
-      gating deferred to a later session) — see `docs/discord-bot.md`'s "Status" section. Phase 3
-      (approval workflow) is next.
+      gating deferred to a later session). **Phase 4 (display) picked up ahead of Phase 3**
+      (approval workflow) — leg 1 (web-preview render page) and leg 2 (screenshot render +
+      `/builddisplay` command, code-complete but not yet deployed/registered) both done
+      2026-08-19; see `docs/discord-bot.md`'s "Status" section and Phase 4's leg breakdown for
+      what's left (deploy, register, live-verify; `/squaddisplay` is a later leg).
 
 - [ ] Capacitor port for iOS/Android — scoped 2026-08-01, two-part seam: (1)
       `StorageAdapter`/`Repository<T>` (`src/shared/storage/storage-interface.ts`) is already

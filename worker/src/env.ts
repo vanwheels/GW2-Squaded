@@ -13,4 +13,11 @@ export interface Env {
    *  drives via `@cloudflare/puppeteer` to screenshot the web-preview render page for
    *  `/builddisplay`. Free at this project's scale (10 browser-min/day, no paid plan needed). */
   MYBROWSER: Fetcher
+  /** Not secret — this worker's own public URL, e.g. `https://gw2-squaded-share.<subdomain>.
+   *  workers.dev`. `render/build-screenshot.ts` navigates Browser Rendering here (it proxies to a
+   *  real Cloudflare-hosted Chromium reaching the public internet, never `localhost`) to load the
+   *  `/build-preview.html` page `[assets]` serves from this same deployable. Hardcoded per
+   *  wrangler.toml's own comment, same reasoning as DISCORD_PUBLIC_KEY/DISCORD_APPLICATION_ID —
+   *  this project targets one production deployment, not a multi-env config surface. */
+  PUBLIC_ORIGIN: string
 }

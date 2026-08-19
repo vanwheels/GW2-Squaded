@@ -1,6 +1,9 @@
 name = "gw2-squaded-share"
 main = "src/index.ts"
 compatibility_date = "2024-11-01"
+# Required by @cloudflare/puppeteer (render/build-screenshot.ts) — it imports `node:buffer`;
+# without this flag `wrangler deploy` warns the Worker may throw at runtime.
+compatibility_flags = ["nodejs_compat"]
 
 # Created via `npx wrangler kv namespace create SHARES` — id filled in after that command runs
 # (see TODO.md/COMPLETED.md for the deploy log). Immutable JSON blobs (builds/squad comps),
@@ -24,6 +27,9 @@ database_id = "c576654c-d93a-4ca6-a9ca-f9b393ec2add"
 [vars]
 DISCORD_PUBLIC_KEY = "b8b40d6c5e595decb9b37d2be5bbc0f90c45ad58285c8f5171c52870ef6743ee"
 DISCORD_APPLICATION_ID = "1539526394634305609"
+# This worker's own public URL — see src/env.ts's doc comment on Env.PUBLIC_ORIGIN for why
+# Browser Rendering needs this instead of deriving it from the incoming request.
+PUBLIC_ORIGIN = "https://gw2-squaded-share.vanwheelstheman.workers.dev"
 
 # Headless-Chromium binding for /builddisplay's screenshot render (worker/src/render/
 # build-screenshot.ts). See src/env.ts's doc comment on Env.MYBROWSER for the free-tier framing.

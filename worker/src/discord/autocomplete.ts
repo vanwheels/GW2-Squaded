@@ -5,7 +5,7 @@ import type { InteractionOption } from './interaction-types'
 /** Commands whose `name` argument refers to an *existing* build/squad on the board (as opposed to
  *  `buildadd`/`squadadd`'s `name`, which names a brand-new entry and has nothing to autocomplete
  *  against) — see docs/discord-bot.md's "autocomplete on every [Build Name] argument" note. */
-const BUILD_NAME_COMMANDS = new Set(['buildremove', 'buildedit', 'buildmove'])
+const BUILD_NAME_COMMANDS = new Set(['buildremove', 'buildedit', 'buildmove', 'builddisplay'])
 const SQUAD_NAME_COMMANDS = new Set(['squadremove', 'squadedit'])
 
 export interface AutocompleteChoice {

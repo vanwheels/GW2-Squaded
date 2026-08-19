@@ -270,6 +270,30 @@ should update this section's checkbox when done.
       `data/game-data/*.json` into the worker (the real unknown-sized piece of this whole
       project — see "The game-data gap this surfaces" above), then `/buildDisplay`/
       `/squadDisplay` built on top of it, including the link-only ad-hoc preview path.
+      **Reordered ahead of Phase 3** (built next, not approval workflow) — a rendered preview was
+      judged more valuable to ship first; Phase 3 layers cleanly on top of Phase 2's write paths
+      whenever it's picked up, so nothing here blocks it. Landing in legs:
+      - [x] **Leg 1 — web-preview render page + worker bindings** (commit 85c8488, 2026-08-19). A
+            standalone Vite bundle (`src/web-preview/`) renders the exact `BuildScreenshotGrid`
+            the desktop app's own screenshot button captures, fed by a fetch-based
+            `GameDataProvider` instead of Electron IPC, off the newly-extracted
+            `buildGameData()`. Signals readiness via `document.body.dataset.renderState`. The
+            worker gained `[browser]` (Cloudflare Browser Rendering) and `[assets]` (serves the
+            built page from the same deployable) bindings.
+      - [x] **Leg 2 — screenshot render + `/builddisplay` command** (2026-08-19, this commit).
+            `worker/src/render/build-screenshot.ts` drives Browser Rendering
+            (`@cloudflare/puppeteer`) to the leg-1 page and screenshots `.build-editor-grid`;
+            `worker/src/discord/api.ts`'s `editOriginalInteractionResponse` grew a
+            `multipart/form-data` branch (`DiscordMessagePayload.file`) for delivering the PNG as
+            a followup attachment, no changes needed to `dispatch.ts`'s generic followup path.
+            `/builddisplay [name?] [link?]` (exactly one required, `name` autocompletes against
+            existing board entries) is the command itself — no board write, so no
+            `action_permissions` gate, same as autocomplete. Also required adding
+            `compatibility_flags = ["nodejs_compat"]` to `wrangler.toml` (`@cloudflare/puppeteer`
+            imports `node:buffer`; `wrangler deploy --dry-run` warned without it). Typechecked,
+            linted, and `wrangler deploy --dry-run` verified clean; **not yet deployed to
+            production or registered with Discord** — squad display (`/squaddisplay`) is a later
+            leg, not built here.
 
 ## Status
 
@@ -288,4 +312,8 @@ application did not respond" with no indication anything happened. Fixed same-da
 e0b7d52): one retry on that followup, with the second failure at least logged instead of
 vanishing as a silent unhandled rejection.
 
-Phase 3 (approval workflow) is next.
+Phase 4 (display) is now in progress, picked up ahead of Phase 3 (approval workflow) — see the
+leg breakdown above. Leg 2 (this commit) is code-complete and locally verified but **not deployed
+or registered live yet**: it needs `wrangler deploy`, `npm run register-commands`, and a real
+Discord server + Browser Rendering minutes to exercise end-to-end, same "code first, deploy as a
+separate checked-in step" split Phase 2 followed.

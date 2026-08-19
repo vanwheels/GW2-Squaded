@@ -2,6 +2,7 @@ import type { Env } from '../env'
 import { editOriginalInteractionResponse, type DiscordMessagePayload } from './api'
 import { buildBoardConfigSetPermission, buildBoardRebuild, buildBoardSetup, squadBoardRebuild, squadBoardSetup } from './commands/board-admin'
 import { buildAdd, buildEdit, buildMove, buildRemove } from './commands/builds'
+import { buildDisplay } from './commands/display'
 import { squadAdd, squadEdit, squadRemove } from './commands/squads'
 import type { CommandContext } from './commands/context'
 import { UserError } from './errors'
@@ -19,6 +20,7 @@ const COMMANDS: Record<string, CommandHandler | undefined> = {
   buildremove: buildRemove,
   buildedit: buildEdit,
   buildmove: buildMove,
+  builddisplay: buildDisplay,
   squadadd: squadAdd,
   squadremove: squadRemove,
   squadedit: squadEdit,
