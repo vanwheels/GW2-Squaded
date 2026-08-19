@@ -109,57 +109,6 @@ same-day rounds of real user-screenshot feedback (COMPLETED.md Session 230 + com
       candidate is `.app-content`'s 24px padding (app-wide, lower priority since it'd touch every
       other view's edge spacing too).
 
-## Bugs found in testing (2026-08-16)
-
-User-flagged during personal testing. 3 of 4 fixed same day (COMPLETED.md Session 220): the Flock
-relic duplicate (a systemic `relics.json` dedup, ~10 pairs), and Luminary's F1-F4 gap (both the
-Virtue tooltip facts AND the F4 Radiant Forge Shroud-style bundle wiring). The 4th finding
-(Zephyrite) reshaped into a full relic-integration sweep across all 112 relics, 7 legs, now **FULLY
-DONE** — see COMPLETED.md Sessions 221-227 (leg 1 through leg 7) and
-`docs/relic-trigger-classification.md` for the full writeup.
-
-- [ ] Build editor's Traits section boxes (`TraitsEditor.tsx`) aren't a consistent height (flagged
-      2026-08-16, screenshots) — each of the 3 trait-line boxes only renders its
-      `.trait-line-tiers-horizontal` tier grid when a specialization is chosen for that line
-      (`{chosenSpec && line && (...)}` around line 179); an empty line renders just the
-      "Specialization" picker, so its box is much shorter than a filled one, and the boxes visibly
-      jump/reflow in height as specs are picked (see screenshots: 1 spec chosen vs. 2 vs. 3, box
-      heights don't line up). Wanted fix: all 3 boxes should default to the max height of a fully
-      expanded box (tier grid always reserved/laid out), and render **hollow** (empty tier-slot
-      outlines, no icons) when no spec is chosen for that line yet, rather than collapsing away.
-      Likely needs the `{chosenSpec && line && (...)}` gate in `TraitLineRow` replaced with an
-      always-rendered tier grid whose minor/major slots conditionally show icons vs. an empty/dashed
-      placeholder state, plus a CSS min-height on `.trait-line` (styles around
-      `src/renderer/styles/global.css:498`) matching the fully-expanded case. Not started — flagged
-      for later, session/week usage tight as of 2026-08-16.
-
-- [ ] Light Aura shows up in the Boons bar in the Squad Builder but not in the Build Editor, for a
-      Luminary Guardian (flagged 2026-08-16). Traced to Radiant Resolve (F2 Virtue, id in
-      `branch-conditional-facts.ts`'s `radiantResolveSections`) — its "Activate" branch legitimately
-      grants Light Aura (`countsTowardTotals: true`, `targetCount: 5`, wiki-verified 2026-08-16, see
-      COMPLETED.md Sessions 197-198-200 for the mechanism this reuses). Both the Build Editor's
-      `BoonConditionSummaryPanel` and the Squad Builder's `SlotTile`/party summary ultimately call the
-      same `computeBoonConditionSources` (`party-summary.ts:137` confirmed reusing it, not a separate
-      computation), and that function unconditionally includes any `countsTowardTotals`-flagged branch
-      whenever the branch's skill is on the build's skill bar (`sources.ts:4550-4552`) — so if Radiant
-      Resolve is genuinely on this build's F2, both views should be seeing the same source. Since only
-      one view shows it, the divergence is more likely a **display-side filter** that only one of
-      `BoonConditionSummaryPanel.tsx` / `SlotTile.tsx` applies (e.g. a self-only/aura-category filter,
-      or a targetCount gate) rather than the source itself being wrong — didn't chase further, next
-      step is diffing what each component does with the `'aura'` category / `targetCount` field after
-      `computeBoonConditionSources` returns. Not started.
-
-- [ ] Trait-line connector (the blue zigzag line, `useTraitConnector` in `TraitsEditor.tsx`) draws
-      segments between all 3 minor traits even when no major trait is chosen in that line (flagged
-      2026-08-16, screenshot) — it looks odd running minor→minor→minor across an otherwise-unselected
-      line. Wanted fix: only render the connector segment(s) once a trait has actually been picked —
-      i.e. don't draw a minor→minor segment unless there's a chosen major between them (or otherwise
-      gate the whole line's connector on at least one selection existing), rather than always drawing
-      the full minor-to-minor backbone regardless of selection state. Likely touches the `chain`-building
-      loop in `useTraitConnector` (~line 71-78) so it skips straight from one minor to the next only
-      when nothing was chosen at the tier in between, instead of always chaining minors together. Not
-      started — flagged for later, session/week usage tight as of 2026-08-16.
-
 ## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
 
 User felt the overall UI/UX was "a little off." Talked through each area and landed on concrete

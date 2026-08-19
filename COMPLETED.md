@@ -2,6 +2,46 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 236 — 3 Build editor UI bugs from the 2026-08-16 batch: trait-box heights, connector, Light Aura routing
+
+All 3 remaining items from TODO.md's "Bugs found in testing (2026-08-16)" section:
+
+- **Traits section box heights** (`TraitsEditor.tsx`, `global.css`): the `{chosenSpec && line && (...)}`
+  gate around `.trait-line-tiers-horizontal` meant an empty line rendered only the Specialization
+  picker, collapsing far shorter than a filled line — the existing `min-height: 160px` on `.trait-line`
+  papered over the box-height mismatch but still left an empty box looking bare/unfinished. Replaced
+  the gate with an always-rendered tier grid: 3 tiers × (1 minor + 3 majors, every spec has exactly 3
+  majors/tier — confirmed via a full `specializations.json` scan) that renders real icons once a spec
+  is chosen, or hollow dashed-outline placeholders (new `.trait-slot-placeholder` CSS) before one is.
+  All 3 lines now reserve identical height from first paint; `.trait-line`'s `min-height` stays as a
+  backstop but the content itself now does the real work.
+- **Trait-line connector drawing minor→minor with nothing selected** (`useTraitConnector` in
+  `TraitsEditor.tsx`): the connector's `active` gate was `Boolean(chosenSpec && line)` — true as soon
+  as a spec was picked, regardless of whether any major trait had been chosen yet, so an
+  otherwise-empty line still drew the full minor-tier1→minor-tier2→minor-tier3 zigzag. Added a
+  `hasChosenTrait` check (`chosenTraitIds.some((id) => id !== null)`) to the gate — the whole line's
+  connector now only renders once at least one major has actually been picked, per the TODO's
+  explicitly-sanctioned simpler alternative to per-segment gating.
+- **Light Aura showing in the Squad Builder's Boons row but not the Build Editor's Auras row**
+  (`sources.ts`): root-caused past where the TODO's investigation left off. Radiant Resolve's
+  `countsTowardTotals`-flagged "Activate" branch (`radiantResolveSections`) grants Light Aura
+  (`category: 'aura'`) alongside its Healing numeric line, but `computeBoonConditionSources`'s branch
+  loop pushed every branch fact unfiltered into its output — including that aura one — violating its
+  own documented contract ("only ever produces 'boon'/'condition'"). Meanwhile `computeAuraSources` had
+  no equivalent branch loop at all, so the aura fact never reached the function that was actually
+  supposed to carry it. Net effect: `SlotTile.tsx`'s Boons row (which filters only by `isCondition`,
+  not by a fixed name whitelist) rendered the leaked aura fact, while `BoonConditionSummaryPanel.tsx`'s
+  Boons row (gated by the fixed `BOON_NAMES` list, which doesn't include "Light Aura") silently
+  dropped it — and neither view's Auras row ever saw it. Fixed both sides: `computeBoonConditionSources`
+  now filters `branch.facts` to `category !== 'aura'`, and `computeAuraSources` gained its own mirrored
+  loop filtering to `category === 'aura'` (passing an all-zero `durationPercent`, matching
+  `BoonConditionSource.scaledDurationSeconds`'s documented "auras are never duration-scaled" contract).
+  New regression test `radiant-resolve-aura-routing.test.ts` locks in the correct routing for both
+  functions plus the pre-existing "Empowered Staff branch doesn't count" behavior.
+
+Typecheck/lint/full test suite (224 tests, 3 new) all clean. TODO.md's whole "Bugs found in testing
+(2026-08-16)" section is now closed and removed — nothing left open from that batch.
+
 ## Session 235 — Squad screenshot stitch failing on >4-line squads: CSP blocked the tile `<img>`s
 
 Same-day follow-up to Session 234: user reported the new stitched capture path itself failing

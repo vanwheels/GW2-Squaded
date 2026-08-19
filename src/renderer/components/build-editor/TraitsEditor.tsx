@@ -22,6 +22,13 @@ interface Props {
 const LINE_INDICES = [0, 1, 2] as const
 /** Adept / Master / Grandmaster, matching GW2's `Trait.tier` (1-3), indexed to `chosenTraitIds`. */
 const TIERS = [1, 2, 3] as const
+/** Every specialization (core and elite alike, confirmed 2026-08-19 via a full scan of
+ *  `data/game-data/specializations.json` — every entry's `majorTraitIds` is length 9, i.e. exactly
+ *  3 per tier) has exactly 3 major traits per tier, so this is a safe fixed count for the
+ *  hollow-placeholder major slots rendered before a specialization is chosen (see
+ *  `trait-tier-group`'s placeholder branch below) — it always matches whatever spec ends up picked,
+ *  never over- or under-reserves space. */
+const PLACEHOLDER_MAJOR_SLOTS = [0, 1, 2] as const
 
 /** GW2's own trait-line connector color (light cyan-blue) — deliberately distinct from --accent
  *  (used for "selected" borders) so the two don't visually compete. */
@@ -145,7 +152,11 @@ function TraitLineRow({
   const majorRefs = useRef<Map<number, HTMLButtonElement>>(new Map())
 
   const chosenTraitIds = line?.chosenTraitIds ?? [null, null, null]
-  const segments = useTraitConnector(wrapperRef, minorRefs, majorRefs, chosenTraitIds, Boolean(chosenSpec && line))
+  // Gated on at least one major actually chosen (not just a spec picked): otherwise the connector
+  // drew a full minor->minor->minor backbone across an otherwise-unselected line, which read oddly
+  // (flagged 2026-08-16) since nothing had been picked yet to justify a line being drawn at all.
+  const hasChosenTrait = chosenTraitIds.some((id) => id !== null)
+  const segments = useTraitConnector(wrapperRef, minorRefs, majorRefs, chosenTraitIds, Boolean(chosenSpec && line && hasChosenTrait))
 
   return (
     <div className="trait-line" ref={wrapperRef}>
@@ -176,72 +187,84 @@ function TraitLineRow({
         />
       </div>
 
-      {chosenSpec && line && (
-        <div className="trait-line-tiers-horizontal">
-          {TIERS.map((tier, tierIndex) => {
-            const minor = minorTraitsForSpecialization(chosenSpec.id).find((t) => t.tier === tier)
-            const tierMajors = majorTraitsForSpecialization(chosenSpec.id)
-              .filter((t) => t.tier === tier)
-              .sort((a, b) => a.order - b.order)
-            return (
-              <div className="trait-tier-group" key={tier}>
-                {minor && (
-                  <Tooltip
-                    content={
-                      <>
-                        <TooltipBody title={minor.name} description={minor.description} icon={minor.icon} />
-                        {factsBlock(
-                          numericFactLines(minor.facts, minor.traitedFacts, activeIds, NUMERIC_FACT_WVW_OVERRIDES[minor.id]),
-                          boonConditionFactsForTrait(minor, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[minor.id], legends)
-                        )}
-                        {conditionalBranchesBlock(branchConditionalTraitFacts(minor))}
-                      </>
-                    }
+      {/* Always rendered, not gated on `chosenSpec && line` — an unpicked line renders hollow
+       *  placeholder slots (dashed outlines, no icons) instead of collapsing away, so all 3 lines
+       *  reserve the same height as a fully-populated one from the start rather than jumping/
+       *  reflowing as specs get picked (flagged 2026-08-16). `.trait-line`'s own `min-height` CSS is
+       *  now a belt-and-suspenders backstop rather than the thing actually doing the work — this
+       *  grid's real content matches that height on its own. */}
+      <div className="trait-line-tiers-horizontal">
+        {TIERS.map((tier, tierIndex) => {
+          const minor = chosenSpec ? minorTraitsForSpecialization(chosenSpec.id).find((t) => t.tier === tier) : undefined
+          const tierMajors = chosenSpec
+            ? majorTraitsForSpecialization(chosenSpec.id)
+                .filter((t) => t.tier === tier)
+                .sort((a, b) => a.order - b.order)
+            : []
+          return (
+            <div className="trait-tier-group" key={tier}>
+              {minor ? (
+                <Tooltip
+                  content={
+                    <>
+                      <TooltipBody title={minor.name} description={minor.description} icon={minor.icon} />
+                      {factsBlock(
+                        numericFactLines(minor.facts, minor.traitedFacts, activeIds, NUMERIC_FACT_WVW_OVERRIDES[minor.id]),
+                        boonConditionFactsForTrait(minor, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[minor.id], legends)
+                      )}
+                      {conditionalBranchesBlock(branchConditionalTraitFacts(minor))}
+                    </>
+                  }
+                >
+                  <div
+                    className="minor-trait"
+                    ref={(el) => {
+                      minorRefs.current[tierIndex] = el
+                    }}
                   >
-                    <div
-                      className="minor-trait"
-                      ref={(el) => {
-                        minorRefs.current[tierIndex] = el
-                      }}
-                    >
-                      <img src={minor.icon} alt={minor.name} />
-                    </div>
-                  </Tooltip>
-                )}
-                <div className="major-trait-tier">
-                  {tierMajors.map((t) => (
-                    <Tooltip
-                      key={t.id}
-                      content={
-                        <>
-                          <TooltipBody title={t.name} description={t.description} icon={t.icon} />
-                          {factsBlock(
-                            numericFactLines(t.facts, t.traitedFacts, activeIds, NUMERIC_FACT_WVW_OVERRIDES[t.id]),
-                            boonConditionFactsForTrait(t, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[t.id], legends)
-                          )}
-                          {conditionalBranchesBlock(branchConditionalTraitFacts(t))}
-                        </>
-                      }
-                    >
-                      <button
-                        type="button"
-                        ref={(el) => {
-                          if (el) majorRefs.current.set(t.id, el)
-                          else majorRefs.current.delete(t.id)
-                        }}
-                        className={chosenTraitIds[tierIndex] === t.id ? 'major-trait selected' : 'major-trait'}
-                        onClick={() => onTraitChoice(tierIndex as 0 | 1 | 2, t.id)}
+                    <img src={minor.icon} alt={minor.name} />
+                  </div>
+                </Tooltip>
+              ) : (
+                <div className="minor-trait trait-slot-placeholder" aria-hidden="true" />
+              )}
+              <div className="major-trait-tier">
+                {tierMajors.length > 0
+                  ? tierMajors.map((t) => (
+                      <Tooltip
+                        key={t.id}
+                        content={
+                          <>
+                            <TooltipBody title={t.name} description={t.description} icon={t.icon} />
+                            {factsBlock(
+                              numericFactLines(t.facts, t.traitedFacts, activeIds, NUMERIC_FACT_WVW_OVERRIDES[t.id]),
+                              boonConditionFactsForTrait(t, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[t.id], legends)
+                            )}
+                            {conditionalBranchesBlock(branchConditionalTraitFacts(t))}
+                          </>
+                        }
                       >
-                        <img src={t.icon} alt={t.name} />
-                      </button>
-                    </Tooltip>
-                  ))}
-                </div>
+                        <button
+                          type="button"
+                          ref={(el) => {
+                            if (el) majorRefs.current.set(t.id, el)
+                            else majorRefs.current.delete(t.id)
+                          }}
+                          className={chosenTraitIds[tierIndex] === t.id ? 'major-trait selected' : 'major-trait'}
+                          onClick={() => onTraitChoice(tierIndex as 0 | 1 | 2, t.id)}
+                        >
+                          <img src={t.icon} alt={t.name} />
+                        </button>
+                      </Tooltip>
+                    ))
+                  : PLACEHOLDER_MAJOR_SLOTS.map((i) => (
+                      <div key={i} className="major-trait trait-slot-placeholder" aria-hidden="true" />
+                    ))}
               </div>
-            )
-          })}
-        </div>
-      )}
+            </div>
+          )
+        })}
+      </div>
     </div>
   )
 }

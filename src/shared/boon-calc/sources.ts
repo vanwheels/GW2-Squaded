@@ -4618,11 +4618,19 @@ export function computeBoonConditionSources(
   // `characterAttributes.healingPower` threaded in instead (this function doesn't compute character
   // attributes today, only gear-derived duration %). None of `ADDITIVE_FLIP_PAIRS`' 6 ids has a
   // `branchConditionalFacts` entry today, so this loop doesn't need the same dedup treatment above.
+  // `category !== 'aura'` filter (fixed 2026-08-19): a branch's `.facts` can mix boon/condition AND
+  // aura entries (e.g. `radiantResolveSections`' "Activate" branch grants Light Aura) — without this
+  // filter an aura fact leaked into this function's output, which every caller (this function's own
+  // `BoonConditionSource.category` doc comment, `SlotTile.tsx`'s `iconItems`) assumes never happens,
+  // so it silently rendered in the Boons row wherever a caller doesn't also gate by a fixed name list
+  // (`SlotTile.tsx` doesn't; `BoonConditionSummaryPanel.tsx`'s `BOON_NAMES` list happened to hide it
+  // instead of surfacing it, which is why the two views disagreed). See `computeAuraSources` below
+  // for the matching loop that now actually surfaces these aura facts where they belong.
   for (const id of skillIds) {
     const skill = skillsById.get(id)
     if (!skill) continue
     for (const branch of branchConditionalFacts(skill, durationPercent, 0) ?? []) {
-      if (branch.countsTowardTotals) out.push(...branch.facts)
+      if (branch.countsTowardTotals) out.push(...branch.facts.filter((f) => f.category !== 'aura'))
     }
   }
   for (const chapter of bundleContributions.tomeChapters) {
@@ -4771,6 +4779,24 @@ export function computeAuraSources(
           classifyAura
         )
       )
+    }
+  }
+
+  // `branchConditionalFacts`' own `countsTowardTotals`-flagged branch(es) can carry aura facts mixed
+  // in with boon/condition ones (e.g. `radiantResolveSections`' "Activate" branch grants Light Aura
+  // alongside a Healing numeric line) — mirrors `computeBoonConditionSources`'s identical loop, just
+  // filtered to `category === 'aura'` instead of excluding it, so this fact reaches the Auras row it
+  // actually belongs in rather than leaking into the Boons row (fixed 2026-08-19, see that loop's own
+  // doc comment for the full bug). `durationPercent` is passed as all-zero rather than the real
+  // gear-derived %, matching `BoonConditionSource.scaledDurationSeconds`'s documented contract that
+  // aura entries are never duration-scaled — `radiantResolveSections` itself computes its aura fact's
+  // `scaledDurationSeconds` from whatever `durationPercent.boon` it's given, so passing 0 here is what
+  // makes that come out equal to `baseDurationSeconds`, per contract.
+  for (const id of skillIds) {
+    const skill = skillsById.get(id)
+    if (!skill) continue
+    for (const branch of branchConditionalFacts(skill, { boon: 0, condition: 0 }, 0) ?? []) {
+      if (branch.countsTowardTotals) out.push(...branch.facts.filter((f) => f.category === 'aura'))
     }
   }
 

@@ -811,11 +811,12 @@ input[type='text'] {
      row below. */
   padding: 24px 12px 10px;
   background: rgba(255, 255, 255, 0.03);
-  /* Reserves the height a fully-populated row needs (3 stacked 38px majors + 2x6px gaps = 126px,
-     matching .trait-tier-group's math above, plus this row's own 24+10px padding) so an empty line
-     (spec not yet chosen -> .trait-line-tiers-horizontal doesn't render at all) doesn't collapse to
-     just the 48px spec-select icon's height. Without this, the three trait-line rows on a fresh
-     build render at visibly different heights until every line has a spec picked. */
+  /* Backstop matching the height a fully-populated row needs (3 stacked 38px majors + 2x6px gaps =
+     126px, matching .trait-tier-group's math above, plus this row's own 24+10px padding). As of
+     2026-08-19 .trait-line-tiers-horizontal always renders (hollow placeholder slots when no spec is
+     chosen yet, see TraitsEditor.tsx) so its own content already reserves this height on its own —
+     this rule is now redundant in the common case, kept only as a safety net against any future
+     layout that renders shorter content here. */
   min-height: 160px;
 }
 
@@ -981,6 +982,17 @@ input[type='text'] {
 .major-trait.selected {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+/* Hollow stand-in for a minor/major trait slot before a specialization is chosen for that line
+   (2026-08-19) — dashed, no icon, no background, so an empty line still reads as "3 tiers reserved"
+   rather than collapsing away or looking broken. Applied alongside .minor-trait/.major-trait (same
+   sizing/shape), just overriding the solid border + background those set. */
+.trait-slot-placeholder {
+  border-style: dashed;
+  border-color: var(--border);
+  background: none;
+  cursor: default;
 }
 
 .equipment-editor {
