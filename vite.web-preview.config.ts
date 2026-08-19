@@ -3,11 +3,12 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 /**
- * Standalone (plain Vite, not `electron-vite`) build for the Discord bot's `/builddisplay`
- * render page — a small public web page a headless browser (Cloudflare Browser Rendering,
- * `worker/src/render/build-screenshot.ts`) navigates to and screenshots. Sibling to
- * `electron.vite.config.ts`, not a replacement for it: this doesn't touch the Electron app's own
- * main/preload/renderer build at all, it's an entirely separate deployable's assets.
+ * Standalone (plain Vite, not `electron-vite`) build for the Discord bot's `/builddisplay` and
+ * `/squaddisplay` render pages — small public web pages a headless browser (Cloudflare Browser
+ * Rendering, `worker/src/render/build-screenshot.ts` / `squad-screenshot.ts`) navigates to and
+ * screenshots. Sibling to `electron.vite.config.ts`, not a replacement for it: this doesn't touch
+ * the Electron app's own main/preload/renderer build at all, it's an entirely separate
+ * deployable's assets.
  *
  * Run via `npm run build:web-preview` (see root package.json — that script also runs
  * `scripts/sync-web-preview-game-data.ts` first, since `emptyOutDir: false` below deliberately
@@ -33,7 +34,10 @@ export default defineConfig({
     outDir: resolve(__dirname, 'worker/public'),
     emptyOutDir: false,
     rollupOptions: {
-      input: resolve(__dirname, 'src/web-preview/build-preview.html')
+      input: {
+        'build-preview': resolve(__dirname, 'src/web-preview/build-preview.html'),
+        'squad-preview': resolve(__dirname, 'src/web-preview/squad-preview.html')
+      }
     }
   },
   plugins: [react()]

@@ -9,7 +9,7 @@ import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
 import { TagInput } from '@renderer/components/common/TagInput'
 import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch'
 import { BuildsSidebar } from './BuildsSidebar'
-import { PartyRow } from './PartyRow'
+import { SquadCompScreenshotGrid } from './SquadCompScreenshotGrid'
 import type { BuildDragPayload } from './drag-payload'
 
 interface Props {
@@ -156,30 +156,21 @@ export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
 
       <div className="squad-editor-body">
         {!screenshotMode && <BuildsSidebar onEditBuild={onEditBuild} />}
-        <div className="party-rows" ref={partyRowsRef}>
-          {draft.parties.map((party, partyIndex) => (
-            <PartyRow
-              key={partyIndex}
-              party={party}
-              partyIndex={partyIndex}
-              builds={builds}
-              buildsById={buildsById}
-              onAssignBuild={(slotIndex, buildId) => assignBuild(partyIndex, slotIndex, buildId)}
-              onAssignGhost={(slotIndex, ghostPick) => assignGhost(partyIndex, slotIndex, ghostPick)}
-              onLabelChange={(slotIndex, label) => changeLabel(partyIndex, slotIndex, label)}
-              onDropBuild={(slotIndex, payload) => dropBuild(partyIndex, slotIndex, payload)}
-              onRemove={() => removeParty(partyIndex)}
-              canRemove={draft.parties.length > 1}
-              onEditBuild={onEditBuild}
-              screenshotMode={screenshotMode}
-            />
-          ))}
-          {!screenshotMode && (
-            <button type="button" className="party-row-add" onClick={addParty} disabled={draft.parties.length >= MAX_PARTIES}>
-              + Add line
-            </button>
-          )}
-        </div>
+        <SquadCompScreenshotGrid
+          parties={draft.parties}
+          buildsById={buildsById}
+          builds={builds}
+          gridRef={partyRowsRef}
+          screenshotMode={screenshotMode}
+          onAssignBuild={assignBuild}
+          onAssignGhost={assignGhost}
+          onLabelChange={changeLabel}
+          onDropBuild={dropBuild}
+          onRemoveParty={removeParty}
+          onEditBuild={onEditBuild}
+          onAddParty={addParty}
+          addPartyDisabled={draft.parties.length >= MAX_PARTIES}
+        />
       </div>
     </section>
   )

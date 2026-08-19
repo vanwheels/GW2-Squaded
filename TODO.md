@@ -233,9 +233,19 @@ party-wide-targetCount item — see `BREAKS_STUN_PARTY_WIDE`'s own doc comment f
       2026-08-19** (`/builddisplay` screenshot render) — the live-verify pass caught 4 real bugs
       invisible to local typecheck/lint/dry-run (a game-data race, 3 missing context providers,
       missing local icon assets + a too-narrow image CSP, and a too-narrow render viewport); see
-      `docs/discord-bot.md`'s "Status" section for the full writeup. **Only remaining piece:
-      Phase 4 leg 3, `/squaddisplay`** — not started; squad requests in the approval workflow have
-      no Preview button yet for the same reason (no squad renderer exists to reuse).
+      `docs/discord-bot.md`'s "Status" section for the full writeup. **Phase 4 leg 3
+      (`/squaddisplay`) is code complete 2026-08-19** — mirrors leg 2's design exactly
+      (`SquadCompScreenshotGrid.tsx` extracted the same way `BuildScreenshotGrid.tsx` was, a new
+      `squad-preview.html`/`SquadPreviewPage.tsx` web-preview entry, `render/squad-screenshot.ts`
+      mirroring `build-screenshot.ts`); root/worker typecheck, lint, `build:web-preview`, and
+      `wrangler deploy --dry-run` all clean. **Not yet deployed, registered, or live-verified** —
+      unlike legs 1-2 this hasn't run in a real headless browser yet, so the same category of
+      live-only bug leg 2 caught (missing providers, CSP, viewport) could still be lurking despite
+      being pre-empted where the shape was already known (added `BuildsStoreProvider` up front for
+      `SlotTile`'s unconditional `useBuildsStore()` call). Needs a deploy + `register-commands` +
+      a real `/squaddisplay` call to close out. The approval-card Preview button and the board
+      list's per-section select menu still have no squad equivalent (see `docs/discord-bot.md`'s
+      "Follow-on integration, not built here" note) — natural next steps, not done in this leg.
 
 - [ ] Capacitor port for iOS/Android — scoped 2026-08-01, two-part seam: (1)
       `StorageAdapter`/`Repository<T>` (`src/shared/storage/storage-interface.ts`) is already

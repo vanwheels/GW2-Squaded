@@ -22,7 +22,7 @@ import {
   describePendingBuildRequest,
   resolvePendingBuildPreviewShareId
 } from './commands/builds'
-import { buildDisplay } from './commands/display'
+import { buildDisplay, squadDisplay } from './commands/display'
 import { applyPendingSquadRequest, squadAdd, squadEdit, squadRemove, describePendingSquadRequest } from './commands/squads'
 import type { CommandContext } from './commands/context'
 import { UserError } from './errors'
@@ -53,6 +53,7 @@ const COMMANDS: Record<string, CommandHandler | undefined> = {
   squadadd: squadAdd,
   squadremove: squadRemove,
   squadedit: squadEdit,
+  squaddisplay: squadDisplay,
   buildboardsetup: buildBoardSetup,
   buildboardrebuild: buildBoardRebuild,
   squadboardsetup: squadBoardSetup,

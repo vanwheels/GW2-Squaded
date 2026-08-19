@@ -157,6 +157,15 @@ const commands = [
       { name: 'newlink', description: 'New share link or id.', type: OPT.STRING, required: false }
     ]
   },
+  {
+    name: 'squaddisplay',
+    description: 'Post an image preview of a squad composition. Give a name or a link, not both.',
+    type: 1,
+    options: [
+      nameOption('An existing board entry to preview.', false),
+      { name: 'link', description: 'A squad share link or id to preview (instead of a name).', type: OPT.STRING, required: false }
+    ]
+  },
 
   // --- Board admin ------------------------------------------------------------------------------
   {

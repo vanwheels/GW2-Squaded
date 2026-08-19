@@ -1,7 +1,8 @@
-import { getBuildByName } from '../../db'
+import { getBuildByName, getSquadByName } from '../../db'
 import { renderBuildScreenshot } from '../../render/build-screenshot'
+import { renderSquadScreenshot } from '../../render/squad-screenshot'
 import { extractShareId, resolveShare } from '../../share-resolve'
-import { asLikelyBuildFields } from '../../share-validate'
+import { asLikelyBuildFields, asLikelySquadCompFields } from '../../share-validate'
 import type { DiscordMessagePayload } from '../api'
 import type { CommandContext } from './context'
 import { UserError } from '../errors'
@@ -39,4 +40,30 @@ export async function buildDisplay(ctx: CommandContext): Promise<DiscordMessageP
 
   const png = await renderBuildScreenshot(ctx.env, shareId)
   return { file: { filename: 'build.png', contentType: 'image/png', data: png } }
+}
+
+/** `/squaddisplay [name?] [link?]` — the squad counterpart to `buildDisplay` above, same shape
+ *  (exactly one of `name`/`link`, no permission gate, PNG-attachment result) via
+ *  `renderSquadScreenshot` instead. Phase 4 leg 3, docs/discord-bot.md. */
+export async function squadDisplay(ctx: CommandContext): Promise<DiscordMessagePayload> {
+  const name = stringOption(ctx.options, 'name')?.trim()
+  const link = stringOption(ctx.options, 'link')?.trim()
+  if (!name && !link) throw new UserError('Provide a squad name or a link.')
+  if (name && link) throw new UserError('Provide only one of name or link, not both.')
+
+  let shareId: string
+  if (name) {
+    const squad = await getSquadByName(ctx.env, ctx.guildId, name)
+    if (!squad) throw new UserError(`No squad named "${name}" found.`)
+    shareId = squad.share_id
+  } else {
+    const share = await resolveShare(ctx.env, link!)
+    if (!share) throw new UserError("That link wasn't found — check it was copied correctly.")
+    if (share.kind !== 'squadComp') throw new UserError('That link is a build link, not a squad link.')
+    if (!asLikelySquadCompFields(share.data)) throw new UserError("That link doesn't look like a valid squad composition.")
+    shareId = extractShareId(link!)
+  }
+
+  const png = await renderSquadScreenshot(ctx.env, shareId)
+  return { file: { filename: 'squad.png', contentType: 'image/png', data: png } }
 }

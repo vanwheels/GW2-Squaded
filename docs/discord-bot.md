@@ -341,6 +341,42 @@ should update this section's checkbox when done.
             "Status" below for the 4 real bugs the live-verify pass caught, none of which showed
             up in local typecheck/lint/dry-run. Squad display (`/squaddisplay`) is a later leg,
             not built here.
+      - [x] **Leg 3 — `/squaddisplay`.** Same shape as leg 2, mirrored for squads rather than a new
+            design: `SquadCompScreenshotGrid.tsx` (new) factors the party-rows-plus-Add-line markup
+            out of `SquadCompEditorView.tsx`, the same "extract so a read-only caller can render the
+            exact layout without a second copy drifting out of sync" move leg 1 made for
+            `BuildScreenshotGrid`. A new `src/web-preview/SquadPreviewPage.tsx` +
+            `squad-preview.html`/`main-squad.tsx` entry point (vite.web-preview.config.ts's
+            `rollupOptions.input` now builds both HTML entries in one pass, sharing the `global.js`
+            chunk) fetches the share, validates it's a `squadComp` (`isLikelySquadCompSharePayload`),
+            and builds `buildsById` straight from the share payload's own bundled `builds` map — no
+            store involved for roster content. One provider addition beyond `main.tsx`'s stack:
+            `BuildsStoreProvider`, because `SlotTile`'s favorite-toggle affordance calls
+            `useBuildsStore()` unconditionally even though it's dead code under
+            `interactive={false}`'s `pointer-events: none` — same "missing provider crashes the
+            whole tree silently" failure mode leg 2's live-verify pass caught for builds, avoided
+            here by adding the provider up front rather than rediscovering the bug live.
+            `worker/src/render/squad-screenshot.ts` mirrors `build-screenshot.ts` exactly (same
+            1800px viewport, same `body[data-render-state]` wait, `.party-rows` instead of
+            `.build-editor-grid` as the capture selector). `squadDisplay` (`commands/display.ts`)
+            mirrors `buildDisplay`'s exactly-one-of-name/link shape, using `getSquadByName`/
+            `asLikelySquadCompFields` (both already existed, unused until now). Wired into
+            `dispatch.ts`'s `COMMANDS`, `autocomplete.ts`'s `SQUAD_NAME_COMMANDS`, and
+            `register-commands.ts`. **Code complete 2026-08-19**: root `npm run typecheck`/`lint`,
+            worker `npm run typecheck`, `npm run build:web-preview` (both HTML entries build
+            correctly), and worker `wrangler deploy --dry-run` all clean. **Not yet deployed,
+            registered, or live-verified** — unlike legs 1-2, this hasn't been pushed to production
+            or exercised against a real Discord server yet; the render page in particular has never
+            actually run in a headless browser, so the same category of live-only bug leg 2's
+            write-up documents (missing providers, CSP, viewport) could still be lurking here despite
+            being pre-empted where the same shape was already known.
+      - [ ] **Follow-on integration, not built here**: the approval-card Preview button
+            (`dispatch.ts`'s `runApprovalPreview`) still replies "Preview isn't available for squad
+            requests yet" for squad requests, and the board list's per-section "Preview a
+            build…" select menu (`render/board.ts`) has no squad equivalent — both were explicitly
+            deferred pending this leg landing (see "Board list polish" below) and are natural next
+            steps now that `renderSquadScreenshot` exists to reuse, but weren't asked for in this
+            session.
 
 ## Board list polish (raised 2026-08-19)
 
@@ -389,8 +425,10 @@ profession/elite-spec emoji next to each build's name. Feasibility + scope decis
    explicitly when a section is emptied out by a `/buildRemove`, clearing a stale select menu whose
    last option no longer exists — Discord's message-edit semantics only touch fields present in the
    PATCH body, same reasoning as the Approve/Reject card's own `components: []` on decision.
-   Squad board entries get no equivalent: there's still no `/squaddisplay` renderer to reuse (Phase
-   4 leg 3, not built). A section past 25 builds silently only lists the first 25 in the dropdown
+   Squad board entries still get no equivalent select menu — `renderSquadScreenshot` now exists
+   (Phase 4 leg 3, landed after this) but wiring a squad section's own preview dropdown wasn't done
+   in that leg either, see its "Follow-on integration" note above. A section past 25 builds
+   silently only lists the first 25 in the dropdown
    rather than paging — no real section is close to that today, logged as an acceptable v1 gap
    rather than built out. Typecheck/lint/`wrangler deploy --dry-run` all clean; **deployed and
    confirmed working live in a real Discord server 2026-08-19** (Version ID `fb36fefb`). No
@@ -436,7 +474,13 @@ vanishing as a silent unhandled rejection.
 
 Phase 4 (display) leg 2 (`/builddisplay`) is deployed, registered, and **confirmed working
 end-to-end in a real Discord server as of 2026-08-19** (final Version ID `aa30c7d8`).
-`/squaddisplay` (leg 3) is not started.
+`/squaddisplay` (leg 3) is **code complete as of 2026-08-19** (see its own bullet above) but not
+yet deployed, registered with Discord, or exercised against a real headless-browser render —
+needs `wrangler deploy` (which also picks up `build:web-preview`'s freshly-built `squad-preview`
+bundle via `worker/public`) and `npm run register-commands` to publish the new `squaddisplay`
+command, then a live `/squaddisplay` call to actually confirm the render page works outside local
+typecheck/lint/dry-run, same caution leg 2's own write-up gives for why those checks alone weren't
+enough proof there.
 
 Phase 3 (approval workflow) is **deployed, registered, and confirmed working end-to-end in a real
 Discord server as of 2026-08-19**: `/buildboardconfig approvalmode manual` →
