@@ -290,11 +290,11 @@ should update this section's checkbox when done.
             existing board entries) is the command itself — no board write, so no
             `action_permissions` gate, same as autocomplete. Also required adding
             `compatibility_flags = ["nodejs_compat"]` to `wrangler.toml` (`@cloudflare/puppeteer`
-            imports `node:buffer`; `wrangler deploy --dry-run` warned without it). **Deployed to
-            production and registered with Discord 2026-08-19** (Version ID `de4acfb2`; build
-            page and game-data assets spot-checked live, both 200); **not yet live-verified in a
-            real Discord server** — squad display (`/squaddisplay`) is a later leg, not built
-            here.
+            imports `node:buffer`; `wrangler deploy --dry-run` warned without it). **Deployed,
+            registered, and live-verified working in a real Discord server 2026-08-19** — see
+            "Status" below for the 4 real bugs the live-verify pass caught, none of which showed
+            up in local typecheck/lint/dry-run. Squad display (`/squaddisplay`) is a later leg,
+            not built here.
 
 ## Status
 
@@ -314,6 +314,49 @@ e0b7d52): one retry on that followup, with the second failure at least logged in
 vanishing as a silent unhandled rejection.
 
 Phase 4 (display) is now in progress, picked up ahead of Phase 3 (approval workflow) — see the
-leg breakdown above. Leg 2 is deployed to production and registered with Discord as of
-2026-08-19 (Version ID `de4acfb2`); what's left is exercising `/builddisplay` end-to-end in a
-real Discord server (Browser Rendering minutes, the actual screenshot attachment) — not yet done.
+leg breakdown above. Leg 2 (`/builddisplay`) is deployed, registered, and **confirmed working
+end-to-end in a real Discord server as of 2026-08-19** (final Version ID `aa30c7d8`).
+
+The live-verify pass caught 4 real bugs invisible to typecheck/lint/`wrangler deploy --dry-run`
+(all local-only checks — none of them run the render page in an actual browser), diagnosed live
+via `wrangler tail` piping the headless page's own `console`/`pageerror` events into the Worker's
+log (now a permanent instrumentation in `build-screenshot.ts`, not removed after use):
+
+1. **Game-data race.** The share fetch (small) reliably beat the ~8MB/26-file game-data fetch, so
+   `BuildScreenshotGrid` mounted against `useGameData()`'s still-empty placeholder catalog and
+   threw on the first undefined skill/trait/specialization lookup — with no error boundary, that
+   silently killed the whole render tree, so `data-render-state` never got set and `/builddisplay`
+   just hung until the timeout. Can't happen in Electron (game data loads from local disk via IPC,
+   always finished before a user could have a build open). Fixed in `BuildPreviewPage.tsx`: gate
+   mounting the grid on `!gameDataLoading` too, not just `build !== null`.
+2. **Missing context providers.** `main.tsx` only wrapped `GameDataStoreProvider` — but
+   `BuildScreenshotGrid`'s tree calls `usePickerOpen()` (`ProfessionSpecPicker`/`WeaponTypeBar`/
+   etc.), `useAppSettings()` (6 components, `showUnderwater`/`showRacialSkills`/`partyWideOnly`),
+   and `useFavoriteConsumables()` (`EquipmentEditor`) unconditionally, even with
+   `interactive={false}`. Each missing provider threw synchronously, same silent-crash shape as
+   #1. Fixed by wrapping `PickerRegistryProvider`/`AppSettingsProvider`/
+   `FavoriteConsumablesProvider` around `BuildPreviewPage` too (confirmed via a full grep that
+   nothing in the tree needs `DataUpdateStoreProvider`/`BuildsStoreProvider`/
+   `SquadCompsStoreProvider` — all 3 depend on Electron-only `window.gw2*` IPC bridges that don't
+   exist in a plain browser tab, so they're correctly left out rather than needing a web stub).
+3. **Missing local icon assets + narrow CSP.** `vite.web-preview.config.ts`'s `root` is
+   `src/web-preview`, which has no `public/` of its own — every relative `icons/weapon-mini/…`,
+   `icons/slot-mini/…`, `icons/stat-prefix/…` reference (all sourced from `src/renderer/public/`,
+   copied automatically for the *Electron* renderer build only) 404'd against this worker's
+   origin. Fixed by pointing `publicDir` explicitly at `src/renderer/public`. Separately, the
+   profession/elite-spec Tango icons (`tango-icons.json`, hotlinked from `wiki.guildwars2.com` —
+   see the 2026-08-18 tango-icon-switch memory) were blocked outright by `build-preview.html`'s
+   CSP, which only allowlisted `https://render.guildwars2.com` for `img-src`; added
+   `https://wiki.guildwars2.com` alongside it.
+4. **Viewport too narrow.** `.build-editor-grid`'s first two columns (Traits/Equipment) are
+   `max-content`-sized (fixed regardless of viewport) and only the 3rd (Stats+Skills, `1fr`)
+   absorbs whatever width is left over. At the original 1400px viewport that column collapsed to
+   ~280px, forcing `BoonConditionSummaryPanel`'s icon rows to wrap onto dozens of lines each and
+   blowing the screenshot's height out past 1800px of mostly dead space below the visible content
+   — diagnosed by a one-off `getBoundingClientRect()` dump piped through the same console-tap
+   mechanism as #1/#2 (removed after use, unlike the tap itself). Fixed by widening
+   `page.setViewport` from 1400 to 1800, giving that column roughly the room a normally-sized
+   desktop window would.
+
+None of these were registration/D1/permission problems — Phase 2's infrastructure held up
+unchanged; every gap was specific to this new render path.

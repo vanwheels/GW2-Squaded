@@ -4,6 +4,7 @@ import { withUnderwaterSetting } from '@shared/types/build'
 import { isLikelyBuild } from '@shared/share/validate'
 import { DEFAULT_COMBAT_STATE } from '@shared/gear-calc/combat-state'
 import { BuildScreenshotGrid } from '@renderer/components/build-editor/BuildScreenshotGrid'
+import { useGameData } from '@renderer/state/game-data-store'
 
 type RenderState = 'loading' | 'ready' | 'error'
 
@@ -25,6 +26,7 @@ function equippedSpecializationIdsFor(build: Build): Set<number> {
  * whole point of an explicit ready signal instead of a fixed timeout.
  */
 export function BuildPreviewPage() {
+  const { loading: gameDataLoading } = useGameData()
   const [build, setBuild] = useState<Build | null>(null)
   const [state, setState] = useState<RenderState>('loading')
   const gridRef = useRef<HTMLDivElement>(null)
@@ -57,8 +59,19 @@ export function BuildPreviewPage() {
 
   // Once the grid has actually mounted with a build, wait for every <img> it rendered to finish
   // decoding (or fail — a broken icon URL shouldn't hang this forever) before signaling ready.
+  //
+  // Gated on `gameDataLoading` too, not just `build`: unlike the Electron app (where game data
+  // comes from a fast local IPC read that's always finished before a user could have a build
+  // open), this page fetches ~8MB across 26 game-data files in parallel with the much smaller
+  // share fetch, and the share fetch usually wins that race. Mounting `BuildScreenshotGrid` while
+  // `useGameData()` still reports the empty placeholder catalog throws (every skill/trait/
+  // specialization lookup inside it comes back `undefined`), and with no error boundary here that
+  // silently kills the whole render tree — `data-render-state` then never gets set at all, and
+  // `/builddisplay` just hangs until Browser Rendering's timeout instead of failing fast.
+  const readyToMount = build !== null && !gameDataLoading
+
   useEffect(() => {
-    if (!build || !gridRef.current) return
+    if (!readyToMount || !gridRef.current) return
     let cancelled = false
     const images = Array.from(gridRef.current.querySelectorAll('img'))
     void Promise.all(images.map((img) => img.decode().catch(() => undefined))).then(() => {
@@ -67,7 +80,7 @@ export function BuildPreviewPage() {
     return () => {
       cancelled = true
     }
-  }, [build])
+  }, [readyToMount])
 
   useEffect(() => {
     if (state === 'ready' || state === 'error') {
@@ -75,7 +88,8 @@ export function BuildPreviewPage() {
     }
   }, [state])
 
-  if (!build) return null
+  // Re-derived (not just `!readyToMount`) so TypeScript narrows `build` to non-null below.
+  if (!build || gameDataLoading) return null
 
   return (
     <BuildScreenshotGrid

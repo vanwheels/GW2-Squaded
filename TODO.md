@@ -229,10 +229,12 @@ party-wide-targetCount item — see `BREAKS_STUN_PARTY_WIDE`'s own doc comment f
       add/remove/edit/move, autocomplete all confirmed by the user in a real server; permission
       gating deferred to a later session). **Phase 4 (display) picked up ahead of Phase 3**
       (approval workflow) — leg 1 (web-preview render page) and leg 2 (screenshot render +
-      `/builddisplay` command) both done 2026-08-19; leg 2 is now **deployed to production and
-      registered with Discord** (2026-08-19), still needs a real-server live-verify (Browser
-      Rendering screenshot end-to-end) — see `docs/discord-bot.md`'s "Status" section;
-      `/squaddisplay` is a later leg.
+      `/builddisplay` command) both done and **live-verified working end-to-end in a real Discord
+      server 2026-08-19**. The live-verify pass caught 4 real bugs invisible to local typecheck/
+      lint/dry-run (a game-data race, 3 missing context providers, missing local icon assets + a
+      too-narrow image CSP, and a too-narrow render viewport blowing out the boon/condition
+      summary's height) — see `docs/discord-bot.md`'s "Status" section for the full writeup.
+      `/squaddisplay` is a later leg, not started.
 
 - [ ] Capacitor port for iOS/Android — scoped 2026-08-01, two-part seam: (1)
       `StorageAdapter`/`Repository<T>` (`src/shared/storage/storage-interface.ts`) is already

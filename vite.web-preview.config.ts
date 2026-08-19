@@ -15,6 +15,14 @@ import react from '@vitejs/plugin-react'
  */
 export default defineConfig({
   root: 'src/web-preview',
+  // `electron.vite.config.ts`'s renderer build defaults `publicDir` to `<root>/public`
+  // (`src/renderer/public` — weapon-mini/slot-mini/stat-prefix/equip-slot/weapon-placeholder
+  // icons, referenced by components as relative `icons/...` paths that resolve against whatever
+  // origin served the page) since its `root` is `src/renderer`. This build's `root` is
+  // `src/web-preview` instead, which has no `public/` of its own, so those same icon references
+  // 404'd against this worker's origin until pointed at the renderer's public dir explicitly —
+  // BuildScreenshotGrid's tree is shared with the real editor and expects the same paths to work.
+  publicDir: resolve(__dirname, 'src/renderer/public'),
   resolve: {
     alias: {
       '@renderer': resolve(__dirname, 'src/renderer'),

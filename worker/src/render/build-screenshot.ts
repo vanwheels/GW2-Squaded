@@ -29,7 +29,21 @@ export async function renderBuildScreenshot(env: Env, shareId: string): Promise<
   const browser = await puppeteer.launch(env.MYBROWSER)
   try {
     const page = await browser.newPage()
-    await page.setViewport({ width: 1400, height: 1000 })
+    // The render page has no error boundary, so an uncaught render exception crashes it silently
+    // — `data-render-state` never gets set at all, and the only symptom without this is a bare
+    // `waitForSelector` timeout below with no clue why (see the leg-2 live-verify writeup in
+    // TODO.md for two real examples this caught: a missing context provider, then a CSP block).
+    // Piping the page's own console/uncaught-error output into this Worker's log means
+    // `wrangler tail` shows the real client-side failure instead of just "timed out".
+    page.on('console', (msg) => console.log(`[render page console] ${msg.type()}: ${msg.text()}`))
+    page.on('pageerror', (err) => console.error('[render page uncaught error]', err))
+    // 1800, not a narrower/more "portrait" width: `.build-editor-grid`'s first two columns
+    // (Traits/Equipment) are `max-content`-sized (~376px + ~696px, fixed regardless of viewport)
+    // and only the 3rd (Stats+Skills, `1fr`) absorbs extra width — at 1400 that column collapsed
+    // to ~280px, forcing `BoonConditionSummaryPanel`'s icon rows to wrap onto dozens of lines and
+    // blowing the screenshot's height out past 1800px of mostly dead space. 1800 gives that column
+    // roughly the same breathing room a normally-sized desktop window would.
+    await page.setViewport({ width: 1800, height: 1000 })
     await page.goto(`${env.PUBLIC_ORIGIN}/build-preview.html?share=${encodeURIComponent(shareId)}`, {
       waitUntil: 'domcontentloaded'
     })
