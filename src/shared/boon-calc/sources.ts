@@ -42,6 +42,7 @@ import { EVOKER_SPECIALIZATION_ID } from '../skill-calc/familiar'
 import { unleashedWeaponOneId, UNTAMED_SPEC_ID } from '../skill-calc/untamed-unleash'
 import { isNonActionableFlipTarget } from '../skill-calc/non-actionable-flip-targets'
 import { resolvedFlipSkillId } from '../skill-calc/flip-skill-overrides'
+import { ADDITIVE_FLIP_PAIRS } from '../skill-calc/additive-flip-pairs'
 import { TURRET_SUB_ABILITY_IDS } from '../skill-calc/turret-sub-abilities'
 import { MANTRA_FINAL_CHARGE_IDS } from '../skill-calc/mantra-final-charge'
 
@@ -4483,6 +4484,67 @@ function relicSources(
  * (unchanged from before this existed) — see `RELIC_TRIGGER_GATES`'s own doc comment for the full
  * scope/exclusion reasoning.
  */
+
+/** Same composite content-key `SkillsEditor.tsx`'s `boonFactContentKey` uses to recognize "the same
+ *  boon/condition grant, computed off a different id" — deliberately excludes `sourceId`/
+ *  `sourceName`/`sourceIcon`, which differ between an `ADDITIVE_FLIP_PAIRS` base and its target by
+ *  construction. Duplicated here (not imported from the renderer) since this shared module can't
+ *  depend on `src/renderer`. */
+function additiveFlipContentKey(f: BoonConditionSource): string {
+  return [f.category, f.boonOrConditionName, f.isCondition, f.scaledDurationSeconds, f.applyCount, f.requiresTraitId, f.targetCount, f.instanceLabel ?? '', f.legendName ?? ''].join('|')
+}
+
+/** Same shape, for `NamedFactSource` (Control/Miscellaneous/Strip-Corrupt-Cleanse) — mirrors
+ *  `SkillsEditor.tsx`'s `namedFactContentKey`. */
+function additiveFlipNamedFactContentKey(f: NamedFactSource): string {
+  return [f.name, f.detail ?? '', f.targetCount].join('|')
+}
+
+/** `sourceId -> targetId` reversed once, rather than re-deriving it per id inside the hot loop
+ *  below — `ADDITIVE_FLIP_PAIRS` never changes at runtime. */
+const ADDITIVE_FLIP_PAIR_SOURCE_BY_TARGET_ID: ReadonlyMap<number, number> = new Map(
+  Array.from(ADDITIVE_FLIP_PAIRS.entries(), ([sourceId, pair]) => [pair.targetId, sourceId])
+)
+
+/**
+ * Walks `skillIds`, extracting each skill's facts via `extractFn`, EXCEPT: when the current id is
+ * an `ADDITIVE_FLIP_PAIRS` target, any of its own extracted items sharing a `contentKey` with
+ * something its own base skill already contributed are dropped before appending. Shared by all 4
+ * `skillIds`-driven aggregate computations (`computeBoonConditionSources`/`computeAuraSources`/
+ * `computeComboSources`/`computeNamedFactSources`) — see `ADDITIVE_FLIP_PAIR_TARGET_IDS`'s own doc
+ * comment for why the target id is deliberately still walked at all (it carries real content the
+ * base doesn't, e.g. Darkrazor's Daring's Band-Together-enhanced cast (72366) adding Resistance/
+ * Protection its base (41220) doesn't have) rather than skipped outright — only content the two
+ * ids genuinely SHARE (e.g. both independently carrying the same 2 Stability facts, same Daze) gets
+ * collapsed to one, mirroring `SkillsEditor.tsx`'s `additiveEnhancementFacts`'s identical base-vs-
+ * target diff for the tooltip. `withFlipChain` always walks base -> target in order, so the base's
+ * entry is guaranteed to already be in `emittedBySourceId` by the time its target is processed.
+ */
+function extractSkillSourcesWithAdditiveDedup<T>(
+  skillIds: number[],
+  skillsById: Map<number, Skill>,
+  extractFn: (skill: Skill) => T[],
+  contentKey: (item: T) => string
+): T[] {
+  const out: T[] = []
+  const emittedBySourceId = new Map<number, Set<string>>()
+  for (const id of skillIds) {
+    const skill = skillsById.get(id)
+    if (!skill) continue
+    let extracted = extractFn(skill)
+    const additiveSourceId = ADDITIVE_FLIP_PAIR_SOURCE_BY_TARGET_ID.get(id)
+    if (additiveSourceId !== undefined) {
+      const alreadyEmitted = emittedBySourceId.get(additiveSourceId) ?? new Set<string>()
+      extracted = extracted.filter((item) => !alreadyEmitted.has(contentKey(item)))
+    }
+    if (ADDITIVE_FLIP_PAIRS.has(id)) {
+      emittedBySourceId.set(id, new Set(extracted.map(contentKey)))
+    }
+    out.push(...extracted)
+  }
+  return out
+}
+
 export function computeBoonConditionSources(
   build: Build,
   gameData: {
@@ -4524,34 +4586,41 @@ export function computeBoonConditionSources(
     ...skillIdsForBuild(build, gameData.legends, gameData.pets, gameData.professions, skillsById, gameData.soulbeastBeastmode, gameData.familiars),
     ...bundleContributions.kitSkillIds
   ]
+  out.push(
+    ...extractSkillSourcesWithAdditiveDedup(
+      skillIds,
+      skillsById,
+      (skill) =>
+        extractFromFacts(
+          skill.facts,
+          skill.traitedFacts,
+          activeIds,
+          legendIds,
+          'skill',
+          skill.id,
+          skill.name,
+          skill.icon,
+          durationPercent,
+          gameData.wvwFactOverrides.skill[skill.id],
+          classifyBoonCondition,
+          gameData.legends
+        ),
+      additiveFlipContentKey
+    )
+  )
+  // `branchConditionalFacts`' own `countsTowardTotals`-flagged branch(es), if any — see
+  // `ConditionalBranch.countsTowardTotals`'s doc comment for which branches get this and why.
+  // `healingPower` is passed as `0` rather than threaded through from gear: every branch flagged
+  // `countsTowardTotals` today grants only flat-duration Buff facts with no Healing-Power-scaled
+  // component (the Chants' own Barrier/Healing numbers are `numericLines`, display-only, never
+  // built into a `BoonConditionSource` — see `chantOfRecuperationSections`), so this only matters
+  // if a future flagged branch's `.facts` ever needs it, at which point this would need real
+  // `characterAttributes.healingPower` threaded in instead (this function doesn't compute character
+  // attributes today, only gear-derived duration %). None of `ADDITIVE_FLIP_PAIRS`' 6 ids has a
+  // `branchConditionalFacts` entry today, so this loop doesn't need the same dedup treatment above.
   for (const id of skillIds) {
     const skill = skillsById.get(id)
     if (!skill) continue
-    out.push(
-      ...extractFromFacts(
-        skill.facts,
-        skill.traitedFacts,
-        activeIds,
-        legendIds,
-        'skill',
-        skill.id,
-        skill.name,
-        skill.icon,
-        durationPercent,
-        gameData.wvwFactOverrides.skill[skill.id],
-        classifyBoonCondition,
-        gameData.legends
-      )
-    )
-    // `branchConditionalFacts`' own `countsTowardTotals`-flagged branch(es), if any — see
-    // `ConditionalBranch.countsTowardTotals`'s doc comment for which branches get this and why.
-    // `healingPower` is passed as `0` rather than threaded through from gear: every branch flagged
-    // `countsTowardTotals` today grants only flat-duration Buff facts with no Healing-Power-scaled
-    // component (the Chants' own Barrier/Healing numbers are `numericLines`, display-only, never
-    // built into a `BoonConditionSource` — see `chantOfRecuperationSections`), so this only matters
-    // if a future flagged branch's `.facts` ever needs it, at which point this would need real
-    // `characterAttributes.healingPower` threaded in instead (this function doesn't compute
-    // character attributes today, only gear-derived duration %).
     for (const branch of branchConditionalFacts(skill, durationPercent, 0) ?? []) {
       if (branch.countsTowardTotals) out.push(...branch.facts)
     }
@@ -4658,25 +4727,27 @@ export function computeAuraSources(
 
   out.push(...relicSources(build, gameData, unscaled, classifyAura))
 
-  for (const id of skillIds) {
-    const skill = skillsById.get(id)
-    if (!skill) continue
-    out.push(
-      ...extractFromFacts(
-        skill.facts,
-        skill.traitedFacts,
-        activeIds,
-        legendIds,
-        'skill',
-        skill.id,
-        skill.name,
-        skill.icon,
-        unscaled,
-        gameData.wvwFactOverrides.skill[skill.id],
-        classifyAura
-      )
+  out.push(
+    ...extractSkillSourcesWithAdditiveDedup(
+      skillIds,
+      skillsById,
+      (skill) =>
+        extractFromFacts(
+          skill.facts,
+          skill.traitedFacts,
+          activeIds,
+          legendIds,
+          'skill',
+          skill.id,
+          skill.name,
+          skill.icon,
+          unscaled,
+          gameData.wvwFactOverrides.skill[skill.id],
+          classifyAura
+        ),
+      additiveFlipContentKey
     )
-  }
+  )
 
   for (const line of build.specializations) {
     if (line == null) continue
@@ -5068,25 +5139,27 @@ export function computeNamedFactSources(
   const out: NamedFactSource[] = [...computeSigilNamedFactSources(build, gameData.sigils, matchers), ...computeRelicNamedFactSources(build, gameData, matchers)]
   const { skillsById, skillIds } = equippedSkillsById(build, gameData)
 
-  for (const id of skillIds) {
-    const skill = skillsById.get(id)
-    if (!skill) continue
-    out.push(
-      ...namedFactsFrom(
-        skill.facts,
-        skill.traitedFacts,
-        activeIds,
-        legendIds,
-        'skill',
-        skill.id,
-        skill.name,
-        skill.icon,
-        gameData.wvwFactOverrides.skill[skill.id],
-        matchers,
-        targetCountTables
-      )
+  out.push(
+    ...extractSkillSourcesWithAdditiveDedup(
+      skillIds,
+      skillsById,
+      (skill) =>
+        namedFactsFrom(
+          skill.facts,
+          skill.traitedFacts,
+          activeIds,
+          legendIds,
+          'skill',
+          skill.id,
+          skill.name,
+          skill.icon,
+          gameData.wvwFactOverrides.skill[skill.id],
+          matchers,
+          targetCountTables
+        ),
+      additiveFlipNamedFactContentKey
     )
-  }
+  )
 
   for (const line of build.specializations) {
     if (line == null) continue
@@ -5226,11 +5299,14 @@ export function computeComboSources(
   const out: ComboSource[] = []
   const { skillsById, skillIds } = equippedSkillsById(build, gameData)
 
-  for (const id of skillIds) {
-    const skill = skillsById.get(id)
-    if (!skill) continue
-    out.push(...comboFactsFrom(skill.facts, skill.traitedFacts, activeIds, 'skill', skill.id, skill.name, skill.icon))
-  }
+  out.push(
+    ...extractSkillSourcesWithAdditiveDedup(
+      skillIds,
+      skillsById,
+      (skill) => comboFactsFrom(skill.facts, skill.traitedFacts, activeIds, 'skill', skill.id, skill.name, skill.icon),
+      (f) => [f.kind, f.fieldType, f.finisherType].join('|')
+    )
+  )
 
   for (const line of build.specializations) {
     if (line == null) continue

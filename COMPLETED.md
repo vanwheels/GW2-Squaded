@@ -2,6 +2,37 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 233 — Renegade "Band Together" pairs double-counting into the aggregate Boon/Condition totals
+
+User flagged (screenshot: a doubled "Daze — Darkrazor's Daring 2s" row in the Control section) that
+Renegade debuffs/boons were "being generated twice ... because it's counting the base skill and the
+band-together version as 2 separate skills." Confirmed exactly right: `ADDITIVE_FLIP_PAIRS`
+(Icerazor's Ire/Darkrazor's Daring/Razorclaw's Rage/Breakrazor's Bastion, all 4 of Legendary
+Renegade Stance's Band Together skills) deliberately keeps `withFlipChain` walking into its target
+ids for the aggregate — the target carries real new content (e.g. Darkrazor's Daring's enhanced cast
+adds Resistance/Protection) that must count toward totals. But the target's facts are a SUPERSET of
+its base's, not a disjoint addition, and every `skillIds`-driven aggregate function
+(`computeBoonConditionSources`/`computeAuraSources`/`computeComboSources`/`computeNamedFactSources`)
+was pushing both ids' full fact sets unfiltered — so every fact the base and its enhanced cast
+happen to SHARE (Icerazor's Ire's Vulnerability/Torment/Immobile, Darkrazor's Daring's 2 Stability
+facts and its Daze) got counted twice.
+
+Fixed with a new shared `extractSkillSourcesWithAdditiveDedup` helper in `sources.ts`: walks
+`skillIds` same as before, but when the current id is an `ADDITIVE_FLIP_PAIRS` target, filters out
+any extracted item whose content-key (same composite key `SkillsEditor.tsx`'s
+`boonFactContentKey`/`namedFactContentKey`/`comboFactContentKey` already use for the identical
+tooltip-side diff) was already emitted by its own base skill — the base's genuinely-new content
+(Resistance, Barrier, Torment, Chilled, per pair) still counts, only the shared portion collapses to
+one row. All 4 aggregate functions now go through this one helper instead of their own bare loop.
+
+New regression test `additive-flip-pair-dedup.test.ts` (a real Legend5/Renegade build, all 4 pairs
+live at once via the legend's fixed utility kit) — building it caught a real test-authoring trap
+worth remembering: every Band Together skill's actual content lives entirely in
+`synthetic-facts.json`, not raw `skills.json`, so a test copying `turret-and-mantra-flip-chain.
+test.ts`'s loader pattern (which doesn't merge synthetics) silently sees empty facts for all of them.
+
+Verified via `npm run typecheck`, `npm run lint`, `npx vitest run` (221 passing, 3 new).
+
 ## Session 232 — Icerazor's Ire's missing Immobile: pre-existing typo, not a Session 231 regression
 
 User reported Icerazor's Ire (Revenant/Renegade) had "lost its Immob condition application" right
