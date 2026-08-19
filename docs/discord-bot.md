@@ -265,11 +265,12 @@ should update this section's checkbox when done.
 - [x] **Phase 3 — approval workflow.** `pending_requests`, `/buildBoardConfig approvalMode` /
       `setApproverRole` / `approvalsChannel`, the Approve/Reject button interactions and the
       permission re-check on click. Layers entirely on top of Phase 2's write paths without
-      changing them (Automatic mode keeps working exactly as before). **Code complete
-      2026-08-19** (commit pending) — typecheck/lint/`wrangler deploy --dry-run` all clean; not
-      yet deployed, registered, or live-verified in a real Discord server (see "Status" below for
-      the pattern every prior phase followed: local static checks catch nothing about the real
-      Discord round-trip). Implementation notes beyond the design doc's own text:
+      changing them (Automatic mode keeps working exactly as before). **Code complete and deployed
+      2026-08-19** (commit 83e8b48) — typecheck/lint/`wrangler deploy --dry-run` all clean, and
+      **live-verified end-to-end in a real Discord server** (`approvalmode manual` →
+      `setapproverrole` → `approvalschannel` → a gated `/buildadd` → both Approve and Reject
+      confirmed working, board only updates on Approve). Implementation notes beyond the design
+      doc's own text:
       - Every mutating build/squad command (`buildAdd`/`Edit`/`Remove`/`Move`,
         `squadAdd`/`Edit`/`Remove`) now does its full pre-flight validation (share resolved, name/
         profession derived, target found, board section exists) *before* branching on approval
@@ -301,6 +302,16 @@ should update this section's checkbox when done.
         `DEFERRED_UPDATE_MESSAGE` and does the actual apply + card edit in the background — same
         "defer the slow part, delegate delivery to `@original`" shape `runCommand` already used for
         slash commands, factored into a shared `deliverInteractionResult` both now call.
+      - **Same-day follow-up (commit c668f39):** live-verify testing surfaced a real gap — the
+        card's one-line text summary gave an approver nothing to actually inspect before deciding.
+        Added a **Preview** button (`build` requests only; `squad` has no equivalent renderer yet,
+        see Phase 4 leg 3 below) that reuses `/builddisplay`'s `renderBuildScreenshot` pipeline,
+        delivered as its own new ephemeral message (`DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE`, same ack
+        shape a slash command uses) rather than editing the card
+        (`DEFERRED_UPDATE_MESSAGE`, what Approve/Reject use) — so the card and its buttons are never
+        touched by a Preview click. No approver-role gate on Preview itself, since viewing a render
+        isn't privileged the way deciding the request is. Deployed and confirmed working live
+        2026-08-19.
 - [ ] **Phase 4 — display + game-data resolution.** Bundling a synced slice of
       `data/game-data/*.json` into the worker (the real unknown-sized piece of this whole
       project — see "The game-data gap this surfaces" above), then `/buildDisplay`/
@@ -352,17 +363,20 @@ Phase 4 (display) leg 2 (`/builddisplay`) is deployed, registered, and **confirm
 end-to-end in a real Discord server as of 2026-08-19** (final Version ID `aa30c7d8`).
 `/squaddisplay` (leg 3) is not started.
 
-Phase 3 (approval workflow), picked up next, is **code-complete as of 2026-08-19** — typecheck,
-lint, and `wrangler deploy --dry-run` all clean — but not yet deployed, registered, or
-live-verified in a real Discord server. Every prior phase's own history here is the reason that
-distinction matters: Phase 2 needed one same-day followup fix after live testing, and Phase 4 leg
-2 needed four, none of which any local check caught (see below). Before calling Phase 3 done,
-still needed: `wrangler d1 migrations apply` isn't required (the schema shipped in Phase 1's single
-init migration already), but `npm run register-commands` is, to publish `buildboardconfig`'s three
-new subcommands, then a live run-through of at least: `/buildboardconfig approvalmode manual` →
-`/buildboardconfig setapproverrole` → `/buildboardconfig approvalschannel` → a gated `/buildadd` →
-clicking both Approve and Reject on the resulting card → confirming the board message only updates
-on Approve.
+Phase 3 (approval workflow) is **deployed, registered, and confirmed working end-to-end in a real
+Discord server as of 2026-08-19**: `/buildboardconfig approvalmode manual` →
+`setapproverrole` → `approvalschannel` → a gated `/buildadd` → both Approve and Reject
+confirmed on the resulting card, board message only updating on Approve. `wrangler d1 migrations
+apply` wasn't needed (the schema shipped in Phase 1's single init migration already);
+`npm run register-commands` was, to publish `buildboardconfig`'s three new subcommands (Discord's
+**global** command registration can take up to an hour to propagate to a client — a same-session
+"the new subcommands aren't showing up" turned out to be exactly that, confirmed by querying
+Discord's REST API directly for the registered command definition rather than trusting the
+client's cache).
+
+Live testing caught one real gap, same-day fixed (commit c668f39, see Phase 3's own bullet list
+above): the approval card gave an approver nothing to actually inspect beyond a one-line text
+summary before deciding. Added a Preview button reusing `/builddisplay`'s render pipeline.
 
 The live-verify pass caught 4 real bugs invisible to typecheck/lint/`wrangler deploy --dry-run`
 (all local-only checks — none of them run the render page in an actual browser), diagnosed live

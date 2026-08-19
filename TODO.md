@@ -224,22 +224,18 @@ party-wide-targetCount item — see `BREAKS_STUN_PARTY_WIDE`'s own doc comment f
       with role-gated buttons) mapped out in full 2026-08-12. Full design-of-record — command
       list, D1 schema, approval workflow, architecture decisions, explicit v1 non-goals, phased
       build order — lives in `docs/discord-bot.md`, not here; read that first before picking this
-      up. **Phase 1 (foundational plumbing) done and live 2026-08-19**; **Phase 2 (core CRUD +
-      board sync) done, deployed, registered, and manually verified live 2026-08-19** (setup,
-      add/remove/edit/move, autocomplete all confirmed by the user in a real server; permission
-      gating deferred to a later session). **Phase 4 leg 1-2 (display) done and live-verified
-      2026-08-19** (`/builddisplay` screenshot render; `/squaddisplay` is leg 3, not started) — the
-      live-verify pass caught 4 real bugs invisible to local typecheck/lint/dry-run (a game-data
-      race, 3 missing context providers, missing local icon assets + a too-narrow image CSP, and a
-      too-narrow render viewport); see `docs/discord-bot.md`'s "Status" section for the full
-      writeup. **Phase 3 (approval workflow) code-complete 2026-08-19** — `pending_requests`,
-      `/buildBoardConfig approvalMode`/`setApproverRole`/`approvalsChannel`, the Approve/Reject
-      button interactions, race-safe decision claiming, and the approver-role re-check on click,
-      all typecheck/lint/dry-run clean — but **not yet deployed, registered
-      (`npm run register-commands`), or live-verified in a real Discord server**, which per every
-      prior phase's own history is where the real bugs actually surface. `docs/discord-bot.md`'s
-      "Status" section spells out the specific live run-through still needed before this checkbox
-      moves to done.
+      up. **Phases 1-3 all done, deployed, registered, and live-verified in a real Discord server**
+      (Phase 1: 2026-08-19; Phase 2 core CRUD/board sync: 2026-08-19, setup/add/remove/edit/move/
+      autocomplete all confirmed; Phase 3 approval workflow: 2026-08-19, approvalmode/
+      setapproverrole/approvalschannel + gated add + both Approve and Reject confirmed, plus a
+      same-day Preview-button follow-up after live testing showed the card gave an approver
+      nothing to inspect before deciding). **Phase 4 leg 1-2 (display) done and live-verified
+      2026-08-19** (`/builddisplay` screenshot render) — the live-verify pass caught 4 real bugs
+      invisible to local typecheck/lint/dry-run (a game-data race, 3 missing context providers,
+      missing local icon assets + a too-narrow image CSP, and a too-narrow render viewport); see
+      `docs/discord-bot.md`'s "Status" section for the full writeup. **Only remaining piece:
+      Phase 4 leg 3, `/squaddisplay`** — not started; squad requests in the approval workflow have
+      no Preview button yet for the same reason (no squad renderer exists to reuse).
 
 - [ ] Capacitor port for iOS/Android — scoped 2026-08-01, two-part seam: (1)
       `StorageAdapter`/`Repository<T>` (`src/shared/storage/storage-interface.ts`) is already
