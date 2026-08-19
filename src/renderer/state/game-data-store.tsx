@@ -17,6 +17,7 @@ import type {
 import { visibleSkillsForSlot } from '@shared/skill-calc/skill-variants'
 import { GUNSABER_SKILLS } from '@shared/skill-calc/gunsaber-skills'
 import { DRAGON_SLASH_RIVERS_FLOW_SKILLS, DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS, DRAGON_SLASH_SKILLS } from '@shared/skill-calc/dragon-slash-skills'
+import type { GameDataProvider } from '@shared/game-data/game-data-provider'
 
 export interface GameDataStore extends GameData {
   loading: boolean
@@ -75,13 +76,25 @@ const EMPTY_GAME_DATA: GameData = {
 
 const GameDataStoreContext = createContext<GameDataStore | null>(null)
 
-export function GameDataStoreProvider({ children }: { children: ReactNode }) {
+interface Props {
+  children: ReactNode
+  /** `@shared/game-data/game-data-provider.ts`'s `GameDataProvider` seam, per its own doc
+   *  comment: "a future Capacitor build implements this against bundled assets instead of
+   *  Electron IPC, and the renderer code doesn't change." Required (not defaulted to the
+   *  Electron-only `window.gw2GameData` bridge here) so this file stays platform-agnostic — the
+   *  Electron app's `App.tsx` passes `window.gw2GameData` explicitly; the Discord bot's
+   *  web-preview render page (`src/web-preview/`) is the first other caller, passing a
+   *  `fetch`-based provider instead since it runs in a plain browser tab with no Electron IPC. */
+  provider: GameDataProvider
+}
+
+export function GameDataStoreProvider({ children, provider }: Props) {
   const [gameData, setGameData] = useState<GameData>(EMPTY_GAME_DATA)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let cancelled = false
-    void window.gw2GameData.getAll().then((result) => {
+    void provider.getAll().then((result) => {
       if (cancelled) return
       setGameData(result)
       setLoading(false)
@@ -89,7 +102,7 @@ export function GameDataStoreProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [provider])
 
   const store = useMemo<GameDataStore>(() => {
     const specializationsById = new Map(gameData.specializations.map((s) => [s.id, s]))

@@ -27,7 +27,7 @@ export function App() {
     <AppSettingsProvider>
       <DataUpdateStoreProvider>
         <FavoriteConsumablesProvider>
-          <GameDataStoreProvider>
+          <GameDataStoreProvider provider={window.gw2GameData}>
             <BuildsStoreProvider>
               <SquadCompsStoreProvider>
                 <NavBar active={activeView} onChange={setActiveView} />
