@@ -27,16 +27,34 @@ function buildEmojiPrefix(profession: string, specializationId: number | null): 
   return ref ? `<:${ref.name}:${ref.id}> ` : ''
 }
 
+/** The board-list hyperlink target for a share: a worker-hosted landing page (see
+ *  `render/share-landing.ts`) with a one-click Copy button for the share link, rather than the
+ *  raw `/shares/:id` JSON endpoint — clicking a build/squad name in Discord should show a human a
+ *  page, not a blob of JSON. Board-polish decision 2026-08-19, see docs/discord-bot.md. */
+function shareLandingUrl(publicOrigin: string, shareId: string): string {
+  return `${publicOrigin}/shares/${shareId}/open`
+}
+
+/** `**[name](url)**` — a bold masked link. `name` must already be markdown-escaped
+ *  (`escapeMarkdown`, which also escapes `[`/`]` for exactly this use) so an unescaped `]` in a
+ *  user-supplied name can't prematurely close the link label. */
+function buildNameLink(name: string, url: string): string {
+  return `**[${name}](${url})**`
+}
+
 /** Renders one profession's board section — the message `/buildBoardSetup`/`/buildBoardRebuild`
  *  create and every `/buildAdd`/`/buildEdit`/`/buildRemove`/`/buildMove` re-PATCHes in place.
  *  Builds are numbered by their `sort_order` position so `/buildMove [Build Name] [position]`'s
  *  numeric argument reads directly off what's displayed. */
-export function renderBuildSection(profession: string, builds: BuildRow[]): DiscordMessagePayload {
+export function renderBuildSection(profession: string, builds: BuildRow[], publicOrigin: string): DiscordMessagePayload {
   const description =
     builds.length === 0
       ? '*(no builds yet — add one with `/buildAdd`)*'
       : builds
-          .map((b, i) => `${i + 1}. ${buildEmojiPrefix(b.profession, b.specialization_id)}**${escapeMarkdown(b.name)}**`)
+          .map(
+            (b, i) =>
+              `${i + 1}. ${buildEmojiPrefix(b.profession, b.specialization_id)}${buildNameLink(escapeMarkdown(b.name), shareLandingUrl(publicOrigin, b.share_id))}`
+          )
           .join('\n')
 
   return {
@@ -46,11 +64,11 @@ export function renderBuildSection(profession: string, builds: BuildRow[]): Disc
 
 /** Renders the single squad-board message — squads have no per-category sections (see
  *  `SQUAD_BOARD_CATEGORY`'s doc comment), just one add-ordered list. */
-export function renderSquadSection(squads: SquadRow[]): DiscordMessagePayload {
+export function renderSquadSection(squads: SquadRow[], publicOrigin: string): DiscordMessagePayload {
   const description =
     squads.length === 0
       ? '*(no squads yet — add one with `/squadAdd`)*'
-      : squads.map((s, i) => `${i + 1}. **${escapeMarkdown(s.name)}**`).join('\n')
+      : squads.map((s, i) => `${i + 1}. ${buildNameLink(escapeMarkdown(s.name), shareLandingUrl(publicOrigin, s.share_id))}`).join('\n')
 
   return {
     embeds: [{ title: 'Squads', description, color: BOARD_EMBED_COLOR }]
@@ -59,8 +77,11 @@ export function renderSquadSection(squads: SquadRow[]): DiscordMessagePayload {
 
 /** Discord markdown treats `*_~\`|` as formatting characters — escape them in user-supplied build/
  *  squad names so e.g. a build literally named "Power * Precision" doesn't render as italics.
- *  Exported for `discord/commands/builds.ts`/`squads.ts`'s pending-approval card descriptions,
- *  which quote the same user-supplied names outside a board section. */
+ *  `[`/`]` are escaped too so a name can safely sit inside a masked link's `[label]` (see
+ *  `buildNameLink` below) without an unescaped `]` closing the label early; harmless everywhere
+ *  else this is used, since an escaped bracket still just displays as a literal bracket. Exported
+ *  for `discord/commands/builds.ts`/`squads.ts`'s pending-approval card descriptions, which quote
+ *  the same user-supplied names outside a board section. */
 export function escapeMarkdown(text: string): string {
-  return text.replace(/[*_~`|\\]/g, (ch) => `\\${ch}`)
+  return text.replace(/[*_~`|\\[\]]/g, (ch) => `\\${ch}`)
 }

@@ -39,7 +39,7 @@ export async function buildBoardSetup(ctx: CommandContext): Promise<DiscordMessa
 
   const channelId = requireChannelOption(ctx)
   for (const profession of PROFESSIONS) {
-    const message = await createChannelMessage(ctx.env.DISCORD_BOT_TOKEN, channelId, renderBuildSection(profession, []))
+    const message = await createChannelMessage(ctx.env.DISCORD_BOT_TOKEN, channelId, renderBuildSection(profession, [], ctx.env.PUBLIC_ORIGIN))
     await upsertBoardMessage(ctx.env, ctx.guildId, 'build', profession, channelId, message.id)
   }
 
@@ -58,7 +58,7 @@ export async function buildBoardRebuild(ctx: CommandContext): Promise<DiscordMes
   const channelId = stringOption(ctx.options, 'channel') ?? existing?.channel_id ?? ctx.channelId
 
   const builds = await listBuildsByProfession(ctx.env, ctx.guildId, profession)
-  const message = await createChannelMessage(ctx.env.DISCORD_BOT_TOKEN, channelId, renderBuildSection(profession, builds))
+  const message = await createChannelMessage(ctx.env.DISCORD_BOT_TOKEN, channelId, renderBuildSection(profession, builds, ctx.env.PUBLIC_ORIGIN))
   await upsertBoardMessage(ctx.env, ctx.guildId, 'build', profession, channelId, message.id)
 
   return { content: `${profession}'s build board section rebuilt in <#${channelId}>.` }
@@ -71,7 +71,7 @@ export async function squadBoardSetup(ctx: CommandContext): Promise<DiscordMessa
   }
 
   const channelId = requireChannelOption(ctx)
-  const message = await createChannelMessage(ctx.env.DISCORD_BOT_TOKEN, channelId, renderSquadSection([]))
+  const message = await createChannelMessage(ctx.env.DISCORD_BOT_TOKEN, channelId, renderSquadSection([], ctx.env.PUBLIC_ORIGIN))
   await upsertBoardMessage(ctx.env, ctx.guildId, 'squad', SQUAD_BOARD_CATEGORY, channelId, message.id)
 
   return { content: `Squad board set up in <#${channelId}>.` }
@@ -82,7 +82,7 @@ export async function squadBoardRebuild(ctx: CommandContext): Promise<DiscordMes
   const channelId = stringOption(ctx.options, 'channel') ?? existing?.channel_id ?? ctx.channelId
 
   const squads = await listSquads(ctx.env, ctx.guildId)
-  const message = await createChannelMessage(ctx.env.DISCORD_BOT_TOKEN, channelId, renderSquadSection(squads))
+  const message = await createChannelMessage(ctx.env.DISCORD_BOT_TOKEN, channelId, renderSquadSection(squads, ctx.env.PUBLIC_ORIGIN))
   await upsertBoardMessage(ctx.env, ctx.guildId, 'squad', SQUAD_BOARD_CATEGORY, channelId, message.id)
 
   return { content: `Squad board rebuilt in <#${channelId}>.` }

@@ -27,7 +27,7 @@ async function syncSquadSection(env: Env, guildId: string): Promise<void> {
   const board = await getBoardMessage(env, guildId, 'squad', SQUAD_BOARD_CATEGORY)
   if (!board) return
   const squads = await listSquads(env, guildId)
-  await editChannelMessage(env.DISCORD_BOT_TOKEN, board.channel_id, board.message_id, renderSquadSection(squads))
+  await editChannelMessage(env.DISCORD_BOT_TOKEN, board.channel_id, board.message_id, renderSquadSection(squads, env.PUBLIC_ORIGIN))
 }
 
 function isUniqueConstraintError(err: unknown): boolean {

@@ -350,14 +350,27 @@ hands with as little friction as possible, ideally opening it straight in the de
 Preview affordance directly on the board, not just via typing `/builddisplay`; (3) a
 profession/elite-spec emoji next to each build's name. Feasibility + scope decisions:
 
-1. **Hyperlink → clipboard / auto-open.** A raw Discord markdown link only navigates — it can't
-   run JS to write the clipboard on click. The real version of "copy" is a small worker-hosted
-   landing page with a one-click Copy button (cheap, no Electron changes). "Auto-open in the app"
-   is a real, separate feature: a custom URL protocol (`app.setAsDefaultProtocolClient`,
-   electron-builder's NSIS `protocols` config wires the Windows registry) that the landing page
-   tries before falling back to the copy button, plus new main-process code to catch that URL and
-   drive the import flow. **Deferred, not built yet** — the user chose to land the simple version
-   first as its own future session rather than bundle it with the bigger protocol-handler piece.
+1. **Hyperlink → clipboard / auto-open — the copy half built this session.** A raw Discord markdown
+   link only navigates — it can't run JS to write the clipboard on click. The real version of
+   "copy" is a small worker-hosted landing page with a one-click Copy button (cheap, no Electron
+   changes): `render/board.ts`'s `renderBuildSection`/`renderSquadSection` now wrap each list entry's
+   name in a masked link (`**[Name](url)**`, `escapeMarkdown` extended to also escape `[`/`]` so a
+   name can't break out of the link label) pointing at a new `GET /shares/:id/open` route
+   (`render/share-landing.ts`), instead of the raw `/shares/:id` JSON the desktop app's own import
+   flow fetches. That page shows the build/squad's name (+ profession, reusing
+   `share-validate.ts`'s existing field extraction — no new validation), a Copy button for the same
+   `/shares/:id` link `ImportFromLinkButton`'s "Import from link" box already accepts, a manual-copy
+   fallback input for browsers that block `navigator.clipboard`, and a GitHub Releases link for
+   someone who doesn't have the app yet. Applies to squad board entries too, not just builds — the
+   same landing page works for either share kind, and squads already carry a `share_id`. Self-
+   contained, theme-aware (light/dark via `prefers-color-scheme`, matching the app's own palette
+   tokens) HTML with a per-request CSP nonce gating its one inline `<script>`, no external requests.
+   "Auto-open in the app" is a real, separate feature: a custom URL protocol
+   (`app.setAsDefaultProtocolClient`, electron-builder's NSIS `protocols` config wires the Windows
+   registry) that the landing page would try before falling back to the copy button, plus new
+   main-process code to catch that URL and drive the import flow. **Still deferred** — the user
+   chose to land the simple copy version first as its own session rather than bundle it with the
+   bigger protocol-handler piece. **Not yet deployed** as of this writing — needs `wrangler deploy`.
 2. **Preview button per build.** Discord caps a message at 25 components (5 rows × 5) — one button
    per build in a busy profession section would hit that fast. A **select menu** per section
    ("Preview a build…", up to 25 options) was the user's chosen direction, reusing the same

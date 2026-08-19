@@ -31,7 +31,7 @@ async function syncBuildSection(env: Env, guildId: string, profession: string): 
   const board = await getBoardMessage(env, guildId, 'build', profession)
   if (!board) return
   const builds = await listBuildsByProfession(env, guildId, profession)
-  await editChannelMessage(env.DISCORD_BOT_TOKEN, board.channel_id, board.message_id, renderBuildSection(profession, builds))
+  await editChannelMessage(env.DISCORD_BOT_TOKEN, board.channel_id, board.message_id, renderBuildSection(profession, builds, env.PUBLIC_ORIGIN))
 }
 
 function isUniqueConstraintError(err: unknown): boolean {

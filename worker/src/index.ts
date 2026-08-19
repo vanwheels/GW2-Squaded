@@ -1,6 +1,7 @@
 import { handleInteraction } from './discord/interactions'
 import type { Env } from './env'
 import { CORS_HEADERS, json } from './http'
+import { renderShareLandingPage, renderShareNotFoundPage } from './render/share-landing'
 
 export type { Env }
 
@@ -55,11 +56,36 @@ async function handleCreate(request: Request, env: Env): Promise<Response> {
   return json({ id }, 201)
 }
 
-async function handleGet(id: string, env: Env): Promise<Response> {
+async function getStoredShare(id: string, env: Env): Promise<StoredShare | null> {
   const raw = await env.SHARES.get(`share:${id}`)
-  if (!raw) return json({ error: 'not_found' }, 404)
-  const stored = JSON.parse(raw) as StoredShare
+  if (!raw) return null
+  return JSON.parse(raw) as StoredShare
+}
+
+async function handleGet(id: string, env: Env): Promise<Response> {
+  const stored = await getStoredShare(id, env)
+  if (!stored) return json({ error: 'not_found' }, 404)
   return json(stored)
+}
+
+/** `GET /shares/:id/open` — the human-facing landing page a build/squad's board hyperlink points
+ *  to (`render/board.ts`'s `shareLandingUrl`), as opposed to `GET /shares/:id` above which is the
+ *  JSON API the desktop app's own import flow fetches. See `render/share-landing.ts`'s doc comment
+ *  for why this is a separate page rather than content-negotiating the same route. A fresh nonce
+ *  per request gates the page's one inline `<script>` (the Copy button) via CSP, rather than
+ *  weakening the policy with a blanket `'unsafe-inline'`. */
+async function handleShareLanding(id: string, env: Env): Promise<Response> {
+  const nonce = crypto.randomUUID()
+  const stored = await getStoredShare(id, env)
+  const html = stored ? renderShareLandingPage(id, stored, env.PUBLIC_ORIGIN, nonce) : renderShareNotFoundPage(nonce)
+
+  return new Response(html, {
+    status: stored ? 200 : 404,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Content-Security-Policy': `default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}'`
+    }
+  })
 }
 
 export default {
@@ -77,6 +103,10 @@ export default {
 
     if (request.method === 'GET' && pathParts.length === 2 && pathParts[0] === 'shares') {
       return handleGet(pathParts[1], env)
+    }
+
+    if (request.method === 'GET' && pathParts.length === 3 && pathParts[0] === 'shares' && pathParts[2] === 'open') {
+      return handleShareLanding(pathParts[1], env)
     }
 
     if (request.method === 'POST' && pathParts.length === 1 && pathParts[0] === 'interactions') {
