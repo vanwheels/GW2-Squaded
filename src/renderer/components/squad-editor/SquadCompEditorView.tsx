@@ -3,9 +3,11 @@ import type { Build, GhostPick, PartySlots, SquadComp, SquadSlot } from '@shared
 import type { SquadCompSharePayload } from '@shared/share/types'
 import { useBuildsStore } from '@renderer/state/builds-store'
 import { makeBlankParty, useSquadCompsStore } from '@renderer/state/squad-comps-store'
+import { useAppSettings } from '@renderer/state/app-settings-store'
 import { SharePanel } from '@renderer/components/common/SharePanel'
 import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
 import { TagInput } from '@renderer/components/common/TagInput'
+import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch'
 import { BuildsSidebar } from './BuildsSidebar'
 import { PartyRow } from './PartyRow'
 import type { BuildDragPayload } from './drag-payload'
@@ -30,6 +32,7 @@ export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
   const [screenshotMode, setScreenshotMode] = useState(false)
   const { builds } = useBuildsStore()
   const { squadComps } = useSquadCompsStore()
+  const { partyWideOnly, setPartyWideOnly } = useAppSettings()
   const buildsById = useMemo(() => new Map(builds.map((b) => [b.id, b])), [builds])
   // Capture target is the party-rows column only, not `.squad-editor-body` — deliberately excludes
   // `BuildsSidebar`, which isn't part of what a shared squad screenshot should show (it's an
@@ -142,6 +145,7 @@ export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
           onChange={(e) => setDraft({ ...draft, name: e.target.value })}
         />
         <TagInput tags={draft.tags} onChange={(tags) => setDraft({ ...draft, tags })} suggestions={tagSuggestions} />
+        <ToggleSwitch checked={partyWideOnly} onChange={setPartyWideOnly} label="Party-wide only" />
         <ScreenshotButton
           targetRef={partyRowsRef}
           onBeforeCapture={() => setScreenshotMode(true)}

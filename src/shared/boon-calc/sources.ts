@@ -4963,16 +4963,76 @@ export const BOON_STRIP_CORRUPT_MATCHERS: Record<string, (fact: Fact) => boolean
   Cleanse: (f) => f.type === 'Number' && typeof f.text === 'string' && /condition.*remov|remov.*condition/i.test(f.text)
 }
 
-/** Matcher names in `BOON_STRIP_CORRUPT_MATCHERS` (or any other matcher table) that have a
- *  curated wiki-verified target-count table to resolve `NamedFactSource.targetCount` from — passed
- *  to `computeNamedFactSources` alongside the matcher table itself. Only `Cleanse` has one today;
- *  Strip/Corrupt (how many enemies a boon is stripped/corrupted from) and every Control/
- *  Miscellaneous name were never scoped for this and stay `null`. */
+/**
+ * Party-wide entries for `MISCELLANEOUS_MATCHERS`' "Breaks Stun" row (TODO.md's "party-wide-only
+ * filter," Misc-row scoping pass, 2026-08-19) — a first leg, NOT a full wiki-verified sweep like
+ * `CONDITION_CLEANSE_TARGETS`/`TARGET_COUNT_OVERRIDES`: 136 skill + 3 trait ids carry a `StunBreak`/
+ * `Breaks Stun` fact, and the overwhelming majority (dodge/utility skills breaking the caster's own
+ * stun) are genuinely self-only — but curating a self entry has zero functional effect here (`'self'`
+ * resolves to `targetCount: null`, see `resolveOverrideValue`, identical to leaving a source
+ * uncurated), so this table only lists sources CONFIRMED party-wide, and leaves everything else
+ * uncurated rather than spending a full self/party classification pass on sources whose curation
+ * wouldn't change any observable behavior. Each entry below has its own description explicitly tying
+ * "breaks stun" to allies (not just ally wording elsewhere on the same source, which stays
+ * uncurated/excluded per this codebase's "skip+log rather than guess" convention), corroborated by
+ * a `"Number of Targets": 5` fact each one also carries — normally the untrusted enemy-facing label
+ * (see `BoonConditionSource.targetCount`'s doc comment), but these sources have no foe-facing
+ * component at all, so — like the already-curated Healing Rain/Heat Wave exceptions
+ * `TARGET_COUNT_OVERRIDES` documents — the mislabeled fact is trusted as the real ally count here too.
+ * Many more Breaks-Stun sources already resolve for free with no entry needed at all, via their own
+ * `"Number of Allied Targets"` fact (`resolveTargetCountFrom` checks that before ever consulting this
+ * table) — e.g. "Save Yourselves!", "Protect Me!", Banner of Tactics, "Never Surrender!".
+ * Remaining scope for a future sweep leg: the ~120 still-uncurated Breaks-Stun sources (mostly
+ * self-only by inspection, but not individually confirmed), plus Stealth (32 remaining after the
+ * free API-fact resolutions), Superspeed (51 remaining), and Barrier (68 remaining) — none of which
+ * got the same manual description read this leg gave Breaks Stun, so they currently only benefit
+ * from the free `"Number of Allied Targets"`-fact resolutions wired below.
+ */
+export const BREAKS_STUN_PARTY_WIDE: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
+  skill: {
+    14372: 5, // "Shake It Off!" — "breaks stuns for affected allies"
+    30047: 5, // "Eye of the Storm!" — "breaking stun for nearby allies"
+    31401: 5, // Glyph of Equality — "Break stun for nearby allies"
+    62796: 5, // Awakening (Legendary Alliance) — "Break stun on nearby allies"
+    63293: 5, // Crisis Zone (Mechanist) — "breaks stuns...to itself and nearby allies"
+    77155: 5, // Chant of Freedom — "Breaks stun from allies in an area around you"
+    77178: 5, // Tale of the Valiant Marshal — "Break their stuns" (nearby allies called to action)
+    77321: 5 // Stalwart Stance — "Break stun for nearby allies"
+  },
+  trait: {
+    612: 5, // Indomitable Courage — "breaks stun and grants stability to nearby allies" (one
+    // compound predicate scoped to "nearby allies")
+    2005: 5 // Mental Defense — "breaks allies out of stuns"
+  }
+}
+
+/** Placeholder table with no curated overrides of its own — still meaningfully different from
+ *  omitting the matcher name from `NAMED_FACT_TARGET_COUNT_TABLES` entirely: `resolveTargetCountFrom`
+ *  checks a source's own `"Number of Allied Targets"` fact BEFORE ever consulting the override table,
+ *  so wiring even an empty table in unlocks that free resolution for any source that already carries
+ *  one. Used for Stealth/Superspeed/Barrier below, none of which have had a manual description-read
+ *  pass yet (see `BREAKS_STUN_PARTY_WIDE`'s doc comment for the scope that's still open). */
+const NO_MANUAL_TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
+  skill: {},
+  trait: {}
+}
+
+/** Matcher names in `BOON_STRIP_CORRUPT_MATCHERS`/`MISCELLANEOUS_MATCHERS` (or any other matcher
+ *  table) that resolve `NamedFactSource.targetCount` — passed to `computeNamedFactSources` alongside
+ *  the matcher table itself. `Cleanse`/`Breaks Stun` carry real curated overrides;
+ *  `Stealth`/`Superspeed`/`Barrier` only get the free `"Number of Allied Targets"`-fact resolution
+ *  (see `NO_MANUAL_TARGET_COUNT_OVERRIDES`'s doc comment) until their own sweep leg lands. Strip/
+ *  Corrupt (how many enemies a boon is stripped/corrupted from) and every Control name were never
+ *  scoped for this and stay `null` — omitted from this table entirely, not just uncurated within it. */
 export const NAMED_FACT_TARGET_COUNT_TABLES: Record<
   string,
   { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }
 > = {
-  Cleanse: CONDITION_CLEANSE_TARGETS
+  Cleanse: CONDITION_CLEANSE_TARGETS,
+  Stealth: NO_MANUAL_TARGET_COUNT_OVERRIDES,
+  Superspeed: NO_MANUAL_TARGET_COUNT_OVERRIDES,
+  'Breaks Stun': BREAKS_STUN_PARTY_WIDE,
+  Barrier: NO_MANUAL_TARGET_COUNT_OVERRIDES
 }
 
 /**
@@ -5374,4 +5434,51 @@ export function groupBoonConditionSources(sources: BoonConditionSource[]): BoonC
     group.sources.push(source)
   }
   return [...map.values()].sort((a, b) => a.name.localeCompare(b.name))
+}
+
+/**
+ * Minimum `targetCount` for a source to count as "reaches a full party" — TODO.md's "party-wide-only
+ * filter" (flagged 2026-08-16, user-confirmed wording: "just the buffs that target 5+ players, a
+ * full party"). A squad-wide 10-target effect still counts, since a full party is a subset of that
+ * reach; self-only (1) and small-group (2-4) sources don't. `targetCount === null` (unresolved/
+ * uncurated reach — see `BoonConditionSource.targetCount`'s doc comment) is deliberately excluded
+ * too, conservative by design: don't claim party-wide for a source this app hasn't actually curated.
+ */
+export const PARTY_WIDE_TARGET_COUNT = 5
+
+export function isPartyWideTargetCount(targetCount: number | null): boolean {
+  return targetCount !== null && targetCount >= PARTY_WIDE_TARGET_COUNT
+}
+
+/**
+ * Party-wide-only filter for a whole `BoonConditionGroup[]`/`NamedFactGroup[]` row — drops every
+ * source that doesn't reach a full party (`isPartyWideTargetCount`), then drops any group left with
+ * zero sources. Used by `BoonConditionSummaryPanel`/`PartyRow`/`SlotTile`'s "party-wide only" toggle
+ * for the rows that are uniformly ally-facing (Boons, Auras, Miscellaneous) — the caller is
+ * responsible for NOT applying this to Conditions/Control (enemy-facing, unaffected by the toggle
+ * per the item's scoping) and for using `filterPartyWideNamedFactGroups` instead of this for the
+ * combined "Strips / Corrupts / Cleanses" row, where only the Cleanse line is ally-facing.
+ */
+export function filterPartyWideGroups<G extends { sources: { targetCount: number | null }[] }>(groups: G[]): G[] {
+  return groups
+    .map((g) => ({ ...g, sources: g.sources.filter((s) => isPartyWideTargetCount(s.targetCount)) }))
+    .filter((g) => g.sources.length > 0)
+}
+
+/** The one ally-facing name within `BOON_STRIP_CORRUPT_MATCHERS`' combined row — shared by every
+ *  caller of `filterPartyWideNamedFactGroups`/`filterPartyWideNamedFactEntries` for the "Strips /
+ *  Corrupts / Cleanses" row, so the set only needs to be extended in one place if that row ever
+ *  gains a second ally-facing matcher name. */
+export const CLEANSE_ONLY_NAMES: ReadonlySet<string> = new Set(['Cleanse'])
+
+/**
+ * Same idea as `filterPartyWideGroups`, but only filters groups whose `name` is in `namesToFilter` —
+ * every other group's `sources` passes through untouched. Built for the combined "Strips / Corrupts /
+ * Cleanses" row (`BOON_STRIP_CORRUPT_MATCHERS`), where Strip/Corrupt are enemy-facing (don't filter)
+ * and only Cleanse is ally-facing (`namesToFilter: CLEANSE_ONLY_NAMES`).
+ */
+export function filterPartyWideNamedFactGroups(groups: NamedFactGroup[], namesToFilter: ReadonlySet<string>): NamedFactGroup[] {
+  return groups
+    .map((g) => (namesToFilter.has(g.name) ? { ...g, sources: g.sources.filter((s) => isPartyWideTargetCount(s.targetCount)) } : g))
+    .filter((g) => g.sources.length > 0)
 }

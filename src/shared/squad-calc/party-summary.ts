@@ -25,6 +25,7 @@ import {
   computeBoonConditionSources,
   computeComboSources,
   computeNamedFactSources,
+  isPartyWideTargetCount,
   type SourceTargetCountOverride
 } from '../boon-calc/sources'
 
@@ -53,6 +54,12 @@ export interface PartyAuraContribution {
   sourceIcon: string
   scaledDurationSeconds: number
   applyCount: number
+  /** See `BoonConditionSource.targetCount`'s doc comment — populated the same way boons/conditions
+   *  are (`extractFromFacts` resolves it uniformly regardless of category), added 2026-08-19 for the
+   *  "party-wide only" filter (`filterPartyWideEntries`). Not surfaced in any aura tooltip today
+   *  (unlike boons, `toAuraIconItems` has never shown a target-count badge) — this filter is its
+   *  first real consumer. */
+  targetCount: number | null
 }
 
 export interface PartyAuraEntry {
@@ -193,7 +200,8 @@ export function computePartyAuraSummary(
         sourceName: source.sourceName,
         sourceIcon: source.sourceIcon,
         scaledDurationSeconds: source.scaledDurationSeconds,
-        applyCount: source.applyCount
+        applyCount: source.applyCount,
+        targetCount: source.targetCount
       })
     }
   })
@@ -297,4 +305,26 @@ export function computePartyComboSummary(
   })
 
   return [...map.values()].sort((a, b) => a.kind.localeCompare(b.kind))
+}
+
+/**
+ * Party-wide-only filter for `PartyBoonConditionEntry[]`/`PartyNamedFactEntry[]` — the party-summary
+ * counterpart to `filterPartyWideGroups` in `boon-calc/sources.ts` (see its doc comment for the
+ * scoping rules this shares: drops every contribution that doesn't reach a full party, then drops
+ * any entry left with zero contributions; caller applies this only to ally-facing rows). Used by
+ * `PartyRow`'s party-wide Boons/Auras/Miscellaneous summary rows.
+ */
+export function filterPartyWideEntries<E extends { contributions: { targetCount: number | null }[] }>(entries: E[]): E[] {
+  return entries
+    .map((e) => ({ ...e, contributions: e.contributions.filter((c) => isPartyWideTargetCount(c.targetCount)) }))
+    .filter((e) => e.contributions.length > 0)
+}
+
+/** Same idea as `filterPartyWideEntries`, but only filters entries whose `name` is in `namesToFilter`
+ *  — the party-summary counterpart to `filterPartyWideNamedFactGroups`, for `PartyRow`'s combined
+ *  "Strips / Corrupts / Cleanses" row (only Cleanse is ally-facing). */
+export function filterPartyWideNamedFactEntries(entries: PartyNamedFactEntry[], namesToFilter: ReadonlySet<string>): PartyNamedFactEntry[] {
+  return entries
+    .map((e) => (namesToFilter.has(e.name) ? { ...e, contributions: e.contributions.filter((c) => isPartyWideTargetCount(c.targetCount)) } : e))
+    .filter((e) => e.contributions.length > 0)
 }

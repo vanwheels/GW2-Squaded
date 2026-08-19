@@ -23,12 +23,20 @@ interface AppSettings {
    *  see `resolveTheme`/`applyTheme` below for how this becomes the `<html data-theme>` attribute
    *  `global.css`'s `:root[data-theme='light']` override reads. */
   themeMode: ThemeMode
+  /** Off by default. When on, the build editor's `BoonConditionSummaryPanel` and the squad editor's
+   *  `PartyRow`/`SlotTile` summaries only show boons/auras/miscellaneous effects and Cleanses whose
+   *  `targetCount` reaches a full party (see `isPartyWideTargetCount` in `boon-calc/sources.ts`) —
+   *  TODO.md's "party-wide-only filter" (flagged 2026-08-16). Persisted like `showUnderwater`/
+   *  `showRacialSkills` rather than reset per session: it's the same kind of "how much of this build's
+   *  real output do I want to see" display preference. */
+  partyWideOnly: boolean
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
   showUnderwater: false,
   showRacialSkills: false,
-  themeMode: 'dark'
+  themeMode: 'dark',
+  partyWideOnly: false
 }
 
 const STORAGE_KEY = 'gw2squaded.appSettings'
@@ -65,6 +73,7 @@ interface AppSettingsValue extends AppSettings {
   setShowUnderwater: (value: boolean) => void
   setShowRacialSkills: (value: boolean) => void
   setThemeMode: (value: ThemeMode) => void
+  setPartyWideOnly: (value: boolean) => void
 }
 
 const AppSettingsContext = createContext<AppSettingsValue | null>(null)
@@ -98,7 +107,8 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     ...settings,
     setShowUnderwater: (showUnderwater) => setSettings((current) => ({ ...current, showUnderwater })),
     setShowRacialSkills: (showRacialSkills) => setSettings((current) => ({ ...current, showRacialSkills })),
-    setThemeMode: (themeMode) => setSettings((current) => ({ ...current, themeMode }))
+    setThemeMode: (themeMode) => setSettings((current) => ({ ...current, themeMode })),
+    setPartyWideOnly: (partyWideOnly) => setSettings((current) => ({ ...current, partyWideOnly }))
   }
 
   return <AppSettingsContext.Provider value={value}>{children}</AppSettingsContext.Provider>

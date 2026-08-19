@@ -21,6 +21,7 @@ import { useDataUpdate } from '@renderer/state/data-update-store'
 import { SharePanel } from '@renderer/components/common/SharePanel'
 import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
 import { TagInput } from '@renderer/components/common/TagInput'
+import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch'
 import { BuildScreenshotGrid } from './BuildScreenshotGrid'
 import { GearOptimizerPanel } from './GearOptimizerPanel'
 
@@ -49,7 +50,7 @@ export function BuildEditorView({ build, onBack }: Props) {
   const [screenshotPreviewOpen, setScreenshotPreviewOpen] = useState(false)
   const { eliteSpecSkills, legends, professions, specializationsById } = useGameData()
   const { builds } = useBuildsStore()
-  const { showUnderwater } = useAppSettings()
+  const { showUnderwater, partyWideOnly, setPartyWideOnly } = useAppSettings()
   const { localGw2Build } = useDataUpdate()
   const columnsRef = useRef<HTMLDivElement>(null)
 
@@ -242,6 +243,7 @@ export function BuildEditorView({ build, onBack }: Props) {
         <button type="button" onClick={() => setScreenshotPreviewOpen((open) => !open)}>
           {screenshotPreviewOpen ? 'Hide screenshot layout' : 'Preview screenshot layout'}
         </button>
+        <ToggleSwitch checked={partyWideOnly} onChange={setPartyWideOnly} label="Party-wide only" />
         <ScreenshotButton targetRef={columnsRef} />
         <SharePanel kind="build" getData={() => draft} />
       </div>

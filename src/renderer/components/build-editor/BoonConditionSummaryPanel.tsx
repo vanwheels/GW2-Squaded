@@ -8,7 +8,10 @@ import {
   computeAuraSources,
   computeBoonConditionSources,
   computeComboSources,
+  CLEANSE_ONLY_NAMES,
   computeNamedFactSources,
+  filterPartyWideGroups,
+  filterPartyWideNamedFactGroups,
   groupBoonConditionSources,
   groupNamedFactSources,
   type BoonConditionGroup,
@@ -26,6 +29,7 @@ import {
   COMBO_ICONS
 } from '@shared/boon-calc/icons'
 import { useGameData } from '@renderer/state/game-data-store'
+import { useAppSettings } from '@renderer/state/app-settings-store'
 import { TooltipBody } from '@renderer/components/common/Tooltip'
 import { BoonConditionIconRow, type BoonConditionIconItem } from '@renderer/components/squad-editor/BoonConditionIconRow'
 
@@ -174,6 +178,7 @@ function comboIconItems(sources: ComboSource[]): BoonConditionIconItem[] {
  */
 export function BoonConditionSummaryPanel({ build }: Props) {
   const gameData = useGameData()
+  const { partyWideOnly } = useAppSettings()
 
   const boonConditionGroups = useMemo(() => groupBoonConditionSources(computeBoonConditionSources(build, gameData)), [build, gameData])
   const auraGroups = useMemo(() => groupBoonConditionSources(computeAuraSources(build, gameData)), [build, gameData])
@@ -182,7 +187,7 @@ export function BoonConditionSummaryPanel({ build }: Props) {
     [build, gameData]
   )
   const miscGroups = useMemo(
-    () => groupNamedFactSources(computeNamedFactSources(build, gameData, MISCELLANEOUS_MATCHERS)),
+    () => groupNamedFactSources(computeNamedFactSources(build, gameData, MISCELLANEOUS_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES)),
     [build, gameData]
   )
   const stripCorruptGroups = useMemo(
@@ -192,15 +197,33 @@ export function BoonConditionSummaryPanel({ build }: Props) {
   const comboSources = useMemo(() => computeComboSources(build, gameData), [build, gameData])
   const [comboFieldItem, comboFinisherItem] = useMemo(() => comboIconItems(comboSources), [comboSources])
 
+  // "Party-wide only" (TODO.md, flagged 2026-08-16) only ever narrows the ally-facing rows — Boons,
+  // Auras, Miscellaneous, and the Cleanse line within the combined Strip/Corrupt/Cleanse row.
+  // Conditions/Control/Strip/Corrupt are enemy-facing and stay unfiltered regardless of the toggle
+  // (see `filterPartyWideGroups`'s doc comment).
   const rows: { label: string; items: BoonConditionIconItem[] }[] = [
     { label: 'Conditions', items: iconItemsFor(boonConditionGroups, CONDITION_NAMES, BOON_CONDITION_ICONS) },
-    { label: 'Boons', items: iconItemsFor(boonConditionGroups, BOON_NAMES, BOON_CONDITION_ICONS) },
-    { label: 'Auras', items: iconItemsFor(auraGroups, AURA_NAMES, AURA_ICONS) },
+    {
+      label: 'Boons',
+      items: iconItemsFor(partyWideOnly ? filterPartyWideGroups(boonConditionGroups) : boonConditionGroups, BOON_NAMES, BOON_CONDITION_ICONS)
+    },
+    { label: 'Auras', items: iconItemsFor(partyWideOnly ? filterPartyWideGroups(auraGroups) : auraGroups, AURA_NAMES, AURA_ICONS) },
     { label: 'Control', items: namedFactIconItemsFor(controlGroups, Object.keys(CONTROL_MATCHERS), CONTROL_ICONS) },
-    { label: 'Misc.', items: namedFactIconItemsFor(miscGroups, Object.keys(MISCELLANEOUS_MATCHERS), MISCELLANEOUS_ICONS) },
+    {
+      label: 'Misc.',
+      items: namedFactIconItemsFor(
+        partyWideOnly ? filterPartyWideGroups(miscGroups) : miscGroups,
+        Object.keys(MISCELLANEOUS_MATCHERS),
+        MISCELLANEOUS_ICONS
+      )
+    },
     {
       label: 'Strips / Corrupts / Cleanses',
-      items: namedFactIconItemsFor(stripCorruptGroups, Object.keys(BOON_STRIP_CORRUPT_MATCHERS), BOON_STRIP_CORRUPT_ICONS)
+      items: namedFactIconItemsFor(
+        partyWideOnly ? filterPartyWideNamedFactGroups(stripCorruptGroups, CLEANSE_ONLY_NAMES) : stripCorruptGroups,
+        Object.keys(BOON_STRIP_CORRUPT_MATCHERS),
+        BOON_STRIP_CORRUPT_ICONS
+      )
     },
     { label: 'Combo Fields', items: [comboFieldItem] },
     { label: 'Combo Finishers', items: [comboFinisherItem] }

@@ -2,12 +2,14 @@ import { useState } from 'react'
 import type { Build, GhostPick, SquadSlot } from '@shared/types'
 import { useGameData } from '@renderer/state/game-data-store'
 import { useBuildsStore } from '@renderer/state/builds-store'
+import { useAppSettings } from '@renderer/state/app-settings-store'
 import { TooltipBody } from '@renderer/components/common/Tooltip'
 import { ContextMenu } from '@renderer/components/common/ContextMenu'
 import { UpgradePicker, type UpgradeOption } from '@renderer/components/build-editor/UpgradePicker'
 import { BuildPreviewModal } from '@renderer/components/build-editor/BuildPreviewModal'
 import {
   BOON_STRIP_CORRUPT_MATCHERS,
+  CLEANSE_ONLY_NAMES,
   CONTROL_MATCHERS,
   MISCELLANEOUS_MATCHERS,
   NAMED_FACT_TARGET_COUNT_TABLES,
@@ -15,6 +17,8 @@ import {
   computeBoonConditionSources,
   computeComboSources,
   computeNamedFactSources,
+  filterPartyWideGroups,
+  filterPartyWideNamedFactGroups,
   groupBoonConditionSources,
   groupNamedFactSources,
   type ComboSource
@@ -98,6 +102,7 @@ export function SlotTile({
 }: Props) {
   const gameData = useGameData()
   const { updateBuild } = useBuildsStore()
+  const { partyWideOnly } = useAppSettings()
   const [dragOver, setDragOver] = useState(false)
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null)
   const [previewBuild, setPreviewBuild] = useState<Build | null>(null)
@@ -169,14 +174,22 @@ export function SlotTile({
   const groups = build ? groupBoonConditionSources(computeBoonConditionSources(build, gameData)) : []
   const auraGroups = build ? groupBoonConditionSources(computeAuraSources(build, gameData)) : []
   const controlGroups = build ? groupNamedFactSources(computeNamedFactSources(build, gameData, CONTROL_MATCHERS)) : []
-  const miscGroups = build ? groupNamedFactSources(computeNamedFactSources(build, gameData, MISCELLANEOUS_MATCHERS)) : []
+  const miscGroups = build
+    ? groupNamedFactSources(computeNamedFactSources(build, gameData, MISCELLANEOUS_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES))
+    : []
   const stripCorruptGroups = build
     ? groupNamedFactSources(computeNamedFactSources(build, gameData, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES))
     : []
   const comboSources = build ? computeComboSources(build, gameData) : []
 
-  function iconItems(isCondition: boolean): BoonConditionIconItem[] {
-    return groups
+  // "Party-wide only" (TODO.md, flagged 2026-08-16) only narrows the ally-facing rows below — Boons,
+  // Auras, Miscellaneous, and the Cleanse line within the combined Strip/Corrupt/Cleanse row.
+  // Conditions/Control/Strip/Corrupt are enemy-facing and stay unfiltered regardless of the toggle
+  // (see `filterPartyWideGroups`'s doc comment). `iconItems(false, ...)`'s own `isCondition` filter
+  // discards any condition group left in a passed-in already-filtered `sourceGroups`, so this only
+  // ever needs to filter once, not once per row.
+  function iconItems(isCondition: boolean, sourceGroups: typeof groups = groups): BoonConditionIconItem[] {
+    return sourceGroups
       .filter((g) => g.isCondition === isCondition)
       .map((g) => ({
         key: g.name,
@@ -196,7 +209,7 @@ export function SlotTile({
       }))
   }
 
-  const auraItems: BoonConditionIconItem[] = auraGroups.map((g) => ({
+  const auraItems: BoonConditionIconItem[] = (partyWideOnly ? filterPartyWideGroups(auraGroups) : auraGroups).map((g) => ({
     key: g.name,
     icon: AURA_ICONS[g.name as AuraName],
     tooltip: (
@@ -294,12 +307,19 @@ export function SlotTile({
       )}
       {showSummary && build && (
         <div className="slot-tile-summary">
-          <BoonConditionIconRow items={iconItems(false)} />
+          <BoonConditionIconRow items={iconItems(false, partyWideOnly ? filterPartyWideGroups(groups) : groups)} />
           <BoonConditionIconRow items={iconItems(true)} />
           <BoonConditionIconRow items={namedFactItems(controlGroups, CONTROL_ICONS)} />
           <BoonConditionIconRow items={auraItems} />
-          <BoonConditionIconRow items={namedFactItems(miscGroups, MISCELLANEOUS_ICONS)} />
-          <BoonConditionIconRow items={namedFactItems(stripCorruptGroups, BOON_STRIP_CORRUPT_ICONS)} />
+          <BoonConditionIconRow
+            items={namedFactItems(partyWideOnly ? filterPartyWideGroups(miscGroups) : miscGroups, MISCELLANEOUS_ICONS)}
+          />
+          <BoonConditionIconRow
+            items={namedFactItems(
+              partyWideOnly ? filterPartyWideNamedFactGroups(stripCorruptGroups, CLEANSE_ONLY_NAMES) : stripCorruptGroups,
+              BOON_STRIP_CORRUPT_ICONS
+            )}
+          />
           <BoonConditionIconRow items={comboItems(comboSources)} />
         </div>
       )}

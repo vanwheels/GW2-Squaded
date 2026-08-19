@@ -9,6 +9,8 @@ import {
   computePartyBoonConditionSummary,
   computePartyComboSummary,
   computePartyNamedFactSummary,
+  filterPartyWideEntries,
+  filterPartyWideNamedFactEntries,
   type PartyAuraEntry,
   type PartyBoonConditionEntry,
   type PartyComboEntry,
@@ -16,6 +18,7 @@ import {
 } from '@shared/squad-calc/party-summary'
 import {
   BOON_STRIP_CORRUPT_MATCHERS,
+  CLEANSE_ONLY_NAMES,
   CONTROL_MATCHERS,
   MISCELLANEOUS_MATCHERS,
   NAMED_FACT_TARGET_COUNT_TABLES
@@ -155,7 +158,7 @@ export function PartyRow({
   screenshotMode = false
 }: Props) {
   const gameData = useGameData()
-  const { showUnderwater } = useAppSettings()
+  const { showUnderwater, partyWideOnly } = useAppSettings()
   const [expanded, setExpanded] = useState(false)
 
   /** Display/calc-only view of `buildsById` — see `withUnderwaterSetting`'s doc comment. Feeds
@@ -167,15 +170,25 @@ export function PartyRow({
     [buildsById, showUnderwater]
   )
 
+  // "Party-wide only" (TODO.md, flagged 2026-08-16) only narrows the ally-facing rows below — Boons,
+  // Auras, Miscellaneous, and the Cleanse line within the combined Strip/Corrupt/Cleanse row.
+  // Conditions/Control/Strip/Corrupt are enemy-facing and stay unfiltered regardless of the toggle
+  // (see `filterPartyWideEntries`'s doc comment).
   const summary = useMemo(
     () => computePartyBoonConditionSummary(party, effectiveBuildsById, gameData),
     [party, effectiveBuildsById, gameData]
   )
-  const boonItems = useMemo(() => toIconItems(summary.filter((e) => !e.isCondition), party), [summary, party])
+  const boonItems = useMemo(() => {
+    const boons = summary.filter((e) => !e.isCondition)
+    return toIconItems(partyWideOnly ? filterPartyWideEntries(boons) : boons, party)
+  }, [summary, party, partyWideOnly])
   const conditionItems = useMemo(() => toIconItems(summary.filter((e) => e.isCondition), party), [summary, party])
 
   const auraSummary = useMemo(() => computePartyAuraSummary(party, effectiveBuildsById, gameData), [party, effectiveBuildsById, gameData])
-  const auraItems = useMemo(() => toAuraIconItems(auraSummary, party), [auraSummary, party])
+  const auraItems = useMemo(
+    () => toAuraIconItems(partyWideOnly ? filterPartyWideEntries(auraSummary) : auraSummary, party),
+    [auraSummary, party, partyWideOnly]
+  )
 
   const controlSummary = useMemo(
     () => computePartyNamedFactSummary(party, effectiveBuildsById, gameData, CONTROL_MATCHERS),
@@ -184,18 +197,26 @@ export function PartyRow({
   const controlItems = useMemo(() => toNamedFactIconItems(controlSummary, party, CONTROL_ICONS), [controlSummary, party])
 
   const miscSummary = useMemo(
-    () => computePartyNamedFactSummary(party, effectiveBuildsById, gameData, MISCELLANEOUS_MATCHERS),
+    () => computePartyNamedFactSummary(party, effectiveBuildsById, gameData, MISCELLANEOUS_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES),
     [party, effectiveBuildsById, gameData]
   )
-  const miscItems = useMemo(() => toNamedFactIconItems(miscSummary, party, MISCELLANEOUS_ICONS), [miscSummary, party])
+  const miscItems = useMemo(
+    () => toNamedFactIconItems(partyWideOnly ? filterPartyWideEntries(miscSummary) : miscSummary, party, MISCELLANEOUS_ICONS),
+    [miscSummary, party, partyWideOnly]
+  )
 
   const stripCorruptSummary = useMemo(
     () => computePartyNamedFactSummary(party, effectiveBuildsById, gameData, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES),
     [party, effectiveBuildsById, gameData]
   )
   const stripCorruptItems = useMemo(
-    () => toNamedFactIconItems(stripCorruptSummary, party, BOON_STRIP_CORRUPT_ICONS),
-    [stripCorruptSummary, party]
+    () =>
+      toNamedFactIconItems(
+        partyWideOnly ? filterPartyWideNamedFactEntries(stripCorruptSummary, CLEANSE_ONLY_NAMES) : stripCorruptSummary,
+        party,
+        BOON_STRIP_CORRUPT_ICONS
+      ),
+    [stripCorruptSummary, party, partyWideOnly]
   )
 
   const comboSummary = useMemo(() => computePartyComboSummary(party, effectiveBuildsById, gameData), [party, effectiveBuildsById, gameData])

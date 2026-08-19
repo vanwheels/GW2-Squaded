@@ -165,23 +165,36 @@ Paragon's Motivation-tiered Chants (flagged by the user 2026-08-14) is now **FUL
 COMPLETED.md for the per-trait writeup) are all curated. One genuine gap fell out of that pass, since
 fixed — see COMPLETED.md's 2026-08-15 `MISCELLANEOUS_MATCHERS` WvW-override entry.
 
-- [ ] Party-wide-only filter for boon/condition/effect summaries (flagged 2026-08-16) — a new toggle
-      on the build editor (`BoonConditionSummaryPanel`) and squad editor (`SlotTile`/`PartyRow`) that,
-      when on, only shows boons/auras/miscellaneous effects (stealth, superspeed, etc.) and cleanses
-      whose `targetCount` reaches the full party: **`targetCount !== null && targetCount >= 5`**
-      (user-confirmed 2026-08-16: "just the buffs that target 5+ players, a full party" — a squad-wide
-      10-target effect still counts, since it covers the party as a subset; self-only (1) and
-      small-group (2-4) sources don't). Sources with unresolved/uncurated `targetCount` (`null`) are
-      **hidden** when the filter is on (conservative — don't claim party-wide for uncurated data).
-      Scope is the ally-facing categories only (Boons, Auras, Miscellaneous, and the Cleanse line of
-      Strips/Corrupts/Cleanses) — Conditions/Control/Strip/Corrupt are enemy-facing and "party wide"
-      doesn't apply the same way to them, unaffected by this toggle. Filtering happens per-source
-      within each group (a group with a mix of qualifying and non-qualifying sources still shows, just
-      with only the qualifying sources listed in its tooltip); a group hides entirely only when NONE of
-      its sources qualify. Needs a new `useAppSettings`-style boolean (or per-view local state — decide
-      whether this should persist like `showUnderwater`/`showRacialSkills` or reset per session) wired
-      through `computeBoonConditionSources`/`computeNamedFactSources`'s existing `targetCount` field —
-      no new data modeling needed, the field already exists on every source.
+Party-wide-only filter for boon/condition/effect summaries (flagged 2026-08-16) is **DONE 2026-08-19**
+— a `useAppSettings.partyWideOnly` toggle (persisted like `showUnderwater`/`showRacialSkills`, one
+`ToggleSwitch` in each editor's header so it's never captured by `ScreenshotButton`) that, when on,
+narrows `BoonConditionSummaryPanel` (build editor) and `PartyRow`/`SlotTile` (squad editor) to
+boons/auras/miscellaneous effects and the Cleanse line of Strips/Corrupts/Cleanses whose `targetCount`
+reaches a full party (`isPartyWideTargetCount`, `sources.ts`: `targetCount !== null && targetCount >=
+5`). Conditions/Control/Strip/Corrupt stay unfiltered (enemy-facing). `filterPartyWideGroups`/
+`filterPartyWideNamedFactGroups` (build editor) and `filterPartyWideEntries`/
+`filterPartyWideNamedFactEntries` (squad editor, `party-summary.ts`) do the filtering; `PartyAuraEntry`
+gained a `targetCount` field it didn't carry before (the underlying `BoonConditionSource` always had
+one, `computePartyAuraSummary` just never copied it through).
+
+Code review caught a real gap before ship: `MISCELLANEOUS_MATCHERS` (Stealth/Superspeed/Evade/Breaks
+Stun/Barrier) had **zero** curated `targetCount` data anywhere, so the Misc row would've gone
+permanently empty the instant the toggle was flipped on, for every build, regardless of what it
+actually produces. First-leg fix landed same day: `NAMED_FACT_TARGET_COUNT_TABLES` now covers
+Stealth/Superspeed/`Breaks Stun`/Barrier (Evade skipped — confirmed 100% self-only from local
+description text across all 17 candidates, and `'self'` resolves to `targetCount: null` exactly like
+"uncurated," so curating it changes no observable behavior). Every source with its own API `"Number of
+Allied Targets"` fact now resolves for free (46 across the 4 names — `resolveTargetCountFrom` checks
+that before ever consulting the override table), plus `BREAKS_STUN_PARTY_WIDE` manually curates 10
+more from explicit "breaks stun for/on allies" wording in their own description, corroborated by a
+`"Number of Targets": 5` fact each also carries (normally the untrusted enemy-facing label, but trusted
+here since these sources have no foe-facing component at all — see the table's own doc comment).
+
+- [ ] **Remaining scope, not started**: ~120 still-uncurated Breaks-Stun sources (mostly self-only by
+      inspection, not individually confirmed), plus a full manual description read for Stealth (32
+      candidates left after the free resolutions), Superspeed (51 left), and Barrier (68 left) — none
+      of which got the same pass Breaks Stun did this leg. Same "one leg, then check in" pacing as the
+      original Cleanse/target-count sweeps — see `pacing_large_sweeps` memory.
 
 - [ ] Exclusion filter on the Builds tab (flagged 2026-08-16) — extend `useTagFilter`
       (`src/renderer/state/use-tag-filter.ts`, shared by `BuildsView`/`SquadsView`/`BuildsSidebar`)
