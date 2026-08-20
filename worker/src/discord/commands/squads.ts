@@ -6,6 +6,7 @@ import {
   insertSquad,
   listSquads,
   updateSquad,
+  type BoardMessageRow,
   type PendingRequestRow,
   type SquadRow
 } from '../../db'
@@ -18,13 +19,15 @@ import { editChannelMessage, type DiscordMessagePayload } from '../api'
 import { checkApprovalGate } from '../approvals'
 import type { CommandContext } from './context'
 import { UserError } from '../errors'
-import { requireActionPermission } from '../permissions'
+import { requireActionPermission, withPermissionCheck } from '../permissions'
 import { stringOption } from '../interaction-types'
 
 /** Same "re-render from D1, PATCH in place, no-op if the board was never set up" shape as
- *  `builds.ts`'s `syncBuildSection` — squads have one section instead of nine. */
-async function syncSquadSection(env: Env, guildId: string): Promise<void> {
-  const board = await getBoardMessage(env, guildId, 'squad', SQUAD_BOARD_CATEGORY)
+ *  `builds.ts`'s `syncBuildSection` — squads have one section instead of nine. `knownBoard`, when
+ *  passed, skips the `getBoardMessage` lookup — see `syncBuildSection`'s doc comment for why (the
+ *  same duplicate-D1-round-trip fix, applied here for `applyAdd`). */
+async function syncSquadSection(env: Env, guildId: string, knownBoard?: BoardMessageRow): Promise<void> {
+  const board = knownBoard ?? (await getBoardMessage(env, guildId, 'squad', SQUAD_BOARD_CATEGORY))
   if (!board) return
   const squads = await listSquads(env, guildId)
   await editChannelMessage(env.DISCORD_BOT_TOKEN, board.channel_id, board.message_id, renderSquadSection(squads, env.PUBLIC_ORIGIN))
@@ -39,7 +42,14 @@ function isUniqueConstraintError(err: unknown): boolean {
 // direct command path below and Phase 3's `applyPendingSquadRequest`, same split as builds.ts.
 // -------------------------------------------------------------------------------------------
 
-async function applyAdd(env: Env, guildId: string, name: string, shareId: string, addedBy: string): Promise<SquadRow> {
+async function applyAdd(
+  env: Env,
+  guildId: string,
+  name: string,
+  shareId: string,
+  addedBy: string,
+  knownBoard?: BoardMessageRow
+): Promise<SquadRow> {
   const now = new Date().toISOString()
   let squad: SquadRow
   try {
@@ -48,7 +58,7 @@ async function applyAdd(env: Env, guildId: string, name: string, shareId: string
     if (isUniqueConstraintError(err)) throw new UserError(`A squad named "${name}" already exists on this server.`)
     throw err
   }
-  await syncSquadSection(env, guildId)
+  await syncSquadSection(env, guildId, knownBoard)
   return squad
 }
 
@@ -87,9 +97,10 @@ export async function squadAdd(ctx: CommandContext): Promise<DiscordMessagePaylo
   const nameArg = stringOption(ctx.options, 'name')?.trim()
   if (!link) throw new UserError('A link is required.')
 
-  await requireActionPermission(ctx.env, ctx.guildId, 'squad', 'add', ctx.member)
-
-  const fields = await resolveAndValidateSquadLink(ctx.env, link)
+  const fields = await withPermissionCheck(
+    requireActionPermission(ctx.env, ctx.guildId, 'squad', 'add', ctx.member),
+    resolveAndValidateSquadLink(ctx.env, link)
+  )
   const name = nameArg || fields.name
   if (!name) throw new UserError('A squad name is required — the linked squad has no name of its own either.')
 
@@ -107,7 +118,7 @@ export async function squadAdd(ctx: CommandContext): Promise<DiscordMessagePaylo
   )
   if (gated) return gated
 
-  const squad = await applyAdd(ctx.env, ctx.guildId, name, shareId, ctx.member.user.id)
+  const squad = await applyAdd(ctx.env, ctx.guildId, name, shareId, ctx.member.user.id, board)
   return { content: `Added **${squad.name}** to the squad board.` }
 }
 
@@ -115,9 +126,10 @@ export async function squadRemove(ctx: CommandContext): Promise<DiscordMessagePa
   const name = stringOption(ctx.options, 'name')
   if (!name) throw new UserError('A squad name is required.')
 
-  await requireActionPermission(ctx.env, ctx.guildId, 'squad', 'remove', ctx.member)
-
-  const squad = await getSquadByName(ctx.env, ctx.guildId, name)
+  const squad = await withPermissionCheck(
+    requireActionPermission(ctx.env, ctx.guildId, 'squad', 'remove', ctx.member),
+    getSquadByName(ctx.env, ctx.guildId, name)
+  )
   if (!squad) throw new UserError(`No squad named "${name}" found.`)
 
   const gated = await checkApprovalGate(
@@ -140,9 +152,10 @@ export async function squadEdit(ctx: CommandContext): Promise<DiscordMessagePayl
   if (!name) throw new UserError('A squad name is required.')
   if (!newName && !newLink) throw new UserError('Provide a new name and/or a new link — nothing to change otherwise.')
 
-  await requireActionPermission(ctx.env, ctx.guildId, 'squad', 'edit', ctx.member)
-
-  const squad = await getSquadByName(ctx.env, ctx.guildId, name)
+  const squad = await withPermissionCheck(
+    requireActionPermission(ctx.env, ctx.guildId, 'squad', 'edit', ctx.member),
+    getSquadByName(ctx.env, ctx.guildId, name)
+  )
   if (!squad) throw new UserError(`No squad named "${name}" found.`)
 
   let newShareId: string | undefined
@@ -215,7 +228,7 @@ export async function applyPendingSquadRequest(env: Env, request: PendingRequest
       if (!asLikelySquadCompFields(share.data)) throw new UserError('That squad link is no longer valid.')
       const board = await getBoardMessage(env, request.guild_id, 'squad', SQUAD_BOARD_CATEGORY)
       if (!board) throw new UserError("The squad board isn't set up anymore.")
-      const squad = await applyAdd(env, request.guild_id, request.proposed_name, request.proposed_share_id, request.requested_by)
+      const squad = await applyAdd(env, request.guild_id, request.proposed_name, request.proposed_share_id, request.requested_by, board)
       return `Added **${squad.name}** to the squad board.`
     }
     case 'remove': {

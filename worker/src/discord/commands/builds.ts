@@ -8,6 +8,7 @@ import {
   moveBuildToProfession,
   reorderBuildWithinProfession,
   updateBuild,
+  type BoardMessageRow,
   type BuildRow,
   type PendingRequestRow
 } from '../../db'
@@ -19,16 +20,23 @@ import { editChannelMessage, type DiscordMessagePayload } from '../api'
 import { checkApprovalGate } from '../approvals'
 import type { CommandContext } from './context'
 import { UserError } from '../errors'
-import { requireActionPermission } from '../permissions'
+import { requireActionPermission, withPermissionCheck } from '../permissions'
 import { integerOption, stringOption } from '../interaction-types'
 
 /** Re-renders a profession's section from its current D1 rows and PATCHes the live board message
  *  in place — the "keep the message in sync" half of every mutating build command. Silently does
  *  nothing if that section was never set up (`/buildBoardSetup` not yet run); the write to
  *  `builds` itself already succeeded by the time this runs, so a missing board message is a
- *  display gap to fix with `/buildBoardRebuild` later, not a reason to fail the command. */
-async function syncBuildSection(env: Env, guildId: string, profession: string): Promise<void> {
-  const board = await getBoardMessage(env, guildId, 'build', profession)
+ *  display gap to fix with `/buildBoardRebuild` later, not a reason to fail the command.
+ *
+ * `knownBoard`, when passed, skips the `getBoardMessage` lookup — every `applyAdd` caller below has
+ * already fetched this exact row via `requireBoardSetUp`/its own `getBoardMessage` call moments
+ * earlier to validate the board exists before writing, so re-querying it here was a pure duplicate
+ * D1 round-trip on the add path (part of the Discord bot latency diagnosis in TODO.md). Left as a
+ * fresh lookup (`undefined`) for `applyRemove`/`applyMove`/the same-profession half of `applyEdit`,
+ * which have no such prior fetch to reuse. */
+async function syncBuildSection(env: Env, guildId: string, profession: string, knownBoard?: BoardMessageRow): Promise<void> {
+  const board = knownBoard ?? (await getBoardMessage(env, guildId, 'build', profession))
   if (!board) return
   const builds = await listBuildsByProfession(env, guildId, profession)
   await editChannelMessage(env.DISCORD_BOT_TOKEN, board.channel_id, board.message_id, renderBuildSection(profession, builds, env.PUBLIC_ORIGIN))
@@ -51,7 +59,8 @@ async function applyAdd(
   shareId: string,
   profession: string,
   specializationId: number | null,
-  addedBy: string
+  addedBy: string,
+  knownBoard?: BoardMessageRow
 ): Promise<BuildRow> {
   const now = new Date().toISOString()
   let build: BuildRow
@@ -70,7 +79,7 @@ async function applyAdd(
     if (isUniqueConstraintError(err)) throw new UserError(`A build named "${name}" already exists on this server.`)
     throw err
   }
-  await syncBuildSection(env, guildId, build.profession)
+  await syncBuildSection(env, guildId, build.profession, knownBoard)
   return build
 }
 
@@ -139,11 +148,14 @@ async function resolveAndValidateBuildLink(env: Env, linkOrShareId: string) {
   return fields
 }
 
-async function requireBoardSetUp(env: Env, guildId: string, profession: string): Promise<void> {
+/** Returns the fetched board row (not just `void`) so add-path callers can pass it straight into
+ *  `applyAdd`/`syncBuildSection` instead of re-querying the same row a moment later. */
+async function requireBoardSetUp(env: Env, guildId: string, profession: string): Promise<BoardMessageRow> {
   const board = await getBoardMessage(env, guildId, 'build', profession)
   if (!board) {
     throw new UserError(`The build board isn't set up yet for **${profession}** — ask an admin to run \`/buildBoardSetup\`.`)
   }
+  return board
 }
 
 // -------------------------------------------------------------------------------------------
@@ -155,12 +167,13 @@ export async function buildAdd(ctx: CommandContext): Promise<DiscordMessagePaylo
   const nameArg = stringOption(ctx.options, 'name')?.trim()
   if (!link) throw new UserError('A link is required.')
 
-  await requireActionPermission(ctx.env, ctx.guildId, 'build', 'add', ctx.member)
-
-  const fields = await resolveAndValidateBuildLink(ctx.env, link)
+  const fields = await withPermissionCheck(
+    requireActionPermission(ctx.env, ctx.guildId, 'build', 'add', ctx.member),
+    resolveAndValidateBuildLink(ctx.env, link)
+  )
   const name = nameArg || fields.name
   if (!name) throw new UserError('A build name is required — the linked build has no name of its own either.')
-  await requireBoardSetUp(ctx.env, ctx.guildId, fields.profession)
+  const board = await requireBoardSetUp(ctx.env, ctx.guildId, fields.profession)
 
   const shareId = extractShareId(link)
 
@@ -173,7 +186,7 @@ export async function buildAdd(ctx: CommandContext): Promise<DiscordMessagePaylo
   )
   if (gated) return gated
 
-  const build = await applyAdd(ctx.env, ctx.guildId, name, shareId, fields.profession, fields.specializationId, ctx.member.user.id)
+  const build = await applyAdd(ctx.env, ctx.guildId, name, shareId, fields.profession, fields.specializationId, ctx.member.user.id, board)
   return { content: `Added **${name}** to ${build.profession}'s section.` }
 }
 
@@ -181,9 +194,10 @@ export async function buildRemove(ctx: CommandContext): Promise<DiscordMessagePa
   const name = stringOption(ctx.options, 'name')
   if (!name) throw new UserError('A build name is required.')
 
-  await requireActionPermission(ctx.env, ctx.guildId, 'build', 'remove', ctx.member)
-
-  const build = await getBuildByName(ctx.env, ctx.guildId, name)
+  const build = await withPermissionCheck(
+    requireActionPermission(ctx.env, ctx.guildId, 'build', 'remove', ctx.member),
+    getBuildByName(ctx.env, ctx.guildId, name)
+  )
   if (!build) throw new UserError(`No build named "${name}" found.`)
 
   const gated = await checkApprovalGate(
@@ -206,9 +220,10 @@ export async function buildEdit(ctx: CommandContext): Promise<DiscordMessagePayl
   if (!name) throw new UserError('A build name is required.')
   if (!newName && !newLink) throw new UserError('Provide a new name and/or a new link — nothing to change otherwise.')
 
-  await requireActionPermission(ctx.env, ctx.guildId, 'build', 'edit', ctx.member)
-
-  const build = await getBuildByName(ctx.env, ctx.guildId, name)
+  const build = await withPermissionCheck(
+    requireActionPermission(ctx.env, ctx.guildId, 'build', 'edit', ctx.member),
+    getBuildByName(ctx.env, ctx.guildId, name)
+  )
   if (!build) throw new UserError(`No build named "${name}" found.`)
 
   let newShareId: string | undefined
@@ -256,9 +271,10 @@ export async function buildMove(ctx: CommandContext): Promise<DiscordMessagePayl
     throw new UserError('Position must be a positive whole number (1 = top of the section).')
   }
 
-  await requireActionPermission(ctx.env, ctx.guildId, 'build', 'move', ctx.member)
-
-  const build = await getBuildByName(ctx.env, ctx.guildId, name)
+  const build = await withPermissionCheck(
+    requireActionPermission(ctx.env, ctx.guildId, 'build', 'move', ctx.member),
+    getBuildByName(ctx.env, ctx.guildId, name)
+  )
   if (!build) throw new UserError(`No build named "${name}" found.`)
 
   const gated = await checkApprovalGate(
@@ -335,7 +351,7 @@ export async function applyPendingBuildRequest(env: Env, request: PendingRequest
       if (!share || share.kind !== 'build') throw new UserError('That build link is no longer available.')
       const fields = asLikelyBuildFields(share.data)
       if (!fields) throw new UserError('That build link is no longer valid.')
-      await requireBoardSetUp(env, request.guild_id, fields.profession)
+      const board = await requireBoardSetUp(env, request.guild_id, fields.profession)
       const build = await applyAdd(
         env,
         request.guild_id,
@@ -343,7 +359,8 @@ export async function applyPendingBuildRequest(env: Env, request: PendingRequest
         request.proposed_share_id,
         fields.profession,
         fields.specializationId,
-        request.requested_by
+        request.requested_by,
+        board
       )
       return `Added **${build.name}** to ${build.profession}'s section.`
     }

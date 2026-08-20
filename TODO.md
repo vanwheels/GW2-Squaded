@@ -329,28 +329,48 @@ that before extending either further.
       slots specifically, or collapsing same-key infusion slots that end up with identical option
       sets before they hit the solver.
 
-- [ ] Discord bot latency (flagged 2026-08-19, not urgent) — previews (`/builddisplay`/
-      `/squaddisplay`/board select-menu previews/approval-card previews) take ~5-10s;
-      `/buildadd`/`/squadadd`/etc. take a few seconds. Diagnosed from reading the code (not yet
-      profiled live via `wrangler tail`, so treat the ranking below as a hypothesis to confirm
-      before spending real effort):
-      - **Previews, the bigger one**: `render/build-screenshot.ts`/`squad-screenshot.ts` do
-        `puppeteer.launch()` fresh on every call (documented, deliberate no-pooling tradeoff at
-        the time — "low-frequency command, not worth the complexity" — worth revisiting now that
-        it's visibly bothering the user), so each request pays full headless-Chromium cold-start
-        cost. On top of that, the fresh browser's `load-game-data-web.ts` re-fetches all 26
-        game-data JSON files (11MB total, ~9.3MB of which is just `skills.json`+`traits.json`)
-        with no cache surviving between requests, for a preview that only needs one profession's
-        worth of data. Two independent, stackable fixes: (1) reuse a warm session via
-        `@cloudflare/puppeteer`'s own `puppeteer.sessions()`/`puppeteer.connect()` instead of
-        always `launch()` — the standard Cloudflare-recommended fix for exactly this cold-start
-        cost, likely the single biggest win; (2) fetch only the specific profession(s) actually in
-        the build/squad being rendered instead of the full 9-profession catalog — bigger refactor
-        since `buildGameData()`/`GameDataProvider` is shared with Electron's load-everything-once
-        design, but would cut the dominant chunk of the 11MB.
-      - **Add/edit/remove, the smaller one**: `/buildadd` alone chains ~7 sequential network
-        round-trips (D1 permission check → KV share lookup → D1 board-setup check → D1
-        approval-mode check → D1 insert → D1 re-read → Discord API PATCH) rather than running the
-        independent ones (e.g. the permission check doesn't depend on resolving the share link)
-        concurrently. Moderate-effort, more modest win than the preview fix.
-      - Logged per the user's "come back to it later" — not blocking anything, no urgency.
+- [ ] Discord bot latency (flagged 2026-08-19) — three fixes landed 2026-08-19 from the original
+      diagnosis, one (the biggest remaining lever) still open:
+      - **Done — session reuse**: `render/browser-session.ts` (new) reuses a warm Browser Rendering
+        session via `puppeteer.sessions()`/`puppeteer.connect()` (Cloudflare's own documented
+        pattern — pick a random session with no `connectionId` attached, fall back to
+        `puppeteer.launch()` if none free or the connect races and fails) instead of
+        `build-screenshot.ts`/`squad-screenshot.ts` always launching fresh. Callers now
+        `browser.disconnect()` (not `.close()`) so the session survives for the next call, and
+        explicitly `page.close()` first so a long-lived session doesn't accumulate stale tabs.
+        This was diagnosed as the single biggest win of the two originally stacked preview fixes.
+      - **Done — duplicate D1 round-trip**: the add path (`buildAdd`/`squadAdd`/both Phase 3
+        `applyPending*Request` add cases) fetched the same `board_messages` row twice — once to
+        validate the board's set up, again inside `syncBuildSection`/`syncSquadSection` right after
+        the insert. `requireBoardSetUp` now returns the row it fetched instead of `void`, and
+        `applyAdd`/`syncBuildSection`/`syncSquadSection` all take an optional `knownBoard` to skip
+        the second lookup. Deliberately NOT extended to `buildEdit`'s cross-profession case — that
+        path already re-derives its share-link fields a second time by design ("re-derive rather
+        than trust a captured closure value", see the code comment), and reusing a board row fetched
+        against the *first* resolution would undermine that guarantee for a fringe scenario (edit +
+        profession change) that's rare to begin with.
+      - **Done — concurrent permission check**: `requireActionPermission` was always awaited before
+        the next lookup even though nothing about that lookup (resolving a share link, looking up
+        the target build/squad by name) depends on the permission check's outcome. New
+        `withPermissionCheck` helper (`discord/permissions.ts`) runs both concurrently via
+        `Promise.allSettled`, but still surfaces the permission error preferentially if both reject
+        — same failure-path behavior as the old serialized order, only the success-path latency
+        changes. Applied to all 7 mutating commands (`buildAdd`/`Remove`/`Edit`/`Move`,
+        `squadAdd`/`Remove`/`Edit`).
+      - **Still open — profession-scoped game-data fetch**: the fresh browser's
+        `load-game-data-web.ts` still re-fetches all 26 game-data JSON files (11MB total, ~9.3MB of
+        which is just `skills.json`+`traits.json`) per render, for a preview that usually only needs
+        one profession's (build preview) or a handful of professions' (squad preview) worth of data.
+        Not attempted this pass — genuinely a bigger refactor, since `buildGameData()`/
+        `GameDataProvider` is shared with Electron's load-everything-once design, and a squad
+        preview's profession set isn't known until the share itself is fetched and parsed (so it
+        can't simply mirror the build-preview case). With session reuse now in place, this may
+        matter less in practice (a warm session's browser-level HTTP cache means repeat renders on
+        the *same* session don't re-download the JSON at all — only the first render after a cold
+        start pays the full 11MB) — worth re-profiling via `wrangler tail` before sinking time into
+        it, per the note below.
+      - Not yet profiled live via `wrangler tail` (the code-reading diagnosis was always a
+        hypothesis, per the original entry) — worth doing once there's a moment to trigger a few
+        real `/builddisplay`/`/buildadd` calls and watch actual timings, both to confirm today's
+        fixes actually moved the needle and to re-rank whether the game-data fetch is still worth
+        the bigger refactor above.

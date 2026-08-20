@@ -1,6 +1,7 @@
-import puppeteer from '@cloudflare/puppeteer'
+import type { Page } from '@cloudflare/puppeteer'
 import type { Env } from '../env'
 import { UserError } from '../discord/errors'
+import { getBrowserSession } from './browser-session'
 
 /** Same reasoning as `build-screenshot.ts`'s own constant — comfortably above a normal render
  *  (fetch game-data + decode icons for however many builds the roster references) without tying
@@ -17,12 +18,13 @@ const GRID_SELECTOR = '.party-rows'
  * `/squad-preview.html?share=<id>` and screenshots the rendered party-rows grid once
  * `SquadPreviewPage.tsx`'s `data-render-state` signal says every icon has finished decoding.
  * Mirrors `renderBuildScreenshot` closely — see that function's doc comment for the shared
- * "fresh browser session per call, no pooling" reasoning, not re-explained here.
+ * "reuse a warm session via `getBrowserSession`" reasoning, not re-explained here.
  */
 export async function renderSquadScreenshot(env: Env, shareId: string): Promise<Uint8Array> {
-  const browser = await puppeteer.launch(env.MYBROWSER)
+  const browser = await getBrowserSession(env)
+  let page: Page | undefined
   try {
-    const page = await browser.newPage()
+    page = await browser.newPage()
     // Same live-debugging tap `build-screenshot.ts` added after its own leg-2 live-verify pass
     // caught silent render-tree crashes — kept permanently, not removed after use.
     page.on('console', (msg) => console.log(`[render page console] ${msg.type()}: ${msg.text()}`))
@@ -53,6 +55,9 @@ export async function renderSquadScreenshot(env: Env, shareId: string): Promise<
 
     return await grid.screenshot({ type: 'png' })
   } finally {
-    await browser.close()
+    // Same reasoning as `build-screenshot.ts`'s own finally block — close the page before
+    // disconnecting so a reused session doesn't accumulate stale tabs across requests.
+    await page?.close().catch(() => {})
+    await browser.disconnect()
   }
 }

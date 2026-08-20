@@ -1,6 +1,7 @@
-import puppeteer from '@cloudflare/puppeteer'
+import type { Page } from '@cloudflare/puppeteer'
 import type { Env } from '../env'
 import { UserError } from '../discord/errors'
+import { getBrowserSession } from './browser-session'
 
 /** Caps how long a render page gets before `/builddisplay` gives up — comfortably above the
  *  couple of seconds a normal render takes (fetch game-data + decode a build's icons), so a
@@ -20,15 +21,15 @@ const GRID_SELECTOR = '.build-editor-grid'
  * this (see that directory's own doc comments) — and screenshots the rendered build grid once
  * `BuildPreviewPage.tsx`'s `data-render-state` signal says every icon has finished decoding.
  *
- * Always launches and closes a fresh browser session per call — no pooling. `/builddisplay` is a
- * low-frequency command (at most a handful of calls per guild per day) and Browser Rendering's
- * free tier is capped per-day regardless, so there's no reuse win worth the added complexity of
- * keeping a session alive across requests here.
+ * Reuses a warm session via `getBrowserSession` when one's free (see that function's doc comment)
+ * rather than always launching fresh — the closest thing this bot has to a hot path, since every
+ * preview (`/builddisplay`, approval-card Preview, board select-menu previews) goes through here.
  */
 export async function renderBuildScreenshot(env: Env, shareId: string): Promise<Uint8Array> {
-  const browser = await puppeteer.launch(env.MYBROWSER)
+  const browser = await getBrowserSession(env)
+  let page: Page | undefined
   try {
-    const page = await browser.newPage()
+    page = await browser.newPage()
     // The render page has no error boundary, so an uncaught render exception crashes it silently
     // — `data-render-state` never gets set at all, and the only symptom without this is a bare
     // `waitForSelector` timeout below with no clue why (see the leg-2 live-verify writeup in
@@ -63,6 +64,10 @@ export async function renderBuildScreenshot(env: Env, shareId: string): Promise<
 
     return await grid.screenshot({ type: 'png' })
   } finally {
-    await browser.close()
+    // Close the page before disconnecting — `disconnect()` alone leaves this tab open in the
+    // session for whoever reuses it next, so a long-lived warm session would otherwise accumulate
+    // one stale tab per request forever.
+    await page?.close().catch(() => {})
+    await browser.disconnect()
   }
 }
