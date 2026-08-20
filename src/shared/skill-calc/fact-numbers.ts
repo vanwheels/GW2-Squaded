@@ -199,7 +199,39 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // `{{skill fact|Conditions Transferred|alt=Conditions Copied|3|game mode=pve}}` + `{{skill
   // fact|Conditions Transferred|alt=Conditions Copied|2|game mode=pvp wvw}}` — pve 3, pvp+wvw
   // share 2.
-  1721: { 'Conditions Copied': 2 }
+  1721: { 'Conditions Copied': 2 },
+
+  // Revenant Devastation majors/minors — 5th leg of the sweep (2026-08-20). Notoriety (1765) and
+  // Assassin's Presence (1786) each carry a Might/Fury Buff-type dupe already resolved by the
+  // separate `wvw-fact-overrides.json` script, out of scope for this table. Targeted Destruction's
+  // 2nd `traitedFacts` entry (`requires_trait: 2440`, Vindicator's Numinous Gift) is the same
+  // cross-spec-interaction shape seen on every prior leg, deliberately left alone. Dance of Death
+  // and Swift Termination's Health-Threshold/Damage-Reduced/Healing-Increase facts each carry only
+  // one unambiguous value. Battle Scarred (1755) is a genuinely different, NOT-yet-resolved shape:
+  // its "Life Siphon Healing" fact appears 3 times in the live API (117/58/68, `AttributeAdjust`
+  // type, not `Number`/`Percent`) but the wiki's own raw wikitext and rendered infobox (both
+  // re-checked 2026-08-20) only ever document 2 values — 117 pve, 58 shared pvp+wvw — with no
+  // mention anywhere of what 68 represents. Left uncurated rather than guessed; would also need
+  // `numericFactLines`'s filter extended to `AttributeAdjust`, which it doesn't handle today.
+
+  // Brutality (id 1715, Master major): "Increase damage while under the effects of quickness."
+  // Wiki: `{{skill fact|Damage Increase|15|game mode = pve wvw}}` + `{{skill fact|Damage
+  // Increase|10|game mode = pvp}}` (split changed 2025-06-24 when the trait's primary effect moved
+  // from removing stability to bonus damage) — pve+wvw share 15, pvp alone drops to 10.
+  1715: { 'Damage Increase': 15 },
+
+  // Destructive Impulses (id 1724, Adept minor): "All damage is increased. Off-hand weapon skills
+  // deal increased damage." Wiki: `{{skill fact|all damage increase|5}}` (unambiguous base 5%) +
+  // `{{skill fact|all damage increase|alt=Bonus Damage from Off Hand|2.5|game mode=pve}}` +
+  // `{{...|5|game mode=wvw pvp}}` — pve 2.5, wvw+pvp share 5 (PvE-only nerf, 2021-06-08).
+  1724: { 'Bonus Damage from Off Hand': 5 },
+
+  // Unsuspecting Strikes (id 1767, Adept major; wiki page now titled "Vicious Lacerations" after a
+  // rename, values unchanged): "Strike damage against foes above the health threshold is
+  // increased." Wiki: `{{skill fact|Damage Increase|20|game mode = pve}}` + `{{skill fact|Damage
+  // Increase|10|game mode = pvp wvw}}` (PvE-only nerf from 25 to 20, 2021-05-25) — pve 20, pvp+wvw
+  // share 10.
+  1767: { 'Damage Increase': 10 }
 }
 
 /**

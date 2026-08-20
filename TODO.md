@@ -127,7 +127,25 @@ showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). What's left
       Increase" also has no split — its `traitedFacts` 2nd pair (`requires_trait: 2440`, Numinous
       Gift) is the same cross-spec-interaction shape as Serene Rejuvenation/Determined Resolution,
       deliberately left alone. No Buff-type dupes on this line either.
-      Next leg not started: Devastation/Renegade/Vindicator/Conduit, same process.
+      **Devastation leg landed 2026-08-20**: 3 candidates — Brutality (1715, "Damage Increase" 15
+      pve+wvw/**10 pvp** — split changed 2025-06-24 when the trait's primary effect moved from
+      removing stability to bonus damage), Destructive Impulses (1724, "Bonus Damage from Off Hand"
+      2.5 pve/**5 wvw+pvp**, PvE-only nerf 2021-06-08; its own unrelated "Damage Increase" 5% base
+      fact has no split), Unsuspecting Strikes (1767, wiki page now titled "Vicious Lacerations"
+      after a rename, values unchanged: "Damage Increase" 20 pve/**10 pvp+wvw**, PvE-only nerf
+      2021-05-25; its "Health Threshold" 80 fact has no split). Notoriety/Assassin's Presence's
+      Might/Fury Buff-type dupes already handled by the separate `wvw-fact-overrides.json` script.
+      Targeted Destruction's 2nd `traitedFacts` pair is the same Numinous-Gift cross-spec shape seen
+      every leg so far, left alone. Dance of Death/Swift Termination's Health-Threshold/Damage-
+      Increase/Healing-Increase facts each carry one unambiguous value. **New open case surfaced,
+      not resolved**: Battle Scarred (1755) has a "Life Siphon Healing" fact appearing 3x in the
+      live API (117/58/68, `AttributeAdjust`-typed, not `Number`/`Percent`) — but both the wiki's
+      raw wikitext and rendered infobox (re-checked 2026-08-20) only ever document 2 values (117
+      pve, 58 shared pvp+wvw), no mention anywhere of what 68 represents. Left uncurated rather than
+      guessed; would also need `numericFactLines`'s filter extended to cover `AttributeAdjust`,
+      which it doesn't today. Worth a fresh wiki look (maybe a stale API value, or a genuine
+      undocumented wvw-only number) whenever this line is revisited.
+      Next leg not started: Renegade/Vindicator/Conduit, same process.
 
 ## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
 
