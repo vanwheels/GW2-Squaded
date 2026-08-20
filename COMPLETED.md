@@ -55,6 +55,15 @@ Bonds' curated-text tooltip helper) returns it too rather than a duplicate shape
 
 typecheck/lint/vitest (238 passing, 10 new) all clean.
 
+**Same-day follow-up**: user screenshotted Cosmic Wisdom's tooltip badly overlapping/wrapping — the
+new `legendAttributeFacts` rows had reused `.tooltip-boon-facts`' side-by-side icon+name / duration
+flex layout, sized for a short "5s" string, not a whole sentence (Cosmic Wisdom's "Form of X"
+descriptions). New `.tooltip-legend-facts` CSS instead stacks each row (icon+name header line, then
+the text wrapping normally at full width below) — applies to both Bolstered Bonds' short lines and
+Cosmic Wisdom's long ones via the same shared render slot. Not visually re-verified in the running
+app (Electron sandbox limitation persists), but the fix directly addresses the screenshotted
+overflow (a flex row with a `flex: none` long-text sibling squeezing its label column to nothing).
+
 ## Session 253 — Bolstered Bonds: per-legend attribute detail display (Spirit-Boon-style, but a different shape)
 
 User flagged, right after Session 252 closed Bolstered Bonds as "not this mechanism's scope": "we

@@ -1992,7 +1992,8 @@ input[type='text'] {
 }
 
 .tooltip-numeric-facts,
-.tooltip-boon-facts {
+.tooltip-boon-facts,
+.tooltip-legend-facts {
   list-style: none;
   margin: 6px 0 0;
   padding: 7px 0 0;
@@ -2043,6 +2044,22 @@ input[type='text'] {
 .tooltip-boon-facts .boon-source-duration {
   color: var(--muted);
   flex: none;
+}
+
+/* Per-legend "form"/attribute detail rows (Bolstered Bonds, Cosmic Wisdom) — unlike
+   `.tooltip-boon-facts`' name+duration pair, the 2nd column here is free-text (a whole sentence for
+   Cosmic Wisdom's "Form of X" descriptions), too long for that layout's side-by-side flex row, so
+   each entry stacks: an icon+name header line, then the text wrapping normally at full width below. */
+.tooltip-legend-facts li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--text);
+}
+
+.tooltip-legend-fact-text {
+  color: var(--muted);
+  padding-left: 19px; /* aligns under the header's own text, past its 14px icon + 5px gap */
 }
 
 .tooltip-description {

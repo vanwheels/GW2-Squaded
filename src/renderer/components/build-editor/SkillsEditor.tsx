@@ -239,14 +239,14 @@ export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSou
         </ul>
       )}
       {legendAttributeFacts.length > 0 && (
-        <ul className="tooltip-boon-facts">
+        <ul className="tooltip-legend-facts">
           {legendAttributeFacts.map((f, i) => (
             <li key={i}>
               <span className="tooltip-fact-label">
                 <img className="tooltip-fact-icon" src={f.legend.icon} alt="" />
                 <span>{f.legend.name}</span>
               </span>
-              <span className="boon-source-duration">{f.text}</span>
+              <div className="tooltip-legend-fact-text">{f.text}</div>
             </li>
           ))}
         </ul>
