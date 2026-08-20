@@ -67,22 +67,39 @@ showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). What's left
 - [ ] **Related pattern the investigation surfaced**: multiple raw API facts sharing one label with
       no discriminator, beyond the already-solved Buff-status/PvE-WvW-PvP case
       `WvwFactOverride`/`fetch-wvw-splits.ts` handles. Confirmed live across Salvation's own majors
-      (a full facts dump, 2026-08-19) — Serene Rejuvenation has 2 unlabeled "Effectiveness Increased
-      Percent" facts (20/15, likely pve/wvw+pvp) plus `PrefixedBuff` facts naming SKILLS not legends
-      (Natural Harmony/Purifying Essence/etc. — `resolveLegendFromPrefix` deliberately doesn't
-      attribute these, per its own doc comment, so they render unlabeled); Generous Abundance has 2x
-      "Centaur Skill Healing" and 3x "Other Legend Healing" (per-skill breakdown, unlabeled which
-      skill each is); Resilient Spirit has 2 identical "Barrier per Boon" facts; Invigorating
-      Dismissal has 3 "Endurance Gained" values; Life Attunement has 2 "Attribute Conversion"
-      percents; Invoking Harmony has 3 "Healing Increase to Others Percent" values; Unyielding
-      Devotion has 2 "Damage Reduced Percent" values. `NUMERIC_FACT_WVW_OVERRIDES` (`fact-numbers.ts`)
-      already exists for exactly this shape but has exactly 1 entry today (Calming Tongue) — every
-      Salvation case above is a fresh, uncurated instance of the same gap. Given the pattern held for
-      100% of Salvation's majors checked, it likely recurs across Invocation/Retribution/Corruption/
-      Devastation/Renegade/Vindicator/Conduit too — scope as its own dedicated sweep (one leg at a
-      time, per the pacing lesson in `pacing_large_sweeps` memory) rather than folding into the
-      2 items above. Not started; Salvation itself would be the natural first leg since it's already
-      fully triaged above.
+      (a full facts dump, 2026-08-19). **Salvation leg landed 2026-08-20**:
+      `NUMERIC_FACT_WVW_OVERRIDES` (`fact-numbers.ts`) gained 4 wiki-verified entries — Serene
+      Rejuvenation (1814, "Effectiveness Increased" 20 pve+pvp/**15 wvw**), Invigorating Dismissal
+      (1820, "Endurance Gained" 4 pve/**2 wvw**/3 pvp), Invoking Harmony (1823, "Healing Increase to
+      Others" 20 pve/15 pvp/**10 wvw**), Unyielding Devotion (1825, "Damage Reduced" 15 pve+wvw
+      /10 pvp — kept **15**). The filter mechanism itself needed generalizing (`Percent`-type facts,
+      not just `Number`) plus a `requires_trait == null` guard so it only touches base `facts`, not
+      `traitedFacts` — Serene Rejuvenation's own `traitedFacts` carry a 2nd unrelated
+      "Effectiveness Increased" pair (25/18) gated on Vindicator's Numinous Gift (2440, a cross-spec
+      minor-trait-effectiveness boost), a genuinely different value the base override would've
+      wrongly swallowed too; that 2nd pair is now correctly left alone (still renders as an
+      unresolved duplicate when 2440 is active) rather than folded into this fix. The other 3
+      Salvation candidates from the original dump turned out NOT to need a `NUMERIC_FACT_WVW_OVERRIDES`
+      entry: **Resilient Spirit**'s "Barrier per Boon" pair is 229/229 — genuinely identical, already
+      deduped for free by `numericFactLines`'s own `seen` set. **Life Attunement**'s "Attribute
+      Conversion" facts are `BuffConversion`-typed, a type `factLine`'s switch has no case for (falls
+      through to its `default: null`) — they never rendered via this path at all; the trait's real
+      stat gain is already correctly curated in `trait-attributes.ts` (`CURATED_FLAT_BONUSES`/
+      `CURATED_CONVERSIONS`, both wiki-verified back in 2026-08-02/08-12). **Generous Abundance** is
+      a different shape entirely, not a pve/wvw/pvp split — its "Centaur Skill Healing"
+      (783/271/463) and "Other Legend Healing" (261/152/197) triples are a **per-skill breakdown**
+      (Ventari's Tablet skills / other-legend heal skills), unlabeled which raw value belongs to
+      which skill; dropping to one value the way this table does would lose real information rather
+      than just declutter a game-conflated duplicate — same shape as Facet of Nature's per-legend
+      numbers in the Herald F2 item above, left for whoever picks that up (or its own future leg,
+      would need its own per-skill wiki mapping, not a `NUMERIC_FACT_WVW_OVERRIDES` entry). Also
+      still unaddressed from the original dump: Salvation's `PrefixedBuff` facts naming SKILLS not
+      legends (Natural Harmony/Purifying Essence/etc.) — `resolveLegendFromPrefix` deliberately
+      doesn't attribute these per its own doc comment, so they render unlabeled by design, not a bug.
+      Given the pattern held for most of Salvation's majors, it likely recurs across
+      Invocation/Retribution/Corruption/Devastation/Renegade/Vindicator/Conduit too — next leg not
+      started, pick any one spec line and re-run the same "dump every major's raw facts, wiki-verify
+      the game-mode split" process.
 
 ## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
 
