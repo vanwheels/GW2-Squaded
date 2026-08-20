@@ -3604,6 +3604,45 @@ const LEGEND_FORM_FACT_SKILL_IDS = new Set<number>([
 ])
 
 /**
+ * Same-day follow-up (2026-08-20): user flagged 3 more Conduit traits that interact with Cosmic
+ * Wisdom specifically — "Numinous Gift gives boons/additional effects to Cosmic Wisdom, as do the
+ * grandmaster majors Found Purpose and Mistfire." Unlike `LEGEND_FORM_EFFECT_DETAILS` above (which
+ * covers effects with NO backing skill id at all), these 2 are ordinary "trait fact copied onto the
+ * skill it triggers from" cases — same mechanism as the Notoriety cluster/Willbender Flames/Over
+ * Shield elsewhere in this file — so they need no new code, just `synthetic-facts.json` entries
+ * copied from each trait's own already-real API facts (`requires_trait` set to that trait's id):
+ * - **Numinous Gift** (2440, Grandmaster minor, always active once Conduit is equipped): "Gain
+ *   might and additional boons when you use Cosmic Wisdom, depending on which legends you have
+ *   equipped." Its own 5 `PrefixedBuff` boon facts (Fury/Assassin, Resistance/Demon, Stability/
+ *   Dwarf, Protection/Centaur, Quickness/Entity — already confirmed to need no WvW override at all
+ *   during the earlier Conduit `wvw-fact-overrides.json` leg this same day) plus its flat Might
+ *   fact are copied onto Cosmic Wisdom verbatim. Since these ARE recognized boon names (unlike the
+ *   Forms' placeholder statuses), they flow through the ordinary `boonConditionFactsForSkill`
+ *   pipeline automatically — Spirit-Boon-style legend-icon badge included, no `legendFormFactsForSkill`
+ *   involvement needed.
+ * - **Mistfire** (2429, Grandmaster major): "Perform an additional strike when using Cosmic Wisdom
+ *   that damages and burns enemies." Its own real `Damage`/`Burning`/`Radius`/`Number of Targets`
+ *   facts (NOT the "no id at all" shape `LEGEND_FORM_EFFECT_DETAILS` needed — Mistfire's facts
+ *   already exist on the trait object itself) copied onto Cosmic Wisdom the same way; see
+ *   `damage-calc.ts`'s matching `CURATED_DAMAGE_COEFFICIENTS` entry and `wvw-fact-overrides.json`'s
+ *   `Burning` split (pve 6s/wvw+pvp 4s, mirroring trait 2429's own already-curated entry).
+ *
+ * **Found Purpose** (2352, the 3rd Grandmaster major, mutually exclusive with Mistfire) was
+ * deliberately NOT added the same way, even though the user confirmed it also grants Numinous
+ * Gift's boons (party-wide, its own upgraded numbers) when Cosmic Wisdom is cast — Found Purpose's
+ * own facts share the exact same boon STATUSES as Numinous Gift's (Fury/Resistance/Stability/
+ * Protection), just different values (party-wide reach, mostly-lower durations). Copying BOTH
+ * traits' facts onto Cosmic Wisdom (both `requires_trait`-gated, Numinous Gift always active +
+ * Found Purpose only when chosen) would render TWO simultaneous rows per boon whenever Found
+ * Purpose is equipped (e.g. "Fury: 10s" AND "Fury: 5s" both attributed to Assassin) — this app's
+ * fact pipeline has no "trait A's value is superseded once trait B is ALSO active" concept, the
+ * same `overrides`-field gap already documented as unmodeled for Core Value/True Nature (TODO.md's
+ * "Herald F2" item). Found Purpose's own trait tooltip already shows its correct numbers (fixed
+ * during the Conduit `wvw-fact-overrides.json` leg) — that remains the only accurate source for
+ * this trait's contribution until a real "value superseded by a 2nd trait" mechanism exists.
+ */
+
+/**
  * A real, current-build-scaled number to append below a `legendFormFactsForSkill` row's own
  * description — for the 3 Cosmic Wisdom forms that deal genuine damage/healing whose numbers live
  * entirely on the wiki's own separate "effect skill" page, never exposed by the public API AT ALL

@@ -966,6 +966,18 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // Redemptor's Sermon (2228, "heal allies in the area and grant them protection when you use a
     // healing skill", also mirrored onto the same 8 heal ids) needs no entry — its Protection (3s)
     // is flat, no split.
+
+    // Cosmic Wisdom (77371) — Mistfire's (trait 2429) "additional strike on Cosmic Wisdom cast"
+    // copied onto Cosmic Wisdom's own facts via `synthetic-facts.json` (`requires_trait: 2429`,
+    // same "trait fact copied onto the skill it triggers from" mechanism as the Notoriety cluster
+    // above). Mirrors trait 2429's own already-curated Burning override below (pve 6s / wvw+pvp
+    // 4s) so both tooltips agree. Found 2026-08-20 (user: "Numinous Gift gives boons... Found
+    // Purpose and Mistfire" also affect Cosmic Wisdom) — Numinous Gift's own 5 per-legend boons +
+    // flat Might, also copied onto 77371 the same way, need no entry here: none of them has a
+    // pve/wvw split (confirmed during the earlier Conduit `wvw-fact-overrides.json` leg this same
+    // day). See `boon-calc/sources.ts`'s own comment near `LEGEND_FORM_FACT_SKILL_IDS` for the
+    // full writeup, including why Found Purpose was deliberately NOT added the same way.
+    77371: { Burning: 4 }
   },
   trait: {
     // Panic Strike (Thief/Deadly Arts trait 1292) and Be Quick or Be Killed (Thief/Trickery trait

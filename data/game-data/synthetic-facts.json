@@ -1887,5 +1887,17 @@
   "80221": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 3, "requires_trait": 2042 }, { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2042 }, { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2042 }],
   "80248": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 3, "requires_trait": 2042 }, { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2042 }, { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2042 }],
   "80252": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 3, "requires_trait": 2042 }, { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2042 }, { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2042 }],
-  "80263": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 3, "requires_trait": 2042 }, { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2042 }, { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2042 }]
+  "80263": [{ "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 3, "requires_trait": 2042 }, { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2042 }, { "type": "Buff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2042 }],
+  "77371": [
+    { "type": "PrefixedBuff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 2440, "prefix": { "status": "Legendary Assassin Stance" } },
+    { "type": "PrefixedBuff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2440, "prefix": { "status": "Legendary Demon Stance" } },
+    { "type": "PrefixedBuff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2440, "prefix": { "status": "Legendary Dwarf Stance" } },
+    { "type": "PrefixedBuff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2440, "prefix": { "status": "Legendary Centaur Stance" } },
+    { "type": "PrefixedBuff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2440, "prefix": { "status": "Legendary Entity Stance" } },
+    { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 2440 },
+    { "type": "Damage", "text": "Damage", "hit_count": 1, "requires_trait": 2429 },
+    { "type": "Buff", "status": "Burning", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2429 },
+    { "type": "Distance", "text": "Radius", "distance": 240, "requires_trait": 2429 },
+    { "type": "Number", "text": "Number of Targets", "value": 5, "requires_trait": 2429 }
+  ]
 }

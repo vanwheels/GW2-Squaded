@@ -2,6 +2,47 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 256 — Numinous Gift + Mistfire's Cosmic Wisdom effects (Found Purpose deliberately deferred)
+
+User flagged 3 more Conduit traits interacting with Cosmic Wisdom: "Numinous Gift gives boons/
+additional effects to Cosmic Wisdom, as do the grandmaster majors Found Purpose and Mistfire."
+Asked a clarifying question first (Found Purpose's own wiki text describes a genuinely different
+trigger — "when you invoke a legend," not "when you use Cosmic Wisdom") before building anything;
+user confirmed Found Purpose grants boons in BOTH places (on legend swap AND on Cosmic Wisdom cast,
+upgraded to party-wide).
+
+Unlike the Assassin/Warrior/Dervish forms (Session 255, no backing skill id at all), Numinous Gift
+and Mistfire turned out to be the ordinary, already-fully-supported "trait fact copied onto the
+skill it triggers from" shape (Notoriety cluster/Willbender Flames/Over Shield precedent) — both
+traits' own raw API facts already carry the real numbers, just needed copying onto Cosmic Wisdom
+(77371) via `synthetic-facts.json` with `requires_trait` set:
+- **Numinous Gift** (2440, minor): 5 real per-legend `PrefixedBuff` boon facts (Fury/Assassin,
+  Resistance/Demon, Stability/Dwarf, Protection/Centaur, Quickness/Entity — already confirmed no
+  WvW split during the earlier Conduit `wvw-fact-overrides.json` leg) + a flat Might fact, copied
+  verbatim. Being REAL boon names (unlike the Forms' placeholder statuses), these flow through the
+  existing `boonConditionFactsForSkill` pipeline automatically — Spirit-Boon-style legend badge
+  included, zero new rendering code.
+- **Mistfire** (2429, major): its own real `Damage`/`Burning`/`Radius`/`Number of Targets` facts
+  copied the same way. New `CURATED_DAMAGE_COEFFICIENTS[77371]` entry (`coefficient: 0.6`, matching
+  the trait's own `dmg_multiplier` exactly) and a new `wvw-fact-overrides.json` `Burning: 4` entry
+  (mirroring trait 2429's own already-curated split) — both flow through the already-built
+  `skillFactLines`/`boonConditionFactsForSkill` pipelines too.
+
+**Found Purpose deliberately NOT added the same way** despite the user confirming it also affects
+Cosmic Wisdom: its boons share the exact same STATUSES as Numinous Gift's, just different
+(party-wide, mostly-lower) values — copying both onto Cosmic Wisdom would render 2 simultaneous
+rows per boon whenever Found Purpose is chosen (e.g. "Fury: 10s" AND "Fury: 5s" both attributed to
+Assassin), since this app's fact pipeline has no "trait B's value supersedes trait A's" concept —
+the same `overrides`-field gap already known-unmodeled for Core Value/True Nature (TODO.md's
+"Herald F2" item, now cross-referenced from a new bullet for this case). Found Purpose's own trait
+tooltip (already correct, fixed earlier this same day) remains the only accurate source until a
+real "supersedes" resolver exists — logged in TODO.md rather than solved with a shallower fix.
+
+New `cosmic-wisdom-trait-effects.test.ts` (6 tests, including an explicit "Numinous Gift + Found
+Purpose both active still shows only 6 rows, no duplicate Fury" safety check proving the deferral
+decision doesn't silently corrupt anything). Golden snapshot (`coefficient-snapshots.test.ts`)
+updated for the new curated entry. typecheck/lint/vitest (249 passing, 6 new) all clean.
+
 ## Session 255 — Cosmic Wisdom's Assassin/Warrior/Dervish forms get real damage/healing numbers
 
 User flagged 3 of Cosmic Wisdom's 5 Forms (Assassin/Warrior/Dervish) actually deal damage/effects

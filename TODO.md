@@ -64,6 +64,22 @@ showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). What's left
       `CombatState.activeUpkeepCount` (or similar) field plus a UI control to set it, before this
       trait's movement-speed number can be computed at all. Not started.
 
+- [ ] **Found Purpose's boosted boons on Cosmic Wisdom** (Revenant/Conduit, id 2352) — same
+      "trait B's value supersedes trait A's, once B is ALSO active" shape as the Herald F2/Core
+      Value item above (that item's own `overrides` field gap). Numinous Gift (2440, minor, always
+      active with Conduit) grants self-only per-legend boons on Cosmic Wisdom cast — already wired
+      2026-08-20 via `synthetic-facts.json` (`requires_trait: 2440`, see COMPLETED.md Session 256).
+      Found Purpose (2352, one of the 3 mutually-exclusive Grandmaster majors) upgrades this same
+      trigger to grant PARTY-WIDE boons at its own, mostly-different, wiki-verified numbers (already
+      curated on Found Purpose's own trait tooltip, correct there) — but adding Found Purpose's
+      facts onto Cosmic Wisdom the same `requires_trait`-copy way would render TWO simultaneous rows
+      per boon (Numinous Gift's base value AND Found Purpose's upgraded value both showing) whenever
+      Found Purpose is chosen, since this app's fact pipeline has no "value X is superseded once
+      trait Y is ALSO active" concept — deliberately left off Cosmic Wisdom's tooltip rather than
+      show doubled/wrong data; Found Purpose's own tooltip remains the only accurate source for now.
+      Would need the same new mechanism the Herald F2 item needs (a real "supersedes" resolver) to
+      fix properly — bundle with that work if it's ever picked up, don't solve in isolation.
+
 ## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
 
 User felt the overall UI/UX was "a little off." Talked through each area and landed on concrete

@@ -3937,10 +3937,22 @@ export const CURATED_DAMAGE_COEFFICIENTS: Record<number, DamageCoefficient[]> = 
   // Dragon Slash—Boost (River's Flow, 80228).
   80228: [{ factText: 'Damage', coefficient: 2.4, weapon: 'bundle' }],
   // Dragon Slash—Reach (River's Flow, 80236).
-  80236: [{ factText: 'Damage', coefficient: 1.5, weapon: 'bundle' }]
+  80236: [{ factText: 'Damage', coefficient: 1.5, weapon: 'bundle' }],
 
   // This closes out the Warrior Burst Skill sweep's last open item (see TODO.md's now-removed
   // "Bladesworn's Sharp as the Wind / River's Flow Dragon Slash branches" entry).
+
+  // Cosmic Wisdom (Revenant/Conduit, id 77371) — Mistfire's (trait 2429, Grandmaster major)
+  // "perform an additional strike when using Cosmic Wisdom" copied onto Cosmic Wisdom's own facts
+  // via `synthetic-facts.json` (`requires_trait: 2429`, same "trait fact copied onto the skill it
+  // triggers from" mechanism used throughout this app — e.g. Willbender Flames/Searing Pact,
+  // Notoriety). Unlike most entries in that family, Mistfire's OWN raw API facts already carry a
+  // real `Damage` fact (`dmg_multiplier: 0.6`, matching the wiki's own `coefficient=0.6`, no
+  // game-mode split) — copied verbatim rather than re-derived. Flagged by the user 2026-08-20
+  // ("Numinous Gift gives boons... Found Purpose and Mistfire" also affect Cosmic Wisdom); see
+  // `boon-calc/sources.ts`'s own comment near `LEGEND_FORM_FACT_SKILL_IDS` for the full writeup,
+  // including why Found Purpose was deliberately NOT added the same way.
+  77371: [{ factText: 'Damage', coefficient: 0.6, weapon: 'unequipped', requiresTrait: 2429 }]
 }
 
 export interface DamageLine {
