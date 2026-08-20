@@ -269,7 +269,43 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // to Healing per Kalla's Fervor|1%|game mode=pve pvp}}` + `{{skill fact|Damage|alt=Damage to
   // Healing per Kalla's Fervor|2%|game mode=wvw}}` — pve+pvp share 1, wvw alone rises to 2 (the
   // rare case where WvW is the outlier on the high side, not the low side).
-  2094: { 'Damage to Healing per Kalla\'s Fervor': 2 }
+  2094: { 'Damage to Healing per Kalla\'s Fervor': 2 },
+
+  // Revenant Vindicator majors/minors — 7th leg of the sweep (2026-08-20). Vindicator has no
+  // `traitedFacts` at all (confirmed via a full scan), so none of this line's traits carry the
+  // Numinous-Gift-style cross-spec 2nd-pair shape seen on every prior line. Tenacious Ruin, Empire
+  // Divided, Leviathan Strength, Amnesty of Shing Jea, and Redemptor's Sermon's Number/Percent
+  // facts each carry only one unambiguous value. Balance in Discord (2254) has a Regeneration
+  // Buff-type dupe already handled by the separate `wvw-fact-overrides.json` script. Forerunner of
+  // Death, Vassals of the Empire, and Saint of zu Heltzer have no Number/Percent facts at all.
+
+  // Reaver's Curse (id 2259, Master major): "Energy Meld's cooldown is reduced and it increases the
+  // effectiveness of your next dodge." Wiki: `{{skill fact|recharge reduced|50|game mode=pve}}` +
+  // `{{skill fact|recharge reduced|20|game mode=wvw pvp}}` — pve 50, wvw+pvp share 20. This trait's
+  // other facts (100%/25% Damage Increase pairs for the 3 different dodge-replacement skills it
+  // improves, a 9/4 Might-stacks pair, a 100% Healing/Barrier fact) are all `PrefixedBuff`-typed
+  // per-linked-skill breakdowns, out of scope for this table — same shape as Salvation's Generous
+  // Abundance, left for a future per-skill-mapping leg if ever revisited.
+  2259: { 'Recharge Reduced': 20 },
+
+  // Angsiyan's Trust (id 2243, Master major): "Energy Meld no longer has an energy cost and grants
+  // energy when used in combat." Wiki: `{{skill fact|Energy Gain|25|game mode=pve wvw}}` + `{{skill
+  // fact|Energy Gain|10|game mode=pvp}}` (pvp-only nerf from 25 to 10, 2024-08-20) — pve+wvw share
+  // 25, pvp alone drops to 10.
+  2243: { 'Energy Gain': 25 },
+
+  // Song of Arboreum (id 2255, Master major; wiki page titled "Songs of Arboreum"): "Energy Meld
+  // grants more endurance and grants its endurance and vigor to nearby allies." Wiki: `{{skill
+  // fact|endurance gained|40|game mode=pve}}` + `{{skill fact|endurance gained|10|game mode=wvw
+  // pvp}}` — pve 40, wvw+pvp share 10. **Not fixed by this entry, a known loose end**: the trait's
+  // separate Vigor duration is a genuine 3-way split per the wiki (`{{skill fact|vigor|9|game
+  // mode=pve}}` + `|7|game mode=wvw}}` + `|6|game mode=pvp}}`), but the live API's own `Buff`-type
+  // facts for it only carry 2 values (9, 6) — the WvW-correct 7 isn't present in the API data at
+  // all to pick, the inverse of Devastation's Battle-Scarred loose end (there the API had an extra
+  // undocumented value; here it's missing a documented one). Also Buff-typed, not Number/Percent,
+  // so out of this table's scope regardless — would need its own fix in `wvw-fact-overrides.json`
+  // territory if the API ever picks up the 3rd value.
+  2255: { 'Endurance Gained': 10 }
 }
 
 /**

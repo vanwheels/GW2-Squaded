@@ -155,7 +155,22 @@ showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). What's left
       each carry only one unambiguous value; Lasting Legacy's Might Buff-type dupe (12/9 duration)
       is already handled by the separate `wvw-fact-overrides.json` script. Endless Enmity/Ashen
       Demeanor have no Number/Percent facts at all. No new Battle-Scarred-shaped unresolved case.
-      Next leg not started: Vindicator/Conduit, same process.
+      **Vindicator leg landed 2026-08-20**: 3 candidates — Reaver's Curse (2259, "Recharge Reduced"
+      50 pve/**20 wvw+pvp**), Angsiyan's Trust (2243, "Energy Gain" 25 pve+wvw/**10 pvp**, pvp-only
+      nerf 2024-08-20), Song of Arboreum (2255, "Endurance Gained" 40 pve/**10 wvw+pvp**). Vindicator
+      has no `traitedFacts` at all, so no Numinous-Gift-shaped 2nd pairs this line. Tenacious Ruin,
+      Empire Divided, Leviathan Strength, Amnesty of Shing Jea, Redemptor's Sermon each carry only
+      one unambiguous value; Balance in Discord's Regeneration Buff dupe already handled by
+      `wvw-fact-overrides.json`; Forerunner of Death/Vassals of the Empire/Saint of zu Heltzer have
+      no Number/Percent facts. **New loose end surfaced**: Song of Arboreum's separate Vigor duration
+      is a genuine 3-way wiki split (9 pve/7 wvw/6 pvp) but the live API's own Buff facts for it only
+      carry 2 of those 3 values (9, 6) — WvW's 7 isn't present in the API to pick at all, inverse
+      shape of Devastation's Battle-Scarred loose end. Also Buff-typed, out of this table's scope
+      regardless (would need `wvw-fact-overrides.json`-side handling, and even that script can't
+      invent a value the API never sent). Reaver's Curse also has 3 `PrefixedBuff`-typed per-linked-
+      skill breakdowns (100%/25% Damage Increase pairs across the 3 dodge-replacement skills it
+      improves, a 9/4 Might-stacks pair) left alone, same out-of-scope shape as Salvation's Generous
+      Abundance. Next leg not started: Conduit, same process — last leg of this sweep.
 
 ## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
 
