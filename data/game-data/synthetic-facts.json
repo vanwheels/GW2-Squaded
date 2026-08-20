@@ -1892,6 +1892,7 @@
     { "type": "PrefixedBuff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 2440, "prefix": { "status": "Legendary Assassin Stance" } },
     { "type": "PrefixedBuff", "status": "Resistance", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2440, "prefix": { "status": "Legendary Demon Stance" } },
     { "type": "PrefixedBuff", "status": "Stability", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2440, "prefix": { "status": "Legendary Dwarf Stance" } },
+    { "type": "PrefixedBuff", "status": "Resolution", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2440, "prefix": { "status": "Legendary Dwarf Stance" } },
     { "type": "PrefixedBuff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2440, "prefix": { "status": "Legendary Centaur Stance" } },
     { "type": "PrefixedBuff", "status": "Quickness", "text": "Apply Buff/Condition", "duration": 5, "apply_count": 1, "requires_trait": 2440, "prefix": { "status": "Legendary Entity Stance" } },
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 5, "requires_trait": 2440 },

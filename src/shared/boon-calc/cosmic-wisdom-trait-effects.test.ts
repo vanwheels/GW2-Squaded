@@ -42,16 +42,18 @@ describe('Cosmic Wisdom (77371) — Numinous Gift/Mistfire trait-copied facts', 
     expect(facts).toEqual([])
   })
 
-  it('shows Numinous Gift\'s 5 per-legend boons + flat Might when 2440 is active', () => {
+  it('shows Numinous Gift\'s 5 per-legend boons (Dwarf grants 2: Stability + Resolution) + flat Might when 2440 is active', () => {
     const facts = boonConditionFactsForSkill(cosmicWisdom, new Set([NUMINOUS_GIFT_ID]), allEquippedLegends, durationPercent, undefined, legends)
-    expect(facts).toHaveLength(6)
-    const byLegend = new Map(facts.filter((f) => f.legendName).map((f) => [f.legendName, f]))
-    expect(byLegend.get('Legendary Assassin Stance')?.boonOrConditionName).toBe('Fury')
-    expect(byLegend.get('Legendary Assassin Stance')?.scaledDurationSeconds).toBe(10)
-    expect(byLegend.get('Legendary Demon Stance')?.boonOrConditionName).toBe('Resistance')
-    expect(byLegend.get('Legendary Dwarf Stance')?.boonOrConditionName).toBe('Stability')
-    expect(byLegend.get('Legendary Centaur Stance')?.boonOrConditionName).toBe('Protection')
-    expect(byLegend.get('Legendary Entity Stance')?.boonOrConditionName).toBe('Quickness')
+    expect(facts).toHaveLength(7)
+    const byLegend = new Map(facts.filter((f) => f.legendName).map((f) => [f.legendName, f.boonOrConditionName]))
+    const dwarfBoons = facts.filter((f) => f.legendName === 'Legendary Dwarf Stance').map((f) => f.boonOrConditionName).sort()
+    const fury = facts.find((f) => f.legendName === 'Legendary Assassin Stance')!
+    expect(fury.boonOrConditionName).toBe('Fury')
+    expect(fury.scaledDurationSeconds).toBe(10)
+    expect(byLegend.get('Legendary Demon Stance')).toBe('Resistance')
+    expect(dwarfBoons).toEqual(['Resolution', 'Stability'])
+    expect(byLegend.get('Legendary Centaur Stance')).toBe('Protection')
+    expect(byLegend.get('Legendary Entity Stance')).toBe('Quickness')
     const might = facts.find((f) => f.boonOrConditionName === 'Might')!
     expect(might.scaledDurationSeconds).toBe(10)
     expect(might.applyCount).toBe(5)
@@ -83,10 +85,10 @@ describe('Cosmic Wisdom (77371) — Numinous Gift/Mistfire trait-copied facts', 
     const dwarf = legends.find((l) => l.name === 'Legendary Dwarf Stance')!
     const equipped = new Set([assassin.id, dwarf.id])
     const facts = boonConditionFactsForSkill(cosmicWisdom, new Set([NUMINOUS_GIFT_ID]), equipped, durationPercent, undefined, legends)
-    // Fury (Assassin) + Stability (Dwarf) + the flat, legend-less Might — NOT Resistance/Protection/
-    // Quickness, whose legends (Demon/Centaur/Entity) aren't equipped in this build.
-    expect(facts).toHaveLength(3)
-    expect(facts.map((f) => f.boonOrConditionName).sort()).toEqual(['Fury', 'Might', 'Stability'])
+    // Fury (Assassin) + Stability & Resolution (Dwarf) + the flat, legend-less Might — NOT
+    // Resistance/Protection/Quickness, whose legends (Demon/Centaur/Entity) aren't equipped in this build.
+    expect(facts).toHaveLength(4)
+    expect(facts.map((f) => f.boonOrConditionName).sort()).toEqual(['Fury', 'Might', 'Resolution', 'Stability'])
   })
 
   it('Numinous Gift\'s OWN trait facts are ALSO filtered to equipped legends (2026-08-20 regression, root cause of the leak)', () => {
@@ -100,13 +102,13 @@ describe('Cosmic Wisdom (77371) — Numinous Gift/Mistfire trait-copied facts', 
     const dwarf = legends.find((l) => l.name === 'Legendary Dwarf Stance')!
     const equipped = new Set([assassin.id, dwarf.id])
     const facts = boonConditionFactsForTrait(numinousGiftTrait, new Set([NUMINOUS_GIFT_ID]), equipped, durationPercent, undefined, legends)
-    // Dwarf Stance grants BOTH Stability and Resolution on the trait's own raw facts (a completeness
-    // gap the synthetic copy onto Cosmic Wisdom doesn't have yet — see TODO.md) — not Resistance/
-    // Protection/Quickness, whose legends (Demon/Centaur/Entity) aren't equipped in this build.
+    // Dwarf Stance grants BOTH Stability and Resolution on the trait's own raw facts, matching the
+    // synthetic copy onto Cosmic Wisdom (2026-08-20 fix) — not Resistance/Protection/Quickness,
+    // whose legends (Demon/Centaur/Entity) aren't equipped in this build.
     expect(facts.map((f) => f.boonOrConditionName).sort()).toEqual(['Fury', 'Might', 'Resolution', 'Stability'])
   })
 
-  it('Numinous Gift + Found Purpose both active still shows only Numinous Gift\'s 6 rows (no duplicate Fury/Resistance/etc.)', () => {
+  it('Numinous Gift + Found Purpose both active still shows only Numinous Gift\'s 7 rows (no duplicate Fury/Resistance/etc.)', () => {
     const facts = boonConditionFactsForSkill(
       cosmicWisdom,
       new Set([NUMINOUS_GIFT_ID, FOUND_PURPOSE_ID]),
@@ -115,7 +117,7 @@ describe('Cosmic Wisdom (77371) — Numinous Gift/Mistfire trait-copied facts', 
       undefined,
       legends
     )
-    expect(facts).toHaveLength(6)
+    expect(facts).toHaveLength(7)
     const furyRows = facts.filter((f) => f.boonOrConditionName === 'Fury')
     expect(furyRows).toHaveLength(1)
   })

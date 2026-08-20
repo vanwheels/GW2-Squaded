@@ -2,6 +2,15 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 257 — Numinous Gift's synthetic Cosmic Wisdom copy: add Dwarf's missing Resolution boon
+
+Small mechanical follow-up flagged in TODO.md while fixing the equipped-legend-gating leak (Session
+256): Numinous Gift's own raw trait facts (2440) grant Dwarf Stance BOTH Stability and Resolution,
+but the `synthetic-facts.json` copy onto Cosmic Wisdom (77371) only carried Stability. Added the
+missing `Resolution` `PrefixedBuff` entry verbatim (same duration/apply_count/prefix shape as the
+other 5). Updated `cosmic-wisdom-trait-effects.test.ts`'s expectations (skill-side fact count 6→7,
+filtered-to-2-legends count 3→4) to match; all 251 tests + typecheck pass.
+
 ## Session 256 — Numinous Gift + Mistfire's Cosmic Wisdom effects (Found Purpose deliberately deferred)
 
 User flagged 3 more Conduit traits interacting with Cosmic Wisdom: "Numinous Gift gives boons/
