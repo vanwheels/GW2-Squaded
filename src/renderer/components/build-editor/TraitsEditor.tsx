@@ -3,6 +3,7 @@ import type { Build, Legend, ProfessionId, Specialization, Trait, TraitLineSelec
 import { numericFactLines, NUMERIC_FACT_WVW_OVERRIDES } from '@shared/skill-calc/fact-numbers'
 import { branchConditionalTraitFacts } from '@shared/skill-calc/branch-conditional-facts'
 import { boonConditionFactsForTrait, equippedLegendIds } from '@shared/boon-calc/sources'
+import { legendAttributeDetailFacts } from '@shared/skill-calc/legend-attribute-details'
 import { boonConditionDurationPercent } from '@shared/gear-calc/attribute-totals'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
@@ -210,7 +211,8 @@ function TraitLineRow({
                       <TooltipBody title={minor.name} description={minor.description} icon={minor.icon} />
                       {factsBlock(
                         numericFactLines(minor.facts, minor.traitedFacts, activeIds, NUMERIC_FACT_WVW_OVERRIDES[minor.id]),
-                        boonConditionFactsForTrait(minor, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[minor.id], legends)
+                        boonConditionFactsForTrait(minor, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[minor.id], legends),
+                        { legendAttributeFacts: legendAttributeDetailFacts(minor, legends) }
                       )}
                       {conditionalBranchesBlock(branchConditionalTraitFacts(minor))}
                     </>
@@ -238,7 +240,8 @@ function TraitLineRow({
                             <TooltipBody title={t.name} description={t.description} icon={t.icon} />
                             {factsBlock(
                               numericFactLines(t.facts, t.traitedFacts, activeIds, NUMERIC_FACT_WVW_OVERRIDES[t.id]),
-                              boonConditionFactsForTrait(t, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[t.id], legends)
+                              boonConditionFactsForTrait(t, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[t.id], legends),
+                              { legendAttributeFacts: legendAttributeDetailFacts(t, legends) }
                             )}
                             {conditionalBranchesBlock(branchConditionalTraitFacts(t))}
                           </>

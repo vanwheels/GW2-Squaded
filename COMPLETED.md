@@ -2,6 +2,40 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 253 — Bolstered Bonds: per-legend attribute detail display (Spirit-Boon-style, but a different shape)
+
+User flagged, right after Session 252 closed Bolstered Bonds as "not this mechanism's scope": "we
+should be displaying each legend detail, same as we do with the trait Spirit Boon." Confirmed the
+trait's per-legend info was rendering as nothing at all — its 6 `Buff`-typed facts carry a LEGEND
+NAME as `status` ("Legendary Assassin Stance" etc.), not a real boon/condition name, so
+`classifyBoonCondition` never recognizes them and `boonConditionFactsForTrait` silently drops every
+one. This is a genuinely different shape from Spirit Boon (whose 8 `PrefixedBuff` facts grant REAL
+boons, with the legend named only in `prefix.status` — already rendered via the existing
+`legendIcon`/`legendName` badge on `BoonConditionSource`), so reused none of that pipeline; built a
+small parallel one instead.
+
+New `legend-attribute-details.ts`: a hand-curated `LEGEND_ATTRIBUTE_BONUS_DETAILS` table (same
+"fact type alone doesn't mean the data's usable" shape as `CURATED_FLAT_BONUSES` — Bolstered Bonds'
+own raw facts have an empty or entirely absent `description` for 4 of its 6 entries, only Legendary
+Entity Stance's pve/wvw pair carries real text) plus `legendAttributeDetailFacts(trait, legends)`
+resolving it against the real `Legend` list. Wiki-verified (raw wikitext, 2026-08-20): Assassin
+(+75 Power/+75 Ferocity) and Demon (+75 Condition Damage/+75 Expertise) are unconditional; Centaur
+(+75 Healing Power/+75 Concentration), Dwarf (+75 Toughness/+75 Vitality), and Entity (+50 to All
+Attributes) each split pve-vs-wvw+pvp, WvW value used. Dragon/Renegade/Alliance are genuinely absent
+from this trait's own wiki page — not a gap, confirmed by a new regression test
+(`legend-attribute-details.test.ts`).
+
+Wired into `factsBlock`'s existing `SkillNamedFacts` bag (a new `legendAttributeFacts` field,
+alongside `auraFacts`/`namedFactSources`/`comboFacts`) rather than a bespoke render path — both
+`TraitsEditor.tsx` tooltip call sites (minor + major) now pass `legendAttributeDetailFacts(trait,
+legends)` through. Display-only for now: this trait's real character-stat contribution stays
+unmodeled in `gear-calc/trait-attributes.ts` (a legend-conditional flat-bonus family doesn't exist
+there yet, same family shape as `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`/
+`ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES` but gated on equipped legend instead) — not attempted this
+pass, scope was the tooltip parity the user asked for.
+
+typecheck/lint/vitest (228 passing, 4 new) all clean.
+
 ## Session 252 — Closes Session 251's 4-trait `wvw-fact-overrides.json` gap (2/4 real, 2 not this mechanism's scope)
 
 Followed up on Session 251's speculation that a plain `npm run fetch-wvw-splits` re-run would pick

@@ -16,6 +16,7 @@ import {
   type NamedFactSource
 } from '@shared/boon-calc/sources'
 import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
+import type { LegendAttributeDetail } from '@shared/skill-calc/legend-attribute-details'
 import type { FactLine } from '@shared/skill-calc/fact-numbers'
 import { activeAttunementVariantSkill, flipTargetSkills } from '@shared/skill-calc/multi-effect'
 import { ADDITIVE_FLIP_PAIRS } from '@shared/skill-calc/additive-flip-pairs'
@@ -191,10 +192,16 @@ export interface SkillNamedFacts {
   auraFacts?: BoonConditionSource[]
   namedFactSources?: NamedFactSource[]
   comboFacts?: ComboSource[]
+  /** See `legend-attribute-details.ts` — per-legend attribute-bonus text for traits like Bolstered
+   *  Bonds, a different shape from the boon-granting `legendIcon`/`legendName` badge already on
+   *  `BoonConditionSource` (Spirit Boon's shape). Currently only ever populated for trait tooltips
+   *  (`TraitsEditor.tsx`), but kept here rather than a bespoke param, same "available everywhere,
+   *  used where it applies" convention as every other optional field on this interface. */
+  legendAttributeFacts?: LegendAttributeDetail[]
 }
 
 export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSource[], namedFacts: SkillNamedFacts = {}) {
-  const { auraFacts = [], namedFactSources = [], comboFacts = [] } = namedFacts
+  const { auraFacts = [], namedFactSources = [], comboFacts = [], legendAttributeFacts = [] } = namedFacts
   return (
     <>
       {numericLines.length > 0 && (
@@ -226,6 +233,19 @@ export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSou
                 {formatBoonDuration(f.scaledDurationSeconds)}s
                 {f.applyCount > 1 ? ` × ${f.applyCount}` : ''}
               </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {legendAttributeFacts.length > 0 && (
+        <ul className="tooltip-boon-facts">
+          {legendAttributeFacts.map((f, i) => (
+            <li key={i}>
+              <span className="tooltip-fact-label">
+                <img className="tooltip-fact-icon" src={f.legend.icon} alt="" />
+                <span>{f.legend.name}</span>
+              </span>
+              <span className="boon-source-duration">{f.text}</span>
             </li>
           ))}
         </ul>
