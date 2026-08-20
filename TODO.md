@@ -97,9 +97,21 @@ showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). What's left
       legends (Natural Harmony/Purifying Essence/etc.) — `resolveLegendFromPrefix` deliberately
       doesn't attribute these per its own doc comment, so they render unlabeled by design, not a bug.
       Given the pattern held for most of Salvation's majors, it likely recurs across
-      Invocation/Retribution/Corruption/Devastation/Renegade/Vindicator/Conduit too — next leg not
-      started, pick any one spec line and re-run the same "dump every major's raw facts, wiki-verify
-      the game-mode split" process.
+      Invocation/Retribution/Corruption/Devastation/Renegade/Vindicator/Conduit too. **Invocation leg
+      landed 2026-08-20**: `NUMERIC_FACT_WVW_OVERRIDES` gained 4 more entries — Ferocious Aggression
+      (1758, "Damage Increase" 10 pve/**7 wvw+pvp**), Rising Tide (1761, two independently-ambiguous
+      labels on one trait: "Damage Increase" 10 pve/**7 wvw+pvp** and "Health Threshold" 75 pve/
+      **90 wvw+pvp**), Charged Mists (1791, "Energy Gain" **25 pve+wvw**/20 pvp), Roiling Mists
+      (1719, also two labels: "Percent" [crit-strike-damage-to-healing conversion] 2 pve/**5
+      wvw+pvp**, and "Critical Chance Increase" 25 pve/**20 wvw+pvp** — the crit-chance half was
+      already curated for aggregate calc in `FURY_CRIT_CHANCE_TRAIT_BONUSES`, but that's a separate
+      code path from the tooltip fact-list rendering this fixes, same lesson as the
+      `profession_mechanic_bar_branch_facts_bug_2026-08-15` memory). Invocation's other 2 majors
+      with Number/Percent facts (Contained Temper, Cleansing Channel) turned out to carry only a
+      single unambiguous value each, not a duplicate pair — nothing to fix. The line's `Buff`-type
+      dupes (Invoker's Rage, Incensed Response) are already handled by the separate
+      `wvw-fact-overrides.json` script, out of scope for this table. Next leg not started:
+      Retribution/Corruption/Devastation/Renegade/Vindicator/Conduit, same process.
 
 ## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
 

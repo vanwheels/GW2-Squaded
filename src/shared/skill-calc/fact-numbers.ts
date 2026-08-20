@@ -117,7 +117,45 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // Unyielding Devotion (id 1825, Grandmaster major): "Take reduced strike damage for a duration
   // after healing." Wiki: `{{skill fact|damage reduced|15|game mode=pve wvw}}` + `{{skill
   // fact|damage reduced|10|game mode=pvp}}` — pve+wvw share 15, pvp alone drops to 10.
-  1825: { 'Damage Reduced': 15 }
+  1825: { 'Damage Reduced': 15 },
+
+  // Revenant Invocation majors/minors — 2nd leg of the sweep, same process as the Salvation leg
+  // above (2026-08-20). Buff-type dupes in this line (Invoker's Rage/Incensed Response) are
+  // already handled by the separate `wvw-fact-overrides.json` script; these 4 are the line's only
+  // ambiguous `Number`/`Percent` facts.
+
+  // Ferocious Aggression (id 1758, Master minor): "All damage dealt is increased while you have
+  // fury." Wiki: `{{skill fact|all damage increase|10|game mode=pve}}` + `{{skill fact|all damage
+  // increase|7|game mode=wvw pvp}}` — pve 10, wvw+pvp share 7.
+  1758: { 'Damage Increase': 7 },
+
+  // Rising Tide (id 1761, Adept major): "While your health is above the threshold, strike damage
+  // dealt is increased." Wiki: `{{skill fact|damage increase|10|game mode=pve}}` + `{{skill
+  // fact|damage increase|7|game mode=wvw pvp}}` + `{{skill fact|health threshold|75|game
+  // mode=pve}}` + `{{skill fact|health threshold|90|game mode=pvp wvw}}` — pve is 10%/75%
+  // threshold, wvw+pvp share 7%/90% threshold. Two independently-ambiguous `text` labels on the
+  // same trait, both entered here.
+  1761: { 'Damage Increase': 7, 'Health Threshold': 90 },
+
+  // Charged Mists (id 1791, Grandmaster major): "Invoking a legend while at or below the energy
+  // threshold grants extra energy to your new legend." Wiki: `{{skill fact|Energy Gain|25|game
+  // mode=pve wvw}}` + `{{skill fact|Energy Gain|20|game mode=pvp}}` — pve+wvw share 25, pvp alone
+  // drops to 20.
+  1791: { 'Energy Gain': 25 },
+
+  // Roiling Mists (id 1719, Grandmaster major): "Critical-hit chance is further increased while
+  // you are under the effect of fury. Convert a percentage of your outgoing critical strike damage
+  // into healing." Wiki: `{{skill fact|percent|2|game mode=pve}}` + `{{skill fact|percent|5|game
+  // mode=wvw pvp}}` (healing-conversion %) + `{{skill fact|Critical Chance increase|25|game
+  // mode=pve}}` + `{{skill fact|Critical Chance Increase|20|game mode=wvw pvp}}` — pve is 2%/25%,
+  // wvw+pvp share 5%/20%. The crit-chance half was already curated for aggregate calc in
+  // `FURY_CRIT_CHANCE_TRAIT_BONUSES` (`combat-state.ts`, same 20 WvW value) — this entry is the
+  // separate tooltip-fact-list fix, a different code path (see
+  // `profession_mechanic_bar_branch_facts_bug_2026-08-15` memory: tooltip-correctness and
+  // aggregate-contribution never share a fix). The API's own raw facts list 5 twice (once for wvw,
+  // once for pvp, both the same value) rather than once for a shared "wvw pvp" mode — harmless,
+  // `numericFactLines`'s `seen` dedup already collapses the exact duplicate.
+  1719: { 'Percent': 5, 'Critical Chance Increase': 20 }
 }
 
 /**
