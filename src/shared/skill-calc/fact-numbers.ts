@@ -231,7 +231,45 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // increased." Wiki: `{{skill fact|Damage Increase|20|game mode = pve}}` + `{{skill fact|Damage
   // Increase|10|game mode = pvp wvw}}` (PvE-only nerf from 25 to 20, 2021-05-25) — pve 20, pvp+wvw
   // share 10.
-  1767: { 'Damage Increase': 10 }
+  1767: { 'Damage Increase': 10 },
+
+  // Revenant Renegade majors/minors — 6th leg of the sweep (2026-08-20). Ambush Commander, Blood
+  // Fury, Wrought-Iron Will, Lasting Legacy, and Righteous Rebel's Number/Percent facts each carry
+  // only one unambiguous value; Lasting Legacy's Might Buff-type dupe (12/9 duration) is already
+  // handled by the separate `wvw-fact-overrides.json` script (`trait["2100"]`, keeps 9). Endless
+  // Enmity/Ashen Demeanor have no Number/Percent facts at all (their Buff dupes are also already
+  // covered by that same script). No new Battle-Scarred-shaped unresolved case this leg.
+
+  // Brutal Momentum (id 2142, Minor 3): "Gain increased critical-hit chance based on your current
+  // endurance." Wiki: `{{skill fact|Critical Chance Increase|10|game mode=pve wvw}}` + `{{skill
+  // fact|Critical Chance Increase|15|game mode=pvp}}` — pve+wvw share 10, pvp alone rises to 15.
+  // Its separate "Critical Chance Increase at Full Endurance" fact (33, unambiguous, no game-mode
+  // split) is a different label, already correctly rendered on its own; the aggregate-calc side of
+  // this trait (`BRUTAL_MOMENTUM`-style full-endurance crit bonus) was fixed independently in
+  // Tier 3 testing (`v1_0_release_push_2026-08-12` memory) — same tooltip-vs-aggregate split as
+  // every prior leg's Numinous-Gift asides.
+  2142: { 'Critical Chance Increase': 10 },
+
+  // Heartpiercer (id 2092, Major 2): "Increase strike damage against bleeding foes." Wiki: `{{skill
+  // fact|damage increase|15|game mode=pve}}` + `{{skill fact|damage increase|10|game mode=wvw
+  // pvp}}` (API's own fact `text` is "Strike Damage Bonus") — pve 15, wvw+pvp share 10. Its
+  // separate "Bleeding Damage Bonus" fact (25%, unambiguous, no split) is a different label.
+  2092: { 'Strike Damage Bonus': 10 },
+
+  // All for One (id 2108, Major 2): "Gain energy and reduce the recharge of your utility skills
+  // when you block, evade, or blind an attack." Wiki: `{{skill fact|Energy Gain|+10|game
+  // mode=pve}}` + `{{skill fact|Energy Gain|+5|game mode=wvw pvp}}` + `{{skill fact|Recharge
+  // Reduced|50|game mode=pve}}` + `{{skill fact|Recharge Reduced|33|game mode=pvp wvw}}` — pve is
+  // 10 energy/50% recharge, wvw+pvp share 5 energy/33% recharge. Two independently-ambiguous
+  // `text` labels on the same trait, both entered here.
+  2108: { 'Energy Gain': 5, 'Recharge Reduced': 33 },
+
+  // Vindication (id 2094, Major 3): "Convert a portion of your outgoing strike damage to healing
+  // for you and nearby allies based on your Kalla's Fervor." Wiki: `{{skill fact|Damage|alt=Damage
+  // to Healing per Kalla's Fervor|1%|game mode=pve pvp}}` + `{{skill fact|Damage|alt=Damage to
+  // Healing per Kalla's Fervor|2%|game mode=wvw}}` — pve+pvp share 1, wvw alone rises to 2 (the
+  // rare case where WvW is the outlier on the high side, not the low side).
+  2094: { 'Damage to Healing per Kalla\'s Fervor': 2 }
 }
 
 /**

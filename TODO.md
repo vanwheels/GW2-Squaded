@@ -145,7 +145,17 @@ showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). What's left
       guessed; would also need `numericFactLines`'s filter extended to cover `AttributeAdjust`,
       which it doesn't today. Worth a fresh wiki look (maybe a stale API value, or a genuine
       undocumented wvw-only number) whenever this line is revisited.
-      Next leg not started: Renegade/Vindicator/Conduit, same process.
+      **Renegade leg landed 2026-08-20**: 4 candidates — Brutal Momentum (2142, "Critical Chance
+      Increase" 10 pve+wvw/**15 pvp**; its separate "Critical Chance Increase at Full Endurance"
+      fact is unambiguous, no split), Heartpiercer (2092, "Strike Damage Bonus" 15 pve/**10
+      wvw+pvp**), All for One (2108, two labels: "Energy Gain" 10 pve/**5 wvw+pvp** and "Recharge
+      Reduced" 50 pve/**33 wvw+pvp**), Vindication (2094, "Damage to Healing per Kalla's Fervor" 1
+      pve+pvp/**2 wvw** — the rare case where WvW is the high outlier, not the low one). Ambush
+      Commander/Blood Fury/Wrought-Iron Will/Lasting Legacy/Righteous Rebel's Number/Percent facts
+      each carry only one unambiguous value; Lasting Legacy's Might Buff-type dupe (12/9 duration)
+      is already handled by the separate `wvw-fact-overrides.json` script. Endless Enmity/Ashen
+      Demeanor have no Number/Percent facts at all. No new Battle-Scarred-shaped unresolved case.
+      Next leg not started: Vindicator/Conduit, same process.
 
 ## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
 
