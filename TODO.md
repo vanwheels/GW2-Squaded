@@ -10,49 +10,20 @@ released; Discord bot and Capacitor mobile port remain later roadmap stages, out
 left in this file below is post-1.0 polish and open curation gaps — none of it blocks the release
 that already shipped.
 
-## Revenant tooltip/data bugs (2026-08-19) — 5 of 7 fixed, 2 scoped below, plus a related sweep
+## Revenant tooltip/data bugs (2026-08-19) — 6 of 7 fixed, 1 scoped below, plus a related sweep
 
 User brain-dumped 7 Revenant bugs in one message, flagging the real list was probably bigger than
 what they'd written down. 5 were fixed same day (COMPLETED.md Session 231): Sword 4's flip (retired
 "Duelist's Preparation" data, `RETIRED_WEAPON_SKILL_IDS`), Facet of Elements' missing flip
 (`FLIP_SKILL_OVERRIDES`), Draconic Fortitude's Health value (new `MAX_HEALTH_PERCENT_BONUSES`
 mechanism), Draconic Echo's per-facet bonus text (`draconicEchoSections`), and Elevated Compassion
-showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). What's left:
-
-- [ ] **Herald F2 ("lacks linked tooltips") + Core Value ("lacks its details")** — both trace to the
-      same underlying mechanism, genuinely bigger than a one-off fix. Facet of Nature (29371, the F2
-      skill itself) has `flipSkill: null` in the live API, same gap shape as Facet of Elements — but
-      unlike that one, its real Consume target isn't a single skill: wiki confirms it flips into
-      "True Nature," which exists as 6 different ids — one generic/un-legend-specific (29393, whose
-      own facts are ALSO unclassified marker names, same empty-marker shape Draconic Echo just got
-      fixed for) plus 5 real per-legend replacements (51667 Assassin/Shiro "strip boons", 51675
-      Dwarf/Jalis "stability", 51696 Dragon/Glint "boon duration increase", 51713 Centaur/Ventari
-      "condition cleanse + heal", 51714 Demon/Mallyx "condition transfer + might") — only ONE is
-      live at a time, depending on whichever OTHER legend (not Dragon/Glint itself, which Herald
-      always has via Facet of Nature) the player currently has invoked. This is the same "swap, not
-      diff" shape `vindicator-aspect.ts` already solves for Aspect of the Archemorus, just with a
-      2nd dimension (WHICH replacement) that Vindicator's case doesn't have — needs its own new
-      mechanism (a `revenant-true-nature.ts` or similar), not a reuse of `flipTargetSkills`'s
-      single-hop walk. Core Value (1806, Herald major) improves whichever True Nature variant is
-      live — its own raw `facts` are 5 "True Nature" `PrefixedBuff` markers per legend (same
-      unclassified-marker-name shape, needs `branchConditionalTraitFacts`), and each real True
-      Nature variant's own `traitedFacts` entry (`requires_trait: 1806`) carries an `overrides`
-      field this app's `Fact` type doesn't even model (confirmed via a full grep — `overrides` is
-      dropped entirely today, not read anywhere) alongside a `value` that doesn't obviously match
-      the base fact 1-for-1 (e.g. 51667's own "Boons Removed" base fact is 2, its `requires_trait:
-      1806` traitedFact reads `value: 3, overrides: 4` — the `4` doesn't correspond to anything
-      visible in that skill's own facts, needs the wiki's own explicit Core-Value-upgraded numbers
-      per legend rather than inferring `overrides`' meaning from the raw data alone). Also
-      wiki-fetched but NOT yet verified precisely enough to hard-code: Facet of Nature's own 5
-      base (non-Core-Value) per-legend numbers — Assassin's Life Siphon is Power/Healing-Power
-      coefficient-scaled (53 dmg @ 0.0666, 85 heal @ 0.0333, same shape `CURATED_DAMAGE_COEFFICIENTS`/
-      `CURATED_HEALING_COEFFICIENTS` already model elsewhere), Centaur's heal is 471 @ 0.4 coefficient,
-      Dwarf is a flat -10% incoming damage (no game-mode split seen), Dragon's own boon-duration %
-      number wasn't present in the raw wikitext fetch that got the other 4 (needs a follow-up fetch),
-      Demon has no flat number at all (a condition-transfer mechanic, not a stat). Full order once
-      picked up: (1) wiki-verify Facet of Nature's 5 base numbers + Core Value's 5 boosted numbers,
-      (2) `FLIP_SKILL_OVERRIDES`-style entry for 29371, (3) new legend-variant resolver, (4)
-      `branchConditionalFacts`/`branchConditionalTraitFacts` entries for both skill and trait.
+showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). A 6th, "Herald F2 lacks linked
+tooltips + Core Value lacks its details," was fixed 2026-08-20 (COMPLETED.md) — Facet of Nature
+(29371) now shows a real per-legend description row (`LEGEND_FORM_FACT_SKILL_IDS`) plus its Consume
+effect True Nature's real per-legend numbers with Core Value's boost applied (`trueNatureBranches`,
+`skill-calc/branch-conditional-facts.ts`); Facet of Nature's own base per-legend numbers (its passive
+tick, separate from the Consume effect) remain wiki-fetched but not yet precisely verified — a small
+follow-up if picked up later, not blocking. What's left:
 
 - [ ] **Rising Momentum** (1716, Herald major) — "Gain increased movement speed for each point of
       upkeep currently in use." A real per-upkeep-point formula, not a flat/curated bonus — this app
@@ -65,9 +36,11 @@ showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). What's left
       trait's movement-speed number can be computed at all. Not started.
 
 - [ ] **Found Purpose's boosted boons on Cosmic Wisdom** (Revenant/Conduit, id 2352) — same
-      "trait B's value supersedes trait A's, once B is ALSO active" shape as the Herald F2/Core
-      Value item above (that item's own `overrides` field gap). Numinous Gift (2440, minor, always
-      active with Conduit) grants self-only per-legend boons on Cosmic Wisdom cast — already wired
+      "trait B's value supersedes trait A's, once B is ALSO active" shape the now-closed Herald F2/
+      Core Value item had (see the `LEGEND_FORM_EFFECT_DETAILS`-adjacent comment in
+      `boon-calc/sources.ts` for how that one got solved — hand-resolved inline since only 1
+      skill/trait pair was involved; this one is bigger, see below). Numinous Gift (2440, minor,
+      always active with Conduit) grants self-only per-legend boons on Cosmic Wisdom cast — already wired
       2026-08-20 via `synthetic-facts.json` (`requires_trait: 2440`, see COMPLETED.md Session 256).
       Found Purpose (2352, one of the 3 mutually-exclusive Grandmaster majors) upgrades this same
       trigger to grant PARTY-WIDE boons at its own, mostly-different, wiki-verified numbers (already
@@ -77,8 +50,9 @@ showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). What's left
       Found Purpose is chosen, since this app's fact pipeline has no "value X is superseded once
       trait Y is ALSO active" concept — deliberately left off Cosmic Wisdom's tooltip rather than
       show doubled/wrong data; Found Purpose's own tooltip remains the only accurate source for now.
-      Would need the same new mechanism the Herald F2 item needs (a real "supersedes" resolver) to
-      fix properly — bundle with that work if it's ever picked up, don't solve in isolation.
+      Would need a real generic "supersedes" resolver to fix properly (2 independently-toggleable
+      Grandmaster majors, not a single always-active minor — too big to hand-resolve inline the way
+      Core Value's case was).
 
 ## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
 

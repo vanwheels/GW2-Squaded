@@ -1,4 +1,4 @@
-import type { Skill, Trait } from '../types'
+import type { Legend, Skill, Trait } from '../types'
 import type { BoonConditionSource } from '../boon-calc/sources'
 import { BOON_CONDITION_ICONS, MISCELLANEOUS_ICONS } from '../boon-calc/icons'
 import type { FactLine } from './fact-numbers'
@@ -12,6 +12,7 @@ const CHANT_OF_RECUPERATION_ID = 76782
 const CHANT_OF_FREEDOM_ID = 77155
 const STRENGTHENING_STANZAS_ID = 2385
 const DRACONIC_ECHO_ID = 1772
+const FACET_OF_NATURE_ID = 29371
 
 // Guardian Luminary (specialization id 81)'s 3 reworked Virtues — see `radiantJusticeSections`'s
 // doc comment below for the full writeup. Ids are each virtue's F1/F2/F3 mechanic-bar entry point,
@@ -66,6 +67,10 @@ const INTERVAL_ICON = 'https://render.guildwars2.com/file/B75E91EB22E0DFCC1D0803
 // Recuperation's own Healing facts don't exist in the live API at all (see
 // `chantOfRecuperationSections`'s doc comment).
 const HEALING_ICON = 'https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png'
+// True Nature's own "Recharge"/"Damage" fact icons (skills.json ids 51667/51675/51696/51713/51714,
+// live-verified 2026-08-20) — reused for `trueNatureBranches` below rather than inventing new ones.
+const RECHARGE_ICON = 'https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png'
+const DAMAGE_ICON = 'https://render.guildwars2.com/file/61AA4919C4A7990903241B680A69530121E994C7/156657.png'
 
 /**
  * Otherworldly Bond (Revenant scepter 3, id 71952): a tether the player casts at EITHER an ally or
@@ -685,6 +690,178 @@ function radiantCourageSections(skill: Skill, durationPercent: { boon: number; c
   ]
 }
 
+// Core Value (Revenant/Herald Grandmaster major, id 1806): "Facet of Nature's consume skill has
+// improved effectiveness." See `trueNatureBranches`'s own doc comment for how its boost is applied.
+const CORE_VALUE_TRAIT_ID = 1806
+
+/**
+ * Legend.name -> True Nature's real per-legend skill id (skills.json, live-verified 2026-08-20).
+ * "True Nature" is Facet of Nature's own Consume effect (id 29393 generically, `flipSkill: null` on
+ * 29371 in the live API — same gap shape `FLIP_SKILL_OVERRIDES` fixes for Facet of Elements, except
+ * here the "one flip target" model doesn't fit: the REAL effect is one of 5 different skill objects
+ * depending on which OTHER legend the player currently has invoked, only resolvable with the build's
+ * own equipped-legend context `flip-skill-overrides.ts`'s plain `Skill -> Skill` map can't carry).
+ * Only these 5 "classic" legends (all released before Renegade/Vindicator) have a True Nature variant
+ * at all — matches 29393's own facts, which enumerate exactly these same 5 legend markers (each a
+ * bare, numberless `PrefixedBuff`) and nothing else; a Herald invoking Kalla or the Alliance legend
+ * gets no True Nature branch here, same as the real game (Facet of Nature has no Renegade/Vindicator
+ * form). Handled entirely inside `trueNatureBranches` below rather than via a `flipSkill`/
+ * `withFlipChain` walk — the 5 variants' own real facts are hand-copied in as this app's usual
+ * "wiki/API values curated once, with a comment" convention, attributed to Facet of Nature's own
+ * `sourceId`/`sourceName`/`sourceIcon` (same "constructed facts credited to the DISPLAYED skill"
+ * convention `otherworldlyBondBranches` already uses for its own flip-adjacent Enemy/Ally branches).
+ */
+const TRUE_NATURE_SKILL_ID_BY_LEGEND_NAME: Record<string, number> = {
+  'Legendary Assassin Stance': 51667,
+  'Legendary Dwarf Stance': 51675,
+  'Legendary Dragon Stance': 51696,
+  'Legendary Centaur Stance': 51713,
+  'Legendary Demon Stance': 51714
+}
+
+/**
+ * Facet of Nature (Herald F2, id 29371)'s own Consume effect, True Nature — TODO.md's "Herald F2
+ * lacks linked tooltips + Core Value lacks its details" item (flagged 2026-08-19, closed 2026-08-20).
+ * One labeled branch per True-Nature-eligible legend the build actually has equipped (see
+ * `TRUE_NATURE_SKILL_ID_BY_LEGEND_NAME`'s doc comment for why only 5 of Revenant's legends qualify,
+ * and why this needs real equipped-legend context rather than a static flip-target map). Numbers are
+ * each variant's own live `skills.json` facts (`Recharge`/`Number of Targets`/`Radius` shared by all
+ * 5, verified 2026-08-20), reusing this file's existing icon constants where the raw fact's own icon
+ * already matches one (confirmed byte-for-byte against the live data).
+ *
+ * Core Value (1806, Herald Grandmaster major): "Facet of Nature's consume skill has improved
+ * effectiveness." Each True Nature variant's own `traitedFacts` carries exactly ONE entry
+ * (`requires_trait: 1806`) with an `overrides` field — the GW2 API's own documented convention of an
+ * INDEX into that skill's base `facts` array naming which entry this traited fact replaces, not an
+ * unrelated number (confirmed by cross-referencing all 5: e.g. 51667's base `facts[4]` is "Boons
+ * Removed: 2", its traitedFact reads `value: 3, overrides: 4` — index 4 IS "Boons Removed", so Core
+ * Value simply raises it to 3; same pattern holds for all 5 variants' own single boosted fact below).
+ * Resolved inline per variant (`coreValueActive ? boosted : base`) rather than a generic "supersedes"
+ * resolver — this app's `Fact` type already carries `overrides` (untouched by any other code today,
+ * confirmed via a full grep) but nothing generically consumes it; every value below is hand-picked
+ * from the raw data rather than read at runtime, matching this file's existing convention of curated,
+ * not derived, numbers.
+ *
+ * Only 2 of the 5 variants (Dwarf's Stability, Demon's Might) grant a real tracked boon — flagged
+ * `countsTowardTotals: true`, same "both equipped legends' kits always contribute" convention
+ * `RevenantSkillSelection.activeLegendIndex`'s own doc comment documents (a player can invoke either
+ * equipped legend at will, so both count rather than only whichever is currently displayed). The
+ * other 3 (Assassin's boon-strip, Dragon's boon-duration-increase/condition-cleanse, Centaur's
+ * condition-cleanse/heal) aren't recognized boon/condition names, so stay tooltip-only `numericLines`
+ * — same "display-only" treatment this file's other trait-marker sections already use. Centaur's own
+ * "Heal per Condition Removed" fact appears twice in the raw data with no discriminator (970/323, no
+ * `alt=` or game-mode tag) — read as the usual undocumented PvE/WvW+PvP pair (this app's WvW-first
+ * convention), the lower value used. Assassin's own `Damage` fact (`dmg_multiplier: 1`) has no
+ * curated coefficient — shown as the bare "1 hit" `factLine` rendering every other un-curated Damage
+ * fact in this app gets, not a live Power-scaled number (would need `power`/`targetArmor` threaded
+ * through this whole call chain for one skill's one fact; a reasonable future follow-up, not done
+ * here). Facet of Nature's OWN base per-legend numbers (its passive tick, not this Consume effect)
+ * remain a separate, still-open TODO.md item — wiki-fetched but not yet precisely verified.
+ */
+function trueNatureBranches(
+  skill: Skill,
+  equippedLegendIdSet: ReadonlySet<string>,
+  legends: Legend[],
+  activeTraitIds: ReadonlySet<number>,
+  durationPercent: { boon: number; condition: number }
+): ConditionalBranch[] {
+  const coreValueActive = activeTraitIds.has(CORE_VALUE_TRAIT_ID)
+  const boonRow = (name: 'Stability' | 'Might', baseDurationSeconds: number, applyCount: number): BoonConditionSource => ({
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: name,
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds,
+    scaledDurationSeconds: baseDurationSeconds * (1 + durationPercent.boon / 100),
+    applyCount,
+    requiresTraitId: null,
+    // "Number of Targets: 5" on every variant's own numericLines below.
+    targetCount: 5
+  })
+
+  const branchFor = (legend: Legend): ConditionalBranch | null => {
+    const label = `True Nature (${legend.name})`
+    switch (legend.name) {
+      case 'Legendary Assassin Stance':
+        return {
+          label,
+          description: 'Strip boons from nearby enemies.',
+          numericLines: [
+            { icon: RECHARGE_ICON, text: 'Recharge: 20s' },
+            { icon: NUMBER_FACT_ICON, text: 'Unblockable' },
+            { icon: DAMAGE_ICON, text: 'Damage: 1 hit' },
+            { icon: ALLIED_TARGETS_ICON, text: 'Number of Targets: 5' },
+            { icon: NUMBER_FACT_ICON, text: `Boons Removed: ${coreValueActive ? 3 : 2}` }, // Core Value: 2 -> 3
+            { icon: RADIUS_ICON, text: 'Radius: 360' }
+          ],
+          facts: []
+        }
+      case 'Legendary Dwarf Stance':
+        return {
+          label,
+          description: 'Grant stability to nearby allies.',
+          numericLines: [
+            { icon: RECHARGE_ICON, text: 'Recharge: 20s' },
+            { icon: ALLIED_TARGETS_ICON, text: 'Number of Targets: 5' },
+            { icon: RADIUS_ICON, text: 'Radius: 600' }
+          ],
+          facts: [boonRow('Stability', 4, coreValueActive ? 3 : 2)], // Core Value: 2 -> 3 stacks
+          countsTowardTotals: true
+        }
+      case 'Legendary Dragon Stance':
+        return {
+          label,
+          description: "Increase the duration of allies' boons. Remove conditions from allies.",
+          numericLines: [
+            { icon: RECHARGE_ICON, text: 'Recharge: 20s' },
+            { icon: ALLIED_TARGETS_ICON, text: 'Number of Targets: 5' },
+            { icon: DURATION_ICON, text: `Duration Increase: ${coreValueActive ? 3 : 2}s` }, // Core Value: 2s -> 3s
+            { icon: NUMBER_FACT_ICON, text: 'Conditions Removed: 3' },
+            { icon: RADIUS_ICON, text: 'Radius: 600' }
+          ],
+          facts: []
+        }
+      case 'Legendary Centaur Stance':
+        return {
+          label,
+          description: 'Cleanse conditions from nearby allies. Heal for each condition removed.',
+          numericLines: [
+            { icon: RECHARGE_ICON, text: 'Recharge: 20s' },
+            { icon: HEALING_ICON, text: 'Heal per Condition Removed: 323' }, // WvW+PvP value (PvE 970)
+            { icon: ALLIED_TARGETS_ICON, text: 'Number of Targets: 5' },
+            { icon: NUMBER_FACT_ICON, text: `Conditions Removed: ${coreValueActive ? 3 : 2}` }, // Core Value: 2 -> 3
+            { icon: RADIUS_ICON, text: 'Radius: 600' }
+          ],
+          facts: []
+        }
+      case 'Legendary Demon Stance':
+        return {
+          label,
+          description: 'Transfer conditions to nearby enemies. Gain might for each condition transferred.',
+          numericLines: [
+            { icon: RECHARGE_ICON, text: 'Recharge: 20s' },
+            { icon: ALLIED_TARGETS_ICON, text: 'Number of Targets: 5' },
+            { icon: NUMBER_FACT_ICON, text: `Conditions Transferred: ${coreValueActive ? 3 : 2}` }, // Core Value: 2 -> 3
+            { icon: RADIUS_ICON, text: 'Radius: 600' },
+            { icon: NUMBER_FACT_ICON, text: 'Unblockable' }
+          ],
+          facts: [boonRow('Might', 10, 5)],
+          countsTowardTotals: true
+        }
+      default:
+        return null
+    }
+  }
+
+  return legends
+    .filter((l) => equippedLegendIdSet.has(l.id) && l.name in TRUE_NATURE_SKILL_ID_BY_LEGEND_NAME)
+    .map(branchFor)
+    .filter((b): b is ConditionalBranch => b !== null)
+}
+
 /**
  * Per-skill mutually-exclusive-outcome fact sections for `skillTooltipContent` to render as extra
  * labeled dividers below the base facts — `null` for every skill without one. Kept as its own
@@ -693,11 +870,18 @@ function radiantCourageSections(skill: Skill, durationPercent: { boon: number; c
  * for why a flat merge would misrepresent a skill like this. A future skill with the same "one
  * cast, mutually exclusive branches" shape (e.g. Twin Moon Sweep, COMPLETED.md Session 130) could
  * reuse this same mechanism.
+ *
+ * `activeTraitIds`/`equippedLegendIds`/`legends` (added 2026-08-20 for `trueNatureBranches`, see its
+ * own doc comment) default to empty so every pre-existing call site keeps compiling unchanged —
+ * only Facet of Nature's own branch actually reads them.
  */
 export function branchConditionalFacts(
   skill: Skill,
   durationPercent: { boon: number; condition: number },
-  healingPower: number
+  healingPower: number,
+  activeTraitIds: ReadonlySet<number> = new Set(),
+  equippedLegendIds: ReadonlySet<string> = new Set(),
+  legends: Legend[] = []
 ): ConditionalBranch[] | null {
   if (skill.id === 71952) return otherworldlyBondBranches(skill, durationPercent)
   // Sharp as the Wind's Force/Boost/Reach — Minimum Burning Duration has no PvE/WvW+PvP split on
@@ -711,6 +895,7 @@ export function branchConditionalFacts(
   if (skill.id === RADIANT_JUSTICE_ID) return radiantJusticeSections(skill, durationPercent)
   if (skill.id === RADIANT_RESOLVE_ID) return radiantResolveSections(skill, durationPercent, healingPower)
   if (skill.id === RADIANT_COURAGE_ID) return radiantCourageSections(skill, durationPercent)
+  if (skill.id === FACET_OF_NATURE_ID) return trueNatureBranches(skill, equippedLegendIds, legends, activeTraitIds, durationPercent)
   return null
 }
 

@@ -3577,12 +3577,7 @@ export interface LegendFormFact {
  *  opt-in allow-list, not automatic, same "fails open, curated one source at a time" convention as
  *  `BUFF_INSTANCE_LABELS`/`DODGE_TRIGGER_NOTES` elsewhere in this file. A broader scan (2026-08-20)
  *  found 4 more skills/traits with this exact shape (`PrefixedBuff` fact whose own `status` isn't a
- *  recognized boon/condition, `prefix.status` naming a legend): Facet of Nature (29371)/True Nature
- *  (29393)/Core Value (trait 1806) are the SAME still-open TODO.md item ("Herald F2 lacks linked
- *  tooltips + Core Value lacks its details") — deliberately NOT added here, that item's own scoping
- *  already found the raw per-legend data needs real per-legend skill-id resolution and an
- *  undocumented `overrides` field this app doesn't model yet, not just a description dump; adding
- *  them here would preempt that with a shallower fix. Ancient Echo (55029, the non-Conduit
+ *  recognized boon/condition, `prefix.status` naming a legend). Ancient Echo (55029, the non-Conduit
  *  spec-less fallback sharing Cosmic Wisdom's Profession_2/_3 slot family, see
  *  `profession-mechanic.ts`) is a plausible future candidate, not investigated this pass — its own
  *  3-legend set (`Unblockable`/Assassin, `Tranquil`/Centaur, `Rite of the Great Dwarf`/Dwarf) looks
@@ -3591,7 +3586,7 @@ export interface LegendFormFact {
  *  `comboFactsForSkill`, not this).
  */
 const LEGEND_FORM_FACT_SKILL_IDS = new Set<number>([
-  77371 // Cosmic Wisdom (Revenant/Conduit, Profession_3) — flagged by the user 2026-08-20: "doesn't
+  77371, // Cosmic Wisdom (Revenant/Conduit, Profession_3) — flagged by the user 2026-08-20: "doesn't
   // display the specific skill's tooltip depending on the equipped legends." Its raw API facts
   // already carry all 5 "Form of X" descriptions as clean `PrefixedBuff` facts (one real Legend
   // named per `prefix.status`, `status`/`description` a genuinely usable ready-to-show line each,
@@ -3601,6 +3596,16 @@ const LEGEND_FORM_FACT_SKILL_IDS = new Set<number>([
   // (Assassin/Centaur/Demon/Dwarf/Entity) can ever be equipped alongside it anyway — matches this
   // skill's own 5 documented forms with none left over (same reasoning already established for
   // `CONDUIT_RELEASE_POTENTIAL_BY_LEGEND`/`LEGEND_ATTRIBUTE_BONUS_DETAILS`).
+  29371 // Facet of Nature (Revenant/Herald, Profession_2) — the OTHER half of TODO.md's "Herald F2
+  // lacks linked tooltips" item, closed 2026-08-20 alongside `trueNatureBranches`
+  // (`skill-calc/branch-conditional-facts.ts`), which covers its Consume effect (True Nature)'s real
+  // numbers. This covers Facet of Nature's OWN passive-tick descriptions instead — its raw facts are
+  // 5 unclassified `PrefixedBuff` markers ("Facet of Nature—Assassin", etc.), same clean
+  // description-per-legend shape as Cosmic Wisdom above, just no real numbers behind them yet (wiki-
+  // fetched but not precisely verified — a separate, still-open TODO.md follow-up). Only 5 of
+  // Revenant's legends have a Facet of Nature form at all (Assassin/Centaur/Demon/Dwarf/Dragon,
+  // same 5 `trueNatureBranches` covers) — a Herald invoking Kalla/Alliance gets no row here, matching
+  // the real game.
 ])
 
 /**
@@ -3653,11 +3658,15 @@ const LEGEND_GATED_TRAIT_IDS = new Set<number>([2440])
  * traits' facts onto Cosmic Wisdom (both `requires_trait`-gated, Numinous Gift always active +
  * Found Purpose only when chosen) would render TWO simultaneous rows per boon whenever Found
  * Purpose is equipped (e.g. "Fury: 10s" AND "Fury: 5s" both attributed to Assassin) — this app's
- * fact pipeline has no "trait A's value is superseded once trait B is ALSO active" concept, the
- * same `overrides`-field gap already documented as unmodeled for Core Value/True Nature (TODO.md's
- * "Herald F2" item). Found Purpose's own trait tooltip already shows its correct numbers (fixed
- * during the Conduit `wvw-fact-overrides.json` leg) — that remains the only accurate source for
- * this trait's contribution until a real "value superseded by a 2nd trait" mechanism exists.
+ * fact pipeline has no generic "trait A's value is superseded once trait B is ALSO active" resolver
+ * — Core Value/True Nature's own version of this same shape (TODO.md's former "Herald F2" item,
+ * closed 2026-08-20) was solvable by hand-resolving each of its 5 variants' single boosted fact
+ * inline (`trueNatureBranches` in `skill-calc/branch-conditional-facts.ts`) rather than building a
+ * generic resolver, since only one skill/trait pair was involved; Found Purpose's version is a
+ * bigger lift (2 GRANDMASTER MAJORS, not one always-active minor, each independently toggleable) that
+ * would still benefit from a real generic resolver if ever picked up. Found Purpose's own trait
+ * tooltip already shows its correct numbers (fixed during the Conduit `wvw-fact-overrides.json` leg)
+ * — that remains the only accurate source for this trait's contribution until then.
  */
 
 /**
@@ -4860,7 +4869,7 @@ export function computeBoonConditionSources(
   for (const id of skillIds) {
     const skill = skillsById.get(id)
     if (!skill) continue
-    for (const branch of branchConditionalFacts(skill, durationPercent, 0) ?? []) {
+    for (const branch of branchConditionalFacts(skill, durationPercent, 0, activeIds, legendIds, gameData.legends) ?? []) {
       if (branch.countsTowardTotals) out.push(...branch.facts.filter((f) => f.category !== 'aura'))
     }
   }
@@ -5026,7 +5035,7 @@ export function computeAuraSources(
   for (const id of skillIds) {
     const skill = skillsById.get(id)
     if (!skill) continue
-    for (const branch of branchConditionalFacts(skill, { boon: 0, condition: 0 }, 0) ?? []) {
+    for (const branch of branchConditionalFacts(skill, { boon: 0, condition: 0 }, 0, activeIds, legendIds, gameData.legends) ?? []) {
       if (branch.countsTowardTotals) out.push(...branch.facts.filter((f) => f.category === 'aura'))
     }
   }

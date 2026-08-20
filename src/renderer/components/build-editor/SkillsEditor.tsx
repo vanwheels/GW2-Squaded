@@ -415,7 +415,7 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
   )
   const { namedFacts: effectiveNamedFacts, bonus: familiarBonus } = evokerFamiliarBonusFacts(factSourceSkill.id, rawNamedFacts, variantContext.familiarElement)
   const enhancement = additiveEnhancementFacts(skill, numericLines, effectiveFacts, effectiveNamedFacts, activeIds, variantContext)
-  const branches = branchConditionalFacts(factSourceSkill, variantContext.durationPercent, healingPower)
+  const branches = branchConditionalFacts(factSourceSkill, variantContext.durationPercent, healingPower, activeIds, variantContext.legendIds, variantContext.legends)
   return (
     <>
       <TooltipBody title={skill.name} description={factSourceSkill.description} icon={skill.icon} />

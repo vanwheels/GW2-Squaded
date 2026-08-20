@@ -137,11 +137,13 @@ const THIEF_STOLEN_SKILL_SLOT = 'Profession_2'
  * their curated Motivation-tier boons) IS still called here despite the paragraph above, since it's
  * unrelated to `relatedVariantSkills` — every branch-having skill curated so far (Otherworldly
  * Bond's own weapon-skill slot aside) is either Warrior's Burst Skill chain (Dragon Slash Sharp as
- * the Wind/River's Flow, Session 193) or a Paragon Chant (Session 195/196), both of which render
- * ONLY through this bar, never through `SkillsEditor`'s own `skillTooltipContent` — so without this
- * call, curated branch content for an entire profession-mechanic-bar skill would silently never
- * reach the tooltip no matter how correct the underlying data was. Verify any *future*
- * `branchConditionalFacts` entry against both possible render paths (this bar and
+ * the Wind/River's Flow, Session 193), a Paragon Chant (Session 195/196), or Revenant Herald's
+ * Facet of Nature (`trueNatureBranches`, 2026-08-20 — its Consume effect's real per-legend numbers,
+ * only resolvable here since it needs this bar's own `activeIds`/`legendIds` in scope), all of which
+ * render ONLY through this bar, never through `SkillsEditor`'s own `skillTooltipContent` — so
+ * without this call, curated branch content for an entire profession-mechanic-bar skill would
+ * silently never reach the tooltip no matter how correct the underlying data was. Verify any
+ * *future* `branchConditionalFacts` entry against both possible render paths (this bar and
  * `SkillsEditor.tsx`), not just one.
  */
 export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuildChange, combatState }: Props) {
@@ -177,7 +179,7 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
       healingPower: characterAttributes.healingPower,
       targetArmor
     })
-    const branches = branchConditionalFacts(skill, durationPercent, characterAttributes.healingPower)
+    const branches = branchConditionalFacts(skill, durationPercent, characterAttributes.healingPower, activeIds, legendIds, gameData.legends)
     return (
       <>
         <TooltipBody title={skill.name} description={skill.description} />

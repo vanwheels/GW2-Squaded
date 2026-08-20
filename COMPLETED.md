@@ -2,6 +2,48 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 258 — Herald F2 (Facet of Nature) + Core Value: real linked tooltip + boosted numbers
+
+Closed the last big item from the 2026-08-19 Revenant bug list ("Herald F2 lacks linked tooltips +
+Core Value lacks its details," TODO.md). Facet of Nature (29371) has `flipSkill: null` in the live
+API and its Consume effect ("True Nature") isn't a single skill — it's 5 different real per-legend
+ids (51667 Assassin/51675 Dwarf/51696 Dragon/51713 Centaur/51714 Demon) plus a generic un-legend-
+specific fallback (29393), only one live at a time depending on which OTHER legend the build has
+equipped. Building this surfaced that the raw data is much cleaner than TODO's own scoping guessed:
+
+- **`overrides` is a documented GW2 API index, not a mystery value**: cross-referencing all 5
+  variants' `traitedFacts` (`requires_trait: 1806`, Core Value) against their own base `facts` array
+  showed `overrides: N` is simply the 0-based INDEX of the base fact this traited fact replaces (e.g.
+  51667's `facts[4]` is "Boons Removed: 2", its traitedFact reads `value: 3, overrides: 4` — index 4
+  IS Boons Removed). Confirmed identically across all 5 variants. This app's `Fact` type already
+  typed `overrides?: number` (added earlier, never consumed) — resolved by hand per variant
+  (`coreValueActive ? boosted : base`) rather than a generic runtime resolver, since only one
+  skill/trait pair needed it.
+- **No new flip-chain plumbing needed**: rather than threading a 5-way legend-keyed flip target
+  through `flipSkill`/`FLIP_SKILL_OVERRIDES`/`withFlipChain` (a 1-to-1 mechanism that doesn't fit a
+  1-to-5 relationship), the 5 variants' real facts are hand-curated directly as new labeled
+  `ConditionalBranch` sections on Facet of Nature's OWN tooltip (`trueNatureBranches`, new function in
+  `skill-calc/branch-conditional-facts.ts`), reusing the existing Otherworldly-Bond-style divider
+  mechanism. `branchConditionalFacts` gained 3 new optional params (`activeTraitIds`,
+  `equippedLegendIds`, `legends`, defaulted so every pre-existing call site keeps compiling
+  unchanged) — wired through all 4 real call sites (`ProfessionMechanicBar.tsx`, `SkillsEditor.tsx`,
+  and both `boon-calc/sources.ts` aggregate loops). Dwarf's Stability and Demon's Might are the only 2
+  real tracked boons among the 5 variants — flagged `countsTowardTotals: true` (both equipped legends
+  always contribute, same convention `RevenantSkillSelection.activeLegendIndex` already documents),
+  boosted by Core Value the same inline way.
+- **Facet of Nature's own per-legend descriptions** (separate from its Consume effect): added 29371 to
+  `LEGEND_FORM_FACT_SKILL_IDS` (`boon-calc/sources.ts`) — its raw facts are already 5 clean
+  `PrefixedBuff` markers with real description text per legend, the exact shape that allow-list
+  already handles for Cosmic Wisdom, so this was a 1-line addition once the bigger True Nature piece
+  made it safe to add (previously deliberately excluded per that constant's own comment, to avoid a
+  "shallow fix" preempting the real one). Facet of Nature's own base per-legend NUMBERS (its passive
+  tick — Assassin's life siphon, Dwarf's -10% incoming damage, etc.) remain wiki-fetched but not
+  precisely verified — left as a small, separate, non-blocking follow-up per the original scoping.
+
+New `revenant-true-nature.test.ts` (8 tests) locks in the per-legend branch filtering, the Core Value
+boost across all 5 variants, and the 2 real boon facts' `countsTowardTotals`/applyCount. All 259 tests
++ typecheck + lint pass.
+
 ## Session 257 — Numinous Gift's synthetic Cosmic Wisdom copy: add Dwarf's missing Resolution boon
 
 Small mechanical follow-up flagged in TODO.md while fixing the equipped-legend-gating leak (Session
