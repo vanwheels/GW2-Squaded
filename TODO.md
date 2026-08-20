@@ -80,6 +80,15 @@ showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). What's left
       Would need the same new mechanism the Herald F2 item needs (a real "supersedes" resolver) to
       fix properly — bundle with that work if it's ever picked up, don't solve in isolation.
 
+- [ ] **Numinous Gift's synthetic copy onto Cosmic Wisdom is missing Dwarf's 2nd boon** — noticed
+      2026-08-20 while fixing the equipped-legend-gating leak (COMPLETED.md, same session): Numinous
+      Gift's own raw trait facts (2440) grant Dwarf Stance BOTH Stability AND Resolution, but the
+      `synthetic-facts.json` copy onto skill 77371 only carries Stability. Cosmic Wisdom's own
+      tooltip under-reports by 1 fact for Dwarf; the aggregate Boon/Condition panel is unaffected
+      (it picks up Resolution correctly via the trait's own facts, now also equipped-legend-gated).
+      Small, mechanical fix — add the missing `Resolution` `PrefixedBuff` entry to synthetic-facts.json's
+      77371 block, matching the trait's own fact verbatim like the other 5.
+
 ## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
 
 User felt the overall UI/UX was "a little off." Talked through each area and landed on concrete

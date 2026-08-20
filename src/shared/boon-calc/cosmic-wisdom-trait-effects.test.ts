@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import type { Fact, Legend, Skill, WvwFactOverride } from '../types'
-import { boonConditionFactsForSkill } from './sources'
+import type { Fact, Legend, Skill, Trait, WvwFactOverride } from '../types'
+import { boonConditionFactsForSkill, boonConditionFactsForTrait } from './sources'
 import { damageLinesForSkill } from '../skill-calc/damage-calc'
 
 /** Regression guard for the Numinous Gift/Mistfire "trait fact copied onto Cosmic Wisdom" fix
@@ -24,6 +24,8 @@ const syntheticFacts = readJson<Record<string, Fact[]>>('synthetic-facts.json')
 const skills = rawSkills.map((s) => (syntheticFacts[s.id] ? { ...s, facts: [...s.facts, ...syntheticFacts[s.id]] } : s))
 const legends = readJson<Legend[]>('legends.json')
 const cosmicWisdom = skills.find((s) => s.id === 77371)!
+const traits = readJson<Trait[]>('traits.json')
+const numinousGiftTrait = traits.find((t) => t.id === 2440)!
 const wvwOverrides = readJson<{ skill: Record<string, Record<string, WvwFactOverride>> }>('wvw-fact-overrides.json')
 const cosmicWisdomWvwOverride = wvwOverrides.skill['77371']
 
@@ -85,6 +87,23 @@ describe('Cosmic Wisdom (77371) — Numinous Gift/Mistfire trait-copied facts', 
     // Quickness, whose legends (Demon/Centaur/Entity) aren't equipped in this build.
     expect(facts).toHaveLength(3)
     expect(facts.map((f) => f.boonOrConditionName).sort()).toEqual(['Fury', 'Might', 'Stability'])
+  })
+
+  it('Numinous Gift\'s OWN trait facts are ALSO filtered to equipped legends (2026-08-20 regression, root cause of the leak)', () => {
+    // Numinous Gift (2440) is a Grandmaster MINOR, so it's active unconditionally once its
+    // specialization line is equipped — its raw trait.facts carry the identical 5 boon-per-legend
+    // PrefixedBuffs the synthetic copy above duplicates onto Cosmic Wisdom. computeBoonConditionSources
+    // walks equipped traits' own facts through a SEPARATE loop from the skill loop above, so this is
+    // the actual source the user saw leaking all 5 legends into the build-wide Boon/Condition panel
+    // even after the skill-side (Cosmic Wisdom) copy was gated.
+    const assassin = legends.find((l) => l.name === 'Legendary Assassin Stance')!
+    const dwarf = legends.find((l) => l.name === 'Legendary Dwarf Stance')!
+    const equipped = new Set([assassin.id, dwarf.id])
+    const facts = boonConditionFactsForTrait(numinousGiftTrait, new Set([NUMINOUS_GIFT_ID]), equipped, durationPercent, undefined, legends)
+    // Dwarf Stance grants BOTH Stability and Resolution on the trait's own raw facts (a completeness
+    // gap the synthetic copy onto Cosmic Wisdom doesn't have yet — see TODO.md) — not Resistance/
+    // Protection/Quickness, whose legends (Demon/Centaur/Entity) aren't equipped in this build.
+    expect(facts.map((f) => f.boonOrConditionName).sort()).toEqual(['Fury', 'Might', 'Resolution', 'Stability'])
   })
 
   it('Numinous Gift + Found Purpose both active still shows only Numinous Gift\'s 6 rows (no duplicate Fury/Resistance/etc.)', () => {

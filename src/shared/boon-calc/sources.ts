@@ -3604,6 +3604,24 @@ const LEGEND_FORM_FACT_SKILL_IDS = new Set<number>([
 ])
 
 /**
+ * Trait ids whose OWN `PrefixedBuff` facts get the same equipped-legend gate as
+ * `LEGEND_FORM_FACT_SKILL_IDS` above — same-day follow-up (2026-08-20) after the user reported
+ * Numinous Gift's boons still showing for all 5 legends in the build-wide Boon/Condition summary
+ * panel even after `extractFromFacts` learned to filter the SKILL-side copy
+ * (`synthetic-facts.json`'s 77371 entries). Root cause: Numinous Gift's own raw API facts (trait
+ * 2440, a Grandmaster MINOR — always active once Conduit is equipped) already carry the identical 5
+ * boon-per-legend `PrefixedBuff` facts natively; `computeBoonConditionSources`'s separate trait loop
+ * walks every equipped trait's OWN facts independently of the skill loop, so this second,
+ * completely unfiltered emission kept contributing all 5 legends' boons to the aggregate regardless
+ * of what the skill-side gate did. Unlike Spirit Boon (trait 1774, deliberately left ungated — see
+ * `LEGEND_FORM_FACT_SKILL_IDS`'s doc comment), Numinous Gift's own wiki wording is explicit that its
+ * effect "depends on which legends you have equipped," and the user confirmed they want exactly
+ * that build-specific behavior everywhere the trait's facts surface (its own picker tooltip
+ * included, via `boonConditionFactsForTrait`), not just on Cosmic Wisdom's tooltip.
+ */
+const LEGEND_GATED_TRAIT_IDS = new Set<number>([2440])
+
+/**
  * Same-day follow-up (2026-08-20): user flagged 3 more Conduit traits that interact with Cosmic
  * Wisdom specifically — "Numinous Gift gives boons/additional effects to Cosmic Wisdom, as do the
  * grandmaster majors Found Purpose and Mistfire." Unlike `LEGEND_FORM_EFFECT_DETAILS` above (which
@@ -3807,16 +3825,18 @@ function extractFromFacts(
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
 
     // Real recognized-boon-name `PrefixedBuff` facts (e.g. Numinous Gift's Fury/Resistance/
-    // Stability/Protection/Quickness copied onto Cosmic Wisdom, see synthetic-facts.json) still need
-    // the SAME equipped-legend gate `legendFormFactsForSkill` already applies to that skill's own
-    // non-boon "Form of X" facts — both are `PrefixedBuff`s naming one of Conduit's 5 reachable
-    // legends, and without this check every one of the 5 boon rows shows regardless of which 2
-    // legends are actually equipped. Deliberately scoped to `LEGEND_FORM_FACT_SKILL_IDS` rather than
-    // applied to every `PrefixedBuff`-with-legend fact everywhere: Invocation's Spirit Boon (trait
-    // 1774) has the identical shape (8 boon-per-legend `PrefixedBuff` facts) but is intentionally
-    // NOT gated here — see `legendFormFactsForSkill`'s doc comment for why Spirit Boon's rows show
-    // all 8 possibilities unconditionally.
-    if (sourceKind === 'skill' && LEGEND_FORM_FACT_SKILL_IDS.has(sourceId) && fact.type === 'PrefixedBuff') {
+    // Stability/Protection/Quickness, both on Cosmic Wisdom's synthetic copy AND on Numinous Gift's
+    // own trait facts — see `LEGEND_GATED_TRAIT_IDS`'s doc comment for why BOTH sources need this)
+    // still need the SAME equipped-legend gate `legendFormFactsForSkill` already applies to Cosmic
+    // Wisdom's own non-boon "Form of X" facts — all are `PrefixedBuff`s naming one of Conduit's 5
+    // reachable legends, and without this check every one of the 5 boon rows shows regardless of
+    // which 2 legends are actually equipped. Deliberately scoped to these 2 curated allow-lists
+    // rather than applied to every `PrefixedBuff`-with-legend fact everywhere: Invocation's Spirit
+    // Boon (trait 1774) has the identical shape (8 boon-per-legend `PrefixedBuff` facts) but is
+    // intentionally NOT gated here — see `legendFormFactsForSkill`'s doc comment for why Spirit
+    // Boon's rows show all 8 possibilities unconditionally.
+    const isLegendGatedSource = (sourceKind === 'skill' && LEGEND_FORM_FACT_SKILL_IDS.has(sourceId)) || (sourceKind === 'trait' && LEGEND_GATED_TRAIT_IDS.has(sourceId))
+    if (isLegendGatedSource && fact.type === 'PrefixedBuff') {
       const legend = resolveLegendFromPrefix(fact.prefix, legends)
       if (legend && !equippedLegendIdSet.has(legend.id)) continue
     }
