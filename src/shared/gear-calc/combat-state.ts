@@ -1,6 +1,6 @@
 import type { Build, Consumable, EquipmentSlotKey, Trait } from '../types'
 import { ALL_CORE_ATTRIBUTE_KEYS } from './attribute-totals'
-import { activeTraitIds } from './trait-attributes'
+import { activeTraitIds, activeWeaponTypes } from './trait-attributes'
 
 /**
  * Ephemeral "what-if" combat inputs for the Stats panel — deliberately never persisted on `Build`
@@ -271,6 +271,143 @@ export const RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT = 5
 export function risingMomentumMovementSpeedPercent(build: Build, upkeepPoints: number, traitsById: Map<number, Trait>): number {
   if (!activeTraitIds(build, traitsById).has(RISING_MOMENTUM_TRAIT_ID)) return 0
   return upkeepPoints * RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT
+}
+
+/**
+ * Movement speed does NOT stack additively across sources the way every other %-bonus in this
+ * file does — wiki-confirmed on Relic of the Wayfinder ("this Relic does not stack with other
+ * increases and only the highest value is used") and independently on Rising Momentum's own page
+ * ("Stacks additively with your highest other movement speed-increasing effect" — the explicit
+ * exception that proves the general "highest value wins" rule). So every source below (found via a
+ * full `traits.json`/`runes.json`/`relic-effects.json` scan for "Movement Speed Increase"/"Movement
+ * Speed" 2026-08-20, deliberately scoped to steady-state build bonuses only — skill-cast/signet/
+ * stance effects like Mist Form, Signet of the Locust, or Impossible Odds' own +50%-while-active
+ * are transient procs, out of scope, same "not a character stat gain" reasoning already applied to
+ * Reaper's Onslaught's Quickness grant; Pet's Prowess affects the pet's speed, not the player's;
+ * Relic of the Necromancer slows the *target*, not the wearer) competes for one "highest value
+ * wins" slot rather than adding together — `resolveMovementSpeedPercent` below is the only function
+ * that combines them, and Rising Momentum above is the only one that adds on top instead of
+ * competing.
+ */
+
+/** Trait id -> flat movement-speed-% granted unconditionally, once the (Minor, always-active once
+ *  its line is equipped) trait itself is on the build. All 3 wiki-verified via raw wikitext
+ *  (`?action=raw`) 2026-08-20, no game-mode split on any:
+ *  - Time Marches On (wiki.guildwars2.com/wiki/Time_Marches_On, Mesmer/Chronomancer, Minor, id
+ *    1859): "You move 25% faster" (its Alacrity-strength clause is separate, out of scope).
+ *  - Righteous Sprint (wiki.guildwars2.com/wiki/Righteous_Sprint, Guardian/Willbender, Minor, id
+ *    2222): "Gain increased movement speed" — a separate sentence from its own Swiftness-on-
+ *    virtue-cast clause (a boon proc, not this trait's own flat %).
+ *  - Jetstream (wiki.guildwars2.com/wiki/Jetstream, Ranger/Galeshot, Minor, id 2341): "Your base
+ *    movement speed is increased" — separate from its own Superspeed-on-Hawkeye clause (out of
+ *    scope as a proc, same reasoning). */
+export const FLAT_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, number> = {
+  1859: 25, // Time Marches On (Mesmer, Chronomancer, Minor)
+  2222: 25, // Righteous Sprint (Guardian, Willbender, Minor)
+  2341: 25 // Jetstream (Ranger, Galeshot, Minor)
+}
+
+/** Trait id -> movement-speed-% gated on a specific attunement — Zephyr's Speed (Elementalist/Air,
+ *  Minor, id 221): "While attuned to air, your movement speed is also increased" (its own
+ *  unconditional +5% crit-chance half is separately curated in `FLAT_CRIT_CHANCE_TRAIT_BONUSES`).
+ *  Wiki-verified via raw wikitext 2026-08-20, no game-mode split. Reuses `Build.activeAttunement`
+ *  directly, same reuse `MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_BONUSES` above already
+ *  documents — no new state needed. */
+export const ATTUNEMENT_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, { percent: number; attunement: 'Fire' | 'Water' | 'Air' | 'Earth' }> = {
+  221: { percent: 25, attunement: 'Air' } // Zephyr's Speed (Elementalist, Air, Minor)
+}
+
+/** Trait id -> movement-speed-% gated on Fury being up — Furious Focus (Guardian/Zeal, Major, id
+ *  2017): "Your strike damage and movement speed are increased while you have fury" (its Damage
+ *  Increase half is a separate fact, out of scope here). Wiki-verified via raw wikitext 2026-08-20,
+ *  no game-mode split. Reuses `CombatState.furyActive`. */
+export const FURY_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, number> = {
+  2017: 33 // Furious Focus (Guardian, Zeal, Major)
+}
+
+/** Trait id -> movement-speed-% gated on Quickness being up — Aggressive Onslaught (Warrior/
+ *  Strength, Major, id 1440): "While you have quickness, your movement speed is increased" (its
+ *  own Quickness-on-disable proc and Might grant are separate facts, out of scope here).
+ *  Wiki-verified via raw wikitext 2026-08-20, no game-mode split. Reuses
+ *  `CombatState.quicknessActive`. */
+export const QUICKNESS_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, number> = {
+  1440: 33 // Aggressive Onslaught (Warrior, Strength, Major)
+}
+
+/** Trait id -> movement-speed-% gated on wielding a melee weapon — Warrior's Sprint (Warrior/
+ *  Discipline, Major, id 1413): "Run faster while wielding melee weapons" (its Swiftness-strike-
+ *  damage clause and Immobile-break clause are separate facts, out of scope here). Wiki-verified
+ *  via raw wikitext + the live page's own Notes section 2026-08-20: no game-mode split, and —
+ *  since this is a Warrior-only trait — only the subset of the wiki's generic "melee weapon" list
+ *  Warrior can actually wield matters (the wiki's list also includes Pistol/Staff for other
+ *  professions' equivalent checks, but neither ever appears on a Warrior build, so both are
+ *  harmlessly included below rather than hand-trimmed). Reuses `activeWeaponTypes` (exported from
+ *  `trait-attributes.ts` for this purpose), the same "either hand, active set only" gating
+ *  `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES` already uses. */
+export const MELEE_WEAPON_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, { percent: number; weaponTypes: string[] }> = {
+  1413: {
+    percent: 25,
+    weaponTypes: ['Axe', 'Dagger', 'Mace', 'Sword', 'Pistol', 'Shield', 'Torch', 'Warhorn', 'Greatsword', 'Hammer', 'Staff', 'Spear']
+  } // Warrior's Sprint (Warrior, Discipline, Major)
+}
+
+/** Relic id -> movement-speed-% granted while `CombatState.relicActive` is on — the same generic
+ *  "assume the relic's own condition/proc is currently satisfied" toggle `CURATED_RELIC_DAMAGE_
+ *  BONUSES` already uses (`CombatStatePanel` surfaces one shared icon for whichever curated table
+ *  the equipped relic appears in, gated on membership in either table). Relic of the Wayfinder
+ *  (101943) wiki-verified via raw wikitext 2026-08-20: "Gain increased movement speed" is a flat,
+ *  always-on +25% while in combat (33% out-of-combat, not modeled — this app has no in/out-of-
+ *  combat state anywhere, and WvW play is the assumed context per
+ *  `gw2squaded-claude-code-prompt.md`), no game-mode split. The relic's own combat-entry Superspeed
+ *  burst is a transient proc, out of scope per this section's own doc comment. */
+export const CURATED_RELIC_MOVEMENT_SPEED_BONUSES: Record<number, number> = {
+  101943: 25 // Relic of the Wayfinder
+}
+
+/**
+ * Resolves the single "highest value wins" movement-speed-% slot from every curated non-additive
+ * source above, plus Rising Momentum's own additive contribution on top (see this section's own
+ * doc comment for why Rising Momentum alone gets to add rather than compete). `gearMovementSpeedPercent`
+ * is `AttributeTotals.bonusPercent.movementSpeed` (the rune-derived contribution — resolved in
+ * `attribute-totals.ts` since it flows through that module's generic bonus pipeline, unlike every
+ * trait/relic family here) — passed in rather than recomputed here, since this function has no
+ * gear access of its own.
+ */
+export function resolveMovementSpeedPercent(
+  build: Build,
+  combatState: CombatState,
+  gearMovementSpeedPercent: number,
+  traitsById: Map<number, Trait>
+): number {
+  const active = activeTraitIds(build, traitsById)
+  const candidates = [gearMovementSpeedPercent]
+
+  for (const [traitIdText, percent] of Object.entries(FLAT_MOVEMENT_SPEED_TRAIT_BONUSES)) {
+    if (active.has(Number(traitIdText))) candidates.push(percent)
+  }
+  for (const [traitIdText, { percent, attunement }] of Object.entries(ATTUNEMENT_MOVEMENT_SPEED_TRAIT_BONUSES)) {
+    if (active.has(Number(traitIdText)) && build.activeAttunement === attunement) candidates.push(percent)
+  }
+  if (combatState.furyActive) {
+    for (const [traitIdText, percent] of Object.entries(FURY_MOVEMENT_SPEED_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) candidates.push(percent)
+    }
+  }
+  if (combatState.quicknessActive) {
+    for (const [traitIdText, percent] of Object.entries(QUICKNESS_MOVEMENT_SPEED_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) candidates.push(percent)
+    }
+  }
+  const equippedWeaponTypes = activeWeaponTypes(build)
+  for (const [traitIdText, { percent, weaponTypes }] of Object.entries(MELEE_WEAPON_MOVEMENT_SPEED_TRAIT_BONUSES)) {
+    if (active.has(Number(traitIdText)) && weaponTypes.some((w) => equippedWeaponTypes.has(w))) candidates.push(percent)
+  }
+  if (combatState.relicActive && build.relicId !== null) {
+    const relicBonus = CURATED_RELIC_MOVEMENT_SPEED_BONUSES[build.relicId]
+    if (relicBonus !== undefined) candidates.push(relicBonus)
+  }
+
+  return Math.max(...candidates) + risingMomentumMovementSpeedPercent(build, combatState.upkeepPoints, traitsById)
 }
 
 export const FURY_CRITICAL_CHANCE_PERCENT = 20

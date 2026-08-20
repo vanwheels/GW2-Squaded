@@ -128,6 +128,12 @@ describe('addBonus', () => {
     expect(totals.points.BoonDuration).toBeUndefined()
   })
 
+  it('adds a Movement Speed percent bonus (Rune of the Traveler/Snowfall/Surging/Cavalier\'s 6th-piece line) to its own bucket', () => {
+    const totals = emptyTotals()
+    addBonus(totals, bonus({ attribute: 'Movement Speed', value: 25, isPercent: true }))
+    expect(totals.bonusPercent.movementSpeed).toBe(25)
+  })
+
   it('distributes a "to all stats" bonus across all 9 core attributes', () => {
     const totals = emptyTotals()
     addBonus(totals, bonus({ attribute: 'to all stats', value: 10, isPercent: false }))
@@ -383,6 +389,30 @@ describe('computeGearAttributeTotals', () => {
     expect(totals.points.Precision).toBe(20)
     expect(totals.points.Toughness).toBe(30)
     expect(totals.points.Vitality).toBeUndefined()
+  })
+
+  it("unlocks a rune's Movement Speed 6th-piece bonus only with all 6 armor pieces carrying it (Rune of the Traveler shape)", () => {
+    const rune: Rune = {
+      id: 24691,
+      name: 'Superior Rune of the Traveler',
+      icon: '',
+      bonuses: [
+        bonus({ attribute: 'to All Stats', value: 8 }),
+        bonus({ attribute: 'Boon Duration', value: 5, isPercent: true }),
+        bonus({ attribute: 'to All Stats', value: 12 }),
+        bonus({ attribute: 'Boon Duration', value: 10, isPercent: true }),
+        bonus({ attribute: 'to All Stats', value: 16 }),
+        bonus({ attribute: 'Movement Speed', value: 25, isPercent: true })
+      ]
+    }
+    const fivePieces = makeBuild({
+      equipment: Object.fromEntries(['helm', 'shoulders', 'chest', 'gloves', 'leggings'].map((k) => [k, { itemStatId: null, runeId: 24691 }]))
+    })
+    const sixPieces = makeBuild({
+      equipment: Object.fromEntries(['helm', 'shoulders', 'chest', 'gloves', 'leggings', 'boots'].map((k) => [k, { itemStatId: null, runeId: 24691 }]))
+    })
+    expect(computeGearAttributeTotals(fivePieces, gameDataWith({ runes: [rune] })).bonusPercent.movementSpeed).toBe(0)
+    expect(computeGearAttributeTotals(sixPieces, gameDataWith({ runes: [rune] })).bonusPercent.movementSpeed).toBe(25)
   })
 
   it('sums the active food and utility bonus lines', () => {

@@ -132,11 +132,20 @@ export interface AttributeTotals {
     boonDuration: number
     conditionDuration: number
     magicFind: number
+    /** Rune-derived only in practice (the only source with a structured "Movement Speed" bonus
+     *  line — see `PERCENT_BONUS_ALIASES`'s doc comment) — unlike its 3 siblings above, movement
+     *  speed does NOT stack additively in GW2 (wiki-confirmed on Relic of the Wayfinder: "does not
+     *  stack with other increases and only the highest value is used"), so this raw total is never
+     *  added directly onto a derived stat the way `boonDuration`/`conditionDuration`/`magicFind`
+     *  are — it's one candidate `combat-state.ts`'s `resolveMovementSpeedPercent` maxes against
+     *  every curated trait/relic source. Safe to sum here regardless, since a build can only ever
+     *  have one 6-piece rune bonus active at all. */
+    movementSpeed: number
   }
 }
 
 export function emptyTotals(): AttributeTotals {
-  return { points: {}, bonusPercent: { boonDuration: 0, conditionDuration: 0, magicFind: 0 } }
+  return { points: {}, bonusPercent: { boonDuration: 0, conditionDuration: 0, magicFind: 0, movementSpeed: 0 } }
 }
 
 /**
@@ -234,7 +243,12 @@ export const ATTRIBUTE_DISPLAY_NAME: Record<string, string> = {
 const PERCENT_BONUS_ALIASES: Record<string, keyof AttributeTotals['bonusPercent']> = {
   'boon duration': 'boonDuration',
   'condition duration': 'conditionDuration',
-  'magic find': 'magicFind'
+  'magic find': 'magicFind',
+  // Only 4 runes carry this line (Traveler/Snowfall/Surging/Cavalier's shared 6th-piece bonus,
+  // confirmed via a full `runes.json` scan 2026-08-20) — no food/utility/sigil ever does. See
+  // `AttributeTotals.bonusPercent.movementSpeed`'s doc comment for why this doesn't stack the way
+  // its 3 siblings above do.
+  'movement speed': 'movementSpeed'
 }
 
 /** Free-text attribute name (case-insensitive, e.g. "Ferocity", "Healing Power") -> the
@@ -285,7 +299,8 @@ export function addBonus(totals: AttributeTotals, bonus: AttributeBonusText): vo
 const BONUS_PERCENT_DISPLAY_NAME: Record<keyof AttributeTotals['bonusPercent'], string> = {
   boonDuration: 'Concentration',
   conditionDuration: 'Expertise',
-  magicFind: 'Magic Find'
+  magicFind: 'Magic Find',
+  movementSpeed: 'Movement Speed'
 }
 
 /**

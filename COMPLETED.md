@@ -2,6 +2,53 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 260 — Movement-speed sweep: 4 runes + 7 traits + 1 relic, "highest value wins" mechanic
+
+User noticed the movement-speed stat added in Session 259 (Rising Momentum) sat empty for every
+other real source, and asked for the rest to be covered. A full scan of `traits.json`/`runes.json`/
+`relic-effects.json` for "Movement Speed" turned up a genuinely tractable list, deliberately scoped
+to steady-state build bonuses only (user-confirmed) — skill-cast/signet/stance effects (Mist Form,
+Signet of the Locust, Impossible Odds' own +50%-while-active burst, Kneel's speed *penalty*) stay
+out of scope as transient procs, same "not a character stat gain" line this codebase already draws
+elsewhere (Reaper's Onslaught's Quickness grant); Pet's Prowess (affects the pet, not the player) and
+Relic of the Necromancer (slows the *target*, not the wearer) aren't applicable to this stat at all.
+
+**The real mechanical wrinkle, caught before shipping a wrong number**: unlike every other %-bonus
+`combat-state.ts` tracks (Boon Duration, Crit Chance, ...), movement speed does NOT stack additively
+in GW2 — wiki-confirmed on Relic of the Wayfinder ("does not stack with other increases and only the
+highest value is used"), and independently corroborated by Rising Momentum's OWN page explicitly
+calling out that it "stacks additively with your highest other movement speed-increasing effect" —
+the exception implies the general rule. So naively summing every curated source (as a first pass
+would have) is wrong the moment two ever coexist. `combat-state.ts`'s new `resolveMovementSpeedPercent`
+takes `Math.max(...)` across every non-Rising-Momentum candidate, then adds Rising Momentum's own
+upkeep-scaling contribution on top of that max (the one explicitly-additive exception).
+
+**Curated (all wiki-verified via raw wikitext, no game-mode split found on any):**
+- 4 runes (Traveler/Snowfall/Surging/Cavalier) — their shared 6th-piece "+25% Movement Speed" line
+  was already structurally parsed (`Rune.bonuses`) but silently dropped as "unmapped" by `addBonus`.
+  New `AttributeTotals.bonusPercent.movementSpeed` bucket + `'movement speed'` alias in
+  `PERCENT_BONUS_ALIASES`/`BONUS_PERCENT_DISPLAY_NAME` (the latter for free — now also searchable via
+  UpgradePicker's "#movement speed"). Safe to sum additively within this one bucket alone (a build
+  can only ever have one 6-piece rune active), unlike the cross-source `resolveMovementSpeedPercent`
+  combine step.
+- 3 unconditional traits: Time Marches On (Mesmer/Chronomancer, 25%), Righteous Sprint (Guardian/
+  Willbender, 25%), Jetstream (Ranger/Galeshot, 25%) — `FLAT_MOVEMENT_SPEED_TRAIT_BONUSES`.
+- 3 traits gated by combat state this app already tracks: Zephyr's Speed (Elementalist/Air, 25% while
+  attuned to Air — reuses `Build.activeAttunement`), Furious Focus (Guardian/Zeal, 33% while Fury is
+  up — reuses `CombatState.furyActive`), Aggressive Onslaught (Warrior/Strength, 33% while Quickness
+  is up — reuses `CombatState.quicknessActive`).
+- 1 trait gated by weapon type: Warrior's Sprint (Warrior/Discipline, 25% while wielding any melee
+  weapon) — reuses `activeWeaponTypes` (newly exported from `trait-attributes.ts` for this purpose,
+  previously private to the `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES` family).
+- 1 relic: Relic of the Wayfinder (25% in combat; 33% out-of-combat not modeled — this app has no
+  in/out-of-combat state anywhere and assumes WvW combat context) — reuses the existing
+  `CombatState.relicActive` toggle, same shared field `CURATED_RELIC_DAMAGE_BONUSES` already uses
+  (`CombatStatePanel`'s relic icon now gates on membership in either curated table).
+
+New `describe` block in `combat-state.test.ts` (10 cases) locks in every gate plus the "max, not sum"
+combine rule and Rising Momentum's additive exception; 2 new `attribute-totals.test.ts` cases lock in
+the rune alias wiring and the 6-piece stage-gate end to end. All 275 tests + typecheck + lint pass.
+
 ## Session 259 — Rising Momentum (Herald): new movement-speed derived stat + upkeep-points combat state
 
 Closed the last open item from the 2026-08-19 Revenant bug list (TODO.md). Rising Momentum (1716,

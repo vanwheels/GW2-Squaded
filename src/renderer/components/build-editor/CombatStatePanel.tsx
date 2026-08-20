@@ -1,6 +1,7 @@
 import type { Build } from '@shared/types'
 import {
   CURATED_RELIC_DAMAGE_BONUSES,
+  CURATED_RELIC_MOVEMENT_SPEED_BONUSES,
   DEATH_MAGIC_SPECIALIZATION_ID,
   DEATHS_CARAPACE_MAX_STACKS,
   DEATHS_CARAPACE_TOUGHNESS_PER_STACK,
@@ -78,7 +79,11 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   const stackingSigil = detectActiveStackingSigil(build)
   const sigilIcon = stackingSigil ? sigilsById.get(stackingSigil.sigilId)?.icon : undefined
 
-  const relicHasCuratedBonus = build.relicId !== null && build.relicId in CURATED_RELIC_DAMAGE_BONUSES
+  // Gated on membership in EITHER curated relic table — one shared toggle covers both damage-%
+  // and movement-speed-% relic bonuses (see `combat-state.ts`'s `CURATED_RELIC_MOVEMENT_SPEED_
+  // BONUSES` doc comment for why they reuse the same `relicActive` field).
+  const relicHasCuratedBonus =
+    build.relicId !== null && (build.relicId in CURATED_RELIC_DAMAGE_BONUSES || build.relicId in CURATED_RELIC_MOVEMENT_SPEED_BONUSES)
   const relicIcon = relicHasCuratedBonus && build.relicId !== null ? relicsById.get(build.relicId)?.icon : undefined
 
   // Only surfaced when the build actually has a curated `mechanicActive`-family trait chosen

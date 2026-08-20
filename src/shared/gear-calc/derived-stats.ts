@@ -22,7 +22,7 @@ import {
   highHealthCritChanceTraitBonus,
   kallaFervorPercentPerStack,
   mechanicActiveCritChanceTraitBonus,
-  risingMomentumMovementSpeedPercent,
+  resolveMovementSpeedPercent,
   type CombatState
 } from './combat-state'
 import { applyTraitBonuses, maxHealthPercentTraitBonus } from './trait-attributes'
@@ -156,10 +156,11 @@ export interface DerivedStats {
    *  Fervor's per-stack life-steal share contributes (see `outgoingDamagePercent`'s doc comment for
    *  the Lasting Legacy upgrade). */
   lifeStealPercent: number
-  /** Movement-speed-%, first/only field for this stat anywhere in the app — currently only
-   *  Revenant/Herald's Rising Momentum contributes, scaling with `CombatState.upkeepPoints` (see
-   *  `risingMomentumMovementSpeedPercent` in `combat-state.ts`). 0 for every build without that
-   *  trait chosen. */
+  /** Movement-speed-%, first/only field for this stat anywhere in the app. Unlike every other
+   *  derived %-stat here, its curated sources don't simply sum — see `combat-state.ts`'s
+   *  `resolveMovementSpeedPercent` (the "highest value wins, plus Rising Momentum's own additive
+   *  upkeep-scaling contribution" formula) for the real combination rule and the full list of
+   *  curated runes/traits/relic. 0 for every build with none of those active. */
   movementSpeedPercent: number
 }
 
@@ -240,7 +241,7 @@ export function computeCharacterStats(
       combatState.kallaFervorStacks * kallaFervorPerStack.strikeDamage,
     outgoingConditionDamagePercent: combatState.kallaFervorStacks * kallaFervorPerStack.conditionDamage,
     lifeStealPercent: combatState.kallaFervorStacks * kallaFervorPerStack.lifeSteal,
-    movementSpeedPercent: risingMomentumMovementSpeedPercent(build, combatState.upkeepPoints, traitsById)
+    movementSpeedPercent: resolveMovementSpeedPercent(build, combatState, totals.bonusPercent.movementSpeed, traitsById)
   }
 
   return { attributes, derived }

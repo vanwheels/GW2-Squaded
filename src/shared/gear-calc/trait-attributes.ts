@@ -514,8 +514,9 @@ export const WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES: Record<number, WeaponEquip
  *  weapon slots — mirrors `isActiveWeaponSlot`'s "only the active set counts" gating (same rule
  *  `detectActiveStackingSigil` in combat-state.ts uses), deduped since a two-handed weapon mirrors
  *  the same type onto both its slots. Used by every `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`
- *  entry except Right-Hand Strength's main-hand-only gate below. */
-function activeWeaponTypes(build: Build): Set<string> {
+ *  entry except Right-Hand Strength's main-hand-only gate below, and — exported for this reason —
+ *  by `combat-state.ts`'s `MELEE_WEAPON_MOVEMENT_SPEED_TRAIT_BONUSES` (Warrior's Sprint). */
+export function activeWeaponTypes(build: Build): Set<string> {
   const types = new Set<string>()
   for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
     if (!slotKey.startsWith('weapon') || !isActiveWeaponSlot(slotKey, build)) continue

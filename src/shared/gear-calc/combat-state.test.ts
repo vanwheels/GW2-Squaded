@@ -17,6 +17,7 @@ import {
   LASTING_LEGACY_TRAIT_ID,
   MIGHT_CONDITION_DAMAGE_PER_STACK,
   MIGHT_POWER_PER_STACK,
+  resolveMovementSpeedPercent,
   RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT,
   RISING_MOMENTUM_TRAIT_ID,
   type CombatState,
@@ -338,6 +339,82 @@ describe('computeCharacterStats — Rising Momentum movement speed (upkeepPoints
     const combatState: CombatState = { ...DEFAULT_COMBAT_STATE, upkeepPoints }
     const { derived } = computeCharacterStats(build, { ...EMPTY_GAME_DATA, traits: [...traitsById.values()] }, combatState)
     expect(derived.movementSpeedPercent).toBe(upkeepPoints * RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT)
+  })
+})
+
+describe('resolveMovementSpeedPercent — "highest value wins" across sources, Rising Momentum additive on top', () => {
+  it('is 0 with no gear/trait/relic contribution', () => {
+    const build = makeBuild()
+    expect(resolveMovementSpeedPercent(build, DEFAULT_COMBAT_STATE, 0, NO_TRAITS)).toBe(0)
+  })
+
+  it('takes the gear (rune) contribution alone when no trait/relic competes', () => {
+    const build = makeBuild()
+    expect(resolveMovementSpeedPercent(build, DEFAULT_COMBAT_STATE, 25, NO_TRAITS)).toBe(25)
+  })
+
+  it('does NOT sum an unconditional trait onto an equal gear contribution — takes the max, not the total', () => {
+    const { build, traitsById } = buildWithTrait(1859, 'Minor') // Time Marches On
+    expect(resolveMovementSpeedPercent(build, DEFAULT_COMBAT_STATE, 25, traitsById)).toBe(25)
+  })
+
+  it('takes the higher of two competing sources', () => {
+    const { build, traitsById } = buildWithTrait(1859, 'Minor') // Time Marches On, 25%
+    expect(resolveMovementSpeedPercent(build, DEFAULT_COMBAT_STATE, 10, traitsById)).toBe(25)
+  })
+
+  it('gates Zephyr\'s Speed on Air attunement specifically', () => {
+    const { build, traitsById } = buildWithTrait(221, 'Minor') // Zephyr's Speed
+    const onAir = makeBuild({ specializations: build.specializations, activeAttunement: 'Air' })
+    const onFire = makeBuild({ specializations: build.specializations, activeAttunement: 'Fire' })
+    expect(resolveMovementSpeedPercent(onAir, DEFAULT_COMBAT_STATE, 0, traitsById)).toBe(25)
+    expect(resolveMovementSpeedPercent(onFire, DEFAULT_COMBAT_STATE, 0, traitsById)).toBe(0)
+  })
+
+  it('gates Furious Focus on combatState.furyActive', () => {
+    const { build, traitsById } = buildWithTrait(2017, 'Major') // Furious Focus
+    expect(resolveMovementSpeedPercent(build, { ...DEFAULT_COMBAT_STATE, furyActive: true }, 0, traitsById)).toBe(33)
+    expect(resolveMovementSpeedPercent(build, { ...DEFAULT_COMBAT_STATE, furyActive: false }, 0, traitsById)).toBe(0)
+  })
+
+  it('gates Aggressive Onslaught on combatState.quicknessActive', () => {
+    const { build, traitsById } = buildWithTrait(1440, 'Major') // Aggressive Onslaught
+    expect(resolveMovementSpeedPercent(build, { ...DEFAULT_COMBAT_STATE, quicknessActive: true }, 0, traitsById)).toBe(33)
+    expect(resolveMovementSpeedPercent(build, { ...DEFAULT_COMBAT_STATE, quicknessActive: false }, 0, traitsById)).toBe(0)
+  })
+
+  it('gates Warrior\'s Sprint on wielding a melee weapon (either hand, active set only)', () => {
+    const { build, traitsById } = buildWithTrait(1413, 'Major') // Warrior's Sprint
+    const withSword = makeBuild({
+      specializations: build.specializations,
+      equipment: { weaponA1: { itemStatId: null, weaponType: 'Sword' } }
+    })
+    const withRifle = makeBuild({
+      specializations: build.specializations,
+      equipment: { weaponA1: { itemStatId: null, weaponType: 'Rifle' } }
+    })
+    expect(resolveMovementSpeedPercent(withSword, DEFAULT_COMBAT_STATE, 0, traitsById)).toBe(25)
+    expect(resolveMovementSpeedPercent(withRifle, DEFAULT_COMBAT_STATE, 0, traitsById)).toBe(0)
+  })
+
+  it('gates Relic of the Wayfinder on relicActive AND the equipped relic actually being it', () => {
+    const build = makeBuild({ relicId: 101943 })
+    expect(resolveMovementSpeedPercent(build, { ...DEFAULT_COMBAT_STATE, relicActive: true }, 0, NO_TRAITS)).toBe(25)
+    expect(resolveMovementSpeedPercent(build, { ...DEFAULT_COMBAT_STATE, relicActive: false }, 0, NO_TRAITS)).toBe(0)
+    const otherRelic = makeBuild({ relicId: 999999 })
+    expect(resolveMovementSpeedPercent(otherRelic, { ...DEFAULT_COMBAT_STATE, relicActive: true }, 0, NO_TRAITS)).toBe(0)
+  })
+
+  it("adds Rising Momentum's contribution ON TOP of the highest competing source rather than competing with it", () => {
+    // Both traits share one synthetic specialization line here (`buildWithTraits`'s own shape) —
+    // in a real build these would be different lines (Herald/Chronomancer), but only whether each
+    // trait is *active* matters for this isolated combine-logic check, not which line grants it.
+    const { build, traitsById } = buildWithTraits([
+      { id: RISING_MOMENTUM_TRAIT_ID, slot: 'Major' },
+      { id: 1859, slot: 'Minor' } // Time Marches On, 25%
+    ])
+    const combatState: CombatState = { ...DEFAULT_COMBAT_STATE, upkeepPoints: 4 } // +20%
+    expect(resolveMovementSpeedPercent(build, combatState, 0, traitsById)).toBe(25 + 20)
   })
 })
 
