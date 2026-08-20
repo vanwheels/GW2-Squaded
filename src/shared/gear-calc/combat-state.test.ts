@@ -17,6 +17,8 @@ import {
   LASTING_LEGACY_TRAIT_ID,
   MIGHT_CONDITION_DAMAGE_PER_STACK,
   MIGHT_POWER_PER_STACK,
+  RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT,
+  RISING_MOMENTUM_TRAIT_ID,
   type CombatState,
   type HealthTier
 } from './combat-state'
@@ -320,6 +322,22 @@ describe('computeCharacterStats — Kalla\'s Fervor stacks (0/mid/max), end to e
 
     const withRelicOn = computeCharacterStats(build, { ...EMPTY_GAME_DATA, traits: [] }, { ...DEFAULT_COMBAT_STATE, relicActive: true, kallaFervorStacks: 5 })
     expect(withRelicOn.derived.outgoingDamagePercent).toBe(CURATED_RELIC_DAMAGE_BONUSES[relicId] + 5 * KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK)
+  })
+})
+
+describe('computeCharacterStats — Rising Momentum movement speed (upkeepPoints, trait-gated)', () => {
+  it('stays 0 regardless of upkeepPoints when Rising Momentum is not chosen', () => {
+    const build = makeBuild()
+    const combatState: CombatState = { ...DEFAULT_COMBAT_STATE, upkeepPoints: 11 }
+    const { derived } = computeCharacterStats(build, { ...EMPTY_GAME_DATA, traits: [] }, combatState)
+    expect(derived.movementSpeedPercent).toBe(0)
+  })
+
+  it.each([0, 6, 11])('scales linearly at %i points of upkeep once Rising Momentum is chosen', (upkeepPoints) => {
+    const { build, traitsById } = buildWithTrait(RISING_MOMENTUM_TRAIT_ID, 'Major')
+    const combatState: CombatState = { ...DEFAULT_COMBAT_STATE, upkeepPoints }
+    const { derived } = computeCharacterStats(build, { ...EMPTY_GAME_DATA, traits: [...traitsById.values()] }, combatState)
+    expect(derived.movementSpeedPercent).toBe(upkeepPoints * RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT)
   })
 })
 

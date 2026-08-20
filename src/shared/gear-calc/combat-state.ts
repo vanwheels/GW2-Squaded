@@ -79,6 +79,19 @@ export interface CombatState {
    *  stepper on `DEATH_MAGIC_SPECIALIZATION_ID`), same shape as `kallaFervorStacks` (a
    *  build-conditional stepper) rather than a flat boolean. */
   deathsCarapaceStacks: number
+  /** Manual count of the player's current total "points of upkeep" — Revenant/Herald's Rising
+   *  Momentum (see `RISING_MOMENTUM_TRAIT_ID`) reads this. Unlike every other stepper above, this
+   *  has no fixed real max: it's the sum of however many upkeep skills (Facets, Impossible Odds,
+   *  Protective Solace, ...) the player currently has toggled on, each contributing its own
+   *  wiki-listed point cost — this app has no per-skill upkeep-cost data anywhere (the GW2 API's
+   *  own skill `facts` never expose it, confirmed via a `skills.json` scan 2026-08-20) and no
+   *  concept of "which legend/utility loadout is on the bar right now" to derive it from
+   *  automatically, so — same reasoning as `kallaFervorStacks`/`deathsCarapaceStacks` sidestepping
+   *  their own untracked resources — this is a raw manual entry rather than an auto-derived count.
+   *  Only meaningful/surfaced when Rising Momentum is actually chosen (`CombatStatePanel` gates its
+   *  input on `RISING_MOMENTUM_TRAIT_ID`, same pattern as `mechanicActive`/`revealedActive`'s
+   *  single-trait gates). */
+  upkeepPoints: number
 }
 
 export const DEFAULT_COMBAT_STATE: CombatState = {
@@ -94,7 +107,8 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   relicActive: false,
   targetArmorClass: 'Medium',
   kallaFervorStacks: 0,
-  deathsCarapaceStacks: 0
+  deathsCarapaceStacks: 0,
+  upkeepPoints: 0
 }
 
 // wiki-confirmed flat value at level 80, quoted directly (not derived from a per-level formula).
@@ -229,6 +243,34 @@ export function deathsCarapaceAttributePoints(build: Build, stacks: number, trai
     for (const [target, valuePerStack] of Object.entries(targets)) bonus[target] = (bonus[target] ?? 0) + valuePerStack * stacks
   }
   return bonus
+}
+
+/**
+ * Revenant/Herald's Rising Momentum (Adept Major, id 1716) — "Gain increased movement speed for
+ * each point of upkeep currently in use." Wiki-verified via raw wikitext
+ * (wiki.guildwars2.com/index.php?title=Rising_Momentum&action=raw) 2026-08-20:
+ * `{{skill fact|effect|Rising Momentum (effect)|desc=+5% Movement Speed}}` per point of upkeep, no
+ * PvE/WvW/PvP split (confirmed against the live rendered page too — no version-history entry ever
+ * introduced one). "Points of upkeep" itself is a wiki-documented Revenant mechanic, not this
+ * trait's own invention: every upkeep skill (Facets, Impossible Odds, Protective Solace, Vengeful
+ * Hammers, Embrace the Darkness, Soulcleave's Summit, Urn of Saint Viktor, ...) lists its own point
+ * cost, and Rising Momentum's bonus scales with the *sum* of whichever of those the player
+ * currently has toggled on — see `CombatState.upkeepPoints`'s doc comment for why that sum is a
+ * manual entry here rather than derived from equipped skills. First trait in this file whose
+ * bonus targets movement speed rather than an attribute/crit-chance/%-damage stat — `DerivedStats.
+ * movementSpeedPercent` is its own new, first-of-its-kind field for that reason.
+ */
+export const RISING_MOMENTUM_TRAIT_ID = 1716
+export const RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT = 5
+
+/**
+ * Resolves Rising Momentum's movement-speed bonus for the given `upkeepPoints` count — 0 unless
+ * the trait is actually chosen (mirrors `fullEnduranceCritChanceTraitBonus`'s single-trait gating
+ * shape), then a flat multiple of `upkeepPoints` with no threshold or cap of its own.
+ */
+export function risingMomentumMovementSpeedPercent(build: Build, upkeepPoints: number, traitsById: Map<number, Trait>): number {
+  if (!activeTraitIds(build, traitsById).has(RISING_MOMENTUM_TRAIT_ID)) return 0
+  return upkeepPoints * RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT
 }
 
 export const FURY_CRITICAL_CHANCE_PERCENT = 20

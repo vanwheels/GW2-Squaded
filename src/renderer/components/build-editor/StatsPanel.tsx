@@ -52,6 +52,7 @@ export function StatsPanel({ build, combatState = DEFAULT_COMBAT_STATE }: Props)
     { leftLabel: 'Healing Power', leftValue: `${round(stats.attributes.healingPower)}`, rightLabel: 'Magic Find', rightValue: `${formatBoonPercent(stats.derived.magicFind)}%` },
     { leftLabel: 'Life Steal', leftValue: `${formatBoonPercent(stats.derived.lifeStealPercent)}%`, rightLabel: 'Outgoing Damage', rightValue: `${formatBoonPercent(stats.derived.outgoingDamagePercent)}%` },
     { leftLabel: '', leftValue: '', rightLabel: 'Outgoing Condition Damage', rightValue: `${formatBoonPercent(stats.derived.outgoingConditionDamagePercent)}%` },
+    { leftLabel: '', leftValue: '', rightLabel: 'Movement Speed', rightValue: `${formatBoonPercent(stats.derived.movementSpeedPercent)}%` },
   ]
 
   return (

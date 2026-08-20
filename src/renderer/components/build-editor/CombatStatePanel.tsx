@@ -13,6 +13,8 @@ import {
   MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES,
   RENEGADE_SPECIALIZATION_ID,
   REVEALED_ATTRIBUTE_TRAIT_BONUSES,
+  RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT,
+  RISING_MOMENTUM_TRAIT_ID,
   type CombatState,
   type HealthTier,
   type TargetArmorClass
@@ -66,8 +68,9 @@ function iconClass(active: boolean): string {
  * (icon + 5-increment dropdown); Kalla's Fervor is a stepper too but every-integer (its own max is
  * only 5); Fury/Regeneration/Quickness/relic/mechanic-active are click-to-toggle icons (no
  * dropdown, boolean on/off); target armor is a 3-option dropdown (not a stepper — only Light/
- * Medium/Heavy exist, no intermediate values) — see `CombatState`'s doc comment for why each field
- * takes the shape it does.
+ * Medium/Heavy exist, no intermediate values); Rising Momentum's upkeep-points is a raw number
+ * input rather than a dropdown, since (unlike every other stepper here) it has no fixed real max
+ * — see `CombatState`'s doc comment for why each field takes the shape it does.
  */
 export function CombatStatePanel({ build, value, onChange }: Props) {
   const { sigilsById, relicsById, traitsById, foodById, utilityById } = useGameData()
@@ -120,6 +123,11 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   // Only surfaced when Death Magic is actually equipped — Death's Carapace can't exist without it
   // (see `combat-state.ts`'s `DEATH_MAGIC_SPECIALIZATION_ID`).
   const hasDeathMagic = build.specializations.some((s) => s?.specializationId === DEATH_MAGIC_SPECIALIZATION_ID)
+
+  // Only surfaced when Rising Momentum is actually chosen — same reasoning as `mechanicTrait`/
+  // `healthTrait` above, reads the trait's own icon/name since it's the only candidate so far.
+  const hasRisingMomentum = activeTraitIds(build, traitsById).has(RISING_MOMENTUM_TRAIT_ID)
+  const risingMomentumTrait = hasRisingMomentum ? traitsById.get(RISING_MOMENTUM_TRAIT_ID) : undefined
 
   return (
     <div className="combat-state-controls">
@@ -183,6 +191,25 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
               </option>
             ))}
           </select>
+        </div>
+      )}
+
+      {risingMomentumTrait && (
+        <div className="combat-state-row">
+          <img
+            className={iconClass(value.upkeepPoints > 0)}
+            src={risingMomentumTrait.icon}
+            alt=""
+            title={`Rising Momentum: +${RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT}% Movement Speed per point of upkeep in use`}
+          />
+          <input
+            type="number"
+            min={0}
+            step={1}
+            aria-label="Current points of upkeep in use"
+            value={value.upkeepPoints}
+            onChange={(e) => onChange({ ...value, upkeepPoints: Math.max(0, Number(e.target.value) || 0) })}
+          />
         </div>
       )}
 

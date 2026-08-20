@@ -10,7 +10,7 @@ released; Discord bot and Capacitor mobile port remain later roadmap stages, out
 left in this file below is post-1.0 polish and open curation gaps — none of it blocks the release
 that already shipped.
 
-## Revenant tooltip/data bugs (2026-08-19) — 6 of 7 fixed, 1 scoped below, plus a related sweep
+## Revenant tooltip/data bugs (2026-08-19) — all 7 fixed, plus a related sweep and 1 new item below
 
 User brain-dumped 7 Revenant bugs in one message, flagging the real list was probably bigger than
 what they'd written down. 5 were fixed same day (COMPLETED.md Session 231): Sword 4's flip (retired
@@ -23,17 +23,13 @@ tooltips + Core Value lacks its details," was fixed 2026-08-20 (COMPLETED.md) �
 effect True Nature's real per-legend numbers with Core Value's boost applied (`trueNatureBranches`,
 `skill-calc/branch-conditional-facts.ts`); Facet of Nature's own base per-legend numbers (its passive
 tick, separate from the Consume effect) remain wiki-fetched but not yet precisely verified — a small
-follow-up if picked up later, not blocking. What's left:
-
-- [ ] **Rising Momentum** (1716, Herald major) — "Gain increased movement speed for each point of
-      upkeep currently in use." A real per-upkeep-point formula, not a flat/curated bonus — this app
-      has no "current upkeep cost" concept anywhere (Facets/Ventari's Tablet/etc. all have per-skill
-      negative energy-per-second costs, but nothing sums "how many of the player's currently-equipped
-      upkeep skills are toggled on" into a `CombatState` field the way `deathsCarapaceStacks`/Kalla
-      Fervor stacks already do for other per-stack formulas — see
-      `new_attribute_bonus_infra_2026-08-15` memory for that precedent). Needs scoping: likely a new
-      `CombatState.activeUpkeepCount` (or similar) field plus a UI control to set it, before this
-      trait's movement-speed number can be computed at all. Not started.
+follow-up if picked up later, not blocking. The 7th and last, Rising Momentum (1716, Herald major —
+"Gain increased movement speed for each point of upkeep currently in use"), was closed 2026-08-20
+(COMPLETED.md Session 259): new `CombatState.upkeepPoints` manual counter (no structural source for
+"which upkeep skills are toggled on" exists anywhere, same "manual counter for an untracked
+resource" shape `kallaFervorStacks`/`deathsCarapaceStacks` already established) feeding a brand-new
+`DerivedStats.movementSpeedPercent` field (first of its kind in the app) via
+`risingMomentumMovementSpeedPercent`, +5%/point per wiki, no game-mode split. What's left:
 
 - [ ] **Found Purpose's boosted boons on Cosmic Wisdom** (Revenant/Conduit, id 2352) — same
       "trait B's value supersedes trait A's, once B is ALSO active" shape the now-closed Herald F2/

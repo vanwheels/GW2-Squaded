@@ -2,6 +2,39 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 259 — Rising Momentum (Herald): new movement-speed derived stat + upkeep-points combat state
+
+Closed the last open item from the 2026-08-19 Revenant bug list (TODO.md). Rising Momentum (1716,
+Herald Adept Major) — "Gain increased movement speed for each point of upkeep currently in use" —
+had no numeric fact anywhere in the local API data (its own `facts` array is just a bare `Buff`
+status with no value), so this needed a fresh wiki pull rather than a `traits.json` lookup: raw
+wikitext confirms a flat +5% Movement Speed per point of upkeep, no PvE/WvW/PvP split
+(`RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT`, `combat-state.ts`).
+
+"Points of upkeep" itself is a real, wiki-documented Revenant mechanic (every upkeep skill —
+Facets, Impossible Odds, Protective Solace, Vengeful Hammers, ...) lists its own point cost, and
+this trait scales off whichever the player currently has toggled on — but this app has no
+structural source for that at all: the GW2 API's own skill `facts` never expose a per-skill upkeep
+cost (confirmed via a full `skills.json` scan), and there's no existing concept of "which
+legend/utility loadout is on the bar right now" to derive a live total from automatically. Rather
+than build that (out of scope, no clean seam to hang it on), this reuses the established "manual
+counter for an untracked resource" pattern `kallaFervorStacks`/`deathsCarapaceStacks` already set:
+a new `CombatState.upkeepPoints` field, surfaced in `CombatStatePanel` as a plain number input
+(gated on Rising Momentum actually being chosen) rather than a `<select>` stepper, since — unlike
+every other stepper in that file — this resource has no fixed real max.
+
+Also required a genuinely new `DerivedStats.movementSpeedPercent` field — the app had never modeled
+movement speed as a stat anywhere before this (`outgoingDamagePercent`/`lifeStealPercent` were the
+last "first of their kind" additions, for Kalla's Fervor). Computed via a new
+`risingMomentumMovementSpeedPercent(build, upkeepPoints, traitsById)` helper (0 unless the trait is
+active, mirrors `fullEnduranceCritChanceTraitBonus`'s single-trait gating shape) and surfaced as a
+new "Movement Speed" row on `StatsPanel`, same always-visible-even-at-0% convention as the other
+derived-percent rows.
+
+New `describe` block in `combat-state.test.ts` (4 cases: gated off with points set, then 0/mid/max
+points once chosen) locks in the trait gate and the linear scaling. All 263 tests + typecheck + lint
+pass.
+
 ## Session 258 — Herald F2 (Facet of Nature) + Core Value: real linked tooltip + boosted numbers
 
 Closed the last big item from the 2026-08-19 Revenant bug list ("Herald F2 lacks linked tooltips +

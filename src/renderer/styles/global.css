@@ -1811,6 +1811,14 @@ input[type='text'] {
   font-size: 0.78rem;
 }
 
+/* Rising Momentum's upkeep-points stepper — the one `.combat-state-row` control that's a raw
+   number input rather than a `<select>` (no fixed real max, see `CombatState.upkeepPoints`'s doc
+   comment), so it needs its own narrow width instead of a dropdown's natural sizing. */
+.combat-state-row input[type='number'] {
+  width: 3.5em;
+  font-size: 0.78rem;
+}
+
 .combat-state-icon {
   width: 26px;
   height: 26px;

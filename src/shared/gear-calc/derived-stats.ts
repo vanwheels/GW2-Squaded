@@ -22,6 +22,7 @@ import {
   highHealthCritChanceTraitBonus,
   kallaFervorPercentPerStack,
   mechanicActiveCritChanceTraitBonus,
+  risingMomentumMovementSpeedPercent,
   type CombatState
 } from './combat-state'
 import { applyTraitBonuses, maxHealthPercentTraitBonus } from './trait-attributes'
@@ -155,6 +156,11 @@ export interface DerivedStats {
    *  Fervor's per-stack life-steal share contributes (see `outgoingDamagePercent`'s doc comment for
    *  the Lasting Legacy upgrade). */
   lifeStealPercent: number
+  /** Movement-speed-%, first/only field for this stat anywhere in the app — currently only
+   *  Revenant/Herald's Rising Momentum contributes, scaling with `CombatState.upkeepPoints` (see
+   *  `risingMomentumMovementSpeedPercent` in `combat-state.ts`). 0 for every build without that
+   *  trait chosen. */
+  movementSpeedPercent: number
 }
 
 export interface CharacterStats {
@@ -233,7 +239,8 @@ export function computeCharacterStats(
       (combatState.relicActive && build.relicId !== null ? (CURATED_RELIC_DAMAGE_BONUSES[build.relicId] ?? 0) : 0) +
       combatState.kallaFervorStacks * kallaFervorPerStack.strikeDamage,
     outgoingConditionDamagePercent: combatState.kallaFervorStacks * kallaFervorPerStack.conditionDamage,
-    lifeStealPercent: combatState.kallaFervorStacks * kallaFervorPerStack.lifeSteal
+    lifeStealPercent: combatState.kallaFervorStacks * kallaFervorPerStack.lifeSteal,
+    movementSpeedPercent: risingMomentumMovementSpeedPercent(build, combatState.upkeepPoints, traitsById)
   }
 
   return { attributes, derived }
