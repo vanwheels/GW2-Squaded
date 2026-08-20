@@ -110,8 +110,16 @@ showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). What's left
       with Number/Percent facts (Contained Temper, Cleansing Channel) turned out to carry only a
       single unambiguous value each, not a duplicate pair — nothing to fix. The line's `Buff`-type
       dupes (Invoker's Rage, Incensed Response) are already handled by the separate
-      `wvw-fact-overrides.json` script, out of scope for this table. Next leg not started:
-      Retribution/Corruption/Devastation/Renegade/Vindicator/Conduit, same process.
+      `wvw-fact-overrides.json` script, out of scope for this table. **Retribution leg landed
+      2026-08-20**: only 1 real candidate this line — Determined Resolution (1713, Grandmaster
+      minor, "Damage Reduced" 10 pve+wvw/**7 pvp**, matching `NUMERIC_FACT_WVW_OVERRIDES` picking
+      the WvW value 10). Everything else investigated and found clean: Close Quarters/Dwarven Battle
+      Training/Vicious Reprisal/Versed in Stone's Health-Threshold+Damage-Reduced facts each carry
+      only one unambiguous value; Enduring Recovery's "Endurance Regeneration Increase" 25/25 is
+      genuinely identical, already deduped for free (same shape as Salvation's Resilient Spirit);
+      Versed in Stone's "Attribute Conversion" 13%/4% pair is `BuffConversion`-typed, out of scope
+      for this table (same shape as Salvation's Life Attunement). No Buff-type dupes needed either.
+      Next leg not started: Corruption/Devastation/Renegade/Vindicator/Conduit, same process.
 
 ## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
 

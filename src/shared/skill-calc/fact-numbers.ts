@@ -155,7 +155,24 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // aggregate-contribution never share a fix). The API's own raw facts list 5 twice (once for wvw,
   // once for pvp, both the same value) rather than once for a shared "wvw pvp" mode — harmless,
   // `numericFactLines`'s `seen` dedup already collapses the exact duplicate.
-  1719: { 'Percent': 5, 'Critical Chance Increase': 20 }
+  1719: { 'Percent': 5, 'Critical Chance Increase': 20 },
+
+  // Revenant Retribution majors/minors — 3rd leg of the sweep (2026-08-20). Every other Retribution
+  // trait with a Number/Percent fact carries only one unambiguous value (Close Quarters, Dwarven
+  // Battle Training, Versed in Stone's Health-Threshold/Damage-Reduced facts, Vicious Reprisal), is
+  // a genuinely-identical duplicate already deduped for free (Enduring Recovery's "Endurance
+  // Regeneration Increase" 25/25, same shape as Salvation's Resilient Spirit), or is a
+  // `BuffConversion`-typed fact `factLine`'s switch has no case for (Versed in Stone's "Attribute
+  // Conversion" 13%/4% pair, same out-of-scope shape as Salvation's Life Attunement) — nothing else
+  // to add this leg. No Buff-type dupes on this line either.
+
+  // Determined Resolution (id 1713, Grandmaster minor): "Strike damage taken is reduced by a
+  // percentage while you have resolution." Wiki: `{{skill fact|Damage Reduced|10|game mode=pve
+  // wvw}}` + `{{skill fact|Damage Reduced|7|game mode=pvp}}` (pvp-only nerf from 10 to 7, 2025-05-06)
+  // — pve+wvw share 10, pvp alone drops to 7. Its `traitedFacts` also carry an unrelated 2nd pair
+  // (15/10, `requires_trait: 2440` — Vindicator's Numinous Gift), same cross-spec shape as Serene
+  // Rejuvenation's in the Salvation leg above — deliberately left alone.
+  1713: { 'Damage Reduced': 10 }
 }
 
 /**
