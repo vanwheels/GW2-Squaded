@@ -76,6 +76,17 @@ describe('Cosmic Wisdom (77371) — Numinous Gift/Mistfire trait-copied facts', 
     expect(facts).toEqual([])
   })
 
+  it('Numinous Gift\'s per-legend boons are filtered to only the 2 equipped legends (2026-08-20 regression)', () => {
+    const assassin = legends.find((l) => l.name === 'Legendary Assassin Stance')!
+    const dwarf = legends.find((l) => l.name === 'Legendary Dwarf Stance')!
+    const equipped = new Set([assassin.id, dwarf.id])
+    const facts = boonConditionFactsForSkill(cosmicWisdom, new Set([NUMINOUS_GIFT_ID]), equipped, durationPercent, undefined, legends)
+    // Fury (Assassin) + Stability (Dwarf) + the flat, legend-less Might — NOT Resistance/Protection/
+    // Quickness, whose legends (Demon/Centaur/Entity) aren't equipped in this build.
+    expect(facts).toHaveLength(3)
+    expect(facts.map((f) => f.boonOrConditionName).sort()).toEqual(['Fury', 'Might', 'Stability'])
+  })
+
   it('Numinous Gift + Found Purpose both active still shows only Numinous Gift\'s 6 rows (no duplicate Fury/Resistance/etc.)', () => {
     const facts = boonConditionFactsForSkill(
       cosmicWisdom,

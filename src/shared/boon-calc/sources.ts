@@ -3806,6 +3806,21 @@ function extractFromFacts(
     if (category === null) continue
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
 
+    // Real recognized-boon-name `PrefixedBuff` facts (e.g. Numinous Gift's Fury/Resistance/
+    // Stability/Protection/Quickness copied onto Cosmic Wisdom, see synthetic-facts.json) still need
+    // the SAME equipped-legend gate `legendFormFactsForSkill` already applies to that skill's own
+    // non-boon "Form of X" facts — both are `PrefixedBuff`s naming one of Conduit's 5 reachable
+    // legends, and without this check every one of the 5 boon rows shows regardless of which 2
+    // legends are actually equipped. Deliberately scoped to `LEGEND_FORM_FACT_SKILL_IDS` rather than
+    // applied to every `PrefixedBuff`-with-legend fact everywhere: Invocation's Spirit Boon (trait
+    // 1774) has the identical shape (8 boon-per-legend `PrefixedBuff` facts) but is intentionally
+    // NOT gated here — see `legendFormFactsForSkill`'s doc comment for why Spirit Boon's rows show
+    // all 8 possibilities unconditionally.
+    if (sourceKind === 'skill' && LEGEND_FORM_FACT_SKILL_IDS.has(sourceId) && fact.type === 'PrefixedBuff') {
+      const legend = resolveLegendFromPrefix(fact.prefix, legends)
+      if (legend && !equippedLegendIdSet.has(legend.id)) continue
+    }
+
     // Per-occurrence override takes priority over the per-status one below — when present, this
     // specific occurrence's fate (kept with a corrected value, or dropped as a same-concept
     // duplicate) is already fully decided, so the per-status collapse logic never applies to it (see
