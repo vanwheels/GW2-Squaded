@@ -305,7 +305,50 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // undocumented value; here it's missing a documented one). Also Buff-typed, not Number/Percent,
   // so out of this table's scope regardless — would need its own fix in `wvw-fact-overrides.json`
   // territory if the API ever picks up the 3rd value.
-  2255: { 'Endurance Gained': 10 }
+  2255: { 'Endurance Gained': 10 },
+
+  // Revenant Conduit majors/minors — 8th and final leg of the sweep (2026-08-20). Conductive
+  // Armaments (2390), Lingering Determination (2407), and Kinetic Insight (2411) each carry only
+  // one unambiguous value (confirmed via raw wikitext, no `game mode=` split at all). Ethereal
+  // Purification (2416) similarly has no split. Mistfire (2429)'s only Number/Percent-typed fact
+  // ("Number of Targets", 5) is unambiguous — its actual pve/wvw+pvp split (Burning stacks, 6/4)
+  // is `Buff`-typed and already present in `wvw-fact-overrides.json` (trait 2429). Numinous Gift
+  // (2440), Found Purpose (2352), Bolstered Bonds (2331), and Shared Wisdom (2355) all carry real
+  // pve/wvw/pvp splits too, but every one of them is on `Buff`-typed facts (stance-boon values,
+  // linked-skill breakdowns) — out of this table's scope regardless, same shape as Vindicator's
+  // Reaver's Curse/Salvation's Generous Abundance for the linked-skill ones. Unlike those two
+  // legs' entries, `wvw-fact-overrides.json` doesn't yet have entries for 2440/2352/2331/2355 (only
+  // 2429 does) — worth an `npm run fetch-wvw-splits` re-run to pick these up, not done here since
+  // that's a full-catalog regen outside a single-line curation pass.
+
+  // Enigmatic Connection (id 2364, Adept minor): "Gain affinity when using a legend skill; gain
+  // extra affinity when using a skill above the energy threshold." Wiki: `{{skill fact|Energy
+  // Threshold|25|game mode = pve}}` + `{{skill fact|Energy Threshold|35|game mode = pvp wvw}}`
+  // (2026-06-02 patch note: "adjusted the energy threshold for bonus affinity from 25 to 35 in PvP
+  // and WvW only, addressing incorrect affinity calculations") — pve 25, pvp+wvw share 35, the
+  // rare case (like Renegade's Vindication) where WvW is the high outlier, not the low one. Its
+  // separate "Additional Affinity" fact (1, unambiguous) is a different label.
+  2364: { 'Energy Threshold': 35 },
+
+  // Expanded Consciousness (id 2358, Master major): "Heal and gain endurance whenever you gain
+  // affinity. Additionally, gain energy when you reach maximum affinity." Wiki: `{{skill
+  // fact|healing|983|coefficient=0.05|game mode = pve}}` + `{{...|389|...|game mode = wvw}}` +
+  // `{{...|165|...|game mode = pvp}}`, `{{skill fact|endurance gained|5|game mode = pve}}` +
+  // `{{...|3|game mode = wvw}}` + `{{...|2|game mode = pvp}}`, `{{skill fact|energy|alt=Energy
+  // Gain|15|game mode = pve wvw}}` + `{{...|10|game mode = pvp}}` — a genuine 3-way split across
+  // all three facts. Only "Endurance Gained" and "Energy Gain" are `Number`-typed and fixable here;
+  // the Healing value is `AttributeAdjust`-typed (API values 965/165/389, close to but not exactly
+  // the wiki's 983/165/389 — same reference-build-rounding gap seen elsewhere), same
+  // out-of-scope-for-this-table shape as Devastation's Battle Scarred loose end (would need
+  // `numericFactLines`'s filter extended to `AttributeAdjust`, which it doesn't handle today).
+  2358: { 'Endurance Gained': 3, 'Energy Gain': 15 },
+
+  // Enhanced Embodiment (id 2379, Grandmaster major): "Reduce the recharge of invoking legends in
+  // combat." Wiki: `{{skill fact|Recharge Reduced|40|game mode=pve}}` + `{{skill fact|Recharge
+  // Reduced|30|game mode=wvw}}` + `{{skill fact|Recharge Reduced|20|game mode=pvp}}` — a genuine
+  // 3-way split, all distinct. Its separate "Duration Increase" fact (Cosmic Wisdom duration on
+  // legend invoke, unambiguous per the wiki) doesn't appear in the local API data at all.
+  2379: { 'Recharge Reduced': 30 }
 }
 
 /**

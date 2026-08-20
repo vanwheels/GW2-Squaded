@@ -2,6 +2,43 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 251 — Conduit leg closes the Revenant `NUMERIC_FACT_WVW_OVERRIDES` sweep (8/8 lines done)
+
+Final leg of the multi-session sweep the 2026-08-19 Salvation triage started: unlabeled duplicate
+raw API facts sharing one `text` (a pve/wvw/pvp split the API flattens with no discriminator) for
+`Number`/`Percent`-typed trait facts, curated wiki-verified into `NUMERIC_FACT_WVW_OVERRIDES`
+(`fact-numbers.ts`). All 8 Revenant trait lines are now done: Salvation, Invocation, Retribution,
+Corruption, Devastation, Renegade, Vindicator (Sessions prior, same day), and now Conduit.
+
+Conduit is Revenant's newest elite spec (Visions of Eternity, `id 79`, `requires: voe` on every
+trait) — a genuinely fresh set of numbers, not a years-old value pinned since launch like every
+prior line's traits. 3 real splits found and curated: **Enigmatic Connection** (2364, "Energy
+Threshold" 25 pve/**35 wvw+pvp** — a 2026-06-02 patch specifically to fix incorrect affinity math,
+the rare case WvW is the high outlier), **Expanded Consciousness** (2358, a genuine 3-way split
+across 3 facts — only "Endurance Gained" 5 pve/**3 wvw**/2 pvp and "Energy Gain" pve+wvw
+**15**/10 pvp are `Number`-typed and fixable here; its Healing value is `AttributeAdjust`-typed,
+same out-of-scope shape as Devastation's still-open Battle Scarred loose end below), and
+**Enhanced Embodiment** (2379, "Recharge Reduced" 40 pve/**30 wvw**/20 pvp, also a genuine 3-way
+split). Conductive Armaments, Lingering Determination, Kinetic Insight, and Ethereal Purification
+each carry only one unambiguous value (no `game mode=` split at all). Mistfire's one
+`Number`/`Percent` fact is unambiguous too — its real split (Burning stacks) is `Buff`-typed and
+already in `wvw-fact-overrides.json`.
+
+**New (unresolved) gap found this leg**: Numinous Gift (2440), Found Purpose (2352), Bolstered
+Bonds (2331), and Shared Wisdom (2355) all carry real pve/wvw/pvp splits on `Buff`-typed facts
+(stance-boon values, linked-skill breakdowns) — out of `NUMERIC_FACT_WVW_OVERRIDES`'s scope
+regardless (same as every prior leg's Buff dupes), but unlike those, `wvw-fact-overrides.json`
+doesn't have entries for any of these 4 trait ids yet (only Mistfire/2429 does) even though that
+file was touched as recently as 2026-08-18 — the wiki's "Category:Split traits" crawl should pick
+these up on a fresh `npm run fetch-wvw-splits` run, not attempted here since that's a full-catalog
+regen outside a single-line curation pass.
+
+Full sweep now closed; TODO.md's "Related pattern the investigation surfaced" entry removed. 3
+loose ends remain logged only in this file's history (not TODO.md, since none block anything):
+Devastation's Battle Scarred (`AttributeAdjust` 117/58/**68**, the 68 undocumented anywhere on the
+wiki), Vindicator's Song of Arboreum Vigor (wiki's wvw value 7 never appears in the live API's own
+Buff facts at all), and this leg's Expanded Consciousness Healing + the 4 Conduit Buff splits above.
+
 ## Session 250 — Discord bot: squad equivalents for approval Preview + board select menu, live-verified
 
 Closed the two follow-on integration points Session 249 deliberately left open: squad requests had
