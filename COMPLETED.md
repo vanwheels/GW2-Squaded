@@ -2,6 +2,47 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 252 — Closes Session 251's 4-trait `wvw-fact-overrides.json` gap (2/4 real, 2 not this mechanism's scope)
+
+Followed up on Session 251's speculation that a plain `npm run fetch-wvw-splits` re-run would pick
+up Numinous Gift/Found Purpose/Bolstered Bonds/Shared Wisdom — it doesn't. Ran it to check: the
+script produced a diff removing ~250 unrelated facts across 81 skill ids (real live-wiki-content
+drift over the file's last-regen-to-now window, same "wiki isn't static" root cause as the
+Session-118 Elixir U precedent, just a much bigger blast radius this time) while adding **zero**
+entries for any of the 4 target traits — reverted rather than committed blind (same fail-safe
+philosophy this whole pipeline already follows: don't trust an unreviewed bulk diff). Root cause
+confirmed by hand: `collectCandidates` only ever considers plain `Buff`-typed facts; all 4 traits'
+real splits live on `PrefixedBuff`-typed facts (per-legend `linked skill=` grants) instead — same
+"never on the automated candidate list" shape as most of `MANUAL_OVERRIDES`'s existing entries.
+
+Investigated each of the 4 by hand (raw wikitext fetch + local API fact cross-check, same method as
+every other manual entry):
+- **Found Purpose** (2352) and **Shared Wisdom** (2355): genuine splits, now curated in
+  `MANUAL_OVERRIDES`/`wvw-fact-overrides.json` — Found Purpose gets Fury/Resistance/Stability/
+  Protection duration overrides, its PvP-only Resolution swap-in omitted, and its Entity slot's
+  PvE-only Quickness omitted (WvW gets Might instead — a genuine boon SWAP by mode this override
+  mechanism can't express, so the Might row is left showing unconditionally, already correct since
+  it has no separate PvE value). Its base unconditional Might fact deliberately left unoverridden —
+  3 raw API facts share that one status with no discriminator (base pve, base wvw dupe, AND the
+  Entity-swap-in), 2 of them genuinely different concepts, same "extractFromFacts collapses
+  everything sharing a status" hazard as Fox's Fury/Darkrazor's Daring. Shared Wisdom gets all 5 of
+  its per-skill grants overridden cleanly (Protection/Fury/Stability/Resolution/Might durations);
+  its Might stack-count-also-changing (5->3) stays a documented gap, same "override the expressible
+  half" shape as Icerazor's Ire/Razorclaw's Rage.
+- **Numinous Gift** (2440): turned out to need no override at all — every one of its 6 facts is
+  either unsplit or has identical pve/wvw values already.
+- **Bolstered Bonds** (2331): NOT actually in `NUMERIC_FACT_WVW_OVERRIDES`/`wvw-fact-overrides.json`
+  scope, correcting Session 251's characterization — its "Buff" facts carry legend NAMES as
+  `status` ("Legendary Assassin Stance" etc.), not real boon/condition names, so this app's
+  boon/condition pipeline never recognizes or renders them at all. Its real per-legend attribute
+  bonus (a documented pve/wvw nerf, 150/150->75/75 per-stance and 75->50 all-attribute for Entity)
+  is a separate, deeper gap — would need its own attribute-bonus-table fix, not attempted here, not
+  yet logged to TODO.md (small enough to revisit ad hoc if this trait resurfaces).
+
+Full diff limited to the 2 real trait entries (`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES` +
+`wvw-fact-overrides.json` + `fact-numbers.ts`'s stale Conduit-leg comment corrected to match);
+typecheck/lint/vitest (224 passing) all clean.
+
 ## Session 251 — Conduit leg closes the Revenant `NUMERIC_FACT_WVW_OVERRIDES` sweep (8/8 lines done)
 
 Final leg of the multi-session sweep the 2026-08-19 Salvation triage started: unlabeled duplicate

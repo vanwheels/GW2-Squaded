@@ -2671,6 +2671,21 @@
     "2296": {
       "Might": 6
     },
+    "2352": {
+      "Fury": 5,
+      "Resistance": 2,
+      "Stability": 2,
+      "Resolution": "omit",
+      "Protection": 2,
+      "Quickness": "omit"
+    },
+    "2355": {
+      "Protection": 2,
+      "Fury": 3,
+      "Stability": 2,
+      "Resolution": 2,
+      "Might": 6
+    },
     "2357": {
       "Superspeed": 2
     },

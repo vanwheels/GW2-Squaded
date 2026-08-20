@@ -1205,7 +1205,71 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // for wvw+pvp, no override needed on that status) as the only boon this trait's wvw-focused
     // tooltip shows, same "no wvw application to preserve" reasoning as Stretched Time's Alacrity
     // omit above.
-    1746: { Quickness: 'omit' }
+    1746: { Quickness: 'omit' },
+
+    // Revenant Conduit leg (2026-08-20) — the 4-trait gap the 8th/final leg of the
+    // NUMERIC_FACT_WVW_OVERRIDES sweep left open (`fact-numbers.ts`'s Conduit block). All 4 are
+    // PrefixedBuff-typed legend-boon grants (`linked skill=` on the wiki), same "not on this
+    // script's own automated candidate list" shape as most of this table's entries above
+    // (`collectCandidates` only ever considers plain `Buff`-typed facts, never `PrefixedBuff`) — a
+    // full `npm run fetch-wvw-splits` re-run does NOT pick these up either (confirmed by actually
+    // running it: re-verified via a live re-run 2026-08-20, output diffed against HEAD and reverted
+    // — the wiki's own live content has drifted enough since the last regen, in ~250 unrelated
+    // facts across 81 skill ids, that a full re-run isn't safe to commit wholesale right now; a
+    // dedicated future session should re-verify each drifted entry individually rather than trust a
+    // blind diff). Investigated by hand instead, same wiki-raw-wikitext method as every other entry.
+    //
+    // Numinous Gift (2440, Grandmaster minor — the passive per-legend boon each Cosmic Wisdom
+    // trigger grants): every one of its 6 facts (Fury/Assassin, Resistance/Demon, Stability/Dwarf,
+    // Protection/Centaur, Quickness/Entity, flat Might) is EITHER unsplit or has identical pve/wvw
+    // values (Fury: pve=10, wvw=10; the Dwarf slot's only real mode difference is PvP swapping
+    // Stability for Resolution, which this app doesn't model) — genuinely needs no override at all,
+    // not added here.
+    //
+    // Bolstered Bonds (2331, Master minor — per-legend attribute bonus) is NOT actually this
+    // mechanism's concern despite `fact-numbers.ts`'s Conduit-leg comment lumping it in: its "Buff"
+    // facts all carry legend NAMES as `status` ("Legendary Assassin Stance", etc.), not real
+    // boon/condition names, so `NAME_BY_LOWER`/`classifyBoonCondition` never recognizes them as
+    // boons at all — this app doesn't render this trait's attribute bonus through the boon/condition
+    // pipeline in the first place, so there's no WvW-override row to fix here. Its real pve/wvw
+    // split (a genuine, patch-history-documented nerf: 150/150 pve -> 75/75 wvw+pvp per specific
+    // stance, 75 pve -> 50 wvw+pvp all-attribute for Entity) would need its own attribute-bonus-table
+    // fix (`new_attribute_bonus_infra`-shaped, not this file) if this trait's stats are meant to be
+    // modeled at all — separate, larger gap, not attempted here.
+    //
+    // Found Purpose (2352, Grandmaster major — "trigger Numinous Gift's active portion, granting
+    // boons to nearby allies"): 4 of its 6 per-legend grants are clean single-concept pve/wvw+pvp
+    // splits, no `alt=` (`{{skill fact|Fury|linked skill=Legendary Assassin Stance|10|25|game
+    // mode=pve}}{{skill fact|Fury|...|5|game mode=wvw pvp}}` and the same shape for
+    // Resistance/Demon(5->2), Stability/Dwarf(5->2), Protection/Centaur(5->2)). Dwarf's other line
+    // (`{{skill fact|resolution|linked skill=Legendary Dwarf Stance|2|game mode=pvp}}`) is PvP-only
+    // (WvW keeps Stability, never gets Resolution) — 'omit', same "pvp-only tagged line" convention
+    // as Elevated Compassion above. Entity's slot is a genuine BOON SWAP by mode, not a duration
+    // split (`{{skill fact|Quickness|linked skill=Legendary Entity Stance|5|game mode=pve}}
+    // {{skill fact|Might|linked skill=Legendary Entity Stance|stacks=3|5|game mode=pvp wvw}}` — PvE
+    // gets Quickness, WvW+PvP get Might instead) — Quickness omitted (WvW never gets it, same
+    // "pve-only tagged line, no wvw counterpart" convention as the pveLines=1/wvwLines=0 automated
+    // case); the replacement Might can't be expressed by this override mechanism (which only ever
+    // changes a status's duration, never swaps which status appears) so it's left showing
+    // unconditionally as its own row, already correct since it has no separate PvE value of its own.
+    // The base unconditional Might fact (stacks 5/10s pve, would-be stacks 3/5s wvw+pvp) is
+    // deliberately NOT overridden: this trait's raw API data carries 3 separate "Might" facts (base
+    // pve, base wvw+pvp duplicate, AND the Entity-swap-in above) sharing one status with no
+    // discriminator — same "extractFromFacts collapses EVERY fact sharing a status once any override
+    // exists" hazard as Fox's Fury/Darkrazor's Daring, and here it's worse since 2 of the 3 are
+    // genuinely different concepts (base vs. Entity-conditional) — left as a documented gap, not
+    // modeled wrong.
+    2352: { Fury: 5, Resistance: 2, Stability: 2, Resolution: 'omit', Protection: 2, Quickness: 'omit' },
+    //
+    // Shared Wisdom (2355, Adept major — "grant boons to allies whenever you use a Legendary Entity
+    // Skill, depending on which skill was used"): all 5 of its per-skill grants are clean, single-
+    // fact splits, no `alt=`, no raw-fact duplication (unlike Found Purpose above, each status here
+    // has exactly one raw API fact) — Protection/Shielding Hands (3->2), Fury/Beguiling Haze (5->3),
+    // Stability/Gladiator's Defense (3->2), Resolution/Hex-Eater Vortex (3->2), and Might/Twin Moon
+    // Sweep (duration 10->6; its stack count ALSO drops 5->3 on the wiki, but `WvwFactOverride` only
+    // ever touches duration, never `apply_count` — same "override the expressible half, leave the
+    // rest a documented gap" shape as Icerazor's Ire/Razorclaw's Rage above, stacks stay at 5).
+    2355: { Protection: 2, Fury: 3, Stability: 2, Resolution: 2, Might: 6 }
   }
 }
 

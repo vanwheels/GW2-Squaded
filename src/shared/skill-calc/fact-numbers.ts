@@ -312,14 +312,21 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // one unambiguous value (confirmed via raw wikitext, no `game mode=` split at all). Ethereal
   // Purification (2416) similarly has no split. Mistfire (2429)'s only Number/Percent-typed fact
   // ("Number of Targets", 5) is unambiguous — its actual pve/wvw+pvp split (Burning stacks, 6/4)
-  // is `Buff`-typed and already present in `wvw-fact-overrides.json` (trait 2429). Numinous Gift
-  // (2440), Found Purpose (2352), Bolstered Bonds (2331), and Shared Wisdom (2355) all carry real
-  // pve/wvw/pvp splits too, but every one of them is on `Buff`-typed facts (stance-boon values,
-  // linked-skill breakdowns) — out of this table's scope regardless, same shape as Vindicator's
-  // Reaver's Curse/Salvation's Generous Abundance for the linked-skill ones. Unlike those two
-  // legs' entries, `wvw-fact-overrides.json` doesn't yet have entries for 2440/2352/2331/2355 (only
-  // 2429 does) — worth an `npm run fetch-wvw-splits` re-run to pick these up, not done here since
-  // that's a full-catalog regen outside a single-line curation pass.
+  // is `Buff`-typed and already present in `wvw-fact-overrides.json` (trait 2429). Found Purpose
+  // (2352) and Shared Wisdom (2355) also carry real pve/wvw/pvp splits, but on `Buff`-typed facts
+  // (per-legend stance-boon grants) — out of this table's scope regardless, same shape as
+  // Vindicator's Reaver's Curse/Salvation's Generous Abundance for the linked-skill ones. Closed
+  // 2026-08-20 (see `fetch-wvw-splits.ts`'s own trait-2352/2355 comment for the full per-boon
+  // breakdown): a full `npm run fetch-wvw-splits` re-run does NOT pick these up (their facts are
+  // `PrefixedBuff`-typed, outside this script's own automated candidate scan, same as most of its
+  // `MANUAL_OVERRIDES` table already) and isn't safe to commit wholesale right now besides (~250
+  // unrelated facts drifted since the last regen, reverted rather than trusted blind) — hand-added
+  // to `MANUAL_OVERRIDES`/`wvw-fact-overrides.json` instead. Numinous Gift (2440) turned out to need
+  // no override at all — its pve and wvw values already agree everywhere. Bolstered Bonds (2331)
+  // isn't actually this mechanism's concern: its "Buff" facts carry legend NAMES as `status`, not
+  // real boon/condition names, so this app's boon/condition pipeline never renders them at all —
+  // its real per-legend attribute-bonus pve/wvw split would need its own fix elsewhere (an
+  // attribute-bonus table, not this file or `wvw-fact-overrides.json`), not attempted here.
 
   // Enigmatic Connection (id 2364, Adept minor): "Gain affinity when using a legend skill; gain
   // extra affinity when using a skill above the energy threshold." Wiki: `{{skill fact|Energy
