@@ -1,5 +1,6 @@
-import type { Build, EquipmentSlotKey, Trait } from '../types'
-import { addPoints, applyConversions, emptyTotals, isActiveWeaponSlot, type AttributeConversion, type AttributeTotals } from './attribute-totals'
+import type { Build, EquipmentSlotKey, Legend, Trait } from '../types'
+import { equippedLegendIds } from '../boon-calc/sources'
+import { addPoints, ALL_CORE_ATTRIBUTE_KEYS, applyConversions, emptyTotals, isActiveWeaponSlot, type AttributeConversion, type AttributeTotals } from './attribute-totals'
 
 /**
  * Traits can grant a flat attribute bonus (`AttributeAdjust` fact) or convert a percentage of one
@@ -609,6 +610,83 @@ export function activeAttunementAttributeTraitBonus(build: Build, traitsById: Ma
   return bonus
 }
 
+export interface LegendAttributeBonus {
+  target: string
+  value: number
+}
+
+/**
+ * Trait id -> `Legend.name` -> flat attribute bonuses granted while that specific legend is
+ * EQUIPPED — the "Legend-equipped-gated flat bonuses" family, closing the gap flagged 2026-08-20
+ * ("I want that built too," following the Bolstered Bonds tooltip fix in
+ * `skill-calc/legend-attribute-details.ts`). Same shape as `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`
+ * /`ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES` above (a `Build`-state gate, not gear or an ephemeral
+ * `CombatState` toggle), except the gate here is "equipped" (both Revenant legend slots, matching
+ * `equippedLegendIds`), NOT "currently active" — Bolstered Bonds' own wiki description ("Gain
+ * attributes based on your equipped legends") is unconditional on BOTH simultaneously-equipped
+ * legends at once, a permanent passive, unlike Cosmic Wisdom/Release Potential's genuinely different
+ * "which legend is currently active" swap (`boon-calc/sources.ts`'s `legendFormFactsForSkill`/
+ * `profession-mechanic.ts`'s `conduitReleasePotentialBar`) — don't reuse `activeLegendIndex` here.
+ *
+ * Wiki-verified 2026-08-20, same source data as `skill-calc/legend-attribute-details.ts`'s
+ * display-only curated text (kept in sync by hand — that file exists purely for the trait tooltip's
+ * own per-legend line items, this one for the actual character-stat contribution; a change to one
+ * legend's numbers needs updating both). "Legendary Entity Stance" grants +50 to all 9 core
+ * attributes at once (`ALL_CORE_ATTRIBUTE_KEYS`, the same constant `computeGearAttributeTotals`
+ * already uses for gear's own "+N to All Attributes" bonuses) rather than a hand-listed 9-entry
+ * array.
+ */
+export const LEGEND_ATTRIBUTE_TRAIT_BONUSES: Record<number, Record<string, LegendAttributeBonus[]>> = {
+  // Bolstered Bonds (Revenant/Conduit, Master minor, id 2331) — see
+  // `skill-calc/legend-attribute-details.ts`'s `LEGEND_ATTRIBUTE_BONUS_DETAILS` for the full
+  // per-legend wiki citation (Dragon/Renegade/Alliance genuinely absent from this trait, not a gap
+  // — Conduit's own trait line can never be equipped alongside any of those 3).
+  2331: {
+    'Legendary Assassin Stance': [
+      { target: 'Power', value: 75 },
+      { target: 'CritDamage', value: 75 }
+    ],
+    'Legendary Centaur Stance': [
+      { target: 'Healing', value: 75 },
+      { target: 'BoonDuration', value: 75 }
+    ],
+    'Legendary Demon Stance': [
+      { target: 'ConditionDamage', value: 75 },
+      { target: 'ConditionDuration', value: 75 }
+    ],
+    'Legendary Dwarf Stance': [
+      { target: 'Toughness', value: 75 },
+      { target: 'Vitality', value: 75 }
+    ],
+    'Legendary Entity Stance': ALL_CORE_ATTRIBUTE_KEYS.map((target) => ({ target, value: 50 }))
+  }
+}
+
+/**
+ * Sums every curated legend-equipped trait bonus actually active on this build AND matching one of
+ * the build's 2 equipped Revenant legends, grouped by target attribute (mirrors
+ * `activeWeaponEquippedAttributeTraitBonus`'s/`activeAttunementAttributeTraitBonus`'s shape just
+ * above). `legends` is `data/game-data/legends.json` (`GameData.legends`) — needed to resolve
+ * `equippedLegendIds`' `Legend.id` values (e.g. `"Legend2"`) to the `Legend.name` values this
+ * table is keyed by. A no-op for every non-Revenant build (`equippedLegendIds` returns an empty
+ * set) and for any Revenant build without a curated trait active.
+ */
+export function activeLegendAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>, legends: Legend[]): Record<string, number> {
+  const active = activeTraitIds(build, traitsById)
+  const equippedIds = equippedLegendIds(build)
+  if (equippedIds.size === 0) return {}
+  const equippedNames = new Set(legends.filter((l) => equippedIds.has(l.id)).map((l) => l.name))
+  const bonus: Record<string, number> = {}
+  for (const [traitIdText, byLegendName] of Object.entries(LEGEND_ATTRIBUTE_TRAIT_BONUSES)) {
+    if (!active.has(Number(traitIdText))) continue
+    for (const [legendName, entries] of Object.entries(byLegendName)) {
+      if (!equippedNames.has(legendName)) continue
+      for (const { target, value } of entries) bonus[target] = (bonus[target] ?? 0) + value
+    }
+  }
+  return bonus
+}
+
 /**
  * Every trait currently active on a build: every Minor trait of an equipped specialization line
  * (auto-granted, no selection needed) plus whichever Major trait was actually chosen per tier.
@@ -652,14 +730,18 @@ export function activeTraitConversions(build: Build, traitsById: Map<number, Tra
  *  resulting totals (not chained/compounding — every conversion reads the same post-flat-bonus
  *  snapshot, matching how the game itself computes simultaneous conversions), directly mutating
  *  `totals`. Call after every other additive contribution (gear/runes/food/utility/combat state)
- *  is already in `totals`, since conversions need the real final source-attribute value. */
-export function applyTraitBonuses(totals: AttributeTotals, build: Build, traitsById: Map<number, Trait>): void {
+ *  is already in `totals`, since conversions need the real final source-attribute value.
+ *  `legends` (`GameData.legends`, defaulted to `[]` for the rare call site that doesn't have it
+ *  handy) feeds `activeLegendAttributeTraitBonus` — harmless for every non-Revenant build. */
+export function applyTraitBonuses(totals: AttributeTotals, build: Build, traitsById: Map<number, Trait>, legends: Legend[] = []): void {
   const flat = activeTraitFlatBonuses(build, traitsById)
   for (const [k, v] of Object.entries(flat.points)) addPoints(totals, k, v)
 
   for (const [target, value] of Object.entries(activeWeaponEquippedAttributeTraitBonus(build, traitsById))) addPoints(totals, target, value)
 
   for (const [target, value] of Object.entries(activeAttunementAttributeTraitBonus(build, traitsById))) addPoints(totals, target, value)
+
+  for (const [target, value] of Object.entries(activeLegendAttributeTraitBonus(build, traitsById, legends))) addPoints(totals, target, value)
 
   applyConversions(totals, activeTraitConversions(build, traitsById))
 }

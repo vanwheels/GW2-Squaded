@@ -297,15 +297,6 @@ that before extending either further.
 
 ## Nice-to-haves
 
-- [ ] Bolstered Bonds (Revenant/Conduit, id 2331) now displays its per-legend attribute detail in
-      the trait tooltip (`legend-attribute-details.ts`, 2026-08-20), but its real contribution to
-      computed character stats is still unmodeled — `gear-calc/trait-attributes.ts` has no
-      "legend-conditional flat attribute bonus" family yet (same shape as
-      `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`/`ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`, gated on
-      equipped legend instead of weapon/attunement — `Build` already tracks equipped legends, so no
-      new field would be needed, just the new gated-sum family + wiring into `applyTraitBonuses`).
-      Not attempted yet; only the display gap was in scope for the session that added it.
-
 - [ ] Gear Optimizer's rune/infusion search (2026-08-11, see COMPLETED.md) adds up to ~18 extra
       per-slot infusion search variables + 1 rune slot on top of the existing ~12-14 gear/food/
       utility slots — a synthetic stress case (2 floors, 3 maximize tiers, food/utility AND

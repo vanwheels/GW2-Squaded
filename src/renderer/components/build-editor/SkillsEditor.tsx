@@ -8,15 +8,16 @@ import {
   CONTROL_MATCHERS,
   comboFactsForSkill,
   equippedLegendIds,
+  legendFormFactsForSkill,
   MISCELLANEOUS_MATCHERS,
   NAMED_FACT_TARGET_COUNT_TABLES,
   namedFactsForSkill,
   type BoonConditionSource,
   type ComboSource,
+  type LegendFormFact,
   type NamedFactSource
 } from '@shared/boon-calc/sources'
 import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
-import type { LegendAttributeDetail } from '@shared/skill-calc/legend-attribute-details'
 import type { FactLine } from '@shared/skill-calc/fact-numbers'
 import { activeAttunementVariantSkill, flipTargetSkills } from '@shared/skill-calc/multi-effect'
 import { ADDITIVE_FLIP_PAIRS } from '@shared/skill-calc/additive-flip-pairs'
@@ -197,7 +198,7 @@ export interface SkillNamedFacts {
    *  `BoonConditionSource` (Spirit Boon's shape). Currently only ever populated for trait tooltips
    *  (`TraitsEditor.tsx`), but kept here rather than a bespoke param, same "available everywhere,
    *  used where it applies" convention as every other optional field on this interface. */
-  legendAttributeFacts?: LegendAttributeDetail[]
+  legendAttributeFacts?: LegendFormFact[]
 }
 
 export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSource[], namedFacts: SkillNamedFacts = {}) {
@@ -325,7 +326,8 @@ export function skillNamedFacts(
   skill: Skill,
   activeIds: Set<number>,
   legendIds: Set<string>,
-  wvwOverride: Record<string, WvwFactOverride> | undefined
+  wvwOverride: Record<string, WvwFactOverride> | undefined,
+  legends: Legend[] = []
 ): SkillNamedFacts {
   return {
     auraFacts: auraFactsForSkill(skill, activeIds, legendIds, wvwOverride),
@@ -334,7 +336,8 @@ export function skillNamedFacts(
       ...namedFactsForSkill(skill, activeIds, legendIds, wvwOverride, MISCELLANEOUS_MATCHERS),
       ...namedFactsForSkill(skill, activeIds, legendIds, wvwOverride, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES)
     ],
-    comboFacts: comboFactsForSkill(skill, activeIds)
+    comboFacts: comboFactsForSkill(skill, activeIds),
+    legendAttributeFacts: legendFormFactsForSkill(skill, legendIds, legends)
   }
 }
 
@@ -400,7 +403,13 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
         variantContext.legends
       )
     : facts
-  const rawNamedFacts = skillNamedFacts(factSourceSkill, activeIds, variantContext.legendIds, variantContext.wvwFactOverrides.skill[factSourceSkill.id])
+  const rawNamedFacts = skillNamedFacts(
+    factSourceSkill,
+    activeIds,
+    variantContext.legendIds,
+    variantContext.wvwFactOverrides.skill[factSourceSkill.id],
+    variantContext.legends
+  )
   const { namedFacts: effectiveNamedFacts, bonus: familiarBonus } = evokerFamiliarBonusFacts(factSourceSkill.id, rawNamedFacts, variantContext.familiarElement)
   const enhancement = additiveEnhancementFacts(skill, numericLines, effectiveFacts, effectiveNamedFacts, activeIds, variantContext)
   const branches = branchConditionalFacts(factSourceSkill, variantContext.durationPercent, healingPower)
@@ -479,7 +488,13 @@ function additiveEnhancementFacts(
     variantContext.wvwFactOverrides.skill[targetSkill.id],
     variantContext.legends
   )
-  const targetNamedFacts = skillNamedFacts(targetSkill, activeIds, variantContext.legendIds, variantContext.wvwFactOverrides.skill[targetSkill.id])
+  const targetNamedFacts = skillNamedFacts(
+    targetSkill,
+    activeIds,
+    variantContext.legendIds,
+    variantContext.wvwFactOverrides.skill[targetSkill.id],
+    variantContext.legends
+  )
 
   const baseNumericKeys = new Set(baseNumericLines.map((l) => l.text))
   const baseFactKeys = new Set(baseFacts.map(boonFactContentKey))

@@ -98,7 +98,8 @@ const EMPTY_GAME_DATA = {
   runes: [],
   sigils: [],
   food: [],
-  utility: []
+  utility: [],
+  legends: []
 }
 
 describe('combatStatePoints — mightStacks', () => {

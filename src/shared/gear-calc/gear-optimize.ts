@@ -27,7 +27,7 @@ import {
 } from './derived-stats'
 import { combatStatePoints, furyCritChanceTraitBonus, FURY_CRITICAL_CHANCE_PERCENT, type CombatState } from './combat-state'
 import { formatItemStatName } from './format-description'
-import { activeAttunementAttributeTraitBonus, activeTraitFlatBonuses, activeWeaponEquippedAttributeTraitBonus, applyTraitBonuses } from './trait-attributes'
+import { activeAttunementAttributeTraitBonus, activeLegendAttributeTraitBonus, activeTraitFlatBonuses, activeWeaponEquippedAttributeTraitBonus, applyTraitBonuses } from './trait-attributes'
 import { armorTrinketInfusionCapacity, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from './upgrade-slots'
 
 /**
@@ -402,7 +402,7 @@ export interface OptimizerFloor {
 
 export interface OptimizerInput {
   build: Build
-  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'professions' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility' | 'traits'>
+  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'professions' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility' | 'traits' | 'legends'>
   combatState: CombatState
   floors: OptimizerFloor[]
   /**
@@ -741,6 +741,9 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
   // Attunement-gated trait bonuses (`ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`) are gear-independent for
   // the same reason — the optimizer never touches `build.activeAttunement`.
   for (const [k, v] of Object.entries(activeAttunementAttributeTraitBonus(build, traitsById))) addPoints(baseline, k, v)
+  // Legend-equipped-gated trait bonuses (`LEGEND_ATTRIBUTE_TRAIT_BONUSES`, e.g. Bolstered Bonds)
+  // are gear-independent too — the optimizer never touches `build.skills`.
+  for (const [k, v] of Object.entries(activeLegendAttributeTraitBonus(build, traitsById, gameData.legends))) addPoints(baseline, k, v)
 
   const weightClass = WEIGHT_CLASS_BY_PROFESSION[build.profession]
   const ctx: MetricContext = {
@@ -851,7 +854,7 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
   for (const [k, v] of Object.entries(combatPoints)) addPoints(finalTotals, k, v)
   finalTotals.bonusPercent = { ...finalGearTotals.bonusPercent }
   applyConversions(finalTotals, activeConsumableConversions(resultBuild, foodById, utilityById))
-  applyTraitBonuses(finalTotals, build, traitsById)
+  applyTraitBonuses(finalTotals, build, traitsById, gameData.legends)
 
   const metricValues: Partial<Record<OptimizerMetricId, number>> = {}
   for (const id of METRIC_IDS) metricValues[id] = evaluateMetric(id, finalTotals, ctx)

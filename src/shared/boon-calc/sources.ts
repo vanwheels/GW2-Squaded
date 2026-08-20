@@ -3537,7 +3537,7 @@ export function equippedLegendIds(build: Build): Set<string> {
 /** Default classifier: real boons/conditions only — every existing caller relies on this exact
  *  behavior (unchanged from before `BoonConditionCategory` existed), so it's the default rather
  *  than something every call site has to pass explicitly. */
-function classifyBoonCondition(status: string): BoonConditionCategory | null {
+export function classifyBoonCondition(status: string): BoonConditionCategory | null {
   if (isBoonName(status)) return 'boon'
   if (isConditionName(status)) return 'condition'
   return null
@@ -3556,10 +3556,75 @@ function classifyAura(status: string): BoonConditionCategory | null {
  * legend's own `name` exactly EXCEPT "Legendary Alliance" (`prefix.status` instead reads "Legendary
  * Alliance Stance"), so `name + " Stance"` is checked too.
  */
-function resolveLegendFromPrefix(prefix: Fact['prefix'], legends: Legend[]): Legend | undefined {
+export function resolveLegendFromPrefix(prefix: Fact['prefix'], legends: Legend[]): Legend | undefined {
   const status = prefix?.status
   if (!status) return undefined
   return legends.find((l) => l.name === status || `${l.name} Stance` === status)
+}
+
+/** One "this differs per equipped legend" line for a skill/trait tooltip — a per-legend text detail
+ *  rather than a real boon/condition grant (see `legendFormFactsForSkill`'s doc comment for the
+ *  shape this covers). Deliberately separate from `BoonConditionSource`'s own `legendIcon`/
+ *  `legendName` fields (Spirit-Boon-style: a real boon whose PREFIX merely attributes it to a
+ *  legend) — here the legend IS the entire content of the row, there's no boon name to show. */
+export interface LegendFormFact {
+  legend: Legend
+  text: string
+}
+
+/** Skill ids whose `PrefixedBuff` facts get the `legendFormFactsForSkill` treatment below — an
+ *  opt-in allow-list, not automatic, same "fails open, curated one source at a time" convention as
+ *  `BUFF_INSTANCE_LABELS`/`DODGE_TRIGGER_NOTES` elsewhere in this file. A broader scan (2026-08-20)
+ *  found 4 more skills/traits with this exact shape (`PrefixedBuff` fact whose own `status` isn't a
+ *  recognized boon/condition, `prefix.status` naming a legend): Facet of Nature (29371)/True Nature
+ *  (29393)/Core Value (trait 1806) are the SAME still-open TODO.md item ("Herald F2 lacks linked
+ *  tooltips + Core Value lacks its details") — deliberately NOT added here, that item's own scoping
+ *  already found the raw per-legend data needs real per-legend skill-id resolution and an
+ *  undocumented `overrides` field this app doesn't model yet, not just a description dump; adding
+ *  them here would preempt that with a shallower fix. Ancient Echo (55029, the non-Conduit
+ *  spec-less fallback sharing Cosmic Wisdom's Profession_2/_3 slot family, see
+ *  `profession-mechanic.ts`) is a plausible future candidate, not investigated this pass — its own
+ *  3-legend set (`Unblockable`/Assassin, `Tranquil`/Centaur, `Rite of the Great Dwarf`/Dwarf) looks
+ *  like the same clean shape as Cosmic Wisdom below, just not requested yet. Rift of Pain (50390)'s
+ *  per-legend combo-field facts are a different content type (already the domain of
+ *  `comboFactsForSkill`, not this).
+ */
+const LEGEND_FORM_FACT_SKILL_IDS = new Set<number>([
+  77371 // Cosmic Wisdom (Revenant/Conduit, Profession_3) — flagged by the user 2026-08-20: "doesn't
+  // display the specific skill's tooltip depending on the equipped legends." Its raw API facts
+  // already carry all 5 "Form of X" descriptions as clean `PrefixedBuff` facts (one real Legend
+  // named per `prefix.status`, `status`/`description` a genuinely usable ready-to-show line each,
+  // unlike Bolstered Bonds' empty/absent descriptions) — previously silently dropped by
+  // `boonConditionFactsForSkill` since none of "Form of the Assassin" etc. is a recognized boon
+  // name. Conduit occupies its own elite-spec trait line, so only 5 of the 8 legends
+  // (Assassin/Centaur/Demon/Dwarf/Entity) can ever be equipped alongside it anyway — matches this
+  // skill's own 5 documented forms with none left over (same reasoning already established for
+  // `CONDUIT_RELEASE_POTENTIAL_BY_LEGEND`/`LEGEND_ATTRIBUTE_BONUS_DETAILS`).
+])
+
+/**
+ * Per-legend "form"/effect detail lines for a curated skill (see `LEGEND_FORM_FACT_SKILL_IDS`) —
+ * every `PrefixedBuff` fact whose own `status` ISN'T a recognized boon/condition (ruling out the
+ * ordinary Spirit-Boon shape, already handled by `extractFromFacts`) but whose `prefix.status`
+ * names a real `Legend`. Filtered to the build's actually-EQUIPPED legends only (`equippedLegendIdSet`,
+ * both slots) — unlike Spirit Boon's boon rows (which always show every one of the 8 possibilities
+ * regardless of what's equipped, since a real Revenant can freely swap to any of them), this app's
+ * Conduit-legend universe is fixed to whichever 2 the player has actually chosen, so showing only
+ * those keeps the tooltip build-specific rather than listing forms the player could never reach —
+ * matches `conduitReleasePotentialBar`'s own per-equipped-legend swap for this exact skill's sibling
+ * (`Release Potential`, same Profession_2/_3 slot family).
+ */
+export function legendFormFactsForSkill(skill: Skill, equippedLegendIdSet: Set<string>, legends: Legend[]): LegendFormFact[] {
+  if (!LEGEND_FORM_FACT_SKILL_IDS.has(skill.id)) return []
+  const out: LegendFormFact[] = []
+  for (const fact of [...skill.facts, ...skill.traitedFacts]) {
+    if (fact.type !== 'PrefixedBuff' || typeof fact.status !== 'string' || typeof fact.description !== 'string') continue
+    if (classifyBoonCondition(fact.status)) continue
+    const legend = resolveLegendFromPrefix(fact.prefix, legends)
+    if (!legend || !equippedLegendIdSet.has(legend.id)) continue
+    out.push({ legend, text: fact.description })
+  }
+  return out
 }
 
 function extractFromFacts(

@@ -47,7 +47,7 @@ function loadGameData(name: string): unknown {
   return JSON.parse(readFileSync(resolve(__dirname, '../../../data/game-data/' + name), 'utf-8'))
 }
 
-const gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility' | 'traits'> = {
+const gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility' | 'traits' | 'legends'> = {
   itemStats: loadGameData('itemstats.json') as GameData['itemStats'],
   itemStatLegalIds: loadGameData('itemstat-legal-ids.json') as GameData['itemStatLegalIds'],
   infusions: loadGameData('infusions.json') as GameData['infusions'],
@@ -55,7 +55,8 @@ const gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 
   sigils: loadGameData('sigils.json') as GameData['sigils'],
   food: loadGameData('food.json') as GameData['food'],
   utility: loadGameData('utility.json') as GameData['utility'],
-  traits: loadGameData('traits.json') as GameData['traits']
+  traits: loadGameData('traits.json') as GameData['traits'],
+  legends: loadGameData('legends.json') as GameData['legends']
 }
 
 function repeat(infusionId: number, count: number): number[] {

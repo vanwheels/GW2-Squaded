@@ -164,7 +164,7 @@ export interface CharacterStats {
 
 export function computeCharacterStats(
   build: Build,
-  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility' | 'traits'>,
+  gameData: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility' | 'traits' | 'legends'>,
   combatState: CombatState = DEFAULT_COMBAT_STATE
 ): CharacterStats {
   const gearTotals = computeGearAttributeTotals(build, gameData)
@@ -191,7 +191,7 @@ export function computeCharacterStats(
   // single-pass point add can't see the source attribute's final value yet.
   applyConversions(totals, activeConsumableConversions(build, foodById, utilityById))
   for (const [k, v] of Object.entries(healthThresholdConsumableBonus(build, combatState.healthTier, foodById, utilityById))) addPoints(totals, k, v)
-  applyTraitBonuses(totals, build, traitsById)
+  applyTraitBonuses(totals, build, traitsById, gameData.legends)
 
   const attributes: CharacterAttributes = {
     power: totals.points.Power ?? 0,

@@ -54,7 +54,7 @@ function makeBuild(overrides: Partial<Build> = {}): Build {
   }
 }
 
-const EMPTY_GAME_DATA: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility' | 'traits'> = {
+const EMPTY_GAME_DATA: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusions' | 'runes' | 'sigils' | 'food' | 'utility' | 'traits' | 'legends'> = {
   itemStats: [],
   itemStatLegalIds: { armorWeapon: [], trinket: [] },
   infusions: [],
@@ -62,7 +62,8 @@ const EMPTY_GAME_DATA: Pick<GameData, 'itemStats' | 'itemStatLegalIds' | 'infusi
   sigils: [],
   food: [],
   utility: [],
-  traits: []
+  traits: [],
+  legends: []
 }
 
 describe('computeCharacterStats — with no equipment (base attributes only)', () => {

@@ -1,9 +1,5 @@
 import type { Legend, Trait } from '../types'
-
-export interface LegendAttributeDetail {
-  legend: Legend
-  text: string
-}
+import type { LegendFormFact } from '../boon-calc/sources'
 
 /**
  * Hand-curated per-legend attribute-bonus text for traits whose own `Buff`-typed facts carry a
@@ -25,6 +21,14 @@ export interface LegendAttributeDetail {
  * that file's real attribute-totals computation (Bolstered Bonds' actual character-stat
  * contribution stays unmodeled, same "documented gap, not modeled wrong" shape as everywhere else
  * a display fix and a stats fix are kept separate).
+ *
+ * A third, related shape lives in `boon-calc/sources.ts`'s `legendFormFactsForSkill` instead of
+ * here: skills like Cosmic Wisdom carry `PrefixedBuff` facts (not plain `Buff`) with real, usable
+ * `description` text and a `prefix.status` naming the legend — no hand-curation needed there, just
+ * an opt-in id allow-list. This file's own curated-text approach exists because Bolstered Bonds'
+ * raw data specifically lacks that ready-to-use text; a future trait sharing Bolstered Bonds' exact
+ * `Buff`-with-legend-name-status shape AND usable description text could skip this table entirely
+ * and reuse a `legendFormFactsForSkill`-style extractor instead — check the raw facts first.
  */
 export const LEGEND_ATTRIBUTE_BONUS_DETAILS: Record<number, Record<string, string>> = {
   // Bolstered Bonds (Revenant/Conduit, Master minor, id 2331) — "Gain attributes based on your
@@ -49,10 +53,10 @@ export const LEGEND_ATTRIBUTE_BONUS_DETAILS: Record<number, Record<string, strin
  *  `Legend` list, in `legends`' own array order (Legend1..Legend8) — empty for any trait with no
  *  curated entry (the overwhelming majority), same "opt-in curated table, fails open" convention as
  *  `BUFF_INSTANCE_LABELS`/`DODGE_TRIGGER_NOTES` elsewhere in this codebase. */
-export function legendAttributeDetailFacts(trait: Trait, legends: Legend[]): LegendAttributeDetail[] {
+export function legendAttributeDetailFacts(trait: Trait, legends: Legend[]): LegendFormFact[] {
   const curated = LEGEND_ATTRIBUTE_BONUS_DETAILS[trait.id]
   if (!curated) return []
-  const out: LegendAttributeDetail[] = []
+  const out: LegendFormFact[] = []
   for (const legend of legends) {
     const text = curated[legend.name]
     if (text) out.push({ legend, text })

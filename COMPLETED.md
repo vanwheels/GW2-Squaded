@@ -2,6 +2,59 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 254 — Bolstered Bonds' real stat contribution + Cosmic Wisdom's per-legend "Form" tooltip
+
+Two follow-ups from Session 253, both flagged by the user in one message: "I want that built too
+[Bolstered Bonds' real stat contribution], but also the Cosmic Wisdom tooltip doesn't display the
+specific skill's tooltip depending on the equipped legends."
+
+**Bolstered Bonds' character-stat contribution** — closes the TODO.md item Session 253 logged. New
+`LEGEND_ATTRIBUTE_TRAIT_BONUSES`/`activeLegendAttributeTraitBonus` in `trait-attributes.ts`, same
+family shape as `WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`/`ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`
+(a `Build`-state gate, not gear) except gated on `equippedLegendIds` (BOTH equipped legend slots,
+permanently, matching the trait's own unconditional "gain attributes based on your equipped
+legends" wording) rather than "currently active" — deliberately NOT reusing `activeLegendIndex`,
+since that's a genuinely different Conduit mechanic (Cosmic Wisdom/Release Potential's per-active-
+legend SWAP, see below). "Legendary Entity Stance" reuses `attribute-totals.ts`'s existing
+`ALL_CORE_ATTRIBUTE_KEYS` constant (+50 to all 9) rather than a hand-listed array. Wired into
+`applyTraitBonuses` (now takes an optional `legends` param, defaulted `[]`) and both its 2 real
+callers — `derived-stats.ts`'s `computeCharacterStats` (Pick type widened to include `'legends'`)
+and `gear-optimize.ts` (both the pre-search gear-independent baseline AND the final re-derived
+totals, same treatment as the weapon/attunement families already get there since the optimizer
+never touches `build.skills` either). 4 test fixtures across 3 test files needed a `legends: []`
+addition to keep typechecking against the widened Pick type. New
+`legend-attribute-trait-bonus.test.ts` (6 tests) locks in the real numbers plus the "both equipped,
+not just active" semantics explicitly.
+
+**Cosmic Wisdom's per-legend Form tooltip** — its raw API facts already carry all 5 "Form of X"
+descriptions as clean `PrefixedBuff` facts (one real `Legend` named per `prefix.status`, genuinely
+usable `description` text each — unlike Bolstered Bonds, no hand-curation needed) but were silently
+dropped: none of "Form of the Assassin" etc. is a recognized boon/condition name, so
+`boonConditionFactsForSkill` never picked them up. New `legendFormFactsForSkill` in
+`boon-calc/sources.ts` (`classifyBoonCondition`/`resolveLegendFromPrefix` both promoted to exported,
+reused from Bolstered Bonds' fix) — an opt-in curated ALLOW-LIST (`LEGEND_FORM_FACT_SKILL_IDS`,
+currently just Cosmic Wisdom/77371), not automatic: a broader scan found 4 more skills/traits with
+this exact fact shape, but 3 (Facet of Nature/True Nature/Core Value) are the SAME still-open
+TODO.md "Herald F2 lacks linked tooltips" item, whose own scoping already found the real per-legend
+data needs actual per-legend skill-id resolution and an `overrides` field this app doesn't model —
+deliberately not preempted with a shallower fix here. Ancient Echo (Conduit's non-Conduit-equipped
+sibling skill) is a plausible future candidate, not investigated. Filtered to the build's actually-
+EQUIPPED legends only (unlike Spirit Boon's boon rows, which always show all 8 regardless of what's
+equipped) — Conduit's own trait line fixes the reachable legend universe to 2 of a possible 5, so
+showing only those keeps the tooltip build-specific, matching `conduitReleasePotentialBar`'s own
+per-equipped-legend treatment of this skill's sibling (`Release Potential`, same slot family).
+Wired into the shared `skillNamedFacts` builder (now takes a `legends` param) so both
+`SkillsEditor.tsx`'s own tooltip path and `ProfessionMechanicBar.tsx`'s separate inline one (which
+is what actually renders Cosmic Wisdom, a Profession_3 mechanic-bar skill) get it for free. New
+`legend-form-facts.test.ts` (4 tests).
+
+Both fixes reuse the SAME render slot (`factsBlock`'s `legendAttributeFacts` field, added in Session
+253) since both are structurally `{legend, text}` rows — `LegendFormFact` (sources.ts) is now the
+one canonical type, `legend-attribute-details.ts`'s own `legendAttributeDetailFacts` (Bolstered
+Bonds' curated-text tooltip helper) returns it too rather than a duplicate shape.
+
+typecheck/lint/vitest (238 passing, 10 new) all clean.
+
 ## Session 253 — Bolstered Bonds: per-legend attribute detail display (Spirit-Boon-style, but a different shape)
 
 User flagged, right after Session 252 closed Bolstered Bonds as "not this mechanism's scope": "we
