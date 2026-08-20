@@ -172,7 +172,34 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // — pve+wvw share 10, pvp alone drops to 7. Its `traitedFacts` also carry an unrelated 2nd pair
   // (15/10, `requires_trait: 2440` — Vindicator's Numinous Gift), same cross-spec shape as Serene
   // Rejuvenation's in the Salvation leg above — deliberately left alone.
-  1713: { 'Damage Reduced': 10 }
+  1713: { 'Damage Reduced': 10 },
+
+  // Revenant Corruption majors/minors — 4th leg of the sweep (2026-08-20). Acolyte of Torment's
+  // single "Damage Increase" 10% fact carries no split (unambiguous, nothing to add). Yearning
+  // Empowerment's base "Duration Increase" 10% fact also has no `game mode=` split at all — its
+  // `traitedFacts` 2nd pair (15%, `requires_trait: 2440` — Vindicator's Numinous Gift) is the same
+  // cross-spec-interaction shape as Serene Rejuvenation/Determined Resolution above, deliberately
+  // left alone. No Buff-type dupes on this line either.
+
+  // Demonic Resistance (id 1726, Master major): "Incoming strike damage is reduced while you have
+  // resistance on you." Wiki: `{{skill fact|damage reduced|20|game mode=pve}}` + `{{skill
+  // fact|damage reduced|10|game mode=pvp wvw}}` — pve 20, pvp+wvw share 10.
+  1726: { 'Damage Reduced': 10 },
+
+  // Pact of Pain (id 1714, Master major): "Conditions you apply to foes last longer, but
+  // conditions applied to you also last longer." Wiki: `{{skill fact|duration increase|alt=
+  // Conditions Applied to Foes|15%|game mode=pve}}` + `{{...|Conditions Applied to Self|10%|game
+  // mode=pve}}` + `{{...|Conditions Applied to Foes|7%|game mode=pvp wvw}}` + `{{...|Conditions
+  // Applied to Self|5%|game mode=pvp wvw}}` — pve is 15%/10%, pvp+wvw share 7%/5%. Two
+  // independently-ambiguous `text` labels on the same trait, both entered here.
+  1714: { 'Conditions Applied to Foes': 7, 'Conditions Applied to Self': 5 },
+
+  // Permeating Pestilence (id 1721, Grandmaster major, wiki icon still filed under its pre-2020
+  // name "Pulsating Pestilence"): "Invoke Torment transfers conditions from you onto foes." Wiki:
+  // `{{skill fact|Conditions Transferred|alt=Conditions Copied|3|game mode=pve}}` + `{{skill
+  // fact|Conditions Transferred|alt=Conditions Copied|2|game mode=pvp wvw}}` — pve 3, pvp+wvw
+  // share 2.
+  1721: { 'Conditions Copied': 2 }
 }
 
 /**

@@ -119,7 +119,15 @@ showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). What's left
       genuinely identical, already deduped for free (same shape as Salvation's Resilient Spirit);
       Versed in Stone's "Attribute Conversion" 13%/4% pair is `BuffConversion`-typed, out of scope
       for this table (same shape as Salvation's Life Attunement). No Buff-type dupes needed either.
-      Next leg not started: Corruption/Devastation/Renegade/Vindicator/Conduit, same process.
+      **Corruption leg landed 2026-08-20**: 3 candidates — Demonic Resistance (1726, "Damage
+      Reduced" 20 pve/**10 wvw+pvp**), Pact of Pain (1714, two labels: "Conditions Applied to
+      Foes" 15 pve/**7 wvw+pvp**, "Conditions Applied to Self" 10 pve/**5 wvw+pvp**), Permeating
+      Pestilence (1721, "Conditions Copied" 3 pve/**2 wvw+pvp**). Acolyte of Torment's single
+      "Damage Increase" fact has no split (nothing to add). Yearning Empowerment's base "Duration
+      Increase" also has no split — its `traitedFacts` 2nd pair (`requires_trait: 2440`, Numinous
+      Gift) is the same cross-spec-interaction shape as Serene Rejuvenation/Determined Resolution,
+      deliberately left alone. No Buff-type dupes on this line either.
+      Next leg not started: Devastation/Renegade/Vindicator/Conduit, same process.
 
 ## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
 
