@@ -369,8 +369,11 @@ that before extending either further.
         the *same* session don't re-download the JSON at all — only the first render after a cold
         start pays the full 11MB) — worth re-profiling via `wrangler tail` before sinking time into
         it, per the note below.
-      - Not yet profiled live via `wrangler tail` (the code-reading diagnosis was always a
-        hypothesis, per the original entry) — worth doing once there's a moment to trigger a few
-        real `/builddisplay`/`/buildadd` calls and watch actual timings, both to confirm today's
-        fixes actually moved the needle and to re-rank whether the game-data fetch is still worth
-        the bigger refactor above.
+      - Live-verified 2026-08-19: user confirmed `/builddisplay` and `/buildadd` both still work
+        correctly against production after the deploy — no regression from the session-reuse/
+        round-trip changes above. Perceived speedup wasn't clearly noticeable to them either way
+        (no `wrangler tail` timing profile taken, so there's no before/after number to point to),
+        but they're satisfied with "cleaner on the backend" as the bar for this pass. Given that,
+        not chasing the still-open game-data-fetch refactor further right now — revisit only if
+        latency becomes a live complaint again, ideally with an actual `wrangler tail` timing pass
+        this time rather than another code-reading diagnosis.
