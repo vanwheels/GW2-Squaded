@@ -28,6 +28,7 @@ import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPerce
 import { WEAVER_SPEC_ID, weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
 import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bundle-skills'
 import { branchConditionalFacts } from '../skill-calc/branch-conditional-facts'
+import { WEAPON_STRENGTH_MIDPOINTS } from '../skill-calc/damage-calc'
 import {
   catalystJadeSphereBar,
   CATALYST_SPEC_ID,
@@ -3603,6 +3604,88 @@ const LEGEND_FORM_FACT_SKILL_IDS = new Set<number>([
 ])
 
 /**
+ * A real, current-build-scaled number to append below a `legendFormFactsForSkill` row's own
+ * description — for the 3 Cosmic Wisdom forms that deal genuine damage/healing whose numbers live
+ * entirely on the wiki's own separate "effect skill" page, never exposed by the public API AT ALL
+ * (unlike the more common `synthetic-facts.json` shape, where the id exists but carries zero real
+ * facts — these 3 ids, 78971/77920/76818, don't resolve via `/v2/skills` at all, so there's no
+ * `Fact` to attach a curated coefficient to via the normal `CURATED_DAMAGE_COEFFICIENTS`/
+ * `CURATED_HEALING_COEFFICIENTS` tables, which both require a matching real fact on the object).
+ * Computed directly here instead, using the exact same formulas those tables' own consumers
+ * (`damageLinesForSkill`/`healingLinesForSkill`) already use — deliberately NOT routed through
+ * those tables/`skillFactLines`'s generic numeric-facts block, which has no per-legend gating: a
+ * value added there would show unconditionally regardless of which legend is actually equipped,
+ * inconsistent with this row's own equipped-legend filtering.
+ */
+interface LegendFormEffectDetail {
+  label: string
+  /** `'damage'`: the ordinary weapon-Damage-fact formula (`weaponStrength * coefficient * power /
+   *  targetArmor`, `weapon: 'unequipped'` — non-weapon trait/utility damage, matches the wiki's
+   *  plain `{{skill fact|damage|...}}` template both Warrior's and Dervish's pages use).
+   *  `'siphonDamage'`/`'healing'`: the `AttributeAdjust` formula (`baseValue + coefficient *
+   *  power/healingPower`, matches the wiki's `{{skill fact|life siphon damage|...}}`/
+   *  `{{skill fact|life siphon healing|...}}` templates Assassin's page uses — a genuinely
+   *  different fact TYPE (`AttributeAdjust`, `target: 'Power'`/`'Healing'`) from the ordinary
+   *  weapon-Damage-fact shape, confirmed by cross-checking the real (non-Lesser) Enchanted Daggers
+   *  heal skill's own raw API facts, id 26937, whose already-curated `CURATED_HEALING_COEFFICIENTS`
+   *  entry's `Siphon Healing` baseValue (768) matches this page's wiki-quoted number exactly).
+   */
+  kind: 'damage' | 'siphonDamage' | 'healing'
+  coefficient: number
+  /** Only for `'siphonDamage'`/`'healing'` — the `AttributeAdjust` fact's own reference value (API
+   *  convention: computed at 0 bonus Power/Healing Power), same meaning as `HealingCoefficient.baseValue`. */
+  baseValue?: number
+}
+
+/**
+ * `LEGEND_FORM_FACT_SKILL_IDS`' skill id -> `Legend.name` -> the real damage/healing detail(s) to
+ * append to that legend's row (see `LegendFormEffectDetail`'s own doc comment for why these can't
+ * go through the normal curated-coefficient tables). Every entry wiki-verified 2026-08-20 via each
+ * effect's own separate wiki page (its own `{{skill fact}}` templates, not paraphrased from prose):
+ * - Assassin — [[Lesser Enchanted Daggers]] (id 78971, no split: "identical across PvE, WvW, and
+ *   PvP as of 20 Dec 2025"). Both halves share this app's WvW-focused convention trivially since
+ *   there's nothing to pick between.
+ * - Warrior — [[Dwarven Retribution]] (id 77920): genuine 3-way pve(1.1)/wvw(0.44)/pvp(0.54) split,
+ *   WvW value used.
+ * - Dervish — [[Form of the Dervish (Attack)]] (id 76818): pve(0.8)/wvw+pvp(0.525) split, WvW value
+ *   used.
+ * Centaur (Form of the Monk) and Demon (Form of the Mesmer) are genuinely non-damage utility
+ * effects per their own descriptions (no separate "effect skill" page exists for either) — nothing
+ * to add for those 2 legends.
+ */
+const LEGEND_FORM_EFFECT_DETAILS: Record<number, Record<string, LegendFormEffectDetail[]>> = {
+  77371: {
+    'Legendary Assassin Stance': [
+      { label: 'Life Siphon Damage', kind: 'siphonDamage', baseValue: 1028, coefficient: 0.06 },
+      { label: 'Siphon Healing', kind: 'healing', baseValue: 768, coefficient: 0.2 }
+    ],
+    'Legendary Dwarf Stance': [{ label: 'Damage', kind: 'damage', coefficient: 0.44 }],
+    'Legendary Entity Stance': [{ label: 'Damage', kind: 'damage', coefficient: 0.525 }]
+  }
+}
+
+/** Live build stats `legendFormFactsForSkill` needs to compute `LEGEND_FORM_EFFECT_DETAILS`'
+ *  real numbers — the same trio `skillFactLines`/`damageLinesForSkill`/`healingLinesForSkill` are
+ *  already called with at every one of this function's own call sites, just bundled together since
+ *  the param list was getting long. Optional (defaulted `undefined`) so a caller with no attribute
+ *  context handy still gets every OTHER curated skill's plain-text rows unaffected — only rows with
+ *  a `LEGEND_FORM_EFFECT_DETAILS` entry actually need this, and there's currently exactly one such
+ *  skill (Cosmic Wisdom). */
+export interface LegendFormAttributeContext {
+  power: number
+  healingPower: number
+  targetArmor: number
+}
+
+function formatLegendFormEffectDetail(detail: LegendFormEffectDetail, attrs: LegendFormAttributeContext): string {
+  const value =
+    detail.kind === 'damage'
+      ? (WEAPON_STRENGTH_MIDPOINTS.unequipped * detail.coefficient * attrs.power) / attrs.targetArmor
+      : (detail.baseValue ?? 0) + detail.coefficient * (detail.kind === 'healing' ? attrs.healingPower : attrs.power)
+  return `${detail.label}: ${Math.round(value).toLocaleString()}`
+}
+
+/**
  * Per-legend "form"/effect detail lines for a curated skill (see `LEGEND_FORM_FACT_SKILL_IDS`) —
  * every `PrefixedBuff` fact whose own `status` ISN'T a recognized boon/condition (ruling out the
  * ordinary Spirit-Boon shape, already handled by `extractFromFacts`) but whose `prefix.status`
@@ -3612,9 +3695,16 @@ const LEGEND_FORM_FACT_SKILL_IDS = new Set<number>([
  * Conduit-legend universe is fixed to whichever 2 the player has actually chosen, so showing only
  * those keeps the tooltip build-specific rather than listing forms the player could never reach —
  * matches `conduitReleasePotentialBar`'s own per-equipped-legend swap for this exact skill's sibling
- * (`Release Potential`, same Profession_2/_3 slot family).
+ * (`Release Potential`, same Profession_2/_3 slot family). `attrs` (optional) additionally appends
+ * any `LEGEND_FORM_EFFECT_DETAILS` real number(s) on their own line(s) below the row's own
+ * description text (rendered via `white-space: pre-line`, see `.tooltip-legend-fact-text`).
  */
-export function legendFormFactsForSkill(skill: Skill, equippedLegendIdSet: Set<string>, legends: Legend[]): LegendFormFact[] {
+export function legendFormFactsForSkill(
+  skill: Skill,
+  equippedLegendIdSet: Set<string>,
+  legends: Legend[],
+  attrs?: LegendFormAttributeContext
+): LegendFormFact[] {
   if (!LEGEND_FORM_FACT_SKILL_IDS.has(skill.id)) return []
   const out: LegendFormFact[] = []
   for (const fact of [...skill.facts, ...skill.traitedFacts]) {
@@ -3622,7 +3712,9 @@ export function legendFormFactsForSkill(skill: Skill, equippedLegendIdSet: Set<s
     if (classifyBoonCondition(fact.status)) continue
     const legend = resolveLegendFromPrefix(fact.prefix, legends)
     if (!legend || !equippedLegendIdSet.has(legend.id)) continue
-    out.push({ legend, text: fact.description })
+    const details = LEGEND_FORM_EFFECT_DETAILS[skill.id]?.[legend.name]
+    const extraLines = details && attrs ? details.map((d) => formatLegendFormEffectDetail(d, attrs)) : []
+    out.push({ legend, text: [fact.description, ...extraLines].join('\n') })
   }
   return out
 }

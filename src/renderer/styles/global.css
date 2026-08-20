@@ -2060,6 +2060,10 @@ input[type='text'] {
 .tooltip-legend-fact-text {
   color: var(--muted);
   padding-left: 19px; /* aligns under the header's own text, past its 14px icon + 5px gap */
+  /* Cosmic Wisdom's damage/healing detail lines (`LEGEND_FORM_EFFECT_DETAILS`) are appended as
+     extra `\n`-joined lines below the description proper — render those as real line breaks
+     rather than collapsing to one run-on line. */
+  white-space: pre-line;
 }
 
 .tooltip-description {

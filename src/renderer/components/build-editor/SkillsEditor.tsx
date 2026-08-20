@@ -14,6 +14,7 @@ import {
   namedFactsForSkill,
   type BoonConditionSource,
   type ComboSource,
+  type LegendFormAttributeContext,
   type LegendFormFact,
   type NamedFactSource
 } from '@shared/boon-calc/sources'
@@ -327,7 +328,8 @@ export function skillNamedFacts(
   activeIds: Set<number>,
   legendIds: Set<string>,
   wvwOverride: Record<string, WvwFactOverride> | undefined,
-  legends: Legend[] = []
+  legends: Legend[] = [],
+  legendFormAttrs?: LegendFormAttributeContext
 ): SkillNamedFacts {
   return {
     auraFacts: auraFactsForSkill(skill, activeIds, legendIds, wvwOverride),
@@ -337,7 +339,7 @@ export function skillNamedFacts(
       ...namedFactsForSkill(skill, activeIds, legendIds, wvwOverride, BOON_STRIP_CORRUPT_MATCHERS, NAMED_FACT_TARGET_COUNT_TABLES)
     ],
     comboFacts: comboFactsForSkill(skill, activeIds),
-    legendAttributeFacts: legendFormFactsForSkill(skill, legendIds, legends)
+    legendAttributeFacts: legendFormFactsForSkill(skill, legendIds, legends, legendFormAttrs)
   }
 }
 
@@ -408,7 +410,8 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
     activeIds,
     variantContext.legendIds,
     variantContext.wvwFactOverrides.skill[factSourceSkill.id],
-    variantContext.legends
+    variantContext.legends,
+    { power, healingPower, targetArmor: variantContext.targetArmor }
   )
   const { namedFacts: effectiveNamedFacts, bonus: familiarBonus } = evokerFamiliarBonusFacts(factSourceSkill.id, rawNamedFacts, variantContext.familiarElement)
   const enhancement = additiveEnhancementFacts(skill, numericLines, effectiveFacts, effectiveNamedFacts, activeIds, variantContext)
@@ -493,7 +496,8 @@ function additiveEnhancementFacts(
     activeIds,
     variantContext.legendIds,
     variantContext.wvwFactOverrides.skill[targetSkill.id],
-    variantContext.legends
+    variantContext.legends,
+    { power, healingPower, targetArmor: variantContext.targetArmor }
   )
 
   const baseNumericKeys = new Set(baseNumericLines.map((l) => l.text))

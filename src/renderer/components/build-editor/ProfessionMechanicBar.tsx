@@ -172,7 +172,11 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
     if (!skill) return null
     const facts = boonConditionFactsForSkill(skill, activeIds, legendIds, durationPercent, gameData.wvwFactOverrides.skill[skill.id], gameData.legends)
     const numericLines = skillFactLines(skill, activeIds, characterAttributes.power, characterAttributes.healingPower, targetArmor)
-    const namedFacts = skillNamedFacts(skill, activeIds, legendIds, gameData.wvwFactOverrides.skill[skill.id], gameData.legends)
+    const namedFacts = skillNamedFacts(skill, activeIds, legendIds, gameData.wvwFactOverrides.skill[skill.id], gameData.legends, {
+      power: characterAttributes.power,
+      healingPower: characterAttributes.healingPower,
+      targetArmor
+    })
     const branches = branchConditionalFacts(skill, durationPercent, characterAttributes.healingPower)
     return (
       <>

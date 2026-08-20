@@ -2,6 +2,49 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 255 — Cosmic Wisdom's Assassin/Warrior/Dervish forms get real damage/healing numbers
+
+User flagged 3 of Cosmic Wisdom's 5 Forms (Assassin/Warrior/Dervish) actually deal damage/effects
+the wiki doesn't show directly on Cosmic Wisdom's own page, but does on 3 separate linked "effect
+skill" pages, and gave the URLs: [[Lesser Enchanted Daggers]] (Assassin), [[Dwarven Retribution]]
+(Warrior), [[Form of the Dervish (Attack)]] (Dervish). Confirmed none of the 3 ids (78971/77920/
+76818) exist in the public `/v2/skills` API at all (unlike the usual `synthetic-facts.json` shape,
+where the id exists but carries zero facts) — genuinely unreachable any other way.
+
+Warrior/Dervish use the ordinary weapon-`Damage`-fact wiki template (`weapon: 'unequipped'`,
+`Damage = 690.5 * coefficient * Power / targetArmor` — same formula `CURATED_DAMAGE_COEFFICIENTS`
+already uses everywhere else), both genuine pve/wvw/pvp splits, WvW value used (Warrior 0.44,
+Dervish 0.525). Assassin's page uses a DIFFERENT wiki template (`life siphon damage`/`life siphon
+healing`) mapping to `AttributeAdjust` facts (`target: 'Power'`/`'Healing'`) rather than a plain
+`Damage` fact — confirmed by cross-checking the real (non-"Lesser") Enchanted Daggers heal skill's
+own raw API facts (id 26937): its already-curated `CURATED_HEALING_COEFFICIENTS` "Siphon Healing"
+entry (`baseValue: 768, coefficient: 0.2`) matches the wiki-quoted Lesser Enchanted Daggers number
+exactly, confirming both the formula (`baseValue + coefficient * Power/HealingPower`, the healing
+formula's shape) and that these numbers carry over unchanged to the passive-triggered "Lesser"
+copy. The `Siphon Damage` half (`target: 'Power'`) is a formula shape this app had literally never
+modeled anywhere — a scan found 27 such facts across ~15 skills, all still uncurated (logged as a
+new TODO.md nice-to-have, not swept this session).
+
+Deliberately did NOT route these through the generic `CURATED_DAMAGE_COEFFICIENTS`/
+`CURATED_HEALING_COEFFICIENTS` tables `skillFactLines` reads automatically for every skill: doing
+so would show the number unconditionally regardless of which legend is actually equipped,
+inconsistent with `legendFormFactsForSkill`'s own equipped-legend filtering right next to it in the
+same tooltip. Instead: new `LegendFormEffectDetail`/`LEGEND_FORM_EFFECT_DETAILS`/
+`formatLegendFormEffectDetail` in `boon-calc/sources.ts`, computed directly inside
+`legendFormFactsForSkill` itself and appended as extra `\n`-joined lines under that legend's own
+description text — gated by the SAME equipped-legend filter automatically, no synthetic fact
+needed at all. New optional `LegendFormAttributeContext` param (`power`/`healingPower`/
+`targetArmor`) threaded through `skillNamedFacts` and all 3 of its call sites.
+
+New `.tooltip-legend-fact-text { white-space: pre-line }` (was already flat text) so the extra
+lines render as real line breaks. 5 new tests (`legend-form-facts.test.ts`) lock in the exact
+formula output at a fixed reference build (Power/Healing Power 1000, Armor 2597) for all 3 legends,
+plus confirm Centaur/Demon (genuine non-damage utility forms) get no extra line and `attrs`-omitted
+calls stay plain text.
+
+typecheck/lint/vitest (243 passing, 5 new) all clean. Not visually re-verified in the running app
+(Electron sandbox limitation persists).
+
 ## Session 254 — Bolstered Bonds' real stat contribution + Cosmic Wisdom's per-legend "Form" tooltip
 
 Two follow-ups from Session 253, both flagged by the user in one message: "I want that built too
