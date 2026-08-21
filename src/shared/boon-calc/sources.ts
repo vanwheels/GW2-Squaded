@@ -4624,11 +4624,12 @@ function bundleContributionsForBuild(
  *    Charge") and Epilogue ("Unbroken Lines") carry alongside their explicit "allied targets: 5"
  *    fact — user-confirmed 2026-08-21 the pulse also affects the caster (self + 4 allies = 5), not
  *    just the 4 allies the wiki's missing fact line would otherwise leave this at.
- *  "Chapter 4: Shining River" (Tome of Resolve) is a same-shaped gap `tomeChapterBoonSources`'s
- *  comment already flags but this table doesn't yet resolve — unconfirmed whether it also hits self,
- *  left open rather than guessed.
+ *  - 41780/3 (Tome of Resolve, "Chapter 4: Shining River"): same shape — no "allied targets" fact
+ *    despite a party-wide description — and user-confirmed 2026-08-21 it also affects the caster
+ *    (self + 4 allies = 5), same reasoning as Stalwart Stand above.
  */
 const TOME_CHAPTER_TARGET_COUNT_OVERRIDES: Record<number, Record<number, number>> = {
+  41780: { 3: 5 },
   42259: { 3: 5 }
 }
 
