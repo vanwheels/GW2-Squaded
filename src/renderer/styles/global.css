@@ -503,12 +503,20 @@ button:hover {
  * as the fix for the still-open "Squads cards have a lot of empty vertical space" TODO item — makes
  * the mosaic itself the card's visual anchor instead of a small decorative afterthought, without
  * reopening the already-rejected per-slot-icon/de-duplicated-row directions.
+ *
+ * `min-height` reserves room for 5 rows (5 * 11px dot + 4 * 5px row gap = 75px) regardless of a
+ * given squad's actual party count (2026-08-20 follow-up) — without it, the "N parties"/"Updated…"
+ * footer below the mosaic lands at a different height on every card depending on how many party
+ * rows it has, so cards read as inconsistently laid out even though each one individually looks
+ * fine. 5 is a "typical squad" budget, not `SquadCompEditorView`'s actual `MAX_PARTIES` cap (10) —
+ * a squad with more than 5 parties simply grows past the reserved space rather than being clipped.
  */
 .party-mosaic {
   display: flex;
   flex-direction: column;
   gap: 5px;
   margin: 2px 0;
+  min-height: 75px;
 }
 
 .party-mosaic-row {
