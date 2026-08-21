@@ -30,14 +30,14 @@ const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
 const EMPTY = '—'
 
 /**
- * Read-only, screenshot-only "text manifest" of a build's full equipment loadout — plain names,
- * one line per slot, grouped into the same 4 sections as `EquipmentEditor`'s icon panels (Armor /
- * Accessories / Weapons / Other). Exists because `ScreenshotButton` captures whatever's actually
- * on-screen, and `EquipmentEditor` itself is an *editing* UI (icon-only pickers) rather than
- * something meant to be read at a glance — icons for visually-similar categories (runes/sigils/
- * relic/food/utility/infusions especially) aren't reliably recognizable out of context, and this
- * app's icon set isn't universally recognized in the first place. Toggled into view only via
- * `BuildEditorView`'s "Preview screenshot layout" button, never shown during normal editing.
+ * Read-only "text manifest" of a build's full equipment loadout — plain names, one line per slot,
+ * grouped into the same 4 sections as `EquipmentEditor`'s icon panels (Armor / Accessories /
+ * Weapons / Other). Exists because `ScreenshotButton` captures whatever's actually on-screen, and
+ * `EquipmentEditor` itself is an *editing* UI (icon-only pickers) rather than something meant to
+ * be read at a glance — icons for visually-similar categories (runes/sigils/relic/food/utility/
+ * infusions especially) aren't reliably recognizable out of context, and this app's icon set isn't
+ * universally recognized in the first place. Always rendered by `BuildScreenshotGrid` (2026-08-21)
+ * — it fits the layout cleanly enough to leave on during normal editing too, not just screenshots.
  */
 export function EquipmentTextManifest({ build }: Props) {
   const { itemStats, itemStatLegalIds, professions, runes, sigils, infusions, relics, food, utility, pets } = useGameData()

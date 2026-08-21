@@ -43,7 +43,6 @@ export function BuildPreviewModal({ build, onClose }: Props) {
             build={displayBuild}
             combatState={DEFAULT_COMBAT_STATE}
             equippedSpecializationIds={equippedSpecializationIds}
-            showEquipmentManifest
             interactive={false}
           />
         </>

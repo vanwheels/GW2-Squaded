@@ -2,6 +2,24 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 269 — Equipment text manifest always-on; Share Link auto-copies
+
+**Equipment text manifest always-on (2026-08-21 user request).** `EquipmentTextManifest` was
+previously hidden by default in `BuildEditorView`, toggled via a "Preview screenshot layout" /
+"Hide screenshot layout" header button (`screenshotPreviewOpen` state) — it fit the layout cleanly
+enough that the user wanted it on permanently instead. Removed the toggle button and state;
+`BuildScreenshotGrid`'s `showEquipmentManifest` prop was already hardcoded `true` at its other two
+call sites (`BuildPreviewModal`, `web-preview/BuildPreviewPage.tsx` — both read-only previews), so
+with `BuildEditorView` now also always-true the prop had no remaining `false` case anywhere —
+dropped it entirely and render the manifest unconditionally in `BuildScreenshotGrid`.
+
+**"Share" → "Share Link", auto-copies to clipboard on press.** `SharePanel` (shared by
+`BuildEditorView` and `SquadCompEditorView`) previously required a second "Copy" press inside the
+popover after the link finished creating. Renamed the button to "Share Link" and made
+`handleShare` copy the URL to the clipboard itself as soon as `createShare` resolves, so one press
+both creates and copies — the popover still shows the URL (readable/re-selectable, and a fallback
+if the clipboard write fails) plus a manual Copy button for re-copying later.
+
 ## Session 268 — Main sweep complete: WvW/PvE duplicate-fact values, all 8 non-Revenant professions
 
 Moved here from TODO.md now that all 8 legs (one per profession) are done, closing out both phases

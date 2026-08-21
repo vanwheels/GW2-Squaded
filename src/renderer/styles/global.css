@@ -1209,11 +1209,11 @@ input[type='text'] {
   border-color: var(--rarity-masterwork);
 }
 
-/* Screenshot-only equipment text manifest (`EquipmentTextManifest`) — a full-width band below the
-   3 columns (spans every `.build-editor-grid` column via `.build-editor-grid-fullwidth`), toggled
-   via BuildEditorView's "Preview screenshot layout" button. Sized/bordered like a
+/* Equipment text manifest (`EquipmentTextManifest`) — a full-width band below the 3 columns
+   (spans every `.build-editor-grid` column via `.build-editor-grid-fullwidth`), always rendered
+   (2026-08-21, previously toggled via a "Preview screenshot layout" button). Sized/bordered like a
    `.build-editor-column` (not itself a grid column, so it can't just reuse the class) so it reads
-   as one more panel in the same screenshot, not a bolted-on extra. */
+   as one more panel, not a bolted-on extra. */
 .equipment-text-manifest-wrap {
   background: var(--surface);
   border: 1px solid var(--border);

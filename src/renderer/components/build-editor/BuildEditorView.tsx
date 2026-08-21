@@ -43,11 +43,6 @@ export function BuildEditorView({ build, onBack }: Props) {
   const [saving, setSaving] = useState(false)
   const [combatState, setCombatState] = useState<CombatState>(DEFAULT_COMBAT_STATE)
   const [optimizerOpen, setOptimizerOpen] = useState(false)
-  // Screenshot-only equipment text manifest (see EquipmentTextManifest's doc comment) — hidden by
-  // default so it never clutters normal editing; toggled on right before using ScreenshotButton,
-  // same as a print-preview. Included in the capture whenever it's open since it lives inside
-  // `columnsRef`'s own subtree, below the normal 3-column layout.
-  const [screenshotPreviewOpen, setScreenshotPreviewOpen] = useState(false)
   const { eliteSpecSkills, legends, professions, specializationsById } = useGameData()
   const { builds } = useBuildsStore()
   const { showUnderwater, partyWideOnly, setPartyWideOnly } = useAppSettings()
@@ -240,9 +235,6 @@ export function BuildEditorView({ build, onBack }: Props) {
             Mark as up to date
           </button>
         )}
-        <button type="button" onClick={() => setScreenshotPreviewOpen((open) => !open)}>
-          {screenshotPreviewOpen ? 'Hide screenshot layout' : 'Preview screenshot layout'}
-        </button>
         <ToggleSwitch checked={partyWideOnly} onChange={setPartyWideOnly} label="Party-wide only" />
         <ScreenshotButton targetRef={columnsRef} />
         <SharePanel kind="build" getData={() => draft} />
@@ -257,7 +249,6 @@ export function BuildEditorView({ build, onBack }: Props) {
         build={displayBuild}
         combatState={combatState}
         equippedSpecializationIds={equippedSpecializationIds}
-        showEquipmentManifest={screenshotPreviewOpen}
         gridRef={columnsRef}
         onProfessionSpecChoose={handleEliteSpecChoose}
         onCombatStateChange={setCombatState}

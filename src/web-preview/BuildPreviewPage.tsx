@@ -96,7 +96,6 @@ export function BuildPreviewPage() {
       build={build}
       combatState={DEFAULT_COMBAT_STATE}
       equippedSpecializationIds={equippedSpecializationIdsFor(build)}
-      showEquipmentManifest
       interactive={false}
       gridRef={gridRef}
     />

@@ -17,10 +17,6 @@ interface Props {
   build: Build
   combatState: CombatState
   equippedSpecializationIds: Set<number>
-  /** Whether the screenshot-only equipment text manifest row renders below the 3 columns — always
-   *  `true` for a read-only preview (that's the whole point of "what a screenshot would look
-   *  like"), a live toggle (`screenshotPreviewOpen`) in the real editor. */
-  showEquipmentManifest: boolean
   /** `ScreenshotButton`'s capture target in the real editor; omitted for a read-only preview,
    *  which has nothing to screenshot itself. */
   gridRef?: RefObject<HTMLDivElement>
@@ -43,17 +39,16 @@ interface Props {
 
 /**
  * The "screenshot" portion of the build editor — Profession/Weapon-type/Combat-state toolbar row
- * plus the Traits/Equipment/Stats+Skills columns and the optional equipment text manifest below
- * them — factored out of `BuildEditorView` (2026-08-19) so `BuildPreviewModal`'s right-click
- * "Preview" can render the exact same layout read-only for an arbitrary build, without a second
- * copy of this markup drifting out of sync with the real editor. See that component's doc comment
- * on `interactive` for how the two callers differ.
+ * plus the Traits/Equipment/Stats+Skills columns and the equipment text manifest below them —
+ * factored out of `BuildEditorView` (2026-08-19) so `BuildPreviewModal`'s right-click "Preview"
+ * can render the exact same layout read-only for an arbitrary build, without a second copy of
+ * this markup drifting out of sync with the real editor. See that component's doc comment on
+ * `interactive` for how the two callers differ.
  */
 export function BuildScreenshotGrid({
   build,
   combatState,
   equippedSpecializationIds,
-  showEquipmentManifest,
   gridRef,
   interactive = true,
   onProfessionSpecChoose = () => {},
@@ -125,11 +120,9 @@ export function BuildScreenshotGrid({
         />
       </div>
 
-      {showEquipmentManifest && (
-        <div className="equipment-text-manifest-wrap build-editor-grid-fullwidth">
-          <EquipmentTextManifest build={build} />
-        </div>
-      )}
+      <div className="equipment-text-manifest-wrap build-editor-grid-fullwidth">
+        <EquipmentTextManifest build={build} />
+      </div>
     </div>
   )
 }
