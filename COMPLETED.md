@@ -21,11 +21,14 @@ chapter's own fact list carried could ever reach it, regardless of matcher conte
   Converted to Boons" fact is functionally a condition removal; `targetCount` read straight off the
   chapter's own "allied targets" fact, already 5 in the wiki data).
 
-New regression test `tome-chapter-named-fact-sources.test.ts` (4 cases: each chapter emits its
-entry only under the matcher table it belongs to, nothing under the others). Along the way, found a
-3rd related gap out of scope for this pass — Tome of Justice's "Chapter 3: Heated Rebuke" carries a
-`defiance break` fact with no `CONTROL_MATCHERS` row to catch it at all — logged in TODO.md rather
-than guessed at.
+While investigating, found a 3rd related gap and fixed it same session (user-flagged 2026-08-21
+follow-up): Tome of Justice "Chapter 3: Heated Rebuke" carries a `defiance break` (breakbar damage)
+fact — magnitude itself stays out of scope (user-confirmed breakbar damage isn't a WvW-relevant
+concept this app tracks) — but the chapter's own `Pull` fact (240, the Control-row signal the
+breakbar-break mechanic actually implies) was equally unwired and IS a matcher this pipeline already
+understands (`CONTROL_MATCHERS.Pull`), so it's curated too. Regression test
+`tome-chapter-named-fact-sources.test.ts` (6 cases across all 3 chapters: each emits its entry only
+under the matcher table it belongs to, nothing under the others).
 
 ## Session 270 — Duplicate builds/squads from a right-click menu
 

@@ -121,13 +121,6 @@ a `target`-field fallback for `AttributeAdjust` facts with no `text` — see bel
       investigation pass, not a quick fix — start by confirming live in the running app (or a fresh
       screenshot) exactly which component/string is rendering it.
 
-- [ ] Tome of Justice's "Chapter 3: Heated Rebuke" carries a `defiance break` (breakbar damage) fact
-      that nothing surfaces — found 2026-08-21 while fixing Stalwart Stand/Eternal Oasis's Tome
-      named-fact gaps (see COMPLETED.md), out of scope for that pass: no `CONTROL_MATCHERS`/
-      `MISCELLANEOUS_MATCHERS` row exists for breakbar damage at all yet (a magnitude concept, not a
-      boolean presence fact like Pull/Knockback), and this would be the first candidate for one —
-      needs scoping, not a one-off patch.
-
 ## Nice-to-haves
 
 - [ ] Gear Optimizer's rune/infusion search (2026-08-11, see COMPLETED.md) adds up to ~18 extra

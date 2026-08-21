@@ -6069,16 +6069,22 @@ function computeRelicNamedFactSources(
  *   which boon results, that reasoning doesn't apply to the Cleanse row: it only cares that
  *   conditions were removed, not what they became. `targetCount` is 5, read straight off this
  *   chapter's own "allied targets" fact (already present in the wiki data, no override needed).
+ * - 44364/2 (Tome of Justice, "Chapter 3: Heated Rebuke"): also carries a `defiance break` fact
+ *   (breakbar damage against enemies) — user-confirmed 2026-08-21 that magnitude itself is out of
+ *   scope (breakbar damage isn't a WvW-relevant concept this app tracks), but its own `Pull` fact
+ *   (240) is the real Control-row signal the breakbar-break mechanic implies and IS already a
+ *   matcher this table understands (`CONTROL_MATCHERS.Pull`) — wired below same as the other two.
+ *   `targetCount` stays `null`: Pull targets enemies, not allies, so the ally-reach concept
+ *   `NAMED_FACT_TARGET_COUNT_TABLES`/`targetCount` exists for doesn't apply (same as every other
+ *   `CONTROL_MATCHERS` entry, which never populates `targetCount` regardless of source).
  *
  * Every other chapter was checked and carries nothing else Control/Miscellaneous/Strip/Corrupt/
- * Cleanse-shaped except Tome of Justice's "Chapter 3: Heated Rebuke" (`defiance break`, i.e.
- * breakbar damage) — not wired here, no `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS` row exists for
- * breakbar damage at all yet (a magnitude concept, not a boolean presence fact like Pull/Knockback);
- * logged in TODO.md rather than guessed at here.
+ * Cleanse-shaped.
  */
 const TOME_CHAPTER_NAMED_FACT_SOURCES: Record<number, Record<number, { name: string; detail: string | null; targetCount: number | null }>> = {
   42259: { 3: { name: 'Breaks Stun', detail: null, targetCount: null } },
-  41780: { 4: { name: 'Cleanse', detail: '5 conditions', targetCount: 5 } }
+  41780: { 4: { name: 'Cleanse', detail: '5 conditions', targetCount: 5 } },
+  44364: { 2: { name: 'Pull', detail: '240', targetCount: null } }
 }
 
 /** `TOME_CHAPTER_NAMED_FACT_SOURCES`' entry for one equipped Tome chapter, or `[]` when this
