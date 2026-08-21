@@ -2174,7 +2174,6 @@
       "Fury": 3
     },
     "473": {
-      "Might": 8,
       "Fury": "omit"
     },
     "515": {
@@ -2532,7 +2531,6 @@
     },
     "2052": {
       "Quickness": "omit",
-      "Might": 5,
       "Fury": "omit"
     },
     "2053": {
@@ -2540,9 +2538,6 @@
     },
     "2062": {
       "Quickness": 2
-    },
-    "2064": {
-      "Burning": 2
     },
     "2069": {
       "Vigor": 1.5
@@ -2701,6 +2696,9 @@
     "2369": {
       "Alacrity": "omit",
       "Quickness": 1
+    },
+    "2383": {
+      "Poisoned": 2.5
     },
     "2387": {
       "Alacrity": "omit"

@@ -3059,6 +3059,58 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // itself. Wiki raw wikitext (`action=raw`) confirms: `{{skill fact|might|stacks=5|10|game
       // mode=pve}}{{skill fact|might|stacks=3|5|game mode=pvp wvw}}`.
       'Might@10@5': 'omit'
+    },
+
+    // Engineer leg (4th leg of the "remaining 8 professions" main WvW-duplicate sweep, TODO.md,
+    // 2026-08-20) — 3 latent bugs found in ALREADY-curated `wvw-fact-overrides.json` entries for
+    // this profession (predating this leg, likely from the original `fetch-wvw-splits.ts` run):
+    // each trait's Might/Burning facts carry a genuine pve-vs-wvw split where BOTH `duration` AND
+    // `apply_count` (stack count) change, but the existing plain per-status override only replaces
+    // `duration` — it silently kept whichever occurrence's OWN `apply_count` happened to be first
+    // in raw fact order, which for all 3 was the WRONG (non-WvW) one. Fixed the same way as Seize
+    // the Moment/Found Purpose above: omit the non-WvW occurrences outright and let the WvW-correct
+    // tuple (which already exists as its own distinct raw fact, duration+apply_count together) pass
+    // through untouched rather than trying to express a duration-only correction.
+    473: {
+      // HGH (Alchemy). Wiki (`split = pve, wvw, pvp`): `{{skill fact|might|stacks=2|15|game mode =
+      // pve}}{{skill fact|might|stacks=2|10|game mode = pvp}}{{skill fact|might|stacks=3|8|game
+      // mode = wvw}}` — the old `wvw-fact-overrides.json` entry (`{Might: 8}`) replaced the FIRST
+      // raw fact's (pve, 15/2) duration with 8 but kept its apply_count of 2, showing "8s, 2
+      // stacks" instead of the real wvw "8s, 3 stacks". `Might@8@3` (the wvw fact itself) needs no
+      // entry, already correct as-is.
+      'Might@15@2': 'omit', // pve (15s/2 stacks)
+      'Might@10@2': 'omit' // pvp (10s/2 stacks)
+    },
+    2052: {
+      // Kinetic Accelerators (Scrapper). Wiki (`split = pve, wvw, pvp`): `{{skill fact|might|10|
+      // stacks=3|game mode = pve}}{{skill fact|might|5|stacks=2|game mode = wvw}}{{skill
+      // fact|might|8|stacks=3|game mode = pvp}}` — the old `wvw-fact-overrides.json` entry
+      // (`{Might: 5}`) replaced the FIRST raw fact's (pve, 10/3) duration with 5 but kept its
+      // apply_count of 3, showing "5s, 3 stacks" instead of the real wvw "5s, 2 stacks".
+      // `Might@5@2` (the wvw fact itself) needs no entry, already correct as-is.
+      'Might@10@3': 'omit', // pve (10s/3 stacks)
+      'Might@8@3': 'omit' // pvp (8s/3 stacks)
+    },
+    2064: {
+      // Photonic Blasting Module (Holosmith). Wiki (`split = pve, wvw, pvp`): `{{skill
+      // fact|burning|6|stacks=7|game mode = pve}}{{skill fact|burning|2|stacks=2|game mode = pvp
+      // wvw}}` — the old `wvw-fact-overrides.json` entry (`{Burning: 2}`) replaced the FIRST raw
+      // fact's (pve, 6/7) duration with 2 but kept its apply_count of 7, showing "2s, 7 stacks"
+      // instead of the real wvw+pvp "2s, 2 stacks". `Burning@2@2` (the wvw+pvp fact itself) needs
+      // no entry, already correct as-is.
+      'Burning@6@7': 'omit' // pve (6s/7 stacks)
+    },
+    2387: {
+      // New Genes (Amalgam). Wiki (`split = pve, wvw pvp`): `{{skill fact|Might|12|stacks=4|game
+      // mode = pve}}{{skill fact|Might|6|stacks=3|game mode = pvp wvw}}` — same duration+apply_count
+      // shape as the 3 entries above; previously assumed unfixable (same "`WvwFactOverride` can't
+      // express `apply_count` changes" limitation documented on the Warrior/Necromancer legs'
+      // Eviscerate/Falling Spider/Brutal Shot), but the wvw+pvp tuple already exists as its own
+      // distinct raw fact here too, so the same omit-the-other-occurrence trick applies. Worth
+      // rechecking those older "left open" cases with this trick on a future pass — not attempted
+      // here, out of this leg's scope. `Might@6@3` (the wvw+pvp fact itself) needs no entry,
+      // already correct as-is.
+      'Might@12@4': 'omit' // pve (12s/4 stacks)
     }
   }
 }

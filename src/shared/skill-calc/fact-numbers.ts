@@ -848,7 +848,240 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // damage from nearby enemies is reduced while the harp is playing in the background." Wiki:
   // `{{skill fact|Damage Reduced|10|game mode=pve}}` + `{{...|7|game mode=wvw pvp}}` — pve 10,
   // wvw+pvp 7.
-  2422: { 'Damage Reduced': 7 }
+  2422: { 'Damage Reduced': 7 },
+
+  // Engineer — 4th leg of the "remaining 8 professions" main sweep (TODO.md, 2026-08-20). Same
+  // process as the Guardian/Warrior/Mesmer legs above: scanned all 9 Engineer spec lines (5 core +
+  // Scrapper/Holosmith/Mechanist/Amalgam) for a Number/Percent/AttributeAdjust/Time label repeated
+  // more than once, wiki-verified each split, plus a separate Buff-type same-status scan (the
+  // Mesmer leg's own follow-up requirement). Sharpshooter (526, "Power Converted to Bleeding
+  // Damage" 4/4), Soothing Detonation (1834, "Healing" 340/340), and Mech Core: Barrier Engine
+  // (2281, "Barrier" 217/217) are genuinely-identical dupes needing no override (already collapse
+  // via this function's own `seen` dedup).
+  //
+  // Buff-type findings from this leg (see `wvw-fact-overrides.json`/`BUFF_INSTANCE_LABELS`/
+  // `BUFF_INSTANCE_VALUE_OVERRIDES` in `boon-calc/sources.ts` for the actual fixes, out of this
+  // table's scope): Incendiary Powder (433, Burning) and Serrated Steel (515, Bleeding) each carry
+  // only ONE raw Buff fact (the pve duration), wiki-confirmed already correctly overridden to the
+  // wvw+pvp duration by an earlier, broader sweep (commit feab9d4) — re-verified, not new this leg.
+  // Carbolic Composition (2383, Poisoned) turned out to be the same single-raw-fact shape but was
+  // NOT yet covered — confirms `WvwFactOverride` doesn't need a matching raw duplicate to fix this
+  // at all, it unconditionally REPLACES the single occurrence's duration; added a real
+  // `wvw-fact-overrides.json` entry for it despite there being no live wvw-valued duplicate to
+  // filter against. Also found and fixed 3 latent bugs in ALREADY-curated Engineer Buff
+  // overrides from an earlier sweep (HGH id 473, Kinetic Accelerators id 2052, Photonic Blasting
+  // Module id 2064): each has a plain per-status `WvwFactOverride` that only replaces `duration`,
+  // but the raw facts it's matching against ALSO have differing `apply_count` (stack count) across
+  // modes — the plain override kept the FIRST-encountered occurrence's own (wrong) apply_count,
+  // silently showing e.g. HGH's Might as "8s, 2 stacks" instead of the real wvw "8s, 3 stacks".
+  // Converted all 3 to `BUFF_INSTANCE_VALUE_OVERRIDES` entries instead (omit the wrong occurrences,
+  // let the wvw-correct tuple — which already exists as its OWN distinct raw fact with the right
+  // duration+apply_count pair together — pass through untouched). This same omit-the-others trick
+  // also resolved New Genes' (2387) Might pair, previously assumed unfixable ("`WvwFactOverride`
+  // can't express apply_count changes", the same limitation documented on Warrior/Necromancer-leg
+  // Eviscerate/Falling Spider/Brutal Shot): it turns out that limitation only blocks the *plain*
+  // per-status override, not the occurrence-indexed one, whenever the correct tuple already exists
+  // as its own raw fact rather than needing to be synthesized — worth rechecking those older
+  // "left open" cases with this same trick on a future pass, not attempted here (out of this leg's
+  // scope). 2 further real gaps found and deliberately left uncurated: Mech Frame: Channeling
+  // Conduits (2276) grants Alacrity in pve/pvp but swaps to Might entirely in wvw (both facts
+  // currently show unconditionally) — the same boon-type-swap shape `WvwFactOverride` can't express
+  // as Guardian's Phoenix Protocol; Crystal Configuration: Zephyr's (2091) apparent Crippled
+  // "duplicate" is a scan false positive (one fact is a condition-cleanse marker with no `duration`,
+  // already filtered out by `extractFromFacts` before reaching any override table — same shape as
+  // the Warrior leg's Knot Shot/Brutal Shot false positives).
+
+  // Compounding Chemicals (id 413, Alchemy Grandmaster minor): "Heal yourself when you grant
+  // yourself a boon. Remove a condition from yourself when you use an elixir skill. Gain increased
+  // concentration." Wiki: `{{skill fact|attribute|Concentration|240|game mode = pve}}` + `{{...|75|
+  // game mode = pvp wvw}}` (`AttributeAdjust`, no `text`, keyed by `target` "BoonDuration") — pve
+  // 240, wvw+pvp 75.
+  413: { BoonDuration: 75 },
+
+  // Incendiary Powder (id 433, Firearms Grandmaster major): "Burning you inflict on a target gains
+  // increased duration." Wiki: `{{skill fact|duration increase|33%|game mode = pve}}` + `{{...|10%|
+  // game mode = pvp wvw}}` — pve 33, wvw+pvp 10. (Its Burning duration itself is a separate,
+  // single-raw-fact Buff gap — see this table's own intro comment above.)
+  433: { 'Duration Increase': 10 },
+
+  // Serrated Steel (id 515, Firearms Adept minor): "Critical hits have a chance to cause bleeding.
+  // Bleeding you inflict gains increased duration." Wiki: `{{skill fact|duration increase|33%|game
+  // mode = pve}}` + `{{...|15%|game mode = pvp wvw}}` — pve 33, wvw+pvp 15. (Its Bleeding duration
+  // itself is a separate, single-raw-fact Buff gap — see this table's own intro comment above.)
+  515: { 'Duration Increase': 15 },
+
+  // Modified Ammunition (id 516, Firearms Grandmaster minor): "Deal increased strike damage for
+  // each condition on a foe." Wiki: `{{skill fact|damage increase|1|game mode=pve wvw}}` + `{{...|
+  // 2|game mode=pvp}}` — pve+wvw share 1, pvp alone rises to 2.
+  516: { 'Damage Increase': 1 },
+
+  // Hematic Focus (id 536, Firearms Master minor): "Gain fury when you inflict bleeding on an
+  // enemy. Fury gives an increased critical-strike chance." Wiki: `{{skill fact|critical chance
+  // increase|15|game mode=pve}}` + `{{...|10|game mode=pvp}}` + `{{...|5|game mode=wvw}}` — a
+  // genuine 3-way split, all distinct.
+  536: { 'Critical Chance Increase': 5 },
+
+  // Applied Force (id 1849, Scrapper Grandmaster major): "Gain stability when you gain might at or
+  // above the threshold. Might grants bonus power." Wiki: `{{skill fact|attribute|Power|30|game
+  // mode = pve}}` + `{{...|15|game mode = pvp}}` + `{{...|10|game mode = wvw}}` — a genuine 3-way
+  // split, all distinct.
+  1849: { Power: 10 },
+
+  // Chain Reactivity (id 1854, Alchemy Grandmaster major): "Gain barrier when you successfully
+  // finish a combo field with a leap or a blast. Every third successful finish grants you might and
+  // a larger barrier that is shared with allies." Wiki: `{{skill fact|barrier|alt=Ally Barrier|
+  // 1000|coefficient=0.2|game mode=pve pvp}}` + `{{...|500|coefficient=0.1|game mode=wvw}}` — pve+
+  // pvp share 1000, wvw alone drops to 500. Its other 2 Barrier facts (base 500, "Third-Trigger
+  // Barrier" 1500) and Might fact carry no split.
+  1854: { 'Ally Barrier': 500 },
+
+  // Object in Motion (id 1860, Scrapper Grandmaster minor): "Gain stability, swiftness, and
+  // superspeed when you dodge. Deal increased strike damage based on your boons." Wiki: `{{skill
+  // fact|damage increase|alt=Damage per Boon|5|game mode=pve pvp}}` + `{{...|3|game mode=wvw}}` —
+  // pve+pvp share 5 (the raw API lists this shared value twice, once per mode, same harmless
+  // over-listing as Righteous Instincts), wvw alone drops to 3.
+  1860: { 'Damage per Boon': 3 },
+
+  // Impact Savant (id 1877, Scrapper Master major): "Function Gyro converts a percentage of its
+  // remaining barrier into healing when it's destroyed or expires." Wiki: `{{skill fact|Barrier|
+  // alt=Conversion Percent|5%|game mode = pve}}` + `{{...|15%|game mode = wvw}}` + `{{...|10%|game
+  // mode = pvp}}` — a genuine 3-way split, wvw the high outlier.
+  1877: { 'Conversion Percent': 15 },
+
+  // Glass Cannon (id 1882, Explosives Grandmaster major): "Deal increased strike damage while above
+  // the health threshold." Wiki: `{{skill fact|damage increase|7|game mode=pve}}` + `{{...|10|game
+  // mode=pvp}}` + `{{...|5|game mode=wvw}}` — a genuine 3-way split, wvw the low outlier.
+  1882: { 'Damage Increase': 5 },
+
+  // High Caliber (id 1914, Firearms Master minor): "Deal increased critical-hit chance against foes
+  // above the range threshold." Wiki: `{{skill fact|Critical Chance Increase|15|game mode=pve
+  // pvp}}` + `{{...|10|game mode=wvw}}` — pve+pvp share 15, wvw alone drops to 10.
+  1914: { 'Critical Chance Increase': 10 },
+
+  // Medical Dispersion Field (id 1916, Inventions Grandmaster major): "Periodically heal nearby
+  // allies." Wiki: `{{skill fact|Healing|33%|game mode = pve}}` + `{{...|7%|game mode = wvw}}` +
+  // `{{...|17%|game mode = pvp}}` — a genuine 3-way split, wvw the low outlier.
+  1916: { Healing: 7 },
+
+  // Blast Shield (id 1944, Explosives Grandmaster major): "Grant barrier to nearby allies when you
+  // gain stability." Wiki: `{{skill fact|Barrier|1508|coefficient=0.25|game mode = pve}}` + `{{...|
+  // 340|coefficient=0.25|game mode = pvp wvw}}` (`AttributeAdjust`, `target: 'Healing'`) — pve
+  // 1508, wvw+pvp 340.
+  1944: { Barrier: 340 },
+
+  // Big Boomer (id 1947, Explosives Grandmaster major): "Elite skills deal increased strike damage
+  // and heal you." Wiki: `{{skill fact|damage increase|15|game mode = pve}}` + `{{...|10|game
+  // mode = wvw pvp}}` — pve 15, wvw+pvp 10. Its "Big Boomer" effect fact carries an embedded pve-
+  // 606/wvw+pvp-303 heal sub-value via the wiki's `desc=` param, not expressible through this table
+  // (or `WvwFactOverride`) — same "can't express an embedded sub-value" shape as Warrior's Peak
+  // Performance, left as a documented gap.
+  1947: { 'Damage Increase': 10 },
+
+  // System Shocker (id 1971, Scrapper Adept major): "Disabling a foe grants barrier to nearby
+  // allies. Your function gyro dazes foes when cast." Wiki: `{{skill fact|barrier|724|
+  // coefficient=0.11|game mode = pve wvw}}` + `{{...|362|coefficient=0.11|game mode = pvp}}`
+  // (`AttributeAdjust`, `target: 'Healing'`) — pve+wvw share 724, pvp alone drops to 362.
+  1971: { Barrier: 362 },
+
+  // Juggernaut (id 1984, Firearms Master major): "Gain might while wielding a flamethrower. Might
+  // applied to you gains increased duration. Napalm grants you stability and a fire aura." Wiki:
+  // `{{skill fact|Duration Increase|20%|game mode = pve}}` + `{{...|10%|game mode = pvp wvw}}` —
+  // pve 20, wvw+pvp 10. Its Might Buff dupe (12/6) is already covered by the separate
+  // `wvw-fact-overrides.json` script (`trait[1984]`).
+  1984: { 'Duration Increase': 10 },
+
+  // Thermal Vision (id 2006, Firearms Master major): "Gain expertise. Increase your outgoing
+  // condition damage when you inflict burning." Wiki: `{{skill fact|attribute|Expertise|150|game
+  // mode = pve}}` + `{{...|60|game mode = pvp wvw}}` (`AttributeAdjust`, no `text`, keyed by
+  // `target` "ConditionDuration" — the API's literal string for the Expertise-attribute concept,
+  // same non-obvious naming as Mesmer's Chaotic Persistence) — pve 150, wvw+pvp 60.
+  2006: { ConditionDuration: 60 },
+
+  // Laser's Edge (id 2122, Holosmith Grandmaster minor): "While Photon Forge is active, your
+  // outgoing strike damage is increased based on your current heat." Wiki: `{{skill fact|damage
+  // increase|alt=Maximum Damage Increase|15|game mode=pve pvp}}` + `{{...|10|game mode=wvw}}` —
+  // pve+pvp share 15, wvw alone drops to 10.
+  2122: { 'Maximum Damage Increase': 10 },
+
+  // Heat Therapy (id 2135, Holosmith Master minor): "Gain health per unit of heat lost." Wiki:
+  // `{{skill fact|healing|65|alt=Heal per unit of heat|coefficient=0.006|game mode=pve}}` + `{{...|
+  // 39|...|game mode=wvw pvp}}` — pve 65, wvw+pvp 39.
+  2135: { 'Heal per unit of heat': 39 },
+
+  // Crystal Configuration: Eclipse (id 2152, Holosmith Master major): "Corona Burst grants a
+  // barrier for each target struck." Wiki: `{{skill fact|barrier|alt=Barrier on First Hit|2256|
+  // coefficient=0.115|game mode = pve}}` + `{{...|1804|...|game mode = pvp wvw}}` — pve 2256,
+  // wvw+pvp 1804.
+  2152: { 'Barrier on First Hit': 1804 },
+
+  // Mech Fighter (id 2266, Mechanist Master minor): "Your mech gains a greater percentage of your
+  // own toughness and vitality stats." Wiki: `{{skill fact|Toughness and Vitality Inherited by
+  // Mech|100%|game mode = pve wvw}}` + `{{...|50%|game mode = pvp}}` — pve+wvw share 100, pvp alone
+  // drops to 50.
+  2266: { 'Toughness and Vitality Inherited by Mech': 100 },
+
+  // Mech Frame: Conductive Alloys (id 2270, Mechanist Master major): "Your mech gains a greater
+  // percentage of your own condition damage and expertise stats." Wiki: `{{skill fact|Condition
+  // Damage Inherited by Mech|100%|game mode=pve wvw}}` + `{{...|80%|game mode=pvp}}`, `{{skill
+  // fact|Expertise Inherited by Mech|100%|game mode=pve wvw}}` + `{{...|80%|game mode=pvp}}` — 2
+  // independently-ambiguous labels, both pve+wvw 100 / pvp 80.
+  2270: { 'Condition Damage Inherited by Mech': 100, 'Expertise Inherited by Mech': 100 },
+
+  // Mech Frame: Channeling Conduits (id 2276, Mechanist Master major): "Your mech gains a greater
+  // percentage of your concentration and healing power stats." Wiki: `{{skill fact|Concentration
+  // Inherited by Mech|150%|game mode=pve}}` + `{{...|80%|game mode=pvp wvw}}`, `{{skill
+  // fact|Healing Power Inherited by Mech|100%|game mode=pve}}` + `{{...|80%|game mode=pvp wvw}}` —
+  // 2 independently-ambiguous labels, both pve-high/wvw+pvp-low. This trait's Alacrity/Might
+  // boon-type swap (see this table's own intro comment above) is a separate, deliberately
+  // uncurated gap.
+  2276: { 'Concentration Inherited by Mech': 80, 'Healing Power Inherited by Mech': 80 },
+
+  // Mech Arms: Jade Cannons (id 2279, Mechanist Adept major): "Melee attacks become ranged, have an
+  // increased chance to critically hit, and apply vulnerability." Wiki: `{{skill fact|critical
+  // chance increase|20|game mode=pve}}` + `{{...|5|game mode=wvw pvp}}` — pve 20, wvw+pvp 5.
+  2279: { 'Critical Chance Increase': 5 },
+
+  // Mechanical Genius (id 2291, Mechanist Adept minor): "Your mech inherits a percentage of all of
+  // your combat attributes except precision, which is added to its own." Wiki: `{{skill fact|All
+  // Stats Inherited by Mech|50%|game mode = pve wvw}}` + `{{...|30%|game mode = pvp}}` — pve+wvw
+  // share 50, pvp alone drops to 30.
+  2291: { 'All Stats Inherited by Mech': 50 },
+
+  // Mech Frame: Variable Mass Distributor (id 2294, Mechanist Master major): "Your mech gains a
+  // greater percentage of your own precision stats." Wiki: `{{skill fact|Precision Inherited by
+  // Mech|100%|game mode=pve wvw}}` + `{{...|80%|game mode=pvp}}` — pve+wvw share 100, pvp alone
+  // drops to 80.
+  2294: { 'Precision Inherited by Mech': 100 },
+
+  // Double Helix (id 2334, Amalgam Grandmaster major): "Evolve has two charges and grants an
+  // increased attribute bonus." Wiki: `{{skill fact|Effectiveness Increased|100%|game mode=pve}}` +
+  // `{{...|20%|game mode=wvw pvp}}` — pve 100, wvw+pvp 20. Its embedded per-attribute "Evolved"
+  // effect bonus (20%/12%) is a `missing facts` entry absent from the local API data entirely,
+  // same "documented on the wiki, absent from the API" shape as other loose ends in this table.
+  2334: { 'Effectiveness Increased': 20 },
+
+  // Stainless Steel (id 2366, Amalgam Adept major): "Convert conditions to boons when you use a
+  // stance skill or evolve." Wiki: `{{skill fact|Conditions Converted to Boons|alt=Conditions
+  // Converted on Stance|2|game mode=pve}}` + `{{...|1|game mode=wvw pvp}}` — pve 2, wvw+pvp 1. Its
+  // "Conditions Converted on Evolve" fact (2, unsplit) is a different label.
+  2366: { 'Conditions Converted on Stance': 1 },
+
+  // Carbolic Composition (id 2383, Amalgam Master major): "Amalgam skills inflict poison on hit.
+  // Poison you inflict lasts longer." Wiki: `{{skill fact|duration increase|33%|game mode=pve}}` +
+  // `{{...|10%|game mode=wvw pvp}}` — pve 33, wvw+pvp 10. (Its Poisoned duration itself is a
+  // separate, single-raw-fact Buff gap — see this table's own intro comment above.)
+  2383: { 'Duration Increase': 10 },
+
+  // Hybrid Vigor (id 2389, Amalgam Master minor): "Gain vitality. Gain barrier when you use a morph
+  // skill." Wiki: `{{skill fact|barrier|1295|coefficient=0.1|game mode=pve}}` + `{{...|783|
+  // coefficient=0.1|game mode=wvw}}` + `{{...|623|coefficient=0.1|game mode=pvp}}`
+  // (`AttributeAdjust`, `target: 'Healing'`) — a genuine 3-way split, all distinct.
+  2389: { Barrier: 783 },
+
+  // Symbiotic Synergy (id 2406, Amalgam Grandmaster major): "Evolve recharges morph skills. Morph
+  // skills deal increased strike damage." Wiki: `{{skill fact|damage increase|33|game mode=pve}}` +
+  // `{{...|10|game mode=wvw pvp}}` — pve 33, wvw+pvp 10.
+  2406: { 'Damage Increase': 10 }
 }
 
 /**
