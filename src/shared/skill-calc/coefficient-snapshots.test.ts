@@ -7,6 +7,7 @@ import { TARGET_ARMOR_VALUES } from '../gear-calc/combat-state'
 import { CURATED_HEALING_COEFFICIENTS, healingLinesForSkill, type HealingLine } from './healing-calc'
 import { CURATED_DAMAGE_COEFFICIENTS, damageLinesForSkill, type DamageLine } from './damage-calc'
 import { CURATED_BARRIER_COEFFICIENTS, barrierLinesForSkill, type BarrierLine } from './barrier-calc'
+import { CURATED_SIPHON_DAMAGE_COEFFICIENTS, siphonDamageLinesForSkill, type SiphonDamageLine } from './siphon-damage-calc'
 import { GUNSABER_SKILLS } from './gunsaber-skills'
 import { DRAGON_SLASH_RIVERS_FLOW_SKILLS, DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS, DRAGON_SLASH_SKILLS } from './dragon-slash-skills'
 
@@ -86,7 +87,8 @@ function traitIdsIn(table: Record<number, { requiresTrait?: number }[]>): number
 const ALL_REFERENCE_TRAIT_IDS = new Set<number>([
   ...traitIdsIn(CURATED_HEALING_COEFFICIENTS),
   ...traitIdsIn(CURATED_DAMAGE_COEFFICIENTS),
-  ...traitIdsIn(CURATED_BARRIER_COEFFICIENTS)
+  ...traitIdsIn(CURATED_BARRIER_COEFFICIENTS),
+  ...traitIdsIn(CURATED_SIPHON_DAMAGE_COEFFICIENTS)
 ])
 
 /** Looks up every curated id in `skills.json`, failing loudly (not silently skipping) if one is
@@ -123,6 +125,13 @@ describe('golden snapshot fixtures — wiki-verified coefficient tables (TODO.md
   it('CURATED_BARRIER_COEFFICIENTS produces stable Barrier lines at a fixed reference build', () => {
     const snapshot = snapshotFor<BarrierLine>(CURATED_BARRIER_COEFFICIENTS, (skill) =>
       barrierLinesForSkill(skill, REFERENCE_HEALING_POWER, ALL_REFERENCE_TRAIT_IDS)
+    )
+    expect(snapshot).toMatchSnapshot()
+  })
+
+  it('CURATED_SIPHON_DAMAGE_COEFFICIENTS produces stable Life Siphon Damage lines at a fixed reference build', () => {
+    const snapshot = snapshotFor<SiphonDamageLine>(CURATED_SIPHON_DAMAGE_COEFFICIENTS, (skill) =>
+      siphonDamageLinesForSkill(skill, REFERENCE_POWER, ALL_REFERENCE_TRAIT_IDS)
     )
     expect(snapshot).toMatchSnapshot()
   })

@@ -2,6 +2,46 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 263 — Life Siphon Damage sweep: new `CURATED_SIPHON_DAMAGE_COEFFICIENTS` table
+
+Closes TODO.md's "Life Siphon Damage" nice-to-have. New `siphon-damage-calc.ts` generalizes the
+`AttributeAdjust`/`target: 'Power'` formula (`Damage = baseValue + coefficient * Power`) Cosmic
+Wisdom's `LegendFormEffectDetail`'s `'siphonDamage'` kind introduced 2026-08-20 into a normal
+per-skill `CURATED_SIPHON_DAMAGE_COEFFICIENTS` table, mirroring `CURATED_HEALING_COEFFICIENTS`/
+`CURATED_BARRIER_COEFFICIENTS` exactly (same `factText`/`requiresTrait` matching, same
+`requires_trait` gating), wired into `skillFactLines`/`realValueLine` alongside the existing 3
+tables, plus a new Tier 2 golden-snapshot test in `coefficient-snapshots.test.ts`.
+
+A fresh `skills.json` scan found 14 candidate skill ids (27 facts, matching the TODO item's own
+estimate; one apparent 15th candidate, `Blood Frenzy` id 12424, turned out to be an unreachable
+`Monster`-type skill with no `professions` and an undefined fact value — not real). Researched via
+each skill's own raw wikitext. Of the 14, only 4 landed in the table — Soulcleave's Summit,
+Hungering Maelstrom, Soul Shards, Xinrae's Weapon — each because this app's own API-sourced
+`baseValue` matches the wiki's own quoted number for the WvW-correct mode exactly or within a
+negligible 1-point rounding gap. The other 10 stayed uncurated, each for a documented reason (see
+`siphon-damage-calc.ts`'s own top comment for the full breakdown):
+- **3 wiki/API value mismatches** (Locust Swarm, Signet of Vampirism, Enchanted Daggers) — every
+  mismatched pair reconciles exactly under `wikiQuoted = apiRaw + coefficient * 1000`, suspiciously
+  clean, but no other curated table in this codebase has ever used such an adjustment and 3 sibling
+  skills on the identical wiki template show zero such offset — a real, unresolved per-page
+  inconsistency, not a formula that can be trusted without an actual in-game reference (not
+  available in this environment). Flagged the existing Cosmic Wisdom Assassin-form entry
+  (`baseValue: 1028`) as a possible instance of this same issue for a future session to verify —
+  not touched here.
+- **2 explicit wiki stub tags** missing a coefficient entirely (Death Spiral, Nightmare Weapon) plus
+  Vampiric Slash's own stub ("Need better calculation") stacked on the same wiki/API mismatch shape.
+- **1 different formula shape** (Soul Grasp) — wiki's own template uses `weapon=focus` with no
+  literal base number, the weapon-strength shape `CURATED_DAMAGE_COEFFICIENTS` models, not this
+  table's; the API still mislabels the fact `AttributeAdjust`/`target: 'Power'` though, so neither
+  table can reach it without new routing (same shape as Barrier's own API-mislabeling problem).
+- **3 structurally unreachable** — Grim Specter is a genuine dead orphan id (no profession, no
+  trait/skill reference anywhere); Carnivore/Replenishing Despair are each a major trait's own
+  "effect skill" (Ranger trait 1094 / Necromancer trait 1741) — a shared-trait-formula shape this
+  skill-id-keyed table can't reach, same exclusion already applied to Thief's Assassin's Reward in
+  `CURATED_HEALING_COEFFICIENTS`.
+
+`npm run typecheck` clean, full `vitest run` (276 tests, all green) including the new snapshot.
+
 ## Session 262 — Settings tab 2-column layout
 
 Closes TODO.md's UI/UX polish section entirely (Builds and Squads tabs were already done; this was

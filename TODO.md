@@ -283,21 +283,6 @@ that before extending either further.
 
 ## Nice-to-haves
 
-- [ ] Life Siphon Damage (`AttributeAdjust`/`target: 'Power'` facts — `baseValue + coefficient *
-      Power`, the damage-side counterpart of `CURATED_HEALING_COEFFICIENTS`'s formula, new
-      infra built 2026-08-20 for Cosmic Wisdom's Assassin form only, see COMPLETED.md Session 255)
-      is a real, recurring uncurated shape: a scan found 27 facts across ~15 skills
-      (Locust Swarm, Grim Specter, Signet of Vampirism, Enchanted Daggers/26937 itself, Death
-      Spiral, Soulcleave's Summit, Soul Grasp, Hungering Maelstrom, Carnivore, Vampiric Slash, Soul
-      Shards, Replenishing Despair, Nightmare Weapon, Xinrae's Weapon) with zero real-value display
-      today (only the generic unscaled reference-value fallback). The formula/infra now exists
-      (`boon-calc/sources.ts`'s `LegendFormEffectDetail`/`formatLegendFormEffectDetail`, currently
-      scoped narrowly to `LEGEND_FORM_EFFECT_DETAILS`) — extending it into a proper
-      `CURATED_SIPHON_DAMAGE_COEFFICIENTS` table wired through `skillFactLines` (mirroring
-      `CURATED_DAMAGE_COEFFICIENTS`/`CURATED_HEALING_COEFFICIENTS`) would let a normal wiki-curation
-      sweep cover these 15 skills, same category-sweep shape as the Healing/Damage sweeps already
-      done. Not attempted — only the one Cosmic Wisdom case was in scope.
-
 - [ ] Gear Optimizer's rune/infusion search (2026-08-11, see COMPLETED.md) adds up to ~18 extra
       per-slot infusion search variables + 1 rune slot on top of the existing ~12-14 gear/food/
       utility slots — a synthetic stress case (2 floors, 3 maximize tiers, food/utility AND

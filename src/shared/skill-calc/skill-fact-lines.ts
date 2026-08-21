@@ -3,6 +3,7 @@ import { factLine, type FactLine } from './fact-numbers'
 import { healingLinesForSkill } from './healing-calc'
 import { barrierLinesForSkill } from './barrier-calc'
 import { damageLinesForSkill } from './damage-calc'
+import { siphonDamageLinesForSkill } from './siphon-damage-calc'
 
 /**
  * Curated per-skill overrides for `Percent`-type facts the GW2 API duplicates once per game mode
@@ -56,12 +57,16 @@ function realValueLine(
   fact: Fact,
   damageByLabel: Map<string, number>,
   healingByLabel: Map<string, number>,
-  barrierByLabel: Map<string, number>
+  barrierByLabel: Map<string, number>,
+  siphonDamageByLabel: Map<string, number>
 ): FactLine | null {
   if (typeof fact.text !== 'string') return null
   const icon = fact.icon ?? null
   if (fact.type === 'Damage' && damageByLabel.has(fact.text)) {
     return { icon, text: `${fact.text}: ${damageByLabel.get(fact.text)!.toLocaleString()}` }
+  }
+  if (fact.type === 'AttributeAdjust' && fact.target === 'Power' && siphonDamageByLabel.has(fact.text)) {
+    return { icon, text: `${fact.text}: ${siphonDamageByLabel.get(fact.text)!.toLocaleString()}` }
   }
   if (fact.type === 'AttributeAdjust' && fact.target === 'Healing') {
     // Barrier is a different resource bar than Health, checked first since the GW2 API mislabels
@@ -80,19 +85,22 @@ function realValueLine(
 
 /**
  * Skill-tooltip counterpart to `fact-numbers.ts`'s `numericFactLines` — same per-fact walk and
- * `requires_trait` gating, except a `Damage`/`AttributeAdjust`-Healing fact this skill has a
- * wiki-verified coefficient for (`CURATED_DAMAGE_COEFFICIENTS`/`CURATED_HEALING_COEFFICIENTS`/
- * `CURATED_BARRIER_COEFFICIENTS`, matched by exact fact `text`) renders its real current-build-scaled
- * number instead of `numericFactLines`' generic hit-count/reference-base-value placeholder. Labeled
- * by the fact's own `text` (e.g. "Front Damage"/"Back damage", or a Barrier skill's own "Self
- * Barrier"/"Ally Barrier") rather than the generic formatter's hardcoded "Damage:" prefix, so a
- * curated multi-fact skill (e.g. Backstab, or a skill with both a Healing and a Barrier fact like
- * Necromancer's Sand Flare) renders one distinct line per fact instead of collapsing into a single
- * deduplicated placeholder the generic path would produce. Barrier gets its own tooltip line rather
- * than being folded into Healing's — different resource bar, see `barrier-calc.ts`'s own top comment
- * for why the GW2 API makes that distinction non-obvious. Only used for skills, not traits
- * (`TraitsEditor.tsx` keeps using `numericFactLines` directly) — all 3 curated tables are keyed by
- * skill id only, so a trait fact never has a real-value match here anyway.
+ * `requires_trait` gating, except a `Damage`/`AttributeAdjust`-Healing/`AttributeAdjust`-Power fact
+ * this skill has a wiki-verified coefficient for (`CURATED_DAMAGE_COEFFICIENTS`/
+ * `CURATED_HEALING_COEFFICIENTS`/`CURATED_BARRIER_COEFFICIENTS`/`CURATED_SIPHON_DAMAGE_COEFFICIENTS`,
+ * matched by exact fact `text`) renders its real current-build-scaled number instead of
+ * `numericFactLines`' generic hit-count/reference-base-value placeholder. Labeled by the fact's own
+ * `text` (e.g. "Front Damage"/"Back damage", or a Barrier skill's own "Self Barrier"/"Ally Barrier")
+ * rather than the generic formatter's hardcoded "Damage:" prefix, so a curated multi-fact skill (e.g.
+ * Backstab, or a skill with both a Healing and a Barrier fact like Necromancer's Sand Flare) renders
+ * one distinct line per fact instead of collapsing into a single deduplicated placeholder the generic
+ * path would produce. Barrier gets its own tooltip line rather than being folded into Healing's —
+ * different resource bar, see `barrier-calc.ts`'s own top comment for why the GW2 API makes that
+ * distinction non-obvious; Life Siphon Damage similarly gets its own line rather than folding into
+ * the ordinary weapon-Damage one — a genuinely different fact TYPE (`AttributeAdjust`, not `Damage`),
+ * see `siphon-damage-calc.ts`'s own top comment. Only used for skills, not traits (`TraitsEditor.tsx`
+ * keeps using `numericFactLines` directly) — all 4 curated tables are keyed by skill id only, so a
+ * trait fact never has a real-value match here anyway.
  */
 export function skillFactLines(
   skill: Skill,
@@ -104,6 +112,7 @@ export function skillFactLines(
   const damageByLabel = new Map(damageLinesForSkill(skill, power, targetArmor, activeIds).map((l) => [l.label, l.value]))
   const healingByLabel = new Map(healingLinesForSkill(skill, healingPower, activeIds).map((l) => [l.label, l.value]))
   const barrierByLabel = new Map(barrierLinesForSkill(skill, healingPower, activeIds).map((l) => [l.label, l.value]))
+  const siphonDamageByLabel = new Map(siphonDamageLinesForSkill(skill, power, activeIds).map((l) => [l.label, l.value]))
 
   const lines: FactLine[] = []
   const seen = new Set<string>()
@@ -111,7 +120,7 @@ export function skillFactLines(
     if (rawFact.requires_trait != null && !activeIds.has(rawFact.requires_trait)) continue
     const fact = applyCuratedPercentOverride(rawFact, skill.id)
     if (!fact) continue
-    const line = realValueLine(fact, damageByLabel, healingByLabel, barrierByLabel) ?? factLine(fact)
+    const line = realValueLine(fact, damageByLabel, healingByLabel, barrierByLabel, siphonDamageByLabel) ?? factLine(fact)
     if (line && !seen.has(line.text)) {
       seen.add(line.text)
       lines.push(line)

@@ -8292,3 +8292,32 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
   ],
 }
 `;
+
+exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md Tier 2) > CURATED_SIPHON_DAMAGE_COEFFICIENTS produces stable Life Siphon Damage lines at a fixed reference build 1`] = `
+{
+  "45773": [
+    {
+      "label": "Life Siphon Damage",
+      "value": 425,
+    },
+  ],
+  "71813": [
+    {
+      "label": "Life Siphon Damage",
+      "value": 1777,
+    },
+  ],
+  "73108": [
+    {
+      "label": "Siphon Damage",
+      "value": 701,
+    },
+  ],
+  "76941": [
+    {
+      "label": "Life Siphon Damage",
+      "value": 1014,
+    },
+  ],
+}
+`;
