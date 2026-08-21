@@ -3240,6 +3240,30 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // itself) needs no entry, already correct as-is.
       'Might@12@10': 'omit', // pve (12s/10 stacks)
       'Might@6@4': 'omit' // pvp (6s/4 stacks)
+    },
+
+    // Elementalist leg (7th leg of the "remaining 8 professions" main WvW-duplicate sweep, TODO.md,
+    // 2026-08-20) — 2 latent apply_count bugs found in ALREADY-curated Elementalist overrides
+    // predating this leg (Electric Discharge id 222, Burning Rage id 325), same "plain per-status
+    // override only replaces duration, not apply_count" shape as every prior leg's findings.
+    222: {
+      // Electric Discharge (Air). Wiki (`split = pve, wvw pvp`): `{{skill fact|vulnerability|8|
+      // game mode = pve}}{{skill fact|vulnerability|6|stacks=8|game mode=wvw pvp}}` — the old
+      // `wvw-fact-overrides.json` entry (`{Vulnerability: 6}`) replaced the FIRST raw fact's (pve,
+      // 8s/1 stack) duration with 6 but kept its apply_count of 1, showing "6s, 1 stack" instead of
+      // the real wvw+pvp "6s, 8 stacks". `Vulnerability@6@8` (the wvw+pvp fact itself) needs no
+      // entry, already correct as-is.
+      'Vulnerability@8@1': 'omit' // pve (8s/1 stack)
+    },
+    325: {
+      // Burning Rage (Fire). Wiki (`split = pve, wvw pvp`): `{{skill fact|Burning|4|stacks=2|game
+      // mode = pve}}{{skill fact|Burning|4|game mode = pvp wvw}}` — same duration (4) both modes,
+      // only the stack count differs (2 pve / 1 wvw+pvp), so the old `wvw-fact-overrides.json`
+      // entry (`{Burning: 4}`) looked like a no-op duration replacement but still carried the bug:
+      // it kept the FIRST occurrence's own apply_count (2, pve) instead of the real wvw+pvp "4s, 1
+      // stack" — same underlying shape as Bountiful Theft's Might (Thief leg). `Burning@4@1` (the
+      // wvw+pvp fact itself) needs no entry, already correct as-is.
+      'Burning@4@2': 'omit' // pve (4s/2 stacks)
     }
   }
 }

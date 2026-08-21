@@ -279,8 +279,38 @@ a `target`-field fallback for `AttributeAdjust` facts with no `text` — see bel
       end verified via a standalone script against the real `numericFactLines`/
       `boonConditionFactsForTrait` (Electron sandbox still blocks visual verification).
 
-      Remaining 2 professions (Elementalist, Necromancer) still open. Do one profession-leg, then
-      check in (see `pacing_large_sweeps` memory).
+      **Elementalist — done 2026-08-20** (7th leg). Same process, all 9 spec lines (5 core +
+      Tempest/Weaver/Catalyst/Evoker) / 111 traits scanned for both numeric AND Buff-type same-status
+      dupes. 18 traits curated into `NUMERIC_FACT_WVW_OVERRIDES` (Elementalist block,
+      `fact-numbers.ts`), surfacing 2 shapes worth flagging: Aquamancer's Training (1676) hit the
+      "pve wvw, pvp" split direction first seen on the Thief leg (pve+wvw share 20%, pvp alone drops
+      to 15%); Pyromancer's Training (319), Stormsoul (1502), and Piercing Shards (363) hit the rare
+      "WvW/PvP higher than PvE" shape (a 2026-04-14 patch reduced only the PvE value, same shape as
+      Guardian's Amplified Wrath). Elemental Bastion's (1986) 3-way Healing split (522 pve/391
+      wvw/391 pvp) and Earthen Blast's (279) genuine `pve wvw, pvp` Barrier split (1302 shared,
+      picked over the naive "2nd value" 800) both resolved cleanly. Buff-side: found and fixed 2
+      latent apply_count bugs in ALREADY-curated Elementalist overrides predating this leg (Electric
+      Discharge id 222, Burning Rage id 325), same "plain per-status override only replaces
+      duration, not apply_count" shape as every prior leg's findings, converted both to
+      `BUFF_INSTANCE_VALUE_OVERRIDES`. Re-verified 5 already-curated Buff overrides (Elemental
+      Shielding 289, Hardy Conduit 1948, Invigorating Torrents 2015, Superior Elements' own Weakness
+      pair 2177, Bountiful Power's own Quickness pair 1511) against fresh wiki wikitext — no bugs
+      found. 1 real gap left deliberately uncurated: Energized Elements (2224) grants Fury in pve but
+      swaps entirely to Might in wvw+pvp, the same boon-type-swap shape `WvwFactOverride`/
+      `BUFF_INSTANCE_VALUE_OVERRIDES` can't express as Guardian's Phoenix Protocol/Ranger's
+      Cloudburst (pre-existing `Fury: 'omit'` entry, unchanged). Galvanic Enchantment's (2335)
+      apparent Electric Enchantment dupe looked fixable but "Electric Enchantment" isn't a
+      recognized boon/condition name at all, so no override was added (would be dead code, same
+      shape as Ranger's Natural Balance/Conduit's Bolstered Bonds); Lucid Singularity's (2033)
+      apparent Alacrity/Might dupes are a scan false positive, already fully resolved and labeled by
+      the 2026-08-14 buff-instance-label sweep as 4 genuinely distinct concepts, not a mode split.
+      One with Air's (224) Superspeed pair and Bountiful Power's (1511) "Bountiful Power"
+      marker/timed-effect pair are genuinely-identical/genuinely-different-concept scan false
+      positives needing no override. End-to-end verified via a standalone script against the real
+      `numericFactLines`/`boonConditionFactsForTrait`. Typecheck + full test suite (276 tests) pass.
+
+      Remaining 1 profession (Necromancer) still open. Do the leg, then check in (see
+      `pacing_large_sweeps` memory).
 
 - [ ] **Corruption stat undercounts real "boon corrupt" sources.** `BOON_STRIP_CORRUPT_MATCHERS.Corrupt`
       only matches `Number`-type facts whose text matches `/boons? converted/i`. Confirmed via

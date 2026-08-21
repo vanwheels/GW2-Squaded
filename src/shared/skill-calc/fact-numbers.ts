@@ -1533,7 +1533,64 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // `{{...|1|game mode=wvw pvp}}` — 3 independently-ambiguous labels, all pve-high/wvw-low by the
   // same ratio. Its Barrier gap (missing wvw/pvp values from the API entirely) is documented in
   // this table's own Thief-leg intro comment above.
-  2362: { 'Damage Reduced': 3, 'Condition Damage Reduced': 3, Initiative: 1 }
+  2362: { 'Damage Reduced': 3, 'Condition Damage Reduced': 3, Initiative: 1 },
+
+  // Elementalist — 7th leg of the "remaining 8 professions" main WvW-duplicate sweep (TODO.md,
+  // 2026-08-20). Same process as every prior leg: scanned all 9 Elementalist spec lines (5 core +
+  // Tempest/Weaver/Catalyst/Evoker) / 111 traits for both numeric AND Buff-type same-label dupes.
+  // 1 trait hit the "pve wvw, pvp" split direction first surfaced on the Thief leg — Aquamancer's
+  // Training (1676, pve+wvw share 20%, pvp alone drops to 15%) — worth re-checking every "2nd raw
+  // value = wvw" assumption against the page's own `split=` field, same lesson as that leg. Galvanic
+  // Enchantment (2335) LOOKED like the same shape on a raw-fact-only read (its "Electric Enchantment"
+  // status pve+wvw/pvp pair genuinely splits 2 stacks/1 stack), but "Electric Enchantment" isn't a
+  // recognized boon/condition name at all — `classifyBoonCondition` gates it out before any override
+  // table is ever consulted, same "custom effect-status the boon/condition pipeline structurally
+  // can't see" shape as Ranger's Natural Balance/Conduit's Bolstered Bonds — no override added
+  // (would be dead code); its separate, genuinely-unsplit Burning fact needs no fix either. 3 traits
+  // (Pyromancer's Training id 319, Stormsoul id 1502, Piercing Shards id 363) hit the rare
+  // "WvW/PvP higher than PvE" shape (a 2026-04-14 patch reduced the PvE-only value, same shape as
+  // Guardian's Amplified Wrath) — Pyromancer's Training/Stormsoul went UP to 10% in wvw+pvp (pve cut
+  // to 7%), Piercing Shards went DOWN to 5% (pve cut to 7% too, but wvw+pvp's own 5% predates that
+  // patch and stayed put). Elemental Bastion's (1986) 3-way Healing split (522 pve / 391 wvw / 391
+  // pvp, a live API AttributeAdjust triple) collapses cleanly since `numericFactLines` dedupes by
+  // displayed text — no per-occurrence handling needed, unlike the Buff mechanism's apply_count
+  // pitfall. Earthen Blast's (279) Barrier fact is genuinely `pve wvw, pvp` (1302 shared by pve+wvw,
+  // 800 pvp-only) — picked 1302, not the naively-assumed "2nd value" 800. 1 fact type (`Damage`,
+  // Electric Discharge's weapon-coefficient pair) stayed out of scope entirely — this table only
+  // covers Number/Percent/AttributeAdjust/Time, `Damage`-type dmg_multiplier dupes belong to a
+  // separate, never-built curation mechanism. Buff-side findings (2 latent apply_count bugs, Electric
+  // Discharge id 222 + Burning Rage id 325) are in `BUFF_INSTANCE_VALUE_OVERRIDES.trait` instead —
+  // see its own Elementalist-leg comment. 1 real gap left deliberately uncurated: Energized
+  // Elements (2224) grants Fury in pve but swaps entirely to Might in wvw+pvp, the same
+  // boon-type-swap shape `WvwFactOverride`/`BUFF_INSTANCE_VALUE_OVERRIDES` can't express as
+  // Guardian's Phoenix Protocol/Ranger's Cloudburst (pre-existing `Fury: 'omit'` entry, unchanged
+  // this leg). Lucid Singularity's (2033) apparent Alacrity/Might dupes are a scan false positive —
+  // already fully resolved and labeled by the 2026-08-14 buff-instance-label sweep as 4 genuinely
+  // distinct concepts (2 real pve-only Alacrity applications, 2 real wvw+pvp-only Might
+  // applications), not a mode split at all. One with Air's (224) Superspeed pair and Bountiful
+  // Power's (1511) "Bountiful Power" marker/timed-effect pair are genuinely-identical/genuinely-
+  // different-concept scan false positives needing no override, same shape as prior legs' own
+  // findings. Elemental Shielding (289), Hardy Conduit (1948), Invigorating Torrents (2015), and
+  // Superior Elements' (2177) own Weakness pair were already correctly curated by an earlier sweep —
+  // re-verified against fresh wiki wikitext this leg, no bugs found.
+  277: { 'Endurance Gained': 5 },
+  279: { Barrier: 1302 },
+  296: { 'Duration Increase': 15 },
+  319: { 'Damage Increase': 10 },
+  334: { 'Stack Threshold': 8 },
+  351: { Healing: 1042 },
+  363: { 'Damage Increase': 5 },
+  1487: { Healing: 220 },
+  1502: { 'Damage Increase': 10 },
+  1675: { 'Power Converted to Burning Damage': 6 },
+  1676: { 'Effectiveness Increased': 20 },
+  1938: { BoonDuration: 120 },
+  1986: { Healing: 391 },
+  2004: { BoonDuration: 120 },
+  2077: { Barrier: 260 },
+  2177: { 'Critical Chance Increase': 15 },
+  2224: { 'Energy Gain': 3 },
+  2437: { 'Empowered Skill Recharge': 20 }
 }
 
 /**
