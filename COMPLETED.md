@@ -2,6 +2,42 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 266 — `AttributeAdjust` WvW-duplicate dedup: 3rd fact shape added to `NUMERIC_FACT_WVW_OVERRIDES`
+
+Infra leg of the 2026-08-20-scoped trait/skill data-correctness pass (TODO.md), agreed to land
+before the main 8-profession sweep so one pass can catch all 3 duplicate-fact shapes at once.
+
+- `numericFactLines`/`NUMERIC_FACT_WVW_OVERRIDES` (`fact-numbers.ts`) previously only filtered
+  `Number`/`Percent` facts against a wiki-sourced WvW-correct value; `AttributeAdjust` facts
+  (base-stat-adjust facts like life-siphon damage/healing) fell straight through undeduped. Added
+  one more `fact.type === 'AttributeAdjust' && fact.value !== target` branch alongside the existing
+  `Number`/`Percent` checks — no new data shape needed, `AttributeAdjust` already carries a numeric
+  `value` like `Number` does.
+- Resolved the 2 known loose ends this filter gap had left open:
+  - **Battle Scarred** (Devastation major, id 1755): its "Life Siphon Damage" fact (target: Power)
+    duplicates 117/58 with no discriminator. Re-checked the trait's raw wikitext directly — the
+    page-level `split = pve, wvw pvp` field (more authoritative than the individual templates'
+    looser `game mode=pvp`-only wording on the Damage line specifically) confirms pve 117 vs.
+    wvw+pvp 58, matching the already-known split on its sibling "Life Siphon Healing" fact. Added
+    `1755: { 'Life Siphon Damage': 58 }`. Its "Life Siphon Healing" fact stays deliberately
+    uncurated — genuinely different shape, the live API carries a 3rd, unexplained value (68)
+    alongside the 2 wiki-documented ones (117/58) with nothing on the wiki page identifying what it
+    is; picking blind between 58/68 risks silently hiding the *correct* value instead of the wrong
+    one, worse than leaving both duplicate lines visible.
+  - **Expanded Consciousness** (Conduit major, id 2358): its "Healing" fact duplicates
+    965/165/389 with no discriminator. Wiki gives pve 983/wvw 389/pvp 165 — the wvw and pvp legs
+    match the API exactly, only the pve leg is off (965 vs. 983, the same reference-build-rounding
+    gap seen elsewhere in this app), so no ambiguity about which is WvW-correct. Added `'Healing':
+    389` to its existing override entry (which already covered its other 2 Number-typed facts).
+- Verified both directly via a scratch script exercising `numericFactLines` against the real
+  `data/game-data/traits.json` entries (not committed): Battle Scarred now emits one "Life Siphon
+  Damage" line (58) plus all 3 still-undeduped "Life Siphon Healing" lines (unchanged, as intended);
+  Expanded Consciousness emits exactly its 3 WvW-correct lines (Healing 389, Endurance Gained 3,
+  Energy Gain 15). `npm run typecheck` and the full `npm test` suite (276 tests) both pass.
+- Firebrand's Imbued Haste (id 2148, `AttributeAdjust` 250/150 Condition Damage/Healing/Vitality
+  dupe) is a live instance of the same now-fixable shape but belongs to the main 8-profession sweep
+  (TODO.md), not this infra leg — left uncurated on purpose.
+
 ## Session 265 — Gear-box sizing: sigils/infusions no longer overflow the weapon icon
 
 2nd "quick win" from the 2026-08-20 scoping discussion. Root cause: a weapon slot's sigil/

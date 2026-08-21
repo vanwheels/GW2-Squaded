@@ -71,8 +71,11 @@ export function factLine(fact: Fact): FactLine | null {
  * facts, but that script's own candidate discovery only ever considers `Buff`-type facts (see its
  * top doc comment), so a split on a `Number`/`Time`/etc. fact can't just become a `Buff`-status
  * entry in its generated `wvw-fact-overrides.json`. Hand-curated here instead, keyed by trait/skill
- * id then by the fact's own `text` — `numericFactLines` keeps only the `Number`/`Percent` fact whose
- * `value`/`percent` matches, dropping any other raw fact sharing that same `text`.
+ * id then by the fact's own `text` — `numericFactLines` keeps only the `Number`/`Percent`/
+ * `AttributeAdjust` fact whose `value`/`percent` matches, dropping any other raw fact sharing that
+ * same `text` (`AttributeAdjust` support added 2026-08-20, see the trait/skill data-correctness pass
+ * scoped in TODO.md — base-stat-adjust facts like life-siphon damage/healing were falling straight
+ * through undeduped before this).
  */
 export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> = {
   // Calming Tongue (Paragon/Warrior Adept trait, id 2433): "Chant of Recuperation removes
@@ -207,12 +210,24 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // 2nd `traitedFacts` entry (`requires_trait: 2440`, Vindicator's Numinous Gift) is the same
   // cross-spec-interaction shape seen on every prior leg, deliberately left alone. Dance of Death
   // and Swift Termination's Health-Threshold/Damage-Reduced/Healing-Increase facts each carry only
-  // one unambiguous value. Battle Scarred (1755) is a genuinely different, NOT-yet-resolved shape:
-  // its "Life Siphon Healing" fact appears 3 times in the live API (117/58/68, `AttributeAdjust`
-  // type, not `Number`/`Percent`) but the wiki's own raw wikitext and rendered infobox (both
-  // re-checked 2026-08-20) only ever document 2 values — 117 pve, 58 shared pvp+wvw — with no
-  // mention anywhere of what 68 represents. Left uncurated rather than guessed; would also need
-  // `numericFactLines`'s filter extended to `AttributeAdjust`, which it doesn't handle today.
+  // one unambiguous value.
+
+  // Battle Scarred (id 1755, Master major): "Siphon health after using your healing skill."
+  // Re-checked 2026-08-20 against the trait's raw wikitext (`split = pve, wvw pvp`):
+  // `{{skill fact|life siphon damage|117|coefficient=0.006|game mode = pve|scaling=power-only}}` +
+  // `{{skill fact|life siphon healing|117|coefficient=0.006|game mode = pve}}` +
+  // `{{skill fact|life siphon damage|58|coefficient=0.003|game mode = pvp|scaling=power-only}}` +
+  // `{{skill fact|life siphon healing|58|coefficient=0.003|game mode = pvp wvw}}` — the page-level
+  // `split` field (authoritative over the individual templates' looser `game mode=pvp`-only
+  // wording on the Damage line) confirms both Damage and Healing share the same pve-vs-wvw+pvp
+  // split: pve 117, wvw+pvp 58. "Life Siphon Damage" (`AttributeAdjust`, `target: 'Power'`) is
+  // unambiguous with this table now extended to that fact type — curated below. "Life Siphon
+  // Healing" (`target: 'Healing'`) stays a genuinely different, NOT-yet-resolved shape: it appears
+  // a 3rd time in the live API (68, alongside 117/58) with no mention anywhere on the wiki page of
+  // what that 3rd value represents. Left uncurated rather than guessed — this table can only drop
+  // facts that don't match a known-correct value, and picking between 58/68 blind risks silently
+  // hiding the *correct* one instead of the wrong one.
+  1755: { 'Life Siphon Damage': 58 },
 
   // Brutality (id 1715, Master major): "Increase damage while under the effects of quickness."
   // Wiki: `{{skill fact|Damage Increase|15|game mode = pve wvw}}` + `{{skill fact|Damage
@@ -343,12 +358,12 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // `{{...|165|...|game mode = pvp}}`, `{{skill fact|endurance gained|5|game mode = pve}}` +
   // `{{...|3|game mode = wvw}}` + `{{...|2|game mode = pvp}}`, `{{skill fact|energy|alt=Energy
   // Gain|15|game mode = pve wvw}}` + `{{...|10|game mode = pvp}}` — a genuine 3-way split across
-  // all three facts. Only "Endurance Gained" and "Energy Gain" are `Number`-typed and fixable here;
-  // the Healing value is `AttributeAdjust`-typed (API values 965/165/389, close to but not exactly
-  // the wiki's 983/165/389 — same reference-build-rounding gap seen elsewhere), same
-  // out-of-scope-for-this-table shape as Devastation's Battle Scarred loose end (would need
-  // `numericFactLines`'s filter extended to `AttributeAdjust`, which it doesn't handle today).
-  2358: { 'Endurance Gained': 3, 'Energy Gain': 15 },
+  // all three facts. "Endurance Gained"/"Energy Gain" are `Number`-typed; "Healing" is
+  // `AttributeAdjust`-typed (API values 965/165/389 vs. the wiki's 983/165/389 — the pve leg is off
+  // by 18, a reference-build-rounding gap seen elsewhere, but the wvw/pvp legs match the wiki
+  // exactly) — now curatable too since this table's matching was extended to `AttributeAdjust`
+  // facts (2026-08-20).
+  2358: { 'Endurance Gained': 3, 'Energy Gain': 15, 'Healing': 389 },
 
   // Enhanced Embodiment (id 2379, Grandmaster major): "Reduce the recharge of invoking legends in
   // combat." Wiki: `{{skill fact|Recharge Reduced|40|game mode=pve}}` + `{{skill fact|Recharge
@@ -363,10 +378,10 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
  * (a conditional fact only counts once the trait unlocking it is actually chosen). Deduplicates
  * identical lines (e.g. a skill with 2 near-identical Damage facts for a physical + condition
  * component both reporting the same hit count) rather than repeating them. `wvwOverrides` (see
- * `NUMERIC_FACT_WVW_OVERRIDES` above) additionally drops any `Number`/`Percent` fact whose
- * `value`/`percent` doesn't match the WvW-correct one for its `text` — optional/defaulted so every
- * pre-existing caller without a matching entry keeps compiling and behaving unchanged. Only applies
- * to base `facts` (`requires_trait == null`): a `traitedFacts` entry sharing the same `text` is a
+ * `NUMERIC_FACT_WVW_OVERRIDES` above) additionally drops any `Number`/`Percent`/`AttributeAdjust`
+ * fact whose `value`/`percent` doesn't match the WvW-correct one for its `text` — optional/defaulted
+ * so every pre-existing caller without a matching entry keeps compiling and behaving unchanged. Only
+ * applies to base `facts` (`requires_trait == null`): a `traitedFacts` entry sharing the same `text` is a
  * different value unlocked by a different trait, not another instance of the same game-mode
  * ambiguity, and filtering it against the base override would wrongly drop it too (see Serene
  * Rejuvenation's Numinous-Gift-conditioned pair in `NUMERIC_FACT_WVW_OVERRIDES` above).
@@ -380,6 +395,7 @@ export function numericFactLines(facts: Fact[], traitedFacts: Fact[], activeIds:
       const target = wvwOverrides[fact.text]
       if (fact.type === 'Number' && fact.value !== target) continue
       if (fact.type === 'Percent' && fact.percent !== target) continue
+      if (fact.type === 'AttributeAdjust' && fact.value !== target) continue
     }
     const line = factLine(fact)
     if (line && !seen.has(line.text)) {

@@ -100,30 +100,32 @@ limitation) — do that before extending either further.
 ## Trait/skill data-correctness pass (scoped 2026-08-20)
 
 User flagged several concrete tooltip bugs from a quick glance; investigation the same day traced
-most of them to one systemic root cause plus 2 standalone gaps. Agreed order: quick wins first, then
-the AttributeAdjust infra leg, then the main sweep; Corruption-stat and Mesmer-stunbreak stay
-separate investigations slotted in afterward.
+most of them to one systemic root cause plus 2 standalone gaps. Agreed order: quick wins first
+(done), then the AttributeAdjust infra leg (done), then the main sweep; Corruption-stat and
+Mesmer-stunbreak stay separate investigations slotted in afterward.
 
-- [ ] **`AttributeAdjust` fact-type has no WvW-duplicate dedup mechanism.** `numericFactLines`/
-      `factLine` (`fact-numbers.ts`) only dedupe `Number`/`Percent` facts against
-      `NUMERIC_FACT_WVW_OVERRIDES`; `AttributeAdjust` facts (base-stat-adjust facts like Firebrand's
-      Imbued Haste, id 2148: 250/150 Condition Damage/Healing/Vitality duplicates) fall straight
-      through undeduped. 2 other instances already flagged as known loose ends in
-      `NUMERIC_FACT_WVW_OVERRIDES`'s own comments (Necromancer's Battle Scarred id 1755, Revenant's
-      Expanded Consciousness id 2358) — both left uncurated specifically because this filter didn't
-      exist yet. Extend the override table/filter to cover `AttributeAdjust` before the main sweep
-      below, so one pass per profession can catch all 3 fact shapes (Buff, Number/Percent,
-      AttributeAdjust) at once.
+`AttributeAdjust` fact-type WvW-duplicate dedup — **done 2026-08-20**: `numericFactLines`
+(`fact-numbers.ts`) now filters `AttributeAdjust` facts through `NUMERIC_FACT_WVW_OVERRIDES` the
+same way it already did `Number`/`Percent`. Resolved Battle Scarred's (id 1755) "Life Siphon Damage"
+duplicate (wiki-confirmed pve 117 vs. wvw+pvp 58) and Expanded Consciousness's (id 2358) "Healing"
+duplicate (389). Battle Scarred's *other* AttributeAdjust fact, "Life Siphon Healing," stays
+deliberately uncurated — the live API carries an unexplained 3rd value (68) alongside the 2
+wiki-documented ones (117/58) with nothing on the wiki page to say what it is; picking blind between
+58/68 risks hiding the correct value instead of the wrong one. Firebrand's Imbued Haste (id 2148,
+250/150 Condition Damage/Healing/Vitality dupes) is next in scope but belongs to the main sweep
+below, not this infra leg.
 
 - [ ] **Main sweep: WvW/PvE duplicate-fact values, all 8 non-Revenant professions.** Root cause
       (confirmed 2026-08-20): the raw GW2 API bakes PvE/WvW/PvP fact variants into `facts` as literal
       duplicate entries with no discriminator tag. 2 mechanisms already exist and are proven
       (Revenant's full curation, COMPLETED.md) — `wvw-fact-overrides.json` (+`fetch-wvw-splits.ts`)
       for `Buff`/`PrefixedBuff` boon/condition facts, `NUMERIC_FACT_WVW_OVERRIDES`
-      (`fact-numbers.ts`) for `Number`/`Percent` facts — but neither has ever been run against any
-      profession besides Revenant. Confirmed live instances: Troubadour's Shredding (id 2343,
-      `Percent` 15/10 dupe) and Life of the Party (id 2367, `Buff` Might/Quickness dupe), both
-      uncurated. Sweep the remaining 8 professions leg-by-leg, same pattern as the Revenant sweep
+      (`fact-numbers.ts`) for `Number`/`Percent`/`AttributeAdjust` facts (3rd fact shape added
+      2026-08-20, just above) — but neither has ever been run against any profession besides
+      Revenant. Confirmed live instances: Troubadour's Shredding (id 2343, `Percent` 15/10 dupe),
+      Life of the Party (id 2367, `Buff` Might/Quickness dupe), and Firebrand's Imbued Haste (id
+      2148, `AttributeAdjust` 250/150 dupe), all uncurated. Sweep the remaining 8 professions
+      leg-by-leg, same pattern as the Revenant sweep
       (COMPLETED.md Sessions on Salvation/Invocation/Retribution/Corruption/Devastation/Renegade/
       Vindicator/Conduit) — do one leg, then check in (see `pacing_large_sweeps` memory).
 
