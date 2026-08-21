@@ -697,7 +697,158 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // Invigorating Tempo (id 2426, Paragon Major 2): "Heal allies based on motivation spent." Wiki:
   // `{{skill fact|healing|alt=Healing per Motivation Spent|660|coefficient=0.1|game mode=pve}}` +
   // `{{...|148|coefficient=0.05|game mode=wvw pvp}}` — pve 660, wvw+pvp 148.
-  2426: { 'Healing per Motivation Spent': 148 }
+  2426: { 'Healing per Motivation Spent': 148 },
+
+  // Mesmer — 3rd leg of the "remaining 8 professions" main sweep (TODO.md, 2026-08-20). Same process
+  // as the Guardian/Warrior legs above: scanned all 9 Mesmer spec lines' base facts for a
+  // Number/Percent/AttributeAdjust/Time label repeated more than once, wiki-verified each split.
+  // Compounding Power (723) and Zealot's-Aggression-shaped "Maximum Stacks" (5/5, no wiki split) and
+  // Restorative Illusions' (1866) 4 clone-tier Healing facts (219/552/744/936, each identical across
+  // all 3 modes despite different `coefficient=` values — same "same displayed number, different
+  // coefficient" shape as Warrior's Vigorous Shouts) already collapse for free via this function's
+  // own `seen` dedup, no entries needed. Illusionary Inspiration's (1915) "Healing Increase to
+  // Others" fact (5/5, no split) is the same shape, alongside its genuinely-split Healing fact
+  // (curated below). Life of the Party (Troubadour, id 2367) has a real pve/wvw/pvp Might/Quickness
+  // split, but on `PrefixedBuff`-typed per-linked-skill (Lively Lute/Crescendo) facts — same
+  // out-of-scope shape as Vindicator's Reaver's Curse/Salvation's Generous Abundance above, left for
+  // a future per-skill-mapping leg rather than attempted here.
+
+  // Mental Anguish (id 680, Domination Grandmaster): "Shatter skills deal more damage. This bonus
+  // damage is doubled against foes that are not activating skills." Wiki: `{{skill fact|damage
+  // increase|25|game mode=pve}}` + `{{...|10|game mode=wvw pvp}}`, `{{skill fact|damage
+  // increase|alt=Damage Increase vs. Inactivity|50|game mode=pve}}` + `{{...|20|game mode=wvw
+  // pvp}}` — 2 independently-ambiguous labels, both pve-high/wvw-low. The raw API lists each
+  // wvw+pvp value twice (once per mode) rather than once for a shared "wvw pvp" mode — harmless,
+  // already collapses via this function's own `seen` dedup.
+  680: { 'Damage Increase': 10, 'Damage Increase vs. Inactivity': 20 },
+
+  // Vicious Expression (id 681, Domination Grandmaster): "You and your illusions deal increased
+  // strike damage. Strike damage is further increased against foes without boons. Disabling a foe
+  // removes boons from them." Wiki: `{{skill fact|damage increase|10|game mode=pve}}` + `{{...|7|
+  // game mode=wvw pvp}}`, `{{skill fact|boons removed|2|game mode=pve}}` + `{{...|1|game mode=wvw
+  // pvp}}` — 2 independently-ambiguous labels, both pve-high/wvw-low. Its unsplit "Damage Increase
+  // against Boonless Foes" fact (15, no game-mode param at all) is a separate, unambiguous concept.
+  681: { 'Damage Increase': 7, 'Boons Removed': 1 },
+
+  // Medic's Feedback (id 756, Inspiration Adept): "Cast Feedback while reviving an ally. Feedback
+  // revives allies inside its dome." Wiki: `{{skill fact|Revive Percentage|5|game mode=pve}}` +
+  // `{{...|1|game mode=wvw pvp}}` — pve 5, wvw+pvp 1.
+  756: { 'Revive Percentage': 1 },
+
+  // Time Marches On (id 1859, Chronomancer Grandmaster minor): "You move 25% faster. Alacrity
+  // applied to you is stronger." Wiki: `{{skill fact|Recharge Speed|50%|game mode = pve}}` +
+  // `{{...|33%|game mode = wvw pvp}}` — pve 50, wvw+pvp 33. Its separate "Movement Speed Increase"
+  // fact (25, unsplit) is a different, unambiguous concept.
+  1859: { 'Recharge Speed': 33 },
+
+  // Chaotic Persistence (id 1865, Chaos Grandmaster minor): "Gain concentration and expertise while
+  // affected by regeneration." Wiki: `{{skill fact|attribute|Concentration|250|game mode = pve
+  // wvw}}` + `{{...|150|game mode = pvp}}` (pve+wvw share 250, pvp alone drops to 150) + `{{skill
+  // fact|attribute|Expertise|100|game mode = pve}}` + `{{...|250|game mode = wvw}}` + `{{...|150|
+  // game mode = pvp}}` (a genuine 3-way split, wvw the high outlier at 250) — both `AttributeAdjust`,
+  // keyed by `target` (`BoonDuration`/`ConditionDuration`, the API's literal strings for the
+  // Concentration/Expertise concepts respectively, same non-obvious naming as Warrior's Roaring
+  // Reveille/Guardian's Honorable Staff).
+  1865: { BoonDuration: 250, ConditionDuration: 250 },
+
+  // Chronophantasma (id 1890, Chronomancer Grandmaster): "The first time a phantasm would become a
+  // clone, it instead resummons itself and attacks again. Resummoned phantasms inflict a percentage
+  // of the original's damage." Wiki: `{{skill fact|percent|105|game mode=pve}}` + `{{...|50|game
+  // mode=wvw pvp}}`, `{{skill fact|daze|0.25|game mode = pve}}` + `{{...|1.5|game mode = wvw pvp}}`
+  // — the raw API's `Time`-typed Daze facts round to whole seconds (0.25 -> 0, 1.5 -> 2, same
+  // reference-build rounding gap as Warrior's Vigorous Shouts/Guardian's Writ of Persistence), so
+  // this table picks the API's own rounded 2 rather than the wiki's unrounded 1.5.
+  1890: { Percent: 50, Daze: 2 },
+
+  // Illusionary Inspiration (id 1915, Inspiration Grandmaster minor): "Increase healing to other
+  // allies. Summoning an illusion heals all allies around you." Wiki: `{{skill fact|healing|212|
+  // coefficient = 0.3|game mode = pve}}` + `{{...|106|coefficient = 0.15|game mode = wvw}}` +
+  // `{{...|106|coefficient = 0.10|game mode = pvp}}` — pve 212, wvw+pvp share 106 (though reached via
+  // different coefficients).
+  1915: { Healing: 106 },
+
+  // Flow of Time (id 1927, Chronomancer Master minor): "Gain alacrity for each clone you shatter.
+  // Gain increased critical-strike chance for you and your clones when you have alacrity." Wiki:
+  // `{{skill fact|critical chance increase|15|game mode=pve}}` + `{{...|10|game mode=wvw pvp}}` —
+  // pve 15, wvw+pvp 10.
+  1927: { 'Critical Chance Increase': 10 },
+
+  // Time Catches Up (id 1995, Chronomancer Adept): "Activating a Shatter gives your illusions
+  // superspeed. Shatters deal increased damage to movement-impaired foes." Wiki: `{{skill
+  // fact|damage increase|10|game mode=pve}}` + `{{...|5|game mode=wvw pvp}}` — pve 10, wvw+pvp 5.
+  1995: { 'Damage Increase': 5 },
+
+  // Danger Time (id 2009, Chronomancer Master): "When you inflict slow, you and your clones'
+  // outgoing critical-strike damage is increased for a duration." Wiki: `{{skill fact|critical
+  // damage increase|5|game mode = pve}}` + `{{...|10|game mode = wvw pvp}}` — pve 5, wvw+pvp 10,
+  // the rare WvW-higher case.
+  2009: { 'Critical Damage Increase': 10 },
+
+  // Nomad's Endurance (id 2069, Mirage Master minor): "Shatter skills give vigor. Strike and
+  // condition damage dealt is increased when you have vigor." Wiki: `{{skill fact|Damage
+  // Increase|alt=Strike Damage Increase|10|game mode=pve wvw}}` + `{{...|5|game mode=pvp}}` (pve+wvw
+  // share 10, pvp alone drops to 5) + `{{skill fact|Damage Increase|alt=Condition Damage
+  // Increase|5|game mode = pve}}` + `{{...|10|game mode = wvw pvp}}` (pve 5, wvw+pvp 10, WvW-higher)
+  // — 2 independently-ambiguous labels. Its separate Vigor duration (3 pve / 1.5 pvp+wvw) is
+  // `Buff`-typed, out of this table's scope.
+  2069: { 'Strike Damage Increase': 10, 'Condition Damage Increase': 10 },
+
+  // Elusive Mind (id 2113, Mirage Grandmaster): "Lose conditions when you gain Mirage Cloak." Wiki:
+  // `{{skill fact|conditions removed|3|game mode = pve}}` + `{{...|1|game mode = pvp wvw}}` — pve 3,
+  // wvw+pvp 1.
+  2113: { 'Conditions Removed': 1 },
+
+  // Dune Cloak (id 2169, Mirage Grandmaster): "Shatter skills grant Mirage Cloak if you have enough
+  // clones present. Gaining Mirage Cloak recharges Mind Wrack and Cry of Frustration." Wiki: `{{skill
+  // fact|Recharge Time Reduced|1|game mode=pve}}` + `{{...|1.5|game mode=wvw}}` + `{{...|0.5|game
+  // mode=pvp}}` (a genuine 3-way split; the API rounds 1.5 -> 2 and 0.5 -> 1, so the wvw-correct
+  // value shows as 2 in the raw data, same rounding-gap shape as Chronophantasma above) + `{{skill
+  // fact|Required Clones|3|game mode=pve pvp}}` + `{{...|2|game mode=wvw}}` (pve+pvp share 3, wvw
+  // alone drops to 2) — 2 independently-ambiguous labels.
+  2169: { 'Recharge Time Reduced': 2, 'Required Clones': 2 },
+
+  // Quiet Intensity (id 2193, Virtuoso Grandmaster minor): "Fury gives an increased critical chance.
+  // Gain ferocity based on your vitality." Wiki: `{{skill fact|Critical Chance Increase|15|game
+  // mode=pve}}` + `{{...|10|game mode=pvp wvw}}` — pve 15, wvw+pvp 10. Its separate Fury duration (40
+  // pve / 30 wvw+pvp) is `Buff`-typed, out of this table's scope.
+  2193: { 'Critical Chance Increase': 10 },
+
+  // Infinite Forge (id 2206, Virtuoso Major 2): "Automatically stock blades while in combat. When
+  // you use bladesong above the blade threshold, refund blades. Blade attacks deal more damage."
+  // Wiki: `{{skill fact|damage increase|7|game mode = pve}}` + `{{...|10|game mode = wvw pvp}}` —
+  // pve 7, wvw+pvp 10, the rare WvW-higher case.
+  2206: { 'Damage Increase': 10 },
+
+  // Mental Focus (id 2208, Virtuoso Adept): "Strike damage is increased against foes within the
+  // range threshold." Wiki: `{{skill fact|Damage Increase|5|game mode = pve}}` + `{{...|7|game mode
+  // = pvp wvw}}` — pve 5, wvw+pvp 7, the rare WvW-higher case.
+  2208: { 'Damage Increase': 7 },
+
+  // Raconteur (id 2326, Troubadour Adept): "Tales heal and grant protection to nearby allies." Wiki:
+  // `{{skill fact|healing|980|coefficient=0.6|game mode = pve}}` + `{{...|660|coefficient=0.4|game
+  // mode = wvw pvp}}` — pve 980, wvw+pvp 660.
+  2326: { Healing: 660 },
+
+  // Shredding (id 2343, Troubadour Master): "Lively Lute fires an additional wave at your enemy. The
+  // lute's damage bonus is increased." Wiki: `{{skill fact|damage increase|alt=Lute-Playing Damage
+  // Increase|15|game mode=pve}}` + `{{...|10|game mode=wvw pvp}}` — pve 15, wvw+pvp 10. (Closes the
+  // confirmed-live instance TODO.md flagged before this leg started.)
+  2343: { 'Lute-Playing Damage Increase': 10 },
+
+  // Fortissimo (id 2353, Troubadour Grandmaster): "After using Crescendo, gain a note every interval
+  // for a duration. Gain increased attributes for each instrument you have playing." Wiki: `{{skill
+  // fact|Attribute Increase per Instrument|4%|game mode=pve wvw}}` + `{{...|2.5%|game mode=pvp}}` —
+  // pve+wvw share 4, pvp alone drops to 2.5. Its `missing facts` per-instrument all-stats bonuses
+  // (Lute/Flute/Drum/Harp Playing effects) mirror the same split but are embedded `effect bonus
+  // number=` sub-values on effect facts not present in the local API data at all, same "documented on
+  // the wiki, absent from the API" shape as other loose ends in this table — nothing to curate.
+  2353: { 'Attribute Increase per Instrument': 4 },
+
+  // Love Song (id 2422, Troubadour Master): "Harmonious Harp's distortion lasts longer. Strike
+  // damage from nearby enemies is reduced while the harp is playing in the background." Wiki:
+  // `{{skill fact|Damage Reduced|10|game mode=pve}}` + `{{...|7|game mode=wvw pvp}}` — pve 10,
+  // wvw+pvp 7.
+  2422: { 'Damage Reduced': 7 }
 }
 
 /**

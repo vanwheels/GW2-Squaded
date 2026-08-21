@@ -157,9 +157,20 @@ a `target`-field fallback for `AttributeAdjust` facts with no `text` — see bel
       duration) — left as a documented gap, not modeled wrong. End-to-end verified via a standalone
       script against the real `numericFactLines` (Electron sandbox still blocks visual verification).
 
-      Remaining 6 professions (Engineer, Ranger, Thief, Elementalist, Mesmer, Necromancer) still
-      open — confirmed live instances not yet curated: Troubadour's Shredding (Mesmer, id 2343,
-      `Percent` 15/10 dupe), Life of the Party (Mesmer, id 2367, `Buff` Might/Quickness dupe). Do one
+      **Mesmer — done 2026-08-20** (3rd leg). Same process, all 9 spec lines/111 traits scanned.
+      20 traits curated into `NUMERIC_FACT_WVW_OVERRIDES` (Mesmer block, `fact-numbers.ts`), closing
+      the previously-flagged Troubadour's Shredding (2343) instance. 3 genuinely-identical dupes
+      needing no override (already collapse via `numericFactLines`'s own dedup): Compounding Power
+      (723, "Maximum Stacks" 5/5), Illusionary Inspiration (1915, "Healing Increase to Others" 5/5),
+      and Restorative Illusions (1866, 4 clone-tier Healing facts each identical across all 3 modes
+      despite different `coefficient=` values, same shape as Warrior's Vigorous Shouts). Life of the
+      Party (Troubadour, id 2367) has a real pve/wvw/pvp Might/Quickness split, but on
+      `PrefixedBuff`-typed per-linked-skill (Lively Lute/Crescendo) facts — out of this table's scope,
+      same shape as Vindicator's Reaver's Curse/Salvation's Generous Abundance, left for a future
+      per-skill-mapping leg. End-to-end verified via a standalone script against the real
+      `numericFactLines` (Electron sandbox still blocks visual verification).
+
+      Remaining 5 professions (Engineer, Ranger, Thief, Elementalist, Necromancer) still open. Do one
       profession-leg, then check in (see `pacing_large_sweeps` memory).
 
 - [ ] **Corruption stat undercounts real "boon corrupt" sources.** `BOON_STRIP_CORRUPT_MATCHERS.Corrupt`
