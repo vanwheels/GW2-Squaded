@@ -17,20 +17,6 @@ implemented and released. Everything below is post-1.0 polish and open curation 
       seam or a Capacitor-side shim. Also: native HTML5 drag-and-drop in the squad editor has no
       touch-input fallback yet.
 
-- [ ] **Duplicate builds/squads from a right-click menu.** `BuildsView.tsx`/`SquadsView.tsx` (the
-      main Builds/Squads tab card lists) have no context menu today — only `BuildsSidebar.tsx` (the
-      squad editor's build roster) does, via the reusable `ContextMenu` component
-      (`common/ContextMenu.tsx`, a portaled `{x, y, items}` menu) with "Preview"/"Edit". Add the same
-      `onContextMenu`/`ContextMenu` wiring to both main-page card `<li>`s, with a "Duplicate" item
-      that clones the record under a fresh id: `createBuild`/`createSquadComp` already exist
-      (`builds-store.tsx`/`squad-comps-store.tsx`) — spread the source record with a new
-      `crypto.randomUUID()` id, fresh `createdAt`/`updatedAt`, `order: Date.now()` (same pattern
-      `handleImport` in both views already uses), and probably an adjusted name (e.g. append " (Copy)")
-      so the duplicate doesn't look identical in the list. A squad's duplicate should NOT duplicate
-      its member builds too (same "reference, don't clone" relationship the editor already has) —
-      only `SquadCompSharePayload`'s import path clones builds, and that's for a different reason
-      (a shared squad's builds aren't in the importer's database yet at all).
-
 ## Coefficient curation — remaining exceptions
 
 `CURATED_HEALING_COEFFICIENTS` and `CURATED_DAMAGE_COEFFICIENTS` are complete sweeps across all 9

@@ -11,6 +11,7 @@ import { professionAccentColor } from '@renderer/lib/profession-colors'
 import { SquadCompEditorView } from '@renderer/components/squad-editor/SquadCompEditorView'
 import { ImportFromLinkButton } from '@renderer/components/common/ImportFromLinkButton'
 import { TagFilterBar } from '@renderer/components/common/TagFilterBar'
+import { ContextMenu } from '@renderer/components/common/ContextMenu'
 
 /** A slot's profession for mosaic purposes — an assigned build wins, then a `GhostPick`'s
  *  profession, else `null` (empty slot, rendered as a hollow dot). */
@@ -36,6 +37,7 @@ export function SquadsView({ onEditBuild }: Props) {
   const [editing, setEditing] = useState<{ squadComp: SquadComp; isNew: boolean } | null>(null)
   const [dragId, setDragId] = useState<string | null>(null)
   const [dropTargetId, setDropTargetId] = useState<string | null>(null)
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; squadComp: SquadComp } | null>(null)
 
   const { query, setQuery, tagStates, toggleTag, clearTag, filtered } = useTagFilter({
     records: squadComps,
@@ -89,6 +91,24 @@ export function SquadsView({ onEditBuild }: Props) {
   /** Not a content edit (same reasoning as `order`) — doesn't bump `updatedAt`. */
   function toggleFavorite(squadComp: SquadComp): void {
     void updateSquadComp({ ...squadComp, favorite: !squadComp.favorite })
+  }
+
+  /** Right-click "Duplicate" — clones the record under a fresh id, same pattern `handleImport`
+   *  above already uses (fresh `createdAt`/`updatedAt`/`order`), plus a name suffix so the copy
+   *  doesn't look identical to its source in the list. Slots keep their existing `buildId`s
+   *  as-is — a squad references builds rather than owning them (same relationship the editor
+   *  already has), so duplicating a squad must not also clone its member builds. */
+  async function handleDuplicateSquadComp(squadComp: SquadComp): Promise<void> {
+    const now = new Date().toISOString()
+    await createSquadComp({
+      ...squadComp,
+      id: crypto.randomUUID(),
+      name: `${squadComp.name} (Copy)`,
+      createdAt: now,
+      updatedAt: now,
+      order: Date.now(),
+      favorite: false
+    })
   }
 
   if (editing) {
@@ -162,6 +182,10 @@ export function SquadsView({ onEditBuild }: Props) {
                       e.stopPropagation()
                       handleDrop(squadComp.id)
                     }}
+                    onContextMenu={(e) => {
+                      e.preventDefault()
+                      setContextMenu({ x: e.clientX, y: e.clientY, squadComp })
+                    }}
                   >
                     <button
                       type="button"
@@ -224,6 +248,14 @@ export function SquadsView({ onEditBuild }: Props) {
             </ul>
           )}
         </>
+      )}
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+          items={[{ label: 'Duplicate', onSelect: () => void handleDuplicateSquadComp(contextMenu.squadComp) }]}
+        />
       )}
     </section>
   )

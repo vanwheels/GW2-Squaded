@@ -2,6 +2,20 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 270 — Duplicate builds/squads from a right-click menu
+
+**Duplicate builds/squads from a right-click menu (2026-08-21).** `BuildsView.tsx`/`SquadsView.tsx`
+(the main Builds/Squads tab card lists) had no context menu — only `BuildsSidebar.tsx` (the squad
+editor's build roster) did. Wired the same reusable `ContextMenu` component
+(`common/ContextMenu.tsx`) onto both main-page card `<li>`s via `onContextMenu`, with a single
+"Duplicate" item: `handleDuplicateBuild`/`handleDuplicateSquadComp` spread the source record with a
+fresh `crypto.randomUUID()` id, `createdAt`/`updatedAt`, `order: Date.now()`, `favorite: false`, and
+a `" (Copy)"` name suffix, then call the existing `createBuild`/`createSquadComp`. A squad's
+duplicate does not clone its member builds — slots keep their existing `buildId`s as-is, same
+"reference, don't clone" relationship the editor already has (only `SquadCompSharePayload`'s import
+path clones builds, for the unrelated reason that a shared squad's builds aren't in the importer's
+database at all).
+
 ## Session 269 — Equipment text manifest always-on; Share Link auto-copies
 
 **Equipment text manifest always-on (2026-08-21 user request).** `EquipmentTextManifest` was

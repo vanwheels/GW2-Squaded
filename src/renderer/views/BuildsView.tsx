@@ -14,6 +14,7 @@ import { formatRelativeTime } from '@renderer/lib/format-relative-time'
 import { BuildEditorView } from '@renderer/components/build-editor/BuildEditorView'
 import { ImportFromLinkButton } from '@renderer/components/common/ImportFromLinkButton'
 import { TagFilterBar } from '@renderer/components/common/TagFilterBar'
+import { ContextMenu } from '@renderer/components/common/ContextMenu'
 
 interface Props {
   /** Set by `App.tsx` when the Squads tab's right-click "Edit" jumps here for a specific build —
@@ -32,6 +33,7 @@ export function BuildsView({ requestedEditBuildId, onRequestedEditBuildHandled }
   const [editing, setEditing] = useState<{ build: Build; isNew: boolean } | null>(null)
   const [dragId, setDragId] = useState<string | null>(null)
   const [dropTargetId, setDropTargetId] = useState<string | null>(null)
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; build: Build } | null>(null)
 
   useEffect(() => {
     if (!requestedEditBuildId) return
@@ -85,6 +87,22 @@ export function BuildsView({ requestedEditBuildId, onRequestedEditBuildHandled }
   /** Not a content edit (same reasoning as `order`) — doesn't bump `updatedAt`. */
   function toggleFavorite(build: Build): void {
     void updateBuild({ ...build, favorite: !build.favorite })
+  }
+
+  /** Right-click "Duplicate" — clones the record under a fresh id, same pattern `handleImport`
+   *  above already uses (fresh `createdAt`/`updatedAt`/`order`), plus a name suffix so the copy
+   *  doesn't look identical to its source in the list. */
+  async function handleDuplicateBuild(build: Build): Promise<void> {
+    const now = new Date().toISOString()
+    await createBuild({
+      ...build,
+      id: crypto.randomUUID(),
+      name: `${build.name} (Copy)`,
+      createdAt: now,
+      updatedAt: now,
+      order: Date.now(),
+      favorite: false
+    })
   }
 
   if (editing) {
@@ -161,6 +179,10 @@ export function BuildsView({ requestedEditBuildId, onRequestedEditBuildHandled }
                       e.stopPropagation()
                       handleDrop(build.id)
                     }}
+                    onContextMenu={(e) => {
+                      e.preventDefault()
+                      setContextMenu({ x: e.clientX, y: e.clientY, build })
+                    }}
                   >
                     <button
                       type="button"
@@ -206,6 +228,14 @@ export function BuildsView({ requestedEditBuildId, onRequestedEditBuildHandled }
             </ul>
           )}
         </>
+      )}
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+          items={[{ label: 'Duplicate', onSelect: () => void handleDuplicateBuild(contextMenu.build) }]}
+        />
       )}
     </section>
   )
