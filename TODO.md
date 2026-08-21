@@ -87,8 +87,9 @@ limitation) — do that before extending either further.
 
 User flagged several concrete tooltip bugs from a quick glance; investigation the same day traced
 most of them to one systemic root cause plus 2 standalone gaps. Agreed order: quick wins first
-(done), then the AttributeAdjust infra leg (done), then the main sweep; Corruption-stat and
-Mesmer-stunbreak stay separate investigations slotted in afterward.
+(done), then the AttributeAdjust infra leg (done), then the main sweep; Corruption-stat (done
+2026-08-21, see COMPLETED.md) and Mesmer-stunbreak stay/stayed separate investigations slotted in
+afterward — only Mesmer-stunbreak remains open.
 
 `AttributeAdjust` fact-type WvW-duplicate dedup — **done 2026-08-20**: `numericFactLines`
 (`fact-numbers.ts`) now filters `AttributeAdjust` facts through `NUMERIC_FACT_WVW_OVERRIDES` the
@@ -101,16 +102,6 @@ wiki-documented ones (117/58) with nothing on the wiki page to say what it is; p
 250/150 Condition Damage/Healing/Vitality dupes) belonged to the main sweep below, not this infra
 leg — closed 2026-08-20 as part of that sweep's Guardian leg (needed its own small infra addition,
 a `target`-field fallback for `AttributeAdjust` facts with no `text` — see below).
-
-- [ ] **Corruption stat undercounts real "boon corrupt" sources.** `BOON_STRIP_CORRUPT_MATCHERS.Corrupt`
-      only matches `Number`-type facts whose text matches `/boons? converted/i`. Confirmed via
-      Necromancer's Well of Corruption (id 39987/43892-ish, "converting boons on foes into
-      conditions"): its raw API `facts` array has **no boon-conversion count fact at all** — same
-      "API just omits it" shape as past target-count/attribute-bonus sweeps, not a wording mismatch.
-      Needs a wiki-sourced manual-override sweep (same shape as `NUMERIC_FACT_WVW_OVERRIDES` or the
-      target-count override tables) for skills/traits where boon-corruption is real but unrepresented
-      in the API facts, plus a check of whether any source actually uses "corrupted" phrasing the
-      current regex would also miss.
 
 - [ ] **Mesmer Shatter 4 (Distortion) shows "Breaks Stun" unconditionally.** Should only be true with
       Mental Defense (Inspiration GM trait, id 2005) equipped. Investigated 2026-08-20: Distortion's

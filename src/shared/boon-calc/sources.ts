@@ -6108,6 +6108,77 @@ export function tomeChapterNamedFactSources(chapter: TomeChapter, matchers: Reco
 }
 
 /**
+ * TODO.md's "Corruption stat undercounts real 'boon corrupt' sources" — `BOON_STRIP_CORRUPT_
+ * MATCHERS.Corrupt` only ever sees a skill/trait whose own `Fact[]` carries a `Number` fact
+ * matching `/boons? converted/i`. Two Necromancer skills genuinely convert boons on foes into
+ * conditions but carry no such fact at all in the local API data — a silent omission, not a
+ * wording mismatch:
+ * - Well of Corruption (skill 10671 — 10545 is the auto-target duplicate `visibleSkillsForSlot`
+ *   strips before a skill bar can ever reference it, same exclusion `damage-calc.ts`'s own
+ *   Well-of-Corruption entry documents, confirmed via a throwaway `visibleSkillsForSlot` run):
+ *   the local API's `Fact[]` for this skill has every other fact (damage, targets, radius, ...)
+ *   except this one. Its own wiki page confirms the gap explicitly: the infobox carries a
+ *   dedicated `| missing facts = {{skill fact|Boons Converted to Conditions|6}}` field — the
+ *   wiki's own "the API omits this fact" convention, the same field
+ *   `fetch-target-counts.ts`/`fetch-condition-cleanse.ts` already trust for target counts — 6
+ *   boons converted over its 6-pulse duration (matches the local API's own `hit_count: 6` on this
+ *   skill's Damage fact).
+ * - Elixir of Bliss (skill 68132 — 62514 is the auto-target duplicate, confirmed the same way):
+ *   a bigger omission than Well of Corruption's — the local API's `Fact[]` for this skill is
+ *   *entirely* empty beyond Range/Recharge (no Resolution, Cleanse, life-force, Blight, or Corrupt
+ *   facts at all), even though the wiki's regular (non-"missing facts") `facts=` field lists a
+ *   `{{skill fact|Boons Converted to Conditions|1}}` template, bumped to `|2` only while the caster
+ *   is at/above its Blight stack threshold. This app has no build-state concept for accumulated
+ *   Blight stacks (a combat-time resource, not a build-editor input), so `1` (the guaranteed
+ *   baseline, not the conditional bonus) is curated — same "pick the always-true floor, not the
+ *   situational ceiling" convention used elsewhere for condition-gated bonuses.
+ *
+ * Confirmed exhaustive 2026-08-21 via a full description-text sweep of every skill/trait whose
+ * wording mentions converting/corrupting boons: every other candidate either already carries its
+ * own real `Number` fact this table's regex matches (so resolves for free through the normal
+ * `namedFactsFrom` pipeline, no override needed — e.g. Corrupt Boon, Lich's Gaze, Path of
+ * Corruption), is a condition-to-boon conversion (the opposite direction — Elixir C, Well of
+ * Power, Pure of Voice, ... — not a Corrupt source at all), is a reactive trait that triggers *on*
+ * an already-corrupting skill rather than corrupting anything itself (Feed from Corruption,
+ * Nourishing Ashes — both grant a resource "when you remove or corrupt a boon", they don't do the
+ * corrupting), or (Vulnerable Spit, Corrupted Ground, Noxious Blight, Wave of Corruption, one of
+ * the 3 "Fingers of the Dead" ids, ...) carries an empty `professions`/`slot` — NPC/boss-only
+ * skill ids structurally unreachable from any build, same exclusion shape as the Siphon Damage
+ * sweep's orphan ids. "Nothing Can Save You!" (29666) converts boons into Vulnerability too, but
+ * its own API fact already labels that "Boons Removed" (Strip), which the app already surfaces
+ * correctly on the Strip row — left alone rather than double-counted onto Corrupt, since the
+ * API's own classification (not just its wording) disagrees with treating it as a Corrupt source.
+ *
+ * `detail` is a bare number string to match how a real Corrupt fact renders (`namedFactDetail`
+ * reads a plain `value` straight through with no unit suffix). `targetCount` stays `null` for
+ * both — Corrupt has no ally-reach concept to populate (`NAMED_FACT_TARGET_COUNT_TABLES`'s own
+ * doc comment), same as every other Corrupt/Strip source (including each of these two skills'
+ * own "Number of Targets" fact, which is enemy-facing and already surfaced separately, outside
+ * this row, wherever generic target-count facts are shown).
+ *
+ * Also checked, per this TODO item's 2nd ask: no skill/trait `Number` fact anywhere in the local
+ * game data uses "corrupted" phrasing in place of "converted" (full scan of every `Number` fact's
+ * `text` containing "boon") — `BOON_STRIP_CORRUPT_MATCHERS.Corrupt`'s `/boons? converted/i` regex
+ * isn't missing a wording variant, just these two genuinely-absent facts. See
+ * `corrupt-missing-fact-sources.test.ts` for the completeness scan that guards this sweep.
+ */
+export const CORRUPT_MISSING_FACT_SKILLS: Record<number, { detail: string }> = {
+  10671: { detail: '6' }, // Well of Corruption
+  68132: { detail: '1' } // Elixir of Bliss (Harbinger Heal) — Blight-threshold bonus (2) out of scope, see above
+}
+
+/** `CORRUPT_MISSING_FACT_SKILLS`' entry for one skill, or `[]` when this skill isn't one of the
+ *  curated candidates or `'Corrupt'` isn't a key of the caller's `matchers` table (same "only
+ *  contribute to the row currently being computed" gating `computeRelicNamedFactSources`/
+ *  `tomeChapterNamedFactSources` apply) — called alongside the normal `namedFactsFrom` walk so a
+ *  skill whose real `Fact[]` is missing this one fact still shows up on the Corrupt row. */
+function missingCorruptFactSource(skill: Skill, matchers: Record<string, (fact: Fact) => boolean>): NamedFactSource[] {
+  const entry = CORRUPT_MISSING_FACT_SKILLS[skill.id]
+  if (!entry || !('Corrupt' in matchers)) return []
+  return [{ sourceKind: 'skill', sourceId: skill.id, sourceName: skill.name, sourceIcon: skill.icon, name: 'Corrupt', detail: entry.detail, targetCount: null }]
+}
+
+/**
  * Generic counterpart to `computeAuraSources`/`computeComboSources` for named facts that don't
  * share boons/conditions/auras' `Buff`-with-`status` shape — Control/Miscellaneous/Strip&Corrupt
  * each read a mix of fact `type`s (`Time`/`Distance`/`Number`/`StunBreak`/`NoData`/`AttributeAdjust`),
@@ -6153,8 +6224,8 @@ export function computeNamedFactSources(
     ...extractSkillSourcesWithAdditiveDedup(
       skillIds,
       skillsById,
-      (skill) =>
-        namedFactsFrom(
+      (skill) => [
+        ...namedFactsFrom(
           skill.facts,
           skill.traitedFacts,
           activeIds,
@@ -6167,6 +6238,8 @@ export function computeNamedFactSources(
           matchers,
           targetCountTables
         ),
+        ...missingCorruptFactSource(skill, matchers)
+      ],
       additiveFlipNamedFactContentKey
     )
   )
@@ -6216,19 +6289,22 @@ export function namedFactsForSkill(
   matchers: Record<string, (fact: Fact) => boolean>,
   targetCountTables?: Record<string, { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> }>
 ): NamedFactSource[] {
-  return namedFactsFrom(
-    skill.facts,
-    skill.traitedFacts,
-    activeIds,
-    equippedLegendIdSet,
-    'skill',
-    skill.id,
-    skill.name,
-    skill.icon,
-    wvwOverride,
-    matchers,
-    targetCountTables
-  )
+  return [
+    ...namedFactsFrom(
+      skill.facts,
+      skill.traitedFacts,
+      activeIds,
+      equippedLegendIdSet,
+      'skill',
+      skill.id,
+      skill.name,
+      skill.icon,
+      wvwOverride,
+      matchers,
+      targetCountTables
+    ),
+    ...missingCorruptFactSource(skill, matchers)
+  ]
 }
 
 export interface NamedFactGroup {

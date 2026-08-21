@@ -2,6 +2,40 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 272 — Corrupt row undercount: Well of Corruption + Elixir of Bliss
+
+**Corruption stat undercounts real "boon corrupt" sources (2026-08-21).** `BOON_STRIP_CORRUPT_
+MATCHERS.Corrupt` only ever sees a skill/trait whose own `Fact[]` carries a `Number` fact matching
+`/boons? converted/i`. Full description-text sweep of every skill/trait mentioning converting/
+corrupting boons (58 candidates) found exactly 2 genuine gaps where the local API's `Fact[]`
+silently omits a real boon-corrupt effect:
+- Well of Corruption (Necromancer Utility, visible id 10671): every fact present except this one;
+  its own wiki page confirms the gap explicitly via a `| missing facts =
+  {{skill fact|Boons Converted to Conditions|6}}` infobox field.
+- Elixir of Bliss (Necromancer Harbinger Heal, visible id 68132): a bigger omission — the local API
+  carries no facts at all beyond Range/Recharge for this skill, even though the wiki's regular
+  `facts=` field documents a `Boons Converted to Conditions` template (1 baseline, 2 above the
+  caster's Blight stack threshold — the conditional bonus is out of scope, no build-state Blight
+  concept exists, so 1 is curated).
+
+Everything else in the 58-candidate sweep was either already covered by a real API fact (including
+Nefarious Favor's Path-of-Corruption-gated `traitedFacts` entry, which resolves for free), a
+condition-to-boon conversion (opposite direction, not a Corrupt source), a reactive trait that
+triggers *on* an existing corrupt rather than performing one (Feed from Corruption, Nourishing
+Ashes), an NPC/boss-only skill id with no `professions`/`slot` (structurally unreachable from any
+build, same shape as the Siphon Damage sweep's orphans), or "Nothing Can Save You!" (already
+correctly Strip-classified by its own API fact, not double-counted onto Corrupt). Also confirmed,
+per this TODO item's 2nd ask: no `Number` fact anywhere in the local data uses "corrupted" phrasing
+in place of "converted" — the regex isn't missing a wording variant.
+
+Added `CORRUPT_MISSING_FACT_SKILLS` (sources.ts) + `missingCorruptFactSource`, wired into both
+`computeNamedFactSources` (aggregate Strip/Corrupt/Cleanse row) and `namedFactsForSkill` (per-skill
+tooltip), same "small hand-curated override table" shape as `RELIC_NAMED_FACT_SOURCES`/
+`TOME_CHAPTER_NAMED_FACT_SOURCES`. New regression test `corrupt-missing-fact-sources.test.ts`
+(7 cases) runs the same completeness scan as a guard, plus confirms both skills now emit a Corrupt
+entry. The Mesmer Shatter 4 stun-break bug (TODO.md's other slotted-for-later item) stays open,
+separate investigation.
+
 ## Session 271 — Firebrand Tome chapters wired into the Control/Misc/Cleanse pipeline
 
 **Both user-flagged 2026-08-21 Firebrand Tome gaps fixed (2026-08-21).** Root cause for both:
