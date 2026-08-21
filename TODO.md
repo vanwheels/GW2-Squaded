@@ -240,8 +240,47 @@ a `target`-field fallback for `AttributeAdjust` facts with no `text` — see bel
       via a standalone script against the real `numericFactLines`/`boonConditionFactsForTrait`
       (Electron sandbox still blocks visual verification).
 
-      Remaining 3 professions (Thief, Elementalist, Necromancer) still open. Do one profession-leg,
-      then check in (see `pacing_large_sweeps` memory).
+      **Thief — done 2026-08-20** (6th leg, commit 2f2517b). Same process, all 9 spec
+      lines (5 core + Daredevil/Deadeye/Specter/Antiquary) / 111 traits scanned for both numeric
+      AND Buff-type same-status dupes. 30 traits curated into `NUMERIC_FACT_WVW_OVERRIDES`
+      (Thief block, `fact-numbers.ts`), surfacing a NEW split-direction shape not seen on any
+      prior leg's own traits: `split = pve wvw, pvp` (or explicitly `game mode=pve wvw`) means
+      pve+wvw actually SHARE the value tagged `pve`, even when the raw fact carries only a bare
+      `pve`/`pvp` tag with no `wvw` text anywhere — Quick Pockets (1187), Staff Master (1884),
+      Specter (2184, the elite spec's own namesake trait), and Hungering Darkness (2300) all hit
+      this; every fetch this leg was cross-checked against the page's own `split=` field rather
+      than assuming "2nd raw value = wvw." 4 genuinely-identical dupes needed no override
+      (already collapse via `numericFactLines`'s own dedup or the earlier buff-instance-label
+      sweep's pre-existing entries): Improvisation (1167), Iron Sight's own unrelated "Damage
+      Increase" 10/10 pair, Premeditation's "Bonus Damage per Boon" 1/1, and Unhindered
+      Combatant's Exhaustion (1964, a scan false positive — 2 different concepts, Exhaustion-on-
+      Chilled vs Exhaustion-on-Immobile, not a mode split; also a non-boon status regardless). 3
+      real gaps left deliberately uncurated: Twin Fangs (1268) and Enterprising Aristocrat (2362)
+      each have one more wiki-documented pve/wvw+pvp pair (Health Threshold; Barrier) missing the
+      wvw+pvp value from the API entirely, same "documented but absent from the raw data" shape as
+      Guardian's Heavy Light; Shadow Siphoning (1705) is a genuine data-mismatch — the wiki's
+      CURRENT infobox (412/288) doesn't match the live local API (312/218), and the wiki's own
+      2020 version-history note carries a `{{sic|288}}` self-flagged inconsistency, not confidently
+      resolvable, same shape as Devastation's Battle Scarred loose end. Leeching Venoms' Spider
+      Venom effect (1130) re-confirmed as the same non-boon-status gap the 2026-08-14 buff-
+      instance-label sweep already found (moot for the Buff mechanism regardless of its own
+      apply_count-only split). Also found and fixed 2 latent bugs in ALREADY-curated Thief
+      overrides predating this leg (Thrill of the Crime id 1163, Bountiful Theft id 1277), same
+      "plain per-status override only replaces duration, not apply_count" shape as the Engineer/
+      Ranger legs, converted both to `BUFF_INSTANCE_VALUE_OVERRIDES`; added a brand-new same-shape
+      fix for Serpent's Touch (1279, previously only partially handled — the 2026-08-14 sweep
+      labeled its 3rd "Poison When Downed" occurrence but never dropped the pvp-only duplicate of
+      its main Poisoned application). Fully resolved Possessive Hoarder (2393, Antiquary) — that
+      same 2026-08-14 sweep had explicitly deferred it as "too entangled to safely map onto local
+      raw fact order"; the full raw wikitext untangles it cleanly into a 3-way Might split (fixed,
+      same apply_count-bug shape), an unsplit Fury, a pve-only Alacrity pair (both occurrences
+      genuinely have no wvw/pvp variant, now correctly omitted), and a previously-un-overridden
+      Regeneration pair (was showing both values simultaneously with no override at all). End-to-
+      end verified via a standalone script against the real `numericFactLines`/
+      `boonConditionFactsForTrait` (Electron sandbox still blocks visual verification).
+
+      Remaining 2 professions (Elementalist, Necromancer) still open. Do one profession-leg, then
+      check in (see `pacing_large_sweeps` memory).
 
 - [ ] **Corruption stat undercounts real "boon corrupt" sources.** `BOON_STRIP_CORRUPT_MATCHERS.Corrupt`
       only matches `Number`-type facts whose text matches `/boons? converted/i`. Confirmed via
