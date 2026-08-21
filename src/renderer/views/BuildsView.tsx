@@ -234,7 +234,13 @@ export function BuildsView({ requestedEditBuildId, onRequestedEditBuildHandled }
           x={contextMenu.x}
           y={contextMenu.y}
           onClose={() => setContextMenu(null)}
-          items={[{ label: 'Duplicate', onSelect: () => void handleDuplicateBuild(contextMenu.build) }]}
+          items={[
+            {
+              label: contextMenu.build.favorite ? 'Unfavorite' : 'Favorite',
+              onSelect: () => toggleFavorite(contextMenu.build)
+            },
+            { label: 'Duplicate', onSelect: () => void handleDuplicateBuild(contextMenu.build) }
+          ]}
         />
       )}
     </section>

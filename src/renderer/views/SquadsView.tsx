@@ -254,7 +254,13 @@ export function SquadsView({ onEditBuild }: Props) {
           x={contextMenu.x}
           y={contextMenu.y}
           onClose={() => setContextMenu(null)}
-          items={[{ label: 'Duplicate', onSelect: () => void handleDuplicateSquadComp(contextMenu.squadComp) }]}
+          items={[
+            {
+              label: contextMenu.squadComp.favorite ? 'Unfavorite' : 'Favorite',
+              onSelect: () => toggleFavorite(contextMenu.squadComp)
+            },
+            { label: 'Duplicate', onSelect: () => void handleDuplicateSquadComp(contextMenu.squadComp) }
+          ]}
         />
       )}
     </section>
