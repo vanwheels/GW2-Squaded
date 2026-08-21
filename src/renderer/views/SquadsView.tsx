@@ -159,6 +159,15 @@ export function SquadsView({ onEditBuild }: Props) {
                       handleDrop(squadComp.id)
                     }}
                   >
+                    <button
+                      type="button"
+                      className="record-delete"
+                      onClick={() => void removeSquadComp(squadComp.id)}
+                      aria-label={`Delete ${squadComp.name}`}
+                      title="Delete squad"
+                    >
+                      ×
+                    </button>
                     <span className={squadComp.favorite ? 'favorite-star is-favorite' : 'favorite-star favorite-star-hint'}>
                       {squadComp.favorite ? '★' : '☆'}
                     </span>
@@ -168,6 +177,7 @@ export function SquadsView({ onEditBuild }: Props) {
                         <span className="party-mosaic">
                           {squadComp.parties.map((party, partyIndex) => (
                             <span className="party-mosaic-row" key={partyIndex}>
+                              <span className="party-mosaic-label">P{partyIndex + 1}</span>
                               {party.slots.map((slot, slotIndex) => {
                                 const profession = slotProfession(slot, buildsById)
                                 const color = profession ? professionAccentColor(profession) : undefined
@@ -190,7 +200,6 @@ export function SquadsView({ onEditBuild }: Props) {
                         </span>
                       </span>
                     </button>
-                    <button onClick={() => void removeSquadComp(squadComp.id)}>Delete</button>
                   </li>
                 )
               })}

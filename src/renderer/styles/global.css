@@ -492,27 +492,41 @@ button:hover {
 }
 
 /**
- * Squad card composition mosaic (2026-08-18) — one row of small dots per party, colored by each
- * slot's profession via `professionAccentColor()` (same real-GW2-color system as the Builds card
- * accent stripe above). Deliberately per-party rather than a de-duplicated "which classes appear
- * anywhere" row — that would lose the actual per-party shape (see TODO.md "UI/UX polish"). Empty
- * slots render as a hollow dot (`.party-mosaic-dot-empty`) rather than being omitted, so the shape
- * of a partially-filled party still reads correctly.
+ * Squad card composition mosaic (2026-08-18, enlarged + labeled 2026-08-20) — one row of dots per
+ * party, colored by each slot's profession via `professionAccentColor()` (same real-GW2-color
+ * system as the Builds card accent stripe above). Deliberately per-party rather than a
+ * de-duplicated "which classes appear anywhere" row — that would lose the actual per-party shape
+ * (see TODO.md "UI/UX polish"). Empty slots render as a hollow dot (`.party-mosaic-dot-empty`)
+ * rather than being omitted, so the shape of a partially-filled party still reads correctly.
+ *
+ * Dots sized up from an initial 7px and given a leading "P1"/"P2"/... label (`.party-mosaic-label`)
+ * as the fix for the still-open "Squads cards have a lot of empty vertical space" TODO item — makes
+ * the mosaic itself the card's visual anchor instead of a small decorative afterthought, without
+ * reopening the already-rejected per-slot-icon/de-duplicated-row directions.
  */
 .party-mosaic {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 5px;
+  margin: 2px 0;
 }
 
 .party-mosaic-row {
   display: flex;
-  gap: 3px;
+  align-items: center;
+  gap: 5px;
+}
+
+.party-mosaic-label {
+  width: 20px;
+  flex: none;
+  font-size: 0.68rem;
+  color: var(--muted);
 }
 
 .party-mosaic-dot {
-  width: 7px;
-  height: 7px;
+  width: 11px;
+  height: 11px;
   border-radius: 50%;
   flex: none;
 }
