@@ -2,6 +2,31 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 271 — Firebrand Tome chapters wired into the Control/Misc/Cleanse pipeline
+
+**Both user-flagged 2026-08-21 Firebrand Tome gaps fixed (2026-08-21).** Root cause for both:
+`computeNamedFactSources` (Control/Miscellaneous/Strip-Corrupt-Cleanse row) only ever walked
+equipped `Skill`/`Trait` records plus sigils/relics — Firebrand Tome chapters have no `Skill` id at
+all (they're wiki-sourced `RelicFactLine`s, same shape `tomeChapterBoonSources` already reads for
+the boon/condition pipeline) and were never wired into this pipeline in any form, so nothing a Tome
+chapter's own fact list carried could ever reach it, regardless of matcher content. Added
+`TOME_CHAPTER_NAMED_FACT_SOURCES` (hand-curated, same "wiki shape doesn't match `Fact`" reasoning
+`RELIC_NAMED_FACT_SOURCES` already uses for relics) + `tomeChapterNamedFactSources`, wired into
+`computeNamedFactSources` via the same `bundleContributionsForBuild` call the boon pipeline uses.
+
+- Tome of Courage "Chapter 4: Stalwart Stand" now shows Breaks Stun (self-only — its raw wikitext
+  is a bare `{{skill fact|breaks stun}}` with no `applies to=allies` qualifier, so this codebase's
+  established bare-template-defaults-to-self convention applies, `targetCount: null`).
+- Tome of Resolve "Epilogue: Eternal Oasis" now shows Cleanse, party-wide(5) (its "Conditions
+  Converted to Boons" fact is functionally a condition removal; `targetCount` read straight off the
+  chapter's own "allied targets" fact, already 5 in the wiki data).
+
+New regression test `tome-chapter-named-fact-sources.test.ts` (4 cases: each chapter emits its
+entry only under the matcher table it belongs to, nothing under the others). Along the way, found a
+3rd related gap out of scope for this pass — Tome of Justice's "Chapter 3: Heated Rebuke" carries a
+`defiance break` fact with no `CONTROL_MATCHERS` row to catch it at all — logged in TODO.md rather
+than guessed at.
+
 ## Session 270 — Duplicate builds/squads from a right-click menu
 
 **Duplicate builds/squads from a right-click menu (2026-08-21).** `BuildsView.tsx`/`SquadsView.tsx`

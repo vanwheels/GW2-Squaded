@@ -121,25 +121,12 @@ a `target`-field fallback for `AttributeAdjust` facts with no `text` — see bel
       investigation pass, not a quick fix — start by confirming live in the running app (or a fresh
       screenshot) exactly which component/string is rendering it.
 
-- [ ] **Firebrand Tome of Resolve Chapter 5, "Eternal Oasis," converts Conditions to Boons but isn't
-      tracked as a Cleanse.** Same shape as the Corruption-stat gap above but for the opposite
-      direction (condi→boon instead of boon→condi): a Condition-to-Boon conversion is effectively a
-      cleanse and should register in the Cleanses tracker/matcher, but currently doesn't. User-flagged
-      2026-08-21, not yet investigated — check whether the raw API facts even carry a
-      condition-removal-shaped fact for this skill (past sweeps of this shape found the API just
-      omits the fact entirely) and whether `MISCELLANEOUS_MATCHERS`/cleanse-matcher logic has any
-      "convert conditions to boons" pattern at all.
-
-- [ ] **Firebrand Tome of Courage Chapter 4, "Stalwart Stand," breaks stun but doesn't show up in the
-      Stun Break field.** User-flagged 2026-08-21, not yet investigated. Note: this is the same skill
-      already fixed for its *target count* (party-wide(5), see COMPLETED.md) — the stun-break gap is
-      a separate, still-open fact-type issue on the same skill.
-
-## Stats panel / boon-condition bar polish
-
-- [ ] Minor, unconfirmed: possible Ascended-vs-Exotic filter tabs on the itemstat-combo picker — no
-      screenshot exists confirming this is real; leave as-is unless it resurfaces with a concrete
-      example.
+- [ ] Tome of Justice's "Chapter 3: Heated Rebuke" carries a `defiance break` (breakbar damage) fact
+      that nothing surfaces — found 2026-08-21 while fixing Stalwart Stand/Eternal Oasis's Tome
+      named-fact gaps (see COMPLETED.md), out of scope for that pass: no `CONTROL_MATCHERS`/
+      `MISCELLANEOUS_MATCHERS` row exists for breakbar damage at all yet (a magnitude concept, not a
+      boolean presence fact like Pull/Knockback), and this would be the first candidate for one —
+      needs scoping, not a one-off patch.
 
 ## Nice-to-haves
 

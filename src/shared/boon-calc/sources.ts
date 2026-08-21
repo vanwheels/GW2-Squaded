@@ -6048,6 +6048,60 @@ function computeRelicNamedFactSources(
 }
 
 /**
+ * Firebrand Tome chapters' Control/Miscellaneous/Strip-Corrupt-Cleanse contributions — same
+ * "wiki-sourced `RelicFactLine`, not the API's `Fact`" gap `RELIC_NAMED_FACT_SOURCES` exists to
+ * close for relics, hand-curated the same way rather than derived from a generic parse (tome
+ * chapters have no `Skill` id for the normal `Fact`-matching pipeline to read at all — see
+ * `TomeChapter`'s doc comment, same reason `tomeChapterBoonSources` exists). Found via a full scan
+ * of all 15 chapters' wiki-sourced fact labels (`data/game-data/tome-chapters.json`) for anything
+ * Control/Miscellaneous/Strip/Corrupt/Cleanse-shaped — TODO.md's 2 user-flagged 2026-08-21 gaps:
+ * - 42259/3 (Tome of Courage, "Chapter 4: Stalwart Stand"): carries a bare `breaks stun` fact
+ *   (confirmed via the page's raw wikitext, `{{skill fact|breaks stun}}`, no `applies to=`
+ *   qualifier) — this codebase's established bare-template-defaults-to-self convention
+ *   (`BREAKS_STUN_PARTY_WIDE`'s own doc comment) applies the same way here, so no `targetCount`:
+ *   self-only, same treatment as e.g. Fox's Fury. The chapter's own "resistance" boon (already
+ *   curated party-wide(5) via `TOME_CHAPTER_TARGET_COUNT_OVERRIDES`) is a separate fact — the two
+ *   don't have to share a target count, same as Toad's Fortitude's self-only breakstun alongside
+ *   its ally-facing Resistance.
+ * - 41780/4 (Tome of Resolve, "Epilogue: Eternal Oasis"): its `Conditions Converted to Boons` fact
+ *   is functionally a Cleanse (condition removal) — unlike Relic of Leadership's identically-shaped
+ *   fact (`RELIC_TRIGGER_GATES`'s doc comment), excluded from the *boon* pipeline for not naming
+ *   which boon results, that reasoning doesn't apply to the Cleanse row: it only cares that
+ *   conditions were removed, not what they became. `targetCount` is 5, read straight off this
+ *   chapter's own "allied targets" fact (already present in the wiki data, no override needed).
+ *
+ * Every other chapter was checked and carries nothing else Control/Miscellaneous/Strip/Corrupt/
+ * Cleanse-shaped except Tome of Justice's "Chapter 3: Heated Rebuke" (`defiance break`, i.e.
+ * breakbar damage) — not wired here, no `CONTROL_MATCHERS`/`MISCELLANEOUS_MATCHERS` row exists for
+ * breakbar damage at all yet (a magnitude concept, not a boolean presence fact like Pull/Knockback);
+ * logged in TODO.md rather than guessed at here.
+ */
+const TOME_CHAPTER_NAMED_FACT_SOURCES: Record<number, Record<number, { name: string; detail: string | null; targetCount: number | null }>> = {
+  42259: { 3: { name: 'Breaks Stun', detail: null, targetCount: null } },
+  41780: { 4: { name: 'Cleanse', detail: '5 conditions', targetCount: 5 } }
+}
+
+/** `TOME_CHAPTER_NAMED_FACT_SOURCES`' entry for one equipped Tome chapter, or `[]` when this
+ *  chapter isn't one of the curated candidates or its name isn't a key of the caller's `matchers`
+ *  table (same gating `computeRelicNamedFactSources` applies) — called once per chapter the build
+ *  actually has equipped, same as `tomeChapterBoonSources`. */
+export function tomeChapterNamedFactSources(chapter: TomeChapter, matchers: Record<string, (fact: Fact) => boolean>): NamedFactSource[] {
+  const entry = TOME_CHAPTER_NAMED_FACT_SOURCES[chapter.tomeSkillId]?.[chapter.slotIndex]
+  if (!entry || !(entry.name in matchers)) return []
+  return [
+    {
+      sourceKind: 'skill',
+      sourceId: chapter.tomeSkillId,
+      sourceName: chapter.name,
+      sourceIcon: chapter.icon,
+      name: entry.name,
+      detail: entry.detail,
+      targetCount: entry.targetCount
+    }
+  ]
+}
+
+/**
  * Generic counterpart to `computeAuraSources`/`computeComboSources` for named facts that don't
  * share boons/conditions/auras' `Buff`-with-`status` shape — Control/Miscellaneous/Strip&Corrupt
  * each read a mix of fact `type`s (`Time`/`Distance`/`Number`/`StunBreak`/`NoData`/`AttributeAdjust`),
@@ -6084,6 +6138,10 @@ export function computeNamedFactSources(
   const legendIds = equippedLegendIds(build)
   const out: NamedFactSource[] = [...computeSigilNamedFactSources(build, gameData.sigils, matchers), ...computeRelicNamedFactSources(build, gameData, matchers)]
   const { skillsById, skillIds } = equippedSkillsById(build, gameData)
+  const bundleContributions = bundleContributionsForBuild(build, gameData.professions, skillsById, gameData.tomeChapters)
+  for (const chapter of bundleContributions.tomeChapters) {
+    out.push(...tomeChapterNamedFactSources(chapter, matchers))
+  }
 
   out.push(
     ...extractSkillSourcesWithAdditiveDedup(
