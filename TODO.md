@@ -40,14 +40,14 @@ Value's case was (`FOUND_PURPOSE_TRAIT_ID`'s doc comment in `boon-calc/sources.t
 `LEGEND_GATED_TRAIT_IDS`) — plus a drive-by fix to a genuine duplicate-Might-row bug on Found
 Purpose's own trait tooltip, found while wiki-verifying its numbers.
 
-## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
+## UI/UX polish (flagged 2026-08-16, refined in discussion same day) — FULLY DONE 2026-08-20
 
 User felt the overall UI/UX was "a little off." Talked through each area and landed on concrete
-directions below (see this session's transcript for the fuller reasoning) — **still not started**,
-this is a firmed-up plan, not a spec ready to code from; worth a `docs/`-style design-of-record
-writeup once implementation starts, same pattern as the Discord bot/target-count features.
+directions below (see this session's transcript for the fuller reasoning) — all three tabs (Builds,
+Squads, Settings) are now implemented; no design-of-record writeup was done separately, the reasoning
+lives in the per-item notes below and in COMPLETED.md.
 
-- [ ] **Builds tab** (`BuildsView.tsx`): record cards feel too similar and the page has a lot of
+- [x] **Builds tab** (`BuildsView.tsx`): record cards feel too similar and the page has a lot of
       empty vertical space.
         - Delete button → a small "X" icon, **hover-reveal** (invisible until the card is
           moused over, decided over always-visible-but-small) — replaces the current full-width
@@ -69,9 +69,12 @@ writeup once implementation starts, same pattern as the Discord bot/target-count
           differentiates *across* professions, not between two builds of the same profession.
         - Profession filter row (`ProfessionTagPicker.tsx`) → collapse behind a disclosure toggle
           by default, closed on first paint, consistent with how `TagChipDropdown` already behaves
-          next to it. Today it's an always-expanded 9-icon profession row + up to 27-icon elite-spec
-          grid with no real affordance beyond a plain "Profession" text label — that wall of icons
-          right above the build list is the likely source of "unintuitive first impression."
+          next to it. **Already done — turned out to predate this TODO entry**: commit `bd35092`
+          (2026-08-18, "Collapse profession filter into a popover, reorder filter bar") already
+          replaced the always-expanded 9-icon row + 27-icon elite-spec grid with a click-to-open
+          `FloatingPanel` popover behind a compact "Profession" trigger button + active-filter dot
+          badge, and also enabled the picker in `BuildsSidebar` (previously opted out for width).
+          Confirmed 2026-08-20 while picking this item back up — no further work needed.
 - [x] **Squads tab** (`SquadsView.tsx`): squad cards had zero visual distinguishability (no colors,
       no icons) and, separately, the same empty-space issue as Builds. Decided against per-slot
       profession icons (a squad can have several 5-slot parties — `PartySlots` is a fixed 5-tuple
@@ -88,10 +91,12 @@ writeup once implementation starts, same pattern as the Discord bot/target-count
       Squads cards' delete control in line with Builds' hover-reveal `.record-delete` "×" icon
       (Squads had been left on the old always-visible full-width "Delete" text button, a leftover
       gap from the 2026-08-18 Builds-only pass).
-- [ ] **Settings tab** (`SettingsView.tsx`): reads as hollow/underfilled for its horizontal space
-      (Display/Updates/Game data/Credits currently stack single-column). Not urgent — more settings
-      will fill it in naturally — but whenever it's next touched, switch the panels to a 2-column
-      layout rather than full-width single-column stacking; no new content needed to justify it.
+- [x] **Settings tab** (`SettingsView.tsx`): reads as hollow/underfilled for its horizontal space
+      (Display/Updates/Game data/Credits currently stack single-column). **Done 2026-08-20**
+      (COMPLETED.md Session 262): panels moved into a `.settings-grid` 2-column CSS grid
+      (`global.css`), collapsing to 1 column under 820px width; no new content added, purely a
+      reflow. This was the last open item in the UI/UX polish section — Builds and Squads tabs were
+      already done, so the whole section is now closed.
 
 ## Scoped features, not yet built
 

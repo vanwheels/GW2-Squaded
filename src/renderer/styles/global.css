@@ -331,20 +331,35 @@ button:hover {
   color: var(--muted);
 }
 
+/* Settings tab panels (Display/Updates/Game data/Credits) — a 2-column grid rather than
+   full-width single-column stacking (2026-08-20), since single-column left a lot of unused
+   horizontal space for panels this short. Fixed 2 columns (not `auto-fit`) so panel width stays
+   in the same ~480px range the panels were designed at; collapses to 1 column at narrow window
+   widths rather than squeezing columns down. `align-items: start` keeps each panel's own height
+   (Credits runs noticeably longer than Game data, its row sibling) instead of grid's default
+   `stretch` inflating the shorter one to match. */
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 480px));
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 820px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .settings-panel {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 16px 20px;
-  max-width: 480px;
 }
 
 .settings-panel h3 {
   margin-top: 0;
-}
-
-.settings-panel-spaced {
-  margin-top: 16px;
 }
 
 .settings-panel p:last-child {

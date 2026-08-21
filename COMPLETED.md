@@ -2,6 +2,21 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 262 — Settings tab 2-column layout
+
+Closes TODO.md's UI/UX polish section entirely (Builds and Squads tabs were already done; this was
+the last open item). `SettingsView.tsx`'s 4 panels (Display/Updates/Game data/Credits) now sit in a
+`.settings-grid` (`global.css`) — `grid-template-columns: repeat(2, minmax(0, 480px))`, source order
+unchanged so Display+Updates land in row 1 and Game data+Credits in row 2 without any reordering.
+Fixed 2 columns rather than `auto-fit`, so panel width stays in the ~480px range they were designed
+at; collapses to 1 column under an 820px media query rather than squeezing columns down at narrow
+window widths. `align-items: start` stops grid's default `stretch` from inflating Game data's shorter
+panel to match Credits' noticeably longer one in the same row. Dropped the now-redundant
+per-panel `max-width: 480px` (superseded by the grid column's own `minmax` cap) and the
+`.settings-panel-spaced` margin-top class (superseded by the grid's `gap`, and would have
+misaligned row 1 if left on column-2 panels). `npm run typecheck`/`npm run lint` both clean; not
+visually spot-checked in the running app (Electron sandbox limitation, see memory).
+
 ## Session 261 — Found Purpose supersedes Numinous Gift on Cosmic Wisdom
 
 Closes TODO.md's last open Revenant item ("Found Purpose's boosted boons on Cosmic Wisdom"). Same
