@@ -2,6 +2,278 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 268 — Main sweep complete: WvW/PvE duplicate-fact values, all 8 non-Revenant professions
+
+Moved here from TODO.md now that all 8 legs (one per profession) are done, closing out both phases
+of the WvW-duplicate-fact sweep (the earlier Revenant-only phase, elsewhere in this file, plus this
+8-profession phase). Full per-leg write-up below, in the order the legs landed.
+
+**Main sweep: WvW/PvE duplicate-fact values, all 8 non-Revenant professions.** Root cause
+(confirmed 2026-08-20): the raw GW2 API bakes PvE/WvW/PvP fact variants into `facts` as literal
+duplicate entries with no discriminator tag. 2 mechanisms already exist and are proven
+(Revenant's full curation, this file) — `wvw-fact-overrides.json` (+`fetch-wvw-splits.ts`)
+for `Buff`/`PrefixedBuff` boon/condition facts, `NUMERIC_FACT_WVW_OVERRIDES`
+(`fact-numbers.ts`) for `Number`/`Percent`/`AttributeAdjust` facts — leg-granularity is one
+whole profession, not one spec line (user's call 2026-08-20, given the scale: 8 professions ×
+~9 spec lines each).
+
+**Guardian — done 2026-08-20** (1st leg). Scanned all 9 spec lines/108 traits for
+Number/Percent/AttributeAdjust/Time labels (or Buff statuses) repeated within one trait's base
+facts; wiki-verified each candidate's raw `{{trait fact}}` split before curating. Found and
+fixed 2 real infra gaps along the way (not profession-specific, so they now apply everywhere):
+`numericFactLines` never matched `Time`-typed facts against `NUMERIC_FACT_WVW_OVERRIDES` at all
+(found via Righteous Instincts/Loremaster/Illuminating Inspiration's "Interval"/"Recharge Time
+Reduced" dupes), and never fell back to `AttributeAdjust`'s `target` field when `text` was
+absent (Firebrand's Imbued Haste, id 2148 — closes out this exact gap called out above).
+23 traits curated total across `NUMERIC_FACT_WVW_OVERRIDES` (Guardian block, `fact-numbers.ts`)
++ 1 in `wvw-fact-overrides.json` (Resolute Subconscious, id 625 — a genuinely-identical
+duplicate needing dedup, not an actual pve/wvw value difference). 2 real gaps found and
+deliberately left uncurated (documented in `fact-numbers.ts`'s own Guardian-leg comment, not
+modeled wrong): Heavy Light's Stability grant (id 1963) splits 6s pve/3s wvw+pvp per the wiki,
+but the live API only ever carries the pve value — same "wiki-documented value missing from
+the API entirely" shape as Vindicator's Song of Arboreum Vigor loose end; Phoenix Protocol (id
+2195) grants 2 independent Alacrity concepts ("on Trigger"/"on Activation") that ALSO swap to
+Resolution entirely in WvW, a multi-concept-collision-plus-boon-swap shape `WvwFactOverride`
+can't express (same as Darkrazor's Daring/Found Purpose's Entity slot).
+
+**Warrior — done 2026-08-20** (2nd leg). Same process, all 9 spec lines/111 traits scanned.
+26 traits curated into `NUMERIC_FACT_WVW_OVERRIDES` (Warrior block, `fact-numbers.ts`) + 1 into
+`wvw-fact-overrides.json` (Sundering Burst, id 1316 — 2 concepts sharing one Vulnerability
+status but both sharing the identical split, safe to collapse). "Pure Strike" needed its wiki
+title disambiguated to "Pure Strike (trait)" (the bare title is a same-named skill page). 2
+genuinely-identical dupes found needing no override (already collapse via `numericFactLines`'s
+own dedup): Stalwart Strength (1708) and Bloody Roar (1928), both a flat 10%/10% Damage
+Increase with no wiki split at all. Peak Performance's (1444) "Peak Performance" effect Buff
+carries an embedded pve-10%/wvw-7% sub-value via the wiki's `effect bonus number=` param that
+neither this table nor `WvwFactOverride` can express (both only override a flat number/
+duration) — left as a documented gap, not modeled wrong. End-to-end verified via a standalone
+script against the real `numericFactLines` (Electron sandbox still blocks visual verification).
+
+**Mesmer — done 2026-08-20** (3rd leg). Same process, all 9 spec lines/111 traits scanned.
+20 traits curated into `NUMERIC_FACT_WVW_OVERRIDES` (Mesmer block, `fact-numbers.ts`), closing
+the previously-flagged Troubadour's Shredding (2343) instance. 3 genuinely-identical dupes
+needing no override (already collapse via `numericFactLines`'s own dedup): Compounding Power
+(723, "Maximum Stacks" 5/5), Illusionary Inspiration (1915, "Healing Increase to Others" 5/5),
+and Restorative Illusions (1866, 4 clone-tier Healing facts each identical across all 3 modes
+despite different `coefficient=` values, same shape as Warrior's Vigorous Shouts). Life of the
+Party (Troubadour, id 2367) has a real pve/wvw/pvp Might/Quickness split, but on
+`PrefixedBuff`-typed per-linked-skill (Lively Lute/Crescendo) facts — out of this table's scope,
+same shape as Vindicator's Reaver's Curse/Salvation's Generous Abundance, left for a future
+per-skill-mapping leg. End-to-end verified via a standalone script against the real
+`numericFactLines` (Electron sandbox still blocks visual verification).
+
+**User-caught follow-up, same day:** this leg's scan only checked `Number`/`Percent`/
+`AttributeAdjust`/`Time` facts — missed Illusionary Defense (675), a `Buff`-type Protection
+duplicate the same leg should have caught. Fixed (Session 267 above): a
+`BUFF_INSTANCE_VALUE_OVERRIDES.trait[675]` entry drops its 2 pvp-only occurrences, plus a
+`synthetic-facts.json` copy onto Cry of Frustration (Mesmer core F2, id 10190) so the boon
+shows on the F2 skill's own tooltip too (missed by the 2026-08-14 trait-granted-boons-on-skills
+sweep, which only scanned named `improves skill=` wiki fields — this trait's generic
+`improves mechanic slot = 2` fell through). **Remaining 5 legs must also scan `Buff`-type
+facts for same-status duplicates**, not just the 4 numeric types — check both
+`wvw-fact-overrides.json`'s existing per-status mechanism and `BUFF_INSTANCE_VALUE_OVERRIDES`
+(for the 2+-concepts-share-one-status shape) as candidates surface.
+
+**Engineer — done 2026-08-20** (4th leg, commit ef017f7). Same process, all 9 spec lines (5
+core + Scrapper/Holosmith/Mechanist/Amalgam) scanned for both numeric AND Buff-type dupes. 31
+traits curated into `NUMERIC_FACT_WVW_OVERRIDES` (Engineer block). 3 genuinely-identical dupes
+needed no override (Sharpshooter 526, Soothing Detonation 1834, Mech Core: Barrier Engine
+2281). Carbolic Composition's Poisoned duration was a real, previously-uncovered
+single-raw-fact Buff gap, fixed via `wvw-fact-overrides.json` — confirms `WvwFactOverride`
+doesn't need a matching raw duplicate to fix a wrong single value, it just replaces it
+unconditionally (Incendiary Powder/Serrated Steel turned out to already be covered by an
+earlier sweep, not new this leg). Also found and fixed 3 latent bugs in ALREADY-curated
+Engineer overrides predating this leg (HGH id 473, Kinetic Accelerators id 2052, Photonic
+Blasting Module id 2064): each has a real pve-vs-wvw split where BOTH `duration` AND
+`apply_count` change, but the old plain per-status override only replaces `duration` — it
+silently kept the FIRST-encountered occurrence's own (wrong) `apply_count`, e.g. showing
+HGH's Might as "8s, 2 stacks" instead of the real wvw "8s, 3 stacks". Converted all 3 to
+`BUFF_INSTANCE_VALUE_OVERRIDES` (omit the non-WvW occurrences, let the WvW-correct tuple —
+which already exists as its own distinct raw fact — pass through untouched); the same trick
+also closed New Genes' (2387) Might split, previously assumed unfixable under the
+"`WvwFactOverride` can't express `apply_count` changes" limitation documented on the
+Warrior/Necromancer legs' Eviscerate/Falling Spider/Brutal Shot — **worth rechecking those
+older "left open" cases with this same trick on a future pass**, not attempted this leg. 2
+real gaps left deliberately uncurated: Mech Frame: Channeling Conduits (2276) grants Alacrity
+in pve/pvp but swaps to Might entirely in wvw, the same boon-type-swap shape
+`WvwFactOverride` can't express as Guardian's Phoenix Protocol; Crystal Configuration:
+Zephyr's (2091) apparent Crippled duplicate is a scan false positive (a condition-cleanse
+marker fact with no `duration`, already filtered before reaching any override table, same
+shape as the Warrior leg's Knot Shot/Brutal Shot false positives). End-to-end verified via a
+standalone script against the real `numericFactLines`/`boonConditionFactsForTrait` (Electron
+sandbox still blocks visual verification).
+
+**Ranger — done 2026-08-20** (5th leg). Same process, all 9 spec lines (5 core +
+Druid/Soulbeast/Untamed/Galeshot) / 111 traits scanned for both numeric AND Buff-type
+same-status dupes. 25 traits curated into `NUMERIC_FACT_WVW_OVERRIDES` (Ranger block,
+`fact-numbers.ts`) + 4 into `wvw-fact-overrides.json`/`BUFF_INSTANCE_VALUE_OVERRIDES`
+(Windborne Notes/Lead the Wind/Eclipse's Immobile+Burning pair as plain overrides; Eclipse's
+Poisoned pair and Cloudburst's Hawkeye-prefixed Quickness pair via `BUFF_INSTANCE_VALUE_
+OVERRIDES`, since Cloudburst's trait ALSO carries a genuinely different Quickness application
+under a separate Bluster prefix that a plain per-status override would have wrongly collapsed
+into it). 3 genuinely-identical dupes needed no override (Hunter's Tactics 1068, Lingering
+Light 2058, Twice as Vicious 2127). Hunter's Gaze (1014) was a scan false positive: 3
+independently health-threshold-gated Might grants sharing one status, not a mode split. Also
+found and fixed 2 latent bugs in ALREADY-curated Ranger overrides predating this leg (Blood
+Moon id 1935, Let Loose id 2271) — same "plain per-status override only replaces `duration`,
+not `apply_count`" shape as the Engineer leg's HGH/Kinetic Accelerators/Photonic Blasting
+Module, converted both to `BUFF_INSTANCE_VALUE_OVERRIDES`. 3 real gaps left deliberately
+uncurated: Moment of Clarity's (1070) "Attack of Opportunity" effect-Buff carries an embedded
+pve-50%/wvw+pvp-10% damage-bonus sub-value via the wiki's `effect bonus number=` param, same
+"can't express an embedded sub-value" shape as Warrior's Peak Performance; Cloudburst (2425)
+has 2 real boon-type-swap gaps under its Bluster/Hawkeye linked-skill prefixes (Quickness+Might
+swap entirely to Swiftness+Fury/Fury in wvw+pvp), same shape as Guardian's Phoenix
+Protocol/Engineer's Mech Frame: Channeling Conduits; Natural Balance (2056) turned out to be a
+DIFFERENT kind of gap discovered this leg — its Buff's own `status` ("Natural Balance") isn't a
+recognized boon/condition name at all, so `classifyBoonCondition` gates it out before any
+override table is ever consulted and the fact renders nowhere in the app currently, same
+"custom effect-status the boon/condition pipeline structurally can't see" shape as the Conduit
+leg's Bolstered Bonds loose end (no override added, would be dead code). End-to-end verified
+via a standalone script against the real `numericFactLines`/`boonConditionFactsForTrait`
+(Electron sandbox still blocks visual verification).
+
+**Thief — done 2026-08-20** (6th leg, commit 2f2517b). Same process, all 9 spec
+lines (5 core + Daredevil/Deadeye/Specter/Antiquary) / 111 traits scanned for both numeric
+AND Buff-type same-status dupes. 30 traits curated into `NUMERIC_FACT_WVW_OVERRIDES`
+(Thief block, `fact-numbers.ts`), surfacing a NEW split-direction shape not seen on any
+prior leg's own traits: `split = pve wvw, pvp` (or explicitly `game mode=pve wvw`) means
+pve+wvw actually SHARE the value tagged `pve`, even when the raw fact carries only a bare
+`pve`/`pvp` tag with no `wvw` text anywhere — Quick Pockets (1187), Staff Master (1884),
+Specter (2184, the elite spec's own namesake trait), and Hungering Darkness (2300) all hit
+this; every fetch this leg was cross-checked against the page's own `split=` field rather
+than assuming "2nd raw value = wvw." 4 genuinely-identical dupes needed no override
+(already collapse via `numericFactLines`'s own dedup or the earlier buff-instance-label
+sweep's pre-existing entries): Improvisation (1167), Iron Sight's own unrelated "Damage
+Increase" 10/10 pair, Premeditation's "Bonus Damage per Boon" 1/1, and Unhindered
+Combatant's Exhaustion (1964, a scan false positive — 2 different concepts, Exhaustion-on-
+Chilled vs Exhaustion-on-Immobile, not a mode split; also a non-boon status regardless). 3
+real gaps left deliberately uncurated: Twin Fangs (1268) and Enterprising Aristocrat (2362)
+each have one more wiki-documented pve/wvw+pvp pair (Health Threshold; Barrier) missing the
+wvw+pvp value from the API entirely, same "documented but absent from the raw data" shape as
+Guardian's Heavy Light; Shadow Siphoning (1705) is a genuine data-mismatch — the wiki's
+CURRENT infobox (412/288) doesn't match the live local API (312/218), and the wiki's own
+2020 version-history note carries a `{{sic|288}}` self-flagged inconsistency, not confidently
+resolvable, same shape as Devastation's Battle Scarred loose end. Leeching Venoms' Spider
+Venom effect (1130) re-confirmed as the same non-boon-status gap the 2026-08-14 buff-
+instance-label sweep already found (moot for the Buff mechanism regardless of its own
+apply_count-only split). Also found and fixed 2 latent bugs in ALREADY-curated Thief
+overrides predating this leg (Thrill of the Crime id 1163, Bountiful Theft id 1277), same
+"plain per-status override only replaces duration, not apply_count" shape as the Engineer/
+Ranger legs, converted both to `BUFF_INSTANCE_VALUE_OVERRIDES`; added a brand-new same-shape
+fix for Serpent's Touch (1279, previously only partially handled — the 2026-08-14 sweep
+labeled its 3rd "Poison When Downed" occurrence but never dropped the pvp-only duplicate of
+its main Poisoned application). Fully resolved Possessive Hoarder (2393, Antiquary) — that
+same 2026-08-14 sweep had explicitly deferred it as "too entangled to safely map onto local
+raw fact order"; the full raw wikitext untangles it cleanly into a 3-way Might split (fixed,
+same apply_count-bug shape), an unsplit Fury, a pve-only Alacrity pair (both occurrences
+genuinely have no wvw/pvp variant, now correctly omitted), and a previously-un-overridden
+Regeneration pair (was showing both values simultaneously with no override at all). End-to-
+end verified via a standalone script against the real `numericFactLines`/
+`boonConditionFactsForTrait` (Electron sandbox still blocks visual verification).
+
+**Elementalist — done 2026-08-20** (7th leg). Same process, all 9 spec lines (5 core +
+Tempest/Weaver/Catalyst/Evoker) / 111 traits scanned for both numeric AND Buff-type same-status
+dupes. 18 traits curated into `NUMERIC_FACT_WVW_OVERRIDES` (Elementalist block,
+`fact-numbers.ts`), surfacing 2 shapes worth flagging: Aquamancer's Training (1676) hit the
+"pve wvw, pvp" split direction first seen on the Thief leg (pve+wvw share 20%, pvp alone drops
+to 15%); Pyromancer's Training (319), Stormsoul (1502), and Piercing Shards (363) hit the rare
+"WvW/PvP higher than PvE" shape (a 2026-04-14 patch reduced only the PvE value, same shape as
+Guardian's Amplified Wrath). Elemental Bastion's (1986) 3-way Healing split (522 pve/391
+wvw/391 pvp) and Earthen Blast's (279) genuine `pve wvw, pvp` Barrier split (1302 shared,
+picked over the naive "2nd value" 800) both resolved cleanly. Buff-side: found and fixed 2
+latent apply_count bugs in ALREADY-curated Elementalist overrides predating this leg (Electric
+Discharge id 222, Burning Rage id 325), same "plain per-status override only replaces
+duration, not apply_count" shape as every prior leg's findings, converted both to
+`BUFF_INSTANCE_VALUE_OVERRIDES`. Re-verified 5 already-curated Buff overrides (Elemental
+Shielding 289, Hardy Conduit 1948, Invigorating Torrents 2015, Superior Elements' own Weakness
+pair 2177, Bountiful Power's own Quickness pair 1511) against fresh wiki wikitext — no bugs
+found. 1 real gap left deliberately uncurated: Energized Elements (2224) grants Fury in pve but
+swaps entirely to Might in wvw+pvp, the same boon-type-swap shape `WvwFactOverride`/
+`BUFF_INSTANCE_VALUE_OVERRIDES` can't express as Guardian's Phoenix Protocol/Ranger's
+Cloudburst (pre-existing `Fury: 'omit'` entry, unchanged). Galvanic Enchantment's (2335)
+apparent Electric Enchantment dupe looked fixable but "Electric Enchantment" isn't a
+recognized boon/condition name at all, so no override was added (would be dead code, same
+shape as Ranger's Natural Balance/Conduit's Bolstered Bonds); Lucid Singularity's (2033)
+apparent Alacrity/Might dupes are a scan false positive, already fully resolved and labeled by
+the 2026-08-14 buff-instance-label sweep as 4 genuinely distinct concepts, not a mode split.
+One with Air's (224) Superspeed pair and Bountiful Power's (1511) "Bountiful Power"
+marker/timed-effect pair are genuinely-identical/genuinely-different-concept scan false
+positives needing no override. End-to-end verified via a standalone script against the real
+`numericFactLines`/`boonConditionFactsForTrait`. Typecheck + full test suite (276 tests) pass.
+
+**Necromancer — done 2026-08-20 (8th and final leg, sweep complete).** Same process, all 9
+spec lines (5 core + Reaper/Scourge/Harbinger/Ritualist) / 108 traits scanned for both numeric
+AND Buff-type same-status dupes. 35 traits curated into `NUMERIC_FACT_WVW_OVERRIDES`
+(Necromancer block, `fact-numbers.ts`) + 4 new trait entries into `wvw-fact-overrides.json`
+(Transfusion 778's Vigor/Stability pair, Desert Empowerment 2080's Alacrity/Vigor pair, Septic
+Corruption 2185's Poisoned pair, Empowering Spirits 2405's Quickness omit) + 1 into
+`BUFF_INSTANCE_VALUE_OVERRIDES` (Empowering Spirits 2405's Might, a fresh apply_count-differs
+case). Vampiric Presence (1844) surfaced a new wiki-self-contradiction shape: its infobox
+literally lists Damage 65 pve+wvw/49 pvp, but the SAME page's own Notes section independently
+derives `Damage = 32 + (Power * 0.0333)` (marked `{{verify}}`) — matching the live API's actual
+raw values (32, 62-in-shroud) exactly rather than the stale infobox numbers, a bigger version
+of the reference-build-rounding gap seen elsewhere (curated from the API's own values per this
+table's design). Transfusion (778) and Desert Empowerment (2080) each hit the "declared 3-way
+split, actual 2-way display" shape (pve and wvw land on the identical displayed number despite
+different coefficients) already seen on Warrior's Vigorous Shouts. Desert Empowerment (2080)
+and Empowering Spirits (2405) each surfaced a NEW resolvable sub-case of the previously-always-
+unfixable "boon-type swap" gotcha (Guardian's Phoenix Protocol/Ranger's Cloudburst/
+Elementalist's Energized Elements): both their pve-only boon (Alacrity, Quickness respectively)
+and their wvw+pvp-swapped-to boon (Vigor both times) are single, non-colliding raw facts with
+no internal ambiguity, so — unlike those prior unfixable cases — the pve-only boon can just be
+`'omit'`-ed via `wvw-fact-overrides.json` and the swap-target boon needs no entry at all since
+it's already the sole occurrence; first time this sub-shape has been confirmed cleanly fixable.
+
+Found and fixed 1 latent apply_count bug in an ALREADY-curated Necromancer override predating
+this leg (Implacable Foe, id 2192): the old plain `wvw-fact-overrides.json` entry
+(`{Stability: 3}`) replaced the FIRST raw fact's (pve, 5s/3 stacks) duration with 3 but kept its
+apply_count of 3, showing "3s, 3 stacks" instead of the real wvw+pvp "3s, 1 stack" — same shape
+as every prior leg's findings, converted to `BUFF_INSTANCE_VALUE_OVERRIDES` (removing the old
+entry). Re-verified every other pre-existing Necromancer `wvw-fact-overrides.json` trait entry
+(802, 803, 813, 875, 913, 917, 1863, 1919 — found via a full scan of every Necromancer trait id
+against the file, not just the ones this leg's own dupe-scan happened to also flag) against
+fresh wikitext: all correct except one already-known-shaped gap confirmed still open — Siphoned
+Power (917) has a genuine pve(8s/3 stacks)/wvw+pvp(6s/2 stacks) split, but the live API now
+carries only ONE raw Might fact (the pve one); the existing override correctly forces the
+duration to 6, but `apply_count` can only ever come from whichever single raw fact exists (3,
+the pve value) — neither this mechanism nor `BUFF_INSTANCE_VALUE_OVERRIDES` can inject a
+apply_count the API doesn't carry as its own fact, so the stack count stays wrong with no clean
+fix available (documented, not modeled wrong).
+
+5 real gaps left deliberately uncurated, all documented in-code: Overflowing Thirst's (788)
+Life Siphon Damage is a genuine `split = pve, pvp, wvw` 3-way value where the live API carries
+only 2 of the 3 raw values (325, 197) with no wiki-tagged combination to attribute either to —
+same "genuine 3-way value, only 2 of 3 modes resolvable" shape as Revenant Devastation's Battle
+Scarred loose end, left uncurated rather than guessed (its sibling Life Siphon Healing fact is
+genuinely identical, needs no override); Dark Disciple's (2183) and Doom Approaches' (2203)
+"Blight" grants each have a real pve/wvw+pvp stack-count-only split, but "Blight" itself isn't
+in `BOON_NAMES`/`CONDITION_NAMES` at all so `classifyBoonCondition` gates every Blight fact out
+before any override table is ever consulted — an entry would be dead code, same "custom
+effect-status the pipeline structurally can't see" shape as Ranger's Natural
+Balance/Elementalist's Galvanic Enchantment/Conduit's Bolstered Bonds; Doom Approaches' (2203)
+separate "Boons Converted to Conditions" pair (linked skill=Devouring Cut, pve+pvp=2/wvw=1) hits
+the identical not-a-recognized-status dead-code shape; Lingering Spirits' (2333) own status
+("Lingering Spirits") appears 3 times sharing duration 0/apply_count 1 with no distinguishing
+raw value at all — 3 different concepts (Anguish's damage bonus, Wanderlust's movement-speed
+bonus, Preservation's healing bonus) colliding on one status, each one's real pve/wvw+pvp
+percentage living only in the wiki's prose `desc=` param with no exposed `Fact` field to pick
+from, an embedded-sub-value gap like Warrior's Peak Performance (same shape independently hits
+Empowering Spirits' 2405 Wanderlust-Fury 2nd numeric param too, though that one's single raw
+occurrence needs no filtering regardless). Dhuumfire's (905) untraited Burning pair re-confirmed
+as the same genuinely-identical-duplicate gap the 2026-08-14 buff-instance-label sweep already
+found and left open (2 raw-identical 3s facts, no wiki split at all to distinguish them) — not
+new this leg. 4 genuinely-identical dupes needed no override (already collapse via
+`numericFactLines`'s own dedup): Vampiric Presence's (1844) own base "Life Siphon Damage" (32
+pve/32 wvw+pvp, unlike its sibling facts above), Alchemic Vigor's (2186) "Vitality Increased"
+(240/240), Wicked Corruption's (2188) "Critical Damage Increase" (10/10), and Overflowing
+Thirst's (788) "Life Siphon Healing" (229/229). End-to-end verified via a standalone script
+against the real `numericFactLines`/`boonConditionFactsForTrait` (Electron sandbox still blocks
+visual verification). Typecheck + full test suite (276 tests) pass.
+
+**Sweep complete**: all 8 non-Revenant professions done (Guardian, Warrior, Mesmer, Engineer,
+Ranger, Thief, Elementalist, Necromancer), closing out both phases of the WvW-duplicate-fact
+sweep (the earlier Revenant-only phase, elsewhere in this file, plus this 8-profession phase).
+
 ## Session 267 — Illusionary Defense: Buff-type dedup + missing F2 boon (Mesmer leg follow-up)
 
 User-caught gap in the just-landed Mesmer leg (WvW-duplicate main sweep, TODO.md): the leg's scan

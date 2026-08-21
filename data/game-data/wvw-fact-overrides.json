@@ -2239,6 +2239,10 @@
     "753": {
       "Confusion": 2
     },
+    "778": {
+      "Vigor": 4,
+      "Stability": 4
+    },
     "802": {
       "Bleeding": 1
     },
@@ -2546,6 +2550,10 @@
     "2076": {
       "Quickness": 1.5
     },
+    "2080": {
+      "Alacrity": "omit",
+      "Vigor": 2
+    },
     "2082": {
       "Regeneration": 2.5
     },
@@ -2603,11 +2611,11 @@
     "2179": {
       "Burning": 3
     },
+    "2185": {
+      "Poisoned": 2
+    },
     "2191": {
       "Burning": 2
-    },
-    "2192": {
-      "Stability": 3
     },
     "2193": {
       "Fury": 0
@@ -2700,6 +2708,9 @@
       "Protection": 3,
       "Regeneration": 8,
       "Alacrity": "omit"
+    },
+    "2405": {
+      "Quickness": "omit"
     },
     "2408": {
       "Quickness": 3

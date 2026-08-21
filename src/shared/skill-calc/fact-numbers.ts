@@ -1590,7 +1590,294 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   2077: { Barrier: 260 },
   2177: { 'Critical Chance Increase': 15 },
   2224: { 'Energy Gain': 3 },
-  2437: { 'Empowered Skill Recharge': 20 }
+  2437: { 'Empowered Skill Recharge': 20 },
+
+  // Necromancer — 8th and final leg of the "remaining 8 professions" main sweep (TODO.md,
+  // 2026-08-20). Same process as every prior leg: scanned all 9 Necromancer spec lines (5 core +
+  // Reaper/Scourge/Harbinger/Ritualist) for a Number/Percent/AttributeAdjust/Time label repeated
+  // more than once, plus a separate Buff/PrefixedBuff same-status scan, wiki-verified each split
+  // before curating.
+
+  // Death Magic:
+
+  // Flesh of the Master (id 820, Adept major): "Minions have increased health." Wiki: `{{skill
+  // fact|percent|alt=Health Increase|50|game mode = pve wvw}}` + `{{...|15|game mode = pvp}}` —
+  // pve+wvw share 50, pvp alone drops to 15.
+  820: { 'Health Increase': 50 },
+
+  // Death Nova (id 842, Grandmaster major): "Your minions explode and cause poison when they are
+  // destroyed. Minions killed while you're in combat leave behind Jagged Horrors." Wiki (`split =
+  // pve pvp, wvw`): `{{skill fact|recharge time|alt=Jagged Horror Summon Recharge|3|game mode=pve
+  // pvp}}` + `{{...|15|game mode=wvw}}` (`Time`-typed) — pve+pvp share 3, wvw alone rises to 15 (a
+  // WvW-only nerf, longer recharge is worse).
+  842: { 'Jagged Horror Summon Recharge': 15 },
+
+  // Corrupter's Fervor (id 1940, Grandmaster major): "Convert incoming condition damage into Death's
+  // Carapace. Reduce incoming strike damage while you have Death's Carapace." Wiki: `{{skill
+  // fact|damage reduced|33|game mode=pve}}` + `{{...|15|game mode=wvw pvp}}` — pve 33, wvw+pvp 15.
+  1940: { 'Damage Reduced': 15 },
+
+  // Unholy Sanctuary (id 1694, Grandmaster major): "Heal periodically based on your missing life
+  // force." Wiki: `{{skill fact|percent|alt=Healing per Interval|2|game mode=pve}}` + `{{...|1|game
+  // mode=pvp wvw}}` — pve 2, wvw+pvp 1.
+  1694: { 'Healing per Interval': 1 },
+
+  // Blood Magic:
+
+  // Vampiric (id 783, Master minor): "Your attacks siphon health from enemies. Minions also siphon
+  // life from their attacks." Wiki (`split = pve wvw, pvp`): the base (non-minion) Life Siphon
+  // Damage/Healing pair each carry only ONE raw API fact (the pve+wvw value; the wiki's separate
+  // pvp-only number is simply absent from the API, same "documented but absent" shape as Guardian's
+  // Heavy Light, nothing to filter). The minion-siphon pair DOES carry 2 raw facts each: `{{skill
+  // fact|Life Siphon Damage|alt=Minion Life Steal|50|coefficient=0.0213|game mode=pve wvw}}` +
+  // `{{...|29|game mode=pvp}}`, `{{skill fact|Life Siphon Healing|alt=Minion Heal|50|
+  // coefficient=0.02|game mode=pve wvw}}` + `{{...|26|game mode=pvp}}` — pve+wvw share 50 for both
+  // (wiki-confirmed unambiguously via its own `game mode=pve wvw` tag on the kept value), pvp alone
+  // drops to a lower number in the live API (26 for both) than the wiki's own literal 29/26 pair —
+  // a small reference-build mismatch on the DROPPED value only, doesn't affect which value is kept.
+  783: { 'Minion Life Steal': 50, 'Minion Heal': 50 },
+
+  // Last Rites (id 1931, Grandmaster minor): "Your healing power is increased based on your missing
+  // health." Wiki (`split = pve wvw, pvp`): 3 independently pve+wvw/pvp-split Healing Power
+  // thresholds — `{{skill fact|attribute|Healing Power|alt=Healing Power above 75%
+  // Health|150|game mode=pve wvw}}` + `{{...|50|game mode=pvp}}`, `{{...|below 75% Health|300|
+  // game mode=pve wvw}}` + `{{...|100|game mode=pvp}}`, `{{...|below 50% Health|450|game mode=pve
+  // wvw}}` + `{{...|150|game mode=pvp}}` — all 3 pve+wvw-high/pvp-low, matched exactly by the live
+  // API's 3 `AttributeAdjust` pairs.
+  1931: { 'Healing Power above 75% Health': 150, 'Healing Power below 75% Health': 300, 'Healing Power below 50% Health': 450 },
+
+  // Ritual of Life (id 780, Adept major): "Necromancer skills that heal you also revive nearby
+  // downed allies." Wiki: `{{skill fact|revive percentage|3.5|game mode = pve}}` + `{{...|1|game
+  // mode = pvp wvw}}` — pve 3.5, wvw+pvp 1.
+  780: { 'Revive Percentage': 1 },
+
+  // Vampiric Presence (id 1844, Master major): "You and your nearby allies siphon health with
+  // attacks. This effect increases while in Shroud." Wiki (`split = pve wvw, pvp`) infobox literally
+  // lists the base Damage pair as 65 pve+wvw/49 pvp and the Shroud-Damage pair as 129/73, but the
+  // page's OWN Notes section independently derives the additive base-damage constants as `32 +
+  // (Power * 0.0333)` (base) and `62 + (Power * 0.0666)` (Shroud) — matching the live API's actual
+  // raw values exactly (base Damage: 32/32, genuinely identical, no override needed; Shroud Damage:
+  // 62/48) rather than the stale infobox numbers, a bigger version of the reference-build-rounding
+  // gap seen elsewhere (Writ of Persistence, Expanded Consciousness). The Healing pair (32 pve+wvw/
+  // 28 pvp) and Shroud-Healing pair (62 pve+wvw/42 pvp) match the wiki's infobox exactly with no
+  // discrepancy at all. Curated from the API's own actual values throughout, per this table's design
+  // principle of only ever picking among values that actually appear in the raw data.
+  1844: { 'Damage while in Shroud': 62, 'Life Siphon Healing': 32, 'Healing while in Shroud': 62 },
+
+  // Blood Bank (id 782, Grandmaster major): "Gain barrier when you take healing. Gain a large amount
+  // of barrier when you're above the health threshold." Wiki (`split = pve, wvw pvp`): `{{skill
+  // fact|Barrier|alt=Healing Conversion Rate|10%|game mode = pve}}` + `{{...|5%|game mode = pvp
+  // wvw}}` — pve 10, wvw+pvp 5. Its "Full Health Healing Conversion Rate" fact (100%, unsplit) is a
+  // separate, unambiguous concept.
+  782: { 'Healing Conversion Rate': 5 },
+
+  // Unholy Martyr (id 1692, Grandmaster major): "Remove conditions from yourself and transfer them
+  // to nearby enemies. Gain life force for each condition removed this way." Wiki (`split = pve wvw,
+  // pvp`): `{{skill fact|Conditions Removed|alt=Conditions Consumed|3|game mode=pve wvw}}` +
+  // `{{...|2|game mode=pvp}}` — pve+wvw share 3, pvp alone drops to 2. Its "Life Force per Condition"
+  // fact (7, genuinely identical both raw occurrences, no wiki split at all) needs no override.
+  1692: { 'Conditions Consumed': 3 },
+
+  // Transfusion (id 778, Grandmaster major): "Necromancer marks heal allies when triggered." Wiki
+  // (`split = pve, wvw, pvp`): `{{skill fact|healing|404|coefficient=0.45|game mode=pve}}` +
+  // `{{...|404|coefficient=0.3|game mode=wvw}}` + `{{...|200|coefficient=0.1|game mode=pvp}}` — pve
+  // and wvw land on the exact same displayed number (404) despite different coefficients (same
+  // "declared 3-way split, actual 2-way display" shape as Warrior's Vigorous Shouts), pvp alone
+  // drops to 200; the live API carries all 3 as separate raw facts (404, 404, 200). This trait's own
+  // Vigor/Stability Buff dupes (per-linked-skill, Mark of Blood/Reaper's Mark) are handled separately
+  // in `wvw-fact-overrides.json`. Overflowing Thirst's (788) Life Siphon Damage is a genuine 3-way
+  // `split = pve, pvp, wvw` where the live API carries only 2 of the 3 raw values (325, 197) with no
+  // wiki-tagged combination to attribute either to — same "genuine 3-way value, only 2 of 3 modes
+  // resolvable" shape as Revenant Devastation's Battle Scarred loose end, left deliberately
+  // uncurated rather than guessed (its Life Siphon Healing pair, 229/229, is genuinely identical and
+  // needs no override).
+  778: { Healing: 404 },
+
+  // Reaper:
+
+  // Shroud Knight (id 1905, Adept minor): "Gain life force loss reduction while in Reaper's Shroud."
+  // Wiki (`split = pve, pvp wvw`): `{{skill fact|Life Force Drain per Second|4%|game mode = pve}}` +
+  // `{{...|5%|game mode = pvp wvw}}` — pve 4, wvw+pvp 5, the rare WvW-worse case (drains more).
+  1905: { 'Life Force Drain per Second': 5 },
+
+  // Cold Shoulder (id 2018, Grandmaster minor): "Deal increased strike damage to chilled foes."
+  // Wiki (`split = pve, wvw pvp`): `{{skill fact|damage increase|15|game mode = pve}}` + `{{...|10|
+  // game mode = pvp wvw}}` — pve 15, wvw+pvp 10. Its "Damage Reduced" fact (10, unsplit) is a
+  // different, unambiguous concept.
+  2018: { 'Damage Increase': 10 },
+
+  // Soul Eater (id 1969, Master major): "Deal increased strike damage. Heal when you strike a foe
+  // within range." Wiki (`split = pve, wvw, pvp`): `{{skill fact|damage increase|15|game
+  // mode=pve}}` + `{{...|10|game mode=wvw pvp}}` (pve 15, wvw+pvp 10) plus a genuine 3-way `{{skill
+  // fact|healing|4%|game mode=pve}}` + `{{...|5%|game mode=wvw}}` + `{{...|10%|game mode=pvp}}`, all
+  // 3 present as separate raw API facts (4, 10, 5). Its "Healing While in Shroud" fact (1%, unsplit)
+  // is a different, unambiguous label.
+  1969: { 'Damage Increase': 10, Healing: 5 },
+
+  // Curses:
+
+  // Parasitic Contagion (id 812, Master major): "Gain increased healing from healing skills while
+  // affected by a condition." Wiki (`split = pve, wvw pvp`): `{{skill fact|healing|5%|alt=Percent|
+  // game mode=pve}}` + `{{...|10%|game mode=wvw pvp}}` (API's own fact carries no `text`, falling
+  // back to the fact-type name "Percent") — pve 5, wvw+pvp 10, the rare WvW-higher case.
+  812: { Percent: 10 },
+
+  // Soul Reaping:
+
+  // Soul Barbs (id 894, Master major): "Increase all damage. Life Transfer duration is increased."
+  // Wiki (`split = pve, wvw pvp`): `{{skill fact|Duration|15|game mode = pve}}` + `{{Skill
+  // fact|Duration|10|game mode = pvp wvw}}` (`Time`-typed) — pve 15, wvw+pvp 10. Its "All Damage
+  // Increase" fact (10, unsplit) is a different, unambiguous concept.
+  894: { Duration: 10 },
+
+  // Vital Persistence (id 861, Master major): "Gain vitality. Increase incoming healing." Wiki
+  // (`split = pve, wvw pvp`): `{{skill fact|Incoming Healing Increase|20%|game mode=pve}}` +
+  // `{{...|10%|game mode=pvp wvw}}` — pve 20, wvw+pvp 10.
+  861: { 'Incoming Healing Increase': 10 },
+
+  // Fear of Death (id 892, Master major): "Fear duration is increased. Gain life force when you
+  // interrupt a foe." Wiki (`split = pve, wvw, pvp`): `{{skill fact|Duration Increase|100%|game
+  // mode = pve}}` + `{{...|50%|game mode = pvp wvw}}` — pve 100, wvw+pvp 50. Its "Life Force" fact
+  // carries only ONE raw API occurrence (15, matching the wiki's pve+wvw value; the pvp-only 7 is
+  // simply absent from the API, nothing to filter).
+  892: { 'Duration Increase': 50 },
+
+  // Death Perception (id 893, Grandmaster major): "Gain increased critical-hit chance. Critical hits
+  // deal increased damage." Wiki (`split = pve, wvw, pvp`): 2 independently-ambiguous labels —
+  // `{{skill fact|critical damage increase|10|game mode=pve}}` + `{{...|15|game mode=wvw pvp}}`
+  // (pve 10, wvw+pvp 15, WvW-higher) and `{{skill fact|critical chance increase|15|game mode = pve
+  // wvw}}` + `{{...|10|game mode = pvp}}` (pve+wvw share 15, pvp alone drops to 10).
+  893: { 'Critical Damage Increase': 15, 'Critical Chance Increase': 15 },
+
+  // Spite:
+
+  // Spiteful Talisman (id 914, Adept major): "Gain increased strike damage. Gain further increased
+  // strike damage against foes without boons." Wiki (`split = pve, wvw pvp`): 2 independently-
+  // ambiguous labels, both WvW-higher — `{{skill fact|damage increase|5|alt=Damage Increase against
+  // Boonless Targets|game mode=pve}}` + `{{...|12|game mode=wvw pvp}}`, `{{skill fact|damage
+  // increase|3|game mode=pve}}` + `{{...|7|game mode=wvw pvp}}`.
+  914: { 'Damage Increase against Boonless Targets': 12, 'Damage Increase': 7 },
+
+  // Signets of Suffering (id 909, Master major): "Signets are improved. Passively siphon health.
+  // Remove boons from foes when activating a signet." Wiki (`split = pve, pvp, wvw` on the page, but
+  // every individual template explicitly tags its non-pve value `game mode = pvp wvw` together, so
+  // the actual split is pve-vs-(pvp+wvw) despite the generic split field): `{{skill fact|Life Siphon
+  // Damage|1419|coefficient=?|game mode = pve}}` + `{{...|1002|game mode = pvp wvw}}` (live API:
+  // 1413/997, a small reference-build gap on both raw numbers), `{{skill fact|life siphon
+  // healing|alt=First-Hit Life Siphon Healing|1413|game mode = pve}}` + `{{...|997|game mode = pvp
+  // wvw}}`, `{{...|alt=Additional-Hit Healing|237|game mode = pve}}` + `{{...|108|game mode = pvp
+  // wvw}}` (matches the API exactly), and `{{skill fact|boons removed|2|game mode = pve pvp}}` +
+  // `{{...|1|game mode = wvw}}` (pve+pvp share 2, wvw alone drops to 1 — the rare "pve pvp, wvw"
+  // split direction, same shape as Death Nova above).
+  909: { 'Boons Removed': 1, 'Life Siphon Damage': 997, 'First-Hit Life Siphon Healing': 997, 'Additional-Hit Healing': 108 },
+
+  // Scourge:
+
+  // Sand Sage (id 2121, Master minor): "Gain concentration and expertise." Wiki (`split = pve, wvw
+  // pvp`): `{{skill fact|attribute|Concentration|225|game mode = pve}}` + `{{...|150|game mode =
+  // pvp wvw}}` and identically for Expertise — pve 225, wvw+pvp 150 for both attributes (API's own
+  // `AttributeAdjust` facts carry no `text`, keyed here by `target` "BoonDuration"/
+  // "ConditionDuration").
+  2121: { BoonDuration: 150, ConditionDuration: 150 },
+
+  // Blood as Sand (id 2096, Grandmaster minor): "Reduce incoming strike, condition, and barrier
+  // damage." Wiki (`split = pve, wvw pvp`): `{{skill fact|all damage reduced|15|game mode = pve}}`
+  // + `{{...|7|game mode = pvp wvw}}` — pve 15, wvw+pvp 7.
+  2096: { 'Damage Reduced': 7 },
+
+  // Sand Savant (id 2112, Grandmaster major): "Manifest Sand Shade's recharge is increased, but it
+  // pulses barrier to allies and damage to foes in the area, and its radius is increased." Wiki
+  // (`split = pve, wvw, pvp`): `{{skill fact|icon=Count Recharge.png|Recharge Increase|25%|game
+  // mode=pve}}` + `{{...|100%|game mode=pvp wvw}}` — pve 25, wvw+pvp 100 (WvW-worse, longer
+  // recharge). Its "Increased Targets" fact (5, pve+pvp only per the wiki, unambiguous single raw
+  // occurrence in the API) needs no override.
+  2112: { 'Recharge Increase': 100 },
+
+  // Demonic Lore (id 2164, Grandmaster major): "Gain increased condition damage. Manifest Sand
+  // Shade pulses burning." Wiki (`split = pve wvw, pvp`): `{{skill fact|condition damage
+  // increase|33|game mode=pve wvw}}` + `{{...|20|game mode=pvp}}` (API's own fact `text` is "Damage
+  // Increase", not the wiki's "condition damage increase" wording) — pve+wvw share 33, pvp alone
+  // drops to 20.
+  2164: { 'Damage Increase': 20 },
+
+  // Desert Empowerment (id 2080, Grandmaster major): "Manifest Sand Shade grants a barrier to allies
+  // near it. When you apply barrier, grant boons to the affected target." Wiki (`split = pve, wvw,
+  // pvp`): `{{skill fact|barrier|572|coefficient=1.0|game mode = pve}}` + `{{...|385|
+  // coefficient=0.65|game mode = wvw}}` + `{{...|385|coefficient=0.8|game mode = pvp}}` — wvw and
+  // pvp land on the exact same displayed number (385) despite different coefficients (same
+  // "declared 3-way split, actual 2-way display" shape as Transfusion above), pve alone at 572; the
+  // live API carries all 3 as separate raw facts (572, 385, 385). This trait's Alacrity/Vigor pair
+  // is a genuine boon-TYPE swap (wiki: "This trait now grants vigor instead of alacrity in PvP and
+  // WvW" (2024-03-19)) — handled separately in `wvw-fact-overrides.json` (`Alacrity: 'omit'`, `Vigor:
+  // 2`), see that file's own comment for why this particular swap (unlike Guardian's Phoenix
+  // Protocol/Ranger's Cloudburst) is cleanly resolvable.
+  2080: { Barrier: 385 },
+
+  // Harbinger:
+
+  // Alchemic Vigor (id 2186, Master minor): "Gain increased vitality. Heal when you gain blight."
+  // Wiki (`split = pve wvw, pvp`): `{{skill fact|Healing|13|coefficient=0.0125|game mode=pve wvw}}`
+  // + `{{...|10|coefficient=0.0125|game mode=pvp}}` — pve+wvw share 13, pvp alone drops to 10. Its
+  // "Vitality Increased" fact (240, genuinely identical both raw occurrences, no wiki split at all)
+  // needs no override.
+  2186: { Healing: 13 },
+
+  // Wicked Corruption (id 2188, Adept major): "Deal increased strike damage per stack of blight.
+  // Deal increased critical damage." Wiki (`split = pve, wvw pvp`): `{{skill fact|Damage
+  // Increase|1|game mode = pve}}` + `{{...|0.5|game mode = pvp wvw}}` — pve 1, wvw+pvp 0.5. Its
+  // "Critical Damage Increase" fact (10, genuinely identical both raw occurrences, no wiki split at
+  // all) needs no override.
+  2188: { 'Damage Increase': 0.5 },
+
+  // Septic Corruption (id 2185, Adept major): "Deal increased condition damage per stack of blight.
+  // Manifest Sand Shade inflicts poison." Wiki (`split = pve, wvw pvp`): `{{skill fact|Condition
+  // Damage Increase|0.25|game mode=pve}}` + `{{...|0.5|game mode=wvw pvp}}` — pve 0.25, wvw+pvp 0.5,
+  // the rare WvW-higher case. Its Poisoned Buff dupe (3s pve/2s wvw+pvp, no apply_count change) is
+  // handled separately in `wvw-fact-overrides.json`.
+  2185: { 'Condition Damage Increase': 0.5 },
+
+  // Ritualist:
+
+  // Boon of Creation (id 2371, Master minor): "Manifest a Spirit periodically. Gain concentration."
+  // Wiki (`split = pve, wvw pvp`): `{{skill fact|attribute|concentration|180|game mode=pve}}` +
+  // `{{...|60|game mode=wvw pvp}}` (`AttributeAdjust`, keyed by `target` "BoonDuration") and
+  // `{{skill fact|life force|10|game mode=pve}}` + `{{...|3|game mode=wvw pvp}}` — 2
+  // independently-ambiguous labels, both pve-high/wvw-low.
+  2371: { 'Life Force': 3, BoonDuration: 60 },
+
+  // Charged Souls (id 2398, Grandmaster minor): "Gain life force when a nearby Spirit is
+  // destroyed." Wiki (`split = pve, wvw pvp`): `{{skill fact|life force|10|game mode=pve}}` +
+  // `{{...|3|game mode=wvw pvp}}` — pve 10, wvw+pvp 3, the same shape as Boon of Creation above.
+  2398: { 'Life Force': 3 },
+
+  // Spirit's Gift (id 2378, Adept major): "Manifest Spirit of Preservation, which periodically heals
+  // nearby allies." Wiki (`split = pve, wvw, pvp`): `{{skill fact|healing|850|coefficient=0.75|
+  // game mode=pve}}` + `{{...|325|coefficient=0.3|game mode=wvw}}` + `{{...|181|coefficient=0.3|
+  // game mode=pvp}}` — a genuine 3-way split, all distinct and all 3 present as their own raw API
+  // facts (850, 325, 181, matching the wiki exactly).
+  2378: { Healing: 325 },
+
+  // Spirits' Remedy (id 2384, Master major): "Manifest Spirit of Preservation, which periodically
+  // removes conditions from nearby allies." Wiki (`split = pve, wvw pvp`): `{{skill fact|conditions
+  // removed|2|game mode=pve}}` + `{{...|1|game mode=wvw pvp}}` — pve 2, wvw+pvp 1.
+  2384: { 'Conditions Removed': 1 },
+
+  // Spirit's Strength (id 2421, Master major): "Increase the effectiveness of Spirits' passive
+  // effects." Wiki (`split = pve, wvw pvp`): `{{skill fact|Effectiveness Increased|50%|game
+  // mode=pve}}` + `{{...|20%|game mode=pvp wvw}}` — pve 50, wvw+pvp 20.
+  2421: { 'Effectiveness Increased': 20 },
+
+  // Lingering Spirits (id 2333, Grandmaster major): "When a Spirit is destroyed, its effect lingers
+  // for a duration, but you lose life force over time." Wiki (`split = pve, wvw, pvp`): `{{skill
+  // fact|Life Force Drain per Second|3%|game mode=pve wvw}}` + `{{...|5%|game mode=pvp}}` — pve+wvw
+  // share 3, pvp alone rises to 5. Its own "Lingering Spirits" status appears 3 times in the raw API
+  // (once each for Anguish's damage bonus, Wanderlust's movement-speed bonus, Preservation's healing
+  // bonus) all sharing duration 0/apply_count 1 with no distinguishing raw value at all — a scan
+  // false positive (3 different concepts colliding on one status, not a mode split), and each one's
+  // real pve/wvw+pvp percentage lives only in the wiki's prose `desc=` param with no exposed `Fact`
+  // field to pick from — an embedded-sub-value gap like Warrior's Peak Performance, same shape as
+  // this trait's own sibling Empowering Spirits (2405, `BUFF_INSTANCE_VALUE_OVERRIDES`) Fury grant.
+  2333: { 'Life Force Drain per Second': 3 }
 }
 
 /**

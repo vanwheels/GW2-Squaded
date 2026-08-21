@@ -3264,6 +3264,54 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // stack" — same underlying shape as Bountiful Theft's Might (Thief leg). `Burning@4@1` (the
       // wvw+pvp fact itself) needs no entry, already correct as-is.
       'Burning@4@2': 'omit' // pve (4s/2 stacks)
+    },
+
+    // Necromancer leg (8th and final leg of the "remaining 8 professions" main WvW-duplicate sweep,
+    // TODO.md, 2026-08-20) — 1 latent apply_count bug found in an ALREADY-curated Necromancer
+    // override predating this leg (Implacable Foe id 2192), same "plain per-status override only
+    // replaces duration, not apply_count" shape as every prior leg's findings, plus 1 new same-shape
+    // source found fresh this leg (Empowering Spirits id 2405). Dark Disciple (2183) and Doom
+    // Approaches (2203) each have this exact same shape on their own "Blight" grant (pve/wvw+pvp
+    // stack-count-only splits, 25s/2-vs-1 stacks and 25s/4-vs-3 stacks respectively) but "Blight"
+    // itself isn't in `BOON_NAMES`/`CONDITION_NAMES` at all — `classifyBoonCondition` gates every
+    // Blight fact out before any override table (this one included) is ever consulted, so an entry
+    // here would be dead code, same "custom effect-status the boon/condition pipeline structurally
+    // can't see" shape as Ranger's Natural Balance/Elementalist's Galvanic Enchantment/Conduit's
+    // Bolstered Bonds — left undocumented in code, just here.
+    2192: {
+      // Implacable Foe (Harbinger, Master major). Wiki (`split = pve, wvw pvp`): `{{skill
+      // fact|Stability|stacks=3|5|game mode=pve}}{{skill fact|Stability|3|game mode=wvw pvp}}` — the
+      // old `wvw-fact-overrides.json` entry (`{Stability: 3}`) replaced the FIRST raw fact's (pve,
+      // 5s/3 stacks) duration with 3 but kept its apply_count of 3, showing "3s, 3 stacks" instead of
+      // the real wvw+pvp "3s, 1 stack". `Stability@3@1` (the wvw+pvp fact itself) needs no entry,
+      // already correct as-is.
+      'Stability@5@3': 'omit' // pve (5s/3 stacks)
+    },
+    // Doom Approaches (Harbinger, Grandmaster major, id 2203) has 2 wiki-confirmed splits — a
+    // "Blight" stack-count-only pair (`stacks=4` pve / `stacks=3` wvw+pvp, 25s both) that hits the
+    // same "Blight" isn't-a-recognized-status dead-code shape as Dark Disciple's own Blight grant
+    // above, and a "Boons Converted to Conditions" pair (linked skill=Devouring Cut, pve pvp=2/
+    // wvw=1) whose own `status` string isn't a recognized boon/condition name either, same
+    // "custom effect-status the pipeline structurally can't see" shape as Ranger's Natural
+    // Balance/Conduit's Bolstered Bonds — neither is fixable here, no entry added for either.
+    2405: {
+      // Empowering Spirits (Ritualist, Grandmaster major): "Anguish, Wanderlust, and Preservation's
+      // effects are improved." Wiki (`split = pve, wvw pvp`): Anguish's Might grant is
+      // `{{skill fact|might|10|stacks=8|linked skill=Anguish|game mode=pve}}{{skill
+      // fact|might|8|stacks=3|linked skill=Anguish|game mode=wvw pvp}}` — same duration+apply_count
+      // shape as the entries above. This trait's separate Quickness/Vigor pair
+      // (`{{skill fact|quickness|3.75|game mode=pve}}{{skill fact|vigor|2|game mode=wvw
+      // pvp}}`) is a genuine boon-TYPE swap (pve grants Quickness, wvw+pvp swaps to Vigor entirely)
+      // — unlike Guardian's Phoenix Protocol/Ranger's Cloudburst, this one IS cleanly resolvable
+      // since neither Quickness nor Vigor has any internal ambiguity of its own (each is a single,
+      // unsplit raw fact): Quickness is omitted via `wvw-fact-overrides.json` (a WvW-focused app
+      // should never show a pve-only boon grant), and Vigor needs no entry at all since it's already
+      // the only occurrence. Wanderlust's Fury (`{{skill fact|fury|5|25|...}}` / `{{skill
+      // fact|fury|5|20|...}}`) and Preservation's Resolution are single, unambiguous raw facts as-is
+      // (Fury's 2nd numeric wiki param, 25/20, doesn't map to any exposed `Fact` field — an
+      // embedded-sub-value gap, out of scope). `Might@8@3` (the wvw+pvp fact itself) needs no entry,
+      // already correct as-is.
+      'Might@10@8': 'omit' // pve (10s/8 stacks)
     }
   }
 }
