@@ -1906,5 +1906,10 @@
     { "type": "Buff", "status": "Burning", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 1, "requires_trait": 2429 },
     { "type": "Distance", "text": "Radius", "distance": 240, "requires_trait": 2429 },
     { "type": "Number", "text": "Number of Targets", "value": 5, "requires_trait": 2429 }
+  ],
+
+  "10190": [
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 4, "apply_count": 1, "requires_trait": 675 },
+    { "type": "Buff", "status": "Protection", "text": "Apply Buff/Condition", "duration": 2, "apply_count": 1, "requires_trait": 675 }
   ]
 }

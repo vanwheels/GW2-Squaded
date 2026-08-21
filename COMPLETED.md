@@ -2,6 +2,37 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 267 — Illusionary Defense: Buff-type dedup + missing F2 boon (Mesmer leg follow-up)
+
+User-caught gap in the just-landed Mesmer leg (WvW-duplicate main sweep, TODO.md): the leg's scan
+only checked `Number`/`Percent`/`AttributeAdjust`/`Time` facts, missing `Buff`-type duplicates
+entirely. Illusionary Defense (Chaos, id 675, "Grant protection to nearby allies when you use
+Shatter skill 2") already had a `BUFF_INSTANCE_LABELS` entry from the 2026-08-13 label sweep
+labeling its 4 raw Protection facts "Base"/"Additional Protection Duration" — but that sweep only
+adds a display qualifier, never drops the wrong occurrences, so both the pve-matching WvW values
+(4s, 2s) AND the 2 pvp-only ones (2s, 1s) were all showing at once, unfiltered.
+
+Two real bugs, both fixed:
+- **Duplicate facts**: new `BUFF_INSTANCE_VALUE_OVERRIDES.trait[675]` entry omits the 2 pvp-only
+  occurrences (`Protection@2@1#1`, `Protection@1@1`), leaving exactly the 2 real WvW rows (Base 4s,
+  Additional 2s) — same occurrence-indexed mechanism Seize the Moment introduced (2026-08-15).
+- **Boon missing from F2's own tooltip**: the trait's Protection grant never appeared on Cry of
+  Frustration (Mesmer core Shatter 2/F2, id 10190) at all. Root cause: the 2026-08-14
+  trait-granted-boons-on-skills sweep mirrors trait facts onto the skill(s) they modify via
+  `synthetic-facts.json`, but that sweep's candidate list was built from named `improves skill=`
+  wiki fields — Illusionary Defense only carries a generic `improves mechanic slot = 2`, so it fell
+  through undetected. Added a new `synthetic-facts.json["10190"]` entry (2 clean, already-WvW-correct
+  Protection facts, `requires_trait: 675`, no pvp duplicates needed since this file is hand-curated)
+  plus a matching `BUFF_INSTANCE_LABELS.skill[10190]` label pair and a
+  `TARGET_COUNT_OVERRIDES.skill[10190]` entry (`{ Protection: 5 }`, scoped to just that status so
+  the skill's own foe-targeted Confusion condition isn't widened to match).
+
+Verified via a standalone script calling `boonConditionFactsForTrait`/`boonConditionFactsForSkill`
+directly: the trait tooltip now emits exactly 2 rows (was 4); the F2 skill tooltip emits its own
+Confusion condition unconditionally plus both Protection rows (targetCount 5, matching the trait's
+own reach) only once trait 675 is active. `npm run typecheck` and the full test suite (276 tests)
+both pass.
+
 ## Session 266 — `AttributeAdjust` WvW-duplicate dedup: 3rd fact shape added to `NUMERIC_FACT_WVW_OVERRIDES`
 
 Infra leg of the 2026-08-20-scoped trait/skill data-correctness pass (TODO.md), agreed to land

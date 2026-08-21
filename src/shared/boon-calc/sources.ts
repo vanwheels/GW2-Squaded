@@ -514,6 +514,13 @@ export const TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOv
     // share every status name, only distinguished by duration (Found Purpose's are always shorter).
     77371: { 'Fury@5': 4, 'Resistance@2': 4, 'Stability@2': 4, 'Protection@2': 4, 'Might@5': 4 },
 
+    // Cry of Frustration (Mesmer core Shatter 2/F2, id 10190). Illusionary Defense's (trait 675,
+    // see this table's own `675: 5` entry below) synthetic Protection copy reaches the same 5
+    // nearby allies as the trait's own tooltip — scoped to just this status (bare key, both its
+    // Base/Additional durations share the one reach) so it doesn't widen this skill's own Confusion
+    // condition (foe-targeted, unrelated) to match.
+    10190: { Protection: 5 },
+
     // Lightning Flash (Elementalist cantrip). Resistance only exists with Soothing Disruption
     // ("Cantrips grant boons") traited — that trait's own page states no radius/ally wording, and
     // unlike every confirmed party-wide entry below, no Radius fact is gated to the Resistance fact
@@ -2008,6 +2015,14 @@ function resolveTargetCountFrom(
  */
 export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string>>; trait: Record<number, Record<string, string>> } = {
   skill: {
+    // Cry of Frustration (Mesmer core Shatter 2/F2, id 10190). Mirrors Illusionary Defense's (trait
+    // 675) own "Base"/"Additional Protection Duration" labels below onto its synthetic-facts.json
+    // copy (added 2026-08-20, user-caught: the trait's boon wasn't showing up on the F2 skill at
+    // all — the 2026-08-14 trait-granted-boons-on-skills sweep missed this trait because it's
+    // gated by a generic `improves mechanic slot = 2` wiki field, not a named `improves skill=`).
+    // Both facts already carry their real WvW values (no pvp-duplicate cleanup needed here — see
+    // this trait's own `BUFF_INSTANCE_VALUE_OVERRIDES` entry for why the trait side needed that).
+    10190: { 'Protection@4@1': 'Base Protection Duration', 'Protection@2@1': 'Additional Protection Duration' },
     // Fire Bomb (shared Bomb Kit bundle skill, every profession that can pick one up). Wiki:
     // {{skill fact|burning|alt=Initial Burning|5|stacks=2}}{{skill fact|burning|alt=Pulse Burning|2}}
     5823: { 'Burning@5@2': 'Initial Burning', 'Burning@2@1': 'Pulse Burning' },
@@ -2666,14 +2681,17 @@ export const BUFF_INSTANCE_LABELS: { skill: Record<number, Record<string, string
 
     // --- Mesmer leg (8th leg, 2026-08-14) ---
 
-    // Illusionary Defense (Dueling, Shatter 2 protection). Wiki names 2 concepts, each mode-split:
+    // Illusionary Defense (Chaos, Shatter 2 protection). Wiki names 2 concepts, each mode-split:
     // `{{skill fact|protection|4|alt=Base Protection Duration|game mode = pve wvw}}
     // {{skill fact|protection|2|alt=Base Protection Duration|game mode = pvp}}` and
     // `{{skill fact|protection|2|alt=Additional Protection Duration|game mode = pve wvw}}
     // {{skill fact|protection|1|alt=Additional Protection Duration|game mode = pvp}}` — Base's pvp
     // value (2) collides with Additional's pve+wvw value (2), occurrence-indexed in wiki template
     // order (matches this trait's own raw fact order); the other 2 tuples (4, 1) are already
-    // unique.
+    // unique. Labels only, though — this table never drops the 2 pvp-only occurrences on its own;
+    // see `BUFF_INSTANCE_VALUE_OVERRIDES.trait[675]` above for the 2026-08-20 fix that does, plus
+    // the new `synthetic-facts.json` copy onto Cry of Frustration (id 10190, this trait's own
+    // "Shatter skill 2") so the boon shows up on the F2 skill's own tooltip too.
     675: {
       'Protection@4@1': 'Base Protection Duration',
       'Protection@2@1#1': 'Base Protection Duration',
@@ -3008,6 +3026,19 @@ export type WvwInstanceOverride = number | 'omit'
 export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<string, WvwInstanceOverride>>; trait: Record<number, Record<string, WvwInstanceOverride>> } = {
   skill: {},
   trait: {
+    675: {
+      // Illusionary Defense (Chaos, id 675, "Grant protection to nearby allies when you use Shatter
+      // skill 2"). BUFF_INSTANCE_LABELS above already labels this trait's 4 raw Protection facts
+      // "Base"/"Additional" (2026-08-13 label sweep), but never dropped the 2 pvp-only occurrences —
+      // user-caught 2026-08-20, both concepts' real WvW value coincides with their own pve value
+      // (Base 4, Additional 2), only pvp differs (Base 2, Additional 1). Occurrence-indexed same as
+      // that labeling: fact order is Base-pve/wvw(4), Base-pvp(2), Additional-pve/wvw(2),
+      // Additional-pvp(1) — Base's pve/wvw value (occurrence-unique, key `Protection@4@1`) and
+      // Additional's pve/wvw value (`Protection@2@1#2`) are already correct and need no entry; only
+      // the 2 pvp-only occurrences below need dropping.
+      'Protection@2@1#1': 'omit', // Base's pvp value (2) — collides with Additional's real WvW value
+      'Protection@1@1': 'omit' // Additional's pvp value (1) — not a real WvW duration
+    },
     2022: {
       'Quickness@1@1#1': 'omit', // per-Clone pve (1) — real value, not WvW
       'Quickness@1@1#2': 'omit', // per-Clone pvp (0.75, rounds to 1)

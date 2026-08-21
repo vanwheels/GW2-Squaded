@@ -170,6 +170,18 @@ a `target`-field fallback for `AttributeAdjust` facts with no `text` — see bel
       per-skill-mapping leg. End-to-end verified via a standalone script against the real
       `numericFactLines` (Electron sandbox still blocks visual verification).
 
+      **User-caught follow-up, same day:** this leg's scan only checked `Number`/`Percent`/
+      `AttributeAdjust`/`Time` facts — missed Illusionary Defense (675), a `Buff`-type Protection
+      duplicate the same leg should have caught. Fixed (COMPLETED.md Session 267): a
+      `BUFF_INSTANCE_VALUE_OVERRIDES.trait[675]` entry drops its 2 pvp-only occurrences, plus a
+      `synthetic-facts.json` copy onto Cry of Frustration (Mesmer core F2, id 10190) so the boon
+      shows on the F2 skill's own tooltip too (missed by the 2026-08-14 trait-granted-boons-on-skills
+      sweep, which only scanned named `improves skill=` wiki fields — this trait's generic
+      `improves mechanic slot = 2` fell through). **Remaining 5 legs must also scan `Buff`-type
+      facts for same-status duplicates**, not just the 4 numeric types — check both
+      `wvw-fact-overrides.json`'s existing per-status mechanism and `BUFF_INSTANCE_VALUE_OVERRIDES`
+      (for the 2+-concepts-share-one-status shape) as candidates surface.
+
       Remaining 5 professions (Engineer, Ranger, Thief, Elementalist, Necromancer) still open. Do one
       profession-leg, then check in (see `pacing_large_sweeps` memory).
 
