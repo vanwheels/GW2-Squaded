@@ -165,6 +165,11 @@ button:hover {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 12px;
+  /* Grid items default to `align-items: stretch`, which forces every card sharing a grid row to
+     match the tallest one — so a single squad with many parties (past the 5-row budget
+     `.party-mosaic`'s min-height reserves) was inflating every other card's box in that row, not
+     just its own. `start` sizes each card to its own natural content height instead. */
+  align-items: start;
 }
 
 .record-list li {
