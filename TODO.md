@@ -182,7 +182,36 @@ a `target`-field fallback for `AttributeAdjust` facts with no `text` — see bel
       `wvw-fact-overrides.json`'s existing per-status mechanism and `BUFF_INSTANCE_VALUE_OVERRIDES`
       (for the 2+-concepts-share-one-status shape) as candidates surface.
 
-      Remaining 5 professions (Engineer, Ranger, Thief, Elementalist, Necromancer) still open. Do one
+      **Engineer — done 2026-08-20** (4th leg, commit ef017f7). Same process, all 9 spec lines (5
+      core + Scrapper/Holosmith/Mechanist/Amalgam) scanned for both numeric AND Buff-type dupes. 31
+      traits curated into `NUMERIC_FACT_WVW_OVERRIDES` (Engineer block). 3 genuinely-identical dupes
+      needed no override (Sharpshooter 526, Soothing Detonation 1834, Mech Core: Barrier Engine
+      2281). Carbolic Composition's Poisoned duration was a real, previously-uncovered
+      single-raw-fact Buff gap, fixed via `wvw-fact-overrides.json` — confirms `WvwFactOverride`
+      doesn't need a matching raw duplicate to fix a wrong single value, it just replaces it
+      unconditionally (Incendiary Powder/Serrated Steel turned out to already be covered by an
+      earlier sweep, not new this leg). Also found and fixed 3 latent bugs in ALREADY-curated
+      Engineer overrides predating this leg (HGH id 473, Kinetic Accelerators id 2052, Photonic
+      Blasting Module id 2064): each has a real pve-vs-wvw split where BOTH `duration` AND
+      `apply_count` change, but the old plain per-status override only replaces `duration` — it
+      silently kept the FIRST-encountered occurrence's own (wrong) `apply_count`, e.g. showing
+      HGH's Might as "8s, 2 stacks" instead of the real wvw "8s, 3 stacks". Converted all 3 to
+      `BUFF_INSTANCE_VALUE_OVERRIDES` (omit the non-WvW occurrences, let the WvW-correct tuple —
+      which already exists as its own distinct raw fact — pass through untouched); the same trick
+      also closed New Genes' (2387) Might split, previously assumed unfixable under the
+      "`WvwFactOverride` can't express `apply_count` changes" limitation documented on the
+      Warrior/Necromancer legs' Eviscerate/Falling Spider/Brutal Shot — **worth rechecking those
+      older "left open" cases with this same trick on a future pass**, not attempted this leg. 2
+      real gaps left deliberately uncurated: Mech Frame: Channeling Conduits (2276) grants Alacrity
+      in pve/pvp but swaps to Might entirely in wvw, the same boon-type-swap shape
+      `WvwFactOverride` can't express as Guardian's Phoenix Protocol; Crystal Configuration:
+      Zephyr's (2091) apparent Crippled duplicate is a scan false positive (a condition-cleanse
+      marker fact with no `duration`, already filtered before reaching any override table, same
+      shape as the Warrior leg's Knot Shot/Brutal Shot false positives). End-to-end verified via a
+      standalone script against the real `numericFactLines`/`boonConditionFactsForTrait` (Electron
+      sandbox still blocks visual verification).
+
+      Remaining 4 professions (Ranger, Thief, Elementalist, Necromancer) still open. Do one
       profession-leg, then check in (see `pacing_large_sweeps` memory).
 
 - [ ] **Corruption stat undercounts real "boon corrupt" sources.** `BOON_STRIP_CORRUPT_MATCHERS.Corrupt`
