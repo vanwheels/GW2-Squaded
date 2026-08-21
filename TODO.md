@@ -72,17 +72,22 @@ writeup once implementation starts, same pattern as the Discord bot/target-count
           next to it. Today it's an always-expanded 9-icon profession row + up to 27-icon elite-spec
           grid with no real affordance beyond a plain "Profession" text label — that wall of icons
           right above the build list is the likely source of "unintuitive first impression."
-- [ ] **Squads tab** (`SquadsView.tsx`): same empty-space issue as Builds — **still open** — plus
-      squad cards had zero visual distinguishability (no colors, no icons). Decided against
-      per-slot profession icons (a squad can have several 5-slot parties — `PartySlots` is a fixed
-      5-tuple per `Party` in `squad-comp.ts` — so a full icon grid could hit 15+ icons on one small
-      card, too cluttered) and against a de-duplicated "which classes appear anywhere" row (loses
-      the actual per-party shape). **Distinguishability done 2026-08-18**: a **per-party color
-      mosaic** — one `.party-mosaic-row` of small dots per party (`global.css`), reusing
-      `professionAccentColor()` from the same profession-color system built for Builds above. Each
-      slot resolves to a profession via a saved build (`buildId`) or a `GhostPick`, else renders as
-      a hollow `.party-mosaic-dot-empty` dot rather than being omitted, so a partially-filled
-      party's shape still reads correctly.
+- [x] **Squads tab** (`SquadsView.tsx`): squad cards had zero visual distinguishability (no colors,
+      no icons) and, separately, the same empty-space issue as Builds. Decided against per-slot
+      profession icons (a squad can have several 5-slot parties — `PartySlots` is a fixed 5-tuple
+      per `Party` in `squad-comp.ts` — so a full icon grid could hit 15+ icons on one small card, too
+      cluttered) and against a de-duplicated "which classes appear anywhere" row (loses the actual
+      per-party shape). **Distinguishability done 2026-08-18**: a **per-party color mosaic** — one
+      `.party-mosaic-row` of small dots per party (`global.css`), reusing `professionAccentColor()`
+      from the same profession-color system built for Builds above. Each slot resolves to a
+      profession via a saved build (`buildId`) or a `GhostPick`, else renders as a hollow
+      `.party-mosaic-dot-empty` dot rather than being omitted, so a partially-filled party's shape
+      still reads correctly. **Empty-space fix + delete-button parity done 2026-08-20**: mosaic dots
+      enlarged 7px → 11px with a leading "P1"/"P2"/... row label (`.party-mosaic-label`), making the
+      mosaic the card's visual anchor instead of a small decorative afterthought; also brought
+      Squads cards' delete control in line with Builds' hover-reveal `.record-delete` "×" icon
+      (Squads had been left on the old always-visible full-width "Delete" text button, a leftover
+      gap from the 2026-08-18 Builds-only pass).
 - [ ] **Settings tab** (`SettingsView.tsx`): reads as hollow/underfilled for its horizontal space
       (Display/Updates/Game data/Credits currently stack single-column). Not urgent — more settings
       will fill it in naturally — but whenever it's next touched, switch the panels to a 2-column
