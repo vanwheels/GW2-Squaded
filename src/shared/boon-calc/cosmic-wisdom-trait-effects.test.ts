@@ -10,8 +10,10 @@ import { damageLinesForSkill } from '../skill-calc/damage-calc'
  *  (2026-08-20, flagged by the user: "Numinous Gift gives boons/additional effects to Cosmic
  *  Wisdom, as do the grandmaster majors Found Purpose and Mistfire") — same "lock in what's
  *  already known-correct against the real game data" purpose as `evoker-familiar-facts.test.ts`.
- *  Also locks in that Found Purpose (deliberately NOT copied the same way — see
- *  `sources.ts`'s own comment) doesn't leak any duplicate/extra rows onto Cosmic Wisdom. */
+ *  Also locks in the same-day follow-up (TODO.md's "Found Purpose's boosted boons on Cosmic
+ *  Wisdom" item, closed 2026-08-20): Found Purpose now supersedes Numinous Gift's self-only copies
+ *  with its own party-wide(4), wiki-verified numbers once it's ALSO active — see `sources.ts`'s
+ *  `FOUND_PURPOSE_TRAIT_ID` doc comment (by `LEGEND_GATED_TRAIT_IDS`) for the full writeup. */
 
 const here = dirname(fileURLToPath(import.meta.url))
 const dataDir = resolve(here, '../../../data/game-data')
@@ -75,9 +77,21 @@ describe('Cosmic Wisdom (77371) — Numinous Gift/Mistfire trait-copied facts', 
     expect(damage).toEqual([])
   })
 
-  it('Found Purpose (2352) alone adds nothing to Cosmic Wisdom\'s own facts (deliberately not copied)', () => {
-    const facts = boonConditionFactsForSkill(cosmicWisdom, new Set([FOUND_PURPOSE_ID]), allEquippedLegends, durationPercent, undefined, legends)
-    expect(facts).toEqual([])
+  it('Found Purpose (2352) alone grants its own 6 party-wide(4) boons at its own (shorter) WvW durations', () => {
+    const facts = boonConditionFactsForSkill(cosmicWisdom, new Set([FOUND_PURPOSE_ID]), allEquippedLegends, durationPercent, cosmicWisdomWvwOverride, legends)
+    expect(facts).toHaveLength(6)
+    expect(facts.every((f) => f.targetCount === 4)).toBe(true)
+    const byLegend = new Map(facts.filter((f) => f.legendName).map((f) => [f.legendName, f.boonOrConditionName]))
+    expect(byLegend.get('Legendary Assassin Stance')).toBe('Fury')
+    expect(byLegend.get('Legendary Demon Stance')).toBe('Resistance')
+    expect(byLegend.get('Legendary Dwarf Stance')).toBe('Stability')
+    expect(byLegend.get('Legendary Centaur Stance')).toBe('Protection')
+    expect(byLegend.get('Legendary Entity Stance')).toBe('Might')
+    const fury = facts.find((f) => f.legendName === 'Legendary Assassin Stance')!
+    expect(fury.scaledDurationSeconds).toBe(5) // shorter than Numinous Gift's own 10s
+    const flatMight = facts.find((f) => f.boonOrConditionName === 'Might' && !f.legendName)!
+    expect(flatMight.scaledDurationSeconds).toBe(5)
+    expect(flatMight.applyCount).toBe(3)
   })
 
   it('Numinous Gift\'s per-legend boons are filtered to only the 2 equipped legends (2026-08-20 regression)', () => {
@@ -108,17 +122,19 @@ describe('Cosmic Wisdom (77371) — Numinous Gift/Mistfire trait-copied facts', 
     expect(facts.map((f) => f.boonOrConditionName).sort()).toEqual(['Fury', 'Might', 'Resolution', 'Stability'])
   })
 
-  it('Numinous Gift + Found Purpose both active still shows only Numinous Gift\'s 7 rows (no duplicate Fury/Resistance/etc.)', () => {
+  it('Numinous Gift + Found Purpose both active shows only Found Purpose\'s 6 rows (Found Purpose supersedes, no duplicate Fury/etc.)', () => {
     const facts = boonConditionFactsForSkill(
       cosmicWisdom,
       new Set([NUMINOUS_GIFT_ID, FOUND_PURPOSE_ID]),
       allEquippedLegends,
       durationPercent,
-      undefined,
+      cosmicWisdomWvwOverride,
       legends
     )
-    expect(facts).toHaveLength(7)
+    expect(facts).toHaveLength(6)
     const furyRows = facts.filter((f) => f.boonOrConditionName === 'Fury')
     expect(furyRows).toHaveLength(1)
+    expect(furyRows[0].scaledDurationSeconds).toBe(5) // Found Purpose's value, not Numinous Gift's 10s
+    expect(furyRows[0].targetCount).toBe(4) // party-wide, not Numinous Gift's self-only
   })
 })

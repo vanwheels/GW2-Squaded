@@ -10,7 +10,7 @@ released; Discord bot and Capacitor mobile port remain later roadmap stages, out
 left in this file below is post-1.0 polish and open curation gaps — none of it blocks the release
 that already shipped.
 
-## Revenant tooltip/data bugs (2026-08-19) — all 7 fixed, plus a related sweep and 1 new item below
+## Revenant tooltip/data bugs (2026-08-19) — all 7 fixed, plus 2 related same-day sweeps
 
 User brain-dumped 7 Revenant bugs in one message, flagging the real list was probably bigger than
 what they'd written down. 5 were fixed same day (COMPLETED.md Session 231): Sword 4's flip (retired
@@ -29,26 +29,16 @@ follow-up if picked up later, not blocking. The 7th and last, Rising Momentum (1
 "which upkeep skills are toggled on" exists anywhere, same "manual counter for an untracked
 resource" shape `kallaFervorStacks`/`deathsCarapaceStacks` already established) feeding a brand-new
 `DerivedStats.movementSpeedPercent` field (first of its kind in the app) via
-`risingMomentumMovementSpeedPercent`, +5%/point per wiki, no game-mode split. What's left:
+`risingMomentumMovementSpeedPercent`, +5%/point per wiki, no game-mode split.
 
-- [ ] **Found Purpose's boosted boons on Cosmic Wisdom** (Revenant/Conduit, id 2352) — same
-      "trait B's value supersedes trait A's, once B is ALSO active" shape the now-closed Herald F2/
-      Core Value item had (see the `LEGEND_FORM_EFFECT_DETAILS`-adjacent comment in
-      `boon-calc/sources.ts` for how that one got solved — hand-resolved inline since only 1
-      skill/trait pair was involved; this one is bigger, see below). Numinous Gift (2440, minor,
-      always active with Conduit) grants self-only per-legend boons on Cosmic Wisdom cast — already wired
-      2026-08-20 via `synthetic-facts.json` (`requires_trait: 2440`, see COMPLETED.md Session 256).
-      Found Purpose (2352, one of the 3 mutually-exclusive Grandmaster majors) upgrades this same
-      trigger to grant PARTY-WIDE boons at its own, mostly-different, wiki-verified numbers (already
-      curated on Found Purpose's own trait tooltip, correct there) — but adding Found Purpose's
-      facts onto Cosmic Wisdom the same `requires_trait`-copy way would render TWO simultaneous rows
-      per boon (Numinous Gift's base value AND Found Purpose's upgraded value both showing) whenever
-      Found Purpose is chosen, since this app's fact pipeline has no "value X is superseded once
-      trait Y is ALSO active" concept — deliberately left off Cosmic Wisdom's tooltip rather than
-      show doubled/wrong data; Found Purpose's own tooltip remains the only accurate source for now.
-      Would need a real generic "supersedes" resolver to fix properly (2 independently-toggleable
-      Grandmaster majors, not a single always-active minor — too big to hand-resolve inline the way
-      Core Value's case was).
+One follow-up item fell out of that same-day sweep, now also closed: **Found Purpose's boosted boons
+on Cosmic Wisdom** (Revenant/Conduit, id 2352) — same "trait B's value supersedes trait A's, once B
+is ALSO active" shape the Herald F2/Core Value item had. Closed 2026-08-20 (COMPLETED.md Session
+261): Found Purpose now supersedes Numinous Gift's self-only Cosmic Wisdom boons with its own
+party-wide(4), wiki-verified numbers once it's ALSO active, hand-resolved inline the same way Core
+Value's case was (`FOUND_PURPOSE_TRAIT_ID`'s doc comment in `boon-calc/sources.ts`, by
+`LEGEND_GATED_TRAIT_IDS`) — plus a drive-by fix to a genuine duplicate-Might-row bug on Found
+Purpose's own trait tooltip, found while wiki-verifying its numbers.
 
 ## UI/UX polish (flagged 2026-08-16, refined in discussion same day)
 

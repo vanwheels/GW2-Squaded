@@ -507,6 +507,13 @@ export function isFlatTargetCountOverride(override: SourceTargetCountOverride): 
 // CURATED_DAMAGE_COEFFICIENTS export for its pilot script.
 export const TARGET_COUNT_OVERRIDES: { skill: Record<number, SourceTargetCountOverride>; trait: Record<number, SourceTargetCountOverride> } = {
   skill: {
+    // Cosmic Wisdom (Revenant/Conduit) — Found Purpose's boons reach 4 allies once it supersedes
+    // Numinous Gift's self-only copies on this skill (see `FOUND_PURPOSE_TRAIT_ID`'s doc comment,
+    // by `LEGEND_GATED_TRAIT_IDS`, for the full writeup). Keyed by `status@duration` since Numinous
+    // Gift's own (self-only, no entry needed here — defaults to `null`) and Found Purpose's boons
+    // share every status name, only distinguished by duration (Found Purpose's are always shorter).
+    77371: { 'Fury@5': 4, 'Resistance@2': 4, 'Stability@2': 4, 'Protection@2': 4, 'Might@5': 4 },
+
     // Lightning Flash (Elementalist cantrip). Resistance only exists with Soothing Disruption
     // ("Cantrips grant boons") traited — that trait's own page states no radius/ally wording, and
     // unlike every confirmed party-wide entry below, no Radius fact is gated to the Resistance fact
@@ -3008,6 +3015,19 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       'Quickness@3@1': 'omit', // base pve (3)
       'Quickness@1@1#4': 'omit', // base pvp (1) — real value, not WvW
       'Quickness@1@1#5': 0.75 // base wvw — the real WvW value this app should show
+    },
+    2352: {
+      // Found Purpose (Conduit). Its flat, legend-less Might fact carries an untagged PvE-only
+      // duplicate (10s×5 stacks) alongside the real WvW+PvP value (5s×3 stacks, `Might@5@3`, which
+      // needs no override — it's already the sole occurrence of its own tuple, since the OTHER
+      // `Might@5@3` fact on this trait is Entity-legend-specific, a genuinely separate simultaneous
+      // grant, not a mode-split duplicate of this one). Found during the 2026-08-20 Cosmic Wisdom
+      // "Found Purpose supersedes Numinous Gift" fix — see `FOUND_PURPOSE_TRAIT_ID`'s doc comment in
+      // this file (by `LEGEND_GATED_TRAIT_IDS`) for the writeup; discovered as a drive-by while
+      // wiki-verifying Found Purpose's own numbers to copy onto Cosmic Wisdom, unrelated to that fix
+      // itself. Wiki raw wikitext (`action=raw`) confirms: `{{skill fact|might|stacks=5|10|game
+      // mode=pve}}{{skill fact|might|stacks=3|5|game mode=pvp wvw}}`.
+      'Might@10@5': 'omit'
     }
   }
 }
@@ -3650,24 +3670,39 @@ const LEGEND_GATED_TRAIT_IDS = new Set<number>([2440])
  *   `damage-calc.ts`'s matching `CURATED_DAMAGE_COEFFICIENTS` entry and `wvw-fact-overrides.json`'s
  *   `Burning` split (pve 6s/wvw+pvp 4s, mirroring trait 2429's own already-curated entry).
  *
- * **Found Purpose** (2352, the 3rd Grandmaster major, mutually exclusive with Mistfire) was
- * deliberately NOT added the same way, even though the user confirmed it also grants Numinous
- * Gift's boons (party-wide, its own upgraded numbers) when Cosmic Wisdom is cast — Found Purpose's
- * own facts share the exact same boon STATUSES as Numinous Gift's (Fury/Resistance/Stability/
- * Protection), just different values (party-wide reach, mostly-lower durations). Copying BOTH
- * traits' facts onto Cosmic Wisdom (both `requires_trait`-gated, Numinous Gift always active +
- * Found Purpose only when chosen) would render TWO simultaneous rows per boon whenever Found
- * Purpose is equipped (e.g. "Fury: 10s" AND "Fury: 5s" both attributed to Assassin) — this app's
- * fact pipeline has no generic "trait A's value is superseded once trait B is ALSO active" resolver
- * — Core Value/True Nature's own version of this same shape (TODO.md's former "Herald F2" item,
- * closed 2026-08-20) was solvable by hand-resolving each of its 5 variants' single boosted fact
- * inline (`trueNatureBranches` in `skill-calc/branch-conditional-facts.ts`) rather than building a
- * generic resolver, since only one skill/trait pair was involved; Found Purpose's version is a
- * bigger lift (2 GRANDMASTER MAJORS, not one always-active minor, each independently toggleable) that
- * would still benefit from a real generic resolver if ever picked up. Found Purpose's own trait
- * tooltip already shows its correct numbers (fixed during the Conduit `wvw-fact-overrides.json` leg)
- * — that remains the only accurate source for this trait's contribution until then.
+ * **Found Purpose** (2352, TODO.md's follow-up item, closed 2026-08-20) is the 3rd Grandmaster
+ * major, mutually exclusive with Mistfire — it grants the SAME boon statuses Numinous Gift does
+ * (Fury/Resistance/Stability/Protection/Might), just party-wide(4) instead of self and at mostly-
+ * shorter WvW+PvP durations (fetched fresh via the trait's own raw wikitext, `action=raw`, since the
+ * rendered page collapses the pve/wvw/pvp split back into prose): Fury 5s (pve 10s), Resistance 2s
+ * (pve 5s), Stability 2s (pve 5s), Protection 2s (pve 5s), plus a flat Might (5s×3, pve 10s×5) AND
+ * an Entity-legend-specific Might (5s×3, no PvE equivalent — Entity's PvE grant is Quickness
+ * instead, matching Numinous Gift's own Quickness/Entity line). Naively copying both traits' facts
+ * onto Cosmic Wisdom (both `requires_trait`-gated, Numinous Gift always active + Found Purpose only
+ * when chosen) would render TWO simultaneous rows per boon whenever Found Purpose is equipped (e.g.
+ * "Fury: 10s (self)" AND "Fury: 5s (party 4)" both attributed to Assassin) — the same "trait B's
+ * value supersedes trait A's, once B is ALSO active" shape Core Value/True Nature's now-closed
+ * "Herald F2" item solved by hand-resolving inline (`trueNatureBranches` in
+ * `skill-calc/branch-conditional-facts.ts`) rather than building a generic resolver, since only one
+ * skill/trait pair was involved. Resolved the same way here via `FOUND_PURPOSE_SUPERSEDES_NUMINOUS_GIFT`
+ * below: Cosmic Wisdom's `requires_trait: 2440` facts are skipped outright once Found Purpose (2352)
+ * is ALSO active, and a new set of `requires_trait: 2352` facts (Found Purpose's own wiki-verified
+ * numbers above) takes over — each status distinguished from Numinous Gift's copy by `duration`
+ * alone (Numinous Gift's own durations, e.g. Fury@10, never collide with Found Purpose's shorter
+ * ones, e.g. Fury@5), which is also how `TARGET_COUNT_OVERRIDES.skill[77371]` tells the two apart
+ * without needing a live "Number of Allied Targets" fact (that lookup ignores `requires_trait`
+ * entirely — see `resolveTargetCountFrom`'s doc comment — so an unconditioned Allied-Targets fact
+ * would have wrongly widened Numinous Gift's own self-only rows too). Found Purpose's own trait
+ * tooltip needed one small drive-by fix alongside this (see `BUFF_INSTANCE_VALUE_OVERRIDES.trait[2352]`):
+ * its raw API facts carry an untagged PvE-duration duplicate of the flat Might fact (10s×5, no
+ * `requires_trait`/mode discriminator) that nothing was previously deduping against the real
+ * WvW+PvP one (5s×3) — same "multiple Buff facts sharing one status, no discriminator" shape
+ * `fetch-wvw-splits.ts` already documents, just missed by that sweep since Found Purpose wasn't
+ * flagged again after 2026-08-19's Conduit leg (Found Purpose's per-legend boons WERE fixed then;
+ * only this one flat, legend-less Might fact was still an untouched duplicate).
  */
+const FOUND_PURPOSE_TRAIT_ID = 2352
+const COSMIC_WISDOM_SKILL_ID = 77371
 
 /**
  * A real, current-build-scaled number to append below a `legendFormFactsForSkill` row's own
@@ -3832,6 +3867,13 @@ function extractFromFacts(
     const category = classify(fact.status)
     if (category === null) continue
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
+
+    // Found Purpose supersedes Numinous Gift's boons on Cosmic Wisdom once it's ALSO active (both
+    // being `requires_trait`-gated onto the same skill isn't enough on its own to prevent both
+    // showing at once) — see `FOUND_PURPOSE_TRAIT_ID`'s doc comment (by `LEGEND_GATED_TRAIT_IDS`)
+    // for the full writeup. Scoped to this exact skill/trait pair, not a generic "supersedes"
+    // mechanism.
+    if (sourceKind === 'skill' && sourceId === COSMIC_WISDOM_SKILL_ID && fact.requires_trait === 2440 && activeIds.has(FOUND_PURPOSE_TRAIT_ID)) continue
 
     // Real recognized-boon-name `PrefixedBuff` facts (e.g. Numinous Gift's Fury/Resistance/
     // Stability/Protection/Quickness, both on Cosmic Wisdom's synthetic copy AND on Numinous Gift's

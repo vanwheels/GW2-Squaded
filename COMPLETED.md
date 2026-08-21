@@ -2,6 +2,40 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 261 — Found Purpose supersedes Numinous Gift on Cosmic Wisdom
+
+Closes TODO.md's last open Revenant item ("Found Purpose's boosted boons on Cosmic Wisdom"). Same
+"trait B's value supersedes trait A's, once B is ALSO active" shape Core Value/True Nature's now-
+closed "Herald F2" item solved — hand-resolved inline again rather than building a generic resolver,
+since only this one skill/trait pair was involved (2 GRANDMASTER MAJORS, not one always-active minor,
+so genuinely a bigger lift than Core Value's case, but still tractable inline).
+
+Found Purpose (2352) grants the same boon statuses Numinous Gift's minor (2440) does on Cosmic Wisdom
+cast — party-wide(4) instead of self, at mostly-shorter WvW+PvP durations (fetched fresh via the
+trait's own raw wikitext, `action=raw`, since the rendered wiki page collapses the pve/wvw/pvp split
+back into prose): Fury 5s (pve 10s), Resistance 2s (pve 5s), Stability 2s (pve 5s), Protection 2s
+(pve 5s), a flat Might (5s×3, pve 10s×5), and an Entity-legend-specific Might (5s×3, no PvE
+equivalent — Entity's PvE grant is Quickness instead). `extractFromFacts` (`sources.ts`) now skips
+Cosmic Wisdom's `requires_trait: 2440` facts outright once Found Purpose is ALSO active, and 6 new
+`requires_trait: 2352` facts (Found Purpose's own numbers above) take over — `synthetic-facts.json`.
+Each status is told apart from Numinous Gift's copy by `duration` alone, which is also how the new
+`TARGET_COUNT_OVERRIDES.skill[77371]` (a `status@duration`-keyed map) resolves party-wide(4) reach
+without a live "Number of Allied Targets" fact — that lookup ignores `requires_trait` entirely, so an
+unconditioned Allied-Targets fact would have wrongly widened Numinous Gift's own self-only rows too.
+
+Drive-by fix found while wiki-verifying Found Purpose's own numbers to copy: its raw API facts carry
+an untagged PvE-duration duplicate of the flat Might fact (10s×5, no `requires_trait`/mode
+discriminator) that nothing was deduping against the real WvW+PvP value (5s×3) — same "multiple Buff
+facts sharing one status, no discriminator" shape `fetch-wvw-splits.ts` already documents elsewhere,
+just missed by the 2026-08-19 Conduit sweep (which fixed Found Purpose's per-legend boons but not
+this one flat, legend-less Might fact). New `BUFF_INSTANCE_VALUE_OVERRIDES.trait[2352]` entry
+(`'Might@10@5': 'omit'`) fixes Found Purpose's own trait tooltip too, not just Cosmic Wisdom's copy.
+
+`cosmic-wisdom-trait-effects.test.ts` updated: the old "Found Purpose alone adds nothing" and "both
+active still shows only Numinous Gift's 7 rows" assertions are now the opposite (Found Purpose alone
+shows its own 6 party-wide rows; both active shows only Found Purpose's 6, not Numinous Gift's 7) —
+275 tests pass, typecheck clean.
+
 ## Session 260 — Movement-speed sweep: 4 runes + 7 traits + 1 relic, "highest value wins" mechanic
 
 User noticed the movement-speed stat added in Session 259 (Rising Momentum) sat empty for every
