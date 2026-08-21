@@ -2,6 +2,30 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 265 — Gear-box sizing: sigils/infusions no longer overflow the weapon icon
+
+2nd "quick win" from the 2026-08-20 scoping discussion. Root cause: a weapon slot's sigil/
+infusion badge row (`.upgrade-row`, stacked below the icon via `.weapon-slot`'s column layout)
+had `align-items: stretch` and no width of its own, so it stretched to the full (wider) flex-
+column width and visibly spilled past the 48px icon sitting above it. Fixed by (1) bumping the
+item-slot icon to 64px scoped to `.gear-slot .skill-slot-button` only (armor/accessories/weapons/
+relic/food/utility all share this class, without touching the identically-classed 48px skill-bar/
+pet-slot buttons elsewhere), (2) capping `.weapon-slot .upgrade-row` at that same 64px width with
+`flex-wrap: wrap`, and (3) sizing sigil/infusion/rune badges to half that width (30px) scoped to
+`.gear-slot .upgrade-row .upgrade-badge` — leaves `WeaponTypeBar`'s same-class weapon-type badges
+(a plain row, not inside a `.gear-slot`) untouched. Rune sized the same as sigil/infusion per the
+user's own "lean towards" call; not yet visually spot-checked (Electron sandbox limitation).
+
+## Session 264 — Equipment text manifest: Ranger pet line
+
+Closes the first "quick win" from the 2026-08-20 trait/skill data-correctness scoping discussion
+(TODO.md's "Trait/skill data-correctness pass"). Turned out narrower than first scoped: the user
+meant `EquipmentTextManifest.tsx` (the screenshot-only text readout of a build's loadout, since
+icons alone aren't reliably legible), not the interactive skill bar — `PetsEditor` already renders
+both pet icons there for Ranger builds and always has. Added a `Pets: <name> / <name>` line under
+Utility in the manifest's "Other" column, Ranger-only, reading `build.equippedPetIds` against the
+existing `pets` game-data list.
+
 ## Session 263 — Life Siphon Damage sweep: new `CURATED_SIPHON_DAMAGE_COEFFICIENTS` table
 
 Closes TODO.md's "Life Siphon Damage" nice-to-have. New `siphon-damage-calc.ts` generalizes the

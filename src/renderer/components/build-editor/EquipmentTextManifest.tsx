@@ -40,10 +40,19 @@ const EMPTY = '—'
  * `BuildEditorView`'s "Preview screenshot layout" button, never shown during normal editing.
  */
 export function EquipmentTextManifest({ build }: Props) {
-  const { itemStats, itemStatLegalIds, professions, runes, sigils, infusions, relics, food, utility } = useGameData()
+  const { itemStats, itemStatLegalIds, professions, runes, sigils, infusions, relics, food, utility, pets } = useGameData()
   const { showUnderwater } = useAppSettings()
   const equipment = build.equipment
   const profession = professions.find((p) => p.id === build.profession)
+  const petsById = new Map(pets.map((p) => [p.id, p.name]))
+  /** Ranger-only: the manifest is a screenshot-only text readout of what `EquipmentEditor`'s icons
+   *  can't reliably convey (see this component's own doc comment) — a Ranger's 2 equipped pets are
+   *  exactly that same "icon alone doesn't read at a glance" case, so they get a line here too,
+   *  right under Utility since both are consumable-adjacent loadout choices. */
+  const petText =
+    build.profession === 'Ranger'
+      ? build.equippedPetIds.map((id) => (id != null ? (petsById.get(id) ?? EMPTY) : EMPTY)).join(' / ')
+      : null
 
   const itemStatsById = new Map(itemStats.map((s) => [s.id, s]))
   const runesById = new Map(runes.map((r) => [r.id, r.name]))
@@ -150,6 +159,7 @@ export function EquipmentTextManifest({ build }: Props) {
         <div>Relic: {build.relicId != null ? (relicsById.get(build.relicId) ?? EMPTY) : EMPTY}</div>
         <div>Food: {build.foodId != null ? (foodById.get(build.foodId) ?? EMPTY) : EMPTY}</div>
         <div>Utility: {build.utilityId != null ? (utilityById.get(build.utilityId) ?? EMPTY) : EMPTY}</div>
+        {petText != null && <div>Pets: {petText}</div>}
       </div>
     </div>
   )

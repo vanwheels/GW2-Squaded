@@ -1158,6 +1158,16 @@ input[type='text'] {
   gap: 6px;
 }
 
+/* Bigger item-slot icon inside the Equipment panel (2026-08-20 user feedback) — gives sigil/
+   infusion/rune badges room to sit at half its width without visually overflowing past it (see
+   `.gear-slot .upgrade-row .upgrade-badge` / `.weapon-slot .upgrade-row` below). Scoped to
+   `.gear-slot` so the shared `.skill-slot-button` class's 48px footprint everywhere else (weapon/
+   utility/pet skill slots, `SlotTile`'s roster picker) stays untouched. */
+.gear-slot .skill-slot-button {
+  width: 64px;
+  height: 64px;
+}
+
 .gear-slot-body {
   flex: none;
   display: flex;
@@ -1317,6 +1327,18 @@ input[type='text'] {
   flex-direction: column;
   align-items: stretch;
   gap: 4px;
+}
+
+/* A weapon slot's sigil/infusion rows stack below its (now 64px) icon — `align-items: stretch`
+   above stretches them to the full column width, which is normally wider than the icon itself
+   (`.gear-weapon-pair > *` splits the pair's width in half), so the badges visibly spilled past
+   the icon's own footprint (2026-08-20 user feedback: "extend beyond the width of the weapon
+   box"). Capping the row at the icon's own width keeps badges directly underneath it instead;
+   `flex-wrap` lets a 2nd sigil/infusion (a 2-handed weapon's 2 slots) wrap onto its own line
+   within that same footprint rather than overflowing sideways. */
+.weapon-slot .upgrade-row {
+  width: 64px;
+  flex-wrap: wrap;
 }
 
 /* Land/Underwater toggle in the Weapon panel header — only one set of weapon slots is shown at
@@ -2151,6 +2173,21 @@ input[type='text'] {
 .upgrade-row {
   display: flex;
   gap: 5px;
+}
+
+/* Sigil/infusion/rune badges sized to half the (now 64px) `.gear-slot` icon, so up to 2 fit
+   exactly side by side without overflowing past it (2026-08-20 user feedback) — overrides
+   `.upgrade-badge-md`/`-lg` below only inside `.gear-slot`'s own rows. Rune deliberately matches
+   sigil/infusion size here too (user direction, same date: "lean towards same as sigils/
+   infusions" pending a final call). Scoped this way so `WeaponTypeBar`'s weapon-type-picker
+   badges — same `-lg` class, a plain row outside any `.gear-slot` — are unaffected. */
+.gear-slot .upgrade-row {
+  gap: 4px;
+}
+
+.gear-slot .upgrade-row .upgrade-badge {
+  width: 30px;
+  height: 30px;
 }
 
 .upgrade-badge {

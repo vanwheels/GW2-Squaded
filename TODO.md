@@ -2,188 +2,11 @@
 
 Completed work is tracked in COMPLETED.md, not here — this file only holds what's still open.
 
-## 1.0 shipped 2026-08-15
-
-v1.0.0 released (see COMPLETED.md). README roadmap items 1-4 (scaffolding, build editor +
-boon/condition calculator, squad preview builder, sync/share backend) are all implemented and
-released; Discord bot and Capacitor mobile port remain later roadmap stages, out of scope. What's
-left in this file below is post-1.0 polish and open curation gaps — none of it blocks the release
-that already shipped.
-
-## Revenant tooltip/data bugs (2026-08-19) — all 7 fixed, plus 2 related same-day sweeps
-
-User brain-dumped 7 Revenant bugs in one message, flagging the real list was probably bigger than
-what they'd written down. 5 were fixed same day (COMPLETED.md Session 231): Sword 4's flip (retired
-"Duelist's Preparation" data, `RETIRED_WEAPON_SKILL_IDS`), Facet of Elements' missing flip
-(`FLIP_SKILL_OVERRIDES`), Draconic Fortitude's Health value (new `MAX_HEALTH_PERCENT_BONUSES`
-mechanism), Draconic Echo's per-facet bonus text (`draconicEchoSections`), and Elevated Compassion
-showing Quickness in WvW (`wvw-fact-overrides.json` `'omit'` entry). A 6th, "Herald F2 lacks linked
-tooltips + Core Value lacks its details," was fixed 2026-08-20 (COMPLETED.md) — Facet of Nature
-(29371) now shows a real per-legend description row (`LEGEND_FORM_FACT_SKILL_IDS`) plus its Consume
-effect True Nature's real per-legend numbers with Core Value's boost applied (`trueNatureBranches`,
-`skill-calc/branch-conditional-facts.ts`); Facet of Nature's own base per-legend numbers (its passive
-tick, separate from the Consume effect) remain wiki-fetched but not yet precisely verified — a small
-follow-up if picked up later, not blocking. The 7th and last, Rising Momentum (1716, Herald major —
-"Gain increased movement speed for each point of upkeep currently in use"), was closed 2026-08-20
-(COMPLETED.md Session 259): new `CombatState.upkeepPoints` manual counter (no structural source for
-"which upkeep skills are toggled on" exists anywhere, same "manual counter for an untracked
-resource" shape `kallaFervorStacks`/`deathsCarapaceStacks` already established) feeding a brand-new
-`DerivedStats.movementSpeedPercent` field (first of its kind in the app) via
-`risingMomentumMovementSpeedPercent`, +5%/point per wiki, no game-mode split.
-
-One follow-up item fell out of that same-day sweep, now also closed: **Found Purpose's boosted boons
-on Cosmic Wisdom** (Revenant/Conduit, id 2352) — same "trait B's value supersedes trait A's, once B
-is ALSO active" shape the Herald F2/Core Value item had. Closed 2026-08-20 (COMPLETED.md Session
-261): Found Purpose now supersedes Numinous Gift's self-only Cosmic Wisdom boons with its own
-party-wide(4), wiki-verified numbers once it's ALSO active, hand-resolved inline the same way Core
-Value's case was (`FOUND_PURPOSE_TRAIT_ID`'s doc comment in `boon-calc/sources.ts`, by
-`LEGEND_GATED_TRAIT_IDS`) — plus a drive-by fix to a genuine duplicate-Might-row bug on Found
-Purpose's own trait tooltip, found while wiki-verifying its numbers.
-
-## UI/UX polish (flagged 2026-08-16, refined in discussion same day) — FULLY DONE 2026-08-20
-
-User felt the overall UI/UX was "a little off." Talked through each area and landed on concrete
-directions below (see this session's transcript for the fuller reasoning) — all three tabs (Builds,
-Squads, Settings) are now implemented; no design-of-record writeup was done separately, the reasoning
-lives in the per-item notes below and in COMPLETED.md.
-
-- [x] **Builds tab** (`BuildsView.tsx`): record cards feel too similar and the page has a lot of
-      empty vertical space.
-        - Delete button → a small "X" icon, **hover-reveal** (invisible until the card is
-          moused over, decided over always-visible-but-small) — replaces the current full-width
-          "Delete" text button competing with "Open" for attention. **Done 2026-08-18**:
-          `.record-delete` in `global.css`, positioned absolutely just left of the existing
-          favorite-star badge in the card's top-right corner (own offset, not a shared wrapper —
-          `.favorite-star` is reused as-is by SquadsView/UpgradePicker, so its positioning stays
-          untouched). Opacity 0 at rest, revealed via `.record-list li:hover` or `:focus-visible`
-          so keyboard users can still reach it.
-        - Each card gets a colored outline/accent matching the build's profession, sourced from
-          **real GW2 in-game class colors** (not an invented palette). **Done 2026-08-18**: color
-          data lives in `src/renderer/lib/profession-colors.ts` (`PROFESSION_COLORS`,
-          `professionAccentColor`/`professionColorSet`, the wiki's 4-shade set per profession, kept
-          out of `professions.json` on purpose since `fetch-game-data.ts` fully regenerates that file
-          and would silently wipe a hand-added field); `BuildsView.tsx` now sets a per-card
-          `--profession-accent` CSS var from `professionAccentColor()` and `global.css`'s
-          `.record-list li` renders it as a left-edge `box-shadow` inset stripe (not a border, so it
-          never competes with the drag-and-drop `border-color` feedback). Note this only
-          differentiates *across* professions, not between two builds of the same profession.
-        - Profession filter row (`ProfessionTagPicker.tsx`) → collapse behind a disclosure toggle
-          by default, closed on first paint, consistent with how `TagChipDropdown` already behaves
-          next to it. **Already done — turned out to predate this TODO entry**: commit `bd35092`
-          (2026-08-18, "Collapse profession filter into a popover, reorder filter bar") already
-          replaced the always-expanded 9-icon row + 27-icon elite-spec grid with a click-to-open
-          `FloatingPanel` popover behind a compact "Profession" trigger button + active-filter dot
-          badge, and also enabled the picker in `BuildsSidebar` (previously opted out for width).
-          Confirmed 2026-08-20 while picking this item back up — no further work needed.
-- [x] **Squads tab** (`SquadsView.tsx`): squad cards had zero visual distinguishability (no colors,
-      no icons) and, separately, the same empty-space issue as Builds. Decided against per-slot
-      profession icons (a squad can have several 5-slot parties — `PartySlots` is a fixed 5-tuple
-      per `Party` in `squad-comp.ts` — so a full icon grid could hit 15+ icons on one small card, too
-      cluttered) and against a de-duplicated "which classes appear anywhere" row (loses the actual
-      per-party shape). **Distinguishability done 2026-08-18**: a **per-party color mosaic** — one
-      `.party-mosaic-row` of small dots per party (`global.css`), reusing `professionAccentColor()`
-      from the same profession-color system built for Builds above. Each slot resolves to a
-      profession via a saved build (`buildId`) or a `GhostPick`, else renders as a hollow
-      `.party-mosaic-dot-empty` dot rather than being omitted, so a partially-filled party's shape
-      still reads correctly. **Empty-space fix + delete-button parity done 2026-08-20**: mosaic dots
-      enlarged 7px → 11px with a leading "P1"/"P2"/... row label (`.party-mosaic-label`), making the
-      mosaic the card's visual anchor instead of a small decorative afterthought; also brought
-      Squads cards' delete control in line with Builds' hover-reveal `.record-delete` "×" icon
-      (Squads had been left on the old always-visible full-width "Delete" text button, a leftover
-      gap from the 2026-08-18 Builds-only pass).
-- [x] **Settings tab** (`SettingsView.tsx`): reads as hollow/underfilled for its horizontal space
-      (Display/Updates/Game data/Credits currently stack single-column). **Done 2026-08-20**
-      (COMPLETED.md Session 262): panels moved into a `.settings-grid` 2-column CSS grid
-      (`global.css`), collapsing to 1 column under 820px width; no new content added, purely a
-      reflow. This was the last open item in the UI/UX polish section — Builds and Squads tabs were
-      already done, so the whole section is now closed.
+v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffolding, build editor +
+boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
+implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
 ## Scoped features, not yet built
-
-Paragon's Motivation-tiered Chants (flagged by the user 2026-08-14) is now **FULLY DONE 2026-08-15**
-— the 3 Chant skills themselves (COMPLETED.md, same day) plus the 5 traits that further modify them
-(Enduring Refrain, Feverish Pulse, Calming Tongue, Liberating Liaise, Strengthening Stanzas — see
-COMPLETED.md for the per-trait writeup) are all curated. One genuine gap fell out of that pass, since
-fixed — see COMPLETED.md's 2026-08-15 `MISCELLANEOUS_MATCHERS` WvW-override entry.
-
-Party-wide-only filter for boon/condition/effect summaries (flagged 2026-08-16) is **DONE 2026-08-19**
-— a `useAppSettings.partyWideOnly` toggle (persisted like `showUnderwater`/`showRacialSkills`, one
-`ToggleSwitch` in each editor's header so it's never captured by `ScreenshotButton`) that, when on,
-narrows `BoonConditionSummaryPanel` (build editor) and `PartyRow`/`SlotTile` (squad editor) to
-boons/auras/miscellaneous effects and the Cleanse line of Strips/Corrupts/Cleanses whose `targetCount`
-reaches a full party (`isPartyWideTargetCount`, `sources.ts`: `targetCount !== null && targetCount >=
-5`). Conditions/Control/Strip/Corrupt stay unfiltered (enemy-facing). `filterPartyWideGroups`/
-`filterPartyWideNamedFactGroups` (build editor) and `filterPartyWideEntries`/
-`filterPartyWideNamedFactEntries` (squad editor, `party-summary.ts`) do the filtering; `PartyAuraEntry`
-gained a `targetCount` field it didn't carry before (the underlying `BoonConditionSource` always had
-one, `computePartyAuraSummary` just never copied it through).
-
-Code review caught a real gap before ship: `MISCELLANEOUS_MATCHERS` (Stealth/Superspeed/Evade/Breaks
-Stun/Barrier) had **zero** curated `targetCount` data anywhere, so the Misc row would've gone
-permanently empty the instant the toggle was flipped on, for every build, regardless of what it
-actually produces. First-leg fix landed same day: `NAMED_FACT_TARGET_COUNT_TABLES` now covers
-Stealth/Superspeed/`Breaks Stun`/Barrier (Evade skipped — confirmed 100% self-only from local
-description text across all 17 candidates, and `'self'` resolves to `targetCount: null` exactly like
-"uncurated," so curating it changes no observable behavior). Every source with its own API `"Number of
-Allied Targets"` fact now resolves for free (46 across the 4 names — `resolveTargetCountFrom` checks
-that before ever consulting the override table), plus `BREAKS_STUN_PARTY_WIDE` manually curates 10
-more from explicit "breaks stun for/on allies" wording in their own description, corroborated by a
-`"Number of Targets": 5` fact each also carries (normally the untrusted enemy-facing label, but trusted
-here since these sources have no foe-facing component at all — see the table's own doc comment).
-
-Second leg landed 2026-08-19: `STEALTH_PARTY_WIDE` gives Stealth the same manual-description-read
-treatment Breaks Stun got — 8 skill ids (5972/6090 Toss Elixir S, 10187/50414 Veil, 10245 Mass
-Invisibility, 13117 Shadow Refuge, 30815 Sneak Gyro, 13044 Blinding Powder) confirmed party-wide from
-their own local API facts plus live wiki wikitext for the 2 with no local `Number` fact at all.
-Blinding Powder was initially flagged ambiguous (a foe-facing Blinded fact and the ally-facing Stealth
-fact both compete for one generic `"Number of Targets"` label) but the user confirmed same-day that its
-`StunBreak` is personal-only, so the shared count describes the Stealth grant — corrected in place. See
-the table's own doc comment for the full per-entry reasoning.
-
-Third leg landed 2026-08-18: `SUPERSPEED_PARTY_WIDE` gives Superspeed the same treatment — 12 skill
-ids + 3 trait ids (Windborne Speed, both Toss Elixir U ids, Detonate Elixir U, Symbol of Swiftness,
-Slipstream, Chaotic Release, "Eye of the Storm!", Well of Action, Essence of Borrowed Time, Rallying
-Roar, "We Will Never Yield!"; traits Temporal Enchanter, Speed of Synergy, Liberating Liaise)
-confirmed party-wide from their own local API facts/descriptions plus one live wiki check (Windborne
-Speed, whose own description never mentions Superspeed at all despite carrying an unconditioned
-fact for it). Notably found 7 Engineer heal-adjacent skills (Toss Elixir H x2, Regenerating Mist,
-Blessing of Dwayna, Leafy Bandage, Static Shock, Bandage Self) that all carry a Speed-of-Synergy-
-gated Superspeed fact but are correctly excluded as self-only: they're all API `slot: "Toolbelt"`,
-matching that trait's own text distinguishing the party-wide "heal skill" case from the self-only
-"associated tool-belt skill" case. Time Warp (both ids) was initially left uncurated as ambiguous — an
-unconditioned local Superspeed fact conflicted with a live wiki check that found no Superspeed
-mentioned in the current tooltip — until the user corrected this same-day: Time Warp (and every
-Glamour skill) only grants Superspeed with the Temporal Enchanter trait equipped, confirmed as the
-only Glamour skill carrying a Superspeed fact of its own at all. Now curated as a
-`TraitConditionalTargetCountOverride` (party-wide(5) when Temporal Enchanter is active, otherwise no
-reach) — the same conditional mechanism `TARGET_COUNT_OVERRIDES` already uses for Phoenix Protocol/
-Gladiator's Defense. See the table's own doc comment for the full per-entry reasoning, including
-everything excluded as self/pet/illusion-only.
-
-Fourth leg landed 2026-08-18: `BARRIER_PARTY_WIDE` gives Barrier the same manual-description-read
-treatment — 15 skill ids + 7 trait ids (Call of Valor, Bulwark Gyro, Glyph of Burgeoning, Glyph of
-Elemental Power, Serpent Siphon, Sand Swell, Sand Flare, Saint's Shield, Barrier Burst, Energizing
-Slam, Dawn's Repose (leap variant only — its same-named dash-variant sibling stays excluded, see the
-table's own doc comment), "We Will Never Yield!", Effulgent Stance, Chak Shield, "Brace Yourselves!";
-traits Allies' Aid, Chain Reactivity, System Shocker, Ex Machina, Unshakable Mountain, Panaku's
-Ambition, Mech Core: Barrier Engine) confirmed party-wide from their own local API facts/descriptions
-plus 2 live wiki checks (Glyph of Elemental Power's attunement-branch text, Crescendo's raw wikitext —
-the latter turned out NOT party-wide, its bare `targets` template most likely describes its own foe-
-facing Damage fact instead, so it stays uncurated). See `BARRIER_PARTY_WIDE`'s own doc comment for
-the full per-entry reasoning, including everything excluded as self/pet/single-ally-only.
-
-Fifth and final leg landed 2026-08-19: a full wiki pass over the ~120 still-uncurated Breaks-Stun
-sources left open above (113 after excluding blank-data placeholder ids) — resolved each candidate's
-wiki page and read its own `breakstun`/`stun break` fact template, whose optional `applies to=`
-parameter is the wiki's own explicit self-vs-allies signal (discovered via Otter's Compassion, then
-confirmed reliable against the already-known Blinding Powder/"Shake It Off!" cases). Exactly ONE
-source turned out party-wide: Otter's Compassion (76563, Evoker meditation — `applies to=allies`
-when water is your specialized element; its sibling boon facts were already curated at 5). The other
-112 are now CONFIRMED (not just inspected) self-only — 4 via an explicit `applies to=self` qualifier
-(Elixir S, Hare's Agility, Toad's Fortitude, Fox's Fury — the latter two read ambiguously from prose
-alone but the wiki's own fact template disambiguates them), 108 via a bare qualifier-less template
-(GW2's own defaults-to-self convention). This closes out the whole `MISCELLANEOUS_MATCHERS`
-party-wide-targetCount item — see `BREAKS_STUN_PARTY_WIDE`'s own doc comment for the full writeup.
 
 - [ ] Capacitor port for iOS/Android — scoped 2026-08-01, two-part seam: (1)
       `StorageAdapter`/`Repository<T>` (`src/shared/storage/storage-interface.ts`) is already
@@ -194,86 +17,134 @@ party-wide-targetCount item — see `BREAKS_STUN_PARTY_WIDE`'s own doc comment f
       seam or a Capacitor-side shim. Also: native HTML5 drag-and-drop in the squad editor has no
       touch-input fallback yet.
 
+- [ ] **Duplicate builds/squads from a right-click menu.** `BuildsView.tsx`/`SquadsView.tsx` (the
+      main Builds/Squads tab card lists) have no context menu today — only `BuildsSidebar.tsx` (the
+      squad editor's build roster) does, via the reusable `ContextMenu` component
+      (`common/ContextMenu.tsx`, a portaled `{x, y, items}` menu) with "Preview"/"Edit". Add the same
+      `onContextMenu`/`ContextMenu` wiring to both main-page card `<li>`s, with a "Duplicate" item
+      that clones the record under a fresh id: `createBuild`/`createSquadComp` already exist
+      (`builds-store.tsx`/`squad-comps-store.tsx`) — spread the source record with a new
+      `crypto.randomUUID()` id, fresh `createdAt`/`updatedAt`, `order: Date.now()` (same pattern
+      `handleImport` in both views already uses), and probably an adjusted name (e.g. append " (Copy)")
+      so the duplicate doesn't look identical in the list. A squad's duplicate should NOT duplicate
+      its member builds too (same "reference, don't clone" relationship the editor already has) —
+      only `SquadCompSharePayload`'s import path clones builds, and that's for a different reason
+      (a shared squad's builds aren't in the importer's database yet at all).
+
 ## Coefficient curation — remaining exceptions
 
-`CURATED_HEALING_COEFFICIENTS` and `CURATED_DAMAGE_COEFFICIENTS` are now complete sweeps across all
-9 professions and all 4 skill slots (see COMPLETED.md Sessions 57-74 for the full sweep history).
-What's left below is specific skills/traits that were investigated and deliberately left uncurated —
-don't re-guess a coefficient for these without a fresh look at the source conflict.
+`CURATED_HEALING_COEFFICIENTS` and `CURATED_DAMAGE_COEFFICIENTS` are complete sweeps across all 9
+professions and all 4 skill slots; `CURATED_SIPHON_DAMAGE_COEFFICIENTS` is a complete sweep of its
+14-candidate scope (see COMPLETED.md for the full sweep history). What's left below is specific
+skills/traits that were investigated and deliberately left uncurated — don't re-guess a coefficient
+for these without a fresh look at the source conflict.
 
 **Healing — Utility (2):**
 - Guardian 31295 (Sanctuary, underwater variant): a frozen pre-2016-balance-pass copy of id 9128 —
   no wiki coefficient documented for it specifically (underwater is out of scope for WvW anyway).
-  Re-checked 2026-08-13: 9128's own wiki coefficient (522/0.1375) is unchanged and still the only one
-  curated (id 31295 above); no separate documentation for 31295 has appeared, no change.
-- Guardian 62669 (Repose): the wiki page itself is tagged stub — coefficient is an unfilled `?`.
-  Re-checked 2026-08-13: still `?` — coefficient itself is still undocumented, no change. Note for
-  whoever eventually fills this in: the wiki's Version History now shows a 2025-11-18 balance patch
-  that dropped the WvW/PvP base value from 2595 to 1635 (PvE unaffected) — don't reuse the older 2595
-  figure from before that patch if it surfaces anywhere stale.
+- Guardian 62669 (Repose): the wiki page itself is tagged stub — coefficient is an unfilled `?`. Note
+  for whoever fills this in: a 2025-11-18 balance patch dropped the WvW/PvP base value from 2595 to
+  1635 (PvE unaffected) — don't reuse the older 2595 figure from before that patch if it surfaces.
 
 **Healing — Heal-slot (4):** Engineer 63049 (Rectifier Signet's trait-upgraded pulse heal — no wiki
 fact template at all); Necromancer 10547 (Summon Blood Fiend — pet's own fixed-0 Healing Power, no
 coefficient param on wiki, expected non-scaling); Necromancer 10670 (2nd Well of Blood id — API
 values don't match either PvE/WvW reading of the shared wiki page, likely an undocumented
 Scourge-context variant); Revenant 26937 (Enchanted Daggers — wiki 1640 vs. API 1560, same +80
-offset also shows up on its Siphon Damage facts). All 4 re-checked 2026-08-13 against fresh wiki/API
-pulls — same conflicts persist unchanged, still genuinely uncurated.
-
-Closed 2026-08-13 (re-investigated, now curated in `CURATED_HEALING_COEFFICIENTS`): Elementalist
-44239 (Aquatic Stance — the wiki's own dated Version History prose and the live API now agree on
-6480; only the infobox's isolated template param was stale, off by 80) and Engineer 76738 (Mitotic
-State — the "API 305" was confirmed to be a per-pulse value, 305 × 25 pulses over its 5s duration =
-7625, matching the wiki's summed total exactly; not a real conflict).
+offset also shows up on its Siphon Damage facts).
 
 **Healing — Weapon-slot (4):** Elementalist 72982 (Etching: Jökulhlaup, Spear — no `coefficient=`
 param on wiki); Necromancer 30860 (Death Spiral — wiki stub, missing siphon coefficients);
 Necromancer 69302 (Life Siphon — wiki 450/300 vs. API 537/238, unexplained); Thief 72991 (Shadow
 Veil, Spear — two facts share identical factText with only one wiki-documented coefficient; the
-table matches by factText alone so curating risks binding to the wrong fact). All 4 re-checked
-2026-08-13 against fresh wiki/API pulls — same conflicts persist unchanged, still genuinely
-uncurated.
+table matches by factText alone so curating risks binding to the wrong fact).
 
-Closed 2026-08-13 (re-investigated, now curated in `CURATED_HEALING_COEFFICIENTS`): Ranger 31889
-(Astral Wisp, post-rework — same per-pulse-vs-total shape as Mitotic State above: wiki's one total
-value (1288) ÷ its now-4 pulses = 322, matching the API's duplicate-text facts exactly; safe to bind
-since, unlike Shadow Veil below, both duplicate facts share the same value).
-
-Closed 2026-08-13 (re-investigated, resolved): **Healing — Thief's Assassin's Reward trait (id
-1238)**, originally investigated 2026-08-05 and blocked on "this app has no initiative-cost field
-anywhere ... so a generic per-point trait-bonus table can't render without new data modeling
-first." Turned out no new data modeling was needed — the GW2 API itself exposes per-skill
-initiative cost (`skill.initiative`), the original blocker was about this app's own stored data,
-not the API. The trait's own wiki page gives a flat, unconditional rate (151 base + 0.085
-coefficient per point of initiative spent, no PvE/WvW split), so each of the 45 candidate skills
-just needed `baseValue = 151*N` / `coefficient = 0.085*N` with N wiki/API-confirmed per skill —
-22 landed cleanly, plus 6 more (Spear/underwater-weapon skills) that carry a genuine, still-live
-ArenaNet bug baking their Healing fact at the pre-2023-06-27 rate (102/point) instead of the
-current 151 — reproduced as-is (that's what the live tooltip actually shows) rather than
-"corrected." 17 stayed uncurated: 14 for the familiar `Array.find`-binds-to-array-order duplicate-
-fact trap (a genuine PvE/WvW/PvP initiative-cost split materialized as 2-3 identical-factText facts
-this table can't disambiguate — same shape as Shadow Veil), Black Powder (only its PvE/PvP-grouped
-value is exposed, no sourced number for its separate WvW cost), and Measured Shot/Repeater(13111)
-(each bakes an older, pre-patch initiative cost into its Healing fact — unlike the Spear group,
-here it's N itself that's stale, so there's no way to know which N the HP-scaling coefficient
-would use without live-testing). See `healing-calc.ts`'s Weapon-slot Thief block for the full
-per-skill breakdown. (Necromancer's equivalent case, Chillblains/Transfusion trait 778, was
-resolved 2026-08-05 as a genuine per-skill design, not this shape — already curated.) Still worth
-checking other professions for the same "heal on X while this trait is active" shape someday.
+**Healing — Thief's Assassin's Reward trait (id 1238):** 17 of 45 candidate skills stayed uncurated
+— 14 for the `Array.find`-binds-to-array-order duplicate-fact trap (a genuine PvE/WvW/PvP
+initiative-cost split materialized as 2-3 identical-factText facts this table can't disambiguate,
+same shape as Shadow Veil), Black Powder (only its PvE/PvP-grouped value is exposed, no sourced
+number for its separate WvW cost), and Measured Shot/Repeater(13111) (each bakes an older, pre-patch
+initiative cost into its Healing fact — there's no way to know which N the coefficient would use
+without live-testing). See `healing-calc.ts`'s Weapon-slot Thief block for the full per-skill
+breakdown. Still worth checking other professions for the same "heal on X while this trait is
+active" shape someday.
 
 **Damage** — condition-damage skills (coefficient against Condition Damage rather than Power) were
 never in scope for the sweep; would need their own wiki-verification pass
 (condition-per-stack-per-second base values are a separate documented constant table) before
 extending `CURATED_DAMAGE_COEFFICIENTS` to cover one.
 
-**Both tables**: never visually spot-checked in the running app (Electron sandbox limitation) — do
-that before extending either further.
+**Siphon Damage (10 of 14 candidates):** curated 2026-08-20 (`CURATED_SIPHON_DAMAGE_COEFFICIENTS`,
+`siphon-damage-calc.ts`). Left uncurated: 3 wiki/API value mismatches (Locust Swarm, Signet of
+Vampirism, Enchanted Daggers) that reconcile exactly under `wikiQuoted = apiRaw + coefficient *
+1000` — suspiciously clean but unprecedented in this codebase and contradicted by 3 sibling skills
+on the identical wiki template showing zero such offset, so not trustworthy without real in-game
+verification (not available in this environment); 2 explicit wiki stub tags (Death Spiral,
+Nightmare Weapon) plus Vampiric Slash's own stub stacked on the same mismatch shape; 1 different
+formula shape (Soul Grasp, weapon-strength-based, mislabeled by the API the same way Barrier's API
+mislabeling problem works); 3 structurally unreachable ids (Grim Specter orphan; Carnivore/
+Replenishing Despair are shared-trait "effect skills", same exclusion shape as Assassin's Reward
+above). The already-shipped Cosmic Wisdom Assassin-form entry (`baseValue: 1028`) may be an instance
+of the same `wikiQuoted = apiRaw + coefficient * 1000` mismatch — flagged for future in-game
+verification, not touched.
+
+**Both Healing and Damage tables**: never visually spot-checked in the running app (Electron sandbox
+limitation) — do that before extending either further.
 
 - [ ] Mesmer's Tale of the Second Scion (id 76695) also grants "Scion's Reprieve," a self-buff
       (+15% WvW/PvP Heal Effectiveness) that nothing in the app accounts for — not a Healing fact
       itself, it modifies *other* incoming/outgoing heals. App has no general outgoing/incoming
       heal-modifier concept yet (distinct from the boon/condition uptime system); needs scoping, not
       a one-off patch for this skill.
+
+## Trait/skill data-correctness pass (scoped 2026-08-20)
+
+User flagged several concrete tooltip bugs from a quick glance; investigation the same day traced
+most of them to one systemic root cause plus 2 standalone gaps. Agreed order: quick wins first, then
+the AttributeAdjust infra leg, then the main sweep; Corruption-stat and Mesmer-stunbreak stay
+separate investigations slotted in afterward.
+
+- [ ] **`AttributeAdjust` fact-type has no WvW-duplicate dedup mechanism.** `numericFactLines`/
+      `factLine` (`fact-numbers.ts`) only dedupe `Number`/`Percent` facts against
+      `NUMERIC_FACT_WVW_OVERRIDES`; `AttributeAdjust` facts (base-stat-adjust facts like Firebrand's
+      Imbued Haste, id 2148: 250/150 Condition Damage/Healing/Vitality duplicates) fall straight
+      through undeduped. 2 other instances already flagged as known loose ends in
+      `NUMERIC_FACT_WVW_OVERRIDES`'s own comments (Necromancer's Battle Scarred id 1755, Revenant's
+      Expanded Consciousness id 2358) — both left uncurated specifically because this filter didn't
+      exist yet. Extend the override table/filter to cover `AttributeAdjust` before the main sweep
+      below, so one pass per profession can catch all 3 fact shapes (Buff, Number/Percent,
+      AttributeAdjust) at once.
+
+- [ ] **Main sweep: WvW/PvE duplicate-fact values, all 8 non-Revenant professions.** Root cause
+      (confirmed 2026-08-20): the raw GW2 API bakes PvE/WvW/PvP fact variants into `facts` as literal
+      duplicate entries with no discriminator tag. 2 mechanisms already exist and are proven
+      (Revenant's full curation, COMPLETED.md) — `wvw-fact-overrides.json` (+`fetch-wvw-splits.ts`)
+      for `Buff`/`PrefixedBuff` boon/condition facts, `NUMERIC_FACT_WVW_OVERRIDES`
+      (`fact-numbers.ts`) for `Number`/`Percent` facts — but neither has ever been run against any
+      profession besides Revenant. Confirmed live instances: Troubadour's Shredding (id 2343,
+      `Percent` 15/10 dupe) and Life of the Party (id 2367, `Buff` Might/Quickness dupe), both
+      uncurated. Sweep the remaining 8 professions leg-by-leg, same pattern as the Revenant sweep
+      (COMPLETED.md Sessions on Salvation/Invocation/Retribution/Corruption/Devastation/Renegade/
+      Vindicator/Conduit) — do one leg, then check in (see `pacing_large_sweeps` memory).
+
+- [ ] **Corruption stat undercounts real "boon corrupt" sources.** `BOON_STRIP_CORRUPT_MATCHERS.Corrupt`
+      only matches `Number`-type facts whose text matches `/boons? converted/i`. Confirmed via
+      Necromancer's Well of Corruption (id 39987/43892-ish, "converting boons on foes into
+      conditions"): its raw API `facts` array has **no boon-conversion count fact at all** — same
+      "API just omits it" shape as past target-count/attribute-bonus sweeps, not a wording mismatch.
+      Needs a wiki-sourced manual-override sweep (same shape as `NUMERIC_FACT_WVW_OVERRIDES` or the
+      target-count override tables) for skills/traits where boon-corruption is real but unrepresented
+      in the API facts, plus a check of whether any source actually uses "corrupted" phrasing the
+      current regex would also miss.
+
+- [ ] **Mesmer Shatter 4 (Distortion) shows "Breaks Stun" unconditionally.** Should only be true with
+      Mental Defense (Inspiration GM trait, id 2005) equipped. Investigated 2026-08-20: Distortion's
+      raw API facts (id 10192) carry no `StunBreak` fact at all, gated or not, and Mental Defense's
+      own facts don't add one either (traits can't carry `StunBreak`-typed facts) — couldn't find the
+      code path producing the always-on display via the normal matcher/fact pipeline
+      (`MISCELLANEOUS_MATCHERS['Breaks Stun']`, `branch-conditional-facts.ts`). Needs a fresh
+      investigation pass, not a quick fix — start by confirming live in the running app (or a fresh
+      screenshot) exactly which component/string is rendering it.
 
 ## Stats panel / boon-condition bar polish
 
@@ -295,51 +166,16 @@ that before extending either further.
       slots specifically, or collapsing same-key infusion slots that end up with identical option
       sets before they hit the solver.
 
-- [ ] Discord bot latency (flagged 2026-08-19) — three fixes landed 2026-08-19 from the original
-      diagnosis, one (the biggest remaining lever) still open:
-      - **Done — session reuse**: `render/browser-session.ts` (new) reuses a warm Browser Rendering
-        session via `puppeteer.sessions()`/`puppeteer.connect()` (Cloudflare's own documented
-        pattern — pick a random session with no `connectionId` attached, fall back to
-        `puppeteer.launch()` if none free or the connect races and fails) instead of
-        `build-screenshot.ts`/`squad-screenshot.ts` always launching fresh. Callers now
-        `browser.disconnect()` (not `.close()`) so the session survives for the next call, and
-        explicitly `page.close()` first so a long-lived session doesn't accumulate stale tabs.
-        This was diagnosed as the single biggest win of the two originally stacked preview fixes.
-      - **Done — duplicate D1 round-trip**: the add path (`buildAdd`/`squadAdd`/both Phase 3
-        `applyPending*Request` add cases) fetched the same `board_messages` row twice — once to
-        validate the board's set up, again inside `syncBuildSection`/`syncSquadSection` right after
-        the insert. `requireBoardSetUp` now returns the row it fetched instead of `void`, and
-        `applyAdd`/`syncBuildSection`/`syncSquadSection` all take an optional `knownBoard` to skip
-        the second lookup. Deliberately NOT extended to `buildEdit`'s cross-profession case — that
-        path already re-derives its share-link fields a second time by design ("re-derive rather
-        than trust a captured closure value", see the code comment), and reusing a board row fetched
-        against the *first* resolution would undermine that guarantee for a fringe scenario (edit +
-        profession change) that's rare to begin with.
-      - **Done — concurrent permission check**: `requireActionPermission` was always awaited before
-        the next lookup even though nothing about that lookup (resolving a share link, looking up
-        the target build/squad by name) depends on the permission check's outcome. New
-        `withPermissionCheck` helper (`discord/permissions.ts`) runs both concurrently via
-        `Promise.allSettled`, but still surfaces the permission error preferentially if both reject
-        — same failure-path behavior as the old serialized order, only the success-path latency
-        changes. Applied to all 7 mutating commands (`buildAdd`/`Remove`/`Edit`/`Move`,
-        `squadAdd`/`Remove`/`Edit`).
-      - **Still open — profession-scoped game-data fetch**: the fresh browser's
-        `load-game-data-web.ts` still re-fetches all 26 game-data JSON files (11MB total, ~9.3MB of
-        which is just `skills.json`+`traits.json`) per render, for a preview that usually only needs
-        one profession's (build preview) or a handful of professions' (squad preview) worth of data.
-        Not attempted this pass — genuinely a bigger refactor, since `buildGameData()`/
-        `GameDataProvider` is shared with Electron's load-everything-once design, and a squad
-        preview's profession set isn't known until the share itself is fetched and parsed (so it
-        can't simply mirror the build-preview case). With session reuse now in place, this may
-        matter less in practice (a warm session's browser-level HTTP cache means repeat renders on
-        the *same* session don't re-download the JSON at all — only the first render after a cold
-        start pays the full 11MB) — worth re-profiling via `wrangler tail` before sinking time into
-        it, per the note below.
-      - Live-verified 2026-08-19: user confirmed `/builddisplay` and `/buildadd` both still work
-        correctly against production after the deploy — no regression from the session-reuse/
-        round-trip changes above. Perceived speedup wasn't clearly noticeable to them either way
-        (no `wrangler tail` timing profile taken, so there's no before/after number to point to),
-        but they're satisfied with "cleaner on the backend" as the bar for this pass. Given that,
-        not chasing the still-open game-data-fetch refactor further right now — revisit only if
-        latency becomes a live complaint again, ideally with an actual `wrangler tail` timing pass
-        this time rather than another code-reading diagnosis.
+- [ ] Discord bot latency — profession-scoped game-data fetch. A fresh browser's
+      `load-game-data-web.ts` still re-fetches all 26 game-data JSON files (11MB total, ~9.3MB of
+      which is just `skills.json`+`traits.json`) per render, for a preview that usually only needs
+      one profession's (build preview) or a handful of professions' (squad preview) worth of data.
+      Genuinely a bigger refactor — `buildGameData()`/`GameDataProvider` is shared with Electron's
+      load-everything-once design, and a squad preview's profession set isn't known until the share
+      itself is fetched and parsed. Session-reuse (COMPLETED.md) means a warm browser session's
+      HTTP cache already avoids re-downloading on repeat renders — only the first render after a
+      cold start pays the full 11MB — so this may matter less in practice than originally diagnosed.
+      User confirmed 2026-08-19 that perceived speedup from the other latency fixes wasn't clearly
+      noticeable either way, and is satisfied with "cleaner on the backend" for now — revisit only
+      if latency becomes a live complaint again, ideally with an actual `wrangler tail` timing pass
+      rather than another code-reading diagnosis.
