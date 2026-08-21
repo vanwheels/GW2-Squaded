@@ -3162,6 +3162,84 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // wvw+pvp, and Hawkeye's Might swaps entirely to Fury — same shape as Guardian's Phoenix
       // Protocol/Engineer's Mech Frame: Channeling Conduits.
       'Quickness@8@1': 'omit' // Hawkeye pve (8s)
+    },
+
+    // Thief leg (6th leg of the "remaining 8 professions" main WvW-duplicate sweep, TODO.md,
+    // 2026-08-20) — 2 latent bugs found in ALREADY-curated `wvw-fact-overrides.json` entries
+    // predating this leg (Thrill of the Crime id 1163, Bountiful Theft id 1277), same "plain
+    // per-status override only replaces duration, not apply_count" shape as every prior leg's
+    // findings, plus 1 brand-new same-shape gap (Serpent's Touch id 1279) and 1 fully-entangled
+    // multi-boon trait (Possessive Hoarder id 2393) the 2026-08-14 buff-instance-label sweep had
+    // explicitly deferred as "too entangled to safely map," now resolved with the raw wikitext
+    // in hand.
+    1163: {
+      // Thrill of the Crime (Trickery). Wiki (`split = pve, wvw pvp`): `{{skill fact|might|10|
+      // stacks=5|game mode = pve}}{{skill fact|might|6|stacks=3|game mode = pvp wvw}}` — the old
+      // `wvw-fact-overrides.json` entry (`{Might: 6}`) replaced the FIRST raw fact's (pve, 10/5)
+      // duration with 6 but kept its apply_count of 5, showing "6s, 5 stacks" instead of the real
+      // wvw+pvp "6s, 3 stacks". `Might@6@3` (the wvw+pvp fact itself) needs no entry, already
+      // correct as-is. Its Fury pair (unsplit duration, 10 both modes) stays a plain
+      // `wvw-fact-overrides.json` entry, unaffected by this fix.
+      'Might@10@5': 'omit' // pve (10s/5 stacks)
+    },
+    1277: {
+      // Bountiful Theft (Trickery). Wiki (`split = pve, wvw pvp`): `{{skill fact|might|10|
+      // stacks=5|game mode = pve}}{{skill fact|might|10|stacks=1|game mode = pvp wvw}}` — same
+      // duration (10) both modes, only the stack count differs, so the old `wvw-fact-overrides.
+      // json` entry (`{Might: 10}`) looked like a no-op duration replacement but still carried the
+      // bug: it kept the FIRST occurrence's own apply_count (5, pve) instead of the real wvw+pvp
+      // "10s, 1 stack" — same underlying shape as Leeching Venoms' documented Spider Venom gap
+      // above (duration-unchanged, apply_count-only split), except Might IS a recognized boon so
+      // this one's actually fixable. `Might@10@1` (the wvw+pvp fact itself) needs no entry,
+      // already correct as-is. Its separate "Boons Stolen" Number fact (3 pve/2 wvw+pvp) is
+      // curated in `NUMERIC_FACT_WVW_OVERRIDES` instead.
+      'Might@10@5': 'omit' // pve (10s/5 stacks)
+    },
+    1279: {
+      // Serpent's Touch (Deadly Arts). The 2026-08-14 buff-instance-label sweep already labeled
+      // this trait's 3rd Poisoned occurrence ("Poison When Downed", `Poisoned@2@1`) but left the
+      // OTHER 2 raw Poisoned facts alone as "already distinguishable by their own stack-count
+      // numbers" — true for display, but nothing was ever added to drop the non-WvW one, so both
+      // showed simultaneously. Wiki (`split = pve wvw, pvp`): `{{skill fact|poisoned|10|stacks=2|
+      // game mode =pve}}{{skill fact|poisoned|10|game mode =pvp}}` — pve+wvw share the pve-tagged
+      // value (10s/2 stacks per the page's own split declaration), pvp alone drops to 10s/1 stack.
+      // A plain `wvw-fact-overrides.json` entry would be unsafe here (all 3 Poisoned facts share
+      // one status; the "only emit the first occurrence of an overridden status" collapse would
+      // wrongly swallow the genuinely-different "Poison When Downed" fact too) — occurrence-
+      // indexed omit instead. `Poisoned@10@2` (the pve/wvw fact itself) needs no entry, already
+      // correct as-is; its own `traitedFacts` 2nd pair (gated on Potent Poison, id 1291) is the
+      // same cross-trait-interaction shape left alone on every prior leg (Serene Rejuvenation
+      // etc.), not touched here.
+      'Poisoned@10@1': 'omit' // pvp-only (10s/1 stack)
+    },
+    2393: {
+      // Possessive Hoarder (Antiquary). The 2026-08-14 buff-instance-label sweep found this
+      // trait's Might/Alacrity/Protection/Regeneration/Fury facts "too entangled to safely map
+      // onto this leg's local raw fact order" and deliberately left it uncurated. Full raw
+      // wikitext (`action=raw`, 2026-08-20) resolves it cleanly (`split = pve, wvw, pvp`):
+      // offensive artifacts grant `{{skill fact|Might|12|stacks=10|game mode=pve}}` +
+      // `{{skill fact|Fury|6|game mode=wvw}}{{skill fact|Might|6|stacks=4|game mode=pvp}}` +
+      // `{{skill fact|Alacrity|5|game mode=pve}}{{skill fact|Protection|3|game mode=wvw}}
+      // {{skill fact|Fury|6|game mode=pvp}}` + `{{skill fact|Alacrity|5|game mode=pve}}
+      // {{skill fact|Might|6|stacks=8|game mode=wvw}}{{skill fact|Regeneration|6|game
+      // mode=pvp}}`; defensive artifacts grant `{{skill fact|Protection|5|game mode=pve}}
+      // {{skill fact|Regeneration|8|game mode=wvw}}{{skill fact|Protection|3|game mode=pvp}}`.
+      // Untangled by status: Might is a genuine 3-way split (12/10 pve, 6/4 pvp, 6/8 wvw) — the
+      // old `wvw-fact-overrides.json` entry (`{Might: 6}`) had the same "kept the first
+      // occurrence's own apply_count" bug as Thrill of the Crime/Bountiful Theft above (showed
+      // "6s, 10 stacks" instead of the real wvw "6s, 8 stacks"), fixed here the same way. Fury (6,
+      // unsplit across wvw/pvp) and Protection (5 pve/3 wvw+pvp, unsplit apply_count both) need no
+      // instance-level fix, already correct via `factLine`'s natural single-occurrence collapse /
+      // the existing plain `Protection: 3` override respectively. Alacrity is PvE-only — BOTH raw
+      // Alacrity facts (5/1, from the offensive AND defensive artifact triggers) are pve-tagged
+      // with no wvw/pvp variant at all — now dropped via a plain `Alacrity: 'omit'` entry in
+      // `wvw-fact-overrides.json` (safe since no other Alacrity concept exists on this trait to
+      // wrongly swallow). Regeneration (6 pvp/8 wvw) was missing an override entirely before this
+      // leg — both facts showed simultaneously — now fixed via a plain `Regeneration: 8` entry
+      // (safe, both occurrences share apply_count 1, no bug risk). `Might@6@8` (the wvw fact
+      // itself) needs no entry, already correct as-is.
+      'Might@12@10': 'omit', // pve (12s/10 stacks)
+      'Might@6@4': 'omit' // pvp (6s/4 stacks)
     }
   }
 }

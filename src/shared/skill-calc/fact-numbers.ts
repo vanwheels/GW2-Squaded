@@ -1287,7 +1287,253 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // mode=pve}}` + `{{...|25%|game mode=pvp wvw}}` — 2 independently-ambiguous labels, both
   // pve-high/wvw+pvp-low. (Its Quickness duration split, 5 pve / 3 wvw+pvp, is Buff-typed and
   // already correctly fixed by an earlier sweep.)
-  2408: { 'Damage Increase': 15, 'Health Increase': 25 }
+  2408: { 'Damage Increase': 15, 'Health Increase': 25 },
+
+  // Thief — 6th leg of the "remaining 8 professions" main sweep (TODO.md, 2026-08-20). Same
+  // process as every prior leg: scanned all 9 Thief spec lines (5 core + Daredevil/Deadeye/
+  // Specter/Antiquary) / 111 traits for both numeric AND Buff-type same-status dupes. This leg
+  // surfaced 2 NEW split-direction shapes not seen on any prior leg's own traits — always read the
+  // page's `split =` field explicitly rather than assuming "2nd raw value = wvw", since it isn't
+  // always true:
+  //  - Quick Pockets (1187, Trickery): `split = pve wvw, pvp` — pve+wvw actually SHARE the value
+  //    tagged `game mode=pve` (3 Initiative), pvp alone drops to 2, even though the raw facts only
+  //    carry bare `pve`/`pvp` tags (no explicit `wvw` anywhere) — the page-level split declaration
+  //    is what actually decides this, not the per-fact tag text.
+  //  - Staff Master (1884, Daredevil), Specter (2184, Specter's own namesake trait), and Hungering
+  //    Darkness (2300, Specter) are the same "pve wvw, pvp"-or-"pve wvw"-tagged shape, all 3
+  //    confirmed the same way.
+  // 3 genuinely-identical dupes needed no override (already collapse via this function's own `seen`
+  // dedup): Improvisation (1167, "Recharge Reduced" 25/25), Iron Sight's own "Damage Increase" 10/10
+  // (a DIFFERENT label than its ambiguous "Damage Reduced" pair below), Premeditation's "Bonus
+  // Damage per Boon" 1/1. 2 real gaps left deliberately uncurated (documented, not modeled wrong):
+  // Twin Fangs (1268, Critical Strikes) has a genuine 3rd ambiguous pair per the wiki (`{{skill
+  // fact|health threshold|50|game mode = pve}}{{skill fact|health threshold|90|game mode = wvw
+  // pvp}}`), but the live API carries only the pve value (50) — the wvw+pvp value (90) is simply
+  // absent from the raw data, same "documented but missing from the API" shape as Guardian's Heavy
+  // Light/Ranger's Song-of-Arboreum-Vigor loose ends (its other 2 ambiguous pairs, both Critical
+  // Damage Increase concepts, ARE curated below); Enterprising Aristocrat (2362, Antiquary) has the
+  // same shape for its Barrier fact (wiki 3-way split 975 pve/783 wvw/207 pvp, but the API carries
+  // only the pve value, 975 — its other 3 ambiguous pairs are curated below). Shadow Siphoning
+  // (1705, Shadow Arts) is a genuine data-mismatch gap: the wiki's CURRENT infobox shows Life
+  // Siphon Damage as 412 pve/288 wvw+pvp, but the live local API carries 312/218 instead — matching
+  // neither the wiki's current numbers nor cleanly explained by the wiki's own 2020-07-07
+  // version-history note (itself flagged with a `{{sic|288}}` tag, i.e. even the wiki's own editors
+  // marked this number as suspect) — not confidently resolvable from the wiki alone, same "can only
+  // pick among values that actually appear in the raw data, and this one's ambiguous which side is
+  // even right" shape as Battle Scarred's Life Siphon Healing loose end (Revenant/Devastation leg).
+  // Buff-type findings (see `wvw-fact-overrides.json`/`BUFF_INSTANCE_VALUE_OVERRIDES` in
+  // `boon-calc/sources.ts` for the actual fixes, out of this table's scope): found and fixed 2
+  // latent bugs in ALREADY-curated Thief overrides predating this leg (Thrill of the Crime id 1163,
+  // Bountiful Theft id 1277, same "plain override only replaces duration, not apply_count" shape as
+  // the Engineer/Ranger legs), 1 brand-new same-shape gap (Serpent's Touch id 1279, previously only
+  // partially fixed by the 2026-08-14 buff-instance-label sweep), and fully resolved Possessive
+  // Hoarder (2393) — that same 2026-08-14 sweep had explicitly deferred it as "too entangled to
+  // safely map," now untangled with the full raw wikitext in hand. Leeching Venoms' Spider Venom
+  // effect (1130) re-confirmed as the SAME documented non-boon-status gap that sweep already found
+  // (its own apply_count-only split, duration unchanged both modes, is moot regardless since
+  // `classifyBoonCondition` doesn't recognize "Spider Venom" as a real boon/condition status at
+  // all — same shape as Ranger's Natural Balance/Conduit's Bolstered Bonds). Unhindered Combatant's
+  // "Exhaustion" (1964) is also a non-boon status per that same prior sweep, additionally a false
+  // positive in this leg's own scan (its 2 "different-duration" facts are actually 2 unrelated
+  // concepts — Exhaustion-on-Chilled vs Exhaustion-on-Immobile — not a mode split at all).
+
+  // Leeching Venoms (id 1130, Shadow Arts Grandmaster minor): "Interrupting a foe grants venom
+  // stacks. Increase life siphon damage while under the effects of any venom." Wiki (`split = pve,
+  // wvw pvp`): `{{skill fact|Life Siphon Damage|320|coefficient=0.033|game mode = pve}}` + `{{...|
+  // 160|coefficient=0.0165|game mode = pvp wvw}}`, `{{skill fact|Venom Stacks|3|game mode = pve}}`
+  // + `{{...|1|game mode = pvp wvw}}` — 2 independently-ambiguous labels, both pve-high/wvw-low.
+  // Its Spider Venom effect-Buff gap is documented in this table's own Thief-leg intro comment
+  // above.
+  1130: { 'Life Siphon Damage': 160, 'Venom Stacks': 1 },
+
+  // Shadow's Rejuvenation (id 1135, Shadow Arts Adept): "Gain initiative when you enter stealth."
+  // Wiki: `{{skill fact|Initiative|2|alt=Initiative on Enter|game mode = pve}}` + `{{...|1|alt=
+  // Initiative on Enter|game mode = wvw pvp}}` — pve 2, wvw+pvp 1. Its separate "Initiative on
+  // Exit" fact (1, unsplit) is a different label.
+  1135: { 'Initiative on Enter': 1 },
+
+  // Deadly Ambition (id 1164, Deadly Arts Adept): "Gain condition damage. Cast Death Blossom when
+  // you interrupt a foe." Wiki: `{{skill fact|attribute|Condition Damage|180|game mode = pve}}` +
+  // `{{...|120|game mode = wvw pvp}}` — pve 180, wvw+pvp 120. Its unrelated "Poisoned|3" fact
+  // (unsplit) is a different concept (Death Blossom's own cast).
+  1164: { ConditionDamage: 120 },
+
+  // Quick Pockets (id 1187, Trickery Grandmaster): "Gain initiative on weapon swap while in
+  // combat." Wiki (`split = pve wvw, pvp`): `{{skill fact|Initiative|3|game mode=pve}}` + `{{...|
+  // 2|game mode = pvp}}` — pve+wvw share 3 (per the page's own split declaration, even though no
+  // raw fact is explicitly tagged "wvw"), pvp alone drops to 2.
+  1187: { Initiative: 3 },
+
+  // Exposed Weakness (id 1257, Deadly Arts Master): "Deal increased strike damage per unique
+  // condition on the target." Wiki: `{{skill fact|damage increase|alt=Damage Increase per Unique
+  // Condition|2|game mode = pve}}` + `{{...|3|game mode = pvp wvw}}` — pve 2, wvw+pvp 3, the rare
+  // WvW-higher case.
+  1257: { 'Damage Increase per Unique Condition': 3 },
+
+  // Twin Fangs (id 1268, Critical Strikes Grandmaster): "Deal increased critical damage, further
+  // increased above the health threshold. Gain critical chance from behind/side or vs. defiant
+  // foes." Wiki: `{{skill fact|critical damage increase|5|game mode = pve}}` + `{{...|2|game mode
+  // = pvp wvw}}` (base), `{{skill fact|critical damage increase|alt=High Health Critical Damage
+  // Increase|2|game mode = pve}}` + `{{...|5|game mode = pvp wvw}}` (WvW-higher for this half) — 2
+  // independently-ambiguous labels, both curated. Its Health Threshold gap (missing from the API
+  // entirely) is documented in this table's own Thief-leg intro comment above.
+  1268: { 'Critical Damage Increase': 2, 'High-Health Critical Damage Increase': 5 },
+
+  // Bountiful Theft (id 1277, Trickery Grandmaster): "Steal grants boons and removes boons from
+  // the target." Wiki: `{{skill fact|boons removed|alt=Boons Stolen|3|game mode = pve}}` + `{{...|
+  // 2|game mode = pvp wvw}}` — pve 3, wvw+pvp 2. Its Might Buff-type dupe is already handled by
+  // the separate `wvw-fact-overrides.json`/`BUFF_INSTANCE_VALUE_OVERRIDES` script (see that file's
+  // own Thief-leg comment — a latent bug fix, not new this table).
+  1277: { 'Boons Stolen': 2 },
+
+  // Keen Observer (id 1281, Critical Strikes Master): "Increased critical-hit chance, further
+  // increased above the health threshold." Wiki: `{{skill fact|critical chance increase|10|game
+  // mode=pve}}` + `{{...|5|game mode=wvw pvp}}` (base), `{{skill fact|health threshold|50|game
+  // mode = pve}}` + `{{...|90|game mode = wvw pvp}}` — 2 independently-ambiguous labels. Its
+  // "High-Health Critical Chance Increase" fact (5, unsplit both modes per the wiki) is unambiguous.
+  1281: { 'Critical Chance Increase': 5, 'Health Threshold': 90 },
+
+  // Hard to Catch (id 1290, Acrobatics Master): "Gain endurance when you shadowstep." Wiki:
+  // `{{skill fact|Endurance gained|8|game mode = pve}}` + `{{...|5|game mode = pvp}}` (`split =
+  // pve, wvw pvp`, standard direction despite the bare "pvp" tag) — pve 8, wvw+pvp 5.
+  1290: { 'Endurance Gained': 5 },
+
+  // Potent Poison (id 1291, Deadly Arts Master): "Poison you inflict deals increased damage and
+  // lasts longer. Serpent's Touch/Panic Strike gain an additional stack of poison when traited."
+  // Wiki: `{{skill fact|condition damage increase|33|game mode=pve}}` + `{{...|20|game
+  // mode=wvw pvp}}` (API's own fact `text` is "Damage Increase"), `{{skill fact|duration
+  // increase|33%|game mode=pve}}` + `{{...|5%|game mode= pvp wvw}}` — 2 independently-ambiguous
+  // labels, both pve-high/wvw-low.
+  1291: { 'Damage Increase': 20, 'Duration Increase': 5 },
+
+  // Merciful Ambush (id 1294, Shadow Arts Master): "Heal when you stealth attack." Wiki (`split =
+  // pve, wvw pvp`): `{{skill fact|healing|493|coefficient=0.5|game mode=pve}}` + `{{...|273|
+  // coefficient=0.3|game mode=wvw pvp}}` — the pve leg (493) is a small reference-build-rounding
+  // gap off the live API's own 439 (same shape documented elsewhere in this table, e.g. Writ of
+  // Persistence), but the wvw+pvp leg (273) matches the API exactly, curated from that real value.
+  1294: { Healing: 273 },
+
+  // Invigorating Precision (id 1702, Critical Strikes Grandmaster): "Critical hits heal you and
+  // nearby allies. Increased healing while you have fury." Wiki: `{{skill fact|healing|4%|alt=
+  // Percent|game mode = pve}}` + `{{...|10%|alt=Percent|game mode = pvp wvw}}`, `{{skill
+  // fact|healing|6%|alt=Healing with Fury|game mode = pve}}` + `{{...|20%|alt=Healing with
+  // Fury|game mode = pvp wvw}}` — 2 independently-ambiguous labels, both wvw-higher.
+  1702: { Percent: 10, 'Healing with Fury': 20 },
+
+  // Revealed Training (id 1704, Deadly Arts Master): "Gain power. Gain additional power while
+  // revealed." Wiki: `{{skill fact|attribute|Power|alt=Base Power|80|game mode = pve}}` + `{{...|
+  // 100|game mode = pvp wvw}}`, `{{skill fact|attribute|Power|alt=Power while Revealed|120|game
+  // mode = pve}}` + `{{...|150|game mode = pvp wvw}}` — 2 independently-ambiguous labels, both
+  // wvw-higher, both `AttributeAdjust` keyed by their own `alt=`-sourced `text`.
+  1704: { 'Base Power': 100, 'Power while Revealed': 150 },
+
+  // Endurance Thief (id 1837, Daredevil Adept): "Gain endurance when you dodge." Wiki: `{{skill
+  // fact|Endurance Gained|50|game mode=pve}}` + `{{...|25|game mode=wvw pvp}}` — pve 50, wvw+pvp 25.
+  1837: { 'Endurance Gained': 25 },
+
+  // Staff Master (id 1884, Daredevil Grandmaster minor): "Gain power while wielding a staff. Gain
+  // endurance based on initiative spent while wielding a staff." Wiki (`split = pve wvw, pvp`):
+  // `{{skill fact|endurance gained|alt=Endurance per Initiative|2|game mode = pve}}` + `{{...|1|
+  // game mode = pvp}}` — pve+wvw share 2, pvp alone drops to 1. Its 2 "Power" `AttributeAdjust`
+  // facts (both 120, unsplit) are genuinely identical, no fix needed.
+  1884: { 'Endurance per Initiative': 2 },
+
+  // Weakening Strikes (id 1887, Daredevil Adept): "Evading an attack causes your next attack to
+  // inflict weakness. Deal increased damage to weakened foes." Wiki: `{{skill fact|Damage
+  // Increase|10|game mode = pve}}` + `{{...|7|game mode = pvp wvw}}`, `{{skill fact|weakness|3|
+  // game mode = pve}}` + `{{...|2|game mode = pvp wvw}}` — 2 independently-ambiguous labels, the
+  // 2nd (Weakness) already correctly curated in `wvw-fact-overrides.json` by an earlier sweep.
+  1887: { 'Damage Increase': 7 },
+
+  // Havoc Specialist (id 1893, Daredevil Master): "Increase damage while wielding a dagger, pistol,
+  // or staff." Wiki: `{{skill fact|damage increase|15|game mode=pve}}` + `{{...|10|game
+  // mode=pvp wvw}}` — pve 15, wvw+pvp 10.
+  1893: { 'Damage Increase': 10 },
+
+  // No Quarter (id 1904, Critical Strikes Grandmaster; wiki page disambiguates to "No Quarter
+  // (trait)", the bare title is a Living World episode page): "Gain fury and ferocity when you
+  // interrupt a foe." Wiki: `{{skill fact|attribute|Ferocity|250|game mode = pve}}` + `{{...|300|
+  // game mode = pvp wvw}}` — pve 250, wvw+pvp 300, the rare WvW-higher case. Its Fury fact
+  // (unsplit duration 2 both modes) is unambiguous.
+  1904: { CritDamage: 300 },
+
+  // Iron Sight (id 2084, Deadeye Adept): "Reduce incoming strike damage while wielding a rifle."
+  // Wiki: `{{skill fact|damage reduced|15|game mode=pve}}` + `{{...|10|game mode=wvw pvp}}` — pve
+  // 15, wvw+pvp 10. Its unrelated "Damage Increase" fact (10, unsplit) is a different label.
+  2084: { 'Damage Reduced': 10 },
+
+  // One in the Chamber (id 2136, Deadeye Master): "Increase strike damage against marked targets."
+  // Wiki: `{{skill fact|damage increase|25|game mode=pve}}` + `{{...|10|game mode=pvp wvw}}` — pve
+  // 25, wvw+pvp 10.
+  2136: { 'Damage Increase': 10 },
+
+  // Malicious Intent (id 2145, Deadeye Master): "Gain increased malice while stealthed or marking a
+  // target." Wiki: `{{skill fact|Malice|alt=Malice Gained|2|game mode = pve}}` + `{{...|1|game
+  // mode = wvw pvp}}` — pve 2, wvw+pvp 1.
+  2145: { 'Malice Gained': 1 },
+
+  // Premeditation (id 2160, Deadeye Grandmaster): "Gain concentration. Cantrips and signets grant a
+  // stack of malice." Wiki: `{{skill fact|attribute|Concentration|180|game mode = pve}}` + `{{...|
+  // 60|game mode = pvp wvw}}` (API's own fact `target` is "BoonDuration", same non-obvious naming
+  // as Guardian's Honorable Staff) — pve 180, wvw+pvp 60.
+  2160: { BoonDuration: 60 },
+
+  // Specter (id 2184, Specter's own namesake Adept minor): "Gain Shadow Shroud based on initiative
+  // spent." Wiki (`split = pve wvw, pvp`): `{{skill fact|Shadow Shroud per Initiative Spent|1%|
+  // game mode=pve wvw}}` + `{{...|0.75%|game mode=pvp}}` — pve+wvw share 1 (explicitly tagged
+  // "pve wvw" on the same template), pvp alone drops to 0.75.
+  2184: { 'Shadow Shroud per Initiative Spent': 1 },
+
+  // Strength of Shadows (id 2264, Specter Adept): "Torment you inflict deals increased condition
+  // damage." Wiki: `{{skill fact|condition damage increase|condition=torment|20|game mode = pve}}`
+  // + `{{...|25|game mode = wvw pvp}}` (API's own fact `text` is "Damage Increase") — pve 20,
+  // wvw+pvp 25, the rare WvW-higher case.
+  2264: { 'Damage Increase': 25 },
+
+  // Dark Sentry (id 2272, Specter Master): "Increase healing to other allies while in Shadow
+  // Shroud." Wiki: `{{skill fact|healing|alt=Healing Increase to Others|20%|game mode=pve}}` +
+  // `{{...|10%|game mode=wvw pvp}}` — pve 20, wvw+pvp 10.
+  2272: { 'Healing Increase to Others': 10 },
+
+  // Consume Shadows (id 2275, Specter Grandmaster): "Exiting Shadow Shroud heals based on
+  // remaining Shroud stacks." Wiki: `{{skill fact|Healing per Stack|10%|game mode=pve}}` + `{{...|
+  // 6.5%|game mode=wvw pvp}}` — the wvw+pvp leg's wiki fraction (6.5) rounds slightly differently
+  // from the live API's own raw value (6.6, a small reference-build gap same shape as elsewhere in
+  // this table), curated from the real API value since this table can only match against values
+  // that actually appear in the raw data.
+  2275: { 'Healing per Stack': 6.6 },
+
+  // Shallow Grave (id 2299, Specter Master): "Transfer conditions to your target and remove
+  // conditions from yourself when you enter Shadow Shroud." Wiki: `{{skill fact|Conditions
+  // Transferred|3|game mode=pve}}` + `{{...|2|game mode=wvw pvp}}`, `{{skill fact|Conditions
+  // Removed|3|game mode=pve}}` + `{{...|2|game mode=wvw pvp}}` — 2 independently-ambiguous labels,
+  // both pve-high/wvw-low, both by the same 3-to-2 amount.
+  2299: { 'Conditions Transferred': 2, 'Conditions Removed': 2 },
+
+  // Hungering Darkness (id 2300, Specter Grandmaster): "Pulse healing and condition
+  // transfer/removal periodically while in Shadow Shroud." Wiki (`split = pve wvw, pvp`): `{{skill
+  // fact|Healing|517|coefficient=0.2|game mode=pve wvw}}` + `{{...|773|coefficient=0.3|game
+  // mode=pvp}}`, `{{skill fact|Interval|1|game mode=pve wvw}}` + `{{...|3|game mode=pvp}}` — pve+
+  // wvw share 517/1s (explicitly tagged "pve wvw" on both templates), pvp alone rises to 773/3s
+  // (the rare case where PVP, not PVE, is the high outlier). 2 independently-ambiguous labels.
+  2300: { Healing: 517, Interval: 1 },
+
+  // Combat High (id 2348, Antiquary Adept): "Using Skritt Swipe grants a stacking damage buff."
+  // Wiki: `{{skill fact|damage increase|alt=Damage Increase per Stack|3|game mode = pve}}` +
+  // `{{...|2|game mode = wvw pvp}}` — pve 3, wvw+pvp 2. Its embedded "Combat High (effect)"
+  // effect-Buff carries its own `effect bonus number=` sub-values (20/20, identical both modes
+  // despite the wiki's own description text inconsistently saying "+30%"/"+20%" Damage) — no split
+  // to fix there regardless.
+  2348: { 'Damage Increase per Stack': 2 },
+
+  // Enterprising Aristocrat (id 2362, Antiquary Master): "Reduce incoming damage. Artifacts grant
+  // barrier when used." Wiki (`split = pve, wvw, pvp`): `{{skill fact|damage reduced|10|game
+  // mode=pve}}` + `{{...|3|game mode=wvw pvp}}`, `{{skill fact|condition damage reduced|10|game
+  // mode=pve}}` + `{{...|3|game mode=wvw pvp}}`, `{{skill fact|initiative|2|game mode=pve}}` +
+  // `{{...|1|game mode=wvw pvp}}` — 3 independently-ambiguous labels, all pve-high/wvw-low by the
+  // same ratio. Its Barrier gap (missing wvw/pvp values from the API entirely) is documented in
+  // this table's own Thief-leg intro comment above.
+  2362: { 'Damage Reduced': 3, 'Condition Damage Reduced': 3, Initiative: 1 }
 }
 
 /**

@@ -2307,8 +2307,7 @@
       "Fury": 5
     },
     "1163": {
-      "Fury": 10,
-      "Might": 6
+      "Fury": 10
     },
     "1169": {
       "Vulnerability": 6
@@ -2324,9 +2323,6 @@
     },
     "1234": {
       "Vigor": 3
-    },
-    "1277": {
-      "Might": 10
     },
     "1280": {
       "Weakness": 3
@@ -2707,8 +2703,9 @@
       "Alacrity": "omit"
     },
     "2393": {
-      "Might": 6,
-      "Protection": 3
+      "Protection": 3,
+      "Regeneration": 8,
+      "Alacrity": "omit"
     },
     "2408": {
       "Quickness": 3
