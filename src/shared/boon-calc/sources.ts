@@ -3111,6 +3111,57 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // here, out of this leg's scope. `Might@6@3` (the wvw+pvp fact itself) needs no entry,
       // already correct as-is.
       'Might@12@4': 'omit' // pve (12s/4 stacks)
+    },
+
+    // Ranger leg (5th leg of the "remaining 8 professions" main WvW-duplicate sweep, TODO.md,
+    // 2026-08-20) — 2 more latent bugs of the exact same shape found in ALREADY-curated
+    // `wvw-fact-overrides.json` entries predating this leg (Blood Moon id 1935, Let Loose id 2271),
+    // plus 2 newly-discovered cases this leg (Eclipse id 2055, Cloudburst id 2425).
+    1935: {
+      // Blood Moon (Druid). Wiki (`split = pve, wvw pvp`): `{{skill fact|bleeding|4|stacks=2|game
+      // mode=pve}}{{skill fact|bleeding|8|game mode=wvw pvp}}` — the old `wvw-fact-overrides.json`
+      // entry (`{Bleeding: 8}`) replaced the FIRST raw fact's (pve, 4/2) duration with 8 but kept
+      // its apply_count of 2, showing "8s, 2 stacks" instead of the real wvw+pvp "8s, 1 stack".
+      // `Bleeding@8@1` (the wvw+pvp fact itself) needs no entry, already correct as-is.
+      'Bleeding@4@2': 'omit' // pve (4s/2 stacks)
+    },
+    2055: {
+      // Eclipse (Druid). Wiki (`split = pve, wvw pvp`): `{{skill fact|Poison|8|linked skill=Seed of
+      // Life|game mode=pve}}{{skill fact|Poison|4|linked skill=Seed of Life|game mode=wvw pvp}}` —
+      // the live API's own raw facts carry apply_count 3 (pve) and 1 (wvw+pvp) for this pair despite
+      // the wiki not mentioning stacks at all, the same duration+apply_count shape as the other
+      // entries in this table. `Poisoned@4@1` (the wvw+pvp fact itself) needs no entry, already
+      // correct as-is. (Its Immobile/Burning pairs share the same duration split but matching
+      // apply_count both modes, 1/1, so those 2 are plain `wvw-fact-overrides.json` entries instead
+      // — see that file's own trait-2055 entry.)
+      'Poisoned@8@3': 'omit' // pve (8s/3 stacks)
+    },
+    2271: {
+      // Let Loose (Untamed). Wiki (`split = pve, wvw pvp`): `{{skill fact|Might|10|stacks=5|game
+      // mode=pve}}{{skill fact|Might|8|stacks=3|game mode=wvw pvp}}` — the old
+      // `wvw-fact-overrides.json` entry (`{Might: 8}`) replaced the FIRST raw fact's (pve, 10/5)
+      // duration with 8 but kept its apply_count of 5, showing "8s, 5 stacks" instead of the real
+      // wvw+pvp "8s, 3 stacks". `Might@8@3` (the wvw+pvp fact itself) needs no entry, already
+      // correct as-is. (Its sole Quickness fact stays `wvw-fact-overrides.json`'s pre-existing
+      // `'omit'` — the wiki only ever documents a pve value for it, no wvw/pvp value exists in the
+      // API at all to pick, same "documented but absent" shape as other loose ends in this file.)
+      'Might@10@5': 'omit' // pve (10s/5 stacks)
+    },
+    2425: {
+      // Cloudburst (Galeshot). Wiki (`split = pve, wvw pvp`): under its Hawkeye linked-skill prefix,
+      // `{{skill fact|quickness|8|linked skill=Hawkeye|game mode=pve}}{{skill
+      // fact|quickness|3|linked skill=Hawkeye|game mode=pvp}}` (wvw shares pvp's value per the
+      // trait's own `split` field) — a genuine same-status mode-split, both occurrences apply_count
+      // 1, so no `apply_count` bug risk; still needs the occurrence-indexed form (not a plain
+      // `wvw-fact-overrides.json` entry) because this trait ALSO has a 3rd, genuinely different
+      // Quickness application under its separate Bluster prefix (duration 4, its own real pve
+      // grant) that a per-status override would incorrectly collapse into this pair. `Quickness@3@1`
+      // (Hawkeye's wvw+pvp fact) needs no entry, already correct as-is. Cloudburst also has 2 real
+      // boon-type-swap gaps this table can't express, documented in `fact-numbers.ts`'s own
+      // Ranger-leg intro comment: Bluster's Quickness+Might swap entirely to Swiftness+Fury in
+      // wvw+pvp, and Hawkeye's Might swaps entirely to Fury — same shape as Guardian's Phoenix
+      // Protocol/Engineer's Mech Frame: Channeling Conduits.
+      'Quickness@8@1': 'omit' // Hawkeye pve (8s)
     }
   }
 }

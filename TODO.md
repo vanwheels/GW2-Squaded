@@ -211,8 +211,37 @@ a `target`-field fallback for `AttributeAdjust` facts with no `text` — see bel
       standalone script against the real `numericFactLines`/`boonConditionFactsForTrait` (Electron
       sandbox still blocks visual verification).
 
-      Remaining 4 professions (Ranger, Thief, Elementalist, Necromancer) still open. Do one
-      profession-leg, then check in (see `pacing_large_sweeps` memory).
+      **Ranger — done 2026-08-20** (5th leg). Same process, all 9 spec lines (5 core +
+      Druid/Soulbeast/Untamed/Galeshot) / 111 traits scanned for both numeric AND Buff-type
+      same-status dupes. 25 traits curated into `NUMERIC_FACT_WVW_OVERRIDES` (Ranger block,
+      `fact-numbers.ts`) + 4 into `wvw-fact-overrides.json`/`BUFF_INSTANCE_VALUE_OVERRIDES`
+      (Windborne Notes/Lead the Wind/Eclipse's Immobile+Burning pair as plain overrides; Eclipse's
+      Poisoned pair and Cloudburst's Hawkeye-prefixed Quickness pair via `BUFF_INSTANCE_VALUE_
+      OVERRIDES`, since Cloudburst's trait ALSO carries a genuinely different Quickness application
+      under a separate Bluster prefix that a plain per-status override would have wrongly collapsed
+      into it). 3 genuinely-identical dupes needed no override (Hunter's Tactics 1068, Lingering
+      Light 2058, Twice as Vicious 2127). Hunter's Gaze (1014) was a scan false positive: 3
+      independently health-threshold-gated Might grants sharing one status, not a mode split. Also
+      found and fixed 2 latent bugs in ALREADY-curated Ranger overrides predating this leg (Blood
+      Moon id 1935, Let Loose id 2271) — same "plain per-status override only replaces `duration`,
+      not `apply_count`" shape as the Engineer leg's HGH/Kinetic Accelerators/Photonic Blasting
+      Module, converted both to `BUFF_INSTANCE_VALUE_OVERRIDES`. 3 real gaps left deliberately
+      uncurated: Moment of Clarity's (1070) "Attack of Opportunity" effect-Buff carries an embedded
+      pve-50%/wvw+pvp-10% damage-bonus sub-value via the wiki's `effect bonus number=` param, same
+      "can't express an embedded sub-value" shape as Warrior's Peak Performance; Cloudburst (2425)
+      has 2 real boon-type-swap gaps under its Bluster/Hawkeye linked-skill prefixes (Quickness+Might
+      swap entirely to Swiftness+Fury/Fury in wvw+pvp), same shape as Guardian's Phoenix
+      Protocol/Engineer's Mech Frame: Channeling Conduits; Natural Balance (2056) turned out to be a
+      DIFFERENT kind of gap discovered this leg — its Buff's own `status` ("Natural Balance") isn't a
+      recognized boon/condition name at all, so `classifyBoonCondition` gates it out before any
+      override table is ever consulted and the fact renders nowhere in the app currently, same
+      "custom effect-status the boon/condition pipeline structurally can't see" shape as the Conduit
+      leg's Bolstered Bonds loose end (no override added, would be dead code). End-to-end verified
+      via a standalone script against the real `numericFactLines`/`boonConditionFactsForTrait`
+      (Electron sandbox still blocks visual verification).
+
+      Remaining 3 professions (Thief, Elementalist, Necromancer) still open. Do one profession-leg,
+      then check in (see `pacing_large_sweeps` memory).
 
 - [ ] **Corruption stat undercounts real "boon corrupt" sources.** `BOON_STRIP_CORRUPT_MATCHERS.Corrupt`
       only matches `Number`-type facts whose text matches `/boons? converted/i`. Confirmed via

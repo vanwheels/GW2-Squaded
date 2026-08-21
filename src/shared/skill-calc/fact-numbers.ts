@@ -1081,7 +1081,213 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // Symbiotic Synergy (id 2406, Amalgam Grandmaster major): "Evolve recharges morph skills. Morph
   // skills deal increased strike damage." Wiki: `{{skill fact|damage increase|33|game mode=pve}}` +
   // `{{...|10|game mode=wvw pvp}}` — pve 33, wvw+pvp 10.
-  2406: { 'Damage Increase': 10 }
+  2406: { 'Damage Increase': 10 },
+
+  // Ranger — 5th leg of the "remaining 8 professions" main sweep (TODO.md, 2026-08-20). Same
+  // process as the Guardian/Warrior/Mesmer/Engineer legs above: scanned all 9 Ranger spec lines (5
+  // core + Druid/Soulbeast/Untamed/Galeshot) for both numeric AND Buff-type same-status dupes.
+  // Hunter's Tactics (1068, "Damage Increase" 10/10), Lingering Light (2058, "Recharge Time
+  // Reduced" 1/1), and Twice as Vicious (2127, Buff-typed, 10s/10s with matching apply_count) are
+  // genuinely-identical dupes needing no override (already collapse via this function's own `seen`
+  // dedup / `extractFromFacts`'s tuple dedup). Hunter's Gaze (1014) is a scan false positive: its
+  // 3 "Might" facts (5s each, stacks 3/2/1) are 3 independently health-threshold-gated concepts
+  // ("Below 25/50/75 Percent") sharing one status, not a game-mode split — no wiki split exists.
+  //
+  // Buff-type findings (see `wvw-fact-overrides.json`/`BUFF_INSTANCE_VALUE_OVERRIDES` in
+  // `boon-calc/sources.ts` for the actual fixes, out of this table's scope): found and fixed 2
+  // latent bugs in ALREADY-curated Ranger overrides predating this leg (Blood Moon id 1935, Let
+  // Loose id 2271), same "plain per-status override only replaces duration, not apply_count" shape
+  // as the Engineer leg's HGH/Kinetic Accelerators/Photonic Blasting Module — converted both to
+  // `BUFF_INSTANCE_VALUE_OVERRIDES`. Eclipse (2055, its Poisoned pair) needed the same treatment,
+  // newly discovered this leg. Cloudburst (2425) has a genuine same-status Quickness dupe under its
+  // Hawkeye linked-skill prefix (fixed via `BUFF_INSTANCE_VALUE_OVERRIDES`), but ALSO 2 real
+  // boon-type-swap gaps under its Bluster/Hawkeye prefixes (Quickness+Might swap entirely to
+  // Swiftness+Fury/Fury in wvw+pvp) — same shape `WvwFactOverride` can't express as Guardian's
+  // Phoenix Protocol/Engineer's Mech Frame: Channeling Conduits, left undocumented-fix, gap noted.
+  // Moment of Clarity's (1070) "Attack of Opportunity" effect-Buff carries an embedded pve-50%/
+  // wvw+pvp-10% damage-bonus sub-value via the wiki's `effect bonus number=` param, not expressible
+  // through this table or `WvwFactOverride` (its own outer Buff duration is identical, 10s, both
+  // modes, so no Buff-side fix is even needed) — same "can't express an embedded sub-value" shape
+  // as Warrior's Peak Performance/Engineer's Big Boomer. Natural Balance (2056) has the same
+  // embedded-desc shape, but turns out to be a DIFFERENT kind of gap: its outer Buff's own `status`
+  // ("Natural Balance") isn't a recognized boon/condition name at all (not in `BOON_NAMES`/
+  // `CONDITION_NAMES`, `constants.ts`) — `classifyBoonCondition` gates it out before `extractFromFacts`
+  // ever reaches a `wvw-fact-overrides.json` lookup, and `factLine` has no `'Buff'` case either, so
+  // this fact renders NOWHERE in the app currently, mode-split or not. Same "custom effect-status
+  // Buff the boon/condition pipeline structurally can't see" shape as the Conduit leg's Bolstered
+  // Bonds loose end above — not attempted here, no override added (would be dead code).
+
+  // Loud Whistle (id 974, Beastmastery Adept): "Your pet deals more damage while you are above the
+  // health threshold." Wiki: `{{skill fact|damage increase|alt=Pet Damage Increase|15|game
+  // mode=pve}}` + `{{...|10|game mode=wvw pvp}}` (2026 patch raised the pve value from 10 to 15,
+  // explicitly excluding merged soulbeasts) — pve 15, wvw+pvp 10.
+  974: { 'Pet Damage Increase': 10 },
+
+  // Predator's Onslaught (id 996, Marksmanship Adept minor): "You and your pet deal increased
+  // strike damage to disabled, defiant, or movement-impaired foes." Wiki: `{{skill fact|damage
+  // increase|10|game mode = pve}}` + `{{...|15|game mode = wvw pvp}}` — pve 10, wvw+pvp 15, the
+  // rare WvW-higher case (2026 patch reduced the pve value from 15 to 10).
+  996: { 'Damage Increase': 15 },
+
+  // Farsighted (id 1000, Marksmanship Master): "Ranger weapon skills deal increased strike damage.
+  // Damage is further increased for foes above the range threshold." Wiki (`split = pve wvw, pvp`):
+  // `{{skill fact|damage increase|10|game mode=pve wvw}}` + `{{...|5|game mode=pvp}}`, `{{skill
+  // fact|damage increase|alt=Damage Increase above Threshold|15|game mode=pve wvw}}` + `{{...|10|
+  // game mode=pvp}}` — pve+wvw share 10/15, pvp alone drops to 5/10. 2 independently-ambiguous
+  // labels on one trait.
+  1000: { 'Damage Increase': 10, 'Damage Increase above Threshold': 15 },
+
+  // Wolfsong (id 1001, Marksmanship Master): "Canine Beast abilities apply vulnerability and reveal
+  // nearby enemies. You deal additional increased strike damage against vulnerable enemies." Wiki:
+  // `{{skill fact|damage increase|10|game mode=pve}}` + `{{...|5|game mode=wvw pvp}}` — pve 10,
+  // wvw+pvp 5. (Its Vulnerability duration split, 6 pve+pvp / 9 wvw, is Buff-typed and already
+  // correctly fixed by an earlier sweep's `wvw-fact-overrides.json` entry — re-verified, not new
+  // this leg.)
+  1001: { 'Damage Increase': 5 },
+
+  // Fang and Claw (id 1016, Skirmishing Master): "Feline, avian, and drake pets gain additional
+  // precision and ferocity. Beast skills grant fury around the ranger." Wiki: `{{skill
+  // fact|attribute|precision|420|game mode=pve}}` + `{{...|315|game mode=wvw pvp}}`, `{{skill
+  // fact|attribute|ferocity|450|game mode=pve}}` + `{{...|225|game mode=wvw pvp}}` — both
+  // `AttributeAdjust`, no `text` field, keyed by `target` (`Precision`/`CritDamage`, the API's
+  // literal string for the Ferocity-attribute concept). (Its Fury duration split, 8 pve / 6 wvw+pvp,
+  // is Buff-typed and already correctly fixed by an earlier sweep.)
+  1016: { Precision: 315, CritDamage: 225 },
+
+  // Lingering Magic (id 1059, Nature Magic Grandmaster minor): "You and your pet gain increased
+  // concentration. Regeneration you apply is more effective." Wiki: `{{skill fact|attribute|
+  // Concentration|240|game mode = pve}}` + `{{...|120|game mode = pvp wvw}}` (`AttributeAdjust`, no
+  // `text`, keyed by `target` "BoonDuration", same non-obvious naming as Guardian's Honorable
+  // Staff/Warrior's Roaring Reveille) — pve 240, wvw+pvp 120.
+  1059: { BoonDuration: 120 },
+
+  // Moment of Clarity (id 1070, Marksmanship Master): "Gain an attack of opportunity for you and
+  // your pet on interrupting a foe. Daze and stun durations that you inflict last longer." Wiki:
+  // `{{skill fact|duration increase|50%|game mode=pve}}` + `{{...|10%|game mode=pvp wvw}}` — pve
+  // 50, wvw+pvp 10. Its "Attack of Opportunity" effect-Buff embedded sub-value gap is documented in
+  // this table's own Ranger-leg intro comment above.
+  1070: { 'Duration Increase': 10 },
+
+  // Rugged Growth (id 1089, Wilderness Survival Grandmaster minor): "You and your pet recover
+  // health while affected by protection." Wiki: `{{skill fact|healing|259|coefficient=0.245|game
+  // mode=pve}}` + `{{...|196|coefficient=0.122|game mode=pvp wvw}}` — pve 259, wvw+pvp 196.
+  1089: { Healing: 196 },
+
+  // Resounding Timbre (id 1606, Beastmastery Adept): "Commands copy boons from yourself to your
+  // pet." Wiki: `{{skill fact|Maximum Boon Stacks Copied|25|game mode=pve}}` + `{{...|3|game
+  // mode=wvw pvp}}` — pve 25, wvw+pvp 3.
+  1606: { 'Maximum Boon Stacks Copied': 3 },
+
+  // Invigorating Bond (id 1697, Nature Magic Grandmaster): "Beast skills heal allies around the
+  // ranger." Wiki: `{{skill fact|healing|2580|coefficient=0.8|game mode=pve}}` + `{{...|1020|
+  // coefficient=1.0|game mode=wvw}}` + `{{...|820|coefficient=0.5|game mode=pvp}}` — a genuine
+  // 3-way split, all distinct; wvw (1020) is actually the HIGH outlier here despite pve's larger
+  // coefficient reference number. (Its Protection/Vigor duration splits are Buff-typed and already
+  // correctly fixed by an earlier sweep — re-verified, not new this leg.)
+  1697: { Healing: 1020 },
+
+  // Hidden Barbs (id 1846, Skirmishing Master): "Bleeding you inflict is more dangerous." Wiki:
+  // `{{skill fact|Condition Damage Increase|20|game mode = pve}}` + `{{...|33|game mode = wvw pvp}}`
+  // (API's own fact `text` is "Damage Increase", not the wiki template's param name, same pattern as
+  // Guardian's Amplified Wrath) — pve 20, wvw+pvp 33, the rare WvW-higher case.
+  1846: { 'Damage Increase': 33 },
+
+  // Vicious Quarry (id 1888, Skirmishing Grandmaster): "Fury grants ferocity and additional
+  // increased critical-strike chance. When struck while below the health threshold, gain fury."
+  // Wiki: `{{skill fact|critical chance increase|15|game mode=pve}}` + `{{...|10|game mode=pvp
+  // wvw}}` — pve 15, wvw+pvp 10. (Its Fury fact carries the same 4s value both modes, genuinely
+  // identical, matching the pre-existing `wvw-fact-overrides.json` entry.)
+  1888: { 'Critical Chance Increase': 10 },
+
+  // Pack Alpha (id 1900, Beastmastery Adept minor): "Your pet's attributes are improved and pet
+  // skills gain recharge reduction." Wiki: `{{skill fact|attribute|Attribute Increase|300|effect
+  // bonus=Power; Condition Damage; Precision; Toughness; Vitality|game mode=pve}}` + `{{...|150|
+  // ...|game mode=wvw pvp}}` (`AttributeAdjust`, all 5 stats at once) — pve 300, wvw+pvp 150.
+  1900: { 'Attribute Increase': 150 },
+
+  // Natural Mender (id 1992, Druid Grandmaster minor): "Increase healing to other allies. Gain
+  // astral force each interval while not in celestial avatar form." Wiki: `{{skill fact|Healing|
+  // alt=Healing Increase to Others|20%|game mode = pve}}` + `{{...|15%|game mode = pvp wvw}}` — pve
+  // 20, wvw+pvp 15. Its "Energy Gain" fact (8, pve+wvw shared per the wiki) already carries only the
+  // correct value in the live API — no fix needed.
+  1992: { 'Healing Increase to Others': 15 },
+
+  // Eclipse (id 2055, Druid Grandmaster): "Your Celestial Avatar skills are offensively augmented.
+  // Striking enemies grants additional astral force." Wiki: `{{skill fact|percent|0.75|alt=
+  // Additional Astral Force per Damage|game mode=pve}}` + `{{...|0.5|...|game mode=pvp wvw}}` — pve
+  // 0.75, wvw+pvp 0.5. Its Poisoned/Immobile/Burning per-linked-skill duration splits are Buff-typed
+  // (see `wvw-fact-overrides.json`/`BUFF_INSTANCE_VALUE_OVERRIDES`, out of this table's scope).
+  2055: { 'Additional Astral Force per Damage': 0.5 },
+
+  // Second Skin (id 2119, Soulbeast Master): "Conditions inflict less damage to you while you have
+  // protection." Wiki (`split = pve wvw, pvp`): `{{skill fact|Condition Damage Reduced|alt=Damage
+  // Reduced|33|game mode=pve}}` + `{{...|25|game mode=pvp}}` — pve+wvw share 33, pvp alone drops to
+  // 25.
+  2119: { 'Damage Reduced': 33 },
+
+  // Leader of the Pack (id 2128, Soulbeast Grandmaster): "Stance skills gain increased duration on
+  // you and grant their effects to nearby allies for a reduced duration." Wiki (`split = pve pvp,
+  // wvw`): `{{skill fact|duration increase|alt=Personal Duration|120%|game mode = pve pvp}}` +
+  // `{{...|150%|game mode = wvw}}` — pve+pvp share 120, wvw alone rises to 150, the rare
+  // WvW-is-the-sole-outlier-and-higher case.
+  2128: { 'Personal Duration': 150 },
+
+  // Furious Strength (id 2156, Soulbeast Master minor): "You deal increased strike damage while you
+  // have fury." Wiki: `{{skill fact|damage increase|15|game mode = pve}}` + `{{...|7|game mode =
+  // pvp wvw}}` — pve 15, wvw+pvp 7.
+  2156: { 'Damage Increase': 7 },
+
+  // Vow of the Untamed (id 2269, Untamed Grandmaster minor): "Your outgoing strike damage is
+  // increased while you are unleashed. You take reduced damage from strikes while your pet is
+  // unleashed." Wiki: `{{skill fact|damage increase|alt=Outgoing Damage Adjustment|25|game
+  // mode=pve}}` + `{{...|10|game mode=wvw pvp}}`, `{{skill fact|Damage reduced|alt=Incoming Damage
+  // Adjustment|25|game mode=pve}}` + `{{...|10|game mode=wvw pvp}}` — 2 independently-ambiguous
+  // labels, both pve 25 / wvw+pvp 10. The raw API lists each wvw+pvp value twice (once per mode)
+  // rather than once for a shared "wvw pvp" mode — harmless, already collapses via this function's
+  // own `seen` dedup.
+  2269: { 'Outgoing Damage Adjustment': 10, 'Incoming Damage Adjustment': 10 },
+
+  // Corrupting Vines (id 2278, Untamed Master): "Rending Vines corrupts boons into conditions
+  // instead of removing them. Unleashed Ambush skills remove boons from enemies." Wiki: `{{skill
+  // fact|Boons Converted to Conditions|3|game mode = pve}}` + `{{...|2|game mode = wvw pvp}}` — pve
+  // 3, wvw+pvp 2.
+  2278: { 'Boons Converted to Conditions': 2 },
+
+  // Natural Fortitude (id 2286, Untamed Master minor): "Gain vitality. Unleashed Ambush skills
+  // siphon health if they hit. Siphon healing is reduced for each target struck beyond the first."
+  // Wiki: `{{skill fact|Life Siphon Damage|3517|coefficient=0.005|game mode=pve}}` + `{{...|1764|
+  // ...|game mode=wvw pvp}}`, `{{skill fact|Life Siphon Healing|alt=First-Hit Life Siphon
+  // Healing|3517|coefficient=0.2|game mode=pve}}` + `{{...|1764|...|game mode=wvw pvp}}`, `{{skill
+  // fact|Life Siphon Healing|alt=Additional-Hit Healing|586|coefficient=0.03|game mode=pve}}` +
+  // `{{...|294|...|game mode=wvw pvp}}` — 3 independently-ambiguous labels, all pve-high/wvw+pvp-low
+  // by exactly half.
+  2286: { 'Life Siphon Damage': 1764, 'First-Hit Life Siphon Healing': 1764, 'Additional-Hit Healing': 294 },
+
+  // Blinding Outburst (id 2301, Untamed Adept): "Venomous Outburst deals more damage and applies
+  // blindness in addition to its other effects. Unleashed Ambush skills deal more damage." Wiki:
+  // `{{skill fact|Damage Increase|25|game mode = pve}}` + `{{...|10|game mode = wvw pvp}}` — pve 25,
+  // wvw+pvp 10. The raw API lists the wvw+pvp value twice (once per mode), same harmless
+  // over-listing as Vow of the Untamed above.
+  2301: { 'Damage Increase': 10 },
+
+  // Bird of Prey (id 2363, Galeshot Master minor): "Strike damage is increased when you have
+  // swiftness or superspeed. Swiftness is more effective." Wiki: `{{skill fact|damage increase|5|
+  // game mode=pve}}` + `{{...|10|game mode=wvw}}` — pve 5, wvw(+pvp per the trait's own `split`
+  // field) 10, the rare WvW-higher case.
+  2363: { 'Damage Increase': 10 },
+
+  // Shrike (id 2372, Galeshot Grandmaster): "After a number of missile hits, release a volley of
+  // arrows at your target and gain an arrow." Wiki: `{{skill fact|Missile Hits Required|12|game
+  // mode=pve}}` + `{{...|8|game mode=wvw pvp}}` — pve 12, wvw+pvp 8.
+  2372: { 'Missile Hits Required': 8 },
+
+  // Flock Together (id 2408, Galeshot Master): "Feathered pets have increased strike damage and
+  // health. Beast skills grant quickness around the ranger." Wiki: `{{skill fact|damage increase|
+  // 25|game mode=pve}}` + `{{...|15|game mode=wvw pvp}}`, `{{skill fact|Health Increase|50%|game
+  // mode=pve}}` + `{{...|25%|game mode=pvp wvw}}` — 2 independently-ambiguous labels, both
+  // pve-high/wvw+pvp-low. (Its Quickness duration split, 5 pve / 3 wvw+pvp, is Buff-typed and
+  // already correctly fixed by an earlier sweep.)
+  2408: { 'Damage Increase': 15, 'Health Increase': 25 }
 }
 
 /**
