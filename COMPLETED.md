@@ -2,6 +2,31 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 273 — Mesmer Shatter 4 stun-break fix, closes the trait/skill data-correctness pass
+
+**Distortion (Shatter 4) never showed "Breaks Stun," gated or not (2026-08-21).** The 2026-08-20
+investigation found no live code path producing an *unconditional* display and stopped there without
+checking the opposite direction. Reproduced directly via `namedFactsForSkill`: Distortion's raw API
+facts (id 10192) carry no `StunBreak`/`NoData`-"Breaks Stun" fact, and while Mental Defense (trait
+2005) *does* carry its own "Breaks Stun" `NoData` fact (traits absolutely can carry this — the prior
+investigation's "traits can't carry `StunBreak`-typed facts" premise was wrong; the matcher itself
+already accepts `NoData` + text match, not just the `StunBreak` type), the 2026-08-14 trait-granted-
+boons-on-skills sweep only mirrored Mental Defense's 2 Resistance buffs onto skill 10192 in
+`synthetic-facts.json` — its "Breaks Stun" fact was left out of that mirror entirely. Net effect: the
+display was simply missing under every condition, not unconditionally present.
+
+Fix: added the missing `{ "type": "NoData", "text": "Breaks Stun", "requires_trait": 2005 }` entry to
+`synthetic-facts.json`'s `10192` array, alongside the existing Resistance mirrors. Also added a
+`10192: 5` entry to `BREAKS_STUN_PARTY_WIDE.skill` (`sources.ts`) — the table's existing
+`trait: { 2005: 5 }` entry only resolves target count for Mental Defense's own trait tooltip
+(`sourceKind: 'trait'`); the mirrored copy on Distortion resolves as `sourceKind: 'skill'`/
+`sourceId: 10192` and needs its own skill-side entry, same convention the boon/condition
+`TARGET_COUNT_OVERRIDES` table already uses for this skill's other trait-mirrored grants. Verified
+via a throwaway script calling `buildGameData`/`namedFactsForSkill` directly: Distortion now shows no
+"Breaks Stun" with no traits active, and shows it (target count 5) with only Mental Defense active.
+`npm run typecheck` + full `vitest run` (291 tests) both clean, no existing test touched this case.
+Closes the entire 2026-08-20 trait/skill data-correctness pass — no open items left in that scope.
+
 ## Session 272 — Corrupt row undercount: Well of Corruption + Elixir of Bliss
 
 **Corruption stat undercounts real "boon corrupt" sources (2026-08-21).** `BOON_STRIP_CORRUPT_

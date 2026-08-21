@@ -83,35 +83,6 @@ limitation) — do that before extending either further.
       heal-modifier concept yet (distinct from the boon/condition uptime system); needs scoping, not
       a one-off patch for this skill.
 
-## Trait/skill data-correctness pass (scoped 2026-08-20)
-
-User flagged several concrete tooltip bugs from a quick glance; investigation the same day traced
-most of them to one systemic root cause plus 2 standalone gaps. Agreed order: quick wins first
-(done), then the AttributeAdjust infra leg (done), then the main sweep; Corruption-stat (done
-2026-08-21, see COMPLETED.md) and Mesmer-stunbreak stay/stayed separate investigations slotted in
-afterward — only Mesmer-stunbreak remains open.
-
-`AttributeAdjust` fact-type WvW-duplicate dedup — **done 2026-08-20**: `numericFactLines`
-(`fact-numbers.ts`) now filters `AttributeAdjust` facts through `NUMERIC_FACT_WVW_OVERRIDES` the
-same way it already did `Number`/`Percent`. Resolved Battle Scarred's (id 1755) "Life Siphon Damage"
-duplicate (wiki-confirmed pve 117 vs. wvw+pvp 58) and Expanded Consciousness's (id 2358) "Healing"
-duplicate (389). Battle Scarred's *other* AttributeAdjust fact, "Life Siphon Healing," stays
-deliberately uncurated — the live API carries an unexplained 3rd value (68) alongside the 2
-wiki-documented ones (117/58) with nothing on the wiki page to say what it is; picking blind between
-58/68 risks hiding the correct value instead of the wrong one. Firebrand's Imbued Haste (id 2148,
-250/150 Condition Damage/Healing/Vitality dupes) belonged to the main sweep below, not this infra
-leg — closed 2026-08-20 as part of that sweep's Guardian leg (needed its own small infra addition,
-a `target`-field fallback for `AttributeAdjust` facts with no `text` — see below).
-
-- [ ] **Mesmer Shatter 4 (Distortion) shows "Breaks Stun" unconditionally.** Should only be true with
-      Mental Defense (Inspiration GM trait, id 2005) equipped. Investigated 2026-08-20: Distortion's
-      raw API facts (id 10192) carry no `StunBreak` fact at all, gated or not, and Mental Defense's
-      own facts don't add one either (traits can't carry `StunBreak`-typed facts) — couldn't find the
-      code path producing the always-on display via the normal matcher/fact pipeline
-      (`MISCELLANEOUS_MATCHERS['Breaks Stun']`, `branch-conditional-facts.ts`). Needs a fresh
-      investigation pass, not a quick fix — start by confirming live in the running app (or a fresh
-      screenshot) exactly which component/string is rendering it.
-
 ## Nice-to-haves
 
 - [ ] Gear Optimizer's rune/infusion search (2026-08-11, see COMPLETED.md) adds up to ~18 extra

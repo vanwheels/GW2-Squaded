@@ -5588,7 +5588,11 @@ export const BREAKS_STUN_PARTY_WIDE: { skill: Record<number, SourceTargetCountOv
     // at 5 in `TARGET_COUNT_OVERRIDES`.
     77155: 5, // Chant of Freedom — "Breaks stun from allies in an area around you"
     77178: 5, // Tale of the Valiant Marshal — "Break their stuns" (nearby allies called to action)
-    77321: 5 // Stalwart Stance — "Break stun for nearby allies"
+    77321: 5, // Stalwart Stance — "Break stun for nearby allies"
+    10192: 5 // Distortion, via Mental Defense's mirrored `synthetic-facts.json` entry (`requires_trait:
+    // 2005`) — same skill-side echo of a `trait:` entry below that every other trait-granted-boon
+    // mirror onto this skill already gets through `TARGET_COUNT_OVERRIDES`' own `10192: 5` (Restorative
+    // Illusions) default; this table has no such blanket default, so it needs its own explicit entry.
   },
   trait: {
     612: 5, // Indomitable Courage — "breaks stun and grants stability to nearby allies" (one
