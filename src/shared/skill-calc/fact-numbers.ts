@@ -75,7 +75,14 @@ export function factLine(fact: Fact): FactLine | null {
  * `AttributeAdjust` fact whose `value`/`percent` matches, dropping any other raw fact sharing that
  * same `text` (`AttributeAdjust` support added 2026-08-20, see the trait/skill data-correctness pass
  * scoped in TODO.md — base-stat-adjust facts like life-siphon damage/healing were falling straight
- * through undeduped before this).
+ * through undeduped before this). `Time`-typed facts (e.g. a pulse/recharge "Interval") joined the
+ * same day, found while curating the Guardian leg of the main WvW-duplicate sweep (Righteous
+ * Instincts' "Boon Application Interval", Loremaster's "Interval", Illuminating Inspiration's
+ * "Recharge Time Reduced" all render via `factLine`'s existing `Time` case but were never in the
+ * override matcher's type allowlist). Matching also now falls back to `fact.target` when
+ * `AttributeAdjust` has no `text` at all (Firebrand's Imbued Haste, id 2148 — 3 attribute facts
+ * with zero `text` field, keyed here by their `target` string instead) — mirrors `factLine`'s own
+ * display fallback, see `numericFactLines` below.
  */
 export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> = {
   // Calming Tongue (Paragon/Warrior Adept trait, id 2433): "Chant of Recuperation removes
@@ -370,7 +377,178 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // Reduced|30|game mode=wvw}}` + `{{skill fact|Recharge Reduced|20|game mode=pvp}}` — a genuine
   // 3-way split, all distinct. Its separate "Duration Increase" fact (Cosmic Wisdom duration on
   // legend invoke, unambiguous per the wiki) doesn't appear in the local API data at all.
-  2379: { 'Recharge Reduced': 30 }
+  2379: { 'Recharge Reduced': 30 },
+
+  // Guardian — 1st leg of the "remaining 8 professions" main sweep (TODO.md, 2026-08-20). Same
+  // process as every Revenant leg above: scanned every Guardian trait's base `facts` for a
+  // Number/Percent/AttributeAdjust/Time label (or AttributeAdjust `target`) appearing more than
+  // once, then wiki-verified each one's raw `{{trait fact}}` split before curating. 2 real gaps
+  // found this leg, deliberately left uncurated (documented, not modeled wrong):
+  //  - Heavy Light (1963, Dragonhunter): wiki splits its Stability grant 6s pve / 3s wvw+pvp, but
+  //    the live API carries only ONE Stability fact (6, the pve value) — the wvw variant is simply
+  //    missing from the API, same "documented but absent from the raw data" shape as Vindicator's
+  //    Song of Arboreum Vigor loose end (`fetch-wvw-splits.ts`). Buff-typed regardless, out of this
+  //    table's scope even if it were present.
+  //  - Phoenix Protocol (2195, Willbender): "Alacrity on Trigger"/"Alacrity on Activation" are 2
+  //    independent concepts sharing one status with no discriminator, AND in WvW the trait swaps to
+  //    granting Resolution instead of Alacrity entirely (wiki-confirmed, 2025-02-11 patch) — same
+  //    "2+ genuinely different simultaneous applications collide with a single-status override"
+  //    hazard as Darkrazor's Daring/Fox's Fury's 77282 Might above, compounded by a real boon-type
+  //    swap `WvwFactOverride` has no way to express (only overrides a status's own `duration`).
+  //    Buff-typed, out of this table's scope regardless; left fully uncurated rather than partially
+  //    fixed and partially wrong.
+
+  // Monk's Focus (id 586, Valor Grandmaster): "Meditation skills heal you and grant fury to nearby
+  // allies." Wiki: `{{skill fact|healing|1960|coefficient=0.4|game mode = pve}}` + `{{...|1720|...|
+  // game mode = pvp wvw}}` — pve 1960, wvw+pvp 1720.
+  586: { Healing: 1720 },
+
+  // Radiant Fire (id 567, Radiance Master): "Zealot's Flame is improved..." Wiki: `{{skill
+  // fact|duration increase|20%|game mode = pve}}` + `{{...|7%|game mode = pvp wvw}}` — pve 20,
+  // wvw+pvp 7. Its OTHER "Duration Increase" fact (50%, alt="Zealot's Flame base burning duration
+  // increase:", no split) is a separate unambiguous concept, unaffected.
+  567: { 'Duration Increase': 7 },
+
+  // Amplified Wrath (id 1686, Radiance Grandmaster): "Burning you inflict deals increased damage."
+  // Wiki: `{{skill fact|condition damage increase|10|game mode=pve}}` + `{{...|15|game
+  // mode=wvw pvp}}` (API's own fact `text` is "Damage Increase", not the wiki param name) — pve 10,
+  // wvw+pvp 15, the rare case where WvW is the higher value (2022-06-28 patch nerfed PvE only).
+  1686: { 'Damage Increase': 15 },
+
+  // Righteous Instincts (id 1683, Radiance Grandmaster): "Resolution increases your chances to
+  // critically strike and grants might each interval." Wiki: `{{skill fact|critical chance
+  // increase|25|game mode = pve wvw}}` + `{{...|40|game mode = pvp}}` (pve+wvw already share 25;
+  // this entry exists purely to collapse the pvp-only 40 fact) + `{{skill fact|interval|alt=Boon
+  // Application Interval|1|game mode = pve}}` + `{{...|3|game mode = wvw pvp}}` (2025-11-05 patch,
+  // `Time`-typed) — 2 independently-ambiguous labels on one trait.
+  1683: { 'Critical Chance Increase': 25, 'Boon Application Interval': 3 },
+
+  // Pure of Sight (id 1926, Dragonhunter Grandmaster minor): "Deal bonus strike damage based on
+  // your distance to the enemy." Wiki: `{{skill fact|Damage Increase|alt=Minimum Bonus Damage|7|
+  // game mode = pve}}` + `{{...|5|game mode = wvw}}` + `{{...|10|game mode = pvp}}` — a genuine
+  // 3-way split, all distinct; wvw (5) is the low outlier. Its "Maximum Bonus Damage" fact (15,
+  // unsplit) is a different label. Zealot's Aggression (1835, same line) also scanned as a
+  // "Damage Increase"x2 candidate but turned out to be a genuinely-identical duplicate (10/10, no
+  // wiki split at all) — already collapses to one displayed line via this function's own `seen`
+  // dedup, no override needed.
+  1926: { 'Minimum Bonus Damage': 5 },
+
+  // Bulwark (id 1943, Dragonhunter Master): "Shield of Courage gains increased radius and
+  // duration." Wiki: `{{skill fact|Duration Increase|2|game mode=pve pvp}}` + `{{...|1|
+  // game mode=wvw}}` (`Time`-typed, 2024-11-19 WvW-only nerf) — pve+pvp 2, wvw 1.
+  1943: { 'Duration Increase': 1 },
+
+  // Heavy Light (id 1963, Dragonhunter Grandmaster): "Gain stability when disabling an enemy. Deal
+  // increased strike damage to disabled, exposed, or defiant foes." Wiki: 2 independent pve/wvw+pvp
+  // Damage Increase splits (`{{skill fact|Damage Increase|alt=Damage Increase to Disabled or
+  // Exposed Foes|20|game mode=pve}}` + `{{...|15|game mode=pvp wvw}}`, `{{skill fact|Damage
+  // Increase|alt=Damage Increase to Defiant Foes|15|game mode=pve}}` + `{{...|10|game
+  // mode=pvp wvw}}`). Its Stability grant ALSO splits per the wiki (6 pve / 3 wvw+pvp) but is left
+  // uncurated — see this table's own Guardian-leg intro comment above.
+  1963: { 'Damage Increase to Disabled or Exposed Foes': 15, 'Damage Increase to Defiant Foes': 10 },
+
+  // Big Game Hunter (id 1955, Dragonhunter Grandmaster): "Striking an enemy tethered by your Spear
+  // of Justice inflicts vulnerability and increases strike damage dealt. Tether duration is
+  // increased." Wiki: `{{skill fact|damage increase|25|game mode = pve}}` + `{{...|15|
+  // game mode = wvw pvp}}`, `{{skill fact|duration increase|100%|game mode = pve}}` + `{{...|66%|
+  // game mode = wvw pvp}}` — 2 independently-ambiguous labels, both pve-high/wvw-low.
+  1955: { 'Damage Increase': 15, 'Duration Increase': 66 },
+
+  // Furious Focus (id 2017, Zeal Grandmaster): "Your strike damage and movement speed are increased
+  // while you have fury..." Wiki: `{{skill fact|Damage Increase|10|game mode=pve}}` + `{{...|7|
+  // game mode=pvp wvw}}` (2026-02-24 patch, PvP/WvW-only nerf) — pve 10, wvw+pvp 7.
+  2017: { 'Damage Increase': 7 },
+
+  // Inspired Virtue (id 621, Virtues Adept minor): "Virtues apply boons to allies when activated.
+  // Deal increased strike damage for each boon on you." Wiki: `{{skill fact|damage increase|alt=
+  // Bonus Damage per Boon|0.5|game mode=pve}}` + `{{...|1|game mode=pvp wvw}}` (2026-04-14 PvE-only
+  // nerf) — pve 0.5, wvw+pvp 1, the rare WvW-higher case.
+  621: { 'Bonus Damage per Boon': 1 },
+
+  // Unscathed Contender (id 624, Virtues Adept): "Strike damage dealt is increased while you have
+  // aegis. Strike damage dealt is increased while you are above the health threshold." Wiki:
+  // `{{skill fact|damage increase|alt=Damage Increase with Aegis|5|game mode=pve}}` + `{{...|7|
+  // game mode=pvp wvw}}`, `{{skill fact|damage increase|alt=Damage Increase above Health
+  // Threshold|5|game mode=pve}}` + `{{...|7|game mode=pvp wvw}}` (2026-04-14 PvE-only nerf on both)
+  // — 2 independently-ambiguous labels, both wvw-higher.
+  624: { 'Damage Increase with Aegis': 7, 'Damage Increase above Health Threshold': 7 },
+
+  // Permeating Wrath (id 622, Virtues Grandmaster): "The passive effect of Virtue skill 1 triggers
+  // more quickly and now burns in an area." Wiki: `{{skill fact|targets|5|game mode=pve pvp}}` +
+  // `{{...|3|game mode=wvw}}` (2024-08-20 WvW-only nerf) — pve+pvp 5, wvw 3. Its Burning duration
+  // (2 pve+pvp / 1.5 wvw) is Buff-typed and already covered by `wvw-fact-overrides.json`.
+  622: { 'Number of Targets': 3 },
+
+  // Protective Reviver (id 559, Honor Adept): "Cast Lesser Shield of Absorption when you begin
+  // reviving an ally..." Wiki: `{{skill fact|Revive Percentage|15|game mode=pve}}` + `{{...|3|
+  // game mode = wvw pvp}}` — pve 15, wvw+pvp 3.
+  559: { 'Revive Percentage': 3 },
+
+  // Honorable Staff (id 557, Honor Master): "Gain concentration. Empower now grants endurance to
+  // allies..." Wiki: `{{skill fact|attribute|Concentration|120|game mode= = pve}}` + `{{...|60|
+  // game mode = pvp wvw}}` (`AttributeAdjust`-typed) — pve 120, wvw+pvp 60.
+  557: { Concentration: 60 },
+
+  // Pure of Heart (id 549, Honor Master): "Aegis heals when it blocks an attack." Wiki: 3-way
+  // `{{skill fact|healing|645|coefficient=0.5|game mode = pve}}` + `{{...|516|coefficient=0.15|
+  // game mode = pvp}}` + `{{...|516|coefficient=0.2|game mode = wvw}}` — the base healing NUMBER
+  // (what this table matches on, not the separate `coefficient` healing-calc.ts reads) is pve 645,
+  // pvp+wvw share 516.
+  549: { Healing: 516 },
+
+  // Writ of Persistence (id 558, Honor Grandmaster): "Symbols are improved and heal allies." Wiki's
+  // own literal template numbers show `107` for all 3 modes (a stale/unedited base-heal figure —
+  // its 2024-10-08 version-history row says PvP/WvW healing was raised "to 107," but never updated
+  // the wvw/pvp `{{skill fact}}` numbers to match), which does NOT reconcile with the live API's own
+  // 3 raw facts (107 pve / 102 wvw / 102 pvp) — a small reference-build rounding gap, same shape
+  // documented elsewhere in this table (Expanded Consciousness). Curated from the API's own values,
+  // per this table's design of only ever picking among values that actually appear in the raw data:
+  // pve 107, wvw+pvp 102.
+  558: { Healing: 102 },
+
+  // Force of Will (id 1682, Honor Grandmaster): "Gain increased vitality. Healing others is
+  // improved based on a percentage of your vitality." Wiki: `{{skill fact|Healing Increase to
+  // Others per 100 Vitality|1%|game mode = pve}}` + `{{...|0.5%|game mode = pvp wvw}}` — pve 1,
+  // wvw+pvp 0.5.
+  1682: { 'Healing Increase to Others per 100 Vitality': 0.5 },
+
+  // Imbued Haste (id 2148, Firebrand Grandmaster minor): "Gain increased attributes while affected
+  // by quickness." Wiki: `{{skill fact|attribute|Condition Damage|250|game mode=pve}}` + `{{...|
+  // 150|game mode=wvw pvp}}` (and identically for Healing Power, Vitality) — pve 250, wvw+pvp 150
+  // for all 3 attributes. All 3 raw `AttributeAdjust` facts carry no `text` field at all (only
+  // `target`), the case this table's matching was extended to handle this same leg (see this
+  // table's own top comment) — keyed by `target` here since there's no `text` to key by.
+  2148: { ConditionDamage: 150, Healing: 150, Vitality: 150 },
+
+  // Loremaster (id 2159, Firebrand Grandmaster): "Retain Resolve passive while it is on cooldown.
+  // You generate pages more quickly." Wiki: `{{skill fact|interval|5|game mode = pve pvp}}` +
+  // `{{...|6|game mode = wvw}}` (`Time`-typed) — pve+pvp 5, wvw 6, the rare WvW-slower-not-faster
+  // case (a longer interval is worse here).
+  2159: { Interval: 6 },
+
+  // Power for Power (id 2190, Willbender Adept): "Gain increased power. Willbender Flames deal
+  // increased damage to foes they strike." Wiki: `{{skill fact|Damage Increase|200|game
+  // mode=pve}}` + `{{...|100|game mode=wvw pvp}}` (2026-07-15 PvE-only buff) — pve 200, wvw+pvp 100.
+  2190: { 'Damage Increase': 100 },
+
+  // Deathless Courage (id 2198, Willbender Grandmaster): "While Courage is active, incoming strike
+  // damage and condition damage is reduced." Wiki: `{{skill fact|damage reduced|50|game
+  // mode=pve}}` + `{{...|20|game mode=wvw pvp}}`, `{{skill fact|condition damage reduced|50|game
+  // mode=pve}}` + `{{...|20|game mode=wvw pvp}}` — 2 independently-ambiguous labels, both pve 50 /
+  // wvw+pvp 20.
+  2198: { 'Damage Reduced': 20, 'Condition Damage Reduced': 20 },
+
+  // Resolute Blessing (id 2417, Luminary Adept): "Luminary's Blessing now also reduces incoming
+  // condition damage." Wiki: `{{skill fact|condition damage reduced|10|game mode = pve wvw}}` +
+  // `{{...|5|game mode = pvp}}` — pve+wvw already share 10; this entry exists purely to collapse
+  // the pvp-only 5 fact.
+  2417: { 'Condition Damage Reduced': 10 },
+
+  // Illuminating Inspiration (id 2368, Luminary Grandmaster): "Reduce the recharge of your virtue
+  // skills when you equip a radiant weapon." Wiki: `{{skill fact|recharge time reduced|4|game
+  // mode=pve}}` + `{{...|3|game mode=pvp}}` + `{{...|2|game mode=wvw}}` (`Time`-typed) — a genuine
+  // 3-way split, all distinct.
+  2368: { 'Recharge Time Reduced': 2 }
 }
 
 /**
@@ -391,11 +569,16 @@ export function numericFactLines(facts: Fact[], traitedFacts: Fact[], activeIds:
   const seen = new Set<string>()
   for (const fact of [...facts, ...traitedFacts]) {
     if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
-    if (wvwOverrides && fact.requires_trait == null && typeof fact.text === 'string' && fact.text in wvwOverrides) {
-      const target = wvwOverrides[fact.text]
+    // Same label a wvwOverrides entry is keyed by: the fact's own `text`, or (AttributeAdjust only,
+    // mirroring factLine's own display fallback) its `target` when `text` is absent entirely — see
+    // this file's Imbued Haste comment above for why that fallback is needed at all.
+    const label = typeof fact.text === 'string' ? fact.text : fact.type === 'AttributeAdjust' && typeof fact.target === 'string' ? fact.target : undefined
+    if (wvwOverrides && fact.requires_trait == null && typeof label === 'string' && label in wvwOverrides) {
+      const target = wvwOverrides[label]
       if (fact.type === 'Number' && fact.value !== target) continue
       if (fact.type === 'Percent' && fact.percent !== target) continue
       if (fact.type === 'AttributeAdjust' && fact.value !== target) continue
+      if (fact.type === 'Time' && fact.duration !== target) continue
     }
     const line = factLine(fact)
     if (line && !seen.has(line.text)) {

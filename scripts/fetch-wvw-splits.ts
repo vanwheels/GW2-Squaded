@@ -1281,7 +1281,15 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // Sweep (duration 10->6; its stack count ALSO drops 5->3 on the wiki, but `WvwFactOverride` only
     // ever touches duration, never `apply_count` — same "override the expressible half, leave the
     // rest a documented gap" shape as Icerazor's Ire/Razorclaw's Rage above, stacks stay at 5).
-    2355: { Protection: 2, Fury: 3, Stability: 2, Resolution: 2, Might: 6 }
+    2355: { Protection: 2, Fury: 3, Stability: 2, Resolution: 2, Might: 6 },
+
+    // Guardian — 1st leg of the "remaining 8 professions" main sweep (TODO.md, 2026-08-20).
+    // Resolute Subconscious (625, Virtues Adept): the wiki shows a single, unsplit `{{skill
+    // fact|resolution|3}}` for this trait's Resolution grant, but the live API carries 2 raw
+    // Resolution facts both showing the same duration (3, 3) — a genuinely-identical duplicate, not
+    // a real pve/wvw split, same "value already matches, purpose is dedup" shape as Holo-Dancer
+    // Decoy/Over Shield above. Without this entry `extractFromFacts` would show the row twice.
+    625: { Resolution: 3 }
   }
 }
 

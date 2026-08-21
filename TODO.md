@@ -112,22 +112,42 @@ duplicate (389). Battle Scarred's *other* AttributeAdjust fact, "Life Siphon Hea
 deliberately uncurated — the live API carries an unexplained 3rd value (68) alongside the 2
 wiki-documented ones (117/58) with nothing on the wiki page to say what it is; picking blind between
 58/68 risks hiding the correct value instead of the wrong one. Firebrand's Imbued Haste (id 2148,
-250/150 Condition Damage/Healing/Vitality dupes) is next in scope but belongs to the main sweep
-below, not this infra leg.
+250/150 Condition Damage/Healing/Vitality dupes) belonged to the main sweep below, not this infra
+leg — closed 2026-08-20 as part of that sweep's Guardian leg (needed its own small infra addition,
+a `target`-field fallback for `AttributeAdjust` facts with no `text` — see below).
 
 - [ ] **Main sweep: WvW/PvE duplicate-fact values, all 8 non-Revenant professions.** Root cause
       (confirmed 2026-08-20): the raw GW2 API bakes PvE/WvW/PvP fact variants into `facts` as literal
       duplicate entries with no discriminator tag. 2 mechanisms already exist and are proven
       (Revenant's full curation, COMPLETED.md) — `wvw-fact-overrides.json` (+`fetch-wvw-splits.ts`)
       for `Buff`/`PrefixedBuff` boon/condition facts, `NUMERIC_FACT_WVW_OVERRIDES`
-      (`fact-numbers.ts`) for `Number`/`Percent`/`AttributeAdjust` facts (3rd fact shape added
-      2026-08-20, just above) — but neither has ever been run against any profession besides
-      Revenant. Confirmed live instances: Troubadour's Shredding (id 2343, `Percent` 15/10 dupe),
-      Life of the Party (id 2367, `Buff` Might/Quickness dupe), and Firebrand's Imbued Haste (id
-      2148, `AttributeAdjust` 250/150 dupe), all uncurated. Sweep the remaining 8 professions
-      leg-by-leg, same pattern as the Revenant sweep
-      (COMPLETED.md Sessions on Salvation/Invocation/Retribution/Corruption/Devastation/Renegade/
-      Vindicator/Conduit) — do one leg, then check in (see `pacing_large_sweeps` memory).
+      (`fact-numbers.ts`) for `Number`/`Percent`/`AttributeAdjust` facts — leg-granularity is one
+      whole profession, not one spec line (user's call 2026-08-20, given the scale: 8 professions ×
+      ~9 spec lines each).
+
+      **Guardian — done 2026-08-20** (1st leg). Scanned all 9 spec lines/108 traits for
+      Number/Percent/AttributeAdjust/Time labels (or Buff statuses) repeated within one trait's base
+      facts; wiki-verified each candidate's raw `{{trait fact}}` split before curating. Found and
+      fixed 2 real infra gaps along the way (not profession-specific, so they now apply everywhere):
+      `numericFactLines` never matched `Time`-typed facts against `NUMERIC_FACT_WVW_OVERRIDES` at all
+      (found via Righteous Instincts/Loremaster/Illuminating Inspiration's "Interval"/"Recharge Time
+      Reduced" dupes), and never fell back to `AttributeAdjust`'s `target` field when `text` was
+      absent (Firebrand's Imbued Haste, id 2148 — closes out this exact gap called out above).
+      23 traits curated total across `NUMERIC_FACT_WVW_OVERRIDES` (Guardian block, `fact-numbers.ts`)
+      + 1 in `wvw-fact-overrides.json` (Resolute Subconscious, id 625 — a genuinely-identical
+      duplicate needing dedup, not an actual pve/wvw value difference). 2 real gaps found and
+      deliberately left uncurated (documented in `fact-numbers.ts`'s own Guardian-leg comment, not
+      modeled wrong): Heavy Light's Stability grant (id 1963) splits 6s pve/3s wvw+pvp per the wiki,
+      but the live API only ever carries the pve value — same "wiki-documented value missing from
+      the API entirely" shape as Vindicator's Song of Arboreum Vigor loose end; Phoenix Protocol (id
+      2195) grants 2 independent Alacrity concepts ("on Trigger"/"on Activation") that ALSO swap to
+      Resolution entirely in WvW, a multi-concept-collision-plus-boon-swap shape `WvwFactOverride`
+      can't express (same as Darkrazor's Daring/Found Purpose's Entity slot).
+
+      Remaining 7 professions (Warrior, Engineer, Ranger, Thief, Elementalist, Mesmer, Necromancer)
+      still open — confirmed live instances not yet curated: Troubadour's Shredding (Mesmer, id 2343,
+      `Percent` 15/10 dupe), Life of the Party (Mesmer, id 2367, `Buff` Might/Quickness dupe). Do one
+      profession-leg, then check in (see `pacing_large_sweeps` memory).
 
 - [ ] **Corruption stat undercounts real "boon corrupt" sources.** `BOON_STRIP_CORRUPT_MATCHERS.Corrupt`
       only matches `Number`-type facts whose text matches `/boons? converted/i`. Confirmed via
