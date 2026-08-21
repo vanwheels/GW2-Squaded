@@ -509,19 +509,20 @@ button:hover {
  * the mosaic itself the card's visual anchor instead of a small decorative afterthought, without
  * reopening the already-rejected per-slot-icon/de-duplicated-row directions.
  *
- * `min-height` reserves room for 5 rows (5 * 11px dot + 4 * 5px row gap = 75px) regardless of a
- * given squad's actual party count (2026-08-20 follow-up) — without it, the "N parties"/"Updated…"
- * footer below the mosaic lands at a different height on every card depending on how many party
- * rows it has, so cards read as inconsistently laid out even though each one individually looks
- * fine. 5 is a "typical squad" budget, not `SquadCompEditorView`'s actual `MAX_PARTIES` cap (10) —
- * a squad with more than 5 parties simply grows past the reserved space rather than being clipped.
+ * Always exactly `MOSAIC_VISIBLE_PARTIES` (5) rows (`SquadsView.tsx`), not the squad's real party
+ * count (2026-08-20 follow-up, superseding an earlier `min-height`-only attempt) — a squad with
+ * fewer parties pads out with all-hollow-dot rows (same read as a real party with every slot
+ * unset), and one with more collapses its 5th row's overflow into a `.party-mosaic-overflow` "+N"
+ * badge rather than growing past 5 rows. This makes every card's height deterministic and content-
+ * independent, which also matters because `.record-list` is a CSS grid: an unbounded mosaic height
+ * would inflate every *other* card sharing its grid row too (grid items default to
+ * `align-items: stretch`), not just the outlier's own card.
  */
 .party-mosaic {
   display: flex;
   flex-direction: column;
   gap: 5px;
   margin: 2px 0;
-  min-height: 75px;
 }
 
 .party-mosaic-row {
@@ -547,6 +548,14 @@ button:hover {
 .party-mosaic-dot-empty {
   background: none;
   border: 1px solid var(--border);
+}
+
+/* "+N" badge on the 5th (last visible) mosaic row when a squad has more than
+   `MOSAIC_VISIBLE_PARTIES` parties — see `.party-mosaic`'s doc comment. */
+.party-mosaic-overflow {
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-left: 2px;
 }
 
 /* Replaces the normal muted relative-time line when a build's `updatedAtGw2Build` no longer

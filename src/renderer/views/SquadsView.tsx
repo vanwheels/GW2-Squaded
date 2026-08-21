@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import type { Build, PartySlots, SquadComp, SquadSlot } from '@shared/types'
+import type { Build, Party, PartySlots, SquadComp, SquadSlot } from '@shared/types'
 import { isLikelySquadCompSharePayload } from '@shared/share/validate'
 import { useSquadCompsStore, makeBlankSquadComp } from '@renderer/state/squad-comps-store'
 import { useBuildsStore } from '@renderer/state/builds-store'
@@ -18,6 +18,10 @@ function slotProfession(slot: SquadSlot, buildsById: Map<string, Build>): Build[
   if (slot.buildId) return buildsById.get(slot.buildId)?.profession ?? null
   return slot.ghostPick?.profession ?? null
 }
+
+/** Card mosaic always renders this many party rows, regardless of a given squad's actual party
+ *  count — see `.party-mosaic`'s doc comment in `global.css` for why. */
+const MOSAIC_VISIBLE_PARTIES = 5
 
 interface Props {
   /** Jumps to the Builds tab with a given build open for editing — see `BuildsSidebar`'s doc
@@ -175,22 +179,36 @@ export function SquadsView({ onEditBuild }: Props) {
                       <span className="record-open-text">
                         <strong>{squadComp.name}</strong>
                         <span className="party-mosaic">
-                          {squadComp.parties.map((party, partyIndex) => (
-                            <span className="party-mosaic-row" key={partyIndex}>
-                              <span className="party-mosaic-label">P{partyIndex + 1}</span>
-                              {party.slots.map((slot, slotIndex) => {
-                                const profession = slotProfession(slot, buildsById)
-                                const color = profession ? professionAccentColor(profession) : undefined
-                                return (
+                          {Array.from({ length: MOSAIC_VISIBLE_PARTIES }, (_, partyIndex) => {
+                            const party: Party | undefined = squadComp.parties[partyIndex]
+                            const isLastVisibleRow = partyIndex === MOSAIC_VISIBLE_PARTIES - 1
+                            const overflowCount = squadComp.parties.length - MOSAIC_VISIBLE_PARTIES
+                            return (
+                              <span className="party-mosaic-row" key={partyIndex}>
+                                <span className="party-mosaic-label">P{partyIndex + 1}</span>
+                                {Array.from({ length: 5 }, (_, slotIndex) => {
+                                  const slot = party?.slots[slotIndex]
+                                  const profession = slot ? slotProfession(slot, buildsById) : null
+                                  const color = profession ? professionAccentColor(profession) : undefined
+                                  return (
+                                    <span
+                                      key={slotIndex}
+                                      className={color ? 'party-mosaic-dot' : 'party-mosaic-dot party-mosaic-dot-empty'}
+                                      style={color ? { backgroundColor: color } : undefined}
+                                    />
+                                  )
+                                })}
+                                {isLastVisibleRow && overflowCount > 0 && (
                                   <span
-                                    key={slotIndex}
-                                    className={color ? 'party-mosaic-dot' : 'party-mosaic-dot party-mosaic-dot-empty'}
-                                    style={color ? { backgroundColor: color } : undefined}
-                                  />
-                                )
-                              })}
-                            </span>
-                          ))}
+                                    className="party-mosaic-overflow"
+                                    title={`${overflowCount} more part${overflowCount === 1 ? 'y' : 'ies'}`}
+                                  >
+                                    +{overflowCount}
+                                  </span>
+                                )}
+                              </span>
+                            )
+                          })}
                         </span>
                         <span className="muted">
                           {squadComp.parties.length} part{squadComp.parties.length === 1 ? 'y' : 'ies'}
