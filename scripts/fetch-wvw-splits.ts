@@ -1289,7 +1289,19 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // Resolution facts both showing the same duration (3, 3) — a genuinely-identical duplicate, not
     // a real pve/wvw split, same "value already matches, purpose is dedup" shape as Holo-Dancer
     // Decoy/Over Shield above. Without this entry `extractFromFacts` would show the row twice.
-    625: { Resolution: 3 }
+    625: { Resolution: 3 },
+
+    // Warrior — 2nd leg of the same main sweep (2026-08-20). Sundering Burst (1316, Arms Major 2,
+    // "critical hits apply vulnerability"): the wiki carries 2 concepts sharing this status (a plain
+    // application plus an `alt=Critical Vulnerability` one), each independently split pve(8)/wvw+pvp
+    // (6) — but the raw API carries 4 raw Vulnerability facts with IDENTICAL text/description/
+    // apply_count on all 4 (no discriminator between the 2 concepts at all), so a single override
+    // collapsing every one of them down to 6 is safe: both concepts share the exact same split, so
+    // there's no risk of silently dropping a genuinely different value the way Fox's Fury/Darkrazor's
+    // Daring's overrides would (see this file's own top comment on that hazard) — same "collapse
+    // is safe because every concept sharing the status also shares the value" shape as Resolute
+    // Subconscious just above.
+    1316: { Vulnerability: 6 }
   }
 }
 

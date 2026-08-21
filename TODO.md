@@ -144,8 +144,21 @@ a `target`-field fallback for `AttributeAdjust` facts with no `text` — see bel
       Resolution entirely in WvW, a multi-concept-collision-plus-boon-swap shape `WvwFactOverride`
       can't express (same as Darkrazor's Daring/Found Purpose's Entity slot).
 
-      Remaining 7 professions (Warrior, Engineer, Ranger, Thief, Elementalist, Mesmer, Necromancer)
-      still open — confirmed live instances not yet curated: Troubadour's Shredding (Mesmer, id 2343,
+      **Warrior — done 2026-08-20** (2nd leg). Same process, all 9 spec lines/111 traits scanned.
+      26 traits curated into `NUMERIC_FACT_WVW_OVERRIDES` (Warrior block, `fact-numbers.ts`) + 1 into
+      `wvw-fact-overrides.json` (Sundering Burst, id 1316 — 2 concepts sharing one Vulnerability
+      status but both sharing the identical split, safe to collapse). "Pure Strike" needed its wiki
+      title disambiguated to "Pure Strike (trait)" (the bare title is a same-named skill page). 2
+      genuinely-identical dupes found needing no override (already collapse via `numericFactLines`'s
+      own dedup): Stalwart Strength (1708) and Bloody Roar (1928), both a flat 10%/10% Damage
+      Increase with no wiki split at all. Peak Performance's (1444) "Peak Performance" effect Buff
+      carries an embedded pve-10%/wvw-7% sub-value via the wiki's `effect bonus number=` param that
+      neither this table nor `WvwFactOverride` can express (both only override a flat number/
+      duration) — left as a documented gap, not modeled wrong. End-to-end verified via a standalone
+      script against the real `numericFactLines` (Electron sandbox still blocks visual verification).
+
+      Remaining 6 professions (Engineer, Ranger, Thief, Elementalist, Mesmer, Necromancer) still
+      open — confirmed live instances not yet curated: Troubadour's Shredding (Mesmer, id 2343,
       `Percent` 15/10 dupe), Life of the Party (Mesmer, id 2367, `Buff` Might/Quickness dupe). Do one
       profession-leg, then check in (see `pacing_large_sweeps` memory).
 

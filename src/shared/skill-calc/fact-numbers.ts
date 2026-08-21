@@ -548,7 +548,156 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // skills when you equip a radiant weapon." Wiki: `{{skill fact|recharge time reduced|4|game
   // mode=pve}}` + `{{...|3|game mode=pvp}}` + `{{...|2|game mode=wvw}}` (`Time`-typed) — a genuine
   // 3-way split, all distinct.
-  2368: { 'Recharge Time Reduced': 2 }
+  2368: { 'Recharge Time Reduced': 2 },
+
+  // Warrior — 2nd leg of the "remaining 8 professions" main sweep (TODO.md, 2026-08-20). Same
+  // process as the Guardian leg above: scanned all 9 Warrior spec lines' base facts for a
+  // Number/Percent/AttributeAdjust/Time label repeated more than once, wiki-verified each split
+  // (`Pure Strike` disambiguates to "Pure Strike (trait)" on the wiki, a same-named skill page
+  // otherwise shadows it). Stalwart Strength (1708) and Bloody Roar (1928) each showed a "Damage
+  // Increase" Percent fact twice but both copies carry the identical 10% value (no wiki split at
+  // all) — already collapse for free via this function's own `seen` dedup, no entry needed, same
+  // shape as Guardian's Zealot's Aggression. Sundering Burst's Vulnerability dupe (1316, `Buff`-typed)
+  // belongs to `wvw-fact-overrides.json` instead — see that file's own Warrior-leg comment.
+
+  // Bloodlust (id 1337, Arms Grandmaster minor): "Chance to inflict bleeding on critical hits;
+  // bleeds you apply last longer." Wiki: `{{skill fact|duration increase|33%|game mode = pve}}` +
+  // `{{...|15%|game mode = pvp wvw}}` — pve 33, wvw+pvp 15.
+  1337: { 'Duration Increase': 15 },
+
+  // Deep Strikes (id 1343, Arms Minor 2): "Gain condition damage. Increased critical-hit chance
+  // while you have fury." Wiki: `{{skill fact|critical chance increase|5|game mode=pve}}` +
+  // `{{...|10|game mode=pvp wvw}}` — pve 5, wvw+pvp 10, the rare WvW-higher case.
+  1343: { 'Critical Chance Increase': 10 },
+
+  // Merciless Hammer (id 1367, Defense Major 2): "Increase damage while wielding a hammer." Wiki:
+  // `{{skill fact|Damage increase|25|game mode=pve}}` + `{{...|20|game mode=pvp wvw}}` — pve 25,
+  // wvw+pvp 20.
+  1367: { 'Damage Increase': 20 },
+
+  // Cull the Weak (id 1372, Defense Adept): "Deal increased damage to foes with health below the
+  // threshold." Wiki: `{{skill fact|damage increase|10|game mode = pve}}` + `{{...|7|game
+  // mode = pvp wvw}}` — pve 10, wvw+pvp 7.
+  1372: { 'Damage Increase': 7 },
+
+  // Stalwart Focus (id 1381, Discipline Adept): "Increase healing to others. Increase incoming
+  // healing." Wiki: `{{skill fact|Healing Increase|alt=Healing Increase to Others|15|game
+  // mode=pve}}` + `{{...|10|game mode=pvp wvw}}`, `{{skill fact|Healing Increase|alt=Incoming
+  // Healing Increase|10|game mode=pve}}` + `{{...|3|game mode=pvp wvw}}` — 2 independently-ambiguous
+  // labels on one trait, both pve-high/wvw-low.
+  1381: { 'Healing Increase to Others': 10, 'Incoming Healing Increase': 3 },
+
+  // Warrior's Sprint (id 1413, Discipline Adept): "Gain increased movement speed and immunity to
+  // cripple, chill, and immobilize while wielding a sword. Deal increased damage while under the
+  // effects of swiftness." Wiki: `{{skill fact|damage increase|10|game mode=pve}}` + `{{...|3|game
+  // mode=wvw pvp}}` — pve 10, wvw+pvp 3.
+  1413: { 'Damage Increase': 3 },
+
+  // Peak Performance (id 1444, Strength Adept): "Deal increased strike damage. Physical skills
+  // further increase all outgoing strike damage for a period of time." Wiki: `{{skill fact|damage
+  // increase|5|game mode= pve}}` + `{{...|3|game mode= wvw pvp}}` — pve 5, wvw+pvp 3. Its
+  // "Peak Performance" effect Buff (6s, unsplit duration in both modes) also carries an embedded
+  // pve-10%/wvw+pvp-7% bonus via the wiki's `effect bonus number=` param, not expressible through
+  // this table (or `WvwFactOverride`, duration-only) — same "can't express an embedded sub-value"
+  // shape as other effect-Buff facts, left undocumented-gap rather than modeled wrong.
+  1444: { 'Damage Increase': 3 },
+
+  // Leg Specialist (id 1469, Tactics Adept): "Immobilize foes when you disable them. Deal increased
+  // damage to disabled foes." Wiki: `{{skill fact|Damage Increase|5|game mode = pve}}` + `{{...|7|
+  // game mode = pvp wvw}}` — pve 5, wvw+pvp 7, the rare WvW-higher case.
+  1469: { 'Damage Increase': 7 },
+
+  // Vigorous Shouts (id 1470, Tactics Grandmaster): "Shouts heal nearby allies." Wiki: `{{skill
+  // fact|healing|1000|coefficient=1.2|game mode = pve}}` + `{{...|1000|coefficient=1.32|game
+  // mode = wvw}}` + `{{...|800|coefficient=0.9|game mode = pvp}}` — pve and wvw land on the exact
+  // same displayed number (1000) despite different coefficients, so this entry exists purely to
+  // drop the raw API's 3rd (pvp-only) `AttributeAdjust` fact (808, a small reference-build rounding
+  // gap off the wiki's 800, same shape as Writ of Persistence/Expanded Consciousness) — without it,
+  // 808 would show as a spurious 2nd "Healing" line alongside the correct 1,000 one.
+  1470: { Healing: 1000 },
+
+  // Roaring Reveille (id 1471, Tactics Adept minor): "Charge grants fury. Call of Valor grants
+  // resistance and boon duration." Wiki: `{{skill fact|attribute|Concentration|120|game mode =
+  // pve}}` + `{{...|60|game mode = pvp wvw}}` — pve 120, wvw+pvp 60. The raw API fact's own `target`
+  // is literally `"BoonDuration"` (not `"Concentration"`, unlike Guardian's Honorable Staff — the
+  // API uses different literal strings for the same Concentration-attribute concept depending on
+  // the trait), keyed here to match. Its Fury/Resistance `PrefixedBuff` facts carry no split.
+  1471: { BoonDuration: 60 },
+
+  // Warrior's Cunning (id 1486, Tactics Major 2): "Deal increased damage to foes above the health
+  // threshold. Deal increased damage to barrier." Wiki: `{{skill fact|damage increase|25|alt=Damage
+  // Increase vs. High Health|game mode = pve}}` + `{{...|7|game mode = wvw pvp}}`, `{{skill
+  // fact|damage increase|50|alt=Damage Increase vs. Barrier|game mode = pve}}` + `{{...|10|game
+  // mode = wvw pvp}}` — 2 independently-ambiguous labels, both pve-high/wvw-low.
+  1486: { 'Damage Increase vs. High Health': 7, 'Damage Increase vs. Barrier': 10 },
+
+  // Burst Mastery (id 1657, Discipline Grandmaster): "Increase damage of burst skills. Gain
+  // adrenaline reduction and swiftness on burst skill use." Wiki: `{{skill fact|Damage Increase|15|
+  // game mode=pve}}` + `{{...|7|game mode=wvw pvp}}` — pve 15, wvw+pvp 7.
+  1657: { 'Damage Increase': 7 },
+
+  // Martial Cadence (id 1667, Tactics Grandmaster): "Remove a condition and gain stability when you
+  // use a shout skill." Wiki: `{{skill fact|conditions removed|2|game mode=pve pvp}}` + `{{...|1|
+  // game mode=wvw}}` — pve+pvp 2, wvw 1. (Its separate Stability/Quickness `Buff` facts are the
+  // already-documented WvW boon-type-swap case in `fetch-wvw-splits.ts`'s own top comment — not a
+  // Number/Percent ambiguity, out of this table's scope.)
+  1667: { 'Conditions Removed': 1 },
+
+  // King of Fires (id 2038, Berserker Grandmaster): "Throw Bonfire, granting fire aura and
+  // increasing burning duration." Wiki: `{{skill fact|duration increase|33%|game mode = pve}}` +
+  // `{{...|10%|game mode = pvp wvw}}` — pve 33, wvw+pvp 10.
+  2038: { 'Duration Increase': 10 },
+
+  // Fatal Frenzy (id 2046, Berserker Minor 3): "Gain power. Gain increased condition damage while
+  // berserk." Wiki: `{{skill fact|attribute|Condition Damage|150|game mode=pve}}` + `{{...|300|
+  // game mode=wvw pvp}}` — pve 150, wvw+pvp 300, the rare WvW-higher case. No `text` field on this
+  // fact, keyed by `target` ("ConditionDamage") like Imbued Haste.
+  2046: { ConditionDamage: 300 },
+
+  // Smash Brawler (id 2049, Berserker Adept): "Increase burst skill duration and critical chance."
+  // Wiki: `{{skill fact|Duration Increase|2|game mode=pve}}` + `{{...|1|game mode=wvw pvp}}`
+  // (`Time`-typed), `{{skill fact|Critical Chance Increase|15|game mode = pve pvp}}` + `{{...|5|
+  // game mode = wvw}}` — 2 independently-ambiguous labels, both pve-high/wvw-low.
+  2049: { 'Duration Increase': 1, 'Critical Chance Increase': 5 },
+
+  // Sun and Moon Style (id 2095, Spellbreaker Major 2): "Convert a portion of outgoing strike damage
+  // to healing." Wiki: `{{skill fact|Damage to Healing|4%|game mode=pve}}` + `{{...|7%|game
+  // mode=wvw pvp}}` — pve 4, wvw+pvp 7, the rare WvW-higher case.
+  2095: { 'Damage to Healing': 7 },
+
+  // Pure Strike (id 2107, Spellbreaker Adept): "Deal increased critical-hit damage, doubled against
+  // boonless foes." The bare wiki title "Pure Strike" is a disambiguation page shadowing an
+  // unrelated skill — the trait's actual page is "Pure Strike (trait)". Wiki: `{{skill fact|critical
+  // damage increase|5|game mode = pve}}` + `{{...|7|game mode = wvw pvp}}`, `{{skill fact|critical
+  // damage increase|alt=Boonless Critical Damage Increase|10|game mode = pve}}` + `{{...|14|game
+  // mode = wvw pvp}}` — 2 independently-ambiguous labels, both wvw-higher.
+  2107: { 'Critical Damage Increase': 7, 'Boonless Critical Damage Increase': 14 },
+
+  // Resolute Counter (id 2168, Spellbreaker Grandmaster): "Remove conditions and heal when you
+  // interrupt a foe." Wiki: `{{skill fact|Healing|1620|coefficient=0.1|game mode=pve}}` + `{{...|
+  // 820|coefficient=0.1|game mode=pvp wvw}}` — pve 1620, wvw+pvp 820.
+  2168: { Healing: 820 },
+
+  // Unyielding Resolve (id 2340, Paragon Minor 3): "Reduce incoming strike damage while under the
+  // effects of a chant." Wiki: `{{skill fact|damage reduced|1.5|game mode = pve}}` + `{{...|1|game
+  // mode = wvw pvp}}` — pve 1.5, wvw+pvp 1.
+  2340: { 'Damage Reduced': 1 },
+
+  // Rally the Valiant (id 2373, Paragon Minor 1): "Gain motivation when you rally." Wiki: `{{skill
+  // fact|Motivation Stacks|4|game mode = pve}}` + `{{...|3|game mode = wvw pvp}}` — pve 4, wvw+pvp 3.
+  2373: { 'Motivation Stacks': 3 },
+
+  // Inspiring Implements (id 2418, Paragon Minor 2): "Gain concentration. Gain motivation when
+  // wielding a spear." Wiki: `{{skill fact|attribute|Concentration|180|game mode=pve}}` + `{{...|
+  // 60|game mode=pvp wvw}}`, `{{skill fact|Motivation Stacks|2|game mode=pve}}` + `{{...|1|game
+  // mode=wvw pvp}}` — 2 independently-ambiguous labels, both pve-high/wvw-low. Same `"BoonDuration"`
+  // target-keying note as Roaring Reveille above.
+  2418: { BoonDuration: 60, 'Motivation Stacks': 1 },
+
+  // Invigorating Tempo (id 2426, Paragon Major 2): "Heal allies based on motivation spent." Wiki:
+  // `{{skill fact|healing|alt=Healing per Motivation Spent|660|coefficient=0.1|game mode=pve}}` +
+  // `{{...|148|coefficient=0.05|game mode=wvw pvp}}` — pve 660, wvw+pvp 148.
+  2426: { 'Healing per Motivation Spent': 148 }
 }
 
 /**
