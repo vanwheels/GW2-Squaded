@@ -4615,6 +4615,23 @@ function bundleContributionsForBuild(
   return bundleSkillIdsForBuild(build, bundleCapableIds, skillsById, tomeChapters, build.environment)
 }
 
+/** Curated fallback for `TomeChapter`s whose wiki page carries no "allied targets" fact at all
+ *  (the `null`/"unknown" bucket `tomeChapterBoonSources`'s own comment describes) but are
+ *  confirmed party-wide(5) — self + 4 allies, this codebase's usual convention (e.g. line 933's
+ *  Battle Dance) — by other means. Keyed by `tomeSkillId` → `slotIndex`.
+ *  - 42259/3 (Tome of Courage, "Chapter 4: Stalwart Stand"): description reads "granting resistance
+ *    to your allies," the same "to your allies" wording this tome's own Chapter 1 ("Unflinching
+ *    Charge") and Epilogue ("Unbroken Lines") carry alongside their explicit "allied targets: 5"
+ *    fact — user-confirmed 2026-08-21 the pulse also affects the caster (self + 4 allies = 5), not
+ *    just the 4 allies the wiki's missing fact line would otherwise leave this at.
+ *  "Chapter 4: Shining River" (Tome of Resolve) is a same-shaped gap `tomeChapterBoonSources`'s
+ *  comment already flags but this table doesn't yet resolve — unconfirmed whether it also hits self,
+ *  left open rather than guessed.
+ */
+const TOME_CHAPTER_TARGET_COUNT_OVERRIDES: Record<number, Record<number, number>> = {
+  42259: { 3: 5 }
+}
+
 /** Boon/condition-shaped facts among a Tome chapter's wiki-sourced `RelicFactLine`s (e.g.
  *  "Burning"/"Might") — same extraction intent as `extractFromFacts`, but reading the wiki's
  *  `{label, values, params}` shape instead of the API's `Fact` shape, since these 15 chapter
@@ -4631,12 +4648,13 @@ export function tomeChapterBoonSources(chapter: TomeChapter, durationPercent: { 
   const out: BoonConditionSource[] = []
   // `targetCount`: the wiki's own "allied targets" fact line, present on 7 of the 15 chapters —
   // absent on the other 8, which is `null`/"unknown" rather than "self-only" for the same reason
-  // `BoonConditionSource.targetCount`'s doc comment gives for the API-sourced case (one of those 8,
-  // Firebrand's "Chapter 4: Shining River", is confirmed party-wide by its own description despite
-  // carrying no target-count fact at all).
+  // `BoonConditionSource.targetCount`'s doc comment gives for the API-sourced case, unless
+  // `TOME_CHAPTER_TARGET_COUNT_OVERRIDES` above has a curated value for this chapter.
   const alliedTargetsFact = chapter.facts.find((f) => f.label === 'allied targets')
   const parsedTargetCount = alliedTargetsFact ? Number(alliedTargetsFact.values[0]) : NaN
-  const targetCount = Number.isFinite(parsedTargetCount) ? parsedTargetCount : null
+  const targetCount = Number.isFinite(parsedTargetCount)
+    ? parsedTargetCount
+    : (TOME_CHAPTER_TARGET_COUNT_OVERRIDES[chapter.tomeSkillId]?.[chapter.slotIndex] ?? null)
   for (const fact of chapter.facts) {
     const status = fact.label.charAt(0).toUpperCase() + fact.label.slice(1)
     const isBoon = isBoonName(status)
