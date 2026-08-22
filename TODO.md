@@ -78,10 +78,172 @@ verification, not touched.
 limitation) — do that before extending either further.
 
 - [ ] Mesmer's Tale of the Second Scion (id 76695) also grants "Scion's Reprieve," a self-buff
-      (+15% WvW/PvP Heal Effectiveness) that nothing in the app accounts for — not a Healing fact
-      itself, it modifies *other* incoming/outgoing heals. App has no general outgoing/incoming
-      heal-modifier concept yet (distinct from the boon/condition uptime system); needs scoping, not
-      a one-off patch for this skill.
+      (+15% WvW/PvP Heal Effectiveness) that nothing in the app accounts for. Superseded by the
+      fuller "Outgoing/Incoming Healing Effectiveness %" scoping below (2026-08-21) — don't patch
+      this one skill in isolation, it's now part of that larger scoped item.
+
+## Healing/Damage effectiveness % + data-completeness audit (scoped 2026-08-21, not started)
+
+User-initiated research thread, not yet begun — explicitly paused before any curation/coding so the
+research itself could be as thorough as possible first. All 5 items below come out of that session.
+
+- [ ] **Outgoing Healing % / Incoming Healing %** — mirrors the existing `outgoingDamagePercent`
+      pattern (`derived-stats.ts`): a standalone `StatsPanel` row, NOT folded into per-skill
+      Healing-table numbers (same reasoning `outgoingDamagePercent` already established — it isn't
+      threaded through the Damage table either). Wiki-confirmed 2026-08-21 via the `Healing` wiki
+      page's own Notes section (raw wikitext, not paraphrased): "Outgoing healing modifiers stack
+      additively." Also found: Regeneration-specific modifiers (e.g. Relic of Dwayna) stack
+      additively among themselves, then MULTIPLY with general outgoing-healing modifiers — relevant
+      if a Regen-boosting source is ever curated.
+
+  Candidates found via a full multi-file scan (traits.json facts+traitedFacts+description text,
+  sigils.json/runes.json descriptions, relic-effects.json facts+nested `params.desc`/`alt`,
+  food.json/utility.json bonuses) — discovered, NOT yet individually wiki-verified:
+  - **Outgoing (to allies/others)**: Righteous Rebel (Renegade, 4%, via Kalla's Fervor); Invoking
+    Harmony (Salvation, 10/15/20% across 3 tiers — **missing its own Duration fact entirely**,
+    believed ~10s, needs a wiki check); Serene Rejuvenation (Salvation, 15/20%, labeled generically
+    "Effectiveness Increased" in its own fact — the word "healing" only appears in the trait's prose
+    description, not the fact); Absolute Resolve / Life from Death / Dance of Death (Necromancer,
+    25/10/100% — self-vs-others unconfirmed); Force of Will (Necromancer, scales per 100 Vitality);
+    Stalwart Focus (10/15%, also separately carries an Incoming-Healing fact on the same trait);
+    Relic of the Monk (1%/stack to max 10 = 10% — the real value is hidden inside a nested
+    `params.desc` string, not the top-level label, which just reads `"effect"`); Superior Sigil of
+    Transference (flat 10%); Superior Sigil of Benevolence (a *stacking* sigil, 0.5%/kill to max 25
+    stacks = 12.5%); ~25 WvW "Mint"-family food items sharing one flat 10% value (e.g. Bowl of Fruit
+    Salad with Mint Garnish); Bowl of Tapioca Pudding (10%) / Canned Rice Ball with "Lucky" Filling
+    (8%); Bountiful Maintenance Oil (Station) family (0.6%/100 Healing Power + 0.8%/100
+    Concentration — likely reuses the existing attribute-conversion resolver,
+    `applyConversions`/`activeConsumableConversions`, rather than needing new infra); Relic of
+    Castora (conditional on target health threshold); Relic of the Defender (5% flat + a murky
+    block-based min/max mechanic); Relic of Zakiros (7%, ambiguous label).
+  - **Incoming (to self)**: Health Insurance, Vital Persistence (2 tiers), Stalwart Focus.
+  - **Confirmed false positives, exclude**: every rune's flat "+X Healing" is the Healing Power
+    attribute, already modeled elsewhere, not an effectiveness modifier; most "Gain X equal to N% of
+    Healing Power" utility items convert INTO Healing Power/Concentration, unrelated mechanic;
+    several relics (Flock, Vampirism, Nayos, Karakosa, Sorrow, Biomancer, Nautical Beast) are
+    ordinary heal-on-proc coefficients, same shape as `CURATED_HEALING_COEFFICIENTS`, not
+    effectiveness modifiers; Relic of the Demon Queen's "Healing Reduction" is an enemy debuff, not
+    a self-modifier; Relic of Nourys converts damage into healing (a different mechanic); Bloodstone
+    Pot Pie is a joke-food *penalty* ("healing effectiveness is halved").
+
+- [ ] **Outgoing Damage % full pass** — larger scope than the healing side. Sigils currently
+      contribute ZERO damage-% anywhere in the app (no `CURATED_SIGIL_DAMAGE_BONUSES` table exists).
+      Found 2026-08-21:
+  - **Sigils**: Superior Sigil of Force (flat +5%, wiki-confirmed "Does not stack if used on both
+    main hand and off hand weapons," "Does not affect Condition Damage and Life stealing" — needs
+    its own non-doubling rule, distinct from the already-known active-weapon-set-only rule, see
+    `sigil_bonuses_active_weapon_set_only` memory) is the only WvW-relevant unconditional one; ~20
+    "Slaying" sigils are PvE-monster-type only (no such monsters exist in WvW); Superior Sigil of
+    the Night (3%/10% day-night conditional) needs a design decision on a combat-state toggle.
+  - **Relics**: only 1 of 15 "Damage Increase"-tagged relics is curated so far (Fireworks,
+    `CURATED_RELIC_DAMAGE_BONUSES`) — the other 14 all carry conditions (health thresholds, combo
+    procs, stack counts, class-specific) needing individual wiki verification.
+  - **Traits**: ~148 raw fact-label matches on flat-sounding text across all 9 professions, before
+    dedup across tiers/traited-variants and before excluding ones whose real condition hides in the
+    description rather than the fact text — comparable in size to the biggest coefficient sweeps
+    already completed (Healing/Damage).
+
+- [x] **Data-completeness audit script** — DONE 2026-08-22, see COMPLETED.md. Built
+      `scripts/audit-data-completeness.ts` (`npm run audit-data-completeness`), a local-only
+      (no wiki fetch) structural scan of skills.json/traits.json/relic-effects.json/
+      tome-chapters.json for the 3 gap-shapes described in the 2026-08-21 research session. Its
+      first run's output is the new backlog below — re-run after a future balance patch or
+      `fetch-game-data` refresh to regenerate it.
+
+## Data-completeness audit backlog (found 2026-08-22 via `npm run audit-data-completeness`, none verified/curated yet)
+
+Raw output of the script above, first run. Every hit below still needs an individual wiki-
+verification pass before anything gets wired into the app (same "curated exception list" model as
+the Healing/Damage coefficient tables) — this is a candidate list, not a fix list. A real chunk are
+expected to turn out to be legitimate non-gaps once looked at.
+
+**Shape 1 — opaque/generic fact labels on skills/traits (21 hits):** all but 1 are a `Percent` fact
+literally labeled "Effectiveness Increased" with no other field naming what it affects — the same
+shape Serene Rejuvenation (already scoped above) turned out to be. Skill: Stone Resonance (44926).
+Traits: Perfect Inscriptions (579), Banshee's Wail (799), Soul Comprehension (839), Gluttony (887),
+Aquamancer's Training (1676, 2 tiers), Serene Rejuvenation (1814, 4 entries — already scoped),
+Hardy Conduit (1948), Soothing Power (2028), Elemental Pursuit (2165), Amplified Siphoning (2288),
+Bolstered Bonds (2331), Double Helix (2334, 2 tiers), Bird of Prey (2363), Spirit's Strength (2421,
+2 tiers). Each needs its own prose-description read (same as Serene Rejuvenation's own trait
+`description` field) to find what the percent actually modifies before it can be curated anywhere.
+
+**Shape 1 — opaque/generic labels on relic/tome-chapter facts (42 hits):** overwhelmingly relic
+`"label": "effect"` facts (the wiki template's own generic first-parameter convention for relics —
+confirmed structurally universal, not a per-relic authoring gap) plus 2 `"Effectiveness Increased"`
+relics (100115, 102245) matching the skill/trait shape above. Full id list: relics 100031, 100063,
+100115 (x2), 100194, 100219, 100345, 100368, 100435, 100453, 100527, 100694, 100752, 100775, 100849,
+100916, 100924, 100947, 101191, 101943, 102245, 102595, 103424, 103574, 103872, 103984 (x2), 104424,
+104501, 104800 (x2), 104849, 104928, 106355, 106916, 107030, 107061, 109351, 109664; tome chapters
+"Epilogue: Eternal Oasis", "Epilogue: Unbroken Lines", "Epilogue: Ashes of the Just". Most of these
+already have their real content in `params.desc`/`values` (see Shape 2 below) — the generic label
+alone isn't itself the actionable signal here, just the marker that led to Shape 2's check.
+
+**Shape 2 — numeric content hidden in `params.desc`/`alt`, not surfaced anywhere in `label`/`values`
+(14 hits, all relic/tome-chapter):** concrete percent/flat values. **Correction after checking
+`relic-effects-format.ts`'s `formatFactLine`:** this is NOT a tooltip-display gap — a `label ===
+'effect'` fact already resolves to `params.desc` at display time (`const detail = fact.params.desc
+?? label`), so every relic/tome-chapter hit below already shows its real text in-app. The actual
+open gap is the one already scoped above ("Outgoing Damage % full pass" / "Outgoing Healing %"):
+none of these values are wired into any calculator (aggregate stats, damage %, healing %) — this
+list is just useful raw material for whoever curates those, not a newly-discovered display bug.
+Relic of the Monk (100031, "+1% Healing Increase to Others" — the original healing-effectiveness
+research seed);
+Relic of the Herald (100219, "25 Concentration"); Relic of the Scourge (100368, "+1½% Condition
+Duration"); **Relic of the Firebrand (100453, "+20% Boon Duration")**; Relic of the Aristocracy
+(100849, "+3% Condition Duration"); Nourys's Hunger (101191, a 6-stat combo line: "+15% Damage, +15%
+Condition Damage, -10% Incoming Damage, -10% Incoming Condition Damage, +10% Healing from Outgoing
+Boon and Condition Damage, +10% from Outgoing Attack Damage"); relic 103984 (2 lines: Frost Aura
+"-10% Incoming Damage", Light Aura "-10% Incoming Condition Damage"); Relic of Thorns (104424, "50
+Condition Damage"); Soul of the Titan (104928, "+15% All Stats"); relic 106355 ("+10% Critical
+Chance"); relic 107030 ("+100% Incoming Fumble Unrestricted Percent" — likely a parse artifact of
+the wiki's own text, needs a raw-wikitext look); **tome chapter "Epilogue: Eternal Oasis" ("+20%
+Heal Effectiveness")** — directly relevant to the Outgoing/Incoming Healing % item above; "Epilogue:
+Unbroken Lines" ("200 Toughness").
+
+**Shape 3 — Buff/PrefixedBuff fact with a named status but no duration anywhere in its own facts
+array (87 hits: 61 skills, 26 traits, after excluding non-player-equippable NPC/monster skill ids —
+see the script's own `professions.length > 0` filter):** dominated by one recognizable pattern — a
+condition (Immobile/Crippled/Chilled/Blinded/Burning/Bleeding/Poisoned/Torment/Confusion) applied via
+"Apply Buff/Condition" with genuinely no `duration` field in the raw API data at all (spot-checked
+live: Lightning Reflexes/12494's "Immobile" fact sits right next to a "Vigor" fact that DOES carry
+`duration: 10` — confirming this isn't a script bug, the API data itself omits it for that one fact).
+Full id/name list not reproduced here — regenerate via `npm run audit-data-completeness` (deterministic
+against the current data files, same list every run until the next `fetch-game-data`). Worth grouping
+by "which condition, which skill archetype" before wiki-verifying individually — several ids are
+already visibly the same root cause repeated: "Wings of Resolve" (4 ids — 30083/30225/30286/30783,
+all Guardian/Willbender Profession_2, same duplicate-copy shape the skill-picker duplicate-id audit
+already deals with elsewhere) and "A.E.D." (2 ids — 21659/30881, both Engineer Heal) each show their
+missing-duration Immobile/condition-cluster fact on every copy, so a wiki fix for the shared root
+skill likely resolves all copies at once rather than needing N independent lookups.
+
+- [ ] **Recharge/cooldown WvW-override sweep** — skill/trait recharge has ZERO WvW-override
+      handling anywhere in the app; `skill.recharge` is read straight from the API's
+      PvE-reference-build value and shown as-is (`fact-numbers.ts`'s `Recharge` case, every skill
+      tooltip). The wiki's skill infobox template has a `recharge wvw =` parameter, a completely
+      different shape than the `{{skill fact|...|game mode=...}}` template `fetch-wvw-splits.ts`
+      already parses (which explicitly discards non-`Buff` fact types anyway — see that file's own
+      `collectCandidates`). Confirmed live via `insource:"recharge_wvw"` wiki search: **649 pages**
+      carry this parameter. Concrete example: Warrior's Full Counter is `recharge = 8` (PvE) vs.
+      `recharge wvw = 12` — this app is very likely showing 8s for one of the most commonly-played
+      WvW Warrior skills, 50% off. This exact "prefer `recharge wvw=` over `recharge=`" logic
+      ALREADY EXISTS in the codebase, scoped to relics only (`RelicEffect.rechargeSeconds`, see
+      `game-data.ts` and `docs/game-data.md`) — a proven pattern that was just never generalized to
+      skills/traits. Unlike the 3 audit patterns above, this one is mechanical/scriptable (same
+      architecture as `fetch-wvw-splits.ts`, reading a different infobox field instead of a
+      skill-fact template) rather than hand-curation — higher-confidence, lower-effort than the
+      audit script above; a good candidate to build first once this thread resumes.
+
+- [ ] **Resource-cost modeling (energy/initiative/upkeep/health-cost) — down the road, deliberately
+      not scoped yet.** The app doesn't track Revenant energy cost, Thief initiative cost,
+      Revenant upkeep-skill drain, or health-cost skills anywhere today, so none of these are wrong
+      per se — they're just entirely absent. User wants these modeled eventually. If/when that
+      work starts, remember the wiki infobox template also carries PvE/PvP/WvW-specific variants for
+      all 4 (same shape as `recharge wvw=` above) — confirmed real usage via wiki `insource:` search
+      2026-08-21: `energy_wvw` (37 hits, Revenant), `upkeep_wvw` (7, Revenant), `initiative_wvw` (7,
+      Thief), `health_cost_wvw` (6). (`activation_wvw`/cast-time has zero real wiki usage — confirmed
+      not a real category, no need to check it again.) Build the WvW-override read at the same time
+      as the base cost modeling, not bolted on after, so this doesn't become a 6th "solved for one
+      data source, never generalized" gap.
 
 ## Nice-to-haves
 

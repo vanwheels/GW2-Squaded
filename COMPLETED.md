@@ -2,6 +2,34 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 274 — Data-completeness audit script, first run
+
+Built `scripts/audit-data-completeness.ts` (`npm run audit-data-completeness`), the standing
+proactive-gap-finding tool scoped 2026-08-21 (see TODO.md's "Healing/Damage effectiveness %" section
+and the `healing_damage_effectiveness_audit_scoped_2026-08-21` memory). Every existing pipeline
+script wires in a gap a human already found by hand; this one scans the local data files themselves
+(no wiki fetch) for 3 structural gap-shapes that research session identified: opaque/generic fact
+labels (`Fact.text`/`RelicFactLine.label` reading e.g. "Effectiveness Increased" or "effect" with no
+attribute/mechanic named), numeric content buried in `RelicFactLine.params.desc`/`alt` instead of the
+fact's own label/values, and a Buff/PrefixedBuff fact granting a named status with no `duration` field
+and no sibling `Duration`/`Time` fact anywhere in the same array. Covers skills.json/traits.json
+(`Fact`) and relic-effects.json/tome-chapters.json (`RelicFactLine`) — sigils/runes/food/utility use
+the unrelated `AttributeBonusText` shape, out of scope for these 3 patterns.
+
+First run found 21 skill/trait hits, 42 relic/tome-chapter opaque-label hits, 14 relic/tome-chapter
+hidden-params hits, and 87 (after excluding non-player-equippable NPC skill ids, added mid-build —
+the initial unfiltered run wrongly included ~2200 monster-only skills, same exclusion
+`scan-empty-effect-facts.ts` already established) Buff-fact-missing-duration hits. Checking a sample
+against live code corrected one working assumption while writing the backlog: the relic/tome-chapter
+"hidden in `params.desc`" hits are NOT a tooltip-display bug — `relic-effects-format.ts`'s
+`formatFactLine` already resolves a `label === 'effect'` fact to its `params.desc` text at display
+time, so those values are already shown to the user; the real remaining gap is that none of them are
+wired into any calculator, the same already-scoped "Outgoing Damage %"/"Outgoing Healing %" work.
+Full backlog with ids/names written into TODO.md's new "Data-completeness audit backlog" section —
+none of it individually wiki-verified or curated yet, this session was tool-building + first-run
+triage only. `npm run typecheck` clean; script itself makes no data-file writes (console-report only,
+same convention as `scan-empty-effect-facts.ts`).
+
 ## Session 273 — Mesmer Shatter 4 stun-break fix, closes the trait/skill data-correctness pass
 
 **Distortion (Shatter 4) never showed "Breaks Stun," gated or not (2026-08-21).** The 2026-08-20
