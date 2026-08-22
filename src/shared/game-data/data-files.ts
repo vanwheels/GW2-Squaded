@@ -19,6 +19,7 @@ export const GAME_DATA_FILE_NAMES = [
   'glyph-form-variants.json',
   'skill-variant-exclusions.json',
   'wvw-fact-overrides.json',
+  'recharge-wvw-overrides.json',
   'legends.json',
   'pets.json',
   'familiars.json',

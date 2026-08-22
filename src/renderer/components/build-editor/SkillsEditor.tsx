@@ -1,5 +1,15 @@
 import { useMemo, useRef, useState } from 'react'
-import type { Build, Legend, RevenantSkillSelection, Skill, SkillSelection, StandardSkillSelection, WvwFactOverride, WvwFactOverrides } from '@shared/types'
+import type {
+  Build,
+  Legend,
+  RechargeWvwOverrides,
+  RevenantSkillSelection,
+  Skill,
+  SkillSelection,
+  StandardSkillSelection,
+  WvwFactOverride,
+  WvwFactOverrides
+} from '@shared/types'
 import {
   activeTraitIds,
   auraFactsForSkill,
@@ -347,6 +357,9 @@ export interface SkillVariantContext {
   skills: Skill[]
   skillsById: Map<number, Skill>
   wvwFactOverrides: WvwFactOverrides
+  /** WvW-correct `Recharge`-fact override map — see `recharge-override.ts`'s `withRechargeOverride`
+   *  and `skillFactLines`'s own `rechargeWvwOverrides` param. */
+  rechargeWvwOverrides: RechargeWvwOverrides
   /** The build's equipped Revenant legends (`equippedLegendIds`) — see `LegendConditionalTargetCountOverride`. */
   legendIds: Set<string>
   /** The full legend list (`gameData.legends`) — see `boonConditionFactsForSkill`'s `legends` param /
@@ -394,7 +407,7 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
   const familiarFactSkill = evokerFamiliarFactSourceSkill(skill, variantContext.skillsById)
   const swappedFactSkill = glyphFormSkill ?? attunementVariantSkill ?? familiarFactSkill
   const factSourceSkill = swappedFactSkill ?? skill
-  const numericLines = skillFactLines(factSourceSkill, activeIds, power, healingPower, variantContext.targetArmor)
+  const numericLines = skillFactLines(factSourceSkill, activeIds, power, healingPower, variantContext.targetArmor, variantContext.rechargeWvwOverrides)
   const effectiveFacts = swappedFactSkill
     ? boonConditionFactsForSkill(
         swappedFactSkill,
@@ -482,7 +495,7 @@ function additiveEnhancementFacts(
   if (!targetSkill) return null
 
   const { power, healingPower } = variantContext.characterAttributes
-  const targetNumericLines = skillFactLines(targetSkill, activeIds, power, healingPower, variantContext.targetArmor)
+  const targetNumericLines = skillFactLines(targetSkill, activeIds, power, healingPower, variantContext.targetArmor, variantContext.rechargeWvwOverrides)
   const targetFacts = boonConditionFactsForSkill(
     targetSkill,
     activeIds,
@@ -660,6 +673,7 @@ function StandardSkillsEditor({ build, value, onChange, equippedSpecializationId
     skills: gameData.skills,
     skillsById,
     wvwFactOverrides: gameData.wvwFactOverrides,
+    rechargeWvwOverrides: gameData.rechargeWvwOverrides,
     legendIds,
     legends: gameData.legends,
     durationPercent,
@@ -823,6 +837,7 @@ function RevenantSkillsEditor({ build, value, onChange, equippedSpecializationId
     skills: gameData.skills,
     skillsById,
     wvwFactOverrides: gameData.wvwFactOverrides,
+    rechargeWvwOverrides: gameData.rechargeWvwOverrides,
     legendIds,
     legends: gameData.legends,
     durationPercent,

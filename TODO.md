@@ -216,22 +216,14 @@ already deals with elsewhere) and "A.E.D." (2 ids — 21659/30881, both Engineer
 missing-duration Immobile/condition-cluster fact on every copy, so a wiki fix for the shared root
 skill likely resolves all copies at once rather than needing N independent lookups.
 
-- [ ] **Recharge/cooldown WvW-override sweep** — skill/trait recharge has ZERO WvW-override
-      handling anywhere in the app; `skill.recharge` is read straight from the API's
-      PvE-reference-build value and shown as-is (`fact-numbers.ts`'s `Recharge` case, every skill
-      tooltip). The wiki's skill infobox template has a `recharge wvw =` parameter, a completely
-      different shape than the `{{skill fact|...|game mode=...}}` template `fetch-wvw-splits.ts`
-      already parses (which explicitly discards non-`Buff` fact types anyway — see that file's own
-      `collectCandidates`). Confirmed live via `insource:"recharge_wvw"` wiki search: **649 pages**
-      carry this parameter. Concrete example: Warrior's Full Counter is `recharge = 8` (PvE) vs.
-      `recharge wvw = 12` — this app is very likely showing 8s for one of the most commonly-played
-      WvW Warrior skills, 50% off. This exact "prefer `recharge wvw=` over `recharge=`" logic
-      ALREADY EXISTS in the codebase, scoped to relics only (`RelicEffect.rechargeSeconds`, see
-      `game-data.ts` and `docs/game-data.md`) — a proven pattern that was just never generalized to
-      skills/traits. Unlike the 3 audit patterns above, this one is mechanical/scriptable (same
-      architecture as `fetch-wvw-splits.ts`, reading a different infobox field instead of a
-      skill-fact template) rather than hand-curation — higher-confidence, lower-effort than the
-      audit script above; a good candidate to build first once this thread resumes.
+- [x] **Recharge/cooldown WvW-override sweep** — DONE 2026-08-22, see COMPLETED.md. Built
+      `scripts/fetch-recharge-wvw-overrides.ts` (`npm run fetch-recharge-wvw-overrides`),
+      generalizing `RelicEffect.rechargeSeconds`'s "prefer `recharge wvw=`" rule to skills/traits;
+      wired into both display (skill/trait tooltips) and calculation (Relic of the
+      Zephyrite/Citadel's elite-skill-recharge-derived durations). 149 skills + 4 traits curated;
+      211 ambiguous skill names and 86 validation-mismatch/missing-page names left uncurated (see
+      `docs/game-data.md`'s new section for the full breakdown) — re-run after a future balance
+      patch, same as `fetch-wvw-splits`.
 
 - [ ] **Resource-cost modeling (energy/initiative/upkeep/health-cost) — down the road, deliberately
       not scoped yet.** The app doesn't track Revenant energy cost, Thief initiative cost,

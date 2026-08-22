@@ -10,6 +10,7 @@ import type {
   Party,
   Pet,
   Profession,
+  RechargeWvwOverrides,
   Relic,
   RelicEffectsById,
   Rune,
@@ -124,6 +125,7 @@ export function computePartyBoonConditionSummary(
     food: Consumable[]
     utility: Consumable[]
     wvwFactOverrides: WvwFactOverrides
+    rechargeWvwOverrides: RechargeWvwOverrides
     legends: Legend[]
     pets: Pet[]
     professions: Profession[]
@@ -171,6 +173,7 @@ export function computePartyAuraSummary(
     skills: Skill[]
     traits: Trait[]
     wvwFactOverrides: WvwFactOverrides
+    rechargeWvwOverrides: RechargeWvwOverrides
     legends: Legend[]
     pets: Pet[]
     professions: Profession[]
@@ -223,6 +226,7 @@ export function computePartyNamedFactSummary(
     traits: Trait[]
     sigils: Sigil[]
     wvwFactOverrides: WvwFactOverrides
+    rechargeWvwOverrides: RechargeWvwOverrides
     legends: Legend[]
     pets: Pet[]
     professions: Profession[]

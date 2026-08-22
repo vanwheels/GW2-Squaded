@@ -392,9 +392,10 @@ async function main(): Promise<void> {
   const familiars = buildFamiliars(skillsById)
 
   // eliteSpecSkills / glyphFormVariants / skillVariantExclusions / wvwFactOverrides /
-  // relicEffects / tomeChapters / soulbeastBeastmode aren't produced here — they're sourced from
-  // the wiki by the separate scripts/fetch-elite-spec-skills.ts, scripts/fetch-glyph-forms.ts,
-  // scripts/fetch-skill-duplicate-resolutions.ts, scripts/fetch-wvw-splits.ts,
+  // rechargeWvwOverrides / relicEffects / tomeChapters / soulbeastBeastmode aren't produced here —
+  // they're sourced from the wiki by the separate scripts/fetch-elite-spec-skills.ts,
+  // scripts/fetch-glyph-forms.ts, scripts/fetch-skill-duplicate-resolutions.ts,
+  // scripts/fetch-wvw-splits.ts, scripts/fetch-recharge-wvw-overrides.ts,
   // scripts/fetch-relic-effects.ts, scripts/fetch-tome-chapters.ts, and
   // scripts/fetch-soulbeast-beastmode.ts, not the official GW2 API.
   // runes/sigils/infusions/relics/food/utility/itemStatIcons are sourced
@@ -406,6 +407,7 @@ async function main(): Promise<void> {
     | 'glyphFormVariants'
     | 'skillVariantExclusions'
     | 'wvwFactOverrides'
+    | 'rechargeWvwOverrides'
     | 'relicEffects'
     | 'runes'
     | 'sigils'

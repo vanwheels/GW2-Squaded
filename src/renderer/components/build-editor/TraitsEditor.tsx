@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import type { Build, Legend, ProfessionId, Specialization, Trait, TraitLineSelection, TraitLineSlots, WvwFactOverride } from '@shared/types'
 import { numericFactLines, NUMERIC_FACT_WVW_OVERRIDES } from '@shared/skill-calc/fact-numbers'
+import { withRechargeOverride } from '@shared/skill-calc/recharge-override'
 import { branchConditionalTraitFacts } from '@shared/skill-calc/branch-conditional-facts'
 import { boonConditionFactsForTrait, equippedLegendIds } from '@shared/boon-calc/sources'
 import { legendAttributeDetailFacts } from '@shared/skill-calc/legend-attribute-details'
@@ -132,6 +133,9 @@ interface TraitLineRowProps {
    *  shape this mirrors (computed once per render in the parent, reused across every trait shown). */
   durationPercent: { boon: number; condition: number }
   wvwFactOverridesByTraitId: Record<number, Record<string, WvwFactOverride>>
+  /** WvW-correct `Recharge`-fact override map, keyed by trait id — see `recharge-override.ts`'s
+   *  `withRechargeOverride`. */
+  rechargeWvwOverridesByTraitId: Record<number, number>
 }
 
 function TraitLineRow({
@@ -146,7 +150,8 @@ function TraitLineRow({
   legendIds,
   legends,
   durationPercent,
-  wvwFactOverridesByTraitId
+  wvwFactOverridesByTraitId,
+  rechargeWvwOverridesByTraitId
 }: TraitLineRowProps) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const minorRefs = useRef<(HTMLDivElement | null)[]>([null, null, null])
@@ -210,7 +215,12 @@ function TraitLineRow({
                     <>
                       <TooltipBody title={minor.name} description={minor.description} icon={minor.icon} />
                       {factsBlock(
-                        numericFactLines(minor.facts, minor.traitedFacts, activeIds, NUMERIC_FACT_WVW_OVERRIDES[minor.id]),
+                        numericFactLines(
+                          withRechargeOverride(minor.facts, minor.id, rechargeWvwOverridesByTraitId),
+                          minor.traitedFacts,
+                          activeIds,
+                          NUMERIC_FACT_WVW_OVERRIDES[minor.id]
+                        ),
                         boonConditionFactsForTrait(minor, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[minor.id], legends),
                         { legendAttributeFacts: legendAttributeDetailFacts(minor, legends) }
                       )}
@@ -239,7 +249,12 @@ function TraitLineRow({
                           <>
                             <TooltipBody title={t.name} description={t.description} icon={t.icon} />
                             {factsBlock(
-                              numericFactLines(t.facts, t.traitedFacts, activeIds, NUMERIC_FACT_WVW_OVERRIDES[t.id]),
+                              numericFactLines(
+                                withRechargeOverride(t.facts, t.id, rechargeWvwOverridesByTraitId),
+                                t.traitedFacts,
+                                activeIds,
+                                NUMERIC_FACT_WVW_OVERRIDES[t.id]
+                              ),
                               boonConditionFactsForTrait(t, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[t.id], legends),
                               { legendAttributeFacts: legendAttributeDetailFacts(t, legends) }
                             )}
@@ -365,6 +380,7 @@ export function TraitsEditor({ profession, build, value, onChange }: Props) {
             legends={gameData.legends}
             durationPercent={durationPercent}
             wvwFactOverridesByTraitId={gameData.wvwFactOverrides.trait}
+            rechargeWvwOverridesByTraitId={gameData.rechargeWvwOverrides.trait}
           />
         )
       })}

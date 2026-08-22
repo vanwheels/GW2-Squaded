@@ -351,6 +351,22 @@ export interface WvwFactOverrides {
 }
 
 /**
+ * A skill/trait's `Recharge`-type `Fact.value` (its cooldown in seconds), overridden with the
+ * wiki's `recharge wvw=` infobox field when it differs from the API's PvE-reference-build
+ * `recharge=` value — the exact same "prefer a WvW-tagged field over the base one" rule
+ * `RelicEffect.rechargeSeconds` already applies to relics, generalized to skills/traits (TODO.md's
+ * "Recharge/cooldown WvW-override sweep"). An id absent from its map is either genuinely unsplit
+ * (same cooldown in every mode, the common case) or a page the fetch script couldn't confidently
+ * resolve (an ambiguous name shared by 2+ ids, a validation mismatch, ...) — both fall back to the
+ * API's PvE value as-is, same fail-safe convention as `WvwFactOverrides`. See
+ * scripts/fetch-recharge-wvw-overrides.ts and docs/game-data.md.
+ */
+export interface RechargeWvwOverrides {
+  skill: Record<number, number>
+  trait: Record<number, number>
+}
+
+/**
  * One line of flat attribute-bonus text, parsed from the API's raw bonus/description text (e.g.
  * "+25 Power", "+5% Boon Duration"). Shared by rune per-stage bonuses and food/utility
  * consumable effect text — both are API-provided as freeform lines, not a structured fact list
@@ -583,6 +599,7 @@ export interface GameData {
   glyphFormVariants: GlyphFormVariantMap
   skillVariantExclusions: SkillVariantExclusions
   wvwFactOverrides: WvwFactOverrides
+  rechargeWvwOverrides: RechargeWvwOverrides
   legends: Legend[]
   pets: Pet[]
   familiars: Familiar[]

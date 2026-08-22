@@ -108,6 +108,7 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
     skills: gameData.skills,
     skillsById,
     wvwFactOverrides: gameData.wvwFactOverrides,
+    rechargeWvwOverrides: gameData.rechargeWvwOverrides,
     legendIds,
     legends: gameData.legends,
     durationPercent,

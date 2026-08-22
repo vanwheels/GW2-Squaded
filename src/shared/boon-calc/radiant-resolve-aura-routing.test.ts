@@ -32,6 +32,7 @@ const gameData = {
   food: loadGameData('food.json'),
   utility: loadGameData('utility.json'),
   wvwFactOverrides: loadGameData('wvw-fact-overrides.json'),
+  rechargeWvwOverrides: loadGameData('recharge-wvw-overrides.json'),
   legends: loadGameData('legends.json'),
   pets: loadGameData('pets.json'),
   professions: loadGameData('professions.json'),

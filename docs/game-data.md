@@ -1062,6 +1062,59 @@ of the 112 relics was bucketed. TODO.md tracks the still-deferred candidates.
 change/add a relic (after re-running `fetch-gear-upgrades --refresh` first, since this script reads
 `relics.json`).
 
+## Skill/trait Recharge WvW overrides (`recharge-wvw-overrides.json`)
+
+`/v2/skills` and `/v2/traits` each expose exactly one `Recharge`-type `Fact` per id (confirmed live
+2026-08-22: never more than one, never split into a duplicate pve/wvw pair the way `Buff` facts
+sometimes are), and its `value` is always the PvE-reference-build cooldown, un-adjusted for WvW.
+This is the exact same gap `RelicEffect.rechargeSeconds` (above) already solves for relics — the
+wiki's `{{Skill infobox}}`/`{{Trait infobox}}` templates carry a `recharge wvw=` field distinct from
+the base `recharge=` field for any skill/trait whose cooldown genuinely differs in WvW (confirmed
+live via `insource:"recharge_wvw"`: 649 pages) — just never generalized to skills/traits until this
+script. Concrete motivating example: Warrior's Full Counter is `recharge = 8` (PvE) vs. `recharge
+wvw = 12`, a 50% difference this app was silently showing wrong for one of the most commonly-played
+WvW Warrior skills before this existed.
+
+`scripts/fetch-recharge-wvw-overrides.ts` (run via `npm run fetch-recharge-wvw-overrides`, after
+`fetch-game-data`) collects every player-equippable skill (`professions.length > 0`) and every
+trait carrying a `Recharge` fact, groups by name, and — same fail-safe discipline as
+`fetch-wvw-splits.ts` — **skips any name shared by 2+ ids outright** (211 skill names on the
+2026-08-22 run, e.g. elite-spec reworks and flip-skill/underwater duplicates sharing a display
+name) rather than guessing which infobox belongs to which id. For the remaining unambiguous names,
+it fetches the wiki page, extracts the `{{Skill infobox}}`/`{{Trait infobox}}` block, and parses
+`recharge=`/`recharge wvw=` off it (same anchored-line regex `fetch-relic-effects.ts`'s
+`parseRechargeSeconds` already uses — `recharge\s*=` naturally skips past a `recharge wvw =` line
+since "wvw" sits between "recharge" and "=" there, not whitespace). The parsed base value is
+cross-validated against the already-fetched API's own `Recharge` fact before anything is trusted
+(same "never trust a wiki parse the API doesn't independently confirm" rule `fetch-wvw-splits.ts`
+uses) — a mismatch is logged and skipped rather than risked, which conservatively also drops known
+API-vs-wiki rounding-quirk cases (e.g. a wiki `0.75s` the API rounds to `1`) rather than trying to
+special-case every one up front.
+
+**Output shape**: `{ skill: Record<id, number>, trait: Record<id, number> }` — a bare WvW-tagged
+recharge in seconds, no `'omit'` case (unlike `WvwFactOverride`): every skill/trait already has a
+real base recharge to fall back to, there's no "doesn't apply in WvW" concept for a cooldown the
+way there is for a boon/condition grant. An id absent from its map is either genuinely unsplit
+(the common case) or one of the skipped/unresolved cases above — both fall back to the API's raw
+PvE value as-is, same convention `WvwFactOverrides` uses. 2026-08-22's first run: 149 skills + 4
+traits got a real override out of 1408 + 167 candidate names (211 skill names excluded as
+ambiguous, 86 other names skipped/logged — validation mismatches, missing infobox, page not
+found).
+
+**Consumed by** `src/shared/skill-calc/recharge-override.ts`'s `withRechargeOverride(facts, id,
+overridesById)` — substitutes the override into a fact list's own `Recharge` fact ahead of both
+display and calculation, called from: `skill-fact-lines.ts`'s `skillFactLines` (skill tooltips,
+optional param, back-compat no-op when omitted) and `TraitsEditor.tsx` (trait tooltips, wrapped
+around `numericFactLines`' input) for display; and `boon-calc/sources.ts`'s
+`zephyriteBuildCrystalDurationSeconds`/`citadelBuildStunDurationSeconds` for calculation — Relic of
+the Zephyrite's crystal duration and Relic of the Citadel's Stun duration are both derived from the
+equipped Elite skill's own recharge, so an un-adjusted PvE value there would silently misreport
+those two relics' real WvW proc duration, not just a tooltip number.
+
+**Note:** this file's data is NOT re-derivable from `fetch-game-data.ts` — re-run
+`fetch-recharge-wvw-overrides` too whenever a balance patch might change a skill/trait's WvW
+recharge, or add a new one.
+
 ## Profession-mechanic ("F-skill") data
 
 `Profession.professionSkills` (`{id, slot}[]`) is sourced from `/v2/professions`' own `skills`

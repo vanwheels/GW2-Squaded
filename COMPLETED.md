@@ -2,6 +2,53 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 275 — Recharge/cooldown WvW-override sweep
+
+Generalized `RelicEffect.rechargeSeconds`'s "prefer the wiki's `recharge wvw=` field over the base
+`recharge=` field" rule (already-shipped, relics-only) to skills/traits — the gap TODO.md flagged as
+"already solved for relics, never generalized" and recommended building first. Every skill/trait's
+`Recharge`-type `Fact.value` is the API's PvE-reference-build cooldown with no WvW-side counterpart
+anywhere in the API data itself (confirmed: always exactly one `Recharge` fact per id, never a
+duplicate pve/wvw pair the way `Buff` facts sometimes are), so this was a real, silent display bug —
+concretely, Warrior's Full Counter showed "Recharge: 8s" for every build when the wiki (and now this
+app) say 12s in WvW.
+
+Built `scripts/fetch-recharge-wvw-overrides.ts` (`npm run fetch-recharge-wvw-overrides`), mirroring
+`fetch-relic-effects.ts`'s parse and `fetch-wvw-splits.ts`'s validation/ambiguous-name-skip
+discipline: collects every player-equippable skill/trait with a `Recharge` fact, groups by name,
+skips any name shared by 2+ ids outright (211 skill names, logged not guessed), and for the rest
+fetches the wiki page, parses `recharge=`/`recharge wvw=` off the `{{Skill infobox}}`/`{{Trait
+infobox}}` block, cross-validates the parsed base value against the already-fetched API value, and
+only records an override when the WvW value genuinely differs. First run: 149 skills + 4 traits
+curated (out of 1408 + 167 candidate names), 86 other names skipped/logged (validation mismatches —
+several matching the known API-rounds-a-half-second quirk — missing infobox, page not found).
+Output: `data/game-data/recharge-wvw-overrides.json`, `{ skill: Record<id, number>, trait:
+Record<id, number> }`, wired into `GameData`/`buildGameData`/`GAME_DATA_FILE_NAMES`.
+
+Consumption via a new `src/shared/skill-calc/recharge-override.ts` (`withRechargeOverride`),
+threaded into both display and calculation — not just the tooltip, since 2 relic-proc calculations
+(`zephyriteBuildCrystalDurationSeconds`/`citadelBuildStunDurationSeconds` in `boon-calc/sources.ts`)
+derive a computed duration straight from an equipped Elite skill's own recharge, and would have kept
+silently using the wrong PvE number otherwise:
+- `skill-fact-lines.ts`'s `skillFactLines` gained an optional `rechargeWvwOverrides` param
+  (back-compat no-op when omitted); its 3 renderer call sites (`SkillsEditor.tsx` x2,
+  `ProfessionMechanicBar.tsx`) now pass it through `SkillVariantContext`/`gameData` respectively.
+- `TraitsEditor.tsx` wraps `minor.facts`/`t.facts` in `withRechargeOverride` before
+  `numericFactLines`, threaded via a new `rechargeWvwOverridesByTraitId` prop on `TraitLineRow`.
+- `computeBoonConditionSources`/`computeAuraSources`/`computeNamedFactSources` (and their internal
+  `relicSources`/`computeRelicNamedFactSources` helpers) all gained `rechargeWvwOverrides` on their
+  `gameData` param type — real callers already pass a full `GameData` object so this was mostly
+  free; only the hand-rolled test fixtures (5 files) needed an explicit `loadGameData(...)` line.
+
+Found one real test-fixture staleness while wiring this in: `relic-sources.test.ts`'s Zephyrite
+"drops to a shorter tier" case used Mesmer's Mass Invisibility (35s PvE) expecting the 6s tier —
+Mass Invisibility's real WvW recharge is 60s (wiki-confirmed), which correctly bumps the crystal
+duration to the 7s tier now that this feature exists; updated the test's expectation and comment
+rather than treating it as a regression. New dedicated regression test
+`src/shared/skill-calc/recharge-override.test.ts` (6 cases: `withRechargeOverride` unit behavior,
+`skillFactLines` showing 12s not 8s for Full Counter with/without the override map, a curated trait
+example via `numericFactLines`). `npm run typecheck`/`npm run lint`/`npm test` all clean (297/297).
+
 ## Session 274 — Data-completeness audit script, first run
 
 Built `scripts/audit-data-completeness.ts` (`npm run audit-data-completeness`), the standing

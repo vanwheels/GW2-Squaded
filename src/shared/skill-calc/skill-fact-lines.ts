@@ -1,9 +1,10 @@
-import type { Fact, Skill } from '../types'
+import type { Fact, RechargeWvwOverrides, Skill } from '../types'
 import { factLine, type FactLine } from './fact-numbers'
 import { healingLinesForSkill } from './healing-calc'
 import { barrierLinesForSkill } from './barrier-calc'
 import { damageLinesForSkill } from './damage-calc'
 import { siphonDamageLinesForSkill } from './siphon-damage-calc'
+import { withRechargeOverride } from './recharge-override'
 
 /**
  * Curated per-skill overrides for `Percent`-type facts the GW2 API duplicates once per game mode
@@ -100,23 +101,30 @@ function realValueLine(
  * the ordinary weapon-Damage one — a genuinely different fact TYPE (`AttributeAdjust`, not `Damage`),
  * see `siphon-damage-calc.ts`'s own top comment. Only used for skills, not traits (`TraitsEditor.tsx`
  * keeps using `numericFactLines` directly) — all 4 curated tables are keyed by skill id only, so a
- * trait fact never has a real-value match here anyway.
+ * trait fact never has a real-value match here anyway. `rechargeWvwOverrides` substitutes a
+ * WvW-correct `Recharge` fact value where the wiki documents one differing from the API's
+ * PvE-reference-build number (see `recharge-override.ts`) — optional so every pre-existing caller
+ * (and every test) keeps working unchanged, showing the un-adjusted PvE value, same as before this
+ * existed.
  */
 export function skillFactLines(
   skill: Skill,
   activeIds: ReadonlySet<number>,
   power: number,
   healingPower: number,
-  targetArmor: number
+  targetArmor: number,
+  rechargeWvwOverrides?: RechargeWvwOverrides
 ): FactLine[] {
   const damageByLabel = new Map(damageLinesForSkill(skill, power, targetArmor, activeIds).map((l) => [l.label, l.value]))
   const healingByLabel = new Map(healingLinesForSkill(skill, healingPower, activeIds).map((l) => [l.label, l.value]))
   const barrierByLabel = new Map(barrierLinesForSkill(skill, healingPower, activeIds).map((l) => [l.label, l.value]))
   const siphonDamageByLabel = new Map(siphonDamageLinesForSkill(skill, power, activeIds).map((l) => [l.label, l.value]))
 
+  const facts = rechargeWvwOverrides ? withRechargeOverride(skill.facts, skill.id, rechargeWvwOverrides.skill) : skill.facts
+
   const lines: FactLine[] = []
   const seen = new Set<string>()
-  for (const rawFact of [...skill.facts, ...skill.traitedFacts]) {
+  for (const rawFact of [...facts, ...skill.traitedFacts]) {
     if (rawFact.requires_trait != null && !activeIds.has(rawFact.requires_trait)) continue
     const fact = applyCuratedPercentOverride(rawFact, skill.id)
     if (!fact) continue

@@ -29,6 +29,7 @@ const gameData = {
   food: loadGameData('food.json'),
   utility: loadGameData('utility.json'),
   wvwFactOverrides: loadGameData('wvw-fact-overrides.json'),
+  rechargeWvwOverrides: loadGameData('recharge-wvw-overrides.json'),
   legends: loadGameData('legends.json'),
   pets: loadGameData('pets.json'),
   professions: loadGameData('professions.json'),
@@ -116,7 +117,7 @@ describe('Relic of the Chronomancer (100450) — ability-category gate', () => {
 
 describe('Relic of the Zephyrite (100893) — elite-skill gate, duration computed from the triggering elite skill\'s own recharge', () => {
   const PLAGUELANDS_ID = 10549 // Necromancer Elite, 90s recharge -> tier "61s+" -> 8s crystal duration
-  const MASS_INVISIBILITY_ID = 10245 // Mesmer Elite, 35s recharge -> tier "21-40s" -> 6s crystal duration
+  const MASS_INVISIBILITY_ID = 10245 // Mesmer Elite, 35s PvE recharge / 60s WvW (recharge-wvw-overrides.json) -> tier "41-60s" -> 7s crystal duration
   const SUMMON_FLESH_GOLEM_ID = 10646 // Necromancer Elite, 48s recharge -> tier "41-60s" -> 7s crystal duration
 
   it('grants Protection + Resolution scaled to the equipped elite skill\'s recharge tier (90s -> 8s)', () => {
@@ -131,14 +132,14 @@ describe('Relic of the Zephyrite (100893) — elite-skill gate, duration compute
     expect(resolution?.baseDurationSeconds).toBe(8)
   })
 
-  it('drops to a shorter tier for a shorter-recharge elite skill (35s -> 6s)', () => {
+  it('uses the elite skill\'s WvW-correct recharge, not its raw PvE-reference-build value (35s PvE / 60s WvW -> 7s)', () => {
     const build = baseBuild({
       profession: 'Mesmer',
       relicId: 100893,
       skills: { kind: 'standard', heal: null, utility: [null, null, null], elite: MASS_INVISIBILITY_ID }
     })
     const sources = computeBoonConditionSources(build, gameData)
-    expect(sources.find((s) => s.sourceKind === 'relic' && s.boonOrConditionName === 'Protection')?.baseDurationSeconds).toBe(6)
+    expect(sources.find((s) => s.sourceKind === 'relic' && s.boonOrConditionName === 'Protection')?.baseDurationSeconds).toBe(7)
   })
 
   it('picks the middle tier correctly too (48s -> 7s), not just the endpoints', () => {

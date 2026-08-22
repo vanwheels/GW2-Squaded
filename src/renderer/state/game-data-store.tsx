@@ -60,6 +60,7 @@ const EMPTY_GAME_DATA: GameData = {
   glyphFormVariants: {},
   skillVariantExclusions: [],
   wvwFactOverrides: { skill: {}, trait: {} },
+  rechargeWvwOverrides: { skill: {}, trait: {} },
   legends: [],
   pets: [],
   familiars: [],

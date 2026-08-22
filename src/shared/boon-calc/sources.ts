@@ -10,6 +10,7 @@ import type {
   Legend,
   Pet,
   Profession,
+  RechargeWvwOverrides,
   Relic,
   RelicEffectsById,
   RelicFactLine,
@@ -28,6 +29,7 @@ import { boonDurationPercent, computeGearAttributeTotals, conditionDurationPerce
 import { WEAVER_SPEC_ID, weaponSkillIdsForPair } from '../weapon-calc/weapon-skills'
 import { bundleCapableSkillIds, bundleSkillIdsForBuild } from '../skill-calc/bundle-skills'
 import { branchConditionalFacts } from '../skill-calc/branch-conditional-facts'
+import { withRechargeOverride } from '../skill-calc/recharge-override'
 import { WEAPON_STRENGTH_MIDPOINTS } from '../skill-calc/damage-calc'
 import {
   catalystJadeSphereBar,
@@ -4834,11 +4836,20 @@ function citadelStunDurationSeconds(eliteRechargeSeconds: number): number {
  * `citadelStunDurationSeconds`, applied to `build`'s actual equipped Elite skill(s) — `Math.min`
  * across every equipped Elite (same Revenant dual-legend "don't assume which legend is active"
  * bias `zephyriteBuildCrystalDurationSeconds` uses), falling back to the minimum 1s tier when no
- * equipped Elite skill carries a `Recharge` fact at all.
+ * equipped Elite skill carries a `Recharge` fact at all. Reads each elite skill's WvW-correct
+ * recharge (`recharge-override.ts`) rather than the API's raw PvE-reference-build value, same as
+ * `zephyriteBuildCrystalDurationSeconds` below — otherwise this would silently under/overstate the
+ * stun for any elite skill `recharge-wvw-overrides.json` actually covers.
  */
-function citadelBuildStunDurationSeconds(build: Build, legends: Legend[], skillsById: Map<number, Skill>): number {
+function citadelBuildStunDurationSeconds(
+  build: Build,
+  legends: Legend[],
+  skillsById: Map<number, Skill>,
+  rechargeWvwOverrides: RechargeWvwOverrides
+): number {
   const recharges = equippedEliteSkillIds(build, legends)
-    .map((id) => skillsById.get(id)?.facts.find((f) => f.type === 'Recharge'))
+    .map((id) => skillsById.get(id))
+    .map((skill) => (skill ? withRechargeOverride(skill.facts, skill.id, rechargeWvwOverrides.skill).find((f) => f.type === 'Recharge') : undefined))
     .map((fact) => (fact && typeof fact.value === 'number' ? fact.value : null))
     .filter((v): v is number => v !== null)
   return citadelStunDurationSeconds(recharges.length > 0 ? Math.min(...recharges) : 0)
@@ -4892,11 +4903,21 @@ function equippedEliteSkillIds(build: Build, legends: Legend[]): number[] {
  * this reports the shorter of the two rather than assuming the longer. Falls back to the shortest
  * tier (4s) when no equipped elite skill carries a `Recharge` fact at all — shouldn't happen once
  * `relicTriggerSatisfied` confirms an elite skill is equipped, but stays conservative rather than
- * throwing.
+ * throwing. Reads each elite skill's WvW-correct recharge (`recharge-override.ts`) rather than the
+ * API's raw PvE-reference-build value — the whole reason this function computes a real duration
+ * instead of trusting `relic-effects.json` directly is to reflect the actual equipped build, so
+ * feeding it an un-adjusted PvE cooldown would defeat that for any elite skill
+ * `recharge-wvw-overrides.json` covers.
  */
-function zephyriteBuildCrystalDurationSeconds(build: Build, legends: Legend[], skillsById: Map<number, Skill>): number {
+function zephyriteBuildCrystalDurationSeconds(
+  build: Build,
+  legends: Legend[],
+  skillsById: Map<number, Skill>,
+  rechargeWvwOverrides: RechargeWvwOverrides
+): number {
   const recharges = equippedEliteSkillIds(build, legends)
-    .map((id) => skillsById.get(id)?.facts.find((f) => f.type === 'Recharge'))
+    .map((id) => skillsById.get(id))
+    .map((skill) => (skill ? withRechargeOverride(skill.facts, skill.id, rechargeWvwOverrides.skill).find((f) => f.type === 'Recharge') : undefined))
     .map((fact) => (fact && typeof fact.value === 'number' ? fact.value : null))
     .filter((v): v is number => v !== null)
   return zephyriteCrystalDurationSeconds(recharges.length > 0 ? Math.min(...recharges) : 0)
@@ -5000,7 +5021,7 @@ function extractFromRelicFacts(
  */
 function relicSources(
   build: Build,
-  gameData: { relics: Relic[]; relicEffects: RelicEffectsById; skills: Skill[]; legends: Legend[] },
+  gameData: { relics: Relic[]; relicEffects: RelicEffectsById; skills: Skill[]; legends: Legend[]; rechargeWvwOverrides: RechargeWvwOverrides },
   durationPercent: { boon: number; condition: number },
   classify: (status: string) => BoonConditionCategory | null
 ): BoonConditionSource[] {
@@ -5033,7 +5054,7 @@ function relicSources(
   // Zephyrite's own `protection`/`resolution` facts carry the crystal's 1s per-pulse tick, not its
   // total lifetime — see `zephyriteBuildCrystalDurationSeconds`'s doc comment for why the real
   // duration is computed instead of read off `relic-effects.json` directly.
-  const duration = zephyriteBuildCrystalDurationSeconds(build, gameData.legends, skillsById)
+  const duration = zephyriteBuildCrystalDurationSeconds(build, gameData.legends, skillsById, gameData.rechargeWvwOverrides)
   return parsed.map((source) => {
     const percent = source.category === 'condition' ? durationPercent.condition : durationPercent.boon
     return { ...source, baseDurationSeconds: duration, scaledDurationSeconds: duration * (1 + percent / 100) }
@@ -5143,6 +5164,7 @@ export function computeBoonConditionSources(
     food: Consumable[]
     utility: Consumable[]
     wvwFactOverrides: WvwFactOverrides
+    rechargeWvwOverrides: RechargeWvwOverrides
     legends: Legend[]
     pets: Pet[]
     professions: Profession[]
@@ -5302,6 +5324,7 @@ export function computeAuraSources(
     skills: Skill[]
     traits: Trait[]
     wvwFactOverrides: WvwFactOverrides
+    rechargeWvwOverrides: RechargeWvwOverrides
     legends: Legend[]
     pets: Pet[]
     professions: Profession[]
@@ -6019,7 +6042,7 @@ export const RELIC_NAMED_FACT_SOURCES: Record<number, { name: string; detail: st
  *  Zephyrite. */
 function computeRelicNamedFactSources(
   build: Build,
-  gameData: { relics: Relic[]; relicEffects: RelicEffectsById; skills: Skill[]; legends: Legend[] },
+  gameData: { relics: Relic[]; relicEffects: RelicEffectsById; skills: Skill[]; legends: Legend[]; rechargeWvwOverrides: RechargeWvwOverrides },
   matchers: Record<string, (fact: Fact) => boolean>
 ): NamedFactSource[] {
   if (build.relicId === null) return []
@@ -6036,7 +6059,7 @@ function computeRelicNamedFactSources(
   const targetCount = targetsFact ? Number(targetsFact.values[0]) : null
   const detail =
     relic.id === CITADEL_RELIC_ID
-      ? `${citadelBuildStunDurationSeconds(build, gameData.legends, skillsById).toFixed(1)}s (on Elite skill use, 30s CD)`
+      ? `${citadelBuildStunDurationSeconds(build, gameData.legends, skillsById, gameData.rechargeWvwOverrides).toFixed(1)}s (on Elite skill use, 30s CD)`
       : entry.detail
   return [
     {
@@ -6203,6 +6226,7 @@ export function computeNamedFactSources(
     traits: Trait[]
     sigils: Sigil[]
     wvwFactOverrides: WvwFactOverrides
+    rechargeWvwOverrides: RechargeWvwOverrides
     legends: Legend[]
     pets: Pet[]
     professions: Profession[]
