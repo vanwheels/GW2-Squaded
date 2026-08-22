@@ -2,6 +2,39 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 277 — 3 bugs found reviewing the Healing % sweep (Heal Druid/Healegade)
+
+User reviewed Session 276 against 2 saved builds (Heal Druid, Heal Renegade) and reported back a
+checklist of what should/shouldn't count toward the new Outgoing Healing % stat, plus some
+unrelated Ranger boon-source findings from the same look-over. Most items were already correct
+(Natural Mender, Invoking Harmony, Serene Rejuvenation, Relic of the Monk, Bowl of Fruit Salad with
+Mint Garnish, Lingering Light, Bountiful Maintenance Oil's formula) — 3 were real bugs, fixed:
+
+- **Righteous Rebel** (`combat-state.ts`): its outgoing-healing share was wrongly coded as
+  `kallaFervorStacks * 4%`, matching the sibling strike/condition/life-steal shares' per-stack
+  shape — but the wiki fact carries no per-stack language for the healing share specifically, it's
+  a flat 4% whenever Kalla's Fervor is active at all (1-5 stacks, same value). Renamed
+  `RIGHTEOUS_REBEL_HEALING_PERCENT_PER_STACK` → `RIGHTEOUS_REBEL_HEALING_PERCENT` and fixed
+  `resolveOutgoingHealingPercent` to gate on `stacks > 0` rather than multiply by `stacks`.
+- **Fortifying Bond** (Ranger/Beastmastery, `boon-calc/sources.ts`): reported as a source of every
+  boon in the game — root cause was the raw API modeling "shares whatever boon you gain with your
+  pet" as one `Buff` fact per boon that exists (12 total), which the generic `extractFromFacts`
+  pipeline had no reason to treat as anything but 12 real independent grants. New
+  `TRAIT_IDS_EXCLUDED_FROM_BOON_SOURCES` set, checked once inside `extractFromFacts` itself so both
+  `computeBoonConditionSources` (aggregate) and `boonConditionFactsForTrait` (tooltips) agree.
+- **Windborne Notes** (Ranger/Beastmastery): its Regeneration facts showed unconditionally, with
+  nothing indicating they only apply "when you use a warhorn skill" — confirmed via `skills.json`
+  that neither Ranger Warhorn skill (Hunter's Call/Call of the Wild) carries the fact itself, unlike
+  Roaring Reveille's near-identical "Warhorn skills apply additional boons" shape where the boon
+  facts genuinely do live on the gated skills. Added a new `WEAPON_SKILL_TRIGGER_NOTES` table
+  (sibling to the existing `DODGE_TRIGGER_NOTES`, same `BoonConditionSource.triggerNote` field) so
+  the aggregate panel now labels it "On Warhorn Skill Use" instead of looking unconditional.
+
+3 new tests (`ranger-boon-source-fixes.test.ts`), 2 pre-existing Righteous Rebel snapshot tests
+updated for the corrected flat behavior. `npm run typecheck`/`npm run lint`/`npx vitest run` all
+clean (335/335). Wellspring's missing Healing-Power-from-Power tooltip was flagged by the user as a
+known gap for a later sweep, not fixed here — see TODO.md.
+
 ## Session 276 — Outgoing/Incoming Healing % sweep
 
 Picked up the "Outgoing Healing % / Incoming Healing %" item scoped 2026-08-21 (TODO.md,
