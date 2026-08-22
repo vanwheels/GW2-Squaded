@@ -4,8 +4,11 @@ import {
   CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES,
   combatStatePoints,
   CURATED_FOOD_OUTGOING_HEALING_BONUSES,
+  CURATED_RELIC_CONDITION_DAMAGE_BONUSES,
   CURATED_RELIC_DAMAGE_BONUSES,
   CURATED_RELIC_OUTGOING_HEALING_BONUSES,
+  CURATED_SIGIL_CONDITION_DAMAGE_BONUSES,
+  CURATED_SIGIL_DAMAGE_BONUSES,
   CURATED_SIGIL_OUTGOING_HEALING_BONUSES,
   CURATED_UTILITY_OUTGOING_HEALING_ATTRIBUTE_SCALING,
   DEATHS_CARAPACE_TOUGHNESS_PER_STACK,
@@ -31,6 +34,8 @@ import {
   NUMINOUS_GIFT_TRAIT_ID,
   resolveIncomingHealingPercent,
   resolveMovementSpeedPercent,
+  resolveOutgoingConditionDamagePercent,
+  resolveOutgoingDamagePercent,
   resolveOutgoingHealingPercent,
   RIGHTEOUS_REBEL_HEALING_PERCENT,
   RIGHTEOUS_REBEL_TRAIT_ID,
@@ -39,6 +44,11 @@ import {
   SERENE_REJUVENATION_BASE_HEALING_PERCENT,
   SERENE_REJUVENATION_TRAIT_ID,
   SERENE_REJUVENATION_UPGRADED_HEALING_PERCENT,
+  SIGIL_OF_FORCE_DAMAGE_PERCENT,
+  SIGIL_OF_FORCE_ID,
+  SIGIL_OF_THE_NIGHT_ADDITIONAL_NIGHT_DAMAGE_PERCENT,
+  SIGIL_OF_THE_NIGHT_BASE_DAMAGE_PERCENT,
+  SIGIL_OF_THE_NIGHT_ID,
   type CombatState,
   type HealthTier
 } from './combat-state'
@@ -678,5 +688,136 @@ describe('computeCharacterStats — outgoingHealingPercent/incomingHealingPercen
     const { derived } = computeCharacterStats(build, { ...EMPTY_GAME_DATA, traits: [...traitsById.values()] }, DEFAULT_COMBAT_STATE)
     expect(derived.outgoingHealingPercent).toBe(10)
     expect(derived.incomingHealingPercent).toBe(0)
+  })
+})
+
+// 2026-08-22 "Outgoing Damage % full pass" — mirrors the resolveOutgoingHealingPercent test suite
+// above, same "0/mid/max points of the state space" reasoning.
+
+describe('resolveOutgoingDamagePercent — curated relic, proc-window gated (Relic of Isgarren)', () => {
+  it('contributes nothing while relicActive is off', () => {
+    const build = makeBuild({ relicId: 99997 })
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, relicActive: false }, NO_TRAITS)).toBe(0)
+  })
+
+  it('contributes the curated bonus while relicActive is on and the relic is equipped', () => {
+    const build = makeBuild({ relicId: 99997 })
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, relicActive: true }, NO_TRAITS)).toBe(CURATED_RELIC_DAMAGE_BONUSES[99997])
+  })
+})
+
+describe('resolveOutgoingDamagePercent — curated relic, modeled at its per-stack max (Relic of the Thief)', () => {
+  it('contributes the max-stack value (5 stacks * 1%), not a single stack', () => {
+    const build = makeBuild({ relicId: 100916 })
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, relicActive: true }, NO_TRAITS)).toBe(5)
+  })
+})
+
+describe("resolveOutgoingDamagePercent/resolveOutgoingConditionDamagePercent — Relic of Nourys's split strike/condition halves", () => {
+  it('contributes its strike-damage half to outgoingDamagePercent and condition-damage half to outgoingConditionDamagePercent', () => {
+    const build = makeBuild({ relicId: 101191 })
+    const state = { ...DEFAULT_COMBAT_STATE, relicActive: true }
+    expect(resolveOutgoingDamagePercent(build, state, NO_TRAITS)).toBe(CURATED_RELIC_DAMAGE_BONUSES[101191])
+    expect(resolveOutgoingConditionDamagePercent(build, state, NO_TRAITS)).toBe(CURATED_RELIC_CONDITION_DAMAGE_BONUSES[101191])
+  })
+})
+
+describe("resolveOutgoingDamagePercent — Kalla's Fervor per-stack strike-damage share (0/mid/max stacks)", () => {
+  it.each([0, 3, KALLA_FERVOR_MAX_STACKS])('scales at %i stacks', (stacks) => {
+    const build = makeBuild()
+    const result = resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, kallaFervorStacks: stacks }, NO_TRAITS)
+    expect(result).toBe(stacks * KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK)
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Superior Sigil of Force (single application, does NOT double on dual weapons)', () => {
+  it('contributes the flat bonus once when equipped on one active-set weapon', () => {
+    const build = makeBuild({ activeWeaponSet: 'A', equipment: { weaponA1: { itemStatId: null, sigilIds: [SIGIL_OF_FORCE_ID] } } })
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS)).toBe(SIGIL_OF_FORCE_DAMAGE_PERCENT)
+  })
+
+  it('still contributes only once when equipped on both active-set main-hand and off-hand weapons', () => {
+    const build = makeBuild({
+      activeWeaponSet: 'A',
+      equipment: {
+        weaponA1: { itemStatId: null, sigilIds: [SIGIL_OF_FORCE_ID] },
+        weaponA2: { itemStatId: null, sigilIds: [SIGIL_OF_FORCE_ID] }
+      }
+    })
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS)).toBe(SIGIL_OF_FORCE_DAMAGE_PERCENT)
+  })
+
+  it('contributes nothing when equipped only on the inactive weapon set', () => {
+    const build = makeBuild({ activeWeaponSet: 'A', equipment: { weaponB1: { itemStatId: null, sigilIds: [SIGIL_OF_FORCE_ID] } } })
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS)).toBe(0)
+  })
+})
+
+describe("resolveOutgoingDamagePercent — Slaying-family sigil's unconditional +3% baseline (Superior Sigil of Undead Slaying)", () => {
+  const sigilId = 24642
+
+  it('contributes the flat baseline once when equipped on one active-set weapon', () => {
+    const build = makeBuild({ activeWeaponSet: 'A', equipment: { weaponA1: { itemStatId: null, sigilIds: [sigilId] } } })
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS)).toBe(CURATED_SIGIL_DAMAGE_BONUSES[sigilId])
+  })
+
+  it('doubles when equipped on both active-set main-hand and off-hand weapons', () => {
+    const build = makeBuild({
+      activeWeaponSet: 'A',
+      equipment: {
+        weaponA1: { itemStatId: null, sigilIds: [sigilId] },
+        weaponA2: { itemStatId: null, sigilIds: [sigilId] }
+      }
+    })
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS)).toBe(2 * CURATED_SIGIL_DAMAGE_BONUSES[sigilId])
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Superior Sigil of the Night (day/night-gated, doubles per slot)', () => {
+  it('contributes only its always-on base share during the day', () => {
+    const build = makeBuild({ activeWeaponSet: 'A', equipment: { weaponA1: { itemStatId: null, sigilIds: [SIGIL_OF_THE_NIGHT_ID] } } })
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, nightActive: false }, NO_TRAITS)).toBe(SIGIL_OF_THE_NIGHT_BASE_DAMAGE_PERCENT)
+  })
+
+  it('adds the additional night share on top when nightActive is on', () => {
+    const build = makeBuild({ activeWeaponSet: 'A', equipment: { weaponA1: { itemStatId: null, sigilIds: [SIGIL_OF_THE_NIGHT_ID] } } })
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, nightActive: true }, NO_TRAITS)).toBe(
+      SIGIL_OF_THE_NIGHT_BASE_DAMAGE_PERCENT + SIGIL_OF_THE_NIGHT_ADDITIONAL_NIGHT_DAMAGE_PERCENT
+    )
+  })
+
+  it('doubles both shares when equipped on both active-set weapons at night', () => {
+    const build = makeBuild({
+      activeWeaponSet: 'A',
+      equipment: {
+        weaponA1: { itemStatId: null, sigilIds: [SIGIL_OF_THE_NIGHT_ID] },
+        weaponA2: { itemStatId: null, sigilIds: [SIGIL_OF_THE_NIGHT_ID] }
+      }
+    })
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, nightActive: true }, NO_TRAITS)).toBe(
+      2 * (SIGIL_OF_THE_NIGHT_BASE_DAMAGE_PERCENT + SIGIL_OF_THE_NIGHT_ADDITIONAL_NIGHT_DAMAGE_PERCENT)
+    )
+  })
+})
+
+describe('resolveOutgoingConditionDamagePercent — curated sigil (Superior Sigil of Bursting) + Kalla\'s Fervor', () => {
+  it('sums the flat curated sigil bonus with 0 combat-state contribution', () => {
+    const build = makeBuild({ activeWeaponSet: 'A', equipment: { weaponA1: { itemStatId: null, sigilIds: [44944] } } })
+    expect(resolveOutgoingConditionDamagePercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS)).toBe(CURATED_SIGIL_CONDITION_DAMAGE_BONUSES[44944])
+  })
+
+  it("adds Kalla's Fervor's per-stack condition-damage share on top", () => {
+    const build = makeBuild({ activeWeaponSet: 'A', equipment: { weaponA1: { itemStatId: null, sigilIds: [44944] } } })
+    const result = resolveOutgoingConditionDamagePercent(build, { ...DEFAULT_COMBAT_STATE, kallaFervorStacks: 3 }, NO_TRAITS)
+    expect(result).toBe(CURATED_SIGIL_CONDITION_DAMAGE_BONUSES[44944] + 3 * KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK)
+  })
+})
+
+describe('computeCharacterStats — outgoingDamagePercent/outgoingConditionDamagePercent end to end', () => {
+  it('reflects a curated relic bonus through the full attribute/derived-stats pipeline', () => {
+    const build = makeBuild({ relicId: 104241 }) // Relic of the Eagle
+    const { derived } = computeCharacterStats(build, { ...EMPTY_GAME_DATA, traits: [] }, { ...DEFAULT_COMBAT_STATE, relicActive: true })
+    expect(derived.outgoingDamagePercent).toBe(CURATED_RELIC_DAMAGE_BONUSES[104241])
+    expect(derived.outgoingConditionDamagePercent).toBe(0)
   })
 })

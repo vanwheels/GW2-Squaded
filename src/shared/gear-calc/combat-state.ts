@@ -105,6 +105,15 @@ export interface CombatState {
    *  is currently up" shape as `relicActive`. Only meaningful/surfaced when Invoking Harmony
    *  (`INVOKING_HARMONY_TRAIT_ID`) is actually chosen. */
   invokingHarmonyActive: boolean
+  /** Gates Superior Sigil of the Night's (`SIGIL_OF_THE_NIGHT_ID`) additional +7% night-only damage
+   *  share, on top of its own always-on 3% (see `CURATED_SIGIL_DAMAGE_BONUSES`) — a real Tyrian-
+   *  time-of-day condition (wiki-verified 2026-08-22: active 21:00-5:00 Tyrian time, inactive during
+   *  dawn/dusk), not a build choice, so it needs its own toggle rather than being folded into the
+   *  flat per-sigil table like every unconditional sigil bonus. Defaults `false` (assume day), same
+   *  "off by default" convention as `relicActive`/`invokingHarmonyActive` rather than the "assume
+   *  full/passive resource" default `fullEnduranceActive`/`healthTier` use. Only meaningful/surfaced
+   *  when Sigil of the Night is actually equipped on the active weapon set. */
+  nightActive: boolean
 }
 
 export const DEFAULT_COMBAT_STATE: CombatState = {
@@ -123,7 +132,8 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   deathsCarapaceStacks: 0,
   upkeepPoints: 0,
   celestialAvatarActive: false,
-  invokingHarmonyActive: false
+  invokingHarmonyActive: false,
+  nightActive: false
 }
 
 // wiki-confirmed flat value at level 80, quoted directly (not derived from a per-level formula).
@@ -499,17 +509,188 @@ export const STACKING_SIGILS: Record<number, { name: string; attribute: string |
 }
 
 /**
- * Relic ids whose full proc is a flat, unconditional outgoing-strike-damage-% bonus — hand-curated
- * from data/game-data/relic-effects.json's "Damage Increase" facts, one manual wiki-verification
- * pass per relic (same process as `wvwFactOverrides`, see docs/game-data.md). Relic of Fireworks is
- * the only relic verified so far; most other "Damage Increase" relics carry conditions (target
- * health, weapon type, class) that need the same check before being added here. Both ids below are
- * "Relic of Fireworks" — relics.json lists the same relic twice under different ids — so either
- * pick in the equipment editor is recognized.
+ * Relic ids whose full proc is a flat outgoing-strike-damage-% bonus while active, gated on
+ * `CombatState.relicActive` (the same "assume the relic's own proc/trigger condition is currently
+ * satisfied" simplification `CURATED_RELIC_OUTGOING_HEALING_BONUSES` already uses for Relic of the
+ * Monk/Castora) — hand-curated from data/game-data/relic-effects.json's "Damage Increase" facts,
+ * one manual wiki-verification pass per relic (same process as `wvwFactOverrides`, see
+ * docs/game-data.md). Every entry's trigger is a player-controlled action (evade, trap hit,
+ * shadowstep/deception, stance use, granting self Protection/Resolution, weapon-skill-with-recharge
+ * hit, cantrip use, disable a foe, heal-skill use, blast-finisher-into-combo-field) except Relic of
+ * the Eagle (target-health-threshold-gated, same "assume satisfied" simplification already applied
+ * to Castora's own ally-health-threshold condition), so the same blanket toggle covers all of them.
+ * All 13 below plus Fireworks wiki-verified via raw wikitext 2026-08-22 — no other "Damage
+ * Increase"-tagged relic exists in relic-effects.json (14 total hits including Fireworks, confirmed
+ * exhaustive via a full scan). Both Fireworks ids are "Relic of Fireworks" — relics.json lists the
+ * same relic twice under different ids — so either pick in the equipment editor is recognized.
  */
 export const CURATED_RELIC_DAMAGE_BONUSES: Record<number, number> = {
   100262: 7, // Relic of Fireworks
-  100947: 7 // Relic of Fireworks (duplicate relics.json id, identical effect)
+  100947: 7, // Relic of Fireworks (duplicate relics.json id, identical effect)
+  99997: 10, // Relic of Isgarren — after evading, +10% strike damage to the marked target for 6s
+  100090: 10, // Relic of the Dragonhunter — trap-hit target hunted, +10% strike damage for 5s
+  100177: 10, // Relic of Peitha — after shadowstep/deception skill, +10% strike damage to marked target for 4s
+  100194: 10, // Relic of the Weaver — after a stance skill, +10% strike damage for 4s
+  100527: 10, // Relic of the Brawler — after granting self Protection/Resolution, +10% strike damage
+  100916: 5, // Relic of the Thief — +1% strike damage per stack (max 5) on weapon-skill-with-recharge hits; modeled at its max, same simplification as Relic of the Monk's stacking heal
+  100924: 10, // Relic of the Deadeye — after a cantrip skill, +10% strike damage for a duration
+  101191: 15, // Relic of Nourys — "Nourys's Hunger" 10-stack payout, WvW/PvP value (25% PvE); its Condition Damage/incoming-damage/healing-conversion lines are separate stats, see `CURATED_RELIC_CONDITION_DAMAGE_BONUSES`
+  103574: 7, // Relic of the Claw — after disabling a foe, +7% strike damage for a duration
+  104241: 10, // Relic of the Eagle — +10% strike damage to enemies below a 50% health threshold
+  104501: 10, // Relic of Fire — Fire Aura from a heal skill grants +10% outgoing strike damage (WvW/PvP value, PvE is 7%)
+  104800: 10, // Relic of Bloodstone — "Bloodstone Fervor" window from a combo-field blast, +10% strike damage (WvW/PvP value, PvE is 7%)
+  109351: 10 // Relic of the Director — after a heal skill, +10% strike damage to vulnerable foes for a duration
+}
+
+/**
+ * Relic id -> flat outgoing-condition-damage-% bonus while `CombatState.relicActive` is on — first/
+ * only entry so far is Relic of Nourys's "Nourys's Hunger" payout (see `CURATED_RELIC_DAMAGE_
+ * BONUSES` above for its strike-damage half and the rest of its 6-stat combo line, out of scope
+ * here): wiki-verified 2026-08-22, "+15% Condition Damage" alongside the "+15% Damage" line, same
+ * WvW/PvP value (25% PvE).
+ */
+export const CURATED_RELIC_CONDITION_DAMAGE_BONUSES: Record<number, number> = {
+  101191: 15 // Relic of Nourys — WvW/PvP value
+}
+
+/** Superior Sigil of Force (24615) — wiki-verified 2026-08-21 (see TODO.md): flat +5% outgoing
+ *  strike damage, but explicitly "Does not stack if used on both main hand and off hand weapons" —
+ *  unlike every other passive/stat sigil bonus in this file (which doubles per equipped slot, see
+ *  `CURATED_SIGIL_OUTGOING_HEALING_BONUSES`), so it's kept out of `CURATED_SIGIL_DAMAGE_BONUSES`
+ *  and applied at most once regardless of slot count — see `curatedSigilDamagePercent` below. Also
+ *  wiki-confirmed "Does not affect Condition Damage and Life stealing," which needs no special
+ *  handling here since this app already tracks strike/condition damage as separate `DerivedStats`
+ *  fields and has no life-steal-%-from-sigils source anywhere. */
+export const SIGIL_OF_FORCE_ID = 24615
+export const SIGIL_OF_FORCE_DAMAGE_PERCENT = 5
+
+/** Superior Sigil of the Night (36053) — wiki-verified 2026-08-22: "Outgoing damage is increased by
+ *  3% with an additional 7% at night" (10% total during the night stage, 3% otherwise), explicitly
+ *  "does not increase condition damage." The always-on 3% share lives in `CURATED_SIGIL_DAMAGE_
+ *  BONUSES` below (so it doubles per slot like every other unconditional sigil bonus); the
+ *  conditional +7% is added separately here, gated on `CombatState.nightActive`, and doubles per
+ *  slot the same way (no "does not stack" clause found for this sigil, unlike Sigil of Force). */
+export const SIGIL_OF_THE_NIGHT_ID = 36053
+export const SIGIL_OF_THE_NIGHT_BASE_DAMAGE_PERCENT = 3
+export const SIGIL_OF_THE_NIGHT_ADDITIONAL_NIGHT_DAMAGE_PERCENT = 7
+
+/**
+ * Sigil id -> flat outgoing-strike-damage-% bonus while equipped on the active weapon set, doubling
+ * per equipped slot like every other passive/stat sigil (see `CURATED_SIGIL_OUTGOING_HEALING_
+ * BONUSES`) — excludes Superior Sigil of Force (handled separately above, since it does NOT
+ * double). The 18 "Slaying" sigils and Superior Sigil of Impact each carry a second, genuinely
+ * unconditional "+3% Strike Damage" line alongside their own +7%-vs-monster-type/vs-Stunned-or-
+ * Knocked-Down conditional line (wiki-verified 2026-08-22 against Superior Sigil of Undead Slaying's
+ * raw wikitext infobox, confirmed a real second bonus, not a display artifact of the conditional
+ * one) — only that unconditional +3% baseline is curated here; the conditional halves are excluded
+ * as too situational to assume steady-state (WvW has none of the "Slaying" sigils' target monster
+ * types per TODO.md's original scoping note, and Impact's Stunned-or-Knocked-Down condition is a
+ * target combat-state this app doesn't track). Sigil of the Night's own always-on 3% share (see its
+ * doc comment above) is folded in here too since it follows the same per-slot-doubling rule.
+ */
+export const CURATED_SIGIL_DAMAGE_BONUSES: Record<number, number> = {
+  24642: 3, // Superior Sigil of Undead Slaying
+  24645: 3, // Superior Sigil of Centaur Slaying
+  24648: 3, // Superior Sigil of Grawl Slaying
+  24651: 3, // Superior Sigil of Icebrood Slaying
+  24654: 3, // Superior Sigil of Destroyer Slaying
+  24655: 3, // Superior Sigil of Ogre Slaying
+  24658: 3, // Superior Sigil of Serpent Slaying
+  24661: 3, // Superior Sigil of Elemental Slaying
+  24664: 3, // Superior Sigil of Demon Slaying
+  24667: 3, // Superior Sigil of Wrath
+  24672: 3, // Superior Sigil of Mad Scientists
+  24675: 3, // Superior Sigil of Smothering
+  24678: 3, // Superior Sigil of Justice
+  24681: 3, // Superior Sigil of Dreams
+  24684: 3, // Superior Sigil of Sorrow
+  24809: 3, // Superior Sigil of Ghost Slaying
+  37912: 3, // Superior Sigil of Karka Slaying
+  91339: 3, // Superior Sigil of Hologram Slaying
+  24868: 3, // Superior Sigil of Impact — unconditional baseline only, see doc comment above
+  36053: SIGIL_OF_THE_NIGHT_BASE_DAMAGE_PERCENT // Superior Sigil of the Night — always-on share
+}
+
+function curatedSigilDamagePercent(build: Build, combatState: CombatState): number {
+  let total = 0
+  let forceEquipped = false
+  for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
+    if (!isActiveWeaponSlot(slotKey, build)) continue
+    for (const sigilId of build.equipment[slotKey]?.sigilIds ?? []) {
+      if (sigilId === null) continue
+      if (sigilId === SIGIL_OF_FORCE_ID) {
+        forceEquipped = true
+        continue
+      }
+      total += CURATED_SIGIL_DAMAGE_BONUSES[sigilId] ?? 0
+      if (sigilId === SIGIL_OF_THE_NIGHT_ID && combatState.nightActive) total += SIGIL_OF_THE_NIGHT_ADDITIONAL_NIGHT_DAMAGE_PERCENT
+    }
+  }
+  if (forceEquipped) total += SIGIL_OF_FORCE_DAMAGE_PERCENT
+  return total
+}
+
+/** True while Sigil of the Night is equipped on the active weapon set — gates `CombatStatePanel`'s
+ *  night toggle, same "only surfaced when relevant" pattern every other conditional combat-state
+ *  control here uses. */
+export function hasSigilOfTheNightEquipped(build: Build): boolean {
+  for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
+    if (!isActiveWeaponSlot(slotKey, build)) continue
+    for (const sigilId of build.equipment[slotKey]?.sigilIds ?? []) {
+      if (sigilId === SIGIL_OF_THE_NIGHT_ID) return true
+    }
+  }
+  return false
+}
+
+/** Superior Sigil of Bursting (44944) — wiki-verified 2026-08-22: "+5% Condition Damage," and per
+ *  the page's own Notes section, "a flat increase of outgoing condition damage" (not the raw
+ *  `ConditionDamage` attribute) since a 2018-11-13 rework — belongs in `outgoingConditionDamagePercent`,
+ *  not the core attribute totals. No "does not stack" clause found, so it doubles per equipped slot
+ *  like every other unconditional sigil bonus. */
+export const CURATED_SIGIL_CONDITION_DAMAGE_BONUSES: Record<number, number> = {
+  44944: 5 // Superior Sigil of Bursting
+}
+
+function curatedSigilConditionDamagePercent(build: Build): number {
+  let total = 0
+  for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
+    if (!isActiveWeaponSlot(slotKey, build)) continue
+    for (const sigilId of build.equipment[slotKey]?.sigilIds ?? []) {
+      if (sigilId === null) continue
+      total += CURATED_SIGIL_CONDITION_DAMAGE_BONUSES[sigilId] ?? 0
+    }
+  }
+  return total
+}
+
+/**
+ * Sums every curated outgoing-strike-damage-% source actually active on this build — the
+ * `DerivedStats.outgoingDamagePercent` resolver, mirrors `resolveOutgoingHealingPercent`'s role
+ * (plain additive stacking). Supersedes the old inline formula that only covered
+ * `CURATED_RELIC_DAMAGE_BONUSES` + Kalla's Fervor.
+ */
+export function resolveOutgoingDamagePercent(build: Build, combatState: CombatState, traitsById: Map<number, Trait>): number {
+  let total = 0
+  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
+  total += combatState.kallaFervorStacks * kallaFervorPerStack.strikeDamage
+  if (combatState.relicActive && build.relicId !== null) total += CURATED_RELIC_DAMAGE_BONUSES[build.relicId] ?? 0
+  total += curatedSigilDamagePercent(build, combatState)
+  return total
+}
+
+/**
+ * Sums every curated outgoing-condition-damage-% source actually active on this build — the
+ * `DerivedStats.outgoingConditionDamagePercent` resolver, sibling to `resolveOutgoingDamagePercent`
+ * above. Supersedes the old inline formula that only covered Kalla's Fervor.
+ */
+export function resolveOutgoingConditionDamagePercent(build: Build, combatState: CombatState, traitsById: Map<number, Trait>): number {
+  let total = 0
+  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
+  total += combatState.kallaFervorStacks * kallaFervorPerStack.conditionDamage
+  if (combatState.relicActive && build.relicId !== null) total += CURATED_RELIC_CONDITION_DAMAGE_BONUSES[build.relicId] ?? 0
+  total += curatedSigilConditionDamagePercent(build)
+  return total
 }
 
 /**

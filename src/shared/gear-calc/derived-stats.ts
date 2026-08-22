@@ -12,7 +12,6 @@ import {
 import { RUNE_SLOT_KEYS } from './upgrade-slots'
 import {
   combatStatePoints,
-  CURATED_RELIC_DAMAGE_BONUSES,
   DEFAULT_COMBAT_STATE,
   flatCritChanceTraitBonus,
   fullEnduranceCritChanceTraitBonus,
@@ -24,6 +23,8 @@ import {
   mechanicActiveCritChanceTraitBonus,
   resolveIncomingHealingPercent,
   resolveMovementSpeedPercent,
+  resolveOutgoingConditionDamagePercent,
+  resolveOutgoingDamagePercent,
   resolveOutgoingHealingPercent,
   type CombatState
 } from './combat-state'
@@ -145,14 +146,14 @@ export interface DerivedStats {
   boonDuration: number
   conditionDuration: number
   magicFind: number
-  /** Outgoing strike-damage-% bonus: `CombatState.relicActive`'s curated relic bonus (0 when no
-   *  curated relic/inactive, see `CURATED_RELIC_DAMAGE_BONUSES`) plus Kalla's Fervor's per-stack
-   *  strike-damage share (`CombatState.kallaFervorStacks`, 2%/stack or 3%/stack with Lasting Legacy
-   *  chosen — see `kallaFervorPercentPerStack` in `combat-state.ts`). */
+  /** Outgoing strike-damage-% bonus — plain additive stacking, see `combat-state.ts`'s
+   *  `resolveOutgoingDamagePercent` for the full list of curated relic/sigil/Kalla's-Fervor
+   *  sources (2026-08-22 "Outgoing Damage % full pass": 14 curated relics + Sigil of Force/
+   *  Slaying-family baseline/Sigil of the Night). */
   outgoingDamagePercent: number
-  /** Outgoing condition-damage-% bonus — distinct from the raw `ConditionDamage` attribute total.
-   *  Currently only Kalla's Fervor's per-stack condition-damage share contributes (see
-   *  `outgoingDamagePercent`'s doc comment for the Lasting Legacy upgrade). */
+  /** Outgoing condition-damage-% bonus — distinct from the raw `ConditionDamage` attribute total,
+   *  sibling to `outgoingDamagePercent` above, see `resolveOutgoingConditionDamagePercent` for its
+   *  curated sources (Kalla's Fervor, Relic of Nourys, Sigil of Bursting). */
   outgoingConditionDamagePercent: number
   /** Life-steal-%, first/only field for this stat anywhere in the app — currently only Kalla's
    *  Fervor's per-stack life-steal share contributes (see `outgoingDamagePercent`'s doc comment for
@@ -246,10 +247,8 @@ export function computeCharacterStats(
     boonDuration: boonDurationPercent(totals),
     conditionDuration: conditionDurationPercent(totals),
     magicFind: magicFindPercent(totals),
-    outgoingDamagePercent:
-      (combatState.relicActive && build.relicId !== null ? (CURATED_RELIC_DAMAGE_BONUSES[build.relicId] ?? 0) : 0) +
-      combatState.kallaFervorStacks * kallaFervorPerStack.strikeDamage,
-    outgoingConditionDamagePercent: combatState.kallaFervorStacks * kallaFervorPerStack.conditionDamage,
+    outgoingDamagePercent: resolveOutgoingDamagePercent(build, combatState, traitsById),
+    outgoingConditionDamagePercent: resolveOutgoingConditionDamagePercent(build, combatState, traitsById),
     lifeStealPercent: combatState.kallaFervorStacks * kallaFervorPerStack.lifeSteal,
     movementSpeedPercent: resolveMovementSpeedPercent(build, combatState, totals.bonusPercent.movementSpeed, traitsById),
     outgoingHealingPercent: resolveOutgoingHealingPercent(build, combatState, traitsById, {

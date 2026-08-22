@@ -2,6 +2,40 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 278 — Outgoing Damage % full pass, Sigils + Relics legs
+
+Picked up "Outgoing Damage % full pass" (TODO.md, scoped 2026-08-21). Sigils and Relics legs done
+this session; Traits (~148 raw candidates) deliberately left for a future session — same "one leg,
+then check in" pacing every prior big sweep has used.
+
+`outgoingDamagePercent`/`outgoingConditionDamagePercent` already existed as `DerivedStats` fields
+(only Fireworks + Kalla's Fervor wired in) — this sweep replaced their inline formulas with new
+`resolveOutgoingDamagePercent`/`resolveOutgoingConditionDamagePercent` resolvers in `combat-state.ts`,
+mirroring `resolveOutgoingHealingPercent`'s shape from Session 276.
+
+- **Sigils**: Superior Sigil of Force (+5%, single-application-only per its wiki "does not stack on
+  both weapons" clause — kept out of the normal per-slot-doubling table). The 18 "Slaying" sigils +
+  Superior Sigil of Impact turned out to each carry a second, genuinely unconditional "+3% Strike
+  Damage" line separate from their conditional "+7% vs X" line (wiki-verified against Undead
+  Slaying's raw infobox — reverses the original scoping note's assumption of full exclusion); only
+  that unconditional baseline is curated. Superior Sigil of the Night (3% always-on + 7% at night)
+  got a new `CombatState.nightActive` toggle, surfaced in `CombatStatePanel` only when the sigil is
+  actually equipped. Superior Sigil of Bursting (+5% Condition Damage, flat since a 2018 rework)
+  feeds the new condition-damage resolver.
+- **Relics**: all 14 "Damage Increase"-tagged relics now curated (13 new + Fireworks), all gated on
+  the existing `CombatState.relicActive` toggle — every trigger condition turned out to be either
+  player-controlled (evade/trap-hit/shadowstep/stance-use/self-boon-grant/recharge-skill-hit/
+  cantrip/disable/heal-skill-use/combo-field-blast) or a target-health-threshold (Relic of the
+  Eagle, same "assume satisfied" simplification Relic of Castora's healing side already used), so no
+  new design decision was needed. Relic of the Thief's 5-stack proc modeled at its max (same
+  simplification as Relic of the Monk). Relic of Nourys's 6-stat combo line split into its
+  strike-damage half (`CURATED_RELIC_DAMAGE_BONUSES`) and condition-damage half (new
+  `CURATED_RELIC_CONDITION_DAMAGE_BONUSES`) — its incoming-damage-reduction/damage-to-healing halves
+  are out of scope (no `DerivedStats` field exists for them).
+
+18 new tests in `combat-state.test.ts` (0/mid/max-style, matching the Session 276 suite's own
+pattern). `npm run typecheck`/`npx eslint`/`npx vitest run` all clean (353/353, no regressions).
+
 ## Session 277 — 3 bugs found reviewing the Healing % sweep (Heal Druid/Healegade)
 
 User reviewed Session 276 against 2 saved builds (Heal Druid, Heal Renegade) and reported back a

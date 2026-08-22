@@ -1,6 +1,7 @@
 import type { Build } from '@shared/types'
 import {
   CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES,
+  CURATED_RELIC_CONDITION_DAMAGE_BONUSES,
   CURATED_RELIC_DAMAGE_BONUSES,
   CURATED_RELIC_MOVEMENT_SPEED_BONUSES,
   CURATED_RELIC_OUTGOING_HEALING_BONUSES,
@@ -9,6 +10,7 @@ import {
   DEATHS_CARAPACE_TOUGHNESS_PER_STACK,
   detectActiveStackingSigil,
   FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES,
+  hasSigilOfTheNightEquipped,
   HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES,
   HEALTH_THRESHOLD_CONSUMABLE_BONUSES,
   INVOKING_HARMONY_HEALING_PERCENT,
@@ -20,6 +22,8 @@ import {
   REVEALED_ATTRIBUTE_TRAIT_BONUSES,
   RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT,
   RISING_MOMENTUM_TRAIT_ID,
+  SIGIL_OF_THE_NIGHT_ADDITIONAL_NIGHT_DAMAGE_PERCENT,
+  SIGIL_OF_THE_NIGHT_ID,
   type CombatState,
   type HealthTier,
   type TargetArmorClass
@@ -89,9 +93,15 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   const relicHasCuratedBonus =
     build.relicId !== null &&
     (build.relicId in CURATED_RELIC_DAMAGE_BONUSES ||
+      build.relicId in CURATED_RELIC_CONDITION_DAMAGE_BONUSES ||
       build.relicId in CURATED_RELIC_MOVEMENT_SPEED_BONUSES ||
       build.relicId in CURATED_RELIC_OUTGOING_HEALING_BONUSES)
   const relicIcon = relicHasCuratedBonus && build.relicId !== null ? relicsById.get(build.relicId)?.icon : undefined
+
+  // Only surfaced when Sigil of the Night is actually equipped on the active weapon set — same
+  // reasoning as `stackingSigil` above, reads the sigil's own icon.
+  const hasSigilOfTheNight = hasSigilOfTheNightEquipped(build)
+  const nightSigilIcon = hasSigilOfTheNight ? sigilsById.get(SIGIL_OF_THE_NIGHT_ID)?.icon : undefined
 
   // Only surfaced when the build actually has a curated `mechanicActive`-family trait chosen
   // (Reaper's Onslaught / Fatal Frenzy / Sand Sage) — every build only ever has one profession's
@@ -372,6 +382,21 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           onClick={() => onChange({ ...value, invokingHarmonyActive: !value.invokingHarmonyActive })}
         >
           <img className={iconClass(value.invokingHarmonyActive)} src={invokingHarmonyTrait.icon} alt={invokingHarmonyTrait.name} />
+        </button>
+      )}
+
+      {hasSigilOfTheNight && nightSigilIcon && (
+        <button
+          type="button"
+          className="combat-state-toggle-icon"
+          title={
+            value.nightActive
+              ? `Sigil of the Night: Night (+${SIGIL_OF_THE_NIGHT_ADDITIONAL_NIGHT_DAMAGE_PERCENT}% additional Outgoing Damage)`
+              : 'Sigil of the Night: Day'
+          }
+          onClick={() => onChange({ ...value, nightActive: !value.nightActive })}
+        >
+          <img className={iconClass(value.nightActive)} src={nightSigilIcon} alt="Sigil of the Night" />
         </button>
       )}
 

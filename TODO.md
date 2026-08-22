@@ -105,22 +105,35 @@ research itself could be as thorough as possible first. All 5 items below come o
       outgoing-healing modifiers was noted during scoping but no Regen-boosting source has been
       curated yet, so that interaction has no code to exercise it — revisit if one ever is.
 
-- [ ] **Outgoing Damage % full pass** — larger scope than the healing side. Sigils currently
-      contribute ZERO damage-% anywhere in the app (no `CURATED_SIGIL_DAMAGE_BONUSES` table exists).
-      Found 2026-08-21:
-  - **Sigils**: Superior Sigil of Force (flat +5%, wiki-confirmed "Does not stack if used on both
-    main hand and off hand weapons," "Does not affect Condition Damage and Life stealing" — needs
-    its own non-doubling rule, distinct from the already-known active-weapon-set-only rule, see
-    `sigil_bonuses_active_weapon_set_only` memory) is the only WvW-relevant unconditional one; ~20
-    "Slaying" sigils are PvE-monster-type only (no such monsters exist in WvW); Superior Sigil of
-    the Night (3%/10% day-night conditional) needs a design decision on a combat-state toggle.
-  - **Relics**: only 1 of 15 "Damage Increase"-tagged relics is curated so far (Fireworks,
-    `CURATED_RELIC_DAMAGE_BONUSES`) — the other 14 all carry conditions (health thresholds, combo
-    procs, stack counts, class-specific) needing individual wiki verification.
-  - **Traits**: ~148 raw fact-label matches on flat-sounding text across all 9 professions, before
-    dedup across tiers/traited-variants and before excluding ones whose real condition hides in the
-    description rather than the fact text — comparable in size to the biggest coefficient sweeps
-    already completed (Healing/Damage).
+- [ ] **Outgoing Damage % full pass** — Sigils + Relics legs DONE 2026-08-22 (see COMPLETED.md),
+      Traits leg NOT started (the largest remaining piece).
+  - [x] **Sigils** — DONE. `CURATED_SIGIL_DAMAGE_BONUSES`/`CURATED_SIGIL_CONDITION_DAMAGE_BONUSES`
+    in `combat-state.ts`. Superior Sigil of Force (flat +5%, single-application-only per its "does
+    not stack on both weapons" wiki clause, handled outside the normal doubling table). The 18
+    "Slaying" sigils + Superior Sigil of Impact all turned out to carry a genuinely unconditional
+    +3% Strike Damage baseline line alongside their conditional +7% (wiki-verified against Undead
+    Slaying's raw infobox 2026-08-22 — this reverses the original 2026-08-21 scoping note that
+    assumed full exclusion) — only that baseline is curated, the conditional halves excluded as
+    too situational (target monster-type/CC-state this app doesn't track). Superior Sigil of the
+    Night (3% always-on + 7% additional at night) got its own `CombatState.nightActive` toggle,
+    gated in `CombatStatePanel` on the sigil actually being equipped. Superior Sigil of Bursting
+    (+5% Condition Damage, flat since a 2018 rework) feeds `outgoingConditionDamagePercent`.
+  - [x] **Relics** — DONE. All 14 "Damage Increase"-tagged relics now curated in
+    `CURATED_RELIC_DAMAGE_BONUSES` (13 new + Fireworks), gated on the existing `CombatState.
+    relicActive` "assume the proc/trigger condition is satisfied" toggle — every trigger turned out
+    to be player-controlled (evade/trap-hit/shadowstep/stance-use/self-boon-grant/recharge-skill-
+    hit/cantrip/disable/heal-skill/combo-blast) or a target-health-threshold (Eagle, same
+    simplification already used for Relic of Castora's healing side), so no new design decision was
+    needed — just per-relic wiki verification. Relic of Nourys's 6-stat combo line split: its
+    strike-damage (+15% WvW/PvP) and condition-damage (+15% WvW/PvP) halves are curated (the latter
+    into a new `CURATED_RELIC_CONDITION_DAMAGE_BONUSES` table); its incoming-damage-reduction/
+    damage-to-healing-conversion halves are out of scope (no `DerivedStats` field exists for them
+    yet).
+  - [ ] **Traits** — NOT started. ~148 raw fact-label matches on flat-sounding text across all 9
+    professions, before dedup across tiers/traited-variants and before excluding ones whose real
+    condition hides in the description rather than the fact text — comparable in size to the
+    biggest coefficient sweeps already completed (Healing/Damage); likely needs its own per-
+    profession legs like those did, per the `pacing_large_sweeps` memory.
 
 - [x] **Data-completeness audit script** — DONE 2026-08-22, see COMPLETED.md. Built
       `scripts/audit-data-completeness.ts` (`npm run audit-data-completeness`), a local-only
