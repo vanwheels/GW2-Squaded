@@ -142,13 +142,14 @@ export interface BoonConditionSource {
   instanceLabel?: string
   /**
    * A short, wiki-quoted trigger qualifier for a source whose boon/condition only applies on a
-   * specific player action rather than unconditionally on cast/equip — currently only "On Dodge"/
-   * "On Evade" (TODO.md's dodge-roll item, flagged by the user 2026-08-07: "trait procs already
-   * modeled as ordinary facts... likely already flow into totals today... not a calc gap, just
-   * nothing labels it 'from dodging' anywhere in the UI"). Populated ONLY from
-   * `DODGE_TRIGGER_NOTES` — every OTHER source (the overwhelming majority) leaves this `undefined`
-   * and renders no qualifier, same "opt-in curated table, fails open" convention as `instanceLabel`/
-   * `BUFF_INSTANCE_LABELS`. Deliberately narrow in scope: a trait/skill's OWN tooltip already shows
+   * specific player action rather than unconditionally on cast/equip — "On Dodge"/"On Evade" (TODO.md's
+   * dodge-roll item, flagged by the user 2026-08-07: "trait procs already modeled as ordinary
+   * facts... likely already flow into totals today... not a calc gap, just nothing labels it 'from
+   * dodging' anywhere in the UI"), plus "On Warhorn Skill Use" (`WEAPON_SKILL_TRIGGER_NOTES`, added
+   * 2026-08-22 for the same reason — see that table's own doc comment). Populated ONLY from
+   * `DODGE_TRIGGER_NOTES`/`WEAPON_SKILL_TRIGGER_NOTES` — every OTHER source (the overwhelming
+   * majority) leaves this `undefined` and renders no qualifier, same "opt-in curated table, fails
+   * open" convention as `instanceLabel`/`BUFF_INSTANCE_LABELS`. Deliberately narrow in scope: a trait/skill's OWN tooltip already shows
    * its full wiki description above its facts (where "Gain might when you dodge" is already
    * visible), so this field only matters for the AGGREGATE Boon/Condition summary panel
    * (`BoonConditionSummaryPanel`/`SlotTile`), which pools sources by boon name and shows only
@@ -2983,6 +2984,28 @@ export const DODGE_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record
 }
 
 /**
+ * `BoonConditionSource.triggerNote`'s 2nd curated table — same "opt-in, fails open" convention as
+ * `DODGE_TRIGGER_NOTES` (a new sibling table rather than folding into that one, since its own name/
+ * doc comment are dodge/evade-specific).
+ *
+ * - Windborne Notes (Ranger/Beastmastery, Major, id 964): "Grant nearby allies regeneration when you
+ *   use a warhorn skill" — the raw API's own 2 Regeneration facts (pve/wvw+pvp duration split) live
+ *   directly on the trait with no `requires_trait` gate and no corresponding fact on either Warhorn
+ *   skill (Hunter's Call 12620, Call of the Wild 12621 — checked, neither carries a Regeneration
+ *   fact at all), unlike Roaring Reveille's near-identical "Warhorn skills apply additional boons"
+ *   shape (`TARGET_COUNT_OVERRIDES.trait`'s "1471" entry) where the boon facts genuinely do live on
+ *   the gated skills themselves. So this is the one place the data exists, but it reads as an
+ *   unconditional trait-level Regeneration source without a note — user-caught 2026-08-22 ("it says
+ *   it makes Warhorn skills grant regeneration, not the trait itself").
+ */
+export const WEAPON_SKILL_TRIGGER_NOTES: { skill: Record<number, string>; trait: Record<number, string> } = {
+  skill: {},
+  trait: {
+    964: 'On Warhorn Skill Use' // Windborne Notes (Ranger, Beastmastery, Major)
+  }
+}
+
+/**
  * A single Buff-fact occurrence's WvW duration, resolved per-instance rather than per-status —
  * `WvwFactOverride` (in `types/game-data.ts`, keyed only by `status`) can hold exactly one number
  * per status per source, which breaks down when a source's raw facts encode 2+ DIFFERENT concepts
@@ -3340,7 +3363,7 @@ function resolveInstanceValueOverride(
 }
 
 function resolveTriggerNote(sourceKind: 'skill' | 'trait', sourceId: number): string | undefined {
-  return DODGE_TRIGGER_NOTES[sourceKind][sourceId]
+  return DODGE_TRIGGER_NOTES[sourceKind][sourceId] ?? WEAPON_SKILL_TRIGGER_NOTES[sourceKind][sourceId]
 }
 
 /** `${status}@${duration}@${applyCount}` — see `BUFF_INSTANCE_LABELS`'s doc comment for why this
@@ -4106,6 +4129,24 @@ export function legendFormFactsForSkill(
   return out
 }
 
+/**
+ * Trait ids whose `Buff`/`PrefixedBuff` facts are structurally NOT real per-player boon grants,
+ * even though they parse identically to a real one — every generic caller of `extractFromFacts`
+ * checks this before processing a trait's facts at all, so the exclusion applies uniformly to both
+ * `computeBoonConditionSources` (the aggregate) and `boonConditionFactsForTrait` (tooltips).
+ *
+ * - Fortifying Bond (Ranger/Beastmastery, Minor, id 1056): "When you gain a boon, it is shared with
+ *   your pet." The raw API represents this as 12 separate `Buff` facts, one per boon that exists in
+ *   the game (Aegis/Alacrity/Fury/Might/Protection/Quickness/Regeneration/Resistance/Resolution/
+ *   Swiftness/Stability/Vigor) — a template of "whichever boon you already have gets echoed," not
+ *   "this trait grants all 12." User-caught 2026-08-22: without this exclusion, every Ranger with
+ *   Beastmastery equipped showed up as a source of literally every boon in the game. The pet itself
+ *   isn't tracked as an ally target anywhere in this app (see `Familiar`'s own doc comment for the
+ *   parallel reasoning on why familiar combat effects aren't modeled), so there's nothing this
+ *   mechanic could correctly contribute even if it were parsed per-boon.
+ */
+const TRAIT_IDS_EXCLUDED_FROM_BOON_SOURCES: ReadonlySet<number> = new Set([1056])
+
 function extractFromFacts(
   facts: Fact[],
   traitedFacts: Fact[],
@@ -4120,6 +4161,8 @@ function extractFromFacts(
   classify: (status: string) => BoonConditionCategory | null = classifyBoonCondition,
   legends: Legend[] = []
 ): BoonConditionSource[] {
+  if (sourceKind === 'trait' && TRAIT_IDS_EXCLUDED_FROM_BOON_SOURCES.has(sourceId)) return []
+
   const out: BoonConditionSource[] = []
   const emittedOverriddenStatuses = new Set<string>()
   const combinedFacts = [...facts, ...traitedFacts]

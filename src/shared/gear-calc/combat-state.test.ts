@@ -32,7 +32,7 @@ import {
   resolveIncomingHealingPercent,
   resolveMovementSpeedPercent,
   resolveOutgoingHealingPercent,
-  RIGHTEOUS_REBEL_HEALING_PERCENT_PER_STACK,
+  RIGHTEOUS_REBEL_HEALING_PERCENT,
   RIGHTEOUS_REBEL_TRAIT_ID,
   RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT,
   RISING_MOMENTUM_TRAIT_ID,
@@ -489,10 +489,16 @@ describe("resolveOutgoingHealingPercent — Righteous Rebel (Kalla's Fervor per-
     expect(result).toBe(0)
   })
 
-  it.each([0, 3, KALLA_FERVOR_MAX_STACKS])('scales per stack once Righteous Rebel is chosen, at %i stacks', (stacks) => {
+  it.each([1, 3, KALLA_FERVOR_MAX_STACKS])('contributes the same flat %% at any stack count ≥ 1 once Righteous Rebel is chosen (%i stacks)', (stacks) => {
     const { build, traitsById } = buildWithTrait(RIGHTEOUS_REBEL_TRAIT_ID, 'Major')
     const result = resolveOutgoingHealingPercent(build, { ...DEFAULT_COMBAT_STATE, kallaFervorStacks: stacks }, traitsById, ZERO_HEALING_ATTRIBUTES)
-    expect(result).toBe(stacks * RIGHTEOUS_REBEL_HEALING_PERCENT_PER_STACK)
+    expect(result).toBe(RIGHTEOUS_REBEL_HEALING_PERCENT)
+  })
+
+  it('contributes nothing at 0 stacks even with Righteous Rebel chosen', () => {
+    const { build, traitsById } = buildWithTrait(RIGHTEOUS_REBEL_TRAIT_ID, 'Major')
+    const result = resolveOutgoingHealingPercent(build, { ...DEFAULT_COMBAT_STATE, kallaFervorStacks: 0 }, traitsById, ZERO_HEALING_ATTRIBUTES)
+    expect(result).toBe(0)
   })
 })
 

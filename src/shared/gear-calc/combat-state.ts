@@ -170,12 +170,18 @@ export interface KallaFervorPercentPerStack {
   strikeDamage: number
   conditionDamage: number
   lifeSteal: number
-  /** Righteous Rebel's own per-stack outgoing-healing-to-others share — unlike the 3 fields above,
-   *  this is 0 unless Righteous Rebel itself (`RIGHTEOUS_REBEL_TRAIT_ID`) is chosen, since (unlike
-   *  the baseline strike/condition/life-steal shares, which Kalla's Fervor grants regardless of
-   *  which GM trait is picked) healing-to-others is Righteous Rebel's *own* effect on the buff, not
-   *  part of Kalla's Fervor's own baseline. Not affected by Lasting Legacy's upgrade (a different
-   *  GM-tier pick in the same line — wiki gives no evidence the two interact). */
+  /** Righteous Rebel's own outgoing-healing-to-others bonus while Kalla's Fervor is active — unlike
+   *  the 3 fields above (which scale *per stack*), this is a flat value applied once whenever
+   *  `CombatState.kallaFervorStacks > 0`, not multiplied by the stack count (user-caught 2026-08-22:
+   *  the wiki's "Kalla's Fervor increases your healing to other allies" fact carries no "per stack"
+   *  language the way Kalla's Fervor's own strike/condition/life-steal shares do — the raw API fact
+   *  is a single flat 4%, same regardless of whether 1 or 5 stacks are up). 0 unless Righteous Rebel
+   *  itself (`RIGHTEOUS_REBEL_TRAIT_ID`) is chosen, since (unlike the baseline strike/condition/
+   *  life-steal shares, which Kalla's Fervor grants regardless of which GM trait is picked)
+   *  healing-to-others is Righteous Rebel's *own* effect on the buff, not part of Kalla's Fervor's
+   *  own baseline. Not affected by Lasting Legacy's upgrade (a different GM-tier pick in the same
+   *  line — wiki gives no evidence the two interact). See `resolveOutgoingHealingPercent`'s own use
+   *  of this field for the flat (not `stacks *`) application. */
   outgoingHealing: number
   /** Whether Lasting Legacy's upgraded per-stack values are the ones being returned — surfaced so
    *  `CombatStatePanel` can label its stepper accordingly. */
@@ -183,12 +189,15 @@ export interface KallaFervorPercentPerStack {
 }
 
 /** Renegade/Grandmaster major trait "Righteous Rebel" (id 2182) — wiki-verified via raw wikitext
- *  2026-08-22: "Kalla's Fervor increases your healing to other allies" — flat 4% Healing Increase
- *  to Others per stack, no game-mode split. Mutually exclusive with Lasting Legacy (same GM tier,
+ *  2026-08-22: "Kalla's Fervor increases your healing to other allies" — a flat 4% Healing Increase
+ *  to Others while Kalla's Fervor is active (i.e. at least 1 stack), no game-mode split, and no
+ *  per-stack scaling (corrected 2026-08-22 — see `KallaFervorPercentPerStack.outgoingHealing`'s doc
+ *  comment; originally miscoded as `stacks * 4`, matching the 3 sibling fields' shape instead of
+ *  this one's genuinely different, flat one). Mutually exclusive with Lasting Legacy (same GM tier,
  *  same Renegade line), so a build never has both — `kallaFervorPercentPerStack` gates this
  *  independently of the `improved` flag regardless. */
 export const RIGHTEOUS_REBEL_TRAIT_ID = 2182
-export const RIGHTEOUS_REBEL_HEALING_PERCENT_PER_STACK = 4
+export const RIGHTEOUS_REBEL_HEALING_PERCENT = 4
 
 /** Resolves Kalla's Fervor's actual per-stack %-per-stat, upgraded by Lasting Legacy when it's
  *  chosen — mirrors `mightStackAttributeTraitBonus`'s "check `activeTraitIds` once" convention, but
@@ -197,7 +206,7 @@ export const RIGHTEOUS_REBEL_HEALING_PERCENT_PER_STACK = 4
 export function kallaFervorPercentPerStack(build: Build, traitsById: Map<number, Trait>): KallaFervorPercentPerStack {
   const active = activeTraitIds(build, traitsById)
   const improved = active.has(LASTING_LEGACY_TRAIT_ID)
-  const outgoingHealing = active.has(RIGHTEOUS_REBEL_TRAIT_ID) ? RIGHTEOUS_REBEL_HEALING_PERCENT_PER_STACK : 0
+  const outgoingHealing = active.has(RIGHTEOUS_REBEL_TRAIT_ID) ? RIGHTEOUS_REBEL_HEALING_PERCENT : 0
   return improved
     ? {
         strikeDamage: KALLA_FERVOR_IMPROVED_STRIKE_DAMAGE_PERCENT_PER_STACK,
@@ -1512,8 +1521,11 @@ export function resolveOutgoingHealingPercent(
     if (active.has(Number(traitIdText))) total += percent
   }
 
+  // Righteous Rebel's healing share is flat while Kalla's Fervor is active, unlike the per-stack
+  // strike/condition/life-steal shares elsewhere in this file — see `KallaFervorPercentPerStack.
+  // outgoingHealing`'s doc comment. Deliberately NOT `stacks * outgoingHealing`.
   const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
-  total += combatState.kallaFervorStacks * kallaFervorPerStack.outgoingHealing
+  if (combatState.kallaFervorStacks > 0) total += kallaFervorPerStack.outgoingHealing
 
   if (active.has(SERENE_REJUVENATION_TRAIT_ID)) {
     total += active.has(NUMINOUS_GIFT_TRAIT_ID) ? SERENE_REJUVENATION_UPGRADED_HEALING_PERCENT : SERENE_REJUVENATION_BASE_HEALING_PERCENT
