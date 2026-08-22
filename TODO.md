@@ -87,44 +87,12 @@ limitation) — do that before extending either further.
 User-initiated research thread, not yet begun — explicitly paused before any curation/coding so the
 research itself could be as thorough as possible first. All 5 items below come out of that session.
 
-- [ ] **Outgoing Healing % / Incoming Healing %** — mirrors the existing `outgoingDamagePercent`
-      pattern (`derived-stats.ts`): a standalone `StatsPanel` row, NOT folded into per-skill
-      Healing-table numbers (same reasoning `outgoingDamagePercent` already established — it isn't
-      threaded through the Damage table either). Wiki-confirmed 2026-08-21 via the `Healing` wiki
-      page's own Notes section (raw wikitext, not paraphrased): "Outgoing healing modifiers stack
-      additively." Also found: Regeneration-specific modifiers (e.g. Relic of Dwayna) stack
-      additively among themselves, then MULTIPLY with general outgoing-healing modifiers — relevant
-      if a Regen-boosting source is ever curated.
-
-  Candidates found via a full multi-file scan (traits.json facts+traitedFacts+description text,
-  sigils.json/runes.json descriptions, relic-effects.json facts+nested `params.desc`/`alt`,
-  food.json/utility.json bonuses) — discovered, NOT yet individually wiki-verified:
-  - **Outgoing (to allies/others)**: Righteous Rebel (Renegade, 4%, via Kalla's Fervor); Invoking
-    Harmony (Salvation, 10/15/20% across 3 tiers — **missing its own Duration fact entirely**,
-    believed ~10s, needs a wiki check); Serene Rejuvenation (Salvation, 15/20%, labeled generically
-    "Effectiveness Increased" in its own fact — the word "healing" only appears in the trait's prose
-    description, not the fact); Absolute Resolve / Life from Death / Dance of Death (Necromancer,
-    25/10/100% — self-vs-others unconfirmed); Force of Will (Necromancer, scales per 100 Vitality);
-    Stalwart Focus (10/15%, also separately carries an Incoming-Healing fact on the same trait);
-    Relic of the Monk (1%/stack to max 10 = 10% — the real value is hidden inside a nested
-    `params.desc` string, not the top-level label, which just reads `"effect"`); Superior Sigil of
-    Transference (flat 10%); Superior Sigil of Benevolence (a *stacking* sigil, 0.5%/kill to max 25
-    stacks = 12.5%); ~25 WvW "Mint"-family food items sharing one flat 10% value (e.g. Bowl of Fruit
-    Salad with Mint Garnish); Bowl of Tapioca Pudding (10%) / Canned Rice Ball with "Lucky" Filling
-    (8%); Bountiful Maintenance Oil (Station) family (0.6%/100 Healing Power + 0.8%/100
-    Concentration — likely reuses the existing attribute-conversion resolver,
-    `applyConversions`/`activeConsumableConversions`, rather than needing new infra); Relic of
-    Castora (conditional on target health threshold); Relic of the Defender (5% flat + a murky
-    block-based min/max mechanic); Relic of Zakiros (7%, ambiguous label).
-  - **Incoming (to self)**: Health Insurance, Vital Persistence (2 tiers), Stalwart Focus.
-  - **Confirmed false positives, exclude**: every rune's flat "+X Healing" is the Healing Power
-    attribute, already modeled elsewhere, not an effectiveness modifier; most "Gain X equal to N% of
-    Healing Power" utility items convert INTO Healing Power/Concentration, unrelated mechanic;
-    several relics (Flock, Vampirism, Nayos, Karakosa, Sorrow, Biomancer, Nautical Beast) are
-    ordinary heal-on-proc coefficients, same shape as `CURATED_HEALING_COEFFICIENTS`, not
-    effectiveness modifiers; Relic of the Demon Queen's "Healing Reduction" is an enemy debuff, not
-    a self-modifier; Relic of Nourys converts damage into healing (a different mechanic); Bloodstone
-    Pot Pie is a joke-food *penalty* ("healing effectiveness is halved").
+- [x] **Outgoing Healing % / Incoming Healing %** — DONE 2026-08-22, see COMPLETED.md. Shipped as 2
+      new `DerivedStats` fields + a new `StatsPanel` row pair, wired through `combat-state.ts`'s
+      `resolveOutgoingHealingPercent`/`resolveIncomingHealingPercent`. Regeneration-specific
+      modifiers (e.g. Relic of Dwayna) stacking additively-then-multiplicatively with general
+      outgoing-healing modifiers was noted during scoping but no Regen-boosting source has been
+      curated yet, so that interaction has no code to exercise it — revisit if one ever is.
 
 - [ ] **Outgoing Damage % full pass** — larger scope than the healing side. Sigils currently
       contribute ZERO damage-% anywhere in the app (no `CURATED_SIGIL_DAMAGE_BONUSES` table exists).
@@ -158,14 +126,19 @@ the Healing/Damage coefficient tables) — this is a candidate list, not a fix l
 expected to turn out to be legitimate non-gaps once looked at.
 
 **Shape 1 — opaque/generic fact labels on skills/traits (21 hits):** all but 1 are a `Percent` fact
-literally labeled "Effectiveness Increased" with no other field naming what it affects — the same
-shape Serene Rejuvenation (already scoped above) turned out to be. Skill: Stone Resonance (44926).
-Traits: Perfect Inscriptions (579), Banshee's Wail (799), Soul Comprehension (839), Gluttony (887),
-Aquamancer's Training (1676, 2 tiers), Serene Rejuvenation (1814, 4 entries — already scoped),
-Hardy Conduit (1948), Soothing Power (2028), Elemental Pursuit (2165), Amplified Siphoning (2288),
-Bolstered Bonds (2331), Double Helix (2334, 2 tiers), Bird of Prey (2363), Spirit's Strength (2421,
-2 tiers). Each needs its own prose-description read (same as Serene Rejuvenation's own trait
-`description` field) to find what the percent actually modifies before it can be curated anywhere.
+literally labeled "Effectiveness Increased" with no other field naming what it affects. Skill: Stone
+Resonance (44926, not yet read). Traits, triaged 2026-08-22 (see COMPLETED.md's Session 276): 2 were
+about healing and are now curated (Aquamancer's Training 1676, Serene Rejuvenation 1814 — both in
+`combat-state.ts`'s `FLAT_OUTGOING_HEALING_TRAIT_BONUSES`/`SERENE_REJUVENATION_*`); the other 12 each
+modify a *different* stat (read via each trait's own `description` field, no wiki fetch needed) and
+remain uncurated in whatever their own system is: Signet effectiveness (Perfect Inscriptions 579,
+Mech Core: J-Drive 2298), Warhorn skill duration (Banshee's Wail 799), life-force gain (Soul
+Comprehension 839, Gluttony 887), Protection damage-reduction (Hardy Conduit 1948), a specific
+skill's own coefficient (Soothing Power 2028 — Soothing Mist, same shape as `Absolute Resolve`'s
+exclusion in Session 276), Swiftness effectiveness (Elemental Pursuit 2165, Bird of Prey 2363),
+Barrier/shadow-force (Amplified Siphoning 2288), attribute gain (Bolstered Bonds 2331, Double Helix
+2334), and summoned-creature healing (Spirit's Strength 2421 — a pet-heal boost, not the player's
+own, also excluded in Session 276).
 
 **Shape 1 — opaque/generic labels on relic/tome-chapter facts (42 hits):** overwhelmingly relic
 `"label": "effect"` facts (the wiki template's own generic first-parameter convention for relics —
@@ -186,6 +159,11 @@ alone isn't itself the actionable signal here, just the marker that led to Shape
 open gap is the one already scoped above ("Outgoing Damage % full pass" / "Outgoing Healing %"):
 none of these values are wired into any calculator (aggregate stats, damage %, healing %) — this
 list is just useful raw material for whoever curates those, not a newly-discovered display bug.
+Relic of the Monk and Relic of Castora were curated into Outgoing Healing % in Session 276
+(COMPLETED.md); tome chapter "Epilogue: Eternal Oasis" was evaluated and deliberately excluded from
+that same sweep — its "+20% Heal Effectiveness" is a transient buff applied to allies on cast, not a
+steady-state build stat, same "not a character stat gain" reasoning already applied to Mist Form/
+Signet of the Locust in the movement-speed sweep.
 Relic of the Monk (100031, "+1% Healing Increase to Others" — the original healing-effectiveness
 research seed);
 Relic of the Herald (100219, "25 Concentration"); Relic of the Scourge (100368, "+1½% Condition

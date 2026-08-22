@@ -22,7 +22,9 @@ import {
   highHealthCritChanceTraitBonus,
   kallaFervorPercentPerStack,
   mechanicActiveCritChanceTraitBonus,
+  resolveIncomingHealingPercent,
   resolveMovementSpeedPercent,
+  resolveOutgoingHealingPercent,
   type CombatState
 } from './combat-state'
 import { applyTraitBonuses, maxHealthPercentTraitBonus } from './trait-attributes'
@@ -162,6 +164,14 @@ export interface DerivedStats {
    *  upkeep-scaling contribution" formula) for the real combination rule and the full list of
    *  curated runes/traits/relic. 0 for every build with none of those active. */
   movementSpeedPercent: number
+  /** Outgoing-healing-%-to-other-allies bonus — plain additive stacking (wiki-confirmed, see
+   *  `combat-state.ts`'s `resolveOutgoingHealingPercent` doc comment), unlike `movementSpeedPercent`'s
+   *  "highest wins" rule. 0 for every build with none of its curated trait/relic/sigil/food/utility
+   *  sources active. */
+  outgoingHealingPercent: number
+  /** Incoming-healing-%-to-self bonus — sibling to `outgoingHealingPercent`, same additive-stacking
+   *  rule, currently sourced only from flat trait bonuses (see `resolveIncomingHealingPercent`). */
+  incomingHealingPercent: number
 }
 
 export interface CharacterStats {
@@ -241,7 +251,13 @@ export function computeCharacterStats(
       combatState.kallaFervorStacks * kallaFervorPerStack.strikeDamage,
     outgoingConditionDamagePercent: combatState.kallaFervorStacks * kallaFervorPerStack.conditionDamage,
     lifeStealPercent: combatState.kallaFervorStacks * kallaFervorPerStack.lifeSteal,
-    movementSpeedPercent: resolveMovementSpeedPercent(build, combatState, totals.bonusPercent.movementSpeed, traitsById)
+    movementSpeedPercent: resolveMovementSpeedPercent(build, combatState, totals.bonusPercent.movementSpeed, traitsById),
+    outgoingHealingPercent: resolveOutgoingHealingPercent(build, combatState, traitsById, {
+      healingPower: attributes.healingPower,
+      concentration: attributes.concentration,
+      vitality: attributes.vitality
+    }),
+    incomingHealingPercent: resolveIncomingHealingPercent(build, traitsById)
   }
 
   return { attributes, derived }

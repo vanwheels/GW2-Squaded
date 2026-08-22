@@ -1,11 +1,20 @@
 import { describe, expect, it } from 'vitest'
 import type { Build, Trait, TraitSlot } from '../types'
 import {
+  CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES,
   combatStatePoints,
+  CURATED_FOOD_OUTGOING_HEALING_BONUSES,
   CURATED_RELIC_DAMAGE_BONUSES,
+  CURATED_RELIC_OUTGOING_HEALING_BONUSES,
+  CURATED_SIGIL_OUTGOING_HEALING_BONUSES,
+  CURATED_UTILITY_OUTGOING_HEALING_ATTRIBUTE_SCALING,
   DEATHS_CARAPACE_TOUGHNESS_PER_STACK,
   DEFAULT_COMBAT_STATE,
+  FORCE_OF_WILL_HEALING_PERCENT_PER_100_VITALITY,
+  FORCE_OF_WILL_TRAIT_ID,
   FURY_CRITICAL_CHANCE_PERCENT,
+  INVOKING_HARMONY_HEALING_PERCENT,
+  INVOKING_HARMONY_TRAIT_ID,
   KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK,
   KALLA_FERVOR_IMPROVED_CONDITION_DAMAGE_PERCENT_PER_STACK,
   KALLA_FERVOR_IMPROVED_LIFE_STEAL_PERCENT_PER_STACK,
@@ -15,11 +24,21 @@ import {
   KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK,
   kallaFervorPercentPerStack,
   LASTING_LEGACY_TRAIT_ID,
+  MED_KIT_OUTGOING_HEALING_TRAIT_BONUSES,
+  MED_KIT_SKILL_ID,
   MIGHT_CONDITION_DAMAGE_PER_STACK,
   MIGHT_POWER_PER_STACK,
+  NUMINOUS_GIFT_TRAIT_ID,
+  resolveIncomingHealingPercent,
   resolveMovementSpeedPercent,
+  resolveOutgoingHealingPercent,
+  RIGHTEOUS_REBEL_HEALING_PERCENT_PER_STACK,
+  RIGHTEOUS_REBEL_TRAIT_ID,
   RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT,
   RISING_MOMENTUM_TRAIT_ID,
+  SERENE_REJUVENATION_BASE_HEALING_PERCENT,
+  SERENE_REJUVENATION_TRAIT_ID,
+  SERENE_REJUVENATION_UPGRADED_HEALING_PERCENT,
   type CombatState,
   type HealthTier
 } from './combat-state'
@@ -280,6 +299,7 @@ describe('kallaFervorPercentPerStack', () => {
       strikeDamage: KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK,
       conditionDamage: KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK,
       lifeSteal: KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK,
+      outgoingHealing: 0,
       improved: false
     })
   })
@@ -291,6 +311,7 @@ describe('kallaFervorPercentPerStack', () => {
       strikeDamage: KALLA_FERVOR_IMPROVED_STRIKE_DAMAGE_PERCENT_PER_STACK,
       conditionDamage: KALLA_FERVOR_IMPROVED_CONDITION_DAMAGE_PERCENT_PER_STACK,
       lifeSteal: KALLA_FERVOR_IMPROVED_LIFE_STEAL_PERCENT_PER_STACK,
+      outgoingHealing: 0,
       improved: true
     })
   })
@@ -435,5 +456,221 @@ describe('computeCharacterStats — furyActive critical chance (off / on / on wi
     const { build, traitsById } = buildWithTrait(1719, 'Major')
     const { derived } = computeCharacterStats(build, { ...EMPTY_GAME_DATA, traits: [...traitsById.values()] }, { ...DEFAULT_COMBAT_STATE, furyActive: true })
     expect(derived.criticalChance).toBe(BASE_CRITICAL_CHANCE_PERCENT + FURY_CRITICAL_CHANCE_PERCENT + 20)
+  })
+})
+
+const ZERO_HEALING_ATTRIBUTES = { healingPower: 0, concentration: 0, vitality: 1000 } // base Vitality with no gear
+
+describe('resolveOutgoingHealingPercent — flat trait sources', () => {
+  it('is 0 with no curated trait chosen', () => {
+    const build = makeBuild()
+    expect(resolveOutgoingHealingPercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS, ZERO_HEALING_ATTRIBUTES)).toBe(0)
+  })
+
+  it('sums 2 independent flat curated traits (Life from Death + Illusionary Inspiration)', () => {
+    const { build, traitsById } = buildWithTraits([
+      { id: 789, slot: 'Major' }, // Life from Death: +10%
+      { id: 1915, slot: 'Minor' } // Illusionary Inspiration: +5%
+    ])
+    expect(resolveOutgoingHealingPercent(build, DEFAULT_COMBAT_STATE, traitsById, ZERO_HEALING_ATTRIBUTES)).toBe(15)
+  })
+
+  it("sums Stalwart Focus's own outgoing half independently of its incoming half", () => {
+    const { build, traitsById } = buildWithTrait(1381, 'Major') // Stalwart Focus
+    expect(resolveOutgoingHealingPercent(build, DEFAULT_COMBAT_STATE, traitsById, ZERO_HEALING_ATTRIBUTES)).toBe(10)
+    expect(resolveIncomingHealingPercent(build, traitsById)).toBe(3)
+  })
+})
+
+describe("resolveOutgoingHealingPercent — Righteous Rebel (Kalla's Fervor per-stack healing share)", () => {
+  it("contributes nothing per Kalla's Fervor stack without Righteous Rebel chosen", () => {
+    const build = makeBuild()
+    const result = resolveOutgoingHealingPercent(build, { ...DEFAULT_COMBAT_STATE, kallaFervorStacks: KALLA_FERVOR_MAX_STACKS }, NO_TRAITS, ZERO_HEALING_ATTRIBUTES)
+    expect(result).toBe(0)
+  })
+
+  it.each([0, 3, KALLA_FERVOR_MAX_STACKS])('scales per stack once Righteous Rebel is chosen, at %i stacks', (stacks) => {
+    const { build, traitsById } = buildWithTrait(RIGHTEOUS_REBEL_TRAIT_ID, 'Major')
+    const result = resolveOutgoingHealingPercent(build, { ...DEFAULT_COMBAT_STATE, kallaFervorStacks: stacks }, traitsById, ZERO_HEALING_ATTRIBUTES)
+    expect(result).toBe(stacks * RIGHTEOUS_REBEL_HEALING_PERCENT_PER_STACK)
+  })
+})
+
+describe('resolveOutgoingHealingPercent — Serene Rejuvenation (auto-active minor, Numinous-Gift-upgraded)', () => {
+  it('grants the base % once Salvation is equipped, with no other trait chosen', () => {
+    const { build, traitsById } = buildWithTrait(SERENE_REJUVENATION_TRAIT_ID, 'Minor')
+    expect(resolveOutgoingHealingPercent(build, DEFAULT_COMBAT_STATE, traitsById, ZERO_HEALING_ATTRIBUTES)).toBe(SERENE_REJUVENATION_BASE_HEALING_PERCENT)
+  })
+
+  it('upgrades to the higher % once Numinous Gift is also chosen', () => {
+    const { build, traitsById } = buildWithTraits([
+      { id: SERENE_REJUVENATION_TRAIT_ID, slot: 'Minor' },
+      { id: NUMINOUS_GIFT_TRAIT_ID, slot: 'Major' }
+    ])
+    expect(resolveOutgoingHealingPercent(build, DEFAULT_COMBAT_STATE, traitsById, ZERO_HEALING_ATTRIBUTES)).toBe(SERENE_REJUVENATION_UPGRADED_HEALING_PERCENT)
+  })
+})
+
+describe('resolveOutgoingHealingPercent — Invoking Harmony (proc-window gated)', () => {
+  it('contributes nothing while the proc window is off, even with the trait chosen', () => {
+    const { build, traitsById } = buildWithTrait(INVOKING_HARMONY_TRAIT_ID, 'Major')
+    expect(resolveOutgoingHealingPercent(build, { ...DEFAULT_COMBAT_STATE, invokingHarmonyActive: false }, traitsById, ZERO_HEALING_ATTRIBUTES)).toBe(0)
+  })
+
+  it('contributes its flat % while the proc window is on and the trait is chosen', () => {
+    const { build, traitsById } = buildWithTrait(INVOKING_HARMONY_TRAIT_ID, 'Major')
+    expect(resolveOutgoingHealingPercent(build, { ...DEFAULT_COMBAT_STATE, invokingHarmonyActive: true }, traitsById, ZERO_HEALING_ATTRIBUTES)).toBe(
+      INVOKING_HARMONY_HEALING_PERCENT
+    )
+  })
+
+  it('never contributes when the toggle is on but the trait is not actually chosen', () => {
+    const build = makeBuild()
+    expect(resolveOutgoingHealingPercent(build, { ...DEFAULT_COMBAT_STATE, invokingHarmonyActive: true }, NO_TRAITS, ZERO_HEALING_ATTRIBUTES)).toBe(0)
+  })
+})
+
+describe('resolveOutgoingHealingPercent — Lingering Light (Celestial Avatar form gated)', () => {
+  it('contributes nothing outside Celestial Avatar form', () => {
+    const { build, traitsById } = buildWithTrait(2058, 'Major') // Lingering Light
+    expect(resolveOutgoingHealingPercent(build, { ...DEFAULT_COMBAT_STATE, celestialAvatarActive: false }, traitsById, ZERO_HEALING_ATTRIBUTES)).toBe(0)
+  })
+
+  it('contributes its flat % while in Celestial Avatar form', () => {
+    const { build, traitsById } = buildWithTrait(2058, 'Major')
+    expect(resolveOutgoingHealingPercent(build, { ...DEFAULT_COMBAT_STATE, celestialAvatarActive: true }, traitsById, ZERO_HEALING_ATTRIBUTES)).toBe(
+      CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES[2058]
+    )
+  })
+})
+
+describe('resolveOutgoingHealingPercent — Force of Will (continuous per-100-Vitality scaling)', () => {
+  it('is 0 without the trait chosen, regardless of Vitality', () => {
+    const build = makeBuild()
+    expect(resolveOutgoingHealingPercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS, { healingPower: 0, concentration: 0, vitality: 2500 })).toBe(0)
+  })
+
+  it.each([1000, 1500, 2500])('scales continuously (not stepped) at %i Vitality once chosen', (vitality) => {
+    const { build, traitsById } = buildWithTrait(FORCE_OF_WILL_TRAIT_ID, 'Major')
+    const result = resolveOutgoingHealingPercent(build, DEFAULT_COMBAT_STATE, traitsById, { healingPower: 0, concentration: 0, vitality })
+    expect(result).toBeCloseTo((vitality / 100) * FORCE_OF_WILL_HEALING_PERCENT_PER_100_VITALITY)
+  })
+})
+
+describe('resolveOutgoingHealingPercent — Health Insurance (Med Kit heal-skill gated)', () => {
+  it('contributes its flat incoming % regardless of Med Kit, but 0 outgoing without Med Kit equipped', () => {
+    const { build, traitsById } = buildWithTrait(521, 'Major') // Health Insurance
+    expect(resolveOutgoingHealingPercent(build, DEFAULT_COMBAT_STATE, traitsById, ZERO_HEALING_ATTRIBUTES)).toBe(0)
+    expect(resolveIncomingHealingPercent(build, traitsById)).toBe(10)
+  })
+
+  it('adds the Med-Kit-gated outgoing % once Med Kit is the equipped Heal skill', () => {
+    const { build, traitsById } = buildWithTrait(521, 'Major')
+    const withMedKit: Build = { ...build, skills: { kind: 'standard', heal: MED_KIT_SKILL_ID, utility: [null, null, null], elite: null } }
+    expect(resolveOutgoingHealingPercent(withMedKit, DEFAULT_COMBAT_STATE, traitsById, ZERO_HEALING_ATTRIBUTES)).toBe(MED_KIT_OUTGOING_HEALING_TRAIT_BONUSES[521])
+  })
+})
+
+describe('resolveOutgoingHealingPercent — curated relic (Relic of Castora, health-threshold-proc gated)', () => {
+  it('contributes nothing while relicActive is off', () => {
+    const build = makeBuild({ relicId: 105652 })
+    expect(resolveOutgoingHealingPercent(build, { ...DEFAULT_COMBAT_STATE, relicActive: false }, NO_TRAITS, ZERO_HEALING_ATTRIBUTES)).toBe(0)
+  })
+
+  it('contributes the curated bonus while relicActive is on and the relic is equipped', () => {
+    const build = makeBuild({ relicId: 105652 })
+    expect(resolveOutgoingHealingPercent(build, { ...DEFAULT_COMBAT_STATE, relicActive: true }, NO_TRAITS, ZERO_HEALING_ATTRIBUTES)).toBe(
+      CURATED_RELIC_OUTGOING_HEALING_BONUSES[105652]
+    )
+  })
+})
+
+describe('resolveOutgoingHealingPercent — curated sigil (Superior Sigil of Transference, active-set-only, doubles on dual 1h)', () => {
+  const sigilId = 74326
+
+  it('contributes nothing when equipped only on the inactive weapon set', () => {
+    const build = makeBuild({
+      activeWeaponSet: 'A',
+      equipment: { weaponB1: { itemStatId: null, sigilIds: [sigilId] } }
+    })
+    expect(resolveOutgoingHealingPercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS, ZERO_HEALING_ATTRIBUTES)).toBe(0)
+  })
+
+  it('contributes once when equipped on one active-set weapon', () => {
+    const build = makeBuild({
+      activeWeaponSet: 'A',
+      equipment: { weaponA1: { itemStatId: null, sigilIds: [sigilId] } }
+    })
+    expect(resolveOutgoingHealingPercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS, ZERO_HEALING_ATTRIBUTES)).toBe(CURATED_SIGIL_OUTGOING_HEALING_BONUSES[sigilId])
+  })
+
+  it('doubles when equipped on both active-set main-hand and off-hand weapons', () => {
+    const build = makeBuild({
+      activeWeaponSet: 'A',
+      equipment: {
+        weaponA1: { itemStatId: null, sigilIds: [sigilId] },
+        weaponA2: { itemStatId: null, sigilIds: [sigilId] }
+      }
+    })
+    expect(resolveOutgoingHealingPercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS, ZERO_HEALING_ATTRIBUTES)).toBe(2 * CURATED_SIGIL_OUTGOING_HEALING_BONUSES[sigilId])
+  })
+})
+
+describe("resolveOutgoingHealingPercent — Superior Sigil of Benevolence (stacking sigil, reuses stackingSigilStacks)", () => {
+  const sigilId = 24584
+
+  it('contributes nothing at 0 stacks even when equipped', () => {
+    const build = makeBuild({ equipment: { weaponA1: { itemStatId: null, sigilIds: [sigilId] } } })
+    expect(resolveOutgoingHealingPercent(build, { ...DEFAULT_COMBAT_STATE, stackingSigilStacks: 0 }, NO_TRAITS, ZERO_HEALING_ATTRIBUTES)).toBe(0)
+  })
+
+  it.each([5, 25])('scales at 0.5%% per stack, at %i stacks', (stacks) => {
+    const build = makeBuild({ equipment: { weaponA1: { itemStatId: null, sigilIds: [sigilId] } } })
+    const result = resolveOutgoingHealingPercent(build, { ...DEFAULT_COMBAT_STATE, stackingSigilStacks: stacks }, NO_TRAITS, ZERO_HEALING_ATTRIBUTES)
+    expect(result).toBeCloseTo(stacks * 0.5)
+  })
+
+  it("does not feed OutgoingHealingPercent into combatStatePoints's core-attribute totals", () => {
+    const build = makeBuild({ equipment: { weaponA1: { itemStatId: null, sigilIds: [sigilId] } } })
+    const points = combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, stackingSigilStacks: 25 }, NO_TRAITS)
+    expect(points.OutgoingHealingPercent).toBeUndefined()
+  })
+})
+
+describe('resolveOutgoingHealingPercent — curated food/utility', () => {
+  it('sums a flat curated food bonus (Bowl of Tapioca Pudding)', () => {
+    const build = makeBuild({ foodId: 76840 })
+    expect(resolveOutgoingHealingPercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS, ZERO_HEALING_ATTRIBUTES)).toBe(CURATED_FOOD_OUTGOING_HEALING_BONUSES[76840])
+  })
+
+  it('scales the Bountiful Maintenance Oil family continuously by Healing Power and Concentration', () => {
+    const build = makeBuild({ utilityId: 67528 })
+    const scaling = CURATED_UTILITY_OUTGOING_HEALING_ATTRIBUTE_SCALING[67528]
+    const attributes = { healingPower: 300, concentration: 200, vitality: 1000 }
+    const result = resolveOutgoingHealingPercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS, attributes)
+    expect(result).toBeCloseTo((300 / 100) * scaling.perHealingPower + (200 / 100) * scaling.perConcentration)
+  })
+})
+
+describe('resolveIncomingHealingPercent', () => {
+  it('is 0 with no curated trait chosen', () => {
+    expect(resolveIncomingHealingPercent(makeBuild(), NO_TRAITS)).toBe(0)
+  })
+
+  it('sums 2 independent flat curated traits (Health Insurance + Vital Persistence)', () => {
+    const { build, traitsById } = buildWithTraits([
+      { id: 521, slot: 'Major' }, // Health Insurance: +10%
+      { id: 861, slot: 'Major' } // Vital Persistence: +10%
+    ])
+    expect(resolveIncomingHealingPercent(build, traitsById)).toBe(20)
+  })
+})
+
+describe('computeCharacterStats — outgoingHealingPercent/incomingHealingPercent end to end', () => {
+  it('reflects a flat trait bonus through the full attribute/derived-stats pipeline', () => {
+    const { build, traitsById } = buildWithTrait(789, 'Major') // Life from Death
+    const { derived } = computeCharacterStats(build, { ...EMPTY_GAME_DATA, traits: [...traitsById.values()] }, DEFAULT_COMBAT_STATE)
+    expect(derived.outgoingHealingPercent).toBe(10)
+    expect(derived.incomingHealingPercent).toBe(0)
   })
 })

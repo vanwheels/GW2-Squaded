@@ -1,5 +1,5 @@
 import type { Build, Consumable, EquipmentSlotKey, Trait } from '../types'
-import { ALL_CORE_ATTRIBUTE_KEYS } from './attribute-totals'
+import { ALL_CORE_ATTRIBUTE_KEYS, isActiveWeaponSlot } from './attribute-totals'
 import { activeTraitIds, activeWeaponTypes } from './trait-attributes'
 
 /**
@@ -92,6 +92,19 @@ export interface CombatState {
    *  input on `RISING_MOMENTUM_TRAIT_ID`, same pattern as `mechanicActive`/`revealedActive`'s
    *  single-trait gates). */
   upkeepPoints: number
+  /** Gates `CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES` (currently just Lingering Light) — a
+   *  real in-combat state (actually shapeshifted into Celestial Avatar form), not a build choice,
+   *  same "assume the condition is currently true" shape as `furyActive`/`mechanicActive`.
+   *  Deliberately distinct from `Build.activeBundleSkillId` (Ranger/Druid's own Celestial-Avatar
+   *  entry there is display-only and doesn't gate boon/condition totals, per that field's own doc
+   *  comment) — Lingering Light's bonus genuinely only applies while actually shapeshifted, so it
+   *  needs its own toggle here instead. */
+  celestialAvatarActive: boolean
+  /** Gates `INVOKING_HARMONY_HEALING_PERCENT` — Invoking Harmony's bonus only lasts a short window
+   *  after invoking a legend (wiki: 10s), not a steady-state passive, same "assume the proc window
+   *  is currently up" shape as `relicActive`. Only meaningful/surfaced when Invoking Harmony
+   *  (`INVOKING_HARMONY_TRAIT_ID`) is actually chosen. */
+  invokingHarmonyActive: boolean
 }
 
 export const DEFAULT_COMBAT_STATE: CombatState = {
@@ -108,7 +121,9 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   targetArmorClass: 'Medium',
   kallaFervorStacks: 0,
   deathsCarapaceStacks: 0,
-  upkeepPoints: 0
+  upkeepPoints: 0,
+  celestialAvatarActive: false,
+  invokingHarmonyActive: false
 }
 
 // wiki-confirmed flat value at level 80, quoted directly (not derived from a per-level formula).
@@ -155,28 +170,47 @@ export interface KallaFervorPercentPerStack {
   strikeDamage: number
   conditionDamage: number
   lifeSteal: number
+  /** Righteous Rebel's own per-stack outgoing-healing-to-others share — unlike the 3 fields above,
+   *  this is 0 unless Righteous Rebel itself (`RIGHTEOUS_REBEL_TRAIT_ID`) is chosen, since (unlike
+   *  the baseline strike/condition/life-steal shares, which Kalla's Fervor grants regardless of
+   *  which GM trait is picked) healing-to-others is Righteous Rebel's *own* effect on the buff, not
+   *  part of Kalla's Fervor's own baseline. Not affected by Lasting Legacy's upgrade (a different
+   *  GM-tier pick in the same line — wiki gives no evidence the two interact). */
+  outgoingHealing: number
   /** Whether Lasting Legacy's upgraded per-stack values are the ones being returned — surfaced so
    *  `CombatStatePanel` can label its stepper accordingly. */
   improved: boolean
 }
+
+/** Renegade/Grandmaster major trait "Righteous Rebel" (id 2182) — wiki-verified via raw wikitext
+ *  2026-08-22: "Kalla's Fervor increases your healing to other allies" — flat 4% Healing Increase
+ *  to Others per stack, no game-mode split. Mutually exclusive with Lasting Legacy (same GM tier,
+ *  same Renegade line), so a build never has both — `kallaFervorPercentPerStack` gates this
+ *  independently of the `improved` flag regardless. */
+export const RIGHTEOUS_REBEL_TRAIT_ID = 2182
+export const RIGHTEOUS_REBEL_HEALING_PERCENT_PER_STACK = 4
 
 /** Resolves Kalla's Fervor's actual per-stack %-per-stat, upgraded by Lasting Legacy when it's
  *  chosen — mirrors `mightStackAttributeTraitBonus`'s "check `activeTraitIds` once" convention, but
  *  a straight override rather than an additive bonus (Lasting Legacy replaces the base 2%/2%/2%
  *  with 3%/3%/3%, it doesn't stack on top of it). */
 export function kallaFervorPercentPerStack(build: Build, traitsById: Map<number, Trait>): KallaFervorPercentPerStack {
-  const improved = activeTraitIds(build, traitsById).has(LASTING_LEGACY_TRAIT_ID)
+  const active = activeTraitIds(build, traitsById)
+  const improved = active.has(LASTING_LEGACY_TRAIT_ID)
+  const outgoingHealing = active.has(RIGHTEOUS_REBEL_TRAIT_ID) ? RIGHTEOUS_REBEL_HEALING_PERCENT_PER_STACK : 0
   return improved
     ? {
         strikeDamage: KALLA_FERVOR_IMPROVED_STRIKE_DAMAGE_PERCENT_PER_STACK,
         conditionDamage: KALLA_FERVOR_IMPROVED_CONDITION_DAMAGE_PERCENT_PER_STACK,
         lifeSteal: KALLA_FERVOR_IMPROVED_LIFE_STEAL_PERCENT_PER_STACK,
+        outgoingHealing,
         improved: true
       }
     : {
         strikeDamage: KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK,
         conditionDamage: KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK,
         lifeSteal: KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK,
+        outgoingHealing,
         improved: false
       }
 }
@@ -424,6 +458,11 @@ export const TARGET_ARMOR_VALUES: Record<TargetArmorClass, number> = {
 }
 
 const ALL_STATS = 'AllStats' as const
+/** Sentinel `STACKING_SIGILS` attribute for Superior Sigil of Benevolence — its per-kill charge
+ *  grants outgoing-healing-%-to-others, not a core `AttributeTotals` point, so `combatStatePoints`
+ *  below deliberately skips adding it there; `stackingSigilOutgoingHealingPercent` reads it
+ *  directly instead. Mirrors `ALL_STATS`'s role as a non-literal-attribute marker. */
+const OUTGOING_HEALING_PERCENT = 'OutgoingHealingPercent' as const
 
 /**
  * The 8 sigils whose description matches "Gain a charge of +X <attribute> each time you kill a
@@ -432,7 +471,7 @@ const ALL_STATS = 'AllStats' as const
  * used throughout gear-calc (see attribute-totals.ts), except `AllStats`, a sentinel this module
  * expands to all 9 core attributes (Superior Sigil of the Stars' "+2 to all stats" wording).
  */
-export const STACKING_SIGILS: Record<number, { name: string; attribute: string | typeof ALL_STATS; perStack: number }> = {
+export const STACKING_SIGILS: Record<number, { name: string; attribute: string | typeof ALL_STATS | typeof OUTGOING_HEALING_PERCENT; perStack: number }> = {
   24575: { name: 'Superior Sigil of Bloodlust', attribute: 'Power', perStack: 10 },
   24578: { name: 'Superior Sigil of Corruption', attribute: 'ConditionDamage', perStack: 10 },
   24580: { name: 'Superior Sigil of Perception', attribute: 'Precision', perStack: 10 },
@@ -440,7 +479,14 @@ export const STACKING_SIGILS: Record<number, { name: string; attribute: string |
   49457: { name: 'Superior Sigil of Momentum', attribute: 'Toughness', perStack: 5 },
   67341: { name: 'Superior Sigil of Cruelty', attribute: 'CritDamage', perStack: 10 },
   81045: { name: 'Superior Sigil of Bounty', attribute: 'BoonDuration', perStack: 9 },
-  86170: { name: 'Superior Sigil of the Stars', attribute: ALL_STATS, perStack: 2 }
+  86170: { name: 'Superior Sigil of the Stars', attribute: ALL_STATS, perStack: 2 },
+  // Superior Sigil of Benevolence — wiki-verified 2026-08-22: "Gain a charge that grants 0.5%
+  // outgoing healing effectiveness toward other allies each time you kill a foe, five if you kill
+  // an enemy player. (Max 25 stacks; ends on down.) (Only one attribute-stacking sigil can be
+  // active at a time.)" — that last clause is the same mutual-exclusivity rule the other 8 entries
+  // here already share, confirming this belongs in the same family/field despite its payout being
+  // a %-effectiveness rather than a core attribute (see `OUTGOING_HEALING_PERCENT`'s doc comment).
+  24584: { name: 'Superior Sigil of Benevolence', attribute: OUTGOING_HEALING_PERCENT, perStack: 0.5 }
 }
 
 /**
@@ -1170,9 +1216,11 @@ export function combatStatePoints(build: Build, state: CombatState, traitsById: 
     const value = sigil.perStack * state.stackingSigilStacks
     if (sigil.attribute === ALL_STATS) {
       for (const attribute of ALL_CORE_ATTRIBUTE_KEYS) add(attribute, value)
-    } else {
+    } else if (sigil.attribute !== OUTGOING_HEALING_PERCENT) {
       add(sigil.attribute, value)
     }
+    // OUTGOING_HEALING_PERCENT (Benevolence) isn't a core attribute point — DerivedStats.
+    // outgoingHealingPercent reads it directly via `stackingSigilOutgoingHealingPercent` below.
   }
 
   if (state.furyActive) {
@@ -1200,4 +1248,321 @@ export function combatStatePoints(build: Build, state: CombatState, traitsById: 
   for (const [attribute, value] of Object.entries(deathsCarapaceAttributePoints(build, state.deathsCarapaceStacks, traitsById))) add(attribute, value)
 
   return points
+}
+
+/**
+ * Outgoing-healing-%-to-other-allies and incoming-healing-%-to-self — `DerivedStats.
+ * outgoingHealingPercent`/`incomingHealingPercent`'s source families, scoped 2026-08-21 (TODO.md),
+ * researched and curated 2026-08-22. Both stack additively, wiki-confirmed on the `Healing` page's
+ * own Notes section: "Outgoing healing modifiers stack additively" (unlike Movement Speed's
+ * "highest wins" exception above) — so, like `outgoingDamagePercent`, every source below just sums.
+ *
+ * Scope note: several superficially similar traits/relics were investigated and deliberately
+ * excluded because they're a *different* mechanic, not this one — logged here rather than TODO.md
+ * since the reasoning is short and this is where a future re-scan would need it:
+ * - Absolute Resolve (Guardian/Virtues, id 610) and Soothing Power (Elementalist/Water, id 2028)
+ *   each boost one specific skill's own heal coefficient (Virtue of Resolve, Soothing Mist), not a
+ *   general %-effectiveness stat — belongs to the healing-coefficient system instead.
+ * - Dance of Death (Revenant/Devastation, id 1754 — NOT Necromancer, TODO.md's original guess was
+ *   wrong) boosts the healing from Battle Scars, a self-life-steal proc, not outgoing/incoming
+ *   healing to/from others.
+ * - Augury of Death (Revenant, id 1974) and Spirit's Strength (Ranger, id 2421) each scale a
+ *   specific siphon/pet-heal source, not the general stat.
+ * - Relic of the Defender (100934) is a self-heal-on-block proc (a coefficient, same shape as
+ *   `CURATED_HEALING_COEFFICIENTS`), not an effectiveness %.
+ * - Relic of Zakiros (101955) converts outgoing critical-strike damage into healing (a conversion/
+ *   siphon mechanic, closer to `lifeStealPercent`'s shape), not an effectiveness %.
+ * - Epilogue: Eternal Oasis (Firebrand tome chapter, skill id 42925) applies a transient "+20% Heal
+ *   Effectiveness" buff to allies on cast — a short skill-cast proc, out of scope for a steady-state
+ *   build stat, same "not a character stat gain" reasoning `resolveMovementSpeedPercent`'s doc
+ *   comment already applies to Mist Form/Signet of the Locust.
+ * - Bloodstone Pot Pie (68562, "Healing effectiveness is halved") is a joke/negative-consequence
+ *   food whose penalty is multiplicative ("halved"), not additive like every source below — modeling
+ *   one multiplicative exception for a food nobody would seriously equip isn't worth the special
+ *   case, so it's excluded rather than curated.
+ * - Of the 14 traits the data-completeness audit's "Effectiveness Increased" Shape-1 backlog
+ *   flagged (2026-08-22 TODO.md), only Aquamancer's Training turned out to be about healing at all —
+ *   the other 13 (Perfect Inscriptions, Banshee's Wail, Soul Comprehension, Gluttony, Hardy Conduit,
+ *   Elemental Pursuit, Amplified Siphoning, Bolstered Bonds, Double Helix, Bird of Prey, Mech Core:
+ *   J-Drive) turned out to modify Signet/Warhorn/life-force/Protection/Swiftness/Barrier
+ *   effectiveness — different stats entirely, confirmed via each trait's own `description` field.
+ */
+
+/** Trait id -> flat outgoing-healing-%-to-others bonus, granted unconditionally once the trait is
+ *  chosen (no proc/combat-state gating needed) — every value below is already the WvW-specific
+ *  number where the wiki documents a PvE/WvW/PvP split, wiki-verified via raw wikitext 2026-08-22:
+ *  - Life from Death (Necromancer/Blood Magic, Master Major, id 789): "Increase healing to other
+ *    allies" — flat 10%, no split.
+ *  - Illusionary Inspiration (Mesmer/Inspiration, GM Minor, id 1915): "Increase healing to other
+ *    allies" — flat 5%, no split (its "heals allies on illusion summon" clause is a separate
+ *    coefficient fact, out of scope here).
+ *  - Aquamancer's Training (Elementalist/Water, Major, id 1676): "Increase healing to other
+ *    allies" — 20% PvE / 15% WvW+PvP.
+ *  - Natural Mender (Ranger/Druid, GM Minor, id 1992): "Increase healing to other allies" — 20% PvE
+ *    / 15% WvW+PvP.
+ *  - Dark Sentry (Thief/Specter, Master Minor, id 2272): "Outgoing healing to allies is increased"
+ *    — 20% PvE / 10% WvW+PvP.
+ */
+export const FLAT_OUTGOING_HEALING_TRAIT_BONUSES: Record<number, number> = {
+  789: 10, // Life from Death (Necromancer, Blood Magic, Major)
+  1915: 5, // Illusionary Inspiration (Mesmer, Inspiration, GM Minor)
+  1676: 15, // Aquamancer's Training (Elementalist, Water, Major) — WvW value
+  1992: 15, // Natural Mender (Ranger, Druid, GM Minor) — WvW value
+  2272: 10 // Dark Sentry (Thief, Specter, Master Minor) — WvW value
+}
+
+/** Trait id -> flat incoming-healing-%-to-self bonus, granted unconditionally once the trait is
+ *  chosen — wiki-verified via raw wikitext 2026-08-22, WvW value used wherever a split exists:
+ *  - Stalwart Focus (Warrior/Discipline, Adept Major, id 1381): "Increase your incoming healing
+ *    effectiveness" — 10% PvE / 3% WvW+PvP (its own outgoing half is in
+ *    `FLAT_OUTGOING_HEALING_TRAIT_BONUSES`... actually see below, it's gated differently).
+ *  - Health Insurance (Engineer/Alchemy, Adept Major, id 521): "Increase your incoming healing
+ *    effectiveness" — flat 10%, no split (its Med-Kit-gated outgoing half is
+ *    `MED_KIT_OUTGOING_HEALING_TRAIT_BONUSES` below).
+ *  - Vital Persistence (Necromancer/Soul Reaping, Master Major, id 861): "Your incoming healing is
+ *    increased" — 20% PvE / 10% WvW+PvP.
+ */
+export const FLAT_INCOMING_HEALING_TRAIT_BONUSES: Record<number, number> = {
+  1381: 3, // Stalwart Focus (Warrior, Discipline, Major) — WvW value
+  521: 10, // Health Insurance (Engineer, Alchemy, Major)
+  861: 10 // Vital Persistence (Necromancer, Soul Reaping, Major) — WvW value
+}
+
+// Stalwart Focus also grants a flat outgoing-to-others half distinct from its incoming half above
+// — wiki: "Increase your incoming healing effectiveness and healing to other allies," 15% PvE /
+// 10% WvW+PvP outgoing (a different number from its own incoming half, so it can't be folded into
+// `FLAT_INCOMING_HEALING_TRAIT_BONUSES` above). Folded into `FLAT_OUTGOING_HEALING_TRAIT_BONUSES`'s
+// own object rather than kept separate, since nothing here needs to distinguish "which trait" once
+// resolved — merged via `Object.assign` immediately below to keep the doc comment above accurate
+// about what's WvW-verified where.
+Object.assign(FLAT_OUTGOING_HEALING_TRAIT_BONUSES, {
+  1381: 10 // Stalwart Focus (Warrior, Discipline, Major) — WvW value, outgoing half
+})
+
+/** Engineer's Heal-slot "Med Kit" skill (id 5802, `slot: 'Heal'` — despite the name, not a Utility
+ *  kit) — gates Health Insurance's outgoing healing-to-others half. */
+export const MED_KIT_SKILL_ID = 5802
+
+/** Trait id -> outgoing-healing-%-to-others bonus while `Build.skills.heal === MED_KIT_SKILL_ID` —
+ *  Health Insurance (Engineer/Alchemy, Adept Major, id 521): "Gain increased healing to others
+ *  while using a med kit" — 20% PvE / 10% PvP / 7% WvW (a genuine independent 3-way split, unlike
+ *  the trait's own flat-10%-everywhere incoming half). Wiki-verified via raw wikitext 2026-08-22. */
+export const MED_KIT_OUTGOING_HEALING_TRAIT_BONUSES: Record<number, number> = {
+  521: 7 // Health Insurance (Engineer, Alchemy, Major) — WvW value
+}
+
+/** Revenant/Salvation's Adept Major "Invoking Harmony" (id 1823) — wiki-verified via raw wikitext
+ *  2026-08-22: "Healing done to other allies is increased for a short duration [10s] after invoking
+ *  a legend" — 20% PvE / 15% PvP / 10% WvW (a genuine 3-way split). Gated on `CombatState.
+ *  invokingHarmonyActive` rather than always-on, since — unlike the flat traits above — this is a
+ *  timed proc window, not a steady passive (same "assume the proc is currently up" shape as
+ *  `relicActive`). */
+export const INVOKING_HARMONY_TRAIT_ID = 1823
+export const INVOKING_HARMONY_HEALING_PERCENT = 10 // WvW value
+
+/** Revenant/Salvation's own Grandmaster Minor "Serene Rejuvenation" (id 1814, auto-active whenever
+ *  Salvation is equipped — see `activeTraitIds`) — wiki-verified via raw wikitext 2026-08-22:
+ *  "Increase healing to other allies" — base 20% PvE / 15% WvW+PvP, upgraded to 25% PvE / 18%
+ *  WvW+PvP when Numinous Gift (id 2440, Salvation's own GM Major, see the `numinous_gift_legend_
+ *  gating_fix` memory) is also chosen — Numinous Gift's own "third minor traits ... have improved
+ *  effectiveness" clause is genuinely a cross-trait conditional, not a display quirk, matching the
+ *  raw API's `traitedFacts[].requires_trait` field on trait 1814 pointing at 2440. */
+export const SERENE_REJUVENATION_TRAIT_ID = 1814
+export const NUMINOUS_GIFT_TRAIT_ID = 2440
+export const SERENE_REJUVENATION_BASE_HEALING_PERCENT = 15 // WvW value
+export const SERENE_REJUVENATION_UPGRADED_HEALING_PERCENT = 18 // WvW value, with Numinous Gift
+
+/** Ranger/Druid's Grandmaster Major "Lingering Light" (id 2058) — wiki-verified via raw wikitext
+ *  2026-08-22: "While in Celestial Avatar form, your healing of others is significantly increased"
+ *  — flat 20%, no game-mode split. Gated on `CombatState.celestialAvatarActive` — see that field's
+ *  doc comment for why this needs its own toggle rather than reusing `Build.activeBundleSkillId`. */
+export const CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES: Record<number, number> = {
+  2058: 20 // Lingering Light (Ranger, Druid, GM Major)
+}
+
+/** Guardian/Honor's Grandmaster Major "Force of Will" (id 1682) — wiki-verified via raw wikitext
+ *  2026-08-22: "Healing others is improved based on a percentage of your vitality" — 1% PvE / 0.5%
+ *  WvW+PvP per 100 Vitality, continuous (not stepped — the raw API's own two duplicate "per 100
+ *  Vitality" facts are the PvE/WvW+PvP split, no wiki language suggesting a floor/step). First
+ *  "scales continuously with a live attribute total" outgoing-healing source in this file — reads
+ *  `CharacterAttributes.vitality` directly from `derived-stats.ts`, the same "attributes are already
+ *  computed by the time `derived` is built" reasoning `armor`/`health` already rely on. */
+export const FORCE_OF_WILL_TRAIT_ID = 1682
+export const FORCE_OF_WILL_HEALING_PERCENT_PER_100_VITALITY = 0.5 // WvW value
+
+/** Relic id -> flat outgoing-healing-%-to-others bonus while `CombatState.relicActive` is on — same
+ *  "assume the relic's own proc/condition is currently satisfied" toggle `CURATED_RELIC_DAMAGE_
+ *  BONUSES` already uses. Both wiki-verified via raw wikitext 2026-08-22:
+ *  - Relic of the Monk (100031): "Increase healing effectiveness to allies after granting a boon to
+ *    an ally" — 1%/stack, max 10 stacks; modeled as the flat max (10%) while active, same "assume
+ *    the steady-state max" simplification the relic-proc family already uses elsewhere for stacking
+ *    procs this app can't simulate stack-by-stack.
+ *  - Relic of Castora (105652): "Healing to other allies is increased while they are below the
+ *    health threshold [50%]" — 25% PvE / 20% WvW+PvP (current post-2025-12-09-patch values; the
+ *    infobox's own facts already reflect the post-patch numbers, not the pre-patch 25%-everywhere
+ *    the version history entry documents changing from).
+ */
+export const CURATED_RELIC_OUTGOING_HEALING_BONUSES: Record<number, number> = {
+  100031: 10, // Relic of the Monk
+  105652: 20 // Relic of Castora — WvW value
+}
+
+/** Sigil id -> flat outgoing-healing-%-to-others bonus while equipped on the *active* weapon set —
+ *  same "active weapon set only" gating every passive/stat sigil bonus already follows (see the
+ *  `sigil_bonuses_active_weapon_set_only` memory), summed per equipped sigil slot so it doubles if
+ *  equipped on both a 1h main-hand and off-hand weapon — unlike Superior Sigil of Force, the wiki
+ *  page for Superior Sigil of Transference (74326, "Healing to other allies is increased by 10%",
+ *  wiki-verified via raw wikitext 2026-08-22) carries no "does not stack" clause, so the normal
+ *  stat-sigil doubling rule applies rather than Force's own explicit exception. */
+export const CURATED_SIGIL_OUTGOING_HEALING_BONUSES: Record<number, number> = {
+  74326: 10 // Superior Sigil of Transference
+}
+
+function curatedSigilOutgoingHealingPercent(build: Build): number {
+  let total = 0
+  for (const slotKey of Object.keys(build.equipment) as EquipmentSlotKey[]) {
+    if (!isActiveWeaponSlot(slotKey, build)) continue
+    for (const sigilId of build.equipment[slotKey]?.sigilIds ?? []) {
+      if (sigilId === null) continue
+      total += CURATED_SIGIL_OUTGOING_HEALING_BONUSES[sigilId] ?? 0
+    }
+  }
+  return total
+}
+
+/** Superior Sigil of Benevolence's (24584) outgoing-healing-%-to-others share of `CombatState.
+ *  stackingSigilStacks` — see its `STACKING_SIGILS` entry's doc comment for why it's excluded from
+ *  `combatStatePoints`'s generic core-attribute loop and read here instead. */
+export function stackingSigilOutgoingHealingPercent(build: Build, state: CombatState): number {
+  const sigil = detectActiveStackingSigil(build)
+  if (!sigil || sigil.attribute !== OUTGOING_HEALING_PERCENT) return 0
+  return sigil.perStack * state.stackingSigilStacks
+}
+
+/** Food/utility id -> flat outgoing-healing-%-to-others bonus, unconditional once equipped (`Build.
+ *  foodId`/`Build.utilityId`) — ground-truth-scanned from `food.json`/`utility.json` 2026-08-22 for
+ *  "Outgoing Healing"/"Healing to Other Allies" phrasing (more precise than TODO.md's original
+ *  manual-scan estimate of "~25 Mint-family items" — the real count is 14). No item here carries a
+ *  game-mode split (consumables never do in this dataset). The 12 "Mint"-family Feasts + Bowl of
+ *  Mists-Infused Fruit Salad with Mint Garnish all share the identical +10% Outgoing Healing line;
+ *  Delicious Rice Ball (Lunar New Year seasonal) shares the same flat 10%; Bowl of Tapioca Pudding
+ *  is 10% (its separate "+200 Healing Power for 10s on heal-skill use" clause is a proc, out of
+ *  scope here); Canned Rice Ball with "Lucky" Filling is 8% (wiki tags it "discontinued" but it's
+ *  still present in `food.json` and equippable by anyone who already owns one, so still curated). */
+export const CURATED_FOOD_OUTGOING_HEALING_BONUSES: Record<number, number> = {
+  91690: 10, // Bowl of Fruit Salad with Mint Garnish
+  91703: 10, // Mint-Pear Cured Meat Flatbread
+  91727: 10, // Mint and Veggie Flatbread
+  91743: 10, // Mint Creme Brulee
+  91748: 10, // Spherified Oyster Soup with Mint Garnish
+  91758: 10, // Eggs Benedict with Mint-Parsley Sauce
+  91797: 10, // Plate of Clear Truffle and Mint Ravioli
+  91801: 10, // Sous-Vide Steak with Mint-Parsley Sauce
+  91809: 10, // Plate of Beef Carpaccio with Mint Garnish
+  91822: 10, // Plate of Coq Au Vin with Mint Garnish
+  91834: 10, // Mint Strawberry Cheesecake
+  91864: 10, // Plate of Poultry Aspic with Mint Garnish
+  99804: 10, // Bowl of Mists-Infused Fruit Salad with Mint Garnish
+  68634: 10, // Delicious Rice Ball
+  76840: 10, // Bowl of Tapioca Pudding
+  89088: 8 // Canned Rice Ball with "Lucky" Filling
+}
+
+/** Utility id -> continuous per-100-Healing-Power / per-100-Concentration outgoing-healing-%-to-
+ *  others scaling — the "Bountiful Maintenance Oil" family (3 ids sharing identical text: Bountiful
+ *  Maintenance Oil 67528, Mist-Infused Maintenance Oil 99842, Bountiful Maintenance Oil Station
+ *  103885 — the "Station" variant is a shareable placeable, same mechanic as the Feast/Station
+ *  family, see the `feast_station_shared_consumables` memory). Wiki-verified via raw wikitext
+ *  2026-08-22: "Gain 0.6% Increased Healing to Other Allies for Every 100 Healing Power. Gain 0.8%
+ *  Increased Healing to Other Allies for Every 100 Concentration," with the wiki's own Notes section
+ *  explicit that it's continuous, not stepwise: "Rather than being stepwise, as 'for Every 100
+ *  Healing Power' might suggest, the conversion is continuous (i.e. 50 Healing Power would result in
+ *  0.3% outgoing healing)." No game-mode split. */
+export const CURATED_UTILITY_OUTGOING_HEALING_ATTRIBUTE_SCALING: Record<number, { perHealingPower: number; perConcentration: number }> = {
+  67528: { perHealingPower: 0.6, perConcentration: 0.8 }, // Bountiful Maintenance Oil
+  99842: { perHealingPower: 0.6, perConcentration: 0.8 }, // Mist-Infused Maintenance Oil
+  103885: { perHealingPower: 0.6, perConcentration: 0.8 } // Bountiful Maintenance Oil Station
+}
+
+/** Inputs `resolveOutgoingHealingPercent` needs from `CharacterAttributes` — a narrow pick rather
+ *  than importing the full interface (defined in `derived-stats.ts`, which already imports from
+ *  this file, so a full import back would be circular). */
+export interface OutgoingHealingAttributeInputs {
+  healingPower: number
+  concentration: number
+  vitality: number
+}
+
+/**
+ * Sums every curated outgoing-healing-%-to-others source actually active on this build — the
+ * `DerivedStats.outgoingHealingPercent` resolver, mirrors `resolveMovementSpeedPercent`'s role but
+ * with plain additive stacking (see this section's own doc comment) instead of a "highest wins"
+ * rule.
+ */
+export function resolveOutgoingHealingPercent(
+  build: Build,
+  combatState: CombatState,
+  traitsById: Map<number, Trait>,
+  attributes: OutgoingHealingAttributeInputs
+): number {
+  const active = activeTraitIds(build, traitsById)
+  let total = 0
+
+  for (const [traitIdText, percent] of Object.entries(FLAT_OUTGOING_HEALING_TRAIT_BONUSES)) {
+    if (active.has(Number(traitIdText))) total += percent
+  }
+
+  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
+  total += combatState.kallaFervorStacks * kallaFervorPerStack.outgoingHealing
+
+  if (active.has(SERENE_REJUVENATION_TRAIT_ID)) {
+    total += active.has(NUMINOUS_GIFT_TRAIT_ID) ? SERENE_REJUVENATION_UPGRADED_HEALING_PERCENT : SERENE_REJUVENATION_BASE_HEALING_PERCENT
+  }
+
+  if (combatState.invokingHarmonyActive && active.has(INVOKING_HARMONY_TRAIT_ID)) total += INVOKING_HARMONY_HEALING_PERCENT
+
+  if (combatState.celestialAvatarActive) {
+    for (const [traitIdText, percent] of Object.entries(CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) total += percent
+    }
+  }
+
+  if (active.has(FORCE_OF_WILL_TRAIT_ID)) total += (attributes.vitality / 100) * FORCE_OF_WILL_HEALING_PERCENT_PER_100_VITALITY
+
+  if (build.skills.kind === 'standard' && build.skills.heal === MED_KIT_SKILL_ID) {
+    for (const [traitIdText, percent] of Object.entries(MED_KIT_OUTGOING_HEALING_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) total += percent
+    }
+  }
+
+  if (combatState.relicActive && build.relicId !== null) total += CURATED_RELIC_OUTGOING_HEALING_BONUSES[build.relicId] ?? 0
+
+  total += curatedSigilOutgoingHealingPercent(build)
+  total += stackingSigilOutgoingHealingPercent(build, combatState)
+
+  for (const id of [build.foodId, build.utilityId]) {
+    if (id !== null) total += CURATED_FOOD_OUTGOING_HEALING_BONUSES[id] ?? 0
+  }
+
+  for (const id of [build.foodId, build.utilityId]) {
+    if (id === null) continue
+    const scaling = CURATED_UTILITY_OUTGOING_HEALING_ATTRIBUTE_SCALING[id]
+    if (scaling) total += (attributes.healingPower / 100) * scaling.perHealingPower + (attributes.concentration / 100) * scaling.perConcentration
+  }
+
+  return total
+}
+
+/** Sums every curated incoming-healing-%-to-self source actually active on this build — the
+ *  `DerivedStats.incomingHealingPercent` resolver. Every curated source so far is a flat,
+ *  unconditional trait bonus (see `FLAT_INCOMING_HEALING_TRAIT_BONUSES`), so this is simpler than
+ *  `resolveOutgoingHealingPercent` — no relic/sigil/food/proc family has turned up an incoming-
+ *  healing source yet. */
+export function resolveIncomingHealingPercent(build: Build, traitsById: Map<number, Trait>): number {
+  const active = activeTraitIds(build, traitsById)
+  let total = 0
+  for (const [traitIdText, percent] of Object.entries(FLAT_INCOMING_HEALING_TRAIT_BONUSES)) {
+    if (active.has(Number(traitIdText))) total += percent
+  }
+  return total
 }

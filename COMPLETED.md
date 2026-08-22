@@ -2,6 +2,70 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 276 — Outgoing/Incoming Healing % sweep
+
+Picked up the "Outgoing Healing % / Incoming Healing %" item scoped 2026-08-21 (TODO.md,
+`healing_damage_effectiveness_audit_scoped_2026-08-21` memory) — a standalone `StatsPanel` row
+mirroring the existing `outgoingDamagePercent` pattern, NOT folded into per-skill Healing-table
+numbers. The 2026-08-21 session's candidate list was a starting point, not ground truth: a fresh
+full scan of `traits.json`/`sigils.json`/`relic-effects.json`/`food.json`/`utility.json` for the
+precise phrasing ("Outgoing Healing"/"Healing Effectiveness"/"Healing to Other"/"Incoming Healing")
+found several candidates the original manual scan missed (Illusionary Inspiration, Natural Mender,
+Lingering Light, Dark Sentry, Aquamancer's Training) and corrected 3 mis-scoped ones — "Absolute
+Resolve / Life from Death / Dance of Death (Necromancer)" turned out to be 3 different professions
+entirely (Guardian/Necromancer/Revenant) and 2 of the 3 turned out to be a different mechanic (a
+skill-specific heal-coefficient boost and a self-life-steal-proc boost, not a general
+%-effectiveness stat) once wiki-verified — logged as an exclusions list directly in `combat-state.ts`
+(the new section's own doc comment) rather than TODO.md, since a future re-scan needs the reasoning
+right there. Also ground-truthed the food/utility count down from TODO's "~25 Mint-family items"
+guess to the real 14, and confirmed only 1 of the audit script's 14 "Effectiveness Increased"
+Shape-1-backlog traits (Aquamancer's Training) was actually about healing — the other 13 turned out
+to modify Signet/Warhorn/life-force/Protection/Swiftness/Barrier effectiveness instead.
+
+Final curated scope, 2 new `DerivedStats` fields (`outgoingHealingPercent`/`incomingHealingPercent`,
+both additive-stacking per the wiki's own `Healing` page Notes section, unlike `movementSpeedPercent`'s
+"highest wins" rule):
+- **Flat unconditional traits** (`FLAT_OUTGOING_HEALING_TRAIT_BONUSES`/`FLAT_INCOMING_HEALING_TRAIT_
+  BONUSES`): Life from Death, Illusionary Inspiration, Aquamancer's Training, Natural Mender, Dark
+  Sentry, Stalwart Focus (both halves independently), Vital Persistence.
+- **Righteous Rebel**: extended `KallaFervorPercentPerStack` with a 4th `outgoingHealing` field,
+  gated independently of Lasting Legacy's own strike/condition/life-steal upgrade (different GM pick,
+  same line).
+- **Serene Rejuvenation**: first "Minor trait whose value itself is conditionally upgraded by a
+  different chosen Major trait" case in this codebase — reads the raw API's own `traitedFacts[].
+  requires_trait` pointing at Numinous Gift (ties back into the `numinous_gift_legend_gating_fix`
+  memory).
+- **Invoking Harmony** / **Lingering Light**: 2 new `CombatState` booleans
+  (`invokingHarmonyActive`/`celestialAvatarActive`), same "assume the proc/state is currently true"
+  shape as `relicActive`/`furyActive` — new toggle buttons in `CombatStatePanel.tsx`.
+- **Force of Will**: first "scales continuously with a live attribute total" outgoing-healing source
+  — reads `CharacterAttributes.vitality` directly (a narrow `OutgoingHealingAttributeInputs` picked
+  type avoids a circular import back into `derived-stats.ts`).
+- **Health Insurance**: first "gated on which Heal-slot skill is equipped" bonus in this codebase —
+  Med Kit (id 5802) is a Heal-slot kit despite its name, checked via `Build.skills.heal`.
+- **Relic of the Monk / Relic of Castora**: added to a new `CURATED_RELIC_OUTGOING_HEALING_BONUSES`,
+  reusing `relicActive` (and `CombatStatePanel`'s existing relic-toggle gating, extended to check all
+  3 curated-relic tables now).
+- **Superior Sigil of Transference**: new `CURATED_SIGIL_OUTGOING_HEALING_BONUSES`, summed per
+  equipped active-set sigil slot (doubles on dual 1h, unlike Sigil of Force — its wiki page carries
+  no "does not stack" clause).
+- **Superior Sigil of Benevolence**: added directly to the existing `STACKING_SIGILS` table via a new
+  `OUTGOING_HEALING_PERCENT` sentinel (mirrors `ALL_STATS`'s role) — its own wiki text ("only one
+  attribute-stacking sigil can be active at a time") confirmed it belongs in the same mutually-
+  exclusive family as the other 8 despite its payout being a %-effectiveness, not a core attribute;
+  `combatStatePoints` now explicitly skips the sentinel rather than polluting core-attribute totals.
+- **Food/utility**: 16 flat entries (`CURATED_FOOD_OUTGOING_HEALING_BONUSES`) + the 3-id "Bountiful
+  Maintenance Oil" family (`CURATED_UTILITY_OUTGOING_HEALING_ATTRIBUTE_SCALING`, continuous per-100-
+  Healing-Power/per-100-Concentration, wiki-confirmed non-stepwise).
+
+`resolveOutgoingHealingPercent`/`resolveIncomingHealingPercent` in `combat-state.ts` centralize all
+of the above (mirrors `resolveMovementSpeedPercent`'s role), called from `computeCharacterStats`.
+34 new tests in `combat-state.test.ts` (97 total in that file) covering every family's gating
+independently plus one end-to-end `computeCharacterStats` case; 2 pre-existing `kallaFervorPercentPerStack`
+snapshot tests updated for the new `outgoingHealing` field. `npm run typecheck`/`npm run lint`/
+`npx vitest run` all clean (331/331 tests). Not yet visually spot-checked in the running app
+(Electron sandbox limitation, same standing gap as the Healing/Damage coefficient tables).
+
 ## Session 275 — Recharge/cooldown WvW-override sweep
 
 Generalized `RelicEffect.rechargeSeconds`'s "prefer the wiki's `recharge wvw=` field over the base

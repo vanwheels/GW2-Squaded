@@ -1,7 +1,9 @@
 import type { Build } from '@shared/types'
 import {
+  CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES,
   CURATED_RELIC_DAMAGE_BONUSES,
   CURATED_RELIC_MOVEMENT_SPEED_BONUSES,
+  CURATED_RELIC_OUTGOING_HEALING_BONUSES,
   DEATH_MAGIC_SPECIALIZATION_ID,
   DEATHS_CARAPACE_MAX_STACKS,
   DEATHS_CARAPACE_TOUGHNESS_PER_STACK,
@@ -9,6 +11,8 @@ import {
   FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES,
   HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES,
   HEALTH_THRESHOLD_CONSUMABLE_BONUSES,
+  INVOKING_HARMONY_HEALING_PERCENT,
+  INVOKING_HARMONY_TRAIT_ID,
   kallaFervorPercentPerStack,
   KALLA_FERVOR_MAX_STACKS,
   MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES,
@@ -83,7 +87,10 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   // and movement-speed-% relic bonuses (see `combat-state.ts`'s `CURATED_RELIC_MOVEMENT_SPEED_
   // BONUSES` doc comment for why they reuse the same `relicActive` field).
   const relicHasCuratedBonus =
-    build.relicId !== null && (build.relicId in CURATED_RELIC_DAMAGE_BONUSES || build.relicId in CURATED_RELIC_MOVEMENT_SPEED_BONUSES)
+    build.relicId !== null &&
+    (build.relicId in CURATED_RELIC_DAMAGE_BONUSES ||
+      build.relicId in CURATED_RELIC_MOVEMENT_SPEED_BONUSES ||
+      build.relicId in CURATED_RELIC_OUTGOING_HEALING_BONUSES)
   const relicIcon = relicHasCuratedBonus && build.relicId !== null ? relicsById.get(build.relicId)?.icon : undefined
 
   // Only surfaced when the build actually has a curated `mechanicActive`-family trait chosen
@@ -133,6 +140,16 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   // `healthTrait` above, reads the trait's own icon/name since it's the only candidate so far.
   const hasRisingMomentum = activeTraitIds(build, traitsById).has(RISING_MOMENTUM_TRAIT_ID)
   const risingMomentumTrait = hasRisingMomentum ? traitsById.get(RISING_MOMENTUM_TRAIT_ID) : undefined
+
+  // Only surfaced when Lingering Light (Ranger/Druid) is actually chosen — same reasoning as
+  // `mechanicTrait` above, reads the trait's own icon/name since it's the only candidate so far.
+  const celestialAvatarTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES)
+  const celestialAvatarTrait = celestialAvatarTraitId !== undefined ? traitsById.get(celestialAvatarTraitId) : undefined
+
+  // Only surfaced when Invoking Harmony (Revenant/Salvation) is actually chosen — same reasoning as
+  // `mechanicTrait` above.
+  const hasInvokingHarmony = activeTraitIds(build, traitsById).has(INVOKING_HARMONY_TRAIT_ID)
+  const invokingHarmonyTrait = hasInvokingHarmony ? traitsById.get(INVOKING_HARMONY_TRAIT_ID) : undefined
 
   return (
     <div className="combat-state-controls">
@@ -331,6 +348,32 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           ))}
         </select>
       </div>
+
+      {celestialAvatarTrait && (
+        <button
+          type="button"
+          className="combat-state-toggle-icon"
+          title={value.celestialAvatarActive ? `${celestialAvatarTrait.name}: In Celestial Avatar Form` : `${celestialAvatarTrait.name}: Not in Celestial Avatar Form`}
+          onClick={() => onChange({ ...value, celestialAvatarActive: !value.celestialAvatarActive })}
+        >
+          <img className={iconClass(value.celestialAvatarActive)} src={celestialAvatarTrait.icon} alt={celestialAvatarTrait.name} />
+        </button>
+      )}
+
+      {invokingHarmonyTrait && (
+        <button
+          type="button"
+          className="combat-state-toggle-icon"
+          title={
+            value.invokingHarmonyActive
+              ? `${invokingHarmonyTrait.name}: Active (+${INVOKING_HARMONY_HEALING_PERCENT}% Outgoing Healing)`
+              : `${invokingHarmonyTrait.name}: Inactive`
+          }
+          onClick={() => onChange({ ...value, invokingHarmonyActive: !value.invokingHarmonyActive })}
+        >
+          <img className={iconClass(value.invokingHarmonyActive)} src={invokingHarmonyTrait.icon} alt={invokingHarmonyTrait.name} />
+        </button>
+      )}
 
       {relicHasCuratedBonus && relicIcon && (
         <button

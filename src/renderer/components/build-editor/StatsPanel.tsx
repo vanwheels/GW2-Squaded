@@ -51,7 +51,8 @@ export function StatsPanel({ build, combatState = DEFAULT_COMBAT_STATE }: Props)
     { leftLabel: 'Expertise', leftValue: `${round(stats.attributes.expertise)}`, rightLabel: 'Condition Duration', rightValue: `${formatBoonPercent(stats.derived.conditionDuration)}%` },
     { leftLabel: 'Healing Power', leftValue: `${round(stats.attributes.healingPower)}`, rightLabel: 'Magic Find', rightValue: `${formatBoonPercent(stats.derived.magicFind)}%` },
     { leftLabel: 'Life Steal', leftValue: `${formatBoonPercent(stats.derived.lifeStealPercent)}%`, rightLabel: 'Outgoing Damage', rightValue: `${formatBoonPercent(stats.derived.outgoingDamagePercent)}%` },
-    { leftLabel: '', leftValue: '', rightLabel: 'Outgoing Condition Damage', rightValue: `${formatBoonPercent(stats.derived.outgoingConditionDamagePercent)}%` },
+    { leftLabel: 'Incoming Healing', leftValue: `${formatBoonPercent(stats.derived.incomingHealingPercent)}%`, rightLabel: 'Outgoing Condition Damage', rightValue: `${formatBoonPercent(stats.derived.outgoingConditionDamagePercent)}%` },
+    { leftLabel: '', leftValue: '', rightLabel: 'Outgoing Healing', rightValue: `${formatBoonPercent(stats.derived.outgoingHealingPercent)}%` },
     { leftLabel: '', leftValue: '', rightLabel: 'Movement Speed', rightValue: `${formatBoonPercent(stats.derived.movementSpeedPercent)}%` },
   ]
 
