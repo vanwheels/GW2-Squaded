@@ -150,6 +150,10 @@ export interface CombatState {
    *  boon state, not a build choice, same shape/reasoning as `swiftnessActive`/`stabilityActive`/
    *  `aegisActive` above (one boon, one curated candidate so far, "off by default"). */
   vigorActive: boolean
+  /** Gates `SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES` (currently just Galeshot's Bird of Prey,
+   *  ORed together with `swiftnessActive`) — a real boon state, not a build choice, same shape/
+   *  reasoning as `swiftnessActive`/`stabilityActive`/`aegisActive`/`vigorActive` above. */
+  superspeedActive: boolean
 }
 
 export const DEFAULT_COMBAT_STATE: CombatState = {
@@ -175,7 +179,8 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   swiftnessActive: false,
   stabilityActive: false,
   aegisActive: false,
-  vigorActive: false
+  vigorActive: false,
+  superspeedActive: false
 }
 
 // wiki-confirmed flat value at level 80, quoted directly (not derived from a per-level formula).
@@ -872,6 +877,61 @@ function curatedSigilConditionDamagePercent(build: Build): number {
  *   `CombatState` field for at all (unlike Kalla's Fervor/Death's Carapace's dedicated steppers) —
  *   the same "untracked profession-resource-stack" gap-shape as Engineer's Laser's Edge (Heat meter),
  *   logged in TODO.md as a 2nd member of that family.
+ *
+ * Ranger leg (Session 285, 2026-08-22): 16 unique candidates. 4 curated: Farsighted (id 1000, Marks-
+ * manship — live wiki page since retitled "Steady Focus," `traits.json` still names live id 1000
+ * "Farsighted," kept for data consistency, same situation as Furious Burst/"Precise Strikes")
+ * unconditional baseline "Ranger weapon skills deal increased strike damage," wiki-verified `split =
+ * pve wvw, pvp`: PvE/WvW 10%, PvP 5% — WvW value folded into `FLAT_DAMAGE_TRAIT_BONUSES`; its "further
+ * increased for foes above the range threshold" half is target-range-gated, joins Mesmer's Mental
+ * Focus/Necromancer's Soul Eater. Survival Instincts (id 2032, Wilderness Survival) — "Gain increased
+ * outgoing strike damage... further increased above the health threshold," wiki-verified no game-mode
+ * split: 5% baseline + 10% further above 50% health, folded into `HIGH_HEALTH_DAMAGE_TRAIT_BONUSES` as
+ * `{ aboveThreshold: 15, otherwise: 5 }` (same "baseline is the `otherwise` value" shape as Flow like
+ * Water, 50%-threshold approximated to the `'above75'` tier same as Flow like Water's own 50%); its
+ * mirror-image "reduced incoming strike damage" half (5% baseline + 10% further below the threshold)
+ * has no `DerivedStats` field to receive it — this app has never modeled incoming-damage reduction at
+ * all, unlike Nourys's already-logged incoming-damage-reduction gap — so it stays out of scope, not a
+ * new gap-shape (no candidate has ever needed one, nothing to log a "family" for yet). Furious Strength
+ * (id 2156, Soulbeast, Fury-gated) folded straight into the existing `FURY_DAMAGE_TRAIT_BONUSES`
+ * alongside Furious Focus, no new infra — wiki-verified `split = pve, wvw pvp`, PvE 15%/WvW+PvP 7%, WvW
+ * value used. Bird of Prey (id 2363, Galeshot) — "Strike damage is increased when you have swiftness or
+ * superspeed" — needed a brand-new `CombatState.superspeedActive` boolean (same shape as `swiftnessActive`
+ * /`stabilityActive`/`aegisActive`/`vigorActive`) plus a new `SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_
+ * BONUSES` table gated on `swiftnessActive || superspeedActive` (an OR-gate, distinct from `SWIFTNESS_
+ * DAMAGE_TRAIT_BONUSES`'s single-boon gate) — wiki-verified PvE 5%/WvW 10%, WvW value used; its own
+ * "Swiftness is more effective" +20% half was already logged in TODO.md's data-completeness backlog
+ * (Shape 1, "Swiftness effectiveness") as a pre-existing uncurated item, not newly found here. 12
+ * excluded after wiki/description verification:
+ * - Predator's Onslaught (996, vs. disabled/defiant/movement-impaired foes), Wolfsong (1001, vs.
+ *   vulnerable foes), Oppressive Superiority's condition-duration half (target-condition-gated
+ *   already covered by its own damage half below) — target-condition-gated, same exclusion class as
+ *   every prior leg's Fiery Wrath/Cull the Weak/Close to Death/etc.
+ * - Oppressive Superiority (2143) — "to foes at a lower health percentage than you," a target-
+ *   *relative* health comparison, same exclusion class as Engineer's Big Boomer/Mesmer's Egotism.
+ * - Poison Master (1701, poison damage specifically), Hidden Barbs (1846, bleeding damage
+ *   specifically) — scoped to one condition type rather than condition damage broadly, same per-
+ *   condition-type exclusion class as Guardian's Amplified Wrath/Mesmer's Bloodsong/Necromancer's
+ *   Putrid Defense family.
+ * - Opening Strike (1010) and its Remorseless (1015) upgrade — the +25% Damage Increase only applies
+ *   to the "opening strike" mechanic's own first hit on entering combat (or regained on gaining
+ *   fury), a narrower-skill-specific proc rather than general outgoing damage, same exclusion class
+ *   as Big Game Hunter/Time Bomb/Shredding.
+ * - Blinding Outburst (2301) — boosts Venomous Outburst's and Unleashed Ambush skills' own damage
+ *   specifically, scoped to one skill category, same "per-skill-category" exclusion class as Burst
+ *   Mastery/Symbiotic Synergy/Mesmer's Mental Anguish.
+ * - Loud Whistle (974), Flock Together (2408) — both boost the *pet's* own strike damage, not the
+ *   player's — same "pet/summon output not modeled" gap-shape family as Mesmer's Empowered
+ *   Illusions/Necromancer's Necromantic Corruption.
+ * - Light on your Feet (1912) — its "damage is increased" half is a 6-second on-dodge buff window
+ *   (wiki-confirmed explicit `effect|...|6` duration fact), a timed proc window rather than a steady-
+ *   state build stat, same "not a character stat gain" exclusion already used for Peak Performance's
+ *   own further-buff/Necromancer's Soul Barbs.
+ * - Hunter's Tactics (1068, Skirmishing minor) — "while attacking from behind or the side [flanking],
+ *   or when striking a defiant foe," a brand-new "attacker-position-gated damage-%%" gap-shape (a
+ *   flanking/positional check, distinct from every target-condition-gated, target-range-gated, and
+ *   target-relative-health-gated family seen so far — no `CombatState` field tracks the attacker's
+ *   position relative to the target at all), logged in TODO.md.
  */
 
 /**
@@ -882,10 +942,13 @@ function curatedSigilConditionDamagePercent(build: Build): number {
  * Movement Speed half is already curated in `FURY_MOVEMENT_SPEED_TRAIT_BONUSES`, this is its
  * Damage Increase half, split out of that table's own doc comment ("out of scope here"). Wiki-
  * verified via raw wikitext 2026-08-22 (`split = pve, wvw pvp`): PvE 10%, WvW/PvP 7% — WvW value
- * used here.
+ * used here. Furious Strength (Ranger/Soulbeast, Grandmaster Minor, id 2156), added in the Ranger
+ * leg: "You deal increased strike damage while you have fury." Wiki-verified via raw wikitext
+ * 2026-08-22 (`split = pve, wvw pvp`): PvE 15%, WvW/PvP 7% — WvW value used here.
  */
 export const FURY_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
-  2017: 7 // Furious Focus (Guardian, Zeal, Major)
+  2017: 7, // Furious Focus (Guardian, Zeal, Major)
+  2156: 7 // Furious Strength (Ranger, Soulbeast, Minor)
 }
 
 /**
@@ -972,7 +1035,15 @@ export const HIGH_HEALTH_DAMAGE_TRAIT_BONUSES: Record<number, { aboveThreshold: 
   // split), matching the `'above75'` tier exactly (no approximation needed, unlike Unscathed
   // Contender's 90%/Flow like Water's 50%). Damage bonus is PvE 7% / PvP 10% / WvW 5% — WvW value
   // used here, same convention as every other split entry in this sweep.
-  1882: { aboveThreshold: 5, otherwise: 0 }
+  1882: { aboveThreshold: 5, otherwise: 0 },
+  // Survival Instincts (Ranger, Wilderness Survival, Major, id 2032), added in the Ranger leg: "Gain
+  // increased outgoing strike damage... further increased above the health threshold." Wiki-verified
+  // via raw wikitext 2026-08-22: no game-mode split, flat 5% baseline + 10% further above a 50%
+  // threshold (`otherwise` is the 5% baseline, `aboveThreshold` is 5%+10%=15%, same "baseline is the
+  // `otherwise` value" shape as Flow like Water) — 50% threshold approximated to the `'above75'` tier,
+  // same approximation Flow like Water's own 50% threshold already uses. Its mirror-image "reduced
+  // incoming strike damage" half (5%/10%) has no `DerivedStats` field to receive it, out of scope.
+  2032: { aboveThreshold: 15, otherwise: 5 }
 }
 
 /**
@@ -1048,12 +1119,33 @@ export const MECHANIC_ACTIVE_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * Major, id 914), added in the Necromancer leg: "Your strike damage is increased" is an always-on
  * baseline; wiki-verified via raw wikitext 2026-08-22 (`split = pve, wvw pvp`): PvE 3%, WvW/PvP 7% —
  * WvW value used here. Its "further increased against foes without boons" +12% WvW half is target-
- * condition-gated, out of scope, same shape as Vicious Expression's own boonless half.
+ * condition-gated, out of scope, same shape as Vicious Expression's own boonless half. Farsighted
+ * (Ranger/Marksmanship, Master Major, id 1000 — live wiki page since retitled "Steady Focus,"
+ * `traits.json` still names live id 1000 "Farsighted," kept for data consistency, same situation as
+ * Furious Burst/"Precise Strikes"), added in the Ranger leg: "Ranger weapon skills deal increased
+ * strike damage" is an always-on baseline; wiki-verified via raw wikitext 2026-08-22 (`split = pve
+ * wvw, pvp`): PvE/WvW 10%, PvP 5% — WvW value used here. Its "further increased for foes above the
+ * range threshold" half is target-range-gated, out of scope (see this section's own doc comment).
  */
 export const FLAT_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
   1444: 3, // Peak Performance (Warrior, Strength, Major) — baseline only, see doc comment
   681: 7, // Vicious Expression (Mesmer, Domination, Major) — baseline only, see doc comment
-  914: 7 // Spiteful Talisman (Necromancer, Spite, Major) — baseline only, see doc comment
+  914: 7, // Spiteful Talisman (Necromancer, Spite, Major) — baseline only, see doc comment
+  1000: 10 // Farsighted (Ranger, Marksmanship, Major) — baseline only, see doc comment
+}
+
+/**
+ * Trait id -> flat outgoing-strike-damage-% while Swiftness OR Superspeed is active — gated on
+ * `combatState.swiftnessActive || combatState.superspeedActive`, the OR-gate sibling to `SWIFTNESS_
+ * DAMAGE_TRAIT_BONUSES`'s single-boon gate (needed a brand-new `CombatState.superspeedActive` field,
+ * same shape as `swiftnessActive`/`stabilityActive`/`aegisActive`/`vigorActive`). Bird of Prey
+ * (Ranger/Galeshot, Master Minor, id 2363): "Strike damage is increased when you have swiftness or
+ * superspeed." Wiki-verified via raw wikitext 2026-08-22 (`split = pve, wvw pvp`): PvE 5%, WvW/PvP
+ * 10% — WvW value used here. Its own "Swiftness is more effective" +20% half is a pre-existing
+ * TODO.md data-completeness backlog item (Shape 1, "Swiftness effectiveness"), out of scope here.
+ */
+export const SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
+  2363: 10 // Bird of Prey (Ranger, Galeshot, Minor)
 }
 
 /**
@@ -1096,6 +1188,11 @@ export function resolveOutgoingDamagePercent(build: Build, combatState: CombatSt
   }
   if (combatState.vigorActive) {
     for (const [traitIdText, percent] of Object.entries(VIGOR_DAMAGE_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) total += percent
+    }
+  }
+  if (combatState.swiftnessActive || combatState.superspeedActive) {
+    for (const [traitIdText, percent] of Object.entries(SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES)) {
       if (active.has(Number(traitIdText))) total += percent
     }
   }

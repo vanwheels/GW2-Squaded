@@ -59,6 +59,7 @@ import {
   SIGIL_OF_THE_NIGHT_ID,
   STABILITY_DAMAGE_TRAIT_BONUSES,
   SWIFTNESS_DAMAGE_TRAIT_BONUSES,
+  SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES,
   VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES,
   VIGOR_DAMAGE_TRAIT_BONUSES,
   type CombatState,
@@ -1077,6 +1078,83 @@ describe('resolveOutgoingDamagePercent/resolveOutgoingConditionDamagePercent —
   it('does not contribute the condition-damage half from an unrelated Vigor-gated trait (Excessive Energy)', () => {
     const { build, traitsById } = buildWithTrait(1936, 'Minor')
     expect(resolveOutgoingConditionDamagePercent(build, { ...DEFAULT_COMBAT_STATE, vigorActive: true }, traitsById)).toBe(0)
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Farsighted (flat, unconditional baseline)', () => {
+  it('contributes the flat bonus once chosen, no combat-state gating needed', () => {
+    const { build, traitsById } = buildWithTrait(1000, 'Major')
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, traitsById)).toBe(FLAT_DAMAGE_TRAIT_BONUSES[1000])
+  })
+
+  it('contributes nothing when the trait is not chosen', () => {
+    const build = makeBuild()
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS)).toBe(0)
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Survival Instincts (health-threshold-gated, with baseline)', () => {
+  it('contributes only the baseline while below the health threshold', () => {
+    const { build, traitsById } = buildWithTrait(2032, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, healthTier: 'below50' }, traitsById)).toBe(
+      HIGH_HEALTH_DAMAGE_TRAIT_BONUSES[2032].otherwise
+    )
+  })
+
+  it('contributes the combined bonus while above the health threshold', () => {
+    const { build, traitsById } = buildWithTrait(2032, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, healthTier: 'above75' }, traitsById)).toBe(
+      HIGH_HEALTH_DAMAGE_TRAIT_BONUSES[2032].aboveThreshold
+    )
+  })
+
+  it('contributes nothing when the trait is not chosen', () => {
+    const build = makeBuild()
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, healthTier: 'above75' }, NO_TRAITS)).toBe(0)
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Furious Strength (Fury-gated trait)', () => {
+  it('contributes nothing while chosen but Fury is inactive', () => {
+    const { build, traitsById } = buildWithTrait(2156, 'Minor')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, furyActive: false }, traitsById)).toBe(0)
+  })
+
+  it('contributes the flat bonus once chosen and Fury is active', () => {
+    const { build, traitsById } = buildWithTrait(2156, 'Minor')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, furyActive: true }, traitsById)).toBe(
+      FURY_DAMAGE_TRAIT_BONUSES[2156]
+    )
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Bird of Prey (Swiftness-OR-Superspeed-gated trait)', () => {
+  it('contributes nothing while chosen but neither Swiftness nor Superspeed is active', () => {
+    const { build, traitsById } = buildWithTrait(2363, 'Minor')
+    expect(
+      resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, swiftnessActive: false, superspeedActive: false }, traitsById)
+    ).toBe(0)
+  })
+
+  it('contributes the flat bonus once chosen and Swiftness alone is active', () => {
+    const { build, traitsById } = buildWithTrait(2363, 'Minor')
+    expect(
+      resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, swiftnessActive: true, superspeedActive: false }, traitsById)
+    ).toBe(SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES[2363])
+  })
+
+  it('contributes the flat bonus once chosen and Superspeed alone is active', () => {
+    const { build, traitsById } = buildWithTrait(2363, 'Minor')
+    expect(
+      resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, swiftnessActive: false, superspeedActive: true }, traitsById)
+    ).toBe(SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES[2363])
+  })
+
+  it('does not double-count when both Swiftness and Superspeed are active', () => {
+    const { build, traitsById } = buildWithTrait(2363, 'Minor')
+    expect(
+      resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, swiftnessActive: true, superspeedActive: true }, traitsById)
+    ).toBe(SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES[2363])
   })
 })
 

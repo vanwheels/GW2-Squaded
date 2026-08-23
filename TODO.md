@@ -106,8 +106,8 @@ research itself could be as thorough as possible first. All 5 items below come o
       curated yet, so that interaction has no code to exercise it — revisit if one ever is.
 
 - [ ] **Outgoing Damage % full pass** — Sigils + Relics legs DONE 2026-08-22 (see COMPLETED.md),
-      Traits leg started same day (Guardian + Warrior + Elementalist done, 6 professions remaining —
-      the largest remaining piece).
+      Traits leg started same day (Guardian + Warrior + Elementalist + Engineer + Mesmer + Necromancer
+      + Ranger done, 2 professions remaining — Revenant, Thief).
   - [x] **Sigils** — DONE. `CURATED_SIGIL_DAMAGE_BONUSES`/`CURATED_SIGIL_CONDITION_DAMAGE_BONUSES`
     in `combat-state.ts`. Superior Sigil of Force (flat +5%, single-application-only per its "does
     not stack on both weapons" wiki clause, handled outside the normal doubling table). The 18
@@ -130,8 +130,8 @@ research itself could be as thorough as possible first. All 5 items below come o
     into a new `CURATED_RELIC_CONDITION_DAMAGE_BONUSES` table); its incoming-damage-reduction/
     damage-to-healing-conversion halves are out of scope (no `DerivedStats` field exists for them
     yet).
-  - [ ] **Traits** — Guardian + Warrior + Elementalist + Engineer + Mesmer + Necromancer legs DONE
-    (see COMPLETED.md Sessions 279/280/281/282/283/284), 3 professions remaining (Ranger, Revenant,
+  - [ ] **Traits** — Guardian + Warrior + Elementalist + Engineer + Mesmer + Necromancer + Ranger legs
+    DONE (see COMPLETED.md Sessions 279/280/281/282/283/284/285), 2 professions remaining (Revenant,
     Thief — no fixed order set, pick freely). ~165 raw fact-label matches (`Percent` facts with
     text "Damage Increase"/"Strike Damage Increase"/"Condition Damage Increase"/"Damage Increase
     per Stack"/"...per Boon") across all 9 professions before dedup — comparable in size to the
@@ -177,7 +177,14 @@ research itself could be as thorough as possible first. All 5 items below come o
       within the range threshold" — a target-*distance* gate, distinct from every other target-
       condition gate seen so far (all status-based, not distance-based); no `CombatState` field
       tracks target range at all. Necromancer/Reaper's Soul Eater (id 1969, wiki page since retitled
-      "Soul Devourer") joins this family — wiki-confirmed a 300-unit distance-to-target gate.
+      "Soul Devourer") joins this family — wiki-confirmed a 300-unit distance-to-target gate. Ranger/
+      Marksmanship's Farsighted (id 1000, wiki page since retitled "Steady Focus") joins too — its
+      "further increased for foes above the range threshold" half.
+    - **Attacker-position-gated damage-%%** — new gap-shape from the Ranger leg: Skirmishing's
+      Hunter's Tactics (id 1068) triggers "while attacking from behind or the side, or when striking
+      a defiant foe" — a flanking/positional check on the *attacker's* position relative to the
+      target, distinct from every target-condition/-range/-relative-health gate above (none of those
+      depend on where the player is standing); no `CombatState` field tracks this at all.
     - **Critical-damage-multiplier %%** — Mesmer's Superiority Complex (id 692) and Danger Time (id
       2009) both boost "Critical Damage Increase," a straight crit-hit-damage multiplier — distinct
       from the `CritDamage`/Ferocity attribute (already modeled via `AttributeAdjust`) and from

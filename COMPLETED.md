@@ -2,6 +2,58 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 285 — Outgoing Damage % full pass, Traits leg (Ranger)
+
+Continued the Traits leg of "Outgoing Damage % full pass" (TODO.md). Picked Ranger next (no fixed
+leg order set) — re-scanned `traits.json` for the same "Damage Increase"/"...per Boon" `Percent`-
+fact shape, profession-mapped via `specializations.json`. 16 unique candidates.
+
+4 of 16 curated:
+- **Farsighted** (id 1000, Marksmanship, Master Major — live wiki page since retitled "Steady
+  Focus," `traits.json` still names live id 1000 "Farsighted," kept for data consistency) — "Ranger
+  weapon skills deal increased strike damage" is an always-on baseline. Added to `FLAT_DAMAGE_TRAIT_
+  BONUSES` alongside Peak Performance/Vicious Expression/Spiteful Talisman. Wiki-verified `split =
+  pve wvw, pvp`: PvE/WvW 10%, PvP 5% — WvW value used. Its "further increased for foes above the
+  range threshold" half stays excluded (target-range-gated, joins Mesmer's Mental Focus/
+  Necromancer's Soul Eater).
+- **Survival Instincts** (id 2032, Wilderness Survival, Major) — "Gain increased outgoing strike
+  damage... further increased above the health threshold." Added to `HIGH_HEALTH_DAMAGE_TRAIT_
+  BONUSES` as `{ aboveThreshold: 15, otherwise: 5 }` (baseline 5% + 10% further above 50% health, no
+  game-mode split; 50% threshold approximated to the `'above75'` tier same as Flow like Water's own
+  50%). Its mirror-image "reduced incoming strike damage" half (5%/10%) has no `DerivedStats` field
+  to receive it at all — this app has never modeled incoming-damage reduction — so it stays out of
+  scope, not a new gap-shape.
+- **Furious Strength** (id 2156, Soulbeast, Grandmaster Minor) — "You deal increased strike damage
+  while you have fury." Folded straight into the existing `FURY_DAMAGE_TRAIT_BONUSES` alongside
+  Furious Focus, no new infra. Wiki-verified `split = pve, wvw pvp`: PvE 15%, WvW/PvP 7% — WvW value
+  used.
+- **Bird of Prey** (id 2363, Galeshot, Master Minor) — "Strike damage is increased when you have
+  swiftness or superspeed." Needed a brand-new `CombatState.superspeedActive` boolean (same shape as
+  `swiftnessActive`/`stabilityActive`/`aegisActive`/`vigorActive`) plus a new `SWIFTNESS_OR_
+  SUPERSPEED_DAMAGE_TRAIT_BONUSES` table gated on `swiftnessActive || superspeedActive` (an OR-gate,
+  distinct from `SWIFTNESS_DAMAGE_TRAIT_BONUSES`'s single-boon gate) and a matching `CombatStatePanel`
+  toggle icon. Wiki-verified `split = pve, wvw pvp`: PvE 5%, WvW/PvP 10% — WvW value used. Its own
+  "Swiftness is more effective" +20% half was already a pre-existing TODO.md data-completeness
+  backlog item (Shape 1, "Swiftness effectiveness"), not newly found here.
+
+12 excluded, all logged in TODO.md: Predator's Onslaught (996, vs. disabled/defiant/movement-
+impaired foes) and Wolfsong (1001, vs. vulnerable foes) join the target-condition-gated family;
+Oppressive Superiority (2143, vs. foes at lower health than you) joins the target-relative-health
+family; Poison Master (1701, poison-specific) and Hidden Barbs (1846, bleeding-specific) join the
+per-condition-type family; Opening Strike (1010) + its Remorseless (1015) upgrade join the narrower-
+skill-specific-proc family (the +25% only applies to the "opening strike" mechanic's own first hit);
+Blinding Outburst (2301, Venomous Outburst/Unleashed Ambush only) joins the per-skill-category
+family; Loud Whistle (974) and Flock Together (2408) join the pet/summon-output family (both boost
+the *pet's* own damage, not the player's); Light on your Feet (1912) joins the transient-proc-window
+family (its damage half is a wiki-confirmed 6-second on-dodge buff, not a steady-state stat, same
+reasoning as Peak Performance's proc/Soul Barbs). Hunter's Tactics (1068, Skirmishing minor) is a
+brand-new gap-shape: "while attacking from behind or the side, or when striking a defiant foe" is an
+attacker-*position*-gated bonus (flanking), distinct from every target-condition/-range/-relative-
+health gate seen in prior legs — no `CombatState` field tracks the attacker's position at all.
+
+11 new tests, `npm run typecheck`/`npx eslint`/`npx vitest run` all clean (406/406). 2 professions
+remain (Revenant, Thief), still no fixed order.
+
 ## Session 282 — Outgoing Damage % full pass, Traits leg (Engineer)
 
 Continued the Traits leg of "Outgoing Damage % full pass" (TODO.md). Picked Engineer next (no

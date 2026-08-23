@@ -32,6 +32,7 @@ import {
   SIGIL_OF_THE_NIGHT_ID,
   STABILITY_DAMAGE_TRAIT_BONUSES,
   SWIFTNESS_DAMAGE_TRAIT_BONUSES,
+  SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES,
   VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES,
   VIGOR_DAMAGE_TRAIT_BONUSES,
   type CombatState,
@@ -211,6 +212,14 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   // `resolutionTraitId` above.
   const vigorTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in VIGOR_DAMAGE_TRAIT_BONUSES)
   const vigorTrait = vigorTraitId !== undefined ? traitsById.get(vigorTraitId) : undefined
+
+  // Only surfaced when the build actually has a curated `SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_
+  // BONUSES` trait chosen (currently just Ranger's Bird of Prey) — same reasoning as
+  // `resolutionTraitId` above. This toggle is `superspeedActive` specifically (not `swiftnessActive`,
+  // which already has its own icon above) so the two boon states stay independently togglable even
+  // though this table's own gate is an OR of both.
+  const superspeedTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES)
+  const superspeedTrait = superspeedTraitId !== undefined ? traitsById.get(superspeedTraitId) : undefined
 
   return (
     <div className="combat-state-controls">
@@ -529,6 +538,21 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           onClick={() => onChange({ ...value, vigorActive: !value.vigorActive })}
         >
           <img className={iconClass(value.vigorActive)} src={vigorTrait.icon} alt={vigorTrait.name} />
+        </button>
+      )}
+
+      {superspeedTrait && (
+        <button
+          type="button"
+          className="combat-state-toggle-icon"
+          title={
+            value.superspeedActive
+              ? `${superspeedTrait.name}: Active (+${SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES[superspeedTraitId!]}% Outgoing Damage)`
+              : `${superspeedTrait.name}: Inactive`
+          }
+          onClick={() => onChange({ ...value, superspeedActive: !value.superspeedActive })}
+        >
+          <img className={iconClass(value.superspeedActive)} src={superspeedTrait.icon} alt={superspeedTrait.name} />
         </button>
       )}
 
