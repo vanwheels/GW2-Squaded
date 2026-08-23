@@ -72,22 +72,27 @@ since coefficient 0 means curating would be a no-op at best); Necromancer 10670 
 id — now confirmed a frozen legacy duplicate carrying stale pre-2023-11-28-patch numbers, not a
 genuine Scourge variant as originally guessed, but still nothing reliable to curate it to).
 
-**Healing — Weapon-slot (3, re-checked 2026-08-22, no change):** Elementalist 72982 (Etching:
+**Healing — Weapon-slot (2 remain open, of the original 3 re-checked 2026-08-22):** Elementalist 72982 (Etching:
 Jökulhlaup) is now RESOLVED 2026-08-23 — 2 live in-game readings gave base=340/coefficient=0.1,
 flatly contradicting the wiki+API-agreed cached base of 532 (a live balance change or an
 undiscovered WvW-split gap, not resolved which — see the in-game-verification checklist memory and
 `healing-calc.ts`'s own comment on this skill for the full writeup); curated with the live value per
-this table's usual WvW-preference convention. Necromancer 30860 (Death Spiral — wiki page still tagged
-`{{stub||missing siphon coefficients}}`, neither Healing fact has a coefficient); Necromancer 69302
-(Life Siphon — wiki now documents coefficients too, 0.082 PvE / 0.036 WvW+PvP, but the base values
-they're paired with, 450/300, still don't match this app's API-sourced values, 537/238, under
-either mode ordering — same unreconciled conflict, just with more of the formula visible); Thief
-72991 (Shadow Veil, Spear — still only one of the two identical-factText Healing facts has a
-documented coefficient, 1290 → 0.5; the other, 2570, remains undocumented and its relationship to
-the first — PvE/WvW split of the same quantity, or a genuinely different quantity like a
-multi-block total — still can't be determined from the wiki page, which declares `split = pve, wvw
-pvp` but only gives one mode-agnostic skill fact template; table matches by factText alone so
-curating the known half risks binding to the wrong fact).
+this table's usual WvW-preference convention. Necromancer 30860 (Death Spiral) is now RESOLVED
+2026-08-23 too — its wiki `{{stub||missing siphon coefficients}}` tag turned out fully solvable from
+2 live in-game WvW readings alone (`healing-calc.ts`, First-Hit Life Siphon Healing base=1764/
+coefficient=0.2, Additional-Hit Healing base=294/coefficient≈0.033); its sibling Life Siphon Damage
+fact was resolved in the same pass (`siphon-damage-calc.ts`, base=1764/coefficient=0.005, see below).
+Still open: Necromancer 69302 (Life Siphon — wiki documents coefficients, 0.082 PvE / 0.036 WvW+PvP,
+paired with base values 450/300 that still don't match this app's API-sourced values 537/238 under
+either mode ordering; 2 live WvW readings taken 2026-08-23 didn't resolve it either — Healing Power
+was confirmed 0 in both, yet the displayed value still moved with Power, suggesting this may be
+another Barrier-style API target mislabeling, genuinely Power-scaled rather than Healing-Power-scaled
+— see the in-game-verification checklist memory); Thief 72991 (Shadow Veil, Spear — still only one of
+the two identical-factText Healing facts has a documented coefficient, 1290 → 0.5; the other, 2570,
+remains undocumented and its relationship to the first — PvE/WvW split of the same quantity, or a
+genuinely different quantity like a multi-block total — still can't be determined from the wiki page,
+which declares `split = pve, wvw pvp` but only gives one mode-agnostic skill fact template; table
+matches by factText alone so curating the known half risks binding to the wrong fact).
 
 **Healing — Thief's Assassin's Reward trait (id 1238):** 17 of 45 candidate skills stayed uncurated
 — 14 for the `Array.find`-binds-to-array-order duplicate-fact trap (a genuine PvE/WvW/PvP
@@ -104,23 +109,26 @@ never in scope for the sweep; would need their own wiki-verification pass
 (condition-per-stack-per-second base values are a separate documented constant table) before
 extending `CURATED_DAMAGE_COEFFICIENTS` to cover one.
 
-**Siphon Damage (11 of 14 candidates):** curated 2026-08-20 (`CURATED_SIPHON_DAMAGE_COEFFICIENTS`,
+**Siphon Damage (9 of 14 candidates):** curated 2026-08-20 (`CURATED_SIPHON_DAMAGE_COEFFICIENTS`,
 `siphon-damage-calc.ts`). Enchanted Daggers is now RESOLVED (2026-08-23, live in-game readings —
 see the in-game-verification checklist memory): base=808/coefficient=0.05, confirming the API's WvW
 value was correct all along and the wiki's 858 was the stale side of the mismatch. This also
 suggests the already-shipped **Cosmic Wisdom Assassin-form entry** (`boon-calc/sources.ts`,
 `baseValue: 1028`, taken from this skill's own wiki-quoted *PvE* number) is likely inflated by the
 same pattern and should probably read 968 (the PvE API value) instead — not changed yet, flagged for
-a follow-up pass since Cosmic Wisdom's own mode/formula wasn't directly tested. Left uncurated: 2
-wiki/API value mismatches (Locust Swarm, Signet of Vampirism) that reconcile exactly under
-`wikiQuoted = apiRaw + coefficient * 1000` — suspiciously clean but unprecedented elsewhere in this
-codebase and contradicted by 3 sibling skills on the identical wiki template showing zero such
-offset, so not trustworthy without real in-game verification; 2 explicit wiki stub tags (Death
-Spiral, Nightmare Weapon) plus Vampiric Slash's own stub stacked on the same mismatch shape; 1
-different formula shape (Soul Grasp, weapon-strength-based, mislabeled by the API the same way
-Barrier's API mislabeling problem works); 3 structurally unreachable ids (Grim Specter orphan;
-Carnivore/Replenishing Despair are shared-trait "effect skills", same exclusion shape as Assassin's
-Reward above).
+a follow-up pass since Cosmic Wisdom's own mode/formula wasn't directly tested. **Locust Swarm,
+Signet of Vampirism (both facts), Death Spiral, and Nightmare Weapon are now ALL RESOLVED too**
+(2026-08-23, live in-game WvW readings — see the in-game-verification checklist memory): every one
+confirmed the API's raw base value was correct all along (Locust Swarm 37/0.08, Signet Passive
+129/0.022, Signet Active 163/0.084, Death Spiral 1764/0.005, Nightmare Weapon 606/0.025) — the wiki's
+117/151/247 numbers (and, for Death Spiral, the wiki's total absence of any coefficient) were simply
+wrong/missing, same pattern as Enchanted Daggers. Nightmare Weapon's code comment also had a stale
+profession attribution (said Harbinger, is actually Ritualist) fixed in the same pass. Left uncurated:
+1 explicit wiki stub tag (Vampiric Slash, Thief — unrelated skill from Death Spiral despite similar
+flavor text, not yet live-verified); 1 different formula shape (Soul Grasp, weapon-strength-based,
+mislabeled by the API the same way Barrier's API mislabeling problem works); 3 structurally
+unreachable ids (Grim Specter orphan; Carnivore/Replenishing Despair are shared-trait "effect skills",
+same exclusion shape as Assassin's Reward above).
 
 **Both Healing and Damage tables**: never visually spot-checked in the running app (Electron sandbox
 limitation) — do that before extending either further.

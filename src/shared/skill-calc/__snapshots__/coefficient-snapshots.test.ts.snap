@@ -6959,7 +6959,7 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
   "21762": [
     {
       "label": "Passive Life-Siphon Healing",
-      "value": 231,
+      "value": 228,
     },
     {
       "label": "Active Life Siphon Heal",
@@ -7334,6 +7334,16 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Healing",
       "value": 1114,
+    },
+  ],
+  "30860": [
+    {
+      "label": "First-Hit Life Siphon Healing",
+      "value": 2064,
+    },
+    {
+      "label": "Additional-Hit Healing",
+      "value": 344,
     },
   ],
   "30864": [
@@ -8315,10 +8325,32 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
 
 exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md Tier 2) > CURATED_SIPHON_DAMAGE_COEFFICIENTS produces stable Life Siphon Damage lines at a fixed reference build 1`] = `
 {
+  "10557": [
+    {
+      "label": "Life Siphon Damage",
+      "value": 237,
+    },
+  ],
+  "21762": [
+    {
+      "label": "Passive Life-Siphon Damage",
+      "value": 184,
+    },
+    {
+      "label": "Active Life Siphon Damage",
+      "value": 373,
+    },
+  ],
   "26937": [
     {
       "label": "Siphon Damage",
       "value": 933,
+    },
+  ],
+  "30860": [
+    {
+      "label": "Life Siphon Damage",
+      "value": 1777,
     },
   ],
   "45773": [
@@ -8337,6 +8369,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Siphon Damage",
       "value": 701,
+    },
+  ],
+  "76739": [
+    {
+      "label": "Life Siphon Damage",
+      "value": 669,
     },
   ],
   "76941": [

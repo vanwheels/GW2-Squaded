@@ -47,19 +47,27 @@ export interface SiphonDamageCoefficient {
  * gap (Soul Shards' WvW pair: API 606 vs wiki 605 — the same "negligible, not a real conflict" bar
  * `CURATED_HEALING_COEFFICIENTS`'s Cleansing Wave entry already established for a 2-point gap).
  *
- * **2 stayed uncurated on a genuine, unresolved wiki/API value mismatch** — Locust Swarm (API 37 vs
- * wiki 117), Signet of Vampirism (API 129/163 vs wiki 151/247, both facts) — both number-pairs
- * reconcile PERFECTLY if `wikiQuoted = apiRaw + coefficient * 1000` (i.e. as if the wiki's own number
- * were the tooltip value at a Power-1000 reference build stacked ON TOP of the API's already-
- * reference-built value), which is suspiciously exact to be pure noise — but no other curated table
- * in this codebase has ever needed or used a "subtract coefficient times the target stat's base
- * value" adjustment (every existing `HealingCoefficient`/`BarrierCoefficient`/`DamageCoefficient`
- * entry trusts the API's raw `value` verbatim as `baseValue`), and `Soulcleave's Summit`/`Hungering
- * Maelstrom`/`Xinrae's Weapon` above show ZERO such offset on the exact same
- * `{{skill fact|life siphon damage}}` template shape — so this isn't a universal formula quirk, it's
- * a real per-page inconsistency with no reliable way to tell which of the two patterns a given skill
- * follows without an actual in-game reference. Left uncurated rather than guess which source is
- * stale.
+ * **Locust Swarm, Signet of Vampirism (both facts), Death Spiral, Nightmare Weapon — all 5 candidates
+ * RESOLVED 2026-08-23** via live in-game WvW readings (2 Power-differentiated readings per skill; see
+ * the in-game-verification checklist memory). Every one of them turned out to follow the same pattern
+ * Enchanted Daggers established below: the API's own raw `value` field, taken as-is as `baseValue`,
+ * reproduces both live readings exactly once the right coefficient is solved for — confirmed via an
+ * interval check (does *some* coefficient exist that rounds both readings correctly for that fixed
+ * base?), not just a single-point guess. Locust Swarm: base=37/coefficient=0.08 (matches the API,
+ * wiki's 117 was wrong — and coincidentally the exact same base/coefficient pair as this skill's own
+ * already-curated `CURATED_HEALING_COEFFICIENTS` Life Siphon Healing entry's untraited PvE half,
+ * suggesting Locust Swarm's damage-to-target and heal-to-self are the literal same formula). Signet of
+ * Vampirism: Passive Life-Siphon Damage base=129/coefficient=0.022 and Active Life Siphon Damage
+ * base=163/coefficient=0.084 (both API raws confirmed correct, wiki's 151/247 were wrong). Death
+ * Spiral (previously blocked entirely on the wiki's own `{{stub||missing siphon coefficients}}` tag —
+ * no coefficient documented anywhere): base=1764/coefficient=0.005, live-derived with no wiki
+ * involvement at all. Nightmare Weapon (also wiki-stub-tagged for its WvW/PvP half specifically):
+ * base=606/coefficient=0.025 — notably the same base as this skill's own already-curated Life Siphon
+ * Healing fact (606), though the coefficients differ (0.025 damage vs 0.15 healing), so it's not a
+ * fully shared formula the way Locust Swarm's is. All 4 skills are Necromancer; Nightmare Weapon's own
+ * code comment elsewhere in this codebase previously mis-attributed it to Harbinger — it's actually a
+ * Ritualist utility skill (confirmed both by the live screenshot's character panel and this app's own
+ * `specializations.json`, which already has Ritualist modeled — not a data gap, just a stale comment).
  *
  * **Enchanted Daggers (API 968/808 vs wiki 1028/858, both modes) — RESOLVED 2026-08-23.** 2 live
  * in-game readings at known Power (2,771 Power -> 947 Siphon Damage; 1,214 Power -> 869 Siphon
@@ -74,13 +82,12 @@ export interface SiphonDamageCoefficient {
  * confirmed, that entry is likely inflated and should probably read 968 instead — not changed here
  * since Cosmic Wisdom's own formula/mode wasn't part of this verification pass.
  *
- * **2 stayed uncurated on an explicit wiki maintenance tag** — Death Spiral
- * (`{{stub||missing siphon coefficients}}`, no `coefficient=` param on either Life Siphon Damage fact
- * at all) and Nightmare Weapon (`{{stub||pvp/wvw dmg coefficient}}` — PvE has a coefficient, but the
- * WvW/PvP-grouped value this app's convention requires has none documented). Vampiric Slash carries
- * its own stub tag too (`{{stub|skill|Need better calculation of base life siphon damage}}`) with a
- * single flat coefficient that reproduces the same unresolved `+coefficient*1000` pattern above (API
- * 1210 vs wiki 1410) — doubly unreliable, left out on both grounds.
+ * **1 stayed uncurated on an explicit wiki maintenance tag** — Vampiric Slash (Thief, id 73063 — a
+ * different skill from the Necromancer/Reaper "Death Spiral" resolved above, despite the similar
+ * flavor text) carries its own stub tag (`{{stub|skill|Need better calculation of base life siphon
+ * damage}}`) with a single flat coefficient that reproduces the same unresolved `+coefficient*1000`
+ * pattern above (API 1210 vs wiki 1410) — doubly unreliable, left out on both grounds; not yet
+ * live-verified.
  *
  * **1 stayed uncurated as a different formula shape entirely** — Soul Grasp: the wiki's own
  * `{{skill fact|life siphon damage|weapon=focus|coefficient=...}}` template has no literal base
@@ -111,6 +118,23 @@ export const CURATED_SIPHON_DAMAGE_COEFFICIENTS: Record<number, SiphonDamageCoef
   // coefficient itself splits (PvE 0.1 vs WvW+PvP 0.04, both share base 325) — WvW value used, same
   // "coefficient-only split" shape already curated for this skill's own Healing facts.
   45773: [{ factText: 'Life Siphon Damage', baseValue: 325, coefficient: 0.04 }],
+  // Necromancer — Locust Swarm. Resolved via live in-game WvW testing 2026-08-23 (see this file's top
+  // comment) — API's raw base (37) confirmed correct, wiki's 117 was wrong. Same base/coefficient as
+  // this skill's own already-curated Life Siphon Healing (untraited PvE half) — likely one shared
+  // formula for both halves of the siphon.
+  10557: [{ factText: 'Life Siphon Damage', baseValue: 37, coefficient: 0.08 }],
+  // Necromancer — Signet of Vampirism. Both facts resolved via live in-game WvW testing 2026-08-23
+  // (see this file's top comment) — API's raw bases (129, 163) confirmed correct, wiki's 151/247 were
+  // wrong.
+  21762: [
+    { factText: 'Passive Life-Siphon Damage', baseValue: 129, coefficient: 0.022 },
+    { factText: 'Active Life Siphon Damage', baseValue: 163, coefficient: 0.084 }
+  ],
+  // Necromancer/Reaper — Death Spiral (greatsword 3). Previously blocked entirely on the wiki's own
+  // `{{stub||missing siphon coefficients}}` tag (no coefficient documented anywhere on the page);
+  // resolved via live in-game WvW testing 2026-08-23 with no wiki involvement at all (see this file's
+  // top comment).
+  30860: [{ factText: 'Life Siphon Damage', baseValue: 1764, coefficient: 0.005 }],
   // Necromancer — Hungering Maelstrom (sword 4). PvE+WvW grouped (1764/0.005) vs PvP-only
   // (1228/0.005, same coefficient) — WvW value used; API exposes only the PvE+WvW-grouped fact
   // locally (no separate PvP-only duplicate), matching the wiki's own grouped number exactly.
@@ -120,6 +144,12 @@ export const CURATED_SIPHON_DAMAGE_COEFFICIENTS: Record<number, SiphonDamageCoef
   // API base (606) is 1 point off the wiki's quoted 605, a negligible rounding gap, not a real
   // conflict (same bar as CURATED_HEALING_COEFFICIENTS's Cleansing Wave entry).
   73108: [{ factText: 'Siphon Damage', baseValue: 606, coefficient: 0.038 }],
+  // Necromancer — Nightmare Weapon (Ritualist utility, not Harbinger — see this skill's own
+  // `CURATED_HEALING_COEFFICIENTS` comment for the correction). Previously blocked on the wiki's own
+  // `{{stub||pvp/wvw dmg coefficient}}` tag for this specific game-mode half; resolved via live
+  // in-game WvW testing 2026-08-23. Same base as this skill's own Life Siphon Healing fact (606),
+  // though the coefficients differ (0.025 damage vs 0.15 healing).
+  76739: [{ factText: 'Life Siphon Damage', baseValue: 606, coefficient: 0.025 }],
   // Necromancer — Xinrae's Weapon (Ritualist Elite). PvE/WvW+PvP base-value split (PvE 1990 vs
   // WvW+PvP 1001, same 0.005 coefficient) — WvW value used; matches this skill's own already-curated
   // Siphon Healing facts exactly (same page, same split, same coefficient).

@@ -272,8 +272,13 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Necromancer — Signet of Vampirism. No PvE/WvW split on any fact. The API's "Initial Self Heal"
   // (4950) is a stale pre-2023-11-28-patch duplicate of the same effect now shown as "Healing"
   // (5750) — not a distinct mechanic, so only "Healing" is curated, not "Initial Self Heal".
+  // "Active Life Siphon Heal" and "Healing" reconfirmed exact via 2 live in-game WvW readings
+  // 2026-08-23 (108/215 Healing Power); "Passive Life-Siphon Healing"'s coefficient was found wrong
+  // by that same pass (0.024 predicted 198 at 108 Healing Power, live tooltip showed 197) and
+  // corrected to 0.022, which fits both readings exactly — base (195) was already right. This skill's
+  // sibling `Life Siphon Damage` facts are now curated too, see `CURATED_SIPHON_DAMAGE_COEFFICIENTS`.
   21762: [
-    { factText: 'Passive Life-Siphon Healing', baseValue: 195, coefficient: 0.024 },
+    { factText: 'Passive Life-Siphon Healing', baseValue: 195, coefficient: 0.022 },
     { factText: 'Active Life Siphon Heal', baseValue: 600, coefficient: 0.24 },
     { factText: 'Healing', baseValue: 5750, coefficient: 0.5 }
   ],
@@ -523,9 +528,13 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
     { factText: 'Healing per Condition', baseValue: 709, coefficient: 0.22 },
     { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
   ],
-  // Necromancer — Nightmare Weapon (Harbinger). Both game-mode variants share the exact same fact
-  // text ("Life Siphon Healing") on the wiki too — a genuine duplicate label, not an app oversight —
-  // so only the WvW-correct pair is curated (PvE-only: base 774, coefficient 0.5).
+  // Necromancer — Nightmare Weapon (Ritualist utility, not Harbinger as previously noted here —
+  // corrected 2026-08-23 after a live in-game screenshot showed the caster's own character panel;
+  // confirmed by `specializations.json`, which already has Ritualist modeled). Both game-mode variants
+  // share the exact same fact text ("Life Siphon Healing") on the wiki too — a genuine duplicate
+  // label, not an app oversight — so only the WvW-correct pair is curated (PvE-only: base 774,
+  // coefficient 0.5). This skill's sibling `Life Siphon Damage` fact is now curated too, see
+  // `CURATED_SIPHON_DAMAGE_COEFFICIENTS`.
   76739: [{ factText: 'Life Siphon Healing', baseValue: 606, coefficient: 0.15 }],
   // Necromancer — Weapon of Remedy (Harbinger). No PvE/WvW split.
   77022: [{ factText: 'Healing per Condition Removed', baseValue: 408, coefficient: 0.2 }],
@@ -624,17 +633,21 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // 5 stayed uncurated after investigation; re-checked fresh 2026-08-22 (see TODO.md's
   // "Coefficient curation — remaining exceptions" leftovers sweep) — no change on any of the 4 that
   // were re-investigated (Ranger 31889 wasn't re-checked this pass). Of those, **Elementalist 72982
-  // (Etching: Jökulhlaup, Spear) is now RESOLVED (2026-08-23)** — see its own entry below for the
-  // surprising twist this one turned up; 4 remain open:
-  // - **Necromancer 30860 (Death Spiral)**: wiki page is explicitly tagged
-  //   `{{stub||missing siphon coefficients}}` — neither of its two Life Siphon Healing facts has a
-  //   coefficient documented anywhere on the page.
-  // - **Necromancer 69302 (Life Siphon)**: wiki now documents coefficients too (0.082 PvE / 0.036
-  //   WvW+PvP), but the base values they're paired with (450 PvE / 300 WvW+PvP) still don't match
-  //   this app's API-sourced values (537 / 238) under either mode ordering — a genuine, unexplained
-  //   conflict, not a mode-split naming mismatch, and having the coefficient too doesn't resolve it
-  //   (this table's `baseValue` is meant to be the API's own reference-build number, per the header
-  //   doc comment, and neither API value matches either wiki base).
+  // (Etching: Jökulhlaup, Spear) is now RESOLVED (2026-08-23)**, and **Necromancer 30860 (Death
+  // Spiral) is now RESOLVED too (2026-08-23)** — its wiki-stub `{{stub||missing siphon coefficients}}`
+  // block turned out fully solvable via 2 live in-game WvW readings alone, no wiki involvement needed
+  // (see this skill's own entry below, and `CURATED_SIPHON_DAMAGE_COEFFICIENTS`'s top comment for the
+  // sibling Life Siphon Damage fact this same pass also resolved); 3 remain open:
+  // - **Necromancer 69302 (Life Siphon)**: wiki documents coefficients (0.082 PvE / 0.036 WvW+PvP)
+  //   paired with base values (450 PvE / 300 WvW+PvP) that don't match this app's API-sourced values
+  //   (537 / 238) under either mode ordering — still unresolved despite 2 live WvW readings taken
+  //   2026-08-23 (Pulse Heal 238 -> 249 across Power 2,678 -> 2,786 with **Healing Power confirmed 0
+  //   in both**), because that pairing is the opposite of what this fact needs: with Healing Power
+  //   fixed at 0, its `target: 'Healing'` value should have stayed flat if the API's own labeling is
+  //   right, but it moved with Power instead — suggesting `Pulse Heal` may be another Barrier-style
+  //   API target mislabeling (genuinely Power-scaled, not Healing-Power-scaled) rather than confirming
+  //   either existing base. Left uncurated rather than guess the formula shape; a reading with
+  //   deliberately-varied Healing Power (Power held fixed) would settle it.
   // - **Ranger 31889 (Astral Wisp, Druid Staff, post-2026-07-15 rework)**: wiki's rewritten page gives
   //   one base value (1288) shared across all modes with only the coefficient split (0.6 pve/pvp vs 0.9
   //   wvw), but the API shows two duplicate-text facts both valued 322 — roughly a quarter of 1288,
@@ -776,6 +789,18 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // "Chillblains additional effects" bullet (1302/0.5 pve+wvw grouped, matching this app's API value
   // exactly), so it's a genuine per-skill design, not the Assassin's Reward shape (see below).
   10605: [{ factText: 'Healing', baseValue: 1302, coefficient: 0.5, requiresTrait: 778 }],
+  // Necromancer/Reaper — Death Spiral (greatsword 3). RESOLVED 2026-08-23 — previously blocked
+  // entirely on the wiki's own `{{stub||missing siphon coefficients}}` tag (no coefficient documented
+  // for either fact); solved directly from 2 live in-game WvW readings (0 Healing Power -> 1764/294;
+  // 215 Healing Power -> 1807/301), no wiki involvement needed. `First-Hit Life Siphon Healing`'s
+  // coefficient (0.2) is clean; `Additional-Hit Healing`'s (~0.033, exact value 7/215) has lower
+  // precision — the 215-point Healing Power range tested only pins it down to roughly ±10% — a wider
+  // range reading would tighten it if ever needed. This skill's sibling `Life Siphon Damage` fact is
+  // now curated too, see `CURATED_SIPHON_DAMAGE_COEFFICIENTS`.
+  30860: [
+    { factText: 'First-Hit Life Siphon Healing', baseValue: 1764, coefficient: 0.2 },
+    { factText: 'Additional-Hit Healing', baseValue: 294, coefficient: 0.033 }
+  ],
   // Necromancer — Locust Swarm. 4 API facts: an untraited PvE/WvW+PvP pair (37/55, same 0.08
   // coefficient) plus a second pair gated behind trait 799 (Banshee's Wail) at 55/83 — only the
   // untraited baseline is curated here, same reasoning as Signet of Courage's traited variant below;
