@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { Build, Trait, TraitSlot } from '../types'
 import {
+  AEGIS_DAMAGE_TRAIT_BONUSES,
   CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES,
   combatStatePoints,
   CURATED_FOOD_OUTGOING_HEALING_BONUSES,
@@ -13,10 +14,12 @@ import {
   CURATED_UTILITY_OUTGOING_HEALING_ATTRIBUTE_SCALING,
   DEATHS_CARAPACE_TOUGHNESS_PER_STACK,
   DEFAULT_COMBAT_STATE,
+  FLAT_DAMAGE_TRAIT_BONUSES,
   FORCE_OF_WILL_HEALING_PERCENT_PER_100_VITALITY,
   FORCE_OF_WILL_TRAIT_ID,
   FURY_CRITICAL_CHANCE_PERCENT,
   FURY_DAMAGE_TRAIT_BONUSES,
+  HIGH_HEALTH_DAMAGE_TRAIT_BONUSES,
   INVOKING_HARMONY_HEALING_PERCENT,
   INVOKING_HARMONY_TRAIT_ID,
   KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK,
@@ -28,6 +31,7 @@ import {
   KALLA_FERVOR_STRIKE_DAMAGE_PERCENT_PER_STACK,
   kallaFervorPercentPerStack,
   LASTING_LEGACY_TRAIT_ID,
+  MECHANIC_ACTIVE_DAMAGE_TRAIT_BONUSES,
   MED_KIT_OUTGOING_HEALING_TRAIT_BONUSES,
   MED_KIT_SKILL_ID,
   MIGHT_CONDITION_DAMAGE_PER_STACK,
@@ -52,6 +56,8 @@ import {
   SIGIL_OF_THE_NIGHT_ADDITIONAL_NIGHT_DAMAGE_PERCENT,
   SIGIL_OF_THE_NIGHT_BASE_DAMAGE_PERCENT,
   SIGIL_OF_THE_NIGHT_ID,
+  STABILITY_DAMAGE_TRAIT_BONUSES,
+  SWIFTNESS_DAMAGE_TRAIT_BONUSES,
   type CombatState,
   type HealthTier
 } from './combat-state'
@@ -857,6 +863,103 @@ describe('resolveOutgoingDamagePercent — Inspired Virtue (per-active-boon trai
   it('contributes nothing when the trait is not chosen, even with boons active', () => {
     const build = makeBuild()
     expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, activeBoonCount: 8 }, NO_TRAITS)).toBe(0)
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Empowered (per-active-boon trait, shares PER_BOON_DAMAGE_TRAIT_BONUSES with Inspired Virtue)', () => {
+  it.each([0, 3, 6])('scales linearly with activeBoonCount at %i boons', (boons) => {
+    const { build, traitsById } = buildWithTrait(1485, 'Minor')
+    const result = resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, activeBoonCount: boons }, traitsById)
+    expect(result).toBe(boons * PER_BOON_DAMAGE_TRAIT_BONUSES[1485])
+  })
+})
+
+describe("resolveOutgoingDamagePercent — Warrior's Sprint (Swiftness-gated trait)", () => {
+  it('contributes nothing while chosen but Swiftness is inactive', () => {
+    const { build, traitsById } = buildWithTrait(1413, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, swiftnessActive: false }, traitsById)).toBe(0)
+  })
+
+  it('contributes the flat bonus once chosen and Swiftness is active', () => {
+    const { build, traitsById } = buildWithTrait(1413, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, swiftnessActive: true }, traitsById)).toBe(
+      SWIFTNESS_DAMAGE_TRAIT_BONUSES[1413]
+    )
+  })
+
+  it('contributes nothing when the trait is not chosen, even with Swiftness active', () => {
+    const build = makeBuild()
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, swiftnessActive: true }, NO_TRAITS)).toBe(0)
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Stalwart Strength (Stability-gated trait)', () => {
+  it('contributes nothing while chosen but Stability is inactive', () => {
+    const { build, traitsById } = buildWithTrait(1708, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, stabilityActive: false }, traitsById)).toBe(0)
+  })
+
+  it('contributes the flat bonus once chosen and Stability is active', () => {
+    const { build, traitsById } = buildWithTrait(1708, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, stabilityActive: true }, traitsById)).toBe(
+      STABILITY_DAMAGE_TRAIT_BONUSES[1708]
+    )
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Bloody Roar (mechanic-active-gated trait)', () => {
+  it('contributes nothing while chosen but the mechanic is inactive', () => {
+    const { build, traitsById } = buildWithTrait(1928, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, mechanicActive: false }, traitsById)).toBe(0)
+  })
+
+  it('contributes the flat bonus once chosen and the mechanic is active', () => {
+    const { build, traitsById } = buildWithTrait(1928, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, mechanicActive: true }, traitsById)).toBe(
+      MECHANIC_ACTIVE_DAMAGE_TRAIT_BONUSES[1928]
+    )
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Peak Performance (flat, unconditional baseline)', () => {
+  it('contributes the flat bonus once chosen, no combat-state gating needed', () => {
+    const { build, traitsById } = buildWithTrait(1444, 'Major')
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, traitsById)).toBe(FLAT_DAMAGE_TRAIT_BONUSES[1444])
+  })
+
+  it('contributes nothing when the trait is not chosen', () => {
+    const build = makeBuild()
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS)).toBe(0)
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Unscathed Contender (Aegis-gated + health-threshold-gated halves)', () => {
+  it('contributes nothing when neither Aegis nor the health threshold is met', () => {
+    const { build, traitsById } = buildWithTrait(624, 'Major')
+    expect(
+      resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, aegisActive: false, healthTier: 'below50' }, traitsById)
+    ).toBe(0)
+  })
+
+  it('contributes the Aegis-gated half while Aegis is active', () => {
+    const { build, traitsById } = buildWithTrait(624, 'Major')
+    expect(
+      resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, aegisActive: true, healthTier: 'below50' }, traitsById)
+    ).toBe(AEGIS_DAMAGE_TRAIT_BONUSES[624])
+  })
+
+  it('contributes the health-threshold-gated half while above the threshold', () => {
+    const { build, traitsById } = buildWithTrait(624, 'Major')
+    expect(
+      resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, aegisActive: false, healthTier: 'above75' }, traitsById)
+    ).toBe(HIGH_HEALTH_DAMAGE_TRAIT_BONUSES[624].aboveThreshold)
+  })
+
+  it('stacks both halves when Aegis is active and above the health threshold', () => {
+    const { build, traitsById } = buildWithTrait(624, 'Major')
+    expect(
+      resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, aegisActive: true, healthTier: 'above75' }, traitsById)
+    ).toBe(AEGIS_DAMAGE_TRAIT_BONUSES[624] + HIGH_HEALTH_DAMAGE_TRAIT_BONUSES[624].aboveThreshold)
   })
 })
 

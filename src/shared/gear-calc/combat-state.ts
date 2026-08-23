@@ -125,15 +125,27 @@ export interface CombatState {
    *  `invokingHarmonyActive`. */
   resolutionActive: boolean
   /** Manual count of how many boons are currently active on the player — gates `PER_BOON_DAMAGE_
-   *  TRAIT_BONUSES` (currently just Guardian/Virtues' Inspired Virtue). This app has no general
-   *  "which boons are up" tracking (see `regenerationActive`'s doc comment — even the boons that
-   *  DO have dedicated fields are one boolean each, not a shared count), so — same reasoning as
-   *  `upkeepPoints` sidestepping Revenant's untracked upkeep-cost data — this is a raw manual entry
-   *  rather than an auto-derived count. Only surfaced when a curated per-boon-damage trait is
-   *  actually chosen, same gating as `upkeepPoints`/`celestialAvatarActive`. No fixed real max
-   *  (a full boon bar is commonly 8-10+ boons in a support-heavy WvW squad), so — like
+   *  TRAIT_BONUSES` (currently Guardian/Virtues' Inspired Virtue and Warrior/Tactics' Empowered).
+   *  This app has no general "which boons are up" tracking (see `regenerationActive`'s doc comment
+   *  — even the boons that DO have dedicated fields are one boolean each, not a shared count), so —
+   *  same reasoning as `upkeepPoints` sidestepping Revenant's untracked upkeep-cost data — this is a
+   *  raw manual entry rather than an auto-derived count. Only surfaced when a curated per-boon-damage
+   *  trait is actually chosen, same gating as `upkeepPoints`/`celestialAvatarActive`. No fixed real
+   *  max (a full boon bar is commonly 8-10+ boons in a support-heavy WvW squad), so — like
    *  `upkeepPoints` — this is a raw number input, not a dropdown. */
   activeBoonCount: number
+  /** Gates `SWIFTNESS_DAMAGE_TRAIT_BONUSES` (currently just Warrior/Discipline's Warrior's Sprint)
+   *  — a real boon state, not a build choice, same "assume the condition is currently true" shape
+   *  as `furyActive`/`resolutionActive`. Only one curated candidate so far, so it follows the newer
+   *  "only surfaced when a curated trait for it is actually chosen" pattern — same as
+   *  `resolutionActive`/`celestialAvatarActive`. */
+  swiftnessActive: boolean
+  /** Gates `STABILITY_DAMAGE_TRAIT_BONUSES` (currently just Warrior/Defense's Stalwart Strength) —
+   *  same shape/reasoning as `swiftnessActive` above, one boon, one curated candidate so far. */
+  stabilityActive: boolean
+  /** Gates `AEGIS_DAMAGE_TRAIT_BONUSES` (currently just Guardian/Virtues' Unscathed Contender) —
+   *  same shape/reasoning as `swiftnessActive`/`stabilityActive` above. */
+  aegisActive: boolean
 }
 
 export const DEFAULT_COMBAT_STATE: CombatState = {
@@ -155,7 +167,10 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   invokingHarmonyActive: false,
   nightActive: false,
   resolutionActive: false,
-  activeBoonCount: 0
+  activeBoonCount: 0,
+  swiftnessActive: false,
+  stabilityActive: false,
+  aegisActive: false
 }
 
 // wiki-confirmed flat value at level 80, quoted directly (not derived from a per-level formula).
@@ -708,6 +723,30 @@ function curatedSigilConditionDamagePercent(build: Build): number {
  *   `CombatState` field tracks Lethal Tempo stacks and building one is out of scope for a single
  *   trait. Logged in TODO.md as needing dedicated stacking-buff modeling, same shape as Kalla's
  *   Fervor/Death's Carapace got their own dedicated fields for.
+ *
+ * Guardian catch-up (found while scanning the Warrior leg below): Unscathed Contender (624,
+ * Guardian/Virtues, Adept Major) was missed by the original Guardian leg's own scan — it genuinely
+ * belongs in this sweep and is curated below (`AEGIS_DAMAGE_TRAIT_BONUSES`/
+ * `HIGH_HEALTH_DAMAGE_TRAIT_BONUSES`).
+ *
+ * Warrior leg (Session 280, 2026-08-22): 11 unique candidates. 5 curated below (`SWIFTNESS_DAMAGE_
+ * TRAIT_BONUSES`, `FLAT_DAMAGE_TRAIT_BONUSES`, `PER_BOON_DAMAGE_TRAIT_BONUSES`'s new Warrior entry,
+ * `STABILITY_DAMAGE_TRAIT_BONUSES`, `MECHANIC_ACTIVE_DAMAGE_TRAIT_BONUSES`'s new Warrior entry); 6
+ * excluded after wiki-verification:
+ * - Merciless Hammer (1367, vs. disabled/defiant foes), Cull the Weak (1372, vs. weakened foes),
+ *   Leg Specialist (1469, vs. chilled/crippled/immobile foes) — all target-condition-gated, same
+ *   exclusion class as the Guardian leg's Fiery Wrath/Symbolic Exposure/Zealot's Aggression.
+ * - Warrior's Cunning (1486) — two separate target-condition-gated halves (vs. high-health foes,
+ *   vs. foes with barrier), same exclusion class, just two conditions on one trait instead of one.
+ * - Destruction of the Empowered (1489) — "per boon on your target," not on self (unlike Empowered/
+ *   Inspired Virtue's own-boon-count halves) — this app has no tracked "target's boon count" field,
+ *   only `activeBoonCount` for the player's own boons, so folding it into `PER_BOON_DAMAGE_TRAIT_
+ *   BONUSES` would silently read the wrong count. No existing infra fits; not worth building for a
+ *   single trait.
+ * - Burst Mastery (1657) — "Burst skills deal more damage," scoped to one skill category rather
+ *   than general outgoing strike damage (unlike Furious Focus/Retribution's blanket application) —
+ *   same "narrower skill-specific proc" exclusion class as the Guardian leg's Big Game Hunter/Power
+ *   for Power.
  */
 
 /**
@@ -742,10 +781,88 @@ export const RESOLUTION_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * `split = pve, wvw pvp`, PvE 0.5% per boon, PvP/WvW 1% per boon — WvW value used here. The
  * trait's own boon-application facts (Might/Regeneration/Protection on Virtue activation) are
  * separate `PrefixedBuff` facts, already rendered via `boonConditionFactsForTrait`, out of scope
- * for this per-boon-%% table.
+ * for this per-boon-%% table. Empowered (Warrior/Tactics, Master Minor, id 1485), added in the
+ * Warrior leg: "Deal increased strike damage for every boon on you" — wiki-verified via raw
+ * wikitext 2026-08-22, flat 1% per boon, no game-mode split.
  */
 export const PER_BOON_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
-  621: 1 // Inspired Virtue (Guardian, Virtues, Minor)
+  621: 1, // Inspired Virtue (Guardian, Virtues, Minor)
+  1485: 1 // Empowered (Warrior, Tactics, Minor)
+}
+
+/**
+ * Trait id -> flat outgoing-strike-damage-% while Swiftness is active — gated on
+ * `CombatState.swiftnessActive`. Warrior's Sprint (Warrior/Discipline, Adept Major, id 1413): "deal
+ * increased strike damage while you have swiftness" (its Movement Speed half is already curated in
+ * `MELEE_WEAPON_MOVEMENT_SPEED_TRAIT_BONUSES` — out of scope there). Wiki-verified via raw wikitext 2026-08-22
+ * (`split = pve, wvw pvp`): PvE 10%, WvW/PvP 3% — WvW value used here.
+ */
+export const SWIFTNESS_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
+  1413: 3 // Warrior's Sprint (Warrior, Discipline, Major)
+}
+
+/**
+ * Trait id -> flat outgoing-strike-damage-% while Stability is active — gated on
+ * `CombatState.stabilityActive`. Stalwart Strength (Warrior/Defense, Grandmaster Major, id 1708):
+ * "Deal increased strike damage while you have stability." Wiki-verified via raw wikitext
+ * 2026-08-22 (`split = pve, wvw, pvp`): flat 10% in every mode.
+ */
+export const STABILITY_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
+  1708: 10 // Stalwart Strength (Warrior, Defense, Major)
+}
+
+/**
+ * Trait id -> flat outgoing-strike-damage-% while Aegis is active — gated on
+ * `CombatState.aegisActive`. Unscathed Contender (Guardian/Virtues, Adept Major, id 624) — a
+ * Guardian-leg candidate the original scan missed, curated here alongside its `HIGH_HEALTH_DAMAGE_
+ * TRAIT_BONUSES` sibling below (see this section's own doc comment for the catch-up note). "Strike
+ * damage dealt is increased while you have aegis." Wiki-verified via raw wikitext 2026-08-22
+ * (`split = pve, wvw pvp`): PvE 5%, WvW/PvP 7% — WvW value used here.
+ */
+export const AEGIS_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
+  624: 7 // Unscathed Contender (Guardian, Virtues, Major)
+}
+
+/**
+ * Trait id -> { above the health threshold / otherwise } flat outgoing-strike-damage-% bonus — the
+ * damage-% sibling to `HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES`, reusing `CombatState.healthTier`
+ * (no new field). Unscathed Contender's other half (see `AEGIS_DAMAGE_TRAIT_BONUSES` above):
+ * "Strike damage dealt is increased while you are above the health threshold." Wiki-verified via
+ * raw wikitext 2026-08-22: threshold is a flat 90% (no mode split on the threshold itself), damage
+ * bonus is PvE 5% / WvW/PvP 7% — WvW value used here, approximated to the `'above75'` tier same as
+ * Keen Observer's own 90% threshold already does.
+ */
+export const HIGH_HEALTH_DAMAGE_TRAIT_BONUSES: Record<number, { aboveThreshold: number; otherwise: number }> = {
+  624: { aboveThreshold: 7, otherwise: 0 } // Unscathed Contender (Guardian, Virtues, Major)
+}
+
+/**
+ * Trait id -> flat outgoing-strike-damage-% while the build's profession mechanic is active —
+ * gated on `CombatState.mechanicActive`, the damage-% sibling to `MECHANIC_ACTIVE_CRIT_CHANCE_
+ * TRAIT_BONUSES`. Bloody Roar (Warrior/Berserker, Grandmaster Major, id 1928): "Deal increased
+ * strike damage while in berserk mode." Wiki-verified via raw wikitext 2026-08-22: no `split`
+ * parameter present, flat 10% in every mode (the trait's own resistance-on-berserk-entry effect is
+ * a proc, not a character-stat gain — out of scope here). The `mechanicActive` toggle is already
+ * surfaced for any Berserker build via Fatal Frenzy's auto-granted minor (`MECHANIC_ACTIVE_
+ * ATTRIBUTE_TRAIT_BONUSES`), so no `CombatStatePanel` change is needed for this entry.
+ */
+export const MECHANIC_ACTIVE_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
+  1928: 10 // Bloody Roar (Warrior, Berserker, Major)
+}
+
+/**
+ * Trait id -> flat, unconditional outgoing-strike-damage-% — the damage-% sibling to `FLAT_CRIT_
+ * CHANCE_TRAIT_BONUSES`, no `CombatState` gating at all (added whenever the trait is picked). Peak
+ * Performance (Warrior/Strength, Adept Major, id 1444): "Deal increased strike damage" is an
+ * always-on baseline; wiki-verified via raw wikitext 2026-08-22 (`split = pve, wvw pvp`): PvE 5%,
+ * WvW/PvP 3% — WvW value used here. The trait's other effect (a further +7%/+10% WvW/PvE "Peak
+ * Performance" buff for 6s after using a Physical skill) is a transient proc window, not a
+ * steady-state build stat — same "not a character stat gain" reasoning already used to exclude Mist
+ * Form/Signet of the Locust from the movement-speed sweep — so only the always-on baseline is
+ * curated here.
+ */
+export const FLAT_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
+  1444: 3 // Peak Performance (Warrior, Strength, Major) — baseline only, see doc comment
 }
 
 /**
@@ -771,8 +888,34 @@ export function resolveOutgoingDamagePercent(build: Build, combatState: CombatSt
       if (active.has(Number(traitIdText))) total += percent
     }
   }
+  if (combatState.swiftnessActive) {
+    for (const [traitIdText, percent] of Object.entries(SWIFTNESS_DAMAGE_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) total += percent
+    }
+  }
+  if (combatState.stabilityActive) {
+    for (const [traitIdText, percent] of Object.entries(STABILITY_DAMAGE_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) total += percent
+    }
+  }
+  if (combatState.aegisActive) {
+    for (const [traitIdText, percent] of Object.entries(AEGIS_DAMAGE_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) total += percent
+    }
+  }
+  if (combatState.mechanicActive) {
+    for (const [traitIdText, percent] of Object.entries(MECHANIC_ACTIVE_DAMAGE_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) total += percent
+    }
+  }
+  for (const [traitIdText, { aboveThreshold, otherwise }] of Object.entries(HIGH_HEALTH_DAMAGE_TRAIT_BONUSES)) {
+    if (active.has(Number(traitIdText))) total += combatState.healthTier === 'above75' ? aboveThreshold : otherwise
+  }
   for (const [traitIdText, percentPerBoon] of Object.entries(PER_BOON_DAMAGE_TRAIT_BONUSES)) {
     if (active.has(Number(traitIdText))) total += percentPerBoon * combatState.activeBoonCount
+  }
+  for (const [traitIdText, percent] of Object.entries(FLAT_DAMAGE_TRAIT_BONUSES)) {
+    if (active.has(Number(traitIdText))) total += percent
   }
   return total
 }

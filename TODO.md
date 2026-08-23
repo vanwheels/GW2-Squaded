@@ -106,7 +106,8 @@ research itself could be as thorough as possible first. All 5 items below come o
       curated yet, so that interaction has no code to exercise it — revisit if one ever is.
 
 - [ ] **Outgoing Damage % full pass** — Sigils + Relics legs DONE 2026-08-22 (see COMPLETED.md),
-      Traits leg started same day (Guardian done, 8 professions remaining — the largest remaining piece).
+      Traits leg started same day (Guardian + Warrior done, 7 professions remaining — the largest
+      remaining piece).
   - [x] **Sigils** — DONE. `CURATED_SIGIL_DAMAGE_BONUSES`/`CURATED_SIGIL_CONDITION_DAMAGE_BONUSES`
     in `combat-state.ts`. Superior Sigil of Force (flat +5%, single-application-only per its "does
     not stack on both weapons" wiki clause, handled outside the normal doubling table). The 18
@@ -129,14 +130,16 @@ research itself could be as thorough as possible first. All 5 items below come o
     into a new `CURATED_RELIC_CONDITION_DAMAGE_BONUSES` table); its incoming-damage-reduction/
     damage-to-healing-conversion halves are out of scope (no `DerivedStats` field exists for them
     yet).
-  - [ ] **Traits** — Guardian leg DONE 2026-08-22 (see COMPLETED.md), 8 professions remaining.
-    ~165 raw fact-label matches (`Percent` facts with text "Damage Increase"/"Strike Damage
-    Increase"/"Condition Damage Increase"/"Damage Increase per Stack"/"...per Boon") across all 9
-    professions before dedup — comparable in size to the biggest coefficient sweeps already
-    completed (Healing/Damage); per-profession legs, per the `pacing_large_sweeps` memory. 2 new
-    gap-shapes surfaced during the Guardian leg, both logged here rather than built (each is a
-    single trait so far, not worth new infra yet — revisit if a 2nd candidate turns up in a later
-    leg):
+  - [ ] **Traits** — Guardian + Warrior legs DONE (see COMPLETED.md Sessions 279/280), 7 professions
+    remaining (Elementalist, Engineer, Mesmer, Necromancer, Ranger, Revenant, Thief — no fixed
+    order set, pick freely). ~165 raw fact-label matches (`Percent` facts with text "Damage
+    Increase"/"Strike Damage Increase"/"Condition Damage Increase"/"Damage Increase per Stack"/
+    "...per Boon") across all 9 professions before dedup — comparable in size to the biggest
+    coefficient sweeps already completed (Healing/Damage); per-profession legs, per the
+    `pacing_large_sweeps` memory. Note: this scan needs `specializations.json` to map each trait's
+    `specializationId` to a profession — `traits.json` itself has no profession field. Gap-shapes
+    surfaced so far, each logged rather than built (single trait so far, not worth new infra yet —
+    revisit if a 2nd candidate turns up in a later leg):
     - **Per-condition-type damage-%%** — Guardian's Amplified Wrath (id 1686) boosts burning
       damage specifically, not condition damage broadly; this app only has the one blanket
       `outgoingConditionDamagePercent` field, so it can't be curated without overstating non-
@@ -145,6 +148,12 @@ research itself could be as thorough as possible first. All 5 items below come o
       modifies a self-stacking buff (Lethal Tempo, up to 5 stacks, duration-reduction clause) that
       has no `CombatState` field at all, unlike Kalla's Fervor/Death's Carapace which each got a
       dedicated stepper.
+    - **Target's-own-boon-count damage-%%** — Warrior's Destruction of the Empowered (id 1489)
+      scales with boons on the player's *target*, not self; `CombatState.activeBoonCount` only
+      tracks the player's own boons, no tracked-target-boon-count field exists.
+    - **Per-skill-category damage-%%** — Warrior's Burst Mastery (id 1657) only boosts burst-skill
+      damage specifically, not general outgoing strike damage; no field exists to scope a bonus to
+      one skill category.
 
 - [x] **Data-completeness audit script** — DONE 2026-08-22, see COMPLETED.md. Built
       `scripts/audit-data-completeness.ts` (`npm run audit-data-completeness`), a local-only

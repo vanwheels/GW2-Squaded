@@ -1,5 +1,6 @@
 import type { Build } from '@shared/types'
 import {
+  AEGIS_DAMAGE_TRAIT_BONUSES,
   CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES,
   CURATED_RELIC_CONDITION_DAMAGE_BONUSES,
   CURATED_RELIC_DAMAGE_BONUSES,
@@ -13,6 +14,8 @@ import {
   hasSigilOfTheNightEquipped,
   HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES,
   HEALTH_THRESHOLD_CONSUMABLE_BONUSES,
+  HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES,
+  HIGH_HEALTH_DAMAGE_TRAIT_BONUSES,
   INVOKING_HARMONY_HEALING_PERCENT,
   INVOKING_HARMONY_TRAIT_ID,
   kallaFervorPercentPerStack,
@@ -26,6 +29,8 @@ import {
   RISING_MOMENTUM_TRAIT_ID,
   SIGIL_OF_THE_NIGHT_ADDITIONAL_NIGHT_DAMAGE_PERCENT,
   SIGIL_OF_THE_NIGHT_ID,
+  STABILITY_DAMAGE_TRAIT_BONUSES,
+  SWIFTNESS_DAMAGE_TRAIT_BONUSES,
   type CombatState,
   type HealthTier,
   type TargetArmorClass
@@ -119,10 +124,15 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   const hasRevealedGatedTrait = [...activeTraitIds(build, traitsById)].some((id) => id in REVEALED_ATTRIBUTE_TRAIT_BONUSES)
 
   // Only surfaced when the build actually has a curated health-threshold-gated trait chosen (Empire
-  // Divided / Last Rites) — same reasoning as `mechanicTrait` above, reads the specific trait's own
-  // icon/name since (unlike Revealed) each candidate has a genuinely different icon (see
-  // `combat-state.ts`'s `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES`).
-  const activeHealthTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES)
+  // Divided / Last Rites / Keen Observer / Unscathed Contender) — same reasoning as `mechanicTrait`
+  // above, reads the specific trait's own icon/name since (unlike Revealed) each candidate has a
+  // genuinely different icon (see `combat-state.ts`'s `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES`/
+  // `HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES`/`HIGH_HEALTH_DAMAGE_TRAIT_BONUSES`). Also fixes a
+  // pre-existing gap found while adding the damage-% table: Keen Observer's own crit-chance bonus
+  // was never checked here, so its tier selector never actually surfaced.
+  const activeHealthTraitId = [...activeTraitIds(build, traitsById)].find(
+    (id) => id in HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES || id in HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES || id in HIGH_HEALTH_DAMAGE_TRAIT_BONUSES
+  )
   const healthTrait = activeHealthTraitId !== undefined ? traitsById.get(activeHealthTraitId) : undefined
   // A curated health-threshold-gated consumable (the "Writ of X"/"Thesis on X" WvW family) also
   // needs the tier selector surfaced, same reasoning as `healthTrait` above but reading
@@ -174,6 +184,21 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   const perBoonDamageTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in PER_BOON_DAMAGE_TRAIT_BONUSES)
   const perBoonDamageTrait = perBoonDamageTraitId !== undefined ? traitsById.get(perBoonDamageTraitId) : undefined
   const perBoonDamagePercent = perBoonDamageTraitId !== undefined ? PER_BOON_DAMAGE_TRAIT_BONUSES[perBoonDamageTraitId] : 0
+
+  // Only surfaced when the build actually has a curated `SWIFTNESS_DAMAGE_TRAIT_BONUSES` trait
+  // chosen (currently just Warrior's Sprint) — same reasoning as `resolutionTraitId` above.
+  const swiftnessTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in SWIFTNESS_DAMAGE_TRAIT_BONUSES)
+  const swiftnessTrait = swiftnessTraitId !== undefined ? traitsById.get(swiftnessTraitId) : undefined
+
+  // Only surfaced when the build actually has a curated `STABILITY_DAMAGE_TRAIT_BONUSES` trait
+  // chosen (currently just Stalwart Strength) — same reasoning as `resolutionTraitId` above.
+  const stabilityTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in STABILITY_DAMAGE_TRAIT_BONUSES)
+  const stabilityTrait = stabilityTraitId !== undefined ? traitsById.get(stabilityTraitId) : undefined
+
+  // Only surfaced when the build actually has a curated `AEGIS_DAMAGE_TRAIT_BONUSES` trait chosen
+  // (currently just Unscathed Contender) — same reasoning as `resolutionTraitId` above.
+  const aegisTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in AEGIS_DAMAGE_TRAIT_BONUSES)
+  const aegisTrait = aegisTraitId !== undefined ? traitsById.get(aegisTraitId) : undefined
 
   return (
     <div className="combat-state-controls">
@@ -430,6 +455,49 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           onClick={() => onChange({ ...value, resolutionActive: !value.resolutionActive })}
         >
           <img className={iconClass(value.resolutionActive)} src={resolutionTrait.icon} alt={resolutionTrait.name} />
+        </button>
+      )}
+
+      {swiftnessTrait && (
+        <button
+          type="button"
+          className="combat-state-toggle-icon"
+          title={
+            value.swiftnessActive
+              ? `${swiftnessTrait.name}: Active (+${SWIFTNESS_DAMAGE_TRAIT_BONUSES[swiftnessTraitId!]}% Outgoing Damage)`
+              : `${swiftnessTrait.name}: Inactive`
+          }
+          onClick={() => onChange({ ...value, swiftnessActive: !value.swiftnessActive })}
+        >
+          <img className={iconClass(value.swiftnessActive)} src={swiftnessTrait.icon} alt={swiftnessTrait.name} />
+        </button>
+      )}
+
+      {stabilityTrait && (
+        <button
+          type="button"
+          className="combat-state-toggle-icon"
+          title={
+            value.stabilityActive
+              ? `${stabilityTrait.name}: Active (+${STABILITY_DAMAGE_TRAIT_BONUSES[stabilityTraitId!]}% Outgoing Damage)`
+              : `${stabilityTrait.name}: Inactive`
+          }
+          onClick={() => onChange({ ...value, stabilityActive: !value.stabilityActive })}
+        >
+          <img className={iconClass(value.stabilityActive)} src={stabilityTrait.icon} alt={stabilityTrait.name} />
+        </button>
+      )}
+
+      {aegisTrait && (
+        <button
+          type="button"
+          className="combat-state-toggle-icon"
+          title={
+            value.aegisActive ? `${aegisTrait.name}: Active (+${AEGIS_DAMAGE_TRAIT_BONUSES[aegisTraitId!]}% Outgoing Damage)` : `${aegisTrait.name}: Inactive`
+          }
+          onClick={() => onChange({ ...value, aegisActive: !value.aegisActive })}
+        >
+          <img className={iconClass(value.aegisActive)} src={aegisTrait.icon} alt={aegisTrait.name} />
         </button>
       )}
 

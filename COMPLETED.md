@@ -2,6 +2,59 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 280 — Outgoing Damage % full pass, Traits leg (Warrior + Guardian catch-up)
+
+Continued the Traits leg of "Outgoing Damage % full pass" (TODO.md). Picked Warrior next (no fixed
+leg order set) — re-scanned `traits.json` for the same "Damage Increase"/"Strike Damage Increase"/
+"Condition Damage Increase"/"...per Boon" `Percent`-fact shape, profession-mapped via
+`specializations.json` (the raw scan has no per-trait profession field of its own). Warrior: 11
+unique candidates (`Critical Damage Increase`/ferocity-scoped facts, e.g. Pure Strike, confirmed
+out of scope — same as the Guardian leg's own regex, just newly double-checked here). While mapping
+Guardian's own candidates for cross-reference, found Unscathed Contender (id 624) was missed by the
+original Guardian leg's scan entirely — curated here as a catch-up, not a fresh leg.
+
+5 of 11 Warrior candidates curated after wiki-verification:
+- **Warrior's Sprint** (id 1413, Swiftness-gated, WvW/PvP 3%) — its Movement Speed half was already
+  curated (`MELEE_WEAPON_MOVEMENT_SPEED_TRAIT_BONUSES`); new `SWIFTNESS_DAMAGE_TRAIT_BONUSES` table
+  + new `CombatState.swiftnessActive` boolean (single-candidate UI gating, like `resolutionActive`).
+- **Peak Performance** (id 1444, always-on baseline, WvW/PvP 3%) — new `FLAT_DAMAGE_TRAIT_BONUSES`
+  table, no gating at all (damage-% sibling to `FLAT_CRIT_CHANCE_TRAIT_BONUSES`). Its temporary
+  "+7% for 6s after using a Physical skill" proc window was excluded as a transient buff, not a
+  steady-state build stat (same reasoning the movement-speed sweep used to exclude Mist Form/Signet
+  of the Locust).
+- **Empowered** (id 1485, per-active-boon, flat 1% per boon) — added straight into the existing
+  `PER_BOON_DAMAGE_TRAIT_BONUSES` table alongside Guardian's Inspired Virtue, no new infra (this was
+  the exact generalization Session 279 anticipated).
+- **Stalwart Strength** (id 1708, Stability-gated, flat 10%) — new `STABILITY_DAMAGE_TRAIT_BONUSES`
+  table + new `CombatState.stabilityActive` boolean, same single-candidate pattern as
+  `swiftnessActive`.
+- **Bloody Roar** (id 1928, Berserk-mode-gated, flat 10%) — new `MECHANIC_ACTIVE_DAMAGE_TRAIT_
+  BONUSES` table reusing the existing `mechanicActive` toggle (already surfaced for any Berserker
+  build via Fatal Frenzy's auto-granted minor, so no `CombatStatePanel` gating change needed).
+
+6 excluded, all logged in TODO.md: Merciless Hammer/Cull the Weak/Leg Specialist (target-condition-
+gated — disabled-or-defiant/weakened/chilled-crippled-immobile foes — same untracked-target-state
+exclusion class as Session 279's), Warrior's Cunning (two target-condition-gated halves on one
+trait), Destruction of the Empowered ("per boon on your **target**," not self — no tracked
+"target's boon count" field, distinct from `activeBoonCount`), Burst Mastery (scoped to burst
+skills only, narrower than general strike damage — same "narrower skill-specific proc" class as
+Big Game Hunter/Power for Power).
+
+**Guardian catch-up — Unscathed Contender** (id 624): two independently-gated halves, both curated.
+"Increased strike damage while you have aegis" (WvW/PvP 7%) got a new `AEGIS_DAMAGE_TRAIT_BONUSES`
+table + new `CombatState.aegisActive` boolean. "Increased strike damage above the health threshold"
+(90%, WvW/PvP 7%) got a new `HIGH_HEALTH_DAMAGE_TRAIT_BONUSES` table reusing the existing
+`CombatState.healthTier` (no new field) — the damage-% sibling to `HIGH_HEALTH_CRIT_CHANCE_TRAIT_
+BONUSES`, same "approximate a 90% threshold to the `'above75'` tier" precedent Keen Observer set.
+While wiring this in, also found and fixed a pre-existing `CombatStatePanel` gap: Keen Observer's
+own `HIGH_HEALTH_CRIT_CHANCE_TRAIT_BONUSES` membership was never checked when deciding whether to
+surface the health-tier selector, so its control silently never appeared even when the trait was
+chosen — the selector's gating now checks all 3 health-tier-keyed tables.
+
+16 new tests in `combat-state.test.ts` (378/378 total). `npm run typecheck`/`npx eslint`/
+`npx vitest run` all clean. 7 professions remain (Elementalist, Engineer, Mesmer, Necromancer,
+Ranger, Revenant, Thief) — next leg is still a fresh pick, no fixed order set.
+
 ## Session 279 — Outgoing Damage % full pass, Traits leg (Guardian)
 
 Started the Traits leg of "Outgoing Damage % full pass" (TODO.md), the largest remaining piece
