@@ -623,9 +623,9 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // agent per profession, each fetching raw wikitext directly, same methodology as every prior sweep).
   // 5 stayed uncurated after investigation; re-checked fresh 2026-08-22 (see TODO.md's
   // "Coefficient curation — remaining exceptions" leftovers sweep) — no change on any of the 4 that
-  // were re-investigated (Ranger 31889 wasn't re-checked this pass):
-  // - **Elementalist 72982 (Etching: Jökulhlaup, Spear)**: wiki's own `{{skill fact|healing|532}}`
-  //   template has no `coefficient=` parameter at all — base value present, scaling undocumented.
+  // were re-investigated (Ranger 31889 wasn't re-checked this pass). Of those, **Elementalist 72982
+  // (Etching: Jökulhlaup, Spear) is now RESOLVED (2026-08-23)** — see its own entry below for the
+  // surprising twist this one turned up; 4 remain open:
   // - **Necromancer 30860 (Death Spiral)**: wiki page is explicitly tagged
   //   `{{stub||missing siphon coefficients}}` — neither of its two Life Siphon Healing facts has a
   //   coefficient documented anywhere on the page.
@@ -710,6 +710,18 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Elementalist — Ripple (Spear). Base value splits by mode (PvE 2025 vs WvW/PvP 1385), coefficient
   // (0.5) identical across modes.
   72967: [{ factText: 'Healing', baseValue: 1385, coefficient: 0.5 }],
+  // Elementalist — Etching: Jökulhlaup (Spear). Wiki's `{{skill fact|healing|532}}` template (no
+  // `coefficient=` param) and this app's own API snapshot agree on base 532, but that figure never
+  // matched live testing. Resolved 2026-08-23 via 2 in-game tooltip readings at known Healing Power
+  // (0 HP -> 340 heal; 1,257 HP -> 466 heal): base=340, coefficient=(466-340)/1257=0.1 (predicts
+  // 465.7 -> rounds to the observed 466 — confirms the fit). base=340 flatly contradicts the cached
+  // 532 both sources agree on — either a live balance change since that snapshot, or (more likely,
+  // given wiki and API never disagreed with each other here) an undiscovered WvW-specific split on
+  // this fact that the local data never captured, same shape as the `rechargeSeconds` WvW-override
+  // gap `fetch-recharge-wvw-overrides.ts` generalized for Recharge/cooldown facts but never extended
+  // to Healing/AttributeAdjust facts. Curating the live-verified WvW value per this table's usual
+  // "prefer the WvW-correct number" convention regardless of which explanation is right.
+  72982: [{ factText: 'Healing', baseValue: 340, coefficient: 0.1 }],
   // Engineer — Essence of Living Shadows (Spear). Both facts group "pve wvw" together (WvW = PvE
   // here, PvP-only differs) — the API's own values (970/645) already match the WvW-correct number.
   71882: [

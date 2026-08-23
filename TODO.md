@@ -72,9 +72,12 @@ since coefficient 0 means curating would be a no-op at best); Necromancer 10670 
 id — now confirmed a frozen legacy duplicate carrying stale pre-2023-11-28-patch numbers, not a
 genuine Scourge variant as originally guessed, but still nothing reliable to curate it to).
 
-**Healing — Weapon-slot (4, re-checked 2026-08-22, no change):** Elementalist 72982 (Etching:
-Jökulhlaup, Spear — re-confirmed the wiki's `{{skill fact|healing|532}}` template still carries no
-`coefficient=` param at all); Necromancer 30860 (Death Spiral — wiki page still tagged
+**Healing — Weapon-slot (3, re-checked 2026-08-22, no change):** Elementalist 72982 (Etching:
+Jökulhlaup) is now RESOLVED 2026-08-23 — 2 live in-game readings gave base=340/coefficient=0.1,
+flatly contradicting the wiki+API-agreed cached base of 532 (a live balance change or an
+undiscovered WvW-split gap, not resolved which — see the in-game-verification checklist memory and
+`healing-calc.ts`'s own comment on this skill for the full writeup); curated with the live value per
+this table's usual WvW-preference convention. Necromancer 30860 (Death Spiral — wiki page still tagged
 `{{stub||missing siphon coefficients}}`, neither Healing fact has a coefficient); Necromancer 69302
 (Life Siphon — wiki now documents coefficients too, 0.082 PvE / 0.036 WvW+PvP, but the base values
 they're paired with, 450/300, still don't match this app's API-sourced values, 537/238, under
