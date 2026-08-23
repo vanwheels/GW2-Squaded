@@ -2224,6 +2224,16 @@ export function combatStatePoints(build: Build, state: CombatState, traitsById: 
  *   Effectiveness" buff to allies on cast — a short skill-cast proc, out of scope for a steady-state
  *   build stat, same "not a character stat gain" reasoning `resolveMovementSpeedPercent`'s doc
  *   comment already applies to Mist Form/Signet of the Locust.
+ * - Mesmer/Troubadour's Tale of the Second Scion (Heal-slot skill, id 76695) — investigated
+ *   2026-08-23 (TODO.md's own "superseded by the fuller item" note, left open by the Session 276
+ *   sweep). Wiki-verified via raw wikitext: on cast it applies "Scion's Reprieve" to the allies it
+ *   hits (NOT the caster's own outgoing-healing stat) — a 6s buff granting +20% PvE / +15% WvW+PvP
+ *   Heal Effectiveness to whoever's wearing it, from *any* healing source, not just this caster's.
+ *   Structurally identical to Eternal Oasis right above (a skill-cast proc placed on the target, not
+ *   a modifier on the caster's own healing output) rather than Invoking Harmony below (a self-buff
+ *   that boosts *this character's* outgoing healing after a proc) — this app's single-character
+ *   `DerivedStats` model has nowhere to represent "a squadmate is temporarily buffed," the same gap
+ *   Eternal Oasis already hit. Correctly excluded, not a build-time stat gain.
  * - Bloodstone Pot Pie (68562, "Healing effectiveness is halved") is a joke/negative-consequence
  *   food whose penalty is multiplicative ("halved"), not additive like every source below — modeling
  *   one multiplicative exception for a food nobody would seriously equip isn't worth the special

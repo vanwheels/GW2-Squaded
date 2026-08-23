@@ -2,6 +2,27 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 291 — Scion's Reprieve investigated and correctly excluded, closes the last open item
+from the Outgoing/Incoming Healing % sweep
+
+Picked up the "Mesmer's Tale of the Second Scion also grants Scion's Reprieve" loose end (TODO.md,
+logged 2026-08-21 as "superseded by" the fuller Healing % sweep, but the Session 276 sweep never
+actually touched it). Wiki-verified via raw wikitext (`Tale_of_the_Second_Scion` infobox): the skill's
+own description is "rejuvenating nearby allies **and increasing their incoming healing**" — Scion's
+Reprieve is a 6s buff placed on the allies the heal hits (+20% PvE / +15% WvW+PvP Heal Effectiveness),
+not a self-buff on the caster's own outgoing-healing stat as TODO.md's original note assumed.
+
+That's a materially different mechanic than every other `resolveOutgoingHealingPercent` source: it
+boosts the *target's* incoming healing from any source, not this character's own healing output —
+structurally identical to Epilogue: Eternal Oasis (already excluded in Session 276) rather than
+Invoking Harmony (a genuine self-buff, already curated). This app's single-character `DerivedStats`
+model has no representation for "temporarily buff a squadmate's stats," so there's no clean field to
+wire this into without misrepresenting the mechanic as a boost to the caster's own healing. Documented
+the reasoning as a new bullet in `combat-state.ts`'s Outgoing/Incoming Healing % scope-note (right
+after Eternal Oasis, same shape) and removed the stale TODO.md item — no code/behavior change, this
+was purely a "confirm and correctly close" investigation. `npm run typecheck` unaffected (doc-comment
+only).
+
 ## Session 290 — Wellspring tooltip gap closed: `BuffConversion` facts now render a tooltip line
 (all 27 `CURATED_CONVERSIONS` entries fixed at once, not just Wellspring)
 

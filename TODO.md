@@ -120,11 +120,6 @@ verification, not touched.
 **Both Healing and Damage tables**: never visually spot-checked in the running app (Electron sandbox
 limitation) — do that before extending either further.
 
-- [ ] Mesmer's Tale of the Second Scion (id 76695) also grants "Scion's Reprieve," a self-buff
-      (+15% WvW/PvP Heal Effectiveness) that nothing in the app accounts for. Superseded by the
-      fuller "Outgoing/Incoming Healing Effectiveness %" scoping below (2026-08-21) — don't patch
-      this one skill in isolation, it's now part of that larger scoped item.
-
 ## Healing/Damage effectiveness % + data-completeness audit (scoped 2026-08-21, not started)
 
 User-initiated research thread, not yet begun — explicitly paused before any curation/coding so the
