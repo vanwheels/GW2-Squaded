@@ -1,4 +1,5 @@
 import type { Fact } from '../types'
+import { ATTRIBUTE_DISPLAY_NAME } from '../gear-calc/attribute-totals'
 
 function formatNumber(n: number): string {
   return Math.round(n).toLocaleString()
@@ -43,6 +44,13 @@ export function factLine(fact: Fact): FactLine | null {
       return typeof fact.value === 'number' && (typeof fact.text === 'string' || typeof fact.target === 'string')
         ? { icon, text: `${typeof fact.text === 'string' ? fact.text : fact.target} (base): ${formatNumber(fact.value)}` }
         : null
+    case 'BuffConversion': {
+      const { percent, source, target } = fact
+      if (typeof percent !== 'number' || typeof source !== 'string' || typeof target !== 'string') return null
+      const sourceLabel = ATTRIBUTE_DISPLAY_NAME[source] ?? source
+      const targetLabel = ATTRIBUTE_DISPLAY_NAME[target] ?? target
+      return { icon, text: `${percent}% of ${sourceLabel} converted to ${targetLabel}` }
+    }
     case 'Number':
     case 'Range':
       return typeof fact.value === 'number'

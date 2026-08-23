@@ -6,17 +6,6 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Small display gaps
-
-- [ ] Wellspring (Ranger/Wilderness Survival, trait 978) grants "Healing Power based on Power" via a
-      `BuffConversion` fact (7% Power → Healing) — already correctly wired into the actual attribute
-      calculation (`trait-attributes.ts`'s `CURATED_CONVERSIONS`, so `StatsPanel`'s Healing Power
-      number is already right), but the trait's own tooltip has no fact-line rendering for
-      `BuffConversion` at all, so nothing on the trait's own card shows this contribution. User-flagged
-      2026-08-22 as a later-sweep item, not urgent — same shape as other conversion facts might also be
-      missing tooltip lines for; worth a quick scan of how many other `CURATED_CONVERSIONS` entries
-      have the same silent-but-correct gap before fixing just this one.
-
 ## Scoped features, not yet built
 
 - [ ] Capacitor port for iOS/Android — scoped 2026-08-01, two-part seam: (1)

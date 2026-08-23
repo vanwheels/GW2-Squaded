@@ -2,6 +2,28 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 290 — Wellspring tooltip gap closed: `BuffConversion` facts now render a tooltip line
+(all 27 `CURATED_CONVERSIONS` entries fixed at once, not just Wellspring)
+
+Picked up the Wellspring loose end from `ranger_boon_source_bugs_2026-08-22`. Root cause:
+`fact-numbers.ts`'s `factLine` switch had no `case` for `type: 'BuffConversion'` at all — every
+trait carrying one (Wellspring's "7% of Power converted to Healing Power," Roiling Mists' Precision→
+Ferocity, etc.) fell through to the `default: return null` and rendered nothing on its own card, even
+though the attribute math itself (`trait-attributes.ts`'s `CURATED_CONVERSIONS`) was already correct
+— a tooltip-vs-aggregate split of the same shape logged repeatedly elsewhere in this repo. Per the
+TODO item's own suggestion, scanned how many other `CURATED_CONVERSIONS` entries shared the gap
+before fixing just Wellspring: all 27 did, since the switch is keyed by fact `type`, not per-trait —
+so the fix is generic and closes every one of them in a single change, not just Wellspring.
+
+Added a `BuffConversion` case to `factLine` (`fact-numbers.ts`): reads the fact's `percent`/
+`source`/`target` fields (confirmed shape via `traits.json`, e.g. trait 978: `{ percent: 7, source:
+"Power", target: "Healing" }`), maps `source`/`target` through the existing `ATTRIBUTE_DISPLAY_NAME`
+table (`gear-calc/attribute-totals.ts`, already used for the Stats panel — reused rather than
+duplicated) to get player-facing names ("Power", "Healing Power"), and renders `"7% of Power
+converted to Healing Power"`. No new curated table, no game-mode-split concerns (this table only ever
+holds the single WvW/PvE-correct value already). `npm run typecheck` and the full `npm test` suite
+(435 tests) both pass unchanged — nothing depended on `BuffConversion` continuing to render nothing.
+
 ## Session 289 — Data-completeness audit backlog, Shape 1 ("opaque effectiveness") — 4 sources
 wired into calculators, rest logged as new never-modeled stat families
 
