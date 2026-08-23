@@ -1,6 +1,7 @@
 import type { Build } from '@shared/types'
 import {
   AEGIS_DAMAGE_TRAIT_BONUSES,
+  BOLSTERED_BONDS_TRAIT_ID,
   CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES,
   CURATED_RELIC_CONDITION_DAMAGE_BONUSES,
   CURATED_RELIC_DAMAGE_BONUSES,
@@ -32,6 +33,7 @@ import {
   SIGIL_OF_THE_NIGHT_ID,
   STABILITY_DAMAGE_TRAIT_BONUSES,
   SWIFTNESS_DAMAGE_TRAIT_BONUSES,
+  SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES,
   SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES,
   VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES,
   VIGOR_DAMAGE_TRAIT_BONUSES,
@@ -180,6 +182,11 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   const hasInvokingHarmony = activeTraitIds(build, traitsById).has(INVOKING_HARMONY_TRAIT_ID)
   const invokingHarmonyTrait = hasInvokingHarmony ? traitsById.get(INVOKING_HARMONY_TRAIT_ID) : undefined
 
+  // Only surfaced when Bolstered Bonds (Revenant/Conduit) is actually chosen — same reasoning as
+  // `mechanicTrait`/`invokingHarmonyTrait` above.
+  const hasBolsteredBonds = activeTraitIds(build, traitsById).has(BOLSTERED_BONDS_TRAIT_ID)
+  const bolsteredBondsTrait = hasBolsteredBonds ? traitsById.get(BOLSTERED_BONDS_TRAIT_ID) : undefined
+
   // Only surfaced when the build actually has a curated `RESOLUTION_DAMAGE_TRAIT_BONUSES` trait
   // chosen (currently just Guardian's Retribution) — same reasoning as `mechanicTrait` above.
   const resolutionTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in RESOLUTION_DAMAGE_TRAIT_BONUSES)
@@ -192,9 +199,14 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   const perBoonDamageTrait = perBoonDamageTraitId !== undefined ? traitsById.get(perBoonDamageTraitId) : undefined
   const perBoonDamagePercent = perBoonDamageTraitId !== undefined ? PER_BOON_DAMAGE_TRAIT_BONUSES[perBoonDamageTraitId] : 0
 
-  // Only surfaced when the build actually has a curated `SWIFTNESS_DAMAGE_TRAIT_BONUSES` trait
-  // chosen (currently just Warrior's Sprint) — same reasoning as `resolutionTraitId` above.
-  const swiftnessTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in SWIFTNESS_DAMAGE_TRAIT_BONUSES)
+  // Only surfaced when the build actually has a curated `SWIFTNESS_DAMAGE_TRAIT_BONUSES` OR
+  // `SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES` trait chosen (Warrior's Sprint, or
+  // Elemental Pursuit/Bird of Prey's own "Swiftness is more effective" half) — same reasoning as
+  // `resolutionTraitId` above. Bird of Prey also has its own separate `superspeedTrait` toggle
+  // below (for its Damage half); the two stay independently togglable per that section's comment.
+  const swiftnessTraitId = [...activeTraitIds(build, traitsById)].find(
+    (id) => id in SWIFTNESS_DAMAGE_TRAIT_BONUSES || id in SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES
+  )
   const swiftnessTrait = swiftnessTraitId !== undefined ? traitsById.get(swiftnessTraitId) : undefined
 
   // Only surfaced when the build actually has a curated `STABILITY_DAMAGE_TRAIT_BONUSES` trait
@@ -464,6 +476,21 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
         </button>
       )}
 
+      {bolsteredBondsTrait && (
+        <button
+          type="button"
+          className="combat-state-toggle-icon"
+          title={
+            value.cosmicWisdomActive
+              ? `${bolsteredBondsTrait.name}: Cosmic Wisdom Active (Legend attribute bonus doubled)`
+              : `${bolsteredBondsTrait.name}: Cosmic Wisdom Inactive`
+          }
+          onClick={() => onChange({ ...value, cosmicWisdomActive: !value.cosmicWisdomActive })}
+        >
+          <img className={iconClass(value.cosmicWisdomActive)} src={bolsteredBondsTrait.icon} alt={bolsteredBondsTrait.name} />
+        </button>
+      )}
+
       {resolutionTrait && (
         <button
           type="button"
@@ -485,7 +512,13 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           className="combat-state-toggle-icon"
           title={
             value.swiftnessActive
-              ? `${swiftnessTrait.name}: Active (+${SWIFTNESS_DAMAGE_TRAIT_BONUSES[swiftnessTraitId!]}% Outgoing Damage)`
+              ? `${swiftnessTrait.name}: Active${
+                  swiftnessTraitId! in SWIFTNESS_DAMAGE_TRAIT_BONUSES ? ` (+${SWIFTNESS_DAMAGE_TRAIT_BONUSES[swiftnessTraitId!]}% Outgoing Damage)` : ''
+                }${
+                  swiftnessTraitId! in SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES
+                    ? ` (Swiftness: ${SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES[swiftnessTraitId!]}% Movement Speed)`
+                    : ''
+                }`
               : `${swiftnessTrait.name}: Inactive`
           }
           onClick={() => onChange({ ...value, swiftnessActive: !value.swiftnessActive })}

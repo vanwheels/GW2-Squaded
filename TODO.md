@@ -246,25 +246,58 @@ verification pass before anything gets wired into the app (same "curated excepti
 the Healing/Damage coefficient tables) — this is a candidate list, not a fix list. A real chunk are
 expected to turn out to be legitimate non-gaps once looked at.
 
-**Shape 1 — opaque/generic fact labels on skills/traits (21 hits):** all but 1 are a `Percent` fact
-literally labeled "Effectiveness Increased" with no other field naming what it affects. Skill: Stone
-Resonance (44926, not yet read). Traits, triaged 2026-08-22 (see COMPLETED.md's Session 276): 2 were
-about healing and are now curated (Aquamancer's Training 1676, Serene Rejuvenation 1814 — both in
-`combat-state.ts`'s `FLAT_OUTGOING_HEALING_TRAIT_BONUSES`/`SERENE_REJUVENATION_*`); the other 12 each
-modify a *different* stat (read via each trait's own `description` field, no wiki fetch needed) and
-remain uncurated in whatever their own system is: Signet effectiveness (Perfect Inscriptions 579,
-Mech Core: J-Drive 2298), Warhorn skill duration (Banshee's Wail 799), life-force gain (Soul
-Comprehension 839, Gluttony 887), Protection damage-reduction (Hardy Conduit 1948), a specific
-skill's own coefficient (Soothing Power 2028 — Soothing Mist, same shape as `Absolute Resolve`'s
-exclusion in Session 276), Swiftness effectiveness (Elemental Pursuit 2165, Bird of Prey 2363),
-Barrier/shadow-force (Amplified Siphoning 2288), attribute gain (Bolstered Bonds 2331, Double Helix
-2334), and summoned-creature healing (Spirit's Strength 2421 — a pet-heal boost, not the player's
-own, also excluded in Session 276).
+- [x] **Shape 1 — opaque/generic fact labels on skills/traits (21 hits)** — RESOLVED 2026-08-22, see
+      COMPLETED.md's Session 289. All but 1 were a `Percent` fact literally labeled "Effectiveness
+      Increased" with no other field naming what it affects; the 1 exception (Stone Resonance,
+      44926) turned out to belong to the same "Protection effectiveness" family once read. Of the 21
+      total: 2 were already about healing and curated in Session 276 (Aquamancer's Training,
+      Serene Rejuvenation); 4 were newly built this session (**Swiftness effectiveness** — Elemental
+      Pursuit 2165/Bird of Prey 2363, folded into `resolveMovementSpeedPercent`'s existing "highest
+      wins" pool as the already-boosted 39.6% Swiftness value, gated on the pre-existing
+      `swiftnessActive` toggle; **Bolstered Bonds' Cosmic Wisdom doubling**, trait 2331, a new
+      `cosmicWisdomActive` `CombatState` field + `cosmicWisdomLegendAttributeTraitBonus` resolver);
+      2 were already fully resolved with no action needed (Double Helix 2334 — display-only, its
+      real mechanic isn't part of any modeled stat system; Soothing Power 2028/Spirit's Strength
+      2421 — already excluded in Session 276). The remaining 6 traits + Stone Resonance are logged
+      below as genuinely new, never-modeled stat families, none worth building dedicated infra for
+      their 1-2 candidates:
+  - **Signet passive-effect potency** — Perfect Inscriptions (Guardian/Radiance, 579) and Mech Core:
+    J-Drive (Engineer/Mechanist, 2298), both flat 20% ("Signets gain improved passive effects and
+    continue to grant their passive bonuses while recharging"). This app has no representation of a
+    signet's own passive value anywhere — Utility-slot skill effects never feed into attribute
+    totals at all (unlike gear/food/utility-consumable bonuses) — so there's nothing to apply a
+    multiplier to without first building that entire baseline system.
+  - **Per-weapon-category skill-duration bonus** — Banshee's Wail (Necromancer/Blood Magic, 799),
+    flat 50% ("Warhorn skills gain increased effect duration"). No infra scopes a boon/buff-duration
+    bonus to one weapon type's own skills — same "per-skill-category" gap-shape family as the
+    Outgoing Damage % sweep's Burst Mastery/Symbiotic Synergy.
+  - **Life-force gain rate** — Soul Comprehension (Necromancer/Death Magic, 839, 20%) and Gluttony
+    (Necromancer/Soul Reaping, 887, 10%). Necromancer life-force is an entirely untracked resource —
+    the mirror-image "resource gain" version of the already-scoped-not-started "Resource-cost
+    modeling" item below (energy/initiative/upkeep/health-cost), same reasoning applies.
+  - **Protection's own damage-reduction potency** — Hardy Conduit (Elementalist/Tempest, 1948, 20%)
+    and Stone Resonance (Elementalist skill, 44926, 20%, "Protection on you is more effective" while
+    the stance is active). This app has never modeled incoming-damage reduction from boons at all
+    (already noted as a gap from the movement-speed sweep's own Survival Instincts exclusion).
+  - **Barrier/Shadow Force potency** — Amplified Siphoning (Thief/Specter, 2288): its barrier half
+    ("Grant increased barrier when targeting an ally") is a %-modifier on barrier amounts, and
+    `barrier-calc.ts` only has fixed per-skill coefficients, no modifier stat; its Shadow Force half
+    is Specter's own untracked class resource, same "untracked profession-resource-stack" family as
+    Holosmith's Heat/Harbinger's Blight (already logged in the Outgoing Damage % sweep's own
+    gap-shape list above).
 
-**Shape 1 — opaque/generic labels on relic/tome-chapter facts (42 hits):** overwhelmingly relic
-`"label": "effect"` facts (the wiki template's own generic first-parameter convention for relics —
-confirmed structurally universal, not a per-relic authoring gap) plus 2 `"Effectiveness Increased"`
-relics (100115, 102245) matching the skill/trait shape above. Full id list: relics 100031, 100063,
+- [x] **Shape 1 — opaque/generic labels on relic/tome-chapter facts (42 hits)** — the 2
+      "Effectiveness Increased" relics matching the skill/trait shape above resolved 2026-08-22
+      alongside it, see COMPLETED.md's Session 289: Relic of Atrocity (102245, flat 15% life-steal,
+      no proc/trigger condition on the wiki at all — unlike every other `CURATED_RELIC_*` bonus in
+      this file, unconditional, no `relicActive` gate needed) is now curated into a new
+      `resolveLifeStealPercent`/`CURATED_RELIC_LIFE_STEAL_BONUSES`. Relic of Mabon (100115) stays
+      uncurated — its "might stacks become more effective" clause is a 10-stack-threshold +
+      timed-window proc on Might, which this app already tracks as a plain 0-25 count rather than a
+      duration-aware buff, so there's no clean way to model it without misrepresenting the mechanic.
+      The other 40 hits are overwhelmingly relic `"label": "effect"` facts (the wiki template's own
+      generic first-parameter convention for relics — confirmed structurally universal, not a
+      per-relic authoring gap). Full id list: relics 100031, 100063,
 100115 (x2), 100194, 100219, 100345, 100368, 100435, 100453, 100527, 100694, 100752, 100775, 100849,
 100916, 100924, 100947, 101191, 101943, 102245, 102595, 103424, 103574, 103872, 103984 (x2), 104424,
 104501, 104800 (x2), 104849, 104928, 106355, 106916, 107030, 107061, 109351, 109664; tome chapters

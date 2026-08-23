@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import type { Build, Trait, TraitSlot } from '../types'
+import type { Build, Legend, Trait, TraitSlot } from '../types'
 import {
   AEGIS_DAMAGE_TRAIT_BONUSES,
+  BOLSTERED_BONDS_TRAIT_ID,
   CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES,
   combatStatePoints,
+  cosmicWisdomLegendAttributeTraitBonus,
   CURATED_FOOD_OUTGOING_HEALING_BONUSES,
   CURATED_RELIC_CONDITION_DAMAGE_BONUSES,
   CURATED_RELIC_DAMAGE_BONUSES,
+  CURATED_RELIC_LIFE_STEAL_BONUSES,
   CURATED_RELIC_OUTGOING_HEALING_BONUSES,
   CURATED_SIGIL_CONDITION_DAMAGE_BONUSES,
   CURATED_SIGIL_DAMAGE_BONUSES,
@@ -41,6 +44,7 @@ import {
   NUMINOUS_GIFT_TRAIT_ID,
   PER_BOON_DAMAGE_TRAIT_BONUSES,
   resolveIncomingHealingPercent,
+  resolveLifeStealPercent,
   resolveMovementSpeedPercent,
   resolveOutgoingConditionDamagePercent,
   resolveOutgoingDamagePercent,
@@ -60,6 +64,7 @@ import {
   SIGIL_OF_THE_NIGHT_ID,
   STABILITY_DAMAGE_TRAIT_BONUSES,
   SWIFTNESS_DAMAGE_TRAIT_BONUSES,
+  SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES,
   SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES,
   VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES,
   VIGOR_DAMAGE_TRAIT_BONUSES,
@@ -371,6 +376,34 @@ describe('computeCharacterStats — Kalla\'s Fervor stacks (0/mid/max), end to e
   })
 })
 
+describe('resolveLifeStealPercent — Kalla\'s Fervor + Relic of Atrocity, unconditional (no relicActive gate)', () => {
+  it('is 0 with no Kalla\'s Fervor stacks and no relic', () => {
+    const build = makeBuild()
+    expect(resolveLifeStealPercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS)).toBe(0)
+  })
+
+  it('adds the curated relic bonus regardless of relicActive, unlike every damage/healing relic bonus', () => {
+    const relicId = 102245 // Relic of Atrocity
+    const build = makeBuild({ relicId })
+    const withRelicOff = resolveLifeStealPercent(build, { ...DEFAULT_COMBAT_STATE, relicActive: false }, NO_TRAITS)
+    const withRelicOn = resolveLifeStealPercent(build, { ...DEFAULT_COMBAT_STATE, relicActive: true }, NO_TRAITS)
+    expect(withRelicOff).toBe(CURATED_RELIC_LIFE_STEAL_BONUSES[relicId])
+    expect(withRelicOn).toBe(CURATED_RELIC_LIFE_STEAL_BONUSES[relicId])
+  })
+
+  it('combines the relic bonus with Kalla\'s Fervor stacks', () => {
+    const relicId = 102245 // Relic of Atrocity
+    const build = makeBuild({ relicId })
+    const result = resolveLifeStealPercent(build, { ...DEFAULT_COMBAT_STATE, kallaFervorStacks: 5 }, NO_TRAITS)
+    expect(result).toBe(CURATED_RELIC_LIFE_STEAL_BONUSES[relicId] + 5 * KALLA_FERVOR_LIFE_STEAL_PERCENT_PER_STACK)
+  })
+
+  it('ignores an equipped relic with no curated life-steal entry', () => {
+    const build = makeBuild({ relicId: 100262 }) // Relic of Fireworks — no life-steal entry
+    expect(resolveLifeStealPercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS)).toBe(0)
+  })
+})
+
 describe('computeCharacterStats — Rising Momentum movement speed (upkeepPoints, trait-gated)', () => {
   it('stays 0 regardless of upkeepPoints when Rising Momentum is not chosen', () => {
     const build = makeBuild()
@@ -420,6 +453,19 @@ describe('resolveMovementSpeedPercent — "highest value wins" across sources, R
     const { build, traitsById } = buildWithTrait(2017, 'Major') // Furious Focus
     expect(resolveMovementSpeedPercent(build, { ...DEFAULT_COMBAT_STATE, furyActive: true }, 0, traitsById)).toBe(33)
     expect(resolveMovementSpeedPercent(build, { ...DEFAULT_COMBAT_STATE, furyActive: false }, 0, traitsById)).toBe(0)
+  })
+
+  it('gates Elemental Pursuit\'s "Swiftness is more effective" on combatState.swiftnessActive', () => {
+    const { build, traitsById } = buildWithTrait(2165, 'Major') // Elemental Pursuit
+    expect(resolveMovementSpeedPercent(build, { ...DEFAULT_COMBAT_STATE, swiftnessActive: true }, 0, traitsById)).toBe(
+      SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES[2165]
+    )
+    expect(resolveMovementSpeedPercent(build, { ...DEFAULT_COMBAT_STATE, swiftnessActive: false }, 0, traitsById)).toBe(0)
+  })
+
+  it('does not let an improved-Swiftness value stack on top of a higher competing source (e.g. Superspeed-equivalent gear)', () => {
+    const { build, traitsById } = buildWithTrait(2165, 'Major') // Elemental Pursuit, 39.6%
+    expect(resolveMovementSpeedPercent(build, { ...DEFAULT_COMBAT_STATE, swiftnessActive: true }, 100, traitsById)).toBe(100)
   })
 
   it('gates Aggressive Onslaught on combatState.quicknessActive', () => {
@@ -1278,5 +1324,62 @@ describe('computeCharacterStats — outgoingDamagePercent/outgoingConditionDamag
     const { derived } = computeCharacterStats(build, { ...EMPTY_GAME_DATA, traits: [] }, { ...DEFAULT_COMBAT_STATE, relicActive: true })
     expect(derived.outgoingDamagePercent).toBe(CURATED_RELIC_DAMAGE_BONUSES[104241])
     expect(derived.outgoingConditionDamagePercent).toBe(0)
+  })
+})
+
+describe('cosmicWisdomLegendAttributeTraitBonus / combatStatePoints — Bolstered Bonds doubled while Cosmic Wisdom is active', () => {
+  const CONDUIT_SPEC_ID = 79
+  const legends: Legend[] = [
+    { id: 'Legend2', name: 'Legendary Assassin Stance', icon: '', swap: 0, heal: 0, elite: 0, utilities: [0, 0, 0], specializationId: null },
+    { id: 'Legend3', name: 'Legendary Dwarf Stance', icon: '', swap: 0, heal: 0, elite: 0, utilities: [0, 0, 0], specializationId: null }
+  ]
+
+  function makeConduitBuild(overrides: Partial<Build> = {}): Build {
+    return makeBuild({
+      specializations: [{ specializationId: CONDUIT_SPEC_ID, chosenTraitIds: [null, null, null] }, null, null],
+      skills: { kind: 'revenant', legends: ['Legend2', 'Legend3'], activeLegendIndex: 0 },
+      ...overrides
+    })
+  }
+
+  const { traitsById } = buildWithTraits([{ id: BOLSTERED_BONDS_TRAIT_ID, slot: 'Minor' }], CONDUIT_SPEC_ID)
+
+  it('is a no-op when Bolstered Bonds is not active, regardless of legends equipped', () => {
+    const build = makeConduitBuild({ specializations: [null, null, null] })
+    expect(cosmicWisdomLegendAttributeTraitBonus(build, traitsById, legends)).toEqual({})
+  })
+
+  it('mirrors activeLegendAttributeTraitBonus\'s own contribution when Bolstered Bonds is active', () => {
+    const build = makeConduitBuild()
+    expect(cosmicWisdomLegendAttributeTraitBonus(build, traitsById, legends)).toEqual({
+      Power: 75,
+      CritDamage: 75,
+      Toughness: 75,
+      Vitality: 75
+    })
+  })
+
+  it('combatStatePoints doubles Bolstered Bonds\' own attribute grant only while cosmicWisdomActive is on', () => {
+    const build = makeConduitBuild()
+    const withoutCosmicWisdom = combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, cosmicWisdomActive: false }, traitsById, legends)
+    // combatStatePoints only carries the Cosmic-Wisdom-gated 2nd share — Bolstered Bonds' own
+    // baseline grant lives in trait-attributes.ts's `applyTraitBonuses`, applied elsewhere in the
+    // pipeline, so the baseline-off case here is empty rather than 75/75/75/75.
+    expect(withoutCosmicWisdom.Power ?? 0).toBe(0)
+
+    const withCosmicWisdom = combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, cosmicWisdomActive: true }, traitsById, legends)
+    expect(withCosmicWisdom.Power).toBe(75)
+    expect(withCosmicWisdom.CritDamage).toBe(75)
+    expect(withCosmicWisdom.Toughness).toBe(75)
+    expect(withCosmicWisdom.Vitality).toBe(75)
+  })
+
+  it('computeCharacterStats ends up with Bolstered Bonds\' bonus exactly doubled end to end', () => {
+    const build = makeConduitBuild()
+    const gameData = { ...EMPTY_GAME_DATA, traits: [...traitsById.values()], legends }
+    const withoutCosmicWisdom = computeCharacterStats(build, gameData, { ...DEFAULT_COMBAT_STATE, cosmicWisdomActive: false })
+    const withCosmicWisdom = computeCharacterStats(build, gameData, { ...DEFAULT_COMBAT_STATE, cosmicWisdomActive: true })
+    expect(withCosmicWisdom.attributes.power).toBe(withoutCosmicWisdom.attributes.power + 75)
+    expect(withCosmicWisdom.attributes.ferocity).toBe(withoutCosmicWisdom.attributes.ferocity + 75)
   })
 })

@@ -19,9 +19,9 @@ import {
   FURY_CRITICAL_CHANCE_PERCENT,
   healthThresholdConsumableBonus,
   highHealthCritChanceTraitBonus,
-  kallaFervorPercentPerStack,
   mechanicActiveCritChanceTraitBonus,
   resolveIncomingHealingPercent,
+  resolveLifeStealPercent,
   resolveMovementSpeedPercent,
   resolveOutgoingConditionDamagePercent,
   resolveOutgoingDamagePercent,
@@ -156,9 +156,10 @@ export interface DerivedStats {
    *  sibling to `outgoingDamagePercent` above, see `resolveOutgoingConditionDamagePercent` for its
    *  curated sources (Kalla's Fervor, Relic of Nourys, Sigil of Bursting). */
   outgoingConditionDamagePercent: number
-  /** Life-steal-%, first/only field for this stat anywhere in the app — currently only Kalla's
-   *  Fervor's per-stack life-steal share contributes (see `outgoingDamagePercent`'s doc comment for
-   *  the Lasting Legacy upgrade). */
+  /** Life-steal-%, first field for this stat anywhere in the app — Kalla's Fervor's per-stack
+   *  life-steal share (see `outgoingDamagePercent`'s doc comment for the Lasting Legacy upgrade)
+   *  plus Relic of Atrocity, see `resolveLifeStealPercent`'s curated `CURATED_RELIC_LIFE_STEAL_
+   *  BONUSES`. */
   lifeStealPercent: number
   /** Movement-speed-%, first/only field for this stat anywhere in the app. Unlike every other
    *  derived %-stat here, its curated sources don't simply sum — see `combat-state.ts`'s
@@ -190,7 +191,7 @@ export function computeCharacterStats(
   const traitsById = new Map(gameData.traits.map((t) => [t.id, t]))
   const foodById = new Map(gameData.food.map((f) => [f.id, f]))
   const utilityById = new Map(gameData.utility.map((u) => [u.id, u]))
-  const combatPoints = combatStatePoints(build, combatState, traitsById)
+  const combatPoints = combatStatePoints(build, combatState, traitsById, gameData.legends)
 
   // Single unified totals: base + gear/rune/food/utility + combat state, then every active
   // trait's flat AttributeAdjust bonus and BuffConversion (e.g. Revenant/Salvation's "Life
@@ -227,7 +228,6 @@ export function computeCharacterStats(
   const weightClass = WEIGHT_CLASS_BY_PROFESSION[build.profession]
   const defense = weightClass ? armorDefenseTotal(build, weightClass) : 0
   const baseHealth = BASE_HEALTH_BY_PROFESSION[build.profession] ?? 0
-  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
 
   const maxHealthPercent = maxHealthPercentTraitBonus(build, traitsById)
 
@@ -250,7 +250,7 @@ export function computeCharacterStats(
     magicFind: magicFindPercent(totals),
     outgoingDamagePercent: resolveOutgoingDamagePercent(build, combatState, traitsById),
     outgoingConditionDamagePercent: resolveOutgoingConditionDamagePercent(build, combatState, traitsById),
-    lifeStealPercent: combatState.kallaFervorStacks * kallaFervorPerStack.lifeSteal,
+    lifeStealPercent: resolveLifeStealPercent(build, combatState, traitsById),
     movementSpeedPercent: resolveMovementSpeedPercent(build, combatState, totals.bonusPercent.movementSpeed, traitsById),
     outgoingHealingPercent: resolveOutgoingHealingPercent(build, combatState, traitsById, {
       healingPower: attributes.healingPower,

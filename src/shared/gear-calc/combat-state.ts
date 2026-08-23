@@ -1,6 +1,6 @@
-import type { Build, Consumable, EquipmentSlotKey, Trait } from '../types'
+import type { Build, Consumable, EquipmentSlotKey, Legend, Trait } from '../types'
 import { ALL_CORE_ATTRIBUTE_KEYS, isActiveWeaponSlot } from './attribute-totals'
-import { activeTraitIds, activeWeaponTypes } from './trait-attributes'
+import { activeLegendAttributeTraitBonus, activeTraitIds, activeWeaponTypes } from './trait-attributes'
 
 /**
  * Ephemeral "what-if" combat inputs for the Stats panel — deliberately never persisted on `Build`
@@ -154,6 +154,14 @@ export interface CombatState {
    *  ORed together with `swiftnessActive`) — a real boon state, not a build choice, same shape/
    *  reasoning as `swiftnessActive`/`stabilityActive`/`aegisActive`/`vigorActive` above. */
   superspeedActive: boolean
+  /** Gates Revenant/Conduit's Bolstered Bonds (id 2331, see `LEGEND_ATTRIBUTE_TRAIT_BONUSES` in
+   *  `trait-attributes.ts`) doubling its own per-legend attribute bonus — Cosmic Wisdom (Conduit's
+   *  own Profession_3 mechanic skill, id 77371) is a short (7s per its own wiki description) timed
+   *  window, not a steady passive, same "assume the proc window is currently up" shape as
+   *  `invokingHarmonyActive`/`relicActive`. Only meaningful/surfaced when Bolstered Bonds is
+   *  actually chosen (`CombatStatePanel` gates its toggle the same way `invokingHarmonyActive`
+   *  gates on Invoking Harmony being chosen). */
+  cosmicWisdomActive: boolean
 }
 
 export const DEFAULT_COMBAT_STATE: CombatState = {
@@ -180,7 +188,8 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   stabilityActive: false,
   aegisActive: false,
   vigorActive: false,
-  superspeedActive: false
+  superspeedActive: false,
+  cosmicWisdomActive: false
 }
 
 // wiki-confirmed flat value at level 80, quoted directly (not derived from a per-level formula).
@@ -465,6 +474,31 @@ export const CURATED_RELIC_MOVEMENT_SPEED_BONUSES: Record<number, number> = {
 }
 
 /**
+ * Trait id -> the resulting movement-speed-% while Swiftness is active, for traits that make
+ * Swiftness itself "more effective" rather than granting a separate movement-speed source —
+ * closes the "Swiftness effectiveness" data-completeness backlog item (TODO.md's Shape 1
+ * "opaque/generic fact labels," 2026-08-22). Swiftness's own inherent effect is a flat +33%
+ * movement speed (the same value `FURY_MOVEMENT_SPEED_TRAIT_BONUSES`'s Furious Focus entry
+ * already reuses for its own "movement speed increased [to 33%] while Fury is active" shape); each
+ * trait below boosts that inherent value by a flat percent rather than adding a new competing
+ * source, so the stored number here is the already-computed result (33 * (1 + boost/100)), gated
+ * on `CombatState.swiftnessActive` (reused, not a new field) and competing in the same "highest
+ * value wins" pool as every other source above — correctly modeling that an improved-Swiftness
+ * value doesn't stack with e.g. Superspeed's 100%, it just raises Swiftness's own bid in that
+ * competition. Both wiki-verified via raw wikitext 2026-08-22, flat 20% boost, no game-mode split:
+ * - Elemental Pursuit (Elementalist/Weaver, Master major, id 2165): "Swiftness on you is improved"
+ *   (its "gain swiftness when you disable an enemy" clause is a proc granting the boon itself, out
+ *   of scope for this %-effectiveness table). 33 * 1.20 = 39.6.
+ * - Bird of Prey (Ranger/Galeshot, Master minor, id 2363): "Swiftness is more effective" (its
+ *   "Strike damage is increased when you have swiftness or superspeed" clause is separately
+ *   curated in `SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES`). 33 * 1.20 = 39.6.
+ */
+export const SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES: Record<number, number> = {
+  2165: 39.6, // Elemental Pursuit (Elementalist, Weaver, Major)
+  2363: 39.6 // Bird of Prey (Ranger, Galeshot, Minor)
+}
+
+/**
  * Resolves the single "highest value wins" movement-speed-% slot from every curated non-additive
  * source above, plus Rising Momentum's own additive contribution on top (see this section's own
  * doc comment for why Rising Momentum alone gets to add rather than compete). `gearMovementSpeedPercent`
@@ -495,6 +529,11 @@ export function resolveMovementSpeedPercent(
   }
   if (combatState.quicknessActive) {
     for (const [traitIdText, percent] of Object.entries(QUICKNESS_MOVEMENT_SPEED_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) candidates.push(percent)
+    }
+  }
+  if (combatState.swiftnessActive) {
+    for (const [traitIdText, percent] of Object.entries(SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES)) {
       if (active.has(Number(traitIdText))) candidates.push(percent)
     }
   }
@@ -1352,6 +1391,38 @@ export function resolveOutgoingConditionDamagePercent(build: Build, combatState:
 }
 
 /**
+ * Relic id -> flat life-steal-% bonus, unconditional while the relic is equipped — unlike every
+ * other `CURATED_RELIC_*` table in this file, no `CombatState.relicActive` gate: Relic of Atrocity
+ * (102245, "Your lifesteal damage and healing is increased") carries no proc/trigger condition of
+ * its own on the wiki (wiki-verified via raw wikitext 2026-08-22 — a single `{{skill fact|
+ * Effectiveness Increased|15%}}`, no recharge, no "after X" clause, `relic-effects.json`'s own
+ * `rechargeSeconds: null` agrees), so it's just a permanent passive modifier, same shape as a flat
+ * stat line rather than the "assume the proc is currently satisfied" relics `relicActive` exists
+ * for. Closes the "opaque effectiveness" data-completeness backlog's 2nd relic hit (100115, Relic
+ * of Mabon, stays uncurated — its "might stacks become more effective" clause is a 10-stack
+ * threshold + timed-window proc on a resource, Might stacks, this app already tracks as a plain
+ * count rather than a duration-aware buff, so there's no clean way to gate a "Might is more potent"
+ * modifier the way `MIGHT_POWER_PER_STACK`/`MIGHT_CONDITION_DAMAGE_PER_STACK` are consumed
+ * elsewhere without misrepresenting the threshold/duration mechanic — not worth building for one
+ * relic, logged in TODO.md instead).
+ */
+export const CURATED_RELIC_LIFE_STEAL_BONUSES: Record<number, number> = {
+  102245: 15 // Relic of Atrocity
+}
+
+/**
+ * Sums every curated life-steal-% source actually active on this build — the `DerivedStats.
+ * lifeStealPercent` resolver. Supersedes the old inline formula that only covered Kalla's Fervor.
+ */
+export function resolveLifeStealPercent(build: Build, combatState: CombatState, traitsById: Map<number, Trait>): number {
+  let total = 0
+  const kallaFervorPerStack = kallaFervorPercentPerStack(build, traitsById)
+  total += combatState.kallaFervorStacks * kallaFervorPerStack.lifeSteal
+  if (build.relicId !== null) total += CURATED_RELIC_LIFE_STEAL_BONUSES[build.relicId] ?? 0
+  return total
+}
+
+/**
  * Trait id -> extra critical-hit-chance % granted while Fury is active, on top of the flat
  * `FURY_CRITICAL_CHANCE_PERCENT` every profession already gets from Fury itself — hand-curated
  * and wiki-verified per trait, same process as `CURATED_RELIC_DAMAGE_BONUSES` above (the raw API
@@ -2031,6 +2102,27 @@ export function detectActiveStackingSigil(build: Build): ActiveStackingSigil | n
   return null
 }
 
+/** Revenant/Conduit's Master minor "Bolstered Bonds" — see `trait-attributes.ts`'s
+ *  `LEGEND_ATTRIBUTE_TRAIT_BONUSES` for its own base per-legend attribute grant. */
+export const BOLSTERED_BONDS_TRAIT_ID = 2331
+
+/**
+ * Bolstered Bonds' own per-legend attribute bonus, a 2nd time, while Cosmic Wisdom is active —
+ * closes the "opaque effectiveness" data-completeness backlog item (TODO.md's Shape 1, 2026-08-22):
+ * "Gain attributes based on your equipped legends. Those attributes are increased further when
+ * Cosmic Wisdom is active" — wiki-verified via raw wikitext 2026-08-22, a flat `{{skill fact|
+ * Effectiveness Increased|100%}}`, no game-mode split, so "increased further" means exactly
+ * doubled. Implemented by adding `activeLegendAttributeTraitBonus`'s own result a 2nd time (100%
+ * more = the same amount again) rather than a separate multiplier table, since Bolstered Bonds is
+ * (so far) the only entry in `LEGEND_ATTRIBUTE_TRAIT_BONUSES` — deliberately gated on
+ * `BOLSTERED_BONDS_TRAIT_ID` specifically (not "every legend-attribute trait") so a 2nd trait ever
+ * added to that table without its own Cosmic-Wisdom clause doesn't silently get doubled too.
+ */
+export function cosmicWisdomLegendAttributeTraitBonus(build: Build, traitsById: Map<number, Trait>, legends: Legend[]): Record<string, number> {
+  if (!activeTraitIds(build, traitsById).has(BOLSTERED_BONDS_TRAIT_ID)) return {}
+  return activeLegendAttributeTraitBonus(build, traitsById, legends)
+}
+
 /**
  * Raw core-attribute point deltas contributed by Might (including any curated
  * `MIGHT_STACK_ATTRIBUTE_TRAIT_BONUSES` and `MIGHT_THRESHOLD_ATTUNEMENT_DOUBLED_ATTRIBUTE_TRAIT_
@@ -2040,13 +2132,17 @@ export function detectActiveStackingSigil(build: Build): ActiveStackingSigil | n
  * `MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES`, or `REVEALED_ATTRIBUTE_TRAIT_BONUSES` — plus any
  * curated `HEALTH_THRESHOLD_ATTRIBUTE_TRAIT_BONUSES` for the current `state.healthTier` (always
  * applied, no separate on/off gate) — plus Death's Carapace's own baseline Toughness grant and any
- * curated `DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES` for `state.deathsCarapaceStacks` — in the same
- * `points` shape `computeGearAttributeTotals` produces — merged into that total by
- * `computeCharacterStats` before deriving the stats-panel values. Fury's own crit-*chance* bonus and
- * the relic bonus don't go through this path since they apply directly to derived stats, not raw
- * attribute points.
+ * curated `DEATHS_CARAPACE_ATTRIBUTE_TRAIT_BONUSES` for `state.deathsCarapaceStacks` — plus, while
+ * `state.cosmicWisdomActive` is on, Bolstered Bonds' own per-legend bonus a 2nd time (doubling it,
+ * see `cosmicWisdomLegendAttributeTraitBonus`'s doc comment) — in the same `points` shape
+ * `computeGearAttributeTotals` produces — merged into that total by `computeCharacterStats` before
+ * deriving the stats-panel values. Fury's own crit-*chance* bonus and the relic bonus don't go
+ * through this path since they apply directly to derived stats, not raw attribute points.
+ * `legends` defaults to `[]` (harmless — `cosmicWisdomLegendAttributeTraitBonus` returns `{}` for a
+ * non-Revenant/no-Bolstered-Bonds build regardless) so existing call sites that never exercise
+ * Cosmic Wisdom don't need updating.
  */
-export function combatStatePoints(build: Build, state: CombatState, traitsById: Map<number, Trait>): Record<string, number> {
+export function combatStatePoints(build: Build, state: CombatState, traitsById: Map<number, Trait>, legends: Legend[] = []): Record<string, number> {
   const points: Record<string, number> = {}
   const add = (attribute: string, value: number): void => {
     points[attribute] = (points[attribute] ?? 0) + value
@@ -2094,6 +2190,10 @@ export function combatStatePoints(build: Build, state: CombatState, traitsById: 
   for (const [attribute, value] of Object.entries(healthThresholdAttributeTraitBonus(build, state.healthTier, traitsById))) add(attribute, value)
 
   for (const [attribute, value] of Object.entries(deathsCarapaceAttributePoints(build, state.deathsCarapaceStacks, traitsById))) add(attribute, value)
+
+  if (state.cosmicWisdomActive) {
+    for (const [attribute, value] of Object.entries(cosmicWisdomLegendAttributeTraitBonus(build, traitsById, legends))) add(attribute, value)
+  }
 
   return points
 }

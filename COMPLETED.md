@@ -2,6 +2,70 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 289 — Data-completeness audit backlog, Shape 1 ("opaque effectiveness") — 4 sources
+wired into calculators, rest logged as new never-modeled stat families
+
+Picked "Shape 1 — opaque/generic fact labels on skills/traits (21 hits)" plus its relic sibling
+(TODO.md, from the 2026-08-22 audit) as the next item, user-selected. Of the 21 skill/trait hits, 2
+were already curated in Session 276 (Aquamancer's Training/Serene Rejuvenation, folded into Outgoing
+Healing %) and 1 (Stone Resonance, 44926) was flagged "not yet read." Read the remaining 12 traits'
+own `description` field (no wiki fetch needed to identify the mechanic, per the original Session 276
+triage) plus Stone Resonance's facts, then wiki-verified every percent via raw wikitext before
+deciding build-vs-log per family, same process as every other curated-exception sweep in this repo.
+
+**Built (4 sources, reusing existing infra, no risky new mechanics):**
+- **Swiftness effectiveness** — Elemental Pursuit (Elementalist/Weaver, 2165) and Bird of Prey
+  (Ranger/Galeshot, 2363), both flat +20% ("Swiftness on you is improved"/"Swiftness is more
+  effective"), no game-mode split. Modeled as the already-boosted Swiftness value (33% * 1.20 =
+  39.6%) competing in `resolveMovementSpeedPercent`'s existing "highest value wins" pool — correctly
+  encodes that an improved Swiftness doesn't stack with e.g. Superspeed, it just raises Swiftness's
+  own bid in that competition. Gated on the pre-existing `CombatState.swiftnessActive` toggle, no new
+  field. New `SWIFTNESS_EFFECTIVENESS_MOVEMENT_SPEED_TRAIT_BONUSES` table in `combat-state.ts`;
+  `CombatStatePanel`'s swiftness toggle now also surfaces for either trait (previously only Warrior's
+  Sprint), with a combined tooltip covering both the Damage and Movement Speed halves when both are
+  relevant.
+- **Relic of Atrocity** (102245, "Your lifesteal damage and healing is increased") — flat 15%, no
+  proc/trigger condition on the wiki at all (`relic-effects.json`'s own `rechargeSeconds: null`
+  agrees) — unlike every other `CURATED_RELIC_*` table in this file, no `CombatState.relicActive`
+  gate: it's a permanent passive modifier. New `CURATED_RELIC_LIFE_STEAL_BONUSES` table, wired into a
+  new `resolveLifeStealPercent` resolver (supersedes the old inline formula that only covered Kalla's
+  Fervor).
+- **Bolstered Bonds' Cosmic Wisdom doubling** (Revenant/Conduit, 2331) — "Those attributes are
+  increased further when Cosmic Wisdom is active," wiki-verified flat +100% (i.e. exactly doubled),
+  no split. Cosmic Wisdom (Conduit's own Profession_3 mechanic skill, id 77371) is a short (~7s per
+  its own wiki description) timed window, not a steady passive — same "assume the proc window is
+  currently up" shape as `invokingHarmonyActive`. New `CombatState.cosmicWisdomActive` boolean, a new
+  `cosmicWisdomLegendAttributeTraitBonus` resolver that adds `activeLegendAttributeTraitBonus`'s own
+  result a 2nd time (deliberately scoped to `BOLSTERED_BONDS_TRAIT_ID` specifically, not "every
+  legend-attribute trait," so a future 2nd entry in `LEGEND_ATTRIBUTE_TRAIT_BONUSES` without its own
+  Cosmic-Wisdom clause doesn't silently get doubled too), wired into `combatStatePoints` — which
+  picked up a new optional `legends: Legend[] = []` parameter (defaults to `[]`, harmless for every
+  other call site, so nothing else needed updating). New `CombatStatePanel` toggle icon, gated on
+  Bolstered Bonds being chosen.
+
+**Already resolved, confirmed no further action:**
+- Double Helix (Engineer/Mechanist, 2334) — its "Effectiveness Increased" fact's real WvW value
+  (20%) is already display-corrected via `fact-numbers.ts`'s `MANUAL_OVERRIDES`; the underlying
+  mechanic (the mech's own "Evolved" per-attribute bonus) isn't part of any modeled stat system at
+  all (mech attribute inheritance is display-only everywhere, e.g. Mechanical Genius/Variable Mass
+  Distributor), so there's nothing further to wire in.
+- Soothing Power (Elementalist/Water, 2028) and Spirit's Strength (Ranger, 2421) were already
+  excluded in Session 276 (own-skill-coefficient and pet-heal-boost respectively) — confirmed still
+  correctly out of scope, not revisited.
+
+**Investigated and logged in TODO.md as genuinely new, never-modeled stat families** (each with only
+1-2 candidates, not worth building dedicated infra for): signet passive-effect potency (Perfect
+Inscriptions 579, Mech Core: J-Drive 2298), per-weapon-category skill-duration bonus (Banshee's Wail
+799), life-force gain rate (Soul Comprehension 839, Gluttony 887), Protection's own damage-reduction
+potency (Hardy Conduit 1948, Stone Resonance 44926), and Amplified Siphoning's (2288) barrier/Shadow
+Force halves. Relic of Mabon (100115) also stays uncurated (a 10-stack-threshold + timed-window proc
+on Might, which this app tracks as a plain count, not a duration-aware buff). Full reasoning per
+family in TODO.md rather than repeated here.
+
+`npm run typecheck`/`npm run lint`/`npx vitest run` all clean (435 tests, 10 new covering the 3 new
+resolvers + the movement-speed "highest wins" interaction). TODO.md's Shape 1 skill/trait and relic
+backlog entries closed to a pointer here.
+
 ## Session 288 — Data-completeness audit backlog, Shape 3 — investigated and resolved as a
 false-positive family, no curation needed
 
