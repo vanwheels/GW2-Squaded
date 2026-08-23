@@ -61,11 +61,19 @@ correction to the old note: this is a *different* mismatch shape than this skill
 Damage facts, which actually reconcile cleanly under the known `wikiQuoted = apiRaw +
 coefficient * 1000` pattern — Initial Heal's flat 80-point gap doesn't fit that formula).
 
-**Healing — Weapon-slot (4):** Elementalist 72982 (Etching: Jökulhlaup, Spear — no `coefficient=`
-param on wiki); Necromancer 30860 (Death Spiral — wiki stub, missing siphon coefficients);
-Necromancer 69302 (Life Siphon — wiki 450/300 vs. API 537/238, unexplained); Thief 72991 (Shadow
-Veil, Spear — two facts share identical factText with only one wiki-documented coefficient; the
-table matches by factText alone so curating risks binding to the wrong fact).
+**Healing — Weapon-slot (4, re-checked 2026-08-22, no change):** Elementalist 72982 (Etching:
+Jökulhlaup, Spear — re-confirmed the wiki's `{{skill fact|healing|532}}` template still carries no
+`coefficient=` param at all); Necromancer 30860 (Death Spiral — wiki page still tagged
+`{{stub||missing siphon coefficients}}`, neither Healing fact has a coefficient); Necromancer 69302
+(Life Siphon — wiki now documents coefficients too, 0.082 PvE / 0.036 WvW+PvP, but the base values
+they're paired with, 450/300, still don't match this app's API-sourced values, 537/238, under
+either mode ordering — same unreconciled conflict, just with more of the formula visible); Thief
+72991 (Shadow Veil, Spear — still only one of the two identical-factText Healing facts has a
+documented coefficient, 1290 → 0.5; the other, 2570, remains undocumented and its relationship to
+the first — PvE/WvW split of the same quantity, or a genuinely different quantity like a
+multi-block total — still can't be determined from the wiki page, which declares `split = pve, wvw
+pvp` but only gives one mode-agnostic skill fact template; table matches by factText alone so
+curating the known half risks binding to the wrong fact).
 
 **Healing — Thief's Assassin's Reward trait (id 1238):** 17 of 45 candidate skills stayed uncurated
 — 14 for the `Array.find`-binds-to-array-order duplicate-fact trap (a genuine PvE/WvW/PvP

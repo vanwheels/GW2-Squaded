@@ -611,25 +611,34 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   //
   // Of the remaining 55 genuine candidates, 49 landed in the table (research done in parallel via one
   // agent per profession, each fetching raw wikitext directly, same methodology as every prior sweep).
-  // 5 stayed uncurated after investigation:
+  // 5 stayed uncurated after investigation; re-checked fresh 2026-08-22 (see TODO.md's
+  // "Coefficient curation — remaining exceptions" leftovers sweep) — no change on any of the 4 that
+  // were re-investigated (Ranger 31889 wasn't re-checked this pass):
   // - **Elementalist 72982 (Etching: Jökulhlaup, Spear)**: wiki's own `{{skill fact|healing|532}}`
   //   template has no `coefficient=` parameter at all — base value present, scaling undocumented.
   // - **Necromancer 30860 (Death Spiral)**: wiki page is explicitly tagged
   //   `{{stub||missing siphon coefficients}}` — neither of its two Life Siphon Healing facts has a
   //   coefficient documented anywhere on the page.
-  // - **Necromancer 69302 (Life Siphon)**: wiki's own base values (450 PvE / 300 WvW+PvP) don't match
+  // - **Necromancer 69302 (Life Siphon)**: wiki now documents coefficients too (0.082 PvE / 0.036
+  //   WvW+PvP), but the base values they're paired with (450 PvE / 300 WvW+PvP) still don't match
   //   this app's API-sourced values (537 / 238) under either mode ordering — a genuine, unexplained
-  //   conflict, not a mode-split naming mismatch.
+  //   conflict, not a mode-split naming mismatch, and having the coefficient too doesn't resolve it
+  //   (this table's `baseValue` is meant to be the API's own reference-build number, per the header
+  //   doc comment, and neither API value matches either wiki base).
   // - **Ranger 31889 (Astral Wisp, Druid Staff, post-2026-07-15 rework)**: wiki's rewritten page gives
   //   one base value (1288) shared across all modes with only the coefficient split (0.6 pve/pvp vs 0.9
   //   wvw), but the API shows two duplicate-text facts both valued 322 — roughly a quarter of 1288,
   //   suggesting a pulse-count relationship neither source documents post-rework. Left uncurated rather
   //   than guessing which coefficient pairs with which quartering.
   // - **Thief 72991 (Shadow Veil, Spear)**: two facts share the identical factText "Healing" (2570 and
-  //   1290) — the wiki documents a coefficient for only one of them (1290 -> 0.5), and since this
-  //   table matches facts by factText alone, an entry here would bind to whichever fact
-  //   `Array.find` returns first, not reliably the one the coefficient was verified against. Left
-  //   entirely uncurated rather than risk mislabeling.
+  //   1290) — the wiki still documents a coefficient for only one of them (1290 -> 0.5), and since
+  //   this table matches facts by factText alone, an entry here would bind to whichever fact
+  //   `Array.find` returns first (2570, listed first in both the API and this app's own facts array),
+  //   not reliably the one the coefficient was verified against. The wiki page declares `split = pve,
+  //   wvw pvp` but gives only one mode-agnostic skill fact template, so whether 2570 is the undocumented
+  //   PvE half of the same split or an unrelated quantity (e.g. a multi-block total, given "Additional
+  //   Blocks: 2" is also on this skill) still can't be determined. Left entirely uncurated rather than
+  //   risk mislabeling.
   // Elementalist — Water Trident. Both facts keep the same base value across modes but the coefficient
   // splits (PvE 1.0/0.1 vs WvW 0.7/0.1) — WvW coefficients used.
   5510: [
