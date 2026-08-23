@@ -59,20 +59,18 @@ Guardian 62669 (Repose) is RESOLVED 2026-08-23 — user-supplied 2 live in-game 
 (0 HP → 1,635 heal; 1,347 HP → 2,713 heal) solved base=1635/coefficient=0.8 directly; curated in
 `healing-calc.ts`. The base exactly matches the already-known post-2025-11-18-patch WvW/PvP value.
 
-**Healing — Heal-slot (3 of original 4 — re-investigated 2026-08-22):** Engineer 63049's Rectifier
+**Healing — Heal-slot (2 of original 4 — re-investigated 2026-08-22):** Engineer 63049's Rectifier
 Signet/Mech Core: J-Drive gap is now RESOLVED — no dedicated wiki fact template exists, but its
 Notes-section prose reconciles exactly against the live API's own `overrides`-indexed traited
 facts (a clean +20% signet-passive-potency bonus, same family as the Shape-1 audit's Perfect
-Inscriptions), so it's now curated (`healing-calc.ts`, `requiresTrait: 2298`). Left uncurated,
-re-confirmed with no new resolution: Necromancer 10547 (Summon Blood Fiend — wiki's own Notes
-confirm 0 Healing Power/non-scaling, but its 926 wiki base vs. 510 API base still don't reconcile;
-moot either way since coefficient 0 means curating would be a no-op at best); Necromancer 10670
-(2nd Well of Blood id — now confirmed a frozen legacy duplicate carrying stale pre-2023-11-28-patch
-numbers, not a genuine Scourge variant as originally guessed, but still nothing reliable to curate
-it to); Revenant 26937 (Enchanted Daggers' Initial Heal — wiki 1640 vs. API 1560 still unexplained;
-correction to the old note: this is a *different* mismatch shape than this skill's own Siphon
-Damage facts, which actually reconcile cleanly under the known `wikiQuoted = apiRaw +
-coefficient * 1000` pattern — Initial Heal's flat 80-point gap doesn't fit that formula).
+Inscriptions), so it's now curated (`healing-calc.ts`, `requiresTrait: 2298`). Revenant 26937
+(Enchanted Daggers' Initial Heal) is now RESOLVED too — see the in-game-verification checklist
+memory; curated (`healing-calc.ts`, base=1560/coefficient=0.25). Left uncurated, re-confirmed with
+no new resolution: Necromancer 10547 (Summon Blood Fiend — wiki's own Notes confirm 0 Healing
+Power/non-scaling, but its 926 wiki base vs. 510 API base still don't reconcile; moot either way
+since coefficient 0 means curating would be a no-op at best); Necromancer 10670 (2nd Well of Blood
+id — now confirmed a frozen legacy duplicate carrying stale pre-2023-11-28-patch numbers, not a
+genuine Scourge variant as originally guessed, but still nothing reliable to curate it to).
 
 **Healing — Weapon-slot (4, re-checked 2026-08-22, no change):** Elementalist 72982 (Etching:
 Jökulhlaup, Spear — re-confirmed the wiki's `{{skill fact|healing|532}}` template still carries no
@@ -103,19 +101,23 @@ never in scope for the sweep; would need their own wiki-verification pass
 (condition-per-stack-per-second base values are a separate documented constant table) before
 extending `CURATED_DAMAGE_COEFFICIENTS` to cover one.
 
-**Siphon Damage (10 of 14 candidates):** curated 2026-08-20 (`CURATED_SIPHON_DAMAGE_COEFFICIENTS`,
-`siphon-damage-calc.ts`). Left uncurated: 3 wiki/API value mismatches (Locust Swarm, Signet of
-Vampirism, Enchanted Daggers) that reconcile exactly under `wikiQuoted = apiRaw + coefficient *
-1000` — suspiciously clean but unprecedented in this codebase and contradicted by 3 sibling skills
-on the identical wiki template showing zero such offset, so not trustworthy without real in-game
-verification (not available in this environment); 2 explicit wiki stub tags (Death Spiral,
-Nightmare Weapon) plus Vampiric Slash's own stub stacked on the same mismatch shape; 1 different
-formula shape (Soul Grasp, weapon-strength-based, mislabeled by the API the same way Barrier's API
-mislabeling problem works); 3 structurally unreachable ids (Grim Specter orphan; Carnivore/
-Replenishing Despair are shared-trait "effect skills", same exclusion shape as Assassin's Reward
-above). The already-shipped Cosmic Wisdom Assassin-form entry (`baseValue: 1028`) may be an instance
-of the same `wikiQuoted = apiRaw + coefficient * 1000` mismatch — flagged for future in-game
-verification, not touched.
+**Siphon Damage (11 of 14 candidates):** curated 2026-08-20 (`CURATED_SIPHON_DAMAGE_COEFFICIENTS`,
+`siphon-damage-calc.ts`). Enchanted Daggers is now RESOLVED (2026-08-23, live in-game readings —
+see the in-game-verification checklist memory): base=808/coefficient=0.05, confirming the API's WvW
+value was correct all along and the wiki's 858 was the stale side of the mismatch. This also
+suggests the already-shipped **Cosmic Wisdom Assassin-form entry** (`boon-calc/sources.ts`,
+`baseValue: 1028`, taken from this skill's own wiki-quoted *PvE* number) is likely inflated by the
+same pattern and should probably read 968 (the PvE API value) instead — not changed yet, flagged for
+a follow-up pass since Cosmic Wisdom's own mode/formula wasn't directly tested. Left uncurated: 2
+wiki/API value mismatches (Locust Swarm, Signet of Vampirism) that reconcile exactly under
+`wikiQuoted = apiRaw + coefficient * 1000` — suspiciously clean but unprecedented elsewhere in this
+codebase and contradicted by 3 sibling skills on the identical wiki template showing zero such
+offset, so not trustworthy without real in-game verification; 2 explicit wiki stub tags (Death
+Spiral, Nightmare Weapon) plus Vampiric Slash's own stub stacked on the same mismatch shape; 1
+different formula shape (Soul Grasp, weapon-strength-based, mislabeled by the API the same way
+Barrier's API mislabeling problem works); 3 structurally unreachable ids (Grim Specter orphan;
+Carnivore/Replenishing Despair are shared-trait "effect skills", same exclusion shape as Assassin's
+Reward above).
 
 **Both Healing and Damage tables**: never visually spot-checked in the running app (Electron sandbox
 limitation) — do that before extending either further.

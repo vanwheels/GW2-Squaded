@@ -47,28 +47,32 @@ export interface SiphonDamageCoefficient {
  * gap (Soul Shards' WvW pair: API 606 vs wiki 605 — the same "negligible, not a real conflict" bar
  * `CURATED_HEALING_COEFFICIENTS`'s Cleansing Wave entry already established for a 2-point gap).
  *
- * **3 stayed uncurated on a genuine, unresolved wiki/API value mismatch** — Locust Swarm (API 37 vs
- * wiki 117), Signet of Vampirism (API 129/163 vs wiki 151/247, both facts), Enchanted Daggers (API
- * 968/808 vs wiki 1028/858, both modes) — every one of these 5 number-pairs reconciles PERFECTLY if
- * `wikiQuoted = apiRaw + coefficient * 1000` (i.e. as if the wiki's own number were the tooltip value
- * at a Power-1000 reference build stacked ON TOP of the API's already-reference-built value), which
- * is suspiciously exact to be pure noise — but no other curated table in this codebase has ever
- * needed or used a "subtract coefficient times the target stat's base value" adjustment (every
- * existing `HealingCoefficient`/`BarrierCoefficient`/`DamageCoefficient` entry trusts the API's raw
- * `value` verbatim as `baseValue`, matching Healing/Barrier's own base-0 attribute trivially), and
- * `Soulcleave's Summit`/`Hungering Maelstrom`/`Xinrae's Weapon` above show ZERO such offset on the
- * exact same `{{skill fact|life siphon damage}}` template shape — so this isn't a universal formula
- * quirk, it's a real per-page inconsistency with no reliable way to tell which of the two patterns a
- * given skill follows without an actual in-game reference (not available in this environment — see
- * `electron_sandbox_limitation`). Left uncurated rather than guess which source is stale, same bar as
- * every other unreconciled case in this codebase (Enchanted Daggers' own `Initial Heal`/`Siphon
- * Healing` facts already carried a similar unexplained gap before this sweep — see
- * `CURATED_HEALING_COEFFICIENTS`'s own comment on this skill). Worth flagging for a future session:
- * `boon-calc/sources.ts`'s `LEGEND_FORM_EFFECT_DETAILS` Assassin-form entry (`baseValue: 1028`) used
- * the WIKI's quoted number directly for this exact `'siphonDamage'` formula shape, which — if the
- * "wiki number already double-counts the reference-build Power contribution" read above is the
- * correct one — would currently render an inflated number; not touched here since verifying it needs
- * the same missing in-game reference this whole mismatch already lacks.
+ * **2 stayed uncurated on a genuine, unresolved wiki/API value mismatch** — Locust Swarm (API 37 vs
+ * wiki 117), Signet of Vampirism (API 129/163 vs wiki 151/247, both facts) — both number-pairs
+ * reconcile PERFECTLY if `wikiQuoted = apiRaw + coefficient * 1000` (i.e. as if the wiki's own number
+ * were the tooltip value at a Power-1000 reference build stacked ON TOP of the API's already-
+ * reference-built value), which is suspiciously exact to be pure noise — but no other curated table
+ * in this codebase has ever needed or used a "subtract coefficient times the target stat's base
+ * value" adjustment (every existing `HealingCoefficient`/`BarrierCoefficient`/`DamageCoefficient`
+ * entry trusts the API's raw `value` verbatim as `baseValue`), and `Soulcleave's Summit`/`Hungering
+ * Maelstrom`/`Xinrae's Weapon` above show ZERO such offset on the exact same
+ * `{{skill fact|life siphon damage}}` template shape — so this isn't a universal formula quirk, it's
+ * a real per-page inconsistency with no reliable way to tell which of the two patterns a given skill
+ * follows without an actual in-game reference. Left uncurated rather than guess which source is
+ * stale.
+ *
+ * **Enchanted Daggers (API 968/808 vs wiki 1028/858, both modes) — RESOLVED 2026-08-23.** 2 live
+ * in-game readings at known Power (2,771 Power -> 947 Siphon Damage; 1,214 Power -> 869 Siphon
+ * Damage) solve directly to base=808/coefficient=0.05 (predicts 946.55 -> rounds to 947, and
+ * 868.7 -> rounds to 869 — both exact matches), confirming the WvW-mode API value (808) is correct
+ * and the wiki's 858 was the stale/wrong side of the `+coefficient*1000` coincidence, not the API.
+ * The same in-game pass also confirmed this skill's `Initial Heal`/`Siphon Healing` facts (see
+ * `CURATED_HEALING_COEFFICIENTS`'s own comment on this skill) — worth revisiting
+ * `boon-calc/sources.ts`'s `LEGEND_FORM_EFFECT_DETAILS` Assassin-form entry (`baseValue: 1028`,
+ * the WIKI's quoted PvE number) in light of this: if Enchanted Daggers' own PvE fact (968) follows
+ * the same "API is correct, wiki added a spurious +1000*coefficient" pattern this WvW reading just
+ * confirmed, that entry is likely inflated and should probably read 968 instead — not changed here
+ * since Cosmic Wisdom's own formula/mode wasn't part of this verification pass.
  *
  * **2 stayed uncurated on an explicit wiki maintenance tag** — Death Spiral
  * (`{{stub||missing siphon coefficients}}`, no `coefficient=` param on either Life Siphon Damage fact
@@ -99,6 +103,10 @@ export interface SiphonDamageCoefficient {
  * own top comment).
  */
 export const CURATED_SIPHON_DAMAGE_COEFFICIENTS: Record<number, SiphonDamageCoefficient[]> = {
+  // Revenant — Enchanted Daggers (Legendary Assassin). 2 identical-text "Siphon Damage" facts
+  // (PvE 968, WvW/PvP 808) with no `requires_trait` to disambiguate — resolved via live in-game
+  // testing 2026-08-23 (see this file's top comment); WvW value used, per this table's convention.
+  26937: [{ factText: 'Siphon Damage', baseValue: 808, coefficient: 0.05 }],
   // Revenant — Soulcleave's Summit (Renegade Elite). Base value unchanged across modes but the
   // coefficient itself splits (PvE 0.1 vs WvW+PvP 0.04, both share base 325) — WvW value used, same
   // "coefficient-only split" shape already curated for this skill's own Healing facts.

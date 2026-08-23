@@ -7032,6 +7032,10 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1068,
     },
     {
+      "label": "Initial Heal",
+      "value": 1935,
+    },
+    {
       "label": "Rapid Flow Healing",
       "value": 408,
     },
@@ -8305,6 +8309,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
 
 exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md Tier 2) > CURATED_SIPHON_DAMAGE_COEFFICIENTS produces stable Life Siphon Damage lines at a fixed reference build 1`] = `
 {
+  "26937": [
+    {
+      "label": "Siphon Damage",
+      "value": 933,
+    },
+  ],
   "45773": [
     {
       "label": "Life Siphon Damage",

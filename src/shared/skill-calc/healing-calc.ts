@@ -334,19 +334,19 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
     { factText: 'Healing', baseValue: 4600, coefficient: 1.0 },
     { factText: 'Heal per Condition', baseValue: 596, coefficient: 0.1 }
   ],
-  // Revenant — Enchanted Daggers (Legendary Assassin). Siphon Healing has no split. Initial Heal is
-  // left uncurated — the wiki's own base value (1640, coefficient 0.25, no PvE/WvW split) doesn't
-  // match this app's own API base value (1560), a genuine 80-point wiki/API discrepancy.
-  // **Re-investigated 2026-08-22**: this is NOT the same offset shape as this skill's own Siphon
-  // Damage facts, despite the earlier note claiming so — those actually reconcile cleanly under
-  // `siphon-damage-calc.ts`'s known `wikiQuoted = apiRaw + coefficient * 1000` mismatch pattern
-  // (PvE: 968 API + 0.06*1000 = 1028 wiki, exact; WvW: 808 API + 0.05*1000 = 858 wiki, exact) — a
-  // flat 60/50-point offset tied to each mode's own coefficient, not a flat 80. Initial Heal's 80-
-  // point gap doesn't fit that formula (0.25*1000 = 250, not 80) and `BASE_ATTRIBUTES.Healing` is 0
-  // so no reference-build offset should exist at all — a smaller, differently-shaped, still-
-  // unexplained mismatch. Left uncurated, corrected comment only.
+  // Revenant — Enchanted Daggers (Legendary Assassin). Siphon Healing has no split. Initial Heal's
+  // wiki base (1640, coefficient 0.25, no PvE/WvW split) never matched this app's own API base
+  // (1560), an unexplained 80-point discrepancy that didn't fit `siphon-damage-calc.ts`'s own
+  // `wikiQuoted = apiRaw + coefficient * 1000` pattern found on this same skill's Siphon Damage facts
+  // (0.25*1000 = 250, not 80). **Resolved 2026-08-23** via 2 live in-game tooltip readings at known
+  // Healing Power (0 HP -> 1,560 heal; 1,348 HP -> 1,897 heal): base = 1560 (exact match for the
+  // API's own raw value — the wiki's 1640 was simply wrong) and coefficient = (1897-1560)/1348 =
+  // 0.25 (predicts 1897.0 exactly at 1348 HP). Same in-game pass independently reconfirmed Siphon
+  // Healing's existing 768/0.2 entry below (0 HP -> 768; 1,348 HP -> 1,038, matching 768+0.2*1348 =
+  // 1037.6 -> rounds to 1038) and Siphon Damage's WvW pair (see `siphon-damage-calc.ts`).
   26937: [
     { factText: 'Siphon Healing', baseValue: 768, coefficient: 0.2 },
+    { factText: 'Initial Heal', baseValue: 1560, coefficient: 0.25 },
     { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
   ],
   // Revenant — Infuse Light (Herald, Legendary Dragon Stance). No PvE/WvW split.
