@@ -123,13 +123,22 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   40507: [{ factText: 'Healing', baseValue: 5250, coefficient: 0.8 }],
   // Engineer — Rectifier Signet (Mechanist). Untraited "Heal Pulse" splits 3 ways by game mode (PvE
   // 262/WvW 230/PvP 115, same 0.05 coefficient) — WvW value used; active "Healing" burst splits PvE
-  // 6500 vs combined "pvp wvw" 5130 (same 1.0 coefficient) — WvW value used. The Mech Core: J-Drive
-  // trait-upgraded pulse variant (requires_trait 2298) has no wiki skill-fact template at all — only
-  // stale/incomplete prose in the Notes section that doesn't even cover all 3 game modes — so it's
-  // left uncurated rather than guessed.
+  // 6500 vs combined "pvp wvw" 5130 (same 1.0 coefficient) — WvW value used. **Re-investigated
+  // 2026-08-22**: the Mech Core: J-Drive trait-upgraded pulse variant (requires_trait 2298) has no
+  // dedicated wiki skill-fact template, but its Notes-section prose ("the base heal per pulse is
+  // increased to 314 in PvE, and 276 in PvP and WvW") reconciles EXACTLY against the live API's own
+  // `overrides`-indexed traited_facts (314/276/138 = the untraited 262/230/115 each times a clean
+  // 1.2 — the same flat +20% signet-passive-potency bonus this trait grants, corroborated by the
+  // Shape-1 audit backlog's Perfect Inscriptions sibling) — unlike Signet of Courage below, where the
+  // 20% math left a small unreconciled gap. `healingLinesForSkill`'s per-label `Map` (last-entry-wins,
+  // see `skill-fact-lines.ts`) makes this override-when-selected shape safe to add even though all 3
+  // traited "Heal Pulse" facts share one `requires_trait`/text pair the raw-fact lookup can't
+  // otherwise disambiguate — this entry's own `baseValue` is used directly, never the matched fact's
+  // `value`.
   63049: [
     { factText: 'Heal Pulse', baseValue: 230, coefficient: 0.05 },
-    { factText: 'Healing', baseValue: 5130, coefficient: 1.0 }
+    { factText: 'Healing', baseValue: 5130, coefficient: 1.0 },
+    { factText: 'Heal Pulse', baseValue: 276, coefficient: 0.05, requiresTrait: 2298 }
   ],
   // Engineer — Mitotic State (Amalgam). Re-investigated 2026-08-13 (was left uncurated as an
   // unconfirmed "API base 305 vs. wiki 7625" mismatch): resolved — 305 is the API's own per-pulse
@@ -229,9 +238,25 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
     { factText: 'Self-Healing', baseValue: 3535, coefficient: 1.0 },
     { factText: 'Ally Healing', baseValue: 2250, coefficient: 0.5 }
   ],
-  // Necromancer — Well of Blood (base skill id only; id 10670's near-identical-but-different
-  // numbers didn't match either wiki split cleanly, likely a Scourge-context variant — left
-  // uncurated rather than guessing). WvW splits used for both facts (PvE 2936/1.0, 664/0.5).
+  // Necromancer — Summon Blood Fiend (id 10547) has no table entry at all, deliberately. Its own
+  // wiki Notes section states outright "it has 0 healing power and cannot be increased by any
+  // means" — a genuine coefficient-0 non-scaler, same shape as Restorative Spear (72966) below.
+  // Unlike Restorative Spear, though, its wiki infobox base value (926) doesn't match the live
+  // API's (510) — but since the coefficient is 0 either way, a curated entry would be a pure no-op
+  // at best (identical to today's uncurated fallback display of the raw 510 API fact) or actively
+  // wrong at worst (if 926 were used instead) — no version-history entry reconciles the gap.
+  // **Investigated 2026-08-22**, left uncurated on purpose, not an oversight.
+  // Necromancer — Well of Blood (base skill id only; id 10670 shares this same wiki page — its
+  // infobox literally lists `id = 10527, 10670` as one canonical pair, unlike a structurally-
+  // unreachable orphan — but its *live* API values, 5240/280, still don't match either the
+  // PvE or WvW/PvP split below. **Re-investigated 2026-08-22**: 280 is exactly the pre-
+  // 2023-11-28-patch WvW/PvP pulse value (before that patch's "280 to 496" bump), and 10670
+  // carries no `GroundTargeted` flag where 10527 does — same "frozen legacy duplicate id,
+  // stale pre-patch numbers" shape as Guardian's underwater Sanctuary (31295) above, not a
+  // genuine Scourge-context variant as originally guessed. Still left uncurated — a frozen id's
+  // own stale numbers aren't the WvW-current figure this table is supposed to encode, and 5240
+  // doesn't cleanly match any single historical patch value either, so there's nothing reliable
+  // to curate it TO). WvW splits used for both facts on 10527 (PvE 2936/1.0, 664/0.5).
   10527: [
     { factText: 'Initial Self Heal', baseValue: 4454, coefficient: 1.0 },
     { factText: 'Health per Second', baseValue: 496, coefficient: 0.2 }
@@ -310,9 +335,16 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
     { factText: 'Heal per Condition', baseValue: 596, coefficient: 0.1 }
   ],
   // Revenant — Enchanted Daggers (Legendary Assassin). Siphon Healing has no split. Initial Heal is
-  // left uncurated — the wiki's own base value (1640) doesn't match this app's own API base value
-  // (1560), a real wiki/API discrepancy (same +80 offset also seen on this skill's Siphon Damage
-  // facts), so no coefficient is trusted for it rather than guessing which source is stale.
+  // left uncurated — the wiki's own base value (1640, coefficient 0.25, no PvE/WvW split) doesn't
+  // match this app's own API base value (1560), a genuine 80-point wiki/API discrepancy.
+  // **Re-investigated 2026-08-22**: this is NOT the same offset shape as this skill's own Siphon
+  // Damage facts, despite the earlier note claiming so — those actually reconcile cleanly under
+  // `siphon-damage-calc.ts`'s known `wikiQuoted = apiRaw + coefficient * 1000` mismatch pattern
+  // (PvE: 968 API + 0.06*1000 = 1028 wiki, exact; WvW: 808 API + 0.05*1000 = 858 wiki, exact) — a
+  // flat 60/50-point offset tied to each mode's own coefficient, not a flat 80. Initial Heal's 80-
+  // point gap doesn't fit that formula (0.25*1000 = 250, not 80) and `BASE_ATTRIBUTES.Healing` is 0
+  // so no reference-build offset should exist at all — a smaller, differently-shaped, still-
+  // unexplained mismatch. Left uncurated, corrected comment only.
   26937: [
     { factText: 'Siphon Healing', baseValue: 768, coefficient: 0.2 },
     { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }

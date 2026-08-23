@@ -36,19 +36,30 @@ professions and all 4 skill slots; `CURATED_SIPHON_DAMAGE_COEFFICIENTS` is a com
 skills/traits that were investigated and deliberately left uncurated — don't re-guess a coefficient
 for these without a fresh look at the source conflict.
 
-**Healing — Utility (2):**
+**Healing — Utility (2, re-checked 2026-08-22, no change):**
 - Guardian 31295 (Sanctuary, underwater variant): a frozen pre-2016-balance-pass copy of id 9128 —
   no wiki coefficient documented for it specifically (underwater is out of scope for WvW anyway).
+  Re-confirmed: id 31295 doesn't appear on any wiki skill page at all (`insource:"31295"` search
+  only hits an unrelated item id collision).
 - Guardian 62669 (Repose): the wiki page itself is tagged stub — coefficient is an unfilled `?`. Note
   for whoever fills this in: a 2025-11-18 balance patch dropped the WvW/PvP base value from 2595 to
   1635 (PvE unaffected) — don't reuse the older 2595 figure from before that patch if it surfaces.
+  Re-confirmed still stub as of 2026-08-22.
 
-**Healing — Heal-slot (4):** Engineer 63049 (Rectifier Signet's trait-upgraded pulse heal — no wiki
-fact template at all); Necromancer 10547 (Summon Blood Fiend — pet's own fixed-0 Healing Power, no
-coefficient param on wiki, expected non-scaling); Necromancer 10670 (2nd Well of Blood id — API
-values don't match either PvE/WvW reading of the shared wiki page, likely an undocumented
-Scourge-context variant); Revenant 26937 (Enchanted Daggers — wiki 1640 vs. API 1560, same +80
-offset also shows up on its Siphon Damage facts).
+**Healing — Heal-slot (3 of original 4 — re-investigated 2026-08-22):** Engineer 63049's Rectifier
+Signet/Mech Core: J-Drive gap is now RESOLVED — no dedicated wiki fact template exists, but its
+Notes-section prose reconciles exactly against the live API's own `overrides`-indexed traited
+facts (a clean +20% signet-passive-potency bonus, same family as the Shape-1 audit's Perfect
+Inscriptions), so it's now curated (`healing-calc.ts`, `requiresTrait: 2298`). Left uncurated,
+re-confirmed with no new resolution: Necromancer 10547 (Summon Blood Fiend — wiki's own Notes
+confirm 0 Healing Power/non-scaling, but its 926 wiki base vs. 510 API base still don't reconcile;
+moot either way since coefficient 0 means curating would be a no-op at best); Necromancer 10670
+(2nd Well of Blood id — now confirmed a frozen legacy duplicate carrying stale pre-2023-11-28-patch
+numbers, not a genuine Scourge variant as originally guessed, but still nothing reliable to curate
+it to); Revenant 26937 (Enchanted Daggers' Initial Heal — wiki 1640 vs. API 1560 still unexplained;
+correction to the old note: this is a *different* mismatch shape than this skill's own Siphon
+Damage facts, which actually reconcile cleanly under the known `wikiQuoted = apiRaw +
+coefficient * 1000` pattern — Initial Heal's flat 80-point gap doesn't fit that formula).
 
 **Healing — Weapon-slot (4):** Elementalist 72982 (Etching: Jökulhlaup, Spear — no `coefficient=`
 param on wiki); Necromancer 30860 (Death Spiral — wiki stub, missing siphon coefficients);
