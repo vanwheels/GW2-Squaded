@@ -14,6 +14,7 @@ import {
   CURATED_UTILITY_OUTGOING_HEALING_ATTRIBUTE_SCALING,
   DEATHS_CARAPACE_TOUGHNESS_PER_STACK,
   DEFAULT_COMBAT_STATE,
+  FLAT_CONDITION_DAMAGE_TRAIT_BONUSES,
   FLAT_DAMAGE_TRAIT_BONUSES,
   FORCE_OF_WILL_HEALING_PERCENT_PER_100_VITALITY,
   FORCE_OF_WILL_TRAIT_ID,
@@ -1155,6 +1156,92 @@ describe('resolveOutgoingDamagePercent — Bird of Prey (Swiftness-OR-Superspeed
     expect(
       resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, swiftnessActive: true, superspeedActive: true }, traitsById)
     ).toBe(SWIFTNESS_OR_SUPERSPEED_DAMAGE_TRAIT_BONUSES[2363])
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Ferocious Aggression (Fury-gated trait)', () => {
+  it('contributes nothing while chosen but Fury is inactive', () => {
+    const { build, traitsById } = buildWithTrait(1758, 'Minor')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, furyActive: false }, traitsById)).toBe(0)
+  })
+
+  it('contributes the flat bonus once chosen and Fury is active', () => {
+    const { build, traitsById } = buildWithTrait(1758, 'Minor')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, furyActive: true }, traitsById)).toBe(
+      FURY_DAMAGE_TRAIT_BONUSES[1758]
+    )
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Vicious Reprisal (Resolution-gated trait, shares RESOLUTION_DAMAGE_TRAIT_BONUSES with Retribution)', () => {
+  it('contributes nothing while chosen but Resolution is inactive', () => {
+    const { build, traitsById } = buildWithTrait(1779, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, resolutionActive: false }, traitsById)).toBe(0)
+  })
+
+  it('contributes the flat bonus once chosen and Resolution is active', () => {
+    const { build, traitsById } = buildWithTrait(1779, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, resolutionActive: true }, traitsById)).toBe(
+      RESOLUTION_DAMAGE_TRAIT_BONUSES[1779]
+    )
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Reinforced Potency (per-active-boon trait, shares PER_BOON_DAMAGE_TRAIT_BONUSES with Inspired Virtue/Empowered)', () => {
+  it.each([0, 3, 8])('scales linearly with activeBoonCount at %i boons', (boons) => {
+    const { build, traitsById } = buildWithTrait(1788, 'Minor')
+    const result = resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, activeBoonCount: boons }, traitsById)
+    expect(result).toBe(boons * PER_BOON_DAMAGE_TRAIT_BONUSES[1788])
+  })
+
+  it('contributes nothing when the trait is not chosen', () => {
+    expect(resolveOutgoingDamagePercent(makeBuild(), { ...DEFAULT_COMBAT_STATE, activeBoonCount: 8 }, NO_TRAITS)).toBe(0)
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Rising Tide (health-threshold-gated, no baseline)', () => {
+  it('contributes nothing while below the health threshold', () => {
+    const { build, traitsById } = buildWithTrait(1761, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, healthTier: 'below50' }, traitsById)).toBe(0)
+  })
+
+  it('contributes the bonus while above the health threshold', () => {
+    const { build, traitsById } = buildWithTrait(1761, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, healthTier: 'above75' }, traitsById)).toBe(
+      HIGH_HEALTH_DAMAGE_TRAIT_BONUSES[1761].aboveThreshold
+    )
+  })
+
+  it('contributes nothing when the trait is not chosen', () => {
+    expect(resolveOutgoingDamagePercent(makeBuild(), { ...DEFAULT_COMBAT_STATE, healthTier: 'above75' }, NO_TRAITS)).toBe(0)
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Leviathan Strength (Not-Full-Endurance-gated trait, shares NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES with Takedown Round)', () => {
+  it('contributes nothing while chosen but endurance is full', () => {
+    const { build, traitsById } = buildWithTrait(2258, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, fullEnduranceActive: true }, traitsById)).toBe(0)
+  })
+
+  it('contributes the flat bonus once chosen and endurance is not full', () => {
+    const { build, traitsById } = buildWithTrait(2258, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, fullEnduranceActive: false }, traitsById)).toBe(
+      NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES[2258]
+    )
+  })
+})
+
+describe('resolveOutgoingDamagePercent/resolveOutgoingConditionDamagePercent — Destructive Impulses (flat, unconditional baseline on BOTH strike and condition damage)', () => {
+  it('contributes the flat bonus to both once chosen, no combat-state gating needed', () => {
+    const { build, traitsById } = buildWithTrait(1724, 'Minor')
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, traitsById)).toBe(FLAT_DAMAGE_TRAIT_BONUSES[1724])
+    expect(resolveOutgoingConditionDamagePercent(build, DEFAULT_COMBAT_STATE, traitsById)).toBe(FLAT_CONDITION_DAMAGE_TRAIT_BONUSES[1724])
+  })
+
+  it('contributes nothing to either when the trait is not chosen', () => {
+    const build = makeBuild()
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS)).toBe(0)
+    expect(resolveOutgoingConditionDamagePercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS)).toBe(0)
   })
 })
 

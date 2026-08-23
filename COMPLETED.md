@@ -2,6 +2,63 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 286 — Outgoing Damage % full pass, Traits leg (Revenant)
+
+Continued the Traits leg of "Outgoing Damage % full pass" (TODO.md). Picked Revenant next (no fixed
+leg order set) — re-scanned `traits.json` for the same "Damage Increase"/"...per Boon" `Percent`-
+fact shape, profession-mapped via `specializations.json`. 12 unique candidates.
+
+6 of 12 curated, all folding into existing tables (no new `CombatState` fields needed) except one
+brand-new sibling table:
+- **Ferocious Aggression** (id 1758, Invocation, Adept Minor) — "All damage dealt is increased while
+  you have fury." Folded into `FURY_DAMAGE_TRAIT_BONUSES` alongside Furious Focus/Furious Strength.
+  Wiki-verified `split = pve, wvw pvp`: PvE 10%, WvW/PvP 7% — WvW value used.
+- **Vicious Reprisal** (id 1779, Retribution, Master Major — wiki page title "Retribution," the name
+  of the Revenant specialization line it belongs to, unrelated to Guardian's own "Retribution" trait/
+  id 565 already in this table) — "While you have resolution, all damage dealt is increased." Folded
+  into `RESOLUTION_DAMAGE_TRAIT_BONUSES` alongside Guardian's Retribution. Wiki-verified flat 10%, no
+  game-mode split.
+- **Reinforced Potency** (id 1788, Herald, Grandmaster Minor) — "deal increased strike damage for
+  each active boon you have" (its own wiki "See also" section lists Inspired Virtue and Empowered,
+  confirming the family). Folded into `PER_BOON_DAMAGE_TRAIT_BONUSES`. Wiki-verified `split = pve,
+  wvw, pvp` with an unusual reversal (PvE and WvW share 1% per boon, PvP alone is 1.5%) — WvW value
+  used regardless.
+- **Rising Tide** (id 1761, Invocation, Adept Major) — "While your health is above the threshold,
+  strike damage dealt is increased." Folded into `HIGH_HEALTH_DAMAGE_TRAIT_BONUSES` as
+  `{ aboveThreshold: 7, otherwise: 0 }`. Wiki-verified a genuine per-mode *threshold* split too (PvE
+  75%/10%, WvW+PvP 90%/7%) — WvW pair used, 90% approximated to the `'above75'` tier same as
+  Unscathed Contender's own 90% threshold.
+- **Leviathan Strength** (id 2258, Vindicator, Adept Major) — "Deal increased damage while your
+  endurance is not full." Folded into `NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES` alongside Takedown
+  Round. Wiki-verified flat 10% (post a 2024-01-30 15%→10% PvE-only nerf), no game-mode split.
+- **Destructive Impulses** (id 1724, Devastation, Master Minor — wiki page title "Focused Siphoning,"
+  same renamed-live-page situation as Farsighted) — partial curation. "All damage dealt is increased,
+  and increased additionally if you have an off-hand weapon equipped." Wiki-confirmed (2021-05-11
+  patch note) this applies to *all* damage, not strike damage only — the first trait in this sweep to
+  need that — so its flat 5% baseline (wiki-verified, no game-mode split) is curated into BOTH
+  `FLAT_DAMAGE_TRAIT_BONUSES` and a brand-new `FLAT_CONDITION_DAMAGE_TRAIT_BONUSES` table (that
+  sibling never existed before now). Its "additionally if off-hand equipped" half stays excluded and
+  is logged as a new gap-shape below.
+
+6 excluded, all logged in TODO.md: Brutality (1715, vs. foes with stability or protection) and
+Dwarven Battle Training (1740, vs. weakened foes) join the target-condition-gated family. Unsuspecting
+Strikes (1767, vs. foes above a fixed health threshold) and Swift Termination (1800, vs. foes below
+one) form a new "fixed target-health-threshold damage-%%" pairing, distinct from the self-health-
+gated family Rising Tide/Unscathed Contender/Flow like Water/Survival Instincts belong to. Acolyte of
+Torment (1793, torment damage specifically) joins the per-condition-type family. Forceful Persistence
+(1803, Herald) is a brand-new gap-shape: a flat 15%/4% (WvW/PvP) two-part structure — 15% while *any*
+upkeep skill is active (a binary gate) plus +4% per active Herald/weapon upkeep skill (a skill-count
+stack) — neither half maps onto the existing `upkeepPoints` stepper's summed point-cost semantics
+without misreading it, and the stacking half is arguably the trait's main value for real Herald
+builds, so the whole trait stays out of scope rather than modeling only its lesser baseline half.
+Destructive Impulses's own off-hand-conditional half is a 2nd new gap-shape: distinguishing a genuine
+off-hand weapon from a two-handed weapon's own mirrored `weaponA2`/`weaponB2` slot has no existing
+helper (`attribute-totals.ts`'s `isActiveWeaponSlot` doc comment confirms two-handed weapons mirror
+their `weaponType` onto both slot keys).
+
+15 new tests, `npm run typecheck`/`npx eslint`/`npx vitest run` all clean (421/421). 1 profession
+remains (Thief).
+
 ## Session 285 — Outgoing Damage % full pass, Traits leg (Ranger)
 
 Continued the Traits leg of "Outgoing Damage % full pass" (TODO.md). Picked Ranger next (no fixed

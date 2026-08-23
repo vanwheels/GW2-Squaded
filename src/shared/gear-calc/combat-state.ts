@@ -932,6 +932,60 @@ function curatedSigilConditionDamagePercent(build: Build): number {
  *   flanking/positional check, distinct from every target-condition-gated, target-range-gated, and
  *   target-relative-health-gated family seen so far — no `CombatState` field tracks the attacker's
  *   position relative to the target at all), logged in TODO.md.
+ *
+ * Revenant leg (Session 286, 2026-08-22): 12 unique candidates. 5 curated, all folding straight into
+ * existing tables (no new `CombatState` fields needed): Ferocious Aggression (id 1758, Invocation
+ * Minor) — "All damage dealt is increased while you have fury," folded into `FURY_DAMAGE_TRAIT_
+ * BONUSES` alongside Furious Focus/Furious Strength — wiki-verified `split = pve, wvw pvp`, PvE 10%/
+ * WvW+PvP 7%, WvW value used. Vicious Reprisal (id 1779, Retribution Major — wiki page title
+ * "Retribution," a Revenant *specialization* line also named Retribution, unrelated to Guardian's own
+ * "Retribution" trait/id 565 already in this table) — "While you have resolution, all damage dealt is
+ * increased," folded into `RESOLUTION_DAMAGE_TRAIT_BONUSES` alongside Guardian's Retribution — wiki-
+ * verified flat 10%, no game-mode split. Reinforced Potency (id 1788, Herald Minor) — "deal increased
+ * strike damage for each active boon you have," folded into `PER_BOON_DAMAGE_TRAIT_BONUSES` alongside
+ * Inspired Virtue/Empowered (its own wiki "See also" section lists both, confirming the family) —
+ * wiki-verified `split = pve, wvw, pvp` with an unusual reversal (PvE and WvW share 1%, PvP alone is
+ * 1.5%) — WvW value (1) used, same convention regardless. Rising Tide (id 1761, Invocation Major) —
+ * "While your health is above the threshold, strike damage dealt is increased," folded into `HIGH_
+ * HEALTH_DAMAGE_TRAIT_BONUSES` as `{ aboveThreshold: 7, otherwise: 0 }` — wiki-verified a genuine
+ * per-mode threshold split too (PvE 75%/10%, WvW+PvP 90%/7%), WvW pair used, 90% approximated to the
+ * `'above75'` tier same as Unscathed Contender's own 90% threshold. Leviathan Strength (id 2258,
+ * Vindicator Major) — "Deal increased damage while your endurance is not full," folded into `NOT_
+ * FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES` alongside Takedown Round — wiki-verified flat 10% (post a
+ * 2024-01-30 15%→10% PvE-only nerf), no game-mode split.
+ *
+ * Destructive Impulses (id 1724, Devastation Minor — wiki page title "Focused Siphoning," same
+ * renamed-live-page situation as Furious Burst/Farsighted above) is a 6th, partial curation: "All
+ * damage dealt is increased, and increased additionally if you have an off-hand weapon equipped."
+ * Wiki-confirmed (2021-05-11 patch note) this trait applies to *all* damage, not strike damage only —
+ * the first trait in this sweep to need that — so its flat 5% baseline (wiki-verified, no game-mode
+ * split) is curated into BOTH `FLAT_DAMAGE_TRAIT_BONUSES` and a brand-new `FLAT_CONDITION_DAMAGE_
+ * TRAIT_BONUSES` table (the condition-damage sibling `FLAT_DAMAGE_TRAIT_BONUSES` never needed until
+ * now). Its "additionally if off-hand equipped" half (wiki-verified PvE 2.5%/WvW+PvP 5%) stays
+ * excluded: reading it back would mean distinguishing a genuine off-hand weapon from a two-handed
+ * weapon's own `weaponA2`/`weaponB2` mirror slot (`attribute-totals.ts`'s `isActiveWeaponSlot` doc
+ * comment confirms `EquipmentEditor` mirrors a two-handed weapon's `weaponType` onto BOTH its main-
+ * and off-hand slot keys), which the current gear-attribute code has no helper to resolve — a new
+ * "off-hand-vs-two-handed-weapon detection" gap-shape, logged in TODO.md.
+ *
+ * 6 excluded after wiki/description verification: Brutality (1715, vs. foes with stability or
+ * protection) and Dwarven Battle Training (1740, vs. weakened foes, itself the disable-applies-
+ * weakness proc) join the target-condition-gated family. Unsuspecting Strikes (1767, vs. foes above a
+ * fixed health threshold) and Swift Termination (1800, vs. foes below a fixed health threshold) are a
+ * new pairing within that same family — a fixed *target*-health threshold, distinct from the self-
+ * health-gated `HIGH_HEALTH_DAMAGE_TRAIT_BONUSES` family Rising Tide/Unscathed Contender/Flow like
+ * Water/Survival Instincts belong to, same shape as Necromancer's Close to Death. Acolyte of Torment
+ * (1793, torment damage specifically) joins the per-condition-type family. Forceful Persistence (id
+ * 1803, Herald Major) is a brand-new gap-shape: wiki-confirmed (raw wikitext) a flat 15%/4% (WvW/PvP)
+ * two-part structure — 15% while *any* upkeep skill is active at all (a binary gate, not proportional
+ * to `CombatState.upkeepPoints`'s summed point-cost semantics) plus +4% *per active Herald/weapon
+ * upkeep skill* (a skill-count stack, also not what `upkeepPoints` tracks) — "Herald and weapon
+ * upkeep skills grant less damage but can be stacked" per its own description, and the wiki confirms
+ * "weapon upkeep skills" don't currently exist in-game so this is really just Herald's own facets.
+ * Neither half maps onto the existing `upkeepPoints` stepper (built for Rising Momentum's flat-per-
+ * point model) without misreading it, and the stacking half is arguably this trait's main value for
+ * real Herald builds, so it stays fully out of scope rather than modeling only its lesser baseline
+ * half — logged in TODO.md as a new "binary-plus-per-skill-count upkeep scaling" gap-shape.
  */
 
 /**
@@ -944,11 +998,15 @@ function curatedSigilConditionDamagePercent(build: Build): number {
  * verified via raw wikitext 2026-08-22 (`split = pve, wvw pvp`): PvE 10%, WvW/PvP 7% — WvW value
  * used here. Furious Strength (Ranger/Soulbeast, Grandmaster Minor, id 2156), added in the Ranger
  * leg: "You deal increased strike damage while you have fury." Wiki-verified via raw wikitext
- * 2026-08-22 (`split = pve, wvw pvp`): PvE 15%, WvW/PvP 7% — WvW value used here.
+ * 2026-08-22 (`split = pve, wvw pvp`): PvE 15%, WvW/PvP 7% — WvW value used here. Ferocious
+ * Aggression (Revenant/Invocation, Adept Minor, id 1758), added in the Revenant leg: "All damage
+ * dealt is increased while you have fury." Wiki-verified via raw wikitext 2026-08-22 (`split = pve,
+ * wvw pvp`): PvE 10%, WvW/PvP 7% — WvW value used here.
  */
 export const FURY_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
   2017: 7, // Furious Focus (Guardian, Zeal, Major)
-  2156: 7 // Furious Strength (Ranger, Soulbeast, Minor)
+  2156: 7, // Furious Strength (Ranger, Soulbeast, Minor)
+  1758: 7 // Ferocious Aggression (Revenant, Invocation, Minor)
 }
 
 /**
@@ -956,10 +1014,14 @@ export const FURY_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * `CombatState.resolutionActive`. Retribution (Guardian/Radiance, Master Major, id 565): "Strike
  * damage dealt is increased while you have resolution." Wiki-verified via raw wikitext
  * (wiki.guildwars2.com/wiki/Retribution_(trait)?action=raw) 2026-08-22: flat 10%, no game-mode
- * split.
+ * split. Vicious Reprisal (Revenant/Retribution, Master Major, id 1779 — wiki page title
+ * "Retribution," the name of the Revenant specialization line it belongs to, unrelated to Guardian's
+ * own "Retribution" trait above), added in the Revenant leg: "While you have resolution, all damage
+ * dealt is increased." Wiki-verified via raw wikitext 2026-08-22: flat 10%, no game-mode split.
  */
 export const RESOLUTION_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
-  565: 10 // Retribution (Guardian, Radiance, Major)
+  565: 10, // Retribution (Guardian, Radiance, Major)
+  1779: 10 // Vicious Reprisal (Revenant, Retribution, Major)
 }
 
 /**
@@ -971,11 +1033,17 @@ export const RESOLUTION_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * separate `PrefixedBuff` facts, already rendered via `boonConditionFactsForTrait`, out of scope
  * for this per-boon-%% table. Empowered (Warrior/Tactics, Master Minor, id 1485), added in the
  * Warrior leg: "Deal increased strike damage for every boon on you" — wiki-verified via raw
- * wikitext 2026-08-22, flat 1% per boon, no game-mode split.
+ * wikitext 2026-08-22, flat 1% per boon, no game-mode split. Reinforced Potency (Revenant/Herald,
+ * Grandmaster Minor, id 1788), added in the Revenant leg: "deal increased strike damage for each
+ * active boon you have" (its own wiki "See also" section lists both Inspired Virtue and Empowered,
+ * confirming the family). Wiki-verified via raw wikitext 2026-08-22 (`split = pve, wvw, pvp`, an
+ * unusual reversal where PvE and WvW share one value and PvP alone is the odd one out): PvE/WvW 1%
+ * per boon, PvP 1.5% per boon — WvW value used here regardless, same convention as every other entry.
  */
 export const PER_BOON_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
   621: 1, // Inspired Virtue (Guardian, Virtues, Minor)
-  1485: 1 // Empowered (Warrior, Tactics, Minor)
+  1485: 1, // Empowered (Warrior, Tactics, Minor)
+  1788: 1 // Reinforced Potency (Revenant, Herald, Minor)
 }
 
 /**
@@ -1043,7 +1111,14 @@ export const HIGH_HEALTH_DAMAGE_TRAIT_BONUSES: Record<number, { aboveThreshold: 
   // `otherwise` value" shape as Flow like Water) — 50% threshold approximated to the `'above75'` tier,
   // same approximation Flow like Water's own 50% threshold already uses. Its mirror-image "reduced
   // incoming strike damage" half (5%/10%) has no `DerivedStats` field to receive it, out of scope.
-  2032: { aboveThreshold: 15, otherwise: 5 }
+  2032: { aboveThreshold: 15, otherwise: 5 },
+  // Rising Tide (Revenant, Invocation, Adept Major, id 1761), added in the Revenant leg: "While your
+  // health is above the threshold, strike damage dealt is increased." Wiki-verified via raw wikitext
+  // 2026-08-22 a genuine per-mode threshold split (unlike every prior entry in this table, where only
+  // the damage value splits): PvE 75% threshold/10% damage, WvW+PvP 90% threshold/7% damage — WvW
+  // pair used, 90% approximated to the `'above75'` tier same as Unscathed Contender's own 90%
+  // threshold already does. No baseline below the threshold (`otherwise: 0`).
+  1761: { aboveThreshold: 7, otherwise: 0 }
 }
 
 /**
@@ -1051,10 +1126,14 @@ export const HIGH_HEALTH_DAMAGE_TRAIT_BONUSES: Record<number, { aboveThreshold: 
  * `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES`, reusing `CombatState.fullEnduranceActive` (no new
  * field, just read as `!fullEnduranceActive`). Takedown Round (Engineer/Tools, Adept Major, id
  * 1832): "Deal increased strike damage while your endurance is not full." Wiki-verified via raw
- * wikitext 2026-08-22: flat 10%, no game-mode split.
+ * wikitext 2026-08-22: flat 10%, no game-mode split. Leviathan Strength (Revenant/Vindicator, Adept
+ * Major, id 2258), added in the Revenant leg: "Deal increased damage while your endurance is not
+ * full." Wiki-verified via raw wikitext 2026-08-22: flat 10% (post a 2024-01-30 15%→10% PvE-only
+ * nerf, both modes now match), no game-mode split.
  */
 export const NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
-  1832: 10 // Takedown Round (Engineer, Tools, Major)
+  1832: 10, // Takedown Round (Engineer, Tools, Major)
+  2258: 10 // Leviathan Strength (Revenant, Vindicator, Major)
 }
 
 /**
@@ -1126,12 +1205,30 @@ export const MECHANIC_ACTIVE_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * strike damage" is an always-on baseline; wiki-verified via raw wikitext 2026-08-22 (`split = pve
  * wvw, pvp`): PvE/WvW 10%, PvP 5% — WvW value used here. Its "further increased for foes above the
  * range threshold" half is target-range-gated, out of scope (see this section's own doc comment).
+ * Destructive Impulses (Revenant/Devastation, Master Minor, id 1724 — wiki page title "Focused
+ * Siphoning," same renamed-live-page situation as Farsighted above), added in the Revenant leg: "All
+ * damage dealt is increased" is an always-on baseline — wiki-confirmed (2021-05-11 patch note) this
+ * applies to *all* damage, the first entry in this table that isn't strike-damage-only, so it's also
+ * curated into the new `FLAT_CONDITION_DAMAGE_TRAIT_BONUSES` table below. Wiki-verified via raw
+ * wikitext 2026-08-22: flat 5%, no game-mode split. Its "further increased if you have an off-hand
+ * weapon equipped" half stays out of scope (see this section's own doc comment).
  */
 export const FLAT_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
   1444: 3, // Peak Performance (Warrior, Strength, Major) — baseline only, see doc comment
   681: 7, // Vicious Expression (Mesmer, Domination, Major) — baseline only, see doc comment
   914: 7, // Spiteful Talisman (Necromancer, Spite, Major) — baseline only, see doc comment
-  1000: 10 // Farsighted (Ranger, Marksmanship, Major) — baseline only, see doc comment
+  1000: 10, // Farsighted (Ranger, Marksmanship, Major) — baseline only, see doc comment
+  1724: 5 // Destructive Impulses (Revenant, Devastation, Minor) — baseline only, see doc comment
+}
+
+/**
+ * Trait id -> flat, unconditional outgoing-condition-damage-% — the condition-damage sibling to
+ * `FLAT_DAMAGE_TRAIT_BONUSES`, needed for the first time by a trait whose baseline applies to *all*
+ * damage rather than strike damage only. Destructive Impulses's baseline half (see `FLAT_DAMAGE_
+ * TRAIT_BONUSES`'s doc comment): wiki-verified flat 5%, no game-mode split.
+ */
+export const FLAT_CONDITION_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
+  1724: 5 // Destructive Impulses (Revenant, Devastation, Minor) — baseline only, see doc comment
 }
 
 /**
@@ -1229,11 +1326,14 @@ export function resolveOutgoingConditionDamagePercent(build: Build, combatState:
   total += combatState.kallaFervorStacks * kallaFervorPerStack.conditionDamage
   if (combatState.relicActive && build.relicId !== null) total += CURATED_RELIC_CONDITION_DAMAGE_BONUSES[build.relicId] ?? 0
   total += curatedSigilConditionDamagePercent(build)
+  const active = activeTraitIds(build, traitsById)
   if (combatState.vigorActive) {
-    const active = activeTraitIds(build, traitsById)
     for (const [traitIdText, percent] of Object.entries(VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES)) {
       if (active.has(Number(traitIdText))) total += percent
     }
+  }
+  for (const [traitIdText, percent] of Object.entries(FLAT_CONDITION_DAMAGE_TRAIT_BONUSES)) {
+    if (active.has(Number(traitIdText))) total += percent
   }
   return total
 }

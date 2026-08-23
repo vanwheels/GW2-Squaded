@@ -107,7 +107,7 @@ research itself could be as thorough as possible first. All 5 items below come o
 
 - [ ] **Outgoing Damage % full pass** — Sigils + Relics legs DONE 2026-08-22 (see COMPLETED.md),
       Traits leg started same day (Guardian + Warrior + Elementalist + Engineer + Mesmer + Necromancer
-      + Ranger done, 2 professions remaining — Revenant, Thief).
+      + Ranger + Revenant done, 1 profession remaining — Thief).
   - [x] **Sigils** — DONE. `CURATED_SIGIL_DAMAGE_BONUSES`/`CURATED_SIGIL_CONDITION_DAMAGE_BONUSES`
     in `combat-state.ts`. Superior Sigil of Force (flat +5%, single-application-only per its "does
     not stack on both weapons" wiki clause, handled outside the normal doubling table). The 18
@@ -130,9 +130,9 @@ research itself could be as thorough as possible first. All 5 items below come o
     into a new `CURATED_RELIC_CONDITION_DAMAGE_BONUSES` table); its incoming-damage-reduction/
     damage-to-healing-conversion halves are out of scope (no `DerivedStats` field exists for them
     yet).
-  - [ ] **Traits** — Guardian + Warrior + Elementalist + Engineer + Mesmer + Necromancer + Ranger legs
-    DONE (see COMPLETED.md Sessions 279/280/281/282/283/284/285), 2 professions remaining (Revenant,
-    Thief — no fixed order set, pick freely). ~165 raw fact-label matches (`Percent` facts with
+  - [ ] **Traits** — Guardian + Warrior + Elementalist + Engineer + Mesmer + Necromancer + Ranger +
+    Revenant legs DONE (see COMPLETED.md Sessions 279/280/281/282/283/284/285/286), 1 profession
+    remaining (Thief). ~165 raw fact-label matches (`Percent` facts with
     text "Damage Increase"/"Strike Damage Increase"/"Condition Damage Increase"/"Damage Increase
     per Stack"/"...per Boon") across all 9 professions before dedup — comparable in size to the
     biggest coefficient sweeps already completed (Healing/Damage); per-profession legs, per the
@@ -190,6 +190,27 @@ research itself could be as thorough as possible first. All 5 items below come o
       from the `CritDamage`/Ferocity attribute (already modeled via `AttributeAdjust`) and from
       general outgoing strike/condition damage; this app has no `DerivedStats` field for a standalone
       crit-damage-multiplier stat at all.
+    - **Fixed target-health-threshold damage-%%** — new pairing from the Revenant leg: Devastation's
+      Unsuspecting Strikes (id 1767, vs. foes above a fixed health threshold) and Swift Termination
+      (id 1800, vs. foes below one) both gate on the *target's* own fixed health threshold, distinct
+      from the self-health-gated `HIGH_HEALTH_DAMAGE_TRAIT_BONUSES` family (Rising Tide/Unscathed
+      Contender/Flow like Water/Survival Instincts) and from Necromancer's Close to Death (same family
+      as Close to Death, just the below-threshold entry gaining a sibling).
+    - **Off-hand-vs-two-handed-weapon detection** — Revenant/Devastation's Destructive Impulses (id
+      1724) grants an additional bonus "if you have an off-hand weapon equipped," which is knowable in
+      principle from `build.equipment` but not cleanly: `attribute-totals.ts`'s `isActiveWeaponSlot`
+      doc comment confirms a two-handed weapon's `weaponType` is mirrored onto BOTH its main- and
+      off-hand slot keys (`weaponA1`+`weaponA2`), so a populated `weaponA2` doesn't by itself mean a
+      genuine off-hand weapon is equipped — no helper distinguishes the two today. Only this trait's
+      unconditional baseline half is curated; this conditional half is logged here rather than built
+      for one candidate.
+    - **Binary-plus-per-skill-count upkeep scaling** — Revenant/Herald's Forceful Persistence (id
+      1803) grants a flat 15%/4% (WvW/PvP) two-part bonus: 15% while *any* upkeep skill is active (a
+      binary gate) plus +4% per active Herald/weapon upkeep skill specifically (a skill-*count*
+      stack) — neither half matches `CombatState.upkeepPoints`'s existing semantics (a summed
+      point-*cost* total built for Rising Momentum's flat-per-point model), and the stacking half is
+      arguably the trait's main value for real Herald builds, so it wasn't worth modeling only the
+      lesser baseline half. No `CombatState` field tracks "count of active upkeep skills" at all.
 
 - [x] **Data-completeness audit script** — DONE 2026-08-22, see COMPLETED.md. Built
       `scripts/audit-data-completeness.ts` (`npm run audit-data-completeness`), a local-only
