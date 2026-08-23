@@ -2,6 +2,55 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 288 — Data-completeness audit backlog, Shape 3 — investigated and resolved as a
+false-positive family, no curation needed
+
+Picked "Data-completeness audit Shape 3" (TODO.md, 87 hits from the 2026-08-22 audit script's first
+run) as the next post-Outgoing-Damage-% item, user-selected from a menu of options. Before doing any
+per-skill wiki curation, checked local skill/trait descriptions for all 87 hits' 35 unique root ids —
+the overwhelming majority read as condition-*cleanse*/*immunity* skills ("Cure conditions", "remove
+movement-impairing conditions", "Evade backward"), not condition-*application* skills, which didn't
+fit "missing duration on a real application" at all.
+
+Cross-checked 8 representative ids against raw wikitext (`action=raw`) spanning skills + traits,
+multiple professions, and both condition-application and condition-cleanse-flavored descriptions:
+- **Knot Shot** (14467, Warrior spear): carries 2 separate Immobile facts — one WITH `duration: 2,
+  apply_count: 1` (Knot Shot's own real 2s immobilize, already correctly rendered, never flagged) and
+  a 2nd with neither field, which the wiki's own raw source shows as `{{skill fact|condition|immobile|
+  Condition Removed}}` — an explicit "Condition Removed" template, not a 2nd application.
+- **Lightning Reflexes** (12494, Ranger): its own 2014 version-history note reads "This skill now
+  removes immobilize" — confirming its flagged Immobile fact (`{{skill fact|condition|Immobile}}`) is
+  the same Condition-Removed template, sitting beside a real, already-fine `duration: 10` Vigor fact.
+- **Channeled Agony** (37873, cross-profession Weapon_5), **Charge (Become the Bear)** (12380, Ranger
+  transform skill — the "Charge" hit turned out to be this, not a generic weapon skill, found via a
+  wiki `insource:"id = 12380"` search since "Charge" alone is a disambiguation page), and **Permeating
+  Pestilence** (trait 1721, Revenant): all confirmed via raw wikitext as `{{skill fact|condition effect
+  ignored|X}}` — a *different* legitimate template, "this attack's own effect ignores/is unaffected by
+  X" (e.g. an unblockable attack that isn't interrupted by its own target's Blind).
+- **Wings of Resolve**, **Sand through Glass** (the latter's own version history: "This skill now also
+  removes the immobile condition," 2023-11-28), and **Pain Response** (trait 1237 — wiki's bare
+  `{{skill fact|Bleeding}}{{skill fact|Burning}}{{skill fact|Confusion}}{{skill fact|poisoned}}
+  {{skill fact|Torment}}` list plus `{{skill fact|Conditions Removed|1}}` is the wiki's own "removes
+  ONE of these 5, picked at random" shorthand — the same "single random pick from a list" shape
+  `synthetic-facts.json`'s own doc comment already documents as deliberately un-curatable, e.g. Prayer
+  to Lyssa) all confirmed the same 2-template pattern, no exceptions found.
+
+Neither template represents a duration-bound application: a removal or an ignored-effect marker has no
+"duration" to omit, so the app's existing `typeof fact.duration === 'number'` gate
+(`computeBoonConditionSources`, `sources.ts:4187`) already correctly excludes both from every tooltip
+and the whole-build Boon/Condition panel — nothing was ever silently wrong for a real build. Ran a full
+structural scan (not just the 8 spot-checks) confirming every one of the 87 raw facts shares the
+identical bare `{text, type, icon, status, description}` shape with zero `apply_count`/`requires_trait`/
+`prefix` fields — a signature a genuine gap wouldn't have, since every real Buff fact elsewhere in the
+dataset carries at least one of those 3 fields even on the rare occasion `duration` itself is missing.
+
+Fixed at the source rather than just documented: `scripts/audit-data-completeness.ts`'s `scanFactShape3`
+now excludes any Buff/PrefixedBuff fact matching that exact bare-key signature, with a doc comment
+recording the finding and the wiki evidence — a future `npm run audit-data-completeness` re-run (after
+a balance patch or `fetch-game-data` refresh) reports 0 Shape 3 hits instead of re-surfacing the same 87
+false positives. `npm run typecheck` clean. TODO.md's Shape 3 entry closed to a one-line pointer here
+(no synthetic-facts.json/synthetic-trait-facts.json changes needed — there was nothing to add).
+
 ## Session 287 — Outgoing Damage % full pass, Traits leg (Thief) — sweep complete
 
 Finished the Traits leg of "Outgoing Damage % full pass" (TODO.md) by picking Thief, the last of the

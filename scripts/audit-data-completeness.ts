@@ -136,10 +136,34 @@ interface Shape3Hit {
   status: string
 }
 
-/** Shape 3 over the `Fact` shape. `arrayLabel` distinguishes `facts` vs `traitedFacts` since a
- *  companion `Duration`/`Time` fact is only a rescue if it's in the SAME array — a base fact
- *  missing duration isn't excused by an unrelated traited-variant array carrying one, and vice
- *  versa. */
+/**
+ * Shape 3 over the `Fact` shape. `arrayLabel` distinguishes `facts` vs `traitedFacts` since a
+ * companion `Duration`/`Time` fact is only a rescue if it's in the SAME array — a base fact
+ * missing duration isn't excused by an unrelated traited-variant array carrying one, and vice
+ * versa.
+ *
+ * **2026-08-22 finding (TODO.md's "Data-completeness audit backlog" sweep):** the first run's 87
+ * hits were investigated wiki-side (8 cross-checked skills/traits, spanning skills+traits,
+ * multiple professions, and both sub-shapes below) and turned out to be ENTIRELY false positives
+ * — every one of the 87 raw facts had exactly the bare `{text, type, icon, status, description}`
+ * shape with no `apply_count`/`requires_trait`/`prefix` at all (confirmed via a full scan, not
+ * just the spot-checks), which is the live signature of 2 legitimate wiki templates the API
+ * renders through this exact same `Buff`-with-`status`-no-`duration` shape as a real application:
+ *   - `{{skill fact|condition|X}}` → "Condition Removed" (e.g. Knot Shot/14467's 2nd Immobile
+ *     fact, Lightning Reflexes/12494 confirmed via its own 2014 patch note "This skill now
+ *     removes immobilize", Wings of Resolve, Sand through Glass)
+ *   - `{{skill fact|condition effect ignored|X}}` → "this attack's own effect is unaffected by X"
+ *     (Channeled Agony/37873's Blinded fact, Charge-Become-the-Bear/12380's Chilled+Crippled,
+ *     Permeating Pestilence/1721's Blinded)
+ * Neither is a duration-bound application — a removal or an ignored-effect marker has no
+ * "duration" to omit, so `computeBoonConditionSources`'s existing `typeof fact.duration ===
+ * 'number'` gate (which already drops every one of these before it could ever reach the boon/
+ * condition panel or a tooltip) is already the semantically correct behavior, not a bug. Filtered
+ * out here by that exact bare-key signature so a future re-run doesn't re-surface the same 87
+ * false positives — a REAL gap (an application whose duration the API genuinely omitted) would
+ * carry `apply_count` and/or `requires_trait` even without `duration`, same as every genuine
+ * Buff fact elsewhere in this dataset does, so this filter shouldn't hide one.
+ */
 function scanFactShape3(source: string, id: number, name: string, facts: Fact[], hits: Shape3Hit[]): void {
   const hasTimeFact = facts.some((f) => f.type === 'Duration' || f.type === 'Time')
   if (hasTimeFact) return
@@ -147,6 +171,7 @@ function scanFactShape3(source: string, id: number, name: string, facts: Fact[],
     if (fact.type !== 'Buff' && fact.type !== 'PrefixedBuff') continue
     if (!fact.status) continue
     if (fact.duration !== undefined && fact.duration !== null) continue
+    if (fact.apply_count === undefined && fact.requires_trait === undefined && fact.prefix === undefined) continue
     hits.push({ source, id, name, factType: fact.type, text: fact.text ?? '', status: fact.status })
   }
 }

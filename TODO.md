@@ -299,21 +299,11 @@ the wiki's own text, needs a raw-wikitext look); **tome chapter "Epilogue: Etern
 Heal Effectiveness")** — directly relevant to the Outgoing/Incoming Healing % item above; "Epilogue:
 Unbroken Lines" ("200 Toughness").
 
-**Shape 3 — Buff/PrefixedBuff fact with a named status but no duration anywhere in its own facts
-array (87 hits: 61 skills, 26 traits, after excluding non-player-equippable NPC/monster skill ids —
-see the script's own `professions.length > 0` filter):** dominated by one recognizable pattern — a
-condition (Immobile/Crippled/Chilled/Blinded/Burning/Bleeding/Poisoned/Torment/Confusion) applied via
-"Apply Buff/Condition" with genuinely no `duration` field in the raw API data at all (spot-checked
-live: Lightning Reflexes/12494's "Immobile" fact sits right next to a "Vigor" fact that DOES carry
-`duration: 10` — confirming this isn't a script bug, the API data itself omits it for that one fact).
-Full id/name list not reproduced here — regenerate via `npm run audit-data-completeness` (deterministic
-against the current data files, same list every run until the next `fetch-game-data`). Worth grouping
-by "which condition, which skill archetype" before wiki-verifying individually — several ids are
-already visibly the same root cause repeated: "Wings of Resolve" (4 ids — 30083/30225/30286/30783,
-all Guardian/Willbender Profession_2, same duplicate-copy shape the skill-picker duplicate-id audit
-already deals with elsewhere) and "A.E.D." (2 ids — 21659/30881, both Engineer Heal) each show their
-missing-duration Immobile/condition-cluster fact on every copy, so a wiki fix for the shared root
-skill likely resolves all copies at once rather than needing N independent lookups.
+- [x] **Shape 3 — Buff/PrefixedBuff fact with a named status but no duration anywhere in its own
+      facts array** — RESOLVED 2026-08-22, see COMPLETED.md. All 87 original hits turned out to be a
+      false-positive family (2 legitimate wiki "Condition Removed"/"condition effect ignored"
+      templates, not real gaps) — no curation needed, `audit-data-completeness.ts` now filters them
+      out so a future re-run reports 0 hits for this shape.
 
 - [x] **Recharge/cooldown WvW-override sweep** — DONE 2026-08-22, see COMPLETED.md. Built
       `scripts/fetch-recharge-wvw-overrides.ts` (`npm run fetch-recharge-wvw-overrides`),
