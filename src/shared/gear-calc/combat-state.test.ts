@@ -1231,6 +1231,33 @@ describe('resolveOutgoingDamagePercent — Leviathan Strength (Not-Full-Enduranc
   })
 })
 
+describe('resolveOutgoingDamagePercent — Havoc Specialist (Not-Full-Endurance-gated trait, shares NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES with Takedown Round/Leviathan Strength)', () => {
+  it('contributes nothing while chosen but endurance is full', () => {
+    const { build, traitsById } = buildWithTrait(1893, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, fullEnduranceActive: true }, traitsById)).toBe(0)
+  })
+
+  it('contributes the flat bonus once chosen and endurance is not full', () => {
+    const { build, traitsById } = buildWithTrait(1893, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, fullEnduranceActive: false }, traitsById)).toBe(
+      NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES[1893]
+    )
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Premeditation (per-active-boon trait, shares PER_BOON_DAMAGE_TRAIT_BONUSES with Inspired Virtue/Empowered/Reinforced Potency)', () => {
+  it('scales linearly with activeBoonCount', () => {
+    const { build, traitsById } = buildWithTrait(2160, 'Major')
+    const boons = 6
+    const result = resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, activeBoonCount: boons }, traitsById)
+    expect(result).toBe(boons * PER_BOON_DAMAGE_TRAIT_BONUSES[2160])
+  })
+
+  it('contributes nothing when the trait is not chosen, regardless of boon count', () => {
+    expect(resolveOutgoingDamagePercent(makeBuild(), { ...DEFAULT_COMBAT_STATE, activeBoonCount: 8 }, NO_TRAITS)).toBe(0)
+  })
+})
+
 describe('resolveOutgoingDamagePercent/resolveOutgoingConditionDamagePercent — Destructive Impulses (flat, unconditional baseline on BOTH strike and condition damage)', () => {
   it('contributes the flat bonus to both once chosen, no combat-state gating needed', () => {
     const { build, traitsById } = buildWithTrait(1724, 'Minor')

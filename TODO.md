@@ -105,9 +105,8 @@ research itself could be as thorough as possible first. All 5 items below come o
       outgoing-healing modifiers was noted during scoping but no Regen-boosting source has been
       curated yet, so that interaction has no code to exercise it — revisit if one ever is.
 
-- [ ] **Outgoing Damage % full pass** — Sigils + Relics legs DONE 2026-08-22 (see COMPLETED.md),
-      Traits leg started same day (Guardian + Warrior + Elementalist + Engineer + Mesmer + Necromancer
-      + Ranger + Revenant done, 1 profession remaining — Thief).
+- [x] **Outgoing Damage % full pass** — DONE 2026-08-22 (see COMPLETED.md). Sigils + Relics legs
+      shipped first; Traits leg then went profession-by-profession (all 9 done) same day.
   - [x] **Sigils** — DONE. `CURATED_SIGIL_DAMAGE_BONUSES`/`CURATED_SIGIL_CONDITION_DAMAGE_BONUSES`
     in `combat-state.ts`. Superior Sigil of Force (flat +5%, single-application-only per its "does
     not stack on both weapons" wiki clause, handled outside the normal doubling table). The 18
@@ -130,32 +129,49 @@ research itself could be as thorough as possible first. All 5 items below come o
     into a new `CURATED_RELIC_CONDITION_DAMAGE_BONUSES` table); its incoming-damage-reduction/
     damage-to-healing-conversion halves are out of scope (no `DerivedStats` field exists for them
     yet).
-  - [ ] **Traits** — Guardian + Warrior + Elementalist + Engineer + Mesmer + Necromancer + Ranger +
-    Revenant legs DONE (see COMPLETED.md Sessions 279/280/281/282/283/284/285/286), 1 profession
-    remaining (Thief). ~165 raw fact-label matches (`Percent` facts with
+  - [x] **Traits** — DONE, all 9 professions curated (see COMPLETED.md Sessions
+    279/280/281/282/283/284/285/286/287 — Guardian/Warrior/Elementalist/Engineer/Mesmer/Necromancer/
+    Ranger/Revenant/Thief). ~180 raw fact-label matches (`Percent` facts with
     text "Damage Increase"/"Strike Damage Increase"/"Condition Damage Increase"/"Damage Increase
     per Stack"/"...per Boon") across all 9 professions before dedup — comparable in size to the
     biggest coefficient sweeps already completed (Healing/Damage); per-profession legs, per the
     `pacing_large_sweeps` memory. Note: this scan needs `specializations.json` to map each trait's
     `specializationId` to a profession — `traits.json` itself has no profession field. Gap-shapes
-    surfaced so far, each logged rather than built (single trait each so far, not worth new infra
-    yet — revisit if a 2nd candidate turns up in a later leg):
+    surfaced along the way, each logged rather than built (not worth new infra for one or two
+    traits — a candidate list to revisit if a future sweep needs the same shape):
     - **Per-condition-type damage-%%** — Guardian's Amplified Wrath (id 1686) boosts burning
       damage specifically, not condition damage broadly; this app only has the one blanket
       `outgoingConditionDamagePercent` field, so it can't be curated without overstating non-
-      burning builds.
+      burning builds. Thief leg adds 4 more members: Potent Poison (id 1291, poison), Deadly
+      Ambush (id 1706, bleeding), and Strength of Shadows (id 2264, torment) — poison/bleeding/
+      torment join burning as condition types this app has no per-type field for.
     - **Lethal Tempo stacking-buff modeling** — Guardian/Willbender's Tyrant's Momentum (id 2201)
       modifies a self-stacking buff (Lethal Tempo, up to 5 stacks, duration-reduction clause) that
       has no `CombatState` field at all, unlike Kalla's Fervor/Death's Carapace which each got a
-      dedicated stepper.
+      dedicated stepper. Thief/Antiquary's Combat High (id 2348) joins this family: a self-
+      stacking buff (max 10 stacks, 3%/2% strike/condition damage per stack, decaying every 2s)
+      granted on using Skritt Swipe — same "self-stacking buff, no dedicated `CombatState` field"
+      shape as Lethal Tempo.
     - **Target-status-stack-count damage-%%** — Warrior's Destruction of the Empowered (id 1489,
       target's boon count) and, from the Engineer leg, Shaped Charge (id 429, target's vulnerability
       stacks) and Modified Ammunition (id 516, target's unique-condition count) all scale with a
       status *on the target*, not self; `CombatState.activeBoonCount` only tracks the player's own
-      boons, no tracked-target-status-count field exists at all.
+      boons, no tracked-target-status-count field exists at all. Thief/Deadly Arts' Exposed
+      Weakness (id 1257, target's unique-condition count) joins this family too.
     - **Per-skill-category damage-%%** — Warrior's Burst Mastery (id 1657) and Engineer/Amalgam's
       Symbiotic Synergy (id 2406, morph skills only) only boost one skill category's damage, not
       general outgoing strike damage; no field exists to scope a bonus to one skill category.
+      Thief/Deadeye's One in the Chamber (id 2136, stolen skills only) joins this family.
+    - **Weapon-type-scoped damage-%%** — new gap-shape from the Thief leg: Critical Strikes' Deadly
+      Aim (id 1299) boosts strike damage only on Pistol/Speargun attacks specifically, not all
+      damage — distinct from the per-skill-category family above (this gates on *equipped weapon*,
+      not *skill category*) and from the movement-speed sweep's own `MELEE_WEAPON_MOVEMENT_SPEED_
+      TRAIT_BONUSES` (that family is fine to apply build-wide since movement speed is inherently a
+      "whichever weapon is drawn" stat; a damage-%% bonus scoped to one weapon's own skills would
+      overstate damage from the *other* equipped weapon's skills, so it isn't a clean fit for the
+      single blanket `outgoingDamagePercent` field either) — already partially handled as a
+      per-skill trait-gated fact in `damage-calc.ts`'s own Pistol/Speargun skill entries, so this
+      gap is specific to the build-wide aggregate stat, not a display gap.
     - **Boon-subset-gated per-boon compounding** — Engineer/Scrapper's Object in Motion (id 1860)
       is gated on having at least one of Stability/Swiftness/Superspeed, then scales by *total*
       boon count once that gate is met — distinct from the unconditional `PER_BOON_DAMAGE_TRAIT_
@@ -189,13 +205,17 @@ research itself could be as thorough as possible first. All 5 items below come o
       2009) both boost "Critical Damage Increase," a straight crit-hit-damage multiplier — distinct
       from the `CritDamage`/Ferocity attribute (already modeled via `AttributeAdjust`) and from
       general outgoing strike/condition damage; this app has no `DerivedStats` field for a standalone
-      crit-damage-multiplier stat at all.
+      crit-damage-multiplier stat at all. Thief/Critical Strikes' Twin Fangs (id 1268) and Ferocious
+      Strikes (id 1282) both join this family too (the latter also health-threshold-gated, but on
+      crit damage rather than general strike damage, so the whole trait stays excluded here rather
+      than splitting into `HIGH_HEALTH_DAMAGE_TRAIT_BONUSES`).
     - **Fixed target-health-threshold damage-%%** — new pairing from the Revenant leg: Devastation's
       Unsuspecting Strikes (id 1767, vs. foes above a fixed health threshold) and Swift Termination
       (id 1800, vs. foes below one) both gate on the *target's* own fixed health threshold, distinct
       from the self-health-gated `HIGH_HEALTH_DAMAGE_TRAIT_BONUSES` family (Rising Tide/Unscathed
       Contender/Flow like Water/Survival Instincts) and from Necromancer's Close to Death (same family
-      as Close to Death, just the below-threshold entry gaining a sibling).
+      as Close to Death, just the below-threshold entry gaining a sibling). Thief/Deadly Arts'
+      Executioner (id 1269, vs. foes below a fixed threshold) joins this family too.
     - **Off-hand-vs-two-handed-weapon detection** — Revenant/Devastation's Destructive Impulses (id
       1724) grants an additional bonus "if you have an off-hand weapon equipped," which is knowable in
       principle from `build.equipment` but not cleanly: `attribute-totals.ts`'s `isActiveWeaponSlot`

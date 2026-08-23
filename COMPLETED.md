@@ -2,6 +2,50 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 287 — Outgoing Damage % full pass, Traits leg (Thief) — sweep complete
+
+Finished the Traits leg of "Outgoing Damage % full pass" (TODO.md) by picking Thief, the last of the
+9 professions. Re-scanned `traits.json` for the same "Damage Increase"/"...per Boon" `Percent`-fact
+shape, profession-mapped via `specializations.json`. 15 unique candidates, largest leg since
+Guardian/Ranger.
+
+2 of 15 curated, both folding into existing tables with no new `CombatState` infra:
+- **Havoc Specialist** (id 1893, Daredevil, Master Major) — "Strike damage dealt is increased when
+  your endurance is not full." Folded into `NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES` alongside
+  Takedown Round/Leviathan Strength. Wiki-verified `split = pve, wvw pvp`: PvE 15%, WvW/PvP 10% —
+  WvW value used.
+- **Premeditation** (id 2160, Deadeye, Master Major) — "Deal increased strike damage for each
+  unique boon you have; concentration is increased." Folded into `PER_BOON_DAMAGE_TRAIT_BONUSES`
+  alongside Inspired Virtue/Empowered/Reinforced Potency. Wiki raw wikitext confirmed the trait's
+  own top-level `split = pve, wvw pvp` only covers its separate Concentration-attribute fact — the
+  "Bonus Damage per Boon" fact itself carries no `game mode=` tag (same "only some of the trait's
+  facts actually split" shape Flow like Water's own top-level split already showed), so it's a flat
+  1% per boon in every mode.
+
+13 excluded, all joining already-logged gap-shape families (logged in TODO.md, no new members needed
+their own new entries except one): Potent Poison (1291, poison)/Deadly Ambush (1706, bleeding)/
+Strength of Shadows (2264, torment) join per-condition-type; Exposed Weakness (1257, target's unique-
+condition count) joins target-status-count; One in the Chamber (2136, stolen skills only) joins
+per-skill-category; Twin Fangs (1268)/Ferocious Strikes (1282, also health-threshold-gated, but on
+crit damage not general damage) join critical-damage-multiplier; Executioner (1269, vs. foes below a
+fixed health threshold) joins fixed-target-health-threshold; Combat High (2348, a self-stacking buff
+from using Skritt Swipe, max 10 stacks, decaying) joins the Lethal-Tempo-stacking-buff-modeling
+family; Weakening Strikes (1887, vs. weakened foes) and Iron Sight (2084, vs. marked target) are
+ordinary target-condition-gated exclusions, same shape used throughout every prior leg. One brand-new
+gap-shape: Deadly Aim (1299, Critical Strikes) boosts strike damage only on Pistol/Speargun attacks
+specifically — a *weapon-type-scoped* damage-%%, distinct from the per-skill-category family (gates
+on equipped weapon, not skill category); already partially handled as a per-skill trait-gated fact in
+`damage-calc.ts`'s own Pistol/Speargun skill entries (lines flagged "Deadly Aim (1299) trait-gated
+variant"), so this gap is specific to the build-wide `outgoingDamagePercent` aggregate, not a display
+gap — logged in TODO.md rather than built, since folding it in would overstate damage from a build's
+other equipped weapon.
+
+4 new tests, `npm run typecheck`/`npx eslint`/`npx vitest run` all clean (425/425).
+
+**This closes the Traits leg and the entire "Outgoing Damage % full pass" TODO.md item** — Sigils,
+Relics, and Traits (all 9 professions) are now fully curated. See `outgoing_damage_percent_sweep_
+2026-08-22` memory for the full sweep history across all 9 profession legs.
+
 ## Session 286 — Outgoing Damage % full pass, Traits leg (Revenant)
 
 Continued the Traits leg of "Outgoing Damage % full pass" (TODO.md). Picked Revenant next (no fixed

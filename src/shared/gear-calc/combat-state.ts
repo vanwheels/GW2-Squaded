@@ -1039,11 +1039,20 @@ export const RESOLUTION_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * confirming the family). Wiki-verified via raw wikitext 2026-08-22 (`split = pve, wvw, pvp`, an
  * unusual reversal where PvE and WvW share one value and PvP alone is the odd one out): PvE/WvW 1%
  * per boon, PvP 1.5% per boon — WvW value used here regardless, same convention as every other entry.
+ * Premeditation (Thief/Deadeye, Master Major, id 2160), added in the Thief leg: "Deal increased
+ * strike damage for each unique boon you have; concentration is increased." Wiki-verified via raw
+ * wikitext 2026-08-22: the trait's own top-level `split = pve, wvw pvp` only covers its separate
+ * Concentration attribute fact (180 PvE / 60 WvW+PvP) — the "Bonus Damage per Boon" fact itself
+ * carries no `game mode=` tag at all (same "only some of the trait's facts actually split" shape
+ * Flow like Water's own top-level split already showed), so it's flat 1% per boon in every mode (the
+ * raw API `facts` array lists the same 1% value twice, confirming no real split rather than two
+ * different mode values).
  */
 export const PER_BOON_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
   621: 1, // Inspired Virtue (Guardian, Virtues, Minor)
   1485: 1, // Empowered (Warrior, Tactics, Minor)
-  1788: 1 // Reinforced Potency (Revenant, Herald, Minor)
+  1788: 1, // Reinforced Potency (Revenant, Herald, Minor)
+  2160: 1 // Premeditation (Thief, Deadeye, Major)
 }
 
 /**
@@ -1129,11 +1138,15 @@ export const HIGH_HEALTH_DAMAGE_TRAIT_BONUSES: Record<number, { aboveThreshold: 
  * wikitext 2026-08-22: flat 10%, no game-mode split. Leviathan Strength (Revenant/Vindicator, Adept
  * Major, id 2258), added in the Revenant leg: "Deal increased damage while your endurance is not
  * full." Wiki-verified via raw wikitext 2026-08-22: flat 10% (post a 2024-01-30 15%→10% PvE-only
- * nerf, both modes now match), no game-mode split.
+ * nerf, both modes now match), no game-mode split. Havoc Specialist (Thief/Daredevil, Master Major,
+ * id 1893), added in the Thief leg: "Strike damage dealt is increased when your endurance is not
+ * full." Wiki-verified via raw wikitext 2026-08-22 (`split = pve, wvw pvp`): PvE 15%, WvW/PvP 10% —
+ * WvW value used here.
  */
 export const NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
   1832: 10, // Takedown Round (Engineer, Tools, Major)
-  2258: 10 // Leviathan Strength (Revenant, Vindicator, Major)
+  2258: 10, // Leviathan Strength (Revenant, Vindicator, Major)
+  1893: 10 // Havoc Specialist (Thief, Daredevil, Major)
 }
 
 /**
