@@ -147,9 +147,10 @@ export interface DerivedStats {
   conditionDuration: number
   magicFind: number
   /** Outgoing strike-damage-% bonus — plain additive stacking, see `combat-state.ts`'s
-   *  `resolveOutgoingDamagePercent` for the full list of curated relic/sigil/Kalla's-Fervor
+   *  `resolveOutgoingDamagePercent` for the full list of curated relic/sigil/Kalla's-Fervor/trait
    *  sources (2026-08-22 "Outgoing Damage % full pass": 14 curated relics + Sigil of Force/
-   *  Slaying-family baseline/Sigil of the Night). */
+   *  Slaying-family baseline/Sigil of the Night; Traits leg started same day with Guardian's
+   *  Furious Focus/Retribution/Inspired Virtue, more professions to follow). */
   outgoingDamagePercent: number
   /** Outgoing condition-damage-% bonus — distinct from the raw `ConditionDamage` attribute total,
    *  sibling to `outgoingDamagePercent` above, see `resolveOutgoingConditionDamagePercent` for its

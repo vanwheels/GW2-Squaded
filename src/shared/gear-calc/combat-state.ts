@@ -11,8 +11,10 @@ import { activeTraitIds, activeWeaponTypes } from './trait-attributes'
 export interface CombatState {
   /** 0-25 stacks. */
   mightStacks: number
-  /** Fury's effect on specific skills/traits ("while under the effect of Fury") is NOT modeled —
-   *  no structural data exists anywhere in the app for conditional Fury-gated bonuses. */
+  /** Gates every Fury-conditional trait bonus curated anywhere in this file (crit chance —
+   *  `FURY_CRITICAL_CHANCE_TRAIT_BONUSES`; movement speed — `FURY_MOVEMENT_SPEED_TRAIT_BONUSES`;
+   *  outgoing damage — `FURY_DAMAGE_TRAIT_BONUSES`) — a real boon state, not a build choice, same
+   *  "assume the condition is currently true" shape as `mechanicActive`/`relicActive`. */
   furyActive: boolean
   /** Gates `REGENERATION_ATTRIBUTE_TRAIT_BONUSES` — mirrors `furyActive`'s shape/gating, one
    *  boolean per boon rather than a generalized "which boons are up" map, since only Regeneration
@@ -114,6 +116,24 @@ export interface CombatState {
    *  full/passive resource" default `fullEnduranceActive`/`healthTier` use. Only meaningful/surfaced
    *  when Sigil of the Night is actually equipped on the active weapon set. */
   nightActive: boolean
+  /** Gates `RESOLUTION_DAMAGE_TRAIT_BONUSES` (currently just Guardian/Radiance's Retribution) — a
+   *  real boon state, not a build choice, same "assume the condition is currently true" shape as
+   *  `furyActive`. Unlike `furyActive`/`regenerationActive`/`quicknessActive` (unconditionally
+   *  shown in `CombatStatePanel`, each already gating multiple older attribute-bonus families),
+   *  Resolution only has this one curated candidate so far, so it follows the newer "only surfaced
+   *  when a curated trait for it is actually chosen" pattern instead — same as `celestialAvatarActive`/
+   *  `invokingHarmonyActive`. */
+  resolutionActive: boolean
+  /** Manual count of how many boons are currently active on the player — gates `PER_BOON_DAMAGE_
+   *  TRAIT_BONUSES` (currently just Guardian/Virtues' Inspired Virtue). This app has no general
+   *  "which boons are up" tracking (see `regenerationActive`'s doc comment — even the boons that
+   *  DO have dedicated fields are one boolean each, not a shared count), so — same reasoning as
+   *  `upkeepPoints` sidestepping Revenant's untracked upkeep-cost data — this is a raw manual entry
+   *  rather than an auto-derived count. Only surfaced when a curated per-boon-damage trait is
+   *  actually chosen, same gating as `upkeepPoints`/`celestialAvatarActive`. No fixed real max
+   *  (a full boon bar is commonly 8-10+ boons in a support-heavy WvW squad), so — like
+   *  `upkeepPoints` — this is a raw number input, not a dropdown. */
+  activeBoonCount: number
 }
 
 export const DEFAULT_COMBAT_STATE: CombatState = {
@@ -133,7 +153,9 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   upkeepPoints: 0,
   celestialAvatarActive: false,
   invokingHarmonyActive: false,
-  nightActive: false
+  nightActive: false,
+  resolutionActive: false,
+  activeBoonCount: 0
 }
 
 // wiki-confirmed flat value at level 80, quoted directly (not derived from a per-level formula).
@@ -665,6 +687,68 @@ function curatedSigilConditionDamagePercent(build: Build): number {
 }
 
 /**
+ * "Outgoing Damage % full pass" Traits leg (TODO.md, started 2026-08-22) — Guardian, 1st
+ * profession leg. Of Guardian's 9 unique candidate traits (raw `traits.json` scan for "Damage
+ * Increase"/"Strike Damage Increase"/"Condition Damage Increase" Percent facts), only the 3 below
+ * are curated; the rest were excluded after wiki-verification:
+ * - Fiery Wrath (634, vs. burning foes), Symbolic Exposure (646, vs. vulnerable foes), Zealot's
+ *   Aggression (1835, vs. crippled foes) — all target-condition-gated, same "target monster-type/
+ *   CC-state this app doesn't track" exclusion the Slaying-sigil conditional halves already used
+ *   (see `CURATED_SIGIL_DAMAGE_BONUSES`'s own doc comment).
+ * - Big Game Hunter (1955, vs. foes tethered by Spear of Justice) and Power for Power (2190, only
+ *   on "Willbender Flames" hits) — narrower still, gated on a specific skill's own proc/tether
+ *   state rather than a general boon/CC condition, no existing `CombatState` field fits.
+ * - Amplified Wrath (1686) — wiki-verified as "condition damage increase," not general damage,
+ *   AND scoped to burning specifically, not condition damage broadly (unlike Sigil of Bursting's
+ *   blanket +5%) — this app has no per-condition-type damage-%% field (only the one blanket
+ *   `outgoingConditionDamagePercent`), so folding it in would overstate non-burning condition
+ *   builds. Logged in TODO.md as needing new per-condition-type infra.
+ * - Tyrant's Momentum (2201) — modifies Willbender's own "Lethal Tempo" stacking self-buff (up to
+ *   5 stacks, gained from Virtue-skill use, with its own duration-reduction clause); no
+ *   `CombatState` field tracks Lethal Tempo stacks and building one is out of scope for a single
+ *   trait. Logged in TODO.md as needing dedicated stacking-buff modeling, same shape as Kalla's
+ *   Fervor/Death's Carapace got their own dedicated fields for.
+ */
+
+/**
+ * Trait id -> flat outgoing-strike-damage-% while Fury is active — the "Outgoing Damage % full
+ * pass" Traits leg's first family, same shape/gating as
+ * `FURY_MOVEMENT_SPEED_TRAIT_BONUSES`/`FURY_CRITICAL_CHANCE_TRAIT_BONUSES` above, reusing
+ * `CombatState.furyActive`. Furious Focus (Guardian/Zeal, Grandmaster Major, id 2017) — its
+ * Movement Speed half is already curated in `FURY_MOVEMENT_SPEED_TRAIT_BONUSES`, this is its
+ * Damage Increase half, split out of that table's own doc comment ("out of scope here"). Wiki-
+ * verified via raw wikitext 2026-08-22 (`split = pve, wvw pvp`): PvE 10%, WvW/PvP 7% — WvW value
+ * used here.
+ */
+export const FURY_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
+  2017: 7 // Furious Focus (Guardian, Zeal, Major)
+}
+
+/**
+ * Trait id -> flat outgoing-strike-damage-% while Resolution is active — gated on
+ * `CombatState.resolutionActive`. Retribution (Guardian/Radiance, Master Major, id 565): "Strike
+ * damage dealt is increased while you have resolution." Wiki-verified via raw wikitext
+ * (wiki.guildwars2.com/wiki/Retribution_(trait)?action=raw) 2026-08-22: flat 10%, no game-mode
+ * split.
+ */
+export const RESOLUTION_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
+  565: 10 // Retribution (Guardian, Radiance, Major)
+}
+
+/**
+ * Trait id -> outgoing-strike-damage-% granted per active boon on self — multiplied by
+ * `CombatState.activeBoonCount`. Inspired Virtue (Guardian/Virtues, Adept Minor, id 621): "Deal
+ * increased strike damage for each boon on you." Wiki-verified via raw wikitext 2026-08-22:
+ * `split = pve, wvw pvp`, PvE 0.5% per boon, PvP/WvW 1% per boon — WvW value used here. The
+ * trait's own boon-application facts (Might/Regeneration/Protection on Virtue activation) are
+ * separate `PrefixedBuff` facts, already rendered via `boonConditionFactsForTrait`, out of scope
+ * for this per-boon-%% table.
+ */
+export const PER_BOON_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
+  621: 1 // Inspired Virtue (Guardian, Virtues, Minor)
+}
+
+/**
  * Sums every curated outgoing-strike-damage-% source actually active on this build — the
  * `DerivedStats.outgoingDamagePercent` resolver, mirrors `resolveOutgoingHealingPercent`'s role
  * (plain additive stacking). Supersedes the old inline formula that only covered
@@ -676,6 +760,20 @@ export function resolveOutgoingDamagePercent(build: Build, combatState: CombatSt
   total += combatState.kallaFervorStacks * kallaFervorPerStack.strikeDamage
   if (combatState.relicActive && build.relicId !== null) total += CURATED_RELIC_DAMAGE_BONUSES[build.relicId] ?? 0
   total += curatedSigilDamagePercent(build, combatState)
+  const active = activeTraitIds(build, traitsById)
+  if (combatState.furyActive) {
+    for (const [traitIdText, percent] of Object.entries(FURY_DAMAGE_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) total += percent
+    }
+  }
+  if (combatState.resolutionActive) {
+    for (const [traitIdText, percent] of Object.entries(RESOLUTION_DAMAGE_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) total += percent
+    }
+  }
+  for (const [traitIdText, percentPerBoon] of Object.entries(PER_BOON_DAMAGE_TRAIT_BONUSES)) {
+    if (active.has(Number(traitIdText))) total += percentPerBoon * combatState.activeBoonCount
+  }
   return total
 }
 

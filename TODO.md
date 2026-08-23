@@ -106,7 +106,7 @@ research itself could be as thorough as possible first. All 5 items below come o
       curated yet, so that interaction has no code to exercise it — revisit if one ever is.
 
 - [ ] **Outgoing Damage % full pass** — Sigils + Relics legs DONE 2026-08-22 (see COMPLETED.md),
-      Traits leg NOT started (the largest remaining piece).
+      Traits leg started same day (Guardian done, 8 professions remaining — the largest remaining piece).
   - [x] **Sigils** — DONE. `CURATED_SIGIL_DAMAGE_BONUSES`/`CURATED_SIGIL_CONDITION_DAMAGE_BONUSES`
     in `combat-state.ts`. Superior Sigil of Force (flat +5%, single-application-only per its "does
     not stack on both weapons" wiki clause, handled outside the normal doubling table). The 18
@@ -129,11 +129,22 @@ research itself could be as thorough as possible first. All 5 items below come o
     into a new `CURATED_RELIC_CONDITION_DAMAGE_BONUSES` table); its incoming-damage-reduction/
     damage-to-healing-conversion halves are out of scope (no `DerivedStats` field exists for them
     yet).
-  - [ ] **Traits** — NOT started. ~148 raw fact-label matches on flat-sounding text across all 9
-    professions, before dedup across tiers/traited-variants and before excluding ones whose real
-    condition hides in the description rather than the fact text — comparable in size to the
-    biggest coefficient sweeps already completed (Healing/Damage); likely needs its own per-
-    profession legs like those did, per the `pacing_large_sweeps` memory.
+  - [ ] **Traits** — Guardian leg DONE 2026-08-22 (see COMPLETED.md), 8 professions remaining.
+    ~165 raw fact-label matches (`Percent` facts with text "Damage Increase"/"Strike Damage
+    Increase"/"Condition Damage Increase"/"Damage Increase per Stack"/"...per Boon") across all 9
+    professions before dedup — comparable in size to the biggest coefficient sweeps already
+    completed (Healing/Damage); per-profession legs, per the `pacing_large_sweeps` memory. 2 new
+    gap-shapes surfaced during the Guardian leg, both logged here rather than built (each is a
+    single trait so far, not worth new infra yet — revisit if a 2nd candidate turns up in a later
+    leg):
+    - **Per-condition-type damage-%%** — Guardian's Amplified Wrath (id 1686) boosts burning
+      damage specifically, not condition damage broadly; this app only has the one blanket
+      `outgoingConditionDamagePercent` field, so it can't be curated without overstating non-
+      burning builds.
+    - **Lethal Tempo stacking-buff modeling** — Guardian/Willbender's Tyrant's Momentum (id 2201)
+      modifies a self-stacking buff (Lethal Tempo, up to 5 stacks, duration-reduction clause) that
+      has no `CombatState` field at all, unlike Kalla's Fervor/Death's Carapace which each got a
+      dedicated stepper.
 
 - [x] **Data-completeness audit script** — DONE 2026-08-22, see COMPLETED.md. Built
       `scripts/audit-data-completeness.ts` (`npm run audit-data-completeness`), a local-only

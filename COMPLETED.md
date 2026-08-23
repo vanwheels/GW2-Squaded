@@ -2,6 +2,47 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 279 — Outgoing Damage % full pass, Traits leg (Guardian)
+
+Started the Traits leg of "Outgoing Damage % full pass" (TODO.md), the largest remaining piece
+after Session 278's Sigils/Relics legs. Scanned `traits.json` for `Percent` facts with text
+"Damage Increase"/"Strike Damage Increase"/"Condition Damage Increase"/"...per Boon" across all 9
+professions: 166 raw rows / ~78 unique trait ids, larger than the prior "~148" scoping estimate.
+Per the `pacing_large_sweeps` memory, did one profession leg (Guardian, 9 unique candidates) and
+stopped rather than chaining into the next.
+
+Of Guardian's 9 candidates, wiki-verified via raw wikitext, only 3 curated:
+- **Furious Focus** (id 2017, Fury-gated, WvW/PvP 7%) — its Movement Speed half was already
+  curated in `FURY_MOVEMENT_SPEED_TRAIT_BONUSES` from an earlier sweep; this adds the Damage
+  Increase half via a new `FURY_DAMAGE_TRAIT_BONUSES` table, reusing the existing `furyActive`
+  toggle (no new UI needed).
+- **Retribution** (id 565, Resolution-boon-gated, flat 10%) — new `RESOLUTION_DAMAGE_TRAIT_BONUSES`
+  table + new `CombatState.resolutionActive` boolean, surfaced in `CombatStatePanel` only when the
+  trait is chosen (same "single-candidate-so-far" pattern as `celestialAvatarActive`/
+  `invokingHarmonyActive`, not the always-on pattern `furyActive`/`regenerationActive` use).
+- **Inspired Virtue** (id 621, per-active-boon, WvW/PvP 1% per boon) — new
+  `PER_BOON_DAMAGE_TRAIT_BONUSES` table + new `CombatState.activeBoonCount` manual-entry field
+  (same shape as `upkeepPoints`, since the app has no general boon-count tracking). Chosen as
+  generalized infra since 4 other professions have their own "per boon" damage trait (Ranger's
+  Bountiful Hunter, Revenant/Herald's Reinforced Potency, Engineer/Scrapper's Object in Motion,
+  Thief/Deadeye's Premeditation) — their entries will be added as each profession's leg lands.
+
+6 excluded after wiki-verification, all logged in TODO.md rather than silently dropped: Fiery
+Wrath/Symbolic Exposure/Zealot's Aggression (target-condition-gated — burning/vulnerable/crippled
+foes — same "target monster-type/CC-state untracked" exclusion the Slaying-sigil conditionals
+already used), Big Game Hunter/Power for Power (narrower still, gated on a specific skill's own
+proc/tether state), Amplified Wrath (wiki says "condition damage increase" scoped to burning
+specifically, not condition damage broadly — no per-condition-type field exists to hold it), and
+Tyrant's Momentum (modifies a whole untracked stacking self-buff, Lethal Tempo — would need its own
+dedicated `CombatState` field like Kalla's Fervor/Death's Carapace got, out of scope for one trait).
+
+Also fixed a stale `CombatState.furyActive` doc comment claiming "Fury's effect on specific skills/
+traits is NOT modeled" — false since an earlier sweep already added `FURY_CRITICAL_CHANCE_TRAIT_
+BONUSES`/`FURY_MOVEMENT_SPEED_TRAIT_BONUSES`; just never updated when those landed.
+
+9 new tests in `combat-state.test.ts`. `npm run typecheck`/`npx eslint`/`npx vitest run` all clean
+(362/362).
+
 ## Session 278 — Outgoing Damage % full pass, Sigils + Relics legs
 
 Picked up "Outgoing Damage % full pass" (TODO.md, scoped 2026-08-21). Sigils and Relics legs done

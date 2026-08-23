@@ -18,7 +18,9 @@ import {
   kallaFervorPercentPerStack,
   KALLA_FERVOR_MAX_STACKS,
   MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES,
+  PER_BOON_DAMAGE_TRAIT_BONUSES,
   RENEGADE_SPECIALIZATION_ID,
+  RESOLUTION_DAMAGE_TRAIT_BONUSES,
   REVEALED_ATTRIBUTE_TRAIT_BONUSES,
   RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT,
   RISING_MOMENTUM_TRAIT_ID,
@@ -161,6 +163,18 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   const hasInvokingHarmony = activeTraitIds(build, traitsById).has(INVOKING_HARMONY_TRAIT_ID)
   const invokingHarmonyTrait = hasInvokingHarmony ? traitsById.get(INVOKING_HARMONY_TRAIT_ID) : undefined
 
+  // Only surfaced when the build actually has a curated `RESOLUTION_DAMAGE_TRAIT_BONUSES` trait
+  // chosen (currently just Guardian's Retribution) — same reasoning as `mechanicTrait` above.
+  const resolutionTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in RESOLUTION_DAMAGE_TRAIT_BONUSES)
+  const resolutionTrait = resolutionTraitId !== undefined ? traitsById.get(resolutionTraitId) : undefined
+
+  // Only surfaced when the build actually has a curated `PER_BOON_DAMAGE_TRAIT_BONUSES` trait
+  // chosen (currently just Guardian's Inspired Virtue) — same reasoning as `risingMomentumTrait`
+  // above (a raw number input, not a stepper — see `CombatState.activeBoonCount`'s doc comment).
+  const perBoonDamageTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in PER_BOON_DAMAGE_TRAIT_BONUSES)
+  const perBoonDamageTrait = perBoonDamageTraitId !== undefined ? traitsById.get(perBoonDamageTraitId) : undefined
+  const perBoonDamagePercent = perBoonDamageTraitId !== undefined ? PER_BOON_DAMAGE_TRAIT_BONUSES[perBoonDamageTraitId] : 0
+
   return (
     <div className="combat-state-controls">
       <div className="combat-state-row">
@@ -241,6 +255,25 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
             aria-label="Current points of upkeep in use"
             value={value.upkeepPoints}
             onChange={(e) => onChange({ ...value, upkeepPoints: Math.max(0, Number(e.target.value) || 0) })}
+          />
+        </div>
+      )}
+
+      {perBoonDamageTrait && (
+        <div className="combat-state-row">
+          <img
+            className={iconClass(value.activeBoonCount > 0)}
+            src={perBoonDamageTrait.icon}
+            alt=""
+            title={`${perBoonDamageTrait.name}: +${perBoonDamagePercent}% Outgoing Damage per active boon`}
+          />
+          <input
+            type="number"
+            min={0}
+            step={1}
+            aria-label="Current number of active boons"
+            value={value.activeBoonCount}
+            onChange={(e) => onChange({ ...value, activeBoonCount: Math.max(0, Number(e.target.value) || 0) })}
           />
         </div>
       )}
@@ -382,6 +415,21 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           onClick={() => onChange({ ...value, invokingHarmonyActive: !value.invokingHarmonyActive })}
         >
           <img className={iconClass(value.invokingHarmonyActive)} src={invokingHarmonyTrait.icon} alt={invokingHarmonyTrait.name} />
+        </button>
+      )}
+
+      {resolutionTrait && (
+        <button
+          type="button"
+          className="combat-state-toggle-icon"
+          title={
+            value.resolutionActive
+              ? `${resolutionTrait.name}: Active (+${RESOLUTION_DAMAGE_TRAIT_BONUSES[resolutionTraitId!]}% Outgoing Damage)`
+              : `${resolutionTrait.name}: Inactive`
+          }
+          onClick={() => onChange({ ...value, resolutionActive: !value.resolutionActive })}
+        >
+          <img className={iconClass(value.resolutionActive)} src={resolutionTrait.icon} alt={resolutionTrait.name} />
         </button>
       )}
 

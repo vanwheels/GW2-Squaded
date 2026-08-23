@@ -16,6 +16,7 @@ import {
   FORCE_OF_WILL_HEALING_PERCENT_PER_100_VITALITY,
   FORCE_OF_WILL_TRAIT_ID,
   FURY_CRITICAL_CHANCE_PERCENT,
+  FURY_DAMAGE_TRAIT_BONUSES,
   INVOKING_HARMONY_HEALING_PERCENT,
   INVOKING_HARMONY_TRAIT_ID,
   KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK,
@@ -32,11 +33,13 @@ import {
   MIGHT_CONDITION_DAMAGE_PER_STACK,
   MIGHT_POWER_PER_STACK,
   NUMINOUS_GIFT_TRAIT_ID,
+  PER_BOON_DAMAGE_TRAIT_BONUSES,
   resolveIncomingHealingPercent,
   resolveMovementSpeedPercent,
   resolveOutgoingConditionDamagePercent,
   resolveOutgoingDamagePercent,
   resolveOutgoingHealingPercent,
+  RESOLUTION_DAMAGE_TRAIT_BONUSES,
   RIGHTEOUS_REBEL_HEALING_PERCENT,
   RIGHTEOUS_REBEL_TRAIT_ID,
   RISING_MOMENTUM_MOVEMENT_SPEED_PERCENT_PER_UPKEEP_POINT,
@@ -810,6 +813,50 @@ describe('resolveOutgoingConditionDamagePercent — curated sigil (Superior Sigi
     const build = makeBuild({ activeWeaponSet: 'A', equipment: { weaponA1: { itemStatId: null, sigilIds: [44944] } } })
     const result = resolveOutgoingConditionDamagePercent(build, { ...DEFAULT_COMBAT_STATE, kallaFervorStacks: 3 }, NO_TRAITS)
     expect(result).toBe(CURATED_SIGIL_CONDITION_DAMAGE_BONUSES[44944] + 3 * KALLA_FERVOR_CONDITION_DAMAGE_PERCENT_PER_STACK)
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Furious Focus (Fury-gated trait)', () => {
+  it('contributes nothing when the trait is not chosen, even with Fury active', () => {
+    const build = makeBuild()
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, furyActive: true }, NO_TRAITS)).toBe(0)
+  })
+
+  it('contributes nothing while chosen but Fury is inactive', () => {
+    const { build, traitsById } = buildWithTrait(2017, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, furyActive: false }, traitsById)).toBe(0)
+  })
+
+  it('contributes the flat bonus once chosen and Fury is active', () => {
+    const { build, traitsById } = buildWithTrait(2017, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, furyActive: true }, traitsById)).toBe(FURY_DAMAGE_TRAIT_BONUSES[2017])
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Retribution (Resolution-gated trait)', () => {
+  it('contributes nothing while chosen but Resolution is inactive', () => {
+    const { build, traitsById } = buildWithTrait(565, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, resolutionActive: false }, traitsById)).toBe(0)
+  })
+
+  it('contributes the flat bonus once chosen and Resolution is active', () => {
+    const { build, traitsById } = buildWithTrait(565, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, resolutionActive: true }, traitsById)).toBe(
+      RESOLUTION_DAMAGE_TRAIT_BONUSES[565]
+    )
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Inspired Virtue (per-active-boon trait)', () => {
+  it.each([0, 4, 10])('scales linearly with activeBoonCount at %i boons', (boons) => {
+    const { build, traitsById } = buildWithTrait(621, 'Minor')
+    const result = resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, activeBoonCount: boons }, traitsById)
+    expect(result).toBe(boons * PER_BOON_DAMAGE_TRAIT_BONUSES[621])
+  })
+
+  it('contributes nothing when the trait is not chosen, even with boons active', () => {
+    const build = makeBuild()
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, activeBoonCount: 8 }, NO_TRAITS)).toBe(0)
   })
 })
 
