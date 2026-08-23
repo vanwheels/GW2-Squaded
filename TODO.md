@@ -130,9 +130,9 @@ research itself could be as thorough as possible first. All 5 items below come o
     into a new `CURATED_RELIC_CONDITION_DAMAGE_BONUSES` table); its incoming-damage-reduction/
     damage-to-healing-conversion halves are out of scope (no `DerivedStats` field exists for them
     yet).
-  - [ ] **Traits** — Guardian + Warrior + Elementalist + Engineer + Mesmer legs DONE (see
-    COMPLETED.md Sessions 279/280/281/282/283), 4 professions remaining (Necromancer, Ranger,
-    Revenant, Thief — no fixed order set, pick freely). ~165 raw fact-label matches (`Percent` facts with
+  - [ ] **Traits** — Guardian + Warrior + Elementalist + Engineer + Mesmer + Necromancer legs DONE
+    (see COMPLETED.md Sessions 279/280/281/282/283/284), 3 professions remaining (Ranger, Revenant,
+    Thief — no fixed order set, pick freely). ~165 raw fact-label matches (`Percent` facts with
     text "Damage Increase"/"Strike Damage Increase"/"Condition Damage Increase"/"Damage Increase
     per Stack"/"...per Boon") across all 9 professions before dedup — comparable in size to the
     biggest coefficient sweeps already completed (Healing/Damage); per-profession legs, per the
@@ -165,16 +165,19 @@ research itself could be as thorough as possible first. All 5 items below come o
       foes with a lower health percentage than you," a target-*relative* comparison rather than a
       fixed target-health threshold (unlike Relic of the Eagle's "assume satisfied" `relicActive`
       reuse) — no trait-side equivalent toggle exists yet.
-    - **Heat-meter scaling** — Engineer/Holosmith's Laser's Edge (id 2122) scales continuously with
-      the Holosmith's own Heat meter (0-100), which has no `CombatState` field at all, unlike Kalla's
-      Fervor/Death's Carapace's dedicated steppers.
+    - **Untracked profession-resource-stack scaling** — Engineer/Holosmith's Laser's Edge (id 2122)
+      scales continuously with the Holosmith's own Heat meter (0-100), and from the Necromancer leg,
+      Harbinger's Septic Corruption (id 2185, condition-damage half) and Wicked Corruption (id 2188,
+      strike-damage half) both scale with the player's own stacks of Blight — none of these resources
+      has a `CombatState` field at all, unlike Kalla's Fervor/Death's Carapace's dedicated steppers.
     - **Pet/summon output not modeled** — Mesmer's Empowered Illusions (id 682) boosts the
       *illusions'* own damage, not the player's; same "not the player's own" reasoning as the Outgoing
       Healing % sweep's Spirit's Strength exclusion, now a 2nd member of this gap-shape family.
     - **Target-range-gated damage-%%** — Mesmer's Mental Focus (id 2208) triggers "against foes
       within the range threshold" — a target-*distance* gate, distinct from every other target-
       condition gate seen so far (all status-based, not distance-based); no `CombatState` field
-      tracks target range at all.
+      tracks target range at all. Necromancer/Reaper's Soul Eater (id 1969, wiki page since retitled
+      "Soul Devourer") joins this family — wiki-confirmed a 300-unit distance-to-target gate.
     - **Critical-damage-multiplier %%** — Mesmer's Superiority Complex (id 692) and Danger Time (id
       2009) both boost "Critical Damage Increase," a straight crit-hit-damage multiplier — distinct
       from the `CritDamage`/Ferocity attribute (already modeled via `AttributeAdjust`) and from

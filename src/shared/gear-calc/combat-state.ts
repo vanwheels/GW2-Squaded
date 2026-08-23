@@ -835,6 +835,43 @@ function curatedSigilConditionDamagePercent(build: Build): number {
  *   `AttributeAdjust`) and not general outgoing strike/condition damage either — this app has no
  *   `DerivedStats` field for a standalone crit-damage-multiplier stat at all, a brand-new gap-shape
  *   logged in TODO.md.
+ *
+ * Necromancer leg (Session 284, 2026-08-22): 13 unique candidates, only 1 curated (`FLAT_DAMAGE_
+ * TRAIT_BONUSES`'s new Spiteful Talisman entry — wiki-verified `split = pve, wvw pvp`, baseline
+ * strike damage PvE 3%/WvW+PvP 7%, WvW value used; its own "further increased against foes without
+ * boons" +12% WvW half is target-condition-gated, excluded below alongside every other trait sharing
+ * that shape). 12 excluded after wiki/description verification:
+ * - Close to Death (853, vs. foes below a health threshold), Cold Shoulder (2018, vs. chilled foes)
+ *   — target-condition-gated, same exclusion class as every prior leg's Fiery Wrath/Cull the Weak/
+ *   Bolt to the Heart/etc. (Close to Death's target is the *foe's* health, distinct from the self-
+ *   health-gated `HIGH_HEALTH_DAMAGE_TRAIT_BONUSES` family Unscathed Contender/Flow like Water/Glass
+ *   Cannon belong to).
+ * - Putrid Defense (857, poison damage specifically), Fell Beacon (2074, burning damage
+ *   specifically), Demonic Lore (2164, torment damage specifically) — all scoped to one condition
+ *   type rather than condition damage broadly, same per-condition-type exclusion class as Guardian's
+ *   Amplified Wrath/Mesmer's Bloodsong.
+ * - Necromantic Corruption (858) — "Minions deal more damage," boosts the *minions'* own damage, not
+ *   the player's — same "pet/summon output not modeled" gap-shape family as Mesmer's Empowered
+ *   Illusions/the Outgoing Healing % sweep's Spirit's Strength.
+ * - Death Perception (893), Wicked Corruption (2188, its own Critical Damage Increase half) — both
+ *   "Critical Damage Increase," the same standalone crit-hit-damage-multiplier gap-shape as Mesmer's
+ *   Superiority Complex/Danger Time (no `DerivedStats` field for it at all).
+ * - Soul Barbs (894) — "Entering or exiting shroud increases all damage you deal for a duration"
+ *   (wiki-confirmed explicit `Duration` facts, 15s/10s) — a timed proc window triggered by a shroud
+ *   transition, not a steady-state build stat, same "not a character stat gain" exclusion already
+ *   used for Peak Performance's own further-buff/Engineer's Solar Focusing Lens.
+ * - Soul Eater (1969, wiki page since retitled "Soul Devourer") — "Striking foes within the range
+ *   threshold," wiki-confirmed a 300-unit distance-to-target gate, not a status condition — joins
+ *   Mesmer's Mental Focus in the "target-range-gated damage-%%" gap-shape (no `CombatState` field
+ *   tracks distance to target).
+ * - Augury of Death (1974) — "Shouts now siphon health," scoped to one skill category (Shouts) and
+ *   about life-steal, not general outgoing damage — same "narrower skill-specific proc"/"per-skill-
+ *   category" exclusion class as Warrior's Burst Mastery/Mesmer's Mental Anguish.
+ * - Septic Corruption (2185), Wicked Corruption (2188, its own Damage Increase half) — both scale
+ *   with the player's own stacks of Blight, Harbinger's own resource that this app has no
+ *   `CombatState` field for at all (unlike Kalla's Fervor/Death's Carapace's dedicated steppers) —
+ *   the same "untracked profession-resource-stack" gap-shape as Engineer's Laser's Edge (Heat meter),
+ *   logged in TODO.md as a 2nd member of that family.
  */
 
 /**
@@ -1007,11 +1044,16 @@ export const MECHANIC_ACTIVE_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * Strikes"): "You and your illusions deal increased strike damage" is an always-on baseline; wiki-
  * verified via raw wikitext 2026-08-22 (`split = pve, wvw pvp`): PvE 10%, WvW/PvP 7% — WvW value
  * used here. Its "further increased against foes without boons" +15% half is target-condition-gated,
- * out of scope (see this section's own doc comment).
+ * out of scope (see this section's own doc comment). Spiteful Talisman (Necromancer/Spite, Adept
+ * Major, id 914), added in the Necromancer leg: "Your strike damage is increased" is an always-on
+ * baseline; wiki-verified via raw wikitext 2026-08-22 (`split = pve, wvw pvp`): PvE 3%, WvW/PvP 7% —
+ * WvW value used here. Its "further increased against foes without boons" +12% WvW half is target-
+ * condition-gated, out of scope, same shape as Vicious Expression's own boonless half.
  */
 export const FLAT_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
   1444: 3, // Peak Performance (Warrior, Strength, Major) — baseline only, see doc comment
-  681: 7 // Vicious Expression (Mesmer, Domination, Major) — baseline only, see doc comment
+  681: 7, // Vicious Expression (Mesmer, Domination, Major) — baseline only, see doc comment
+  914: 7 // Spiteful Talisman (Necromancer, Spite, Major) — baseline only, see doc comment
 }
 
 /**

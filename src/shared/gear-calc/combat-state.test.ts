@@ -1041,6 +1041,18 @@ describe('resolveOutgoingDamagePercent — Vicious Expression (flat, uncondition
   })
 })
 
+describe('resolveOutgoingDamagePercent — Spiteful Talisman (flat, unconditional baseline)', () => {
+  it('contributes the flat bonus once chosen, no combat-state gating needed', () => {
+    const { build, traitsById } = buildWithTrait(914, 'Major')
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, traitsById)).toBe(FLAT_DAMAGE_TRAIT_BONUSES[914])
+  })
+
+  it('contributes nothing when the trait is not chosen', () => {
+    const build = makeBuild()
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS)).toBe(0)
+  })
+})
+
 describe('resolveOutgoingDamagePercent/resolveOutgoingConditionDamagePercent — Nomad\'s Endurance (Vigor-gated, both halves)', () => {
   it('contributes nothing to either derived stat while chosen but Vigor is inactive', () => {
     const { build, traitsById } = buildWithTrait(2069, 'Minor')
