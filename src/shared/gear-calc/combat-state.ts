@@ -747,6 +747,18 @@ function curatedSigilConditionDamagePercent(build: Build): number {
  *   than general outgoing strike damage (unlike Furious Focus/Retribution's blanket application) —
  *   same "narrower skill-specific proc" exclusion class as the Guardian leg's Big Game Hunter/Power
  *   for Power.
+ *
+ * Elementalist leg (Session 281, 2026-08-22): 8 unique candidates. 1 curated below (`HIGH_HEALTH_
+ * DAMAGE_TRAIT_BONUSES`'s new Flow like Water entry); 7 excluded after wiki-verification:
+ * - Bolt to the Heart (226, vs. low-health foes), Pyromancer's Training (319, vs. burning foes),
+ *   Piercing Shards (363, vs. vulnerable foes — doubled while attuned to water, still target-
+ *   condition-gated regardless), Stormsoul (1502, vs. disabled/defiant foes), Serrated Stones
+ *   (1507, vs. bleeding foes), Fiery Might (2391, vs. burning foes) — all target-condition-gated,
+ *   same exclusion class as every prior leg's Fiery Wrath/Cull the Weak/etc.
+ * - Electric Discharge (222) — its "Damage Increase" match is actually a "Critical damage increase"
+ *   fact (100%) on the trait's own on-attunement-swap proc hit (a `skill fact|damage|coefficient`
+ *   strike, not a persistent character stat), not a general outgoing-damage-% bonus — same
+ *   "narrower skill-specific proc" exclusion class as Big Game Hunter/Power for Power/Burst Mastery.
  */
 
 /**
@@ -830,10 +842,18 @@ export const AEGIS_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * "Strike damage dealt is increased while you are above the health threshold." Wiki-verified via
  * raw wikitext 2026-08-22: threshold is a flat 90% (no mode split on the threshold itself), damage
  * bonus is PvE 5% / WvW/PvP 7% — WvW value used here, approximated to the `'above75'` tier same as
- * Keen Observer's own 90% threshold already does.
+ * Keen Observer's own 90% threshold already does. Elementalist leg (2026-08-22): Flow like Water
+ * (Elementalist/Water, Master Major, id 349) — "Deal increased strike damage, which is further
+ * increased while your health is above the threshold." Wiki-verified via raw wikitext: threshold is
+ * a flat 50% (no mode split), the two damage facts (5% baseline + 10% above-threshold) also carry
+ * no mode split despite the page's top-level `split = pve, wvw pvp` (only the trait's healing fact
+ * is actually split) — so `otherwise` is the 5% baseline and `aboveThreshold` is 5%+10%=15%, both
+ * approximated to the `'above75'`/`'otherwise'` 2-tier model same as Unscathed Contender's own 90%
+ * threshold already does, despite the wiki's 50% threshold differing from both.
  */
 export const HIGH_HEALTH_DAMAGE_TRAIT_BONUSES: Record<number, { aboveThreshold: number; otherwise: number }> = {
-  624: { aboveThreshold: 7, otherwise: 0 } // Unscathed Contender (Guardian, Virtues, Major)
+  624: { aboveThreshold: 7, otherwise: 0 }, // Unscathed Contender (Guardian, Virtues, Major)
+  349: { aboveThreshold: 15, otherwise: 5 } // Flow like Water (Elementalist, Water, Major)
 }
 
 /**

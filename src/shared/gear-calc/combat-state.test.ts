@@ -963,6 +963,27 @@ describe('resolveOutgoingDamagePercent — Unscathed Contender (Aegis-gated + he
   })
 })
 
+describe('resolveOutgoingDamagePercent — Flow like Water (baseline + health-threshold-gated halves)', () => {
+  it('contributes only the baseline when below the health threshold', () => {
+    const { build, traitsById } = buildWithTrait(349, 'Major')
+    expect(
+      resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, healthTier: 'below50' }, traitsById)
+    ).toBe(HIGH_HEALTH_DAMAGE_TRAIT_BONUSES[349].otherwise)
+  })
+
+  it('contributes the full above-threshold bonus when above the health threshold', () => {
+    const { build, traitsById } = buildWithTrait(349, 'Major')
+    expect(
+      resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, healthTier: 'above75' }, traitsById)
+    ).toBe(HIGH_HEALTH_DAMAGE_TRAIT_BONUSES[349].aboveThreshold)
+  })
+
+  it('contributes nothing when the trait is not chosen', () => {
+    const build = makeBuild()
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, healthTier: 'above75' }, NO_TRAITS)).toBe(0)
+  })
+})
+
 describe('computeCharacterStats — outgoingDamagePercent/outgoingConditionDamagePercent end to end', () => {
   it('reflects a curated relic bonus through the full attribute/derived-stats pipeline', () => {
     const build = makeBuild({ relicId: 104241 }) // Relic of the Eagle

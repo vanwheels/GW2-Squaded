@@ -2,6 +2,35 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 281 — Outgoing Damage % full pass, Traits leg (Elementalist)
+
+Continued the Traits leg of "Outgoing Damage % full pass" (TODO.md). Picked Elementalist next (no
+fixed leg order set) — re-scanned `traits.json` for the same "Damage Increase"/"Strike Damage
+Increase"/"Condition Damage Increase"/"...per Boon" `Percent`-fact shape, profession-mapped via
+`specializations.json`. 8 unique candidates, the smallest leg so far.
+
+Only 1 of 8 curated: **Flow like Water** (id 349, Elementalist/Water, Master Major) — "Deal
+increased strike damage, which is further increased while your health is above the threshold."
+Added straight into the existing `HIGH_HEALTH_DAMAGE_TRAIT_BONUSES` table alongside Unscathed
+Contender, reusing `CombatState.healthTier` (no new field, no `CombatStatePanel` change needed —
+its visibility gate already keys off trait membership in that table). Wiki-verified via raw
+wikitext: 5% baseline + 10% further above a 50% health threshold (neither half mode-split despite
+the page's top-level `split = pve, wvw pvp` — only the trait's healing fact actually differs by
+mode), giving `{ aboveThreshold: 15, otherwise: 5 }`, approximated to the existing `'above75'` tier
+same as Unscathed Contender's own differing 90% threshold already does.
+
+7 excluded, all logged in TODO.md: Bolt to the Heart/Pyromancer's Training/Piercing Shards/
+Stormsoul/Serrated Stones/Fiery Might — all target-condition-gated (low-health/burning/vulnerable/
+disabled-or-defiant/bleeding/burning foes respectively), same untracked-target-state exclusion
+class as every prior leg's. Electric Discharge's "Damage Increase" regex match turned out to be a
+"Critical damage increase" fact on the trait's own on-attunement-swap proc hit (a `skill fact|
+damage|coefficient` strike), not a persistent outgoing-damage-% stat — same "narrower skill-specific
+proc" exclusion class as Big Game Hunter/Power for Power/Burst Mastery.
+
+3 new tests in `combat-state.test.ts` (381/381 total). `npm run typecheck`/`npx eslint`/
+`npx vitest run` all clean. 6 professions remain (Engineer, Mesmer, Necromancer, Ranger, Revenant,
+Thief), still no fixed order.
+
 ## Session 280 — Outgoing Damage % full pass, Traits leg (Warrior + Guardian catch-up)
 
 Continued the Traits leg of "Outgoing Damage % full pass" (TODO.md). Picked Warrior next (no fixed

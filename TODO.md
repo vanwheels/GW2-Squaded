@@ -106,8 +106,8 @@ research itself could be as thorough as possible first. All 5 items below come o
       curated yet, so that interaction has no code to exercise it — revisit if one ever is.
 
 - [ ] **Outgoing Damage % full pass** — Sigils + Relics legs DONE 2026-08-22 (see COMPLETED.md),
-      Traits leg started same day (Guardian + Warrior done, 7 professions remaining — the largest
-      remaining piece).
+      Traits leg started same day (Guardian + Warrior + Elementalist done, 6 professions remaining —
+      the largest remaining piece).
   - [x] **Sigils** — DONE. `CURATED_SIGIL_DAMAGE_BONUSES`/`CURATED_SIGIL_CONDITION_DAMAGE_BONUSES`
     in `combat-state.ts`. Superior Sigil of Force (flat +5%, single-application-only per its "does
     not stack on both weapons" wiki clause, handled outside the normal doubling table). The 18
@@ -130,9 +130,9 @@ research itself could be as thorough as possible first. All 5 items below come o
     into a new `CURATED_RELIC_CONDITION_DAMAGE_BONUSES` table); its incoming-damage-reduction/
     damage-to-healing-conversion halves are out of scope (no `DerivedStats` field exists for them
     yet).
-  - [ ] **Traits** — Guardian + Warrior legs DONE (see COMPLETED.md Sessions 279/280), 7 professions
-    remaining (Elementalist, Engineer, Mesmer, Necromancer, Ranger, Revenant, Thief — no fixed
-    order set, pick freely). ~165 raw fact-label matches (`Percent` facts with text "Damage
+  - [ ] **Traits** — Guardian + Warrior + Elementalist legs DONE (see COMPLETED.md Sessions
+    279/280/281), 6 professions remaining (Engineer, Mesmer, Necromancer, Ranger, Revenant, Thief —
+    no fixed order set, pick freely). ~165 raw fact-label matches (`Percent` facts with text "Damage
     Increase"/"Strike Damage Increase"/"Condition Damage Increase"/"Damage Increase per Stack"/
     "...per Boon") across all 9 professions before dedup — comparable in size to the biggest
     coefficient sweeps already completed (Healing/Damage); per-profession legs, per the
