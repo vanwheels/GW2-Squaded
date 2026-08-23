@@ -130,16 +130,16 @@ research itself could be as thorough as possible first. All 5 items below come o
     into a new `CURATED_RELIC_CONDITION_DAMAGE_BONUSES` table); its incoming-damage-reduction/
     damage-to-healing-conversion halves are out of scope (no `DerivedStats` field exists for them
     yet).
-  - [ ] **Traits** — Guardian + Warrior + Elementalist legs DONE (see COMPLETED.md Sessions
-    279/280/281), 6 professions remaining (Engineer, Mesmer, Necromancer, Ranger, Revenant, Thief —
-    no fixed order set, pick freely). ~165 raw fact-label matches (`Percent` facts with text "Damage
-    Increase"/"Strike Damage Increase"/"Condition Damage Increase"/"Damage Increase per Stack"/
-    "...per Boon") across all 9 professions before dedup — comparable in size to the biggest
-    coefficient sweeps already completed (Healing/Damage); per-profession legs, per the
+  - [ ] **Traits** — Guardian + Warrior + Elementalist + Engineer legs DONE (see COMPLETED.md
+    Sessions 279/280/281/282), 5 professions remaining (Mesmer, Necromancer, Ranger, Revenant,
+    Thief — no fixed order set, pick freely). ~165 raw fact-label matches (`Percent` facts with
+    text "Damage Increase"/"Strike Damage Increase"/"Condition Damage Increase"/"Damage Increase
+    per Stack"/"...per Boon") across all 9 professions before dedup — comparable in size to the
+    biggest coefficient sweeps already completed (Healing/Damage); per-profession legs, per the
     `pacing_large_sweeps` memory. Note: this scan needs `specializations.json` to map each trait's
     `specializationId` to a profession — `traits.json` itself has no profession field. Gap-shapes
-    surfaced so far, each logged rather than built (single trait so far, not worth new infra yet —
-    revisit if a 2nd candidate turns up in a later leg):
+    surfaced so far, each logged rather than built (single trait each so far, not worth new infra
+    yet — revisit if a 2nd candidate turns up in a later leg):
     - **Per-condition-type damage-%%** — Guardian's Amplified Wrath (id 1686) boosts burning
       damage specifically, not condition damage broadly; this app only has the one blanket
       `outgoingConditionDamagePercent` field, so it can't be curated without overstating non-
@@ -148,12 +148,26 @@ research itself could be as thorough as possible first. All 5 items below come o
       modifies a self-stacking buff (Lethal Tempo, up to 5 stacks, duration-reduction clause) that
       has no `CombatState` field at all, unlike Kalla's Fervor/Death's Carapace which each got a
       dedicated stepper.
-    - **Target's-own-boon-count damage-%%** — Warrior's Destruction of the Empowered (id 1489)
-      scales with boons on the player's *target*, not self; `CombatState.activeBoonCount` only
-      tracks the player's own boons, no tracked-target-boon-count field exists.
-    - **Per-skill-category damage-%%** — Warrior's Burst Mastery (id 1657) only boosts burst-skill
-      damage specifically, not general outgoing strike damage; no field exists to scope a bonus to
-      one skill category.
+    - **Target-status-stack-count damage-%%** — Warrior's Destruction of the Empowered (id 1489,
+      target's boon count) and, from the Engineer leg, Shaped Charge (id 429, target's vulnerability
+      stacks) and Modified Ammunition (id 516, target's unique-condition count) all scale with a
+      status *on the target*, not self; `CombatState.activeBoonCount` only tracks the player's own
+      boons, no tracked-target-status-count field exists at all.
+    - **Per-skill-category damage-%%** — Warrior's Burst Mastery (id 1657) and Engineer/Amalgam's
+      Symbiotic Synergy (id 2406, morph skills only) only boost one skill category's damage, not
+      general outgoing strike damage; no field exists to scope a bonus to one skill category.
+    - **Boon-subset-gated per-boon compounding** — Engineer/Scrapper's Object in Motion (id 1860)
+      is gated on having at least one of Stability/Swiftness/Superspeed, then scales by *total*
+      boon count once that gate is met — distinct from the unconditional `PER_BOON_DAMAGE_TRAIT_
+      BONUSES` shape (no gate at all); would need a boon-subset presence check ANDed with the
+      existing `activeBoonCount` scaling, a new resolver shape not just a new table entry.
+    - **Target-relative-health damage-%%** — Engineer/Explosives' Big Boomer (id 1947) triggers "to
+      foes with a lower health percentage than you," a target-*relative* comparison rather than a
+      fixed target-health threshold (unlike Relic of the Eagle's "assume satisfied" `relicActive`
+      reuse) — no trait-side equivalent toggle exists yet.
+    - **Heat-meter scaling** — Engineer/Holosmith's Laser's Edge (id 2122) scales continuously with
+      the Holosmith's own Heat meter (0-100), which has no `CombatState` field at all, unlike Kalla's
+      Fervor/Death's Carapace's dedicated steppers.
 
 - [x] **Data-completeness audit script** — DONE 2026-08-22, see COMPLETED.md. Built
       `scripts/audit-data-completeness.ts` (`npm run audit-data-completeness`), a local-only

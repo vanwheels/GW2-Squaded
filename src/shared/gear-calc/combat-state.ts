@@ -146,6 +146,10 @@ export interface CombatState {
   /** Gates `AEGIS_DAMAGE_TRAIT_BONUSES` (currently just Guardian/Virtues' Unscathed Contender) —
    *  same shape/reasoning as `swiftnessActive`/`stabilityActive` above. */
   aegisActive: boolean
+  /** Gates `VIGOR_DAMAGE_TRAIT_BONUSES` (currently just Engineer/Tools' Excessive Energy) — a real
+   *  boon state, not a build choice, same shape/reasoning as `swiftnessActive`/`stabilityActive`/
+   *  `aegisActive` above (one boon, one curated candidate so far, "off by default"). */
+  vigorActive: boolean
 }
 
 export const DEFAULT_COMBAT_STATE: CombatState = {
@@ -170,7 +174,8 @@ export const DEFAULT_COMBAT_STATE: CombatState = {
   activeBoonCount: 0,
   swiftnessActive: false,
   stabilityActive: false,
-  aegisActive: false
+  aegisActive: false,
+  vigorActive: false
 }
 
 // wiki-confirmed flat value at level 80, quoted directly (not derived from a per-level formula).
@@ -759,6 +764,39 @@ function curatedSigilConditionDamagePercent(build: Build): number {
  *   fact (100%) on the trait's own on-attunement-swap proc hit (a `skill fact|damage|coefficient`
  *   strike, not a persistent character stat), not a general outgoing-damage-% bonus — same
  *   "narrower skill-specific proc" exclusion class as Big Game Hunter/Power for Power/Burst Mastery.
+ *
+ * Engineer leg (Session 282, 2026-08-22): 10 unique candidates. 3 curated below (`NOT_FULL_
+ * ENDURANCE_DAMAGE_TRAIT_BONUSES`'s Takedown Round entry, `HIGH_HEALTH_DAMAGE_TRAIT_BONUSES`'s new
+ * Glass Cannon entry, `VIGOR_DAMAGE_TRAIT_BONUSES`'s new Excessive Energy entry — the last needing a
+ * brand-new `CombatState.vigorActive` field, same shape as `swiftnessActive`/`stabilityActive`/
+ * `aegisActive`); 7 excluded after wiki-verification:
+ * - Shaped Charge (429, per stack of vulnerability on target) and Modified Ammunition (516, per
+ *   unique condition on a foe) — both scale off the *target's* own status-stack count, not self;
+ *   this app has no tracked "target's condition/boon stack count" field, same class of gap as the
+ *   Warrior leg's Destruction of the Empowered (target's boon count) — new shared gap-shape,
+ *   "target-status-stack-count damage-%%," logged in TODO.md rather than built for two traits.
+ * - Object in Motion (1860) — gated on having at least one of Stability/Swiftness/Superspeed, then
+ *   "compounds for each boon you have" (i.e. scales by *total* boon count once that gate is met,
+ *   wiki-verified `{{skill fact|damage increase|alt=Damage per Boon|...}}`, PvE/PvP 5%/WvW 3% per
+ *   boon). Distinct from `PER_BOON_DAMAGE_TRAIT_BONUSES` (unconditional per-boon scaling, no gate):
+ *   this needs a boon-subset presence check (stability/swiftness already have their own booleans,
+ *   but superspeed doesn't) ANDed with the existing `activeBoonCount` scaling — a new resolver
+ *   shape, not just a new table entry. Not worth building for a single trait; logged in TODO.md as
+ *   a new "boon-subset-gated per-boon compounding" gap-shape.
+ * - Big Boomer (1947) — "foes with a lower health percentage than you," a target-*relative* health
+ *   comparison (not a fixed target-health threshold like Relic of the Eagle's "assume satisfied"
+ *   `relicActive` reuse) — no trait-side equivalent toggle exists. Logged in TODO.md; could reuse
+ *   the Eagle's "assume the condition is currently true" pattern if a second candidate turns up.
+ * - Solar Focusing Lens (2106) — its Damage Increase fact only applies to "your first few attacks
+ *   after entering or exiting Photon Forge" (or on overheat), a transient proc window rather than a
+ *   steady-state build stat — same "not a character stat gain" exclusion already used for Peak
+ *   Performance's other half/Mist Form/Signet of the Locust.
+ * - Laser's Edge (2122) — scales continuously with Holosmith's own Heat meter (0-100), which this
+ *   app has no `CombatState` field for at all (unlike Kalla's Fervor/Death's Carapace's dedicated
+ *   steppers) — a genuinely new "heat-meter-scaling" gap-shape, logged in TODO.md.
+ * - Symbiotic Synergy (2406) — "Morph skills deal increased strike damage," scoped to one skill
+ *   category rather than general outgoing strike damage — same "narrower skill-specific proc"
+ *   exclusion class as Burst Mastery/Big Game Hunter/Power for Power.
  */
 
 /**
@@ -853,7 +891,35 @@ export const AEGIS_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  */
 export const HIGH_HEALTH_DAMAGE_TRAIT_BONUSES: Record<number, { aboveThreshold: number; otherwise: number }> = {
   624: { aboveThreshold: 7, otherwise: 0 }, // Unscathed Contender (Guardian, Virtues, Major)
-  349: { aboveThreshold: 15, otherwise: 5 } // Flow like Water (Elementalist, Water, Major)
+  349: { aboveThreshold: 15, otherwise: 5 }, // Flow like Water (Elementalist, Water, Major)
+  // Glass Cannon (Engineer, Explosives, Major, id 1882): "Strike damage dealt increases when above
+  // health threshold." Wiki-verified via raw wikitext 2026-08-22: threshold is a flat 75% (no mode
+  // split), matching the `'above75'` tier exactly (no approximation needed, unlike Unscathed
+  // Contender's 90%/Flow like Water's 50%). Damage bonus is PvE 7% / PvP 10% / WvW 5% — WvW value
+  // used here, same convention as every other split entry in this sweep.
+  1882: { aboveThreshold: 5, otherwise: 0 }
+}
+
+/**
+ * Trait id -> flat outgoing-strike-damage-% while endurance is NOT full — the inverse gate of
+ * `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES`, reusing `CombatState.fullEnduranceActive` (no new
+ * field, just read as `!fullEnduranceActive`). Takedown Round (Engineer/Tools, Adept Major, id
+ * 1832): "Deal increased strike damage while your endurance is not full." Wiki-verified via raw
+ * wikitext 2026-08-22: flat 10%, no game-mode split.
+ */
+export const NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
+  1832: 10 // Takedown Round (Engineer, Tools, Major)
+}
+
+/**
+ * Trait id -> flat outgoing-strike-damage-% while Vigor is active — gated on the new
+ * `CombatState.vigorActive` (see its doc comment), same shape as `SWIFTNESS_DAMAGE_TRAIT_BONUSES`/
+ * `STABILITY_DAMAGE_TRAIT_BONUSES`/`AEGIS_DAMAGE_TRAIT_BONUSES`. Excessive Energy (Engineer/Tools,
+ * Grandmaster Minor, id 1936): "Strike damage dealt is increased while you have vigor." Wiki-
+ * verified via raw wikitext 2026-08-22: flat 10%, no game-mode split.
+ */
+export const VIGOR_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
+  1936: 10 // Excessive Energy (Engineer, Tools, Minor)
 }
 
 /**
@@ -920,6 +986,16 @@ export function resolveOutgoingDamagePercent(build: Build, combatState: CombatSt
   }
   if (combatState.aegisActive) {
     for (const [traitIdText, percent] of Object.entries(AEGIS_DAMAGE_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) total += percent
+    }
+  }
+  if (combatState.vigorActive) {
+    for (const [traitIdText, percent] of Object.entries(VIGOR_DAMAGE_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) total += percent
+    }
+  }
+  if (!combatState.fullEnduranceActive) {
+    for (const [traitIdText, percent] of Object.entries(NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES)) {
       if (active.has(Number(traitIdText))) total += percent
     }
   }

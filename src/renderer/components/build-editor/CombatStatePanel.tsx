@@ -21,6 +21,7 @@ import {
   kallaFervorPercentPerStack,
   KALLA_FERVOR_MAX_STACKS,
   MECHANIC_ACTIVE_ATTRIBUTE_TRAIT_BONUSES,
+  NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES,
   PER_BOON_DAMAGE_TRAIT_BONUSES,
   RENEGADE_SPECIALIZATION_ID,
   RESOLUTION_DAMAGE_TRAIT_BONUSES,
@@ -31,6 +32,7 @@ import {
   SIGIL_OF_THE_NIGHT_ID,
   STABILITY_DAMAGE_TRAIT_BONUSES,
   SWIFTNESS_DAMAGE_TRAIT_BONUSES,
+  VIGOR_DAMAGE_TRAIT_BONUSES,
   type CombatState,
   type HealthTier,
   type TargetArmorClass
@@ -141,9 +143,12 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   const healthConsumable = healthConsumableId != null ? (foodById.get(healthConsumableId) ?? utilityById.get(healthConsumableId)) : undefined
 
   // Only surfaced when the build actually has a curated `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES`
-  // trait chosen (currently just Renegade's Brutal Momentum) — same reasoning as `mechanicTrait`
-  // above, reads the specific trait's own icon/name.
-  const activeFullEnduranceTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES)
+  // OR `NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES` trait chosen (Renegade's Brutal Momentum / Engineer's
+  // Takedown Round — opposite gates on the same `fullEnduranceActive` field) — same reasoning as
+  // `mechanicTrait` above, reads the specific trait's own icon/name.
+  const activeFullEnduranceTraitId = [...activeTraitIds(build, traitsById)].find(
+    (id) => id in FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES || id in NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES
+  )
   const fullEnduranceTrait = activeFullEnduranceTraitId !== undefined ? traitsById.get(activeFullEnduranceTraitId) : undefined
 
   // Only surfaced when the Renegade elite spec is actually equipped — Kalla's Fervor is exclusive
@@ -199,6 +204,11 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   // (currently just Unscathed Contender) — same reasoning as `resolutionTraitId` above.
   const aegisTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in AEGIS_DAMAGE_TRAIT_BONUSES)
   const aegisTrait = aegisTraitId !== undefined ? traitsById.get(aegisTraitId) : undefined
+
+  // Only surfaced when the build actually has a curated `VIGOR_DAMAGE_TRAIT_BONUSES` trait chosen
+  // (currently just Engineer's Excessive Energy) — same reasoning as `resolutionTraitId` above.
+  const vigorTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in VIGOR_DAMAGE_TRAIT_BONUSES)
+  const vigorTrait = vigorTraitId !== undefined ? traitsById.get(vigorTraitId) : undefined
 
   return (
     <div className="combat-state-controls">
@@ -498,6 +508,19 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           onClick={() => onChange({ ...value, aegisActive: !value.aegisActive })}
         >
           <img className={iconClass(value.aegisActive)} src={aegisTrait.icon} alt={aegisTrait.name} />
+        </button>
+      )}
+
+      {vigorTrait && (
+        <button
+          type="button"
+          className="combat-state-toggle-icon"
+          title={
+            value.vigorActive ? `${vigorTrait.name}: Active (+${VIGOR_DAMAGE_TRAIT_BONUSES[vigorTraitId!]}% Outgoing Damage)` : `${vigorTrait.name}: Inactive`
+          }
+          onClick={() => onChange({ ...value, vigorActive: !value.vigorActive })}
+        >
+          <img className={iconClass(value.vigorActive)} src={vigorTrait.icon} alt={vigorTrait.name} />
         </button>
       )}
 

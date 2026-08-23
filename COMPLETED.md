@@ -2,6 +2,49 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 282 — Outgoing Damage % full pass, Traits leg (Engineer)
+
+Continued the Traits leg of "Outgoing Damage % full pass" (TODO.md). Picked Engineer next (no
+fixed leg order set) — re-scanned `traits.json` for the same "Damage Increase"/"...per Boon"
+`Percent`-fact shape, profession-mapped via `specializations.json`. 10 unique candidates, the
+largest leg since Guardian.
+
+3 of 10 curated:
+- **Takedown Round** (id 1832, Tools, Adept Major) — "Deal increased strike damage while your
+  endurance is not full." New `NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES` table, the inverse gate of
+  the existing `FULL_ENDURANCE_CRIT_CHANCE_TRAIT_BONUSES` — reuses `CombatState.fullEnduranceActive`
+  directly (read as `!fullEnduranceActive`), no new field. Had to widen `CombatStatePanel`'s
+  `activeFullEnduranceTraitId` check (previously only looked at the crit-chance table) so the
+  toggle actually surfaces for a build that picked Takedown Round without also having Brutal
+  Momentum. Flat 10%, no game-mode split (wiki-verified via raw wikitext).
+- **Glass Cannon** (id 1882, Explosives, Adept Major) — "Strike damage dealt increases when above
+  health threshold." Added to `HIGH_HEALTH_DAMAGE_TRAIT_BONUSES` alongside Unscathed Contender/Flow
+  like Water, reusing `CombatState.healthTier` (no new field/panel change — its visibility gate
+  already keys off table membership). Wiki-verified: 75% threshold matches the `'above75'` tier
+  exactly, no approximation needed this time. Damage bonus PvE 7%/PvP 10%/WvW 5% — WvW value used,
+  same convention as every prior split entry.
+- **Excessive Energy** (id 1936, Tools, Grandmaster Minor) — "Strike damage dealt is increased
+  while you have vigor." New `CombatState.vigorActive` boolean (same shape as `swiftnessActive`/
+  `stabilityActive`/`aegisActive`) plus new `VIGOR_DAMAGE_TRAIT_BONUSES` table and a matching
+  `CombatStatePanel` toggle icon. Flat 10%, no game-mode split.
+
+7 excluded, all logged in TODO.md as 3 gap-shapes (2 shared with earlier legs, 1 brand-new):
+Shaped Charge (429, per-vulnerability-stack-on-target) and Modified Ammunition (516,
+per-unique-condition-on-target) both join Destruction of the Empowered's existing "target-status-
+count" gap-shape; Symbiotic Synergy (2406, morph-skills-only) joins Burst Mastery's existing
+"per-skill-category" gap-shape; Big Boomer (1947, target-relative-health) and Laser's Edge (2122,
+Holosmith heat-meter scaling) are each a genuinely new untracked-state shape. Object in Motion
+(1860) got the closest look of the exclusions: gated on Stability/Swiftness/Superspeed presence,
+then "compounds for each boon you have" — distinct from the existing unconditional `PER_BOON_
+DAMAGE_TRAIT_BONUSES` shape since it needs a boon-subset gate ANDed with the total-boon-count
+scaling; not worth a new resolver for one trait. Solar Focusing Lens (2106, transient post-Photon-
+Forge-swap/overheat attack window) excluded under the same "not a character stat gain" class as
+Peak Performance's proc half/Mist Form.
+
+3 new tests in `combat-state.test.ts` (150/150 in that file, 387/387 total). `npm run typecheck`/
+`npx eslint .`/`npx vitest run` all clean. 5 professions remain (Mesmer, Necromancer, Ranger,
+Revenant, Thief), still no fixed order.
+
 ## Session 281 — Outgoing Damage % full pass, Traits leg (Elementalist)
 
 Continued the Traits leg of "Outgoing Damage % full pass" (TODO.md). Picked Elementalist next (no

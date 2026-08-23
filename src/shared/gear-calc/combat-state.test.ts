@@ -36,6 +36,7 @@ import {
   MED_KIT_SKILL_ID,
   MIGHT_CONDITION_DAMAGE_PER_STACK,
   MIGHT_POWER_PER_STACK,
+  NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES,
   NUMINOUS_GIFT_TRAIT_ID,
   PER_BOON_DAMAGE_TRAIT_BONUSES,
   resolveIncomingHealingPercent,
@@ -58,6 +59,7 @@ import {
   SIGIL_OF_THE_NIGHT_ID,
   STABILITY_DAMAGE_TRAIT_BONUSES,
   SWIFTNESS_DAMAGE_TRAIT_BONUSES,
+  VIGOR_DAMAGE_TRAIT_BONUSES,
   type CombatState,
   type HealthTier
 } from './combat-state'
@@ -981,6 +983,48 @@ describe('resolveOutgoingDamagePercent — Flow like Water (baseline + health-th
   it('contributes nothing when the trait is not chosen', () => {
     const build = makeBuild()
     expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, healthTier: 'above75' }, NO_TRAITS)).toBe(0)
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Glass Cannon (health-threshold-gated, no baseline)', () => {
+  it('contributes nothing when below the health threshold', () => {
+    const { build, traitsById } = buildWithTrait(1882, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, healthTier: 'below50' }, traitsById)).toBe(0)
+  })
+
+  it('contributes the flat bonus when above the health threshold', () => {
+    const { build, traitsById } = buildWithTrait(1882, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, healthTier: 'above75' }, traitsById)).toBe(
+      HIGH_HEALTH_DAMAGE_TRAIT_BONUSES[1882].aboveThreshold
+    )
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Takedown Round (Not-Full-Endurance-gated trait)', () => {
+  it('contributes nothing while endurance is full', () => {
+    const { build, traitsById } = buildWithTrait(1832, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, fullEnduranceActive: true }, traitsById)).toBe(0)
+  })
+
+  it('contributes the flat bonus once endurance is not full', () => {
+    const { build, traitsById } = buildWithTrait(1832, 'Major')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, fullEnduranceActive: false }, traitsById)).toBe(
+      NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES[1832]
+    )
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Excessive Energy (Vigor-gated trait)', () => {
+  it('contributes nothing while chosen but Vigor is inactive', () => {
+    const { build, traitsById } = buildWithTrait(1936, 'Minor')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, vigorActive: false }, traitsById)).toBe(0)
+  })
+
+  it('contributes the flat bonus once chosen and Vigor is active', () => {
+    const { build, traitsById } = buildWithTrait(1936, 'Minor')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, vigorActive: true }, traitsById)).toBe(
+      VIGOR_DAMAGE_TRAIT_BONUSES[1936]
+    )
   })
 })
 
