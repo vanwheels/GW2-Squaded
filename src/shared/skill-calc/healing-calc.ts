@@ -445,13 +445,13 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // separate resource bar this app doesn't model) and not listed here at all, curated or not.
   // Of the 23 genuine Healing candidates, 3 stayed uncurated on their own id: Guardian's underwater
   // Sanctuary variant (id 31295, no wiki-documented coefficient exists for it at all), Guardian's
-  // Repose (id 62669, the wiki's own coefficient field is a literal unfilled "?" stub), and
-  // Revenant's Natural Harmony's orphan (id 29082, wiki base 1124 vs. this id's own live API base
-  // 1620 — a genuine disagreement). Of those 3, Natural Harmony is NOT a real gap — same shape as
-  // Energy Expulsion above: 29082 is a structurally-unreachable orphan (see Elite section above),
-  // and the live/reachable id (27025, below) was separately curated with the wiki-correct 1124 in
-  // the 2026-08-12 Renegade sweep. TODO.md's exceptions list closed this item 2026-08-13 on that
-  // basis; Sanctuary/Repose remain genuinely open (see TODO.md).
+  // Repose (id 62669, the wiki's own coefficient field was a literal unfilled "?" stub — resolved
+  // 2026-08-23, see below), and Revenant's Natural Harmony's orphan (id 29082, wiki base 1124 vs.
+  // this id's own live API base 1620 — a genuine disagreement). Of those 3, Natural Harmony is NOT a
+  // real gap — same shape as Energy Expulsion above: 29082 is a structurally-unreachable orphan (see
+  // Elite section above), and the live/reachable id (27025, below) was separately curated with the
+  // wiki-correct 1124 in the 2026-08-12 Renegade sweep. TODO.md's exceptions list closed this item
+  // 2026-08-13 on that basis; Sanctuary remains genuinely open (see TODO.md).
   // Elementalist — Signet of Water (both ids share one wiki page/identical Healing fact; 49056
   // is a stale/legacy duplicate id missing the post-2025-06-24 "Conditions Removed" fact). No
   // PvE/WvW split on the heal itself.
@@ -464,6 +464,16 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // wiki's page doesn't separately document a coefficient for — left uncurated). Per-pulse heal, no
   // PvE/WvW split (only recharge differs by mode).
   9128: [{ factText: 'Healing', baseValue: 522, coefficient: 0.1375 }],
+  // Guardian/Willbender — Repose (Flash Combo's follow-up heal). Wiki stub had no coefficient at
+  // all; resolved 2026-08-23 via 2 live in-game tooltip readings at known Healing Power (0 HP →
+  // 1,635 heal; 1,347 HP → 2,713 heal), solving base+coefficient*HP directly: base = 1635 (the
+  // reading at 0 HP, and an exact match for the already-known post-2025-11-18-patch WvW/PvP base
+  // noted below), coefficient = (2713-1635)/1347 ≈ 0.8 (predicts 2712.6 at 1347 HP, which rounds to
+  // the observed 2713 — confirms the fit). No PvE reading taken; this app only stores the WvW value
+  // anyway per its existing convention. If the PvE value is ever needed, note a 2025-11-18 balance
+  // patch dropped the WvW/PvP base from 2595 to 1635 without touching PvE (the API's own raw base is
+  // still 2595, i.e. the pre-patch/PvE figure) — don't reuse 2595 as the WvW base.
+  62669: [{ factText: 'Healing', baseValue: 1635, coefficient: 0.8 }],
   // Guardian — Bow of Truth (2 flip-skill halves — cast + follow-up — sharing one wiki page and
   // identical facts). Coefficient splits PvE 0.15 vs "pvp wvw" 0.05 (base value unchanged) — WvW
   // value used. The wiki infobox's own `id = 9175, 43565` field documents exactly these 2 as

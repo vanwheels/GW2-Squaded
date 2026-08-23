@@ -49,15 +49,15 @@ professions and all 4 skill slots; `CURATED_SIPHON_DAMAGE_COEFFICIENTS` is a com
 skills/traits that were investigated and deliberately left uncurated — don't re-guess a coefficient
 for these without a fresh look at the source conflict.
 
-**Healing — Utility (2, re-checked 2026-08-22, no change):**
+**Healing — Utility (1, re-checked 2026-08-22, no change):**
 - Guardian 31295 (Sanctuary, underwater variant): a frozen pre-2016-balance-pass copy of id 9128 —
   no wiki coefficient documented for it specifically (underwater is out of scope for WvW anyway).
   Re-confirmed: id 31295 doesn't appear on any wiki skill page at all (`insource:"31295"` search
   only hits an unrelated item id collision).
-- Guardian 62669 (Repose): the wiki page itself is tagged stub — coefficient is an unfilled `?`. Note
-  for whoever fills this in: a 2025-11-18 balance patch dropped the WvW/PvP base value from 2595 to
-  1635 (PvE unaffected) — don't reuse the older 2595 figure from before that patch if it surfaces.
-  Re-confirmed still stub as of 2026-08-22.
+
+Guardian 62669 (Repose) is RESOLVED 2026-08-23 — user-supplied 2 live in-game tooltip readings
+(0 HP → 1,635 heal; 1,347 HP → 2,713 heal) solved base=1635/coefficient=0.8 directly; curated in
+`healing-calc.ts`. The base exactly matches the already-known post-2025-11-18-patch WvW/PvP value.
 
 **Healing — Heal-slot (3 of original 4 — re-investigated 2026-08-22):** Engineer 63049's Rectifier
 Signet/Mech Core: J-Drive gap is now RESOLVED — no dedicated wiki fact template exists, but its
