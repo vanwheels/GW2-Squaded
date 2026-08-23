@@ -28,6 +28,30 @@ implemented and released. Everything below is post-1.0 polish and open curation 
       seam or a Capacitor-side shim. Also: native HTML5 drag-and-drop in the squad editor has no
       touch-input fallback yet.
 
+- [ ] Official GW2 Build Template chat-link export/import (Traits + Skills only) — scoped 2026-08-23.
+      ArenaNet's own chat-link format (type `0x0D`, documented on the
+      [wiki's Chat Link Format page](https://wiki.guildwars2.com/wiki/Chat_link_format)) is a stable,
+      public binary spec: 1 profession-id byte; 3× (specialization id byte + 2-bit-per-tier trait
+      choice byte) mapping directly onto `TraitLineSlots`; 10×2 little-endian skill-id bytes
+      (terrestrial/aquatic interleaved × Heal/Utility×3/Elite) mapping onto `StandardSkillSelection`
+      plus our existing land/underwater split; a profession-specific tail (Revenant legends, Ranger
+      pets, etc.) that's already modeled as first-class `Build` fields. Confirmed there is **no**
+      equipment-template chat-link type — ArenaNet never solved the rarity/stat-variance export
+      problem either, matching what we'd already assumed. Also confirmed a June-2023 extension adds
+      dynamic weapon-type/skill-variant data (Weaponmaster Training era) — check this against our
+      current data model before finalizing the byte layout. First pass is full round-trip: both
+      "Copy Build Template" (export a `Build`'s specs/traits/skills to a `[&...]` code) and "Paste to
+      import" (parse a code back into a `Build`) on the trait/skill editor, base64 codec + binary
+      parser, tested against real in-game-captured chat links.
+- [ ] gw2skills.net build-link import — discussed 2026-08-23, deliberately deferred (not started).
+      Their site's own "Load Build" only documents accepting the *official* GW2 chat link above for
+      traits/skills; their own "QuickLink" full-build URL format (which does encode gear/runes/
+      sigils/infusions/stats, unlike the official link) is proprietary and undocumented — no
+      maintained public decoder found. We already have a contact here: Connor McLeoud (gw2skills.net's
+      author) previously granted icon reuse (see README credits / CHANGELOG). Decided approach when
+      this is picked up: ask him directly for the link format/spec (or an export API) rather than
+      reverse-engineering a third-party proprietary format blind from sample links.
+
 ## Coefficient curation — remaining exceptions
 
 `CURATED_HEALING_COEFFICIENTS` and `CURATED_DAMAGE_COEFFICIENTS` are complete sweeps across all 9
