@@ -32,6 +32,7 @@ import {
   SIGIL_OF_THE_NIGHT_ID,
   STABILITY_DAMAGE_TRAIT_BONUSES,
   SWIFTNESS_DAMAGE_TRAIT_BONUSES,
+  VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES,
   VIGOR_DAMAGE_TRAIT_BONUSES,
   type CombatState,
   type HealthTier,
@@ -206,7 +207,8 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   const aegisTrait = aegisTraitId !== undefined ? traitsById.get(aegisTraitId) : undefined
 
   // Only surfaced when the build actually has a curated `VIGOR_DAMAGE_TRAIT_BONUSES` trait chosen
-  // (currently just Engineer's Excessive Energy) — same reasoning as `resolutionTraitId` above.
+  // (Engineer's Excessive Energy or Mesmer's Nomad's Endurance) — same reasoning as
+  // `resolutionTraitId` above.
   const vigorTraitId = [...activeTraitIds(build, traitsById)].find((id) => id in VIGOR_DAMAGE_TRAIT_BONUSES)
   const vigorTrait = vigorTraitId !== undefined ? traitsById.get(vigorTraitId) : undefined
 
@@ -516,7 +518,13 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
           type="button"
           className="combat-state-toggle-icon"
           title={
-            value.vigorActive ? `${vigorTrait.name}: Active (+${VIGOR_DAMAGE_TRAIT_BONUSES[vigorTraitId!]}% Outgoing Damage)` : `${vigorTrait.name}: Inactive`
+            value.vigorActive
+              ? `${vigorTrait.name}: Active (+${VIGOR_DAMAGE_TRAIT_BONUSES[vigorTraitId!]}% Outgoing Damage${
+                  vigorTraitId! in VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES
+                    ? `, +${VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES[vigorTraitId!]}% Outgoing Condition Damage`
+                    : ''
+                })`
+              : `${vigorTrait.name}: Inactive`
           }
           onClick={() => onChange({ ...value, vigorActive: !value.vigorActive })}
         >

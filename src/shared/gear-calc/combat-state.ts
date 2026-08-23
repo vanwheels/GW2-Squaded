@@ -797,6 +797,44 @@ function curatedSigilConditionDamagePercent(build: Build): number {
  * - Symbiotic Synergy (2406) — "Morph skills deal increased strike damage," scoped to one skill
  *   category rather than general outgoing strike damage — same "narrower skill-specific proc"
  *   exclusion class as Burst Mastery/Big Game Hunter/Power for Power.
+ *
+ * Mesmer leg (Session 283, 2026-08-22): 14 unique candidates. 2 curated below (`FLAT_DAMAGE_TRAIT_
+ * BONUSES`'s new Vicious Expression entry, `VIGOR_DAMAGE_TRAIT_BONUSES`'s new Nomad's Endurance
+ * entry, the latter also needing a brand-new `VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES` table since this
+ * is the first vigor-gated trait with a condition-damage half); 12 excluded after wiki/description
+ * verification:
+ * - Mental Anguish (680, Shatter skills only), Infinite Forge (2206, Blade attacks only) — scoped to
+ *   one skill category, same "narrower skill-specific proc"/"per-skill-category" exclusion class as
+ *   Burst Mastery/Symbiotic Synergy.
+ * - Time Catches Up (1995) — both a skill-category gate (Shatters only) AND a target-condition gate
+ *   (movement-impaired foes), doubly out of scope.
+ * - Empowered Illusions (682) — "Illusions deal increased strike damage" boosts the *illusions'* own
+ *   damage, not the player's; this app has no tracked "summon/illusion damage" field (only "the
+ *   player's own"), same reasoning as the Outgoing Healing % sweep's Spirit's Strength exclusion
+ *   (pet-heal boost, not the player's own) — a new sibling to that same "pet/summon output not
+ *   modeled" gap-shape family. Contrast with Vicious Expression (681) below, whose "you AND your
+ *   illusions" wording covers the player directly too, so its baseline is in scope.
+ * - Egotism (713) — "to foes with a lower health percentage than you," a target-*relative* health
+ *   comparison, same exclusion class as the Engineer leg's Big Boomer (1947).
+ * - Fragility (1941) — "for each stack of vulnerability on your target," a target-status-stack-count
+ *   scaling, same exclusion class as Destruction of the Empowered/Shaped Charge/Modified Ammunition.
+ * - Time Bomb (1978) — damage bonus only applies to targets carrying the "Time Bomb" debuff applied
+ *   by one specific skill (Time Sink), a narrower-skill-specific proc, same exclusion class as Big
+ *   Game Hunter/Power for Power/Electric Discharge.
+ * - Bloodsong (2223) — "Bleeding you apply deals increased damage," scoped to one condition type
+ *   rather than condition damage broadly (this app only has the one blanket `outgoingConditionDamage
+ *   Percent` field) — same per-condition-type exclusion class as Guardian's Amplified Wrath.
+ * - Shredding (2343) — "the lute's damage bonus is increased," a bonus to one specific skill's own
+ *   proc damage (Lively Lute), same narrower-skill-specific-proc exclusion class as Time Bomb.
+ * - Mental Focus (2208) — "Strike damage is increased against foes within the range threshold," a
+ *   target-*range* gate; no `CombatState` field tracks target range at all (distinct from every
+ *   other target-condition gate seen so far, which are status-based not distance-based) — a brand-
+ *   new "target-range-gated damage-%%" gap-shape, logged in TODO.md.
+ * - Superiority Complex (692), Danger Time (2009) — both are "Critical Damage Increase," a straight
+ *   critical-hit-damage multiplier, not the `CritDamage`/Ferocity attribute (already modeled via
+ *   `AttributeAdjust`) and not general outgoing strike/condition damage either — this app has no
+ *   `DerivedStats` field for a standalone crit-damage-multiplier stat at all, a brand-new gap-shape
+ *   logged in TODO.md.
  */
 
 /**
@@ -916,10 +954,28 @@ export const NOT_FULL_ENDURANCE_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * `CombatState.vigorActive` (see its doc comment), same shape as `SWIFTNESS_DAMAGE_TRAIT_BONUSES`/
  * `STABILITY_DAMAGE_TRAIT_BONUSES`/`AEGIS_DAMAGE_TRAIT_BONUSES`. Excessive Energy (Engineer/Tools,
  * Grandmaster Minor, id 1936): "Strike damage dealt is increased while you have vigor." Wiki-
- * verified via raw wikitext 2026-08-22: flat 10%, no game-mode split.
+ * verified via raw wikitext 2026-08-22: flat 10%, no game-mode split. Nomad's Endurance (Mesmer/
+ * Mirage, Master Minor, id 2069), added in the Mesmer leg: "Strike and condition damage dealt is
+ * increased when you have vigor." Wiki-verified via raw wikitext 2026-08-22 (`split = pve, wvw,
+ * pvp`, a genuine 3-way split): strike damage is PvE/WvW 10%, PvP 5% — note PvE and WvW share a
+ * value here and PvP is the odd one out, the reverse of this table's usual "WvW/PvP share a value"
+ * shape — WvW value (10) used here regardless. Its condition-damage half is curated separately in
+ * the new `VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES` table below (PvE 5%, WvW/PvP 10% — the more usual
+ * split shape).
  */
 export const VIGOR_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
-  1936: 10 // Excessive Energy (Engineer, Tools, Minor)
+  1936: 10, // Excessive Energy (Engineer, Tools, Minor)
+  2069: 10 // Nomad's Endurance (Mesmer, Mirage, Minor) — strike-damage half, see doc comment
+}
+
+/**
+ * Trait id -> flat outgoing-condition-damage-% while Vigor is active — gated on `CombatState.
+ * vigorActive`, the condition-damage sibling to `VIGOR_DAMAGE_TRAIT_BONUSES`. First entry: Nomad's
+ * Endurance's condition-damage half (see `VIGOR_DAMAGE_TRAIT_BONUSES`'s doc comment) — wiki-verified
+ * WvW/PvP value 10%.
+ */
+export const VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
+  2069: 10 // Nomad's Endurance (Mesmer, Mirage, Minor) — condition-damage half, see doc comment
 }
 
 /**
@@ -945,10 +1001,17 @@ export const MECHANIC_ACTIVE_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
  * Performance" buff for 6s after using a Physical skill) is a transient proc window, not a
  * steady-state build stat — same "not a character stat gain" reasoning already used to exclude Mist
  * Form/Signet of the Locust from the movement-speed sweep — so only the always-on baseline is
- * curated here.
+ * curated here. Vicious Expression (Mesmer/Domination, Grandmaster Major, id 681 — the live wiki
+ * page has since been retitled "Confounding Suggestions," `traits.json` still names live id 681
+ * "Vicious Expression," kept for data consistency, same situation as Furious Burst/"Precise
+ * Strikes"): "You and your illusions deal increased strike damage" is an always-on baseline; wiki-
+ * verified via raw wikitext 2026-08-22 (`split = pve, wvw pvp`): PvE 10%, WvW/PvP 7% — WvW value
+ * used here. Its "further increased against foes without boons" +15% half is target-condition-gated,
+ * out of scope (see this section's own doc comment).
  */
 export const FLAT_DAMAGE_TRAIT_BONUSES: Record<number, number> = {
-  1444: 3 // Peak Performance (Warrior, Strength, Major) — baseline only, see doc comment
+  1444: 3, // Peak Performance (Warrior, Strength, Major) — baseline only, see doc comment
+  681: 7 // Vicious Expression (Mesmer, Domination, Major) — baseline only, see doc comment
 }
 
 /**
@@ -1027,6 +1090,12 @@ export function resolveOutgoingConditionDamagePercent(build: Build, combatState:
   total += combatState.kallaFervorStacks * kallaFervorPerStack.conditionDamage
   if (combatState.relicActive && build.relicId !== null) total += CURATED_RELIC_CONDITION_DAMAGE_BONUSES[build.relicId] ?? 0
   total += curatedSigilConditionDamagePercent(build)
+  if (combatState.vigorActive) {
+    const active = activeTraitIds(build, traitsById)
+    for (const [traitIdText, percent] of Object.entries(VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES)) {
+      if (active.has(Number(traitIdText))) total += percent
+    }
+  }
   return total
 }
 

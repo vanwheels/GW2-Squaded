@@ -130,9 +130,9 @@ research itself could be as thorough as possible first. All 5 items below come o
     into a new `CURATED_RELIC_CONDITION_DAMAGE_BONUSES` table); its incoming-damage-reduction/
     damage-to-healing-conversion halves are out of scope (no `DerivedStats` field exists for them
     yet).
-  - [ ] **Traits** — Guardian + Warrior + Elementalist + Engineer legs DONE (see COMPLETED.md
-    Sessions 279/280/281/282), 5 professions remaining (Mesmer, Necromancer, Ranger, Revenant,
-    Thief — no fixed order set, pick freely). ~165 raw fact-label matches (`Percent` facts with
+  - [ ] **Traits** — Guardian + Warrior + Elementalist + Engineer + Mesmer legs DONE (see
+    COMPLETED.md Sessions 279/280/281/282/283), 4 professions remaining (Necromancer, Ranger,
+    Revenant, Thief — no fixed order set, pick freely). ~165 raw fact-label matches (`Percent` facts with
     text "Damage Increase"/"Strike Damage Increase"/"Condition Damage Increase"/"Damage Increase
     per Stack"/"...per Boon") across all 9 professions before dedup — comparable in size to the
     biggest coefficient sweeps already completed (Healing/Damage); per-profession legs, per the
@@ -168,6 +168,18 @@ research itself could be as thorough as possible first. All 5 items below come o
     - **Heat-meter scaling** — Engineer/Holosmith's Laser's Edge (id 2122) scales continuously with
       the Holosmith's own Heat meter (0-100), which has no `CombatState` field at all, unlike Kalla's
       Fervor/Death's Carapace's dedicated steppers.
+    - **Pet/summon output not modeled** — Mesmer's Empowered Illusions (id 682) boosts the
+      *illusions'* own damage, not the player's; same "not the player's own" reasoning as the Outgoing
+      Healing % sweep's Spirit's Strength exclusion, now a 2nd member of this gap-shape family.
+    - **Target-range-gated damage-%%** — Mesmer's Mental Focus (id 2208) triggers "against foes
+      within the range threshold" — a target-*distance* gate, distinct from every other target-
+      condition gate seen so far (all status-based, not distance-based); no `CombatState` field
+      tracks target range at all.
+    - **Critical-damage-multiplier %%** — Mesmer's Superiority Complex (id 692) and Danger Time (id
+      2009) both boost "Critical Damage Increase," a straight crit-hit-damage multiplier — distinct
+      from the `CritDamage`/Ferocity attribute (already modeled via `AttributeAdjust`) and from
+      general outgoing strike/condition damage; this app has no `DerivedStats` field for a standalone
+      crit-damage-multiplier stat at all.
 
 - [x] **Data-completeness audit script** — DONE 2026-08-22, see COMPLETED.md. Built
       `scripts/audit-data-completeness.ts` (`npm run audit-data-completeness`), a local-only

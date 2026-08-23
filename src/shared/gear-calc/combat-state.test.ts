@@ -59,6 +59,7 @@ import {
   SIGIL_OF_THE_NIGHT_ID,
   STABILITY_DAMAGE_TRAIT_BONUSES,
   SWIFTNESS_DAMAGE_TRAIT_BONUSES,
+  VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES,
   VIGOR_DAMAGE_TRAIT_BONUSES,
   type CombatState,
   type HealthTier
@@ -1025,6 +1026,45 @@ describe('resolveOutgoingDamagePercent — Excessive Energy (Vigor-gated trait)'
     expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, vigorActive: true }, traitsById)).toBe(
       VIGOR_DAMAGE_TRAIT_BONUSES[1936]
     )
+  })
+})
+
+describe('resolveOutgoingDamagePercent — Vicious Expression (flat, unconditional baseline)', () => {
+  it('contributes the flat bonus once chosen, no combat-state gating needed', () => {
+    const { build, traitsById } = buildWithTrait(681, 'Major')
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, traitsById)).toBe(FLAT_DAMAGE_TRAIT_BONUSES[681])
+  })
+
+  it('contributes nothing when the trait is not chosen', () => {
+    const build = makeBuild()
+    expect(resolveOutgoingDamagePercent(build, DEFAULT_COMBAT_STATE, NO_TRAITS)).toBe(0)
+  })
+})
+
+describe('resolveOutgoingDamagePercent/resolveOutgoingConditionDamagePercent — Nomad\'s Endurance (Vigor-gated, both halves)', () => {
+  it('contributes nothing to either derived stat while chosen but Vigor is inactive', () => {
+    const { build, traitsById } = buildWithTrait(2069, 'Minor')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, vigorActive: false }, traitsById)).toBe(0)
+    expect(resolveOutgoingConditionDamagePercent(build, { ...DEFAULT_COMBAT_STATE, vigorActive: false }, traitsById)).toBe(0)
+  })
+
+  it('contributes the strike-damage half to outgoingDamagePercent once Vigor is active', () => {
+    const { build, traitsById } = buildWithTrait(2069, 'Minor')
+    expect(resolveOutgoingDamagePercent(build, { ...DEFAULT_COMBAT_STATE, vigorActive: true }, traitsById)).toBe(
+      VIGOR_DAMAGE_TRAIT_BONUSES[2069]
+    )
+  })
+
+  it('contributes the condition-damage half to outgoingConditionDamagePercent once Vigor is active', () => {
+    const { build, traitsById } = buildWithTrait(2069, 'Minor')
+    expect(resolveOutgoingConditionDamagePercent(build, { ...DEFAULT_COMBAT_STATE, vigorActive: true }, traitsById)).toBe(
+      VIGOR_CONDITION_DAMAGE_TRAIT_BONUSES[2069]
+    )
+  })
+
+  it('does not contribute the condition-damage half from an unrelated Vigor-gated trait (Excessive Energy)', () => {
+    const { build, traitsById } = buildWithTrait(1936, 'Minor')
+    expect(resolveOutgoingConditionDamagePercent(build, { ...DEFAULT_COMBAT_STATE, vigorActive: true }, traitsById)).toBe(0)
   })
 })
 
