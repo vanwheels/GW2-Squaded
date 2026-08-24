@@ -401,41 +401,6 @@ Unbroken Lines" ("200 Toughness").
 
 ## Nice-to-haves
 
-- [ ] Gear Optimizer truncation — scoped 2026-08-23. The `NODE_LIMIT` trade-off flagged 2026-08-11
-      (see COMPLETED.md) turned out to bite for real: a Power Virtuoso run (2 floors, 3 maximize
-      tiers, runes+infusions on, ~35 slots) truncated and returned Rampager's in several
-      armor/trinket slots. Confirmed via `itemstats.json` this is a genuine dominance bug, not just
-      an unlucky truncation — Rampager's (Power 0.25/Precision 0.35/CondiDmg 0.25) is strictly
-      dominated by Assassin's (Power 0.25/Precision 0.35/CritDamage 0.25) over any relevant set that
-      doesn't track Condition Damage: identical Power/Precision, Assassin's also gives CritDamage
-      for free. Plan, in order:
-      1. [x] **Pareto-dominance pruning** — DONE 2026-08-23 (see COMPLETED.md). `pruneDominated` in
-         `gear-calc/gear-optimize.ts`, applied after the existing exact-signature dedup in
-         `statOptionsFor`/`runeOptionsFor`/`consumableOptionsFor`/`infusionOptionsFor`.
-      2. [x] **Move `optimizeGear` off the main thread into a Web Worker** — DONE 2026-08-23 (see
-         COMPLETED.md). `src/renderer/workers/gear-optimizer.worker.ts` (+ a sibling
-         `gear-optimizer-protocol.ts` for the postMessage types, and a new `tsconfig.worker.json`
-         since the worker's `WebWorker` lib can't coexist with the renderer program's `DOM` lib in
-         one `tsc` run). `NODE_LIMIT` replaced with a per-tier wall-clock `deadlineMs`
-         (`DEFAULT_DEADLINE_MS`, 4s) via `optimizeGear`'s new `OptimizeGearOptions`; live
-         best-incumbent progress reported through `onProgress`/`OptimizerProgress`, wired to a
-         Cancel button and a "Tier X/Y: Metric ≈ value" line in `GearOptimizerPanel` (cancel =
-         `worker.terminate()` — there's no cooperative-cancellation path into a synchronous DFS, so
-         each run gets a fresh worker instance rather than reusing one).
-      3. [x] **Re-evaluate `deadlineMs` sizing** — DONE 2026-08-23 (see COMPLETED.md), though the
-         finding wasn't "raise the number": a real truncation-prone run (4 floors, rune/infusion
-         optimization on) was still `truncated: true` after 45s even on an easier 3-floor
-         sub-problem — a bigger deadline wasn't going to fix that. Root cause was `solve()`
-         branching on every physical infusion slot (~20 once runes/infusions are on) as an
-         independent DFS dimension despite them all sharing one option list. Fixed via
-         `collapseIdenticalOptionGroups` — collapses any cluster of slots sharing the identical
-         `options` array into one aggregate slot enumerated over count-distributions instead of
-         per-slot identity. The same previously-45s-unresolved case now resolves in ~2.2s.
-      4. Also surfaced and fixed while diagnosing this: `GearOptimizerPanel.tsx`'s infeasible-result
-         message never checked `result.truncated` — a search that timed out without finding a
-         feasible combination looked identical to one that proved none exists ("try lowering a
-         floor" is the wrong advice for the former). Now shows a distinct message for each case.
-
 - [ ] Gear Optimizer doesn't fill the currently-*inactive* weapon set — flagged 2026-08-23. Working
       as coded, not a bug: `isActiveWeaponSlot` (`gear-calc/attribute-totals.ts`) only counts the
       currently-drawn weapon set toward stats at all (confirmed real GW2 mechanic 2026-08-06 — a

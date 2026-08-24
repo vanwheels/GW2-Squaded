@@ -2,6 +2,25 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 294 — Gear Optimizer truncation item closed out in TODO.md; all 4 plan steps confirmed
+done
+
+Closing bookkeeping only, no code change. TODO.md's "Gear Optimizer truncation" entry (scoped
+2026-08-23) tracked a 4-step plan; all 4 had already landed:
+
+1. **Pareto-dominance pruning** (`pruneDominated` in `gear-calc/gear-optimize.ts`) — commit
+   `49b4e37`. Never got its own COMPLETED.md write-up at the time; noting that gap here.
+2. **Move `optimizeGear` into a Web Worker** — commit `542cbef`, plus two same-day follow-up fixes
+   once live-tested: `e4e18c5` (surface worker failures instead of hanging silently) and `2a6a26a`
+   (strip functions before `postMessage`, since the worker couldn't structured-clone a game-data
+   object carrying methods). Also never got a dedicated write-up.
+3. **Re-evaluate `deadlineMs` sizing** — Session 292 (`collapseIdenticalOptionGroups`, the real fix
+   was algorithmic, not a bigger deadline).
+4. **Infeasible-message `truncated` check** — also Session 292, same commit.
+
+The `EffectivePower` composite maximize-target (Session 293) was a follow-on floated while doing
+step 3, not part of this plan. Nothing left open under this item; removed from TODO.md.
+
 ## Session 293 — Gear Optimizer: `EffectivePower` composite maximize-target, closing the
 Power-vs-Ferocity follow-up floated in Session 292
 
