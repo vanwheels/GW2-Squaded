@@ -2,6 +2,50 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 293 — Gear Optimizer: `EffectivePower` composite maximize-target, closing the
+Power-vs-Ferocity follow-up floated in Session 292
+
+Implements the "Effective DPS" idea floated 2026-08-23 while working out the Power-vs-Ferocity
+marginal-value math for the user: `Damage ∝ Power × (1 + critChance × (critDamageMultiplier − 1))`
+(generalizing the "100% effective crit" special case, `Power × (1.5 + Ferocity/1500)`, to any crit
+chance). The old "floors + lexicographic maximize-priority" model had no exchange rate between
+Power/Precision/Ferocity — a user had to guess a strict priority order even though the real optimum
+is a genuine 3-way trade-off.
+
+`solve()`'s branch-and-bound is built entirely on metrics being a SUM of independent per-slot deltas
+— true for Power/CritChance%/CritDamage% individually, false for their product. Rather than rewrite
+the DFS to be nonlinear-aware, added `EffectivePower` as a LINEARIZED composite: `effectivePowerValue`
+(the true formula) and `effectivePowerWeights` (its partial derivatives at an operating point,
+translated from CritChance%/CritDamage% into per-point Precision/Ferocity weights) make each pass's
+`metricDelta('EffectivePower', ...)` an ordinary linear metric, so it plugs into the existing
+solve()/Pareto-pruning/group-collapsing machinery with zero changes to any of it. Since a fixed
+weight vector is only accurate near the point it was linearized at, `optimizeGear` now runs a small
+fixed-point loop (`MAX_EFFECTIVE_POWER_ITERATIONS = 3`, only when `EffectivePower` is actually in
+play): seed the operating point from the build's OWN current Power/CritChance/CritDamage, run a full
+pass, re-derive weights from that pass's real result, repeat until convergence or the cap. Extracted
+the single-pass body (previously all of `optimizeGear`) into `runOptimizePass` so the loop can call
+it more than once; non-final passes get a much shorter `EFFECTIVE_POWER_SEED_DEADLINE_MS` (1s) so
+worst-case total time stays bounded. Also deduped the baseline/final-totals accumulation (previously
+hand-duplicated at both the seed-point and result-assembly sites) into one `computeFullAttributeTotals`
+helper.
+
+`EffectivePower` is maximize-target only, not offered as a floor (its value is Power-equivalent
+expected damage, not a number anyone would type in as a minimum) — `GearOptimizerPanel.tsx`'s floor
+grid now filters it out via a new `FLOOR_METRICS` list, while every maximize-tier dropdown still
+offers it. New `effective-power.test.ts`: unit tests for the pure formula/weights (matches the
+100%-crit special case, clamps crit chance at 100%, weights scale with Power as expected), plus a
+full `optimizeGear` integration test with 2 synthetic stat combos verified numerically to have a
+genuine crossover — confirms the `EffectivePower` target lands on the combo that's actually better in
+real expected damage, where a raw-Power-only target (which can't see Precision/CritDamage at all)
+gets stuck on the worse one. `npm run typecheck`/`npm run lint` clean, full suite (456 tests) green.
+
+Known limitation, not a bug: since every option's contribution scales linearly with its own budget,
+a single pass' linear optimum is always a "corner" (every interchangeable slot picks the SAME best-
+scoring option) — the loop can find the better of two corners but can't discover a genuinely interior
+per-slot mix that only the exact nonlinear objective would reveal. Not expected to matter in practice
+(real gear pools have far more than 2 legal stat shapes plus per-category budget variation), but
+worth knowing if a future report says the optimizer "should have mixed two prefixes together."
+
 ## Session 292 — Gear Optimizer: fixed a misleading "infeasible" message and the underlying
 slot-explosion that caused it, closing TODO.md's "re-evaluate deadlineMs sizing" leg
 

@@ -18,6 +18,12 @@ const MAX_TIERS = 3
  *  comment on why gear-only is the right comparison here. */
 const COMPARE_ATTRIBUTES = Object.keys(ATTRIBUTE_DISPLAY_NAME)
 
+/** Floors are a minimum threshold a user types in — "Power ≥ 2500" reads naturally. `EffectivePower`
+ *  is a maximize-target-only metric (see its doc comment in gear-optimize.ts): its value is a
+ *  Power-equivalent expected-damage number, not something anyone would type in as a floor, so it's
+ *  excluded from the floor grid but still offered in every maximize-tier dropdown below. */
+const FLOOR_METRICS = OPTIMIZER_METRICS.filter((m) => m.id !== 'EffectivePower')
+
 function formatMetricValue(value: number, unit: 'points' | 'percent'): string {
   return unit === 'percent' ? `${formatBoonPercent(value)}%` : `${Math.round(value)}`
 }
@@ -219,7 +225,7 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
       <h4>Stat floors</h4>
       <p className="muted">Leave blank for no minimum.</p>
       <div className="optimizer-metric-grid">
-        {OPTIMIZER_METRICS.map((m) => (
+        {FLOOR_METRICS.map((m) => (
           <div className="optimizer-metric-row" key={m.id}>
             <label htmlFor={`floor-${m.id}`}>{m.label}</label>
             <input

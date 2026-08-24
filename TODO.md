@@ -436,18 +436,6 @@ Unbroken Lines" ("200 Toughness").
          feasible combination looked identical to one that proved none exists ("try lowering a
          floor" is the wrong advice for the former). Now shows a distinct message for each case.
 
-- [ ] Gear Optimizer "Effective DPS" composite maximize-target — floated 2026-08-23 (see
-      COMPLETED.md) while working out the Power-vs-Ferocity marginal-value math for the user
-      (assuming 100% effective crit: `Damage ∝ Power × (1.5 + Ferocity/1500)`; a marginal Power
-      point beats a marginal Ferocity point whenever `Power < Ferocity + 2250`). The optimizer's
-      current "floors + lexicographic maximize-priority" model can't express that trade-off — it has
-      no exchange rate between metrics, only a strict priority order the user has to guess. A new
-      `OptimizerMetricId` computing real expected damage (`Power × (1 + critChance×(critDamageMult −
-      1))`, or the always-crit simplification above) as a single maximize target would let the
-      solver chase actual DPS directly. User explicitly scoped 2026-08-23's session to the
-      performance fix only (see the truncation entry above) — this is a genuine follow-up, not
-      started.
-
 - [ ] Gear Optimizer doesn't fill the currently-*inactive* weapon set — flagged 2026-08-23. Working
       as coded, not a bug: `isActiveWeaponSlot` (`gear-calc/attribute-totals.ts`) only counts the
       currently-drawn weapon set toward stats at all (confirmed real GW2 mechanic 2026-08-06 — a
