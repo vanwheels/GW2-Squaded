@@ -2,6 +2,72 @@
 
 User-facing release notes. For the detailed development log, see `COMPLETED.md`.
 
+## 1.2.0 — 2026-08-23
+
+### Discord bot
+
+- Brand new: a companion bot you can add to your own Discord server to share build/squad boards
+  without anyone needing the desktop app. `/builddisplay` and `/squaddisplay` post a live-rendered
+  screenshot of any build/squad share link; `/help` lists every command. Server curators get an
+  approval workflow (submitted builds/squads land as pending requests with Approve/Reject buttons)
+  and a per-board list view with clickable build/squad names, profession/elite-spec emoji, and a
+  Preview button on every entry. See [docs/discord-bot-commands.md](./docs/discord-bot-commands.md)
+  for the full command reference.
+
+### Gear Optimizer
+
+- New **Effective Power** maximize-target: a composite Power/Precision/Ferocity metric that chases
+  real expected damage (`Power × (1 + critChance × (critMultiplier − 1))`) instead of a single raw
+  stat, so the optimizer can find genuine Power-vs-Ferocity trade-offs instead of needing a guessed
+  priority order. An in-app explanation is included next to the option.
+- Every weapon slot (both weapon sets, land and underwater) is now locked to one shared stat
+  prefix, so weapon-swapping mid-fight no longer changes your stats out from under you.
+- Active trait conversions (e.g. Virtuoso's Quiet Intensity, Vitality → Ferocity) are now credited
+  *during* the search, not just in the final result — fixes cases where the search could settle on
+  a worse combination than one it could actually see was better.
+- Fixed a bug where builds with many identical gear slots (e.g. full Rune/Infusion optimization)
+  could time out and report a misleading "no combination satisfies your floors" when a solution
+  actually existed; search now also runs off the main thread so the app no longer freezes while it
+  works, and results account for Pareto-dominated options being pruned up front.
+
+### Builds & Squads
+
+- Right-click menu on any Builds/Squads card now includes **Favorite/Unfavorite** and
+  **Duplicate**, alongside the existing Preview/Edit.
+- New **party-wide-only** filter for Boon/Condition/Effect summaries, so you can see just the
+  buffs/conditions/effects your build can actually spread to the rest of the squad.
+- Builds tab gets a 3-state tag/profession exclusion filter (click again to exclude instead of
+  just include).
+- Build editor's equipment text manifest is now always shown (previously toggled), and **Share**
+  now auto-copies the link to your clipboard as **Share Link**.
+- Squad card party mosaics now reserve a fixed height with a "+N" overflow badge past 5 rows, and
+  no longer stretch to match an outlier sibling card's party count.
+- Settings tab reflows into a 2-column layout.
+
+### Boon/Condition & stat accuracy
+
+- New **Outgoing Damage %** and **Outgoing/Incoming Healing %** Stats-panel rows, backed by a full
+  curated pass across every profession's traits, sigils, and relics.
+- Skill/trait cooldowns now reflect real WvW-specific recharge values where they differ from PvE
+  (149 skills + 4 traits curated), also feeding Relic of the Zephyrite/Citadel's recharge-based
+  durations.
+- Broad sweep across all 9 professions correcting skills/traits whose WvW numbers were silently
+  falling back to PvE values.
+- Movement speed now correctly models GW2's "highest value wins, not additive" rule across
+  Swiftness/Superspeed/traits/runes/relics (4 runes + 7 traits + 1 relic newly curated).
+- Firebrand Tome chapters (Epilogue skills) now feed the Control/Misc/Cleanse totals — previously
+  missing from the aggregate panel entirely.
+- Revenant: Numinous Gift and Cosmic Wisdom's per-legend effects (including Bolstered Bonds' real
+  stat contribution and Found Purpose's interaction), Herald's F2 (Facet of Nature) and Core Value,
+  and Rising Momentum's movement-speed contribution all now show correct, real numbers.
+- Assorted fixes: Mesmer Shatter 4 (Distortion) missing its stun-break with Mental Defense,
+  Necromancer's Corrupt row undercounting Well of Corruption/Elixir of Bliss, Renegade's "Band
+  Together" skills double-counting facts shared with their base skill, Icerazor's Ire missing
+  Immobile, and several Ranger boon-source bugs (Fortifying Bond, Windborne Notes).
+- A handful of long-unknown healing/siphon coefficients (Guardian's Repose, Elementalist's
+  Etching: Jökulhlaup, Revenant's Enchanted Daggers, Necromancer's Death Spiral and siphon skills)
+  were resolved from live in-game readings rather than guessed.
+
 ## 1.1.0 — 2026-08-18
 
 ### Appearance

@@ -2,6 +2,26 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 297 — v1.2.0 release
+
+Cut the second post-1.0 feature release, covering everything since v1.1.0 (Sessions 239-296): the
+Discord bot's full build-out (Phases 1-4 — core CRUD/board sync, `/builddisplay`/`/squaddisplay`
+screenshot rendering, the approval workflow with Preview buttons, board polish, `/help`), a batch of
+Gear Optimizer work (Web Worker move + Pareto-dominance pruning, the `EffectivePower` composite
+maximize-target, the shared-weapon-prefix fix, active trait-conversion search credit, and the
+slot-explosion/misleading-infeasible-message fix), Builds/Squads UX (favorite/duplicate context-menu
+actions, the party-wide-only filter, the Builds-tab exclusion filter, squad card mosaic fixes,
+Settings' 2-column layout), and a large volume of Boon/Condition/stat-accuracy curation (Outgoing
+Damage %, Outgoing/Incoming Healing %, the recharge/cooldown WvW-override sweep, the WvW-vs-PvE
+duplicate-fact-value sweep across all 9 professions, the movement-speed "highest value wins" fix,
+Revenant Numinous Gift/Cosmic Wisdom/Herald fixes, and several smaller accuracy bugs). `package.json`/
+`package-lock.json` bumped 1.1.0 → 1.2.0; `CHANGELOG.md` got a full in-depth entry (user request); no
+README changes needed (Discord bot section/roadmap checkbox were already added mid-batch, see Session
+248's follow-up docs commit). `npm run typecheck`/`lint`/`vitest run` all clean (461 tests) immediately
+before tagging. Tagged `v1.2.0` and published via the same electron-builder GitHub-publish recipe
+prior releases used (pre-created draft release to avoid the known duplicate-release race, see this
+file's earlier `electron-builder-github-publish-race` note).
+
 ## Session 296 — Gear Optimizer: active trait conversions (e.g. Virtuoso's Quiet Intensity) now
 credited DURING the search, not just in the final reported result
 
