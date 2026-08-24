@@ -293,7 +293,9 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
             <p className="empty-state">
               {result.infeasibleFloors.length > 0
                 ? `Can't be satisfied even using every slot for it: ${result.infeasibleFloors.map(metricLabel).join(', ')}. Try lowering that floor.`
-                : "Couldn't find a combination that satisfies every floor. Try lowering one or more floors."}
+                : result.truncated
+                  ? "Search ran out of time before finding a combination that satisfies every floor — that doesn't mean none exists. Try again (results aren't cached) or narrow the search (fewer floors, or turn off rune/infusion optimization) to let it finish."
+                  : "Couldn't find a combination that satisfies every floor. Try lowering one or more floors."}
             </p>
           ) : (
             <>

@@ -422,10 +422,31 @@ Unbroken Lines" ("200 Toughness").
          Cancel button and a "Tier X/Y: Metric ≈ value" line in `GearOptimizerPanel` (cancel =
          `worker.terminate()` — there's no cooperative-cancellation path into a synchronous DFS, so
          each run gets a fresh worker instance rather than reusing one).
-      3. Re-evaluate `deadlineMs` sizing now that 1+2 have landed — pruning may make the existing 4s
-         default go a lot further than the old `NODE_LIMIT` did before any budget increase is even
-         worth considering. Not evaluated yet — needs a real truncation-prone run (e.g. the Power
-         Virtuoso repro above) tried against the new code to see whether it still truncates at all.
+      3. [x] **Re-evaluate `deadlineMs` sizing** — DONE 2026-08-23 (see COMPLETED.md), though the
+         finding wasn't "raise the number": a real truncation-prone run (4 floors, rune/infusion
+         optimization on) was still `truncated: true` after 45s even on an easier 3-floor
+         sub-problem — a bigger deadline wasn't going to fix that. Root cause was `solve()`
+         branching on every physical infusion slot (~20 once runes/infusions are on) as an
+         independent DFS dimension despite them all sharing one option list. Fixed via
+         `collapseIdenticalOptionGroups` — collapses any cluster of slots sharing the identical
+         `options` array into one aggregate slot enumerated over count-distributions instead of
+         per-slot identity. The same previously-45s-unresolved case now resolves in ~2.2s.
+      4. Also surfaced and fixed while diagnosing this: `GearOptimizerPanel.tsx`'s infeasible-result
+         message never checked `result.truncated` — a search that timed out without finding a
+         feasible combination looked identical to one that proved none exists ("try lowering a
+         floor" is the wrong advice for the former). Now shows a distinct message for each case.
+
+- [ ] Gear Optimizer "Effective DPS" composite maximize-target — floated 2026-08-23 (see
+      COMPLETED.md) while working out the Power-vs-Ferocity marginal-value math for the user
+      (assuming 100% effective crit: `Damage ∝ Power × (1.5 + Ferocity/1500)`; a marginal Power
+      point beats a marginal Ferocity point whenever `Power < Ferocity + 2250`). The optimizer's
+      current "floors + lexicographic maximize-priority" model can't express that trade-off — it has
+      no exchange rate between metrics, only a strict priority order the user has to guess. A new
+      `OptimizerMetricId` computing real expected damage (`Power × (1 + critChance×(critDamageMult −
+      1))`, or the always-crit simplification above) as a single maximize target would let the
+      solver chase actual DPS directly. User explicitly scoped 2026-08-23's session to the
+      performance fix only (see the truncation entry above) — this is a genuine follow-up, not
+      started.
 
 - [ ] Gear Optimizer doesn't fill the currently-*inactive* weapon set — flagged 2026-08-23. Working
       as coded, not a bug: `isActiveWeaponSlot` (`gear-calc/attribute-totals.ts`) only counts the

@@ -2,6 +2,56 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 292 — Gear Optimizer: fixed a misleading "infeasible" message and the underlying
+slot-explosion that caused it, closing TODO.md's "re-evaluate deadlineMs sizing" leg
+
+User reported the optimizer saying "couldn't find a combination that satisfies every floor" on a
+Mesmer Virtuoso run whose floors (Power 2700, Health 19000, Crit Chance 61%, Crit Damage 228%) were
+already satisfied by the user's own equipped gear — proof a solution existed. Reproduced with real
+game data + the optimizer's own internals (temp test, deleted after use): the DFS was completing
+fully (not truncated) and reporting the message correctly for a genuinely-infeasible zero-trait
+synthetic build, but a 3-floor sub-case of the same scenario was still `truncated: true` after 45
+seconds with `optimizeRunesInfusions` on — and `GearOptimizerPanel.tsx`'s infeasible-message branch
+never consulted `result.truncated` at all, so a timed-out search and a proven-impossible search
+looked identical to the user. Two fixes:
+
+1. **Message fix** — the infeasible branch now shows a distinct message when `truncated` is true
+   ("ran out of time... try again or narrow the search") vs. proven infeasible ("try lowering a
+   floor"). Small, safe, `npm run typecheck` clean.
+2. **Root-cause algorithmic fix** — `solve()`'s DFS was branching on every physical infusion slot
+   independently (~20 of them once `optimizeRunesInfusions` is on, all sharing the identical option
+   list), an `options.length ^ N` blowup. Added `collapseIdenticalOptionGroups` in
+   `gear-calc/gear-optimize.ts`: any cluster of slots sharing the exact same `options` array
+   (shoulders/gloves/boots, the 2 accessories, the 2 rings, a one-handed weapon's main+off pair, and
+   every infusion slot in the build) collapses into one aggregate slot whose option list is every
+   distinct count-distribution across the cluster (`enumerateDistributions`, a `C(N+K-1,K-1)`
+   enumeration — a few thousand for the worst real case, not `K^N`), pruned by the same
+   `pruneDominated` every other slot already uses. Made this possible by also memoizing
+   `statOptionsFor` per `adjustmentKey` (`GearOptionsCache`) so same-category slots share one array
+   *instance*, not just equal content — a nice side-effect perf win too (was recomputing the same
+   option list up to 6× before). `solve()` itself needed zero changes; result-assembly's
+   per-slot-kind switch was pulled into a small `applyChoice` helper so `kind: 'group'` can recurse
+   into its real members via each chosen option's new `allocation` field. Capped at
+   `MAX_GROUP_DISTRIBUTIONS = 200_000` — an oversized cluster just falls back to today's (slower but
+   correct) ungrouped behavior, never a correctness risk.
+
+Verified against the actual repro: the 3-floor case that wouldn't resolve after 45s now resolves
+(and finds a real feasible combo) in ~2.2s; the full 4-floor case now completes in ~140ms (proving
+genuine infeasibility for that zero-trait synthetic build, vs. previously not resolving at all in
+60s). Added `gear-optimize-grouping.test.ts` (6 tests: grouping happens, deltas match a brute-force
+cross-product, ungrouped cases stay untouched, food/utility/rune never group) as permanent
+regression coverage — full suite (448 tests) + `npm run typecheck` + lint all clean. Closes TODO.md's
+"re-evaluate `deadlineMs` sizing" leg 3, though the actual fix ended up being an algorithmic
+reformulation rather than a bigger deadline number.
+
+Separately worked out the Power-vs-Ferocity marginal-value math the user asked about (not a code
+change): assuming 100% effective crit chance, `Damage ∝ Power × (1.5 + Ferocity/1500)`, so a marginal
+Power point beats a marginal Ferocity point whenever `Power < Ferocity + 2250` — a real, reachable
+crossover in heavily-Might-stacked WvW zerg fights, not normally in raw gear stats. Floated (not yet
+built — user scoped this session to the performance fix only) a follow-up "Effective DPS" composite
+maximize-target combining Power/Crit Chance/Crit Damage into one real damage objective, so the
+solver could chase true DPS instead of a guessed stat-priority order.
+
 ## Session 291 — Scion's Reprieve investigated and correctly excluded, closes the last open item
 from the Outgoing/Incoming Healing % sweep
 

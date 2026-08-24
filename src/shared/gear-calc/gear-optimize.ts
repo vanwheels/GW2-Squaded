@@ -156,12 +156,18 @@ export function dominates(a: SearchOption, b: SearchOption): boolean {
 }
 
 export interface SearchOption {
-  /** `ItemStat.id`, `Consumable.id`, or `null` for a food/utility slot's "none" option. */
+  /** `ItemStat.id`, `Consumable.id`, or `null` for a food/utility slot's "none" option, or for an
+   *  aggregate `kind: 'group'` slot's option (see `OptimizerSlot.groupMembers`) — a group option's
+   *  own `id` is never written to a build, only its `allocation` entries are. */
   id: number | null
   label: string
   /** Precomputed `metricDelta` per entry of the run's `relevant` metric list (same order), so the
    *  solver never has to re-derive a metric value from a raw `AttributeTotals` while searching. */
   deltas: number[]
+  /** `kind: 'group'` slots only — one entry per physical member slot (same order as the owning
+   *  `OptimizerSlot.groupMembers`), each the underlying per-unit `SearchOption` that member should
+   *  receive if this aggregate option is chosen. See `buildGroupSlot`'s doc comment. */
+  allocation?: SearchOption[]
 }
 
 export interface OptimizerSlot {
@@ -173,12 +179,17 @@ export interface OptimizerSlot {
   options: SearchOption[]
   /** How this slot's chosen option gets written back onto the result build, in `optimizeGear`'s
    *  result-assembly loop — everything but the default writes somewhere other than `itemStatId`.
-   *  Omitted (defaults to an ordinary gear slot) for every armor/trinket/weapon stat-combo slot. */
-  kind?: 'food' | 'utility' | 'rune' | 'infusion'
+   *  Omitted (defaults to an ordinary gear slot) for every armor/trinket/weapon stat-combo slot.
+   *  `'group'` is synthetic — never produced by the slot-building functions above, only by
+   *  `collapseIdenticalOptionGroups` right before the solver runs (see its doc comment). */
+  kind?: 'food' | 'utility' | 'rune' | 'infusion' | 'group'
   /** `kind: 'infusion'` only — which index into `equipmentKeys[0]`'s `infusionIds` array this slot
    *  writes (each physical infusion slot on a piece of gear is searched independently, since e.g. a
    *  ring's 3 slots can legally hold 3 different infusions). */
   infusionIndex?: number
+  /** `kind: 'group'` only — the original physical slots this aggregate slot stands in for, same
+   *  order as every option's `allocation` array. */
+  groupMembers?: OptimizerSlot[]
 }
 
 const ARMOR_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
@@ -208,7 +219,27 @@ const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
  *  single floor. Restricting to metrics actually in play (floors ∪ every maximize tier, fixed for the
  *  whole multi-tier run before any solving starts) keeps options-per-slot small without losing any
  *  precision that could actually affect the result. */
-function statOptionsFor(itemStats: ItemStat[], legalIds: Set<number>, adjustmentKey: AdjustmentKey, relevant: OptimizerMetricId[]): SearchOption[] {
+/** `adjustmentKey`'s two namespaces (armor/weapon vs. trinket — see `SLOT_ADJUSTMENT_KEY`'s doc
+ *  comment) never collide, so a single cache keyed by `adjustmentKey` alone is safe across both
+ *  call sites below without needing `legalIds`/`itemStats` in the key too — every caller within one
+ *  `optimizeGear` run always passes the same `itemStats`/`relevant`, and the matching `legalIds` for
+ *  that `adjustmentKey`. Threading one shared cache through every `statOptionsFor` call site (armor
+ *  slots, trinket slots, `buildWeaponSlots`) both saves the redundant recomputation multiple slots
+ *  in the same category used to do (e.g. shoulders/gloves/boots all sharing `'armorLight'`) AND, more
+ *  importantly, makes those slots' option arrays `===`-identical — the precondition
+ *  `collapseIdenticalOptionGroups` needs to recognize them as a groupable cluster. */
+export type GearOptionsCache = Map<AdjustmentKey, SearchOption[]>
+
+function statOptionsFor(
+  itemStats: ItemStat[],
+  legalIds: Set<number>,
+  adjustmentKey: AdjustmentKey,
+  relevant: OptimizerMetricId[],
+  cache?: GearOptionsCache
+): SearchOption[] {
+  const cached = cache?.get(adjustmentKey)
+  if (cached) return cached
+
   const seen = new Map<string, SearchOption>()
   for (const stat of itemStats) {
     if (!legalIds.has(stat.id) || stat.name.trim() === '') continue
@@ -217,7 +248,9 @@ function statOptionsFor(itemStats: ItemStat[], legalIds: Set<number>, adjustment
     if (seen.has(sig)) continue
     seen.set(sig, { id: stat.id, label: formatItemStatName(stat.name), deltas: relevant.map((id) => metricDelta(id, delta)) })
   }
-  return pruneDominated([...seen.values()])
+  const result = pruneDominated([...seen.values()])
+  cache?.set(adjustmentKey, result)
+  return result
 }
 
 function consumableOptionsFor(catalog: Consumable[], relevant: OptimizerMetricId[]): SearchOption[] {
@@ -303,7 +336,8 @@ function buildWeaponSlots(
   gameData: Pick<GameData, 'professions'>,
   legalArmorWeapon: Set<number>,
   itemStats: ItemStat[],
-  relevant: OptimizerMetricId[]
+  relevant: OptimizerMetricId[],
+  cache: GearOptionsCache
 ): OptimizerSlot[] {
   const profession = gameData.professions.find((p) => p.id === build.profession)
 
@@ -312,7 +346,7 @@ function buildWeaponSlots(
   }
 
   function gearOptions(adjustmentKey: AdjustmentKey): SearchOption[] {
-    return statOptionsFor(itemStats, legalArmorWeapon, adjustmentKey, relevant)
+    return statOptionsFor(itemStats, legalArmorWeapon, adjustmentKey, relevant, cache)
   }
 
   const slots: OptimizerSlot[] = []
@@ -422,6 +456,130 @@ function buildWeaponInfusionSlots(build: Build, gameData: Pick<GameData, 'profes
     }
   }
   return slots
+}
+
+/** Above this many distinct count-distributions, `buildGroupSlot` bails out and leaves that
+ *  cluster's members ungrouped rather than enumerate — a safety valve, not a tuned performance
+ *  target: real clusters stay far under it (the worst case, every physical infusion slot in a
+ *  build, is ~20 units over ~4-5 surviving option shapes once `pruneDominated` has run, i.e.
+ *  thousands of distributions, not hundreds of thousands). Falling back to ungrouped slots for an
+ *  oversized cluster is always safe — it's exactly today's (slower but correct) behavior. */
+const MAX_GROUP_DISTRIBUTIONS = 200_000
+
+/** Every way to spend `unitCount` interchangeable units across `options` (order doesn't matter —
+ *  only how many units go to each option), i.e. one entry per multiset/"composition" of `unitCount`
+ *  into `options.length` non-negative parts. Returns `null` if that count would exceed
+ *  `MAX_GROUP_DISTRIBUTIONS` (checked incrementally, not precomputed, so the abort is cheap). */
+function enumerateDistributions(options: SearchOption[], unitCount: number): { deltas: number[]; counts: number[] }[] | null {
+  const metricCount = options[0]?.deltas.length ?? 0
+  const results: { deltas: number[]; counts: number[] }[] = []
+  const counts = new Array(options.length).fill(0)
+  let aborted = false
+
+  function recurse(typeIdx: number, remaining: number, deltas: number[]): void {
+    if (aborted) return
+    if (typeIdx === options.length - 1) {
+      counts[typeIdx] = remaining
+      const finalDeltas = deltas.map((d, m) => d + remaining * options[typeIdx].deltas[m])
+      results.push({ deltas: finalDeltas, counts: counts.slice() })
+      if (results.length > MAX_GROUP_DISTRIBUTIONS) aborted = true
+      return
+    }
+    for (let c = 0; c <= remaining; c++) {
+      counts[typeIdx] = c
+      const nextDeltas = deltas.map((d, m) => d + c * options[typeIdx].deltas[m])
+      recurse(typeIdx + 1, remaining - c, nextDeltas)
+      if (aborted) return
+    }
+  }
+  recurse(0, unitCount, new Array(metricCount).fill(0))
+  return aborted ? null : results
+}
+
+/** Expands a distribution's per-type counts back into one concrete per-unit choice each — e.g.
+ *  `counts: [3, 2]` over `[berserkers, assassins]` becomes `[berserkers, berserkers, berserkers,
+ *  assassins, assassins]`. Which physical member ends up with which array index doesn't matter
+ *  (the members are interchangeable by construction — that's the whole premise of grouping them),
+ *  so a fixed type-major order is fine; `optimizeGear`'s result-assembly zips this 1:1 against
+ *  `OptimizerSlot.groupMembers` in that same order. */
+function buildAllocation(counts: number[], options: SearchOption[]): SearchOption[] {
+  const allocation: SearchOption[] = []
+  for (let i = 0; i < counts.length; i++) {
+    for (let c = 0; c < counts[i]; c++) allocation.push(options[i])
+  }
+  return allocation
+}
+
+function describeDistribution(counts: number[], options: SearchOption[]): string {
+  const parts = counts.map((c, i) => (c > 0 ? `${c}× ${options[i].label}` : null)).filter((s): s is string => s !== null)
+  return parts.length > 0 ? parts.join(', ') : 'None'
+}
+
+/** Collapses `members` (2+ physical slots that all share the exact same `options` array — see
+ *  `collapseIdenticalOptionGroups`) into one aggregate `OptimizerSlot`. This is a reformulation, not
+ *  an approximation: since the members are interchangeable, the only thing that determines the
+ *  group's contribution to any metric is *how many* units go to each option, never *which* member
+ *  gets which — so instead of `solve()`'s DFS branching on each member independently (an
+ *  `options.length ^ members.length` blowup that was measured 2026-08-23 to leave a 3-floor,
+ *  rune/infusion-enabled run unresolved after 45s), every distinct count-distribution is
+ *  enumerated upfront via `enumerateDistributions` (a much smaller `C(members.length +
+ *  options.length - 1, options.length - 1)`) and handed to the solver as one slot's option list,
+ *  pruned by the same `pruneDominated` every other slot's options already go through. Returns
+ *  `null` (caller falls back to leaving the cluster ungrouped) if the distribution count would
+ *  exceed `MAX_GROUP_DISTRIBUTIONS`. */
+function buildGroupSlot(members: OptimizerSlot[], options: SearchOption[]): OptimizerSlot | null {
+  const distributions = enumerateDistributions(options, members.length)
+  if (!distributions) return null
+
+  const groupOptions: SearchOption[] = distributions.map((dist) => ({
+    id: null,
+    label: describeDistribution(dist.counts, options),
+    deltas: dist.deltas,
+    allocation: buildAllocation(dist.counts, options)
+  }))
+
+  return {
+    id: `group:${members.map((m) => m.id).join('+')}`,
+    label: members.map((m) => m.label).join(' / '),
+    equipmentKeys: members.flatMap((m) => m.equipmentKeys),
+    kind: 'group',
+    groupMembers: members,
+    options: pruneDominated(groupOptions)
+  }
+}
+
+/** Scans `slots` for clusters that share the identical `options` array reference (only possible
+ *  because `statOptionsFor`'s `GearOptionsCache` and `infusionOptionsFor`'s single shared call
+ *  already made same-category slots reuse one array instead of building an equal-but-distinct copy
+ *  per slot) and replaces each cluster of 2+ with one `buildGroupSlot` aggregate. `food`/`utility`/
+ *  `rune` slots are always singletons (nothing to group) so they're left alone; a food/utility
+ *  slot's `options` array also happens to never collide with anything else's, but skipping them
+ *  outright avoids relying on that. Single-member "clusters" and any cluster `buildGroupSlot`
+ *  declined (see `MAX_GROUP_DISTRIBUTIONS`) pass through unchanged — grouping is a pure performance
+ *  reformulation, so partial or zero grouping is always a safe, merely-slower fallback, never a
+ *  correctness concern. */
+export function collapseIdenticalOptionGroups(slots: OptimizerSlot[]): OptimizerSlot[] {
+  const clusters = new Map<SearchOption[], OptimizerSlot[]>()
+  for (const slot of slots) {
+    if (slot.kind === 'food' || slot.kind === 'utility' || slot.kind === 'rune') continue
+    const bucket = clusters.get(slot.options)
+    if (bucket) bucket.push(slot)
+    else clusters.set(slot.options, [slot])
+  }
+
+  const grouped = new Set<OptimizerSlot>()
+  const result: OptimizerSlot[] = []
+  for (const [options, members] of clusters) {
+    if (members.length < 2) continue
+    const group = buildGroupSlot(members, options)
+    if (!group) continue
+    result.push(group)
+    for (const member of members) grouped.add(member)
+  }
+  for (const slot of slots) {
+    if (!grouped.has(slot)) result.push(slot)
+  }
+  return result
 }
 
 export interface OptimizerFloor {
@@ -723,19 +881,20 @@ export function optimizeGear(input: OptimizerInput, options: OptimizeGearOptions
 
   const legalArmorWeapon = new Set(gameData.itemStatLegalIds.armorWeapon)
   const legalTrinket = new Set(gameData.itemStatLegalIds.trinket)
+  const gearOptionsCache: GearOptionsCache = new Map()
 
-  const slots: OptimizerSlot[] = []
+  let slots: OptimizerSlot[] = []
   for (const { key, label } of ARMOR_SLOTS) {
     const adjustmentKey = SLOT_ADJUSTMENT_KEY[key]
     if (!adjustmentKey) continue
-    slots.push({ id: key, label, equipmentKeys: [key], options: statOptionsFor(gameData.itemStats, legalArmorWeapon, adjustmentKey, relevant) })
+    slots.push({ id: key, label, equipmentKeys: [key], options: statOptionsFor(gameData.itemStats, legalArmorWeapon, adjustmentKey, relevant, gearOptionsCache) })
   }
   for (const { key, label } of TRINKET_SLOTS) {
     const adjustmentKey = SLOT_ADJUSTMENT_KEY[key]
     if (!adjustmentKey) continue
-    slots.push({ id: key, label, equipmentKeys: [key], options: statOptionsFor(gameData.itemStats, legalTrinket, adjustmentKey, relevant) })
+    slots.push({ id: key, label, equipmentKeys: [key], options: statOptionsFor(gameData.itemStats, legalTrinket, adjustmentKey, relevant, gearOptionsCache) })
   }
-  slots.push(...buildWeaponSlots(build, gameData, legalArmorWeapon, gameData.itemStats, relevant))
+  slots.push(...buildWeaponSlots(build, gameData, legalArmorWeapon, gameData.itemStats, relevant, gearOptionsCache))
 
   // Rune/infusion slots, added to the same search alongside gear — see `OptimizerInput.
   // optimizeRunesInfusions`'s doc comment for the uniform-rune-vs-per-slot-infusion distinction.
@@ -746,6 +905,16 @@ export function optimizeGear(input: OptimizerInput, options: OptimizeGearOptions
     infusionSlots = [...armorTrinketInfusionSlots(infusionOptions), ...buildWeaponInfusionSlots(build, gameData, infusionOptions)]
     slots.push(...infusionSlots)
   }
+
+  // Collapse every cluster of slots that share the exact same options array (shoulders/gloves/
+  // boots, the 2 accessories, the 2 rings, a one-handed weapon's main+off pair, and — the big one —
+  // every physical infusion slot across the whole build, ~20 of them once `optimizeRunesInfusions`
+  // is on) into one aggregate slot apiece, BEFORE the solver ever sees `slots` — see
+  // `collapseIdenticalOptionGroups`'s doc comment for why this is a correctness-preserving
+  // reformulation (not a heuristic) that turns an intractable per-slot branching factor into a
+  // small, fully-enumerated one. `solve()` itself needs no changes: it just sees fewer, "bigger"
+  // slots than before.
+  slots = collapseIdenticalOptionGroups(slots)
 
   const searchedKeys = new Set(slots.flatMap((s) => s.equipmentKeys))
 
@@ -879,8 +1048,12 @@ export function optimizeGear(input: OptimizerInput, options: OptimizeGearOptions
   let foodId = build.foodId
   let utilityId = build.utilityId
 
-  slots.forEach((slot, i) => {
-    const option = slot.options[finalOutcome.choice[i]]
+  // Writes one slot's chosen option onto `resultEquipment`/`foodId`/`utilityId`/`slotResults` —
+  // pulled out of the forEach below so `kind: 'group'` can recurse into its own `groupMembers`
+  // zipped against the chosen option's `allocation` (one real per-unit `SearchOption` per member,
+  // same order — see `buildAllocation`), applying each exactly as if that member had been searched
+  // individually. Every other kind behaves exactly as before this function existed.
+  function applyChoice(slot: OptimizerSlot, option: SearchOption): void {
     switch (slot.kind) {
       case 'food':
         foodId = option.id
@@ -905,13 +1078,21 @@ export function optimizeGear(input: OptimizerInput, options: OptimizeGearOptions
         resultEquipment[key] = { ...(resultEquipment[key] ?? { itemStatId: null }), infusionIds: nextIds }
         break
       }
+      case 'group': {
+        const members = slot.groupMembers ?? []
+        const allocation = option.allocation ?? []
+        members.forEach((member, i) => applyChoice(member, allocation[i]))
+        return // the group itself isn't a real equipment/food/utility slot — no slotResults row for it
+      }
       default:
         for (const key of slot.equipmentKeys) {
           resultEquipment[key] = { ...(resultEquipment[key] ?? {}), itemStatId: option.id }
         }
     }
     slotResults.push({ label: slot.label, equipmentKeys: slot.equipmentKeys, chosenId: option.id, chosenLabel: option.label, kind: slot.kind })
-  })
+  }
+
+  slots.forEach((slot, i) => applyChoice(slot, slot.options[finalOutcome.choice[i]]))
 
   const resultBuild: Build = { ...build, equipment: resultEquipment, foodId, utilityId }
 
