@@ -3,6 +3,7 @@ import type { UpdateStatus } from '@shared/updater/updater-provider'
 import type { DataUpdateStatus, GameDataMeta } from '@shared/game-data/data-update-provider'
 import { useAppSettings } from '@renderer/state/app-settings-store'
 import { useDataUpdate } from '@renderer/state/data-update-store'
+import { useReleaseNotes } from '@renderer/state/release-notes-store'
 import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch'
 import { ThemeModeToggle } from '@renderer/components/common/ThemeModeToggle'
 
@@ -19,6 +20,7 @@ export function SettingsView() {
     setThemeMode
   } = useAppSettings()
   const dataUpdate = useDataUpdate()
+  const { openReleaseNotes } = useReleaseNotes()
   const [localMeta, setLocalMeta] = useState<GameDataMeta | null>(null)
 
   useEffect(() => {
@@ -58,6 +60,9 @@ export function SettingsView() {
         <div className="settings-panel">
           <h3>Updates</h3>
           <p className="muted">Current version: {version || '—'}</p>
+          <button type="button" onClick={openReleaseNotes}>
+            What's New
+          </button>
           {supported ? (
             <UpdateControls status={status} />
           ) : (

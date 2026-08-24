@@ -2,6 +2,12 @@
 
 User-facing release notes. For the detailed development log, see `COMPLETED.md`.
 
+## 1.2.1 — 2026-08-23
+
+- Release notes now show up in the app itself, not just on the GitHub releases page: a "What's
+  New" dialog pops up automatically the first time you open the app after an update, and you can
+  reopen it anytime from Settings → Updates.
+
 ## 1.2.0 — 2026-08-23
 
 ### Discord bot

@@ -2,6 +2,41 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 299 — v1.2.1 release
+
+Bumped `package.json`/`package-lock.json` 1.2.0 → 1.2.1 (`npm version 1.2.1 --no-git-tag-version`);
+`CHANGELOG.md` got a 1.2.1 entry covering Session 298's in-app release notes work. `npm run
+typecheck`/`lint`/`test` all clean (461 tests) immediately before tagging. Tagged `v1.2.1` and
+published via the same pre-created-draft-release electron-builder recipe prior releases used (see
+this file's `electron-builder-github-publish-race` note).
+
+## Session 298 — In-app release notes ("What's New" dialog)
+
+User asked to discuss showing release notes in-app, not just on the GitHub releases page. Design
+decided via a few quick questions: show it both automatically (once, right after an update) and
+on-demand from Settings; make the full changelog history browsable, not just the latest version;
+and source the content straight from `CHANGELOG.md` — bundled and rendered as real Markdown — so
+nothing is duplicated or hand-maintained twice.
+
+Built: `src/renderer/changelog.ts` imports `CHANGELOG.md` via Vite's `?raw` and strips the
+repo-facing title/intro line before it reaches end users. `src/renderer/components/common/
+markdown.tsx` is a small hand-rolled Markdown renderer (headings, bullet lists with wrapped
+continuation lines, `**bold**`, `` `code` ``) — no dependency added, since the input is
+first-party content with a small, stable syntax subset. `ReleaseNotesModal.tsx` renders it inside
+the existing `Modal` component. `release-notes-store.tsx` is a new provider (same plain-
+`localStorage` per-install-preference pattern as `app-settings-store.tsx`) that compares the
+running app version against the last version this install has shown notes for and auto-opens the
+modal on a real change, while a brand-new install just records its version silently instead of
+popping the whole history on first launch. Added a "What's New" button to Settings → Updates
+reaching the same modal instance.
+
+Verified `npm run typecheck`/`lint` clean, a real `electron-vite build` succeeds (confirms the
+cross-directory raw import resolves in the actual bundler, not just tests), and ran the parsing
+logic standalone against the live `CHANGELOG.md` — all 7 version sections parse correctly with no
+malformed bullets and links/bold/code inline markers all split as intended. Visual check deferred
+to the user (can't launch/screenshot the Electron app from this shell — see
+`electron-sandbox-limitation`); user confirmed afterward it looks fine.
+
 ## Session 297 — v1.2.0 release
 
 Cut the second post-1.0 feature release, covering everything since v1.1.0 (Sessions 239-296): the

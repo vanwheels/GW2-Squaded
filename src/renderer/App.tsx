@@ -10,6 +10,7 @@ import { PickerRegistryProvider } from '@renderer/state/picker-registry'
 import { AppSettingsProvider } from '@renderer/state/app-settings-store'
 import { FavoriteConsumablesProvider } from '@renderer/state/favorite-consumables-store'
 import { DataUpdateStoreProvider } from '@renderer/state/data-update-store'
+import { ReleaseNotesProvider } from '@renderer/state/release-notes-store'
 
 export function App() {
   const [activeView, setActiveView] = useState<ViewKey>('builds')
@@ -25,34 +26,36 @@ export function App() {
 
   return (
     <AppSettingsProvider>
-      <DataUpdateStoreProvider>
-        <FavoriteConsumablesProvider>
-          <GameDataStoreProvider provider={window.gw2GameData}>
-            <BuildsStoreProvider>
-              <SquadCompsStoreProvider>
-                <NavBar active={activeView} onChange={setActiveView} />
-                <main className="app-content">
-                  <PickerRegistryProvider>
-                    {/* Builds/Squads stay mounted across tab switches (rather than unmounting like
-                        Settings) so each tab's in-progress editor screen — and its scroll/filter/drag
-                        state — is exactly as you left it when you switch back. */}
-                    <div style={{ display: activeView === 'builds' ? 'contents' : 'none' }}>
-                      <BuildsView
-                        requestedEditBuildId={requestedEditBuildId}
-                        onRequestedEditBuildHandled={() => setRequestedEditBuildId(null)}
-                      />
-                    </div>
-                    <div style={{ display: activeView === 'squads' ? 'contents' : 'none' }}>
-                      <SquadsView onEditBuild={editBuildFromSquads} />
-                    </div>
-                    {activeView === 'settings' && <SettingsView />}
-                  </PickerRegistryProvider>
-                </main>
-              </SquadCompsStoreProvider>
-            </BuildsStoreProvider>
-          </GameDataStoreProvider>
-        </FavoriteConsumablesProvider>
-      </DataUpdateStoreProvider>
+      <ReleaseNotesProvider>
+        <DataUpdateStoreProvider>
+          <FavoriteConsumablesProvider>
+            <GameDataStoreProvider provider={window.gw2GameData}>
+              <BuildsStoreProvider>
+                <SquadCompsStoreProvider>
+                  <NavBar active={activeView} onChange={setActiveView} />
+                  <main className="app-content">
+                    <PickerRegistryProvider>
+                      {/* Builds/Squads stay mounted across tab switches (rather than unmounting like
+                          Settings) so each tab's in-progress editor screen — and its scroll/filter/drag
+                          state — is exactly as you left it when you switch back. */}
+                      <div style={{ display: activeView === 'builds' ? 'contents' : 'none' }}>
+                        <BuildsView
+                          requestedEditBuildId={requestedEditBuildId}
+                          onRequestedEditBuildHandled={() => setRequestedEditBuildId(null)}
+                        />
+                      </div>
+                      <div style={{ display: activeView === 'squads' ? 'contents' : 'none' }}>
+                        <SquadsView onEditBuild={editBuildFromSquads} />
+                      </div>
+                      {activeView === 'settings' && <SettingsView />}
+                    </PickerRegistryProvider>
+                  </main>
+                </SquadCompsStoreProvider>
+              </BuildsStoreProvider>
+            </GameDataStoreProvider>
+          </FavoriteConsumablesProvider>
+        </DataUpdateStoreProvider>
+      </ReleaseNotesProvider>
     </AppSettingsProvider>
   )
 }
