@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import type { Build } from '@shared/types'
 import type { CombatState } from '@shared/gear-calc/combat-state'
-import { OPTIMIZER_METRICS, type OptimizerFloor, type OptimizerMetricId, type OptimizerProgress, type OptimizerResult } from '@shared/gear-calc/gear-optimize'
+import { OPTIMIZER_METRICS, type OptimizerFloor, type OptimizerInput, type OptimizerMetricId, type OptimizerProgress, type OptimizerResult } from '@shared/gear-calc/gear-optimize'
 import { ATTRIBUTE_DISPLAY_NAME, computeGearAttributeTotals } from '@shared/gear-calc/attribute-totals'
 import { formatBoonPercent } from '@shared/boon-calc/format'
 import { useGameData } from '@renderer/state/game-data-store'
@@ -156,10 +156,37 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
       worker.terminate()
       if (workerRef.current === worker) workerRef.current = null
     }
-    const request: GearOptimizerWorkerRequest = {
-      input: { build, gameData, combatState, floors: floorList, targets, optimizeFoodUtility, optimizeRunesInfusions }
+    // `useGameData()` returns the full `GameDataStore` — plain `GameData` fields plus several
+    // `*ById` Maps and closures (`skillsForProfessionAndSlot` etc., see game-data-store.tsx).
+    // `postMessage`'s structured clone can't serialize a function: passing `gameData` through
+    // whole (as an earlier version of this code did) throws a synchronous `DataCloneError` right
+    // here, before the worker ever receives anything — no progress, no error surfaced (that throw
+    // happens on the sending side, not inside the worker, so `onerror`/`onmessageerror` above never
+    // fire either), leaving `running` stuck `true` forever. Pulled down to exactly the plain-data
+    // slice `OptimizerInput` declares instead.
+    const optimizerGameData: OptimizerInput['gameData'] = {
+      itemStats: gameData.itemStats,
+      itemStatLegalIds: gameData.itemStatLegalIds,
+      professions: gameData.professions,
+      infusions: gameData.infusions,
+      runes: gameData.runes,
+      sigils: gameData.sigils,
+      food: gameData.food,
+      utility: gameData.utility,
+      traits: gameData.traits,
+      legends: gameData.legends
     }
-    worker.postMessage(request)
+    const request: GearOptimizerWorkerRequest = {
+      input: { build, gameData: optimizerGameData, combatState, floors: floorList, targets, optimizeFoodUtility, optimizeRunesInfusions }
+    }
+    try {
+      worker.postMessage(request)
+    } catch (err) {
+      // Safety net for any future case shaped like the one above (an unclonable value smuggled
+      // into the payload) — without this, the same throw-before-any-handler-fires failure mode
+      // would strike again with no visible symptom beyond a stuck spinner.
+      onWorkerFailure(err instanceof Error ? err.message : String(err))
+    }
   }
 
   function cancelOptimize(): void {
