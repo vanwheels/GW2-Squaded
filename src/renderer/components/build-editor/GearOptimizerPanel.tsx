@@ -67,6 +67,11 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
   const [running, setRunning] = useState(false)
   const [progress, setProgress] = useState<OptimizerProgress | null>(null)
   const [applied, setApplied] = useState(false)
+  // Set on a worker startup/runtime failure (e.g. the worker script failing to load) — without
+  // this, such a failure left `running` stuck `true` forever with no feedback at all: worker
+  // construction failures fire an async 'error' event rather than throwing synchronously, and
+  // nothing was listening for it before this.
+  const [workerError, setWorkerError] = useState<string | null>(null)
   // The in-flight search's Web Worker (see gear-optimizer.worker.ts) — one instance per run, not
   // reused across runs, since `terminate()` (the cancel button's mechanism) kills it outright and
   // there's no cooperative-cancellation path into the middle of a synchronous DFS. Terminated on
@@ -121,12 +126,25 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
     setRunning(true)
     setApplied(false)
     setProgress(null)
+    setWorkerError(null)
     const floorList: OptimizerFloor[] = OPTIMIZER_METRICS.filter((m) => floors[m.id] != null).map((m) => ({
       metric: m.id,
       value: floors[m.id] as number
     }))
     const worker = new Worker(new URL('../../workers/gear-optimizer.worker.ts', import.meta.url), { type: 'module' })
     workerRef.current = worker
+    // A failed/crashed worker (e.g. the script 404s, or optimizeGear throws) otherwise leaves
+    // `running` stuck true forever with the panel silently doing nothing — surface it instead.
+    function onWorkerFailure(detail: string): void {
+      console.error('Gear Optimizer worker failed:', detail)
+      setWorkerError(detail)
+      setRunning(false)
+      setProgress(null)
+      worker.terminate()
+      if (workerRef.current === worker) workerRef.current = null
+    }
+    worker.onerror = (e) => onWorkerFailure(e.message || 'Worker error')
+    worker.onmessageerror = () => onWorkerFailure('Worker sent an unclonable message')
     worker.onmessage = (e: MessageEvent<GearOptimizerWorkerResponse>) => {
       if (e.data.type === 'progress') {
         setProgress(e.data.progress)
@@ -239,6 +257,8 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
         )}
         {running && progress && <span className="muted">{formatProgress(progress)}</span>}
       </div>
+
+      {workerError && <p className="empty-state">Optimizer failed to run: {workerError}</p>}
 
       {result && (
         <div className="optimizer-result">
