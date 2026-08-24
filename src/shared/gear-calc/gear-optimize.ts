@@ -152,7 +152,7 @@ function effectivePowerPointConverged(a: EffectivePowerPoint, b: EffectivePowerP
  *  not fully optimal, so they get a much shorter budget than the final pass (which uses the
  *  caller's real `deadlineMs`). Bounds worst-case total search time to roughly `deadlineMs +
  *  (MAX_EFFECTIVE_POWER_ITERATIONS - 1) × this`, not `MAX_EFFECTIVE_POWER_ITERATIONS × deadlineMs`. */
-const EFFECTIVE_POWER_SEED_DEADLINE_MS = 1000
+const EFFECTIVE_POWER_SEED_DEADLINE_MS = 2000
 
 const METRIC_IDS: OptimizerMetricId[] = OPTIMIZER_METRICS.map((m) => m.id)
 
@@ -761,7 +761,7 @@ const EPS = 1e-6
  *  one, where a deadline gives every machine the same responsiveness guarantee regardless of
  *  hardware. Each tier of a multi-tier run gets its own fresh `deadlineMs` budget (not one shared
  *  across tiers), so an early tier can never starve a later one. */
-export const DEFAULT_DEADLINE_MS = 4000
+export const DEFAULT_DEADLINE_MS = 8000
 
 interface SolveOutcome {
   choice: number[]
