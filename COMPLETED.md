@@ -2,6 +2,47 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 296 — Gear Optimizer: active trait conversions (e.g. Virtuoso's Quiet Intensity) now
+credited DURING the search, not just in the final reported result
+
+User flagged Virtuoso as "probably the trickier one to test" because its Grandmaster Minor trait
+(Quiet Intensity, id 2193, already curated in `trait-attributes.ts`'s `CURATED_CONVERSIONS`: 10% of
+Vitality -> CritDamage) "would play a decent factor in how the gear is calculated." Checked, and it
+genuinely wasn't: `runOptimizePass`'s baseline explicitly excluded every trait conversion (documented
+inline as intentional — the source attribute could itself be a searched metric, so its value wasn't
+known until after the search ran), and none of the per-slot option builders (`statOptionsFor` etc.)
+applied conversions to their own deltas either. The FINAL `metricValues` were always correct (derived
+from the actual resulting build via `computeFullAttributeTotals`), but the search's own slot-by-slot
+comparisons (`solve()`'s branch-and-bound, `pruneDominated`'s dominance checks) only ever saw a
+candidate's DIRECT attribute contribution — a Vitality-carrying stat combo's indirect Ferocity bonus
+from this trait was invisible while deciding what to pick, so the search could settle on a genuinely
+suboptimal combination for a Ferocity-sensitive target on this spec. (The old doc comment claimed
+this was "a real but narrow limitation — see TODO.md," but it was never actually logged there.)
+
+Realized this is fixable exactly, not just approximately: `applyConversions` (`attribute-totals.ts`)
+is a linear `target += source × percent/100` operation — unlike `EffectivePower`'s nonlinear
+Power×CritChance×CritDamage composite (which needed the `MAX_EFFECTIVE_POWER_ITERATIONS`
+re-linearization loop), a linear conversion can be split exactly: apply it once to the baseline
+(crediting the FIXED, non-searched portion of the source attribute) and independently to every
+option's own delta in every option-builder (`statOptionsFor`/`weaponPrefixOptionsFor`/
+`runeOptionsFor`/`consumableOptionsFor`/`infusionOptionsFor`, crediting the SEARCHED portion) — by
+linearity, baseline-credit + Σ(chosen option credits) always equals the true total, no approximation
+or iteration needed. Threaded a new `traitConversions: TraitConversion[]` (from
+`activeTraitConversions`, gear-independent — specializations only, computed once in `optimizeGear`)
+through every option-builder and `RunOptimizePassInput`, calling `applyConversions(delta,
+traitConversions)` right before each builder computes its `deltaSignature`/`metricDelta`, plus one
+`applyConversions(baseline, traitConversions)` call after baseline's other trait bonuses are folded
+in. Scoped to TRAIT conversions only — food/utility's own conversions (`activeConsumableConversions`)
+depend on which specific item the search picks when `optimizeFoodUtility` is true, so they can't be
+precomputed the same way; logged as a narrower, still-open follow-up in TODO.md.
+
+New `trait-conversion-search-credit.test.ts` (2 tests): a synthetic pure-Ferocity combo vs. a
+pure-Vitality combo (multiplier sized so 10% of its Vitality beats the Ferocity combo's direct
+contribution) — with Quiet Intensity active, every armor/trinket slot now correctly picks the
+Vitality combo; without it, every slot picks the Ferocity combo (proving the fix actually changes the
+search's decisions, not just a passthrough). `npm run typecheck`/`npm run lint` clean, full suite
+(461 tests, +2) green.
+
 ## Session 295 — Gear Optimizer: every weapon slot now shares one stat prefix across both sets,
 closing the parked "doesn't fill the inactive weapon set" item
 

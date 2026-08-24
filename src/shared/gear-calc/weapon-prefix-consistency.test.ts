@@ -4,11 +4,12 @@ import { DEFAULT_COMBAT_STATE } from './combat-state'
 import { optimizeGear, type OptimizerInput } from './gear-optimize'
 
 /**
- * Coverage for the "shared weapon prefix across all sets" change made 2026-08-23, following the
- * user's real in-game example: a Spellbreaker whose Greatsword (Set A) is Marauder but whose
- * Sword+Axe (Set B) are Berserker/Assassin's loses Health the instant they weapon-swap, since only
- * the currently-drawn set contributes to stats (`isActiveWeaponSlot`). Every weapon slot — main
- * hand, off hand, and both sets, active or not — should now receive the SAME chosen stat prefix.
+ * Coverage for "shared weapon prefix across all sets", added 2026-08-23 following the user's real
+ * in-game example: a Spellbreaker whose Greatsword (Set A) is Marauder but whose Sword+Axe (Set B)
+ * are Berserker/Assassin's loses Health the instant they weapon-swap, since only the currently-drawn
+ * set contributes to stats (`isActiveWeaponSlot`). Every weapon slot — main hand, off hand, and both
+ * sets, active or not — should now receive the SAME chosen stat prefix. (See
+ * `trait-conversion-search-credit.test.ts` for the separate, same-day trait-conversion fix.)
  */
 
 function makeBuild(overrides: Partial<Build> = {}): Build {

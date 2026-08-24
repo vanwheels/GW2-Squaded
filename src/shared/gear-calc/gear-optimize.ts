@@ -27,7 +27,15 @@ import {
 } from './derived-stats'
 import { combatStatePoints, furyCritChanceTraitBonus, FURY_CRITICAL_CHANCE_PERCENT, type CombatState } from './combat-state'
 import { formatItemStatName } from './format-description'
-import { activeAttunementAttributeTraitBonus, activeLegendAttributeTraitBonus, activeTraitFlatBonuses, activeWeaponEquippedAttributeTraitBonus, applyTraitBonuses } from './trait-attributes'
+import {
+  activeAttunementAttributeTraitBonus,
+  activeLegendAttributeTraitBonus,
+  activeTraitConversions,
+  activeTraitFlatBonuses,
+  activeWeaponEquippedAttributeTraitBonus,
+  applyTraitBonuses,
+  type TraitConversion
+} from './trait-attributes'
 import { armorTrinketInfusionCapacity, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from './upgrade-slots'
 
 /**
@@ -339,6 +347,7 @@ function statOptionsFor(
   legalIds: Set<number>,
   adjustmentKey: AdjustmentKey,
   relevant: OptimizerMetricId[],
+  traitConversions: TraitConversion[],
   cache?: GearOptionsCache,
   weights?: EffectivePowerWeights
 ): SearchOption[] {
@@ -349,6 +358,7 @@ function statOptionsFor(
   for (const stat of itemStats) {
     if (!legalIds.has(stat.id) || stat.name.trim() === '') continue
     const delta = statComboContribution(stat, adjustmentKey)
+    applyConversions(delta, traitConversions)
     const sig = deltaSignature(delta, relevant, weights)
     if (seen.has(sig)) continue
     seen.set(sig, { id: stat.id, label: formatItemStatName(stat.name), deltas: relevant.map((id) => metricDelta(id, delta, weights)) })
@@ -358,12 +368,13 @@ function statOptionsFor(
   return result
 }
 
-function consumableOptionsFor(catalog: Consumable[], relevant: OptimizerMetricId[], weights?: EffectivePowerWeights): SearchOption[] {
+function consumableOptionsFor(catalog: Consumable[], relevant: OptimizerMetricId[], traitConversions: TraitConversion[], weights?: EffectivePowerWeights): SearchOption[] {
   const seen = new Map<string, SearchOption>()
   seen.set('none', { id: null, label: 'None', deltas: relevant.map(() => 0) })
   for (const item of catalog) {
     const delta = emptyTotals()
     for (const bonus of item.bonuses) addBonus(delta, bonus)
+    applyConversions(delta, traitConversions)
     const sig = deltaSignature(delta, relevant, weights)
     if (seen.has(sig)) continue
     seen.set(sig, { id: item.id, label: item.name, deltas: relevant.map((id) => metricDelta(id, delta, weights)) })
@@ -377,12 +388,13 @@ function consumableOptionsFor(catalog: Consumable[], relevant: OptimizerMetricId
  *  rune" WvW convention (see TODO.md's scoping note), rather than 6 independently-searched rune
  *  slots. Mirrors `addRuneBonuses`' own "count by rune id, credit `bonuses[0..count-1]`" logic for
  *  a uniform 6-piece set. */
-function runeOptionsFor(runes: Rune[], relevant: OptimizerMetricId[], weights?: EffectivePowerWeights): SearchOption[] {
+function runeOptionsFor(runes: Rune[], relevant: OptimizerMetricId[], traitConversions: TraitConversion[], weights?: EffectivePowerWeights): SearchOption[] {
   const seen = new Map<string, SearchOption>()
   seen.set('none', { id: null, label: 'None', deltas: relevant.map(() => 0) })
   for (const rune of runes) {
     const delta = emptyTotals()
     for (const bonus of rune.bonuses) addBonus(delta, bonus)
+    applyConversions(delta, traitConversions)
     const sig = deltaSignature(delta, relevant, weights)
     if (seen.has(sig)) continue
     seen.set(sig, { id: rune.id, label: rune.name, deltas: relevant.map((id) => metricDelta(id, delta, weights)) })
@@ -396,13 +408,14 @@ function runeOptionsFor(runes: Rune[], relevant: OptimizerMetricId[], weights?: 
  *  (`attribute === null` — not currently fetched, see that same doc comment) are skipped. Shared
  *  across every physical infusion slot (`armorTrinketInfusionSlots`/`buildWeaponInfusionSlots`)
  *  since infusions aren't slot-restricted — computed once rather than once per slot. */
-function infusionOptionsFor(infusions: Infusion[], relevant: OptimizerMetricId[], weights?: EffectivePowerWeights): SearchOption[] {
+function infusionOptionsFor(infusions: Infusion[], relevant: OptimizerMetricId[], traitConversions: TraitConversion[], weights?: EffectivePowerWeights): SearchOption[] {
   const seen = new Map<string, SearchOption>()
   seen.set('none', { id: null, label: 'None', deltas: relevant.map(() => 0) })
   for (const infusion of infusions) {
     if (!infusion.attribute || infusion.value === null) continue
     const delta = emptyTotals()
     addPoints(delta, infusion.attribute, infusion.value)
+    applyConversions(delta, traitConversions)
     const sig = deltaSignature(delta, relevant, weights)
     if (seen.has(sig)) continue
     seen.set(sig, { id: infusion.id, label: infusion.name, deltas: relevant.map((id) => metricDelta(id, delta, weights)) })
@@ -497,6 +510,7 @@ function weaponPrefixOptionsFor(
   legalIds: Set<number>,
   activeItems: WeaponPrefixItem[],
   relevant: OptimizerMetricId[],
+  traitConversions: TraitConversion[],
   weights?: EffectivePowerWeights
 ): SearchOption[] {
   const seen = new Map<string, SearchOption>()
@@ -507,6 +521,7 @@ function weaponPrefixOptionsFor(
       const itemDelta = statComboContribution(stat, item.adjustmentKey)
       for (const [attr, value] of Object.entries(itemDelta.points)) addPoints(delta, attr, value)
     }
+    applyConversions(delta, traitConversions)
     const sig = deltaSignature(delta, relevant, weights)
     if (seen.has(sig)) continue
     seen.set(sig, { id: stat.id, label: formatItemStatName(stat.name), deltas: relevant.map((id) => metricDelta(id, delta, weights)) })
@@ -536,6 +551,7 @@ function buildWeaponPrefixSlot(
   legalArmorWeapon: Set<number>,
   itemStats: ItemStat[],
   relevant: OptimizerMetricId[],
+  traitConversions: TraitConversion[],
   weights?: EffectivePowerWeights
 ): OptimizerSlot | null {
   const items = collectWeaponPrefixItems(build, gameData)
@@ -543,7 +559,7 @@ function buildWeaponPrefixSlot(
 
   const activeItems = items.filter((item) => item.active)
   const writeKeys = [...new Set(items.flatMap((item) => item.writeKeys))]
-  const options = weaponPrefixOptionsFor(itemStats, legalArmorWeapon, activeItems, relevant, weights)
+  const options = weaponPrefixOptionsFor(itemStats, legalArmorWeapon, activeItems, relevant, traitConversions, weights)
 
   return {
     id: 'weaponPrefix',
@@ -1078,6 +1094,16 @@ interface RunOptimizePassInput {
   foodById: Map<number, Consumable>
   utilityById: Map<number, Consumable>
   ctx: MetricContext
+  /** Every currently-active trait conversion (e.g. Virtuoso's Quiet Intensity: 10% of Vitality ->
+   *  CritDamage) — gear-independent (only depends on specializations, not on anything the search
+   *  varies), computed once by `optimizeGear` and applied to both the baseline and every option's
+   *  own delta (see `applyConversions`'s call sites in `runOptimizePass`/`statOptionsFor` etc.) so a
+   *  Vitality-carrying stat combo gets full credit for its indirect Ferocity contribution during the
+   *  search itself, not just in the final reported `metricValues`. Exact, not an approximation —
+   *  unlike `EffectivePower`, a source->target percent conversion is linear, so crediting it
+   *  independently to the fixed baseline and to every searched option's own delta and summing
+   *  reproduces the true total with no re-linearization needed. */
+  traitConversions: TraitConversion[]
   /** The linear approximation weights for this pass' `EffectivePower` deltas (see
    *  `effectivePowerWeights`) — `undefined` whenever `EffectivePower` isn't a relevant metric for
    *  this run, in which case it's never read. */
@@ -1110,6 +1136,7 @@ function runOptimizePass(input: RunOptimizePassInput): OptimizerResult {
     foodById,
     utilityById,
     ctx,
+    traitConversions,
     weights,
     deadlineMs,
     onProgress
@@ -1121,22 +1148,22 @@ function runOptimizePass(input: RunOptimizePassInput): OptimizerResult {
   for (const { key, label } of ARMOR_SLOTS) {
     const adjustmentKey = SLOT_ADJUSTMENT_KEY[key]
     if (!adjustmentKey) continue
-    slots.push({ id: key, label, equipmentKeys: [key], options: statOptionsFor(gameData.itemStats, legalArmorWeapon, adjustmentKey, relevant, gearOptionsCache, weights) })
+    slots.push({ id: key, label, equipmentKeys: [key], options: statOptionsFor(gameData.itemStats, legalArmorWeapon, adjustmentKey, relevant, traitConversions, gearOptionsCache, weights) })
   }
   for (const { key, label } of TRINKET_SLOTS) {
     const adjustmentKey = SLOT_ADJUSTMENT_KEY[key]
     if (!adjustmentKey) continue
-    slots.push({ id: key, label, equipmentKeys: [key], options: statOptionsFor(gameData.itemStats, legalTrinket, adjustmentKey, relevant, gearOptionsCache, weights) })
+    slots.push({ id: key, label, equipmentKeys: [key], options: statOptionsFor(gameData.itemStats, legalTrinket, adjustmentKey, relevant, traitConversions, gearOptionsCache, weights) })
   }
-  const weaponSlot = buildWeaponPrefixSlot(build, gameData, legalArmorWeapon, gameData.itemStats, relevant, weights)
+  const weaponSlot = buildWeaponPrefixSlot(build, gameData, legalArmorWeapon, gameData.itemStats, relevant, traitConversions, weights)
   if (weaponSlot) slots.push(weaponSlot)
 
   // Rune/infusion slots, added to the same search alongside gear — see `OptimizerInput.
   // optimizeRunesInfusions`'s doc comment for the uniform-rune-vs-per-slot-infusion distinction.
   let infusionSlots: OptimizerSlot[] = []
   if (optimizeRunesInfusions) {
-    slots.push({ id: 'runes', label: 'Runes', equipmentKeys: RUNE_SLOT_KEYS, kind: 'rune', options: runeOptionsFor(gameData.runes, relevant, weights) })
-    const infusionOptions = infusionOptionsFor(gameData.infusions, relevant, weights)
+    slots.push({ id: 'runes', label: 'Runes', equipmentKeys: RUNE_SLOT_KEYS, kind: 'rune', options: runeOptionsFor(gameData.runes, relevant, traitConversions, weights) })
+    const infusionOptions = infusionOptionsFor(gameData.infusions, relevant, traitConversions, weights)
     infusionSlots = [...armorTrinketInfusionSlots(infusionOptions), ...buildWeaponInfusionSlots(build, gameData, infusionOptions)]
     slots.push(...infusionSlots)
   }
@@ -1154,8 +1181,8 @@ function runOptimizePass(input: RunOptimizePassInput): OptimizerResult {
   const searchedKeys = new Set(slots.flatMap((s) => s.equipmentKeys))
 
   if (optimizeFoodUtility) {
-    slots.push({ id: 'food', label: 'Food', equipmentKeys: [], kind: 'food', options: consumableOptionsFor(gameData.food, relevant, weights) })
-    slots.push({ id: 'utility', label: 'Utility', equipmentKeys: [], kind: 'utility', options: consumableOptionsFor(gameData.utility, relevant, weights) })
+    slots.push({ id: 'food', label: 'Food', equipmentKeys: [], kind: 'food', options: consumableOptionsFor(gameData.food, relevant, traitConversions, weights) })
+    slots.push({ id: 'utility', label: 'Utility', equipmentKeys: [], kind: 'utility', options: consumableOptionsFor(gameData.utility, relevant, traitConversions, weights) })
   }
 
   // Baseline: every fixed contribution (runes, infusions, current food/utility if not being
@@ -1190,18 +1217,7 @@ function runOptimizePass(input: RunOptimizePassInput): OptimizerResult {
   const gearTotals = computeGearAttributeTotals(fixedBuild, gameData)
 
   // Baseline includes active traits' FLAT bonuses (gear-independent, e.g. Revenant/Salvation's
-  // "Life Attunement": +120 Healing Power) — safe to fix once like runes/relic. It deliberately
-  // does NOT include trait attribute *conversions* (e.g. that same trait's 7% Healing->
-  // Concentration) OR food/utility "Gain X Equal to N% of Your Y" conversions (e.g. Superior
-  // Sharpening Stone's Power from Precision/Ferocity — confirmed the dominant WvW Utility-consumable
-  // shape, see `activeConsumableConversions`'s doc comment): either conversion's source attribute
-  // can itself be a searched metric, so its true value isn't known until after the search picks
-  // gear — folding it into a pre-search baseline would use an artificially low source value and
-  // understate the bonus. The search itself is therefore a slight underestimate of the true
-  // achievable value whenever a floor/target's metric is boosted by a conversion sourced from
-  // another searched metric (a real but narrow limitation — see TODO.md); the final `metricValues`
-  // below are NOT affected, since those are re-derived from the actual resulting build via
-  // `applyTraitBonuses`/`applyConversions` (full accuracy, conversions included).
+  // "Life Attunement": +120 Healing Power) — safe to fix once like runes/relic.
   const baseline = emptyTotals()
   for (const [k, v] of Object.entries(BASE_ATTRIBUTES)) addPoints(baseline, k, v)
   for (const [k, v] of Object.entries(gearTotals.points)) addPoints(baseline, k, v)
@@ -1212,8 +1228,7 @@ function runOptimizePass(input: RunOptimizePassInput): OptimizerResult {
   // Weapon-equipped-gated trait bonuses (`WEAPON_EQUIPPED_ATTRIBUTE_TRAIT_BONUSES`) are, like the
   // flat bonuses above, gear-independent from the search's point of view — the optimizer never
   // changes `weaponType` (only `itemStatId`/upgrades per slot), so this value is already fixed by
-  // the time the search runs, safe to fold into the baseline the same way (unlike trait
-  // *conversions*, whose source attribute a still-being-searched slot could affect).
+  // the time the search runs, safe to fold into the baseline the same way.
   for (const [k, v] of Object.entries(activeWeaponEquippedAttributeTraitBonus(build, traitsById))) addPoints(baseline, k, v)
   // Attunement-gated trait bonuses (`ATTUNEMENT_ATTRIBUTE_TRAIT_BONUSES`) are gear-independent for
   // the same reason — the optimizer never touches `build.activeAttunement`.
@@ -1221,6 +1236,24 @@ function runOptimizePass(input: RunOptimizePassInput): OptimizerResult {
   // Legend-equipped-gated trait bonuses (`LEGEND_ATTRIBUTE_TRAIT_BONUSES`, e.g. Bolstered Bonds)
   // are gear-independent too — the optimizer never touches `build.skills`.
   for (const [k, v] of Object.entries(activeLegendAttributeTraitBonus(build, traitsById, gameData.legends))) addPoints(baseline, k, v)
+  // Trait attribute *conversions* (e.g. Virtuoso's Quiet Intensity: 10% of Vitality -> CritDamage)
+  // — flagged by the user 2026-08-23 as a real correctness gap for Ferocity-sensitive maximize
+  // targets on that spec. Applying this to `baseline` here only credits the FIXED (non-searched)
+  // portion of the source attribute; the SEARCHED portion is credited separately, per option, by
+  // the same `applyConversions` call inside `statOptionsFor`/`weaponPrefixOptionsFor`/
+  // `runeOptionsFor`/`consumableOptionsFor`/`infusionOptionsFor` — since the conversion is linear
+  // (target = source × percent, not chained), splitting it this way and summing reproduces the
+  // exact true total with no approximation, unlike `EffectivePower`'s nonlinear composite. Without
+  // this, a search maximizing CriticalDamagePercent/EffectivePower on this spec would undervalue a
+  // Vitality-carrying stat combo (e.g. Marauder's) relative to a pure-Ferocity one, missing the
+  // indirect Ferocity this trait grants it. `activeConsumableConversions` (food/utility's own "Gain
+  // X Equal to N% of Your Y" bonuses, e.g. Superior Sharpening Stone) is NOT threaded through the
+  // same way — when `optimizeFoodUtility` is true, which item (if any) carries a conversion isn't
+  // known until the search itself picks it, so this can't be precomputed the way trait conversions
+  // (fixed by specializations alone) can; left as a narrower, still-open gap (see TODO.md). The
+  // final `metricValues` below are unaffected either way, since those are re-derived from the actual
+  // resulting build via `applyTraitBonuses`/`applyConversions` (full accuracy, both kinds included).
+  applyConversions(baseline, traitConversions)
 
   const baselineValues = relevant.map((id) => evaluateMetric(id, baseline, ctx))
   // No matching floor -> -Infinity, i.e. no lower bound to enforce (see `solve`'s doc comment on
@@ -1364,6 +1397,10 @@ export function optimizeGear(input: OptimizerInput, options: OptimizeGearOptions
   const combatPoints = combatStatePoints(build, combatState, traitsById, gameData.legends)
   const foodById = new Map(gameData.food.map((f) => [f.id, f]))
   const utilityById = new Map(gameData.utility.map((u) => [u.id, u]))
+  // Gear-independent (specializations only), computed once — see `RunOptimizePassInput.
+  // traitConversions`'s doc comment for why this needs to reach both the baseline and every
+  // option's own delta.
+  const traitConversions = activeTraitConversions(build, traitsById)
 
   const weightClass = WEIGHT_CLASS_BY_PROFESSION[build.profession]
   const ctx: MetricContext = {
@@ -1400,7 +1437,8 @@ export function optimizeGear(input: OptimizerInput, options: OptimizeGearOptions
     combatPoints,
     foodById,
     utilityById,
-    ctx
+    ctx,
+    traitConversions
   }
 
   // EffectivePower is a nonlinear composite (Power × crit chance × crit damage) approximated as a
