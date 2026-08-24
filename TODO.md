@@ -401,17 +401,40 @@ Unbroken Lines" ("200 Toughness").
 
 ## Nice-to-haves
 
-- [ ] Gear Optimizer's rune/infusion search (2026-08-11, see COMPLETED.md) adds up to ~18 extra
-      per-slot infusion search variables + 1 rune slot on top of the existing ~12-14 gear/food/
-      utility slots — a synthetic stress case (2 floors, 3 maximize tiers, food/utility AND
-      runes/infusions all on at once, 35 total slots) hit the search's `NODE_LIMIT` truncation
-      (still returned a feasible, reasonable-looking result in ~1s — not a hang — and the UI already
-      surfaces "truncated" transparently) where the same query without rune/infusion search stays
-      well within budget. Not itself a bug, just a real trade-off worth watching: if truncated
-      results turn out to look meaningfully suboptimal in practice, look at raising `NODE_LIMIT`,
-      tightening the branch-order heuristics for infusion-shaped (single-attribute, low-spread)
-      slots specifically, or collapsing same-key infusion slots that end up with identical option
-      sets before they hit the solver.
+- [ ] Gear Optimizer truncation — scoped 2026-08-23, not yet started. The `NODE_LIMIT` trade-off
+      flagged 2026-08-11 (see COMPLETED.md) turned out to bite for real: a Power Virtuoso run
+      (2 floors, 3 maximize tiers, runes+infusions on, ~35 slots) truncated and returned Rampager's
+      in several armor/trinket slots. Confirmed via `itemstats.json` this is a genuine dominance
+      bug, not just an unlucky truncation — Rampager's (Power 0.25/Precision 0.35/CondiDmg 0.25) is
+      strictly dominated by Assassin's (Power 0.25/Precision 0.35/CritDamage 0.25) over any relevant
+      set that doesn't track Condition Damage: identical Power/Precision, Assassin's also gives
+      CritDamage for free. Plan, in order:
+      1. **Pareto-dominance pruning** in `statOptionsFor`/`runeOptionsFor`/`consumableOptionsFor`/
+         `infusionOptionsFor` (`gear-calc/gear-optimize.ts`) — after the existing exact-signature
+         dedup, drop any option dominated (≤ on every relevant metric, < on at least one) by another
+         surviving option in the same slot. Directly fixes the Rampager/Assassin's case (removes it
+         from the candidate list outright, independent of node budget) and shrinks branching for
+         every other run too. Do this first regardless of the rest — no downside, no architecture
+         change needed.
+      2. **Move `optimizeGear` off the main thread into a Web Worker** (bundled locally like the
+         rest of the renderer — no offline or quota concern, confirmed 2026-08-23: a browser Web
+         Worker is unrelated to the `worker/` Cloudflare Worker used for the Discord bot; it's just a
+         local JS thread, no network, no metering). Once off-thread, replace the node-count budget
+         with a wall-clock deadline and have the panel show live progress (best-incumbent updates,
+         maybe a cancel button) instead of a static "Optimizing…" spinner.
+      3. Re-evaluate `NODE_LIMIT`/time budget sizing once 1+2 land — pruning may make the existing
+         budget go a lot further on its own before any budget increase is even needed.
+
+- [ ] Gear Optimizer doesn't fill the currently-*inactive* weapon set — flagged 2026-08-23. Working
+      as coded, not a bug: `isActiveWeaponSlot` (`gear-calc/attribute-totals.ts`) only counts the
+      currently-drawn weapon set toward stats at all (confirmed real GW2 mechanic 2026-08-06 — a
+      stowed set's item stats/infusions/sigils contribute nothing until you swap to it), and the
+      optimizer correctly only searches slots that actually affect a tracked metric right now. Real
+      workflow gap though: the user still wants the stowed set decently geared for when they swap,
+      and has to fill it by hand today. User decided 2026-08-23 to park this rather than bundle it
+      into the truncation work above — if picked up, likely shape is a toggle to also search the
+      inactive set (against the same targets, purely cosmetic since it can't affect any currently-
+      tracked metric).
 
 - [ ] Discord bot latency — profession-scoped game-data fetch. A fresh browser's
       `load-game-data-web.ts` still re-fetches all 26 game-data JSON files (11MB total, ~9.3MB of

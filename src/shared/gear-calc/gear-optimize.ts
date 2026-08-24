@@ -125,7 +125,37 @@ function deltaSignature(delta: AttributeTotals, relevant: OptimizerMetricId[]): 
   return relevant.map((id) => Math.round(metricDelta(id, delta) * 100)).join('|')
 }
 
-interface SearchOption {
+const DOMINANCE_EPS = 1e-6
+
+/** Drops any option that's Pareto-dominated by another surviving option in the same slot — at
+ *  least as good on every relevant metric, strictly better on at least one — so the solver never
+ *  has to branch on a choice that can never be part of an optimal assignment. Complements (runs
+ *  after) the exact-signature dedup each `*OptionsFor` already does: that only merges options whose
+ *  relevant-metric deltas are identical, so e.g. Rampager's (Power/Precision/ConditionDamage) used
+ *  to survive right alongside Assassin's (Power/Precision/CritDamage) on a run that isn't tracking
+ *  Condition Damage — same Power, same Precision, but Assassin's also gives CritDamage for free.
+ *  Found 2026-08-23 diagnosing a truncated search that returned Rampager's pieces a fully-run search
+ *  never should have picked. Unlike the node-budget cap, this is a correctness fix, not a
+ *  performance one — it applies regardless of whether the search ends up truncated. */
+export function pruneDominated(options: SearchOption[]): SearchOption[] {
+  return options.filter((option) => !options.some((other) => other !== option && dominates(other, option)))
+}
+
+/** True if `a` is at least as good as `b` on every relevant metric and strictly better on at least
+ *  one. Post-dedup, two surviving options never have identical deltas (they'd have collided into
+ *  the same signature and been merged already), so no tie-breaking beyond the epsilon is needed —
+ *  but this function makes no such assumption itself (two options with truly identical deltas
+ *  correctly dominate neither each other, so both survive). */
+export function dominates(a: SearchOption, b: SearchOption): boolean {
+  let strictlyBetter = false
+  for (let i = 0; i < a.deltas.length; i++) {
+    if (a.deltas[i] < b.deltas[i] - DOMINANCE_EPS) return false
+    if (a.deltas[i] > b.deltas[i] + DOMINANCE_EPS) strictlyBetter = true
+  }
+  return strictlyBetter
+}
+
+export interface SearchOption {
   /** `ItemStat.id`, `Consumable.id`, or `null` for a food/utility slot's "none" option. */
   id: number | null
   label: string
@@ -187,7 +217,7 @@ function statOptionsFor(itemStats: ItemStat[], legalIds: Set<number>, adjustment
     if (seen.has(sig)) continue
     seen.set(sig, { id: stat.id, label: formatItemStatName(stat.name), deltas: relevant.map((id) => metricDelta(id, delta)) })
   }
-  return [...seen.values()]
+  return pruneDominated([...seen.values()])
 }
 
 function consumableOptionsFor(catalog: Consumable[], relevant: OptimizerMetricId[]): SearchOption[] {
@@ -200,7 +230,7 @@ function consumableOptionsFor(catalog: Consumable[], relevant: OptimizerMetricId
     if (seen.has(sig)) continue
     seen.set(sig, { id: item.id, label: item.name, deltas: relevant.map((id) => metricDelta(id, delta)) })
   }
-  return [...seen.values()]
+  return pruneDominated([...seen.values()])
 }
 
 /** One option per rune (plus "None"), each option's delta the SUM of every stage up to and
@@ -219,7 +249,7 @@ function runeOptionsFor(runes: Rune[], relevant: OptimizerMetricId[]): SearchOpt
     if (seen.has(sig)) continue
     seen.set(sig, { id: rune.id, label: rune.name, deltas: relevant.map((id) => metricDelta(id, delta)) })
   }
-  return [...seen.values()]
+  return pruneDominated([...seen.values()])
 }
 
 /** One option per core-attribute WvW infusion (plus "None") — every attribute infusion is a flat
@@ -239,7 +269,7 @@ function infusionOptionsFor(infusions: Infusion[], relevant: OptimizerMetricId[]
     if (seen.has(sig)) continue
     seen.set(sig, { id: infusion.id, label: infusion.name, deltas: relevant.map((id) => metricDelta(id, delta)) })
   }
-  return [...seen.values()]
+  return pruneDominated([...seen.values()])
 }
 
 /** One `OptimizerSlot` per physical infusion slot on armor/trinkets (helm..boots, back, both
