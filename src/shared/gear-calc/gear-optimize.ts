@@ -328,7 +328,7 @@ const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
  *  call sites below without needing `legalIds`/`itemStats` in the key too — every caller within one
  *  `optimizeGear` run always passes the same `itemStats`/`relevant`, and the matching `legalIds` for
  *  that `adjustmentKey`. Threading one shared cache through every `statOptionsFor` call site (armor
- *  slots, trinket slots, `buildWeaponSlots`) both saves the redundant recomputation multiple slots
+ *  slots, trinket slots) both saves the redundant recomputation multiple slots
  *  in the same category used to do (e.g. shoulders/gloves/boots all sharing `'armorLight'`) AND, more
  *  importantly, makes those slots' option arrays `===`-identical — the precondition
  *  `collapseIdenticalOptionGroups` needs to recognize them as a groupable cluster. */
@@ -432,65 +432,125 @@ function armorTrinketInfusionSlots(options: SearchOption[]): OptimizerSlot[] {
   return slots
 }
 
-/** Which land/underwater weapon slots actually count right now — mirrors `isActiveWeaponSlot`'s
- *  "only the currently-active set contributes" rule, so the optimizer only touches slots that
- *  actually affect the totals it's constraining. The inactive set's `itemStatId` is left untouched
- *  in the result. */
-function buildWeaponSlots(
-  build: Build,
-  gameData: Pick<GameData, 'professions'>,
-  legalArmorWeapon: Set<number>,
-  itemStats: ItemStat[],
-  relevant: OptimizerMetricId[],
-  cache: GearOptionsCache,
-  weights?: EffectivePowerWeights
-): OptimizerSlot[] {
+interface WeaponPrefixItem {
+  /** Equipment key(s) that receive this item's chosen stat-combo id — 2 for a land two-handed
+   *  weapon (main key plus its mirrored off-hand key, matching `weaponAdjustmentKey`'s "each
+   *  mirrored slot sums to the correct two-handed total" model in `attribute-totals.ts`), 1
+   *  otherwise. */
+  writeKeys: EquipmentSlotKey[]
+  adjustmentKey: AdjustmentKey
+  /** Whether this item's set is the one currently drawn — mirrors `isActiveWeaponSlot`. Only
+   *  active items contribute to `weaponPrefixOptionsFor`'s deltas; inactive items still get the
+   *  chosen id written onto them (see `buildWeaponPrefixSlot`), just don't affect the search. */
+  active: boolean
+}
+
+/** Every physically-equipped weapon item across BOTH sets of the build's current environment
+ *  (land: Set A + Set B; underwater: U1 + U2) — unlike `activeWeaponItems` (which only returns the
+ *  currently-drawn set, for infusion search), this deliberately includes the inactive set too, so
+ *  `buildWeaponPrefixSlot` can write the same chosen prefix onto it. */
+function collectWeaponPrefixItems(build: Build, gameData: Pick<GameData, 'professions'>): WeaponPrefixItem[] {
   const profession = gameData.professions.find((p) => p.id === build.profession)
 
   function isTwoHanded(weaponType: string | null | undefined): boolean {
     return Boolean(weaponType && profession?.weapons[weaponType]?.flags.includes('TwoHand'))
   }
 
-  function gearOptions(adjustmentKey: AdjustmentKey): SearchOption[] {
-    return statOptionsFor(itemStats, legalArmorWeapon, adjustmentKey, relevant, cache, weights)
-  }
+  const items: WeaponPrefixItem[] = []
 
-  const slots: OptimizerSlot[] = []
-
-  function addPair(mainKey: EquipmentSlotKey, offKey: EquipmentSlotKey, setLabel: string): void {
+  function addPair(mainKey: EquipmentSlotKey, offKey: EquipmentSlotKey): void {
     const main = build.equipment[mainKey]
     const off = build.equipment[offKey]
+    const active = isActiveWeaponSlot(mainKey, build)
     if (main?.weaponType && isTwoHanded(main.weaponType)) {
-      slots.push({
-        id: `${mainKey}+${offKey}`,
-        label: `${setLabel} (2-handed)`,
-        equipmentKeys: [mainKey, offKey],
-        options: gearOptions('weaponTwoHanded')
-      })
+      items.push({ writeKeys: [mainKey, offKey], adjustmentKey: 'weaponTwoHanded', active })
       return
     }
-    if (main?.weaponType) {
-      slots.push({ id: mainKey, label: `${setLabel} main hand`, equipmentKeys: [mainKey], options: gearOptions('weaponOneHanded') })
-    }
-    if (off?.weaponType) {
-      slots.push({ id: offKey, label: `${setLabel} off hand`, equipmentKeys: [offKey], options: gearOptions('weaponOneHanded') })
-    }
+    if (main?.weaponType) items.push({ writeKeys: [mainKey], adjustmentKey: 'weaponOneHanded', active })
+    if (off?.weaponType) items.push({ writeKeys: [offKey], adjustmentKey: 'weaponOneHanded', active })
   }
 
-  function addUnderwater(key: EquipmentSlotKey, label: string): void {
+  function addUnderwater(key: EquipmentSlotKey): void {
     if (!build.equipment[key]?.weaponType) return
-    slots.push({ id: key, label, equipmentKeys: [key], options: gearOptions('weaponTwoHanded') })
+    items.push({ writeKeys: [key], adjustmentKey: 'weaponTwoHanded', active: isActiveWeaponSlot(key, build) })
   }
 
   if (build.environment === 'land') {
-    if (isActiveWeaponSlot('weaponA1', build)) addPair('weaponA1', 'weaponA2', 'Weapon I')
-    if (isActiveWeaponSlot('weaponB1', build)) addPair('weaponB1', 'weaponB2', 'Weapon II')
+    addPair('weaponA1', 'weaponA2')
+    addPair('weaponB1', 'weaponB2')
   } else {
-    if (isActiveWeaponSlot('weaponU1', build)) addUnderwater('weaponU1', 'Underwater Set 1')
-    if (isActiveWeaponSlot('weaponU2', build)) addUnderwater('weaponU2', 'Underwater Set 2')
+    addUnderwater('weaponU1')
+    addUnderwater('weaponU2')
   }
 
-  return slots
+  return items
+}
+
+/** One legal stat-combo option per unique delta shape, where each option's delta is the SUM, over
+ *  only the currently-ACTIVE weapon items, of that item's own `statComboContribution` at its own
+ *  `adjustmentKey` (a two-handed item's bigger budget vs. a one-handed item's smaller one) — mirrors
+ *  `statOptionsFor`'s dedup/prune shape, but combined across every active item at once rather than
+ *  one `adjustmentKey` at a time, since every weapon slot (active or not) shares one search decision
+ *  here (see `buildWeaponPrefixSlot`). */
+function weaponPrefixOptionsFor(
+  itemStats: ItemStat[],
+  legalIds: Set<number>,
+  activeItems: WeaponPrefixItem[],
+  relevant: OptimizerMetricId[],
+  weights?: EffectivePowerWeights
+): SearchOption[] {
+  const seen = new Map<string, SearchOption>()
+  for (const stat of itemStats) {
+    if (!legalIds.has(stat.id) || stat.name.trim() === '') continue
+    const delta = emptyTotals()
+    for (const item of activeItems) {
+      const itemDelta = statComboContribution(stat, item.adjustmentKey)
+      for (const [attr, value] of Object.entries(itemDelta.points)) addPoints(delta, attr, value)
+    }
+    const sig = deltaSignature(delta, relevant, weights)
+    if (seen.has(sig)) continue
+    seen.set(sig, { id: stat.id, label: formatItemStatName(stat.name), deltas: relevant.map((id) => metricDelta(id, delta, weights)) })
+  }
+  return pruneDominated([...seen.values()])
+}
+
+/** Builds ONE search slot spanning every weapon item across both sets of the current environment —
+ *  main hand, off hand, and two-handed weapons alike all receive the SAME chosen stat prefix, never
+ *  independently searched against each other. Confirmed with the user 2026-08-23: since only the
+ *  currently-drawn set contributes to a character's stats at all (`isActiveWeaponSlot`), mismatched
+ *  prefixes across weapon slots means Health/Power/etc. visibly change the instant you weapon-swap
+ *  mid-fight (e.g. a Marauder greatsword swapping to a Berserker/Assassin's sword+axe loses the
+ *  Vitality on swap) — never desirable, unlike armor/trinkets (independently searched per slot,
+ *  since those never swap mid-fight). The search itself still only SCORES the active set's
+ *  contribution (an inactive item can't affect any tracked metric — same rule as before this
+ *  change), but the chosen id is WRITTEN onto every weapon slot, active or not — this also fills the
+ *  previously-untouched inactive set (closes TODO.md's "doesn't fill the inactive weapon set" item
+ *  as a side effect). Trade-off, intentional: this removes the (already narrow) freedom the old
+ *  per-pair grouping had to split e.g. 1 Berserker + 1 Assassin's across a main/off pair when that
+ *  was marginally more efficient for a floor — a fully-run search's achieved metric values can now
+ *  be very slightly lower than before in exchange for swap-invariant stats. Returns `null` when the
+ *  current environment has no weapon equipped anywhere. */
+function buildWeaponPrefixSlot(
+  build: Build,
+  gameData: Pick<GameData, 'professions'>,
+  legalArmorWeapon: Set<number>,
+  itemStats: ItemStat[],
+  relevant: OptimizerMetricId[],
+  weights?: EffectivePowerWeights
+): OptimizerSlot | null {
+  const items = collectWeaponPrefixItems(build, gameData)
+  if (items.length === 0) return null
+
+  const activeItems = items.filter((item) => item.active)
+  const writeKeys = [...new Set(items.flatMap((item) => item.writeKeys))]
+  const options = weaponPrefixOptionsFor(itemStats, legalArmorWeapon, activeItems, relevant, weights)
+
+  return {
+    id: 'weaponPrefix',
+    label: 'Weapons (shared prefix, all sets)',
+    equipmentKeys: writeKeys,
+    options
+  }
 }
 
 interface WeaponItem {
@@ -503,10 +563,10 @@ interface WeaponItem {
  *  whichever `isActiveWeaponSlot` says; underwater: U1 or U2) — one entry per real item, not per
  *  slot key: a two-handed weapon is a single item living on its main-hand key only (its upgrade
  *  picks never live on the mirrored off-hand key — see `EquipmentEditor.tsx`'s `setMainItemStat`),
- *  a one-handed main/off pair is two independent items. Kept separate from `buildWeaponSlots`' own
- *  pair-merging (one *stat-search* slot per pair, since a two-handed weapon's stat combo IS shared
- *  across both keys) — that shape doesn't apply here, since each item's infusion slots are searched
- *  independently regardless of stat-combo mirroring. Shared by `buildWeaponInfusionSlots` below. */
+ *  a one-handed main/off pair is two independent items. Kept separate from `collectWeaponPrefixItems`
+ *  (which spans BOTH sets, active and inactive, for the shared-prefix stat search) — infusion slots
+ *  are still only searched for the currently-active set's items, independently per physical slot
+ *  regardless of stat-combo mirroring. Shared by `buildWeaponInfusionSlots` below. */
 function activeWeaponItems(build: Build, gameData: Pick<GameData, 'professions'>): WeaponItem[] {
   const profession = gameData.professions.find((p) => p.id === build.profession)
 
@@ -1068,7 +1128,8 @@ function runOptimizePass(input: RunOptimizePassInput): OptimizerResult {
     if (!adjustmentKey) continue
     slots.push({ id: key, label, equipmentKeys: [key], options: statOptionsFor(gameData.itemStats, legalTrinket, adjustmentKey, relevant, gearOptionsCache, weights) })
   }
-  slots.push(...buildWeaponSlots(build, gameData, legalArmorWeapon, gameData.itemStats, relevant, gearOptionsCache, weights))
+  const weaponSlot = buildWeaponPrefixSlot(build, gameData, legalArmorWeapon, gameData.itemStats, relevant, weights)
+  if (weaponSlot) slots.push(weaponSlot)
 
   // Rune/infusion slots, added to the same search alongside gear — see `OptimizerInput.
   // optimizeRunesInfusions`'s doc comment for the uniform-rune-vs-per-slot-infusion distinction.
@@ -1081,9 +1142,9 @@ function runOptimizePass(input: RunOptimizePassInput): OptimizerResult {
   }
 
   // Collapse every cluster of slots that share the exact same options array (shoulders/gloves/
-  // boots, the 2 accessories, the 2 rings, a one-handed weapon's main+off pair, and — the big one —
-  // every physical infusion slot across the whole build, ~20 of them once `optimizeRunesInfusions`
-  // is on) into one aggregate slot apiece, BEFORE the solver ever sees `slots` — see
+  // boots, the 2 accessories, the 2 rings, and — the big one — every physical infusion slot across
+  // the whole build, ~20 of them once `optimizeRunesInfusions` is on) into one aggregate slot
+  // apiece, BEFORE the solver ever sees `slots` — see
   // `collapseIdenticalOptionGroups`'s doc comment for why this is a correctness-preserving
   // reformulation (not a heuristic) that turns an intractable per-slot branching factor into a
   // small, fully-enumerated one. `solve()` itself needs no changes: it just sees fewer, "bigger"

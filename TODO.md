@@ -401,17 +401,6 @@ Unbroken Lines" ("200 Toughness").
 
 ## Nice-to-haves
 
-- [ ] Gear Optimizer doesn't fill the currently-*inactive* weapon set — flagged 2026-08-23. Working
-      as coded, not a bug: `isActiveWeaponSlot` (`gear-calc/attribute-totals.ts`) only counts the
-      currently-drawn weapon set toward stats at all (confirmed real GW2 mechanic 2026-08-06 — a
-      stowed set's item stats/infusions/sigils contribute nothing until you swap to it), and the
-      optimizer correctly only searches slots that actually affect a tracked metric right now. Real
-      workflow gap though: the user still wants the stowed set decently geared for when they swap,
-      and has to fill it by hand today. User decided 2026-08-23 to park this rather than bundle it
-      into the truncation work above — if picked up, likely shape is a toggle to also search the
-      inactive set (against the same targets, purely cosmetic since it can't affect any currently-
-      tracked metric).
-
 - [ ] Discord bot latency — profession-scoped game-data fetch. A fresh browser's
       `load-game-data-web.ts` still re-fetches all 26 game-data JSON files (11MB total, ~9.3MB of
       which is just `skills.json`+`traits.json`) per render, for a preview that usually only needs

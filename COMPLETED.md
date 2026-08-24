@@ -2,6 +2,39 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 295 — Gear Optimizer: every weapon slot now shares one stat prefix across both sets,
+closing the parked "doesn't fill the inactive weapon set" item
+
+User's real in-game motivation: a Spellbreaker whose Greatsword (Set A) is Marauder but whose
+Sword+Axe (Set B) are Berserker/Assassin's *loses Health the instant they weapon-swap* — only the
+currently-drawn set contributes to stats at all (`isActiveWeaponSlot`), so mismatched prefixes across
+weapon slots aren't a cosmetic quirk, they're a real, undesirable stat swing mid-fight. This also
+exposed a second, narrower bug: even *within* the active set, `collapseIdenticalOptionGroups`
+(Session 292) let a one-handed main/off pair split across two different prefixes (e.g. 1 Berserker +
+1 Assassin's) whenever that was marginally more efficient for a floor — main and off are always used
+together, so that split served no real purpose either.
+
+Replaced `buildWeaponSlots` (gear-optimize.ts) — which built independent per-set, per-hand search
+slots for only the active set — with `buildWeaponPrefixSlot`: ONE search slot spanning every weapon
+item across BOTH sets of the current environment (land: Set A + Set B; underwater: U1 + U2). Its
+options are computed by `weaponPrefixOptionsFor`, summing each candidate id's `statComboContribution`
+only over the currently-ACTIVE items (inactive items still can't affect any tracked metric — that
+rule is unchanged), but the chosen id is written onto every weapon equipment key via the slot's
+existing `equipmentKeys`/default `applyChoice` path — active or not, main or off, 2-handed or 1-handed.
+Filling the inactive set this way is what closes the parked TODO.md item as a side effect: no separate
+toggle was needed, since the shared-prefix constraint makes searching the inactive set's own stats
+pointless (it's fully determined by the active set's choice).
+
+Trade-off, intentional and documented in the new function's doc comment: a fully-run search's
+achieved metric values can now be very slightly lower than before (removes the narrow freedom to mix
+main/off prefixes when that was marginally better for a floor) in exchange for stats that never swing
+on a weapon-swap. `collapseIdenticalOptionGroups`'s "one-handed weapon's main+off pair" grouping case
+no longer applies (there's only ever one weapon slot now, nothing left to group) — updated its stale
+doc comments accordingly. New `weapon-prefix-consistency.test.ts` (3 tests): main/off pair locked to
+one prefix, inactive Set B (1h+1h) picks up the exact prefix an active Set A greatsword's search
+chose, and a 2-handed weapon's chosen id mirrors onto both its equipment keys. `npm run typecheck`/
+`npm run lint` clean, full suite (459 tests, +3) green.
+
 ## Session 294 — Gear Optimizer truncation item closed out in TODO.md; all 4 plan steps confirmed
 done
 
