@@ -265,6 +265,17 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
         )}
       </div>
 
+      {targets.includes('EffectivePower') && (
+        <p className="muted">
+          Effective Power is a Power-equivalent expected-damage number — Power × (1 + Critical Chance ×
+          (Critical Damage multiplier − 1)) — so it weighs Power against Critical Chance/Damage directly
+          instead of maximizing one of them alone (Power isn't always the better pick over Ferocity — it
+          depends on your Critical Chance). As a priority tier, it never gets traded away for a lower tier:
+          a tier below it can only break ties among gear picks that already match its best Effective Power,
+          never sacrifice any of it for more raw Power or Critical Damage.
+        </p>
+      )}
+
       <label className="optimizer-checkbox-row">
         <input type="checkbox" checked={optimizeFoodUtility} onChange={(e) => setOptimizeFoodUtility(e.target.checked)} />
         Also optimize food &amp; utility choice
