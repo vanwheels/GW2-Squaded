@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@electron-toolkit/tsconfig/tsconfig.json",
+  // Only `gear-optimizer.worker.ts` itself actually needs the `WebWorker` lib (for `self`/
+  // `DedicatedWorkerGlobalScope`) — it's `exclude`d from `tsconfig.web.json` because `WebWorker`
+  // and `DOM` declare conflicting globals (`self`, `postMessage`, ...) and can't coexist in one
+  // program. Everything else under `src/renderer/workers/` (e.g. the message-protocol types) has
+  // no lib-sensitive code and is checked fine under either config; it's included here too just so
+  // this project's own `include` glob covers the whole directory. `src/shared/**/*` is included
+  // for the same reason `tsconfig.web.json`/`tsconfig.node.json` both include it: `optimizeGear`
+  // and its types live there and are pulled in transitively regardless, so this makes the program's
+  // root file set explicit rather than relying purely on import-graph inference.
+  "include": ["src/renderer/workers/**/*", "src/shared/**/*"],
+  "exclude": ["src/shared/**/*.test.ts"],
+  "compilerOptions": {
+    "composite": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "lib": ["ESNext", "WebWorker"],
+    "types": [],
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["src/shared/*"]
+    }
+  }
+}

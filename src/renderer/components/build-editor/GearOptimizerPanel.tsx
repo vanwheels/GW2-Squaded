@@ -1,11 +1,12 @@
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import type { Build } from '@shared/types'
 import type { CombatState } from '@shared/gear-calc/combat-state'
-import { OPTIMIZER_METRICS, optimizeGear, type OptimizerFloor, type OptimizerMetricId, type OptimizerResult } from '@shared/gear-calc/gear-optimize'
+import { OPTIMIZER_METRICS, type OptimizerFloor, type OptimizerMetricId, type OptimizerProgress, type OptimizerResult } from '@shared/gear-calc/gear-optimize'
 import { ATTRIBUTE_DISPLAY_NAME, computeGearAttributeTotals } from '@shared/gear-calc/attribute-totals'
 import { formatBoonPercent } from '@shared/boon-calc/format'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Modal } from '@renderer/components/common/Modal'
+import type { GearOptimizerWorkerRequest, GearOptimizerWorkerResponse } from '@renderer/workers/gear-optimizer-protocol'
 
 type FloorState = Partial<Record<OptimizerMetricId, number>>
 
@@ -23,6 +24,16 @@ function formatMetricValue(value: number, unit: 'points' | 'percent'): string {
 
 function metricLabel(id: OptimizerMetricId): string {
   return OPTIMIZER_METRICS.find((m) => m.id === id)?.label ?? id
+}
+
+/** "Tier 2/3: Critical Chance ≈ 47%" — shown while a search is running in place of a static
+ *  "Optimizing…" spinner, from live incumbent updates the worker posts (see `OptimizerProgress`'s
+ *  doc comment in gear-optimize.ts). The value is a live best-so-far, not necessarily final —
+ *  hence "≈" rather than "=". */
+function formatProgress(progress: OptimizerProgress): string {
+  const unit = OPTIMIZER_METRICS.find((m) => m.id === progress.targetMetric)?.unit ?? 'points'
+  const tierSuffix = progress.tierCount > 1 ? `Tier ${progress.tierIndex + 1}/${progress.tierCount}: ` : ''
+  return `${tierSuffix}${metricLabel(progress.targetMetric)} ≈ ${formatMetricValue(progress.bestValue, unit)}`
 }
 
 interface Props {
@@ -54,7 +65,18 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
   const [optimizeRunesInfusions, setOptimizeRunesInfusions] = useState(false)
   const [result, setResult] = useState<OptimizerResult | null>(null)
   const [running, setRunning] = useState(false)
+  const [progress, setProgress] = useState<OptimizerProgress | null>(null)
   const [applied, setApplied] = useState(false)
+  // The in-flight search's Web Worker (see gear-optimizer.worker.ts) — one instance per run, not
+  // reused across runs, since `terminate()` (the cancel button's mechanism) kills it outright and
+  // there's no cooperative-cancellation path into the middle of a synchronous DFS. Terminated on
+  // completion, on cancel, and on unmount (below) so a closed-mid-search panel can't leak a worker
+  // still burning CPU in the background.
+  const workerRef = useRef<Worker | null>(null)
+
+  useEffect(() => {
+    return () => workerRef.current?.terminate()
+  }, [])
 
   // Currently-equipped gear totals, recomputed whenever the draft or game data actually changes —
   // this is the "Current" column of the comparison table below, always live regardless of whether
@@ -92,19 +114,41 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
   }
 
   function runOptimize(): void {
+    // A previous run's worker should already be gone by the time a new one can start (the button
+    // is disabled while `running`), but terminate defensively rather than leak two workers if that
+    // ever stops being true.
+    workerRef.current?.terminate()
     setRunning(true)
     setApplied(false)
+    setProgress(null)
     const floorList: OptimizerFloor[] = OPTIMIZER_METRICS.filter((m) => floors[m.id] != null).map((m) => ({
       metric: m.id,
       value: floors[m.id] as number
     }))
-    // Deferred to the next tick so "Optimizing…" actually paints before the (synchronous) search
-    // runs — bounded (see gear-optimize.ts's NODE_LIMIT) but can still take a beat, especially with
-    // 2-3 maximize tiers.
-    setTimeout(() => {
-      setResult(optimizeGear({ build, gameData, combatState, floors: floorList, targets, optimizeFoodUtility, optimizeRunesInfusions }))
+    const worker = new Worker(new URL('../../workers/gear-optimizer.worker.ts', import.meta.url), { type: 'module' })
+    workerRef.current = worker
+    worker.onmessage = (e: MessageEvent<GearOptimizerWorkerResponse>) => {
+      if (e.data.type === 'progress') {
+        setProgress(e.data.progress)
+        return
+      }
+      setResult(e.data.result)
       setRunning(false)
-    }, 0)
+      setProgress(null)
+      worker.terminate()
+      if (workerRef.current === worker) workerRef.current = null
+    }
+    const request: GearOptimizerWorkerRequest = {
+      input: { build, gameData, combatState, floors: floorList, targets, optimizeFoodUtility, optimizeRunesInfusions }
+    }
+    worker.postMessage(request)
+  }
+
+  function cancelOptimize(): void {
+    workerRef.current?.terminate()
+    workerRef.current = null
+    setRunning(false)
+    setProgress(null)
   }
 
   function applyResult(): void {
@@ -188,6 +232,12 @@ export function GearOptimizerPanel({ build, combatState, onApply, open, onClose 
         <button onClick={runOptimize} disabled={running}>
           {running ? 'Optimizing…' : 'Optimize'}
         </button>
+        {running && (
+          <button type="button" onClick={cancelOptimize}>
+            Cancel
+          </button>
+        )}
+        {running && progress && <span className="muted">{formatProgress(progress)}</span>}
       </div>
 
       {result && (

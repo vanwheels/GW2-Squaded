@@ -204,8 +204,8 @@ const TRINKET_SLOTS: { key: EquipmentSlotKey; label: string }[] = [
  *  category down to a handful of distinct "shapes" before the solver ever sees them. Deliberately
  *  NOT deduped over the full 9-metric space: that sounds more precise but in practice barely
  *  dedupes anything (most combos differ on *some* untracked attribute), which multiplies the
- *  search's branching factor and was measured to blow well past the node budget even for a single
- *  floor. Restricting to metrics actually in play (floors ∪ every maximize tier, fixed for the
+ *  search's branching factor and was measured to blow well past the search budget even for a
+ *  single floor. Restricting to metrics actually in play (floors ∪ every maximize tier, fixed for the
  *  whole multi-tier run before any solving starts) keeps options-per-slot small without losing any
  *  precision that could actually affect the result. */
 function statOptionsFor(itemStats: ItemStat[], legalIds: Set<number>, adjustmentKey: AdjustmentKey, relevant: OptimizerMetricId[]): SearchOption[] {
@@ -467,8 +467,8 @@ export interface OptimizerSlotResult {
 
 export interface OptimizerResult {
   feasible: boolean
-  /** True if any tier's node budget was exhausted before that tier's search could prove
-   *  optimality — `slots` still holds the best assignment found, just not guaranteed-optimal. */
+  /** True if any tier's time budget (`deadlineMs`) was exhausted before that tier's search could
+   *  prove optimality — `slots` still holds the best assignment found, just not guaranteed-optimal. */
   truncated: boolean
   /** Populated when `feasible` is false: which floor(s) are mathematically unreachable even
    *  giving every slot its best-possible contribution to that one metric. */
@@ -484,8 +484,20 @@ export interface OptimizerResult {
   build: Build
 }
 
-const NODE_LIMIT = 500_000
+/** How often (in DFS nodes) the search checks the wall clock — checking every single node would
+ *  call `Date.now()` up to millions of times per tier for negligible benefit; checking too rarely
+ *  risks overshooting `deadlineMs` by a visible amount. Purely a perf/precision trade-off, not
+ *  externally meaningful. */
+const DEADLINE_CHECK_INTERVAL = 2048
 const EPS = 1e-6
+
+/** Default per-tier wall-clock search budget, replacing the old node-count `NODE_LIMIT` (see
+ *  TODO.md's "Move `optimizeGear` off the main thread" entry) now that the search runs in a Web
+ *  Worker: a fixed node cap either wastes a fast machine's remaining budget or overruns a slow
+ *  one, where a deadline gives every machine the same responsiveness guarantee regardless of
+ *  hardware. Each tier of a multi-tier run gets its own fresh `deadlineMs` budget (not one shared
+ *  across tiers), so an early tier can never starve a later one. */
+export const DEFAULT_DEADLINE_MS = 4000
 
 interface SolveOutcome {
   choice: number[]
@@ -504,8 +516,20 @@ interface SolveOutcome {
  * a separate `m === targetIndex` special case. This also correctly handles a floor set on the same
  * metric currently being maximized, and (see `optimizeGear`) a higher-priority tier's achieved
  * value being pinned in as a floor for every subsequent tier.
+ *
+ * `deadline` is an absolute `Date.now()`-style epoch ms — the DFS below stops (marking `truncated`)
+ * once it passes, checked periodically rather than every node (see `DEADLINE_CHECK_INTERVAL`).
+ * `onImprove`, if given, fires synchronously every time this tier's incumbent gets a new best
+ * `score` (raw delta, not yet offset by baseline) — `optimizeGear` uses it to report live progress.
  */
-function solve(slots: OptimizerSlot[], relevant: OptimizerMetricId[], requiredDelta: number[], targetIndex: number): SolveOutcome {
+function solve(
+  slots: OptimizerSlot[],
+  relevant: OptimizerMetricId[],
+  requiredDelta: number[],
+  targetIndex: number,
+  deadline: number,
+  onImprove?: (score: number) => void
+): SolveOutcome {
   const slotCount = slots.length
   const metricCount = relevant.length
 
@@ -578,6 +602,7 @@ function solve(slots: OptimizerSlot[], relevant: OptimizerMetricId[], requiredDe
   const greedyAccum = relevant.map((_, m) => slots.reduce((sum, slot, s) => sum + slot.options[assigned[s]].deltas[m], 0))
 
   let best: { choice: number[]; score: number } | null = isFeasible(greedyAccum) ? { choice: assigned.slice(), score: greedyAccum[targetIndex] } : null
+  if (best) onImprove?.(best.score)
   let nodeCount = 0
   let truncated = false
 
@@ -606,12 +631,15 @@ function solve(slots: OptimizerSlot[], relevant: OptimizerMetricId[], requiredDe
 
   function dfs(depth: number): void {
     nodeCount++
-    if (nodeCount > NODE_LIMIT) {
+    if (nodeCount % DEADLINE_CHECK_INTERVAL === 0 && Date.now() >= deadline) {
       truncated = true
       return
     }
     if (depth === slotCount) {
-      if (isFeasible(accum) && (!best || accum[targetIndex] > best.score)) best = { choice: choice.slice(), score: accum[targetIndex] }
+      if (isFeasible(accum) && (!best || accum[targetIndex] > best.score)) {
+        best = { choice: choice.slice(), score: accum[targetIndex] }
+        onImprove?.(best.score)
+      }
       return
     }
     // Bound: even taking every remaining slot's best target contribution, can we beat the
@@ -632,7 +660,7 @@ function solve(slots: OptimizerSlot[], relevant: OptimizerMetricId[], requiredDe
     // yet, so the target-bound prune above can't cut anything): pure target-first ordering would
     // otherwise spend the whole search exploring "maximize the target" branches that starve a
     // floor the target metric doesn't itself contribute to, and might never reach a feasible leaf
-    // before the node budget runs out. Once every floor is already satisfied by `accum`, there's
+    // before the time budget runs out. Once every floor is already satisfied by `accum`, there's
     // nothing left to chase but the target, so fall back to target-descending as before.
     const floorsRemain = requiredDelta.some((req, m) => req > -Infinity && accum[m] < req - EPS)
     const scored = options.map((option, i) => {
@@ -664,8 +692,27 @@ function solve(slots: OptimizerSlot[], relevant: OptimizerMetricId[], requiredDe
   return { choice: [], score: -Infinity, truncated, unreachable: [] }
 }
 
-export function optimizeGear(input: OptimizerInput): OptimizerResult {
+/** Fired whenever a tier's search finds a new best assignment — lets a caller (the Gear Optimizer
+ *  Web Worker, see TODO.md) show live "best found so far" progress during a multi-second search
+ *  instead of a static spinner. `bestValue` is the tier's target metric in its natural
+ *  points/percent unit (baseline + best delta found so far), same unit `OPTIMIZER_METRICS`/
+ *  `OptimizerResult.metricValues` use — not the raw delta `solve()` scores internally. */
+export interface OptimizerProgress {
+  tierIndex: number
+  tierCount: number
+  targetMetric: OptimizerMetricId
+  bestValue: number
+}
+
+export interface OptimizeGearOptions {
+  /** Per-tier wall-clock search budget in ms — see `DEFAULT_DEADLINE_MS`. */
+  deadlineMs?: number
+  onProgress?: (progress: OptimizerProgress) => void
+}
+
+export function optimizeGear(input: OptimizerInput, options: OptimizeGearOptions = {}): OptimizerResult {
   const { build, gameData, combatState, floors, targets, optimizeFoodUtility, optimizeRunesInfusions } = input
+  const { deadlineMs = DEFAULT_DEADLINE_MS, onProgress } = options
   if (targets.length === 0) throw new Error('optimizeGear requires at least one maximize target')
 
   // Every metric that can possibly matter for this run, fixed upfront (floors don't change
@@ -797,9 +844,13 @@ export function optimizeGear(input: OptimizerInput): OptimizerResult {
   // a lower tier can only pick among assignments that already match it.
   let outcome: SolveOutcome | null = null
   let truncatedAny = false
-  for (const targetMetric of targets) {
+  for (let tierIndex = 0; tierIndex < targets.length; tierIndex++) {
+    const targetMetric = targets[tierIndex]
     const targetIndex = relevant.indexOf(targetMetric)
-    const tierOutcome = solve(slots, relevant, requiredDelta, targetIndex)
+    const deadline = Date.now() + deadlineMs
+    const tierOutcome = solve(slots, relevant, requiredDelta, targetIndex, deadline, (score) =>
+      onProgress?.({ tierIndex, tierCount: targets.length, targetMetric, bestValue: baselineValues[targetIndex] + score })
+    )
     if (tierOutcome.score === -Infinity) {
       if (!outcome) {
         return {

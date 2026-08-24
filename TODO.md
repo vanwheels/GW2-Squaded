@@ -401,29 +401,31 @@ Unbroken Lines" ("200 Toughness").
 
 ## Nice-to-haves
 
-- [ ] Gear Optimizer truncation — scoped 2026-08-23, not yet started. The `NODE_LIMIT` trade-off
-      flagged 2026-08-11 (see COMPLETED.md) turned out to bite for real: a Power Virtuoso run
-      (2 floors, 3 maximize tiers, runes+infusions on, ~35 slots) truncated and returned Rampager's
-      in several armor/trinket slots. Confirmed via `itemstats.json` this is a genuine dominance
-      bug, not just an unlucky truncation — Rampager's (Power 0.25/Precision 0.35/CondiDmg 0.25) is
-      strictly dominated by Assassin's (Power 0.25/Precision 0.35/CritDamage 0.25) over any relevant
-      set that doesn't track Condition Damage: identical Power/Precision, Assassin's also gives
-      CritDamage for free. Plan, in order:
-      1. **Pareto-dominance pruning** in `statOptionsFor`/`runeOptionsFor`/`consumableOptionsFor`/
-         `infusionOptionsFor` (`gear-calc/gear-optimize.ts`) — after the existing exact-signature
-         dedup, drop any option dominated (≤ on every relevant metric, < on at least one) by another
-         surviving option in the same slot. Directly fixes the Rampager/Assassin's case (removes it
-         from the candidate list outright, independent of node budget) and shrinks branching for
-         every other run too. Do this first regardless of the rest — no downside, no architecture
-         change needed.
-      2. **Move `optimizeGear` off the main thread into a Web Worker** (bundled locally like the
-         rest of the renderer — no offline or quota concern, confirmed 2026-08-23: a browser Web
-         Worker is unrelated to the `worker/` Cloudflare Worker used for the Discord bot; it's just a
-         local JS thread, no network, no metering). Once off-thread, replace the node-count budget
-         with a wall-clock deadline and have the panel show live progress (best-incumbent updates,
-         maybe a cancel button) instead of a static "Optimizing…" spinner.
-      3. Re-evaluate `NODE_LIMIT`/time budget sizing once 1+2 land — pruning may make the existing
-         budget go a lot further on its own before any budget increase is even needed.
+- [ ] Gear Optimizer truncation — scoped 2026-08-23. The `NODE_LIMIT` trade-off flagged 2026-08-11
+      (see COMPLETED.md) turned out to bite for real: a Power Virtuoso run (2 floors, 3 maximize
+      tiers, runes+infusions on, ~35 slots) truncated and returned Rampager's in several
+      armor/trinket slots. Confirmed via `itemstats.json` this is a genuine dominance bug, not just
+      an unlucky truncation — Rampager's (Power 0.25/Precision 0.35/CondiDmg 0.25) is strictly
+      dominated by Assassin's (Power 0.25/Precision 0.35/CritDamage 0.25) over any relevant set that
+      doesn't track Condition Damage: identical Power/Precision, Assassin's also gives CritDamage
+      for free. Plan, in order:
+      1. [x] **Pareto-dominance pruning** — DONE 2026-08-23 (see COMPLETED.md). `pruneDominated` in
+         `gear-calc/gear-optimize.ts`, applied after the existing exact-signature dedup in
+         `statOptionsFor`/`runeOptionsFor`/`consumableOptionsFor`/`infusionOptionsFor`.
+      2. [x] **Move `optimizeGear` off the main thread into a Web Worker** — DONE 2026-08-23 (see
+         COMPLETED.md). `src/renderer/workers/gear-optimizer.worker.ts` (+ a sibling
+         `gear-optimizer-protocol.ts` for the postMessage types, and a new `tsconfig.worker.json`
+         since the worker's `WebWorker` lib can't coexist with the renderer program's `DOM` lib in
+         one `tsc` run). `NODE_LIMIT` replaced with a per-tier wall-clock `deadlineMs`
+         (`DEFAULT_DEADLINE_MS`, 4s) via `optimizeGear`'s new `OptimizeGearOptions`; live
+         best-incumbent progress reported through `onProgress`/`OptimizerProgress`, wired to a
+         Cancel button and a "Tier X/Y: Metric ≈ value" line in `GearOptimizerPanel` (cancel =
+         `worker.terminate()` — there's no cooperative-cancellation path into a synchronous DFS, so
+         each run gets a fresh worker instance rather than reusing one).
+      3. Re-evaluate `deadlineMs` sizing now that 1+2 have landed — pruning may make the existing 4s
+         default go a lot further than the old `NODE_LIMIT` did before any budget increase is even
+         worth considering. Not evaluated yet — needs a real truncation-prone run (e.g. the Power
+         Virtuoso repro above) tried against the new code to see whether it still truncates at all.
 
 - [ ] Gear Optimizer doesn't fill the currently-*inactive* weapon set — flagged 2026-08-23. Working
       as coded, not a bug: `isActiveWeaponSlot` (`gear-calc/attribute-totals.ts`) only counts the

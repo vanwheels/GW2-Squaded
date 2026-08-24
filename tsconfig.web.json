@@ -4,7 +4,13 @@
   // *.test.ts files (vitest, node:fs/node:path/node:url-using) are covered by tsconfig.node.json's
   // "types": ["node"] instead — this config's "vite/client" types have no Node built-in
   // declarations, and tests don't ship in the renderer bundle anyway.
-  "exclude": ["src/shared/**/*.test.ts"],
+  //
+  // gear-optimizer.worker.ts needs the `WebWorker` lib (see tsconfig.worker.json), which declares
+  // `self`/`postMessage`/etc. incompatibly with this config's `DOM` lib — the two can't coexist in
+  // one program, so the worker file is excluded here and type-checked separately. Nothing in this
+  // program imports it directly: `GearOptimizerPanel` only references it via Vite's
+  // `new Worker(new URL(...))` pattern, a runtime string, not a statically-resolved module import.
+  "exclude": ["src/shared/**/*.test.ts", "src/renderer/workers/gear-optimizer.worker.ts"],
   "compilerOptions": {
     "composite": true,
     "strict": true,
