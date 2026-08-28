@@ -657,7 +657,16 @@ button:hover {
    toolbar cell), and column 3 absorbs whatever's left — shared across every row, so cell 3/6 (the
    toolbar's combat-state strip and the Stats+Skills column) always line up. Default `align-items:
    stretch` equalizes every row's own 3 cells to its own tallest, same as the old flex row did for
-   the 3 columns alone. This whole element is what `ScreenshotButton`'s `targetRef` captures. */
+   the 3 columns alone. This whole element is what `ScreenshotButton`'s `targetRef` captures.
+   2026-08-28: briefly tried replacing `1fr` with `fit-content(640px)` to stop column 3 growing
+   unbounded on an ultrawide monitor — reverted same day, it was WORSE: capping the track's own
+   sizing function changed its intrinsic max-content computation (grid track sizing pulls in every
+   row sharing the column, including the wrapping `.combat-state-controls` and the Skills auto-fill
+   grid), which shrank the column even at the plain 1920x1080 default size, wrapped combat-state's
+   controls onto extra lines, and — via this grid's `align-items: stretch` — inflated the whole
+   toolbar row's height, ballooning the Profession/Weapon-type cells next to it. `1fr` is restored
+   untouched here; the actual ultrawide cap lives below as a `max-width` gated behind a very wide
+   `@media` breakpoint instead, so it can only ever affect widths nothing here was ever tested at. */
 .build-editor-grid {
   display: grid;
   grid-template-columns: max-content max-content 1fr;
@@ -666,6 +675,24 @@ button:hover {
      whole point of this layout is fitting in one screen without scrolling; this was the cheapest
      remaining vertical trim once every section's own content was already as compact as it'd get. */
   row-gap: 12px;
+}
+
+/* Ultrawide-only cap on column 3's rendered width (2026-08-28 user feedback: on an ultrawide
+   monitor, `1fr` handed the Stats+Skills column and the Combat-state toolbar cell however much
+   width the window had, most of it dead space behind a bordered box). Gated behind 2600px so it
+   can NEVER engage at 1920x1080 or any ordinary "larger" 16:9 desktop size, including a maximized
+   2560x1440 monitor — only genuine ultrawide/super-ultrawide windows, where ordinary "larger
+   monitor" testing wouldn't have covered it. Targets the box, not the grid track (`1fr` stays
+   untouched above) — the track still stretches to full width, `justify-self: stretch`'s default
+   behavior just falls back to left-aligning each box once `max-width` stops it from filling that
+   track, leaving the leftover space blank at the page level instead of dead space inside the box.
+   `900px` is a first pass, not a measured value (no way to screenshot this app to tune it in this
+   environment) — revisit if it still looks off on an actual ultrawide monitor. */
+@media (min-width: 2600px) {
+  .build-editor-column-stretch,
+  .build-editor-top-cell:not(.build-editor-top-cell-snug) {
+    max-width: 900px;
+  }
 }
 
 /* Spans every grid column (2026-08-19) — the screenshot-only equipment manifest doesn't belong to
@@ -2505,10 +2532,16 @@ input[type='text'] {
   position: relative;
 }
 
+/* `left: 0` (not `right: 0`) because both callers (`BuildsView`/`SquadsView`) place the
+   "Import from link" button right after the view's `<h2>`, near the left edge of the window —
+   a right-anchored popover would extend its 320-420px width leftward from there and run off the
+   window's left edge (reported 2026-08-28: popover appeared shifted left and cut off, in both
+   fullscreen and windowed sizes, keyboard-focusable but not clickable). Anchoring left and
+   growing rightward keeps it inside the window since the header has open space to the right. */
 .share-popover {
   position: absolute;
   top: 100%;
-  right: 0;
+  left: 0;
   z-index: 20;
   margin-top: 6px;
   width: max-content;
