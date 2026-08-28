@@ -9,8 +9,10 @@ interface Props {
   /** Full build list, for each `SlotTile`'s assign-dropdown — pass `[]` for a read-only preview,
    *  which has nothing to assign. */
   builds: Build[]
-  /** `ScreenshotButton`'s capture target in the real editor; omitted for a read-only preview,
-   *  which has nothing to screenshot itself. */
+  /** Only `CaptureHost`'s squad route and the Discord bot's `SquadPreviewPage.tsx` pass this
+   *  (2026-08-28) — their own "wait for every rendered `<img>` to decode before signaling ready"
+   *  hook. `SquadCompEditorView` omits it — `ScreenshotButton` no longer captures the live
+   *  on-screen DOM at all, see its own doc comment. */
   gridRef?: RefObject<HTMLDivElement>
   /** `false` makes the whole grid inert (`pointer-events: none`) — same meaning as
    *  `BuildScreenshotGrid`'s own `interactive`, used by the Discord bot's `/squaddisplay` render
@@ -20,10 +22,11 @@ interface Props {
   interactive?: boolean
   /** Hides each line's Remove button and expand/collapse toggle, and forces its per-slot summary
    *  closed — see `PartyRow`'s own doc comment on the same prop. Independent of `interactive`:
-   *  `SquadCompEditorView` flips this on temporarily mid-`ScreenshotButton` capture while staying
-   *  fully interactive underneath; a read-only preview passes `interactive={false}` and this
-   *  `true` together. Also hides the "+ Add line" footer button, same as the real editor already
-   *  did inline before this was extracted. Defaults to `false`. */
+   *  `CaptureHost`'s squad route passes `interactive={false}` and this `true` together, same as a
+   *  read-only preview (2026-08-28: this used to also be flipped on temporarily mid-capture by
+   *  `SquadCompEditorView` itself, while staying interactive underneath — moot now that capture
+   *  never touches the live editor's own DOM at all). Also hides the "+ Add line" footer button.
+   *  Defaults to `false`. */
   screenshotMode?: boolean
   onAssignBuild?: (partyIndex: number, slotIndex: number, buildId: string | null) => void
   onAssignGhost?: (partyIndex: number, slotIndex: number, ghostPick: GhostPick | null) => void

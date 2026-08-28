@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { Build, GhostPick, PartySlots, SquadComp, SquadSlot } from '@shared/types'
 import type { SquadCompSharePayload } from '@shared/share/types'
 import { useBuildsStore } from '@renderer/state/builds-store'
@@ -25,20 +25,10 @@ const MAX_PARTIES = 10
 export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
   const [draft, setDraft] = useState<SquadComp>(squadComp)
   const [saving, setSaving] = useState(false)
-  // Screenshot-only display mode (see ScreenshotButton's onBeforeCapture/onAfterCapture) — flipped
-  // on right before a capture, off again right after. Strips the editing chrome a screenshot
-  // shouldn't include (each line's Remove button and its individual-boons dropdown, see
-  // `PartyRow`'s own `screenshotMode` prop) without needing to lift/duplicate any of that state.
-  const [screenshotMode, setScreenshotMode] = useState(false)
   const { builds } = useBuildsStore()
   const { squadComps } = useSquadCompsStore()
   const { partyWideOnly, setPartyWideOnly } = useAppSettings()
   const buildsById = useMemo(() => new Map(builds.map((b) => [b.id, b])), [builds])
-  // Capture target is the party-rows column only, not `.squad-editor-body` — deliberately excludes
-  // `BuildsSidebar`, which isn't part of what a shared squad screenshot should show (it's an
-  // editing aid, not squad content). `ScreenshotButton` stitches this even when it's taller than
-  // the window (a squad can run up to `MAX_PARTIES` lines deep).
-  const partyRowsRef = useRef<HTMLDivElement>(null)
   const tagSuggestions = useMemo(() => [...new Set(squadComps.flatMap((s) => s.tags))].sort(), [squadComps])
 
   /** Bundles every build referenced by the current roster into the share payload as a full
@@ -146,22 +136,16 @@ export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
         />
         <TagInput tags={draft.tags} onChange={(tags) => setDraft({ ...draft, tags })} suggestions={tagSuggestions} />
         <ToggleSwitch checked={partyWideOnly} onChange={setPartyWideOnly} label="Party-wide only" />
-        <ScreenshotButton
-          targetRef={partyRowsRef}
-          onBeforeCapture={() => setScreenshotMode(true)}
-          onAfterCapture={() => setScreenshotMode(false)}
-        />
+        <ScreenshotButton capture={() => window.gw2Capture.captureSquadScreenshot({ squadComp: draft })} />
         <SharePanel kind="squadComp" getData={buildSharePayload} />
       </div>
 
       <div className="squad-editor-body">
-        {!screenshotMode && <BuildsSidebar onEditBuild={onEditBuild} />}
+        <BuildsSidebar onEditBuild={onEditBuild} />
         <SquadCompScreenshotGrid
           parties={draft.parties}
           buildsById={buildsById}
           builds={builds}
-          gridRef={partyRowsRef}
-          screenshotMode={screenshotMode}
           onAssignBuild={assignBuild}
           onAssignGhost={assignGhost}
           onLabelChange={changeLabel}

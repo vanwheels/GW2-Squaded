@@ -51,10 +51,12 @@ interface Props {
   /** Passed straight through to each `SlotTile` — see `BuildsSidebar`'s doc comment on the same
    *  prop name. */
   onEditBuild: (buildId: string) => void
-  /** True while `SquadCompEditorView` is mid-`ScreenshotButton` capture — hides the "Remove line"
-   *  button and the expand/collapse toggle (and forces each `SlotTile`'s own summary closed
-   *  regardless of `expanded`'s current value), since none of that editing chrome belongs in a
-   *  shared squad screenshot. Defaults to `false` so every other caller is unaffected. */
+  /** Hides the "Remove line" button and the expand/collapse toggle (and forces each `SlotTile`'s
+   *  own summary closed regardless of `expanded`'s current value), since none of that editing
+   *  chrome belongs in a shared squad screenshot. `CaptureHost`'s squad route (2026-08-28) is the
+   *  only caller that ever passes `true` — that tree is never interactive to begin with, unlike
+   *  the old on-screen capture this replaced, which flipped this on/off around the real editor's
+   *  own live DOM mid-capture. Defaults to `false` so every other caller is unaffected. */
   screenshotMode?: boolean
 }
 

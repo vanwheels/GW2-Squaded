@@ -5,7 +5,7 @@ import { StorageIpcChannel } from '@shared/storage/ipc-channels'
 import type { GameDataProvider } from '@shared/game-data/game-data-provider'
 import type { DataUpdateProvider, DataUpdateStatus } from '@shared/game-data/data-update-provider'
 import { GameDataIpcChannel, DataUpdateIpcChannel } from '@shared/game-data/ipc-channels'
-import type { CaptureProvider, CaptureRect } from '@shared/capture/capture-provider'
+import type { BuildScreenshotPayload, CaptureProvider, CapturePayload, SquadScreenshotPayload } from '@shared/capture/capture-provider'
 import { CaptureIpcChannel } from '@shared/capture/ipc-channels'
 import type { UpdaterProvider, UpdateStatus } from '@shared/updater/updater-provider'
 import { UpdaterIpcChannel } from '@shared/updater/ipc-channels'
@@ -37,9 +37,10 @@ const gameData: GameDataProvider = {
 }
 
 const capture: CaptureProvider = {
-  captureRegion: (rect: CaptureRect) => ipcRenderer.invoke(CaptureIpcChannel.captureRegion, rect),
-  captureRegionToDataUrl: (rect: CaptureRect) => ipcRenderer.invoke(CaptureIpcChannel.captureRegionToDataUrl, rect),
-  writeImageDataUrl: (dataUrl: string) => ipcRenderer.invoke(CaptureIpcChannel.writeImageDataUrl, dataUrl)
+  captureBuildScreenshot: (payload: BuildScreenshotPayload) => ipcRenderer.invoke(CaptureIpcChannel.buildScreenshot, payload),
+  captureSquadScreenshot: (payload: SquadScreenshotPayload) => ipcRenderer.invoke(CaptureIpcChannel.squadScreenshot, payload),
+  getPayload: (token: string) => ipcRenderer.invoke(CaptureIpcChannel.getPayload, token) as Promise<CapturePayload | null>,
+  signalReady: (token: string) => ipcRenderer.invoke(CaptureIpcChannel.signalReady, token)
 }
 
 const updater: UpdaterProvider = {

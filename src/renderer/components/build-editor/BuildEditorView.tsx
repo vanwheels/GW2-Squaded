@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type {
   Build,
   EquipmentSlotKey,
@@ -47,7 +47,6 @@ export function BuildEditorView({ build, onBack }: Props) {
   const { builds } = useBuildsStore()
   const { showUnderwater, partyWideOnly, setPartyWideOnly } = useAppSettings()
   const { localGw2Build } = useDataUpdate()
-  const columnsRef = useRef<HTMLDivElement>(null)
 
   /** Display/calc-only view of `draft` — never passed to `onBack`. See `withUnderwaterSetting`'s
    *  doc comment: forces `environment: 'land'` when the Settings underwater toggle is off, so
@@ -236,20 +235,20 @@ export function BuildEditorView({ build, onBack }: Props) {
           </button>
         )}
         <ToggleSwitch checked={partyWideOnly} onChange={setPartyWideOnly} label="Party-wide only" />
-        <ScreenshotButton targetRef={columnsRef} />
+        <ScreenshotButton capture={() => window.gw2Capture.captureBuildScreenshot({ build: draft, combatState })} />
         <SharePanel kind="build" getData={() => draft} />
       </div>
 
       {/* `BuildScreenshotGrid` (2026-08-19) — the "toolbar row + 3 editing columns" CSS Grid used to
           live inline here; factored out so `BuildPreviewModal`'s right-click "Preview" can render
           the exact same layout read-only for an arbitrary build, see that component's doc comment.
-          `columnsRef` (`gridRef` below) is still `ScreenshotButton`'s capture target — only this
-          component's own doc comment now carries the "why this grid, why these cells" reasoning. */}
+          No `gridRef` here (2026-08-28) — `ScreenshotButton`'s capture no longer targets the live
+          on-screen DOM at all, see its own doc comment; `CaptureHost` is the only caller that still
+          passes one, for its own "wait for images to decode" purposes. */}
       <BuildScreenshotGrid
         build={displayBuild}
         combatState={combatState}
         equippedSpecializationIds={equippedSpecializationIds}
-        gridRef={columnsRef}
         onProfessionSpecChoose={handleEliteSpecChoose}
         onCombatStateChange={setCombatState}
         onWeaponEquipmentChange={(equipment) => setDraft({ ...draft, equipment })}

@@ -17,8 +17,11 @@ interface Props {
   build: Build
   combatState: CombatState
   equippedSpecializationIds: Set<number>
-  /** `ScreenshotButton`'s capture target in the real editor; omitted for a read-only preview,
-   *  which has nothing to screenshot itself. */
+  /** Only `CaptureHost` passes this (2026-08-28) — its own "wait for every rendered `<img>` to
+   *  decode before signaling ready" hook, same as `BuildPreviewPage.tsx`'s identical use of this
+   *  prop for the Discord bot's render page. `BuildEditorView`/`BuildPreviewModal` both omit it —
+   *  neither has anything that still needs a ref to this root; `ScreenshotButton` in particular no
+   *  longer captures the live on-screen DOM at all, see its own doc comment. */
   gridRef?: RefObject<HTMLDivElement>
   /** `false` makes the whole grid inert (`pointer-events: none`) — used by `BuildPreviewModal` so
    *  a quick look at a build's layout can never accidentally start editing it. Every `on*` handler

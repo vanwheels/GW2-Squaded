@@ -1,12 +1,12 @@
 import { app, shell, BrowserWindow } from 'electron'
 import { join } from 'node:path'
-import { is } from '@electron-toolkit/utils'
 import { createSqliteStorage } from './storage/sqlite-storage'
 import { registerStorageIpc } from './ipc/storage-ipc'
 import { registerGameDataIpc } from './ipc/game-data-ipc'
 import { registerDataUpdateIpc } from './ipc/data-update-ipc'
 import { registerCaptureIpc } from './ipc/capture-ipc'
 import { registerUpdaterIpc } from './updater/auto-updater'
+import { loadRenderer } from './renderer-url'
 
 function createWindow(): BrowserWindow {
   const mainWindow = new BrowserWindow({
@@ -34,11 +34,7 @@ function createWindow(): BrowserWindow {
     return { action: 'deny' }
   })
 
-  if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
-  } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
-  }
+  void loadRenderer(mainWindow)
 
   return mainWindow
 }

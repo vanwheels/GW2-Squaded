@@ -1,34 +1,52 @@
-/** A region of the current window's content area, in CSS pixels (matches
- *  `Element.getBoundingClientRect()` — Electron's `webContents.capturePage` rect is specified in
- *  the same device-independent-pixel space). */
-export interface CaptureRect {
-  x: number
-  y: number
-  width: number
-  height: number
+import type { Build, SquadComp } from '@shared/types'
+import type { CombatState } from '@shared/gear-calc/combat-state'
+
+/** `ScreenshotButton`'s payload for a Build editor capture — everything `CaptureHost`'s build
+ *  route needs to reproduce the exact same render `BuildEditorView` had on screen. Everything else
+ *  (theme, `showUnderwater`/`partyWideOnly` settings, game data, the builds store) resolves
+ *  identically inside the offscreen window for free — see `offscreen-capture.ts`'s doc comment. */
+export interface BuildScreenshotPayload {
+  build: Build
+  combatState: CombatState
 }
 
+/** Same idea as `BuildScreenshotPayload`, for the Squad editor. `builds`/`buildsById` aren't part
+ *  of this — every build a squad slot can reference is already persisted, so `CaptureHost`'s squad
+ *  route just reads the same local builds store the real window would. */
+export interface SquadScreenshotPayload {
+  squadComp: SquadComp
+}
+
+/** What `CaptureHost` pulls via `getPayload` — tagged by which `captureXScreenshot` call spawned
+ *  the offscreen window it's running in. */
+export type CapturePayload =
+  | { kind: 'build'; payload: BuildScreenshotPayload }
+  | { kind: 'squad'; payload: SquadScreenshotPayload }
+
 /**
- * The renderer's only way to grab a screenshot of part of its own window — reached via the
- * preload-exposed `window.gw2Capture` bridge (see src/preload/index.ts). `captureRegion` copies
- * straight to the OS clipboard (main-process-side, via Electron's `clipboard` module) rather than
- * returning image data to the renderer, since that's the actual end use (paste into Discord, etc.)
- * and avoids shipping a PNG buffer back across the IPC boundary for no reason — the single-shot
- * fast path `ScreenshotButton` uses whenever the target already fits on-screen. The other two
- * methods exist only to support that same button's multi-slice stitch for taller-than-viewport
- * targets (see its doc comment): `capturePage` only ever renders the currently on-screen portion of
- * the page, so content scrolled out of view can't be captured in one shot at all.
+ * The renderer's only way to produce a screenshot of a build/squad — reached via the
+ * preload-exposed `window.gw2Capture` bridge (see `src/preload/index.ts`). `captureBuildScreenshot`/
+ * `captureSquadScreenshot` are the only methods a normal editor window ever calls: each drives a
+ * dedicated, fixed-size offscreen `BrowserWindow` main-process-side (see
+ * `src/main/capture/offscreen-capture.ts`) through a fresh, non-interactive render of the exact
+ * same `BuildScreenshotGrid`/`SquadCompScreenshotGrid` the editor itself uses, and writes the
+ * resulting PNG straight to the OS clipboard — no image data ever crosses back into the calling
+ * renderer, matching the previous on-screen-capture design's same "renderer never touches image
+ * bytes" shape.
  *
- * Desktop-only concept (screenshotting your own window) — a future Capacitor build has no
- * equivalent, unlike `StorageAdapter`/`GameDataProvider` which both have a real mobile-native
- * implementation path.
+ * `getPayload`/`signalReady` exist only for the *other* side of that round trip — `CaptureHost`,
+ * running inside the spawned offscreen window itself, uses them to pull its payload and report
+ * when its render is fully painted. A normal editor window never calls either.
+ *
+ * Desktop-only concept (screenshotting a build/squad to the clipboard) — a future Capacitor build
+ * has no equivalent, unlike `StorageAdapter`/`GameDataProvider` which both have a real
+ * mobile-native implementation path.
  */
 export interface CaptureProvider {
-  captureRegion(rect: CaptureRect): Promise<void>
-  /** Captures `rect` like `captureRegion`, but returns the PNG as a data URL rather than writing it
-   *  to the clipboard — a tile for `ScreenshotButton`'s multi-slice stitch (see its doc comment on
-   *  why one on-screen capture isn't always enough). */
-  captureRegionToDataUrl(rect: CaptureRect): Promise<string>
-  /** Writes an already-composited PNG data URL straight to the clipboard — the stitch's final step. */
-  writeImageDataUrl(dataUrl: string): Promise<void>
+  captureBuildScreenshot(payload: BuildScreenshotPayload): Promise<void>
+  captureSquadScreenshot(payload: SquadScreenshotPayload): Promise<void>
+  /** `CaptureHost`-only — see the interface doc comment. */
+  getPayload(token: string): Promise<CapturePayload | null>
+  /** `CaptureHost`-only — see the interface doc comment. */
+  signalReady(token: string): Promise<void>
 }
