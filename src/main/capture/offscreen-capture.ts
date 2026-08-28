@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { join } from 'node:path'
 import { BrowserWindow } from 'electron'
+import type { NativeImage } from 'electron'
 import type { Build, SquadComp } from '@shared/types'
 import type { CombatState } from '@shared/gear-calc/combat-state'
 import type { CapturePayload } from '@shared/capture/capture-provider'
@@ -59,14 +60,36 @@ function waitForReady(token: string): Promise<void> {
   })
 }
 
-/** One paint tick after `win.setContentSize` below, so the resize has actually been laid out and
- *  painted before `capturePage` reads the framebuffer — same "wait a frame after a DOM change,
- *  before measuring/capturing" precaution `ScreenshotButton`'s old on-screen capture used to take
- *  (see its git history), just running inside the offscreen window instead of the caller. */
-function waitForFrame(win: BrowserWindow): Promise<void> {
-  return win.webContents.executeJavaScript(
-    'new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))'
-  )
+/**
+ * Waits for a `'paint'` frame at exactly `width`×`height` — the actual mechanism this reads
+ * captured frames from (2026-08-28, replacing an initial `capturePage()` attempt that threw
+ * `UnknownVizError` reliably whenever the real, on-screen editor window happened to be larger than
+ * this offscreen one at the time). `capturePage()` reads from the same on-screen compositor
+ * surface a real window paints to, which an `offscreen: true` `webContents` was never fully wired
+ * into the same way — Electron's own offscreen-rendering docs call out the `'paint'` event as the
+ * actual supported way to read frames from one, and its `image` argument is documented as "the
+ * image data of the whole frame" (not just the changed `dirtyRect`), so no manual compositing is
+ * needed here either. Filters by size rather than taking the very next paint unconditionally:
+ * `setContentSize` below can still have one or two in-flight paints at the *old* size queued
+ * before Chromium's finished relaying out at the new one. `invalidate()` forces a fresh paint to
+ * be queued immediately rather than waiting for OSR's own next scheduled frame (up to ~16ms at the
+ * default 60fps cap — cheap insurance, not required for correctness on its own). */
+function waitForPaintAtSize(win: BrowserWindow, width: number, height: number): Promise<NativeImage> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      win.webContents.removeListener('paint', onPaint)
+      reject(new Error(`Timed out waiting for a ${width}x${height} offscreen paint`))
+    }, READY_TIMEOUT_MS)
+    function onPaint(_event: unknown, _dirtyRect: unknown, image: NativeImage): void {
+      const size = image.getSize()
+      if (size.width !== width || size.height !== height) return
+      clearTimeout(timer)
+      win.webContents.removeListener('paint', onPaint)
+      resolve(image)
+    }
+    win.webContents.on('paint', onPaint)
+    win.webContents.invalidate()
+  })
 }
 
 /**
@@ -89,7 +112,9 @@ function waitForFrame(win: BrowserWindow): Promise<void> {
  * payload here, spawn the window, `CaptureHost` pulls it back via `getPendingPayload` and — once
  * every icon it rendered has decoded — reports back via `signalReady`. Only then is `.build-
  * editor-grid`/`.party-rows`'s real height measured and the window resized to match exactly, so
- * the final `capturePage` call is always a single shot that can't crop or need stitching.
+ * the frame `waitForPaintAtSize` below reads back is always the whole thing in one shot — no
+ * cropping, no stitching. See that function's own doc comment for why it reads frames via the
+ * `'paint'` event rather than `capturePage()`.
  */
 async function runCapture(payload: CapturePayload): Promise<Buffer> {
   const token = randomUUID()
@@ -121,9 +146,7 @@ async function runCapture(payload: CapturePayload): Promise<Buffer> {
       )
     )
     win.setContentSize(CAPTURE_WIDTH, height)
-    await waitForFrame(win)
-
-    const image = await win.webContents.capturePage({ x: 0, y: 0, width: CAPTURE_WIDTH, height })
+    const image = await waitForPaintAtSize(win, CAPTURE_WIDTH, height)
     return image.toPNG()
   } finally {
     pendingPayloads.delete(token)
