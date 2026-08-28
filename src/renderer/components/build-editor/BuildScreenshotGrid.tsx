@@ -67,21 +67,21 @@ export function BuildScreenshotGrid({
       ref={gridRef}
       style={interactive ? undefined : { pointerEvents: 'none' }}
     >
-      <div className="build-editor-top-cell build-editor-top-cell-snug">
+      <div className="build-editor-top-cell build-editor-top-cell-snug build-editor-area-prof">
         <ProfessionSpecPicker
           profession={build.profession}
           specializations={build.specializations}
           onChoose={onProfessionSpecChoose}
         />
       </div>
-      <div className="build-editor-top-cell build-editor-top-cell-snug">
+      <div className="build-editor-top-cell build-editor-top-cell-snug build-editor-area-weapon">
         <WeaponTypeBar build={build} onEquipmentChange={onWeaponEquipmentChange} />
       </div>
-      <div className="build-editor-top-cell">
+      <div className="build-editor-top-cell build-editor-area-combat">
         <CombatStatePanel build={build} value={combatState} onChange={onCombatStateChange} />
       </div>
 
-      <div className="build-editor-column">
+      <div className="build-editor-column build-editor-area-traits">
         <h3>Traits</h3>
         <TraitsEditor
           profession={build.profession}
@@ -90,7 +90,7 @@ export function BuildScreenshotGrid({
           onChange={onSpecializationsChange}
         />
       </div>
-      <div className="build-editor-column">
+      <div className="build-editor-column build-editor-area-equipment">
         <div className="column-header-row">
           <h3>Equipment</h3>
           <button type="button" onClick={onOpenOptimizer}>
@@ -105,7 +105,7 @@ export function BuildScreenshotGrid({
           onConsumablesChange={onConsumablesChange}
         />
       </div>
-      <div className="build-editor-column build-editor-column-stretch">
+      <div className="build-editor-column build-editor-column-stretch build-editor-area-stats">
         <div className="stats-boons-row">
           <StatsPanel build={build} combatState={combatState} />
           <BoonConditionSummaryPanel build={build} />
@@ -120,7 +120,7 @@ export function BuildScreenshotGrid({
         />
       </div>
 
-      <div className="equipment-text-manifest-wrap build-editor-grid-fullwidth">
+      <div className="equipment-text-manifest-wrap build-editor-area-manifest">
         <EquipmentTextManifest build={build} />
       </div>
     </div>

@@ -12,6 +12,11 @@ function createWindow(): BrowserWindow {
   const mainWindow = new BrowserWindow({
     width: 1920,
     height: 1080,
+    // Floor for the below-1920 reflow work (2026-08-28) — layout below this is not designed for,
+    // so just don't let the OS shrink the window past it rather than chasing arbitrarily small
+    // sizes. 1024x720 covers small-laptop-sized windows, the narrowest case reflow targets.
+    minWidth: 1024,
+    minHeight: 720,
     show: false,
     autoHideMenuBar: true,
     webPreferences: {

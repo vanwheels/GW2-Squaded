@@ -652,24 +652,32 @@ button:hover {
 
 /* One CSS Grid holding both the toolbar row (Profession/Weapon-type/Combat-state) and the 3
    editing columns (Traits/Equipment/Stats+Skills) below it (2026-08-19) — see `BuildEditorView`'s
-   JSX comment on this element. `max-content max-content 1fr` means columns 1-2 size to whichever
-   row's content in that column is widest (a `.build-editor-column` box, always wider than its
-   toolbar cell), and column 3 absorbs whatever's left — shared across every row, so cell 3/6 (the
-   toolbar's combat-state strip and the Stats+Skills column) always line up. Default `align-items:
-   stretch` equalizes every row's own 3 cells to its own tallest, same as the old flex row did for
-   the 3 columns alone. This whole element is what `ScreenshotButton`'s `targetRef` captures.
-   2026-08-28: briefly tried replacing `1fr` with `fit-content(640px)` to stop column 3 growing
-   unbounded on an ultrawide monitor — reverted same day, it was WORSE: capping the track's own
-   sizing function changed its intrinsic max-content computation (grid track sizing pulls in every
-   row sharing the column, including the wrapping `.combat-state-controls` and the Skills auto-fill
-   grid), which shrank the column even at the plain 1920x1080 default size, wrapped combat-state's
-   controls onto extra lines, and — via this grid's `align-items: stretch` — inflated the whole
-   toolbar row's height, ballooning the Profession/Weapon-type cells next to it. `1fr` is restored
-   untouched here; the actual ultrawide cap lives below as a `max-width` gated behind a very wide
-   `@media` breakpoint instead, so it can only ever affect widths nothing here was ever tested at. */
+   JSX comment on this element. Named `grid-template-areas` (2026-08-28, replacing implicit
+   auto-placement) so each of the 3 width tiers below can freely reassign the 7 cells — each cell
+   carries its own `.build-editor-area-*` class in `BuildScreenshotGrid.tsx` — without depending on
+   DOM order lining up with whatever column count that tier uses. Default `align-items: stretch`
+   equalizes every row's own cells to its own tallest, same as the old flex row did for the 3
+   columns alone. This whole element is what `ScreenshotButton`'s `targetRef` captures — every
+   tier below stays well under the 1800px viewport the Discord bot's screenshot workers
+   (`build-screenshot.ts`/`squad-screenshot.ts`) render at, so those captures always land in the
+   widest (≥1600px) tier regardless of this reflow work.
+   2026-08-28, widest tier only: briefly tried replacing column 3's `1fr` with `fit-content(640px)`
+   to stop it growing unbounded on an ultrawide monitor — reverted same day, it was WORSE: capping
+   the track's own sizing function changed its intrinsic max-content computation (grid track sizing
+   pulls in every row sharing the column, including the wrapping `.combat-state-controls` and the
+   Skills auto-fill grid), which shrank the column even at the plain 1920x1080 default size, wrapped
+   combat-state's controls onto extra lines, and — via this grid's `align-items: stretch` —
+   inflated the whole toolbar row's height, ballooning the Profession/Weapon-type cells next to it.
+   `1fr` is restored untouched at this tier; the actual ultrawide cap lives below as a `max-width`
+   gated behind a very wide `@media` breakpoint instead, so it can only ever affect widths nothing
+   here was ever tested at. */
 .build-editor-grid {
   display: grid;
   grid-template-columns: max-content max-content 1fr;
+  grid-template-areas:
+    'prof weapon combat'
+    'traits equipment stats'
+    'manifest manifest manifest';
   column-gap: 24px;
   /* 12px, not 24px like `column-gap` (2026-08-19 user feedback, "remove the scroll bar") — the
      whole point of this layout is fitting in one screen without scrolling; this was the cheapest
@@ -677,13 +685,84 @@ button:hover {
   row-gap: 12px;
 }
 
-/* Ultrawide-only cap on column 3's rendered width (2026-08-28 user feedback: on an ultrawide
-   monitor, `1fr` handed the Stats+Skills column and the Combat-state toolbar cell however much
-   width the window had, most of it dead space behind a bordered box). Gated behind 2600px so it
-   can NEVER engage at 1920x1080 or any ordinary "larger" 16:9 desktop size, including a maximized
-   2560x1440 monitor — only genuine ultrawide/super-ultrawide windows, where ordinary "larger
-   monitor" testing wouldn't have covered it. Targets the box, not the grid track (`1fr` stays
-   untouched above) — the track still stretches to full width, `justify-self: stretch`'s default
+.build-editor-area-prof {
+  grid-area: prof;
+}
+
+.build-editor-area-weapon {
+  grid-area: weapon;
+}
+
+.build-editor-area-combat {
+  grid-area: combat;
+}
+
+.build-editor-area-traits {
+  grid-area: traits;
+}
+
+.build-editor-area-equipment {
+  grid-area: equipment;
+}
+
+.build-editor-area-stats {
+  grid-area: stats;
+}
+
+/* The screenshot-only equipment manifest — doesn't belong to any one of the 3 columns above it,
+   unlike every other cell, so its area spans the full row width at every tier (2026-08-19; moved
+   from a `grid-column: 1 / -1` span to a named area 2026-08-28 alongside the rest of this grid). */
+.build-editor-area-manifest {
+  grid-area: manifest;
+}
+
+/* Medium tier (2026-08-28 below-1920 reflow): below 1600px — safely under the 1800px-wide
+   viewport the Discord screenshot workers render at, so those captures never see this tier —
+   column 3 (Stats+Skills, the section that most needs room: skill bar icons, boon rows) gives up
+   sharing a row with Combat-state and instead gets its own full-width row below Traits/Equipment,
+   which pair up side by side instead (each still `max-content`-sized, matching the widest tier).
+   Down to 1280px: at typical Traits/Equipment content widths (~376px + ~696px per
+   `build-screenshot.ts`'s viewport-sizing comment) that pairing still fits comfortably above the
+   1280px floor for this tier. */
+@media (max-width: 1599px) {
+  .build-editor-grid {
+    grid-template-columns: max-content max-content;
+    grid-template-areas:
+      'prof weapon'
+      'traits equipment'
+      'combat combat'
+      'stats stats'
+      'manifest manifest';
+  }
+}
+
+/* Narrowest tier (2026-08-28 below-1920 reflow): below 1280px, down to the Electron window's
+   1024px `minWidth` floor (see `src/main/index.ts`) — every cell stacks full-width in reading
+   order. `justify-self: stretch` (grid's default) fills the single 1fr column, so `.trait-line`/
+   `.gear-panel` etc. get *more* room here than at the medium tier's `max-content` pairing, not
+   less. */
+@media (max-width: 1279px) {
+  .build-editor-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'prof'
+      'weapon'
+      'combat'
+      'traits'
+      'equipment'
+      'stats'
+      'manifest';
+  }
+}
+
+/* Ultrawide-only cap on the Stats+Skills area's rendered width (2026-08-28 user feedback: on an
+   ultrawide monitor, `1fr` handed the Stats+Skills column and the Combat-state toolbar cell
+   however much width the window had, most of it dead space behind a bordered box). Gated behind
+   2600px so it can NEVER engage at 1920x1080 or any ordinary "larger" 16:9 desktop size, including
+   a maximized 2560x1440 monitor — only genuine ultrawide/super-ultrawide windows, where ordinary
+   "larger monitor" testing wouldn't have covered it, and it sits far above every reflow tier above
+   so the two never interact. Targets the box, not the grid track (`1fr` stays untouched at the
+   widest tier above) — the track still stretches to full width, `justify-self: stretch`'s default
    behavior just falls back to left-aligning each box once `max-width` stops it from filling that
    track, leaving the leftover space blank at the page level instead of dead space inside the box.
    `900px` is a first pass, not a measured value (no way to screenshot this app to tune it in this
@@ -693,12 +772,6 @@ button:hover {
   .build-editor-top-cell:not(.build-editor-top-cell-snug) {
     max-width: 900px;
   }
-}
-
-/* Spans every grid column (2026-08-19) — the screenshot-only equipment manifest doesn't belong to
-   any one of the 3 columns above it, unlike every other direct child of `.build-editor-grid`. */
-.build-editor-grid-fullwidth {
-  grid-column: 1 / -1;
 }
 
 /* Toolbar row cells (Profession picker / Weapon-type bar / Combat-state strip) — same bordered-box
@@ -1136,10 +1209,15 @@ input[type='text'] {
 /* Armor / Accessories / Weapon / Other side by side in one row (2026-08-19: Weapon used to be a
    full-width row below the other three, but that cost a large fixed chunk of vertical height for
    no real reason once weapon-type selection moved out to `WeaponTypeBar`, see that component).
-   Each panel sizes to its own content (no flex-grow) rather than stretching across the column. */
+   Each panel sizes to its own content (no flex-grow) rather than stretching across the column.
+   `flex-wrap` (2026-08-28 below-1920 reflow) — not gated to a breakpoint, just always safe: once
+   the Equipment column itself is narrower than all 4 panels laid out side by side (the medium/
+   narrow `.build-editor-grid` tiers, or just a narrow window generally), panels drop onto
+   additional rows instead of forcing the column wider than its grid area. */
 .gear-panels {
   display: flex;
   align-items: flex-start;
+  flex-wrap: wrap;
   gap: 20px;
 }
 
@@ -1237,8 +1315,9 @@ input[type='text'] {
 }
 
 /* Equipment text manifest (`EquipmentTextManifest`) — a full-width band below the 3 columns
-   (spans every `.build-editor-grid` column via `.build-editor-grid-fullwidth`), always rendered
-   (2026-08-21, previously toggled via a "Preview screenshot layout" button). Sized/bordered like a
+   (spans every `.build-editor-grid` column via its own `manifest` grid area, see that class's doc
+   comment), always rendered (2026-08-21, previously toggled via a "Preview screenshot layout"
+   button). Sized/bordered like a
    `.build-editor-column` (not itself a grid column, so it can't just reuse the class) so it reads
    as one more panel, not a bolted-on extra. */
 .equipment-text-manifest-wrap {
@@ -1869,10 +1948,15 @@ input[type='text'] {
 }
 
 /* Stats grid + Boon/Condition summary, side by side (2026-08-19) — carries the margin/border-bottom
-   block treatment `.stats-panel` used to own directly, separating this pair from Skills below. */
+   block treatment `.stats-panel` used to own directly, separating this pair from Skills below.
+   `flex-wrap` (2026-08-28 below-1920 reflow) — defensive: `.stats-panel` is fixed-width and
+   `.boon-summary-panel` already shrinks via its own `min-width: 0` below, but wrapping the row
+   itself means a very narrow Stats+Skills area drops the boon summary onto its own line below the
+   stat grid instead of squeezing it illegibly thin. */
 .stats-boons-row {
   display: flex;
   align-items: flex-start;
+  flex-wrap: wrap;
   gap: 24px;
   margin-bottom: 20px;
   padding-bottom: 16px;
@@ -2356,12 +2440,17 @@ input[type='text'] {
 }
 
 /* Same bordered-box treatment as `.build-editor-column` (surface bg, 1px border, 8px radius,
-   14px/16px padding), see `.builds-sidebar`'s doc comment above. */
+   14px/16px padding), see `.builds-sidebar`'s doc comment above. `min-width: 0` (2026-08-28
+   below-1920 reflow) — this is a flex item of `.party-rows`; without it, its default content-based
+   min-width can force the row wider than the viewport before `.party-row-body`'s own wrapping
+   below ever gets a chance to engage, same `min-width: 0` pattern used on `.party-rows` and
+   `.build-editor-column` elsewhere in this file. */
 .party-row {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 14px 16px;
+  min-width: 0;
 }
 
 .party-row-header {
@@ -2381,14 +2470,23 @@ input[type='text'] {
   font-weight: 600;
 }
 
+/* `flex-wrap` (2026-08-28 below-1920 reflow, replacing a fixed non-wrapping row that clipped the
+   Auras summary group in a narrow-window screenshot) — not gated to a breakpoint, since the row's
+   width also depends on how much this particular squad's `.party-summary-row` groups need, not
+   just window width: once `.party-slots` (which never wraps/shrinks, see its own `flex-shrink: 0`)
+   plus `.party-summary-column` no longer both fit on one line, the summary column wraps onto its
+   own full-width row below the slots (its `flex: 1 1 320px` basis below is what makes that
+   possible) instead of overflowing. */
 .party-row-body {
   display: flex;
   align-items: flex-start;
+  flex-wrap: wrap;
   gap: 20px;
 }
 
 .party-slots {
   display: flex;
+  flex-shrink: 0;
   gap: 10px;
 }
 
@@ -2478,8 +2576,14 @@ input[type='text'] {
   font-size: 0.7rem;
 }
 
+/* `flex: 1 1 320px` (2026-08-28 below-1920 reflow, was `flex: none`) — gives this column a shrink
+   basis so `.party-row-body`'s `flex-wrap` above has something to wrap on: sits beside
+   `.party-slots` while there's room, drops to its own full-width row once there isn't. The
+   left border/padding below still assumes sitting to the right of the slots, so once wrapped it
+   reads as a stray rule on the left of that new row rather than a divider between two things —
+   a known minor cosmetic quirk of the wrapped state, not worth a container query to fix cleanly. */
 .party-summary-column {
-  flex: none;
+  flex: 1 1 320px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -2487,9 +2591,15 @@ input[type='text'] {
   border-left: 1px solid var(--border);
 }
 
+/* `flex-wrap` (2026-08-28 below-1920 reflow) — even once `.party-summary-column` above has its own
+   full-width row, its own groups (Boons/Control/Strips.../Miscellaneous on one row, Conditions/
+   Auras/Combo on the other) still need to wrap rather than overflow if that row is itself still
+   narrower than 4 (or 3) `.party-summary-group`s side by side — this is what actually fixed the
+   clipped Auras column from the reflow investigation's original screenshot. */
 .party-summary-row {
   display: flex;
   align-items: flex-start;
+  flex-wrap: wrap;
 }
 
 .party-summary-group {
@@ -2504,6 +2614,11 @@ input[type='text'] {
   padding-left: 0;
 }
 
+/* Since `.party-summary-row` gained `flex-wrap` (2026-08-28 below-1920 reflow), a group that wraps
+   onto a new visual line still matches `+` here (it's an adjacent DOM sibling, not the actual
+   first child) and keeps its left border/padding even though nothing sits to its left anymore on
+   that line — same kind of minor cosmetic quirk as `.party-summary-column`'s doc comment above,
+   left as-is rather than reaching for `:has`/container queries to fix it precisely. */
 .party-summary-row .party-summary-group + .party-summary-group {
   border-left: 1px solid var(--border);
 }
