@@ -316,12 +316,12 @@ those bytes back for a Revenant anyway (it reconstructs skills purely from the t
 codes, which round-trip perfectly), so a gap here costs nothing round-tripping through this app,
 only some best-effort fidelity for a 3rd-party viewer reading the main skill block directly.
 
-**Not yet done:** real in-game-captured chat-link round-trip testing (TODO.md's original scoping
-called for this as the final validation step) — everything above is tested against real, currently-
-loaded game data (`build-template-codec.test.ts`) plus 3 real-but-possibly-stale published Revenant
-codes (decode-doesn't-throw only, not exact-content, since a code's skill-palette ids can go stale
-after ArenaNet reuses a freed id — same caveat the wiki's own prose implies). Pick this up once a
-user supplies a few fresh codes copied directly from their own in-game character panel.
+**Real in-game-captured chat-link validation — done 2026-08-28, same day.** User supplied 5 fresh
+codes copied directly from their own character panel (Power Virtuoso, Power Reaper, Honor
+Luminary, Heal Renegade, Support Druid) plus screenshots of each build. All 5 decoded with **zero
+warnings**, correctly recovering every trait line, Heal/Utility/Elite skill, the Renegade's 2
+legends, and the Druid's 2 pets — cross-checked against the screenshots and matching exactly. No
+gap found in the codec or either of the 2 deliberate v1 scoping decisions above.
 
 ## Profession/elite-spec icon artwork (`tango-icons.json`)
 

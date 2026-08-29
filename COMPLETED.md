@@ -44,10 +44,13 @@ real, currently-loaded game data (picking real ids at test time rather than hard
 malformed-input rejection and the 3 real MetaBattle codes (decode-doesn't-throw only — see below).
 `npm run typecheck`/`lint`/`test` all clean (473 tests, +12).
 
-**Left open, logged in TODO.md:** real in-game-captured chat-link validation, the final step the
-original scoping called for. Everything above is tested against real *current* game data and real
-*published* (but possibly stale) codes — pick this up once the user supplies a few fresh codes
-copied directly from their own in-game character panel.
+**Real in-game-captured chat-link validation — DONE same day.** User supplied 5 fresh codes copied
+directly from their own character panel (Power Virtuoso, Power Reaper, Honor Luminary, Heal
+Renegade, Support Druid), plus screenshots of each build for cross-checking. All 5 decoded with
+**zero warnings**, correctly recovering every trait line, Heal/Utility/Elite skill, the Renegade's
+2 legends (Kalla/Ventari), and the Druid's 2 pets (Brown Bear/Polar Bear) — matching the
+screenshots exactly. Closes this item out completely; no gap found in either the codec or the
+2 deliberate v1 scoping decisions.
 
 ## Session 299 — v1.2.1 release
 
