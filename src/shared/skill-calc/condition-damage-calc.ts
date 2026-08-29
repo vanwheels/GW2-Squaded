@@ -36,11 +36,22 @@
  *   DoT `(0 * ConditionDamage) + 10` damage per stack per second; on-activation
  *   `(0.0975 * ConditionDamage) + 49.5` damage per stack, per activation.
  *
- * Leg 1 of TODO.md's "condition-damage skills" item — this table only, not yet wired into any skill's
- * facts (no `*LinesForSkill` consumer exists yet, unlike every sibling coefficient table). A later leg
- * decides which skills' `Buff`/`PrefixedBuff` condition-application facts (`status`/`duration`/
- * `apply_count`) this feeds into and how (e.g. Torment's moving/stationary choice, Confusion's
- * on-activation half, multi-condition skills).
+ * Leg 1 of TODO.md's "condition-damage skills" item — this table only. Leg 2 (2026-08-28) wired it
+ * into `SkillsEditor.tsx`'s per-skill tooltip via `conditionDamagePerStack` below, resolving the
+ * design decisions this leg deliberately left open, per explicit user direction:
+ * - **Torment** always renders its STATIONARY value — no per-skill signal exists to pick moving vs.
+ *   stationary, and no new `CombatState` toggle was added for it; stationary matches this app's
+ *   existing "boss/golem" assumption elsewhere (e.g. `TARGET_ARMOR_VALUES`' own reference target).
+ * - **Confusion** renders its DoT half only. The on-activation burst depends on how often the
+ *   AFFLICTED TARGET (not the player) activates skills — information this app has no model of, same
+ *   "excluded, depends on unmodeled target behavior" precedent as Scion's Reprieve — so it's left off
+ *   `conditionDamagePerStack`'s table entirely rather than guessed at.
+ * - Scoped to skill tooltips only (`SkillsEditor.tsx`'s `factsBlock`/`conditionalBranchesBlock` and
+ *   `ProfessionMechanicBar.tsx`'s own inline tooltip builder) — the aggregate Boon/Condition Summary
+ *   Panel doesn't total condition-DPS, that's a separate future leg if ever wanted.
+ * - Multi-condition skills need no special handling: `boonConditionFactsForSkill` already emits one
+ *   `BoonConditionSource` per condition-application fact, so each renders its own expected-damage
+ *   line automatically, same "one row per fact" shape as every other boon/condition row.
  */
 export interface ConditionDamageFormula {
   /** Flat per-stack-per-second (or, for Confusion's on-activation half, per-stack-per-activation)
@@ -73,4 +84,28 @@ export const CONFUSION_DAMAGE_FORMULA = {
  *  module's `Math.round` convention (`damageLinesForSkill`, `healingLinesForSkill`, ...). */
 export function conditionDamageValue(formula: ConditionDamageFormula, conditionDamage: number): number {
   return Math.round(formula.base + formula.coefficient * conditionDamage)
+}
+
+/** `BoonConditionSource.boonOrConditionName` -> the formula this app displays a tooltip line for —
+ *  see this file's own top comment for why Torment/Confusion each resolve to only one of their
+ *  possible values. Every boon name, and every other status this app has no formula for, is simply
+ *  absent (not `null`-valued) — `conditionDamagePerStack` fails closed on a missing key. */
+const DISPLAYED_CONDITION_FORMULAS: Partial<Record<string, ConditionDamageFormula>> = {
+  Bleeding: CONDITION_DAMAGE_FORMULAS.Bleeding,
+  Burning: CONDITION_DAMAGE_FORMULAS.Burning,
+  Poisoned: CONDITION_DAMAGE_FORMULAS.Poisoned,
+  Torment: CONDITION_DAMAGE_FORMULAS['Torment (Stationary)'],
+  Confusion: CONFUSION_DAMAGE_FORMULA.dot
+}
+
+/**
+ * Expected damage per stack per second for a `BoonConditionSource.boonOrConditionName`, at the
+ * given `conditionDamage` attribute total — `null` for any name `DISPLAYED_CONDITION_FORMULAS`
+ * doesn't cover (every boon, plus Confusion's on-activation half). Callers multiply by the source's
+ * own `applyCount` (stack count) for the total per-second rate one application puts on the target —
+ * done by the caller, not here, since this function has no `BoonConditionSource` to read that from.
+ */
+export function conditionDamagePerStack(boonOrConditionName: string, conditionDamage: number): number | null {
+  const formula = DISPLAYED_CONDITION_FORMULAS[boonOrConditionName]
+  return formula ? conditionDamageValue(formula, conditionDamage) : null
 }

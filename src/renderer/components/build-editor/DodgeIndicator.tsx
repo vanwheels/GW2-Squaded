@@ -40,7 +40,7 @@ export function DodgeIndicator({ build, combatState }: Props) {
             content={
               <>
                 <TooltipBody title={content.name} description={content.description} icon={content.icon} />
-                {factsBlock(content.numericLines, content.facts)}
+                {factsBlock(content.numericLines, content.facts, {}, characterAttributes.conditionDamage)}
               </>
             }
           >

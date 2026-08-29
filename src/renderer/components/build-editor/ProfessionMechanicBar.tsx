@@ -191,8 +191,8 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
     return (
       <>
         <TooltipBody title={skill.name} description={skill.description} />
-        {factsBlock(numericLines, facts, namedFacts)}
-        {conditionalBranchesBlock(branches)}
+        {factsBlock(numericLines, facts, namedFacts, characterAttributes.conditionDamage)}
+        {conditionalBranchesBlock(branches, characterAttributes.conditionDamage)}
       </>
     )
   }

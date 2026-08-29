@@ -79,8 +79,8 @@ other professions for the same "heal on X while this trait is active" shape some
 
 **Damage** — condition-damage skills were never in scope for the sweep (a different fact shape
 entirely, `Buff`/`PrefixedBuff` condition application, not `Damage`-type facts — `CURATED_DAMAGE_
-COEFFICIENTS` doesn't apply). New multi-leg item started 2026-08-29, see "Condition-damage display"
-below.
+COEFFICIENTS` doesn't apply). Built as its own "Condition-damage display" feature instead, DONE
+2026-08-28, see COMPLETED.md.
 
 **Siphon Damage (9 of 14 candidates):** curated 2026-08-20 (`CURATED_SIPHON_DAMAGE_COEFFICIENTS`,
 `siphon-damage-calc.ts`). Enchanted Daggers is now RESOLVED (2026-08-23, live in-game readings —
@@ -110,28 +110,6 @@ same exclusion shape as Assassin's Reward above).
 
 **Both Healing and Damage tables**: never visually spot-checked in the running app (Electron sandbox
 limitation) — do that before extending either further.
-
-## Condition-damage display (started 2026-08-29)
-
-Not a `CURATED_DAMAGE_COEFFICIENTS` extension — condition-applying skills carry `Buff`/`PrefixedBuff`
-facts (`status`/`duration`/`apply_count`), not `Damage` facts, and this app has never displayed an
-expected-damage number for any of them. New feature, built leg by leg per the `pacing_large_sweeps`
-memory.
-
-- [x] **Leg 1 — the 5 condition formulas.** DONE 2026-08-29. `src/shared/skill-calc/condition-damage-calc.ts`:
-      `CONDITION_DAMAGE_FORMULAS` (Bleeding/Burning/Poisoned, no mode split; Torment split into
-      `'Torment (Moving)'`/`'Torment (Stationary)'`, WvW+PvP) + `CONFUSION_DAMAGE_FORMULA` (its DoT and
-      on-activation halves, structurally different from the other 4 — kept separate rather than forced
-      into the same shape, see that file's own top comment). All 5 wiki-verified via raw wikitext
-      (never paraphrased), covered by `condition-damage-calc.test.ts`. Fixed, skill-independent
-      constants only — no per-skill wiki sweep needed for this leg, unlike every sibling coefficient
-      table. Not yet wired into any skill's facts.
-- [ ] **Leg 2 — wire into skill tooltips.** Not started. Needs design decisions this leg deliberately
-      deferred: which profession(s) first; how to pick Torment's moving-vs-stationary half per skill
-      (no per-skill signal exists — may need a `CombatState` toggle, or always assume one); whether/how
-      to surface Confusion's on-activation half at all (not a steady-state rate, depends on the
-      target's own behavior); how a multi-condition skill (e.g. applies both Bleeding and Torment)
-      renders as more than one line, same shape as `damageLinesForSkill`'s multi-fact skills.
 
 ## Healing/Damage effectiveness % + data-completeness audit (scoped 2026-08-21, not started)
 

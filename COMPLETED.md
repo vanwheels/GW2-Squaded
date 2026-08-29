@@ -2,6 +2,38 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 303 — Condition-damage display (Leg 2: wire into skill tooltips)
+
+Closes TODO.md's "Condition-damage display" item — a new expected-condition-DPS number for
+condition-application skill facts, which the app had never shown before (condition-applying skills
+carry `Buff`/`PrefixedBuff` facts, a different shape from the `Damage`-type facts
+`CURATED_DAMAGE_COEFFICIENTS` covers, so that table never applied to them). Leg 1 (2026-08-28, commit
+`faeb718`) built `condition-damage-calc.ts`'s `CONDITION_DAMAGE_FORMULAS`/`CONFUSION_DAMAGE_FORMULA`
+— the 5 damaging conditions' fixed, wiki-verified `base + coefficient * ConditionDamage` formulas —
+but left it unwired, with 3 open design decisions.
+
+Leg 2 (same day) resolved all 3 per explicit user direction and wired the table in:
+- **Torment** always renders its Stationary value (no per-skill signal exists to pick moving vs.
+  stationary, and no new `CombatState` toggle was added for it).
+- **Confusion** renders its DoT half only — the on-activation burst depends on how often the
+  afflicted TARGET (not the player) activates skills, which this app has no model of, same "excluded,
+  depends on unmodeled target behavior" precedent as Scion's Reprieve.
+- Scoped to skill tooltips only, not the aggregate Boon/Condition Summary Panel.
+
+New `conditionDamagePerStack(boonOrConditionName, conditionDamage)` in `condition-damage-calc.ts` is
+the `BoonConditionSource.boonOrConditionName` -> displayed-value lookup (`null` for every boon and
+for Confusion's on-activation half). No per-skill wiki sweep needed — multi-condition skills already
+get one `BoonConditionSource` row per condition-application fact, so each renders its own line
+automatically. Wired into `SkillsEditor.tsx`'s boon/condition list (new `.boon-source-duration-group`/
+`.boon-source-condition-damage` CSS, stacking a muted "≈ N dmg/s" line under the existing duration
+text) via a new optional `conditionDamage` param threaded through `factsBlock`/`conditionalBranchesBlock`
+and `SkillVariantContext.characterAttributes` (widened to include `conditionDamage`, already computed
+by `computeCharacterStats` but not previously exposed on that narrower interface) — reaches every
+`skillTooltipContent` caller (`SkillsEditor`, `WeaponSkillBar`, `PetsEditor`) plus
+`ProfessionMechanicBar`'s own separate inline tooltip builder for free. `TraitsEditor.tsx`'s trait
+tooltips deliberately keep passing no `conditionDamage` (stays scoped to skills). 4 new tests for
+`conditionDamagePerStack`'s 3 resolution rules; 497/497 tests pass, clean lint/typecheck.
+
 ## Session 302 — Resource-cost modeling (energy/initiative/upkeep/health cost)
 
 Closed TODO.md's long-deferred "Resource-cost modeling" item: Revenant energy/upkeep, Thief

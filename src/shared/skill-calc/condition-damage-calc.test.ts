@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CONDITION_DAMAGE_FORMULAS, CONFUSION_DAMAGE_FORMULA, conditionDamageValue } from './condition-damage-calc'
+import { CONDITION_DAMAGE_FORMULAS, CONFUSION_DAMAGE_FORMULA, conditionDamagePerStack, conditionDamageValue } from './condition-damage-calc'
 
 /**
  * Regression guard for TODO.md's "condition-damage skills" item, Leg 1: the 5 damaging conditions'
@@ -43,5 +43,33 @@ describe('CONFUSION_DAMAGE_FORMULA', () => {
   it('on-activation half, WvW+PvP: 49.5 base, +0.0975/point, per stack per activation', () => {
     expect(conditionDamageValue(CONFUSION_DAMAGE_FORMULA.onActivation, 0)).toBe(50) // rounds 49.5 -> 50
     expect(conditionDamageValue(CONFUSION_DAMAGE_FORMULA.onActivation, 1000)).toBe(147)
+  })
+})
+
+/**
+ * Leg 2 (2026-08-28): `conditionDamagePerStack` is the `BoonConditionSource.boonOrConditionName` ->
+ * displayed-value lookup `SkillsEditor.tsx`'s tooltip actually calls. Its 2 non-obvious resolutions
+ * (Torment always stationary, Confusion DoT-only) are user-directed decisions — see
+ * `condition-damage-calc.ts`'s own top comment for the full reasoning.
+ */
+describe('conditionDamagePerStack', () => {
+  it('Bleeding/Burning/Poisoned pass straight through to their own formula', () => {
+    expect(conditionDamagePerStack('Bleeding', 1000)).toBe(82)
+    expect(conditionDamagePerStack('Burning', 1000)).toBe(286)
+    expect(conditionDamagePerStack('Poisoned', 1000)).toBe(94)
+  })
+
+  it('Torment always resolves to the Stationary value, never Moving', () => {
+    expect(conditionDamagePerStack('Torment', 1000)).toBe(96) // Torment (Stationary) at 1000, not 74 (Moving)
+  })
+
+  it('Confusion resolves to its DoT half only — flat 10, ignores Condition Damage', () => {
+    expect(conditionDamagePerStack('Confusion', 0)).toBe(10)
+    expect(conditionDamagePerStack('Confusion', 1000)).toBe(10) // NOT 147 (the on-activation half)
+  })
+
+  it('returns null for every boon name and any other status this table does not cover', () => {
+    expect(conditionDamagePerStack('Might', 1000)).toBeNull()
+    expect(conditionDamagePerStack('Vulnerability', 1000)).toBeNull()
   })
 })

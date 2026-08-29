@@ -156,7 +156,7 @@ export function WeaponSkillBar({ build, equippedSpecializationIds, onBuildChange
     return (
       <>
         <TooltipBody title={chapter.name} description={chapter.description} />
-        {factsBlock(numericLines, boonFacts)}
+        {factsBlock(numericLines, boonFacts, {}, characterAttributes.conditionDamage)}
       </>
     )
   }

@@ -30,6 +30,7 @@ import {
   type NamedFactSource
 } from '@shared/boon-calc/sources'
 import { skillFactLines } from '@shared/skill-calc/skill-fact-lines'
+import { conditionDamagePerStack } from '@shared/skill-calc/condition-damage-calc'
 import type { FactLine } from '@shared/skill-calc/fact-numbers'
 import { activeAttunementVariantSkill, flipTargetSkills } from '@shared/skill-calc/multi-effect'
 import { ADDITIVE_FLIP_PAIRS } from '@shared/skill-calc/additive-flip-pairs'
@@ -213,7 +214,13 @@ export interface SkillNamedFacts {
   legendAttributeFacts?: LegendFormFact[]
 }
 
-export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSource[], namedFacts: SkillNamedFacts = {}) {
+/**
+ * `conditionDamage` is optional (undefined at every trait-tooltip call site, `TraitsEditor.tsx`) and
+ * only ever feeds the boon/condition list's own expected-damage line below — see
+ * `condition-damage-calc.ts`'s `conditionDamagePerStack` for which condition names it covers and why
+ * (Leg 2 of TODO.md's condition-damage display, scoped to skill tooltips only, never traits).
+ */
+export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSource[], namedFacts: SkillNamedFacts = {}, conditionDamage?: number) {
   const { auraFacts = [], namedFactSources = [], comboFacts = [], legendAttributeFacts = [] } = namedFacts
   return (
     <>
@@ -229,25 +236,34 @@ export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSou
       )}
       {boonFacts.length > 0 && (
         <ul className="tooltip-boon-facts">
-          {boonFacts.map((f, i) => (
-            <li key={i}>
-              <span className="tooltip-fact-label">
-                {f.legendIcon && <img className="tooltip-fact-icon tooltip-fact-legend-icon" src={f.legendIcon} alt="" title={f.legendName} />}
-                {BOON_CONDITION_ICONS_BY_NAME[f.boonOrConditionName] && (
-                  <img className="tooltip-fact-icon" src={BOON_CONDITION_ICONS_BY_NAME[f.boonOrConditionName]} alt="" />
-                )}
-                <span>{f.boonOrConditionName}</span>
-                {f.instanceLabel && <span className="boon-source-instance-label">{f.instanceLabel}</span>}
-                {f.category === 'boon' && f.targetCount !== null && (
-                  <span className="boon-source-target">{formatTargetCount(f.targetCount)}</span>
-                )}
-              </span>
-              <span className="boon-source-duration">
-                {formatBoonDuration(f.scaledDurationSeconds)}s
-                {f.applyCount > 1 ? ` × ${f.applyCount}` : ''}
-              </span>
-            </li>
-          ))}
+          {boonFacts.map((f, i) => {
+            const perStackDamage =
+              f.category === 'condition' && conditionDamage !== undefined ? conditionDamagePerStack(f.boonOrConditionName, conditionDamage) : null
+            return (
+              <li key={i}>
+                <span className="tooltip-fact-label">
+                  {f.legendIcon && <img className="tooltip-fact-icon tooltip-fact-legend-icon" src={f.legendIcon} alt="" title={f.legendName} />}
+                  {BOON_CONDITION_ICONS_BY_NAME[f.boonOrConditionName] && (
+                    <img className="tooltip-fact-icon" src={BOON_CONDITION_ICONS_BY_NAME[f.boonOrConditionName]} alt="" />
+                  )}
+                  <span>{f.boonOrConditionName}</span>
+                  {f.instanceLabel && <span className="boon-source-instance-label">{f.instanceLabel}</span>}
+                  {f.category === 'boon' && f.targetCount !== null && (
+                    <span className="boon-source-target">{formatTargetCount(f.targetCount)}</span>
+                  )}
+                </span>
+                <span className="boon-source-duration-group">
+                  <span className="boon-source-duration">
+                    {formatBoonDuration(f.scaledDurationSeconds)}s
+                    {f.applyCount > 1 ? ` × ${f.applyCount}` : ''}
+                  </span>
+                  {perStackDamage !== null && (
+                    <span className="boon-source-condition-damage">≈ {(perStackDamage * f.applyCount).toLocaleString()} dmg/s</span>
+                  )}
+                </span>
+              </li>
+            )
+          })}
         </ul>
       )}
       {legendAttributeFacts.length > 0 && (
@@ -316,14 +332,14 @@ export function factsBlock(numericLines: FactLine[], boonFacts: BoonConditionSou
  *  of `skillTooltipContent` so `TraitsEditor.tsx` can draw the exact same divider style for
  *  `branchConditionalTraitFacts` (e.g. Strengthening Stanzas' 3 mutually-exclusive per-Refrain
  *  self-buffs) rather than a trait-specific reimplementation. */
-export function conditionalBranchesBlock(branches: ConditionalBranch[] | null) {
+export function conditionalBranchesBlock(branches: ConditionalBranch[] | null, conditionDamage?: number) {
   return branches?.map((branch) => (
     <div key={branch.label}>
       <div className="tooltip-divider">
         <span className="tooltip-section-label">{branch.label}</span>
       </div>
       {branch.description && <div className="tooltip-description">{branch.description}</div>}
-      {factsBlock(branch.numericLines, branch.facts)}
+      {factsBlock(branch.numericLines, branch.facts, {}, conditionDamage)}
     </div>
   ))
 }
@@ -370,9 +386,10 @@ export interface SkillVariantContext {
    *  `BoonConditionSource.legendIcon` (resolves which legend a `PrefixedBuff` fact's boon names). */
   legends: Legend[]
   durationPercent: { boon: number; condition: number }
-  /** Current Power/Healing Power (`useDurationContext`'s `characterAttributes`) and assumed target
-   *  armor a skill's real Damage/Healing tooltip lines scale against — see `skillFactLines`. */
-  characterAttributes: { power: number; healingPower: number }
+  /** Current Power/Healing Power/Condition Damage (`useDurationContext`'s `characterAttributes`) and
+   *  assumed target armor a skill's real Damage/Healing/condition-damage tooltip lines scale against
+   *  — see `skillFactLines`/`conditionDamagePerStack`. */
+  characterAttributes: { power: number; healingPower: number; conditionDamage: number }
   targetArmor: number
   /** Wiki-sourced Druid Glyph normal/celestial form data plus whether the build's Celestial Avatar
    *  toggle is currently on — see `glyph-forms.ts`'s `glyphFormFactSourceSkill`. Harmless for every
@@ -405,7 +422,7 @@ export interface SkillVariantContext {
  * winning the `??` is unambiguous.
  */
 export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], activeIds: Set<number>, variantContext: SkillVariantContext) {
-  const { power, healingPower } = variantContext.characterAttributes
+  const { power, healingPower, conditionDamage } = variantContext.characterAttributes
   const glyphFormSkill = glyphFormFactSourceSkill(skill, variantContext.celestialAvatarActive, variantContext.glyphFormVariants, variantContext.skillsById)
   const attunementVariantSkill = activeAttunementVariantSkill(skill, variantContext.activeAttunement, variantContext.skills)
   const familiarFactSkill = evokerFamiliarFactSourceSkill(skill, variantContext.skillsById)
@@ -444,16 +461,16 @@ export function skillTooltipContent(skill: Skill, facts: BoonConditionSource[], 
   return (
     <>
       <TooltipBody title={skill.name} description={factSourceSkill.description} icon={skill.icon} />
-      {factsBlock(numericLines, effectiveFacts, effectiveNamedFacts)}
+      {factsBlock(numericLines, effectiveFacts, effectiveNamedFacts, conditionDamage)}
       {enhancement && (
         <>
           <div className="tooltip-divider">
             <span className="tooltip-section-label">{enhancement.triggerLabel}</span>
           </div>
-          {factsBlock(enhancement.numericLines, enhancement.facts, enhancement.namedFacts)}
+          {factsBlock(enhancement.numericLines, enhancement.facts, enhancement.namedFacts, conditionDamage)}
         </>
       )}
-      {conditionalBranchesBlock(branches)}
+      {conditionalBranchesBlock(branches, conditionDamage)}
       {familiarBonus && (
         <>
           <div className="tooltip-divider">

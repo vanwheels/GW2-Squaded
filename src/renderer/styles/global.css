@@ -2337,6 +2337,28 @@ input[type='text'] {
   flex: none;
 }
 
+/* Wraps .boon-source-duration plus the optional .boon-source-condition-damage line beneath it —
+   `.tooltip-boon-facts li`'s own space-between layout expects exactly 2 children (label, this
+   group), so the duration and the expected-damage line stack inside one right-aligned column
+   rather than becoming a 3rd sibling. See condition-damage-calc.ts's conditionDamagePerStack. */
+.boon-source-duration-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex: none;
+}
+
+/* A condition-application fact's expected damage per second (base + coefficient * Condition Damage,
+   times stack count) — see condition-damage-calc.ts's own top comment for which conditions this
+   covers (Bleeding/Burning/Poisoned/Torment/Confusion's DoT half) and why Torment/Confusion each
+   resolve to only one of their possible values. */
+.boon-source-condition-damage {
+  color: var(--muted);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+
 /* Per-legend "form"/attribute detail rows (Bolstered Bonds, Cosmic Wisdom) — unlike
    `.tooltip-boon-facts`' name+duration pair, the 2nd column here is free-text (a whole sentence for
    Cosmic Wisdom's "Form of X" descriptions), too long for that layout's side-by-side flex row, so
