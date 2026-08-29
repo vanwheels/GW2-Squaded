@@ -82,22 +82,31 @@ export interface SiphonDamageCoefficient {
  * confirmed, that entry is likely inflated and should probably read 968 instead — not changed here
  * since Cosmic Wisdom's own formula/mode wasn't part of this verification pass.
  *
- * **1 stayed uncurated on an explicit wiki maintenance tag** — Vampiric Slash (Thief, id 73063 — a
- * different skill from the Necromancer/Reaper "Death Spiral" resolved above, despite the similar
- * flavor text) carries its own stub tag (`{{stub|skill|Need better calculation of base life siphon
- * damage}}`) with a single flat coefficient that reproduces the same unresolved `+coefficient*1000`
- * pattern above (API 1210 vs wiki 1410) — doubly unreliable, left out on both grounds; not yet
- * live-verified.
+ * **1 stayed uncurated on an explicit wiki maintenance tag, re-checked 2026-08-29** — Vampiric Slash
+ * (Thief, id 73063 — a different skill from the Necromancer/Reaper "Death Spiral" resolved above,
+ * despite the similar flavor text) still carries its own stub tag (`{{stub|skill|Need better
+ * calculation of base life siphon damage}}`). Fresh raw-wikitext pull confirms a single mode-agnostic
+ * fact, `{{skill fact|life siphon damage|1410|coefficient=0.2}}`; this app's API exposes 2 identical
+ * duplicates both reading 1210. 1210 + 0.2*1000 = 1410 EXACTLY — not an approximate match like
+ * Enchanted Daggers' 10-point gap, a perfect instance of the same "wiki quotes the tooltip value at
+ * base 1000 Power, API's raw `value` is the true 0-Power intercept" pattern that resolved all 6 other
+ * siphon-damage mismatches on this list via live testing. Strong prior that base=1210/coefficient=0.2
+ * (API base, wiki coefficient) is correct, but per this table's rigor bar (mirrors
+ * `CURATED_HEALING_COEFFICIENTS`'s own conventions), a base/wiki conflict this table hasn't seen with
+ * its own eyes doesn't get curated on pattern-matching alone — added to the in-game verification
+ * queue (see the in-game-verification checklist memory) rather than curated here.
  *
- * **1 stayed uncurated as a different formula shape entirely** — Soul Grasp: the wiki's own
- * `{{skill fact|life siphon damage|weapon=focus|coefficient=...}}` template has no literal base
- * number at all, only a `weapon=` parameter — the same template shape `CURATED_DAMAGE_COEFFICIENTS`/
- * `damage-calc.ts` models via the ordinary weapon-strength formula, not this table's
- * `baseValue + coefficient * Power` one. This app's local API still mislabels the fact
+ * **1 stayed uncurated as a different formula shape entirely, re-checked 2026-08-29** — Soul Grasp:
+ * the wiki's own `{{skill fact|life siphon damage|weapon=focus|coefficient=...}}` template still has
+ * no literal base number at all, only a `weapon=` parameter — the same template shape
+ * `CURATED_DAMAGE_COEFFICIENTS`/`damage-calc.ts` models via the ordinary weapon-strength formula, not
+ * this table's `baseValue + coefficient * Power` one. This app's local API still mislabels the fact
  * `AttributeAdjust`/`target: 'Power'` (matching every other candidate in this sweep) rather than the
  * `Damage` type `damageLinesForSkill` actually reads, so neither table can reach it without new
  * routing — same shape as Barrier's own API mislabeling problem (`barrier-calc.ts`'s top comment),
- * just a different pair of tables. Not built here — out of scope for this sweep.
+ * just a different pair of tables. Not built here — out of scope for this sweep. (The API's raw base,
+ * 440, is a coincidental copy of this skill's own WvW/PvP Healing base, not a real Damage value —
+ * confirmed by the fresh wikitext pull, not worth chasing further.)
  *
  * **3 are structurally unreachable, not a real gap** — Grim Specter (`professions: []`, no
  * trait/skill anywhere in this app's local data references it — a genuine dead orphan id, same shape

@@ -116,10 +116,15 @@ confirmed the API's raw base value was correct all along (Locust Swarm 37/0.08, 
 129/0.022, Signet Active 163/0.084, Death Spiral 1764/0.005, Nightmare Weapon 606/0.025) — the wiki's
 117/151/247 numbers (and, for Death Spiral, the wiki's total absence of any coefficient) were simply
 wrong/missing, same pattern as Enchanted Daggers. Nightmare Weapon's code comment also had a stale
-profession attribution (said Harbinger, is actually Ritualist) fixed in the same pass. Left uncurated:
-1 explicit wiki stub tag (Vampiric Slash, Thief — unrelated skill from Death Spiral despite similar
-flavor text, not yet live-verified); 1 different formula shape (Soul Grasp, weapon-strength-based,
-mislabeled by the API the same way Barrier's API mislabeling problem works); 3 structurally
+profession attribution (said Harbinger, is actually Ritualist) fixed in the same pass. Left uncurated,
+re-checked 2026-08-29 (see `siphon-damage-calc.ts`'s top comment for the full writeup): 1 explicit
+wiki stub tag (Vampiric Slash, Thief, id 73063 — unrelated skill from Death Spiral despite similar
+flavor text) — a fresh wikitext pull found base=1210(API)/coefficient=0.2(wiki), and 1210 + 0.2*1000 =
+1410 is an EXACT match to the wiki's quoted 1410, the same "wiki quotes the tooltip at base-1000-Power"
+pattern that resolved all 6 other mismatches on this list — a strong candidate, but not curated on
+pattern-matching alone; added to the in-game verification queue (see that memory) instead of guessed;
+1 different formula shape (Soul Grasp, weapon-strength-based, mislabeled by the API the same way
+Barrier's API mislabeling problem works — re-confirmed 2026-08-29, no change); 3 structurally
 unreachable ids (Grim Specter orphan; Carnivore/Replenishing Despair are shared-trait "effect skills",
 same exclusion shape as Assassin's Reward above).
 
