@@ -6750,6 +6750,18 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 6420,
     },
   ],
+  "13006": [
+    {
+      "label": "Healing",
+      "value": 1392,
+    },
+  ],
+  "13007": [
+    {
+      "label": "Healing",
+      "value": 557,
+    },
+  ],
   "13008": [
     {
       "label": "Healing",
@@ -6760,6 +6772,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Healing",
       "value": 1114,
+    },
+  ],
+  "13011": [
+    {
+      "label": "Healing",
+      "value": 1672,
     },
   ],
   "13012": [
@@ -6792,10 +6810,28 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 6233,
     },
   ],
+  "13024": [
+    {
+      "label": "Healing",
+      "value": 1672,
+    },
+  ],
+  "13025": [
+    {
+      "label": "Healing",
+      "value": 2229,
+    },
+  ],
   "13027": [
     {
       "label": "Healing",
       "value": 7526,
+    },
+  ],
+  "13040": [
+    {
+      "label": "Healing",
+      "value": 1392,
     },
   ],
   "13041": [
@@ -6852,6 +6888,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1394,
     },
   ],
+  "13083": [
+    {
+      "label": "Healing",
+      "value": 1394,
+    },
+  ],
   "13097": [
     {
       "label": "Healing",
@@ -6862,6 +6904,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Healing",
       "value": 1114,
+    },
+  ],
+  "13111": [
+    {
+      "label": "Healing",
+      "value": 557,
     },
   ],
   "13112": [
@@ -7328,6 +7376,18 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     {
       "label": "Healing",
       "value": 7224,
+    },
+  ],
+  "30520": [
+    {
+      "label": "Healing",
+      "value": 1394,
+    },
+  ],
+  "30597": [
+    {
+      "label": "Healing",
+      "value": 1672,
     },
   ],
   "30775": [
@@ -7904,6 +7964,18 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1114,
     },
   ],
+  "63254": [
+    {
+      "label": "Healing",
+      "value": 1394,
+    },
+  ],
+  "63267": [
+    {
+      "label": "Healing",
+      "value": 836,
+    },
+  ],
   "63292": [
     {
       "label": "Self-Heal",
@@ -7960,6 +8032,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 4078,
     },
   ],
+  "71864": [
+    {
+      "label": "Healing",
+      "value": 1394,
+    },
+  ],
   "71882": [
     {
       "label": "Initial Heal",
@@ -7982,10 +8060,22 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 379,
     },
   ],
+  "71895": [
+    {
+      "label": "Healing",
+      "value": 1394,
+    },
+  ],
   "71897": [
     {
       "label": "Healing",
       "value": 1916,
+    },
+  ],
+  "71965": [
+    {
+      "label": "Healing",
+      "value": 1394,
     },
   ],
   "71986": [

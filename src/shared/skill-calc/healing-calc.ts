@@ -890,25 +890,20 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   //   uses the trait's real 0.085 rate, since N itself is unambiguous here (it matches both the
   //   wiki's current cost and the buggy value's own implied N — only the flat-rate constant is
   //   stale, not N).
-  // - 14 stayed EXCLUDED: each carries 2-3 duplicate `Healing`+`requires_trait:1238` facts (a real
-  //   PvE/WvW/PvP initiative-cost split materialized as separate facts, live-API-verified) sharing
-  //   the identical factText — the same `Array.find`-binds-to-array-order trap already documented
-  //   for Thief's Shadow Veil above, and this table has no way to disambiguate two facts sharing
-  //   both the same factText AND the same requiresTrait. Death Blossom (13006), Larcenous Strike
-  //   (13007), Unload (13011), Choking Gas (13024, a 3-way split), Infiltrator's Arrow (13025),
-  //   Shadow Shot (13040), Disabling Shot (13083), Debilitating Arc/Helmet Breaker (30520/71802, a
-  //   flip-skill pair sharing both duplicate sets), Vault (30597), Twilight Combo (63254), Harrowing
-  //   Storm (71864), Recall Axes (71895), Orchestrated Assault (71965).
-  // - 3 more stayed excluded for other reasons: Black Powder (13113) only exposes its PvE/PvP-
-  //   grouped value (907, cost 6) as a fact — the wiki documents a separate WvW-only cost (7) with
-  //   no directly-sourced number to pair it with, so it's left out rather than self-computing one
-  //   (this table only ever uses wiki/API-sourced numbers, never a formula-derived guess). Measured
-  //   Shot (63267) and Repeater (13111, the non-dual-wield id) each show a live Healing fact baked
-  //   at an OLDER, pre-balance-patch initiative cost than their current live `initiative` field
-  //   (e.g. Measured Shot: `initiative: 4` current, but Healing fact = 453 = 151*3, its pre-
-  //   2025-06-24 cost) — unlike the Spear group, here it's N itself (not just the rate) that's
-  //   stale, and there's no way to know whether the trait's HP-scaling coefficient applies at the
-  //   stale or the current N without live-testing; left uncurated rather than guessing.
+  // - 15 of the original 17 "stayed EXCLUDED" candidates were RESOLVED 2026-08-28 (fresh wiki+API
+  //   pass, coefficient-curation-leftovers sweep) — see the new "mode-split resolutions" block below
+  //   this table's entries. The duplicate `Healing`+`requires_trait:1238` facts sharing identical
+  //   factText turned out to be a genuine, disambiguatable PvE/WvW/PvP initiative-cost split in
+  //   almost every case, not an unbindable `Array.find`-order trap: each skill's own wiki infobox
+  //   `split=` line (e.g. `pve, wvw pvp` = WvW groups with PvP; `pve, wvw, pvp` = a true 3-way split;
+  //   `pve pvp, wvw` = WvW is the odd one out) plus its `initiative`/`initiative pvp`/`initiative wvw`
+  //   fields identify which raw API fact value corresponds to N-initiative-spent-in-WvW, the same way
+  //   `RelicEffect.rechargeSeconds`'s "prefer `recharge wvw=`" rule already works for cooldowns. Only
+  //   2 stay EXCLUDED: Helmet Breaker (71802, Debilitating Arc's flip-skill follow-up — its own 2
+  //   facts don't cleanly match any combo-total or solo-cost interpretation even after checking every
+  //   historical initiative-cost patch on both chain skills) and Black Powder (13113, still only
+  //   exposes its PvE/PvP-grouped value as a fact — the wiki's explicit `initiative wvw = 7` field has
+  //   no live-API-sourced fact to pair it with, so it's left out rather than formula-deriving one).
   13008: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Bola Shot
   13010: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Shadow Strike
   13012: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Head Shot
@@ -938,6 +933,34 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   13122: [{ factText: 'Healing', baseValue: 509, coefficient: 0.425, requiresTrait: 1238 }], // Nine-Tailed Strike
   13130: [{ factText: 'Healing', baseValue: 204, coefficient: 0.17, requiresTrait: 1238 }], // Break Stance
   50379: [{ factText: 'Healing', baseValue: 306, coefficient: 0.255, requiresTrait: 1238 }], // Hooked Spear
+  // Assassin's Reward — mode-split resolutions (resolved 2026-08-28, see this table's Weapon-slot
+  // Thief block intro comment above). Each skill's own wiki `split=` grouping + initiative fields
+  // identify which of its 2-3 duplicate `requires_trait:1238` Healing facts is the WvW-relevant one;
+  // baseValue below is that fact's own raw live-API value (never a formula-derived guess), N is its
+  // implied initiative cost (baseValue ≈ 151*N, ±1 rounding, per the trait's own wiki-documented flat
+  // rate). A few (noted per-entry) bake an older, pre-balance-patch N than the skill's current live
+  // `initiative` field — same "reproduce today's live tooltip, not a corrected one" convention
+  // already used for the Spear/UW quirk group above.
+  13006: [{ factText: 'Healing', baseValue: 754, coefficient: 0.425, requiresTrait: 1238 }], // Death Blossom — split=pve,wvw pvp; N=5 (WvW groups with PvP; PvE alone is N=4)
+  13007: [{ factText: 'Healing', baseValue: 302, coefficient: 0.17, requiresTrait: 1238 }], // Larcenous Strike — split=pve,wvw pvp; N=2
+  13011: [{ factText: 'Healing', baseValue: 907, coefficient: 0.51, requiresTrait: 1238 }], // Unload — split=pve,wvw pvp; N=6
+  13024: [{ factText: 'Healing', baseValue: 907, coefficient: 0.51, requiresTrait: 1238 }], // Choking Gas — true 3-way split (pve/wvw/pvp each distinct), explicit `initiative wvw=6`; N=6
+  13025: [{ factText: 'Healing', baseValue: 1209, coefficient: 0.68, requiresTrait: 1238 }], // Infiltrator's Arrow — split=pve,wvw pvp; N=8
+  13040: [{ factText: 'Healing', baseValue: 754, coefficient: 0.425, requiresTrait: 1238 }], // Shadow Shot — split=pve,wvw pvp; N=5
+  13083: [{ factText: 'Healing', baseValue: 756, coefficient: 0.425, requiresTrait: 1238 }], // Disabling Shot — split=pve,wvw pvp; N=5
+  // Debilitating Arc's own Healing facts are the FULL Debilitating Arc→Helmet Breaker combo total
+  // (3+1 PvE, 4+1 WvW/PvP), not its own solo cost — confirmed exact match to both chain skills' own
+  // initiative fields, zero rounding slop. Helmet Breaker's own 2 facts (302, 453) don't fit this or
+  // any other combo/solo interpretation even checking every historical cost patch on both skills —
+  // stays excluded.
+  30520: [{ factText: 'Healing', baseValue: 756, coefficient: 0.425, requiresTrait: 1238 }], // Debilitating Arc (combo total with flip-skill Helmet Breaker)
+  30597: [{ factText: 'Healing', baseValue: 907, coefficient: 0.51, requiresTrait: 1238 }], // Vault — split=pve,wvw pvp; N=6 (WvW uses the PvP cost per 2020-02-25 patch note)
+  63254: [{ factText: 'Healing', baseValue: 756, coefficient: 0.425, requiresTrait: 1238 }], // Twilight Combo — explicit `initiative wvw=5`; N=5
+  71864: [{ factText: 'Healing', baseValue: 756, coefficient: 0.425, requiresTrait: 1238 }], // Harrowing Storm — split=pve,wvw pvp, live WvW/PvP cost is 6, but this fact bakes the pre-"5→6" patch N=5
+  71895: [{ factText: 'Healing', baseValue: 756, coefficient: 0.425, requiresTrait: 1238 }], // Recall Axes — split=pve,wvw pvp; N=5
+  71965: [{ factText: 'Healing', baseValue: 756, coefficient: 0.425, requiresTrait: 1238 }], // Orchestrated Assault — split=pve,wvw pvp, live WvW/PvP cost is 6, but this fact bakes the pre-"5→6" patch N=5
+  63267: [{ factText: 'Healing', baseValue: 453, coefficient: 0.255, requiresTrait: 1238 }], // Measured Shot — live `initiative` is 4, but this fact bakes the pre-2025-06-24 N=3
+  13111: [{ factText: 'Healing', baseValue: 302, coefficient: 0.17, requiresTrait: 1238 }], // Repeater (pistol-mainhand-only id) — live `initiative` is 3, but this fact bakes an older N=2
   // Warrior — Line Breaker (Spear). 3-way split by mode (PvE 3240/2.25, WvW 2203/1.25, PvP separately
   // valued) — WvW value used.
   71860: [{ factText: 'Healing', baseValue: 2203, coefficient: 1.25 }],

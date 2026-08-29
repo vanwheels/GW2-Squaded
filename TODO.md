@@ -79,15 +79,23 @@ genuinely different quantity like a multi-block total — still can't be determi
 which declares `split = pve, wvw pvp` but only gives one mode-agnostic skill fact template; table
 matches by factText alone so curating the known half risks binding to the wrong fact).
 
-**Healing — Thief's Assassin's Reward trait (id 1238):** 17 of 45 candidate skills stayed uncurated
-— 14 for the `Array.find`-binds-to-array-order duplicate-fact trap (a genuine PvE/WvW/PvP
-initiative-cost split materialized as 2-3 identical-factText facts this table can't disambiguate,
-same shape as Shadow Veil), Black Powder (only its PvE/PvP-grouped value is exposed, no sourced
-number for its separate WvW cost), and Measured Shot/Repeater(13111) (each bakes an older, pre-patch
-initiative cost into its Healing fact — there's no way to know which N the coefficient would use
-without live-testing). See `healing-calc.ts`'s Weapon-slot Thief block for the full per-skill
-breakdown. Still worth checking other professions for the same "heal on X while this trait is
-active" shape someday.
+**Healing — Thief's Assassin's Reward trait (id 1238):** RESOLVED 2026-08-28 — 15 of the 17
+originally-uncurated candidate skills are now curated. The "duplicate-fact trap" (2-3
+identical-factText `requires_trait:1238` Healing facts this table couldn't disambiguate by
+`Array.find` alone) turned out disambiguatable in almost every case: each skill's own wiki infobox
+`split=` line (`pve, wvw pvp` groups WvW with PvP; `pve, wvw, pvp` is a true 3-way split; `pve pvp,
+wvw` makes WvW the odd one out) plus its `initiative`/`initiative pvp`/`initiative wvw` fields
+identify which raw API fact value is the WvW-relevant one — same mechanism as
+`RelicEffect.rechargeSeconds`'s `recharge wvw=` preference. A few bake an older, pre-balance-patch
+initiative cost than the skill's current live `initiative` field; those are curated with the raw
+stale value anyway (reproducing today's live tooltip), same convention as the already-curated
+Spear/UW quirk group. Debilitating Arc's own Healing facts turned out to be the full
+Debilitating-Arc→Helmet-Breaker combo total, not its own solo cost. Still uncurated: Helmet Breaker
+(71802) — its own facts don't fit any combo/solo interpretation even checking every historical cost
+patch on both chain skills — and Black Powder (13113) — still only exposes its PvE/PvP-grouped
+value, no live-API-sourced fact pairs with the wiki's explicit WvW-only cost (7). See
+`healing-calc.ts`'s Weapon-slot Thief block for the full per-skill breakdown. Still worth checking
+other professions for the same "heal on X while this trait is active" shape someday.
 
 **Damage** — condition-damage skills (coefficient against Condition Damage rather than Power) were
 never in scope for the sweep; would need their own wiki-verification pass
