@@ -40,6 +40,7 @@ export function PetsEditor({ build, onBuildChange, equippedSpecializationIds, co
     skillsById,
     wvwFactOverrides: gameData.wvwFactOverrides,
     rechargeWvwOverrides: gameData.rechargeWvwOverrides,
+    resourceCosts: gameData.resourceCosts,
     legendIds,
     legends: gameData.legends,
     durationPercent,

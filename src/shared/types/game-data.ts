@@ -386,6 +386,41 @@ export interface RechargeWvwOverrides {
 }
 
 /**
+ * A skill's resource cost(s) — Revenant energy/upkeep, Thief initiative, or a health-sacrifice
+ * cost (Necromancer/Ranger Untamed) — entirely absent from the public API (confirmed live
+ * 2026-08-28: `/v2/skills` carries no cost field of any kind, unlike `Recharge`, which at least
+ * has a PvE-reference-build `Fact` to start from). Wiki-sourced from the same `{{Skill infobox}}`
+ * template as `recharge=`/`recharge wvw=`, via `scripts/fetch-resource-costs.ts` — see
+ * docs/game-data.md. `energy`+`upkeep` only ever appear together on Revenant Legendary-stance
+ * upkeep skills (e.g. Impossible Odds: `energy = 5` to activate, `upkeep = -6` per second while
+ * held); every other combination is mutually exclusive in practice (a skill has at most one of
+ * `initiative`/`healthCost` and never both, and never alongside `energy`/`upkeep` — profession
+ * mechanics don't overlap), but nothing here enforces that, it just falls out of which profession
+ * a skill belongs to. Each cost's `*Wvw` sibling is only present when the wiki documents a WvW
+ * value differing from the base one (same "absent means unsplit" convention as
+ * `RechargeWvwOverrides`) — display should prefer it over the base value when present, matching
+ * every other WvW-focused override in this app.
+ */
+export interface ResourceCost {
+  energy?: number
+  energyWvw?: number
+  initiative?: number
+  initiativeWvw?: number
+  /** Negative: the amount drained per second while the skill is held active. */
+  upkeep?: number
+  upkeepWvw?: number
+  healthCost?: number
+  healthCostWvw?: number
+}
+
+/**
+ * Skill id -> its resource cost(s), see `ResourceCost`. An id absent from this map costs no
+ * energy/initiative/upkeep/health (the overwhelming majority of skills) — same fail-safe "absent
+ * means doesn't apply" convention as `RechargeWvwOverrides`.
+ */
+export type ResourceCostsById = Record<number, ResourceCost>
+
+/**
  * One line of flat attribute-bonus text, parsed from the API's raw bonus/description text (e.g.
  * "+25 Power", "+5% Boon Duration"). Shared by rune per-stage bonuses and food/utility
  * consumable effect text — both are API-provided as freeform lines, not a structured fact list
@@ -619,6 +654,7 @@ export interface GameData {
   skillVariantExclusions: SkillVariantExclusions
   wvwFactOverrides: WvwFactOverrides
   rechargeWvwOverrides: RechargeWvwOverrides
+  resourceCosts: ResourceCostsById
   legends: Legend[]
   pets: Pet[]
   familiars: Familiar[]

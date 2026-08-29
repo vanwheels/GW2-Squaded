@@ -2,6 +2,35 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 302 — Resource-cost modeling (energy/initiative/upkeep/health cost)
+
+Closed TODO.md's long-deferred "Resource-cost modeling" item: Revenant energy/upkeep, Thief
+initiative, and Necromancer/Ranger Untamed health-sacrifice cost, none of which the app tracked at
+all before this. Confirmed live 2026-08-28 that `/v2/skills` has zero cost field of any kind for
+any of these (not even a PvE-reference-build starting point, unlike `Recharge`) — entirely
+wiki-sourced from the same `{{Skill infobox}}` template's `energy=`/`initiative=`/`upkeep=`/`health
+cost=` fields (each with an optional ` wvw=` sibling, same shape as `recharge wvw=`).
+
+New `scripts/fetch-resource-costs.ts` discovers candidates via wiki full-text search
+(`insource:`, scoped by profession category for the two profession-exclusive cost types) rather
+than the usual "start from every skill id" approach — no API field exists to pre-filter
+skills.json first. Validated via the infobox's own `id=` field against skills.json directly
+(stronger than a name-match, and handles same-name duplicate skills for free — each duplicate has
+its own wiki page, whose `id=` field says exactly which id it documents). First run: 108 skills got
+a real cost entry, written to `data/game-data/resource-costs.json`.
+
+New `ResourceCost`/`ResourceCostsById` types (`src/shared/types/game-data.ts`), threaded through
+`GameData` the same way as every other wiki-sourced override. New
+`src/shared/skill-calc/resource-cost-lines.ts` renders these as synthetic Energy/Initiative/
+Upkeep/Health Cost tooltip lines (WvW-preferred, same convention as `rechargeWvwOverrides`) —
+prepended by `skillFactLines` as an optional trailing param, wired through every skill-tooltip call
+site (`SkillsEditor.tsx`, `WeaponSkillBar.tsx`, `PetsEditor.tsx`, `ProfessionMechanicBar.tsx`).
+Display only for now, same as `Recharge` facts before any cooldown-aware calculator existed — not
+wired into any rotation/sustained-DPS accounting.
+
+New `searchWikiTitles` helper added to `scripts/lib/wiki-cache.ts` (MediaWiki full-text search,
+paginated via `srcontinue`) for reuse by any future search-first fetch script.
+
 ## Session 301 — Data-completeness audit Shape 2: 6 relic bonuses wired in
 
 Closed 6 of the 14 items in TODO.md's data-completeness-audit "Shape 2" backlog (relic/tome-chapter

@@ -61,6 +61,7 @@ const EMPTY_GAME_DATA: GameData = {
   skillVariantExclusions: [],
   wvwFactOverrides: { skill: {}, trait: {} },
   rechargeWvwOverrides: { skill: {}, trait: {} },
+  resourceCosts: {},
   legends: [],
   pets: [],
   familiars: [],

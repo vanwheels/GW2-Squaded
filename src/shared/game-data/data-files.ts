@@ -21,6 +21,7 @@ export const GAME_DATA_FILE_NAMES = [
   'skill-variant-exclusions.json',
   'wvw-fact-overrides.json',
   'recharge-wvw-overrides.json',
+  'resource-costs.json',
   'legends.json',
   'pets.json',
   'familiars.json',

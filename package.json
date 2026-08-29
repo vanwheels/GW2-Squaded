@@ -23,6 +23,7 @@
     "fetch-gear-upgrades": "tsx scripts/fetch-gear-upgrades.ts",
     "fetch-relic-effects": "tsx scripts/fetch-relic-effects.ts",
     "fetch-recharge-wvw-overrides": "tsx scripts/fetch-recharge-wvw-overrides.ts",
+    "fetch-resource-costs": "tsx scripts/fetch-resource-costs.ts",
     "fetch-tome-chapters": "tsx scripts/fetch-tome-chapters.ts",
     "fetch-tango-icons": "tsx scripts/fetch-tango-icons.ts",
     "fetch-chat-link-ids": "tsx scripts/fetch-chat-link-ids.ts",

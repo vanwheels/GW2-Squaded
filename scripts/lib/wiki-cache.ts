@@ -85,6 +85,36 @@ export function getWikiRevisionId(title: string): number | undefined {
 }
 
 /**
+ * Runs a MediaWiki full-text search (`action=query&list=search`) and returns every matching page
+ * title, following `srcontinue` until exhausted. Not cached (unlike `fetchWikiPage`) — a script
+ * calling this is discovering a *candidate set* once at the start of a run, not re-reading content
+ * on every pass, so there's nothing worth persisting across runs the way page content is. Used to
+ * find the (small) set of pages carrying a given infobox field via `insource:` (e.g.
+ * `fetch-resource-costs.ts`'s `insource:"energy" incategory:"Revenant skills"`) instead of walking
+ * every skill id and guessing a wiki title for each — the search IS the candidate-discovery step.
+ */
+export async function searchWikiTitles(searchQuery: string): Promise<string[]> {
+  const titles: string[] = []
+  let sroffset: number | undefined
+  for (;;) {
+    const url =
+      `${WIKI_API}?action=query&list=search&srsearch=${encodeURIComponent(searchQuery)}` +
+      `&srlimit=500&format=json&formatversion=2${sroffset !== undefined ? `&sroffset=${sroffset}` : ''}`
+    const response = await fetch(url, { headers: { 'User-Agent': USER_AGENT } })
+    await sleep(REQUEST_DELAY_MS)
+    if (!response.ok) throw new Error(`Wiki search failed for "${searchQuery}": ${response.status} ${response.statusText}`)
+    const json = (await response.json()) as {
+      query?: { search?: { title: string }[] }
+      continue?: { sroffset?: number }
+    }
+    for (const result of json.query?.search ?? []) titles.push(result.title)
+    if (json.continue?.sroffset === undefined) break
+    sroffset = json.continue.sroffset
+  }
+  return titles
+}
+
+/**
  * Returns a wiki page's raw wikitext, transparently caching across every script that calls it
  * (see module doc comment). Returns null for a nonexistent page — same contract every prior
  * per-script `fetchRawWikitext` used for its 404 case, so callers don't need to change.

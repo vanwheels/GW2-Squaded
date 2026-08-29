@@ -1,10 +1,11 @@
-import type { Fact, RechargeWvwOverrides, Skill } from '../types'
+import type { Fact, RechargeWvwOverrides, ResourceCostsById, Skill } from '../types'
 import { factLine, type FactLine } from './fact-numbers'
 import { healingLinesForSkill } from './healing-calc'
 import { barrierLinesForSkill } from './barrier-calc'
 import { damageLinesForSkill } from './damage-calc'
 import { siphonDamageLinesForSkill } from './siphon-damage-calc'
 import { withRechargeOverride } from './recharge-override'
+import { resourceCostLines } from './resource-cost-lines'
 
 /**
  * Curated per-skill overrides for `Percent`-type facts the GW2 API duplicates once per game mode
@@ -105,7 +106,9 @@ function realValueLine(
  * WvW-correct `Recharge` fact value where the wiki documents one differing from the API's
  * PvE-reference-build number (see `recharge-override.ts`) — optional so every pre-existing caller
  * (and every test) keeps working unchanged, showing the un-adjusted PvE value, same as before this
- * existed.
+ * existed. `resourceCosts` prepends synthetic Energy/Initiative/Upkeep/Health Cost lines ahead of
+ * the API's own facts — see `resource-cost-lines.ts` — same optional-param back-compat convention
+ * as `rechargeWvwOverrides` (no lines shown when omitted).
  */
 export function skillFactLines(
   skill: Skill,
@@ -113,7 +116,8 @@ export function skillFactLines(
   power: number,
   healingPower: number,
   targetArmor: number,
-  rechargeWvwOverrides?: RechargeWvwOverrides
+  rechargeWvwOverrides?: RechargeWvwOverrides,
+  resourceCosts?: ResourceCostsById
 ): FactLine[] {
   const damageByLabel = new Map(damageLinesForSkill(skill, power, targetArmor, activeIds).map((l) => [l.label, l.value]))
   const healingByLabel = new Map(healingLinesForSkill(skill, healingPower, activeIds).map((l) => [l.label, l.value]))
@@ -122,8 +126,9 @@ export function skillFactLines(
 
   const facts = rechargeWvwOverrides ? withRechargeOverride(skill.facts, skill.id, rechargeWvwOverrides.skill) : skill.facts
 
-  const lines: FactLine[] = []
+  const lines: FactLine[] = resourceCosts ? resourceCostLines(skill.id, resourceCosts) : []
   const seen = new Set<string>()
+  for (const line of lines) seen.add(line.text)
   for (const rawFact of [...facts, ...skill.traitedFacts]) {
     if (rawFact.requires_trait != null && !activeIds.has(rawFact.requires_trait)) continue
     const fact = applyCuratedPercentOverride(rawFact, skill.id)

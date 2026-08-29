@@ -291,8 +291,9 @@ expected to turn out to be legitimate non-gaps once looked at.
     Outgoing Damage % sweep's Burst Mastery/Symbiotic Synergy.
   - **Life-force gain rate** — Soul Comprehension (Necromancer/Death Magic, 839, 20%) and Gluttony
     (Necromancer/Soul Reaping, 887, 10%). Necromancer life-force is an entirely untracked resource —
-    the mirror-image "resource gain" version of the already-scoped-not-started "Resource-cost
-    modeling" item below (energy/initiative/upkeep/health-cost), same reasoning applies.
+    the mirror-image "resource gain" version of the now-shipped resource-*cost* modeling (energy/
+    initiative/upkeep/health-cost, see COMPLETED.md), same reasoning applies: no baseline resource
+    value exists to apply a %-modifier to.
   - **Protection's own damage-reduction potency** — Hardy Conduit (Elementalist/Tempest, 1948, 20%)
     and Stone Resonance (Elementalist skill, 44926, 20%, "Protection on you is more effective" while
     the stance is active). This app has never modeled incoming-damage reduction from boons at all
@@ -379,18 +380,6 @@ alone isn't itself the actionable signal here, just the marker that led to Shape
       211 ambiguous skill names and 86 validation-mismatch/missing-page names left uncurated (see
       `docs/game-data.md`'s new section for the full breakdown) — re-run after a future balance
       patch, same as `fetch-wvw-splits`.
-
-- [ ] **Resource-cost modeling (energy/initiative/upkeep/health-cost) — down the road, deliberately
-      not scoped yet.** The app doesn't track Revenant energy cost, Thief initiative cost,
-      Revenant upkeep-skill drain, or health-cost skills anywhere today, so none of these are wrong
-      per se — they're just entirely absent. User wants these modeled eventually. If/when that
-      work starts, remember the wiki infobox template also carries PvE/PvP/WvW-specific variants for
-      all 4 (same shape as `recharge wvw=` above) — confirmed real usage via wiki `insource:` search
-      2026-08-21: `energy_wvw` (37 hits, Revenant), `upkeep_wvw` (7, Revenant), `initiative_wvw` (7,
-      Thief), `health_cost_wvw` (6). (`activation_wvw`/cast-time has zero real wiki usage — confirmed
-      not a real category, no need to check it again.) Build the WvW-override read at the same time
-      as the base cost modeling, not bolted on after, so this doesn't become a 6th "solved for one
-      data source, never generalized" gap.
 
 ## Nice-to-haves
 

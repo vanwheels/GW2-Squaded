@@ -1192,6 +1192,63 @@ those two relics' real WvW proc duration, not just a tooltip number.
 `fetch-recharge-wvw-overrides` too whenever a balance patch might change a skill/trait's WvW
 recharge, or add a new one.
 
+## Skill resource costs (`resource-costs.json`)
+
+TODO.md's long-deferred "Resource-cost modeling" item: Revenant energy/upkeep, Thief initiative,
+and Necromancer/Ranger Untamed health-sacrifice cost. Confirmed live 2026-08-28: `/v2/skills` has
+**no cost field of any kind** for any of these — not even the PvE-reference-build starting point
+`Recharge` gives `fetch-recharge-wvw-overrides.ts` above. This is 100% wiki-sourced, from the same
+`{{Skill infobox}}` template's `energy=`/`initiative=`/`upkeep=`/`health cost=` fields (each with
+an optional ` wvw=` sibling, same shape as `recharge wvw=`).
+
+`scripts/fetch-resource-costs.ts` (run via `npm run fetch-resource-costs`, after `fetch-game-data`)
+discovers candidates via the wiki's own full-text search (`insource:`) instead of scripts/fetch-
+recharge-wvw-overrides.ts's "start from every skill id, look up its wiki page by name" approach —
+there's no API field to pre-filter skills.json down to "carries a cost" first, and blind-fetching
+all ~1400 player-equippable skill pages just to find the handful that do would be wasteful. Search
+is scoped by profession category where a cost type is profession-exclusive (`energy`/`upkeep`
+never appear outside `incategory:"Revenant skills"`, `initiative` never outside
+`incategory:"Thief skills"` — an unscoped search returns hundreds of false positives, mostly
+`Game_updates/*` pages and lore text using the plain English word); `health cost` has no single
+owning profession, so that search is global (still only ~6 real candidates in practice, the rest
+filtered by the no-infobox check below).
+
+**Validated via the infobox's own `id=` field, not a value cross-check** — `fetch-recharge-wvw-
+overrides.ts` had an API-side `Recharge` fact value to compare its wiki parse against; there's no
+equivalent here. But going search-title -> wiki page -> `id=` -> `skills.json` lookup (the reverse
+of every other script's id -> name -> wiki-page direction) means the wiki page itself names its own
+definitive skill id, checked against `skills.json` directly (must exist, must be player-
+equippable) — a more direct correctness check than a name-match, and it naturally handles same-name
+duplicate skills for free: each duplicate has its OWN wiki page (e.g. "Disabling Shot (thief short
+bow skill)"), and that page's own `id=` field says exactly which of the several same-named ids it
+documents — no name-grouping/ambiguous-skip step needed at all, unlike every id-first script.
+
+**Output shape**: `Record<id, { energy?, energyWvw?, initiative?, initiativeWvw?, upkeep?,
+upkeepWvw?, healthCost?, healthCostWvw? }>` (`ResourceCost`/`ResourceCostsById` in
+`src/shared/types/game-data.ts`) — `energy`+`upkeep` can both be present at once (Revenant
+Legendary-stance skills, e.g. Impossible Odds: `energy = 5` to activate, `upkeep = -6`/s while
+held); every other combination is mutually exclusive in practice. A `*Wvw` field is only written
+when it genuinely differs from the base value (same "no real split, nothing to store" convention
+`recharge wvw=` uses) — an id absent from this map costs nothing at all (the overwhelming majority
+of skills). 2026-08-28's first run: 108 skills got a real entry out of 140 candidate search titles
+(the rest were `Game_updates`/`List of`/`/history` pages filtered before fetching, sub-skills with
+no independent id, or a search hit whose page turned out to carry no actual cost field).
+
+**Consumed by** `src/shared/skill-calc/resource-cost-lines.ts`'s `resourceCostLines(skillId,
+resourceCosts)` — unlike `withRechargeOverride`, this doesn't patch an existing `Fact`, it
+manufactures brand-new synthetic tooltip lines (Energy/Initiative/Upkeep/Health Cost, WvW-preferred
+same as every other override) from scratch, since the API has no fact to patch. Wired into
+`skill-fact-lines.ts`'s `skillFactLines` as an optional trailing param (same back-compat "no lines
+shown when omitted" convention as `rechargeWvwOverrides`) — threaded through every skill-tooltip
+call site (`SkillsEditor.tsx`, `WeaponSkillBar.tsx`, `PetsEditor.tsx`,
+`ProfessionMechanicBar.tsx`). Not wired into any calculation yet (e.g. a build's total sustained-
+DPS or rotation-uptime accounting for initiative/energy availability) — display only, same as this
+app's `Recharge` facts before any cooldown-aware calculator existed.
+
+**Note:** this file's data is NOT re-derivable from `fetch-game-data.ts` — re-run
+`fetch-resource-costs` too whenever a balance patch might change a skill's cost, or add a new
+cost-bearing skill.
+
 ## Profession-mechanic ("F-skill") data
 
 `Profession.professionSkills` (`{id, slot}[]`) is sourced from `/v2/professions`' own `skills`

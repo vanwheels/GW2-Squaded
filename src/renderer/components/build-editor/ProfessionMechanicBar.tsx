@@ -179,7 +179,8 @@ export function ProfessionMechanicBar({ build, equippedSpecializationIds, onBuil
       characterAttributes.power,
       characterAttributes.healingPower,
       targetArmor,
-      gameData.rechargeWvwOverrides
+      gameData.rechargeWvwOverrides,
+      gameData.resourceCosts
     )
     const namedFacts = skillNamedFacts(skill, activeIds, legendIds, gameData.wvwFactOverrides.skill[skill.id], gameData.legends, {
       power: characterAttributes.power,

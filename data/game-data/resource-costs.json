@@ -1,0 +1,340 @@
+{
+  "10611": {
+    "healthCost": 9606
+  },
+  "13006": {
+    "initiative": 4
+  },
+  "13007": {
+    "initiative": 1
+  },
+  "13008": {
+    "initiative": 4
+  },
+  "13010": {
+    "initiative": 4
+  },
+  "13011": {
+    "initiative": 3
+  },
+  "13012": {
+    "initiative": 4
+  },
+  "13015": {
+    "initiative": 3
+  },
+  "13016": {
+    "initiative": 4
+  },
+  "13019": {
+    "initiative": 3
+  },
+  "13024": {
+    "initiative": 4,
+    "initiativeWvw": 6
+  },
+  "13025": {
+    "initiative": 6
+  },
+  "13040": {
+    "initiative": 4
+  },
+  "13041": {
+    "initiative": 3
+  },
+  "13068": {
+    "initiative": 5
+  },
+  "13069": {
+    "initiative": 3
+  },
+  "13070": {
+    "initiative": 4
+  },
+  "13073": {
+    "initiative": 5
+  },
+  "13074": {
+    "initiative": 4
+  },
+  "13075": {
+    "initiative": 4
+  },
+  "13076": {
+    "initiative": 5
+  },
+  "13083": {
+    "initiative": 4
+  },
+  "13097": {
+    "initiative": 3
+  },
+  "13110": {
+    "initiative": 4
+  },
+  "13111": {
+    "initiative": 3
+  },
+  "13112": {
+    "initiative": 4
+  },
+  "13113": {
+    "initiative": 6,
+    "initiativeWvw": 7
+  },
+  "13122": {
+    "initiative": 5
+  },
+  "13128": {
+    "initiative": 2
+  },
+  "13130": {
+    "initiative": 2
+  },
+  "16432": {
+    "initiative": 5
+  },
+  "26557": {
+    "energy": 5,
+    "upkeep": -6
+  },
+  "26679": {
+    "energy": 10
+  },
+  "26699": {
+    "energy": 15
+  },
+  "26821": {
+    "energy": 5,
+    "upkeep": -8
+  },
+  "26937": {
+    "energy": 5
+  },
+  "27025": {
+    "energy": 20
+  },
+  "27074": {
+    "energy": 10
+  },
+  "27107": {
+    "energy": 5,
+    "upkeep": -6
+  },
+  "27322": {
+    "energy": 30
+  },
+  "27356": {
+    "energy": 35
+  },
+  "27372": {
+    "energy": 5
+  },
+  "27505": {
+    "energy": 20,
+    "energyWvw": 30
+  },
+  "27628": {
+    "energy": 0
+  },
+  "27665": {
+    "energy": 10
+  },
+  "27715": {
+    "energy": 25
+  },
+  "27917": {
+    "energy": 30
+  },
+  "27964": {
+    "energy": 5
+  },
+  "27975": {
+    "energy": 40
+  },
+  "27976": {
+    "energy": 5
+  },
+  "28029": {
+    "energy": 10
+  },
+  "28110": {
+    "energy": 10
+  },
+  "28219": {
+    "energy": 5
+  },
+  "28231": {
+    "energy": 30,
+    "energyWvw": 35
+  },
+  "28253": {
+    "energy": 5
+  },
+  "28287": {
+    "energy": 5,
+    "upkeep": -6
+  },
+  "28357": {
+    "energy": 5
+  },
+  "28406": {
+    "energy": 35,
+    "energyWvw": 40
+  },
+  "28409": {
+    "energy": 10
+  },
+  "28427": {
+    "energy": 0
+  },
+  "28472": {
+    "energy": 10
+  },
+  "28516": {
+    "energy": 30,
+    "energyWvw": 40
+  },
+  "28692": {
+    "energy": 10
+  },
+  "28797": {
+    "energy": 10
+  },
+  "28815": {
+    "energy": 10
+  },
+  "28827": {
+    "energy": 5
+  },
+  "28915": {
+    "energy": 5
+  },
+  "28930": {
+    "energy": 20
+  },
+  "28978": {
+    "energy": 15
+  },
+  "29145": {
+    "energy": 5
+  },
+  "29209": {
+    "energy": 30
+  },
+  "29233": {
+    "energy": 5
+  },
+  "29288": {
+    "energy": 10
+  },
+  "29321": {
+    "energy": 15
+  },
+  "31100": {
+    "energy": 30
+  },
+  "50379": {
+    "initiative": 3
+  },
+  "50390": {
+    "energy": 5
+  },
+  "50410": {
+    "energy": 10
+  },
+  "50456": {
+    "energy": 5
+  },
+  "50483": {
+    "energy": 20
+  },
+  "59526": {
+    "initiative": 2
+  },
+  "62687": {
+    "upkeep": -5,
+    "upkeepWvw": -7
+  },
+  "71816": {
+    "energy": 10
+  },
+  "71827": {
+    "energy": 10
+  },
+  "71852": {
+    "initiative": 3
+  },
+  "71864": {
+    "initiative": 4
+  },
+  "71871": {
+    "healthCost": 2305,
+    "healthCostWvw": 1537
+  },
+  "71880": {
+    "energy": 10
+  },
+  "71895": {
+    "initiative": 4
+  },
+  "71914": {
+    "healthCost": 1537,
+    "healthCostWvw": 961
+  },
+  "71926": {
+    "healthCost": 2882
+  },
+  "71952": {
+    "energy": 5
+  },
+  "71965": {
+    "initiative": 4
+  },
+  "72068": {
+    "healthCost": 2305,
+    "healthCostWvw": 961
+  },
+  "72896": {
+    "initiative": 2
+  },
+  "72904": {
+    "initiative": 1
+  },
+  "72927": {
+    "initiative": 2
+  },
+  "72938": {
+    "energy": 10
+  },
+  "72954": {
+    "energy": 12
+  },
+  "72972": {
+    "energy": 4
+  },
+  "72986": {
+    "initiative": 3
+  },
+  "72991": {
+    "initiative": 3
+  },
+  "73041": {
+    "initiative": 3
+  },
+  "73059": {
+    "energy": 8
+  },
+  "73063": {
+    "initiative": 1
+  },
+  "73076": {
+    "initiative": 1
+  },
+  "76503": {
+    "energyWvw": 5
+  },
+  "80244": {
+    "initiative": 4
+  }
+}

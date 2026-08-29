@@ -104,6 +104,7 @@ export async function buildGameData(readJson: JsonReader): Promise<GameData> {
     skillVariantExclusions: await readJson('skill-variant-exclusions.json'),
     wvwFactOverrides: await readJson('wvw-fact-overrides.json'),
     rechargeWvwOverrides: await readJson('recharge-wvw-overrides.json'),
+    resourceCosts: await readJson('resource-costs.json'),
     legends,
     pets: await readJson('pets.json'),
     familiars: await readJson('familiars.json'),
