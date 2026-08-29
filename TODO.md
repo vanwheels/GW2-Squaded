@@ -6,17 +6,6 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Scoped features, not yet built
-
-- [ ] gw2skills.net build-link import — discussed 2026-08-23, deliberately deferred (not started).
-      Their site's own "Load Build" only documents accepting the *official* GW2 chat link above for
-      traits/skills; their own "QuickLink" full-build URL format (which does encode gear/runes/
-      sigils/infusions/stats, unlike the official link) is proprietary and undocumented — no
-      maintained public decoder found. We already have a contact here: Connor McLeoud (gw2skills.net's
-      author) previously granted icon reuse (see README credits / CHANGELOG). Decided approach when
-      this is picked up: ask him directly for the link format/spec (or an export API) rather than
-      reverse-engineering a third-party proprietary format blind from sample links.
-
 ## Coefficient curation — remaining exceptions
 
 `CURATED_HEALING_COEFFICIENTS` and `CURATED_DAMAGE_COEFFICIENTS` are complete sweeps across all 9
