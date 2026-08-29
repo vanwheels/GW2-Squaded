@@ -7,6 +7,13 @@ import { useReleaseNotes } from '@renderer/state/release-notes-store'
 import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch'
 import { ThemeModeToggle } from '@renderer/components/common/ThemeModeToggle'
 
+// Application ID is public (it's embedded in every invite link), so hardcoding it here is fine.
+// Permissions bit is the sum of View Channel, Add Reactions, Send Messages, Embed Links, Attach
+// Files, Read Message History, and Use Application Commands — everything the bot's slash commands
+// need to post/edit squad boards and build displays (see worker/src/discord/api.ts).
+const DISCORD_BOT_INVITE_URL =
+  'https://discord.com/api/oauth2/authorize?client_id=1539526394634305609&scope=bot+applications.commands&permissions=2147601472'
+
 export function SettingsView() {
   const [version, setVersion] = useState('')
   const [supported, setSupported] = useState(false)
@@ -82,6 +89,16 @@ export function SettingsView() {
               : 'Loading…'}
           </p>
           <DataUpdateControls status={dataUpdate.status} controls={dataUpdate} />
+        </div>
+
+        <div className="settings-panel">
+          <h3>Discord Bot</h3>
+          <p className="muted">
+            Add the GW2 Squaded bot to your Discord server to post and manage squad boards.
+          </p>
+          <button type="button" onClick={() => window.open(DISCORD_BOT_INVITE_URL, '_blank')}>
+            Add to Discord
+          </button>
         </div>
 
         <div className="settings-panel">
