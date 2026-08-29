@@ -8,15 +8,6 @@ implemented and released. Everything below is post-1.0 polish and open curation 
 
 ## Scoped features, not yet built
 
-- [ ] Capacitor port for iOS/Android — scoped 2026-08-01, two-part seam: (1)
-      `StorageAdapter`/`Repository<T>` (`src/shared/storage/storage-interface.ts`) is already
-      backend-agnostic — needs a new implementation (e.g. `@capacitor-community/sqlite`) replacing
-      `sqlite-storage.ts`; (2) the renderer never calls that interface directly — it goes through the
-      Electron-only preload bridge (`window.gw2Storage`, wired in `src/preload/index.ts` +
-      `src/main/ipc/storage-ipc.ts`), which has no Capacitor equivalent — needs a platform-neutral
-      seam or a Capacitor-side shim. Also: native HTML5 drag-and-drop in the squad editor has no
-      touch-input fallback yet.
-
 - [ ] gw2skills.net build-link import — discussed 2026-08-23, deliberately deferred (not started).
       Their site's own "Load Build" only documents accepting the *official* GW2 chat link above for
       traits/skills; their own "QuickLink" full-build URL format (which does encode gear/runes/
