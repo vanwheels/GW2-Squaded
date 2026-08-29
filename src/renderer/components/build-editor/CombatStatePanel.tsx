@@ -4,7 +4,10 @@ import {
   BOLSTERED_BONDS_TRAIT_ID,
   CELESTIAL_AVATAR_OUTGOING_HEALING_TRAIT_BONUSES,
   CURATED_RELIC_CONDITION_DAMAGE_BONUSES,
+  CURATED_RELIC_CRIT_CHANCE_BONUSES,
   CURATED_RELIC_DAMAGE_BONUSES,
+  CURATED_RELIC_DURATION_PERCENT_BONUSES,
+  CURATED_RELIC_FLAT_ATTRIBUTE_BONUSES,
   CURATED_RELIC_MOVEMENT_SPEED_BONUSES,
   CURATED_RELIC_OUTGOING_HEALING_BONUSES,
   DEATH_MAGIC_SPECIALIZATION_ID,
@@ -100,15 +103,19 @@ export function CombatStatePanel({ build, value, onChange }: Props) {
   const stackingSigil = detectActiveStackingSigil(build)
   const sigilIcon = stackingSigil ? sigilsById.get(stackingSigil.sigilId)?.icon : undefined
 
-  // Gated on membership in EITHER curated relic table — one shared toggle covers both damage-%
-  // and movement-speed-% relic bonuses (see `combat-state.ts`'s `CURATED_RELIC_MOVEMENT_SPEED_
-  // BONUSES` doc comment for why they reuse the same `relicActive` field).
+  // Gated on membership in ANY curated relic table — one shared toggle covers every relic-proc
+  // family in this file (damage-%, movement-speed-%, outgoing-healing-%, flat attribute points,
+  // Boon/Condition Duration-%, crit chance-%), see `combat-state.ts`'s `CURATED_RELIC_MOVEMENT_
+  // SPEED_BONUSES` doc comment for why they all reuse the same `relicActive` field.
   const relicHasCuratedBonus =
     build.relicId !== null &&
     (build.relicId in CURATED_RELIC_DAMAGE_BONUSES ||
       build.relicId in CURATED_RELIC_CONDITION_DAMAGE_BONUSES ||
       build.relicId in CURATED_RELIC_MOVEMENT_SPEED_BONUSES ||
-      build.relicId in CURATED_RELIC_OUTGOING_HEALING_BONUSES)
+      build.relicId in CURATED_RELIC_OUTGOING_HEALING_BONUSES ||
+      build.relicId in CURATED_RELIC_FLAT_ATTRIBUTE_BONUSES ||
+      build.relicId in CURATED_RELIC_DURATION_PERCENT_BONUSES ||
+      build.relicId in CURATED_RELIC_CRIT_CHANCE_BONUSES)
   const relicIcon = relicHasCuratedBonus && build.relicId !== null ? relicsById.get(build.relicId)?.icon : undefined
 
   // Only surfaced when Sigil of the Night is actually equipped on the active weapon set — same

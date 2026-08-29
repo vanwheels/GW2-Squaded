@@ -12,6 +12,7 @@ import {
 import { RUNE_SLOT_KEYS } from './upgrade-slots'
 import {
   combatStatePoints,
+  curatedRelicCritChanceBonus,
   DEFAULT_COMBAT_STATE,
   flatCritChanceTraitBonus,
   fullEnduranceCritChanceTraitBonus,
@@ -26,6 +27,7 @@ import {
   resolveOutgoingConditionDamagePercent,
   resolveOutgoingDamagePercent,
   resolveOutgoingHealingPercent,
+  resolveRelicDurationPercentBonus,
   type CombatState
 } from './combat-state'
 import { applyTraitBonuses, maxHealthPercentTraitBonus } from './trait-attributes'
@@ -204,6 +206,13 @@ export function computeCharacterStats(
   for (const [k, v] of Object.entries(gearTotals.points)) addPoints(totals, k, v)
   for (const [k, v] of Object.entries(combatPoints)) addPoints(totals, k, v)
   totals.bonusPercent = { ...gearTotals.bonusPercent }
+  // Relic of the Herald/Thorns' flat attribute-point bonuses are folded into `combatPoints` above
+  // (same points pipeline as gear); Relic of the Scourge/Aristocracy/Firebrand's own Boon/Condition
+  // Duration bonuses are already expressed as a direct percent, so they add onto `bonusPercent`
+  // here instead, same as a rune/food/utility duration bonus line — see `resolveRelicDurationPercentBonus`.
+  const relicDurationBonus = resolveRelicDurationPercentBonus(build, combatState)
+  totals.bonusPercent.boonDuration += relicDurationBonus.boonDuration
+  totals.bonusPercent.conditionDuration += relicDurationBonus.conditionDuration
   // Food/utility "Gain X Equal to N% of Your Y" conversions (Superior Sharpening Stone, Tuning
   // Crystals — the dominant WvW Utility-consumable shape, see `AttributeBonusText`'s doc comment)
   // resolve against this same base+gear+combat snapshot, before trait bonuses stack on top —
@@ -243,7 +252,8 @@ export function computeCharacterStats(
       fullEnduranceCritChanceTraitBonus(build, traitsById, combatState.fullEnduranceActive) +
       flatCritChanceTraitBonus(build, traitsById) +
       highHealthCritChanceTraitBonus(build, combatState.healthTier, traitsById) +
-      (combatState.mechanicActive ? mechanicActiveCritChanceTraitBonus(build, traitsById) : 0),
+      (combatState.mechanicActive ? mechanicActiveCritChanceTraitBonus(build, traitsById) : 0) +
+      curatedRelicCritChanceBonus(build, combatState),
     criticalDamage: BASE_CRITICAL_DAMAGE_PERCENT + attributes.ferocity / FEROCITY_PER_CRITICAL_DAMAGE_PERCENT,
     boonDuration: boonDurationPercent(totals),
     conditionDuration: conditionDurationPercent(totals),

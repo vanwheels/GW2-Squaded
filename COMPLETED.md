@@ -2,6 +2,50 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 301 — Data-completeness audit Shape 2: 6 relic bonuses wired in
+
+Closed 6 of the 14 items in TODO.md's data-completeness-audit "Shape 2" backlog (relic/tome-chapter
+numeric content that was already displayed in tooltips but never wired into any calculator) —
+scoped as a "something else to work on" alternative to the screenshot-gated coefficient-verification
+queue, since these are static tooltip values rather than a base+coefficient formula, so wiki text
+alone was enough to curate them.
+
+Fetched each relic's raw wikitext and discovered all 6 are stacking or duration-limited procs (not
+permanent always-on stats, as the audit's raw `params.desc` text alone suggested) — same "assume the
+relic's proc/trigger condition is currently satisfied" `CombatState.relicActive` simplification
+every other `CURATED_RELIC_*` table in `combat-state.ts` already uses, extended to 3 new bonus
+shapes:
+
+- **`CURATED_RELIC_FLAT_ATTRIBUTE_BONUSES`** (new) — flat attribute-*point* bonuses, wired into
+  `combatStatePoints` so they flow through the same points pipeline as gear/rune contributions.
+  Relic of the Herald (100219, 25 Concentration/stack, max 10 -> 250 BoonDuration points) and Relic
+  of Thorns (104424, 50 Condition Damage/stack WvW/PvP, max 10 -> 500 ConditionDamage points) — both
+  modeled at their max stack count, same convention Relic of the Thief's existing `CURATED_RELIC_
+  DAMAGE_BONUSES` entry already established.
+- **`CURATED_RELIC_DURATION_PERCENT_BONUSES`** (new) + `resolveRelicDurationPercentBonus` — Boon/
+  Condition Duration bonuses already expressed as a direct percent (not raw attribute points), added
+  onto `AttributeTotals.bonusPercent` in `computeCharacterStats` before `boonDurationPercent`/
+  `conditionDurationPercent` convert it, same bucket a rune/food/utility duration-% line already
+  uses. Relic of the Scourge (100368, +1½%/stack max 10 -> +15%), Relic of the Aristocracy (100849,
+  +3%/stack max 5 -> +15%), Relic of the Firebrand (100453, flat +20%, non-stacking).
+- **`CURATED_RELIC_CRIT_CHANCE_BONUSES`** (new) + `curatedRelicCritChanceBonus` — first Critical
+  Chance-% source from a relic. Relic 106355/Relic of the Scoundrel, flat +10%, non-stacking.
+
+`CombatStatePanel.tsx`'s `relicHasCuratedBonus` gate (controls whether the shared relic-proc toggle
+icon appears at all) extended to check membership in all 3 new tables too.
+
+Left uncurated with a disposition, not guessed: Soul of the Titan/Relic of the Living City (104928)
+— raw wikitext confirmed "+15% All Stats" is genuinely ambiguous (flat-point vs %-multiplier, no
+precedent for the latter anywhere in this app) and its 5-condition/5s-window proc is a much weaker
+"assume satisfied" fit than every other relic here; relic 107030/Relic of Fog — raw wikitext
+confirmed NOT a parse artifact (its "Incoming Fumble" text really does reference the wiki's
+"Glancing" mechanic), but merged into the already-logged "no Incoming-Damage-Reduction stat exists"
+gap-shape alongside Nourys's Hunger's and relic 103984's own incoming-damage halves, not a new
+mystery.
+
+7 new tests added to `combat-state.test.ts` (480 total, up from 473); typecheck+lint+full suite all
+clean. See TODO.md's Shape 2 entry for the full per-relic writeup.
+
 ## Session 300 — Build Template chat-link codec (core)
 
 Started TODO.md's "Official GW2 Build Template chat-link export/import" item (scoped Session

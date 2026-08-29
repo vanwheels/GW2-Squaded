@@ -323,32 +323,47 @@ expected to turn out to be legitimate non-gaps once looked at.
 already have their real content in `params.desc`/`values` (see Shape 2 below) — the generic label
 alone isn't itself the actionable signal here, just the marker that led to Shape 2's check.
 
-**Shape 2 — numeric content hidden in `params.desc`/`alt`, not surfaced anywhere in `label`/`values`
-(14 hits, all relic/tome-chapter):** concrete percent/flat values. **Correction after checking
-`relic-effects-format.ts`'s `formatFactLine`:** this is NOT a tooltip-display gap — a `label ===
-'effect'` fact already resolves to `params.desc` at display time (`const detail = fact.params.desc
-?? label`), so every relic/tome-chapter hit below already shows its real text in-app. The actual
-open gap is the one already scoped above ("Outgoing Damage % full pass" / "Outgoing Healing %"):
-none of these values are wired into any calculator (aggregate stats, damage %, healing %) — this
-list is just useful raw material for whoever curates those, not a newly-discovered display bug.
-Relic of the Monk and Relic of Castora were curated into Outgoing Healing % in Session 276
-(COMPLETED.md); tome chapter "Epilogue: Eternal Oasis" was evaluated and deliberately excluded from
-that same sweep — its "+20% Heal Effectiveness" is a transient buff applied to allies on cast, not a
-steady-state build stat, same "not a character stat gain" reasoning already applied to Mist Form/
-Signet of the Locust in the movement-speed sweep.
-Relic of the Monk (100031, "+1% Healing Increase to Others" — the original healing-effectiveness
-research seed);
-Relic of the Herald (100219, "25 Concentration"); Relic of the Scourge (100368, "+1½% Condition
-Duration"); **Relic of the Firebrand (100453, "+20% Boon Duration")**; Relic of the Aristocracy
-(100849, "+3% Condition Duration"); Nourys's Hunger (101191, a 6-stat combo line: "+15% Damage, +15%
-Condition Damage, -10% Incoming Damage, -10% Incoming Condition Damage, +10% Healing from Outgoing
-Boon and Condition Damage, +10% from Outgoing Attack Damage"); relic 103984 (2 lines: Frost Aura
-"-10% Incoming Damage", Light Aura "-10% Incoming Condition Damage"); Relic of Thorns (104424, "50
-Condition Damage"); Soul of the Titan (104928, "+15% All Stats"); relic 106355 ("+10% Critical
-Chance"); relic 107030 ("+100% Incoming Fumble Unrestricted Percent" — likely a parse artifact of
-the wiki's own text, needs a raw-wikitext look); **tome chapter "Epilogue: Eternal Oasis" ("+20%
-Heal Effectiveness")** — directly relevant to the Outgoing/Incoming Healing % item above; "Epilogue:
-Unbroken Lines" ("200 Toughness").
+- [x] **Shape 2 — numeric content hidden in `params.desc`/`alt`, not surfaced anywhere in
+      `label`/`values` (14 hits, all relic/tome-chapter):** concrete percent/flat values. Not a
+      tooltip-display gap — a `label === 'effect'` fact already resolves to `params.desc` at
+      display time, so every hit already showed its real text in-app; the real gap was that none
+      of these values were wired into any calculator. Relic of the Monk/Castora were curated into
+      Outgoing Healing % in Session 276; tome chapter "Epilogue: Eternal Oasis" ("+20% Heal
+      Effectiveness") and "Epilogue: Unbroken Lines" ("200 Toughness") were both evaluated and
+      deliberately excluded — a tome chapter's effect is a transient buff applied to allies on
+      cast, not a steady-state build stat, same reasoning already applied to Mist Form/Signet of
+      the Locust in the movement-speed sweep.
+      **6 more RESOLVED 2026-08-28** (`combat-state.ts`, wiki-verified via raw wikitext — all are
+      stacking or duration-limited procs gated on the existing `CombatState.relicActive` "assume
+      satisfied" toggle, same simplification every other `CURATED_RELIC_*` table already uses; 4 of
+      the 6 are modeled at their max stack count, same convention Relic of the Thief's own entry in
+      `CURATED_RELIC_DAMAGE_BONUSES` already established):
+      - Relic of the Herald (100219) — 25 Concentration/stack (max 10) -> `CURATED_RELIC_FLAT_
+        ATTRIBUTE_BONUSES`, 250 BoonDuration points at cap.
+      - Relic of Thorns (104424) — 50 Condition Damage/stack WvW/PvP (max 10) -> same table, 500
+        ConditionDamage points at cap.
+      - Relic of the Scourge (100368) — +1½% Condition Duration/stack (max 10) -> `CURATED_RELIC_
+        DURATION_PERCENT_BONUSES`, +15% at cap.
+      - Relic of the Aristocracy (100849) — +3% Condition Duration/stack (max 5) -> same table,
+        +15% at cap.
+      - Relic of the Firebrand (100453) — flat, non-stacking +20% Boon Duration -> same table.
+      - Relic 106355 (Relic of the Scoundrel) — flat, non-stacking +10% Critical Chance ->
+        `CURATED_RELIC_CRIT_CHANCE_BONUSES`.
+      Left uncurated, now reclassified rather than mysteries: **Soul of the Titan** (Relic of the
+      Living City, 104928) — wiki-confirmed genuinely ambiguous even in raw wikitext whether "+15%
+      All Stats" is a flat-point or percentage-multiplier bonus (no precedent for a %-multiplier on
+      total attributes anywhere in this app), and its 5-condition Titanic Potential combo (heal
+      skill + elite skill + combo-field finish + disable + evade, each once) for only a 5s window is
+      a much weaker "assume satisfied" candidate than every other relic in this file — logged, not
+      guessed. **Relic 107030** (Relic of Fog) — raw wikitext confirmed NOT a parse artifact:
+      "Incoming Fumble" is a real (if obscurely worded) reference to the wiki's "Glancing" mechanic
+      (forces the next incoming hit to deal 50% damage/no crit); this app has no Incoming-Damage-
+      Reduction stat anywhere, same already-logged gap as Nourys's Hunger's and relic 103984's own
+      incoming-damage-reduction halves below — merged into that family, not a separate mystery.
+      **Nourys's Hunger** (101191) and **relic 103984** (Frost/Light Aura's incoming-damage/
+      damage-to-healing-conversion halves) stay out of scope — no `DerivedStats` field for Incoming
+      Damage Reduction exists yet (see the Outgoing Damage % sweep's own "Protection's own
+      damage-reduction potency" gap-shape below).
 
 - [x] **Shape 3 — Buff/PrefixedBuff fact with a named status but no duration anywhere in its own
       facts array** — RESOLVED 2026-08-22, see COMPLETED.md. All 87 original hits turned out to be a

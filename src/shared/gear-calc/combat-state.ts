@@ -639,6 +639,77 @@ export const CURATED_RELIC_CONDITION_DAMAGE_BONUSES: Record<number, number> = {
   101191: 15 // Relic of Nourys — WvW/PvP value
 }
 
+/**
+ * Relic id -> flat attribute-*point* bonus while `CombatState.relicActive` is on, added directly
+ * into `combatStatePoints`'s raw attribute totals (same units/pipeline as gear/rune points, unlike
+ * every other `CURATED_RELIC_*` table in this file which feeds a `DerivedStats` percent field
+ * directly) — closes 2 items from TODO.md's data-completeness audit "Shape 2" backlog. Both are
+ * stacking procs modeled at their max stack count, same "modeled at its max" simplification
+ * `CURATED_RELIC_DAMAGE_BONUSES`'s own Relic of the Thief entry already uses. Wiki-verified
+ * 2026-08-28 (raw wikitext, both confirm the API's `params.desc` text and add the max-stack detail
+ * the API doesn't expose):
+ * - Relic of the Herald (100219): "Gain concentration after granting a boon to an ally" — 25
+ *   Concentration per stack (3s duration, refreshes on trigger), max 10 stacks -> 250 at cap.
+ * - Relic of Thorns (104424): "Gain stacking condition damage when you are hit by a poisoned foe"
+ *   — 50 Condition Damage per stack in WvW/PvP (30 PvE, this table's usual WvW-preference
+ *   convention), 30s duration refreshing on trigger, max 10 stacks -> 500 at cap in WvW/PvP.
+ */
+export const CURATED_RELIC_FLAT_ATTRIBUTE_BONUSES: Record<number, Record<string, number>> = {
+  100219: { BoonDuration: 250 }, // Relic of the Herald — 25 Concentration/stack x 10 stacks
+  104424: { ConditionDamage: 500 } // Relic of Thorns — 50 Condition Damage/stack (WvW/PvP) x 10 stacks
+}
+
+/**
+ * Relic id -> flat Boon/Condition Duration *percent* bonus while `CombatState.relicActive` is on —
+ * adds directly onto `AttributeTotals.bonusPercent.boonDuration`/`conditionDuration` (the same
+ * "already a %, don't re-convert" bucket rune/food/utility bonus text uses, see
+ * `attribute-totals.ts`'s `PERCENT_BONUS_ALIASES`), rather than through the points-based
+ * `CURATED_RELIC_FLAT_ATTRIBUTE_BONUSES` table above. Closes 3 more Shape 2 items, wiki-verified
+ * 2026-08-28:
+ * - Relic of the Scourge (100368): "Upon applying barrier to an ally [other than yourself], gain
+ *   increased condition duration" — +1½% per stack (6s duration, refreshes on trigger), max 10
+ *   stacks -> +15% at cap. No game-mode split documented.
+ * - Relic of the Aristocracy (100849): "Gain increased condition duration when inflicting weakness
+ *   or vulnerability on a foe" — +3% per stack (8s duration, refreshes on trigger), max 5 stacks ->
+ *   +15% at cap. No game-mode split documented.
+ * - Relic of the Firebrand (100453): "Upon using the final charge of a mantra skill, gain increased
+ *   boon duration" — flat +20% (non-stacking, 4s duration). No game-mode split documented.
+ */
+export const CURATED_RELIC_DURATION_PERCENT_BONUSES: Record<number, { boonDuration?: number; conditionDuration?: number }> = {
+  100368: { conditionDuration: 15 }, // Relic of the Scourge — 1.5%/stack x 10 stacks
+  100849: { conditionDuration: 15 }, // Relic of the Aristocracy — 3%/stack x 5 stacks
+  100453: { boonDuration: 20 } // Relic of the Firebrand — flat, non-stacking
+}
+
+/** `CURATED_RELIC_DURATION_PERCENT_BONUSES`'s resolver — `derived-stats.ts`'s
+ *  `computeCharacterStats` adds this directly onto `totals.bonusPercent` before calling
+ *  `boonDurationPercent`/`conditionDurationPercent`, the same "assume the relic's own proc/trigger
+ *  condition is currently satisfied" simplification every other `CURATED_RELIC_*` resolver in this
+ *  file already uses. Not folded into `attribute-totals.ts`'s `boonConditionDurationPercent` (the
+ *  gear-only helper `SkillsEditor.tsx`/`TraitsEditor.tsx` use for tooltip display) since that
+ *  helper has no `CombatState` access and, same as every other combat-state-gated point/percent
+ *  source in this file, is intentionally excluded from those simpler tooltip-only contexts. */
+export function resolveRelicDurationPercentBonus(build: Build, combatState: CombatState): { boonDuration: number; conditionDuration: number } {
+  if (!combatState.relicActive || build.relicId === null) return { boonDuration: 0, conditionDuration: 0 }
+  const bonus = CURATED_RELIC_DURATION_PERCENT_BONUSES[build.relicId]
+  return { boonDuration: bonus?.boonDuration ?? 0, conditionDuration: bonus?.conditionDuration ?? 0 }
+}
+
+/**
+ * Relic id -> flat Critical Chance-% bonus while `CombatState.relicActive` is on — closes the last
+ * Shape 2 item. Relic of the Scoundrel (106355), wiki-verified 2026-08-28: "Gain increased
+ * critical-hit chance for a duration after inflicting blindness or weakness" — flat +10%
+ * (non-stacking, 8s duration). No game-mode split documented.
+ */
+export const CURATED_RELIC_CRIT_CHANCE_BONUSES: Record<number, number> = {
+  106355: 10 // Relic of the Scoundrel
+}
+
+export function curatedRelicCritChanceBonus(build: Build, combatState: CombatState): number {
+  if (!combatState.relicActive || build.relicId === null) return 0
+  return CURATED_RELIC_CRIT_CHANCE_BONUSES[build.relicId] ?? 0
+}
+
 /** Superior Sigil of Force (24615) — wiki-verified 2026-08-21 (see TODO.md): flat +5% outgoing
  *  strike damage, but explicitly "Does not stack if used on both main hand and off hand weapons" —
  *  unlike every other passive/stat sigil bonus in this file (which doubles per equipped slot, see
@@ -2193,6 +2264,10 @@ export function combatStatePoints(build: Build, state: CombatState, traitsById: 
 
   if (state.cosmicWisdomActive) {
     for (const [attribute, value] of Object.entries(cosmicWisdomLegendAttributeTraitBonus(build, traitsById, legends))) add(attribute, value)
+  }
+
+  if (state.relicActive && build.relicId !== null) {
+    for (const [attribute, value] of Object.entries(CURATED_RELIC_FLAT_ATTRIBUTE_BONUSES[build.relicId] ?? {})) add(attribute, value)
   }
 
   return points

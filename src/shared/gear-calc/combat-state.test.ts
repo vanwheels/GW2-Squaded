@@ -8,9 +8,12 @@ import {
   cosmicWisdomLegendAttributeTraitBonus,
   CURATED_FOOD_OUTGOING_HEALING_BONUSES,
   CURATED_RELIC_CONDITION_DAMAGE_BONUSES,
+  CURATED_RELIC_CRIT_CHANCE_BONUSES,
   CURATED_RELIC_DAMAGE_BONUSES,
+  CURATED_RELIC_FLAT_ATTRIBUTE_BONUSES,
   CURATED_RELIC_LIFE_STEAL_BONUSES,
   CURATED_RELIC_OUTGOING_HEALING_BONUSES,
+  curatedRelicCritChanceBonus,
   CURATED_SIGIL_CONDITION_DAMAGE_BONUSES,
   CURATED_SIGIL_DAMAGE_BONUSES,
   CURATED_SIGIL_OUTGOING_HEALING_BONUSES,
@@ -49,6 +52,7 @@ import {
   resolveOutgoingConditionDamagePercent,
   resolveOutgoingDamagePercent,
   resolveOutgoingHealingPercent,
+  resolveRelicDurationPercentBonus,
   RESOLUTION_DAMAGE_TRAIT_BONUSES,
   RIGHTEOUS_REBEL_HEALING_PERCENT,
   RIGHTEOUS_REBEL_TRAIT_ID,
@@ -317,6 +321,68 @@ describe('combatStatePoints — combined state accumulates additively rather tha
     const below50 = combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, mightStacks: 10, healthTier: 'below50' }, traitsById)
     expect(below50.Power).toBe(10 * (MIGHT_POWER_PER_STACK + 10)) // Empire Divided's Power bonus no longer applies
     expect(below50.Healing).toBe(240) // ...replaced by its Healing bonus in this tier
+  })
+})
+
+describe('combatStatePoints — Relic of the Herald / Relic of Thorns (flat attribute-point bonuses, modeled at max stacks)', () => {
+  it('adds Relic of the Herald\'s 250 Concentration (BoonDuration) only while relicActive is on', () => {
+    const build = makeBuild({ relicId: 100219 })
+    expect((combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, relicActive: false }, NO_TRAITS).BoonDuration) ?? 0).toBe(0)
+    const on = combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, relicActive: true }, NO_TRAITS)
+    expect(on.BoonDuration).toBe(CURATED_RELIC_FLAT_ATTRIBUTE_BONUSES[100219].BoonDuration)
+  })
+
+  it('adds Relic of Thorns\' 500 Condition Damage only while relicActive is on', () => {
+    const build = makeBuild({ relicId: 104424 })
+    expect((combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, relicActive: false }, NO_TRAITS).ConditionDamage) ?? 0).toBe(0)
+    const on = combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, relicActive: true }, NO_TRAITS)
+    expect(on.ConditionDamage).toBe(CURATED_RELIC_FLAT_ATTRIBUTE_BONUSES[104424].ConditionDamage)
+  })
+
+  it('contributes nothing for a relic with no curated flat-attribute entry', () => {
+    const build = makeBuild({ relicId: 999999 })
+    const on = combatStatePoints(build, { ...DEFAULT_COMBAT_STATE, relicActive: true }, NO_TRAITS)
+    expect(on.BoonDuration ?? 0).toBe(0)
+    expect(on.ConditionDamage ?? 0).toBe(0)
+  })
+})
+
+describe('resolveRelicDurationPercentBonus — Relic of the Scourge / Aristocracy / Firebrand', () => {
+  it('gates each on relicActive AND the equipped relic actually being it', () => {
+    const scourge = makeBuild({ relicId: 100368 })
+    expect(resolveRelicDurationPercentBonus(scourge, { ...DEFAULT_COMBAT_STATE, relicActive: true })).toEqual({ boonDuration: 0, conditionDuration: 15 })
+    expect(resolveRelicDurationPercentBonus(scourge, { ...DEFAULT_COMBAT_STATE, relicActive: false })).toEqual({ boonDuration: 0, conditionDuration: 0 })
+
+    const aristocracy = makeBuild({ relicId: 100849 })
+    expect(resolveRelicDurationPercentBonus(aristocracy, { ...DEFAULT_COMBAT_STATE, relicActive: true })).toEqual({ boonDuration: 0, conditionDuration: 15 })
+
+    const firebrand = makeBuild({ relicId: 100453 })
+    expect(resolveRelicDurationPercentBonus(firebrand, { ...DEFAULT_COMBAT_STATE, relicActive: true })).toEqual({ boonDuration: 20, conditionDuration: 0 })
+
+    const other = makeBuild({ relicId: 999999 })
+    expect(resolveRelicDurationPercentBonus(other, { ...DEFAULT_COMBAT_STATE, relicActive: true })).toEqual({ boonDuration: 0, conditionDuration: 0 })
+  })
+
+  it('feeds into computeCharacterStats\'s derived boonDuration on top of the points-derived percentage (0 base Concentration here)', () => {
+    const build = makeBuild({ relicId: 100453 }) // Relic of the Firebrand, flat +20% Boon Duration
+    const { derived } = computeCharacterStats(build, { ...EMPTY_GAME_DATA, traits: [] }, { ...DEFAULT_COMBAT_STATE, relicActive: true })
+    expect(derived.boonDuration).toBe(20)
+  })
+})
+
+describe('curatedRelicCritChanceBonus — Relic of the Scoundrel', () => {
+  it('gates on relicActive AND the equipped relic actually being it', () => {
+    const build = makeBuild({ relicId: 106355 })
+    expect(curatedRelicCritChanceBonus(build, { ...DEFAULT_COMBAT_STATE, relicActive: true })).toBe(CURATED_RELIC_CRIT_CHANCE_BONUSES[106355])
+    expect(curatedRelicCritChanceBonus(build, { ...DEFAULT_COMBAT_STATE, relicActive: false })).toBe(0)
+    const other = makeBuild({ relicId: 999999 })
+    expect(curatedRelicCritChanceBonus(other, { ...DEFAULT_COMBAT_STATE, relicActive: true })).toBe(0)
+  })
+
+  it('feeds into computeCharacterStats\'s derived criticalChance on top of the Precision-derived baseline', () => {
+    const build = makeBuild({ relicId: 106355 })
+    const { derived } = computeCharacterStats(build, { ...EMPTY_GAME_DATA, traits: [] }, { ...DEFAULT_COMBAT_STATE, relicActive: true })
+    expect(derived.criticalChance).toBe(BASE_CRITICAL_CHANCE_PERCENT + CURATED_RELIC_CRIT_CHANCE_BONUSES[106355]) // 1000 base Precision -> 0% Precision-derived
   })
 })
 
