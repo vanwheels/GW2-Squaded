@@ -10,6 +10,7 @@ export const GAME_DATA_FILE_NAMES = [
   'professions.json',
   'specializations.json',
   'tango-icons.json',
+  'chat-link-ids.json',
   'traits.json',
   'skills.json',
   'itemstats.json',

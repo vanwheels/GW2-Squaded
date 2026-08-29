@@ -17,21 +17,23 @@ implemented and released. Everything below is post-1.0 polish and open curation 
       seam or a Capacitor-side shim. Also: native HTML5 drag-and-drop in the squad editor has no
       touch-input fallback yet.
 
-- [ ] Official GW2 Build Template chat-link export/import (Traits + Skills only) — scoped 2026-08-23.
-      ArenaNet's own chat-link format (type `0x0D`, documented on the
-      [wiki's Chat Link Format page](https://wiki.guildwars2.com/wiki/Chat_link_format)) is a stable,
-      public binary spec: 1 profession-id byte; 3× (specialization id byte + 2-bit-per-tier trait
-      choice byte) mapping directly onto `TraitLineSlots`; 10×2 little-endian skill-id bytes
-      (terrestrial/aquatic interleaved × Heal/Utility×3/Elite) mapping onto `StandardSkillSelection`
-      plus our existing land/underwater split; a profession-specific tail (Revenant legends, Ranger
-      pets, etc.) that's already modeled as first-class `Build` fields. Confirmed there is **no**
-      equipment-template chat-link type — ArenaNet never solved the rarity/stat-variance export
-      problem either, matching what we'd already assumed. Also confirmed a June-2023 extension adds
-      dynamic weapon-type/skill-variant data (Weaponmaster Training era) — check this against our
-      current data model before finalizing the byte layout. First pass is full round-trip: both
-      "Copy Build Template" (export a `Build`'s specs/traits/skills to a `[&...]` code) and "Paste to
-      import" (parse a code back into a `Build`) on the trait/skill editor, base64 codec + binary
-      parser, tested against real in-game-captured chat links.
+- [ ] Official GW2 Build Template chat-link export/import (Traits + Skills only) — scoped
+      2026-08-23, core built 2026-08-28 (see `docs/game-data.md`'s "Build Template chat-link codec"
+      section for the full byte-layout writeup). Shipped: `src/shared/chat-link/
+      build-template-codec.ts`'s `encodeBuildTemplate`/`decodeBuildTemplate`, wired into the build
+      editor as "Copy Build Template"/"Paste Build Template"; a new `scripts/fetch-chat-link-ids.ts`
+      (`npm run fetch-chat-link-ids`) sourcing the profession/legend/skill-palette ids the format
+      needs from the API's `?v=latest` schema; full round-trip test coverage against real,
+      currently-loaded game data (`build-template-codec.test.ts`, 12 tests). Two scoping decisions
+      made deliberately narrow for v1 (both documented in the codec's own doc comment and
+      `docs/game-data.md`): land/underwater skills share one selection rather than the format's
+      real 4-slot land/water split, and the June-2023 Weaponmaster Training tail (weapon-type list +
+      skill-variant overrides) is parsed-but-skipped, never applied to the `Build`. **Still open:**
+      real in-game-captured chat-link validation — everything so far is tested against real,
+      currently-loaded game data plus 3 real-but-possibly-stale published codes (decode-doesn't-
+      throw only). Pick this up once a user supplies a few fresh codes copied directly from their
+      own in-game character panel; if any come back wrong, check the codec's own doc comment first
+      for what's already a known, deliberate gap vs. an actual bug.
 - [ ] gw2skills.net build-link import — discussed 2026-08-23, deliberately deferred (not started).
       Their site's own "Load Build" only documents accepting the *official* GW2 chat link above for
       traits/skills; their own "QuickLink" full-build URL format (which does encode gear/runes/

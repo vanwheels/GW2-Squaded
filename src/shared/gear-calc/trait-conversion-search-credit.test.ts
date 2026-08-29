@@ -60,7 +60,9 @@ const PROFESSION: Profession = {
   tangoIcon: '',
   specializationIds: [],
   weapons: {},
-  professionSkills: []
+  professionSkills: [],
+  code: 7,
+  skillPalette: []
 }
 
 // Quiet Intensity (Mesmer, Virtuoso, Minor GM): "Gain ferocity based on your vitality." Real

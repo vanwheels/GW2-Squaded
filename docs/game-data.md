@@ -100,6 +100,9 @@ needing to run the fetch script immediately:
 - `familiars.json` — Elementalist Evoker familiars; see below
 - `tango-icons.json` — see "Profession/elite-spec icon artwork" below; sourced from the wiki, not
   `fetch-game-data.ts`
+- `chat-link-ids.json` — see "Build Template chat-link codec" below; sourced from the official API,
+  but under a different (`?v=latest`) schema than `fetch-game-data.ts` itself uses, so it's its own
+  script, not folded into that one
 - `meta.json` — `{ fetchedAt, gw2Build }`. `gw2Build` is the GW2 API's own `/v2/build` id at fetch
   time (added 2026-08-11; `null` on copies fetched before this field existed — the app's update
   check falls back to comparing `fetchedAt` in that case). Surfaced in the Settings tab and used
@@ -245,6 +248,80 @@ always `null`, elsewhere), reset on a profession change away from Elementalist o
 Evoker trait line (`BuildEditorView.tsx`, same pattern as `equippedPetIds`'s reset). Consumed in
 `src/renderer/components/build-editor/EvokerFamiliarSelect.tsx` (single-pick icon row, same
 template as `EliteSpecSelect`).
+
+## Build Template chat-link codec (`chat-link-ids.json`)
+
+2026-08-28: implements TODO.md's "Official GW2 Build Template chat-link export/import (Traits +
+Skills only)" item — `src/shared/chat-link/build-template-codec.ts`'s `encodeBuildTemplate`/
+`decodeBuildTemplate`, wired into the build editor as "Copy Build Template"/"Paste Build Template"
+(`CopyBuildTemplateButton.tsx`/`PasteBuildTemplateButton.tsx`), next to the existing Screenshot/
+Share Link buttons.
+
+**Why a separate `?v=latest` fetch:** the chat-link format needs 3 numeric ids the API only
+exposes under a newer schema version than `fetch-game-data.ts` itself requests — confirmed live
+2026-08-28 that a plain `GET /v2/professions/Guardian` has neither field, but `?v=latest` adds
+`code` (the profession's chat-link byte, matching the wiki's documented 1-9 table exactly) and
+`skills_by_palette` (`[paletteId, skillId]` pairs — the chat-link format's Heal/Utility/Elite skill
+slots reference a profession-scoped "palette id," a small legacy engine id distinct from the real
+skill id used everywhere else in this app). `/v2/legends/:id?v=latest` similarly adds `code`
+(confirmed to just be 1-8, matching each id's own `Legend1`-`Legend8` suffix exactly — no separate
+lookup table needed). Rather than switching `fetch-game-data.ts`'s own professions/legends fetch to
+this newer schema wholesale (risking an unrelated shape change to fields its normalizer already
+depends on), `scripts/fetch-chat-link-ids.ts` (`npm run fetch-chat-link-ids`, after
+`fetch-game-data`) is its own narrow, additive fetch, merged onto `Profession`/`Legend` at load time
+by `withChatLinkIds` in `build-game-data.ts` — same "separate file, not baked into
+`fetch-game-data.ts`'s own output" pattern `tango-icons.json` already established, and for the
+identical reason: re-running `fetch-game-data.ts` for an unrelated balance-patch refresh must never
+silently blow this away.
+
+**Byte layout**, since ArenaNet doesn't document this format itself: sourced from the wiki's [Chat
+link format](https://wiki.guildwars2.com/wiki/Chat_link_format) page (prose only, no formal spec)
+and cross-checked byte-for-byte against `thatshaman/Buildtemplate` (MIT-licensed reference
+implementation) — header `0x0D`, profession byte, 3×(specialization id byte + a 2-bit-per-tier
+trait-choice byte, `1`/`2`/`3` = top/middle/bottom, `0` = unchosen), 10×2-byte little-endian
+skill-palette words (terrestrial/aquatic interleaved × Heal/Utility×3/Elite), then a 16-byte
+profession-specific tail present for every profession (mostly unused outside Ranger/Revenant) —
+`bytes.length >= 44` is the reference implementation's own universal minimum. The tail's meaning
+for Ranger (4 single-byte pet ids: terrestrial pet 1/2, aquatic pet 1/2) and Revenant (4 single-byte
+legend codes, then 12 bytes = 3 little-endian palette-word pairs for the *inactive* legend's
+utility skills) is the wiki's own prose — independently verified 2026-08-28 by hand-decoding 3 real,
+independently-published Revenant build codes (MetaBattle) and confirming the tail's first 4 bytes
+line up exactly with a legend's `code` field.
+
+**Two deliberate v1 scoping decisions** (both user-confirmed before implementation, see project
+memory for the fuller writeup):
+- **Land/underwater skills aren't modeled separately.** The real format stores independent
+  terrestrial/aquatic Heal/Utility/Elite skills (and 4, not 2, land/water Revenant legend and
+  Ranger pet slots) — this app's `Build` has only one shared selection for both environments (no
+  underwater-specific skill/legend/pet field exists anywhere in the data model). Encoding mirrors
+  the single selection into both halves of the chat link; decoding reads only the terrestrial half.
+  A real code with a genuinely different underwater loadout loses that half on import.
+- **The June-2023 Weaponmaster Training extension (equipped weapon-type list + skill-variant
+  overrides, appended after the profession-specific tail) is parsed-but-skipped.** `decodeBuildTemplate`
+  reads past it correctly (a real modern chat-link code doesn't fail to parse) but never applies it
+  to the `Build`; `encodeBuildTemplate` always emits the spec-legal empty form (a zero weapon count,
+  a zero override count). The wiki's own prose doesn't fully specify how an "override" entry ties
+  back to a specific weapon-skill slot, and this app already tracks equipped weapon types directly
+  via `Build.equipment` — there's nothing more authoritative to import from this tail anyway, since
+  chat links carry no equipment/rarity/stat data at all.
+
+**A real, live data quirk found while testing (2026-08-28), not a bug:** Revenant's
+`skillPalette` table only covers a small fraction of the profession — most core/elite legends' own
+heal/utility/elite skill ids simply aren't in it at all (live-confirmed against fresh `?v=latest`
+data), apparently because those slots are never independently player-bound in the first place
+(fixed per equipped legend, unlike every other profession). `encodeBuildTemplate` still attempts
+the lookup best-effort (matching what real captured chat links seem to do — some legends' skills do
+resolve) but suppresses the warning specifically for this case: `decodeBuildTemplate` never reads
+those bytes back for a Revenant anyway (it reconstructs skills purely from the tail's 2 legend
+codes, which round-trip perfectly), so a gap here costs nothing round-tripping through this app,
+only some best-effort fidelity for a 3rd-party viewer reading the main skill block directly.
+
+**Not yet done:** real in-game-captured chat-link round-trip testing (TODO.md's original scoping
+called for this as the final validation step) — everything above is tested against real, currently-
+loaded game data (`build-template-codec.test.ts`) plus 3 real-but-possibly-stale published Revenant
+codes (decode-doesn't-throw only, not exact-content, since a code's skill-palette ids can go stale
+after ArenaNet reuses a freed id — same caveat the wiki's own prose implies). Pick this up once a
+user supplies a few fresh codes copied directly from their own in-game character panel.
 
 ## Profession/elite-spec icon artwork (`tango-icons.json`)
 

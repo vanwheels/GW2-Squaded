@@ -25,6 +25,7 @@
     "fetch-recharge-wvw-overrides": "tsx scripts/fetch-recharge-wvw-overrides.ts",
     "fetch-tome-chapters": "tsx scripts/fetch-tome-chapters.ts",
     "fetch-tango-icons": "tsx scripts/fetch-tango-icons.ts",
+    "fetch-chat-link-ids": "tsx scripts/fetch-chat-link-ids.ts",
     "fetch-glyph-forms": "tsx scripts/fetch-glyph-forms.ts",
     "fetch-skill-duplicate-resolutions": "tsx scripts/fetch-skill-duplicate-resolutions.ts",
     "fetch-soulbeast-beastmode": "tsx scripts/fetch-soulbeast-beastmode.ts",

@@ -58,7 +58,9 @@ const PROFESSION: Profession = {
     Sword: { flags: ['Mainhand'], specializationId: null, skills: [] },
     Axe: { flags: ['Offhand'], specializationId: null, skills: [] }
   },
-  professionSkills: []
+  professionSkills: [],
+  code: 2,
+  skillPalette: []
 }
 
 // Two synthetic stat combos with different shapes (one pure Power, one Power+Precision+CritDamage)

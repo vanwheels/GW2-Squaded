@@ -236,8 +236,9 @@ function normalizeWeapon(raw: RawProfessionWeapon): ProfessionWeapon {
 
 // `tangoIcon` isn't produced here — it's a separate wiki-sourced field merged in at load time by
 // `withTangoIcons` in src/main/game-data/load-game-data.ts (see scripts/fetch-tango-icons.ts),
-// so professions.json itself is written without it.
-function normalizeProfession(raw: RawProfession): Omit<Profession, 'tangoIcon'> {
+// so professions.json itself is written without it. Same for `code`/`skillPalette` — a separate
+// `?v=latest`-only-schema field merged in by `withChatLinkIds`, see scripts/fetch-chat-link-ids.ts.
+function normalizeProfession(raw: RawProfession): Omit<Profession, 'tangoIcon' | 'code' | 'skillPalette'> {
   return {
     id: raw.id,
     name: raw.name,
@@ -302,7 +303,9 @@ function normalizeSkill(raw: RawSkill): Skill {
   }
 }
 
-function normalizeLegend(raw: RawLegend, skillsById: Map<number, Skill>): Legend {
+// `code` isn't produced here — same `?v=latest`-only-schema pattern as `Profession.code` above,
+// merged in by `withChatLinkIds` from scripts/fetch-chat-link-ids.ts's output.
+function normalizeLegend(raw: RawLegend, skillsById: Map<number, Skill>): Omit<Legend, 'code'> {
   const swapSkill = skillsById.get(raw.swap)
   if (!swapSkill) {
     throw new Error(`Legend ${raw.id}: swap skill ${raw.swap} not found in fetched skills — cannot resolve name/icon`)
@@ -419,8 +422,9 @@ async function main(): Promise<void> {
     | 'itemStatLegalIds'
     | 'tomeChapters'
     | 'soulbeastBeastmode'
-    | 'professions' // written without `tangoIcon` — see normalizeProfession's doc comment
-  > & { professions: Omit<Profession, 'tangoIcon'>[] } = {
+    | 'professions' // written without `tangoIcon`/`code`/`skillPalette` — see normalizeProfession
+    | 'legends' // written without `code` — see normalizeLegend
+  > & { professions: Omit<Profession, 'tangoIcon' | 'code' | 'skillPalette'>[]; legends: Omit<Legend, 'code'>[] } = {
     professions,
     specializations,
     traits,

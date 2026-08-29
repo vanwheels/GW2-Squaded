@@ -20,6 +20,8 @@ import { useAppSettings } from '@renderer/state/app-settings-store'
 import { useDataUpdate } from '@renderer/state/data-update-store'
 import { SharePanel } from '@renderer/components/common/SharePanel'
 import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
+import { CopyBuildTemplateButton } from '@renderer/components/common/CopyBuildTemplateButton'
+import { PasteBuildTemplateButton } from '@renderer/components/common/PasteBuildTemplateButton'
 import { TagInput } from '@renderer/components/common/TagInput'
 import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch'
 import { BuildScreenshotGrid } from './BuildScreenshotGrid'
@@ -43,7 +45,8 @@ export function BuildEditorView({ build, onBack }: Props) {
   const [saving, setSaving] = useState(false)
   const [combatState, setCombatState] = useState<CombatState>(DEFAULT_COMBAT_STATE)
   const [optimizerOpen, setOptimizerOpen] = useState(false)
-  const { eliteSpecSkills, legends, professions, specializationsById } = useGameData()
+  const gameData = useGameData()
+  const { eliteSpecSkills, legends, professions, specializationsById } = gameData
   const { builds } = useBuildsStore()
   const { showUnderwater, partyWideOnly, setPartyWideOnly } = useAppSettings()
   const { localGw2Build } = useDataUpdate()
@@ -181,6 +184,31 @@ export function BuildEditorView({ build, onBack }: Props) {
     handleSpecializationsChange(nextSpecializations)
   }
 
+  /** `PasteBuildTemplateButton`'s `onImport` — applies a decoded chat-link patch (profession/
+   *  specializations/skills, plus Ranger pets) onto `draft`. When the patch's profession differs
+   *  from the current one, applies the same resets `handleProfessionChange` does for equipment/
+   *  familiar/weaver/stolen-skill/pets — a chat link carries no equipment data at all, so there's
+   *  nothing to preserve there, same reasoning as picking a new profession by hand. `warnings`
+   *  (non-fatal skill-palette/legend/trait lookups that came back empty) are shown by the button's
+   *  own popover, not handled here. */
+  function handleImportBuildTemplate(patch: Partial<Build>): void {
+    const professionChanged = patch.profession !== undefined && patch.profession !== draft.profession
+    setDraft({
+      ...draft,
+      ...(professionChanged
+        ? {
+            equipment: clearedEquipment(draft.equipment),
+            equippedPetIds: patch.profession === 'Ranger' ? draft.equippedPetIds : [null, null],
+            activePetIndex: 0 as const,
+            familiarId: patch.profession === 'Elementalist' ? draft.familiarId : null,
+            weaverPreviousAttunement: null,
+            thiefStolenSkillId: patch.profession === 'Thief' ? draft.thiefStolenSkillId : null
+          }
+        : {}),
+      ...patch
+    })
+  }
+
   /** Saves the current draft, then navigates back — there's no separate Save button; leaving the
    *  editor is what commits the build (see the "auto-save on back" behavior this replaced). Stamps
    *  `updatedAtGw2Build` alongside `updatedAt`, but only when `draft` actually differs from the
@@ -237,6 +265,8 @@ export function BuildEditorView({ build, onBack }: Props) {
         <ToggleSwitch checked={partyWideOnly} onChange={setPartyWideOnly} label="Party-wide only" />
         <ScreenshotButton capture={() => window.gw2Capture.captureBuildScreenshot({ build: draft, combatState })} />
         <SharePanel kind="build" getData={() => draft} />
+        <CopyBuildTemplateButton build={draft} gameData={gameData} />
+        <PasteBuildTemplateButton gameData={gameData} onImport={handleImportBuildTemplate} />
       </div>
 
       {/* `BuildScreenshotGrid` (2026-08-19) — the "toolbar row + 3 editing columns" CSS Grid used to

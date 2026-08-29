@@ -2,6 +2,53 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 300 — Build Template chat-link codec (core)
+
+Started TODO.md's "Official GW2 Build Template chat-link export/import" item (scoped Session
+2026-08-23). Two scoping decisions confirmed via AskUserQuestion before writing any code: (1)
+land/underwater skills/legends/pets share one selection rather than the format's real 4-slot
+land/water split (`Build` has no underwater-specific field for any of these today, and extending
+the data model was declined as out of scope for v1); (2) the June-2023 Weaponmaster Training tail
+(equipped weapon-type list + skill-variant overrides) is parsed-but-skipped, never applied to the
+`Build` — the wiki's own prose doesn't fully specify how an override ties back to a slot.
+
+Researched the byte layout from the wiki's prose, then cross-checked it against a real, working
+MIT-licensed reference implementation (`thatshaman/Buildtemplate`) and 3 real published Revenant
+build codes (MetaBattle) decoded by hand — this caught that the wiki's own summarized text about
+"Ranger gets 4 more bytes / Revenant gets 16 more bytes" was misleading: every profession actually
+carries the same fixed 16-byte profession-specific tail, confirmed by the reference impl's own
+`bytes.length >= 44` floor.
+
+Built: `scripts/fetch-chat-link-ids.ts` (`npm run fetch-chat-link-ids`) sources 3 ids the format
+needs — `Profession.code`, `Profession.skillPalette`, `Legend.code` — from the API's `?v=latest`
+schema (not exposed under the default schema `fetch-game-data.ts` uses), written to a new
+`chat-link-ids.json` and merged at load time by `withChatLinkIds` (`build-game-data.ts`), same
+separate-file pattern `tango-icons.json` already established. `src/shared/chat-link/
+build-template-codec.ts`'s `encodeBuildTemplate`/`decodeBuildTemplate` do the actual binary
+encode/decode; wired into the build editor as new "Copy Build Template"/"Paste Build Template"
+buttons (`CopyBuildTemplateButton.tsx`/`PasteBuildTemplateButton.tsx`) next to the existing
+Screenshot/Share Link buttons.
+
+Found and fixed one real bug via the test suite (not inspection): decode's trait lookup matched by
+`(specializationId, tier, order)` alone with no `slot === 'Major'` filter, so it could silently
+resolve to a coincidentally-matching MINOR trait instead of the intended major one (confirmed real:
+Guardian spec 13's minor trait 582 and major trait 588 share tier 1 / order 0). Also discovered (not
+a bug): Revenant's `skillPalette` table only covers a small fraction of the profession — most
+legends' own heal/utility/elite skill ids aren't in it at all, apparently because those slots are
+never independently player-bound — harmless here since `decodeBuildTemplate` never reads that part
+of the payload back for Revenant anyway (skills are reconstructed purely from the tail's legend
+codes).
+
+12 new tests (`build-template-codec.test.ts`) round-trip Guardian/Ranger/Revenant builds against
+real, currently-loaded game data (picking real ids at test time rather than hardcoding any) plus
+malformed-input rejection and the 3 real MetaBattle codes (decode-doesn't-throw only — see below).
+`npm run typecheck`/`lint`/`test` all clean (473 tests, +12).
+
+**Left open, logged in TODO.md:** real in-game-captured chat-link validation, the final step the
+original scoping called for. Everything above is tested against real *current* game data and real
+*published* (but possibly stale) codes — pick this up once the user supplies a few fresh codes
+copied directly from their own in-game character panel.
+
 ## Session 299 — v1.2.1 release
 
 Bumped `package.json`/`package-lock.json` 1.2.0 → 1.2.1 (`npm version 1.2.1 --no-git-tag-version`);

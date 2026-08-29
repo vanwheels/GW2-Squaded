@@ -104,6 +104,20 @@ export interface Profession {
    *  `ProfessionMechanicSkill` and `src/shared/skill-calc/profession-mechanic.ts`, which resolves
    *  this down to the one bar (F1-F5) that actually applies for a build's equipped specs. */
   professionSkills: ProfessionMechanicSkill[]
+  /** This profession's byte value in the official GW2 Build Template chat-link format (`/v2/
+   *  professions`'s own `code` field, only exposed under `?v=latest` schema — see
+   *  scripts/fetch-chat-link-ids.ts). Merged in at load time from chat-link-ids.json by
+   *  `withChatLinkIds` in build-game-data.ts, same "separate wiki/API-extra file, not baked into
+   *  fetch-game-data.ts's own output" pattern as `tangoIcon`. Always present (all 9 professions
+   *  have one, verified by that script's own hard failure if any are missing). */
+  code: number
+  /** This profession's internal "skill palette id" <-> real `Skill.id` table, as used by the
+   *  Heal/Utility/Elite skill slots of a Build Template chat link (`/v2/professions`'s own
+   *  `skills_by_palette` field, same `?v=latest`-only schema as `code` above) — a palette id is a
+   *  small, profession-scoped legacy engine id distinct from the real skill id everywhere else in
+   *  this app uses. `[paletteId, skillId]` pairs, in the API's own order. See
+   *  `src/shared/chat-link/build-template-codec.ts`. */
+  skillPalette: [number, number][]
 }
 
 export interface Specialization {
@@ -282,6 +296,11 @@ export interface Legend {
   elite: number
   utilities: [number, number, number]
   specializationId: number | null
+  /** This legend's byte value in the official GW2 Build Template chat-link format's Revenant tail
+   *  (`/v2/legends`'s own `code` field, `?v=latest`-only — see `Profession.code`'s doc comment for
+   *  the same pattern). Merged in at load time from chat-link-ids.json. Always present (all 8
+   *  legends have one). See `src/shared/chat-link/build-template-codec.ts`. */
+  code: number
 }
 
 /**

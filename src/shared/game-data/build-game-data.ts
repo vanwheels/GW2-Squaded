@@ -1,4 +1,4 @@
-import type { Fact, GameData, Profession, Specialization, Skill, Trait } from '../types'
+import type { Fact, GameData, Legend, Profession, Specialization, Skill, Trait } from '../types'
 
 /**
  * Reads and parses one named file from whatever game-data source is active — `data/game-data/`
@@ -50,6 +50,27 @@ function withTangoIcons(
 }
 
 /**
+ * `chat-link-ids.json`'s merge — see `Profession.code`/`Profession.skillPalette`/`Legend.code`
+ * and `scripts/fetch-chat-link-ids.ts` for why these are a separate `?v=latest`-only-schema file
+ * rather than fields `fetch-game-data.ts` itself produces (same reasoning as `withTangoIcons`).
+ */
+function withChatLinkIds(
+  professions: Profession[],
+  legends: Legend[],
+  chatLinkIds: {
+    professions: Record<string, { code: number; skillPalette: [number, number][] }>
+    legends: Record<string, number>
+  }
+): [Profession[], Legend[]] {
+  const mergedProfessions = professions.map((p) => {
+    const ids = chatLinkIds.professions[p.id]
+    return ids ? { ...p, code: ids.code, skillPalette: ids.skillPalette } : { ...p, code: 0, skillPalette: [] }
+  })
+  const mergedLegends = legends.map((l) => ({ ...l, code: chatLinkIds.legends[l.id] ?? 0 }))
+  return [mergedProfessions, mergedLegends]
+}
+
+/**
  * Assembles the full `GameData` object from `data/game-data/*.json` (see `docs/game-data.md`),
  * given a `readJson` that knows how to fetch one named file — extracted out of
  * `src/main/game-data/load-game-data.ts`'s `loadGameData()` (2026-08-19, for the Discord bot's
@@ -60,10 +81,15 @@ function withTangoIcons(
  * it only ever calls this once per page load).
  */
 export async function buildGameData(readJson: JsonReader): Promise<GameData> {
-  const [professions, specializations] = withTangoIcons(
+  const [professionsWithTango, specializations] = withTangoIcons(
     await readJson('professions.json'),
     await readJson('specializations.json'),
     await readJson('tango-icons.json')
+  )
+  const [professions, legends] = withChatLinkIds(
+    professionsWithTango,
+    await readJson('legends.json'),
+    await readJson('chat-link-ids.json')
   )
   return {
     professions,
@@ -78,7 +104,7 @@ export async function buildGameData(readJson: JsonReader): Promise<GameData> {
     skillVariantExclusions: await readJson('skill-variant-exclusions.json'),
     wvwFactOverrides: await readJson('wvw-fact-overrides.json'),
     rechargeWvwOverrides: await readJson('recharge-wvw-overrides.json'),
-    legends: await readJson('legends.json'),
+    legends,
     pets: await readJson('pets.json'),
     familiars: await readJson('familiars.json'),
     soulbeastBeastmode: await readJson('soulbeast-beastmode.json'),

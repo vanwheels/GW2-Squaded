@@ -1330,8 +1330,8 @@ describe('computeCharacterStats — outgoingDamagePercent/outgoingConditionDamag
 describe('cosmicWisdomLegendAttributeTraitBonus / combatStatePoints — Bolstered Bonds doubled while Cosmic Wisdom is active', () => {
   const CONDUIT_SPEC_ID = 79
   const legends: Legend[] = [
-    { id: 'Legend2', name: 'Legendary Assassin Stance', icon: '', swap: 0, heal: 0, elite: 0, utilities: [0, 0, 0], specializationId: null },
-    { id: 'Legend3', name: 'Legendary Dwarf Stance', icon: '', swap: 0, heal: 0, elite: 0, utilities: [0, 0, 0], specializationId: null }
+    { id: 'Legend2', name: 'Legendary Assassin Stance', icon: '', swap: 0, heal: 0, elite: 0, utilities: [0, 0, 0], specializationId: null, code: 2 },
+    { id: 'Legend3', name: 'Legendary Dwarf Stance', icon: '', swap: 0, heal: 0, elite: 0, utilities: [0, 0, 0], specializationId: null, code: 3 }
   ]
 
   function makeConduitBuild(overrides: Partial<Build> = {}): Build {
