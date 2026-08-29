@@ -3,15 +3,19 @@ import {
   activeConsumableConversions,
   addBonus,
   addPoints,
+  addSelfConversions,
+  ALL_CORE_ATTRIBUTE_KEYS,
   applyConversions,
   boonDurationPercent,
   conditionDurationPercent,
   computeGearAttributeTotals,
   emptyTotals,
   isActiveWeaponSlot,
+  resolveFlatAttributeKey,
   SLOT_ADJUSTMENT_KEY,
   statComboContribution,
   type AdjustmentKey,
+  type AttributeConversion,
   type AttributeTotals
 } from './attribute-totals'
 import {
@@ -33,8 +37,7 @@ import {
   activeTraitConversions,
   activeTraitFlatBonuses,
   activeWeaponEquippedAttributeTraitBonus,
-  applyTraitBonuses,
-  type TraitConversion
+  applyTraitBonuses
 } from './trait-attributes'
 import { armorTrinketInfusionCapacity, RUNE_SLOT_KEYS, weaponUpgradeCapacity } from './upgrade-slots'
 
@@ -135,11 +138,13 @@ export interface EffectivePowerWeights {
   ferocity: number
 }
 
-/** Bounds the Effective Power re-linearization loop in `optimizeGear` — each pass re-solves with
- *  weights derived from the PREVIOUS pass's actual result, so this is a fixed-point iteration, not
- *  a single-shot approximation. Gear swings are small relative to baseline Power/Precision/Ferocity,
- *  so this converges fast in practice; capped rather than run-to-convergence so a pathological case
- *  can't loop indefinitely. */
+/** Bounds BOTH fixed-point iteration loops in `optimizeGear` — the Effective Power re-linearization
+ *  loop and the food/utility self-conversion `assumedConversionPoints` refinement loop (see that
+ *  field's doc comment) share this same cap/cadence, since both are "re-solve against the previous
+ *  pass's actual result" fixed points. Each pass re-solves with an operating point derived from the
+ *  PREVIOUS pass's actual result, so this is genuine iteration, not a single-shot approximation.
+ *  Gear swings are small relative to baseline Power/Precision/Ferocity, so this converges fast in
+ *  practice; capped rather than run-to-convergence so a pathological case can't loop indefinitely. */
 export const MAX_EFFECTIVE_POWER_ITERATIONS = 3
 
 const EFFECTIVE_POWER_POWER_EPS = 1
@@ -155,14 +160,59 @@ function effectivePowerPointConverged(a: EffectivePowerPoint, b: EffectivePowerP
   )
 }
 
-/** Wall-clock budget for every pass of the Effective Power iteration loop EXCEPT the last — these
- *  only need to be "good enough" to move the linearization's operating point toward convergence,
- *  not fully optimal, so they get a much shorter budget than the final pass (which uses the
- *  caller's real `deadlineMs`). Bounds worst-case total search time to roughly `deadlineMs +
+const CONVERSION_POINTS_EPS = 1
+
+/** True once successive passes' assumed core-attribute snapshots (see `assumedConversionPoints`)
+ *  have stopped moving meaningfully — same early-exit role as `effectivePowerPointConverged`, one
+ *  attribute point of slack per core attribute. */
+function conversionPointsConverged(a: Record<string, number>, b: Record<string, number>): boolean {
+  return ALL_CORE_ATTRIBUTE_KEYS.every((key) => Math.abs((a[key] ?? 0) - (b[key] ?? 0)) < CONVERSION_POINTS_EPS)
+}
+
+/** Whether ANY food/utility item's self-conversion could possibly matter for this run — a candidate
+ *  item's own "Gain X Equal to N% of Your Y" bonus is only worth crediting during search (see
+ *  `assumedConversionPoints`) if its TARGET attribute feeds a metric this run actually tracks
+ *  (`relevant`); otherwise the extra `assumedConversionPoints` iteration passes would cost real
+ *  search time for zero effect on the outcome (an untracked attribute never survives into any
+ *  `deltaSignature`). Checked once per `optimizeGear` call, not per pass — the catalog itself never
+ *  changes mid-run. */
+function catalogHasRelevantConsumableConversion(gameData: Pick<OptimizerInput['gameData'], 'food' | 'utility'>, relevant: OptimizerMetricId[]): boolean {
+  const relevantAttributeKeys = new Set(relevant.flatMap((id) => METRIC_ATTRIBUTE_KEYS[id]))
+  for (const item of [...gameData.food, ...gameData.utility]) {
+    for (const bonus of item.bonuses) {
+      if (!bonus.sourceAttribute || bonus.attribute === null) continue
+      const target = resolveFlatAttributeKey(bonus.attribute)
+      if (target && relevantAttributeKeys.has(target)) return true
+    }
+  }
+  return false
+}
+
+/** Wall-clock budget for every pass of the Effective Power/consumable-conversion iteration loops
+ *  EXCEPT the last — these only need to be "good enough" to move the operating point toward
+ *  convergence, not fully optimal, so they get a much shorter budget than the final pass (which uses
+ *  the caller's real `deadlineMs`). Bounds worst-case total search time to roughly `deadlineMs +
  *  (MAX_EFFECTIVE_POWER_ITERATIONS - 1) × this`, not `MAX_EFFECTIVE_POWER_ITERATIONS × deadlineMs`. */
 const EFFECTIVE_POWER_SEED_DEADLINE_MS = 2000
 
 const METRIC_IDS: OptimizerMetricId[] = OPTIMIZER_METRICS.map((m) => m.id)
+
+/** Every raw core-attribute key (`AttributeTotals.points`' keys) a metric's value derives from —
+ *  mirrors `metricDelta`/`evaluateMetric`'s own per-metric formulas, kept as data here so
+ *  `catalogHasRelevantConsumableConversion` can cheaply check whether a food/utility self-
+ *  conversion's target could possibly matter for a given `relevant` list. */
+const METRIC_ATTRIBUTE_KEYS: Record<OptimizerMetricId, string[]> = {
+  Power: ['Power'],
+  Health: ['Vitality'],
+  Armor: ['Toughness'],
+  CriticalChancePercent: ['Precision'],
+  CriticalDamagePercent: ['CritDamage'],
+  Healing: ['Healing'],
+  ConditionDamage: ['ConditionDamage'],
+  BoonDurationPercent: ['BoonDuration'],
+  ConditionDurationPercent: ['ConditionDuration'],
+  EffectivePower: ['Power', 'Precision', 'CritDamage']
+}
 
 interface MetricContext {
   furyFlatCritBonus: number
@@ -347,7 +397,7 @@ function statOptionsFor(
   legalIds: Set<number>,
   adjustmentKey: AdjustmentKey,
   relevant: OptimizerMetricId[],
-  traitConversions: TraitConversion[],
+  fixedConversions: AttributeConversion[],
   cache?: GearOptionsCache,
   weights?: EffectivePowerWeights
 ): SearchOption[] {
@@ -358,7 +408,7 @@ function statOptionsFor(
   for (const stat of itemStats) {
     if (!legalIds.has(stat.id) || stat.name.trim() === '') continue
     const delta = statComboContribution(stat, adjustmentKey)
-    applyConversions(delta, traitConversions)
+    applyConversions(delta, fixedConversions)
     const sig = deltaSignature(delta, relevant, weights)
     if (seen.has(sig)) continue
     seen.set(sig, { id: stat.id, label: formatItemStatName(stat.name), deltas: relevant.map((id) => metricDelta(id, delta, weights)) })
@@ -368,13 +418,29 @@ function statOptionsFor(
   return result
 }
 
-function consumableOptionsFor(catalog: Consumable[], relevant: OptimizerMetricId[], traitConversions: TraitConversion[], weights?: EffectivePowerWeights): SearchOption[] {
+/** `assumedConversionPoints` credits a candidate's OWN "Gain X Equal to N% of Your Y" self-
+ *  conversion (Superior Sharpening Stone, Tuning Crystal, Maintenance Oil, etc. — Utility-slot only
+ *  in practice, confirmed via a full food/utility catalog scan 2026-08-28) against an assumed
+ *  snapshot of the rest of the build — see `addSelfConversions`'s doc comment and `optimizeGear`'s
+ *  iteration loop for why this can only ever be an assumption during search, unlike `fixedConversions`
+ *  (exact, since those apply no matter which candidate wins any slot). `undefined`/absent whenever
+ *  food/utility conversions can't affect any relevant metric this run (see
+ *  `catalogHasRelevantConsumableConversion`), in which case this is skipped entirely, not just a
+ *  no-op — same "only pay for it when it matters" convention as `weights`. */
+function consumableOptionsFor(
+  catalog: Consumable[],
+  relevant: OptimizerMetricId[],
+  fixedConversions: AttributeConversion[],
+  assumedConversionPoints: Record<string, number> | undefined,
+  weights?: EffectivePowerWeights
+): SearchOption[] {
   const seen = new Map<string, SearchOption>()
   seen.set('none', { id: null, label: 'None', deltas: relevant.map(() => 0) })
   for (const item of catalog) {
     const delta = emptyTotals()
     for (const bonus of item.bonuses) addBonus(delta, bonus)
-    applyConversions(delta, traitConversions)
+    if (assumedConversionPoints) addSelfConversions(delta, item.bonuses, assumedConversionPoints)
+    applyConversions(delta, fixedConversions)
     const sig = deltaSignature(delta, relevant, weights)
     if (seen.has(sig)) continue
     seen.set(sig, { id: item.id, label: item.name, deltas: relevant.map((id) => metricDelta(id, delta, weights)) })
@@ -388,13 +454,13 @@ function consumableOptionsFor(catalog: Consumable[], relevant: OptimizerMetricId
  *  rune" WvW convention (see TODO.md's scoping note), rather than 6 independently-searched rune
  *  slots. Mirrors `addRuneBonuses`' own "count by rune id, credit `bonuses[0..count-1]`" logic for
  *  a uniform 6-piece set. */
-function runeOptionsFor(runes: Rune[], relevant: OptimizerMetricId[], traitConversions: TraitConversion[], weights?: EffectivePowerWeights): SearchOption[] {
+function runeOptionsFor(runes: Rune[], relevant: OptimizerMetricId[], fixedConversions: AttributeConversion[], weights?: EffectivePowerWeights): SearchOption[] {
   const seen = new Map<string, SearchOption>()
   seen.set('none', { id: null, label: 'None', deltas: relevant.map(() => 0) })
   for (const rune of runes) {
     const delta = emptyTotals()
     for (const bonus of rune.bonuses) addBonus(delta, bonus)
-    applyConversions(delta, traitConversions)
+    applyConversions(delta, fixedConversions)
     const sig = deltaSignature(delta, relevant, weights)
     if (seen.has(sig)) continue
     seen.set(sig, { id: rune.id, label: rune.name, deltas: relevant.map((id) => metricDelta(id, delta, weights)) })
@@ -408,14 +474,14 @@ function runeOptionsFor(runes: Rune[], relevant: OptimizerMetricId[], traitConve
  *  (`attribute === null` — not currently fetched, see that same doc comment) are skipped. Shared
  *  across every physical infusion slot (`armorTrinketInfusionSlots`/`buildWeaponInfusionSlots`)
  *  since infusions aren't slot-restricted — computed once rather than once per slot. */
-function infusionOptionsFor(infusions: Infusion[], relevant: OptimizerMetricId[], traitConversions: TraitConversion[], weights?: EffectivePowerWeights): SearchOption[] {
+function infusionOptionsFor(infusions: Infusion[], relevant: OptimizerMetricId[], fixedConversions: AttributeConversion[], weights?: EffectivePowerWeights): SearchOption[] {
   const seen = new Map<string, SearchOption>()
   seen.set('none', { id: null, label: 'None', deltas: relevant.map(() => 0) })
   for (const infusion of infusions) {
     if (!infusion.attribute || infusion.value === null) continue
     const delta = emptyTotals()
     addPoints(delta, infusion.attribute, infusion.value)
-    applyConversions(delta, traitConversions)
+    applyConversions(delta, fixedConversions)
     const sig = deltaSignature(delta, relevant, weights)
     if (seen.has(sig)) continue
     seen.set(sig, { id: infusion.id, label: infusion.name, deltas: relevant.map((id) => metricDelta(id, delta, weights)) })
@@ -510,7 +576,7 @@ function weaponPrefixOptionsFor(
   legalIds: Set<number>,
   activeItems: WeaponPrefixItem[],
   relevant: OptimizerMetricId[],
-  traitConversions: TraitConversion[],
+  fixedConversions: AttributeConversion[],
   weights?: EffectivePowerWeights
 ): SearchOption[] {
   const seen = new Map<string, SearchOption>()
@@ -521,7 +587,7 @@ function weaponPrefixOptionsFor(
       const itemDelta = statComboContribution(stat, item.adjustmentKey)
       for (const [attr, value] of Object.entries(itemDelta.points)) addPoints(delta, attr, value)
     }
-    applyConversions(delta, traitConversions)
+    applyConversions(delta, fixedConversions)
     const sig = deltaSignature(delta, relevant, weights)
     if (seen.has(sig)) continue
     seen.set(sig, { id: stat.id, label: formatItemStatName(stat.name), deltas: relevant.map((id) => metricDelta(id, delta, weights)) })
@@ -551,7 +617,7 @@ function buildWeaponPrefixSlot(
   legalArmorWeapon: Set<number>,
   itemStats: ItemStat[],
   relevant: OptimizerMetricId[],
-  traitConversions: TraitConversion[],
+  fixedConversions: AttributeConversion[],
   weights?: EffectivePowerWeights
 ): OptimizerSlot | null {
   const items = collectWeaponPrefixItems(build, gameData)
@@ -559,7 +625,7 @@ function buildWeaponPrefixSlot(
 
   const activeItems = items.filter((item) => item.active)
   const writeKeys = [...new Set(items.flatMap((item) => item.writeKeys))]
-  const options = weaponPrefixOptionsFor(itemStats, legalArmorWeapon, activeItems, relevant, traitConversions, weights)
+  const options = weaponPrefixOptionsFor(itemStats, legalArmorWeapon, activeItems, relevant, fixedConversions, weights)
 
   return {
     id: 'weaponPrefix',
@@ -1094,16 +1160,31 @@ interface RunOptimizePassInput {
   foodById: Map<number, Consumable>
   utilityById: Map<number, Consumable>
   ctx: MetricContext
-  /** Every currently-active trait conversion (e.g. Virtuoso's Quiet Intensity: 10% of Vitality ->
-   *  CritDamage) — gear-independent (only depends on specializations, not on anything the search
-   *  varies), computed once by `optimizeGear` and applied to both the baseline and every option's
+  /** Every conversion that's FIXED for this pass regardless of which option wins any slot — every
+   *  currently-active trait conversion (e.g. Virtuoso's Quiet Intensity: 10% of Vitality ->
+   *  CritDamage), PLUS, when `optimizeFoodUtility` is false, the currently-equipped food/utility's
+   *  OWN "Gain X Equal to N% of Your Y" self-conversion (Superior Sharpening Stone etc.) — both are
+   *  gear-independent from the search's point of view once food/utility isn't itself a search
+   *  variable, computed once by `optimizeGear` and applied to both the baseline and every option's
    *  own delta (see `applyConversions`'s call sites in `runOptimizePass`/`statOptionsFor` etc.) so a
-   *  Vitality-carrying stat combo gets full credit for its indirect Ferocity contribution during the
-   *  search itself, not just in the final reported `metricValues`. Exact, not an approximation —
-   *  unlike `EffectivePower`, a source->target percent conversion is linear, so crediting it
-   *  independently to the fixed baseline and to every searched option's own delta and summing
-   *  reproduces the true total with no re-linearization needed. */
-  traitConversions: TraitConversion[]
+   *  Vitality-carrying stat combo gets full credit for its indirect Ferocity/Power contribution
+   *  during the search itself, not just in the final reported `metricValues`. Exact, not an
+   *  approximation — unlike `EffectivePower`, a source->target percent conversion is linear, so
+   *  crediting it independently to the fixed baseline and to every searched option's own delta and
+   *  summing reproduces the true total with no re-linearization needed. When `optimizeFoodUtility`
+   *  is true, a food/utility item's own self-conversion is NOT folded in here — it's conditional on
+   *  that specific candidate winning the food/utility slot, so it can't be applied uniformly the way
+   *  a build-wide-fixed conversion can; see `assumedConversionPoints` below for how that case is
+   *  handled instead. */
+  fixedConversions: AttributeConversion[]
+  /** An assumed snapshot of the build's core-attribute totals, used ONLY to credit a candidate
+   *  food/utility item's OWN self-conversion during search (see `addSelfConversions`/
+   *  `consumableOptionsFor`) — `undefined` whenever `optimizeFoodUtility` is false (handled exactly
+   *  via `fixedConversions` instead) or no food/utility item's conversion can affect any `relevant`
+   *  metric this run (see `catalogHasRelevantConsumableConversion`). Seeded by `optimizeGear` from
+   *  the build's real current totals and refined every iteration from each pass' actual result,
+   *  converging toward the true value the same way `EffectivePowerPoint` does. */
+  assumedConversionPoints?: Record<string, number>
   /** The linear approximation weights for this pass' `EffectivePower` deltas (see
    *  `effectivePowerWeights`) — `undefined` whenever `EffectivePower` isn't a relevant metric for
    *  this run, in which case it's never read. */
@@ -1136,7 +1217,8 @@ function runOptimizePass(input: RunOptimizePassInput): OptimizerResult {
     foodById,
     utilityById,
     ctx,
-    traitConversions,
+    fixedConversions,
+    assumedConversionPoints,
     weights,
     deadlineMs,
     onProgress
@@ -1148,22 +1230,22 @@ function runOptimizePass(input: RunOptimizePassInput): OptimizerResult {
   for (const { key, label } of ARMOR_SLOTS) {
     const adjustmentKey = SLOT_ADJUSTMENT_KEY[key]
     if (!adjustmentKey) continue
-    slots.push({ id: key, label, equipmentKeys: [key], options: statOptionsFor(gameData.itemStats, legalArmorWeapon, adjustmentKey, relevant, traitConversions, gearOptionsCache, weights) })
+    slots.push({ id: key, label, equipmentKeys: [key], options: statOptionsFor(gameData.itemStats, legalArmorWeapon, adjustmentKey, relevant, fixedConversions, gearOptionsCache, weights) })
   }
   for (const { key, label } of TRINKET_SLOTS) {
     const adjustmentKey = SLOT_ADJUSTMENT_KEY[key]
     if (!adjustmentKey) continue
-    slots.push({ id: key, label, equipmentKeys: [key], options: statOptionsFor(gameData.itemStats, legalTrinket, adjustmentKey, relevant, traitConversions, gearOptionsCache, weights) })
+    slots.push({ id: key, label, equipmentKeys: [key], options: statOptionsFor(gameData.itemStats, legalTrinket, adjustmentKey, relevant, fixedConversions, gearOptionsCache, weights) })
   }
-  const weaponSlot = buildWeaponPrefixSlot(build, gameData, legalArmorWeapon, gameData.itemStats, relevant, traitConversions, weights)
+  const weaponSlot = buildWeaponPrefixSlot(build, gameData, legalArmorWeapon, gameData.itemStats, relevant, fixedConversions, weights)
   if (weaponSlot) slots.push(weaponSlot)
 
   // Rune/infusion slots, added to the same search alongside gear — see `OptimizerInput.
   // optimizeRunesInfusions`'s doc comment for the uniform-rune-vs-per-slot-infusion distinction.
   let infusionSlots: OptimizerSlot[] = []
   if (optimizeRunesInfusions) {
-    slots.push({ id: 'runes', label: 'Runes', equipmentKeys: RUNE_SLOT_KEYS, kind: 'rune', options: runeOptionsFor(gameData.runes, relevant, traitConversions, weights) })
-    const infusionOptions = infusionOptionsFor(gameData.infusions, relevant, traitConversions, weights)
+    slots.push({ id: 'runes', label: 'Runes', equipmentKeys: RUNE_SLOT_KEYS, kind: 'rune', options: runeOptionsFor(gameData.runes, relevant, fixedConversions, weights) })
+    const infusionOptions = infusionOptionsFor(gameData.infusions, relevant, fixedConversions, weights)
     infusionSlots = [...armorTrinketInfusionSlots(infusionOptions), ...buildWeaponInfusionSlots(build, gameData, infusionOptions)]
     slots.push(...infusionSlots)
   }
@@ -1181,8 +1263,8 @@ function runOptimizePass(input: RunOptimizePassInput): OptimizerResult {
   const searchedKeys = new Set(slots.flatMap((s) => s.equipmentKeys))
 
   if (optimizeFoodUtility) {
-    slots.push({ id: 'food', label: 'Food', equipmentKeys: [], kind: 'food', options: consumableOptionsFor(gameData.food, relevant, traitConversions, weights) })
-    slots.push({ id: 'utility', label: 'Utility', equipmentKeys: [], kind: 'utility', options: consumableOptionsFor(gameData.utility, relevant, traitConversions, weights) })
+    slots.push({ id: 'food', label: 'Food', equipmentKeys: [], kind: 'food', options: consumableOptionsFor(gameData.food, relevant, fixedConversions, assumedConversionPoints, weights) })
+    slots.push({ id: 'utility', label: 'Utility', equipmentKeys: [], kind: 'utility', options: consumableOptionsFor(gameData.utility, relevant, fixedConversions, assumedConversionPoints, weights) })
   }
 
   // Baseline: every fixed contribution (runes, infusions, current food/utility if not being
@@ -1246,14 +1328,17 @@ function runOptimizePass(input: RunOptimizePassInput): OptimizerResult {
   // exact true total with no approximation, unlike `EffectivePower`'s nonlinear composite. Without
   // this, a search maximizing CriticalDamagePercent/EffectivePower on this spec would undervalue a
   // Vitality-carrying stat combo (e.g. Marauder's) relative to a pure-Ferocity one, missing the
-  // indirect Ferocity this trait grants it. `activeConsumableConversions` (food/utility's own "Gain
-  // X Equal to N% of Your Y" bonuses, e.g. Superior Sharpening Stone) is NOT threaded through the
-  // same way — when `optimizeFoodUtility` is true, which item (if any) carries a conversion isn't
-  // known until the search itself picks it, so this can't be precomputed the way trait conversions
-  // (fixed by specializations alone) can; left as a narrower, still-open gap (see TODO.md). The
-  // final `metricValues` below are unaffected either way, since those are re-derived from the actual
-  // resulting build via `applyTraitBonuses`/`applyConversions` (full accuracy, both kinds included).
-  applyConversions(baseline, traitConversions)
+  // indirect Ferocity this trait grants it. `fixedConversions` also carries the currently-equipped
+  // food/utility's own "Gain X Equal to N% of Your Y" self-conversion (e.g. Superior Sharpening
+  // Stone) whenever `optimizeFoodUtility` is false, applied exactly the same way — see that field's
+  // doc comment. When `optimizeFoodUtility` is true, a food/utility candidate's OWN self-conversion
+  // is instead credited per-candidate inside `consumableOptionsFor` via `assumedConversionPoints`,
+  // since which item (if any) wins that slot isn't known until the search picks it — an assumption
+  // `optimizeGear`'s iteration loop refines toward the true value, not exact in a single pass the
+  // way this trait-conversion baseline credit is. The final `metricValues` below are unaffected
+  // either way, since those are re-derived from the actual resulting build via
+  // `applyTraitBonuses`/`applyConversions` (full accuracy, both kinds included).
+  applyConversions(baseline, fixedConversions)
 
   const baselineValues = relevant.map((id) => evaluateMetric(id, baseline, ctx))
   // No matching floor -> -Infinity, i.e. no lower bound to enforce (see `solve`'s doc comment on
@@ -1398,9 +1483,20 @@ export function optimizeGear(input: OptimizerInput, options: OptimizeGearOptions
   const foodById = new Map(gameData.food.map((f) => [f.id, f]))
   const utilityById = new Map(gameData.utility.map((u) => [u.id, u]))
   // Gear-independent (specializations only), computed once — see `RunOptimizePassInput.
-  // traitConversions`'s doc comment for why this needs to reach both the baseline and every
-  // option's own delta.
-  const traitConversions = activeTraitConversions(build, traitsById)
+  // fixedConversions`'s doc comment for why this needs to reach both the baseline and every
+  // option's own delta. When food/utility isn't itself being searched, the currently-equipped
+  // item's own self-conversion (e.g. Superior Sharpening Stone) is just as fixed as a trait
+  // conversion from the search's point of view, so it's folded into the same list here rather than
+  // needing its own separate `applyConversions` call site.
+  const fixedConversions: AttributeConversion[] = [
+    ...activeTraitConversions(build, traitsById),
+    ...(optimizeFoodUtility ? [] : activeConsumableConversions(build, foodById, utilityById))
+  ]
+  // Whether a food/utility candidate's OWN self-conversion needs the `assumedConversionPoints`
+  // iteration below at all — only possible when food/utility IS being searched (otherwise it's
+  // already exact via `fixedConversions` above) AND at least one catalog item's conversion target
+  // could affect a tracked metric (see that function's doc comment).
+  const needsConversionIteration = optimizeFoodUtility && catalogHasRelevantConsumableConversion(gameData, relevant)
 
   const weightClass = WEIGHT_CLASS_BY_PROFESSION[build.profession]
   const ctx: MetricContext = {
@@ -1409,18 +1505,22 @@ export function optimizeGear(input: OptimizerInput, options: OptimizeGearOptions
     defense: weightClass ? fullArmorDefense(weightClass) : 0
   }
 
-  // Seed the Effective Power linearization from the build's OWN current stats (before any gear
-  // search has run at all) — a reasonable first guess for the operating point the loop below
-  // refines once an actual search result is known. Skipped entirely (an extra trait/conversion
-  // pass) for the common case where EffectivePower isn't in play.
+  // Seed the Effective Power linearization AND the consumable-conversion assumption from the
+  // build's OWN current stats (before any gear search has run at all) — a reasonable first guess
+  // for the operating point each loop below refines once an actual search result is known. Skipped
+  // entirely (an extra trait/conversion pass) when neither mechanism is in play.
   let effectivePowerPoint: EffectivePowerPoint | null = null
-  if (needsEffectivePower) {
+  let assumedConversionPoints: Record<string, number> | undefined
+  if (needsEffectivePower || needsConversionIteration) {
     const currentTotals = computeFullAttributeTotals(build, gameData, combatPoints, traitsById, foodById, utilityById)
-    effectivePowerPoint = {
-      power: evaluateMetric('Power', currentTotals, ctx),
-      criticalChancePercent: evaluateMetric('CriticalChancePercent', currentTotals, ctx),
-      criticalDamagePercent: evaluateMetric('CriticalDamagePercent', currentTotals, ctx)
+    if (needsEffectivePower) {
+      effectivePowerPoint = {
+        power: evaluateMetric('Power', currentTotals, ctx),
+        criticalChancePercent: evaluateMetric('CriticalChancePercent', currentTotals, ctx),
+        criticalDamagePercent: evaluateMetric('CriticalDamagePercent', currentTotals, ctx)
+      }
     }
+    if (needsConversionIteration) assumedConversionPoints = { ...currentTotals.points }
   }
 
   const passInputBase = {
@@ -1438,15 +1538,19 @@ export function optimizeGear(input: OptimizerInput, options: OptimizeGearOptions
     foodById,
     utilityById,
     ctx,
-    traitConversions
+    fixedConversions
   }
 
   // EffectivePower is a nonlinear composite (Power × crit chance × crit damage) approximated as a
   // LINEAR metric for solve()'s sake (see `effectivePowerWeights`'s doc comment) — a single pass
   // only optimizes against the seed point's linearization, so this loop re-derives the weights from
-  // each pass's actual result and re-solves, converging past the linear approximation's error. Every
-  // run that doesn't use EffectivePower takes exactly the one pass it always used to.
-  const maxIterations = needsEffectivePower ? MAX_EFFECTIVE_POWER_ITERATIONS : 1
+  // each pass's actual result and re-solves, converging past the linear approximation's error.
+  // `assumedConversionPoints` rides the SAME loop for the same reason (see that field's doc comment
+  // on `RunOptimizePassInput`) — both are "assume an operating point, solve, check whether the real
+  // result moved it, repeat" fixed points, so one shared loop covers either, both, or neither
+  // mechanism being in play. Every run that uses neither takes exactly the one pass it always used
+  // to.
+  const maxIterations = needsEffectivePower || needsConversionIteration ? MAX_EFFECTIVE_POWER_ITERATIONS : 1
   let result: OptimizerResult | null = null
   for (let iteration = 0; iteration < maxIterations; iteration++) {
     const isLastIteration = iteration === maxIterations - 1
@@ -1454,21 +1558,31 @@ export function optimizeGear(input: OptimizerInput, options: OptimizeGearOptions
     result = runOptimizePass({
       ...passInputBase,
       weights,
+      assumedConversionPoints,
       // Only the final pass needs the caller's full deadline — earlier passes just need to be
       // "good enough" to move the operating point toward convergence (see
       // `EFFECTIVE_POWER_SEED_DEADLINE_MS`'s doc comment).
       deadlineMs: isLastIteration ? deadlineMs : Math.min(deadlineMs, EFFECTIVE_POWER_SEED_DEADLINE_MS),
       onProgress
     })
-    if (!needsEffectivePower || !result.feasible) break
+    if ((!needsEffectivePower && !needsConversionIteration) || !result.feasible) break
 
-    const nextPoint: EffectivePowerPoint = {
-      power: result.metricValues.Power ?? 0,
-      criticalChancePercent: result.metricValues.CriticalChancePercent ?? 0,
-      criticalDamagePercent: result.metricValues.CriticalDamagePercent ?? 0
+    let stillConverging = false
+    if (needsEffectivePower) {
+      const nextPoint: EffectivePowerPoint = {
+        power: result.metricValues.Power ?? 0,
+        criticalChancePercent: result.metricValues.CriticalChancePercent ?? 0,
+        criticalDamagePercent: result.metricValues.CriticalDamagePercent ?? 0
+      }
+      if (!effectivePowerPoint || !effectivePowerPointConverged(effectivePowerPoint, nextPoint)) stillConverging = true
+      effectivePowerPoint = nextPoint
     }
-    if (effectivePowerPoint && effectivePowerPointConverged(effectivePowerPoint, nextPoint)) break
-    effectivePowerPoint = nextPoint
+    if (needsConversionIteration) {
+      const nextPoints = computeFullAttributeTotals(result.build, gameData, combatPoints, traitsById, foodById, utilityById).points
+      if (!assumedConversionPoints || !conversionPointsConverged(assumedConversionPoints, nextPoints)) stillConverging = true
+      assumedConversionPoints = { ...nextPoints }
+    }
+    if (!stillConverging) break
   }
 
   return result as OptimizerResult

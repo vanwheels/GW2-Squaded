@@ -2,6 +2,48 @@
 
 Entries are added as work lands, most recent first.
 
+## Session 304 — Gear Optimizer: food/utility self-conversion search credit
+
+Closes TODO.md's "Gear Optimizer: food/utility's own ... conversions aren't credited during the
+search itself" nice-to-have. The TODO note had scoped this as "1-2 WvW consumables" — a fresh
+`utility.json` scan found the real shape is 69 of 260 Utility items (27%) across 40 distinct
+conversion profiles (Sharpening Stone/Tuning Crystal/Maintenance Oil families — confirmed elsewhere
+in `docs/game-data.md` as "the dominant WvW Utility-consumable shape, ~43% of the catalog"), so this
+was flagged back to the user as a bigger correctness gap than originally assessed before picking an
+approach; user chose the full fix over a partial approximation or deferring it further.
+
+Two distinct cases, both in `gear-optimize.ts`:
+1. **Fixed food/utility** (`optimizeFoodUtility: false`) — exact fix, no approximation. The
+   currently-equipped item's self-conversion is gear-independent from the search's point of view
+   (like a trait conversion), so `optimizeGear` now folds `activeConsumableConversions(build, ...)`
+   into the same `fixedConversions` list (renamed from `traitConversions`, now `AttributeConversion[]`
+   rather than `TraitConversion[]`) trait conversions already use — applied to both the baseline and
+   every slot's own delta via the existing `applyConversions` call sites.
+2. **Searched food/utility** (`optimizeFoodUtility: true`) — can't be exact in a single pass: which
+   item (if any) wins the slot is itself a search decision, and its conversion's magnitude depends on
+   every other slot's (mostly gear's) contribution to the source attribute, not known until solved.
+   New `addSelfConversions` (`attribute-totals.ts`) credits a candidate's own conversion against an
+   ASSUMED snapshot of the build's core-attribute totals; `optimizeGear`'s existing `EffectivePower`
+   fixed-point re-linearization loop was generalized to also refine this assumption from each pass'
+   actual result (seeded from the build's current totals, converging within
+   `MAX_EFFECTIVE_POWER_ITERATIONS`, same cadence/deadline budget as before) — one shared loop covers
+   either mechanism, both, or neither. Gated on `catalogHasRelevantConsumableConversion` so the extra
+   passes are skipped entirely when no catalog conversion's target could affect any tracked metric
+   (the common case, e.g. a Health-only search). Known accepted limitation, documented inline: a
+   gear slot's OWN choice still doesn't dynamically shift toward more of a conversion's source
+   attribute just because a not-yet-chosen utility item could convert it — only the utility slot's
+   own pick (and the credit for the item that wins it) is corrected, same scope the TODO note itself
+   anticipated ("only the search's own internal slot comparisons... marginally suboptimal"). Final
+   `metricValues` were already exact before this fix either way (re-derived from the real resulting
+   build), so this only ever improves the search's internal comparisons, never the displayed numbers.
+
+New `consumable-conversion-search-credit.test.ts` (3 tests, mirroring
+`trait-conversion-search-credit.test.ts`'s pattern): the fixed-case exact credit, its negative
+control, and a searched-case test specifically designed so pass 1's assumption (seeded from the
+build's pre-search totals) under-credits and only pass 2 (using the actual post-search totals)
+correctly favors the conversion item — proving the iteration itself is doing the work, not just a
+static single-pass estimate. 500/500 tests pass, clean lint/typecheck.
+
 ## Session 303 — Condition-damage display (Leg 2: wire into skill tooltips)
 
 Closes TODO.md's "Condition-damage display" item — a new expected-condition-DPS number for

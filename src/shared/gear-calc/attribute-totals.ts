@@ -384,6 +384,30 @@ export function applyConversions(totals: AttributeTotals, conversions: Attribute
 }
 
 /**
+ * Credits ONE candidate `Consumable`'s own "Gain X Equal to N% of Your Y" bonus lines (the ones
+ * `addBonus` above deliberately skips) directly into `totals`, using `assumedSourcePoints` as a
+ * stand-in for the source attribute's real final value. Unlike `applyConversions`
+ * (build-wide-fixed conversions, e.g. traits, or the currently-equipped food/utility when it isn't
+ * itself being searched — see that function's doc comment), this is for the Gear Optimizer's own
+ * search (`gear-optimize.ts`): a candidate food/utility item's self-conversion only takes effect if
+ * THAT candidate wins its slot, and its true magnitude depends on every other slot's (mostly gear's)
+ * contribution to the source attribute — not knowable until the whole assignment is solved. Scoring
+ * every candidate against an assumed snapshot (seeded from the build's current stats, then refined
+ * from each pass' actual result — see `optimizeGear`'s `assumedConversionPoints` iteration) lets a
+ * conversion-carrying item compete fairly during the search instead of being scored as if it carried
+ * no such bonus at all, converging to the exact credit once the assumption stops moving.
+ */
+export function addSelfConversions(totals: AttributeTotals, bonuses: AttributeBonusText[], assumedSourcePoints: Record<string, number>): void {
+  for (const bonus of bonuses) {
+    if (!bonus.sourceAttribute || bonus.attribute === null || bonus.value === null) continue
+    const source = resolveFlatAttributeKey(bonus.sourceAttribute)
+    const target = resolveFlatAttributeKey(bonus.attribute)
+    if (!source || !target) continue
+    addPoints(totals, target, ((assumedSourcePoints[source] ?? 0) * bonus.value) / 100)
+  }
+}
+
+/**
  * Runes are stage-gated by how many armor pieces carry the *same* rune id (standard GW2
  * mechanic): equipping a rune on 3 pieces unlocks stages 1-3 (`bonuses[0..2]`), not stage 3 three
  * times. Counts every armor slot independently (not deduped by stat combo), matching the 6

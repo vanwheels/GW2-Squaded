@@ -383,18 +383,6 @@ alone isn't itself the actionable signal here, just the marker that led to Shape
 
 ## Nice-to-haves
 
-- [ ] Gear Optimizer: food/utility's own "Gain X Equal to N% of Your Y" conversions (e.g. Superior
-      Sharpening Stone's Power from Precision/Ferocity) aren't credited during the search itself when
-      the source attribute is a searched gear stat — scoped out 2026-08-23 while fixing the same gap
-      for TRAIT conversions (`gear-optimize.ts`'s `traitConversions` threading; see COMPLETED.md).
-      Trait conversions are precomputable upfront (fixed by specializations alone), but a consumable
-      conversion is a property of a SPECIFIC food/utility item — when `optimizeFoodUtility` is true,
-      which item (if any) even carries a conversion isn't known until the search picks it, so it
-      can't be folded in the same straightforward way. Narrower in practice than the trait gap (only
-      1-2 WvW consumables carry this shape at all, see `activeConsumableConversions`'s doc comment) —
-      the final `metricValues` are always correct either way, only the search's own internal slot
-      comparisons could be marginally suboptimal. Pick up only if a real case surfaces.
-
 - [ ] Discord bot latency — profession-scoped game-data fetch. A fresh browser's
       `load-game-data-web.ts` still re-fetches all 26 game-data JSON files (11MB total, ~9.3MB of
       which is just `skills.json`+`traits.json`) per render, for a preview that usually only needs
