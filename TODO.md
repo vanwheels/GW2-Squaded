@@ -16,6 +16,7 @@ mismatches on `CURATED_HEALING_COEFFICIENTS`/`CURATED_SIPHON_DAMAGE_COEFFICIENTS
 Queued next: Thief 72991 (Shadow Veil, Spear) and Thief 13113 (Black Powder); Thief 73063
 (Vampiric Slash) was added 2026-08-29 as a strong pattern-match candidate. Full per-skill history
 and the resolution method: `docs/investigations/coefficient-verification-queue.md`.
+Blocked: waiting on the user's next live in-game screenshot(s) for the queued skills.
 Last touched: 2026-08-29. Re-checks: 1.
 
 ### [Cosmic Wisdom Assassin-form Baseline Correction] — Leg 1
@@ -24,12 +25,15 @@ wiki's inflated PvE-quoted number rather than the true API PvE value (968), base
 confirmed on 6 other Siphon Damage skills. Not changed yet — Cosmic Wisdom's own mode/formula
 wasn't directly tested, only inferred by pattern. Full reasoning:
 `docs/investigations/coefficient-verification-queue.md`.
+Blocked: needs a direct live in-game verification of Cosmic Wisdom's own formula, same as the
+In-Game Coefficient Verification Queue leg above.
 Last touched: 2026-08-23. Re-checks: 0.
 
 ### [Healing/Damage Coefficient Tables Visual Spot-Check] — Leg 1
 Neither `CURATED_HEALING_COEFFICIENTS` nor `CURATED_DAMAGE_COEFFICIENTS` has been visually
 spot-checked in the running Electron app (sandbox limitation blocks screenshotting from this shell
 — see the `electron_sandbox_limitation` memory). Do this before extending either table further.
+Blocked: needs the user to manually verify in the running app; this shell can't screenshot Electron.
 Last touched: 2026-08-22. Re-checks: 0.
 
 ### [Discord Bot Profession-Scoped Game-Data Fetch] — Leg 1 (nice-to-have, deprioritized)
@@ -41,6 +45,7 @@ Session-reuse already avoids repeat downloads within a warm browser session, so 
 the full 11MB only once. User confirmed 2026-08-19 the other latency fixes weren't clearly
 noticeable either way and is satisfied with "cleaner on the backend" for now — revisit only if
 latency becomes a live complaint again, ideally backed by a `wrangler tail` timing pass.
+Blocked: waiting on latency becoming a live complaint again.
 Last touched: 2026-08-19. Re-checks: 0.
 
 ## Known Exceptions
