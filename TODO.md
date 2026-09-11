@@ -8,7 +8,9 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Open Items
+No milestone is currently scoped — everything below is unscheduled.
+
+## Unscheduled
 
 ### [In-Game Coefficient Verification Queue] — Leg 4
 User is working through live in-game tooltip screenshots to resolve wiki/API coefficient
