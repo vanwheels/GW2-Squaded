@@ -2,6 +2,51 @@
 
 User-facing release notes. For the detailed development log, see `COMPLETED.md`.
 
+## 1.3.0 — 2026-09-10
+
+### Build Templates
+
+- New **Copy/Paste Build Template** buttons in the build editor export a build to the game's
+  official chat-link code and import one back — round-trips with codes copied straight out of
+  Guild Wars 2, not just this app's own share links.
+
+### Gear Optimizer
+
+- Utility items with active self-conversions (e.g. sigils/consumables that convert one stat into
+  another) are now credited *during* the search itself, not only in the final result, so the
+  optimizer can find combinations it previously couldn't see were better.
+
+### Skills & tooltips
+
+- Skill tooltips now show expected condition damage (Torment, Confusion, etc.) alongside direct
+  damage, backed by a new curated condition-damage formula table.
+- Skill tooltips now show resource costs — energy, initiative, upkeep, and health cost — for the
+  108 skills that have them.
+- 6 more relic bonuses (flat-attribute, duration %, and crit-chance effects) are now reflected in
+  build stats.
+- Data accuracy: fixed 15 more Assassin's Reward Healing-coefficient discrepancies and closed out
+  the Siphon Damage coefficient cleanup.
+
+### Screenshots & sharing
+
+- Screenshot capture rebuilt to render the app off-screen instead of capturing the visible window,
+  fixing captures that could pick up the wrong on-screen content.
+- Share Link now behaves like Copy Screenshot: it copies immediately with a status change in the
+  button label instead of a popover.
+
+### Window & layout
+
+- Windows below 1920px wide now reflow the Build Editor grid and squad party rows instead of
+  clipping content.
+- Build editor's Stats+Skills column no longer stretches to an unreadable width on ultrawide
+  monitors.
+
+### Polish
+
+- Discord bot invite button added to Settings.
+- Tag autocomplete, context menus/modals, hover states, and focus rings got a visual consistency
+  pass.
+
 ## 1.2.1 — 2026-08-23
 
 - Release notes now show up in the app itself, not just on the GitHub releases page: a "What's
