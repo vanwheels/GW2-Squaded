@@ -3,6 +3,11 @@
 Entries are added as work lands, most recent first. Everything before the v1.0.0 release
 (2026-08-15) is archived in `COMPLETED-archive-pre-1.0.md`.
 
+### In-Game Coefficient Verification Queue, Leg 4: Thief Black Powder (13113) resolved — 2026-09-16
+Two live in-game readings of the Assassin's Reward heal solved to base 907 / coefficient 0.51 (N=6),
+revealing the API's fact bakes a pre-cost-increase rate rather than the skill's current live N=7
+initiative cost. See commit `c3d4ca8`.
+
 ### In-Game Coefficient Verification Queue, Leg 4: Thief Shadow Veil (72991) resolved — 2026-09-16
 Two live in-game readings resolved the skill's duplicate-factText "Healing" fact ambiguity, landing
 exactly on the wiki's documented base 1290 / coefficient 0.5. See commit `d0820bd`.
