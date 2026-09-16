@@ -10,43 +10,32 @@ implemented and released. Everything below is post-1.0 polish and open curation 
 
 ## Current Milestone: Sep 15, 2026 patch + fixes
 
-### [New Relic Coefficient Curation] — Leg 2
+### [New Relic Coefficient Curation] — Leg 3
 The Sep 15, 2026 patch added 6 new relics (Lantern, Last Tyrant, Eternal Alchemy, Tyrian Hero,
-Curator, Visionary). Leg 1 (2026-09-16) closed Tyrian Hero (wired: Might + Swiftness via
-`RELIC_TRIGGER_GATES`, Superspeed via `RELIC_NAMED_FACT_SOURCES`, new `skillIds` gate extension for
-the 12 Ranger/Warrior-Paragon Command skills the API doesn't tag) and Curator (logged as a
-boon-effectiveness-% future-stat-family candidate, not built — see
-`docs/investigations/future-stat-family-candidates.md`). The remaining 4 (Lantern, Last Tyrant,
-Eternal Alchemy, Visionary) still have no `{{Relic infobox}}` page on the wiki at all — re-ran
-`fetch-relic-effects` 2026-09-16, byte-identical output, all 4 still skip with "no Relic infobox
-found." Nothing to curate until the wiki publishes their pages (or the user has in-game
-readings for their coefficients).
-Blocked: waiting on wiki data (or user in-game readings) for Lantern/Last Tyrant/Eternal
-Alchemy/Visionary.
+Curator, Visionary). Leg 1 (2026-09-16) closed Tyrian Hero and Curator. Leg 2 (2026-09-16)
+reconfirmed the remaining 4 (Lantern, Last Tyrant, Eternal Alchemy, Visionary) still have no
+`{{Relic infobox}}` wiki page. User is now supplying live in-game WvW tooltip readings for these
+directly (one relic at a time), curated via a new `synthetic-relic-effects.json` overlay (same
+shape as `synthetic-facts.json`, merged in `build-game-data.ts` — see `docs/game-data.md`'s
+"Relics with no wiki page yet" section). Lantern (109936) is done: Reveal 6s, 5 targets, 600
+radius, 20s ICD. Still needed: Last Tyrant, Eternal Alchemy, Visionary.
 Last touched: 2026-09-16. Re-checks: 0.
 
-### [Tyrian Hero Tooltip Formatting Bugs] — Leg 1
-User-flagged 2026-09-16, in-app screenshots: 2 display bugs on the relic wired in the leg above.
-1. The relic's own equipment tooltip shows the literal text "effect" instead of "Superspeed" for its
-   proc line. Root cause: `formatFactLine` (`relic-effects-format.ts:14`) falls back to
-   `fact.params.alt ?? fact.label` when there's no `desc=` — every other `effect`-shaped relic fact
-   has an `alt=`/`desc=` from the wiki to supply a real name, but Tyrian Hero's wiki fact
-   (`{{skill fact|effect|superspeed|2.5}}`) has neither, so it falls through to the literal label
-   string `"effect"`. Needs a fallback to `fact.values[0]` (the actual effect name) instead.
-2. The Superspeed breakdown tooltip (hover the Superspeed icon in the build editor's boon/condition
-   panel) renders Tyrian Hero's row with overlapping/garbled text ("Up2s55" instead of "Up to 5" +
-   "2.5s (on Shout or Command skill use)"). Root cause: `NamedFactSource.targetCount`
-   (`sources.ts:5516`) is documented as "only actually populated for matcher names present in
-   `NAMED_FACT_TARGET_COUNT_TABLES` (currently just Cleanse) — null for every other name" — but
-   `computeRelicNamedFactSources` (`sources.ts:6086`) doesn't respect that invariant: it always reads
-   the relic's own `targets` fact regardless of `entry.name`, so Tyrian Hero's Superspeed row is the
-   first non-Cleanse named fact to ever carry a non-null `targetCount`. The renderer/CSS
-   (`BoonConditionSummaryPanel.tsx`'s `namedFactIconItemsFor`) was never exercised with both a
-   `targetCount` badge and a long `detail` string on the same line, which is what's overlapping.
-   Fix needs a decision: either gate `computeRelicNamedFactSources`'s targetCount the same way the
-   skill/trait pipeline does (drop it for non-Cleanse names, simplest, matches the documented
-   invariant), or fix the layout to handle both fields together (needed anyway if a future relic hits
-   the same shape).
+### [Tyrian Hero Superspeed Breakdown Tooltip Overlap] — Leg 1
+User-flagged 2026-09-16, in-app screenshot. The Superspeed breakdown tooltip (hover the Superspeed
+icon in the build editor's boon/condition panel) renders Tyrian Hero's row with overlapping/garbled
+text ("Up2s55" instead of "Up to 5" + "2.5s (on Shout or Command skill use)"). Root cause:
+`NamedFactSource.targetCount` (`sources.ts:5516`) is documented as "only actually populated for
+matcher names present in `NAMED_FACT_TARGET_COUNT_TABLES` (currently just Cleanse) — null for every
+other name" — but `computeRelicNamedFactSources` (`sources.ts:6086`) doesn't respect that
+invariant: it always reads the relic's own `targets` fact regardless of `entry.name`, so Tyrian
+Hero's Superspeed row is the first non-Cleanse named fact to ever carry a non-null `targetCount`.
+The renderer/CSS (`BoonConditionSummaryPanel.tsx`'s `namedFactIconItemsFor`) was never exercised
+with both a `targetCount` badge and a long `detail` string on the same line, which is what's
+overlapping. Fix needs a decision: either gate `computeRelicNamedFactSources`'s targetCount the
+same way the skill/trait pipeline does (drop it for non-Cleanse names, simplest, matches the
+documented invariant), or fix the layout to handle both fields together (needed anyway if a future
+relic hits the same shape).
 Last touched: 2026-09-16. Re-checks: 0.
 
 ## Unscheduled
