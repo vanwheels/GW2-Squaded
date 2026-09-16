@@ -3,6 +3,21 @@
 Entries are added as work lands, most recent first. Everything before the v1.0.0 release
 (2026-08-15) is archived in `COMPLETED-archive-pre-1.0.md`.
 
+### Tyrian Hero Superspeed Breakdown Tooltip Overlap, Leg 1: fix the layout, not the data — 2026-09-16
+User-flagged overlapping/garbled text ("Up2s55" instead of "Up to 5" + "2.5s (on Shout or Command
+skill use)") in the Superspeed breakdown tooltip. Root cause was a real CSS bug, not a data bug: a
+long free-text `detail` string forces `.tooltip-fact-label` to shrink/wrap, and once it wraps to 2
+lines, the sibling `.boon-source-duration`'s `align-items: center` vertically centers it into the
+wrapped second line instead of staying beside the first — the collision reads as garbled fused
+text. Investigating TODO.md's proposed alternative fix (gate `computeRelicNamedFactSources`'s
+`targetCount` back to null for non-Cleanse names) turned up that `NAMED_FACT_TARGET_COUNT_TABLES`
+was expanded past Cleanse-only in an earlier sweep (Stealth/Superspeed/Breaks Stun/Barrier all have
+real curated tables now, see `sources.ts:5977`) — that fix would have silently broken the
+Party-wide-only filter for this and future relics, since `filterPartyWideGroups` depends on a
+non-null `targetCount`. Fixed with `flex-wrap: wrap` + `margin-left: auto` on
+`.tooltip-boon-facts li`/`.boon-source-duration` instead, so a long detail line drops to its own
+row below the label rather than fighting it for the same line. See commit `<pending>`.
+
 ### New Relic Coefficient Curation, Leg 3: all 4 wiki-less relics curated from in-game data — 2026-09-16
 Closes the leg: Lantern, Last Tyrant, Eternal Alchemy, and Visionary all curated via a new `synthetic-relic-effects.json` overlay (a `synthetic-facts.json`-shaped overlay for relics with no wiki page at all), from the user's own live WvW tooltip readings. Last Tyrant's damage coefficient (0.399) and Burning stack count (1), and Eternal Alchemy's healing base/coefficient (37 + 0.023), were derived/cross-checked from 2 differing-stat readings each rather than assumed; Visionary's flat-percentage buff needed only 1 reading. Also fixes `formatFactLine`'s "effect" fact fallback in two passes: first, falling back to `values[0]` instead of the literal word "effect" (closes Tyrian Hero Tooltip Formatting Bug #1, and one already-live bug on Relic of Shackles); second, stripping a self-referential "(effect)" wiki-anchor suffix and capitalizing only the first character, after the first pass's plain `titleCase()` turned 3 other relics' fallback text into "Relic Of Mount Balrior (Effect)"-style garbage instead of their real in-game buff names. New Relic Coefficient Curation is now fully closed — all 6 Sep 15 patch relics are curated or explicitly logged as future candidates. See commits `8920366` (Lantern), `1b27dd0` (Last Tyrant), `cbed8e7` (Eternal Alchemy), `c8138a2` (Visionary + suffix fix).
 

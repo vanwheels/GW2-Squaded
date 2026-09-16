@@ -10,25 +10,6 @@ implemented and released. Everything below is post-1.0 polish and open curation 
 
 ## Current Milestone: Sep 15, 2026 patch + fixes
 
-### [Tyrian Hero Superspeed Breakdown Tooltip Overlap] — Leg 1
-User-flagged 2026-09-16, in-app screenshot. The Superspeed breakdown tooltip (hover the Superspeed
-icon in the build editor's boon/condition panel) renders Tyrian Hero's row with overlapping/garbled
-text ("Up2s55" instead of "Up to 5" + "2.5s (on Shout or Command skill use)"). Root cause:
-`NamedFactSource.targetCount` (`sources.ts:5516`) is documented as "only actually populated for
-matcher names present in `NAMED_FACT_TARGET_COUNT_TABLES` (currently just Cleanse) — null for every
-other name" — but `computeRelicNamedFactSources` (`sources.ts:6086`) doesn't respect that
-invariant: it always reads the relic's own `targets` fact regardless of `entry.name`, so Tyrian
-Hero's Superspeed row is the first non-Cleanse named fact to ever carry a non-null `targetCount`.
-The renderer/CSS (`BoonConditionSummaryPanel.tsx`'s `namedFactIconItemsFor`) was never exercised
-with both a `targetCount` badge and a long `detail` string on the same line, which is what's
-overlapping. Fix needs a decision: either gate `computeRelicNamedFactSources`'s targetCount the
-same way the skill/trait pipeline does (drop it for non-Cleanse names, simplest, matches the
-documented invariant), or fix the layout to handle both fields together (needed anyway if a future
-relic hits the same shape).
-Last touched: 2026-09-16. Re-checks: 0.
-
-## Unscheduled
-
 ### [In-Game Coefficient Verification Queue] — Leg 4
 User is working through live in-game tooltip screenshots to resolve wiki/API coefficient
 mismatches on `CURATED_HEALING_COEFFICIENTS`/`CURATED_SIPHON_DAMAGE_COEFFICIENTS`, one at a time.
@@ -36,7 +17,9 @@ Queued next: Thief 72991 (Shadow Veil, Spear) and Thief 13113 (Black Powder); Th
 (Vampiric Slash) was added 2026-08-29 as a strong pattern-match candidate. Full per-skill history
 and the resolution method: `docs/investigations/coefficient-verification-queue.md`.
 Blocked: waiting on the user's next live in-game screenshot(s) for the queued skills.
-Last touched: 2026-08-29. Re-checks: 1.
+Last touched: 2026-09-16. Re-checks: 1.
+
+## Unscheduled
 
 ### [Cosmic Wisdom Assassin-form Baseline Correction] — Leg 1
 `boon-calc/sources.ts`'s Cosmic Wisdom Assassin-form entry (`baseValue: 1028`) likely uses the

@@ -2326,15 +2326,24 @@ input[type='text'] {
 
 .tooltip-boon-facts li {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 2px 8px;
   color: var(--text);
 }
 
+/* `margin-left: auto` (not just the row's own `justify-content: space-between`) keeps this
+   right-aligned even when a long `detail` string (e.g. a relic's free-text trigger sentence, see
+   `NamedFactSource.detail`'s doc comment) forces `.tooltip-fact-label` to claim the whole first
+   line and this wraps onto its own second line below — `space-between` alone only positions it
+   against a sibling sharing its line, and centers it (via the row's `align-items: center`)
+   against the wrong sibling once the two are on separate flex lines, which is what produced the
+   overlapping "Up2s55"-style garbled text TODO.md's Tyrian Hero bug report described. */
 .tooltip-boon-facts .boon-source-duration {
   color: var(--muted);
   flex: none;
+  margin-left: auto;
 }
 
 /* Wraps .boon-source-duration plus the optional .boon-source-condition-damage line beneath it —
