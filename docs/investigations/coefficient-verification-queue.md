@@ -22,14 +22,6 @@ mismatch before queuing a skill for live verification.
 Empty as of 2026-09-16 — Shadow Veil, Black Powder, and Vampiric Slash (the last 3 queued skills)
 are all resolved; see "Resolved precedent" below. No new candidates queued yet.
 
-## Flagged, not yet fixed
-
-- **Cosmic Wisdom Assassin-form entry** (`boon-calc/sources.ts`, `baseValue: 1028`) — taken from
-  this skill's own wiki-quoted *PvE* number. Given the base-1000-Power pattern confirmed on 6 other
-  Siphon Damage skills, this is likely inflated the same way and should probably read 968 (the PvE
-  API value) instead. Not changed yet — Cosmic Wisdom's own mode/formula wasn't directly tested,
-  only inferred by pattern from unrelated skills. Flagged 2026-08-23 for a follow-up pass.
-
 ## Known Exceptions — investigated, needs a user decision
 
 - **Necromancer 69302 (Life Siphon)** — wiki documents coefficients 0.082 PvE / 0.036 WvW+PvP,
@@ -75,3 +67,11 @@ in-game readings and/or wiki `split=`/resource-field disambiguation) and are alr
 `healing-calc.ts` / `siphon-damage-calc.ts`. See COMPLETED.md for the per-skill sessions
 and the `healing_damage_coefficient_curation` / `siphon_damage_sweep_2026-08-20` /
 `coefficient_curation_leftovers_sweep_2026-08-22` memories for the fuller narrative.
+
+Cosmic Wisdom's own Assassin-form Life Siphon Damage entry (`boon-calc/sources.ts`, id 78971 — no
+API resolution at all) is a related but distinct case: RESOLVED 2026-09-16 via 2 live in-game WvW
+readings (2,704 Power -> 1072 damage; 2,304 Power -> 1049 damage), but NOT via the base-1000-Power
+pattern above — the pattern-based guess (968, this skill's own PvE base) was directly tested and
+rejected outright (predicted slopes didn't match, unlike every other skill on this list). The
+readings solved instead to `baseValue: 917`/`coefficient: 0.0575` — see `siphon-damage-calc.ts`'s
+top comment and `sources.ts`'s own comment on the entry for the full derivation.

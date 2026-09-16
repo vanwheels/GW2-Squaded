@@ -4051,10 +4051,22 @@ interface LegendFormEffectDetail {
  * `LEGEND_FORM_FACT_SKILL_IDS`' skill id -> `Legend.name` -> the real damage/healing detail(s) to
  * append to that legend's row (see `LegendFormEffectDetail`'s own doc comment for why these can't
  * go through the normal curated-coefficient tables). Every entry wiki-verified 2026-08-20 via each
- * effect's own separate wiki page (its own `{{skill fact}}` templates, not paraphrased from prose):
- * - Assassin — [[Lesser Enchanted Daggers]] (id 78971, no split: "identical across PvE, WvW, and
- *   PvP as of 20 Dec 2025"). Both halves share this app's WvW-focused convention trivially since
- *   there's nothing to pick between.
+ * effect's own separate wiki page (its own `{{skill fact}}` templates, not paraphrased from prose),
+ * except where noted below:
+ * - Assassin — [[Lesser Enchanted Daggers]] (id 78971, no API resolution at all, so no fallback
+ *   base to infer from by pattern). Life Siphon Damage's `baseValue: 913`/`coefficient: 0.0575`
+ *   RESOLVED 2026-09-16 via 2 live in-game WvW readings, replacing the wiki's inflated PvE-quoted
+ *   `1028`/`0.06`. Raw readings were taken pre-Cosmic-Wisdom-activation (2,704 Power -> 1072
+ *   damage; 2,304 Power -> 1049 damage) but corrected +75 Power each before solving: Bolstered
+ *   Bonds (trait) doubles its own per-legend attribute bonus while Cosmic Wisdom's buff window is
+ *   up (see `gear-calc/combat-state.ts`'s own comment on this same mechanic), and Life Siphon
+ *   Damage can only fire during that same window, so the true in-combat Power for both readings was
+ *   2,779/2,379, not the pre-activation 2,704/2,304. The exact two-point slope (23/400 = 0.0575)
+ *   lands base 913 just under the next integer for both corrected readings (1072.79/1049.79,
+ *   consistent with GW2's floor-truncated damage display), while the earlier "probably 968, same
+ *   `+coefficient*1000` pattern as 6 other Siphon Damage skills" guess (see
+ *   `siphon-damage-calc.ts`'s top comment) turned out wrong — neither hypothesis was close. Siphon
+ *   Healing's `baseValue: 768`/`coefficient: 0.2` is unaffected, still wiki-verified only.
  * - Warrior — [[Dwarven Retribution]] (id 77920): genuine 3-way pve(1.1)/wvw(0.44)/pvp(0.54) split,
  *   WvW value used.
  * - Dervish — [[Form of the Dervish (Attack)]] (id 76818): pve(0.8)/wvw+pvp(0.525) split, WvW value
@@ -4066,7 +4078,7 @@ interface LegendFormEffectDetail {
 const LEGEND_FORM_EFFECT_DETAILS: Record<number, Record<string, LegendFormEffectDetail[]>> = {
   77371: {
     'Legendary Assassin Stance': [
-      { label: 'Life Siphon Damage', kind: 'siphonDamage', baseValue: 1028, coefficient: 0.06 },
+      { label: 'Life Siphon Damage', kind: 'siphonDamage', baseValue: 913, coefficient: 0.0575 },
       { label: 'Siphon Healing', kind: 'healing', baseValue: 768, coefficient: 0.2 }
     ],
     'Legendary Dwarf Stance': [{ label: 'Damage', kind: 'damage', coefficient: 0.44 }],

@@ -75,12 +75,19 @@ export interface SiphonDamageCoefficient {
  * 868.7 -> rounds to 869 — both exact matches), confirming the WvW-mode API value (808) is correct
  * and the wiki's 858 was the stale/wrong side of the `+coefficient*1000` coincidence, not the API.
  * The same in-game pass also confirmed this skill's `Initial Heal`/`Siphon Healing` facts (see
- * `CURATED_HEALING_COEFFICIENTS`'s own comment on this skill) — worth revisiting
- * `boon-calc/sources.ts`'s `LEGEND_FORM_EFFECT_DETAILS` Assassin-form entry (`baseValue: 1028`,
- * the WIKI's quoted PvE number) in light of this: if Enchanted Daggers' own PvE fact (968) follows
- * the same "API is correct, wiki added a spurious +1000*coefficient" pattern this WvW reading just
- * confirmed, that entry is likely inflated and should probably read 968 instead — not changed here
- * since Cosmic Wisdom's own formula/mode wasn't part of this verification pass.
+ * `CURATED_HEALING_COEFFICIENTS`'s own comment on this skill).
+ *
+ * **Cosmic Wisdom Assassin-form's own Life Siphon Damage — RESOLVED 2026-09-16**, but NOT via the
+ * pattern above. `boon-calc/sources.ts`'s `LEGEND_FORM_EFFECT_DETAILS` Assassin-form entry
+ * (formerly `baseValue: 1028`, the wiki's quoted PvE number) turned out not to follow the "API base
+ * is correct, wiki added a spurious +1000*coefficient" pattern at all — the guessed replacement
+ * (968, this skill's own PvE base) was directly tested against 2 live in-game WvW readings and
+ * rejected (predicted slopes of ~0.038 and ~0.035 don't match — not remotely close, unlike every
+ * other skill this pattern resolved). The readings solved instead to `baseValue: 913`/
+ * `coefficient: 0.0575`, unrelated to either the wiki number or the pattern-based guess (note: the
+ * raw readings needed a +75 Power correction each for Bolstered Bonds' Cosmic-Wisdom-only doubling
+ * before solving — see `boon-calc/sources.ts`'s own comment on this entry for the full two-point
+ * derivation).
  *
  * **Vampiric Slash (Thief, id 73063) — RESOLVED 2026-09-16.** Despite the similar flavor text, a
  * different skill from the Necromancer/Reaper "Death Spiral" resolved above; still carried its own
