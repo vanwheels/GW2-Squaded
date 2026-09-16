@@ -16,5 +16,11 @@
       { "label": "radius", "values": ["240"], "params": {} }
     ],
     "rechargeSeconds": 12
+  },
+  "109980": {
+    "facts": [
+      { "label": "healing", "values": ["37"], "params": { "coefficient": "0.023" } }
+    ],
+    "rechargeSeconds": null
   }
 }

@@ -74,3 +74,22 @@ describe('synthetic-relic-effects.json — Relic of the Last Tyrant (109942)', (
     expect(text).toContain('Recharge: 12s')
   })
 })
+
+/**
+ * Coefficient derived from 2 live WvW tooltip readings (2026-09-16): Healing Power 0 -> Heal 37,
+ * Healing Power 1348 -> Heal 68. base = 37 (the 0-Healing-Power reading directly), coefficient =
+ * (68 - 37) / 1348 = 0.023 (1348 * 0.023 = 31.0, + 37 = 68, exact match). User confirmed no ICD
+ * badge shown in either tooltip — fires on every self-boon grant, no internal cooldown.
+ */
+describe('synthetic-relic-effects.json — Relic of the Eternal Alchemy (109980)', () => {
+  it('is absent from the generated relic-effects.json (no wiki page yet)', () => {
+    expect(relicEffects[109980]).toBeUndefined()
+  })
+
+  it('formats into a correct WvW tooltip line via formatRelicDescription, with no Recharge line', () => {
+    const relic = { id: 109980, name: 'Relic of the Eternal Alchemy', icon: 'icon.png', description: 'Heal when you grant yourself a boon.' }
+    const text = formatRelicDescription(relic, mergedRelicEffects[109980])
+    expect(text).toContain('Healing: 37')
+    expect(text).not.toContain('Recharge:')
+  })
+})
