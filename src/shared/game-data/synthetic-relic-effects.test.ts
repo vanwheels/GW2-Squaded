@@ -41,3 +41,36 @@ describe('synthetic-relic-effects.json — Relic of the Lantern (109936)', () =>
     expect(text).not.toContain('effect (')
   })
 })
+
+/**
+ * Coefficient derived from 2 live WvW tooltip readings (2026-09-16): Power 2696/CondiDmg 0 ->
+ * Damage 1075, Power 2629/CondiDmg 54 -> Damage 1049. Assuming the game's usual
+ * `Math.floor(coefficient * Power)` rounding, both readings bound `coefficient` to
+ * [0.398991, 0.399109) — 0.399 sits inside that tight interval. The Burning half was corroborated
+ * independently against `CONDITION_DAMAGE_FORMULAS.Burning` (131 + 0.155*CondiDmg per stack per
+ * second, already curated): 1 stack for 8s at 0 CondiDmg gives 131*8 = 1048 (exact match), and at
+ * 54 CondiDmg / 30 Expertise (2.00% condition duration -> 8.16s true duration, displayed rounded to
+ * the nearest quarter-second as "8¼s") gives (131 + 0.155*54)*8.16 = 1137.5 (matches the observed
+ * 1137) — strong confirmation this relic's explosion applies exactly 1 stack of Burning, not more.
+ */
+describe('synthetic-relic-effects.json — Relic of the Last Tyrant (109942)', () => {
+  it('is absent from the generated relic-effects.json (no wiki page yet)', () => {
+    expect(relicEffects[109942]).toBeUndefined()
+  })
+
+  it('formats into correct WvW tooltip lines via formatRelicDescription', () => {
+    const relic = {
+      id: 109942,
+      name: 'Relic of the Last Tyrant',
+      icon: 'icon.png',
+      description: "Gain stacks of Tyrant's Fury when you inflict burning on a foe. After reaching the maximum number of stacks, the next time you inflict burning causes an explosion that burns nearby foes."
+    }
+    const text = formatRelicDescription(relic, mergedRelicEffects[109942])
+    expect(text).toContain('Damage (coefficient 0.399)')
+    expect(text).toContain('Burning: 8')
+    expect(text).toContain('Maximum Stacks: 5')
+    expect(text).toContain('Targets: 5')
+    expect(text).toContain('Radius: 240')
+    expect(text).toContain('Recharge: 12s')
+  })
+})

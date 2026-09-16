@@ -6,5 +6,15 @@
       { "label": "radius", "values": ["600"], "params": {} }
     ],
     "rechargeSeconds": 20
+  },
+  "109942": {
+    "facts": [
+      { "label": "damage", "values": [], "params": { "weapon": "unequipped", "coefficient": "0.399" } },
+      { "label": "burning", "values": ["8"], "params": {} },
+      { "label": "Maximum Stacks", "values": ["5"], "params": {} },
+      { "label": "targets", "values": ["5"], "params": {} },
+      { "label": "radius", "values": ["240"], "params": {} }
+    ],
+    "rechargeSeconds": 12
   }
 }
