@@ -25,7 +25,9 @@ comment), Maximum Stacks 5, 5 targets, 240 radius, 12s ICD. Not wired into
 `RELIC_TRIGGER_GATES`/`RELIC_NAMED_FACT_SOURCES` — its explosion trigger (5 stacks of Tyrant's Fury
 from the player's own other burning applications) is a conditional, rotation-dependent trigger with
 no fixed frequency, same non-deterministic-trigger exclusion class documented on `RelicEffect`
-elsewhere. Still needed: Eternal Alchemy, Visionary.
+elsewhere. Eternal Alchemy (109980) is done: Healing base 37 + 0.023 Healing Power coefficient
+(derived from 2 Healing Power readings, exact match), no ICD (user-confirmed, fires on every
+self-boon grant). Still needed: Visionary.
 Last touched: 2026-09-16. Re-checks: 0.
 
 ### [Tyrian Hero Superspeed Breakdown Tooltip Overlap] — Leg 1
