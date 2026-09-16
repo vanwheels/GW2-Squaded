@@ -3,6 +3,10 @@
 Entries are added as work lands, most recent first. Everything before the v1.0.0 release
 (2026-08-15) is archived in `COMPLETED-archive-pre-1.0.md`.
 
+### In-Game Coefficient Verification Queue, Leg 4: Thief Shadow Veil (72991) resolved — 2026-09-16
+Two live in-game readings resolved the skill's duplicate-factText "Healing" fact ambiguity, landing
+exactly on the wiki's documented base 1290 / coefficient 0.5. See commit `d0820bd`.
+
 ### Tyrian Hero Superspeed Breakdown Tooltip Overlap, Leg 1: fix the layout, not the data — 2026-09-16
 User-flagged overlapping/garbled text ("Up2s55" instead of "Up to 5" + "2.5s (on Shout or Command
 skill use)") in the Superspeed breakdown tooltip. Root cause was a real CSS bug, not a data bug: a
