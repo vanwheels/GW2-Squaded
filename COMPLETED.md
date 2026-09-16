@@ -3,8 +3,8 @@
 Entries are added as work lands, most recent first. Everything before the v1.0.0 release
 (2026-08-15) is archived in `COMPLETED-archive-pre-1.0.md`.
 
-### New Relic Coefficient Curation, Leg 3: Lantern curated from in-game data — 2026-09-16
-Adds `synthetic-relic-effects.json` (a `synthetic-facts.json`-shaped overlay for relics with no wiki page at all) and curates Relic of the Lantern from the user's own live WvW tooltip reading. Also fixes `formatFactLine`'s "effect" fact fallback, which was silently showing the literal word "effect" instead of the real effect name for any `effect`-shaped fact with no `alt=`/`desc=` — closes Tyrian Hero Tooltip Formatting Bug #1 and one already-live bug on Relic of Shackles as a side effect. See commit `8920366`.
+### New Relic Coefficient Curation, Leg 3: Lantern + Last Tyrant curated from in-game data — 2026-09-16
+Adds `synthetic-relic-effects.json` (a `synthetic-facts.json`-shaped overlay for relics with no wiki page at all) and curates Relic of the Lantern and Relic of the Last Tyrant from the user's own live WvW tooltip readings. Also fixes `formatFactLine`'s "effect" fact fallback, which was silently showing the literal word "effect" instead of the real effect name for any `effect`-shaped fact with no `alt=`/`desc=` — closes Tyrian Hero Tooltip Formatting Bug #1 and one already-live bug on Relic of Shackles as a side effect. Last Tyrant's damage coefficient (0.399) and Burning stack count (1) were both derived/cross-checked from 2 differing-stat readings rather than assumed. See commits `8920366` (Lantern) and `1b27dd0` (Last Tyrant).
 
 ### New Relic Coefficient Curation, Leg 1: Tyrian Hero wired, Curator logged — 2026-09-16
 Wires Relic of the Tyrian Hero (Might + Swiftness + Superspeed), adding a `skillIds` escape hatch to `RelicTriggerGate` for the 12 Ranger/Warrior-Paragon Command skills the API doesn't tag via `Skill.categories`. Relic of the Curator's Protection-effectiveness bonus logged as a future-stat-family candidate per user direction, not built. See commit `e1284ae`.
