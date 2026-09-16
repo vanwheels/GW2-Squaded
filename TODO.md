@@ -8,16 +8,6 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Current Milestone: Sep 15, 2026 patch + fixes
-
-Scoped 2026-09-16 (commit `1706bd9`) around the Sep 15 patch's 6 new relics plus the in-game
-coefficient-verification work already underway. Prior legs (New Relic Coefficient Curation,
-In-Game Coefficient Verification Queue Leg 4, Healing/Damage Coefficient Tables Visual Spot-Check,
-Necromancer Life Siphon Coefficient Investigation) all closed out; see COMPLETED.md. No open legs
-scheduled under this milestone right now — next one gets its own heading here when scoped. Milestone
-stays current until explicitly shipped to MILESTONES.md — don't open a new milestone heading for
-adjacent coefficient/tooltip fixes without checking here first.
-
 ## Unscheduled
 
 ### [Discord Bot Profession-Scoped Game-Data Fetch] — Leg 1 (nice-to-have, deprioritized)
