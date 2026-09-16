@@ -642,17 +642,8 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Spiral) is now RESOLVED too (2026-08-23)** — its wiki-stub `{{stub||missing siphon coefficients}}`
   // block turned out fully solvable via 2 live in-game WvW readings alone, no wiki involvement needed
   // (see this skill's own entry below, and `CURATED_SIPHON_DAMAGE_COEFFICIENTS`'s top comment for the
-  // sibling Life Siphon Damage fact this same pass also resolved); 3 remain open:
-  // - **Necromancer 69302 (Life Siphon)**: wiki documents coefficients (0.082 PvE / 0.036 WvW+PvP)
-  //   paired with base values (450 PvE / 300 WvW+PvP) that don't match this app's API-sourced values
-  //   (537 / 238) under either mode ordering — still unresolved despite 2 live WvW readings taken
-  //   2026-08-23 (Pulse Heal 238 -> 249 across Power 2,678 -> 2,786 with **Healing Power confirmed 0
-  //   in both**), because that pairing is the opposite of what this fact needs: with Healing Power
-  //   fixed at 0, its `target: 'Healing'` value should have stayed flat if the API's own labeling is
-  //   right, but it moved with Power instead — suggesting `Pulse Heal` may be another Barrier-style
-  //   API target mislabeling (genuinely Power-scaled, not Healing-Power-scaled) rather than confirming
-  //   either existing base. Left uncurated rather than guess the formula shape; a reading with
-  //   deliberately-varied Healing Power (Power held fixed) would settle it.
+  // sibling Life Siphon Damage fact this same pass also resolved). **Necromancer 69302 (Life Siphon)
+  // is now RESOLVED too (2026-09-16)** — see its own entry below; 1 remains open:
   // - **Ranger 31889 (Astral Wisp, Druid Staff, post-2026-07-15 rework)**: wiki's rewritten page gives
   //   one base value (1288) shared across all modes with only the coefficient split (0.6 pve/pvp vs 0.9
   //   wvw), but the API shows two duplicate-text facts both valued 322 — roughly a quarter of 1288,
@@ -808,6 +799,24 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // untraited baseline is curated here, same reasoning as Signet of Courage's traited variant below;
   // the trait bonus isn't reflected. WvW value of the untraited pair used.
   10557: [{ factText: 'Life Siphon Healing', baseValue: 55, coefficient: 0.08 }],
+  // Necromancer/Reaper — Life Siphon (dagger 2). RESOLVED 2026-09-16 — see this table's Weapon-slot
+  // intro comment above for the long-blocked history. The wiki's documented pairing (450 PvE/0.082,
+  // 300 WvW+PvP/0.036) never matched this app's API-sourced base values (537/238), and an earlier
+  // 2026-08-23 Power-varied/Healing-Power-pinned-0 reading pair (238 -> 249 across Power 2,678 ->
+  // 2,786) looked like it might be a Barrier-style Power-mislabeling instead. A fresh 2026-09-16 raw
+  // wikitext pull found no `scaling=power-only` marker on this fact (unlike genuine Power-scaled
+  // siphons, e.g. trait 1755) and the page's own Mechanics note explicitly denies true
+  // damage-derived lifesteal — both arguing against that theory. Settled directly via 2 live WvW
+  // readings with Power pinned at 1,810 and Healing Power varied instead (276 heal at 376 Healing
+  // Power, 334 heal at 957): solves cleanly to base 238 (exactly this app's own API-sourced WvW+PvP
+  // value, confirming `skills.json`'s value over the wiki's stale-looking 300) and coefficient 0.1
+  // (not the wiki's 0.036 — the wiki figure appears to predate an undocumented tuning pass). This
+  // does confirm the fact is genuinely Healing-Power-scaled after all; the 2026-08-23 Power-varied
+  // pair's apparent movement is left unexplained (most likely an unrecorded confound in that
+  // reading, e.g. Healing Power not actually pinned at exactly 0) but is superseded by this cleaner,
+  // internally-consistent pair. PvE base/coefficient remain unconfirmed (no live PvE reading) — not
+  // needed since this app always uses the WvW-correct value where a split exists.
+  69302: [{ factText: 'Pulse Heal', baseValue: 238, coefficient: 0.1 }],
   // Necromancer — Deadly Feast. No PvE/WvW split. factText fixed 2026-08-12 (found by the Tier 2
   // golden-snapshot build): live API labels this skill's fact plain "Healing", not "Life Siphon
   // Healing" like its Life-Siphon-family siblings — was silently never matching, value unchanged.

@@ -24,14 +24,8 @@ are all resolved; see "Resolved precedent" below. No new candidates queued yet.
 
 ## Known Exceptions — investigated, needs a user decision
 
-- **Necromancer 69302 (Life Siphon)** — wiki documents coefficients 0.082 PvE / 0.036 WvW+PvP,
-  paired with base values 450/300 that don't match this app's API-sourced values 537/238 under
-  either mode ordering. 2 live WvW readings taken 2026-08-23 didn't resolve it: Healing Power was
-  confirmed 0 in both, yet the displayed value still moved with Power — suggesting this may be
-  another Barrier-style API target mislabeling, genuinely Power-scaled rather than
-  Healing-Power-scaled. Re-checked twice (original discovery + the 2026-08-23 live-reading attempt)
-  with no resolution. **Needs a decision**: keep chasing with more live readings under a different
-  hypothesis, or accept it as permanently uncurated.
+Empty as of 2026-09-16 — Necromancer 69302 (Life Siphon), the last item here, is now resolved; see
+"Resolved precedent" below.
 
 ## Known Exceptions — investigated, permanently excluded (settled, don't re-investigate)
 
@@ -75,3 +69,20 @@ pattern above — the pattern-based guess (968, this skill's own PvE base) was d
 rejected outright (predicted slopes didn't match, unlike every other skill on this list). The
 readings solved instead to `baseValue: 917`/`coefficient: 0.0575` — see `siphon-damage-calc.ts`'s
 top comment and `sources.ts`'s own comment on the entry for the full derivation.
+
+**Necromancer 69302 (Life Siphon)** — RESOLVED 2026-09-16 after 3 prior re-checks (original
+discovery, the 2026-08-23 live-reading attempt, and a same-day fresh wikitext re-pull). The wiki
+documents 450 PvE/0.082 and 300 WvW+PvP/0.036, neither matching this app's API-sourced base values
+537/238; a 2026-08-23 reading pair (Power 2,678 -> 2,786, Healing Power pinned at 0) showed the
+heal moving 238 -> 249 anyway, suggesting a Barrier-style Power-mislabeling. The 2026-09-16 wikitext
+re-pull (revision 3178287, unchanged) argued against that theory instead — the Pulse Heal facts use
+the plain `{{skill fact|healing|...}}` template with no `scaling=power-only` marker (contrast
+Battle Scarred, trait 1755, which does carry that marker on its genuinely Power-scaled sibling
+fact), and the page's own Mechanics section explicitly denies true damage-derived lifesteal.
+Settled by a targeted follow-up reading instead of more reasoning: Power pinned at 1,810, Healing
+Power varied 376 -> 957, heal moved 276 -> 334 — solves cleanly to `baseValue: 238`/`coefficient:
+0.1` (238 exactly matches this app's own already-stored API base; 0.1 replaces the wiki's stale-
+looking 0.036). This confirms the fact genuinely is Healing-Power-scaled after all; the 2026-08-23
+Power-varied pair's movement is unexplained (most likely an unrecorded confound, e.g. Healing Power
+not actually pinned at 0) but is superseded by the cleaner, internally-consistent pair. See
+`healing-calc.ts`'s own entry (id 69302) for the full derivation notes.

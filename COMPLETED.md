@@ -3,6 +3,21 @@
 Entries are added as work lands, most recent first. Everything before the v1.0.0 release
 (2026-08-15) is archived in `COMPLETED-archive-pre-1.0.md`.
 
+### Necromancer Life Siphon Coefficient Investigation, Leg 1: resolved — 2026-09-16
+Necromancer 69302 (Life Siphon) had been stuck across 3 prior re-checks — wiki base/coefficient
+never matched the API's stored values, and a 2026-08-23 reading looked like a Barrier-style
+Power-mislabeling. A fresh wikitext pull found no `scaling=power-only` marker on the fact (arguing
+against that theory), then a targeted live reading with Power pinned and Healing Power varied
+(276 heal at 376 Healing Power, 334 heal at 957, both at 1,810 Power) solved cleanly to base 238 /
+coefficient 0.1 — confirming the fact is genuinely Healing-Power-scaled after all, just at a
+different coefficient than the wiki's stale-looking 0.036. See commit (pending).
+
+### Healing/Damage Coefficient Tables Visual Spot-Check, Leg 1 — 2026-09-16
+User manually verified 12 tooltips in the running Electron app spanning both
+`CURATED_HEALING_COEFFICIENTS` and `CURATED_DAMAGE_COEFFICIENTS` (PvE/WvW splits,
+`requiresTrait`-gated alternate facts, multi-fact skills, per-hit vs. totaled coefficients,
+kit/phantasm weapon-strength buckets) — all rendered correctly. No code changes needed.
+
 ### Cosmic Wisdom Assassin-form Life Siphon Damage baseline correction — 2026-09-16
 Two live in-game WvW readings (pre-Cosmic-Wisdom-activation Power, corrected +75 each for Bolstered
 Bonds' Cosmic-Wisdom-only doubling) solved to base 913 / coefficient 0.0575, replacing the wiki's

@@ -8006,6 +8006,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 6250,
     },
   ],
+  "69302": [
+    {
+      "label": "Pulse Heal",
+      "value": 388,
+    },
+  ],
   "71799": [
     {
       "label": "First-Hit Healing",

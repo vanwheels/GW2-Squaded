@@ -8,14 +8,17 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Unscheduled
+## Current Milestone: Sep 15, 2026 patch + fixes
 
-### [Healing/Damage Coefficient Tables Visual Spot-Check] — Leg 1
-Neither `CURATED_HEALING_COEFFICIENTS` nor `CURATED_DAMAGE_COEFFICIENTS` has been visually
-spot-checked in the running Electron app (sandbox limitation blocks screenshotting from this shell
-— see the `electron_sandbox_limitation` memory). Do this before extending either table further.
-Blocked: needs the user to manually verify in the running app; this shell can't screenshot Electron.
-Last touched: 2026-08-22. Re-checks: 0.
+Scoped 2026-09-16 (commit `1706bd9`) around the Sep 15 patch's 6 new relics plus the in-game
+coefficient-verification work already underway. Prior legs (New Relic Coefficient Curation,
+In-Game Coefficient Verification Queue Leg 4, Healing/Damage Coefficient Tables Visual Spot-Check,
+Necromancer Life Siphon Coefficient Investigation) all closed out; see COMPLETED.md. No open legs
+scheduled under this milestone right now — next one gets its own heading here when scoped. Milestone
+stays current until explicitly shipped to MILESTONES.md — don't open a new milestone heading for
+adjacent coefficient/tooltip fixes without checking here first.
+
+## Unscheduled
 
 ### [Discord Bot Profession-Scoped Game-Data Fetch] — Leg 1 (nice-to-have, deprioritized)
 A fresh browser session still re-fetches all 26 game-data JSON files (11MB) per render even though
@@ -34,11 +37,6 @@ Last touched: 2026-08-19. Re-checks: 0.
 Investigated and deliberately left open or excluded — don't re-investigate without new
 information. Full history: `docs/investigations/coefficient-verification-queue.md`.
 
-- **Necromancer 69302 (Life Siphon)** — re-checked 2026-08-23 with 2 live WvW readings; still
-  unresolved. Healing Power confirmed 0 in both readings, yet the displayed value moved with Power
-  — may be another Barrier-style API target mislabeling (genuinely Power-scaled, not
-  Healing-Power-scaled). **Needs a decision**: keep chasing with more live readings under a
-  different hypothesis, or accept the API value as-is and stop investigating.
 - Guardian 31295 (Sanctuary, underwater) — id doesn't exist on the wiki at all; underwater is out
   of scope for WvW anyway. Permanently uncurated.
 - Necromancer 10547 (Summon Blood Fiend), 10670 (2nd Well of Blood id) — non-scaling/stale-legacy
