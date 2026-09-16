@@ -2,6 +2,21 @@
 
 User-facing release notes. For the detailed development log, see `COMPLETED.md`.
 
+## 1.4.0 — 2026-09-16
+
+### Relics
+
+- 6 new relics from the Sep 15, 2026 game patch are now curated and reflected in build stats:
+  Tyrian Hero, Lantern, Last Tyrant, Eternal Alchemy, Visionary, and Curator's (partial —
+  Protection-effectiveness bonus not yet modeled).
+
+### Data accuracy
+
+- Fixed 2 tooltip formatting bugs on Relic of the Tyrian Hero (a literal "effect" string instead
+  of "Superspeed" name, and an overlapping Superspeed breakdown tooltip).
+- Corrected Shadow Veil, Black Powder, Vampiric Slash, and 2 Necromancer Life Siphon coefficients
+  from live in-game readings, closing out the in-game coefficient verification queue.
+
 ## 1.3.0 — 2026-09-10
 
 ### Build Templates
