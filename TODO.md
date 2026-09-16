@@ -8,7 +8,17 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-No milestone is currently scoped — everything below is unscheduled.
+## Current Milestone: Sep 15, 2026 patch + fixes
+
+### [New Relic Coefficient Curation] — Leg 1
+The Sep 15, 2026 patch added 6 new relics (Lantern, Last Tyrant, Eternal Alchemy, Tyrian Hero,
+Curator, Visionary) — collected via a live `fetch-gear-upgrades --refresh` + `fetch-relic-effects`
+run since the patch notes gave no names/ids (see commit `bd04db9`). Tyrian Hero and Curator already
+have wiki fact data in `relic-effects.json`; the other 4 are too new for the wiki. None of the 6 are
+wired into `boon-calc`'s proc/coefficient logic yet — needs the user's help establishing
+coefficients/verifying effects, same pattern as prior relic sweeps.
+Blocked: waiting on the user to help establish coefficients for the new relics.
+Last touched: 2026-09-16. Re-checks: 0.
 
 ## Unscheduled
 
