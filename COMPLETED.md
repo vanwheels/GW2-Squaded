@@ -3,6 +3,12 @@
 Entries are added as work lands, most recent first. Everything before the v1.0.0 release
 (2026-08-15) is archived in `COMPLETED-archive-pre-1.0.md`.
 
+### In-Game Coefficient Verification Queue, Leg 4: complete, queue empty — 2026-09-16
+Thief Vampiric Slash (73063) resolved via 2 live in-game readings (1410 damage at 1000 Power, 1498
+at 1439), solving exactly to base 1210 / coefficient 0.2 — confirming both the API base and the
+wiki coefficient. With this, Shadow Veil and Black Powder below, the queue that opened this leg is
+now empty; no candidates queued for the next session. See commit `6397c88`.
+
 ### In-Game Coefficient Verification Queue, Leg 4: Thief Black Powder (13113) resolved — 2026-09-16
 Two live in-game readings of the Assassin's Reward heal solved to base 907 / coefficient 0.51 (N=6),
 revealing the API's fact bakes a pre-cost-increase rate rather than the skill's current live N=7
