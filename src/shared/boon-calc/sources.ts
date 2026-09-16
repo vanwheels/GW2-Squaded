@@ -4738,8 +4738,24 @@ export function tomeChapterBoonSources(chapter: TomeChapter, durationPercent: { 
  * the Firebrand) is the one trigger shape genuinely absent from this type — its payload is a
  * duration-percent modifier, not a discrete boon/named-fact grant, so no `RelicTriggerGate` shape
  * would give it anywhere to go; see `RELIC_TRIGGER_GATES`'s doc comment for the full reasoning.
+ *
+ * `ability`'s optional `skillIds` extends the category match with explicit ids for skill types the
+ * GW2 API doesn't tag via `Skill.categories` at all — "Command" is the only case found so far
+ * (Relic of the Tyrian Hero, leg 1 of "New Relic Coefficient Curation," 2026-09-16): every Ranger/
+ * Warrior-Paragon Command skill's `categories` array is empty in `skills.json`, confirmed live
+ * against Ranger's 6 ("Guard!" 12632, "Protect Me!" 12631, "Sic 'Em!" 12633, "Search and Rescue!"
+ * 34309, "Strength of the Pack!" 12516, "We Heal As One!" 31914) and Paragon's 6 ("Brace
+ * Yourselves!" 76934, "Find Their Weakness!" 77040, "Never Surrender!" 76769, "On Your Knees!"
+ * 77114, "We Shall Return!" 76755, "We Will Never Yield!" 76562) — user-confirmed count, 12 total.
+ * (A 13th "Search and Rescue!" id, 30123, has an empty `professions` array — stale/legacy, excluded
+ * same as other orphan ids `RELIC_TRIGGER_GATES`'s sibling tables have hit before.)
  */
-type RelicTriggerGate = { kind: 'elite' } | { kind: 'heal' } | { kind: 'ability'; categories: string[] }
+type RelicTriggerGate = { kind: 'elite' } | { kind: 'heal' } | { kind: 'ability'; categories: string[]; skillIds?: number[] }
+
+const TYRIAN_HERO_COMMAND_SKILL_IDS = [
+  12632, 12631, 12633, 34309, 12516, 31914, // Ranger: Guard!, Protect Me!, Sic 'Em!, Search and Rescue!, Strength of the Pack!, We Heal As One!
+  76934, 77040, 76769, 77114, 76755, 76562 // Warrior Paragon: Brace Yourselves!, Find Their Weakness!, Never Surrender!, On Your Knees!, We Shall Return!, We Will Never Yield!
+]
 
 /**
  * Leg 2 of TODO.md's "Relic proc integration sweep": the curated subset of
@@ -4846,7 +4862,9 @@ const RELIC_TRIGGER_GATES: Record<number, RelicTriggerGate> = {
   100448: { kind: 'elite' }, // Relic of the Citadel — Stun, duration computed per citadelBuildStunDurationSeconds
   // Leg 7 (2026-08-16) — closes the sweep's last 2 open items (see this table's own doc comment):
   // Astral Ward wired after all, Firebrand permanently excluded (never added here).
-  100388: { kind: 'ability', categories: ['Signet'] } // Relic of the Astral Ward — Resistance (Cleanse in RELIC_NAMED_FACT_SOURCES)
+  100388: { kind: 'ability', categories: ['Signet'] }, // Relic of the Astral Ward — Resistance (Cleanse in RELIC_NAMED_FACT_SOURCES)
+  // Leg 1 of "New Relic Coefficient Curation" (2026-09-16, Sep 15 2026 patch's 6 new relics).
+  109998: { kind: 'ability', categories: ['Shout'], skillIds: TYRIAN_HERO_COMMAND_SKILL_IDS } // Relic of the Tyrian Hero — Might + Swiftness (Superspeed in RELIC_NAMED_FACT_SOURCES)
 }
 
 const ZEPHYRITE_RELIC_ID = 100893
@@ -4997,7 +5015,9 @@ function relicTriggerSatisfied(gate: RelicTriggerGate, build: Build, legends: Le
     if (gate.kind === 'elite') return build.skills.elite !== null
     if (gate.kind === 'heal') return build.skills.heal !== null
   }
-  return healUtilityEliteSkillIds(build, legends).some((id) => skillsById.get(id)?.categories.some((c) => gate.categories.includes(c)))
+  return healUtilityEliteSkillIds(build, legends).some(
+    (id) => skillsById.get(id)?.categories.some((c) => gate.categories.includes(c)) || (gate.skillIds?.includes(id) ?? false)
+  )
 }
 
 /**
@@ -6070,7 +6090,11 @@ export const RELIC_NAMED_FACT_SOURCES: Record<number, { name: string; detail: st
   100448: { name: 'Stun', detail: '1s–3s (on Elite skill use, 30s CD)' }, // Relic of the Citadel
   // Leg 7 (2026-08-16) — see this table's own doc comment for why Astral Ward moved out of the
   // deferred pile; Resistance (its other half) is wired via RELIC_TRIGGER_GATES instead.
-  100388: { name: 'Cleanse', detail: '2 conditions (on every 2nd Signet cast — spawns then consumes, no fixed CD)' } // Relic of the Astral Ward
+  100388: { name: 'Cleanse', detail: '2 conditions (on every 2nd Signet cast — spawns then consumes, no fixed CD)' }, // Relic of the Astral Ward
+  // Leg 1 of "New Relic Coefficient Curation" (2026-09-16) — Might + Swiftness (its other 2 facts)
+  // wired via RELIC_TRIGGER_GATES instead; relic-effects.json lists no rechargeSeconds, same "no CD
+  // listed" convention as Relic of the Trooper/Bava Nisos above.
+  109998: { name: 'Superspeed', detail: '2.5s (on Shout or Command skill use)' } // Relic of the Tyrian Hero
 }
 
 /** `RELIC_NAMED_FACT_SOURCES`' entry for the build's equipped relic, or `[]` when no relic is

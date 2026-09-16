@@ -79,3 +79,9 @@ the same shape for more traits/skills — not scheduled work.
   and the stacking half is arguably the trait's main value for real Herald builds, so it wasn't
   worth modeling only the lesser baseline half. No `CombatState` field tracks "count of active
   upkeep skills."
+- **Boon-effectiveness %** — Relic of the Curator (110009, Sep 15 2026 patch: "Protection on you
+  gains increased damage reduction," +20%). Distinct from every `CURATED_RELIC_*` family in
+  `combat-state.ts` (attribute/duration-%/crit-chance/damage/life-steal/outgoing-healing) — none of
+  those model "a boon's own effectiveness is multiplied," and there's no existing damage-reduction-%
+  `DerivedStats` field for it to feed. User-confirmed 2026-09-16 (TODO.md's "New Relic Coefficient
+  Curation" leg 1): log only, don't build dedicated infra for a single relic.
