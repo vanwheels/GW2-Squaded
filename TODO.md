@@ -25,6 +25,30 @@ Blocked: waiting on wiki data (or user in-game readings) for Lantern/Last Tyrant
 Alchemy/Visionary.
 Last touched: 2026-09-16. Re-checks: 0.
 
+### [Tyrian Hero Tooltip Formatting Bugs] — Leg 1
+User-flagged 2026-09-16, in-app screenshots: 2 display bugs on the relic wired in the leg above.
+1. The relic's own equipment tooltip shows the literal text "effect" instead of "Superspeed" for its
+   proc line. Root cause: `formatFactLine` (`relic-effects-format.ts:14`) falls back to
+   `fact.params.alt ?? fact.label` when there's no `desc=` — every other `effect`-shaped relic fact
+   has an `alt=`/`desc=` from the wiki to supply a real name, but Tyrian Hero's wiki fact
+   (`{{skill fact|effect|superspeed|2.5}}`) has neither, so it falls through to the literal label
+   string `"effect"`. Needs a fallback to `fact.values[0]` (the actual effect name) instead.
+2. The Superspeed breakdown tooltip (hover the Superspeed icon in the build editor's boon/condition
+   panel) renders Tyrian Hero's row with overlapping/garbled text ("Up2s55" instead of "Up to 5" +
+   "2.5s (on Shout or Command skill use)"). Root cause: `NamedFactSource.targetCount`
+   (`sources.ts:5516`) is documented as "only actually populated for matcher names present in
+   `NAMED_FACT_TARGET_COUNT_TABLES` (currently just Cleanse) — null for every other name" — but
+   `computeRelicNamedFactSources` (`sources.ts:6086`) doesn't respect that invariant: it always reads
+   the relic's own `targets` fact regardless of `entry.name`, so Tyrian Hero's Superspeed row is the
+   first non-Cleanse named fact to ever carry a non-null `targetCount`. The renderer/CSS
+   (`BoonConditionSummaryPanel.tsx`'s `namedFactIconItemsFor`) was never exercised with both a
+   `targetCount` badge and a long `detail` string on the same line, which is what's overlapping.
+   Fix needs a decision: either gate `computeRelicNamedFactSources`'s targetCount the same way the
+   skill/trait pipeline does (drop it for non-Cleanse names, simplest, matches the documented
+   invariant), or fix the layout to handle both fields together (needed anyway if a future relic hits
+   the same shape).
+Last touched: 2026-09-16. Re-checks: 0.
+
 ## Unscheduled
 
 ### [In-Game Coefficient Verification Queue] — Leg 4
