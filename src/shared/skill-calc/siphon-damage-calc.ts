@@ -82,19 +82,15 @@ export interface SiphonDamageCoefficient {
  * confirmed, that entry is likely inflated and should probably read 968 instead — not changed here
  * since Cosmic Wisdom's own formula/mode wasn't part of this verification pass.
  *
- * **1 stayed uncurated on an explicit wiki maintenance tag, re-checked 2026-08-29** — Vampiric Slash
- * (Thief, id 73063 — a different skill from the Necromancer/Reaper "Death Spiral" resolved above,
- * despite the similar flavor text) still carries its own stub tag (`{{stub|skill|Need better
- * calculation of base life siphon damage}}`). Fresh raw-wikitext pull confirms a single mode-agnostic
- * fact, `{{skill fact|life siphon damage|1410|coefficient=0.2}}`; this app's API exposes 2 identical
- * duplicates both reading 1210. 1210 + 0.2*1000 = 1410 EXACTLY — not an approximate match like
- * Enchanted Daggers' 10-point gap, a perfect instance of the same "wiki quotes the tooltip value at
- * base 1000 Power, API's raw `value` is the true 0-Power intercept" pattern that resolved all 6 other
- * siphon-damage mismatches on this list via live testing. Strong prior that base=1210/coefficient=0.2
- * (API base, wiki coefficient) is correct, but per this table's rigor bar (mirrors
- * `CURATED_HEALING_COEFFICIENTS`'s own conventions), a base/wiki conflict this table hasn't seen with
- * its own eyes doesn't get curated on pattern-matching alone — added to the in-game verification
- * queue (see the in-game-verification checklist memory) rather than curated here.
+ * **Vampiric Slash (Thief, id 73063) — RESOLVED 2026-09-16.** Despite the similar flavor text, a
+ * different skill from the Necromancer/Reaper "Death Spiral" resolved above; still carried its own
+ * wiki stub tag (`{{stub|skill|Need better calculation of base life siphon damage}}`) claiming
+ * `{{skill fact|life siphon damage|1410|coefficient=0.2}}` against this app's API base of 1210 (2
+ * identical duplicate facts, no ambiguity). 2 live in-game readings (1410 damage at 1000 Power, 1498
+ * at 1439) solve exactly to base=1210/coefficient=0.2 — confirming both the API's base and the
+ * wiki's coefficient, the same "wiki quotes the tooltip value at base 1000 Power, API's raw `value`
+ * is the true 0-Power intercept" pattern that resolved all 6 other siphon-damage mismatches on this
+ * list.
  *
  * **1 stayed uncurated as a different formula shape entirely, re-checked 2026-08-29** — Soul Grasp:
  * the wiki's own `{{skill fact|life siphon damage|weapon=focus|coefficient=...}}` template still has
@@ -162,7 +158,11 @@ export const CURATED_SIPHON_DAMAGE_COEFFICIENTS: Record<number, SiphonDamageCoef
   // Necromancer — Xinrae's Weapon (Ritualist Elite). PvE/WvW+PvP base-value split (PvE 1990 vs
   // WvW+PvP 1001, same 0.005 coefficient) — WvW value used; matches this skill's own already-curated
   // Siphon Healing facts exactly (same page, same split, same coefficient).
-  76941: [{ factText: 'Life Siphon Damage', baseValue: 1001, coefficient: 0.005 }]
+  76941: [{ factText: 'Life Siphon Damage', baseValue: 1001, coefficient: 0.005 }],
+  // Thief — Vampiric Slash (Spear 3). RESOLVED 2026-09-16 via 2 live in-game readings (1410 damage
+  // at 1000 Power, 1498 at 1439) — solves exactly to base 1210/coefficient 0.2, confirming both the
+  // API's own base value and the wiki's coefficient (see this file's top comment).
+  73063: [{ factText: 'Life Siphon Damage', baseValue: 1210, coefficient: 0.2 }]
 }
 
 export interface SiphonDamageLine {

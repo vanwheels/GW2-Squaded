@@ -8467,6 +8467,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1777,
     },
   ],
+  "73063": [
+    {
+      "label": "Life Siphon Damage",
+      "value": 1710,
+    },
+  ],
   "73108": [
     {
       "label": "Siphon Damage",

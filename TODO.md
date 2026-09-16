@@ -8,20 +8,6 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Current Milestone: Sep 15, 2026 patch + fixes
-
-### [In-Game Coefficient Verification Queue] — Leg 4
-User is working through live in-game tooltip screenshots to resolve wiki/API coefficient
-mismatches on `CURATED_HEALING_COEFFICIENTS`/`CURATED_SIPHON_DAMAGE_COEFFICIENTS`, one at a time.
-Thief 72991 (Shadow Veil, Spear) resolved 2026-09-16 (base 1290/coefficient 0.5, exact match).
-Thief 13113 (Black Powder) also resolved 2026-09-16 (Assassin's Reward heal: base 907/coefficient
-0.51, N=6 — bakes a pre-cost-increase rate, not the skill's current live N=7 initiative cost).
-Queued next: Thief 73063 (Vampiric Slash), added 2026-08-29 as a strong pattern-match candidate.
-Full per-skill history and the resolution method:
-`docs/investigations/coefficient-verification-queue.md`.
-Blocked: waiting on the user's next live in-game screenshot(s) for the queued skills.
-Last touched: 2026-09-16. Re-checks: 0.
-
 ## Unscheduled
 
 ### [Cosmic Wisdom Assassin-form Baseline Correction] — Leg 1
