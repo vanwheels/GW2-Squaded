@@ -3,6 +3,13 @@
 Entries are added as work lands, most recent first. Everything before the v1.0.0 release
 (2026-08-15) is archived in `COMPLETED-archive-pre-1.0.md`.
 
+### Cosmic Wisdom Assassin-form Life Siphon Damage baseline correction — 2026-09-16
+Two live in-game WvW readings (pre-Cosmic-Wisdom-activation Power, corrected +75 each for Bolstered
+Bonds' Cosmic-Wisdom-only doubling) solved to base 913 / coefficient 0.0575, replacing the wiki's
+inflated PvE-quoted 1028/0.06. The pattern-based guess flagged earlier (968, matching 6 other
+resolved Siphon Damage skills) was tested directly and rejected — this skill turned out not to
+follow that pattern at all. See commit `48464bf`.
+
 ### In-Game Coefficient Verification Queue, Leg 4: complete, queue empty — 2026-09-16
 Thief Vampiric Slash (73063) resolved via 2 live in-game readings (1410 damage at 1000 Power, 1498
 at 1439), solving exactly to base 1210 / coefficient 0.2 — confirming both the API base and the

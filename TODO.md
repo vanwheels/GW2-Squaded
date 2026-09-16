@@ -10,16 +10,6 @@ implemented and released. Everything below is post-1.0 polish and open curation 
 
 ## Unscheduled
 
-### [Cosmic Wisdom Assassin-form Baseline Correction] — Leg 1
-`boon-calc/sources.ts`'s Cosmic Wisdom Assassin-form entry (`baseValue: 1028`) likely uses the
-wiki's inflated PvE-quoted number rather than the true API PvE value (968), based on a pattern
-confirmed on 6 other Siphon Damage skills. Not changed yet — Cosmic Wisdom's own mode/formula
-wasn't directly tested, only inferred by pattern. Full reasoning:
-`docs/investigations/coefficient-verification-queue.md`.
-Blocked: needs a direct live in-game verification of Cosmic Wisdom's own formula, same as the
-In-Game Coefficient Verification Queue leg above.
-Last touched: 2026-08-23. Re-checks: 0.
-
 ### [Healing/Damage Coefficient Tables Visual Spot-Check] — Leg 1
 Neither `CURATED_HEALING_COEFFICIENTS` nor `CURATED_DAMAGE_COEFFICIENTS` has been visually
 spot-checked in the running Electron app (sandbox limitation blocks screenshotting from this shell
