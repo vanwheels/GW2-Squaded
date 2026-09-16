@@ -407,6 +407,11 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   ],
   // Thief — Malicious Restoration (Deadeye). No PvE/WvW split.
   45088: [{ factText: 'Healing', baseValue: 7200, coefficient: 0.7 }],
+  // Thief — Shadow Veil (Spear). RESOLVED 2026-09-16 via 2 live in-game readings (1494 heal at 408
+  // Healing Power, 1602 heal at 623) — solves exactly to base 1290 / coefficient 0.5, matching the
+  // wiki. See the top-of-file comment block for why this skill's duplicate-factText "Healing" fact
+  // (2570, unidentified) doesn't create a second tooltip line.
+  72991: [{ factText: 'Healing', baseValue: 1290, coefficient: 0.5 }],
   // Thief — Well of Gloom (Specter). Both facts have a PvE/WvW split (Self-Heal PvE 3560/1.0 vs WvW
   // 4454/1.0; Area Heal PvE 857/0.666 vs WvW 520/0.2) — WvW values used for both.
   63292: [
@@ -653,15 +658,12 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   //   wvw), but the API shows two duplicate-text facts both valued 322 — roughly a quarter of 1288,
   //   suggesting a pulse-count relationship neither source documents post-rework. Left uncurated rather
   //   than guessing which coefficient pairs with which quartering.
-  // - **Thief 72991 (Shadow Veil, Spear)**: two facts share the identical factText "Healing" (2570 and
-  //   1290) — the wiki still documents a coefficient for only one of them (1290 -> 0.5), and since
-  //   this table matches facts by factText alone, an entry here would bind to whichever fact
-  //   `Array.find` returns first (2570, listed first in both the API and this app's own facts array),
-  //   not reliably the one the coefficient was verified against. The wiki page declares `split = pve,
-  //   wvw pvp` but gives only one mode-agnostic skill fact template, so whether 2570 is the undocumented
-  //   PvE half of the same split or an unrelated quantity (e.g. a multi-block total, given "Additional
-  //   Blocks: 2" is also on this skill) still can't be determined. Left entirely uncurated rather than
-  //   risk mislabeling.
+  // - **Thief 72991 (Shadow Veil, Spear)** — RESOLVED 2026-09-16 via 2 live in-game readings (1494
+  //   heal at 408 Healing Power, 1602 heal at 623): solves exactly to base 1290 / coefficient 0.5,
+  //   matching the wiki's documented pairing. `skill-fact-lines.ts`'s per-label dedup means the
+  //   unrelated duplicate-factText fact (2570, still unidentified) never produces a second line
+  //   regardless of which physical fact object the lookup happens to match, so the ambiguity that
+  //   blocked curation here was moot — see this skill's own entry below.
   // Elementalist — Water Trident. Both facts keep the same base value across modes but the coefficient
   // splits (PvE 1.0/0.1 vs WvW 0.7/0.1) — WvW coefficients used.
   5510: [

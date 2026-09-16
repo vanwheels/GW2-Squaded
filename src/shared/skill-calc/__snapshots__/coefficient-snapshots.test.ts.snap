@@ -8148,6 +8148,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 490,
     },
   ],
+  "72991": [
+    {
+      "label": "Healing",
+      "value": 2040,
+    },
+  ],
   "73055": [
     {
       "label": "Healing",

@@ -19,13 +19,6 @@ mismatch before queuing a skill for live verification.
 
 ## Active queue (next up for live verification)
 
-- **Thief 72991 (Shadow Veil, Spear)** — two identical-factText Healing facts exist; only one
-  (1290) has a documented wiki coefficient (0.5). The other (2570) is undocumented and its
-  relationship to the first — a PvE/WvW split of the same quantity, or a genuinely different
-  quantity like a multi-block total — can't be determined from the wiki page alone, which declares
-  `split = pve, wvw pvp` but only gives one mode-agnostic skill fact template. The healing-coeff
-  table matches by factText alone, so curating the known half risks binding to the wrong fact.
-  Needs a live reading to disambiguate.
 - **Thief 13113 (Black Powder)** — only exposes its PvE/PvP-grouped initiative value; no
   live-API-sourced fact pairs with the wiki's explicit WvW-only cost (7). This is the Assassin's
   Reward (trait 1238) sweep's other leftover alongside Helmet Breaker (see Known Exceptions below).
@@ -83,8 +76,9 @@ mismatch before queuing a skill for live verification.
 Guardian 62669 (Repose), Engineer 63049 (Rectifier Signet/Mech Core: J-Drive), Revenant 26937
 (Enchanted Daggers' Initial Heal), Elementalist 72982 (Jökulhlaup), Necromancer 30860 (Death
 Spiral, both Healing and Damage facts), Locust Swarm, Signet of Vampirism (both facts), Nightmare
-Weapon, and 15 of 17 Assassin's Reward (trait 1238) candidates were all resolved via this same
-method (live in-game readings and/or wiki `split=`/resource-field disambiguation) and are already
-curated in `healing-calc.ts` / `siphon-damage-calc.ts`. See COMPLETED.md for the per-skill sessions
+Weapon, Thief 72991 (Shadow Veil), and 15 of 17 Assassin's Reward (trait 1238) candidates were all
+resolved via this same method (live in-game readings and/or wiki `split=`/resource-field
+disambiguation) and are already curated in `healing-calc.ts` / `siphon-damage-calc.ts`. See
+COMPLETED.md for the per-skill sessions
 and the `healing_damage_coefficient_curation` / `siphon_damage_sweep_2026-08-20` /
 `coefficient_curation_leftovers_sweep_2026-08-22` memories for the fuller narrative.

@@ -13,11 +13,12 @@ implemented and released. Everything below is post-1.0 polish and open curation 
 ### [In-Game Coefficient Verification Queue] — Leg 4
 User is working through live in-game tooltip screenshots to resolve wiki/API coefficient
 mismatches on `CURATED_HEALING_COEFFICIENTS`/`CURATED_SIPHON_DAMAGE_COEFFICIENTS`, one at a time.
-Queued next: Thief 72991 (Shadow Veil, Spear) and Thief 13113 (Black Powder); Thief 73063
-(Vampiric Slash) was added 2026-08-29 as a strong pattern-match candidate. Full per-skill history
-and the resolution method: `docs/investigations/coefficient-verification-queue.md`.
+Thief 72991 (Shadow Veil, Spear) resolved 2026-09-16 (base 1290/coefficient 0.5, exact match).
+Queued next: Thief 13113 (Black Powder); Thief 73063 (Vampiric Slash) was added 2026-08-29 as a
+strong pattern-match candidate. Full per-skill history and the resolution method:
+`docs/investigations/coefficient-verification-queue.md`.
 Blocked: waiting on the user's next live in-game screenshot(s) for the queued skills.
-Last touched: 2026-09-16. Re-checks: 1.
+Last touched: 2026-09-16. Re-checks: 0.
 
 ## Unscheduled
 
