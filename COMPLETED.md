@@ -10,7 +10,7 @@ Power-mislabeling. A fresh wikitext pull found no `scaling=power-only` marker on
 against that theory), then a targeted live reading with Power pinned and Healing Power varied
 (276 heal at 376 Healing Power, 334 heal at 957, both at 1,810 Power) solved cleanly to base 238 /
 coefficient 0.1 — confirming the fact is genuinely Healing-Power-scaled after all, just at a
-different coefficient than the wiki's stale-looking 0.036. See commit (pending).
+different coefficient than the wiki's stale-looking 0.036. See commit `eba503c`.
 
 ### Healing/Damage Coefficient Tables Visual Spot-Check, Leg 1 — 2026-09-16
 User manually verified 12 tooltips in the running Electron app spanning both
