@@ -3,6 +3,9 @@
 Entries are added as work lands, most recent first. Everything before the v1.0.0 release
 (2026-08-15) is archived in `COMPLETED-archive-pre-1.0.md`.
 
+### New Relic Coefficient Curation, Leg 1: Tyrian Hero wired, Curator logged — 2026-09-16
+Wires Relic of the Tyrian Hero (Might + Swiftness + Superspeed), adding a `skillIds` escape hatch to `RelicTriggerGate` for the 12 Ranger/Warrior-Paragon Command skills the API doesn't tag via `Skill.categories`. Relic of the Curator's Protection-effectiveness bonus logged as a future-stat-family candidate per user direction, not built. See commit `e1284ae`.
+
 ### Sep 15, 2026 patch: collect 6 new relics — 2026-09-16
 Patch notes only stated "6 new relics" with no names/ids; found them by diffing a fresh live GW2 API item fetch against the committed relics.json. Also ran fetch-relic-effects for wiki tooltip facts (2/6 already have wiki pages). See commit `bd04db9`.
 

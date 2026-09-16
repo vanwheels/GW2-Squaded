@@ -10,14 +10,19 @@ implemented and released. Everything below is post-1.0 polish and open curation 
 
 ## Current Milestone: Sep 15, 2026 patch + fixes
 
-### [New Relic Coefficient Curation] — Leg 1
+### [New Relic Coefficient Curation] — Leg 2
 The Sep 15, 2026 patch added 6 new relics (Lantern, Last Tyrant, Eternal Alchemy, Tyrian Hero,
-Curator, Visionary) — collected via a live `fetch-gear-upgrades --refresh` + `fetch-relic-effects`
-run since the patch notes gave no names/ids (see commit `bd04db9`). Tyrian Hero and Curator already
-have wiki fact data in `relic-effects.json`; the other 4 are too new for the wiki. None of the 6 are
-wired into `boon-calc`'s proc/coefficient logic yet — needs the user's help establishing
-coefficients/verifying effects, same pattern as prior relic sweeps.
-Blocked: waiting on the user to help establish coefficients for the new relics.
+Curator, Visionary). Leg 1 (2026-09-16) closed Tyrian Hero (wired: Might + Swiftness via
+`RELIC_TRIGGER_GATES`, Superspeed via `RELIC_NAMED_FACT_SOURCES`, new `skillIds` gate extension for
+the 12 Ranger/Warrior-Paragon Command skills the API doesn't tag) and Curator (logged as a
+boon-effectiveness-% future-stat-family candidate, not built — see
+`docs/investigations/future-stat-family-candidates.md`). The remaining 4 (Lantern, Last Tyrant,
+Eternal Alchemy, Visionary) still have no `{{Relic infobox}}` page on the wiki at all — re-ran
+`fetch-relic-effects` 2026-09-16, byte-identical output, all 4 still skip with "no Relic infobox
+found." Nothing to curate until the wiki publishes their pages (or the user has in-game
+readings for their coefficients).
+Blocked: waiting on wiki data (or user in-game readings) for Lantern/Last Tyrant/Eternal
+Alchemy/Visionary.
 Last touched: 2026-09-16. Re-checks: 0.
 
 ## Unscheduled
