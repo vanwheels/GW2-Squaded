@@ -22,5 +22,18 @@
       { "label": "healing", "values": ["37"], "params": { "coefficient": "0.023" } }
     ],
     "rechargeSeconds": null
+  },
+  "110152": {
+    "facts": [
+      { "label": "effect", "values": ["Vloxx's Vision", "8"], "params": {} },
+      { "label": "Damage Increase", "values": ["15"], "params": {} },
+      { "label": "Condition Damage Increase", "values": ["15"], "params": {} },
+      { "label": "Incoming Damage Reduced", "values": ["10"], "params": {} },
+      { "label": "Incoming Condition Damage Reduced", "values": ["10"], "params": {} },
+      { "label": "Movement Speed Increase", "values": ["66"], "params": {} },
+      { "label": "interval", "values": ["3"], "params": {} },
+      { "label": "Maximum Stacks", "values": ["8"], "params": {} }
+    ],
+    "rechargeSeconds": null
   }
 }

@@ -84,4 +84,14 @@ describe('formatFactLine — effect fact with no alt/desc falls back to values[0
     const text = formatFactLine({ label: 'effect', values: [], params: {} })
     expect(text).toBe('effect')
   })
+
+  it('strips a self-referential "(effect)" wiki-anchor suffix without mangling "of"/"the" casing (Relic of Mount Balrior)', () => {
+    const text = formatFactLine({ label: 'effect', values: ['Relic of Mount Balrior (effect)'], params: {} })
+    expect(text).toBe('Relic of Mount Balrior')
+  })
+
+  it('strips the "(effect)" suffix from an already-real buff name (Relic of the Coral Heart, "Shocking Aura")', () => {
+    expect(formatFactLine({ label: 'effect', values: ['Relic of the Coral Heart (effect)', '6'], params: {} })).toBe('Relic of the Coral Heart (6s)')
+    expect(formatFactLine({ label: 'effect', values: ['Shocking Aura (effect)', '4'], params: {} })).toBe('Shocking Aura (4s)')
+  })
 })

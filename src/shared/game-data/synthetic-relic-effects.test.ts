@@ -93,3 +93,36 @@ describe('synthetic-relic-effects.json — Relic of the Eternal Alchemy (109980)
     expect(text).not.toContain('Recharge:')
   })
 })
+
+/**
+ * Flat-percentage buff, no attribute scaling — a single live WvW tooltip reading (2026-09-16) was
+ * enough: "Vloxx's Vision (8s): +15% Damage, +15% Condition Damage, -10% Incoming Damage, -10%
+ * Incoming Condition Damage, +66% Movement Speed", gained 1 stack per 3s combo finisher (8 needed
+ * to trigger). Not wired into `RELIC_TRIGGER_GATES` — a combo-finisher-gated trigger is the same
+ * "this app doesn't model deterministically" exclusion class already applied to Relic of the
+ * Founding/Relic of the Mists Tide (`relic-named-fact-completeness.test.ts`).
+ */
+describe('synthetic-relic-effects.json — Relic of the Visionary (110152)', () => {
+  it('is absent from the generated relic-effects.json (no wiki page yet)', () => {
+    expect(relicEffects[110152]).toBeUndefined()
+  })
+
+  it('formats into correct WvW tooltip lines via formatRelicDescription', () => {
+    const relic = {
+      id: 110152,
+      name: 'Relic of the Visionary',
+      icon: 'icon.png',
+      description: 'Gain stacks when you finish a combo. Upon reaching 8 stacks, deal more damage, take less damage, and move faster for a period of time.'
+    }
+    const text = formatRelicDescription(relic, mergedRelicEffects[110152])
+    expect(text).toContain("Vloxx's Vision (8s)")
+    expect(text).toContain('Damage Increase: 15')
+    expect(text).toContain('Condition Damage Increase: 15')
+    expect(text).toContain('Incoming Damage Reduced: 10')
+    expect(text).toContain('Incoming Condition Damage Reduced: 10')
+    expect(text).toContain('Movement Speed Increase: 66')
+    expect(text).toContain('Interval: 3')
+    expect(text).toContain('Maximum Stacks: 8')
+    expect(text).not.toContain('Recharge:')
+  })
+})

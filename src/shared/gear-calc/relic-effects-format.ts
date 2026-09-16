@@ -5,6 +5,19 @@ function titleCase(label: string): string {
 }
 
 /**
+ * `effect` fact values[0] is either a plain status name in wiki-template lowercase (e.g.
+ * "superspeed") or, for relics whose proc buff has no dedicated wiki page of its own, a
+ * self-referential wiki-anchor artifact like "Relic of Mount Balrior (effect)" — real in-game
+ * buffs confirmed 2026-09-16 (Mount Balrior/Coral Heart/Director) to display as just the relic's
+ * own name, the "(effect)" suffix stripped. Capitalizes only the first character rather than
+ * `titleCase`, which would wrongly capitalize "of"/"the" inside a multi-word relic name.
+ */
+function effectNameFromValue(value: string): string {
+  const stripped = value.replace(/\s*\(effect\)$/i, '')
+  return stripped ? stripped[0].toUpperCase() + stripped.slice(1) : stripped
+}
+
+/**
  * Formats one parsed `{{skill fact}}` line into a short display string. `alt=` (when present)
  * overrides the raw wiki label for display — it's how the wiki disambiguates same-label facts on
  * one relic (e.g. two "duration" facts distinguished by `alt=Minimum Duration`/`alt=Maximum
@@ -15,9 +28,9 @@ export function formatFactLine(fact: RelicFactLine): string {
   const label = fact.params.alt ?? fact.label
   if (fact.label.toLowerCase() === 'effect') {
     // No `alt=`/`desc=` means the wiki's `{{skill fact|effect|...}}` line carries the actual effect
-    // name only as its first positional value (e.g. "superspeed", "Revealed") — falling back to
-    // `label` here just shows the literal template keyword "effect" instead.
-    const detail = fact.params.desc ?? (fact.values[0] ? titleCase(fact.values[0]) : label)
+    // name only as its first positional value — falling back to `label` here just shows the literal
+    // template keyword "effect" instead.
+    const detail = fact.params.desc ?? (fact.values[0] ? effectNameFromValue(fact.values[0]) : label)
     const duration = fact.values.find((v) => /^\d+(\.\d+)?$/.test(v))
     return duration ? `${detail} (${duration}s)` : detail
   }
