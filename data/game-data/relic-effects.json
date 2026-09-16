@@ -2938,5 +2938,61 @@
       }
     ],
     "rechargeSeconds": null
+  },
+  "109998": {
+    "facts": [
+      {
+        "label": "effect",
+        "values": [
+          "superspeed",
+          "2.5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "might",
+        "values": [
+          "10"
+        ],
+        "params": {
+          "stacks": "2"
+        }
+      },
+      {
+        "label": "swiftness",
+        "values": [
+          "10"
+        ],
+        "params": {}
+      },
+      {
+        "label": "targets",
+        "values": [
+          "5"
+        ],
+        "params": {}
+      },
+      {
+        "label": "radius",
+        "values": [
+          "600"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
+  },
+  "110009": {
+    "facts": [
+      {
+        "label": "icon=Radius.png",
+        "values": [
+          "Effectiveness Increased",
+          "20%"
+        ],
+        "params": {}
+      }
+    ],
+    "rechargeSeconds": null
   }
 }

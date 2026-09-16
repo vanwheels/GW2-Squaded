@@ -29048,5 +29048,40 @@
       }
     ],
     "sharedBuffSource": null
+  },
+  {
+    "id": 109863,
+    "name": "Leviathan Tempering Oil",
+    "icon": "https://render.guildwars2.com/file/B32E4DAE9F7AE0732C22E5D2F299E9D1FD0514D3/3795950.png",
+    "kind": "Food",
+    "rarity": "Exotic",
+    "effectName": "Enhancement",
+    "durationMs": 1800000,
+    "applyCount": 1,
+    "description": "+3% to All Attributes\n+20% Gold from Monsters\n+10% Experience from Kills",
+    "bonuses": [
+      {
+        "raw": "+3% to All Attributes",
+        "attribute": "to All Attributes",
+        "value": 3,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+20% Gold from Monsters",
+        "attribute": "Gold from Monsters",
+        "value": 20,
+        "isPercent": true,
+        "sourceAttribute": null
+      },
+      {
+        "raw": "+10% Experience from Kills",
+        "attribute": "Experience from Kills",
+        "value": 10,
+        "isPercent": true,
+        "sourceAttribute": null
+      }
+    ],
+    "sharedBuffSource": null
   }
 ]

@@ -72,6 +72,12 @@
     "description": "Inflict torment upon successfully evading an attack."
   },
   {
+    "id": 100580,
+    "name": "Relic of the Necromancer",
+    "icon": "https://render.guildwars2.com/file/B20C589B0915915F5AB55BDA6EC52670B29706F2/3122362.png",
+    "description": "Fear you inflict causes foes to move slower."
+  },
+  {
     "id": 100177,
     "name": "Relic of Peitha",
     "icon": "https://render.guildwars2.com/file/949A6A4179F514FCDEF3AC3D9C292B38D5E0047D/3122365.png",
@@ -100,6 +106,18 @@
     "name": "Relic of the Lich",
     "icon": "https://render.guildwars2.com/file/045D16259918EFA90A76B4D1B1400AA8D9CC0D4B/3592837.png",
     "description": "Summon a jagged horror while in combat."
+  },
+  {
+    "id": 100448,
+    "name": "Relic of the Citadel",
+    "icon": "https://render.guildwars2.com/file/B21C5A6DFCDB0A729358A22CA76547150E7C541E/3122339.png",
+    "description": "After using an elite skill, call down an artillery strike that inflicts stun on the skill target or nearest enemy."
+  },
+  {
+    "id": 100947,
+    "name": "Relic of Fireworks",
+    "icon": "https://render.guildwars2.com/file/2999CCF7C94267B2EE3DDA7459050864622927C9/3122349.png",
+    "description": "Upon dealing strike damage using a weapon skill with a recharge time of 20 seconds or more, deal increased strike damage for a duration. Refreshes duration on stack."
   },
   {
     "id": 100311,
@@ -180,12 +198,6 @@
     "description": "Regeneration you apply is more effective."
   },
   {
-    "id": 100448,
-    "name": "Relic of the Citadel",
-    "icon": "https://render.guildwars2.com/file/B21C5A6DFCDB0A729358A22CA76547150E7C541E/3122339.png",
-    "description": "After using an elite skill, call down an artillery strike that inflicts stun on the skill target or nearest enemy."
-  },
-  {
     "id": 100450,
     "name": "Relic of the Chronomancer",
     "icon": "https://render.guildwars2.com/file/C209ABF01D7429EC09354E2E0BBF9DB14EBDD613/3122338.png",
@@ -222,6 +234,12 @@
     "description": "Deal increased strike damage for a duration when granting protection or resolution to yourself."
   },
   {
+    "id": 100659,
+    "name": "Relic of the Water",
+    "icon": "https://render.guildwars2.com/file/A202CF0CF4314C049B16A89A595CCC9534B0A90E/3122376.png",
+    "description": "Cleanse conditions from yourself and nearby allies after using a healing skill."
+  },
+  {
     "id": 100542,
     "name": "Relic of the Cavalier",
     "icon": "https://render.guildwars2.com/file/C3AFC50F654E2749ADD9033CE007033F6F9B0D7A/3122335.png",
@@ -246,12 +264,6 @@
     "description": "After using an elite skill, send forth a nightmare pulse that inflicts fear and poison on nearby enemies."
   },
   {
-    "id": 100580,
-    "name": "Relic of the Necromancer",
-    "icon": "https://render.guildwars2.com/file/B20C589B0915915F5AB55BDA6EC52670B29706F2/3122362.png",
-    "description": "Fear you inflict causes foes to move slower."
-  },
-  {
     "id": 100614,
     "name": "Relic of Evasion",
     "icon": "https://render.guildwars2.com/file/19296379D120EF9FF10EE0B0CDD7711DA5E7A9AF/3122347.png",
@@ -262,12 +274,6 @@
     "name": "Relic of Leadership",
     "icon": "https://render.guildwars2.com/file/077C30D957D30B0D282BB21199A193A2D74971DF/3122356.png",
     "description": "Convert conditions into boons on nearby allies after using an elite skill."
-  },
-  {
-    "id": 100659,
-    "name": "Relic of the Water",
-    "icon": "https://render.guildwars2.com/file/A202CF0CF4314C049B16A89A595CCC9534B0A90E/3122376.png",
-    "description": "Cleanse conditions from yourself and nearby allies after using a healing skill."
   },
   {
     "id": 100676,
@@ -352,12 +358,6 @@
     "name": "Relic of Dagda",
     "icon": "https://render.guildwars2.com/file/CA28F7BFEA1B695DD19204E455BA270D334EE307/3122340.png",
     "description": "After using an elite skill, fire a projectile at the target or nearest enemy that damages and inflicts conditions. Damage scales with the recharge of the elite skill."
-  },
-  {
-    "id": 100947,
-    "name": "Relic of Fireworks",
-    "icon": "https://render.guildwars2.com/file/2999CCF7C94267B2EE3DDA7459050864622927C9/3122349.png",
-    "description": "Upon dealing strike damage using a weapon skill with a recharge time of 20 seconds or more, deal increased strike damage for a duration. Refreshes duration on stack."
   },
   {
     "id": 101116,
@@ -670,5 +670,41 @@
     "name": "Relic of Watch",
     "icon": "https://render.guildwars2.com/file/33D70B101ECFFD0C42205877E5BFE20EC461C19C/3770715.png",
     "description": "Immobilization you inflict lasts longer. Weaken foes when you immobilize them."
+  },
+  {
+    "id": 109936,
+    "name": "Relic of the Lantern",
+    "icon": "https://render.guildwars2.com/file/C3A7EE0C10C8E577E11EC0AE69E99A37A09F98B8/3806031.png",
+    "description": "Reveal nearby enemies when you use a healing skill."
+  },
+  {
+    "id": 109942,
+    "name": "Relic of the Last Tyrant",
+    "icon": "https://render.guildwars2.com/file/DC0E5B235AA36102E0A9A9D32AAB24169B2CAE59/3806032.png",
+    "description": "Gain stacks of Tyrant's Fury when you inflict burning on a foe. After reaching the maximum number of stacks, the next time you inflict burning causes an explosion that burns nearby foes."
+  },
+  {
+    "id": 109980,
+    "name": "Relic of the Eternal Alchemy",
+    "icon": "https://render.guildwars2.com/file/3C96B9A0123B43F5C6EC14950DB3B147736E0A0E/3806030.png",
+    "description": "Heal when you grant yourself a boon."
+  },
+  {
+    "id": 109998,
+    "name": "Relic of the Tyrian Hero",
+    "icon": "https://render.guildwars2.com/file/7C1CE5C27D0AB8216D48E3D5DF30EE9780B7B398/3806033.png",
+    "description": "Gain superspeed and grant might and swiftness to nearby allies when you use a <c=@abilitytype>shout</c> or <c=@abilitytype>command</c> skill."
+  },
+  {
+    "id": 110009,
+    "name": "Relic of the Curator",
+    "icon": "https://render.guildwars2.com/file/9AAA0FFFE8CAFA2F22BBF7A92B5F6E2BA5BDABF9/3806029.png",
+    "description": "Protection on you gains increased damage reduction. <c=@reminder>This does not stack with other sources of the same effect.</c>"
+  },
+  {
+    "id": 110152,
+    "name": "Relic of the Visionary",
+    "icon": "https://render.guildwars2.com/file/042320E3287590E14067362A6DFD07191DB52C23/3806034.png",
+    "description": "Gain stacks when you finish a combo. Upon reaching 8 stacks, deal more damage, take less damage, and move faster for a period of time. <c=@reminder>Whirl finishers can only trigger this once per interval.</c>"
   }
 ]
