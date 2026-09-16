@@ -1139,6 +1139,23 @@ of the 112 relics was bucketed. TODO.md tracks the still-deferred candidates.
 change/add a relic (after re-running `fetch-gear-upgrades --refresh` first, since this script reads
 `relics.json`).
 
+## Relics with no wiki page yet (`synthetic-relic-effects.json`)
+
+The Sep 15, 2026 patch added 6 relics; as of Leg 2 of TODO.md's "New Relic Coefficient Curation",
+4 of them (Lantern, Last Tyrant, Eternal Alchemy, Visionary) still have no `{{Relic infobox}}` page
+on the wiki at all — `fetch-relic-effects.ts` has nothing to parse for these ids and produces no
+entry, so `Relic.description` alone is all `relic-effects.json` can offer them.
+
+Same shape/mechanism as `synthetic-facts.json` (hand-maintained, no fetch script, merged at load
+time — `withSyntheticRelicEffects` in `build-game-data.ts`), except it inserts a whole new
+`RelicEffect` entry rather than appending extra facts to an existing one, since there's no
+generated entry to append to. Entries are hand-transcribed from the user's own live WvW in-game
+tooltip readings (screenshots), one relic at a time — this app only ever curates WvW values, same
+as the rest of the coefficient-curation work. If a relic's real wiki page later appears, remove its
+synthetic entry once the generated `relic-effects.json` entry is confirmed to carry the same
+numbers — `withSyntheticRelicEffects` prefers the generated entry over the synthetic one whenever
+both exist, so a stale synthetic entry would otherwise silently mask any future wiki correction.
+
 ## Skill/trait Recharge WvW overrides (`recharge-wvw-overrides.json`)
 
 `/v2/skills` and `/v2/traits` each expose exactly one `Recharge`-type `Fact` per id (confirmed live

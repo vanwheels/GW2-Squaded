@@ -1,4 +1,4 @@
-import type { Fact, GameData, Legend, Profession, Specialization, Skill, Trait } from '../types'
+import type { Fact, GameData, Legend, Profession, Specialization, RelicEffectsById, Skill, Trait } from '../types'
 
 /**
  * Reads and parses one named file from whatever game-data source is active — `data/game-data/`
@@ -31,6 +31,21 @@ function withSyntheticTraitFacts(traits: Trait[], syntheticTraitFacts: Record<st
     const extra = syntheticTraitFacts[trait.id]
     return extra ? { ...trait, facts: [...trait.facts, ...extra] } : trait
   })
+}
+
+/**
+ * `synthetic-relic-effects.json`'s merge — same "hand-curated, wiki-sourced, survives a full
+ * regenerating re-fetch" shape as `withSyntheticFacts` above, but inserting a whole new
+ * `RelicEffect` entry rather than appending to an existing one: `fetch-relic-effects.ts` only ever
+ * produces an entry for a relic that has a live `{{Relic infobox}}` wiki page, so a relic released
+ * without one yet (or ever) has no entry to append extra facts to. See `docs/game-data.md` for why
+ * this exists (New Relic Coefficient Curation, Leg 2 — relics with in-game-screenshot-sourced
+ * values but no wiki page). A synthetic id already present in `relicEffects` (the wiki caught up)
+ * takes the generated entry, not the synthetic one — remove the now-redundant synthetic entry
+ * instead of leaving a dead override in place.
+ */
+function withSyntheticRelicEffects(relicEffects: RelicEffectsById, syntheticRelicEffects: RelicEffectsById): RelicEffectsById {
+  return { ...syntheticRelicEffects, ...relicEffects }
 }
 
 /** `tango-icons.json`'s merge — see `Profession.tangoIcon`/`Specialization.tangoIcon` and
@@ -113,7 +128,7 @@ export async function buildGameData(readJson: JsonReader): Promise<GameData> {
     sigils: await readJson('sigils.json'),
     infusions: await readJson('infusions.json'),
     relics: await readJson('relics.json'),
-    relicEffects: await readJson('relic-effects.json'),
+    relicEffects: withSyntheticRelicEffects(await readJson('relic-effects.json'), await readJson('synthetic-relic-effects.json')),
     food: await readJson('food.json'),
     utility: await readJson('utility.json'),
     tomeChapters: await readJson('tome-chapters.json')

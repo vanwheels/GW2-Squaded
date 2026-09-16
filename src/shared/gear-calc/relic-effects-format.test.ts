@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Relic, RelicEffect } from '../types'
-import { formatRelicDescription } from './relic-effects-format'
+import { formatFactLine, formatRelicDescription } from './relic-effects-format'
 
 /**
  * Regression test for the `CURATED_RELIC_FACT_OVERRIDES` entry added alongside TODO.md's "Relic
@@ -54,5 +54,34 @@ describe('formatRelicDescription — Relic of the Zephyrite (100893) curated dur
     const otherRelic: Relic = { id: 100435, name: 'Relic of the Earth', icon: 'icon.png', description: 'desc' }
     const otherEffect: RelicEffect = { facts: [{ label: 'protection', values: ['3'], params: {} }], rechargeSeconds: null }
     expect(formatRelicDescription(otherRelic, otherEffect)).toBe('desc\nProtection: 3')
+  })
+})
+
+/**
+ * Regression test for the "Tyrian Hero Tooltip Formatting Bug #1" fix (TODO.md, user-flagged
+ * 2026-09-16): an `effect` fact with no `alt=`/`desc=` was falling back to the literal wiki
+ * template keyword "effect" instead of the actual effect name — affects every `effect`-shaped fact
+ * with no override text, not just Tyrian Hero (Relic of Shackles' Revealed fact has the same
+ * unlabeled shape and was silently broken the same way before this fix).
+ */
+describe('formatFactLine — effect fact with no alt/desc falls back to values[0], not the literal label', () => {
+  it('title-cases a lowercase wiki value (Relic of the Tyrian Hero: "superspeed")', () => {
+    const text = formatFactLine({ label: 'effect', values: ['superspeed', '2.5'], params: {} })
+    expect(text).toBe('Superspeed (2.5s)')
+  })
+
+  it('leaves an already-capitalized wiki value as-is (Relic of Shackles: "Revealed")', () => {
+    const text = formatFactLine({ label: 'effect', values: ['Revealed', '5'], params: {} })
+    expect(text).toBe('Revealed (5s)')
+  })
+
+  it('still prefers an explicit desc= over values[0] when present', () => {
+    const text = formatFactLine({ label: 'effect', values: ['Relic of the Monk (effect)', '3'], params: { desc: '+1% Healing Increase to Others' } })
+    expect(text).toBe('+1% Healing Increase to Others (3s)')
+  })
+
+  it('falls back to the literal label only when there is neither desc nor any values', () => {
+    const text = formatFactLine({ label: 'effect', values: [], params: {} })
+    expect(text).toBe('effect')
   })
 })

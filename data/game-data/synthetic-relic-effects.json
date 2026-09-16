@@ -1,0 +1,10 @@
+{
+  "109936": {
+    "facts": [
+      { "label": "effect", "values": ["Revealed", "6"], "params": {} },
+      { "label": "targets", "values": ["5"], "params": {} },
+      { "label": "radius", "values": ["600"], "params": {} }
+    ],
+    "rechargeSeconds": 20
+  }
+}

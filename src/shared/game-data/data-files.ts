@@ -31,6 +31,7 @@ export const GAME_DATA_FILE_NAMES = [
   'infusions.json',
   'relics.json',
   'relic-effects.json',
+  'synthetic-relic-effects.json',
   'food.json',
   'utility.json',
   'tome-chapters.json',

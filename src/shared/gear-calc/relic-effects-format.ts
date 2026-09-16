@@ -14,7 +14,10 @@ function titleCase(label: string): string {
 export function formatFactLine(fact: RelicFactLine): string {
   const label = fact.params.alt ?? fact.label
   if (fact.label.toLowerCase() === 'effect') {
-    const detail = fact.params.desc ?? label
+    // No `alt=`/`desc=` means the wiki's `{{skill fact|effect|...}}` line carries the actual effect
+    // name only as its first positional value (e.g. "superspeed", "Revealed") — falling back to
+    // `label` here just shows the literal template keyword "effect" instead.
+    const detail = fact.params.desc ?? (fact.values[0] ? titleCase(fact.values[0]) : label)
     const duration = fact.values.find((v) => /^\d+(\.\d+)?$/.test(v))
     return duration ? `${detail} (${duration}s)` : detail
   }
