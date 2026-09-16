@@ -10,26 +10,6 @@ implemented and released. Everything below is post-1.0 polish and open curation 
 
 ## Current Milestone: Sep 15, 2026 patch + fixes
 
-### [New Relic Coefficient Curation] — Leg 3
-The Sep 15, 2026 patch added 6 new relics (Lantern, Last Tyrant, Eternal Alchemy, Tyrian Hero,
-Curator, Visionary). Leg 1 (2026-09-16) closed Tyrian Hero and Curator. Leg 2 (2026-09-16)
-reconfirmed the remaining 4 (Lantern, Last Tyrant, Eternal Alchemy, Visionary) still have no
-`{{Relic infobox}}` wiki page. User is now supplying live in-game WvW tooltip readings for these
-directly (one relic at a time), curated via a new `synthetic-relic-effects.json` overlay (same
-shape as `synthetic-facts.json`, merged in `build-game-data.ts` — see `docs/game-data.md`'s
-"Relics with no wiki page yet" section). Lantern (109936) is done: Reveal 6s, 5 targets, 600
-radius, 20s ICD. Last Tyrant (109942) is done: Damage coefficient 0.399 (derived from 2 Power
-readings, tight-bounded interval), Burning 1 stack/8s (corroborated against the existing
-`CONDITION_DAMAGE_FORMULAS.Burning` constant — see `synthetic-relic-effects.test.ts`'s doc
-comment), Maximum Stacks 5, 5 targets, 240 radius, 12s ICD. Not wired into
-`RELIC_TRIGGER_GATES`/`RELIC_NAMED_FACT_SOURCES` — its explosion trigger (5 stacks of Tyrant's Fury
-from the player's own other burning applications) is a conditional, rotation-dependent trigger with
-no fixed frequency, same non-deterministic-trigger exclusion class documented on `RelicEffect`
-elsewhere. Eternal Alchemy (109980) is done: Healing base 37 + 0.023 Healing Power coefficient
-(derived from 2 Healing Power readings, exact match), no ICD (user-confirmed, fires on every
-self-boon grant). Still needed: Visionary.
-Last touched: 2026-09-16. Re-checks: 0.
-
 ### [Tyrian Hero Superspeed Breakdown Tooltip Overlap] — Leg 1
 User-flagged 2026-09-16, in-app screenshot. The Superspeed breakdown tooltip (hover the Superspeed
 icon in the build editor's boon/condition panel) renders Tyrian Hero's row with overlapping/garbled
