@@ -900,12 +900,16 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   //   `split=` line (e.g. `pve, wvw pvp` = WvW groups with PvP; `pve, wvw, pvp` = a true 3-way split;
   //   `pve pvp, wvw` = WvW is the odd one out) plus its `initiative`/`initiative pvp`/`initiative wvw`
   //   fields identify which raw API fact value corresponds to N-initiative-spent-in-WvW, the same way
-  //   `RelicEffect.rechargeSeconds`'s "prefer `recharge wvw=`" rule already works for cooldowns. Only
-  //   2 stay EXCLUDED: Helmet Breaker (71802, Debilitating Arc's flip-skill follow-up — its own 2
-  //   facts don't cleanly match any combo-total or solo-cost interpretation even after checking every
-  //   historical initiative-cost patch on both chain skills) and Black Powder (13113, still only
-  //   exposes its PvE/PvP-grouped value as a fact — the wiki's explicit `initiative wvw = 7` field has
-  //   no live-API-sourced fact to pair it with, so it's left out rather than formula-deriving one).
+  //   `RelicEffect.rechargeSeconds`'s "prefer `recharge wvw=`" rule already works for cooldowns. Black
+  //   Powder (13113) was RESOLVED too, 2026-09-16, via 2 live in-game WvW readings (1145 heal at 467
+  //   Healing Power, 1337 at 843) — solves exactly to base 907 / coefficient 0.51, the API's own
+  //   already-live fact value. This is the same "stale N" shape as the Spear/UW quirk group and
+  //   Harrowing Storm/Orchestrated Assault below: the fact bakes the pre-cost-increase N=6 rate, not
+  //   the skill's current live WvW initiative cost (7, per `resource-costs.json`'s
+  //   `initiativeWvw` — unaffected by this fix, since resource cost and Assassin's Reward payout are
+  //   separately-tracked API values). Only 1 stays EXCLUDED: Helmet Breaker (71802, Debilitating
+  //   Arc's flip-skill follow-up — its own 2 facts don't cleanly match any combo-total or solo-cost
+  //   interpretation even after checking every historical initiative-cost patch on both chain skills).
   13008: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Bola Shot
   13010: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Shadow Strike
   13012: [{ factText: 'Healing', baseValue: 604, coefficient: 0.34, requiresTrait: 1238 }], // Head Shot
@@ -950,6 +954,7 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   13025: [{ factText: 'Healing', baseValue: 1209, coefficient: 0.68, requiresTrait: 1238 }], // Infiltrator's Arrow — split=pve,wvw pvp; N=8
   13040: [{ factText: 'Healing', baseValue: 754, coefficient: 0.425, requiresTrait: 1238 }], // Shadow Shot — split=pve,wvw pvp; N=5
   13083: [{ factText: 'Healing', baseValue: 756, coefficient: 0.425, requiresTrait: 1238 }], // Disabling Shot — split=pve,wvw pvp; N=5
+  13113: [{ factText: 'Healing', baseValue: 907, coefficient: 0.51, requiresTrait: 1238 }], // Black Powder — RESOLVED 2026-09-16 via 2 live in-game readings; bakes the pre-cost-increase N=6 rate, not the current live N=7 initiative cost
   // Debilitating Arc's own Healing facts are the FULL Debilitating Arc→Helmet Breaker combo total
   // (3+1 PvE, 4+1 WvW/PvP), not its own solo cost — confirmed exact match to both chain skills' own
   // initiative fields, zero rounding slop. Helmet Breaker's own 2 facts (302, 453) don't fit this or

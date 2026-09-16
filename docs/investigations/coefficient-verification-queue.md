@@ -19,9 +19,6 @@ mismatch before queuing a skill for live verification.
 
 ## Active queue (next up for live verification)
 
-- **Thief 13113 (Black Powder)** — only exposes its PvE/PvP-grouped initiative value; no
-  live-API-sourced fact pairs with the wiki's explicit WvW-only cost (7). This is the Assassin's
-  Reward (trait 1238) sweep's other leftover alongside Helmet Breaker (see Known Exceptions below).
 - **Thief 73063 (Vampiric Slash)** — re-checked 2026-08-29: a fresh wikitext pull found
   base=1210 (API) / coefficient=0.2 (wiki), and 1210 + 0.2×1000 = 1410, an exact match to the
   wiki's quoted 1410 — the same base-1000-Power pattern that resolved the 6 skills above. A strong
@@ -76,9 +73,9 @@ mismatch before queuing a skill for live verification.
 Guardian 62669 (Repose), Engineer 63049 (Rectifier Signet/Mech Core: J-Drive), Revenant 26937
 (Enchanted Daggers' Initial Heal), Elementalist 72982 (Jökulhlaup), Necromancer 30860 (Death
 Spiral, both Healing and Damage facts), Locust Swarm, Signet of Vampirism (both facts), Nightmare
-Weapon, Thief 72991 (Shadow Veil), and 15 of 17 Assassin's Reward (trait 1238) candidates were all
-resolved via this same method (live in-game readings and/or wiki `split=`/resource-field
-disambiguation) and are already curated in `healing-calc.ts` / `siphon-damage-calc.ts`. See
-COMPLETED.md for the per-skill sessions
+Weapon, Thief 72991 (Shadow Veil), Thief 13113 (Black Powder), and 16 of 17 Assassin's Reward
+(trait 1238) candidates were all resolved via this same method (live in-game readings and/or wiki
+`split=`/resource-field disambiguation) and are already curated in `healing-calc.ts` /
+`siphon-damage-calc.ts`. See COMPLETED.md for the per-skill sessions
 and the `healing_damage_coefficient_curation` / `siphon_damage_sweep_2026-08-20` /
 `coefficient_curation_leftovers_sweep_2026-08-22` memories for the fuller narrative.
