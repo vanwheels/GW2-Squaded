@@ -103,6 +103,7 @@ const THIEF_DUAL_WIELD_OFFHAND: Record<number, string | null> = {
   13011: 'Pistol', // Unload (main hand pistol, off hand pistol)
   13010: 'Dagger', // Shadow Strike (main hand pistol, off hand dagger)
   63254: 'Dagger', // Twilight Combo (main hand scepter, off hand dagger)
+  63267: 'Pistol', // Measured Shot (main hand scepter, off hand pistol) — flips to Endless Night (63128)
   63154: null, // Triple Threat (main hand scepter, off hand empty/default)
   13016: 'Dagger', // Flanking Strike (main hand sword, off hand dagger)
   80244: 'Pistol', // Flawless Execution (main hand sword, off hand pistol)
@@ -298,7 +299,14 @@ export function weaverWeaponThreeSkillId(
  *    `skill-calc/skill-variants.ts`'s flip-root signal. (Revenant off-hand Sword's Weapon_4 used to
  *    be the textbook example here — "Duelist's Preparation" (28571) flips to "Shackling Wave"
  *    (28472) — until 2026-08-19 found that pairing itself was stale: 28571 is retired content, now
- *    excluded up front by `RETIRED_WEAPON_SKILL_IDS` instead of reaching this step at all.)
+ *    excluded up front by `RETIRED_WEAPON_SKILL_IDS` instead of reaching this step at all.) A
+ *    candidate that's itself a `THIEF_DUAL_WIELD_OFFHAND` key is never dropped by this signal even
+ *    when it's some other candidate's `flipSkill` target — Specter Scepter's "Triple Threat"
+ *    (63154, off-hand-empty default) carries a bogus `flipSkill` pointer to "Measured Shot" (63267,
+ *    the genuine off-hand-Pistol variant), same stale-data shape as the Revenant case above, except
+ *    here the wrongly-dropped id is a real hand-context candidate signal 4 needs rather than a
+ *    retired one — found 2026-09-20 chasing "scepter+pistol skill 3 shows Triple Threat instead of
+ *    Measured Shot/Endless Night" (TODO.md).
  * 2. **Land/underwater `NoUnderwater`-flag disambiguation** (e.g. the `Spear` weapon type; every
  *    Engineer Kit, always 10 raw entries — 5 land + 5 underwater): only fires when exactly 2
  *    candidates remain and they cleanly split land-only vs. not.
@@ -361,7 +369,7 @@ export function resolveSkillBarIds(
     const flipTargetIds = new Set(
       candidates
         .map((c) => skillsById.get(c.id)?.flipSkill ?? null)
-        .filter((id): id is number => id !== null && idSet.has(id))
+        .filter((id): id is number => id !== null && idSet.has(id) && !(id in THIEF_DUAL_WIELD_OFFHAND))
     )
     const withoutFlipTargets = candidates.filter((c) => !flipTargetIds.has(c.id))
     if (withoutFlipTargets.length > 0) candidates = withoutFlipTargets
