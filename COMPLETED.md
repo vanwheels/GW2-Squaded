@@ -4,6 +4,14 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Deadeye's Mark/Skritt Swipe Stale Even the Odds Vulnerability] — Leg 1
+2026-09-20. Root cause: Deadeye's Mark (43390) and Skritt Swipe (77397) both carried a native
+stale pre-2024-10-08-patch Vulnerability `traitedFact` for Even the Odds. Fixed via a
+`BUFF_INSTANCE_VALUE_OVERRIDES.skill` `'omit'` entry plus a fresh `synthetic-facts.json` entry
+matching Siphon's own already-correct value. Full test suite (547 tests) and typecheck pass with
+only the one pre-existing, unrelated `legend-form-facts.test.ts` failure noted below (not touched
+here). See commit `2b455d4`.
+
 ### [Triple Threat/Twilight Combo Missing Enemy/Ally Effects] — Leg 1
 2026-09-20. Same "empty/stale API facts" shape as Measured Shot/Endless Night (see "Specter
 Scepter/Pistol Skill 3 Display" below), fixed the same way with a `tripleThreatSections`/

@@ -15,20 +15,8 @@ Started as five independent Specter-only display/mechanics bugs reported by the 
 pass, plus one unrelated Celestial stat-prefix data fix folded in since it was quick to schedule
 alongside. Bundled under one milestone for scheduling convenience, not because every leg shares a
 root cause — each leg gets its own investigation. Original Specter batch legs 1-4 done; Leg 5 not
-yet root-caused; Triple Threat/Twilight Combo done; the three legs below are untouched.
-
-### [Deadeye's Mark/Skritt Swipe Stale Even the Odds Vulnerability] — Leg 1
-Surfaced while completing the Steal/Siphon trait-granted-facts follow-up (see COMPLETED.md "Specter
-Siphon F1 Effects"): Deadeye's Mark (43390) and Skritt Swipe (77397) both carry a native
-Vulnerability `traitedFact` (requires_trait 1169, Even the Odds) with a STALE pre-2024-10-08-patch
-value (duration 10s/5 stacks) instead of the current wiki value (duration 6s/10 stacks) that core
-Steal (13014) already has correct natively. Fixing it needs a `BUFF_INSTANCE_VALUE_OVERRIDES.skill`
-`'omit'` entry for the stale occurrence plus a fresh correct entry via `synthetic-facts.json` (a
-plain duration-only override can't fix it — apply_count is wrong too, same "plain override only
-replaces duration" shape documented elsewhere in `sources.ts`). Not fixed in that pass since it's
-Deadeye/Antiquary-specific data staleness, not a missing trait-fact gap like everything else that
-leg covered.
-Last touched: 2026-09-20. Re-checks: 0.
+yet root-caused; Triple Threat/Twilight Combo done; Deadeye's Mark/Skritt Swipe Stale Even the Odds
+Vulnerability done; the two legs below are untouched.
 
 ### [Specter Siphon F1 Recharge Split] — Leg 1
 Surfaced while curating Siphon (F1)'s ally/enemy effects (see COMPLETED.md): the wiki's raw
