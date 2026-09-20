@@ -40,3 +40,20 @@ describe('Facet of Elements -> Elemental Blast (missing live-API flipSkill link)
     expect(visible.some((s) => s.name === 'Elemental Blast')).toBe(false)
   })
 })
+
+/**
+ * Regression guard for "Specter Scepter Auto Chain Display" (TODO.md, flagged 2026-09-20) — the
+ * live API's `flipSkill` for Shadow Bolt (63066) points at Shadowsquall (63314, this slot's Stealth
+ * Attack), not Double Bolt (63182), the real next autoattack-chain step. See `FLIP_SKILL_OVERRIDES`'
+ * own doc comment for the full root-cause writeup.
+ */
+describe('Shadow Bolt -> Double Bolt -> Triple Bolt (wrong live-API flipSkill link)', () => {
+  it('flipTargetSkills walks the real autoattack chain, not Shadowsquall', () => {
+    const shadowBolt = skillsById.get(63066)
+    expect(shadowBolt).toBeDefined()
+    if (!shadowBolt) return
+    const flips = flipTargetSkills(shadowBolt, skillsById)
+    expect(flips.map((f) => f.skill.id)).toEqual([63182, 63134])
+    expect(flips.map((f) => f.label)).toEqual(['Double Bolt', 'Triple Bolt'])
+  })
+})

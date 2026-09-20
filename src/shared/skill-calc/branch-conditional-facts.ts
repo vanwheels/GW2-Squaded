@@ -16,6 +16,9 @@ const FACET_OF_NATURE_ID = 29371
 const SIPHON_ID = 63067
 const MEASURED_SHOT_ID = 63267
 const ENDLESS_NIGHT_ID = 63128
+const SHADOW_BOLT_ID = 63066
+const DOUBLE_BOLT_ID = 63182
+const TRIPLE_BOLT_ID = 63134
 
 // Guardian Luminary (specialization id 81)'s 3 reworked Virtues — see `radiantJusticeSections`'s
 // doc comment below for the full writeup. Ids are each virtue's F1/F2/F3 mechanic-bar entry point,
@@ -1126,6 +1129,84 @@ function endlessNightSections(skill: Skill, durationPercent: { boon: number; con
 }
 
 /**
+ * Specter Scepter skill 1's 3-part autoattack chain — Shadow Bolt (63066) -> Double Bolt (63182) ->
+ * Triple Bolt (63134), per each skill's own wiki infobox `chain1`/`chain2`/`chain3` fields
+ * (id-verified 2026-09-20, TODO.md "Specter Scepter Auto Chain Display"). Same "empty/stale API
+ * facts" shape `measuredShotSections`/`siphonSections` already document: this app's local
+ * `skills.json` entries for all 3 carry only Range (plus Double/Triple Bolt's own "Number of
+ * Impacts") — every real Enemy/Ally-branch number comes from the wiki's raw `{{skill fact}}`
+ * templates (fetched fresh 2026-09-20 via `action=raw`). WvW+PvP values used throughout (this app's
+ * usual convention); at WvW+PvP, Damage Coefficient (0.33), Torment duration (2s) and Barrier (365
+ * base / 0.07 coefficient) are identical across all 3 chain steps — only PvE (unused here) and the
+ * chain-step hit count actually vary, so one shared helper covers all 3.
+ *
+ * Separately, `flip-skill-overrides.ts`'s `FLIP_SKILL_OVERRIDES` now redirects Shadow Bolt's own
+ * `flipSkill` — the live API points it at Shadowsquall (63314, the Stealth Attack replacement for
+ * this weapon slot) instead of Double Bolt, the real next chain step confirmed by all 3 skills' own
+ * wiki `chain1`/`chain2`/`chain3` fields. Every other weapon-1 autoattack's `flipSkill` in this
+ * app's data either walks a real further chain step (e.g. Dagger's Double Strike -> Wild Strike) or,
+ * when the chain is only 1 hit long, the Stealth Attack instead (e.g. Pistol's Vital Shot -> Sneak
+ * Attack) — Scepter is the one case where the API chose the Stealth Attack over a real further chain
+ * step that does exist. Without that redirect, `flipTargetSkills`'s tooltip walk (and
+ * `withFlipChain`'s aggregate walk) stop at Shadowsquall and never reach Double/Triple Bolt at all —
+ * the exact bug reported ("2nd/3rd chain parts aren't shown at all — Shadowsquall displays
+ * instead"). Shadowsquall itself is deliberately left uncurated and unreachable from this chain,
+ * same as every other weapon's Stealth Attack (Backstab, Sneak Attack, Tactical Strike, etc.) — none
+ * of those are shown anywhere in the app today either, a pre-existing, accepted gap outside this
+ * leg's scope.
+ */
+function scepterAutoBoltSections(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+  healingPower: number,
+  numberOfImpacts: number | null
+): ConditionalBranch[] {
+  const barrierLine = (): FactLine => ({
+    icon: MISCELLANEOUS_ICONS.Barrier,
+    text: `Barrier: ${Math.round(365 + 0.07 * healingPower).toLocaleString()}` // WvW+PvP value (PvE 522 base, 0.1 coefficient)
+  })
+  const impactsLine = (label: string): FactLine[] =>
+    numberOfImpacts === null ? [] : [{ icon: NUMBER_FACT_ICON, text: `${label}: ${numberOfImpacts}` }]
+
+  return [
+    {
+      label: 'Enemy Target',
+      description: 'Fire a projectile that hinders foes and helps allies.',
+      numericLines: [{ icon: null, text: 'Damage Coefficient: 0.33 (scepter)' }, ...impactsLine('Number of Hits')],
+      facts: [
+        {
+          sourceKind: 'skill',
+          sourceId: skill.id,
+          sourceName: skill.name,
+          sourceIcon: skill.icon,
+          boonOrConditionName: 'Torment',
+          isCondition: true,
+          category: 'condition',
+          baseDurationSeconds: 2, // WvW+PvP value (PvE 4s Shadow Bolt/Double Bolt, 5s Triple Bolt)
+          scaledDurationSeconds: 2 * (1 + durationPercent.condition / 100),
+          applyCount: 1,
+          requiresTraitId: null,
+          targetCount: 1
+        }
+      ]
+    },
+    {
+      label: 'Ally Target',
+      description: 'Missiles track and grant barrier to allies. Effectiveness is reduced for allies that are not the primary target.',
+      numericLines: [
+        barrierLine(),
+        { icon: null, text: 'Effectiveness Decreased (secondary targets): 50%' },
+        ...impactsLine('Number of Impacts'),
+        { icon: ALLIED_TARGETS_ICON, text: 'Allied Targets: 5' },
+        { icon: RADIUS_ICON, text: 'Radius: 240' },
+        { icon: null, text: 'Unblockable' }
+      ],
+      facts: []
+    }
+  ]
+}
+
+/**
  * Per-skill mutually-exclusive-outcome fact sections for `skillTooltipContent` to render as extra
  * labeled dividers below the base facts — `null` for every skill without one. Kept as its own
  * lookup (rather than folded into `synthetic-facts.json`) since that file's shape has no concept of
@@ -1162,6 +1243,9 @@ export function branchConditionalFacts(
   if (skill.id === SIPHON_ID) return siphonSections(skill, durationPercent, healingPower, activeTraitIds)
   if (skill.id === MEASURED_SHOT_ID) return measuredShotSections(skill, durationPercent, healingPower)
   if (skill.id === ENDLESS_NIGHT_ID) return endlessNightSections(skill, durationPercent, healingPower)
+  if (skill.id === SHADOW_BOLT_ID) return scepterAutoBoltSections(skill, durationPercent, healingPower, null)
+  if (skill.id === DOUBLE_BOLT_ID) return scepterAutoBoltSections(skill, durationPercent, healingPower, 2)
+  if (skill.id === TRIPLE_BOLT_ID) return scepterAutoBoltSections(skill, durationPercent, healingPower, 3)
   return null
 }
 
