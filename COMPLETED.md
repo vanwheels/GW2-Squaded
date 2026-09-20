@@ -4,6 +4,16 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Specter Scepter/Pistol Skill 3 Display] — Leg 3
+2026-09-20. Root cause: Triple Threat (63154, Scepter's off-hand-empty skill 3 default) carries a
+bogus `flipSkill` pointer to Measured Shot (63267, the real off-hand-Pistol variant) — same stale-
+API-data shape as the earlier Revenant Duelist's Preparation finding, except here
+`resolveSkillBarIds`' generic flip-target-removal signal wrongly dropped a candidate signal 4
+(Thief's dual-wield hand-context table) still needed, so it fell through to the off-hand-agnostic
+default (Triple Threat) regardless of the equipped off-hand. Fixed by exempting
+`THIEF_DUAL_WIELD_OFFHAND` table entries from the flip-removal signal and adding Measured Shot's
+missing Pistol entry to that table. See commit `d134053`.
+
 ### [Specter Siphon F1 Effects] — Leg 2
 2026-09-20. Root cause: this app's local API data for skill 63067 (Siphon) is a stale, unmigrated
 copy of core Thief's "Steal" (`description: "Steal."`, only Range/Recharge facts) — Specter's real

@@ -13,20 +13,14 @@ implemented and released. Everything below is post-1.0 polish and open curation 
 Five independent Specter-only display/mechanics bugs reported by the user in one batch
 (2026-09-20). Bundled under one milestone because they share a profession and symptom class
 (incorrect or missing skill/trait effects shown to the player), not because they share a root
-cause — each leg gets its own investigation. Legs 1-2 done; Legs 3-5 not yet root-caused.
-
-### [Specter Scepter/Pistol Skill 3 Display] — Leg 3
-With scepter+pistol equipped, skill 3 displays "Triple Threat" as an extra skill entry instead of
-just its two actual components (Measured Shot, Endless Night), and neither component's effects are
-shown. Possibly related root cause to Leg 4 (both look like a combined/chain skill name being
-displayed in place of its real sub-skills) — worth checking together, but tracked as separate legs
-since they're different skill slots.
-Last touched: 2026-09-20. Re-checks: 0.
+cause — each leg gets its own investigation. Legs 1-3 done; Legs 4-5 not yet root-caused.
 
 ### [Specter Scepter Auto Chain Display] — Leg 4
 Specter's 1 skill (auto-attack chain) doesn't show ally or enemy effects for any part of the
 chain, and the 2nd/3rd chain parts (Double Bolt, Triple Bolt) aren't shown at all — "Shadowsquall"
-displays instead. Possibly related root cause to Leg 3 — see note there.
+displays instead. Leg 3 (see COMPLETED.md) turned out to be a `resolveSkillBarIds` off-hand
+hand-context bug specific to Weapon_3 — this is skill 1 (an auto-attack chain, no off-hand
+dependency), so likely a different resolution path; don't assume the same fix shape applies.
 Last touched: 2026-09-20. Re-checks: 0.
 
 ### [Shadestep WvW Alacrity Fix] — Leg 5
