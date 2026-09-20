@@ -1301,7 +1301,19 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // Daring's overrides would (see this file's own top comment on that hazard) — same "collapse
     // is safe because every concept sharing the status also shares the value" shape as Resolute
     // Subconscious just above.
-    1316: { Vulnerability: 6 }
+    1316: { Vulnerability: 6 },
+
+    // Shadestep (2289, Specter Grandmaster 3, TODO.md "Shadestep WvW Alacrity Fix" Leg 5,
+    // 2026-09-20): its own `facts` array carries an Alacrity(5s) fact AND a Regeneration(3s) fact,
+    // both tied to Grasping Shadows with no `requires_trait`/game-mode discriminator in the local
+    // data, so `extractFromFacts` shows both unconditionally. Wiki raw wikitext (`action=raw`,
+    // fetched 2026-09-20) shows these are genuinely mutually exclusive per mode, not simultaneous:
+    // `{{skill fact|Alacrity|5|linked skill=Grasping Shadows|game mode=pve}}` /
+    // `{{skill fact|Regeneration|3|linked skill=Grasping Shadows|game mode=pvp wvw}}` — Alacrity is
+    // PvE-only (no WvW-tagged line at all), same "confirmed absent in WvW" shape as Saint's Shield
+    // (62689) above, so it's omitted here. Regeneration needs no override: its 3s local value
+    // already matches the wiki's WvW+PvP figure exactly.
+    2289: { Alacrity: 'omit' }
   }
 }
 
