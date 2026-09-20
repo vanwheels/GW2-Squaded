@@ -13,6 +13,7 @@ const CHANT_OF_FREEDOM_ID = 77155
 const STRENGTHENING_STANZAS_ID = 2385
 const DRACONIC_ECHO_ID = 1772
 const FACET_OF_NATURE_ID = 29371
+const SIPHON_ID = 63067
 
 // Guardian Luminary (specialization id 81)'s 3 reworked Virtues — see `radiantJusticeSections`'s
 // doc comment below for the full writeup. Ids are each virtue's F1/F2/F3 mechanic-bar entry point,
@@ -863,6 +864,73 @@ function trueNatureBranches(
 }
 
 /**
+ * Specter's F1 "Siphon" (id 63067, the "Steal" replacement `SPECTER_MECHANIC_SKILLS` in
+ * `profession-mechanic.ts` already hand-injects into the mechanic bar). TODO.md "Specter Siphon F1
+ * Effects" (Leg 2, 2026-09-20): user reported the skill's ally-facing effect doesn't display at all
+ * and the enemy-facing effects shown are incomplete. Root cause is the same "empty/stale API facts"
+ * shape `otherworldlyBondBranches` documents, not a rendering bug: this app's local `skills.json`
+ * entry for 63067 is an unmigrated copy of core Thief's "Steal" (`description: "Steal."`, `facts`
+ * carrying only Range/Recharge) rather than Specter's real dual-target Siphon. Verified against the
+ * wiki's raw `action=raw` wikitext (fetched 2026-09-20), not a rendered/summarized page.
+ *
+ * Genuinely 2 mutually exclusive per-cast outcomes depending on the player's current target (enemy
+ * vs. ally) — same shape as `otherworldlyBondBranches`, including its `countsTowardTotals` reasoning:
+ * neither branch is flagged, since which one fires is a real per-cast choice (what the player targets
+ * with F1), not something always sustained.
+ *
+ * Ally Target's Barrier (wiki: base 1428, coefficient 0.5 x Healing Power) is computed inline rather
+ * than through `CURATED_BARRIER_COEFFICIENTS`, same reason `chantOfRecuperationSections` does: that
+ * table matches a live API fact by `factText` and this skill has no Barrier fact to match against.
+ *
+ * Left out as a separate, out-of-scope finding (TODO.md, not fixed here since the user's report was
+ * about missing/incomplete effects, not this number): the wiki's own infobox splits Recharge as
+ * `recharge = 18` (PvE) vs. `recharge pvp = 25`/`recharge wvw = 25`, but the stale API fact this app's
+ * base facts block renders today is a flat 18 with no split at all.
+ */
+function siphonSections(skill: Skill, durationPercent: { boon: number; condition: number }, healingPower: number): ConditionalBranch[] {
+  const slow: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Slow',
+    isCondition: true,
+    category: 'condition',
+    baseDurationSeconds: 5, // WvW value (PvP 3s)
+    scaledDurationSeconds: 5 * (1 + durationPercent.condition / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    // Steal-style single-enemy target, unchanged from core Thief's own Steal.
+    targetCount: 1
+  }
+  const barrierLine = (): FactLine => ({
+    icon: MISCELLANEOUS_ICONS.Barrier,
+    text: `Barrier: ${Math.round(1428 + 0.5 * healingPower).toLocaleString()}`
+  })
+
+  return [
+    {
+      label: 'Enemy Target',
+      description: "Steal your foe's shadow, slowing them for a period of time while gaining shadow force.",
+      // Shadow Force isn't a tracked boon/condition in this app — display-only, same treatment
+      // `chantOfActionSections`'s own "Motivation Cost per Interval" lines get.
+      numericLines: [{ icon: null, text: 'Shadow Force Gain: 25%' }], // WvW+PvE value (PvP 15%)
+      facts: [slow]
+    },
+    {
+      label: 'Ally Target',
+      description: 'Grant your target barrier and reduce the cooldown of Siphon. If you are in shroud, transfer your tether to the target.',
+      numericLines: [
+        barrierLine(),
+        { icon: null, text: 'Shrouded Ally: transfers tether to target' },
+        { icon: RECHARGE_ICON, text: 'Ally Target Recharge Reduction: 50%' }
+      ],
+      facts: []
+    }
+  ]
+}
+
+/**
  * Per-skill mutually-exclusive-outcome fact sections for `skillTooltipContent` to render as extra
  * labeled dividers below the base facts — `null` for every skill without one. Kept as its own
  * lookup (rather than folded into `synthetic-facts.json`) since that file's shape has no concept of
@@ -896,6 +964,7 @@ export function branchConditionalFacts(
   if (skill.id === RADIANT_RESOLVE_ID) return radiantResolveSections(skill, durationPercent, healingPower)
   if (skill.id === RADIANT_COURAGE_ID) return radiantCourageSections(skill, durationPercent)
   if (skill.id === FACET_OF_NATURE_ID) return trueNatureBranches(skill, equippedLegendIds, legends, activeTraitIds, durationPercent)
+  if (skill.id === SIPHON_ID) return siphonSections(skill, durationPercent, healingPower)
   return null
 }
 
