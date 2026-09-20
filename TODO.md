@@ -31,6 +31,18 @@ Last touched: 2026-09-20. Re-checks: 0.
 
 ## Unscheduled
 
+### [Triple Threat/Twilight Combo Missing Enemy/Ally Effects] — Leg 1
+Surfaced while fixing Measured Shot/Endless Night's own missing boon/condition facts (see
+COMPLETED.md "Specter Scepter/Pistol Skill 3 Display" follow-up): Scepter skill 3's other two
+off-hand variants — Triple Threat (63154, off-hand-empty default) and Twilight Combo (63254,
+off-hand Dagger) — have the exact same "empty/stale API facts" shape (local data has only
+Range/Number, no boon/condition numbers) despite their own descriptions naming the same "hinders
+foes and helps allies" kit. Not fixed in this pass since the user's report was specifically about
+Measured Shot/Endless Night; would need its own wiki `action=raw` fetch and a
+`tripleThreatSections`/`twilightComboSections` pair in `branch-conditional-facts.ts`, same shape as
+`measuredShotSections`/`endlessNightSections`.
+Last touched: 2026-09-20. Re-checks: 0.
+
 ### [Deadeye's Mark/Skritt Swipe Stale Even the Odds Vulnerability] — Leg 1
 Surfaced while completing the Steal/Siphon trait-granted-facts follow-up (see COMPLETED.md "Specter
 Siphon F1 Effects"): Deadeye's Mark (43390) and Skritt Swipe (77397) both carry a native

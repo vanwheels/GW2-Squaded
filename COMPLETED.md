@@ -14,6 +14,17 @@ default (Triple Threat) regardless of the equipped off-hand. Fixed by exempting
 `THIEF_DUAL_WIELD_OFFHAND` table entries from the flip-removal signal and adding Measured Shot's
 missing Pistol entry to that table. See commit `d134053`.
 
+**Follow-up (same day):** with the correct skill now resolving, the user reported Measured Shot and
+its flip target Endless Night (63128) still showed only Range/Number of Targets — same "empty/stale
+API facts" shape `siphonSections` already documents for Siphon (F1), confirmed via the wiki's raw
+`action=raw` wikitext: both skills' real Enemy Target (Immobile/Slow/Torment)/Ally Target
+(Healing/Barrier/Regeneration/Vigor) effects never made it into the local data at all. Fixed via new
+`measuredShotSections`/`endlessNightSections` entries in `branch-conditional-facts.ts`, same
+mechanism, flowing through the existing generic `skillTooltipContent` pipeline used by both the base
+icon and the flip-stack icon with no new rendering code. Triple Threat/Twilight Combo (Scepter skill
+3's other two off-hand variants) have the identical gap, logged to TODO.md rather than fixed here
+since they were out of the user's report. See commit `8290e4a`.
+
 ### [Specter Siphon F1 Effects] — Leg 2
 2026-09-20. Root cause: this app's local API data for skill 63067 (Siphon) is a stale, unmigrated
 copy of core Thief's "Steal" (`description: "Steal."`, only Range/Recharge facts) — Specter's real
