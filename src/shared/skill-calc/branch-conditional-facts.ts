@@ -19,6 +19,8 @@ const ENDLESS_NIGHT_ID = 63128
 const SHADOW_BOLT_ID = 63066
 const DOUBLE_BOLT_ID = 63182
 const TRIPLE_BOLT_ID = 63134
+const TRIPLE_THREAT_ID = 63154
+const TWILIGHT_COMBO_ID = 63254
 
 // Guardian Luminary (specialization id 81)'s 3 reworked Virtues — see `radiantJusticeSections`'s
 // doc comment below for the full writeup. Ids are each virtue's F1/F2/F3 mechanic-bar entry point,
@@ -1207,6 +1209,147 @@ function scepterAutoBoltSections(
 }
 
 /**
+ * Scepter skill 3's other two off-hand variants — Triple Threat (63154, off-hand-empty default) and
+ * Twilight Combo (63254, off-hand Dagger, "Dual Wield"). Same "empty/stale API facts" shape
+ * `measuredShotSections`/`endlessNightSections`/`scepterAutoBoltSections` already document: this
+ * app's local `skills.json` entries carry only Range (Triple Threat also has "Number of Impacts: 3")
+ * — every real Enemy/Ally-branch number comes from the wiki's raw `{{skill fact}}` templates
+ * (fetched fresh 2026-09-20 via `action=raw`, both pages' full Notes/Mechanics/Version-history
+ * sections checked too — neither carries a "hits/pierces up to N enemies" prose note the way Measured
+ * Shot/Endless Night do, so both skills' enemy-condition facts use `targetCount: 1`, same as
+ * `scepterAutoBoltSections`'s own autoattack-chain Torment). WvW value used throughout on any fact
+ * with a real PvE/WvW/PvP split (this app's usual convention) — noted per-line below since the two
+ * skills split their facts differently: Triple Threat only splits Barrier (PvE 522/0.1 vs. WvW+PvP
+ * 365/0.07, identical to `scepterAutoBoltSections`'s own Barrier numbers), everything else on it is
+ * unsplit; Twilight Combo splits Damage/Chilled/Poisoned/Torment as three genuinely different PvE/
+ * WvW/PvP values each (not the "WvW+PvP grouped" shape), so the WvW-specific value is picked for
+ * each rather than a shared WvW+PvP number.
+ */
+function tripleThreatSections(skill: Skill, durationPercent: { boon: number; condition: number }, healingPower: number): ConditionalBranch[] {
+  const barrierLine = (): FactLine => ({
+    icon: MISCELLANEOUS_ICONS.Barrier,
+    text: `Barrier: ${Math.round(365 + 0.07 * healingPower).toLocaleString()}` // WvW+PvP value (PvE 522 base, 0.1 coefficient)
+  })
+
+  return [
+    {
+      label: 'Enemy Target',
+      description: 'Torment foes.',
+      numericLines: [
+        { icon: null, text: 'Damage Coefficient: 0.45 (scepter)' },
+        { icon: NUMBER_FACT_ICON, text: 'Number of Hits: 3' }
+      ],
+      facts: [
+        {
+          sourceKind: 'skill',
+          sourceId: skill.id,
+          sourceName: skill.name,
+          sourceIcon: skill.icon,
+          boonOrConditionName: 'Torment',
+          isCondition: true,
+          category: 'condition',
+          baseDurationSeconds: 4, // no PvE/WvW/PvP split
+          scaledDurationSeconds: 4 * (1 + durationPercent.condition / 100),
+          applyCount: 1,
+          requiresTraitId: null,
+          targetCount: 1
+        }
+      ]
+    },
+    {
+      label: 'Ally Target',
+      description: 'Missiles track and grant barrier to allies. Effectiveness is reduced for allies that are not the primary target.',
+      numericLines: [
+        barrierLine(),
+        { icon: null, text: 'Effectiveness Decreased (secondary targets): 50%' }, // no PvE/WvW/PvP split
+        { icon: NUMBER_FACT_ICON, text: 'Number of Impacts: 3' },
+        { icon: ALLIED_TARGETS_ICON, text: 'Allied Targets: 5' },
+        { icon: RADIUS_ICON, text: 'Radius: 240' },
+        { icon: null, text: 'Unblockable' }
+      ],
+      facts: []
+    }
+  ]
+}
+
+/**
+ * Twilight Combo (63254) — see `tripleThreatSections`'s doc comment above for the shared root cause
+ * and sourcing method. Its own "Effectiveness Decreased" fact is the one line that DOES split as
+ * "WvW+PvP grouped" (25%) vs. PvE (50%), unlike its Damage/Chilled/Poisoned/Torment facts (each a
+ * genuine 3-way PvE/WvW/PvP split, WvW's own value picked per this app's usual convention). Barrier
+ * (2576 base/0.5 coefficient), the Second Missile Healing (714 base/0.2 coefficient) and Swiftness
+ * (5s) all carry no split at all on the wiki — used as-is. No "Unblockable" fact exists on this
+ * skill's wiki page (unlike Triple Threat/`scepterAutoBoltSections`'s ally branches) — deliberately
+ * left off rather than assumed.
+ */
+function twilightComboSections(skill: Skill, durationPercent: { boon: number; condition: number }, healingPower: number): ConditionalBranch[] {
+  const enemyRow = (name: 'Chilled' | 'Poisoned' | 'Torment', baseDurationSeconds: number, applyCount = 1): BoonConditionSource => ({
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: name,
+    isCondition: true,
+    category: 'condition',
+    baseDurationSeconds,
+    scaledDurationSeconds: baseDurationSeconds * (1 + durationPercent.condition / 100),
+    applyCount,
+    requiresTraitId: null,
+    targetCount: 1
+  })
+  const swiftness: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Swiftness',
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds: 5, // no PvE/WvW/PvP split
+    scaledDurationSeconds: 5 * (1 + durationPercent.boon / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    targetCount: 5
+  }
+  const barrierLine = (): FactLine => ({
+    icon: MISCELLANEOUS_ICONS.Barrier,
+    text: `Barrier: ${Math.round(2576 + 0.5 * healingPower).toLocaleString()}` // no PvE/WvW/PvP split
+  })
+  const healLine = (): FactLine => ({
+    icon: HEALING_ICON,
+    text: `Second Missile Healing: ${Math.round(714 + 0.2 * healingPower).toLocaleString()}` // no PvE/WvW/PvP split
+  })
+
+  return [
+    {
+      label: 'Enemy Target',
+      description: 'Chills and poisons foes. Then, fire a quick tormenting shot.',
+      numericLines: [
+        { icon: null, text: 'Initial Attack Damage Coefficient: 1.5 (scepter)' }, // WvW value (PvE 1.0, PvP 1.3)
+        { icon: null, text: 'Secondary Attack Damage Coefficient: 0.5 (scepter)' } // no PvE/WvW/PvP split
+      ],
+      facts: [
+        enemyRow('Chilled', 3), // WvW value, grouped with PvE (PvP 2s)
+        enemyRow('Poisoned', 8), // WvW value (PvE 5s, PvP 6s)
+        enemyRow('Torment', 8, 3) // WvW value (PvE 5s, PvP 6s), stacks=3
+      ]
+    },
+    {
+      label: 'Ally Target',
+      description: 'Grant swiftness and barrier. Then, fire a quick healing bolt. Effectiveness is reduced for allies that are not the primary target.',
+      numericLines: [
+        barrierLine(),
+        healLine(),
+        { icon: null, text: 'Effectiveness Decreased (secondary targets): 25%' }, // WvW+PvP value (PvE 50%)
+        { icon: ALLIED_TARGETS_ICON, text: 'Allied Targets: 5' },
+        { icon: RADIUS_ICON, text: 'Radius: 240' }
+      ],
+      facts: [swiftness]
+    }
+  ]
+}
+
+/**
  * Per-skill mutually-exclusive-outcome fact sections for `skillTooltipContent` to render as extra
  * labeled dividers below the base facts — `null` for every skill without one. Kept as its own
  * lookup (rather than folded into `synthetic-facts.json`) since that file's shape has no concept of
@@ -1246,6 +1389,8 @@ export function branchConditionalFacts(
   if (skill.id === SHADOW_BOLT_ID) return scepterAutoBoltSections(skill, durationPercent, healingPower, null)
   if (skill.id === DOUBLE_BOLT_ID) return scepterAutoBoltSections(skill, durationPercent, healingPower, 2)
   if (skill.id === TRIPLE_BOLT_ID) return scepterAutoBoltSections(skill, durationPercent, healingPower, 3)
+  if (skill.id === TRIPLE_THREAT_ID) return tripleThreatSections(skill, durationPercent, healingPower)
+  if (skill.id === TWILIGHT_COMBO_ID) return twilightComboSections(skill, durationPercent, healingPower)
   return null
 }
 
