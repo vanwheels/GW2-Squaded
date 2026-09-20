@@ -4,6 +4,13 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Triple Threat/Twilight Combo Missing Enemy/Ally Effects] — Leg 1
+2026-09-20. Same "empty/stale API facts" shape as Measured Shot/Endless Night (see "Specter
+Scepter/Pistol Skill 3 Display" below), fixed the same way with a `tripleThreatSections`/
+`twilightComboSections` pair sourced from fresh wiki `action=raw` fetches. Full test suite passes
+with only the one pre-existing, unrelated `legend-form-facts.test.ts` failure noted below (not
+touched here). See commit `ae7b788`.
+
 ### [Serpent's Touch Downstate/Steal Poison Duplication] — Leg 1
 2026-09-20. Root cause: `extractFromFacts` (boon-calc/sources.ts) never consulted a `Fact.overrides`
 index, so an active `traitedFact` showed ALONGSIDE the base fact it's meant to replace instead of
