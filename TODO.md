@@ -8,20 +8,14 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Current Milestone: Specter Display & Mechanics Fixes
+## Current Milestone: Thief Pass + Celestial Fix
 
-Five independent Specter-only display/mechanics bugs reported by the user in one batch
-(2026-09-20). Bundled under one milestone because they share a profession and symptom class
-(incorrect or missing skill/trait effects shown to the player), not because they share a root
-cause — each leg gets its own investigation. Legs 1-4 done; Leg 5 not yet root-caused.
-
-### [Shadestep WvW Alacrity Fix] — Leg 5
-Shadestep (Specter grandmaster trait 3) doesn't grant alacrity in WvW — it has a different effect
-set in WvW than the one currently modeled. Needs the WvW-specific effects looked up and modeled
-separately from the PvE/general version.
-Last touched: 2026-09-20. Re-checks: 0.
-
-## Unscheduled
+Started as five independent Specter-only display/mechanics bugs reported by the user in one batch
+(2026-09-20); expanded to the rest of the thief-wide gaps surfaced during that same investigation
+pass, plus one unrelated Celestial stat-prefix data fix folded in since it was quick to schedule
+alongside. Bundled under one milestone for scheduling convenience, not because every leg shares a
+root cause — each leg gets its own investigation. Original Specter batch legs 1-4 done; Leg 5 not
+yet root-caused; the five legs below are newly added and untouched.
 
 ### [Serpent's Touch Downstate/Steal Poison Duplication] — Leg 1
 User-reported 2026-09-20: with Potent Poison (1291) also equipped, Serpent's Touch's own trait
@@ -78,8 +72,10 @@ Last touched: 2026-09-20. Re-checks: 0.
 ### [Celestial Stat Prefix Concentration/Expertise] — Leg 1
 The Celestial stat prefix currently grants Concentration and Expertise; that was removed from
 Celestial's stat spread a while back in-game and the app hasn't been updated to match. Standalone,
-unrelated to the Specter milestone above — quick data fix once picked up.
+unrelated to the thief legs above — quick data fix once picked up.
 Last touched: 2026-09-20. Re-checks: 0.
+
+## Unscheduled
 
 ### [Discord Bot Profession-Scoped Game-Data Fetch] — Leg 1 (nice-to-have, deprioritized)
 A fresh browser session still re-fetches all 26 game-data JSON files (11MB) per render even though

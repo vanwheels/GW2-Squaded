@@ -4,6 +4,15 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Shadestep WvW Alacrity Fix] — Leg 5
+2026-09-20. Root cause: Shadestep (2289)'s own `facts` array carries both an Alacrity(5s) fact and
+a Regeneration(3s) fact for Grasping Shadows with no game-mode discriminator in the local data, so
+both showed unconditionally. Wiki raw wikitext confirmed the two are mutually exclusive per mode
+(Alacrity PvE-only, Regeneration the WvW+PvP grant) — same "confirmed absent in WvW" shape as
+Saint's Shield (62689). Fixed via a `wvw-fact-overrides.json`/`MANUAL_OVERRIDES` `Alacrity: 'omit'`
+entry, this app's existing per-status WvW-override mechanism; no new infra needed. See commit
+`1e0cf87`.
+
 ### [Specter Scepter Auto Chain Display] — Leg 4
 2026-09-20. Root cause: Shadow Bolt (Scepter mainhand skill 1)'s live `flipSkill` points at
 Shadowsquall (its Stealth Attack replacement) instead of Double Bolt, the real next autoattack-chain
