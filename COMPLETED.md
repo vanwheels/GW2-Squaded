@@ -4,6 +4,17 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Celestial Stat Prefix Concentration/Expertise] — Leg 1
+2026-09-20. User's premise ("removed from Celestial a while back") didn't match the live API —
+confirmed live that `/v2/itemstats` still reports Concentration/Expertise on Celestial. The real
+gap: the wiki's `Celestial` page raw wikitext shows both were removed from **WvW only** in the
+October 8, 2024 update, kept for PvE. Since this app models WvW exclusively, the API's PvE-only
+spread was wrong for every build here. Fixed via a `WVW_ITEMSTAT_ATTRIBUTE_EXCLUSIONS` table in
+`fetch-game-data.ts`'s `normalizeItemStat` (same "small hardcoded constant for a real API gap"
+pattern as `LEGEND_SPECIALIZATION_ID`), plus a direct patch to the committed `itemstats.json`
+rather than re-running the full fetch pipeline. Closes the "Thief Pass + Celestial Fix" milestone —
+see `docs/postmortems/thief-pass-plus-celestial-fix.md`. See commit `fe71962`.
+
 ### [Specter Siphon F1 Recharge Split] — Leg 1
 2026-09-20. Already fixed, no code change needed: `data/game-data/recharge-wvw-overrides.json`'s
 2026-08-22 sweep (commit `6b75e7d`, predates this leg's own 2026-09-20 origin comment in

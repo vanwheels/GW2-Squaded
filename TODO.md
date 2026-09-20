@@ -8,22 +8,6 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Current Milestone: Thief Pass + Celestial Fix
-
-Started as five independent Specter-only display/mechanics bugs reported by the user in one batch
-(2026-09-20); expanded to the rest of the thief-wide gaps surfaced during that same investigation
-pass, plus one unrelated Celestial stat-prefix data fix folded in since it was quick to schedule
-alongside. Bundled under one milestone for scheduling convenience, not because every leg shares a
-root cause — each leg gets its own investigation. Original Specter batch legs 1-4 done; Leg 5 not
-yet root-caused; Triple Threat/Twilight Combo done; Deadeye's Mark/Skritt Swipe Stale Even the Odds
-Vulnerability done; the two legs below are untouched.
-
-### [Celestial Stat Prefix Concentration/Expertise] — Leg 1
-The Celestial stat prefix currently grants Concentration and Expertise; that was removed from
-Celestial's stat spread a while back in-game and the app hasn't been updated to match. Standalone,
-unrelated to the thief legs above — quick data fix once picked up.
-Last touched: 2026-09-20. Re-checks: 0.
-
 ## Unscheduled
 
 ### [Discord Bot Profession-Scoped Game-Data Fetch] — Leg 1 (nice-to-have, deprioritized)
