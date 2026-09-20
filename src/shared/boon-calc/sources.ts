@@ -3049,7 +3049,19 @@ export type WvwInstanceOverride = number | 'omit'
  * structure instead of the API's accidental 1s/3s bucketing.
  */
 export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<string, WvwInstanceOverride>>; trait: Record<number, Record<string, WvwInstanceOverride>> } = {
-  skill: {},
+  skill: {
+    // Steal/Deadeye's Mark/Siphon/Skritt Swipe (13014/43390/63067/77397) — TODO.md "Specter Siphon
+    // F1 Effects" follow-up (2026-09-20): `synthetic-facts.json`'s Bountiful Theft (id 1277) copy on
+    // all 4 of these skills carries the SAME raw pve/wvw+pvp Might duplicate pair the `trait: {1277:
+    // ...}` entry below already fixes for the trait's OWN tooltip — but `resolveInstanceValueOverride`
+    // keys off the PASSED-IN sourceKind/sourceId (here, each skill's own id), not the fact's
+    // `requires_trait`, so the trait-side fix never applied to these skills' tooltips at all. Same
+    // fix, mirrored per skill id (`Might@10@1`, the real wvw+pvp fact, needs no entry).
+    13014: { 'Might@10@5': 'omit' },
+    43390: { 'Might@10@5': 'omit' },
+    63067: { 'Might@10@5': 'omit' },
+    77397: { 'Might@10@5': 'omit' }
+  },
   trait: {
     675: {
       // Illusionary Defense (Chaos, id 675, "Grant protection to nearby allies when you use Shatter

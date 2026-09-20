@@ -886,8 +886,41 @@ function trueNatureBranches(
  * about missing/incomplete effects, not this number): the wiki's own infobox splits Recharge as
  * `recharge = 18` (PvE) vs. `recharge pvp = 25`/`recharge wvw = 25`, but the stale API fact this app's
  * base facts block renders today is a flat 18 with no split at all.
+ *
+ * Follow-up (same day, user screenshot comparison against a live trait-loaded reference build): the
+ * base facts above are only HALF the real tooltip — a live "Steal" or "Siphon" tooltip also folds in
+ * every equipped Thief trait that grants its own bonus "when you Steal" (Kleptomaniac/Sleight of
+ * Hand/Thrill of the Crime/Even the Odds/Serpent's Touch/Bountiful Theft's own "Boons Stolen" count),
+ * per each trait's own wiki `improves skill = Steal, Deadeye's Mark, Siphon, Skritt Swipe` tag — not
+ * Specter-specific at all, core Steal (13014) has the exact same gap. Every one of those EXCEPT
+ * Sleight of Hand's Daze is a real `classifyBoonCondition`-recognized status or a plain `Number` fact,
+ * so it's handled the normal generic way (`data/game-data/synthetic-facts.json` entries on all 4
+ * "Steal-family" skill ids — 13014/43390 Deadeye's Mark/63067/77397 Skritt Swipe — gated by
+ * `requires_trait`, already flowing through `boonConditionFactsForSkill`/`numericFactLines` with zero
+ * new code) rather than through this branch mechanism. Also fixed alongside: `synthetic-facts.json`'s
+ * pre-existing Bountiful Theft (1277) copy on those same 4 skills carried the raw pve(5-stack)/
+ * wvw+pvp(1-stack) Might duplicate pair unresolved — the trait's own tooltip already had this fixed
+ * via `BUFF_INSTANCE_VALUE_OVERRIDES.trait[1277]`, but that lookup keys off the PASSED-IN source
+ * (here, the skill), so the fix never reached the skill-side copy; mirrored into
+ * `BUFF_INSTANCE_VALUE_OVERRIDES.skill` for all 4 ids. Even the Odds' Vulnerability is native/correct
+ * on core Steal already and added synthetically only for 63067 (which lacks it entirely) — Deadeye's
+ * Mark/Skritt Swipe carry a separate, STALE native value for it (pre-2024-10-08-patch stack count),
+ * a distinct data-staleness gap logged to TODO.md rather than fixed here.
+ *
+ * Daze (Sleight of Hand, trait 1158) is the one exception: a real `Buff` fact, but Daze is a control
+ * effect, not a `classifyBoonCondition`-recognized boon/condition, and `factLine`/`numericFactLines`
+ * has no case for raw `Buff`-type facts at all (see that function's own doc comment) — so it has no
+ * existing generic path to render through, same "no code path claims this fact type" gap this file's
+ * `strengtheningStanzasBranches`/`draconicEchoSections` already work around. Added here instead, as a
+ * conditional Enemy Target line gated on `activeTraitIds`.
  */
-function siphonSections(skill: Skill, durationPercent: { boon: number; condition: number }, healingPower: number): ConditionalBranch[] {
+function siphonSections(
+  skill: Skill,
+  durationPercent: { boon: number; condition: number },
+  healingPower: number,
+  activeTraitIds: ReadonlySet<number>
+): ConditionalBranch[] {
+  const SLEIGHT_OF_HAND_TRAIT_ID = 1158
   const slow: BoonConditionSource = {
     sourceKind: 'skill',
     sourceId: skill.id,
@@ -912,9 +945,14 @@ function siphonSections(skill: Skill, durationPercent: { boon: number; condition
     {
       label: 'Enemy Target',
       description: "Steal your foe's shadow, slowing them for a period of time while gaining shadow force.",
-      // Shadow Force isn't a tracked boon/condition in this app — display-only, same treatment
-      // `chantOfActionSections`'s own "Motivation Cost per Interval" lines get.
-      numericLines: [{ icon: null, text: 'Shadow Force Gain: 25%' }], // WvW+PvE value (PvP 15%)
+      numericLines: [
+        // Shadow Force isn't a tracked boon/condition in this app — display-only, same treatment
+        // `chantOfActionSections`'s own "Motivation Cost per Interval" lines get.
+        { icon: null, text: 'Shadow Force Gain: 25%' }, // WvW+PvE value (PvP 15%)
+        // Sleight of Hand (1158): Daze has no generic Buff-fact render path — see this function's
+        // own doc comment.
+        ...(activeTraitIds.has(SLEIGHT_OF_HAND_TRAIT_ID) ? [{ icon: null, text: 'Daze: 1s (Sleight of Hand)' }] : [])
+      ],
       facts: [slow]
     },
     {
@@ -964,7 +1002,7 @@ export function branchConditionalFacts(
   if (skill.id === RADIANT_RESOLVE_ID) return radiantResolveSections(skill, durationPercent, healingPower)
   if (skill.id === RADIANT_COURAGE_ID) return radiantCourageSections(skill, durationPercent)
   if (skill.id === FACET_OF_NATURE_ID) return trueNatureBranches(skill, equippedLegendIds, legends, activeTraitIds, durationPercent)
-  if (skill.id === SIPHON_ID) return siphonSections(skill, durationPercent, healingPower)
+  if (skill.id === SIPHON_ID) return siphonSections(skill, durationPercent, healingPower, activeTraitIds)
   return null
 }
 
