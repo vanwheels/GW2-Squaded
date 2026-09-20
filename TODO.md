@@ -8,7 +8,45 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
+## Current Milestone: Specter Display & Mechanics Fixes
+
+Five independent Specter-only display/mechanics bugs reported by the user in one batch
+(2026-09-20). Bundled under one milestone because they share a profession and symptom class
+(incorrect or missing skill/trait effects shown to the player), not because they share a root
+cause — each leg gets its own investigation. Leg 1 done; Legs 2-5 not yet root-caused.
+
+### [Specter Siphon F1 Effects] — Leg 2
+Specter's Siphon (F1) doesn't display its ally-facing effect, and the enemy-facing siphon effects
+shown are incomplete.
+Last touched: 2026-09-20. Re-checks: 0.
+
+### [Specter Scepter/Pistol Skill 3 Display] — Leg 3
+With scepter+pistol equipped, skill 3 displays "Triple Threat" as an extra skill entry instead of
+just its two actual components (Measured Shot, Endless Night), and neither component's effects are
+shown. Possibly related root cause to Leg 4 (both look like a combined/chain skill name being
+displayed in place of its real sub-skills) — worth checking together, but tracked as separate legs
+since they're different skill slots.
+Last touched: 2026-09-20. Re-checks: 0.
+
+### [Specter Scepter Auto Chain Display] — Leg 4
+Specter's 1 skill (auto-attack chain) doesn't show ally or enemy effects for any part of the
+chain, and the 2nd/3rd chain parts (Double Bolt, Triple Bolt) aren't shown at all — "Shadowsquall"
+displays instead. Possibly related root cause to Leg 3 — see note there.
+Last touched: 2026-09-20. Re-checks: 0.
+
+### [Shadestep WvW Alacrity Fix] — Leg 5
+Shadestep (Specter grandmaster trait 3) doesn't grant alacrity in WvW — it has a different effect
+set in WvW than the one currently modeled. Needs the WvW-specific effects looked up and modeled
+separately from the PvE/general version.
+Last touched: 2026-09-20. Re-checks: 0.
+
 ## Unscheduled
+
+### [Celestial Stat Prefix Concentration/Expertise] — Leg 1
+The Celestial stat prefix currently grants Concentration and Expertise; that was removed from
+Celestial's stat spread a while back in-game and the app hasn't been updated to match. Standalone,
+unrelated to the Specter milestone above — quick data fix once picked up.
+Last touched: 2026-09-20. Re-checks: 0.
 
 ### [Discord Bot Profession-Scoped Game-Data Fetch] — Leg 1 (nice-to-have, deprioritized)
 A fresh browser session still re-fetches all 26 game-data JSON files (11MB) per render even though
