@@ -124,6 +124,9 @@ interface Props<T extends number | string = number> {
  * text resolves to "Concentration", matching the Stats panel) and catches bonuses no substring of
  * the tooltip text would ever reveal (e.g. a "+N to All Stats" rune affects Power without the word
  * "Power" appearing anywhere in its text) — see `bonusStatDisplayNames` in `attribute-totals.ts`.
+ * The `#` mode accepts multiple `#`-prefixed tokens in one query (e.g. "#power #vitality") and ANDs
+ * them — an option must match every listed stat, not just one — so a search can narrow toward a
+ * specific multi-stat combo instead of only ever filtering on one attribute at a time.
  */
 export function UpgradePicker<T extends number | string = number>({
   label,
@@ -145,11 +148,15 @@ export function UpgradePicker<T extends number | string = number>({
   const chosen = chosenId !== null ? options.find((o) => o.id === chosenId) : undefined
   const query = search.trim().toLowerCase()
   const statQuery = query.startsWith('#') ? query.slice(1).trim() : null
+  const statQueries =
+    statQuery !== null
+      ? Array.from(new Set(query.split(/\s+/).filter((t) => t.startsWith('#')).map((t) => t.slice(1)).filter(Boolean)))
+      : []
   const filtered =
     statQuery !== null
-      ? statQuery === ''
+      ? statQueries.length === 0
         ? options
-        : options.filter((o) => o.statKeywords?.some((k) => k.toLowerCase().startsWith(statQuery)))
+        : options.filter((o) => statQueries.every((sq) => o.statKeywords?.some((k) => k.toLowerCase().startsWith(sq))))
       : query
         ? options.filter((o) => o.name.toLowerCase().includes(query) || o.description?.toLowerCase().includes(query))
         : options
@@ -231,7 +238,7 @@ export function UpgradePicker<T extends number | string = number>({
           <input
             type="text"
             className="upgrade-picker-search"
-            placeholder="Search… (#stat for Power, Ferocity, …)"
+            placeholder="Search… (#stat, or #power #vitality)"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             autoFocus

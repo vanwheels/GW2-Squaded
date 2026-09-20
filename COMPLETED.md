@@ -4,6 +4,12 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [UpgradePicker Multi-Tag Stat Search] — Leg 1
+2026-09-20. `UpgradePicker`'s `#<stat>` search mode only ever matched a single stat keyword —
+`#power #vitality` didn't narrow to options affecting both. Extended it to parse every
+`#`-prefixed token in the query and AND them together (an option must match every listed stat),
+keeping the existing per-token prefix-match behavior. See commit `<pending>`.
+
 ### [Celestial Stat Prefix Concentration/Expertise] — Leg 1
 2026-09-20. User's premise ("removed from Celestial a while back") didn't match the live API —
 confirmed live that `/v2/itemstats` still reports Concentration/Expertise on Celestial. The real
