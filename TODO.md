@@ -31,6 +31,23 @@ Last touched: 2026-09-20. Re-checks: 0.
 
 ## Unscheduled
 
+### [Serpent's Touch Downstate/Steal Poison Duplication] — Leg 1
+User-reported 2026-09-20: with Potent Poison (1291) also equipped, Serpent's Touch's own trait
+tooltip shows 5 "Poisoned" rows instead of 2, and only the Steal/Siphon-context one actually
+matters — the Downstate-only ones are noise. Root cause (already flagged, undone, in
+`boon-calc/sources.ts`'s `BUFF_INSTANCE_VALUE_OVERRIDES[1279]` doc comment near line 3235):
+`extractFromFacts` gates a trait's `traitedFacts` by `requires_trait` but never consults their
+`overrides` index to suppress the base fact each one is meant to REPLACE, so a Potent-Poison-active
+build gets an extra undifferentiated duplicate for both the Steal-context and "Poison When Downed"
+facts, plus a 5th leaked row from a fact that's supposed to be fully omitted (the pvp-only
+`Poisoned@10@1` duplicate is already `'omit'`-listed, but its own Potent-Poison-boosted traited
+copy isn't). This is the same generic "`Fact.overrides` exists but nothing consumes it" gap
+`trueNatureBranches`' doc comment in `branch-conditional-facts.ts` also flags — a fix in
+`extractFromFacts` itself (rather than another single-trait override entry) would likely resolve
+both at once and any other trait sharing this shape; worth checking for reuse before scoping the
+fix narrowly to trait 1279.
+Last touched: 2026-09-20. Re-checks: 0.
+
 ### [Triple Threat/Twilight Combo Missing Enemy/Ally Effects] — Leg 1
 Surfaced while fixing Measured Shot/Endless Night's own missing boon/condition facts (see
 COMPLETED.md "Specter Scepter/Pistol Skill 3 Display" follow-up): Scepter skill 3's other two
