@@ -15,6 +15,24 @@ the wiki's raw `action=raw` wikitext (not a rendered/summarized fetch). A relate
 Recharge-split gap surfaced during the curation was logged separately, not fixed here (see TODO.md
 Unscheduled). See commit `ef76ebd`.
 
+**Follow-up (same day, same leg):** a user screenshot comparison against a live trait-loaded
+reference build showed the base-facts fix above was only half the picture — a live Steal/Siphon
+tooltip also folds in every equipped Thief trait that grants its own "on Steal" bonus (Kleptomaniac,
+Sleight of Hand, Thrill of the Crime, Even the Odds, Serpent's Touch, Bountiful Theft's own "Boons
+Stolen" count), none of which are Specter-specific — core Steal (13014) had the identical gap. Fixed
+by extending `data/game-data/synthetic-facts.json` for all 4 "Steal-family" skill ids (13014 Steal,
+43390 Deadeye's Mark, 63067 Siphon, 77397 Skritt Swipe) with each trait's wiki-verified WvW-value
+facts, flowing through the existing generic `boonConditionFactsForSkill`/`numericFactLines` pipeline
+with no new rendering code. Also fixed a pre-existing latent bug found along the way: the same
+pipeline's Bountiful Theft Might fact was showing an un-deduped pve/wvw duplicate pair on every one
+of these 4 skills' own tooltips (already fixed for the trait's own tooltip via
+`BUFF_INSTANCE_VALUE_OVERRIDES.trait[1277]`, but that lookup keys off the passed-in skill id, so the
+existing fix never reached the skill side) — mirrored into `BUFF_INSTANCE_VALUE_OVERRIDES.skill` for
+all 4 ids. Daze (Sleight of Hand) has no generic Buff-fact render path in this app at all (not a
+tracked boon/condition), so it's added as a conditional line inside `siphonSections` instead. A
+separate, unrelated data-staleness gap found on Deadeye's Mark/Skritt Swipe's own native Even the
+Odds Vulnerability fact was logged to TODO.md, not fixed in this pass. See commit `12c551a`.
+
 ### [Specter Steal F3 Slot Display] — Leg 1
 2026-09-20. Root cause: Thief's only raw `Profession_3` candidates in the API data were two
 orphan duplicate ids of "Zephyrite Sun Crystal" (78309, 79285), the same stolen skill already
