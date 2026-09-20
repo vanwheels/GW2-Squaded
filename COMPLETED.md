@@ -13,7 +13,7 @@ index now suppresses its base-array target), plus one curated occurrence-omit en
 boosted pvp-only duplicate that isn't itself an `overrides` target. Full test suite (539 tests) and
 typecheck/lint pass with only one pre-existing, unrelated failure (`legend-form-facts.test.ts`'s
 Lesser Enchanted Daggers siphon numbers, confirmed failing on main before this change too — not
-touched here). See commit `<pending>`.
+touched here). See commit `0194245`.
 
 ### [Shadestep WvW Alacrity Fix] — Leg 5
 2026-09-20. Root cause: Shadestep (2289)'s own `facts` array carries both an Alacrity(5s) fact and
