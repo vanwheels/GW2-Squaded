@@ -3244,10 +3244,20 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
       // one status; the "only emit the first occurrence of an overridden status" collapse would
       // wrongly swallow the genuinely-different "Poison When Downed" fact too) — occurrence-
       // indexed omit instead. `Poisoned@10@2` (the pve/wvw fact itself) needs no entry, already
-      // correct as-is; its own `traitedFacts` 2nd pair (gated on Potent Poison, id 1291) is the
-      // same cross-trait-interaction shape left alone on every prior leg (Serene Rejuvenation
-      // etc.), not touched here.
-      'Poisoned@10@1': 'omit' // pvp-only (10s/1 stack)
+      // correct as-is.
+      //
+      // 2026-09-20: its own `traitedFacts` (gated on Potent Poison, id 1291) each carry an
+      // `overrides` index naming which base fact they replace once Potent Poison is active —
+      // `extractFromFacts` now consumes that generically (see its own doc comment), so the
+      // unboosted Steal (`facts[0]`, index 0) and Downed (`facts[2]`, index 2) rows are correctly
+      // suppressed in favor of their boosted `traitedFacts` replacements. The pvp-only dup
+      // (`facts[1]`, index 1) has its own boosted traited copy too (`Poisoned@10@2`, `overrides:
+      // 1`) — that fact isn't itself an `overrides` TARGET (nothing indexes into `traitedFacts`),
+      // so the generic suppression can't drop it on its own; it collides on tuple with the boosted
+      // Steal row (`traitedFacts[0]`, also `Poisoned@10@2`), landing as tuple occurrence 2 of 2,
+      // omitted below the same way every other pvp-only duplicate in this table is.
+      'Poisoned@10@1': 'omit', // pvp-only (10s/1 stack)
+      'Poisoned@10@2#2': 'omit' // pvp-only, Potent-Poison-boosted (10s/2 stacks)
     },
     2393: {
       // Possessive Hoarder (Antiquary). The 2026-08-14 buff-instance-label sweep found this
@@ -4191,10 +4201,25 @@ function extractFromFacts(
   const emittedOverriddenStatuses = new Set<string>()
   const combinedFacts = [...facts, ...traitedFacts]
 
+  // `Fact.overrides` is the GW2 API's own documented convention: an index into this source's BASE
+  // `facts` array naming the entry a (usually `requires_trait`-gated) fact replaces once active —
+  // confirmed against live data by `trueNatureBranches`' doc comment in branch-conditional-facts.ts.
+  // Previously nothing consumed it here, so an active override sat ALONGSIDE its base fact instead of
+  // replacing it (e.g. Serpent's Touch showing both the unboosted and Potent-Poison-boosted Poisoned
+  // rows at once, TODO.md 2026-09-20) — this suppresses the base fact's own index whenever an active
+  // fact elsewhere in `combinedFacts` claims to override it.
+  const overriddenBaseFactIndices = new Set<number>()
+  for (const fact of combinedFacts) {
+    if (typeof fact.overrides !== 'number') continue
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
+    overriddenBaseFactIndices.add(fact.overrides)
+  }
+
   // Pre-pass for `resolveInstanceLabel`'s `tupleOccurrence`/`tupleTotal` — counts how many facts on
   // this source share the exact same status/duration/apply_count tuple, unfiltered by
-  // `requires_trait`/WvW-override activity (the curated `BUFF_INSTANCE_LABELS` keys were derived by
-  // eye from the source's raw, unfiltered facts array, so this pre-pass has to match that exactly).
+  // `requires_trait`/WvW-override/`overrides`-suppression activity (the curated `BUFF_INSTANCE_LABELS`
+  // keys were derived by eye from the source's raw, unfiltered facts array, so this pre-pass has to
+  // match that exactly).
   const tupleCounts = new Map<string, number>()
   for (const fact of combinedFacts) {
     if ((fact.type !== 'Buff' && fact.type !== 'PrefixedBuff') || typeof fact.status !== 'string' || typeof fact.duration !== 'number') continue
@@ -4203,7 +4228,8 @@ function extractFromFacts(
   }
   const tupleSeen = new Map<string, number>()
 
-  for (const fact of combinedFacts) {
+  for (let factIndex = 0; factIndex < combinedFacts.length; factIndex++) {
+    const fact = combinedFacts[factIndex]
     // `PrefixedBuff` (e.g. Revenant/Salvation's Serene Rejuvenation, "Legendary Centaur skills
     // apply boons in an area") carries the identical status/duration/apply_count/requires_trait
     // shape as `Buff`, just with an extra `prefix` naming the specific effect it rides on — see
@@ -4216,6 +4242,9 @@ function extractFromFacts(
     const tupleTotal = tupleCounts.get(tupleKey) ?? 1
     const tupleOccurrence = (tupleSeen.get(tupleKey) ?? 0) + 1
     tupleSeen.set(tupleKey, tupleOccurrence)
+
+    // Only the base `facts` portion of `combinedFacts` can be an `overrides` target (see above).
+    if (factIndex < facts.length && overriddenBaseFactIndices.has(factIndex)) continue
 
     const category = classify(fact.status)
     if (category === null) continue

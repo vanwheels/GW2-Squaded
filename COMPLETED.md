@@ -4,6 +4,17 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Serpent's Touch Downstate/Steal Poison Duplication] — Leg 1
+2026-09-20. Root cause: `extractFromFacts` (boon-calc/sources.ts) never consulted a `Fact.overrides`
+index, so an active `traitedFact` showed ALONGSIDE the base fact it's meant to replace instead of
+suppressing it — with Potent Poison (1291) equipped, Serpent's Touch's own tooltip leaked 5 Poisoned
+rows instead of 2. Fixed generically in `extractFromFacts` itself (any active fact's `overrides`
+index now suppresses its base-array target), plus one curated occurrence-omit entry for the
+boosted pvp-only duplicate that isn't itself an `overrides` target. Full test suite (539 tests) and
+typecheck/lint pass with only one pre-existing, unrelated failure (`legend-form-facts.test.ts`'s
+Lesser Enchanted Daggers siphon numbers, confirmed failing on main before this change too — not
+touched here). See commit `<pending>`.
+
 ### [Shadestep WvW Alacrity Fix] — Leg 5
 2026-09-20. Root cause: Shadestep (2289)'s own `facts` array carries both an Alacrity(5s) fact and
 a Regeneration(3s) fact for Grasping Shadows with no game-mode discriminator in the local data, so
