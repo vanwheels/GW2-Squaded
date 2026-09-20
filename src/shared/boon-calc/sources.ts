@@ -3057,10 +3057,21 @@ export const BUFF_INSTANCE_VALUE_OVERRIDES: { skill: Record<number, Record<strin
     // keys off the PASSED-IN sourceKind/sourceId (here, each skill's own id), not the fact's
     // `requires_trait`, so the trait-side fix never applied to these skills' tooltips at all. Same
     // fix, mirrored per skill id (`Might@10@1`, the real wvw+pvp fact, needs no entry).
+    //
+    // Deadeye's Mark/Skritt Swipe (43390/77397) — TODO.md "Deadeye's Mark/Skritt Swipe Stale Even
+    // the Odds Vulnerability" (2026-09-20): both skills' native `traitedFacts` carry a
+    // pre-2024-10-08-patch Vulnerability fact for Even the Odds (requires_trait 1169) — stale
+    // duration/stack values (10s/5 stacks) core Steal (13014) already has correct natively (6s/10
+    // stacks, wiki-verified) and Siphon (63067) already gets correct via its own `synthetic-facts.
+    // json` entry (that skill has no native Vulnerability fact at all — separate "Recharge Split"
+    // gap, TODO.md). A plain duration-only override can't fix this (apply_count is wrong too, same
+    // "plain override only replaces duration" shape as Seize the Moment/Found Purpose/HGH above) —
+    // omit the stale native occurrence here and let the correct one (mirrored into `synthetic-facts.
+    // json` for these 2 skills, matching Siphon's own entry exactly) pass through untouched.
     13014: { 'Might@10@5': 'omit' },
-    43390: { 'Might@10@5': 'omit' },
+    43390: { 'Might@10@5': 'omit', 'Vulnerability@10@5': 'omit' },
     63067: { 'Might@10@5': 'omit' },
-    77397: { 'Might@10@5': 'omit' }
+    77397: { 'Might@10@5': 'omit', 'Vulnerability@10@5': 'omit' }
   },
   trait: {
     675: {

@@ -33,6 +33,8 @@ function withSynthetic(skill: Skill): Skill {
 
 const SIPHON_ID = 63067
 const STEAL_ID = 13014
+const DEADEYES_MARK_ID = 43390
+const SKRITT_SWIPE_ID = 77397
 const KLEPTOMANIAC_ID = 1137
 const SLEIGHT_OF_HAND_ID = 1158
 const THRILL_OF_THE_CRIME_ID = 1163
@@ -101,7 +103,9 @@ describe('Steal/Siphon trait-granted facts (synthetic-facts.json + BUFF_INSTANCE
 
   it.each([
     ['Siphon', SIPHON_ID],
-    ['Steal', STEAL_ID]
+    ['Steal', STEAL_ID],
+    ["Deadeye's Mark", DEADEYES_MARK_ID],
+    ['Skritt Swipe', SKRITT_SWIPE_ID]
   ])('%s shows every Steal-modifying trait bonus with none of the pve-only Might duplicate', (_label, skillId) => {
     const skill = byId.get(skillId)
     expect(skill).toBeDefined()
@@ -143,6 +147,23 @@ describe('Steal/Siphon trait-granted facts (synthetic-facts.json + BUFF_INSTANCE
     expect(vulnFacts).toHaveLength(1)
     expect(vulnFacts[0]).toMatchObject({ baseDurationSeconds: 6, applyCount: 10 })
   })
+
+  it.each([
+    ["Deadeye's Mark", DEADEYES_MARK_ID],
+    ['Skritt Swipe', SKRITT_SWIPE_ID]
+  ])(
+    '%s omits its stale native pre-2024-10-08 Even the Odds Vulnerability (10s/5 stacks) in favor of the current wiki value (6s/10 stacks)',
+    (_label, skillId) => {
+      const skill = byId.get(skillId)
+      expect(skill).toBeDefined()
+      if (!skill) return
+      const merged = withSynthetic(skill)
+      const boonFacts = boonConditionFactsForSkill(merged, new Set([EVEN_THE_ODDS_ID]), new Set(), { boon: 0, condition: 0 }, undefined)
+      const vulnFacts = boonFacts.filter((f) => f.boonOrConditionName === 'Vulnerability')
+      expect(vulnFacts).toHaveLength(1)
+      expect(vulnFacts[0]).toMatchObject({ baseDurationSeconds: 6, applyCount: 10 })
+    }
+  )
 
   it('no trait-granted facts show up when no Steal-modifying trait is active', () => {
     const skill = byId.get(SIPHON_ID)

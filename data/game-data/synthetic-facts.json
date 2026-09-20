@@ -1761,6 +1761,7 @@
     { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1163, "description": "Critical chance increased; stacks duration." },
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3, "requires_trait": 1163, "description": "Increased outgoing damage; stacks intensity." },
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1163, "description": "Movement speed increased by 33%; stacks duration." },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 10, "requires_trait": 1169, "description": "Damage and condition damage taken are increased; stacks intensity." },
     { "type": "Buff", "status": "Poisoned", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 2, "requires_trait": 1279, "description": "Deals damage every second; decreases healing effectiveness by 33%; damage stacks intensity." }
   ],
   "63067": [
@@ -1790,6 +1791,7 @@
     { "type": "Buff", "status": "Fury", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1163, "description": "Critical chance increased; stacks duration." },
     { "type": "Buff", "status": "Might", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 3, "requires_trait": 1163, "description": "Increased outgoing damage; stacks intensity." },
     { "type": "Buff", "status": "Swiftness", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 1, "requires_trait": 1163, "description": "Movement speed increased by 33%; stacks duration." },
+    { "type": "Buff", "status": "Vulnerability", "text": "Apply Buff/Condition", "duration": 6, "apply_count": 10, "requires_trait": 1169, "description": "Damage and condition damage taken are increased; stacks intensity." },
     { "type": "Buff", "status": "Poisoned", "text": "Apply Buff/Condition", "duration": 10, "apply_count": 2, "requires_trait": 1279, "description": "Deals damage every second; decreases healing effectiveness by 33%; damage stacks intensity." }
   ],
   "42863": [
