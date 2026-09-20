@@ -14,6 +14,8 @@ const STRENGTHENING_STANZAS_ID = 2385
 const DRACONIC_ECHO_ID = 1772
 const FACET_OF_NATURE_ID = 29371
 const SIPHON_ID = 63067
+const MEASURED_SHOT_ID = 63267
+const ENDLESS_NIGHT_ID = 63128
 
 // Guardian Luminary (specialization id 81)'s 3 reworked Virtues — see `radiantJusticeSections`'s
 // doc comment below for the full writeup. Ids are each virtue's F1/F2/F3 mechanic-bar entry point,
@@ -969,6 +971,161 @@ function siphonSections(
 }
 
 /**
+ * Specter Scepter skill 3's off-hand-Pistol variant, Measured Shot (63267, id-verified 2026-09-20
+ * fixing `weapon-calc/weapon-skills.ts`' resolver — see TODO.md "Specter Scepter/Pistol Skill 3
+ * Display"). Same "empty/stale API facts" shape `siphonSections` documents: this app's local
+ * `skills.json` entry carries only Range/Maximum Travel Distance — every real Enemy/Ally-branch
+ * number (both scepter skill-3 variants share the identical "hinders foes and helps allies" kit,
+ * reworked 2023-06-27 to add the radius/allied-targets falloff mechanic) lives entirely in the
+ * wiki's raw `{{skill fact}}` templates (fetched fresh 2026-09-20 via `action=raw`, not a
+ * rendered/summarized page). WvW+PvP values used throughout (this app's usual convention) wherever
+ * a fact carries a PvE/WvW/PvP split.
+ *
+ * Damage's own `weapon=scepter|coefficient=0.33` isn't computed to a real number here — same
+ * "would need `power`/`targetArmor` threaded through this whole call chain" gap
+ * `trueNatureBranches`' own doc comment already flags as a follow-up, not a guess — shown as a bare
+ * coefficient line instead.
+ *
+ * "Pierces up to 4 targets" is the wiki page's own Notes prose (no `{{skill fact}}` template gives
+ * a numeric enemy target count for this skill), used as this app's best available number for the
+ * tracked Immobile fact's `targetCount` — same "take an explicit prose number over inventing one"
+ * precedent `flipTargetSkills`'/`otherworldlyBondBranches`' own quoted narrative descriptions set.
+ *
+ * The Healing shot (Ally Target) isn't a tracked boon/condition — shown as a computed
+ * `baseValue + coefficient * healingPower` numeric line only, same convention
+ * `chantOfRecuperationSections`'s own Healing lines use for the identical "no matching live
+ * Healing/AttributeAdjust fact to attach a coefficient to" reason.
+ */
+function measuredShotSections(skill: Skill, durationPercent: { boon: number; condition: number }, healingPower: number): ConditionalBranch[] {
+  const immobile: BoonConditionSource = {
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: 'Immobile',
+    isCondition: true,
+    category: 'condition',
+    baseDurationSeconds: 1, // no PvE/WvW/PvP split
+    scaledDurationSeconds: 1 * (1 + durationPercent.condition / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    // Wiki Notes: "Pierces up to 4 targets" — no structured target-count fact given.
+    targetCount: 4
+  }
+  const healLine = (): FactLine => ({
+    icon: HEALING_ICON,
+    text: `Healing: ${Math.round(1441 + 0.444 * healingPower).toLocaleString()}` // WvW+PvP base (PvE 2151)
+  })
+
+  return [
+    {
+      label: 'Enemy Target',
+      description: 'Shadowstep away from your target and launch a shot that immobilizes enemies.',
+      numericLines: [
+        { icon: null, text: 'Damage Coefficient: 0.33 (scepter)' },
+        { icon: null, text: 'Maximum Distance from Target: 900' }
+      ],
+      facts: [immobile]
+    },
+    {
+      label: 'Ally Target',
+      description: 'Shadowstep toward your target and launch a healing shot. Effectiveness is reduced for allies that are not the primary target.',
+      numericLines: [
+        healLine(),
+        { icon: null, text: 'Effectiveness Decreased (secondary targets): 25%' }, // WvW+PvP value (PvE 50%)
+        { icon: ALLIED_TARGETS_ICON, text: 'Allied Targets: 5' },
+        { icon: RADIUS_ICON, text: 'Radius: 240' },
+        { icon: null, text: 'Maximum Distance from Ally: 80' },
+        { icon: null, text: 'Unblockable' }
+      ],
+      facts: []
+    }
+  ]
+}
+
+/**
+ * Measured Shot's flip target, Endless Night (63128) — same finding/session as
+ * `measuredShotSections` above (see its doc comment for the shared root cause and sourcing method).
+ * Live-verified this skill's ally-branch Vigor/Quickness split is a genuine per-game-mode BOON
+ * swap, not just a duration difference (2025-02-11 patch note: "This skill now applies vigor
+ * instead of quickness in WvW only") — PvE and WvW both grant Vigor (1s/0.5s), only PvP grants
+ * Quickness (0.5s) instead. This app's WvW-first convention picks Vigor (the WvW value), so
+ * Quickness is deliberately left out entirely rather than shown as if it always applies.
+ *
+ * "Up to 3 enemy targets"/"one allied target" both come from the wiki's own Mechanics section
+ * prose (no structured `{{skill fact}}` target-count template for either branch) — same "prose
+ * number over invented one" precedent `measuredShotSections`' own Immobile `targetCount` uses. The
+ * app's pre-existing base `facts` array's own "Number of Targets: 1" is the PRE-2023-06-27-rework
+ * value (core single-target beam, before the ally-radius/allied-targets falloff mechanic existed)
+ * — stale for the Ally Target branch's real 5-target reach, left untouched on the base facts block
+ * since `NUMERIC_FACT_WVW_OVERRIDES`-style per-mode correction is out of this fix's scope (TODO.md).
+ */
+function endlessNightSections(skill: Skill, durationPercent: { boon: number; condition: number }, healingPower: number): ConditionalBranch[] {
+  const enemyRow = (name: 'Slow' | 'Torment', baseDurationSeconds: number): BoonConditionSource => ({
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: name,
+    isCondition: true,
+    category: 'condition',
+    baseDurationSeconds,
+    scaledDurationSeconds: baseDurationSeconds * (1 + durationPercent.condition / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    targetCount: 3 // wiki Mechanics: "up to 3 enemy targets"
+  })
+  const allyRow = (name: 'Regeneration' | 'Vigor', baseDurationSeconds: number): BoonConditionSource => ({
+    sourceKind: 'skill',
+    sourceId: skill.id,
+    sourceName: skill.name,
+    sourceIcon: skill.icon,
+    boonOrConditionName: name,
+    isCondition: false,
+    category: 'boon',
+    baseDurationSeconds,
+    scaledDurationSeconds: baseDurationSeconds * (1 + durationPercent.boon / 100),
+    applyCount: 1,
+    requiresTraitId: null,
+    targetCount: 5 // "Allied Targets: 5" numeric line below
+  })
+  const barrierLine = (): FactLine => ({
+    icon: MISCELLANEOUS_ICONS.Barrier,
+    text: `Barrier: ${Math.round(645 + 0.22 * healingPower).toLocaleString()}` // no PvE/WvW/PvP split
+  })
+
+  return [
+    {
+      label: 'Enemy Target',
+      description: 'Deal damage and inflict conditions.',
+      numericLines: [
+        { icon: null, text: 'Damage Coefficient: 0.33 (scepter)' },
+        { icon: NUMBER_FACT_ICON, text: 'Number of Hits: 7' }
+      ],
+      facts: [
+        enemyRow('Slow', 0.5), // WvW value (PvE 1.5s, PvP 0.25s)
+        enemyRow('Torment', 6) // WvW value, grouped with PvE (PvP 5s)
+      ]
+    },
+    {
+      label: 'Ally Target',
+      description: 'Grant your target barrier and boons. Effectiveness is reduced for allies that are not the primary target.',
+      numericLines: [
+        barrierLine(),
+        { icon: null, text: 'Effectiveness Decreased (secondary targets): 25%' }, // WvW+PvP value (PvE 50%)
+        { icon: NUMBER_FACT_ICON, text: 'Number of Impacts: 7' },
+        { icon: ALLIED_TARGETS_ICON, text: 'Allied Targets: 5' },
+        { icon: RADIUS_ICON, text: 'Radius: 240' }
+      ],
+      facts: [
+        allyRow('Regeneration', 1), // WvW+PvP value (PvE 3s)
+        allyRow('Vigor', 0.5) // WvW value (PvE 1s; PvP grants Quickness 0.5s instead — see doc comment)
+      ]
+    }
+  ]
+}
+
+/**
  * Per-skill mutually-exclusive-outcome fact sections for `skillTooltipContent` to render as extra
  * labeled dividers below the base facts — `null` for every skill without one. Kept as its own
  * lookup (rather than folded into `synthetic-facts.json`) since that file's shape has no concept of
@@ -1003,6 +1160,8 @@ export function branchConditionalFacts(
   if (skill.id === RADIANT_COURAGE_ID) return radiantCourageSections(skill, durationPercent)
   if (skill.id === FACET_OF_NATURE_ID) return trueNatureBranches(skill, equippedLegendIds, legends, activeTraitIds, durationPercent)
   if (skill.id === SIPHON_ID) return siphonSections(skill, durationPercent, healingPower, activeTraitIds)
+  if (skill.id === MEASURED_SHOT_ID) return measuredShotSections(skill, durationPercent, healingPower)
+  if (skill.id === ENDLESS_NIGHT_ID) return endlessNightSections(skill, durationPercent, healingPower)
   return null
 }
 
