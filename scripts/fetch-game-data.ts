@@ -347,15 +347,33 @@ function normalizePet(raw: RawPet): Pet {
   }
 }
 
+/**
+ * Attribute names to drop entirely from a stat combo, because this app models WvW only and
+ * `/v2/itemstats` carries no game-mode field — same class of gap `wvw-fact-overrides.json` handles
+ * for skill/trait facts, applied here to gear stat combos instead. Celestial: Concentration
+ * (`BoonDuration`) and Expertise (`ConditionDuration`) were added to Celestial for all game modes in
+ * the April 11, 2021 update, then removed from WvW only in the October 8, 2024 update — confirmed
+ * live via the wiki's `Celestial` page raw wikitext (2026-09-20); the API still reports the
+ * PvE-only 9-attribute spread for every Celestial id. Applied by name (not id) so it covers every
+ * current and legacy Celestial `ItemStat` entry the API returns, not just the ones this app's
+ * picker currently offers (see `ItemStatLegalIds`).
+ */
+const WVW_ITEMSTAT_ATTRIBUTE_EXCLUSIONS: Record<string, string[]> = {
+  Celestial: ['BoonDuration', 'ConditionDuration']
+}
+
 function normalizeItemStat(raw: RawItemStat): ItemStat {
+  const excludedAttributes = WVW_ITEMSTAT_ATTRIBUTE_EXCLUSIONS[raw.name]
   return {
     id: raw.id,
     name: raw.name,
-    attributes: raw.attributes.map((attr) => ({
-      attribute: attr.attribute,
-      multiplier: attr.multiplier,
-      value: attr.value
-    }))
+    attributes: raw.attributes
+      .filter((attr) => !excludedAttributes?.includes(attr.attribute))
+      .map((attr) => ({
+        attribute: attr.attribute,
+        multiplier: attr.multiplier,
+        value: attr.value
+      }))
   }
 }
 

@@ -696,6 +696,26 @@ existed (fail-safe, not silently wrong).
 to skills/traits that had a boon/condition Buff fact in `skills.json`/`traits.json` *at the time
 it was last run* — re-run after `fetch-game-data` if new boon/condition-granting content is added.
 
+## WvW-vs-PvE itemstat splits (`WVW_ITEMSTAT_ATTRIBUTE_EXCLUSIONS` in `fetch-game-data.ts`)
+
+Same class of gap as the fact splits above, but for `/v2/itemstats` instead of skills/traits: the
+API carries no game-mode field, so a stat combo whose attribute list actually differs between PvE
+and WvW is reported as its PvE-only spread everywhere. Found 2026-09-20: Celestial (`ItemStat` ids
+559/588/593/1052) still reports all 9 attributes — including Concentration/`BoonDuration` and
+Expertise/`ConditionDuration` — from the live API, but the wiki's `Celestial` page raw wikitext says
+those two were added for all game modes in the April 11, 2021 update, then **removed from WvW only**
+in the October 8, 2024 update. Since this app models WvW exclusively (see README), the PvE-only
+spread the API returns is simply wrong for every build here.
+
+Unlike the fact-splits gap, this didn't need its own wiki-fetch script — it's one stat combo, a
+small and stable fact, so it's a hardcoded `WVW_ITEMSTAT_ATTRIBUTE_EXCLUSIONS` name -> excluded-
+attribute-names table applied inside `normalizeItemStat` itself (same "small, documented constant
+table for a real API gap" pattern as `LEGEND_SPECIALIZATION_ID`/`NON_EQUIPPABLE_SKILL_IDS`), so a
+future `fetch-game-data` re-run can't silently revert it back to the PvE spread. Applied by name
+rather than id so it also covers the two unused legacy Celestial ids (593/1052 — absent from
+`itemstat-legal-ids.json`, not currently offered by the picker) for consistency, not just the two
+ids (559 armor/weapon, 588 trinket) the app actually offers.
+
 ## Skills the API returns with no usable facts at all (`synthetic-facts.json`)
 
 `CURATED_DAMAGE_COEFFICIENTS`/`CURATED_HEALING_COEFFICIENTS` (`damage-calc.ts`/`healing-calc.ts`)
