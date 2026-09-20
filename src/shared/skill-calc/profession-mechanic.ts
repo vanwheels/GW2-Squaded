@@ -105,6 +105,18 @@ const EXCLUDED_MECHANIC_SKILL_IDS = new Set<number>([
   // same-named orphan duplicates within this set, same class as Warrior Spellbreaker's above — both
   // ids of each pair excluded here; the manual picker dedupes to the lower id itself.
   76702, 76601, 76633, 76550, 76800, 76900, 77288, 76895, 1131, 1118, 1162, 1167, 1115, 45094, 1110, 1139, 1125, 1148, 1129, 1123, 1141, 31438,
+  // Thief's only raw `Profession_3` candidates at all: 78309 and 79285, both named "Zephyrite Sun
+  // Crystal" with an identical description — live-verified 2026-09-20 while investigating a
+  // user-reported bug (a steal-flavored skill showing in Specter's F3, which doesn't exist as a
+  // real mechanic for any Thief spec). These are orphaned duplicate ids of the SAME stolen skill
+  // already correctly resolved as a `Profession_2` candidate under a third id, 76895 (see
+  // `THIEF_STOLEN_SKILL_IDS` in `thief-stolen-skill.ts`) — same "pre-rework leftover" class as this
+  // file's other orphan-duplicate exclusions, just additionally mistagged to the wrong slot. Since
+  // they carry `specializationId: null`, nothing here gates them to an equipped spec, so without
+  // this exclusion they resolve (single-candidate slot, `resolveMechanicSlot`'s
+  // `candidates.length === 1` short-circuit) as a bogus F3 button on every Thief build, not just
+  // Specter's.
+  78309, 79285,
   // Specter (spec 71) Profession_2 "Exit Shadow Shroud" (63251): the toggled-off/exit half of
   // Shroud's entry pair — live-verified 2026-08-01 neither 63251 nor its entry counterpart 63155
   // "Enter Shadow Shroud" carries a `flipSkill` link to the other (unlike Necromancer's Death
