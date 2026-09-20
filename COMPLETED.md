@@ -4,6 +4,16 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Specter Scepter Auto Chain Display] — Leg 4
+2026-09-20. Root cause: Shadow Bolt (Scepter mainhand skill 1)'s live `flipSkill` points at
+Shadowsquall (its Stealth Attack replacement) instead of Double Bolt, the real next autoattack-chain
+step — confirmed via each chain skill's own wiki infobox `chain1`/`chain2`/`chain3` fields. A
+different shape from Leg 3 as predicted (no off-hand/`resolveSkillBarIds` involvement at all).
+Fixed by redirecting the flip walk via `FLIP_SKILL_OVERRIDES` (now checked ahead of the raw
+`flipSkill` field, so an override can replace a present-but-wrong link, not just fill a missing
+one) plus curating all 3 chain skills' missing Enemy/Ally Target boon/condition facts from the
+wiki, same mechanism as Leg 3's Measured Shot/Endless Night follow-up. See commit `1c0e40e`.
+
 ### [Specter Scepter/Pistol Skill 3 Display] — Leg 3
 2026-09-20. Root cause: Triple Threat (63154, Scepter's off-hand-empty skill 3 default) carries a
 bogus `flipSkill` pointer to Measured Shot (63267, the real off-hand-Pistol variant) — same stale-
