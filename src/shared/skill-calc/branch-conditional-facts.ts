@@ -889,10 +889,11 @@ function trueNatureBranches(
  * than through `CURATED_BARRIER_COEFFICIENTS`, same reason `chantOfRecuperationSections` does: that
  * table matches a live API fact by `factText` and this skill has no Barrier fact to match against.
  *
- * Left out as a separate, out-of-scope finding (TODO.md, not fixed here since the user's report was
- * about missing/incomplete effects, not this number): the wiki's own infobox splits Recharge as
- * `recharge = 18` (PvE) vs. `recharge pvp = 25`/`recharge wvw = 25`, but the stale API fact this app's
- * base facts block renders today is a flat 18 with no split at all.
+ * Recharge split (wiki infobox: `recharge = 18` PvE vs. `recharge pvp = 25`/`recharge wvw = 25`,
+ * against this skill's flat unsplit 18 API fact) turned out to already be fixed, not a gap: TODO.md's
+ * "Specter Siphon F1 Recharge Split" leg found `recharge-wvw-overrides.json`'s pre-existing
+ * `"63067": 25` entry (2026-08-22 sweep, predates this comment) already covers it end-to-end via
+ * `ProfessionMechanicBar.tsx`'s `rechargeWvwOverrides` param — see COMPLETED.md.
  *
  * Follow-up (same day, user screenshot comparison against a live trait-loaded reference build): the
  * base facts above are only HALF the real tooltip — a live "Steal" or "Siphon" tooltip also folds in

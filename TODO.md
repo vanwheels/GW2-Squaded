@@ -18,16 +18,6 @@ root cause — each leg gets its own investigation. Original Specter batch legs 
 yet root-caused; Triple Threat/Twilight Combo done; Deadeye's Mark/Skritt Swipe Stale Even the Odds
 Vulnerability done; the two legs below are untouched.
 
-### [Specter Siphon F1 Recharge Split] — Leg 1
-Surfaced while curating Siphon (F1)'s ally/enemy effects (see COMPLETED.md): the wiki's raw
-infobox splits Siphon's Recharge as `recharge = 18` (PvE) vs. `recharge pvp = 25`/
-`recharge wvw = 25`, but this app's local API data for skill 63067 has a flat, unsplit `Recharge:
-18` fact (stale, copied from core Thief's "Steal") that the base facts block renders as-is for
-every game mode. Standalone data-accuracy gap, unrelated to the effects-display bug that was
-actually reported — quick fix once picked up (likely a `NUMERIC_FACT_WVW_OVERRIDES` entry in
-`fact-numbers.ts`, same mechanism used for other flat-vs-split Recharge/Number facts).
-Last touched: 2026-09-20. Re-checks: 0.
-
 ### [Celestial Stat Prefix Concentration/Expertise] — Leg 1
 The Celestial stat prefix currently grants Concentration and Expertise; that was removed from
 Celestial's stat spread a while back in-game and the app hasn't been updated to match. Standalone,

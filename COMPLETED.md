@@ -4,6 +4,15 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Specter Siphon F1 Recharge Split] — Leg 1
+2026-09-20. Already fixed, no code change needed: `data/game-data/recharge-wvw-overrides.json`'s
+2026-08-22 sweep (commit `6b75e7d`, predates this leg's own 2026-09-20 origin comment in
+`branch-conditional-facts.ts`) already carries a `"63067": 25` entry, and `ProfessionMechanicBar.tsx`
+already threads `gameData.rechargeWvwOverrides` through to `skillFactLines` for the F1 mechanic bar.
+Verified directly: `skillFactLines` on skill 63067 with the loaded override renders `Recharge: 25s`,
+not the stale flat 18. The origin comment logging this as unresolved was written before checking
+whether the general recharge-override sweep already covered this id. No commit — doc-only close.
+
 ### [Deadeye's Mark/Skritt Swipe Stale Even the Odds Vulnerability] — Leg 1
 2026-09-20. Root cause: Deadeye's Mark (43390) and Skritt Swipe (77397) both carried a native
 stale pre-2024-10-08-patch Vulnerability `traitedFact` for Even the Odds. Fixed via a
