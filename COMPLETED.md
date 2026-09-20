@@ -8,7 +8,7 @@ Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md
 2026-09-20. `UpgradePicker`'s `#<stat>` search mode only ever matched a single stat keyword —
 `#power #vitality` didn't narrow to options affecting both. Extended it to parse every
 `#`-prefixed token in the query and AND them together (an option must match every listed stat),
-keeping the existing per-token prefix-match behavior. See commit `<pending>`.
+keeping the existing per-token prefix-match behavior. See commit `016f99b`.
 
 ### [Celestial Stat Prefix Concentration/Expertise] — Leg 1
 2026-09-20. User's premise ("removed from Celestial a while back") didn't match the live API —
