@@ -6,6 +6,11 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 `COMPLETED-archive-sep-15-2026-patch.md`. Everything before that, back through v1.0.0, is in
 `COMPLETED-archive-pre-1.0.md`.
 
+### v1.6.0 release — 2026-09-29
+Covers everything since the v1.5.0 release (2026-09-20): the Sep 29, 2026 patch's curated
+coefficient edits, the full Known Exceptions Sweep, and the Auto-Update Check milestone below. See
+commit `TBD`.
+
 ### [Auto-Update Check: Launch Check + Nav Badge] — Leg 1
 2026-09-29. Mirrored the game-data auto-updater's launch-check + nav-badge pattern for the
 app-binary updater: `registerUpdaterIpc` now returns a `runAutoCheck` fired alongside the game-data

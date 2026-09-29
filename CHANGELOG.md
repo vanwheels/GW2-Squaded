@@ -2,6 +2,34 @@
 
 User-facing release notes. For the detailed development log, see `COMPLETED.md`.
 
+## 1.6.0 — 2026-09-29
+
+### App Updates
+
+- The app now checks for updates automatically on launch — both game data and the app binary
+  itself — and shows a Settings nav badge when an update is available or ready to install, instead
+  of requiring a manual check.
+
+### Sep 29, 2026 game patch
+
+- Applied the patch's coefficient changes: Healing Rain, Drop Urn of Saint Viktor, Essence of
+  Animated Sand, Bulwark Gyro's Pulse Barrier, and Natural Mender's Healing Increase to Others.
+- Fixed Seed of Life / Cultivated Synergy's WvW Conditions Removed count, which the patch nerfed in
+  a way the game's API can't reflect on its own.
+- Numinous Gift no longer shows duplicate boon rows introduced by the patch's data changes.
+
+### Data accuracy
+
+- Cleansing Ire now shows correct condition-cleanse counts and per-skill tooltip Conditions Removed
+  values.
+- Latent Stamina and Specialized Elements now show correct WvW endurance and recharge values.
+- Corrected Tree Song's energy cost, Bandage Blast/Saint's Shield's healing coefficients, and
+  Healing Ripple/Overload Water's pulse healing coefficients (the latter two backed by new
+  trait-keyed healing-coefficient infrastructure).
+- Reaver's Curse's healing/barrier increase is now correctly modeled on Saint's Shield.
+- Director Vloxx's Slice Through Reality no longer shows an incorrect Corrupt effect.
+- Fixed a stale Life Siphon damage regression.
+
 ## 1.4.0 — 2026-09-16
 
 ### Relics
