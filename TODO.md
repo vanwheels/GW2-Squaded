@@ -16,14 +16,6 @@ settled across multiple prior sessions with explicit "don't re-investigate witho
 notes — user confirmed proceeding anyway. Full history: `docs/investigations/coefficient-verification-queue.md`
 and `docs/investigations/sep-29-2026-patch-changes.md`.
 
-### [Known Exceptions Sweep — Legend Form Facts Life Siphon Drift] — Leg 12
-Found alongside Leg 11, same discovery method (pre-existing on clean `main`, unrelated to Leg 9).
-`legend-form-facts.test.ts`'s "appends Lesser Enchanted Daggers' siphon damage + healing to the
-Assassin row" test expects `Life Siphon Damage: 1,088` but now gets `971`, plus a new
-`Siphon Healing: 968` line and a changed leading description string. Looks like a curated-coefficient
-or raw-fact-text drift on this skill, not yet root-caused.
-Last touched: 2026-09-29. Re-checks: 0.
-
 ### [Known Exceptions Sweep — Adrenal Health Healing Coefficient] — Leg 13
 Found while investigating trait 1348 (Warrior Defense minor) for Leg 8: its base healing-per-stack
 has a real, wiki-documented coefficient (0.6/0.9/1.2 scaling by adrenaline stage — see

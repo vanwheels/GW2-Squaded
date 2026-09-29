@@ -4,6 +4,12 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Known Exceptions Sweep — Legend Form Facts Life Siphon Drift] — Leg 12
+2026-09-29. Not a coefficient drift — the 2026-09-16 commit (`48464bf`) that corrected Cosmic
+Wisdom's Assassin-form Life Siphon Damage coefficient (913/0.0575, replacing the wiki's disproven
+1028/0.06) never updated this regression test's expected value, which still asserted the old 1,088.
+Siphon Healing (968) was already correct. Test-only fix. See commit `9354992`.
+
 ### [Known Exceptions Sweep — Numinous Gift Duplicate Boon Leak] — Leg 11
 2026-09-29. Root cause: the Sep 29 patch data refresh added an undocumented 2nd duplicate raw fact
 for Fury/Resistance/Protection/Quickness/Might on trait 2440 (Numinous Gift), each carrying a lower,
