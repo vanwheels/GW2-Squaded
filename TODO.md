@@ -16,14 +16,6 @@ settled across multiple prior sessions with explicit "don't re-investigate witho
 notes — user confirmed proceeding anyway. Full history: `docs/investigations/coefficient-verification-queue.md`
 and `docs/investigations/sep-29-2026-patch-changes.md`.
 
-### [Known Exceptions Sweep — Corrupt Row Gap (Slice Through Reality)] — Leg 10
-`corrupt-missing-fact-sources.test.ts`'s completeness scan started failing during Leg 7's test run
-(unrelated to that change — confirmed still fails on a clean `main` checkout): a new skill "Slice
-Through Reality" (3 ids: 80585, 80802, 81302) matches the Corrupt-candidate pattern but isn't in
-`CORRUPT_MISSING_FACT_SKILLS` or the test's exclusion list. Needs the same wiki-read-and-classify
-treatment the rest of that table got.
-Last touched: 2026-09-29. Re-checks: 0.
-
 ### [Known Exceptions Sweep — Numinous Gift Duplicate Boon Leak] — Leg 11
 Found running the full suite after Leg 9 (unrelated to that change — pre-existing on a clean `main`
 checkout too, confirmed via `git stash`). `cosmic-wisdom-trait-effects.test.ts`'s

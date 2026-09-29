@@ -4,6 +4,13 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Known Exceptions Sweep — Corrupt Row Gap (Slice Through Reality)] — Leg 10
+2026-09-29. Wiki-confirmed all 3 ids (80585, 80802, 81302) belong to Director Vloxx (Nexus of
+Eternity raid/convergence boss) — an enemy-only skill, not reachable from any player build, same
+`professions: []`/`slot: ""` shape as the other NPC-only exclusions already in the table. Added to
+`EXCLUDED_IDS` in `corrupt-missing-fact-sources.test.ts` rather than `CORRUPT_MISSING_FACT_SKILLS`
+(no code change needed). See commit `<pending>`.
+
 ### [Known Exceptions Sweep — Cleansing Ire Per-Skill Tooltip Values] — Leg 9
 2026-09-29. Follow-up from Leg 7: `skill-fact-lines.ts`'s `skillFactLines` reads Warrior burst
 skills' raw `Conditions Removed` facts directly for the per-skill tooltip path, which Leg 7's fix
