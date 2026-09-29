@@ -1216,9 +1216,10 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // Natural Mender (id 1992, Druid Grandmaster minor): "Increase healing to other allies. Gain
   // astral force each interval while not in celestial avatar form." Wiki: `{{skill fact|Healing|
   // alt=Healing Increase to Others|20%|game mode = pve}}` + `{{...|15%|game mode = pvp wvw}}` — pve
-  // 20, wvw+pvp 15. Its "Energy Gain" fact (8, pve+wvw shared per the wiki) already carries only the
-  // correct value in the live API — no fix needed.
-  1992: { 'Healing Increase to Others': 15 },
+  // 20, wvw+pvp 15. 2026-09-29 patch reduced the wvw+pvp value to 10. Its "Energy Gain" fact (8,
+  // pve+wvw shared per the wiki) already carries only the correct value in the live API — no fix
+  // needed.
+  1992: { 'Healing Increase to Others': 10 },
 
   // Eclipse (id 2055, Druid Grandmaster): "Your Celestial Avatar skills are offensively augmented.
   // Striking enemies grants additional astral force." Wiki: `{{skill fact|percent|0.75|alt=

@@ -608,9 +608,9 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
     { factText: 'Healing', baseValue: 450, coefficient: 0.22 },
     { factText: 'Rapid Flow Healing', baseValue: 333, coefficient: 0.05, requiresTrait: 1760 }
   ],
-  // Revenant — Drop Urn of Saint Viktor (Vindicator, Urn of Saint Viktor's flip-skill detonate). No
-  // PvE/WvW split.
-  62738: [{ factText: 'Base Heal', baseValue: 709, coefficient: 0.22 }],
+  // Revenant — Drop Urn of Saint Viktor (Vindicator, Urn of Saint Viktor's flip-skill detonate).
+  // PvE/WvW split added by the 2026-09-29 patch.
+  62738: [{ factText: 'Base Heal', baseValue: 709, coefficient: 0.5 }],
 
   // --- Weapon-slot skills (category sweep 2026-08-02, see TODO.md/COMPLETED.md; last category —
   // Heal/Utility/Elite were swept first). Of 648 distinct weapon-skill ids across every profession's
@@ -668,8 +668,8 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // Elementalist — Water Blast. PvE/WvW coefficient split (PvE 0.25 vs WvW 0.15, same 372 base) — WvW
   // value used.
   5549: [{ factText: 'Healing', baseValue: 223, coefficient: 0.15 }],
-  // Elementalist — Healing Rain (Staff 5). No PvE/WvW split.
-  5551: [{ factText: 'Heal per Condition', baseValue: 427, coefficient: 0.1 }],
+  // Elementalist — Healing Rain (Staff 5). PvE/WvW split added by the 2026-09-29 patch.
+  5551: [{ factText: 'Heal per Condition', baseValue: 427, coefficient: 0.3 }],
   // Elementalist — Cleansing Wave. No PvE/WvW split (unified since a 2024-10-08 patch); wiki's 2222 vs
   // this app's API 2220 is a negligible 2-point rounding difference, not a real conflict.
   5558: [{ factText: 'Healing', baseValue: 2220, coefficient: 1.0 }],

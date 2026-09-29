@@ -150,7 +150,7 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   // WvW-correct.
   30101: [
     { factText: 'Initial Barrier', baseValue: 740, coefficient: 0.5 },
-    { factText: 'Pulse Barrier', baseValue: 410, coefficient: 0.1 }
+    { factText: 'Pulse Barrier', baseValue: 410, coefficient: 0.25 }
   ],
   // Energizing Slam (Amalgam Hammer). PvE 648/0.8 vs WvW+PvP 516/0.5 (confirmed via a 2024-10-08
   // patch note) — WvW value used. Local API base value (648) is the PvE figure.
@@ -158,7 +158,7 @@ export const CURATED_BARRIER_COEFFICIENTS: Record<number, BarrierCoefficient[]> 
   // Essence of Animated Sand (spear). WvW is a standalone third value again (PvE 1285/1.0, WvW
   // 645/0.5, PvP 805/1.0, confirmed via two separate single-mode patches) — WvW value used. Local API
   // base value (1285) is the PvE figure.
-  72052: [{ factText: 'Barrier', baseValue: 645, coefficient: 0.5 }],
+  72052: [{ factText: 'Barrier', baseValue: 645, coefficient: 0.65 }],
   // Symbiotic Shielding (Mechanist's Overclock Signet toolbelt skill). No PvE/WvW split.
   76613: [{ factText: 'Barrier', baseValue: 2250, coefficient: 0.5 }],
   // Barrier Signet (Mechanist). No PvE/WvW split.
