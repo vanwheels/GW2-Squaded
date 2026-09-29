@@ -4,6 +4,11 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Sep 29 Patch — Curated Coefficient Edits] — Leg 3
+2026-09-29. Updated the 5 already-curated hardcoded coefficients the patch changed, plus the two
+stale "no PvE/WvW split" comments that were no longer accurate (Healing Rain, Drop Urn of Saint
+Viktor). See commit `599e57b`.
+
 ### [Sep 29 Patch — Refetch and Auto-Verify] — Leg 2
 2026-09-29. `fetch-game-data` refresh committed clean (`5dee22c`); `fetch-wvw-splits` reproduced
 the known blind-rerun regression ([[fetch_wvw_splits_unsafe_blind_rerun]] — 81 skills dropped, 0

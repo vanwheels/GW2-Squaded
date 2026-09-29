@@ -8,29 +8,6 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Current Milestone: Sep 29, 2026 patch
-
-Patch notes: https://wiki.guildwars2.com/wiki/Game_updates/2026-09-29. Full raw change list (all
-categories, WvW-relevant subset already filtered from the PvP-only bulk) captured in
-`docs/investigations/sep-29-2026-patch-changes.md`. This app is WvW-only (see README), so PvP-only
-splits (the majority of this patch's changes) are excluded from scope entirely — only WvW-only and
-"PvP and WvW"-scoped changes apply.
-
-### [Sep 29 Patch — Curated Coefficient Edits] — Leg 3
-5 skills/traits have an existing hardcoded coefficient that just needs its number (and, for 2 of
-them, a stale "no PvE/WvW split" comment) updated:
-- Healing Rain (`src/shared/skill-calc/healing-calc.ts:672`, skill 5551): coefficient 0.1 -> 0.3;
-  existing comment says "No PvE/WvW split" — patch creates one, comment needs updating too.
-- Essence of Animated Sand (`src/shared/skill-calc/barrier-calc.ts:161`, skill 72052): coefficient
-  0.5 -> 0.65.
-- Bulwark Gyro (`src/shared/skill-calc/barrier-calc.ts:151-153`, skill 30101): Pulse Barrier
-  coefficient 0.1 -> 0.25 (Initial Barrier fact is unaffected).
-- Natural Mender (`src/shared/skill-calc/fact-numbers.ts:1216-1221`, trait 1992): Healing Increase
-  to Others 15 -> 10.
-- Drop Urn of Saint Viktor (`src/shared/skill-calc/healing-calc.ts:613`, skill 62738): coefficient
-  0.22 -> 0.5; same stale "no split" comment issue as Healing Rain.
-Last touched: 2026-09-29. Re-checks: 0.
-
 ## Unscheduled
 
 ### [Discord Bot Profession-Scoped Game-Data Fetch] — Leg 1 (nice-to-have, deprioritized)
