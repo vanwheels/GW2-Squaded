@@ -394,5 +394,11 @@
     "name": "Juvenile River Otter",
     "icon": "https://render.guildwars2.com/file/4821BEE8B3346E020F982650A22548801C082352/3772540.png",
     "skillId": 79766
+  },
+  {
+    "id": 74,
+    "name": "Juvenile Ley Vampire Bat",
+    "icon": "https://render.guildwars2.com/file/6A27D9FD0A210FD3A20D5A70096C363501250A48/3807239.png",
+    "skillId": 80908
   }
 ]

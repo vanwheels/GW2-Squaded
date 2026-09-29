@@ -1853,6 +1853,13 @@
         "text": "Healing",
         "type": "AttributeAdjust",
         "icon": "https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png",
+        "value": 1042,
+        "target": "Healing"
+      },
+      {
+        "text": "Healing",
+        "type": "AttributeAdjust",
+        "icon": "https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png",
         "value": 1302,
         "target": "Healing"
       },
@@ -12099,6 +12106,16 @@
         "duration": 15,
         "status": "Adrenal Health",
         "description": "Regain health by spending adrenaline.",
+        "apply_count": 1,
+        "requires_trait": 2373
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "Buff",
+        "icon": "https://render.guildwars2.com/file/32A8CA56381F242642D7193B24284F922D23A2E3/1012796.png",
+        "duration": 15,
+        "status": "Adrenal Health",
+        "description": "Regain health by spending adrenaline.",
         "apply_count": 2,
         "requires_trait": 2226,
         "overrides": 0
@@ -13892,6 +13909,13 @@
         "value": 1,
         "requires_trait": 2226,
         "overrides": 0
+      },
+      {
+        "text": "Conditions Removed with Chants",
+        "type": "Number",
+        "icon": "https://render.guildwars2.com/file/9352ED3244417304995F26CB01AE76BB7E547052/156661.png",
+        "value": 1,
+        "requires_trait": 2373
       }
     ]
   },
@@ -22923,7 +22947,7 @@
         "text": "Healing Increase to Others",
         "type": "Percent",
         "icon": "https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png",
-        "percent": 15
+        "percent": 10
       },
       {
         "text": "Healing Increase to Others",
@@ -22942,6 +22966,12 @@
         "type": "Time",
         "icon": "https://render.guildwars2.com/file/B75E91EB22E0DFCC1D08030204055946506D56F6/1770206.png",
         "duration": 3
+      },
+      {
+        "text": "Healing Increase to Others",
+        "type": "Percent",
+        "icon": "https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png",
+        "percent": 15
       }
     ],
     "traitedFacts": []
@@ -23154,7 +23184,7 @@
         "duration": 4,
         "status": "Might",
         "description": "Increased outgoing damage; stacks intensity.",
-        "apply_count": 2
+        "apply_count": 1
       },
       {
         "text": "Apply Buff/Condition",
@@ -27014,7 +27044,7 @@
         "icon": "https://render.guildwars2.com/file/ABB5251DABC70891651CCE057803923F1EDD6A09/3790489.png",
         "duration": 3,
         "status": "Silent Scope",
-        "description": "You can use your stealth attack, even when not stealthed.",
+        "description": "You can use your stealth attack, even when not in stealth.",
         "apply_count": 1
       },
       {
@@ -32017,6 +32047,19 @@
         "icon": "https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png",
         "duration": 0,
         "status": "Healing and Barrier Increase",
+        "description": "200%",
+        "apply_count": 0,
+        "prefix": {
+          "text": "Apply Buff/Condition",
+          "icon": "https://render.guildwars2.com/file/42D514BF15A3F84ECECBACC7E05F95CAE03EBF6D/2491539.png"
+        }
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "PrefixedBuff",
+        "icon": "https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png",
+        "duration": 0,
+        "status": "Healing and Barrier Increase",
         "description": "100%",
         "apply_count": 0,
         "prefix": {
@@ -35137,7 +35180,7 @@
         "text": "Energy Gain",
         "type": "Number",
         "icon": "https://render.guildwars2.com/file/9352ED3244417304995F26CB01AE76BB7E547052/156661.png",
-        "value": 10
+        "value": 5
       },
       {
         "text": "Healing",
@@ -35886,7 +35929,7 @@
         "text": "Recharge Reduced",
         "type": "Percent",
         "icon": "https://render.guildwars2.com/file/AAB7C5387A08367C2F023F19FEE70E1556AD4375/1770202.png",
-        "percent": 20
+        "percent": 15
       },
       {
         "text": "Recharge Reduced",
@@ -36312,6 +36355,15 @@
       },
       {
         "text": "Apply Buff/Condition",
+        "type": "Buff",
+        "icon": "https://render.guildwars2.com/file/2FA9DF9D6BC17839BBEA14723F1C53D645DDB5E1/102852.png",
+        "duration": 6,
+        "status": "Might",
+        "description": "Increased outgoing damage; stacks intensity.",
+        "apply_count": 1
+      },
+      {
+        "text": "Apply Buff/Condition",
         "type": "PrefixedBuff",
         "icon": "https://render.guildwars2.com/file/CD77D1FAB7B270223538A8F8ECDA1CFB044D65F4/102834.png",
         "duration": 4,
@@ -36345,6 +36397,21 @@
         "type": "PrefixedBuff",
         "icon": "https://render.guildwars2.com/file/3D3A1C2D6D791C05179AB871902D28782C65C244/415959.png",
         "duration": 4,
+        "status": "Stability",
+        "description": "Cannot be knocked down, pushed back, pulled, launched, stunned, dazed, floated, sunk, feared, or taunted.",
+        "apply_count": 2,
+        "prefix": {
+          "text": "Apply Buff/Condition",
+          "icon": "https://render.guildwars2.com/file/5B565BA46C111902EE65AB4592590442A5A6E754/3680135.png",
+          "status": "Defensive Protocol: Thorns",
+          "description": "<c=@abilitytype>Morph.</c> Grow protective spikes, damaging nearby enemies. For a short duration, the spikes react when you are struck, damaging nearby enemies again."
+        }
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "PrefixedBuff",
+        "icon": "https://render.guildwars2.com/file/3D3A1C2D6D791C05179AB871902D28782C65C244/415959.png",
+        "duration": 2,
         "status": "Stability",
         "description": "Cannot be knocked down, pushed back, pulled, launched, stunned, dazed, floated, sunk, feared, or taunted.",
         "apply_count": 2,
@@ -37387,6 +37454,21 @@
         "text": "Apply Buff/Condition",
         "type": "PrefixedBuff",
         "icon": "https://render.guildwars2.com/file/3D3A1C2D6D791C05179AB871902D28782C65C244/415959.png",
+        "duration": 3,
+        "status": "Stability",
+        "description": "Cannot be knocked down, pushed back, pulled, launched, stunned, dazed, floated, sunk, feared, or taunted.",
+        "apply_count": 2,
+        "prefix": {
+          "text": "Apply Buff/Condition",
+          "icon": "https://render.guildwars2.com/file/A3DE41C7F223D46269FCC406AEFCDF01ABCF4BE1/3680124.png",
+          "status": "Toad's Fortitude",
+          "description": "<c=@abilitytype>Meditation.</c> Block incoming attacks, then strike nearby enemies with shattering rocks. Grant protection to nearby allies if this skill completes successfully. If earth is your specialized element, this skill grants resistance to allies and breaks stun."
+        }
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "PrefixedBuff",
+        "icon": "https://render.guildwars2.com/file/3D3A1C2D6D791C05179AB871902D28782C65C244/415959.png",
         "duration": 5,
         "status": "Stability",
         "description": "Cannot be knocked down, pushed back, pulled, launched, stunned, dazed, floated, sunk, feared, or taunted.",
@@ -37396,6 +37478,21 @@
           "icon": "https://render.guildwars2.com/file/A3DE41C7F223D46269FCC406AEFCDF01ABCF4BE1/3680124.png",
           "status": "Toad's Fortitude",
           "description": "<c=@abilitytype>Meditation.</c> Block incoming attacks, then strike nearby enemies with shattering rocks. Grant protection to nearby allies if this skill completes successfully. If earth is your specialized element, this skill grants resistance to allies and breaks stun."
+        }
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "PrefixedBuff",
+        "icon": "https://render.guildwars2.com/file/50BAC1B8E10CFAB9E749A5D910D4A9DCF29EBB7C/961398.png",
+        "duration": 3,
+        "status": "Resistance",
+        "description": "Nondamaging conditions currently on you are ineffective; stacks duration.",
+        "apply_count": 1,
+        "prefix": {
+          "text": "Apply Buff/Condition",
+          "icon": "https://render.guildwars2.com/file/D401E6E2BE0349A03F37E02AE850CF3419D438C3/3680111.png",
+          "status": "Elemental Procession",
+          "description": "<c=@abilitytype>Meditation.</c> Summon all four familiars to use their empowered skills."
         }
       },
       {
@@ -38317,21 +38414,6 @@
       {
         "text": "Apply Buff/Condition",
         "type": "PrefixedBuff",
-        "icon": "https://render.guildwars2.com/file/D104A6B9344A2E2096424A3C300E46BC2926E4D7/2440718.png",
-        "duration": 5,
-        "status": "Resolution",
-        "description": "Incoming condition damage decreased by 33%; stacks duration.",
-        "apply_count": 1,
-        "prefix": {
-          "text": "Apply Buff/Condition",
-          "icon": "https://render.guildwars2.com/file/03C66FA8A89697A0C4D309484172080E3A1141EF/961410.png",
-          "status": "Legendary Dwarf Stance",
-          "description": "Currently invoking the power of King Jalis Ironhammer."
-        }
-      },
-      {
-        "text": "Apply Buff/Condition",
-        "type": "PrefixedBuff",
         "icon": "https://render.guildwars2.com/file/CD77D1FAB7B270223538A8F8ECDA1CFB044D65F4/102834.png",
         "duration": 5,
         "status": "Protection",
@@ -38364,6 +38446,90 @@
         "type": "Buff",
         "icon": "https://render.guildwars2.com/file/2FA9DF9D6BC17839BBEA14723F1C53D645DDB5E1/102852.png",
         "duration": 10,
+        "status": "Might",
+        "description": "Increased outgoing damage; stacks intensity.",
+        "apply_count": 5
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "PrefixedBuff",
+        "icon": "https://render.guildwars2.com/file/96D90DF84CAFE008233DD1C2606A12C1A0E68048/102842.png",
+        "duration": 6,
+        "status": "Fury",
+        "description": "Critical chance increased; stacks duration.",
+        "apply_count": 1,
+        "prefix": {
+          "text": "Apply Buff/Condition",
+          "icon": "https://render.guildwars2.com/file/67CDD35F6BC3072E0837715A5E0A90646529BAA2/1030005.png",
+          "status": "Legendary Assassin Stance",
+          "description": "Currently invoking the power of Shiro Tagachi."
+        }
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "PrefixedBuff",
+        "icon": "https://render.guildwars2.com/file/50BAC1B8E10CFAB9E749A5D910D4A9DCF29EBB7C/961398.png",
+        "duration": 3,
+        "status": "Resistance",
+        "description": "Nondamaging conditions currently on you are ineffective; stacks duration.",
+        "apply_count": 1,
+        "prefix": {
+          "text": "Apply Buff/Condition",
+          "icon": "https://render.guildwars2.com/file/1A1407F7D34E5ED41B59A25F39EBF728CC926423/961413.png",
+          "status": "Legendary Demon Stance",
+          "description": "Invoke the power of the legendary demon Mallyx the Unyielding."
+        }
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "PrefixedBuff",
+        "icon": "https://render.guildwars2.com/file/D104A6B9344A2E2096424A3C300E46BC2926E4D7/2440718.png",
+        "duration": 3,
+        "status": "Resolution",
+        "description": "Incoming condition damage decreased by 33%; stacks duration.",
+        "apply_count": 1,
+        "prefix": {
+          "text": "Apply Buff/Condition",
+          "icon": "https://render.guildwars2.com/file/03C66FA8A89697A0C4D309484172080E3A1141EF/961410.png",
+          "status": "Legendary Dwarf Stance",
+          "description": "Currently invoking the power of King Jalis Ironhammer."
+        }
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "PrefixedBuff",
+        "icon": "https://render.guildwars2.com/file/CD77D1FAB7B270223538A8F8ECDA1CFB044D65F4/102834.png",
+        "duration": 3,
+        "status": "Protection",
+        "description": "Incoming strike damage decreased by 33%; stacks duration.",
+        "apply_count": 1,
+        "prefix": {
+          "text": "Apply Buff/Condition",
+          "icon": "https://render.guildwars2.com/file/0E091B41C047DD5A1BCA6B9193C73E6B29524C5D/1983636.png",
+          "status": "Legendary Centaur Stance",
+          "description": "Currently invoking the power of Ventari."
+        }
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "PrefixedBuff",
+        "icon": "https://render.guildwars2.com/file/D4AB6401A6D6917C3D4F230764452BCCE1035B0D/1012835.png",
+        "duration": 3,
+        "status": "Quickness",
+        "description": "Skills and actions are faster.",
+        "apply_count": 1,
+        "prefix": {
+          "text": "Apply Buff/Condition",
+          "icon": "https://render.guildwars2.com/file/96D1B2FC486CB655D804B9722FC13ED623964451/3680050.png",
+          "status": "Legendary Entity Stance",
+          "description": "Currently invoking the power of Razah."
+        }
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "Buff",
+        "icon": "https://render.guildwars2.com/file/2FA9DF9D6BC17839BBEA14723F1C53D645DDB5E1/102852.png",
+        "duration": 6,
         "status": "Might",
         "description": "Increased outgoing damage; stacks intensity.",
         "apply_count": 5

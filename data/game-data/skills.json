@@ -7072,6 +7072,13 @@
         "target": "Healing"
       },
       {
+        "text": "Heal per Condition",
+        "type": "AttributeAdjust",
+        "icon": "https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png",
+        "value": 427,
+        "target": "Healing"
+      },
+      {
         "text": "Combo Field",
         "type": "ComboField",
         "icon": "https://render.guildwars2.com/file/59E0DB6A699810641C959926ADFEF73E08CC255B/156655.png",
@@ -15370,7 +15377,7 @@
   {
     "id": 5822,
     "name": "Galvanic Bomb",
-    "description": "Set an explosive that electrocutes nearby foes, dazing them.",
+    "description": "Set an explosive that electrocutes nearby foes.",
     "icon": "https://render.guildwars2.com/file/E406DB5F73E8AE312E0E04650FDAF0CCFCFC28FF/103403.png",
     "chatLink": "[&Br4WAAA=]",
     "type": "Bundle",
@@ -40451,18 +40458,18 @@
     "description": "You cannot use skills while transformed.",
     "icon": "https://render.guildwars2.com/file/A9050BAB0847390C0112694321B0F6AEDF7AE1FB/102804.png",
     "chatLink": "[&BlopAAA=]",
-    "type": "Profession",
+    "type": "Transform",
     "weaponType": "None",
     "professions": [
       "Engineer",
       "Necromancer"
     ],
-    "slot": "Profession_1",
+    "slot": "Transform_1",
     "flags": [],
     "facts": [],
     "traitedFacts": [],
     "attunement": null,
-    "specializationId": 70,
+    "specializationId": null,
     "flipSkill": null,
     "categories": [],
     "toolbeltSkill": null,
@@ -89330,7 +89337,7 @@
   {
     "id": 29547,
     "name": "Bandage Blast",
-    "description": "Fire several bandages ahead of you to heal allies.",
+    "description": "Fire several bandages ahead of you to heal allies. Heal allies below the health threshold for an increased amount.",
     "icon": "https://render.guildwars2.com/file/F473E7A5D7D301A3B813443812C73338C073ABB2/102898.png",
     "chatLink": "[&BmtzAAA=]",
     "type": "Bundle",
@@ -89374,6 +89381,18 @@
         "type": "Number",
         "icon": "https://render.guildwars2.com/file/B4490FB81AA1E7C06F1B22056AE09A0F54CBE2C4/1770201.png",
         "value": 5
+      },
+      {
+        "text": "Health Threshold",
+        "type": "Percent",
+        "icon": "https://render.guildwars2.com/file/B0CD8077991E4FB1622D2930337ED7F9B54211D5/156665.png",
+        "percent": 50
+      },
+      {
+        "text": "Healing Increase",
+        "type": "Percent",
+        "icon": "https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png",
+        "percent": 50
       }
     ],
     "traitedFacts": [],
@@ -103880,12 +103899,6 @@
         "value": 3
       },
       {
-        "text": "Conditions Removed",
-        "type": "Number",
-        "icon": "https://render.guildwars2.com/file/9352ED3244417304995F26CB01AE76BB7E547052/156661.png",
-        "value": 2
-      },
-      {
         "text": "Number of Targets",
         "type": "Number",
         "icon": "https://render.guildwars2.com/file/BBE8191A494B0352259C10EADFDACCE177E6DA5B/1770208.png",
@@ -106943,12 +106956,6 @@
         "icon": "https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png",
         "value": 216,
         "target": "Healing"
-      },
-      {
-        "text": "Conditions Removed",
-        "type": "Number",
-        "icon": "https://render.guildwars2.com/file/9352ED3244417304995F26CB01AE76BB7E547052/156661.png",
-        "value": 3
       },
       {
         "text": "Conditions Removed",
@@ -138403,12 +138410,12 @@
     "description": "Creates a mirror at target location. Touching the mirror shatters it, granting Mirage Cloak to you and weakening nearby foes.",
     "icon": "https://render.guildwars2.com/file/7F3FA1CD20D930E7EEC75459E7206979DD0AD016/1770518.png",
     "chatLink": "[&BoWuAAA=]",
-    "type": "Utility",
+    "type": "Heal",
     "weaponType": "None",
     "professions": [
       "Mesmer"
     ],
-    "slot": "Utility",
+    "slot": "Heal",
     "flags": [],
     "facts": [
       {
@@ -142816,7 +142823,7 @@
     ],
     "traitedFacts": [],
     "attunement": null,
-    "specializationId": null,
+    "specializationId": 55,
     "flipSkill": null,
     "categories": [],
     "toolbeltSkill": null,
@@ -184225,7 +184232,7 @@
     "professions": [
       "Revenant"
     ],
-    "slot": "Profession_3",
+    "slot": "Profession_2",
     "flags": [],
     "facts": [
       {
@@ -184273,7 +184280,7 @@
         "text": "Base Heal",
         "type": "AttributeAdjust",
         "icon": "https://render.guildwars2.com/file/D4347C52157B040943051D7E09DEAD7AF63D4378/156662.png",
-        "value": 709,
+        "value": 714,
         "target": "Healing"
       },
       {
@@ -215226,7 +215233,7 @@
     "traitedFacts": [],
     "attunement": null,
     "specializationId": 69,
-    "flipSkill": null,
+    "flipSkill": 62729,
     "categories": [],
     "toolbeltSkill": null,
     "bundleSkills": null
@@ -237079,12 +237086,12 @@
     "description": "Offensive Artifact. Dash to the targeted location while dropping bombs along your path that detonate after a short period of time, dealing damage and burning enemies. More bombs are dropped the farther you travel. \n\nFor a short time after using this skill, you continue to drop additional bombs at your location. \n",
     "icon": "https://render.guildwars2.com/file/696501BA136CA660BD22D0D0A3B19741D4A77529/3680211.png",
     "chatLink": "[&BlkrAQA=]",
-    "type": "Profession",
-    "weaponType": "None",
+    "type": "Weapon",
+    "weaponType": "Nothing",
     "professions": [
       "Thief"
     ],
-    "slot": "Profession_2",
+    "slot": "Weapon_1",
     "flags": [
       "GroundTargeted",
       "NoUnderwater"
@@ -237684,11 +237691,11 @@
     "icon": "https://render.guildwars2.com/file/CEE6340604724A060D7C570709C4B05DFAD56617/3680212.png",
     "chatLink": "[&BoIrAQA=]",
     "type": "Weapon",
-    "weaponType": "Nothing",
+    "weaponType": "LargeBundle",
     "professions": [
       "Thief"
     ],
-    "slot": "Weapon_1",
+    "slot": "Weapon_4",
     "flags": [
       "GroundTargeted",
       "NoUnderwater"
@@ -237856,7 +237863,7 @@
       }
     ],
     "attunement": null,
-    "specializationId": null,
+    "specializationId": 77,
     "flipSkill": null,
     "categories": [],
     "toolbeltSkill": null,
@@ -238851,12 +238858,12 @@
     "description": "Defensive Artifact. Dash toward your target, damaging and inflicting conditions on enemies and removing conditions from allies around you when you reach your destination. You evade attacks as long as you are still traveling.\n\nFor a short time after using this skill, whenever you use a weapon skill that costs initiative, remove conditions from yourself.",
     "icon": "https://render.guildwars2.com/file/3C1B2075B7B164EB2ABE4F6650F553D40F689E53/3680218.png",
     "chatLink": "[&Br0rAQA=]",
-    "type": "Weapon",
-    "weaponType": "Nothing",
+    "type": "Profession",
+    "weaponType": "None",
     "professions": [
       "Thief"
     ],
-    "slot": "Weapon_1",
+    "slot": "Profession_2",
     "flags": [],
     "facts": [
       {
@@ -239414,6 +239421,15 @@
         "type": "Buff",
         "icon": "https://render.guildwars2.com/file/CD77D1FAB7B270223538A8F8ECDA1CFB044D65F4/102834.png",
         "duration": 5,
+        "status": "Protection",
+        "description": "Incoming strike damage decreased by 33%; stacks duration.",
+        "apply_count": 1
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "Buff",
+        "icon": "https://render.guildwars2.com/file/CD77D1FAB7B270223538A8F8ECDA1CFB044D65F4/102834.png",
+        "duration": 3,
         "status": "Protection",
         "description": "Incoming strike damage decreased by 33%; stacks duration.",
         "apply_count": 1
@@ -240535,7 +240551,7 @@
     "icon": "https://render.guildwars2.com/file/4506224EB1921800602CAD52B6B209960FE51153/3680209.png",
     "chatLink": "[&BhAsAQA=]",
     "type": "Weapon",
-    "weaponType": "Nothing",
+    "weaponType": "LargeBundle",
     "professions": [
       "Thief"
     ],
@@ -240658,7 +240674,7 @@
       }
     ],
     "attunement": null,
-    "specializationId": null,
+    "specializationId": 77,
     "flipSkill": null,
     "categories": [],
     "toolbeltSkill": null,
@@ -240923,12 +240939,12 @@
     "description": "Defensive Artifact. Dash toward your target, damaging and inflicting conditions on enemies and removing conditions from allies around you when you reach your destination. You evade attacks as long as you are still traveling.\n\nFor a short time after using this skill, whenever you use a weapon skill that costs initiative, remove conditions from yourself.",
     "icon": "https://render.guildwars2.com/file/3C1B2075B7B164EB2ABE4F6650F553D40F689E53/3680218.png",
     "chatLink": "[&Bl8sAQA=]",
-    "type": "Profession",
-    "weaponType": "None",
+    "type": "Weapon",
+    "weaponType": "LargeBundle",
     "professions": [
       "Thief"
     ],
-    "slot": "Profession_2",
+    "slot": "Weapon_3",
     "flags": [
       "GroundTargeted",
       "NoUnderwater"
@@ -241047,7 +241063,7 @@
       }
     ],
     "attunement": null,
-    "specializationId": null,
+    "specializationId": 77,
     "flipSkill": null,
     "categories": [],
     "toolbeltSkill": null,
@@ -241245,12 +241261,12 @@
     "description": "Backfire. The bomb explodes in your hands, damaging you and damaging and knocking down enemies around you. \n\nFor a short time after using this skill, you take increased strike and condition damage.",
     "icon": "https://render.guildwars2.com/file/0FBFB6FA27C9BEBD1872DAACDB040AEA71A616A9/3680208.png",
     "chatLink": "[&Bm0sAQA=]",
-    "type": "Weapon",
-    "weaponType": "Nothing",
+    "type": "Profession",
+    "weaponType": "None",
     "professions": [
       "Thief"
     ],
-    "slot": "Weapon_1",
+    "slot": "Profession_2",
     "flags": [],
     "facts": [
       {
@@ -245077,12 +245093,12 @@
     "description": "Offensive Artifact. Summons a Kryptis turret at your targeted location and fires at the closest foe in range.\n\nFor a short time after using this skill, you deal increased damage to enemies that were struck by the turret.",
     "icon": "https://render.guildwars2.com/file/2DC92035E3A36CBCDB62C84E65BEF69BFA0BDD02/3680213.png",
     "chatLink": "[&BogtAQA=]",
-    "type": "Weapon",
-    "weaponType": "Nothing",
+    "type": "Profession",
+    "weaponType": "None",
     "professions": [
       "Thief"
     ],
-    "slot": "Weapon_1",
+    "slot": "Profession_2",
     "flags": [
       "GroundTargeted",
       "NoUnderwater"
@@ -245906,6 +245922,16 @@
         "status": "Stability",
         "description": "Cannot be knocked down, pushed back, pulled, launched, stunned, dazed, floated, sunk, feared, or taunted.",
         "apply_count": 3,
+        "requires_trait": 2415
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "Buff",
+        "icon": "https://render.guildwars2.com/file/3D3A1C2D6D791C05179AB871902D28782C65C244/415959.png",
+        "duration": 3,
+        "status": "Stability",
+        "description": "Cannot be knocked down, pushed back, pulled, launched, stunned, dazed, floated, sunk, feared, or taunted.",
+        "apply_count": 2,
         "requires_trait": 2415
       },
       {
@@ -249934,6 +249960,18 @@
         "target": "Healing"
       },
       {
+        "text": "Barrier Increase per Affinity",
+        "type": "Percent",
+        "icon": "https://render.guildwars2.com/file/357922487919E8E84B914EAC13D5796DDDC42D14/1770209.png",
+        "percent": 10
+      },
+      {
+        "text": "Damage Increase per Affinity",
+        "type": "Percent",
+        "icon": "https://render.guildwars2.com/file/61AA4919C4A7990903241B680A69530121E994C7/156657.png",
+        "percent": 10
+      },
+      {
         "text": "Combo Finisher",
         "type": "ComboFinisher",
         "icon": "https://render.guildwars2.com/file/A513F3653D33FBA4220D2D307799F8A327A36A3B/156656.png",
@@ -252105,6 +252143,1922 @@
     "traitedFacts": [],
     "attunement": null,
     "specializationId": 58,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80323,
+    "name": "Annihilating Orb",
+    "description": "Vloxx unleashes an orb of unstable energy that slowly travels to a target point, damaging all in its path. Once it arrives, Vloxx teleports to the orb, detonating it in a shockwave.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BsM5AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80337,
+    "name": "Ascension's Sacrifice",
+    "description": "Vloxx wraps the target's soul in cosmic chains, severing their body from gravity itself and forcefully pushing them away. Unless allies can gather and counter the curse, the target and those below will take damage, gain conditions, have boons removed, and lose some of their Ascension.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BtE5AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 40
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80339,
+    "name": "Orb of Despair",
+    "description": "Creates a launch orb if it completes its path. Refreshes Nova Launch when bouncing on party members. Explodes when contacting the ground.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BtM5AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 10000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80378,
+    "name": "Judgment of Eternity",
+    "description": "Vloxx selects several targets and places a marker on them. If the indicated number of players are not within the radius when the curse completes, the attack will affect all players in the radius and siphon a point of ascension to Vloxx. A player who has helped with one target cannot help with another for several seconds.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bvo5AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80399,
+    "name": "Cosmic Charge",
+    "description": "Vloxx launches himself forward, spinning Ancora in wide sweeping arcs. Foes hit by the spear receive damage and conditions; those directly in Vloxx's path are thrown back as well. Vloxx leaves a trail of energy behind him that damages and inflicts conditions on any who touch it.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bg86AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 45
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80420,
+    "name": "Visions of Eternity",
+    "description": "Vloxx pauses combat to reconfigure his armaments. Meanwhile, the figments of his thoughts are freed to attack and the merest ideas explode like bombs around you. Defeat the figments and break his concentration.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BiQ6AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 4000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80470,
+    "name": "Division Eternal",
+    "description": "With his every movement now reflected by the cosmos itself, each slice of Vloxx's blade echoes across space, striking all in its path for damage.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BlY6AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 5
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80483,
+    "name": "Division Eternal",
+    "description": "With his every movement now reflected by the cosmos itself, each slice of Vloxx's blade echoes across space, striking all in its path for damage.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BmM6AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 5
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80484,
+    "name": "Surrounding Curse",
+    "description": "Vloxx curses the ground where his foe stands, causing projectiles to erupt from all around to hammer any unfortunate being in that location with damage and inflict conditions.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BmQ6AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80512,
+    "name": "Cosmic Charge",
+    "description": "Vloxx launches himself forward, spinning Ancora in wide sweeping arcs. Foes hit by the spear receive damage and conditions; those directly in Vloxx's path are thrown back as well. Vloxx leaves a trail of energy behind him that damages and inflicts conditions on any who touch it.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BoA6AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2500
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80526,
+    "name": "Surrounding Curse",
+    "description": "Vloxx curses the ground where his foe stands, causing projectiles to erupt from all around to hammer any unfortunate being in that location with damage and inflict conditions.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bo46AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80527,
+    "name": "Echoing Blade",
+    "description": "Vloxx unleashes a flurry of slashes around himself. Each flash of the blade creates an echo of the blade itself that whirls through the air towards its target, damaging all in the path until it destabilizes and explodes.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bo86AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 1200
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 20
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80555,
+    "name": "Thousand Strikes",
+    "description": "Vloxx use Ancora to stab out with such celerity that the spear appears to be in one thousand places at once, striking all before him nearly as many times.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bqs6AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 1500
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 5
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80556,
+    "name": "Threshold of Eternity",
+    "description": "Vloxx is moments away from his goal. His power is growing, triggering skills used before in the battle. If he is not defeated in time, you will die and Tyria as you know it will die with you.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bqw6AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 6000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80566,
+    "name": "Surrounding Curse",
+    "description": "Vloxx curses the ground where his foe stands, causing projectiles to erupt from all around to hammer any unfortunate being in that location with damage and inflict conditions.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BrY6AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 45
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80568,
+    "name": "Frigid Winds",
+    "description": "Frigid winds that chill targets to the bone.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Brg6AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Apply Buff/Condition",
+        "type": "Buff",
+        "icon": "https://render.guildwars2.com/file/79FF0046A5F9ADA3B4C4EC19ADB4CB124D5F0021/102848.png",
+        "duration": 4,
+        "status": "Bleeding",
+        "description": "Deals damage every second; stacks intensity.",
+        "apply_count": 2
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "Buff",
+        "icon": "https://render.guildwars2.com/file/070325E519C178D502A8160523766070D30C0C19/102838.png",
+        "duration": 3,
+        "status": "Crippled",
+        "description": "Movement speed decreased by 50%; stacks duration.",
+        "apply_count": 1
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80585,
+    "name": "Slice Through Reality",
+    "description": "Vloxx slices a hole through reality itself, connecting two locations with short-lived portals. He steps through but the portals remain. The entry portal pulls players in, and the exit portal hurls them out after inflicting damage and corrupting boons. The exit portal pushes players away to give Vloxx space to prepare his next attack.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bsk6AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80591,
+    "name": "Visions of Eternity",
+    "description": "Vloxx pauses combat to reconfigure his armaments. Meanwhile, the figments of his thoughts are freed to attack and the merest ideas explode like bombs around you. Defeat the figments and break his concentration.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bs86AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 4000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80595,
+    "name": "Probability Distribution",
+    "description": "Vloxx invokes a curse on several targets, inflicting weakness on them and placing a timed warning. When the spell completes, all targets in the radius receive damage, have some boons removed, and receive random conditions.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BtM6AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 30
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80629,
+    "name": "Judgment of Eternity",
+    "description": "Vloxx selects several targets and places a marker on them. If the indicated number of players are not within the radius when the curse completes, the attack will affect all players in the radius and siphon a point of ascension to Vloxx. A player who has helped with one target cannot help with another for several seconds.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BvU6AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 40
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80652,
+    "name": "Ferocious Assault",
+    "description": "",
+    "icon": "https://render.guildwars2.com/file/57CA33A2FF20140EF835226F5F4BDE904FE20B2A/3807295.png",
+    "chatLink": "[&Bgw7AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80653,
+    "name": "Surrounding Curse",
+    "description": "Vloxx curses the ground where his foe stands, causing projectiles to erupt from all around to hammer any unfortunate being in that location with damage and inflict conditions.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bg07AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 45
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80654,
+    "name": "Ferocious Assault",
+    "description": "",
+    "icon": "https://render.guildwars2.com/file/57CA33A2FF20140EF835226F5F4BDE904FE20B2A/3807295.png",
+    "chatLink": "[&Bg47AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80657,
+    "name": "Stone Sweep",
+    "description": "Sweeping attack.",
+    "icon": "https://render.guildwars2.com/file/74E5B6C9451DA56CB3BDC37B3952396D247B9F71/103207.png",
+    "chatLink": "[&BhE7AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80719,
+    "name": "Judgment of Eternity",
+    "description": "Vloxx selects several targets and places a marker on them. If the indicated number of players are not within the radius when the curse completes, the attack will affect all players in the radius and siphon a point of ascension to Vloxx. A player who has helped with one target cannot help with another for several seconds.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bk87AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 40
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80740,
+    "name": "Storm Summoning",
+    "description": "Struck targets are susceptible to incapacitation by rime sprites.",
+    "icon": "https://render.guildwars2.com/file/9C090BF7E893030BABD5DC4BA4020262AD91CE2C/103134.png",
+    "chatLink": "[&BmQ7AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80760,
+    "name": "Worldpiercer",
+    "description": "Vloxx hurls Ancora in a flat trajectory, striking anyone in the path for massive damage. Ancora leaves a wake of energy that coalesces into magical barriers that knock down any who cross them.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bng7AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 5000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 30
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80761,
+    "name": "Raging Storm",
+    "description": "Vloxx hurls Ancora into the air, where it transforms into a rain of falling spears that slam down on their targets, tracking their movement.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bnk7AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 20
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80775,
+    "name": "Thousand Strikes",
+    "description": "Vloxx use Ancora to stab out with such celerity that the spear appears to be in one thousand places at once, striking all before him nearly as many times.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Boc7AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 1500
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 5
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80802,
+    "name": "Slice Through Reality",
+    "description": "Vloxx slices a hole through reality itself, connecting two locations with short-lived portals. He steps through but the portals remain. The entry portal pulls players in, and the exit portal hurls them out after inflicting damage and corrupting boons. The exit portal pushes players away to give Vloxx space to prepare his next attack.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BqI7AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 60
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80809,
+    "name": "Probability Distribution",
+    "description": "Vloxx invokes a curse on several targets, inflicting weakness on them and placing a timed warning. When the spell completes, all targets in the radius receive damage, have some boons removed, and receive random conditions.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bqk7AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 30
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80810,
+    "name": "Raging Storm",
+    "description": "Vloxx hurls Ancora into the air, where it transforms into a rain of falling spears that slam down on their targets, tracking their movement.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bqo7AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 20
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80901,
+    "name": "Excision Extremis",
+    "description": "Each time Vloxx's sword lashes out, probabilities coalesce and copies of that sword stroke appear in a pattern around a random target's position, mirroring Vloxx's initial strikes four times over.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BgU8AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80908,
+    "name": "Echoing Outburst",
+    "description": "Release a cacophony of ley-infused vibrations. Nearby enemies take damage and are revealed.",
+    "icon": "https://render.guildwars2.com/file/B698066D75DEC653A5E0F3354040A46FEF3619FB/3807296.png",
+    "chatLink": "[&Bgw8AQA=]",
+    "type": "Pet",
+    "weaponType": "None",
+    "professions": [],
+    "slot": "Pet",
+    "flags": [
+      "NoUnderwater"
+    ],
+    "facts": [
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 25
+      },
+      {
+        "text": "Damage",
+        "type": "Damage",
+        "icon": "https://render.guildwars2.com/file/61AA4919C4A7990903241B680A69530121E994C7/156657.png",
+        "hit_count": 1,
+        "dmg_multiplier": 0.8
+      },
+      {
+        "text": "Radius",
+        "type": "Distance",
+        "icon": "https://render.guildwars2.com/file/B0CD8077991E4FB1622D2930337ED7F9B54211D5/156665.png",
+        "distance": 300
+      },
+      {
+        "text": "Number of Targets",
+        "type": "Number",
+        "icon": "https://render.guildwars2.com/file/BBE8191A494B0352259C10EADFDACCE177E6DA5B/1770208.png",
+        "value": 5
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "Buff",
+        "icon": "https://render.guildwars2.com/file/62BFF65D1CE99B1B2B0928152BCC596EAC0D372B/102887.png",
+        "duration": 4,
+        "status": "Revealed",
+        "description": "You cannot stealth",
+        "apply_count": 1
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80916,
+    "name": "Worldpiercer",
+    "description": "Vloxx hurls Ancora in a flat trajectory, striking anyone in the path for massive damage. Ancora leaves a wake of energy that coalesces into magical barriers that knock down any who cross them.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BhQ8AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 5000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 30
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80921,
+    "name": "Eternal Reflection",
+    "description": "Vloxx unleashes waves of projectiles against his foes. Projectiles that hit a target reflect off and explode nearby. Blocked projectiles will still reflect.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bhk8AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 5
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80941,
+    "name": "Surrounding Curse",
+    "description": "Vloxx curses the ground where his foe stands, causing projectiles to erupt from all around to hammer any unfortunate being in that location with damage and inflict conditions.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bi08AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80985,
+    "name": "Vampiric Predation",
+    "description": "Swoop at your foe, siphoning their vitality.",
+    "icon": "https://render.guildwars2.com/file/D7D21313F85BCD6438DFD194E76136199D033960/3807299.png",
+    "chatLink": "[&Blk8AQA=]",
+    "type": "Profession",
+    "weaponType": "None",
+    "professions": [
+      "Ranger"
+    ],
+    "slot": "Profession_2",
+    "flags": [
+      "NoUnderwater"
+    ],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 800
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 12
+      },
+      {
+        "text": "Damage",
+        "type": "Damage",
+        "icon": "https://render.guildwars2.com/file/61AA4919C4A7990903241B680A69530121E994C7/156657.png",
+        "hit_count": 1,
+        "dmg_multiplier": 1.5
+      },
+      {
+        "text": "Life Siphon Damage",
+        "type": "AttributeAdjust",
+        "icon": "https://render.guildwars2.com/file/61AA4919C4A7990903241B680A69530121E994C7/156657.png",
+        "value": 1008,
+        "target": "Power"
+      },
+      {
+        "text": "Life Siphon Healing",
+        "type": "AttributeAdjust",
+        "icon": "https://render.guildwars2.com/file/61AA4919C4A7990903241B680A69530121E994C7/156657.png",
+        "value": 1008,
+        "target": "Healing"
+      },
+      {
+        "text": "Combo Finisher",
+        "type": "ComboFinisher",
+        "icon": "https://render.guildwars2.com/file/A513F3653D33FBA4220D2D307799F8A327A36A3B/156656.png",
+        "percent": 100,
+        "finisher_type": "Leap"
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": 55,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80987,
+    "name": "Buffeting Winds",
+    "description": "Basic attack with high-force winds.",
+    "icon": "https://render.guildwars2.com/file/523149DCD3F80243760B0909B8A00C1AD81966F7/103032.png",
+    "chatLink": "[&Bls8AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 80989,
+    "name": "Annihilating Orb",
+    "description": "Vloxx unleashes an orb of unstable energy that slowly travels to a target point, damaging all in its path. Once it arrives, Vloxx teleports to the orb, detonating it in a shockwave.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bl08AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 30
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81017,
+    "name": "Visions of Eternity",
+    "description": "Vloxx pauses combat to reconfigure his armaments. Meanwhile, the figments of his thoughts are freed to attack and the merest ideas explode like bombs around you. Defeat the figments and break his concentration.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bnk8AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 4000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81024,
+    "name": "Enervate",
+    "description": "Drain your target of their energy, leaving them weakened.",
+    "icon": "https://render.guildwars2.com/file/51BAA8D59843F7FD9F2BC662DF07E6A42EC12F01/3807297.png",
+    "chatLink": "[&BoA8AQA=]",
+    "type": "Profession",
+    "weaponType": "None",
+    "professions": [
+      "Ranger"
+    ],
+    "slot": "Profession_1",
+    "flags": [
+      "NoUnderwater"
+    ],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 130
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 15
+      },
+      {
+        "text": "Damage",
+        "type": "Damage",
+        "icon": "https://render.guildwars2.com/file/61AA4919C4A7990903241B680A69530121E994C7/156657.png",
+        "hit_count": 1,
+        "dmg_multiplier": 1.5
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "Buff",
+        "icon": "https://render.guildwars2.com/file/6CB0E64AF9AA292E332A38C1770CE577E2CDE0E8/102853.png",
+        "duration": 4,
+        "status": "Weakness",
+        "description": "Endurance regeneration decreased by 50%. 50% of hits are Glancing Blows (50% damage). Stacks duration.",
+        "apply_count": 1
+      },
+      {
+        "text": "Apply Buff/Condition",
+        "type": "Buff",
+        "icon": "https://render.guildwars2.com/file/28C4EC547A3516AF0242E826772DA43A5EAC3DF3/102839.png",
+        "duration": 4,
+        "status": "Chilled",
+        "description": "Movement speed decreased by 66%; skill cooldown increased by 66%; stacks duration.",
+        "apply_count": 1
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": 55,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81029,
+    "name": "Excision Extremis",
+    "description": "Each time Vloxx's sword lashes out, probabilities coalesce and copies of that sword stroke appear in a pattern around a random target's position, mirroring Vloxx's initial strikes four times over.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BoU8AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 10
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81053,
+    "name": "Excision Extremis",
+    "description": "Each time Vloxx's sword lashes out, probabilities coalesce and copies of that sword stroke appear in a pattern around a random target's position, mirroring Vloxx's initial strikes four times over.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bp08AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 10
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81058,
+    "name": "Orb of Despair",
+    "description": "Creates a launch orb if it completes its path. Refreshes Nova Launch when bouncing on party members. Explodes when contacting the ground.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BqI8AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 10000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81071,
+    "name": "Threshold of Eternity",
+    "description": "Vloxx is moments away from his goal. His power is growing, triggering skills used before in the battle. If he is not defeated in time, you will die and Tyria as you know it will die with you.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bq88AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 6000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81076,
+    "name": "Ascension's Sacrifice",
+    "description": "Vloxx wraps the target's soul in cosmic chains, severing their body from gravity itself and forcefully pushing them away. Unless allies can gather and counter the curse, the target and those below will take damage, gain conditions, have boons removed, and lose some of their Ascension.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BrQ8AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 40
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81149,
+    "name": "Eternal Reflection",
+    "description": "Vloxx unleashes waves of projectiles against his foes. Projectiles that hit a target reflect off and explode nearby. Blocked projectiles will still reflect.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bv08AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81165,
+    "name": "Judgment of Eternity",
+    "description": "Vloxx selects several targets and places a marker on them. If the indicated number of players are not within the radius when the curse completes, the attack will affect all players in the radius and siphon a point of ascension to Vloxx. A player who has helped with one target cannot help with another for several seconds.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bg09AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81176,
+    "name": "Raging Storm",
+    "description": "Vloxx hurls Ancora into the air, where it transforms into a rain of falling spears that slam down on their targets, tracking their movement.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bhg9AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81204,
+    "name": "Stone Sweep",
+    "description": "Sweeping attack.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BjQ9AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Apply Buff/Condition",
+        "type": "Buff",
+        "icon": "https://render.guildwars2.com/file/B47BF5803FED2718D7474EAF9617629AD068EE10/102849.png",
+        "duration": 3,
+        "status": "Burning",
+        "description": "Deals damage every second; stacks intensity.",
+        "apply_count": 2
+      },
+      {
+        "text": "Knockback",
+        "type": "Distance",
+        "icon": "https://render.guildwars2.com/file/400B7FD39724FBD700B94AB8AB52B5B9167646F4/2440715.png",
+        "distance": 100
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81209,
+    "name": "Eternal Reflection",
+    "description": "Vloxx unleashes waves of projectiles against his foes. Projectiles that hit a target reflect off and explode nearby. Blocked projectiles will still reflect.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bjk9AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 5
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81230,
+    "name": "Surrounding Curse",
+    "description": "Vloxx curses the ground where his foe stands, causing projectiles to erupt from all around to hammer any unfortunate being in that location with damage and inflict conditions.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bk49AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81238,
+    "name": "Annihilating Orb",
+    "description": "Vloxx unleashes an orb of unstable energy that slowly travels to a target point, damaging all in its path. Once it arrives, Vloxx teleports to the orb, detonating it in a shockwave.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BlY9AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 4000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81270,
+    "name": "Raging Storm",
+    "description": "Vloxx hurls Ancora into the air, where it transforms into a rain of falling spears that slam down on their targets, tracking their movement.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BnY9AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 20
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81271,
+    "name": "Echoing Blade",
+    "description": "Vloxx unleashes a flurry of slashes around himself. Each flash of the blade creates an echo of the blade itself that whirls through the air towards its target, damaging all in the path until it destabilizes and explodes.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bnc9AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 1200
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 20
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81301,
+    "name": "Annihilating Orb",
+    "description": "Vloxx unleashes an orb of unstable energy that slowly travels to a target point, damaging all in its path. Once it arrives, Vloxx teleports to the orb, detonating it in a shockwave.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BpU9AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2500
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 30
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81302,
+    "name": "Slice Through Reality",
+    "description": "Vloxx slices a hole through reality itself, connecting two locations with short-lived portals. He steps through but the portals remain. The entry portal pulls players in, and the exit portal hurls them out after inflicting damage and corrupting boons. The exit portal pushes players away to give Vloxx space to prepare his next attack.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BpY9AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 60
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81303,
+    "name": "Cosmic Charge",
+    "description": "Vloxx launches himself forward, spinning Ancora in wide sweeping arcs. Foes hit by the spear receive damage and conditions; those directly in Vloxx's path are thrown back as well. Vloxx leaves a trail of energy behind him that damages and inflicts conditions on any who touch it.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&Bpc9AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2500
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 45
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81318,
+    "name": "Probability Distribution",
+    "description": "Vloxx invokes a curse on several targets, inflicting weakness on them and placing a timed warning. When the spell completes, all targets in the radius receive damage, have some boons removed, and receive random conditions.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BqY9AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 3000
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
+    "flipSkill": null,
+    "categories": [],
+    "toolbeltSkill": null,
+    "bundleSkills": null
+  },
+  {
+    "id": 81330,
+    "name": "Division Eternal",
+    "description": "With his every movement now reflected by the cosmos itself, each slice of Vloxx's blade echoes across space, striking all in its path for damage.",
+    "icon": "https://render.guildwars2.com/file/1D55D34FB4EE20B1962E315245E40CA5E1042D0E/62248.png",
+    "chatLink": "[&BrI9AQA=]",
+    "type": "",
+    "weaponType": null,
+    "professions": [],
+    "slot": "",
+    "flags": [],
+    "facts": [
+      {
+        "text": "Range",
+        "type": "Range",
+        "icon": "https://render.guildwars2.com/file/0AAB34BEB1C9F4A25EC612DDBEACF3E20B2810FA/156666.png",
+        "value": 2000
+      },
+      {
+        "text": "Recharge",
+        "type": "Recharge",
+        "icon": "https://render.guildwars2.com/file/D767B963D120F077C3B163A05DC05A7317D7DB70/156651.png",
+        "value": 12
+      }
+    ],
+    "traitedFacts": [],
+    "attunement": null,
+    "specializationId": null,
     "flipSkill": null,
     "categories": [],
     "toolbeltSkill": null,
