@@ -9,7 +9,7 @@ Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md
 Eternity raid/convergence boss) — an enemy-only skill, not reachable from any player build, same
 `professions: []`/`slot: ""` shape as the other NPC-only exclusions already in the table. Added to
 `EXCLUDED_IDS` in `corrupt-missing-fact-sources.test.ts` rather than `CORRUPT_MISSING_FACT_SKILLS`
-(no code change needed). See commit `<pending>`.
+(no code change needed). See commit `425bd46`.
 
 ### [Known Exceptions Sweep — Cleansing Ire Per-Skill Tooltip Values] — Leg 9
 2026-09-29. Follow-up from Leg 7: `skill-fact-lines.ts`'s `skillFactLines` reads Warrior burst
