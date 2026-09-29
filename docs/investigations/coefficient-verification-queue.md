@@ -22,32 +22,6 @@ mismatch before queuing a skill for live verification.
 Empty as of 2026-09-16 — Shadow Veil, Black Powder, and Vampiric Slash (the last 3 queued skills)
 are all resolved; see "Resolved precedent" below. No new candidates queued yet.
 
-## Known Exceptions — investigated, needs a user decision
-
-- **Elementalist trait 351 (Healing Ripple)** — investigated 2026-09-29 as part of Known Exceptions
-  Sweep Leg 3 (Overload Water, the leg's other half, resolved cleanly — see COMPLETED.md). Wiki-
-  verified WvW values (raw wikitext, `action=raw`): base 1042, coefficient 0.75 (matches the Sep
-  29 patch's "0.5 -> 0.75" per the official patch notes; the trait's own wiki page happens to
-  already show 0.75, either pre-emptive datamined content or a merge of a previously-diverged WvW
-  value back to parity with PvP — either way, patch notes + current wiki text agree on the
-  post-patch number). Live API confirms the WvW base (1042) via `NUMERIC_FACT_WVW_OVERRIDES`
-  (`fact-numbers.ts:1590`), already pinned before this leg.
-  Blocking discovery: `CURATED_HEALING_COEFFICIENTS` (`healing-calc.ts`) is **skill-id-keyed only**
-  and is never consulted for traits — confirmed via `skill-fact-lines.ts`'s own doc comment ("Only
-  used for skills, not traits (`TraitsEditor.tsx` keeps using `numericFactLines` directly) — every
-  curated table here is keyed by skill id only, so a trait fact never has a real-value match here
-  anyway"). `TraitsEditor.tsx` only calls `numericFactLines`, which substitutes the correct WvW
-  *base* number (already done, see above) but never applies a Healing Power coefficient — that
-  math exists nowhere in the trait-tooltip code path. This isn't specific to Healing Ripple: **no
-  trait anywhere in this codebase ever gets a live-scaled healing tooltip number**, only skills do.
-  Adding a `healing-calc.ts` entry keyed by trait id 351 would be inert — never read by anything.
-  Closing this properly would mean building a new parallel mechanism (a trait-keyed healing-
-  coefficient table plus wiring `numericFactLines`/`TraitsEditor.tsx` to consult it) — new
-  infrastructure for a single candidate, not the "same file/shape as the resolved precedent" Leg 3
-  assumed. Same category of decision as Leg 5 (Tree Song's resource-cost table) and Leg 6
-  (Reaver's Curse's per-skill-mapping gap): needs Vanny to decide whether building trait-healing-
-  coefficient infra is worth it now, or whether this stays a known gap.
-
 ## Known Exceptions — investigated, permanently excluded (settled, don't re-investigate)
 
 - **Guardian 31295 (Sanctuary, underwater variant)** — a frozen pre-2016-balance-pass copy of id
@@ -102,6 +76,17 @@ in-game readings and/or wiki `split=`/resource-field disambiguation) and are alr
 `healing-calc.ts` / `siphon-damage-calc.ts`. See COMPLETED.md for the per-skill sessions
 and the `healing_damage_coefficient_curation` / `siphon_damage_sweep_2026-08-20` /
 `coefficient_curation_leftovers_sweep_2026-08-22` memories for the fuller narrative.
+
+**Elementalist trait 351 (Healing Ripple)** — RESOLVED 2026-09-29 (Known Exceptions Sweep Leg 3).
+Wiki-verified WvW values (raw wikitext, `action=raw`): base 1042 (already pinned via
+`NUMERIC_FACT_WVW_OVERRIDES`, `fact-numbers.ts`), coefficient 0.75 (matches the Sep 29 patch's
+"0.5 -> 0.75" per the official patch notes). The blocking discovery — `CURATED_HEALING_COEFFICIENTS`
+is skill-id-keyed only, never consulted for traits, so no trait anywhere in this codebase ever got a
+live-scaled healing tooltip number — needed new infrastructure, not a one-off entry: Vanny chose to
+build it. Added `CURATED_TRAIT_HEALING_COEFFICIENTS`/`healingLinesForTrait` (`healing-calc.ts`) and
+a new `trait-fact-lines.ts` (`traitFactLines`), `TraitsEditor.tsx`'s counterpart to
+`skill-fact-lines.ts`'s `skillFactLines`, now wired in at both its minor- and major-trait tooltip
+call sites. See COMPLETED.md and commit `180794d`.
 
 Cosmic Wisdom's own Assassin-form Life Siphon Damage entry (`boon-calc/sources.ts`, id 78971 — no
 API resolution at all) is a related but distinct case: RESOLVED 2026-09-16 via 2 live in-game WvW

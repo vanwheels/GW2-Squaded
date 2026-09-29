@@ -4,12 +4,16 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
-### [Known Exceptions Sweep — Overload Water Coefficient] — Leg 3 (partial — see TODO.md for Healing Ripple)
-2026-09-29. Curated Overload Water's (skill 29415) pulse "Healing" fact in `healing-calc.ts`
+### [Known Exceptions Sweep — Healing Ripple/Overload Water Coefficients] — Leg 3
+2026-09-29. Overload Water (skill 29415): curated its pulse "Healing" fact in `healing-calc.ts`
 (392 base unchanged, coefficient 0.1->0.3 per the Sep 29 patch notes; wiki page itself still stale).
-Healing Ripple (trait 351), this leg's other candidate, is NOT done — hit a genuine architecture gap
-(`CURATED_HEALING_COEFFICIENTS` is skill-only, never read for traits) rather than a same-shape fix;
-left open in TODO.md pending a scoping decision. Full derivation:
+See commit `ff39b96`. Healing Ripple (trait 351) hit a genuine architecture gap —
+`CURATED_HEALING_COEFFICIENTS` was skill-id-keyed only, never consulted for traits — so Vanny chose
+to build the infra rather than leave it a known gap: `CURATED_TRAIT_HEALING_COEFFICIENTS` +
+`healingLinesForTrait` (`healing-calc.ts`), a new `trait-fact-lines.ts` (`traitFactLines`,
+`TraitsEditor.tsx`'s counterpart to `skill-fact-lines.ts`), and a Tier 2 golden-snapshot test
+extension reading `traits.json`. Curated value: base 1042, coefficient 0.75 (Sep 29 patch's
+0.5->0.75 bump). See commit `180794d`. Full derivation:
 `docs/investigations/coefficient-verification-queue.md`.
 
 ### [Known Exceptions Sweep — Relic of Karakosa Trigger-Location Mechanic] — Leg 2

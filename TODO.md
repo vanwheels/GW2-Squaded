@@ -16,19 +16,6 @@ settled across multiple prior sessions with explicit "don't re-investigate witho
 notes — user confirmed proceeding anyway. Full history: `docs/investigations/coefficient-verification-queue.md`
 and `docs/investigations/sep-29-2026-patch-changes.md`.
 
-### [Known Exceptions Sweep — Healing Ripple/Overload Water Coefficients] — Leg 3
-Overload Water (skill 29415) done: pulse "Healing" fact curated in `healing-calc.ts`
-(0.1->0.3 per the patch notes, wiki page itself not yet updated). Healing Ripple (trait 351) hit a
-real architecture gap, not a same-shape curation: `CURATED_HEALING_COEFFICIENTS` is skill-id-keyed
-only and is never consulted for traits (`TraitsEditor.tsx` only calls `numericFactLines`, which has
-no coefficient math at all) — confirmed via `skill-fact-lines.ts`'s own doc comment. No trait
-anywhere in this codebase gets a live-scaled healing tooltip number, so closing this needs new
-infra (a trait-keyed coefficient table + wiring it into `TraitsEditor.tsx`), not a one-off entry.
-Full derivation: `docs/investigations/coefficient-verification-queue.md`.
-Blocked: needs Vanny's decision on whether building trait-healing-coefficient infra is worth it for
-one candidate, or whether this stays a known gap (same category of call as Leg 5/Leg 6).
-Last touched: 2026-09-29. Re-checks: 0.
-
 ### [Known Exceptions Sweep — Bandage Blast/Saint's Shield Coefficients] — Leg 4
 Bandage Blast has no healing coefficient curated at all; Saint's Shield (skill 62689) has a 0.2
 healing-power-scaling coefficient never curated (only an unrelated boon-duration override exists
