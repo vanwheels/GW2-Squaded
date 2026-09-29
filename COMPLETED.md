@@ -12,4 +12,4 @@ app-binary updater: `registerUpdaterIpc` now returns a `runAutoCheck` fired alon
 one on `ready-to-show`, a new `UpdaterStoreProvider`/`useUpdater` context shares status between
 `SettingsView` and `NavBar` instead of Settings owning it alone, and the Settings nav badge now
 lights up for either an available game-data update or an available/downloaded app update. See
-commit `<hash>`.
+commit `389c745`.
