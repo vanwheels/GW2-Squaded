@@ -4,6 +4,14 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Known Exceptions Sweep — Relic of Karakosa Trigger-Location Mechanic] — Leg 2
+2026-09-29. Scoped what modeling the Sep 29 patch's Relic of Karakosa change would require. Already
+an unbounded `COMBO`-bucket relic per `docs/relic-trigger-classification.md`, excluded from
+`RELIC_TRIGGER_GATES` for reasons independent of this patch; its heal was never curated anywhere
+(no relic-keyed healing table exists). The new location-based targeting would additionally need
+spatial/positional infra this app has nowhere else. Permanently excluded, no code change. See
+`docs/investigations/sep-29-2026-patch-changes.md`.
+
 ### [Known Exceptions Sweep — Permanently-Excluded Dead-Ends Re-Verification] — Leg 1
 2026-09-29. Fresh-eyes re-check of all 6 permanently-excluded dead-ends (Guardian 31295, Necromancer
 10547/10670, Thief 71802, Soul Grasp, Grim Specter/Carnivore/Replenishing Despair) against current

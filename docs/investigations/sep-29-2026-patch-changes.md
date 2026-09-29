@@ -137,6 +137,37 @@ Leg 4):
   (architecture gap, not a missing number)
 - Saint's Shield (skill 62689) — 0.2 healing-power-scaling coefficient never curated (only an
   unrelated boon-duration override exists)
+
+## Relic of Karakosa trigger-location scoping (2026-09-29, Known Exceptions Sweep Leg 2)
+
+Scoped what modeling "healing now triggers at blast finisher location rather than player location"
+would actually require, rather than assuming absence means exclusion.
+
+Cross-checked against `docs/relic-trigger-classification.md`, the full prior audit of all 112
+relics' triggers: Relic of Karakosa (101268) is already classified `COMBO` bucket — its trigger is
+"field+finisher combo," one of the 8 relics that doc's methodology marks unbounded, same reasoning
+as the dodge relics. It was never a candidate for `RELIC_TRIGGER_GATES` (the deterministic-trigger
+integration mechanism built in that sweep's leg 2) for reasons that predate and are independent of
+this patch's location change — a combo-finisher proc has no fixed cadence this app can assume
+without inventing one, the same bar every other COMBO-bucket relic fails.
+
+Separately, its heal payload was never curated in `healing-calc.ts` either — that table only holds
+skill/trait `Healing` facts (keyed by skill/trait id), not relic facts; relics have no equivalent
+table anywhere in the codebase. So there is no existing number or trigger assumption for this patch
+change to have broken — nothing regressed, because nothing was modeled.
+
+Modeling the *new* mechanic specifically (heal centered on the blast-finisher's landing spot instead
+of the player) would additionally require a spatial/positional model — player position vs. finisher
+position vs. each ally's position — which this app has zero infrastructure for anywhere; it's a
+static per-build calculator, not a positional combat simulator. Even the *old* mechanic (heal
+centered on player, allies within radius) was never modeled, since combo-finisher triggers are
+already excluded as unbounded. The location change doesn't introduce a new gap — it changes the
+targeting rule of an already-unmodeled, already out-of-scope mechanic.
+
+**Conclusion: permanently excluded, not deferred.** No code change possible or needed — same shape
+as Relic of Sorrow/Leadership (`docs/relic-trigger-classification.md` legs 4/6): not a fit for any
+existing table's shape, and no new shape would close the gap without building spatial-simulation
+infra this app has no other use for. Moved to TODO.md's Known Exceptions section.
 - Reaver's Curse (trait 2259) — 100%->200% healing/barrier increase is explicitly flagged in
   `fact-numbers.ts`'s own comment as out of scope for that table, "left for a future
   per-skill-mapping leg" — pre-existing known gap

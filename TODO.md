@@ -16,12 +16,6 @@ settled across multiple prior sessions with explicit "don't re-investigate witho
 notes — user confirmed proceeding anyway. Full history: `docs/investigations/coefficient-verification-queue.md`
 and `docs/investigations/sep-29-2026-patch-changes.md`.
 
-### [Known Exceptions Sweep — Relic of Karakosa Trigger-Location Mechanic] — Leg 2
-The Sep 29 patch's Relic of Karakosa change is a trigger-location mechanic, not a tracked number —
-nothing in the codebase models it today. Scope what modeling this would actually require before
-committing to build it.
-Last touched: 2026-09-29. Re-checks: 0.
-
 ### [Known Exceptions Sweep — Healing Ripple/Overload Water Coefficients] — Leg 3
 Healing Ripple (trait 351, 0.5 coefficient) and Overload Water (skill 29415, pulse healing
 0.1->0.3) both need fresh `healing-calc.ts` curation — never curated before the Sep 29 patch touched
@@ -84,6 +78,15 @@ reconfirmed closed with no new leads; no code changes needed. Full derivation fo
 - Thief 71802 (Helmet Breaker)
 - Soul Grasp
 - Grim Specter, Carnivore, Replenishing Despair
+
+Leg 2 (2026-09-29): Relic of Karakosa's Sep 29 patch trigger-location change (heal now centers on
+blast-finisher location, not player location). Already a `COMBO`-bucket relic per
+`docs/relic-trigger-classification.md` — unbounded trigger, never a `RELIC_TRIGGER_GATES` candidate
+for reasons independent of this patch; its heal payload was never curated in `healing-calc.ts`
+either (that table has no relic-keyed entries at all). Modeling the new mechanic specifically would
+require spatial/positional infra (player vs. finisher vs. ally position) this app has nowhere else.
+No code change possible or needed. Full scoping:
+`docs/investigations/sep-29-2026-patch-changes.md`.
 
 ## Reference — not scheduled
 
