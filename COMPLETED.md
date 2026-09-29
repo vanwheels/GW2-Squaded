@@ -4,6 +4,17 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Known Exceptions Sweep — Untracked Patch Traits] — Leg 8
+2026-09-29. TODO's "not in `src/` or `scripts/` at all" framing was an absence-of-a-grep-hit
+observation, not a real scoping decision — investigated each of the 4 traits rather than assuming
+absence meant exclusion. Latent Stamina (trait 1962) and Specialized Elements (trait 2437) were
+genuine `NUMERIC_FACT_WVW_OVERRIDES` gaps (the latter already had a stale pre-patch entry, updated
+in place rather than duplicated); Sapping Device (trait 507) confirmed permanently out of scope,
+same unbounded-trigger shape as Relic of Karakosa; Adrenal Health (trait 1348) confirmed out of
+scope for this patch's specific change (an `apply_count` value this app has no override mechanism
+for at all) but surfaced an unrelated pre-existing healing-coefficient gap, logged as its own
+TODO.md item. Full writeup: `docs/investigations/sep-29-2026-patch-changes.md`.
+
 ### [Known Exceptions Sweep — Cleansing Ire Cleanse Count] — Leg 7
 2026-09-29. TODO's framing undersold the gap — investigation found the raw API data for trait
 1649's condition-cleanse count is both stale (every value is 1 full adrenaline tier below the

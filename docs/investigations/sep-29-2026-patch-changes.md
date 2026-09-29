@@ -214,3 +214,62 @@ itself is edited and a re-fetch picks up 15 on its own.
 Closed as a code fix, not a scoping/exclusion decision — see `scripts/fetch-resource-costs.ts` and
 `src/shared/skill-calc/resource-cost-lines.ts` for the actual changes.
 
+## Untracked Patch Traits (2026-09-29, Known Exceptions Sweep Leg 8)
+
+The prior scoping addendum's "not found anywhere in `src/` or `scripts/` at all" line for Latent
+Stamina, Specialized Elements, Sapping Device, and Adrenal Health was an absence-of-a-grep-hit
+observation, not a real scoping decision — this leg actually investigated each one (live wiki
+wikitext + a check of what infra already exists for its fact shape) rather than assuming absence
+meant exclusion.
+
+**Latent Stamina (trait 1962, Tempest)** — genuine gap, now fixed. "Endurance Gained" is a plain
+`Number` fact, the exact shape `NUMERIC_FACT_WVW_OVERRIDES` (`fact-numbers.ts`) exists for. Live
+wiki infobox is pre-patch-stale (pve+wvw=10, pvp=15, unchanged since 2022-02-28) — same wiki-lag
+pattern as Tree Song (Leg 5) — so the patch notes themselves ("Increased the endurance amount from
+10 to 15" **[WvW]**) are the source of truth: wvw splits off from pve and rises to match pvp's
+existing 15. Added `1962: { 'Endurance Gained': 15 }`.
+
+**Specialized Elements (trait 2437, Evoker)** — genuine gap, now fixed, but not a new entry: this
+trait already had a `NUMERIC_FACT_WVW_OVERRIDES` row (`2437: { 'Empowered Skill Recharge': 20 }`)
+from the original Elementalist leg of the main sweep (2026-08-20) — the "not found anywhere"
+grep in the earlier addendum missed it because that grep was for the trait *name*, not its id. Same
+wiki-lag shape as Latent Stamina (live infobox still pve=33/pvp+wvw=20); patch notes ("Increased
+the empowered recharge from 20% to 33%" **[WvW]**) mean wvw now matches pve at 33, pvp stays at 20.
+Updated the existing entry to 33 in place rather than adding a duplicate key (which fails the
+TypeScript build outright — caught by `npm run typecheck` before landing).
+
+**Sapping Device (trait 507, Engineer)** — confirmed genuinely out of scope, not a gap. This is the
+real Engineer Inventions trait (reworked from Autodefense Bomb Dispenser 2026-07-15): applies
+Weakness when you disable or immobilize a foe. Its Weakness application was never modeled in the
+boon/condition aggregate calculator at all (`sources.ts` has zero references to id 507) — a
+pre-existing gap unrelated to this patch, same "not modeled" bucket as Bandage Blast/Overload Water
+in the original addendum. The patch's own change (an added 8s internal cooldown per target) doesn't
+introduce anything new to fix, since nothing was modeled to begin with. More importantly, even if it
+were being modeled fresh: "on disable/immobilize" is an unbounded, combat-dependent trigger with no
+fixed per-rotation cadence this app can assume, the same shape that already permanently excludes
+Relic of Karakosa's COMBO-bucket trigger (this doc, Leg 2) — this app has no ICD-tracking mechanism
+for trait Buff applications the way relics have their own `rechargeSeconds` field. **Permanently
+excluded**, moved to TODO.md's Known Exceptions section.
+
+**Adrenal Health (trait 1348, Warrior Defense)** — confirmed genuinely out of scope for this
+patch's specific change, but surfaced a separate, real, pre-existing curation gap along the way.
+This is the real core Warrior Defense minor trait ("Gain health based on adrenaline spent"), not
+something new from a "Paragon" chant skill as the patch-notes summary's placement under "Warrior >
+Paragon" might suggest — its `traitedFacts` are cross-spec-gated by Paragon's own minor traits
+(`requires_trait: 2373` collapses the whole effect to 1 stack; `requires_trait: 2226`, a different,
+non-Paragon id, provides the normal 2/3/4-stack progression). The patch's "paragon chants now grant
+only one stack" change lives entirely in that `requires_trait: 2373`-gated `apply_count` value —
+`NUMERIC_FACT_WVW_OVERRIDES` explicitly can't touch it (its own `numericFactLines` guards on
+`requires_trait == null`, deliberately, per its Serene Rejuvenation-leg comment) and no mechanism
+anywhere in this codebase can override a Buff fact's `apply_count` at all (`WvwFactOverride` is
+documented as duration-only in half a dozen places — Icerazor's Ire, Razorclaw's Rage, Darkrazor's
+Daring, Fox's Fury). Same established architecture limit, not a new one this leg introduces.
+
+Separately found while reading the trait's own wiki page: its base (untraited) healing-per-stack
+IS a real, wiki-documented `{{coefficient|healing|...}}` value (0.6/0.9/1.2 scaling by adrenaline
+stage, reference builds 2992/4488/5985 pve — 2610/3915/5220 wvw — 2106/3158/4212 pvp) that has never
+been curated in `CURATED_HEALING_COEFFICIENTS`/`CURATED_TRAIT_HEALING_COEFFICIENTS`
+(`healing-calc.ts`) at all — a genuine, pre-existing, patch-unrelated gap. Not fixed in this leg
+(out of this leg's actual scope, which is the patch-driven trait list, not a general healing-
+coefficient sweep) — logged as its own TODO.md item instead.
+

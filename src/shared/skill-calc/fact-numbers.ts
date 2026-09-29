@@ -1605,7 +1605,9 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   2077: { Barrier: 260 },
   2177: { 'Critical Chance Increase': 15 },
   2224: { 'Energy Gain': 3 },
-  2437: { 'Empowered Skill Recharge': 20 },
+  // 2026-09-29 patch increased the wvw value from 20 to 33 (now matching pve; pvp stays at 20) —
+  // see Known Exceptions Sweep Leg 8's own writeup further down this table.
+  2437: { 'Empowered Skill Recharge': 33 },
 
   // Necromancer — 8th and final leg of the "remaining 8 professions" main sweep (TODO.md,
   // 2026-08-20). Same process as every prior leg: scanned all 9 Necromancer spec lines (5 core +
@@ -1892,7 +1894,25 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // real pve/wvw+pvp percentage lives only in the wiki's prose `desc=` param with no exposed `Fact`
   // field to pick from — an embedded-sub-value gap like Warrior's Peak Performance, same shape as
   // this trait's own sibling Empowering Spirits (2405, `BUFF_INSTANCE_VALUE_OVERRIDES`) Fury grant.
-  2333: { 'Life Force Drain per Second': 3 }
+  2333: { 'Life Force Drain per Second': 3 },
+
+  // Known Exceptions Sweep Leg 8 (2026-09-29, "Untracked Patch Traits"): 2 of the sweep's 4 traits
+  // turned out to be genuine `NUMERIC_FACT_WVW_OVERRIDES` candidates once actually investigated,
+  // not out of scope as TODO.md's prior "not found anywhere in src/ or scripts/" note assumed
+  // (absence of code ≠ exclusion — see that leg's own writeup). Both hit the same wiki-lag pattern
+  // already documented for Tree Song (`RESOURCE_COST_WVW_OVERRIDES`): the wiki infobox hasn't been
+  // hand-edited to catch up with today's 2026-09-29 patch yet, so `Game_updates/2026-09-29`'s own
+  // patch notes (not the infobox) are the source of truth for the WvW-only value. Specialized
+  // Elements (2437) already had a pre-patch entry above (Elementalist leg of the main sweep,
+  // 2026-08-20) — updated in place rather than duplicated here.
+
+  // Latent Stamina (id 1962, Tempest Adept major): "Restore endurance to allies you grant vigor."
+  // Live wiki infobox (2026-09-29, pre-patch state): `{{skill fact|Endurance Gained|10|game
+  // mode=pve wvw}}{{skill fact|Endurance Gained|15|game mode=pvp}}` — pve+wvw share 10 (matching
+  // the raw API's sole `Endurance Gained` fact, value 10), pvp alone at 15 since a 2022-02-28
+  // patch. Today's patch notes: "Increased the endurance amount from 10 to 15" **[WvW]** — wvw
+  // splits off from pve and rises to match pvp's existing 15, pve stays at 10.
+  1962: { 'Endurance Gained': 15 }
 }
 
 /**
