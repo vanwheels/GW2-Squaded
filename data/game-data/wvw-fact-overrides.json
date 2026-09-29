@@ -2723,6 +2723,13 @@
     },
     "2429": {
       "Burning": 4
+    },
+    "2440": {
+      "Fury": 10,
+      "Resistance": 5,
+      "Protection": 5,
+      "Quickness": 5,
+      "Might": 10
     }
   }
 }

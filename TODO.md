@@ -16,16 +16,6 @@ settled across multiple prior sessions with explicit "don't re-investigate witho
 notes — user confirmed proceeding anyway. Full history: `docs/investigations/coefficient-verification-queue.md`
 and `docs/investigations/sep-29-2026-patch-changes.md`.
 
-### [Known Exceptions Sweep — Numinous Gift Duplicate Boon Leak] — Leg 11
-Found running the full suite after Leg 9 (unrelated to that change — pre-existing on a clean `main`
-checkout too, confirmed via `git stash`). `cosmic-wisdom-trait-effects.test.ts`'s
-"Numinous Gift's OWN trait facts are ALSO filtered to equipped legends" test now fails: expected
-`['Fury', 'Might', 'Resolution', 'Stability']`, got `['Fury', 'Fury', 'Might', 'Might', ...]` — Fury
-and Might each appear twice. Not yet investigated past the test failure itself; likely raw
-`skills.json`/trait data drift (same class as the other Sep 29 patch fixes landed this sweep) rather
-than a logic bug in `boonConditionFactsForTrait`, but unconfirmed.
-Last touched: 2026-09-29. Re-checks: 0.
-
 ### [Known Exceptions Sweep — Legend Form Facts Life Siphon Drift] — Leg 12
 Found alongside Leg 11, same discovery method (pre-existing on clean `main`, unrelated to Leg 9).
 `legend-form-facts.test.ts`'s "appends Lesser Enchanted Daggers' siphon damage + healing to the

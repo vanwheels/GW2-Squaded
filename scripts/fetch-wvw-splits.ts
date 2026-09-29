@@ -1313,7 +1313,26 @@ const MANUAL_OVERRIDES: { skill: Record<number, Record<string, WvwFactOverride>>
     // PvE-only (no WvW-tagged line at all), same "confirmed absent in WvW" shape as Saint's Shield
     // (62689) above, so it's omitted here. Regeneration needs no override: its 3s local value
     // already matches the wiki's WvW+PvP figure exactly.
-    2289: { Alacrity: 'omit' }
+    2289: { Alacrity: 'omit' },
+
+    // Numinous Gift (2440, Revenant/Conduit Grandmaster minor — Known Exceptions Sweep Leg 11,
+    // 2026-09-29 "Duplicate Boon Leak"): the Sep 29 patch data refresh added a 2nd raw fact for
+    // Fury/Resistance/Protection/Quickness/Might on this trait, each carrying a lower, unexplained
+    // duration (Fury 10->6, Resistance/Protection/Quickness 5->3, Might 10->6) with no
+    // `requires_trait`/game-mode discriminator — `extractFromFacts` showed both, doubling every one
+    // of those 5 rows once Assassin/Demon/Centaur/Entity legends were equipped. Wiki raw wikitext
+    // (`action=raw`, fetched 2026-09-29) shows NONE of these 5 are actually split: Fury's own 2
+    // template lines both give 10 (`game mode = pve` and `game mode = pvp wvw` are identical
+    // values, not a real split), and Resistance/Protection/Quickness/Might carry no game-mode tag
+    // at all (unsplit, single wiki-documented value). The lower 2nd-fact durations don't correspond
+    // to anything the wiki documents — same "genuinely-identical duplicate, not a real pve/wvw
+    // split" shape as Resolute Subconscious (625)/Sundering Burst (1316) above, just with the
+    // duplicate carrying a wrong value instead of a matching one, so the override supplies the
+    // wiki-confirmed correct duration rather than either raw fact's value blindly. Stability/
+    // Resolution (Dwarf Stance) are NOT touched here: wiki confirms those are a genuine 2-status
+    // split (pve+wvw=Stability, pvp=Resolution) already correctly modeled as 2 separate facts
+    // pre-dating this patch, unrelated to this leak.
+    2440: { Fury: 10, Resistance: 5, Protection: 5, Quickness: 5, Might: 10 }
   }
 }
 

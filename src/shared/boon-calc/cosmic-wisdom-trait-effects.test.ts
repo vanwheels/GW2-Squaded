@@ -28,8 +28,11 @@ const legends = readJson<Legend[]>('legends.json')
 const cosmicWisdom = skills.find((s) => s.id === 77371)!
 const traits = readJson<Trait[]>('traits.json')
 const numinousGiftTrait = traits.find((t) => t.id === 2440)!
-const wvwOverrides = readJson<{ skill: Record<string, Record<string, WvwFactOverride>> }>('wvw-fact-overrides.json')
+const wvwOverrides = readJson<{ skill: Record<string, Record<string, WvwFactOverride>>; trait: Record<string, Record<string, WvwFactOverride>> }>(
+  'wvw-fact-overrides.json'
+)
 const cosmicWisdomWvwOverride = wvwOverrides.skill['77371']
+const numinousGiftWvwOverride = wvwOverrides.trait['2440']
 
 const NUMINOUS_GIFT_ID = 2440
 const FOUND_PURPOSE_ID = 2352
@@ -115,7 +118,13 @@ describe('Cosmic Wisdom (77371) — Numinous Gift/Mistfire trait-copied facts', 
     const assassin = legends.find((l) => l.name === 'Legendary Assassin Stance')!
     const dwarf = legends.find((l) => l.name === 'Legendary Dwarf Stance')!
     const equipped = new Set([assassin.id, dwarf.id])
-    const facts = boonConditionFactsForTrait(numinousGiftTrait, new Set([NUMINOUS_GIFT_ID]), equipped, durationPercent, undefined, legends)
+    // `numinousGiftWvwOverride` is required here (not `undefined`) since Known Exceptions Sweep
+    // Leg 11 (2026-09-29): the Sep 29 patch data refresh added an undocumented 2nd duplicate raw
+    // fact for Fury/Resistance/Protection/Quickness/Might on this trait — see the override's own
+    // doc comment in fetch-wvw-splits.ts's `MANUAL_OVERRIDES` for the wiki-verified values.
+    // `computeBoonConditionSources` (sources.ts) always passes `gameData.wvwFactOverrides.trait[id]`
+    // for a real equipped trait, so this call must match that to catch what production actually sees.
+    const facts = boonConditionFactsForTrait(numinousGiftTrait, new Set([NUMINOUS_GIFT_ID]), equipped, durationPercent, numinousGiftWvwOverride, legends)
     // Dwarf Stance grants BOTH Stability and Resolution on the trait's own raw facts, matching the
     // synthetic copy onto Cosmic Wisdom (2026-08-20 fix) — not Resistance/Protection/Quickness,
     // whose legends (Demon/Centaur/Entity) aren't equipped in this build.

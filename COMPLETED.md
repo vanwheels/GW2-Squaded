@@ -4,6 +4,17 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Known Exceptions Sweep — Numinous Gift Duplicate Boon Leak] — Leg 11
+2026-09-29. Root cause: the Sep 29 patch data refresh added an undocumented 2nd duplicate raw fact
+for Fury/Resistance/Protection/Quickness/Might on trait 2440 (Numinous Gift), each carrying a lower,
+wiki-unverified duration with no game-mode discriminator — `extractFromFacts` showed both, doubling
+those 5 rows once their legends were equipped. Wiki raw wikitext confirmed none of the 5 are
+actually split (Fury's own 2 template lines both give 10; the other 4 have no game-mode tag at all),
+so fixed via a `wvw-fact-overrides.json` trait-side entry (hand-curated per
+`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES`, not a blind script re-run) supplying the correct
+duration to collapse each duplicate to. Stability/Resolution (Dwarf Stance) were untouched — that's
+a genuine, pre-existing 2-status split, unrelated to this leak. See commit `<pending>`.
+
 ### [Known Exceptions Sweep — Corrupt Row Gap (Slice Through Reality)] — Leg 10
 2026-09-29. Wiki-confirmed all 3 ids (80585, 80802, 81302) belong to Director Vloxx (Nexus of
 Eternity raid/convergence boss) — an enemy-only skill, not reachable from any player build, same
