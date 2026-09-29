@@ -4,6 +4,16 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Known Exceptions Sweep — Cleansing Ire Per-Skill Tooltip Values] — Leg 9
+2026-09-29. Follow-up from Leg 7: `skill-fact-lines.ts`'s `skillFactLines` reads Warrior burst
+skills' raw `Conditions Removed` facts directly for the per-skill tooltip path, which Leg 7's fix
+never touched (that one only covered the aggregate Cleanse-row/per-skill-chip pipeline). Fixed by
+excluding the same raw fact from the generic render and appending a line built from Leg 7's own
+`CLEANSING_IRE_CLEANSE_FACTS` table (imported, not duplicated) — covers both shapes: the 12 core
+ids with no raw fact at all (line manufactured from scratch, `icon: null`) and the 25
+Berserker/Spellbreaker ids whose raw fact exists but is stale by one adrenaline tier (excluded and
+replaced, reusing the dropped fact's own icon). See commit `7082b72`.
+
 ### [Known Exceptions Sweep — Untracked Patch Traits] — Leg 8
 2026-09-29. TODO's "not in `src/` or `scripts/` at all" framing was an absence-of-a-grep-hit
 observation, not a real scoping decision — investigated each of the 4 traits rather than assuming

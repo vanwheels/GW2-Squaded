@@ -16,22 +16,30 @@ settled across multiple prior sessions with explicit "don't re-investigate witho
 notes — user confirmed proceeding anyway. Full history: `docs/investigations/coefficient-verification-queue.md`
 and `docs/investigations/sep-29-2026-patch-changes.md`.
 
-### [Known Exceptions Sweep — Cleansing Ire Per-Skill Tooltip Values] — Leg 9
-Follow-up from Leg 7 (`CLEANSING_IRE_CLEANSE_FACTS` in `sources.ts`): that fix only corrected the
-aggregate Cleanse-row/per-skill-chip pipeline (`computeNamedFactSources`/`namedFactsForSkill`). The
-separate per-skill tooltip path (`skill-fact-lines.ts`/`factLine`) still reads the raw API's
-stale/missing `Conditions Removed` facts directly for the same 37 Warrior burst-skill ids, so
-hovering a burst skill in the build editor still shows the wrong (or no) cleanse number even though
-the party summary is now correct. Needs its own curated-value table for that rendering path, same
-2/3/4-vs-fixed-2 split.
-Last touched: 2026-09-29. Re-checks: 0.
-
 ### [Known Exceptions Sweep — Corrupt Row Gap (Slice Through Reality)] — Leg 10
 `corrupt-missing-fact-sources.test.ts`'s completeness scan started failing during Leg 7's test run
 (unrelated to that change — confirmed still fails on a clean `main` checkout): a new skill "Slice
 Through Reality" (3 ids: 80585, 80802, 81302) matches the Corrupt-candidate pattern but isn't in
 `CORRUPT_MISSING_FACT_SKILLS` or the test's exclusion list. Needs the same wiki-read-and-classify
 treatment the rest of that table got.
+Last touched: 2026-09-29. Re-checks: 0.
+
+### [Known Exceptions Sweep — Numinous Gift Duplicate Boon Leak] — Leg 11
+Found running the full suite after Leg 9 (unrelated to that change — pre-existing on a clean `main`
+checkout too, confirmed via `git stash`). `cosmic-wisdom-trait-effects.test.ts`'s
+"Numinous Gift's OWN trait facts are ALSO filtered to equipped legends" test now fails: expected
+`['Fury', 'Might', 'Resolution', 'Stability']`, got `['Fury', 'Fury', 'Might', 'Might', ...]` — Fury
+and Might each appear twice. Not yet investigated past the test failure itself; likely raw
+`skills.json`/trait data drift (same class as the other Sep 29 patch fixes landed this sweep) rather
+than a logic bug in `boonConditionFactsForTrait`, but unconfirmed.
+Last touched: 2026-09-29. Re-checks: 0.
+
+### [Known Exceptions Sweep — Legend Form Facts Life Siphon Drift] — Leg 12
+Found alongside Leg 11, same discovery method (pre-existing on clean `main`, unrelated to Leg 9).
+`legend-form-facts.test.ts`'s "appends Lesser Enchanted Daggers' siphon damage + healing to the
+Assassin row" test expects `Life Siphon Damage: 1,088` but now gets `971`, plus a new
+`Siphon Healing: 968` line and a changed leading description string. Looks like a curated-coefficient
+or raw-fact-text drift on this skill, not yet root-caused.
 Last touched: 2026-09-29. Re-checks: 0.
 
 ## Future Milestones (unscheduled)
