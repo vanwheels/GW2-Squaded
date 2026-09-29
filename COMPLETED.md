@@ -9,7 +9,7 @@ Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-1
 ### v1.6.0 release — 2026-09-29
 Covers everything since the v1.5.0 release (2026-09-20): the Sep 29, 2026 patch's curated
 coefficient edits, the full Known Exceptions Sweep, and the Auto-Update Check milestone below. See
-commit `TBD`.
+commit `bc25058`.
 
 ### [Auto-Update Check: Launch Check + Nav Badge] — Leg 1
 2026-09-29. Mirrored the game-data auto-updater's launch-check + nav-badge pattern for the
