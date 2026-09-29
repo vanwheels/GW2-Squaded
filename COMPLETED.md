@@ -4,6 +4,20 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Known Exceptions Sweep — Tree Song Energy Cost] — Leg 5
+2026-09-29. TODO's own framing was stale — the "this app has no skill-resource-cost table at all"
+premise dated from the same-day patch-cross-reference pass but hadn't been checked against code;
+that table shipped 2026-08-28. Root cause was a real bug: `fetch-resource-costs.ts`'s energy search
+is scoped to `incategory:"Revenant skills"`, but Vindicator's Legendary Alliance utility skills
+(Tree Song, Battle Dance, Selfish Spirit, Scavenger Burst, others) aren't wiki-tagged with that
+category — silently excluded the whole skill set, not just Tree Song. Added a second
+`incategory:"Legendary Alliance skills"` search (108 -> 118 skills). Also caught the fetched WvW
+value (25) as itself pre-patch-stale (infobox last edited 2026-06-13); added
+`RESOURCE_COST_WVW_OVERRIDES` in `resource-cost-lines.ts` for the patched value (15), same
+wiki-lag-override pattern as Leg 4's Saint's Shield, chosen over hand-editing the auto-regenerated
+JSON so a future blind re-fetch can't silently revert it. Full derivation:
+`docs/investigations/sep-29-2026-patch-changes.md`.
+
 ### [Known Exceptions Sweep — Bandage Blast/Saint's Shield Coefficients] — Leg 4
 2026-09-29. Bandage Blast (skill 29547): no healing coefficient existed anywhere for it —
 curated in `healing-calc.ts` (base 169, coefficient 0.83, wiki's only skill-fact template, no

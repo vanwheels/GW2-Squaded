@@ -252,9 +252,45 @@
   "59526": {
     "initiative": 2
   },
+  "62680": {
+    "energy": 10
+  },
   "62687": {
     "upkeep": -5,
     "upkeepWvw": -7
+  },
+  "62702": {
+    "energy": 15,
+    "energyWvw": 20
+  },
+  "62719": {
+    "energy": 10
+  },
+  "62757": {
+    "energy": 10
+  },
+  "62796": {
+    "energy": 15
+  },
+  "62832": {
+    "energy": 10,
+    "energyWvw": 20
+  },
+  "62878": {
+    "energy": 15,
+    "energyWvw": 35
+  },
+  "62941": {
+    "energy": 15,
+    "energyWvw": 25
+  },
+  "62942": {
+    "energy": 20,
+    "energyWvw": 15
+  },
+  "62962": {
+    "energy": 15,
+    "energyWvw": 20
   },
   "71816": {
     "energy": 10

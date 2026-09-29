@@ -134,7 +134,9 @@ Leg 4):
   party-wide target count is modeled)
 - Bandage Blast — no healing coefficient curated for this skill at all
 - Tree Song — energy cost isn't modeled anywhere; this app has no skill-resource-cost table at all
-  (architecture gap, not a missing number)
+  (architecture gap, not a missing number) — **superseded, see Leg 5 section below: this premise
+  was stale, the resource-cost table already existed (shipped 2026-08-28), the actual gap was a
+  wiki-search category-scoping bug**
 - Saint's Shield (skill 62689) — 0.2 healing-power-scaling coefficient never curated (only an
   unrelated boon-duration override exists)
 
@@ -175,4 +177,40 @@ infra this app has no other use for. Moved to TODO.md's Known Exceptions section
   classification exists)
 - Latent Stamina, Specialized Elements, Sapping Device, Adrenal Health — not found anywhere in
   `src/` or `scripts/` at all
+
+## Tree Song energy cost (2026-09-29, Known Exceptions Sweep Leg 5)
+
+This leg's own TODO.md entry (and this doc's line 136 above) claimed "this app has no
+skill-resource-cost table at all" — **wrong, stale premise**. A resource-cost table shipped
+2026-08-28 (`data/game-data/resource-costs.json`, `scripts/fetch-resource-costs.ts`,
+`src/shared/skill-calc/resource-cost-lines.ts`, wired into all 4 skill-tooltip call sites) — the
+TODO item's own framing hadn't been checked against current code before being written.
+
+Re-running `fetch-resource-costs.ts` unmodified reproduced the exact same 108-skill output as the
+committed file (byte-identical `git diff`) — Tree Song (id 62941) was never a candidate at all, not
+merely dropped during parsing. Root cause: the script's energy-search is scoped to
+`incategory:"Revenant skills"`, but Vindicator's "Legendary Alliance" (Kurzick/Luxon) utility
+skills — Tree Song, Battle Dance, Selfish Spirit, Scavenger Burst, and others — are wiki-categorized
+only under `Legendary Alliance skills`/`Vindicator skills`/`Kurzick skills`/`Luxon skills`, **not**
+`Revenant skills` (confirmed live: every other legend's skills, e.g. Impossible Odds/Empowering
+Misery, carry `Revenant skills` alongside their legend-specific category; Tree Song does not). This
+silently excluded the entire Legendary Alliance skill set from the original 2026-08-28 run, not
+just Tree Song — a systematic category-scoping bug, not a one-off missing entry.
+
+Fixed by adding a second search, `insource:"energy" incategory:"Legendary Alliance skills"`, merged
+into the existing candidate list. Re-run found 118 skills (10 new, all cleanly parsed — no new skip
+lines), including Tree Song: `{"energy":15,"energyWvw":25}`.
+
+**Separately caught: that fetched WvW value (25) is itself pre-patch/stale.** Tree Song's infobox
+page was last edited 2026-06-13 (confirmed via `action=query&prop=revisions`), predating today's
+patch. `Game_updates/2026-09-29`'s own wording — "Reduced the energy cost from 25 to 15 in WvW
+only" — is the actual source of truth; the infobox simply hasn't been hand-edited by a wiki
+contributor to catch up yet. Same wiki-lag class of issue Saint's Shield hit in Leg 4. Handled the
+same way: a small `RESOURCE_COST_WVW_OVERRIDES` map in `resource-cost-lines.ts` (not a direct edit
+to the auto-regenerated JSON, which a future blind re-run would silently clobber) overrides
+`energyWvw` to 15 for skill 62941, with a comment noting it should be deleted once the wiki page
+itself is edited and a re-fetch picks up 15 on its own.
+
+Closed as a code fix, not a scoping/exclusion decision — see `scripts/fetch-resource-costs.ts` and
+`src/shared/skill-calc/resource-cost-lines.ts` for the actual changes.
 

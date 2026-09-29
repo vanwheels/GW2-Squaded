@@ -16,12 +16,6 @@ settled across multiple prior sessions with explicit "don't re-investigate witho
 notes — user confirmed proceeding anyway. Full history: `docs/investigations/coefficient-verification-queue.md`
 and `docs/investigations/sep-29-2026-patch-changes.md`.
 
-### [Known Exceptions Sweep — Tree Song Energy Cost] — Leg 5
-Tree Song's energy cost isn't modeled anywhere — this app has no skill-resource-cost table at all,
-so this is an architecture gap, not a missing number. Scope whether building one is worth it for a
-single skill or should wait for more candidates (see [[resource_cost_modeling_2026-08-28]]).
-Last touched: 2026-09-29. Re-checks: 0.
-
 ### [Known Exceptions Sweep — Reaver's Curse Healing/Barrier %] — Leg 6
 Trait 2259's 100%->200% healing/barrier increase is explicitly flagged in `fact-numbers.ts`'s own
 comment as out of scope for that table, "left for a future per-skill-mapping leg." This is that leg.
@@ -36,6 +30,18 @@ Last touched: 2026-09-29. Re-checks: 0.
 Latent Stamina, Specialized Elements, Sapping Device, and Adrenal Health aren't in `src/` or
 `scripts/` at all. Determine whether each should be modeled going forward (new trait facts) or is
 genuinely out of scope for this app, rather than assuming absence means exclusion.
+Last touched: 2026-09-29. Re-checks: 0.
+
+## Future Milestones (unscheduled)
+
+### Auto-Update Check
+User-directed 2026-09-29 as the next milestone after Known Exceptions Sweep ships. On app launch,
+check GitHub for a newer release and either surface a small notification indicator on the Settings
+button directing players to update, or prompt the update immediately — exact UX (indicator vs.
+immediate prompt) still to be decided when this milestone is scoped into legs. Repo is already
+public and electron-updater/GitHub Releases auto-update is in place per
+[[repo_now_public_for_autoupdate]]; this is a check/prompt UX layer on top of that, not new
+publishing infra.
 Last touched: 2026-09-29. Re-checks: 0.
 
 ## Unscheduled

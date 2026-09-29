@@ -46,6 +46,12 @@ describe('resourceCostLines', () => {
     expect(resourceCostLines(999999, resourceCosts)).toEqual([])
     expect(resourceCostLines(999999, {})).toEqual([])
   })
+
+  it('applies the RESOURCE_COST_WVW_OVERRIDES entry for Tree Song ahead of a wiki-lagged infobox', () => {
+    const TREE_SONG_ID = 62941 // Vindicator — Known Exceptions Sweep Leg 5, 2026-09-29
+    const lines = resourceCostLines(TREE_SONG_ID, resourceCosts)
+    expect(lines).toEqual([{ icon: null, text: 'Energy: 15' }])
+  })
 })
 
 describe('skillFactLines — resource cost integration', () => {

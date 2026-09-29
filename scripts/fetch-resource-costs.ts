@@ -149,16 +149,25 @@ async function main(): Promise<void> {
 
   console.log('Searching the wiki for candidate pages...')
   const energyTitles = await searchWikiTitles('insource:"energy" incategory:"Revenant skills"')
+  // Vindicator's Legendary Alliance (Kurzick/Luxon) utility skills — e.g. Tree Song, Battle Dance,
+  // Selfish Spirit, Scavenger Burst — carry an `energy=` field same as every other legend's skills,
+  // but the wiki does NOT tag them `Category:Revenant skills` the way it tags every other legend's
+  // skills (confirmed live 2026-09-29: Impossible Odds/Empowering Misery have both their legend
+  // category AND `Revenant skills`; Tree Song only has `Legendary Alliance skills`/`Vindicator
+  // skills`/`Kurzick skills`) — a separate search is needed or this whole skill set is silently
+  // missed, which is exactly what happened on the first run (2026-08-28).
+  const allianceTitles = await searchWikiTitles('insource:"energy" incategory:"Legendary Alliance skills"')
   const initiativeTitles = await searchWikiTitles('insource:"initiative" incategory:"Thief skills"')
   const healthCostTitles = await searchWikiTitles('insource:"health cost"')
 
   // Dedup: a title can surface from more than one search in principle (it won't in practice today,
   // since energy/initiative/health-cost searches don't overlap — kept for robustness against a
   // future balance patch adding overlap rather than assumed).
-  const allTitles = [...new Set([...energyTitles, ...initiativeTitles, ...healthCostTitles])]
+  const allTitles = [...new Set([...energyTitles, ...allianceTitles, ...initiativeTitles, ...healthCostTitles])]
   console.log(
-    `Found ${energyTitles.length} energy/upkeep candidates, ${initiativeTitles.length} initiative candidates, ` +
-      `${healthCostTitles.length} health-cost candidates (${allTitles.length} unique titles total).`
+    `Found ${energyTitles.length} energy/upkeep candidates, ${allianceTitles.length} Legendary Alliance candidates, ` +
+      `${initiativeTitles.length} initiative candidates, ${healthCostTitles.length} health-cost candidates ` +
+      `(${allTitles.length} unique titles total).`
   )
 
   const result: ResourceCostsById = {}
