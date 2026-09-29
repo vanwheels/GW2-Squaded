@@ -4,6 +4,14 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Known Exceptions Sweep — Overload Water Coefficient] — Leg 3 (partial — see TODO.md for Healing Ripple)
+2026-09-29. Curated Overload Water's (skill 29415) pulse "Healing" fact in `healing-calc.ts`
+(392 base unchanged, coefficient 0.1->0.3 per the Sep 29 patch notes; wiki page itself still stale).
+Healing Ripple (trait 351), this leg's other candidate, is NOT done — hit a genuine architecture gap
+(`CURATED_HEALING_COEFFICIENTS` is skill-only, never read for traits) rather than a same-shape fix;
+left open in TODO.md pending a scoping decision. Full derivation:
+`docs/investigations/coefficient-verification-queue.md`.
+
 ### [Known Exceptions Sweep — Relic of Karakosa Trigger-Location Mechanic] — Leg 2
 2026-09-29. Scoped what modeling the Sep 29 patch's Relic of Karakosa change would require. Already
 an unbounded `COMBO`-bucket relic per `docs/relic-trigger-classification.md`, excluded from

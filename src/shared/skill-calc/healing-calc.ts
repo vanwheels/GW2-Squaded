@@ -559,6 +559,13 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   25492: [{ factText: 'Healing', baseValue: 6410, coefficient: 1.0 }],
   // Elementalist — "Rebound!" (Tempest). No PvE/WvW split.
   29968: [{ factText: 'Healing', baseValue: 2836, coefficient: 1.5 }],
+  // Elementalist — Overload Water (Tempest). Pulse "Healing" fact's WvW coefficient raised by the
+  // 2026-09-29 patch (0.1 -> 0.3); wiki page itself not yet updated to reflect the patch (last edited
+  // Nov 2023, still shows the pre-patch 0.1), so the new value is taken directly from the official
+  // patch notes, same as Healing Rain above — base value (392) unchanged. The skill's other Healing
+  // fact ("Final Heal", 3220/0.75, unaffected by this patch) is left uncurated, out of scope for this
+  // leg.
+  29415: [{ factText: 'Healing', baseValue: 392, coefficient: 0.3 }],
   // Guardian — Signet of Courage (both ids share identical facts — 68676 is a Dragonhunter-tagged
   // duplicate of the same core-Guardian signet). No PvE/WvW split on any of the 3 facts. A 4th fact
   // shares the exact same text ("Passive Healing") as the base passive heal but is the Perfect

@@ -45,7 +45,7 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
     },
     {
       "label": "Pulse Barrier",
-      "value": 560,
+      "value": 785,
     },
   ],
   "31740": [
@@ -275,7 +275,7 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
   "72052": [
     {
       "label": "Barrier",
-      "value": 1395,
+      "value": 1620,
     },
   ],
   "72389": [
@@ -7286,6 +7286,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 2715,
     },
   ],
+  "29415": [
+    {
+      "label": "Healing",
+      "value": 842,
+    },
+  ],
   "29535": [
     {
       "label": "First Heal",
@@ -7733,7 +7739,7 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
   "5551": [
     {
       "label": "Heal per Condition",
-      "value": 577,
+      "value": 877,
     },
   ],
   "5558": [
@@ -7869,7 +7875,7 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
   "62738": [
     {
       "label": "Base Heal",
-      "value": 1039,
+      "value": 1459,
     },
   ],
   "62793": [
