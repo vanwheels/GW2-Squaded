@@ -8505,3 +8505,14 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
   ],
 }
 `;
+
+exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md Tier 2) > CURATED_TRAIT_HEALING_COEFFICIENTS produces stable healing lines at a fixed reference build 1`] = `
+{
+  "351": [
+    {
+      "label": "Healing",
+      "value": 2167,
+    },
+  ],
+}
+`;

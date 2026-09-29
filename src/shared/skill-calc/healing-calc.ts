@@ -1,4 +1,4 @@
-import type { Fact, Skill } from '../types'
+import type { Fact, Skill, Trait } from '../types'
 
 /**
  * A single wiki-verified `AttributeAdjust` healing fact: `Heal = baseValue + coefficient *
@@ -1154,6 +1154,54 @@ export function healingLinesForSkill(skill: Skill, healingPower: number, activeI
   if (!entries) return []
 
   const allFacts: Fact[] = [...skill.facts, ...skill.traitedFacts]
+  const lines: HealingLine[] = []
+  for (const entry of entries) {
+    const fact = allFacts.find(
+      (f) =>
+        f.type === 'AttributeAdjust' &&
+        f.target === 'Healing' &&
+        f.text === entry.factText &&
+        (f.requires_trait ?? null) === (entry.requiresTrait ?? null)
+    )
+    if (!fact) continue
+    if (fact.requires_trait != null && !activeIds.has(fact.requires_trait)) continue
+    lines.push({ label: entry.factText, value: Math.round(entry.baseValue + entry.coefficient * healingPower) })
+  }
+  return lines
+}
+
+/**
+ * Trait-keyed counterpart to `CURATED_HEALING_COEFFICIENTS` — built 2026-09-29 for the Known
+ * Exceptions Sweep's Healing Ripple candidate (trait 351) after confirming no trait anywhere in
+ * this codebase had ever gotten a live-scaled healing tooltip number: `TraitsEditor.tsx` only ever
+ * called `numericFactLines`, which substitutes a WvW-correct *base* value via
+ * `NUMERIC_FACT_WVW_OVERRIDES` (`fact-numbers.ts`) but has no coefficient math at all. Same
+ * `HealingCoefficient` shape/rigor bar as the skill table above (wiki `{{skill fact|healing|...|
+ * coefficient=...}}` template, not reverse-engineered); kept as a separate table (not merged into
+ * `CURATED_HEALING_COEFFICIENTS`) since trait ids and skill ids are different namespaces that can
+ * collide numerically.
+ */
+export const CURATED_TRAIT_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> = {
+  // Elementalist — Healing Ripple (Water, tier-2 minor). Wiki-verified WvW values (raw wikitext,
+  // action=raw): base 1042 (already pinned via `NUMERIC_FACT_WVW_OVERRIDES[351]`), coefficient 0.75
+  // — raised from 0.5 by the 2026-09-29 balance patch ("0.5 -> 0.75" per the official patch notes;
+  // the wiki's trait page already showed 0.75 at investigation time, either pre-emptive datamined
+  // content or a merge of a previously-diverged WvW value back to PvP parity — either way, patch
+  // notes and current wiki text agree on the post-patch number). See
+  // `docs/investigations/coefficient-verification-queue.md` for the full derivation.
+  351: [{ factText: 'Healing', baseValue: 1042, coefficient: 0.75 }]
+}
+
+/**
+ * Trait-tooltip counterpart to `healingLinesForSkill` — same `Heal = baseValue + coefficient *
+ * healingPower` math and `requires_trait` gating, reading `CURATED_TRAIT_HEALING_COEFFICIENTS`
+ * instead. Returns `[]` for any trait with no curated entry (the vast majority).
+ */
+export function healingLinesForTrait(trait: Trait, healingPower: number, activeIds: ReadonlySet<number>): HealingLine[] {
+  const entries = CURATED_TRAIT_HEALING_COEFFICIENTS[trait.id]
+  if (!entries) return []
+
+  const allFacts: Fact[] = [...trait.facts, ...trait.traitedFacts]
   const lines: HealingLine[] = []
   for (const entry of entries) {
     const fact = allFacts.find(

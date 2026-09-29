@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import type { Build, Legend, ProfessionId, Specialization, Trait, TraitLineSelection, TraitLineSlots, WvwFactOverride } from '@shared/types'
-import { numericFactLines, NUMERIC_FACT_WVW_OVERRIDES } from '@shared/skill-calc/fact-numbers'
+import { NUMERIC_FACT_WVW_OVERRIDES } from '@shared/skill-calc/fact-numbers'
+import { traitFactLines } from '@shared/skill-calc/trait-fact-lines'
 import { withRechargeOverride } from '@shared/skill-calc/recharge-override'
 import { branchConditionalTraitFacts } from '@shared/skill-calc/branch-conditional-facts'
 import { boonConditionFactsForTrait, equippedLegendIds } from '@shared/boon-calc/sources'
 import { legendAttributeDetailFacts } from '@shared/skill-calc/legend-attribute-details'
 import { boonConditionDurationPercent } from '@shared/gear-calc/attribute-totals'
+import { computeCharacterStats } from '@shared/gear-calc/derived-stats'
+import { DEFAULT_COMBAT_STATE } from '@shared/gear-calc/combat-state'
 import { useGameData } from '@renderer/state/game-data-store'
 import { Tooltip, TooltipBody } from '@renderer/components/common/Tooltip'
 import { UpgradePicker, type UpgradeOption } from './UpgradePicker'
@@ -132,6 +135,12 @@ interface TraitLineRowProps {
   /** Gear-derived boon/condition duration % — see `SkillsEditor.tsx`'s `useDurationContext`, whose
    *  shape this mirrors (computed once per render in the parent, reused across every trait shown). */
   durationPercent: { boon: number; condition: number }
+  /** Current Healing Power (`computeCharacterStats(build, gameData, DEFAULT_COMBAT_STATE)`'s own
+   *  attribute total) — only real coefficient math a trait tooltip needs so far, see
+   *  `CURATED_TRAIT_HEALING_COEFFICIENTS`. Uses the default combat state deliberately: Healing Power
+   *  itself never varies by `CombatState` field (target armor, health tier, active boon count —
+   *  none touch it), unlike the Power/target-armor pair `SkillsEditor.tsx`'s own tooltips need. */
+  healingPower: number
   wvwFactOverridesByTraitId: Record<number, Record<string, WvwFactOverride>>
   /** WvW-correct `Recharge`-fact override map, keyed by trait id — see `recharge-override.ts`'s
    *  `withRechargeOverride`. */
@@ -150,6 +159,7 @@ function TraitLineRow({
   legendIds,
   legends,
   durationPercent,
+  healingPower,
   wvwFactOverridesByTraitId,
   rechargeWvwOverridesByTraitId
 }: TraitLineRowProps) {
@@ -215,10 +225,11 @@ function TraitLineRow({
                     <>
                       <TooltipBody title={minor.name} description={minor.description} icon={minor.icon} />
                       {factsBlock(
-                        numericFactLines(
+                        traitFactLines(
+                          minor,
                           withRechargeOverride(minor.facts, minor.id, rechargeWvwOverridesByTraitId),
-                          minor.traitedFacts,
                           activeIds,
+                          healingPower,
                           NUMERIC_FACT_WVW_OVERRIDES[minor.id]
                         ),
                         boonConditionFactsForTrait(minor, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[minor.id], legends),
@@ -249,10 +260,11 @@ function TraitLineRow({
                           <>
                             <TooltipBody title={t.name} description={t.description} icon={t.icon} />
                             {factsBlock(
-                              numericFactLines(
+                              traitFactLines(
+                                t,
                                 withRechargeOverride(t.facts, t.id, rechargeWvwOverridesByTraitId),
-                                t.traitedFacts,
                                 activeIds,
+                                healingPower,
                                 NUMERIC_FACT_WVW_OVERRIDES[t.id]
                               ),
                               boonConditionFactsForTrait(t, activeIds, legendIds, durationPercent, wvwFactOverridesByTraitId[t.id], legends),
@@ -307,6 +319,9 @@ export function TraitsEditor({ profession, build, value, onChange }: Props) {
   // `useDurationContext` calls, used directly here since this editor doesn't need the rest of that
   // hook's return value (character attributes, target armor — nothing a trait tooltip's boon facts use).
   const durationPercent = useMemo(() => boonConditionDurationPercent(build, gameData), [build, gameData])
+  // See `TraitLineRowProps.healingPower`'s own doc comment for why `DEFAULT_COMBAT_STATE` is safe
+  // here even though this editor never takes a real `CombatState` prop.
+  const healingPower = useMemo(() => computeCharacterStats(build, gameData, DEFAULT_COMBAT_STATE).attributes.healingPower, [build, gameData])
 
   const specs = specializationsForProfession(profession)
   const lines = value
@@ -379,6 +394,7 @@ export function TraitsEditor({ profession, build, value, onChange }: Props) {
             legendIds={legendIds}
             legends={gameData.legends}
             durationPercent={durationPercent}
+            healingPower={healingPower}
             wvwFactOverridesByTraitId={gameData.wvwFactOverrides.trait}
             rechargeWvwOverridesByTraitId={gameData.rechargeWvwOverrides.trait}
           />

@@ -2,9 +2,15 @@ import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import type { Fact, Skill } from '../types'
+import type { Fact, Skill, Trait } from '../types'
 import { TARGET_ARMOR_VALUES } from '../gear-calc/combat-state'
-import { CURATED_HEALING_COEFFICIENTS, healingLinesForSkill, type HealingLine } from './healing-calc'
+import {
+  CURATED_HEALING_COEFFICIENTS,
+  healingLinesForSkill,
+  CURATED_TRAIT_HEALING_COEFFICIENTS,
+  healingLinesForTrait,
+  type HealingLine
+} from './healing-calc'
 import { CURATED_DAMAGE_COEFFICIENTS, damageLinesForSkill, type DamageLine } from './damage-calc'
 import { CURATED_BARRIER_COEFFICIENTS, barrierLinesForSkill, type BarrierLine } from './barrier-calc'
 import { CURATED_SIPHON_DAMAGE_COEFFICIENTS, siphonDamageLinesForSkill, type SiphonDamageLine } from './siphon-damage-calc'
@@ -14,7 +20,8 @@ import { DRAGON_SLASH_RIVERS_FLOW_SKILLS, DRAGON_SLASH_SHARP_AS_THE_WIND_SKILLS,
 /**
  * Tier 2 golden snapshot fixtures — TODO.md's "Automated testing strategy" (agreed 2026-08-12): pay
  * the wiki-verification cost once (already done, 150+ sessions of curation across `healing-calc.ts`/
- * `damage-calc.ts`/`barrier-calc.ts`, see each file's own header comment), then lock the *computed*
+ * `damage-calc.ts`/`barrier-calc.ts`, see each file's own header comment; `CURATED_TRAIT_HEALING_
+ * COEFFICIENTS` added 2026-09-29, same file, its own trait-keyed table), then lock the *computed*
  * output of every curated coefficient in as a snapshot so any future regression — a typo'd edit to a
  * curated entry, a `skills.json` refresh silently changing which real fact a `factText` matches
  * against, an arithmetic change in `healingLinesForSkill`/`damageLinesForSkill`/`barrierLinesForSkill`
@@ -74,6 +81,15 @@ for (const skill of [...GUNSABER_SKILLS, ...DRAGON_SLASH_SKILLS, ...DRAGON_SLASH
   skillsById.set(skill.id, skill)
 }
 
+interface TraitDataFile {
+  id: number
+  facts: Fact[]
+  traitedFacts: Fact[]
+}
+
+const rawTraits: TraitDataFile[] = JSON.parse(readFileSync(resolve(DATA_DIR, 'traits.json'), 'utf-8'))
+const traitsById = new Map<number, Trait>(rawTraits.map((trait) => [trait.id, trait as unknown as Trait]))
+
 const REFERENCE_POWER = 2500
 const REFERENCE_HEALING_POWER = 1500
 const REFERENCE_TARGET_ARMOR = TARGET_ARMOR_VALUES.Medium
@@ -91,47 +107,61 @@ const ALL_REFERENCE_TRAIT_IDS = new Set<number>([
   ...traitIdsIn(CURATED_SIPHON_DAMAGE_COEFFICIENTS)
 ])
 
-/** Looks up every curated id in `skills.json`, failing loudly (not silently skipping) if one is
- *  missing — a curated id that no longer resolves to a real skill is itself a regression a snapshot
- *  test should catch, not paper over. */
-function snapshotFor<TLine>(table: Record<number, unknown[]>, computeLines: (skill: Skill) => TLine[]): Record<number, TLine[]> {
+/** Looks up every curated id against `entitiesById`, failing loudly (not silently skipping) if one
+ *  is missing — a curated id that no longer resolves to a real skill/trait is itself a regression a
+ *  snapshot test should catch, not paper over. Shared by both the skill- and trait-keyed tables
+ *  below (`entityLabel`/`dataFile` only change the thrown message's wording). */
+function snapshotFor<TEntity, TLine>(
+  table: Record<number, unknown[]>,
+  entitiesById: Map<number, TEntity>,
+  entityLabel: string,
+  dataFile: string,
+  computeLines: (entity: TEntity) => TLine[]
+): Record<number, TLine[]> {
   const result: Record<number, TLine[]> = {}
   const ids = Object.keys(table)
     .map(Number)
     .sort((a, b) => a - b)
   for (const id of ids) {
-    const skill = skillsById.get(id)
-    if (!skill) throw new Error(`Curated coefficient id ${id} has no matching skill in data/game-data/skills.json — stale id?`)
-    result[id] = computeLines(skill)
+    const entity = entitiesById.get(id)
+    if (!entity) throw new Error(`Curated coefficient id ${id} has no matching ${entityLabel} in ${dataFile} — stale id?`)
+    result[id] = computeLines(entity)
   }
   return result
 }
 
 describe('golden snapshot fixtures — wiki-verified coefficient tables (TODO.md Tier 2)', () => {
   it('CURATED_HEALING_COEFFICIENTS produces stable healing lines at a fixed reference build', () => {
-    const snapshot = snapshotFor<HealingLine>(CURATED_HEALING_COEFFICIENTS, (skill) =>
+    const snapshot = snapshotFor<Skill, HealingLine>(CURATED_HEALING_COEFFICIENTS, skillsById, 'skill', 'skills.json', (skill) =>
       healingLinesForSkill(skill, REFERENCE_HEALING_POWER, ALL_REFERENCE_TRAIT_IDS)
     )
     expect(snapshot).toMatchSnapshot()
   })
 
   it('CURATED_DAMAGE_COEFFICIENTS produces stable damage lines at a fixed reference build', () => {
-    const snapshot = snapshotFor<DamageLine>(CURATED_DAMAGE_COEFFICIENTS, (skill) =>
+    const snapshot = snapshotFor<Skill, DamageLine>(CURATED_DAMAGE_COEFFICIENTS, skillsById, 'skill', 'skills.json', (skill) =>
       damageLinesForSkill(skill, REFERENCE_POWER, REFERENCE_TARGET_ARMOR, ALL_REFERENCE_TRAIT_IDS)
     )
     expect(snapshot).toMatchSnapshot()
   })
 
   it('CURATED_BARRIER_COEFFICIENTS produces stable Barrier lines at a fixed reference build', () => {
-    const snapshot = snapshotFor<BarrierLine>(CURATED_BARRIER_COEFFICIENTS, (skill) =>
+    const snapshot = snapshotFor<Skill, BarrierLine>(CURATED_BARRIER_COEFFICIENTS, skillsById, 'skill', 'skills.json', (skill) =>
       barrierLinesForSkill(skill, REFERENCE_HEALING_POWER, ALL_REFERENCE_TRAIT_IDS)
     )
     expect(snapshot).toMatchSnapshot()
   })
 
   it('CURATED_SIPHON_DAMAGE_COEFFICIENTS produces stable Life Siphon Damage lines at a fixed reference build', () => {
-    const snapshot = snapshotFor<SiphonDamageLine>(CURATED_SIPHON_DAMAGE_COEFFICIENTS, (skill) =>
+    const snapshot = snapshotFor<Skill, SiphonDamageLine>(CURATED_SIPHON_DAMAGE_COEFFICIENTS, skillsById, 'skill', 'skills.json', (skill) =>
       siphonDamageLinesForSkill(skill, REFERENCE_POWER, ALL_REFERENCE_TRAIT_IDS)
+    )
+    expect(snapshot).toMatchSnapshot()
+  })
+
+  it('CURATED_TRAIT_HEALING_COEFFICIENTS produces stable healing lines at a fixed reference build', () => {
+    const snapshot = snapshotFor<Trait, HealingLine>(CURATED_TRAIT_HEALING_COEFFICIENTS, traitsById, 'trait', 'traits.json', (trait) =>
+      healingLinesForTrait(trait, REFERENCE_HEALING_POWER, ALL_REFERENCE_TRAIT_IDS)
     )
     expect(snapshot).toMatchSnapshot()
   })

@@ -22,10 +22,12 @@ export interface FactLine {
  * damage number) and `AttributeAdjust`'s reference-build base value (not a real Healing-Power-scaled
  * number): both need a wiki-verified per-skill coefficient to mean anything (see
  * `CURATED_DAMAGE_COEFFICIENTS`/`CURATED_HEALING_COEFFICIENTS`), which most skills don't have yet.
- * Exported so `skill-fact-lines.ts`'s `skillFactLines` can reuse this as its own per-fact fallback
- * for any fact a curated table doesn't cover — skill tooltips show the real number when curated data
- * exists, this generic line otherwise; traits (`TraitsEditor.tsx`) always go through
- * `numericFactLines` unchanged, since neither curated table has a trait entry yet.
+ * Exported so `skill-fact-lines.ts`'s `skillFactLines` (and `trait-fact-lines.ts`'s
+ * `traitFactLines`, which `TraitsEditor.tsx` calls instead of this function directly) can reuse this
+ * as their own per-fact fallback for any fact a curated table doesn't cover — skill/trait tooltips
+ * show the real number when curated data exists for that skill or trait id, this generic line
+ * otherwise (still the overwhelming majority of traits, since `CURATED_TRAIT_HEALING_COEFFICIENTS`
+ * only has one entry so far).
  */
 export function factLine(fact: Fact): FactLine | null {
   const icon = fact.icon ?? null

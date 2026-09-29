@@ -133,9 +133,11 @@ function realValueLine(
  * see `siphon-damage-calc.ts`'s own top comment. `CURATED_NUMERIC_FACT_VALUES` similarly replaces a
  * `Number` fact's raw value with its wiki-confirmed WvW number for the rare skill whose API facts
  * carry no pve/wvw duplicate to select between at all (see that table's own doc comment). Only used
- * for skills, not traits (`TraitsEditor.tsx` keeps using `numericFactLines` directly) — every
- * curated table here is keyed by skill id only, so a trait fact never has a real-value match here
- * anyway. `rechargeWvwOverrides` substitutes a
+ * for skills, not traits — `TraitsEditor.tsx` calls `trait-fact-lines.ts`'s `traitFactLines`
+ * instead, a separate but analogous function reading `CURATED_TRAIT_HEALING_COEFFICIENTS` (the only
+ * curated table with any trait entries so far; `CURATED_DAMAGE_COEFFICIENTS`/
+ * `CURATED_BARRIER_COEFFICIENTS`/`CURATED_SIPHON_DAMAGE_COEFFICIENTS` remain skill-id-keyed only, so
+ * a trait fact still never gets a real-value match against those three here). `rechargeWvwOverrides` substitutes a
  * WvW-correct `Recharge` fact value where the wiki documents one differing from the API's
  * PvE-reference-build number (see `recharge-override.ts`) — optional so every pre-existing caller
  * (and every test) keeps working unchanged, showing the un-adjusted PvE value, same as before this
