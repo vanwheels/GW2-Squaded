@@ -22,6 +22,24 @@ Latent Stamina, Specialized Elements, Sapping Device, and Adrenal Health aren't 
 genuinely out of scope for this app, rather than assuming absence means exclusion.
 Last touched: 2026-09-29. Re-checks: 0.
 
+### [Known Exceptions Sweep — Cleansing Ire Per-Skill Tooltip Values] — Leg 9
+Follow-up from Leg 7 (`CLEANSING_IRE_CLEANSE_FACTS` in `sources.ts`): that fix only corrected the
+aggregate Cleanse-row/per-skill-chip pipeline (`computeNamedFactSources`/`namedFactsForSkill`). The
+separate per-skill tooltip path (`skill-fact-lines.ts`/`factLine`) still reads the raw API's
+stale/missing `Conditions Removed` facts directly for the same 37 Warrior burst-skill ids, so
+hovering a burst skill in the build editor still shows the wrong (or no) cleanse number even though
+the party summary is now correct. Needs its own curated-value table for that rendering path, same
+2/3/4-vs-fixed-2 split.
+Last touched: 2026-09-29. Re-checks: 0.
+
+### [Known Exceptions Sweep — Corrupt Row Gap (Slice Through Reality)] — Leg 10
+`corrupt-missing-fact-sources.test.ts`'s completeness scan started failing during Leg 7's test run
+(unrelated to that change — confirmed still fails on a clean `main` checkout): a new skill "Slice
+Through Reality" (3 ids: 80585, 80802, 81302) matches the Corrupt-candidate pattern but isn't in
+`CORRUPT_MISSING_FACT_SKILLS` or the test's exclusion list. Needs the same wiki-read-and-classify
+treatment the rest of that table got.
+Last touched: 2026-09-29. Re-checks: 0.
+
 ## Future Milestones (unscheduled)
 
 ### Auto-Update Check
@@ -35,24 +53,6 @@ publishing infra.
 Last touched: 2026-09-29. Re-checks: 0.
 
 ## Unscheduled
-
-### [Cleansing Ire Per-Skill Tooltip Values] — Leg 1
-Follow-up from the Known Exceptions Sweep's Cleansing Ire leg (`CLEANSING_IRE_CLEANSE_FACTS` in
-`sources.ts`): that fix only corrected the aggregate Cleanse-row/per-skill-chip pipeline
-(`computeNamedFactSources`/`namedFactsForSkill`). The separate per-skill tooltip path
-(`skill-fact-lines.ts`/`factLine`) still reads the raw API's stale/missing `Conditions Removed`
-facts directly for the same 37 Warrior burst-skill ids, so hovering a burst skill in the build
-editor still shows the wrong (or no) cleanse number even though the party summary is now correct.
-Needs its own curated-value table for that rendering path, same 2/3/4-vs-fixed-2 split.
-Last touched: 2026-09-29. Re-checks: 0.
-
-### [Corrupt-Row Gap: Slice Through Reality] — Leg 1
-`corrupt-missing-fact-sources.test.ts`'s completeness scan started failing during the Cleansing Ire
-leg's test run (unrelated to that change — confirmed still fails on a clean `main` checkout): a new
-skill "Slice Through Reality" (3 ids: 80585, 80802, 81302) matches the Corrupt-candidate pattern but
-isn't in `CORRUPT_MISSING_FACT_SKILLS` or the test's exclusion list. Needs the same
-wiki-read-and-classify treatment the rest of that table got.
-Last touched: 2026-09-29. Re-checks: 0.
 
 ### [Discord Bot Profession-Scoped Game-Data Fetch] — Leg 1 (nice-to-have, deprioritized)
 A fresh browser session still re-fetches all 26 game-data JSON files (11MB) per render even though
