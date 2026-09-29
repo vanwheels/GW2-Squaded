@@ -8,6 +8,45 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
+## Current Milestone: Sep 29, 2026 patch
+
+Patch notes: https://wiki.guildwars2.com/wiki/Game_updates/2026-09-29. Full raw change list (all
+categories, WvW-relevant subset already filtered from the PvP-only bulk) captured in
+`docs/investigations/sep-29-2026-patch-changes.md`. This app is WvW-only (see README), so PvP-only
+splits (the majority of this patch's changes) are excluded from scope entirely — only WvW-only and
+"PvP and WvW"-scoped changes apply.
+
+### [Sep 29 Patch — Scoping] — Leg 1
+Done. Full per-skill/trait code cross-reference in
+`docs/investigations/sep-29-2026-patch-changes.md`'s scoping addendum. Split into Legs 2-3 below
+(clear work) plus a decision needed on Leg 4 (net-new curation gaps this patch happens to touch).
+Last touched: 2026-09-29. Re-checks: 0.
+
+### [Sep 29 Patch — Refetch and Auto-Verify] — Leg 2
+Re-run `npm run fetch-game-data` + `npm run fetch-wvw-splits`, then spot-check in the running app
+(or via a scratch script) that these 3 raw-API-driven values picked up the new patch numbers with
+no hand edit: Seed of Life (conditions removed 2->1, trait 31406/32242), Cultivated Synergy
+(Lesser Seed of Life conditions removed 2->1, trait 2057), Grace of the Land (might stacks 2->1,
+trait 2001 — existing `wvw-fact-overrides.json` override only pins boon *duration*, not stack
+count, so confirm the stack count itself comes through raw and isn't silently stuck at the old
+value alongside the override).
+Last touched: 2026-09-29. Re-checks: 0.
+
+### [Sep 29 Patch — Curated Coefficient Edits] — Leg 3
+5 skills/traits have an existing hardcoded coefficient that just needs its number (and, for 2 of
+them, a stale "no PvE/WvW split" comment) updated:
+- Healing Rain (`src/shared/skill-calc/healing-calc.ts:672`, skill 5551): coefficient 0.1 -> 0.3;
+  existing comment says "No PvE/WvW split" — patch creates one, comment needs updating too.
+- Essence of Animated Sand (`src/shared/skill-calc/barrier-calc.ts:161`, skill 72052): coefficient
+  0.5 -> 0.65.
+- Bulwark Gyro (`src/shared/skill-calc/barrier-calc.ts:151-153`, skill 30101): Pulse Barrier
+  coefficient 0.1 -> 0.25 (Initial Barrier fact is unaffected).
+- Natural Mender (`src/shared/skill-calc/fact-numbers.ts:1216-1221`, trait 1992): Healing Increase
+  to Others 15 -> 10.
+- Drop Urn of Saint Viktor (`src/shared/skill-calc/healing-calc.ts:613`, skill 62738): coefficient
+  0.22 -> 0.5; same stale "no split" comment issue as Healing Rain.
+Last touched: 2026-09-29. Re-checks: 0.
+
 ## Unscheduled
 
 ### [Discord Bot Profession-Scoped Game-Data Fetch] — Leg 1 (nice-to-have, deprioritized)
@@ -37,6 +76,14 @@ information. Full history: `docs/investigations/coefficient-verification-queue.m
   Barrier's mislabeling works), not a coefficient gap; reconfirmed 2026-08-29, same conclusion.
 - Grim Specter, Carnivore, Replenishing Despair — structurally unreachable (orphan id /
   shared-trait "effect skills"), not real standalone skills to curate.
+- Sep 29, 2026 patch's 9 changed values with no pre-existing curation (Relic of Karakosa's
+  trigger-location mechanic, Healing Ripple, Overload Water, Bandage Blast, Tree Song's energy
+  cost, Saint's Shield's healing scaling, Reaver's Curse's healing/barrier %, Cleansing Ire's
+  cleanse count, and Latent Stamina/Specialized Elements/Sapping Device/Adrenal Health which aren't
+  in the codebase at all) — user-confirmed 2026-09-29 to defer: the patch landed on pre-existing
+  gaps rather than breaking anything already modeled, so building fresh curation for them isn't
+  part of this milestone. Full per-item detail in
+  `docs/investigations/sep-29-2026-patch-changes.md`'s scoping addendum.
 
 ## Reference — not scheduled
 
