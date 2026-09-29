@@ -8,6 +8,55 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
+## Current Milestone: Known Exceptions Sweep
+
+User-directed 2026-09-29 to reopen every item in the old Known Exceptions section, including the
+ones previously marked permanently excluded. Flagged before starting: most of those were reconfirmed
+settled across multiple prior sessions with explicit "don't re-investigate without new information"
+notes — user confirmed proceeding anyway. Full history: `docs/investigations/coefficient-verification-queue.md`
+and `docs/investigations/sep-29-2026-patch-changes.md`.
+
+### [Known Exceptions Sweep — Relic of Karakosa Trigger-Location Mechanic] — Leg 2
+The Sep 29 patch's Relic of Karakosa change is a trigger-location mechanic, not a tracked number —
+nothing in the codebase models it today. Scope what modeling this would actually require before
+committing to build it.
+Last touched: 2026-09-29. Re-checks: 0.
+
+### [Known Exceptions Sweep — Healing Ripple/Overload Water Coefficients] — Leg 3
+Healing Ripple (trait 351, 0.5 coefficient) and Overload Water (skill 29415, pulse healing
+0.1->0.3) both need fresh `healing-calc.ts` curation — never curated before the Sep 29 patch touched
+them. Same file/shape as the resolved precedent in
+`docs/investigations/coefficient-verification-queue.md`.
+Last touched: 2026-09-29. Re-checks: 0.
+
+### [Known Exceptions Sweep — Bandage Blast/Saint's Shield Coefficients] — Leg 4
+Bandage Blast has no healing coefficient curated at all; Saint's Shield (skill 62689) has a 0.2
+healing-power-scaling coefficient never curated (only an unrelated boon-duration override exists
+today). Same curation shape as Leg 3, split out to keep each leg small.
+Last touched: 2026-09-29. Re-checks: 0.
+
+### [Known Exceptions Sweep — Tree Song Energy Cost] — Leg 5
+Tree Song's energy cost isn't modeled anywhere — this app has no skill-resource-cost table at all,
+so this is an architecture gap, not a missing number. Scope whether building one is worth it for a
+single skill or should wait for more candidates (see [[resource_cost_modeling_2026-08-28]]).
+Last touched: 2026-09-29. Re-checks: 0.
+
+### [Known Exceptions Sweep — Reaver's Curse Healing/Barrier %] — Leg 6
+Trait 2259's 100%->200% healing/barrier increase is explicitly flagged in `fact-numbers.ts`'s own
+comment as out of scope for that table, "left for a future per-skill-mapping leg." This is that leg.
+Last touched: 2026-09-29. Re-checks: 0.
+
+### [Known Exceptions Sweep — Cleansing Ire Cleanse Count] — Leg 7
+Trait 1649's condition-cleanse count has never been modeled (only self-only targeting
+classification exists today).
+Last touched: 2026-09-29. Re-checks: 0.
+
+### [Known Exceptions Sweep — Untracked Patch Traits] — Leg 8
+Latent Stamina, Specialized Elements, Sapping Device, and Adrenal Health aren't in `src/` or
+`scripts/` at all. Determine whether each should be modeled going forward (new trait facts) or is
+genuinely out of scope for this app, rather than assuming absence means exclusion.
+Last touched: 2026-09-29. Re-checks: 0.
+
 ## Unscheduled
 
 ### [Discord Bot Profession-Scoped Game-Data Fetch] — Leg 1 (nice-to-have, deprioritized)
@@ -22,29 +71,19 @@ latency becomes a live complaint again, ideally backed by a `wrangler tail` timi
 Blocked: waiting on latency becoming a live complaint again.
 Last touched: 2026-08-19. Re-checks: 0.
 
-## Known Exceptions
+## Known Exceptions — investigated, permanently excluded
 
-Investigated and deliberately left open or excluded — don't re-investigate without new
-information. Full history: `docs/investigations/coefficient-verification-queue.md`.
+Leg 1 of the sweep above (2026-09-29) gave each of these a fresh-eyes re-check — current wiki
+content and local API data all re-pulled and compared against the prior conclusions. All 6
+reconfirmed closed with no new leads; no code changes needed. Full derivation for each:
+`docs/investigations/coefficient-verification-queue.md`.
 
-- Guardian 31295 (Sanctuary, underwater) — id doesn't exist on the wiki at all; underwater is out
-  of scope for WvW anyway. Permanently uncurated.
-- Necromancer 10547 (Summon Blood Fiend), 10670 (2nd Well of Blood id) — non-scaling/stale-legacy
-  respectively; nothing reliable to curate either to.
-- Thief 71802 (Helmet Breaker) — no combo/solo interpretation of its own facts fits, across every
-  historical cost patch checked.
-- Soul Grasp — a different formula shape (weapon-strength-based, API-mislabeled the same way
-  Barrier's mislabeling works), not a coefficient gap; reconfirmed 2026-08-29, same conclusion.
-- Grim Specter, Carnivore, Replenishing Despair — structurally unreachable (orphan id /
-  shared-trait "effect skills"), not real standalone skills to curate.
-- Sep 29, 2026 patch's 9 changed values with no pre-existing curation (Relic of Karakosa's
-  trigger-location mechanic, Healing Ripple, Overload Water, Bandage Blast, Tree Song's energy
-  cost, Saint's Shield's healing scaling, Reaver's Curse's healing/barrier %, Cleansing Ire's
-  cleanse count, and Latent Stamina/Specialized Elements/Sapping Device/Adrenal Health which aren't
-  in the codebase at all) — user-confirmed 2026-09-29 to defer: the patch landed on pre-existing
-  gaps rather than breaking anything already modeled, so building fresh curation for them isn't
-  part of this milestone. Full per-item detail in
-  `docs/investigations/sep-29-2026-patch-changes.md`'s scoping addendum.
+- Guardian 31295 (Sanctuary, underwater variant)
+- Necromancer 10547 (Summon Blood Fiend)
+- Necromancer 10670 (2nd Well of Blood id)
+- Thief 71802 (Helmet Breaker)
+- Soul Grasp
+- Grim Specter, Carnivore, Replenishing Despair
 
 ## Reference — not scheduled
 

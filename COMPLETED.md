@@ -4,6 +4,13 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Known Exceptions Sweep — Permanently-Excluded Dead-Ends Re-Verification] — Leg 1
+2026-09-29. Fresh-eyes re-check of all 6 permanently-excluded dead-ends (Guardian 31295, Necromancer
+10547/10670, Thief 71802, Soul Grasp, Grim Specter/Carnivore/Replenishing Despair) against current
+wiki wikitext and live local API data. All 6 reconfirmed closed, no new leads surfaced, no code
+changes needed. Full per-item derivation in `docs/investigations/coefficient-verification-queue.md`;
+moved back to TODO.md's Known Exceptions section.
+
 ### [Sep 29 Patch — Curated Coefficient Edits] — Leg 3
 2026-09-29. Updated the 5 already-curated hardcoded coefficients the patch changed, plus the two
 stale "no PvE/WvW split" comments that were no longer accurate (Healing Rain, Drop Urn of Saint

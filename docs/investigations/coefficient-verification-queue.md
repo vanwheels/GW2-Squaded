@@ -32,23 +32,43 @@ Empty as of 2026-09-16 — Necromancer 69302 (Life Siphon), the last item here, 
 - **Guardian 31295 (Sanctuary, underwater variant)** — a frozen pre-2016-balance-pass copy of id
   9128; no wiki coefficient documented for it specifically, and it doesn't appear on any wiki skill
   page at all (`insource:"31295"` search only hits an unrelated item id collision). Underwater is
-  out of scope for WvW anyway. Re-confirmed 2026-08-22.
+  out of scope for WvW anyway. Re-confirmed 2026-08-22, then again 2026-09-29 (fresh `insource`
+  search still only hits the same item-id collision; local API's own base value for 31295, 266,
+  unchanged and still doesn't map to any wiki-documented coefficient).
 - **Necromancer 10547 (Summon Blood Fiend)** — wiki's own Notes confirm 0 Healing Power/
   non-scaling, but its 926 wiki base vs. 510 API base still don't reconcile. Moot either way since
-  coefficient 0 means curating would be a no-op at best.
+  coefficient 0 means curating would be a no-op at best. Re-confirmed 2026-09-29: fresh wikitext
+  pull still shows 926/non-scaling, local API base still 510, no change.
 - **Necromancer 10670 (2nd Well of Blood id)** — confirmed a frozen legacy duplicate carrying stale
   pre-2023-11-28-patch numbers, not a genuine Scourge variant as originally guessed. Nothing
-  reliable to curate it to.
+  reliable to curate it to. Re-confirmed 2026-09-29: wiki infobox still lists `id = 10527, 10670`
+  as one canonical pair, current WvW/PvP pulse heal on the wiki is 496 (post-patch), while id
+  10670's own local API value is still the stale pre-patch 280 — same gap, unchanged.
 - **Thief 71802 (Helmet Breaker)** — Assassin's Reward (trait 1238) sweep leftover. Its own facts
   don't fit any combo/solo interpretation even checking every historical cost patch on both chain
   skills (Debilitating Arc's own Healing facts turned out to be the full Debilitating-Arc→
   Helmet-Breaker combo total, not its own solo cost, which is what made this one hard to isolate).
+  Re-confirmed 2026-09-29: fresh raw wikitext for both Debilitating Arc and Helmet Breaker shows
+  neither page documents any Healing skill fact at all (only Damage/Crippled/Daze/Evade) — the
+  Healing values in play come solely from the app's local API `traitedFacts` (Assassin's Reward's
+  `requires_trait` interaction), which the wiki has no visibility into at all. Confirms this was
+  never a "wiki hasn't caught up" gap; there's no wiki source to reconcile against, full stop.
 - **Soul Grasp** — a different formula shape (weapon-strength-based) rather than a coefficient gap;
   API-mislabeled the same way Barrier's target-mislabeling problem works. Reconfirmed 2026-08-29,
-  same conclusion both times.
+  and again 2026-09-29 — fresh wikitext pull still shows the same
+  `{{skill fact|life siphon damage|weapon=focus|coefficient=...}}` shape with no literal base
+  number, local API still mislabels the fact `AttributeAdjust`/`target: 'Power'`. Unchanged.
 - **Grim Specter, Carnivore, Replenishing Despair** — structurally unreachable: Grim Specter is an
   orphan id, Carnivore/Replenishing Despair are shared-trait "effect skills" (same exclusion shape
-  as Assassin's Reward's own trait-gated facts), not real standalone skills to curate.
+  as Assassin's Reward's own trait-gated facts), not real standalone skills to curate. Re-confirmed
+  2026-09-29: all 3 still have `professions: []` in the local API. Checked Grim Specter (10632)
+  specifically against its wiki-documented parent, Lich Form (10550) — the wiki confirms Grim
+  Specter is Lich Form's real weapon-slot-5 skill, but the local API's Lich Form entry has no
+  `bundleSkills`/`flipSkill` link to it at all (unlike newer transforms), so it's genuinely
+  unreachable from this app's data pipeline, not a data-quality bug to fix. Carnivore/Replenishing
+  Despair's wiki titles now resolve to their granting traits (ids 1094/1741) rather than the effect
+  skills — consistent with the existing "shared trait formula" conclusion, not a contradiction of
+  it.
 
 ## Resolved precedent (for context, already shipped — see COMPLETED.md)
 
