@@ -13,7 +13,7 @@ actually split (Fury's own 2 template lines both give 10; the other 4 have no ga
 so fixed via a `wvw-fact-overrides.json` trait-side entry (hand-curated per
 `fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES`, not a blind script re-run) supplying the correct
 duration to collapse each duplicate to. Stability/Resolution (Dwarf Stance) were untouched — that's
-a genuine, pre-existing 2-status split, unrelated to this leak. See commit `<pending>`.
+a genuine, pre-existing 2-status split, unrelated to this leak. See commit `6d38ee7`.
 
 ### [Known Exceptions Sweep — Corrupt Row Gap (Slice Through Reality)] — Leg 10
 2026-09-29. Wiki-confirmed all 3 ids (80585, 80802, 81302) belong to Director Vloxx (Nexus of
