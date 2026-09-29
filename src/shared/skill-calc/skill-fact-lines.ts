@@ -55,6 +55,36 @@ function applyCuratedPercentOverride(fact: Fact, skillId: number): Fact | null {
   return match.action === 'drop' ? null : { ...fact, text: match.action.displayText }
 }
 
+/**
+ * Wiki-confirmed WvW value for a `Number`-type fact the raw API exposes as ONE flat value with no
+ * pve/wvw duplicate at all — unlike `NUMERIC_FACT_WVW_OVERRIDES` (fact-numbers.ts), whose entries
+ * all select between 2 existing raw facts sharing one `text` (dropping whichever doesn't match),
+ * these skills only ever emit a single "Conditions Removed" fact, so there's nothing to filter
+ * between; the value itself must be replaced outright. Keyed by skill id then the fact's own
+ * `text`. Found 2026-09-29 verifying the Sep 29 patch's Seed of Life/Cultivated Synergy nerfs —
+ * skills had no equivalent of `NUMERIC_FACT_WVW_OVERRIDES` at all until this table, since
+ * `skillFactLines` never consulted it (that function is trait-only, see its own doc comment).
+ */
+const CURATED_NUMERIC_FACT_VALUES: Record<number, Record<string, number>> = {
+  // Seed of Life (Druid Celestial Avatar, Staff 4). Raw API's single "Conditions Removed" fact (3)
+  // is the pve value, unaffected by this patch; wiki: wvw 2 -> 1, 2026-09-29 patch. Both ids share
+  // one wiki page (31406 base cast, 32242 a 2nd id for the same skill).
+  31406: { 'Conditions Removed': 1 },
+  32242: { 'Conditions Removed': 1 },
+  // Lesser Seed of Life (granted by the Cultivated Synergy trait). Raw API's single "Conditions
+  // Removed" fact (2) is the pve value, unaffected by this patch; wiki: wvw 2 -> 1 (a split newly
+  // introduced by this patch, previously unsplit), 2026-09-29 patch.
+  31776: { 'Conditions Removed': 1 }
+}
+
+/** Applies `CURATED_NUMERIC_FACT_VALUES` to one fact ahead of `factLine` — returns the fact
+ *  unchanged when this skill/fact-text pair has no override (the overwhelming majority of calls). */
+function applyCuratedNumericFactValue(fact: Fact, skillId: number): Fact {
+  if (fact.type !== 'Number' || typeof fact.text !== 'string') return fact
+  const value = CURATED_NUMERIC_FACT_VALUES[skillId]?.[fact.text]
+  return value === undefined ? fact : { ...fact, value }
+}
+
 function realValueLine(
   fact: Fact,
   damageByLabel: Map<string, number>,
@@ -100,9 +130,12 @@ function realValueLine(
  * different resource bar, see `barrier-calc.ts`'s own top comment for why the GW2 API makes that
  * distinction non-obvious; Life Siphon Damage similarly gets its own line rather than folding into
  * the ordinary weapon-Damage one — a genuinely different fact TYPE (`AttributeAdjust`, not `Damage`),
- * see `siphon-damage-calc.ts`'s own top comment. Only used for skills, not traits (`TraitsEditor.tsx`
- * keeps using `numericFactLines` directly) — all 4 curated tables are keyed by skill id only, so a
- * trait fact never has a real-value match here anyway. `rechargeWvwOverrides` substitutes a
+ * see `siphon-damage-calc.ts`'s own top comment. `CURATED_NUMERIC_FACT_VALUES` similarly replaces a
+ * `Number` fact's raw value with its wiki-confirmed WvW number for the rare skill whose API facts
+ * carry no pve/wvw duplicate to select between at all (see that table's own doc comment). Only used
+ * for skills, not traits (`TraitsEditor.tsx` keeps using `numericFactLines` directly) — every
+ * curated table here is keyed by skill id only, so a trait fact never has a real-value match here
+ * anyway. `rechargeWvwOverrides` substitutes a
  * WvW-correct `Recharge` fact value where the wiki documents one differing from the API's
  * PvE-reference-build number (see `recharge-override.ts`) — optional so every pre-existing caller
  * (and every test) keeps working unchanged, showing the un-adjusted PvE value, same as before this
@@ -131,8 +164,9 @@ export function skillFactLines(
   for (const line of lines) seen.add(line.text)
   for (const rawFact of [...facts, ...skill.traitedFacts]) {
     if (rawFact.requires_trait != null && !activeIds.has(rawFact.requires_trait)) continue
-    const fact = applyCuratedPercentOverride(rawFact, skill.id)
-    if (!fact) continue
+    const percentAdjusted = applyCuratedPercentOverride(rawFact, skill.id)
+    if (!percentAdjusted) continue
+    const fact = applyCuratedNumericFactValue(percentAdjusted, skill.id)
     const line = realValueLine(fact, damageByLabel, healingByLabel, barrierByLabel, siphonDamageByLabel) ?? factLine(fact)
     if (line && !seen.has(line.text)) {
       seen.add(line.text)
