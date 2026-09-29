@@ -16,12 +16,6 @@ categories, WvW-relevant subset already filtered from the PvP-only bulk) capture
 splits (the majority of this patch's changes) are excluded from scope entirely — only WvW-only and
 "PvP and WvW"-scoped changes apply.
 
-### [Sep 29 Patch — Scoping] — Leg 1
-Done. Full per-skill/trait code cross-reference in
-`docs/investigations/sep-29-2026-patch-changes.md`'s scoping addendum. Split into Legs 2-3 below
-(clear work) plus a decision needed on Leg 4 (net-new curation gaps this patch happens to touch).
-Last touched: 2026-09-29. Re-checks: 0.
-
 ### [Sep 29 Patch — Refetch and Auto-Verify] — Leg 2
 Re-run `npm run fetch-game-data` + `npm run fetch-wvw-splits`, then spot-check in the running app
 (or via a scratch script) that these 3 raw-API-driven values picked up the new patch numbers with

@@ -4,6 +4,13 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Sep 29 Patch — Scoping] — Leg 1
+2026-09-29. Cross-referenced every changed value in the Sep 29, 2026 patch notes against the
+codebase to sort them into raw-API facts (auto-update on refetch), hand-curated coefficients
+(need an edit), and pre-existing uncurated gaps (deferred, not regressions). Full per-item
+detail in `docs/investigations/sep-29-2026-patch-changes.md`; split the milestone into Legs 2-4.
+See commit `c7b82fa`.
+
 ### [UpgradePicker Multi-Tag Stat Search] — Leg 1
 2026-09-20. `UpgradePicker`'s `#<stat>` search mode only ever matched a single stat keyword —
 `#power #vitality` didn't narrow to options affecting both. Extended it to parse every
