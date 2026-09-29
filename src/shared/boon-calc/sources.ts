@@ -5633,6 +5633,14 @@ function namedFactsFrom(
     }
     if (wvwOverride === 'omit') continue
 
+    // Cleansing Ire (trait 1649, Warrior): every one of this trait's raw `Conditions Removed`
+    // facts is either missing on the id this app's build actually equips, or stale by one full
+    // adrenaline tier (both live-verified against the trait's own wiki page 2026-09-29) — see
+    // `CLEANSING_IRE_CLEANSE_FACTS`'s doc comment. Wholesale-excluded here and replaced by that
+    // curated table (via `cleansingIreCleanseSource`, called alongside this function) rather than
+    // trusted piecemeal.
+    if (fact.requires_trait === 1649 && fact.type === 'Number' && fact.text === 'Conditions Removed') continue
+
     for (const [name, match] of Object.entries(matchers)) {
       if (matchedNames.has(name) || !match(fact)) continue
       const table = targetCountTables?.[name]
@@ -6337,6 +6345,113 @@ function missingCorruptFactSource(skill: Skill, matchers: Record<string, (fact: 
 }
 
 /**
+ * Cleansing Ire (trait 1649, Warrior Grandmaster) — TODO.md's "condition-cleanse count never
+ * modeled" Known Exceptions item. `TARGET_COUNT_OVERRIDES`'s own top doc comment already classified
+ * this trait's ~66 gated skill ids as self-only; this table supplies the missing MAGNITUDE.
+ *
+ * Two compounding problems with the raw API data, both worked around by excluding every
+ * `requires_trait: 1649` "Conditions Removed" fact from `namedFactsFrom`'s generic match (see that
+ * function's own `continue` for this exact trait id) and replacing it wholesale with this table:
+ *
+ * 1. **Stale values.** The trait's own wiki page has a "Mechanics" section explicitly spelling out
+ *    the current formula ("Although not stated in the tool-tip, this is how the condition removal
+ *    scales"): Adrenaline Stage 1/2/3 = 2/3/4 conditions removed. Its version history confirms why:
+ *    a 2022-10-04 patch changed the trait from "remove 1 condition, scaling with adrenaline" to
+ *    "remove 1 condition, PLUS an additional condition per bar of adrenaline spent" — the local API
+ *    data was never updated past the pre-patch numbers (every raw `Conditions Removed` fact gated
+ *    by this trait is exactly 1 less than the current true value, live-checked across every
+ *    core/Berserker/Spellbreaker id below on 2026-09-29).
+ * 2. **Missing entirely on 12 core (non-elite-spec) ids.** The raw API represents each of these 12
+ *    weapon bursts' 3 damage tiers as 3 separate `Level 1/2/3 Damage` facts on ONE canonical id
+ *    (confirmed live wiki, `other-profession-flip-duplicates.ts`'s own 2026-08-14 Warrior-leg
+ *    comment) — but represents the SAME skill's Cleansing-Ire cleanse count as 3 SEPARATE skill ids
+ *    instead (e.g. Eviscerate: canonical id 14353 carries no `Conditions Removed` fact at all; ids
+ *    14422/14423/14424 each carry one, one value per tier). That sweep correctly found those 3 ids
+ *    "identical facts, reordered" for DAMAGE purposes and excluded them from `withFlipChain` as
+ *    non-actionable — but missed that 14422 (14353's own `flipSkill` target) carries this one
+ *    genuinely extra fact its source lacks. Net effect before this table: equipping Cleansing Ire
+ *    showed ZERO cleanses for these 12 skills, not just an imprecise number.
+ *
+ * Resolution differs by which of the 3 burst-mechanic shapes an id belongs to (own wiki page,
+ * `Primal Burst`, and `Spellbreaker's Conviction` respectively, all live-checked 2026-09-29):
+ *  - **Core (12 ids, one land+one underwater Spear pair among them):** genuinely varies 2/3/4 by
+ *    how much adrenaline the burst spent — this app has no per-cast "current adrenaline" input, so
+ *    a single number would misrepresent 2 of the 3 real states. `detail` spells out the range
+ *    instead of picking one, same free-form-magnitude-string convention `SIGIL_NAMED_FACT_SOURCES`/
+ *    `RELIC_NAMED_FACT_SOURCES` already use elsewhere in this file.
+ *  - **Berserker Primal Bursts (12 ids):** the wiki's own `Primal Burst` mechanics page states
+ *    plainly "Primal bursts are all considered tier 1 bursts for traits that scale according to
+ *    adrenaline level... they all cost 10 adrenaline [1 bar]" — always Stage 1, fixed at 2,
+ *    regardless of each id's own (equally stale, and inconsistent skill-to-skill) raw value.
+ *  - **Spellbreaker (13 ids, 12 weapon bursts + weapon-independent Full Counter):** Spellbreaker's
+ *    Conviction (trait 2175) reads "Maximum adrenaline is capped at 2 bars, and only level 1 bursts
+ *    are available" — same Stage-1-forever shape as Primal Bursts, fixed at 2. Full Counter is
+ *    grouped here (not with Primal Bursts) because it's a Spellbreaker-exclusive burst gated the
+ *    same way, matching `damage-calc.ts`'s own precedent of bundling it with the Berserker flat-
+ *    multiplier group for the identical "always-capped-tier" reason.
+ *
+ * Canonical id per weapon/spec resolved the same way `profession-mechanic.ts`'s `professionMechanicBar`
+ * resolves Warrior's actual F1 button (weapon-matched, then spec-matched, Spear split land/
+ * underwater) — each id below is the one this app's build calculator actually equips, not just any
+ * member of the wiki's id group.
+ */
+export const CLEANSING_IRE_CLEANSE_FACTS: Record<number, { detail: string }> = {
+  // --- Core (spec-less) baseline bursts — genuinely tiered, see doc comment above ---
+  14353: { detail: '2 / 3 / 4 (adrenaline tier 1/2/3)' }, // Eviscerate (Axe)
+  45252: { detail: '2 / 3 / 4 (adrenaline tier 1/2/3)' }, // Breaching Strike (Dagger)
+  14375: { detail: '2 / 3 / 4 (adrenaline tier 1/2/3)' }, // Arcing Slice (Greatsword)
+  14387: { detail: '2 / 3 / 4 (adrenaline tier 1/2/3)' }, // Earthshaker (Hammer)
+  14506: { detail: '2 / 3 / 4 (adrenaline tier 1/2/3)' }, // Combustive Shot (Longbow)
+  14414: { detail: '2 / 3 / 4 (adrenaline tier 1/2/3)' }, // Skull Crack (Mace)
+  14396: { detail: '2 / 3 / 4 (adrenaline tier 1/2/3)' }, // Kill Shot (Rifle)
+  72911: { detail: '2 / 3 / 4 (adrenaline tier 1/2/3)' }, // Harrier's Toss (Spear, land)
+  14443: { detail: '2 / 3 / 4 (adrenaline tier 1/2/3)' }, // Whirling Strike (Spear, underwater)
+  14544: { detail: '2 / 3 / 4 (adrenaline tier 1/2/3)' }, // Forceful Shot (Speargun)
+  71932: { detail: '2 / 3 / 4 (adrenaline tier 1/2/3)' }, // Path to Victory (Staff)
+  80203: { detail: '2 / 3 / 4 (adrenaline tier 1/2/3)' }, // Bloodthirster (Sword)
+
+  // --- Berserker Primal Bursts — always tier 1, fixed 2 (see doc comment above) ---
+  30851: { detail: '2' }, // Decapitate (Axe)
+  69290: { detail: '2' }, // Slicing Maelstrom (Dagger)
+  29852: { detail: '2' }, // Arc Divider (Greatsword)
+  30879: { detail: '2' }, // Rupturing Smash (Hammer)
+  29923: { detail: '2' }, // Scorched Earth (Longbow)
+  29679: { detail: '2' }, // Skull Grinder (Mace)
+  29644: { detail: '2' }, // Gun Flame (Rifle)
+  73103: { detail: '2' }, // Wild Throw (Spear, land)
+  31048: { detail: '2' }, // Wild Whirl (Spear, underwater)
+  30989: { detail: '2' }, // Burning Shackles (Speargun)
+  71875: { detail: '2' }, // Rampart Splitter (Staff)
+  30682: { detail: '2' }, // Flaming Flurry (Sword)
+
+  // --- Spellbreaker — capped at level 1 forever via Spellbreaker's Conviction, fixed 2 ---
+  43566: { detail: '2' }, // Eviscerate (Axe)
+  69297: { detail: '2' }, // Breaching Strike (Dagger)
+  42707: { detail: '2' }, // Arcing Slice (Greatsword)
+  40601: { detail: '2' }, // Earthshaker (Hammer)
+  42803: { detail: '2' }, // Combustive Shot (Longbow)
+  41110: { detail: '2' }, // Skull Crack (Mace)
+  42041: { detail: '2' }, // Kill Shot (Rifle)
+  73014: { detail: '2' }, // Harrier's Toss (Spear, land)
+  41746: { detail: '2' }, // Whirling Strike (Spear, underwater)
+  41330: { detail: '2' }, // Forceful Shot (Speargun)
+  72089: { detail: '2' }, // Path to Victory (Staff)
+  80252: { detail: '2' }, // Bloodthirster (Sword)
+  44165: { detail: '2' } // Full Counter (Profession_2, weapon-independent)
+}
+
+/** `CLEANSING_IRE_CLEANSE_FACTS`'s entry for one skill, gated on the trait actually being equipped
+ *  (unlike `missingCorruptFactSource`, which has no such gate — Cleansing Ire's bonus, unlike Well
+ *  of Corruption/Elixir of Bliss, only exists at all when the granting trait is chosen). Same "only
+ *  contribute to the row currently being computed" pattern as that function and
+ *  `computeRelicNamedFactSources`. */
+function cleansingIreCleanseSource(skill: Skill, activeIds: Set<number>, matchers: Record<string, (fact: Fact) => boolean>): NamedFactSource[] {
+  const entry = CLEANSING_IRE_CLEANSE_FACTS[skill.id]
+  if (!entry || !('Cleanse' in matchers) || !activeIds.has(1649)) return []
+  return [{ sourceKind: 'skill', sourceId: skill.id, sourceName: skill.name, sourceIcon: skill.icon, name: 'Cleanse', detail: entry.detail, targetCount: null }]
+}
+
+/**
  * Generic counterpart to `computeAuraSources`/`computeComboSources` for named facts that don't
  * share boons/conditions/auras' `Buff`-with-`status` shape — Control/Miscellaneous/Strip&Corrupt
  * each read a mix of fact `type`s (`Time`/`Distance`/`Number`/`StunBreak`/`NoData`/`AttributeAdjust`),
@@ -6397,7 +6512,8 @@ export function computeNamedFactSources(
           matchers,
           targetCountTables
         ),
-        ...missingCorruptFactSource(skill, matchers)
+        ...missingCorruptFactSource(skill, matchers),
+        ...cleansingIreCleanseSource(skill, activeIds, matchers)
       ],
       additiveFlipNamedFactContentKey
     )
@@ -6462,7 +6578,8 @@ export function namedFactsForSkill(
       matchers,
       targetCountTables
     ),
-    ...missingCorruptFactSource(skill, matchers)
+    ...missingCorruptFactSource(skill, matchers),
+    ...cleansingIreCleanseSource(skill, activeIds, matchers)
   ]
 }
 
