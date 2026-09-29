@@ -16,12 +16,6 @@ settled across multiple prior sessions with explicit "don't re-investigate witho
 notes — user confirmed proceeding anyway. Full history: `docs/investigations/coefficient-verification-queue.md`
 and `docs/investigations/sep-29-2026-patch-changes.md`.
 
-### [Known Exceptions Sweep — Bandage Blast/Saint's Shield Coefficients] — Leg 4
-Bandage Blast has no healing coefficient curated at all; Saint's Shield (skill 62689) has a 0.2
-healing-power-scaling coefficient never curated (only an unrelated boon-duration override exists
-today). Same curation shape as Leg 3, split out to keep each leg small.
-Last touched: 2026-09-29. Re-checks: 0.
-
 ### [Known Exceptions Sweep — Tree Song Energy Cost] — Leg 5
 Tree Song's energy cost isn't modeled anywhere — this app has no skill-resource-cost table at all,
 so this is an architecture gap, not a missing number. Scope whether building one is worth it for a

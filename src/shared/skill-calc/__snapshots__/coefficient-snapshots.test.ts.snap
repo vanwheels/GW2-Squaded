@@ -7306,6 +7306,12 @@ exports[`golden snapshot fixtures — wiki-verified coefficient tables (TODO.md 
       "value": 1035,
     },
   ],
+  "29547": [
+    {
+      "label": "Healing per Bandage",
+      "value": 1414,
+    },
+  ],
   "29911": [
     {
       "label": "Healing",

@@ -4,6 +4,17 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Known Exceptions Sweep — Bandage Blast/Saint's Shield Coefficients] — Leg 4
+2026-09-29. Bandage Blast (skill 29547): no healing coefficient existed anywhere for it —
+curated in `healing-calc.ts` (base 169, coefficient 0.83, wiki's only skill-fact template, no
+PvE/WvW split; missed by the original weapon-slot sweep since it's a `Bundle`-type skill, not
+`Weapon`). Saint's Shield (skill 62689) is a non-equippable proc fired by Vindicator's Tenacious
+Ruin dodge reskin — its Healing/Barrier tooltip is computed inline in
+`dodge-replacement-facts.ts` (`vindicatorDodgeContent`), not via `CURATED_HEALING_COEFFICIENTS`,
+since it has no real skill-bar slot to hang a `Skill`-object lookup off of; updated the hardcoded
+`0.2 * healingPower` to `0.3` per the Sep 29 patch notes (base 300 unchanged; wiki page itself
+still shows the stale pre-patch 0.2). See commit `<pending>`.
+
 ### [Known Exceptions Sweep — Healing Ripple/Overload Water Coefficients] — Leg 3
 2026-09-29. Overload Water (skill 29415): curated its pulse "Healing" fact in `healing-calc.ts`
 (392 base unchanged, coefficient 0.1->0.3 per the Sep 29 patch notes; wiki page itself still stale).

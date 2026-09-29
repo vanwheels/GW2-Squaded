@@ -735,6 +735,15 @@ export const CURATED_HEALING_COEFFICIENTS: Record<number, HealingCoefficient[]> 
   // to Healing/AttributeAdjust facts. Curating the live-verified WvW value per this table's usual
   // "prefer the WvW-correct number" convention regardless of which explanation is right.
   72982: [{ factText: 'Healing', baseValue: 340, coefficient: 0.1 }],
+  // Engineer — Bandage Blast (thrown-bandage bundle skill, Weapon_2 slot). Known Exceptions Sweep
+  // Leg 4 (2026-09-29) — missed by the original weapon-slot sweep's candidate scan since it's a
+  // `Bundle`-type skill, not `Weapon`. Wiki's `{{skill fact|Healing|169|coefficient=0.83}}` template
+  // is the only skill-fact line on the page — no PvE/WvW split, matches this app's own API base
+  // exactly. The separate "Healing Increase" Percent fact (below-50%-health bonus, raised by the
+  // 2026-09-29 patch) is a flat percentage with no coefficient= param on the wiki, same "not
+  // HP-scaled, left out" treatment as Arcane Brilliance's Combo Healing above — already reflected
+  // live via the API's own Percent fact, nothing to curate here.
+  29547: [{ factText: 'Healing per Bandage', baseValue: 169, coefficient: 0.83 }],
   // Engineer — Essence of Living Shadows (Spear). Both facts group "pve wvw" together (WvW = PvE
   // here, PvP-only differs) — the API's own values (970/645) already match the WvW-correct number.
   71882: [

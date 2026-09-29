@@ -88,7 +88,7 @@ export interface DodgeReplacementContent {
  *   `game mode=pve`, no WvW/PvP line exists at all, same "never show a fact confirmed absent in WvW"
  *   rule Saint of zu Heltzer's reverted Alacrity fix (Session 206) established.
  * - Saint of zu Heltzer → Saint's Shield (62689): replaces Damage with Healing AND Barrier, WvW
- *   `300 + 0.2 × healingPower` each (same `CURATED_HEALING_COEFFICIENTS`/`CURATED_BARRIER_COEFFICIENTS`
+ *   `300 + 0.3 × healingPower` each (same `CURATED_HEALING_COEFFICIENTS`/`CURATED_BARRIER_COEFFICIENTS`
  *   formula shape, computed inline here for the same reason `chantOfRecuperationSections` does — no
  *   live API fact for either table to attach a coefficient to), radius grows to 300, 5 allies, self
  *   "Saint of zu Heltzer" +20% Healing to Others for 6s (plain text line, same non-tracked-status
@@ -96,7 +96,11 @@ export interface DodgeReplacementContent {
  *   live API fact for it is real (`{{skill fact|alacrity|4|game mode = pve}}`, no WvW/PvP line at
  *   all) but wiki-confirmed PvE-only (Session 206), and `synthetic-trait-facts.json`/
  *   `DODGE_TRIGGER_NOTES.trait` both already correctly omit it for trait 2238 — this indicator must
- *   stay consistent with that, not reopen it.
+ *   stay consistent with that, not reopen it. **Known Exceptions Sweep Leg 4 (2026-09-29)**: the
+ *   coefficient itself was raised 0.2 -> 0.3 by the 2026-09-29 balance patch's official notes; the
+ *   wiki page's own skill-fact template is still unedited and shows the stale pre-patch 0.2 (fetched
+ *   raw 2026-09-29 to confirm) — same "wiki lags the patch notes" situation as Healing Rain/Overload
+ *   Water above. Base value (300) unchanged by this patch.
  */
 export function vindicatorDodgeContent(
   activeIds: ReadonlySet<number>,
@@ -176,7 +180,7 @@ export function vindicatorDodgeContent(
     }
   }
   if (activeIds.has(SAINT_OF_ZU_HELTZER_ID)) {
-    const healAndBarrier = Math.round(300 + 0.2 * healingPower).toLocaleString()
+    const healAndBarrier = Math.round(300 + 0.3 * healingPower).toLocaleString()
     return {
       icon: SAINT_OF_ZU_HELTZER_ICON,
       name: "Saint's Shield",
