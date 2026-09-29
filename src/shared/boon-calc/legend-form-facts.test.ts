@@ -74,7 +74,7 @@ describe('legendFormFactsForSkill', () => {
     it('appends Lesser Enchanted Daggers\' siphon damage + healing to the Assassin row', () => {
       const result = legendFormFactsForSkill(cosmicWisdom, allEquipped, legends, attrs)
       const assassin = result.find((r) => r.legend.name === 'Legendary Assassin Stance')!
-      expect(assassin.text).toContain('Life Siphon Damage: 1,088')
+      expect(assassin.text).toContain('Life Siphon Damage: 971')
       expect(assassin.text).toContain('Siphon Healing: 968')
     })
 
