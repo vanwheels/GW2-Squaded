@@ -1,4 +1,5 @@
 import { useDataUpdate } from '@renderer/state/data-update-store'
+import { useUpdater } from '@renderer/state/updater-store'
 
 export type ViewKey = 'builds' | 'squads' | 'settings'
 
@@ -16,9 +17,14 @@ const NAV_ITEMS: { key: ViewKey; label: string }[] = [
 export function NavBar({ active, onChange }: NavBarProps) {
   // "Check on launch, prompt the user" (TODO.md) surfaces here rather than a launch-time modal —
   // a quiet badge on the Settings tab, where the matching check/download controls already live,
-  // is enough of a prompt without interrupting anything.
-  const { status } = useDataUpdate()
-  const dataUpdateAvailable = status.state === 'available'
+  // is enough of a prompt without interrupting anything. Same treatment for the app-binary
+  // updater as the game-data one; the app update takes priority in the title since it's the
+  // more actionable of the two when both happen to be available at once.
+  const { status: dataUpdateStatus } = useDataUpdate()
+  const dataUpdateAvailable = dataUpdateStatus.state === 'available'
+  const { status: appUpdateStatus } = useUpdater()
+  const appUpdateAvailable = appUpdateStatus.state === 'available' || appUpdateStatus.state === 'downloaded'
+  const badgeTitle = appUpdateAvailable ? 'App update available' : 'Game data update available'
 
   return (
     <nav className="nav-bar">
@@ -30,8 +36,8 @@ export function NavBar({ active, onChange }: NavBarProps) {
           onClick={() => onChange(item.key)}
         >
           {item.label}
-          {item.key === 'settings' && dataUpdateAvailable && (
-            <span className="nav-item-badge" title="Game data update available" />
+          {item.key === 'settings' && (dataUpdateAvailable || appUpdateAvailable) && (
+            <span className="nav-item-badge" title={badgeTitle} />
           )}
         </button>
       ))}

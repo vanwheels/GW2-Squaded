@@ -50,12 +50,15 @@ app.whenReady().then(() => {
   mainWindow.on('closed', () => {
     mainWindow = null
   })
-  registerUpdaterIpc(() => mainWindow)
-  const { runAutoCheck } = registerDataUpdateIpc(() => mainWindow)
+  const { runAutoCheck: runUpdaterAutoCheck } = registerUpdaterIpc(() => mainWindow)
+  const { runAutoCheck: runDataUpdateAutoCheck } = registerDataUpdateIpc(() => mainWindow)
   // "Check on launch, prompt the user" (TODO.md's decided contract for this feature) — fired once
-  // `ready-to-show` so the check's own IPC push doesn't race the renderer's status subscription,
-  // which only wires up after React mounts.
-  mainWindow.once('ready-to-show', runAutoCheck)
+  // `ready-to-show` so each check's own IPC push doesn't race the renderer's status subscription,
+  // which only wires up after React mounts. Same contract for both the app binary and game data.
+  mainWindow.once('ready-to-show', () => {
+    runUpdaterAutoCheck()
+    runDataUpdateAutoCheck()
+  })
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

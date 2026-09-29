@@ -8,7 +8,7 @@ import type { UpdateStatus } from '@shared/updater/updater-provider'
 // installer for electron-updater to diff/replace.
 const SUPPORTED = process.platform === 'win32'
 
-export function registerUpdaterIpc(getWindow: () => BrowserWindow | null): void {
+export function registerUpdaterIpc(getWindow: () => BrowserWindow | null): { runAutoCheck: () => void } {
   // Manual flow: 'available' is a real user-visible step the renderer surfaces a button for,
   // rather than silently downloading the moment a check finds something newer.
   autoUpdater.autoDownload = false
@@ -42,4 +42,11 @@ export function registerUpdaterIpc(getWindow: () => BrowserWindow | null): void 
     if (!SUPPORTED || !app.isPackaged) return
     autoUpdater.quitAndInstall()
   })
+
+  return {
+    runAutoCheck: () => {
+      if (!SUPPORTED || !app.isPackaged) return
+      void autoUpdater.checkForUpdates()
+    }
+  }
 }

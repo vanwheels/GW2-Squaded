@@ -3,6 +3,7 @@ import type { UpdateStatus } from '@shared/updater/updater-provider'
 import type { DataUpdateStatus, GameDataMeta } from '@shared/game-data/data-update-provider'
 import { useAppSettings } from '@renderer/state/app-settings-store'
 import { useDataUpdate } from '@renderer/state/data-update-store'
+import { useUpdater } from '@renderer/state/updater-store'
 import { useReleaseNotes } from '@renderer/state/release-notes-store'
 import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch'
 import { ThemeModeToggle } from '@renderer/components/common/ThemeModeToggle'
@@ -15,9 +16,6 @@ const DISCORD_BOT_INVITE_URL =
   'https://discord.com/api/oauth2/authorize?client_id=1539526394634305609&scope=bot+applications.commands&permissions=2147601472'
 
 export function SettingsView() {
-  const [version, setVersion] = useState('')
-  const [supported, setSupported] = useState(false)
-  const [status, setStatus] = useState<UpdateStatus>({ state: 'idle' })
   const {
     showUnderwater,
     setShowUnderwater,
@@ -27,14 +25,9 @@ export function SettingsView() {
     setThemeMode
   } = useAppSettings()
   const dataUpdate = useDataUpdate()
+  const updater = useUpdater()
   const { openReleaseNotes } = useReleaseNotes()
   const [localMeta, setLocalMeta] = useState<GameDataMeta | null>(null)
-
-  useEffect(() => {
-    void window.gw2Updater.getAppVersion().then(setVersion)
-    void window.gw2Updater.isSupported().then(setSupported)
-    return window.gw2Updater.onStatus(setStatus)
-  }, [])
 
   // Re-reads local meta on every status change (not just once) since a completed download
   // updates the on-disk copy `getLocalMeta` reads from immediately, even though the loaded game
@@ -66,12 +59,12 @@ export function SettingsView() {
 
         <div className="settings-panel">
           <h3>Updates</h3>
-          <p className="muted">Current version: {version || '—'}</p>
+          <p className="muted">Current version: {updater.version || '—'}</p>
           <button type="button" onClick={openReleaseNotes}>
             What's New
           </button>
-          {supported ? (
-            <UpdateControls status={status} />
+          {updater.supported ? (
+            <UpdateControls status={updater.status} controls={updater} />
           ) : (
             <p className="empty-state">
               In-app updates are only available in the packaged Windows build.
@@ -194,24 +187,29 @@ function DataUpdateControls({ status, controls }: DataUpdateControlsProps) {
   }
 }
 
-function UpdateControls({ status }: { status: UpdateStatus }) {
+interface UpdateControlsProps {
+  status: UpdateStatus
+  controls: { checkForUpdates: () => void; downloadUpdate: () => void; quitAndInstall: () => void }
+}
+
+function UpdateControls({ status, controls }: UpdateControlsProps) {
   switch (status.state) {
     case 'idle':
-      return <button onClick={() => void window.gw2Updater.checkForUpdates()}>Check for updates</button>
+      return <button onClick={controls.checkForUpdates}>Check for updates</button>
     case 'checking':
       return <p className="muted">Checking for updates…</p>
     case 'not-available':
       return (
         <div className="settings-update-row">
           <p>You're on the latest version.</p>
-          <button onClick={() => void window.gw2Updater.checkForUpdates()}>Check again</button>
+          <button onClick={controls.checkForUpdates}>Check again</button>
         </div>
       )
     case 'available':
       return (
         <div className="settings-update-row">
           <p>Update {status.version} is available.</p>
-          <button onClick={() => void window.gw2Updater.downloadUpdate()}>Download update</button>
+          <button onClick={controls.downloadUpdate}>Download update</button>
         </div>
       )
     case 'downloading':
@@ -227,14 +225,14 @@ function UpdateControls({ status }: { status: UpdateStatus }) {
       return (
         <div className="settings-update-row">
           <p>Update {status.version} downloaded and ready to install.</p>
-          <button onClick={() => void window.gw2Updater.quitAndInstall()}>Restart and install</button>
+          <button onClick={controls.quitAndInstall}>Restart and install</button>
         </div>
       )
     case 'error':
       return (
         <div className="settings-update-row">
           <p className="error-text">Update check failed: {status.message}</p>
-          <button onClick={() => void window.gw2Updater.checkForUpdates()}>Try again</button>
+          <button onClick={controls.checkForUpdates}>Try again</button>
         </div>
       )
   }

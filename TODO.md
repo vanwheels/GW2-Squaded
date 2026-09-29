@@ -8,18 +8,6 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Future Milestones (unscheduled)
-
-### Auto-Update Check
-User-directed 2026-09-29 as the next milestone after Known Exceptions Sweep ships. On app launch,
-check GitHub for a newer release and either surface a small notification indicator on the Settings
-button directing players to update, or prompt the update immediately — exact UX (indicator vs.
-immediate prompt) still to be decided when this milestone is scoped into legs. Repo is already
-public and electron-updater/GitHub Releases auto-update is in place per
-[[repo_now_public_for_autoupdate]]; this is a check/prompt UX layer on top of that, not new
-publishing infra.
-Last touched: 2026-09-29. Re-checks: 0.
-
 ## Unscheduled
 
 ### [Discord Bot Profession-Scoped Game-Data Fetch] — Leg 1 (nice-to-have, deprioritized)

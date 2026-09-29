@@ -2,6 +2,7 @@
 
 | Milestone | Date | Status | Post-mortem |
 |---|---|---|---|
+| Auto-Update Check | 2026-09-29 | shipped | [docs/postmortems/auto-update-check.md](docs/postmortems/auto-update-check.md) |
 | Known Exceptions Sweep | 2026-09-29 | shipped | [docs/postmortems/known-exceptions-sweep.md](docs/postmortems/known-exceptions-sweep.md) |
 | Sep 29, 2026 patch | 2026-09-29 | shipped | [docs/postmortems/sep-29-2026-patch.md](docs/postmortems/sep-29-2026-patch.md) |
 | Thief Pass + Celestial Fix | 2026-09-20 | shipped | [docs/postmortems/thief-pass-plus-celestial-fix.md](docs/postmortems/thief-pass-plus-celestial-fix.md) |
