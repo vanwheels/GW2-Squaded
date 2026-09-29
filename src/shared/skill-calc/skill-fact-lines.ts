@@ -6,6 +6,7 @@ import { damageLinesForSkill } from './damage-calc'
 import { siphonDamageLinesForSkill } from './siphon-damage-calc'
 import { withRechargeOverride } from './recharge-override'
 import { resourceCostLines } from './resource-cost-lines'
+import { CLEANSING_IRE_CLEANSE_FACTS } from '../boon-calc/sources'
 
 /**
  * Curated per-skill overrides for `Percent`-type facts the GW2 API duplicates once per game mode
@@ -85,6 +86,29 @@ function applyCuratedNumericFactValue(fact: Fact, skillId: number): Fact {
   return value === undefined ? fact : { ...fact, value }
 }
 
+/**
+ * Skill-tooltip counterpart to `sources.ts`'s `cleansingIreCleanseSource` — same curated table
+ * (`CLEANSING_IRE_CLEANSE_FACTS`, imported rather than duplicated), different rendering path. That
+ * function only fixes the aggregate Cleanse-row/per-skill-chip pipeline
+ * (`computeNamedFactSources`/`namedFactsForSkill`); this one fixes the separate per-skill tooltip a
+ * player sees hovering a burst skill directly in the build editor, which reads raw `Fact`s through
+ * `skillFactLines` and never touches that pipeline at all. Two raw-data shapes to cover, both
+ * documented on `CLEANSING_IRE_CLEANSE_FACTS` itself: the 12 core (spec-less) canonical ids carry NO
+ * `Conditions Removed` fact whatsoever (so there's nothing for the main `facts` loop below to
+ * override — this line is manufactured from scratch, `icon: null`, same convention as
+ * `resourceCostLines`' synthetic lines), while the 25 Berserker/Spellbreaker ids carry one, but its
+ * `value` is stale by one full adrenaline tier (the main loop's fact-exclusion `continue` drops that
+ * raw fact before `factLine` ever renders the wrong number, and this function's caller re-supplies
+ * that dropped fact's own icon so the replacement line still shows the correct CDN glyph). Returns
+ * `null` for a skill with no entry in the table, or when Cleansing Ire (trait 1649) isn't equipped —
+ * harmless no-op, the overwhelming majority of calls.
+ */
+function cleansingIreTooltipLine(skill: Skill, activeIds: ReadonlySet<number>, icon: string | null): FactLine | null {
+  const entry = CLEANSING_IRE_CLEANSE_FACTS[skill.id]
+  if (!entry || !activeIds.has(1649)) return null
+  return { icon, text: `Conditions Removed: ${entry.detail}` }
+}
+
 function realValueLine(
   fact: Fact,
   damageByLabel: Map<string, number>,
@@ -143,7 +167,10 @@ function realValueLine(
  * (and every test) keeps working unchanged, showing the un-adjusted PvE value, same as before this
  * existed. `resourceCosts` prepends synthetic Energy/Initiative/Upkeep/Health Cost lines ahead of
  * the API's own facts — see `resource-cost-lines.ts` — same optional-param back-compat convention
- * as `rechargeWvwOverrides` (no lines shown when omitted).
+ * as `rechargeWvwOverrides` (no lines shown when omitted). `cleansingIreTooltipLine` (always active,
+ * no opt-in param) appends a curated Cleanse line for Cleansing Ire's (trait 1649) 37 burst-skill
+ * ids, same `CLEANSING_IRE_CLEANSE_FACTS` table `sources.ts`'s aggregate pipeline already uses — see
+ * that function's own doc comment for why this is a separate fix from that one.
  */
 export function skillFactLines(
   skill: Skill,
@@ -164,8 +191,13 @@ export function skillFactLines(
   const lines: FactLine[] = resourceCosts ? resourceCostLines(skill.id, resourceCosts) : []
   const seen = new Set<string>()
   for (const line of lines) seen.add(line.text)
+  let cleansingIreIcon: string | null = null
   for (const rawFact of [...facts, ...skill.traitedFacts]) {
     if (rawFact.requires_trait != null && !activeIds.has(rawFact.requires_trait)) continue
+    if (rawFact.requires_trait === 1649 && rawFact.type === 'Number' && rawFact.text === 'Conditions Removed') {
+      cleansingIreIcon = rawFact.icon ?? null
+      continue
+    }
     const percentAdjusted = applyCuratedPercentOverride(rawFact, skill.id)
     if (!percentAdjusted) continue
     const fact = applyCuratedNumericFactValue(percentAdjusted, skill.id)
@@ -175,5 +207,7 @@ export function skillFactLines(
       lines.push(line)
     }
   }
+  const cleansingIreLine = cleansingIreTooltipLine(skill, activeIds, cleansingIreIcon)
+  if (cleansingIreLine && !seen.has(cleansingIreLine.text)) lines.push(cleansingIreLine)
   return lines
 }
