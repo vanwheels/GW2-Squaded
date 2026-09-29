@@ -4,6 +4,19 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Sep 29 Patch — Refetch and Auto-Verify] — Leg 2
+2026-09-29. `fetch-game-data` refresh committed clean (`5dee22c`); `fetch-wvw-splits` reproduced
+the known blind-rerun regression ([[fetch_wvw_splits_unsafe_blind_rerun]] — 81 skills dropped, 0
+added) and was reverted rather than committed. Of the 3 target values: Grace of the Land's might
+stacks (trait 2001) already flowed through correctly with no edit needed (`extractFromFacts` reads
+`apply_count` live off the matched raw fact, confirmed by diffing `traits.json`). Seed of Life
+(31406/32242) and Cultivated Synergy's Lesser Seed of Life (31776) could not auto-verify — their
+"Conditions Removed" fact has no pve/wvw duplicate in the raw API at all, and skills had no
+equivalent of traits' `NUMERIC_FACT_WVW_OVERRIDES` table to fall back on. Fixed with a new
+skill-side `CURATED_NUMERIC_FACT_VALUES` override table (a direct value replacement, not a
+filter-between-duplicates like the trait table) plus a regression test. See commit `467bc7a`
+(fix) and `[[skill_side_numeric_fact_wvw_override_gap]]` for the mechanism gap this surfaced.
+
 ### [Sep 29 Patch — Scoping] — Leg 1
 2026-09-29. Cross-referenced every changed value in the Sep 29, 2026 patch notes against the
 codebase to sort them into raw-API facts (auto-update on refetch), hand-curated coefficients

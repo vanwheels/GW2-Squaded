@@ -16,16 +16,6 @@ categories, WvW-relevant subset already filtered from the PvP-only bulk) capture
 splits (the majority of this patch's changes) are excluded from scope entirely — only WvW-only and
 "PvP and WvW"-scoped changes apply.
 
-### [Sep 29 Patch — Refetch and Auto-Verify] — Leg 2
-Re-run `npm run fetch-game-data` + `npm run fetch-wvw-splits`, then spot-check in the running app
-(or via a scratch script) that these 3 raw-API-driven values picked up the new patch numbers with
-no hand edit: Seed of Life (conditions removed 2->1, trait 31406/32242), Cultivated Synergy
-(Lesser Seed of Life conditions removed 2->1, trait 2057), Grace of the Land (might stacks 2->1,
-trait 2001 — existing `wvw-fact-overrides.json` override only pins boon *duration*, not stack
-count, so confirm the stack count itself comes through raw and isn't silently stuck at the old
-value alongside the override).
-Last touched: 2026-09-29. Re-checks: 0.
-
 ### [Sep 29 Patch — Curated Coefficient Edits] — Leg 3
 5 skills/traits have an existing hardcoded coefficient that just needs its number (and, for 2 of
 them, a stale "no PvE/WvW split" comment) updated:
