@@ -1,0 +1,292 @@
+# Completed (archive through "Known Exceptions Sweep" milestone)
+
+Everything from the "Sep 15, 2026 patch + fixes" milestone boundary (2026-09-16) through the
+"Known Exceptions Sweep" milestone (shipped 2026-09-29), including the "Thief Pass + Celestial Fix"
+and "Sep 29, 2026 patch" milestones in between. Continues in `COMPLETED.md`. Entries are most
+recent first. Everything before this is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
+
+### [Known Exceptions Sweep — Adrenal Health Healing Coefficient] — Leg 13
+2026-09-29. Confirmed the coefficient (0.6/0.9/1.2 by adrenaline stage) lives inside a wiki
+`{{skill fact|effect|...}}` Buff-fact template, not the `{{skill fact|healing|...}}`
+AttributeAdjust template `CURATED_TRAIT_HEALING_COEFFICIENTS` binds to — trait 1348 has zero
+`AttributeAdjust`/`Healing` facts in the API data, only `Apply Buff/Condition`/`Interval`/
+`Maximum Stacks`. Surfacing a number would need new infra (a per-stack heal-value lookup for
+Buff-type self-heal facts) nothing else in the codebase uses. Permanently excluded, same shape as
+the Relic of Karakosa (Leg 2) and Sapping Device (Leg 8) exclusions. No code change. Full writeup:
+`docs/investigations/sep-29-2026-patch-changes.md`.
+
+### [Known Exceptions Sweep — Legend Form Facts Life Siphon Drift] — Leg 12
+2026-09-29. Not a coefficient drift — the 2026-09-16 commit (`48464bf`) that corrected Cosmic
+Wisdom's Assassin-form Life Siphon Damage coefficient (913/0.0575, replacing the wiki's disproven
+1028/0.06) never updated this regression test's expected value, which still asserted the old 1,088.
+Siphon Healing (968) was already correct. Test-only fix. See commit `9354992`.
+
+### [Known Exceptions Sweep — Numinous Gift Duplicate Boon Leak] — Leg 11
+2026-09-29. Root cause: the Sep 29 patch data refresh added an undocumented 2nd duplicate raw fact
+for Fury/Resistance/Protection/Quickness/Might on trait 2440 (Numinous Gift), each carrying a lower,
+wiki-unverified duration with no game-mode discriminator — `extractFromFacts` showed both, doubling
+those 5 rows once their legends were equipped. Wiki raw wikitext confirmed none of the 5 are
+actually split (Fury's own 2 template lines both give 10; the other 4 have no game-mode tag at all),
+so fixed via a `wvw-fact-overrides.json` trait-side entry (hand-curated per
+`fetch-wvw-splits.ts`'s `MANUAL_OVERRIDES`, not a blind script re-run) supplying the correct
+duration to collapse each duplicate to. Stability/Resolution (Dwarf Stance) were untouched — that's
+a genuine, pre-existing 2-status split, unrelated to this leak. See commit `6d38ee7`.
+
+### [Known Exceptions Sweep — Corrupt Row Gap (Slice Through Reality)] — Leg 10
+2026-09-29. Wiki-confirmed all 3 ids (80585, 80802, 81302) belong to Director Vloxx (Nexus of
+Eternity raid/convergence boss) — an enemy-only skill, not reachable from any player build, same
+`professions: []`/`slot: ""` shape as the other NPC-only exclusions already in the table. Added to
+`EXCLUDED_IDS` in `corrupt-missing-fact-sources.test.ts` rather than `CORRUPT_MISSING_FACT_SKILLS`
+(no code change needed). See commit `425bd46`.
+
+### [Known Exceptions Sweep — Cleansing Ire Per-Skill Tooltip Values] — Leg 9
+2026-09-29. Follow-up from Leg 7: `skill-fact-lines.ts`'s `skillFactLines` reads Warrior burst
+skills' raw `Conditions Removed` facts directly for the per-skill tooltip path, which Leg 7's fix
+never touched (that one only covered the aggregate Cleanse-row/per-skill-chip pipeline). Fixed by
+excluding the same raw fact from the generic render and appending a line built from Leg 7's own
+`CLEANSING_IRE_CLEANSE_FACTS` table (imported, not duplicated) — covers both shapes: the 12 core
+ids with no raw fact at all (line manufactured from scratch, `icon: null`) and the 25
+Berserker/Spellbreaker ids whose raw fact exists but is stale by one adrenaline tier (excluded and
+replaced, reusing the dropped fact's own icon). See commit `7082b72`.
+
+### [Known Exceptions Sweep — Untracked Patch Traits] — Leg 8
+2026-09-29. TODO's "not in `src/` or `scripts/` at all" framing was an absence-of-a-grep-hit
+observation, not a real scoping decision — investigated each of the 4 traits rather than assuming
+absence meant exclusion. Latent Stamina (trait 1962) and Specialized Elements (trait 2437) were
+genuine `NUMERIC_FACT_WVW_OVERRIDES` gaps (the latter already had a stale pre-patch entry, updated
+in place rather than duplicated); Sapping Device (trait 507) confirmed permanently out of scope,
+same unbounded-trigger shape as Relic of Karakosa; Adrenal Health (trait 1348) confirmed out of
+scope for this patch's specific change (an `apply_count` value this app has no override mechanism
+for at all) but surfaced an unrelated pre-existing healing-coefficient gap, logged as its own
+TODO.md item. Full writeup: `docs/investigations/sep-29-2026-patch-changes.md`.
+
+### [Known Exceptions Sweep — Cleansing Ire Cleanse Count] — Leg 7
+2026-09-29. TODO's framing undersold the gap — investigation found the raw API data for trait
+1649's condition-cleanse count is both stale (every value is 1 full adrenaline tier below the
+wiki's own documented post-2022-10-04-patch formula) and, for 12 of the 37 canonical Warrior
+burst-skill ids across core/Berserker/Spellbreaker, entirely absent from the id this app's build
+calculator actually equips (the fact only lived on a flip-duplicate id a prior sweep had correctly-
+for-damage-purposes-but-incompletely excluded as "no new content"). Fixed by excluding every raw
+`requires_trait: 1649` "Conditions Removed" fact from the generic Cleanse-row match and replacing it
+with a hand-curated, wiki-verified table (`CLEANSING_IRE_CLEANSE_FACTS` in `sources.ts`) keyed by
+each weapon/spec's real canonical id — core bursts show the genuine 2/3/4 adrenaline-tier range,
+Berserker Primal Bursts and Spellbreaker bursts both resolve to a fixed 2 (both mechanics lock to
+tier-1 adrenaline cost per their own wiki pages). Scoped to the aggregate Cleanse-row/per-skill-chip
+pipeline (`computeNamedFactSources`/`namedFactsForSkill`) only — the separate per-skill tooltip
+(`skill-fact-lines.ts`) still renders the raw stale/missing numbers, logged as a follow-up in
+TODO.md. See commit `5ba40f2`.
+
+### [Known Exceptions Sweep — Reaver's Curse Healing/Barrier %] — Leg 6
+2026-09-29. Closed the per-skill-mapping gap `fact-numbers.ts`'s own comment had left open for
+trait 2259's Healing/Barrier Increase `PrefixedBuff` pair: it only ever applies to Saint of zu
+Heltzer's Saint's Shield dodge-replacement, so it's folded straight into
+`vindicatorDodgeContent`'s healing/barrier computation in `dodge-replacement-facts.ts` (tripled via
+the 2026-09-29 patch's WvW-only 100%->200% value when Reaver's Curse is also equipped) rather than
+added to `fact-numbers.ts` itself. The trait's other 2 `PrefixedBuff` pairs (Damage Increase, Might)
+stay out of scope, unaffected by this patch.
+
+### [Known Exceptions Sweep — Tree Song Energy Cost] — Leg 5
+2026-09-29. TODO's own framing was stale — the "this app has no skill-resource-cost table at all"
+premise dated from the same-day patch-cross-reference pass but hadn't been checked against code;
+that table shipped 2026-08-28. Root cause was a real bug: `fetch-resource-costs.ts`'s energy search
+is scoped to `incategory:"Revenant skills"`, but Vindicator's Legendary Alliance utility skills
+(Tree Song, Battle Dance, Selfish Spirit, Scavenger Burst, others) aren't wiki-tagged with that
+category — silently excluded the whole skill set, not just Tree Song. Added a second
+`incategory:"Legendary Alliance skills"` search (108 -> 118 skills). Also caught the fetched WvW
+value (25) as itself pre-patch-stale (infobox last edited 2026-06-13); added
+`RESOURCE_COST_WVW_OVERRIDES` in `resource-cost-lines.ts` for the patched value (15), same
+wiki-lag-override pattern as Leg 4's Saint's Shield, chosen over hand-editing the auto-regenerated
+JSON so a future blind re-fetch can't silently revert it. Full derivation:
+`docs/investigations/sep-29-2026-patch-changes.md`.
+
+### [Known Exceptions Sweep — Bandage Blast/Saint's Shield Coefficients] — Leg 4
+2026-09-29. Bandage Blast (skill 29547): no healing coefficient existed anywhere for it —
+curated in `healing-calc.ts` (base 169, coefficient 0.83, wiki's only skill-fact template, no
+PvE/WvW split; missed by the original weapon-slot sweep since it's a `Bundle`-type skill, not
+`Weapon`). Saint's Shield (skill 62689) is a non-equippable proc fired by Vindicator's Tenacious
+Ruin dodge reskin — its Healing/Barrier tooltip is computed inline in
+`dodge-replacement-facts.ts` (`vindicatorDodgeContent`), not via `CURATED_HEALING_COEFFICIENTS`,
+since it has no real skill-bar slot to hang a `Skill`-object lookup off of; updated the hardcoded
+`0.2 * healingPower` to `0.3` per the Sep 29 patch notes (base 300 unchanged; wiki page itself
+still shows the stale pre-patch 0.2). See commit `744e2bc`.
+
+### [Known Exceptions Sweep — Healing Ripple/Overload Water Coefficients] — Leg 3
+2026-09-29. Overload Water (skill 29415): curated its pulse "Healing" fact in `healing-calc.ts`
+(392 base unchanged, coefficient 0.1->0.3 per the Sep 29 patch notes; wiki page itself still stale).
+See commit `ff39b96`. Healing Ripple (trait 351) hit a genuine architecture gap —
+`CURATED_HEALING_COEFFICIENTS` was skill-id-keyed only, never consulted for traits — so Vanny chose
+to build the infra rather than leave it a known gap: `CURATED_TRAIT_HEALING_COEFFICIENTS` +
+`healingLinesForTrait` (`healing-calc.ts`), a new `trait-fact-lines.ts` (`traitFactLines`,
+`TraitsEditor.tsx`'s counterpart to `skill-fact-lines.ts`), and a Tier 2 golden-snapshot test
+extension reading `traits.json`. Curated value: base 1042, coefficient 0.75 (Sep 29 patch's
+0.5->0.75 bump). See commit `180794d`. Full derivation:
+`docs/investigations/coefficient-verification-queue.md`.
+
+### [Known Exceptions Sweep — Relic of Karakosa Trigger-Location Mechanic] — Leg 2
+2026-09-29. Scoped what modeling the Sep 29 patch's Relic of Karakosa change would require. Already
+an unbounded `COMBO`-bucket relic per `docs/relic-trigger-classification.md`, excluded from
+`RELIC_TRIGGER_GATES` for reasons independent of this patch; its heal was never curated anywhere
+(no relic-keyed healing table exists). The new location-based targeting would additionally need
+spatial/positional infra this app has nowhere else. Permanently excluded, no code change. See
+`docs/investigations/sep-29-2026-patch-changes.md`.
+
+### [Known Exceptions Sweep — Permanently-Excluded Dead-Ends Re-Verification] — Leg 1
+2026-09-29. Fresh-eyes re-check of all 6 permanently-excluded dead-ends (Guardian 31295, Necromancer
+10547/10670, Thief 71802, Soul Grasp, Grim Specter/Carnivore/Replenishing Despair) against current
+wiki wikitext and live local API data. All 6 reconfirmed closed, no new leads surfaced, no code
+changes needed. Full per-item derivation in `docs/investigations/coefficient-verification-queue.md`;
+moved back to TODO.md's Known Exceptions section.
+
+### [Sep 29 Patch — Curated Coefficient Edits] — Leg 3
+2026-09-29. Updated the 5 already-curated hardcoded coefficients the patch changed, plus the two
+stale "no PvE/WvW split" comments that were no longer accurate (Healing Rain, Drop Urn of Saint
+Viktor). See commit `599e57b`.
+
+### [Sep 29 Patch — Refetch and Auto-Verify] — Leg 2
+2026-09-29. `fetch-game-data` refresh committed clean (`5dee22c`); `fetch-wvw-splits` reproduced
+the known blind-rerun regression ([[fetch_wvw_splits_unsafe_blind_rerun]] — 81 skills dropped, 0
+added) and was reverted rather than committed. Of the 3 target values: Grace of the Land's might
+stacks (trait 2001) already flowed through correctly with no edit needed (`extractFromFacts` reads
+`apply_count` live off the matched raw fact, confirmed by diffing `traits.json`). Seed of Life
+(31406/32242) and Cultivated Synergy's Lesser Seed of Life (31776) could not auto-verify — their
+"Conditions Removed" fact has no pve/wvw duplicate in the raw API at all, and skills had no
+equivalent of traits' `NUMERIC_FACT_WVW_OVERRIDES` table to fall back on. Fixed with a new
+skill-side `CURATED_NUMERIC_FACT_VALUES` override table (a direct value replacement, not a
+filter-between-duplicates like the trait table) plus a regression test. See commit `467bc7a`
+(fix) and `[[skill_side_numeric_fact_wvw_override_gap]]` for the mechanism gap this surfaced.
+
+### [Sep 29 Patch — Scoping] — Leg 1
+2026-09-29. Cross-referenced every changed value in the Sep 29, 2026 patch notes against the
+codebase to sort them into raw-API facts (auto-update on refetch), hand-curated coefficients
+(need an edit), and pre-existing uncurated gaps (deferred, not regressions). Full per-item
+detail in `docs/investigations/sep-29-2026-patch-changes.md`; split the milestone into Legs 2-4.
+See commit `c7b82fa`.
+
+### [UpgradePicker Multi-Tag Stat Search] — Leg 1
+2026-09-20. `UpgradePicker`'s `#<stat>` search mode only ever matched a single stat keyword —
+`#power #vitality` didn't narrow to options affecting both. Extended it to parse every
+`#`-prefixed token in the query and AND them together (an option must match every listed stat),
+keeping the existing per-token prefix-match behavior. See commit `016f99b`.
+
+### [Celestial Stat Prefix Concentration/Expertise] — Leg 1
+2026-09-20. User's premise ("removed from Celestial a while back") didn't match the live API —
+confirmed live that `/v2/itemstats` still reports Concentration/Expertise on Celestial. The real
+gap: the wiki's `Celestial` page raw wikitext shows both were removed from **WvW only** in the
+October 8, 2024 update, kept for PvE. Since this app models WvW exclusively, the API's PvE-only
+spread was wrong for every build here. Fixed via a `WVW_ITEMSTAT_ATTRIBUTE_EXCLUSIONS` table in
+`fetch-game-data.ts`'s `normalizeItemStat` (same "small hardcoded constant for a real API gap"
+pattern as `LEGEND_SPECIALIZATION_ID`), plus a direct patch to the committed `itemstats.json`
+rather than re-running the full fetch pipeline. Closes the "Thief Pass + Celestial Fix" milestone —
+see `docs/postmortems/thief-pass-plus-celestial-fix.md`. See commit `fe71962`.
+
+### [Specter Siphon F1 Recharge Split] — Leg 1
+2026-09-20. Already fixed, no code change needed: `data/game-data/recharge-wvw-overrides.json`'s
+2026-08-22 sweep (commit `6b75e7d`, predates this leg's own 2026-09-20 origin comment in
+`branch-conditional-facts.ts`) already carries a `"63067": 25` entry, and `ProfessionMechanicBar.tsx`
+already threads `gameData.rechargeWvwOverrides` through to `skillFactLines` for the F1 mechanic bar.
+Verified directly: `skillFactLines` on skill 63067 with the loaded override renders `Recharge: 25s`,
+not the stale flat 18. The origin comment logging this as unresolved was written before checking
+whether the general recharge-override sweep already covered this id. No commit — doc-only close.
+
+### [Deadeye's Mark/Skritt Swipe Stale Even the Odds Vulnerability] — Leg 1
+2026-09-20. Root cause: Deadeye's Mark (43390) and Skritt Swipe (77397) both carried a native
+stale pre-2024-10-08-patch Vulnerability `traitedFact` for Even the Odds. Fixed via a
+`BUFF_INSTANCE_VALUE_OVERRIDES.skill` `'omit'` entry plus a fresh `synthetic-facts.json` entry
+matching Siphon's own already-correct value. Full test suite (547 tests) and typecheck pass with
+only the one pre-existing, unrelated `legend-form-facts.test.ts` failure noted below (not touched
+here). See commit `2b455d4`.
+
+### [Triple Threat/Twilight Combo Missing Enemy/Ally Effects] — Leg 1
+2026-09-20. Same "empty/stale API facts" shape as Measured Shot/Endless Night (see "Specter
+Scepter/Pistol Skill 3 Display" below), fixed the same way with a `tripleThreatSections`/
+`twilightComboSections` pair sourced from fresh wiki `action=raw` fetches. Full test suite passes
+with only the one pre-existing, unrelated `legend-form-facts.test.ts` failure noted below (not
+touched here). See commit `ae7b788`.
+
+### [Serpent's Touch Downstate/Steal Poison Duplication] — Leg 1
+2026-09-20. Root cause: `extractFromFacts` (boon-calc/sources.ts) never consulted a `Fact.overrides`
+index, so an active `traitedFact` showed ALONGSIDE the base fact it's meant to replace instead of
+suppressing it — with Potent Poison (1291) equipped, Serpent's Touch's own tooltip leaked 5 Poisoned
+rows instead of 2. Fixed generically in `extractFromFacts` itself (any active fact's `overrides`
+index now suppresses its base-array target), plus one curated occurrence-omit entry for the
+boosted pvp-only duplicate that isn't itself an `overrides` target. Full test suite (539 tests) and
+typecheck/lint pass with only one pre-existing, unrelated failure (`legend-form-facts.test.ts`'s
+Lesser Enchanted Daggers siphon numbers, confirmed failing on main before this change too — not
+touched here). See commit `0194245`.
+
+### [Shadestep WvW Alacrity Fix] — Leg 5
+2026-09-20. Root cause: Shadestep (2289)'s own `facts` array carries both an Alacrity(5s) fact and
+a Regeneration(3s) fact for Grasping Shadows with no game-mode discriminator in the local data, so
+both showed unconditionally. Wiki raw wikitext confirmed the two are mutually exclusive per mode
+(Alacrity PvE-only, Regeneration the WvW+PvP grant) — same "confirmed absent in WvW" shape as
+Saint's Shield (62689). Fixed via a `wvw-fact-overrides.json`/`MANUAL_OVERRIDES` `Alacrity: 'omit'`
+entry, this app's existing per-status WvW-override mechanism; no new infra needed. See commit
+`1e0cf87`.
+
+### [Specter Scepter Auto Chain Display] — Leg 4
+2026-09-20. Root cause: Shadow Bolt (Scepter mainhand skill 1)'s live `flipSkill` points at
+Shadowsquall (its Stealth Attack replacement) instead of Double Bolt, the real next autoattack-chain
+step — confirmed via each chain skill's own wiki infobox `chain1`/`chain2`/`chain3` fields. A
+different shape from Leg 3 as predicted (no off-hand/`resolveSkillBarIds` involvement at all).
+Fixed by redirecting the flip walk via `FLIP_SKILL_OVERRIDES` (now checked ahead of the raw
+`flipSkill` field, so an override can replace a present-but-wrong link, not just fill a missing
+one) plus curating all 3 chain skills' missing Enemy/Ally Target boon/condition facts from the
+wiki, same mechanism as Leg 3's Measured Shot/Endless Night follow-up. See commit `1c0e40e`.
+
+### [Specter Scepter/Pistol Skill 3 Display] — Leg 3
+2026-09-20. Root cause: Triple Threat (63154, Scepter's off-hand-empty skill 3 default) carries a
+bogus `flipSkill` pointer to Measured Shot (63267, the real off-hand-Pistol variant) — same stale-
+API-data shape as the earlier Revenant Duelist's Preparation finding, except here
+`resolveSkillBarIds`' generic flip-target-removal signal wrongly dropped a candidate signal 4
+(Thief's dual-wield hand-context table) still needed, so it fell through to the off-hand-agnostic
+default (Triple Threat) regardless of the equipped off-hand. Fixed by exempting
+`THIEF_DUAL_WIELD_OFFHAND` table entries from the flip-removal signal and adding Measured Shot's
+missing Pistol entry to that table. See commit `d134053`.
+
+**Follow-up (same day):** with the correct skill now resolving, the user reported Measured Shot and
+its flip target Endless Night (63128) still showed only Range/Number of Targets — same "empty/stale
+API facts" shape `siphonSections` already documents for Siphon (F1), confirmed via the wiki's raw
+`action=raw` wikitext: both skills' real Enemy Target (Immobile/Slow/Torment)/Ally Target
+(Healing/Barrier/Regeneration/Vigor) effects never made it into the local data at all. Fixed via new
+`measuredShotSections`/`endlessNightSections` entries in `branch-conditional-facts.ts`, same
+mechanism, flowing through the existing generic `skillTooltipContent` pipeline used by both the base
+icon and the flip-stack icon with no new rendering code. Triple Threat/Twilight Combo (Scepter skill
+3's other two off-hand variants) have the identical gap, logged to TODO.md rather than fixed here
+since they were out of the user's report. See commit `8290e4a`.
+
+### [Specter Siphon F1 Effects] — Leg 2
+2026-09-20. Root cause: this app's local API data for skill 63067 (Siphon) is a stale, unmigrated
+copy of core Thief's "Steal" (`description: "Steal."`, only Range/Recharge facts) — Specter's real
+dual-target Siphon (enemy: Slow + Shadow Force gain; ally: Healing-Power-scaled Barrier + Siphon
+cooldown reduction + shroud tether transfer) never made it into the raw data at all. Curated via a
+new `siphonSections` entry in `branch-conditional-facts.ts`'s `branchConditionalFacts`, same
+"labeled Enemy/Ally Target divider" mechanism `otherworldlyBondBranches` established, sourced from
+the wiki's raw `action=raw` wikitext (not a rendered/summarized fetch). A related but out-of-scope
+Recharge-split gap surfaced during the curation was logged separately, not fixed here (see TODO.md
+Unscheduled). See commit `ef76ebd`.
+
+**Follow-up (same day, same leg):** a user screenshot comparison against a live trait-loaded
+reference build showed the base-facts fix above was only half the picture — a live Steal/Siphon
+tooltip also folds in every equipped Thief trait that grants its own "on Steal" bonus (Kleptomaniac,
+Sleight of Hand, Thrill of the Crime, Even the Odds, Serpent's Touch, Bountiful Theft's own "Boons
+Stolen" count), none of which are Specter-specific — core Steal (13014) had the identical gap. Fixed
+by extending `data/game-data/synthetic-facts.json` for all 4 "Steal-family" skill ids (13014 Steal,
+43390 Deadeye's Mark, 63067 Siphon, 77397 Skritt Swipe) with each trait's wiki-verified WvW-value
+facts, flowing through the existing generic `boonConditionFactsForSkill`/`numericFactLines` pipeline
+with no new rendering code. Also fixed a pre-existing latent bug found along the way: the same
+pipeline's Bountiful Theft Might fact was showing an un-deduped pve/wvw duplicate pair on every one
+of these 4 skills' own tooltips (already fixed for the trait's own tooltip via
+`BUFF_INSTANCE_VALUE_OVERRIDES.trait[1277]`, but that lookup keys off the passed-in skill id, so the
+existing fix never reached the skill side) — mirrored into `BUFF_INSTANCE_VALUE_OVERRIDES.skill` for
+all 4 ids. Daze (Sleight of Hand) has no generic Buff-fact render path in this app at all (not a
+tracked boon/condition), so it's added as a conditional line inside `siphonSections` instead. A
+separate, unrelated data-staleness gap found on Deadeye's Mark/Skritt Swipe's own native Even the
+Odds Vulnerability fact was logged to TODO.md, not fixed in this pass. See commit `12c551a`.
+
+### [Specter Steal F3 Slot Display] — Leg 1
+2026-09-20. Root cause: Thief's only raw `Profession_3` candidates in the API data were two
+orphan duplicate ids of "Zephyrite Sun Crystal" (78309, 79285), the same stolen skill already
+correctly resolved under a third id (76895) in the Profession_2 stolen-skill pool — both
+untagged to any spec, so the generic resolver picked one unconditionally on every Thief build,
+not just Specter's. Excluded both, dropping the slot entirely (Thief has no real F3 mechanic on
+any spec). See commit `fa0d663`.

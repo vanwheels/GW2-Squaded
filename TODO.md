@@ -8,22 +8,6 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Current Milestone: Known Exceptions Sweep
-
-User-directed 2026-09-29 to reopen every item in the old Known Exceptions section, including the
-ones previously marked permanently excluded. Flagged before starting: most of those were reconfirmed
-settled across multiple prior sessions with explicit "don't re-investigate without new information"
-notes — user confirmed proceeding anyway. Full history: `docs/investigations/coefficient-verification-queue.md`
-and `docs/investigations/sep-29-2026-patch-changes.md`.
-
-### [Known Exceptions Sweep — Adrenal Health Healing Coefficient] — Leg 13
-Found while investigating trait 1348 (Warrior Defense minor) for Leg 8: its base healing-per-stack
-has a real, wiki-documented coefficient (0.6/0.9/1.2 scaling by adrenaline stage — see
-`docs/investigations/sep-29-2026-patch-changes.md`'s Leg 8 section for the exact reference numbers)
-that was never added to `CURATED_HEALING_COEFFICIENTS`/`CURATED_TRAIT_HEALING_COEFFICIENTS` in
-`healing-calc.ts`. Pre-existing gap, unrelated to the 2026-09-29 patch that surfaced it.
-Last touched: 2026-09-29. Re-checks: 0.
-
 ## Future Milestones (unscheduled)
 
 ### Auto-Update Check
@@ -79,6 +63,16 @@ patch's added 8s internal cooldown), and "on disable" is an unbounded, combat-de
 no fixed cadence to assume, same shape as Relic of Karakosa's COMBO-bucket exclusion above. No
 ICD-tracking mechanism exists for trait Buff applications the way relics have `rechargeSeconds`.
 Full scoping: `docs/investigations/sep-29-2026-patch-changes.md`.
+
+Leg 13 (2026-09-29): Adrenal Health (trait 1348, Warrior Defense) — its wiki-documented 0.6/0.9/1.2
+healing coefficient (by adrenaline stage) lives inside a `{{skill fact|effect|...}}` Buff-fact
+template, not the `{{skill fact|healing|...}}` AttributeAdjust template
+`CURATED_TRAIT_HEALING_COEFFICIENTS` binds to — confirmed via raw wikitext and the local API data
+(trait 1348 has zero `AttributeAdjust`/`Healing` facts, only `Apply Buff/Condition`/`Interval`/
+`Maximum Stacks`). Surfacing a number would need new infra (a per-stack heal-value lookup for
+Buff-type self-heal facts, wired into `traitFactLines`) nothing else in the codebase uses — same
+shape as the Relic of Karakosa/Sapping Device exclusions above. Full scoping:
+`docs/investigations/sep-29-2026-patch-changes.md`.
 
 ## Reference — not scheduled
 

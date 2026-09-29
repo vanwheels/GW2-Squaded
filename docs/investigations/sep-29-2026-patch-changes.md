@@ -273,3 +273,28 @@ been curated in `CURATED_HEALING_COEFFICIENTS`/`CURATED_TRAIT_HEALING_COEFFICIEN
 (out of this leg's actual scope, which is the patch-driven trait list, not a general healing-
 coefficient sweep) — logged as its own TODO.md item instead.
 
+## Adrenal Health Healing Coefficient resolution (2026-09-29, Known Exceptions Sweep Leg 13)
+
+Investigated the item Leg 8 logged above. Raw wikitext (`action=raw`) shows the 0.6/0.9/1.2
+coefficient lives inside `{{skill fact|effect|Adrenal Health (effect)|...|desc=... {{coefficient|
+healing|...}}}}` — an **effect** fact template, not the `{{skill fact|healing|...|coefficient=...}}`
+template `CURATED_HEALING_COEFFICIENTS`/`CURATED_TRAIT_HEALING_COEFFICIENTS` are built around. The
+local API data confirms this: trait 1348's `facts`/`traitedFacts` are all `Apply Buff/Condition`
+(type `Buff`), `Interval`, and `Maximum Stacks` — zero `AttributeAdjust`/`Healing` entries. Compare
+Healing Ripple (trait 351, already curated): it has three real `AttributeAdjust`/`Healing` facts
+with numeric `value` fields, which is exactly what `healingLinesForTrait` matches on
+(`fact.type === 'AttributeAdjust' && fact.target === 'Healing'`, `healing-calc.ts:1170-1171`).
+Adrenal Health has no such fact to bind a curated coefficient onto — `traitFactLines`
+(`trait-fact-lines.ts:40`) falls through to the generic `factLine(fact)` renderer for its
+`Apply Buff/Condition` facts, the same as it would for any other status-application fact with no
+numeric heal value in the API payload.
+
+So this isn't "never added to the table" — it's "the existing table can't reach it." Adding a real
+number would mean new infrastructure: a per-stack heal-value lookup for Buff-type self-heal facts,
+wired into `traitFactLines`, that nothing else in this codebase uses (checked `sources.ts`'s
+`BUFF_INSTANCE_VALUE_OVERRIDES` — that mechanism is for attribute-bonus buffs like Might/Fury, not
+self-heal-over-time effects). Same shape as the Relic of Karakosa (Leg 2) and Sapping Device (Leg 8)
+exclusions above: a real, wiki-documented mechanic with no existing binding mechanism, affecting
+exactly one trait — not worth building dedicated infra for on its own. **Permanently excluded**,
+moved to TODO.md's Known Exceptions section. No code change made.
+
