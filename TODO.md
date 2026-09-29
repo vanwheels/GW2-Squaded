@@ -42,6 +42,14 @@ Assassin row" test expects `Life Siphon Damage: 1,088` but now gets `971`, plus 
 or raw-fact-text drift on this skill, not yet root-caused.
 Last touched: 2026-09-29. Re-checks: 0.
 
+### [Known Exceptions Sweep — Adrenal Health Healing Coefficient] — Leg 13
+Found while investigating trait 1348 (Warrior Defense minor) for Leg 8: its base healing-per-stack
+has a real, wiki-documented coefficient (0.6/0.9/1.2 scaling by adrenaline stage — see
+`docs/investigations/sep-29-2026-patch-changes.md`'s Leg 8 section for the exact reference numbers)
+that was never added to `CURATED_HEALING_COEFFICIENTS`/`CURATED_TRAIT_HEALING_COEFFICIENTS` in
+`healing-calc.ts`. Pre-existing gap, unrelated to the 2026-09-29 patch that surfaced it.
+Last touched: 2026-09-29. Re-checks: 0.
+
 ## Future Milestones (unscheduled)
 
 ### Auto-Update Check
@@ -55,15 +63,6 @@ publishing infra.
 Last touched: 2026-09-29. Re-checks: 0.
 
 ## Unscheduled
-
-### [Adrenal Health Healing Coefficient] — Leg 1
-Found while investigating trait 1348 (Warrior Defense minor) for Known Exceptions Sweep Leg 8: its
-base healing-per-stack has a real, wiki-documented coefficient (0.6/0.9/1.2 scaling by adrenaline
-stage — see `docs/investigations/sep-29-2026-patch-changes.md`'s Leg 8 section for the exact
-reference numbers) that was never added to `CURATED_HEALING_COEFFICIENTS`/
-`CURATED_TRAIT_HEALING_COEFFICIENTS` in `healing-calc.ts`. Pre-existing gap, unrelated to the
-2026-09-29 patch that surfaced it.
-Last touched: 2026-09-29. Re-checks: 0.
 
 ### [Discord Bot Profession-Scoped Game-Data Fetch] — Leg 1 (nice-to-have, deprioritized)
 A fresh browser session still re-fetches all 26 game-data JSON files (11MB) per render even though
