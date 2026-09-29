@@ -314,10 +314,14 @@ export const NUMERIC_FACT_WVW_OVERRIDES: Record<number, Record<string, number>> 
   // Reaver's Curse (id 2259, Master major): "Energy Meld's cooldown is reduced and it increases the
   // effectiveness of your next dodge." Wiki: `{{skill fact|recharge reduced|50|game mode=pve}}` +
   // `{{skill fact|recharge reduced|20|game mode=wvw pvp}}` — pve 50, wvw+pvp share 20. This trait's
-  // other facts (100%/25% Damage Increase pairs for the 3 different dodge-replacement skills it
-  // improves, a 9/4 Might-stacks pair, a 100% Healing/Barrier fact) are all `PrefixedBuff`-typed
-  // per-linked-skill breakdowns, out of scope for this table — same shape as Salvation's Generous
-  // Abundance, left for a future per-skill-mapping leg if ever revisited.
+  // other facts (100%/25% Damage Increase pairs for the 2 damage-dealing dodge-replacement skills it
+  // improves, a 9/4 Might-stacks pair) are all `PrefixedBuff`-typed per-linked-skill breakdowns, out
+  // of scope for this table — same shape as Salvation's Generous Abundance, left for a future
+  // per-skill-mapping leg if ever revisited. **Known Exceptions Sweep Leg 6 (2026-09-29)**: its 3rd
+  // `PrefixedBuff` pair, Healing/Barrier Increase (100%->200% WvW-only per that patch), IS now
+  // modeled — folded directly into `vindicatorDodgeContent`'s Saint's Shield healing/barrier number
+  // in `dodge-replacement-facts.ts` rather than this table, since it only ever applies to that one
+  // linked skill.
   2259: { 'Recharge Reduced': 20 },
 
   // Angsiyan's Trust (id 2243, Master major): "Energy Meld no longer has an energy cost and grants

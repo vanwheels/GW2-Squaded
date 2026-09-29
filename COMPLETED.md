@@ -4,6 +4,15 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Known Exceptions Sweep — Reaver's Curse Healing/Barrier %] — Leg 6
+2026-09-29. Closed the per-skill-mapping gap `fact-numbers.ts`'s own comment had left open for
+trait 2259's Healing/Barrier Increase `PrefixedBuff` pair: it only ever applies to Saint of zu
+Heltzer's Saint's Shield dodge-replacement, so it's folded straight into
+`vindicatorDodgeContent`'s healing/barrier computation in `dodge-replacement-facts.ts` (tripled via
+the 2026-09-29 patch's WvW-only 100%->200% value when Reaver's Curse is also equipped) rather than
+added to `fact-numbers.ts` itself. The trait's other 2 `PrefixedBuff` pairs (Damage Increase, Might)
+stay out of scope, unaffected by this patch.
+
 ### [Known Exceptions Sweep — Tree Song Energy Cost] — Leg 5
 2026-09-29. TODO's own framing was stale — the "this app has no skill-resource-cost table at all"
 premise dated from the same-day patch-cross-reference pass but hadn't been checked against code;

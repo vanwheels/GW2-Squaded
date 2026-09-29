@@ -16,11 +16,6 @@ settled across multiple prior sessions with explicit "don't re-investigate witho
 notes — user confirmed proceeding anyway. Full history: `docs/investigations/coefficient-verification-queue.md`
 and `docs/investigations/sep-29-2026-patch-changes.md`.
 
-### [Known Exceptions Sweep — Reaver's Curse Healing/Barrier %] — Leg 6
-Trait 2259's 100%->200% healing/barrier increase is explicitly flagged in `fact-numbers.ts`'s own
-comment as out of scope for that table, "left for a future per-skill-mapping leg." This is that leg.
-Last touched: 2026-09-29. Re-checks: 0.
-
 ### [Known Exceptions Sweep — Cleansing Ire Cleanse Count] — Leg 7
 Trait 1649's condition-cleanse count has never been modeled (only self-only targeting
 classification exists today).

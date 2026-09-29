@@ -22,6 +22,14 @@ const VASSALS_OF_THE_EMPIRE_ID = 2232
 const VASSALS_OF_THE_EMPIRE_ICON = 'https://render.guildwars2.com/file/955F334FAA12550A15127A6200CB7BDE4D41BD0A/2491538.png'
 const SAINT_OF_ZU_HELTZER_ID = 2238
 const SAINT_OF_ZU_HELTZER_ICON = 'https://render.guildwars2.com/file/42D514BF15A3F84ECECBACC7E05F95CAE03EBF6D/2491539.png'
+const REAVERS_CURSE_ID = 2259
+/** WvW value (this app's usual convention) of Reaver's Curse's "Healing and Barrier Increase"
+ *  `PrefixedBuff` fact on Saint of zu Heltzer's own dodge — raised from 100% by the 2026-09-29
+ *  balance patch (WvW-only; PvE+PvP stayed at 100%, confirmed via `traits.json`'s own 2259 facts:
+ *  a 200%/100% pair, the same 2-value shape as every other WvW-vs-shared split in this table). Its
+ *  Damage Increase/Might pairs for the other 2 GM dodge-replacements remain out of scope per
+ *  `fact-numbers.ts`'s 2259 comment — this leg only closes the Healing/Barrier gap the patch touched. */
+const REAVERS_CURSE_HEALING_BARRIER_INCREASE = 2.0
 
 const LOTUS_TRAINING_ID = 1833
 const LOTUS_TRAINING_ICON = 'https://render.guildwars2.com/file/E5724D46CEE62333E00CE26905C5FDD5439F6667/1058552.png'
@@ -90,9 +98,13 @@ export interface DodgeReplacementContent {
  * - Saint of zu Heltzer → Saint's Shield (62689): replaces Damage with Healing AND Barrier, WvW
  *   `300 + 0.3 × healingPower` each (same `CURATED_HEALING_COEFFICIENTS`/`CURATED_BARRIER_COEFFICIENTS`
  *   formula shape, computed inline here for the same reason `chantOfRecuperationSections` does — no
- *   live API fact for either table to attach a coefficient to), radius grows to 300, 5 allies, self
- *   "Saint of zu Heltzer" +20% Healing to Others for 6s (plain text line, same non-tracked-status
- *   reasoning as Forerunner of Death's self-buff above). Alacrity is deliberately EXCLUDED — the
+ *   live API fact for either table to attach a coefficient to), tripled (×(1 + 200%)) when Reaver's
+ *   Curse (2259) is also equipped — see `REAVERS_CURSE_HEALING_BARRIER_INCREASE`'s own comment, this
+ *   is the "future per-skill-mapping leg" `fact-numbers.ts`'s 2259 entry flagged, folded straight into
+ *   the number rather than a separate text line since the trait directly empowers this same dodge
+ *   rather than buffing a later, different one — radius grows to 300, 5 allies, self "Saint of zu
+ *   Heltzer" +20% Healing to Others for 6s (plain text line, same non-tracked-status reasoning as
+ *   Forerunner of Death's self-buff above). Alacrity is deliberately EXCLUDED — the
  *   live API fact for it is real (`{{skill fact|alacrity|4|game mode = pve}}`, no WvW/PvP line at
  *   all) but wiki-confirmed PvE-only (Session 206), and `synthetic-trait-facts.json`/
  *   `DODGE_TRIGGER_NOTES.trait` both already correctly omit it for trait 2238 — this indicator must
@@ -180,7 +192,8 @@ export function vindicatorDodgeContent(
     }
   }
   if (activeIds.has(SAINT_OF_ZU_HELTZER_ID)) {
-    const healAndBarrier = Math.round(300 + 0.3 * healingPower).toLocaleString()
+    const reaversCurseMultiplier = activeIds.has(REAVERS_CURSE_ID) ? 1 + REAVERS_CURSE_HEALING_BARRIER_INCREASE : 1
+    const healAndBarrier = Math.round((300 + 0.3 * healingPower) * reaversCurseMultiplier).toLocaleString()
     return {
       icon: SAINT_OF_ZU_HELTZER_ICON,
       name: "Saint's Shield",
