@@ -4,6 +4,22 @@ Entries are added as work lands, most recent first. Everything through the "Sep 
 fixes" milestone (shipped 2026-09-16) is archived in `COMPLETED-archive-sep-15-2026-patch.md`.
 Everything before that, back through v1.0.0, is in `COMPLETED-archive-pre-1.0.md`.
 
+### [Known Exceptions Sweep — Cleansing Ire Cleanse Count] — Leg 7
+2026-09-29. TODO's framing undersold the gap — investigation found the raw API data for trait
+1649's condition-cleanse count is both stale (every value is 1 full adrenaline tier below the
+wiki's own documented post-2022-10-04-patch formula) and, for 12 of the 37 canonical Warrior
+burst-skill ids across core/Berserker/Spellbreaker, entirely absent from the id this app's build
+calculator actually equips (the fact only lived on a flip-duplicate id a prior sweep had correctly-
+for-damage-purposes-but-incompletely excluded as "no new content"). Fixed by excluding every raw
+`requires_trait: 1649` "Conditions Removed" fact from the generic Cleanse-row match and replacing it
+with a hand-curated, wiki-verified table (`CLEANSING_IRE_CLEANSE_FACTS` in `sources.ts`) keyed by
+each weapon/spec's real canonical id — core bursts show the genuine 2/3/4 adrenaline-tier range,
+Berserker Primal Bursts and Spellbreaker bursts both resolve to a fixed 2 (both mechanics lock to
+tier-1 adrenaline cost per their own wiki pages). Scoped to the aggregate Cleanse-row/per-skill-chip
+pipeline (`computeNamedFactSources`/`namedFactsForSkill`) only — the separate per-skill tooltip
+(`skill-fact-lines.ts`) still renders the raw stale/missing numbers, logged as a follow-up in
+TODO.md. See commit `5ba40f2`.
+
 ### [Known Exceptions Sweep — Reaver's Curse Healing/Barrier %] — Leg 6
 2026-09-29. Closed the per-skill-mapping gap `fact-numbers.ts`'s own comment had left open for
 trait 2259's Healing/Barrier Increase `PrefixedBuff` pair: it only ever applies to Saint of zu
