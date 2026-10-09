@@ -1,6 +1,10 @@
 export interface Env {
   /** Anonymous share-link blob store (builds/squad comps) — see index.ts's own doc comments. */
   SHARES: KVNamespace
+  /** Account/token/lockout state for the sync feature (see sync-types.ts) — the low-volume
+   *  counterpart to the high-frequency per-account sync blob, which lives in an R2 bucket
+   *  instead (Leg 3). */
+  SYNC_KV: KVNamespace
   /** Discord bot board state (guild settings, permissions, builds/squads, pending approvals). */
   DB: D1Database
   /** Not secret — see wrangler.toml's own comment on why this lives in [vars]. */

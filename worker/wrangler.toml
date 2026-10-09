@@ -12,6 +12,14 @@ compatibility_flags = ["nodejs_compat"]
 binding = "SHARES"
 id = "04662513e32840c7820530cc12c83054"
 
+# Created via `npx wrangler kv namespace create SYNC_KV`. Account/token/lockout state for the
+# sync feature (see sync-types.ts) — low-volume, unlike the per-account sync blob itself, which
+# lives in an R2 bucket instead (Leg 3) since KV's 1,000 writes/day free-tier cap is shared across
+# every account this Worker serves.
+[[kv_namespaces]]
+binding = "SYNC_KV"
+id = "c15de4f1212f4edc83e1aa5ecfbedd71"
+
 # Discord bot board state (guild settings, permissions, builds/squads, pending approvals — see
 # docs/discord-bot.md). Created via `npx wrangler d1 create gw2-squaded-discord-bot`. Separate
 # from SHARES above: this is ordered/relational data with uniqueness constraints, a poor fit for
