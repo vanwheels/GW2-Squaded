@@ -809,6 +809,58 @@ input[type='password']:focus-visible {
   }
 }
 
+/* Phone tier (Leg 1, 2026-10-08) — below the 1279px tier's full reading-order stack, Traits/
+   Equipment/Skills+Stats instead take turns owning the full-width `traits`/`equipment`/`stats`
+   area one at a time, picked by the `tabs` row injected above them (`.build-editor-area-tabs`,
+   see `BuildScreenshotGrid.tsx`'s `mobileTab` state). The Profession/Weapon-type/Combat-state
+   toolbar cells stay in their own rows above the tabs, unaffected, since they apply to every
+   section. `.build-editor-area-tabs`/`.mobile-tab-hidden` are both no-ops at every wider tier
+   (base rules below) — the tab buttons stay hidden and every column stays visible there,
+   regardless of `mobileTab`. */
+@media (max-width: 480px) {
+  .build-editor-grid {
+    grid-template-areas:
+      'prof'
+      'weapon'
+      'combat'
+      'tabs'
+      'traits'
+      'equipment'
+      'stats'
+      'manifest';
+  }
+
+  .build-editor-area-tabs {
+    display: flex;
+  }
+
+  .mobile-tab-hidden {
+    display: none;
+  }
+}
+
+.build-editor-area-tabs {
+  grid-area: tabs;
+  display: none;
+  gap: 8px;
+}
+
+.build-editor-area-tabs button {
+  flex: 1;
+  padding: 8px 4px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.build-editor-area-tabs button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 /* Ultrawide-only cap on the Stats+Skills area's rendered width (2026-08-28 user feedback: on an
    ultrawide monitor, `1fr` handed the Stats+Skills column and the Combat-state toolbar cell
    however much width the window had, most of it dead space behind a bordered box). Gated behind

@@ -1,4 +1,4 @@
-import type { RefObject } from 'react'
+import { useState, type RefObject } from 'react'
 import type { Build, ProfessionId, TraitLineSlots } from '@shared/types'
 import type { CombatState } from '@shared/gear-calc/combat-state'
 import { ProfessionSpecPicker } from './ProfessionSpecPicker'
@@ -40,6 +40,19 @@ interface Props {
   onBuildChange?: (patch: Partial<Build>) => void
 }
 
+/** Phone-width-only section tabs (Leg 1, 2026-10-08) — at every wider tier `.build-editor-area-tabs`
+ *  is `display: none` and every column renders unconditionally, so this state has no visible
+ *  effect there. Only below the phone breakpoint does CSS switch the tab row to `display: flex`
+ *  and start honoring `.mobile-tab-hidden` on whichever two columns aren't selected. See
+ *  `.build-editor-grid`'s phone-tier doc comment in global.css. */
+const MOBILE_TABS = [
+  { key: 'traits', label: 'Traits' },
+  { key: 'equipment', label: 'Equipment' },
+  { key: 'stats', label: 'Skills & Stats' }
+] as const
+
+type MobileTabKey = (typeof MOBILE_TABS)[number]['key']
+
 /**
  * The "screenshot" portion of the build editor — Profession/Weapon-type/Combat-state toolbar row
  * plus the Traits/Equipment/Stats+Skills columns and the equipment text manifest below them —
@@ -64,6 +77,8 @@ export function BuildScreenshotGrid({
   onSkillsChange = () => {},
   onBuildChange = () => {}
 }: Props) {
+  const [mobileTab, setMobileTab] = useState<MobileTabKey>('traits')
+
   return (
     <div
       className="build-editor-grid"
@@ -84,7 +99,28 @@ export function BuildScreenshotGrid({
         <CombatStatePanel build={build} value={combatState} onChange={onCombatStateChange} />
       </div>
 
-      <div className="build-editor-column build-editor-area-traits">
+      <div className="build-editor-area-tabs" role="tablist">
+        {MOBILE_TABS.map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            role="tab"
+            aria-selected={mobileTab === tab.key}
+            className={mobileTab === tab.key ? 'active' : ''}
+            onClick={() => setMobileTab(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div
+        className={
+          mobileTab === 'traits'
+            ? 'build-editor-column build-editor-area-traits'
+            : 'build-editor-column build-editor-area-traits mobile-tab-hidden'
+        }
+      >
         <h3>Traits</h3>
         <TraitsEditor
           profession={build.profession}
@@ -93,7 +129,13 @@ export function BuildScreenshotGrid({
           onChange={onSpecializationsChange}
         />
       </div>
-      <div className="build-editor-column build-editor-area-equipment">
+      <div
+        className={
+          mobileTab === 'equipment'
+            ? 'build-editor-column build-editor-area-equipment'
+            : 'build-editor-column build-editor-area-equipment mobile-tab-hidden'
+        }
+      >
         <div className="column-header-row">
           <h3>Equipment</h3>
           <button type="button" onClick={onOpenOptimizer}>
@@ -108,7 +150,13 @@ export function BuildScreenshotGrid({
           onConsumablesChange={onConsumablesChange}
         />
       </div>
-      <div className="build-editor-column build-editor-column-stretch build-editor-area-stats">
+      <div
+        className={
+          mobileTab === 'stats'
+            ? 'build-editor-column build-editor-column-stretch build-editor-area-stats'
+            : 'build-editor-column build-editor-column-stretch build-editor-area-stats mobile-tab-hidden'
+        }
+      >
         <div className="stats-boons-row">
           <StatsPanel build={build} combatState={combatState} />
           <BoonConditionSummaryPanel build={build} />
