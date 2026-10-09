@@ -2,6 +2,12 @@
 
 Entries are added as work lands, most recent first.
 
+### [Crypto + Merge Port] — Leg 1
+2026-10-08. Ported ChoiceBuds' `worker/src/crypto.ts` and `merge.ts` into GW2-Squaded's
+`gw2-squaded-share` Worker unchanged, except `merge.ts`'s `updatedAt: number` → `Timestamp` (ISO
+8601 string). Added vitest to `worker/package.json`; 28 ported/adapted tests pass. Pure functions
+only, not yet wired into `index.ts` (Leg 2). See commit `a52bd9d`.
+
 ### Web App Port milestone — 2026-10-08
 Shipped. Post-mortem: `docs/postmortems/web-app-port.md`.
 

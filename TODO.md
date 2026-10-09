@@ -22,13 +22,6 @@ onto a `SyncPayload` scoped to GW2-Squaded's `builds`/`squadComps`, on the exist
 GW2-Squaded's `Timestamp` (`src/shared/types/common.ts`) is an ISO 8601 string, which still sorts
 correctly under `>`/`>=` — `merge.ts` ports with that type swapped, no logic change.
 
-### [Crypto + Merge Port] — Leg 1
-Port `crypto.ts` (password hashing, token gen/hash, constant-time compare, username/password
-validation) and `merge.ts` (`mergeCollection`/`mergeSingleton`) into `worker/src/`, unchanged except
-`merge.ts`'s `updatedAt: number` → `Timestamp` (string). Pure functions only, not wired into
-`index.ts` yet. Add vitest to `worker/package.json` (root app already uses vitest — match its
-version) and port `crypto.test.ts`/`merge.test.ts` adapted to the `Timestamp` swap.
-
 ### [Account Routes + KV Namespace] — Leg 2
 Define the `SyncPayload` shape (`builds`/`buildTombstones`/`squadComps`/`squadCompTombstones`,
 `savedAt`) in a new `worker/src/sync-types.ts`. Create the new KV namespace (`wrangler kv namespace
