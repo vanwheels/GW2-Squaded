@@ -2,6 +2,15 @@
 
 Entries are added as work lands, most recent first.
 
+### [Tombstone Tracking in Storage Layers] — Leg 1
+2026-10-08. Added `{id, deletedAt}` tombstone retention to both local storage layers — new
+`<table>_tombstones` SQLite tables (`schema.ts`/`json-blob-repository.ts`) and `<store>_tombstones`
+IndexedDB object stores (`indexeddb-adapter.ts`, `DB_VERSION` bumped to 2) — so `remove(id)` no
+longer just deletes the row. `Repository` gained `listTombstones()`/`clearTombstones(ids)`, wired
+through the Electron IPC bridge and preload to keep `StorageAdapter` satisfied by both backends.
+Shape matches the Worker's `SyncTombstone` exactly, so Leg 2's sync client needs no translation at
+the API boundary. See commit `7179180`.
+
 ### [Sync Routes + R2 Bucket] — Leg 3
 2026-10-08. Created the `gw2-squaded-sync` R2 bucket (`SYNC_R2` binding) for the per-account sync
 blob and added `PUT|GET /sync/:username` to `index.ts`, ported from ChoiceBuds'

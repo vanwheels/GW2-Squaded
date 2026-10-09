@@ -10,20 +10,48 @@ implemented and released. Everything below is post-1.0 polish and open curation 
 
 The Web App Port and Sync Backend Foundation milestones (full plan: `C:\Users\vanny\.claude\plans\
 goofy-stirring-nautilus.md`) both shipped 2026-10-08 — see MILESTONES.md / COMPLETED.md. They're
-the first two of a 4-milestone web initiative; Milestones 3-4 (below, unscheduled) still need their
-legs scoped out before either becomes the current milestone.
+the first two of a 4-milestone web initiative; Continuous Cross-Device Sync (Milestone 3, above) is
+now current. Milestone 4 (Polish/Parity, below, unscheduled) still needs its legs scoped out before
+it becomes current.
+
+## Current Milestone: Continuous Cross-Device Sync
+
+Full plan: `C:\Users\vanny\.claude\plans\goofy-stirring-nautilus.md`. Third of the 4-milestone web
+initiative — the Worker side (accounts, `PUT|GET /sync/:username`, `mergeCollection` with
+`SyncTombstone {id, deletedAt}`, last-write-wins by `updatedAt`) already shipped in Sync Backend
+Foundation and needs no changes here. This milestone is entirely client-side: both storage layers
+currently just delete a row with nothing surviving to tell a later sync pass "this was removed."
+
+### [Sync API Client + Bulk-Replace Store Methods] — Leg 2
+New client-side sync API module (signup/login/push-pull against the existing Worker routes,
+ChoiceBuds' `services/syncApi.ts` as the pattern to port). Add an `applySyncedState` bulk-replace
+method to `builds-store.tsx`/`squad-comps-store.tsx` (today they only expose
+create/update/remove/refresh) that takes the Worker's merged response and replaces local state +
+storage in one shot, including clearing resolved tombstones.
+Last touched: 2026-10-08. Re-checks: 0.
+
+### [useSync Hook + Trigger Wiring] — Leg 3
+Shared `useSync` hook in `src/renderer` (platform-agnostic, per ChoiceBuds' `hooks/useSync.ts`)
+firing on: mount/sign-in, the browser `online` event, a ~5min fallback poll, and ~5s
+debounce-on-mutation. Wire it into both `AppWeb` and the existing Electron `App` — same hook, no
+per-platform fork, since `src/renderer` is already shared between them.
+Last touched: 2026-10-08. Re-checks: 0.
+
+### [Sign-In UI in Settings] — Leg 4
+Sign-up/sign-in/sign-out section in `SettingsView.tsx`, mirroring ChoiceBuds' `SyncSection.tsx`.
+One implementation covers both desktop and web since Settings is already a shared view. Account
+stays optional — signed-out behavior (local-only storage) must be unchanged.
+Last touched: 2026-10-08. Re-checks: 0.
+
+### [Cross-Device Verification Pass] — Leg 5
+Manual verification across two real sessions (e.g. desktop + browser tab, same account): concurrent
+edit of the same record, reorder on one side, delete on one side, edit-after-delete resurrection.
+`Build.order`/`SquadComp.order` are already separate numeric fields from `updatedAt`, so list
+reordering itself needs no new sync-safety work — verify that holds rather than re-deriving it.
+Last touched: 2026-10-08. Re-checks: 0.
 
 ## Future Milestones (unscheduled)
 
-- **Continuous Cross-Device Sync** — add tombstone tracking for deletes to both
-  `src/main/storage/sqlite-storage.ts` (desktop) and the IndexedDB adapter (web) — neither retains
-  anything today once a record is removed. Add an `applySyncedState` bulk-replace method to
-  `builds-store.tsx`/`squad-comps-store.tsx`. Port ChoiceBuds' `useSync.ts` trigger logic
-  (mount/sign-in, `online` event, ~5min fallback poll, ~5s debounce-on-mutation) as a shared hook
-  in `src/renderer`, wired into both `AppWeb` and the existing Electron `App`. Sign-in UI in
-  Settings on both. Finishes with a real cross-device verification pass (concurrent edit, reorder,
-  delete, edit-after-delete resurrection) — note `Build.order`/`SquadComp.order` are already
-  separate from `updatedAt`, so list reordering itself needs no new sync-safety work.
 - **Polish/Parity** — mobile/responsive layout pass for the web build; "Copy screenshot" parity on
   web (desktop uses Electron offscreen capture; needs a browser-native equivalent or a documented
   gap); a `deploy-web` CI workflow (build + `wrangler deploy` on push to `main`), separate from the
