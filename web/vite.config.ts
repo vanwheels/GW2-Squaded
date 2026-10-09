@@ -8,10 +8,11 @@ import { GAME_DATA_FILE_NAMES } from '../src/shared/game-data/data-files'
  * Serves `data/game-data/*.json` (the same files Electron's `loadGameData()` reads via
  * `fs.readFileSync`, and the same whitelist `scripts/sync-web-preview-game-data.ts` copies from)
  * under `/game-data/*.json` — the path `load-game-data-web.ts`'s `webGameDataProvider` fetches.
- * Reads straight from the single committed source directory rather than staging a build-time
- * copy: unlike the Discord-bot web-preview deployable (which shares an `outDir` with its own
- * worker's static assets), this build has no fixed deploy target yet (see TODO.md's "Deploy to
- * gw2squaded.vannyproductions.com" leg), so there's nothing to stage a copy into.
+ * In dev, reads straight from the single committed source directory. In a production build, the
+ * `writeBundle` hook below copies the same files into `outDir/game-data` — which is now
+ * `worker/public/game-data`, the same destination `scripts/sync-web-preview-game-data.ts` stages
+ * for the Discord-bot preview build. Both copy the same whitelist from the same source, so running
+ * either build (or both) leaves identical content there.
  */
 function serveGameData(): Plugin {
   const sourceDir = resolve(__dirname, '../data/game-data')
@@ -57,7 +58,13 @@ export default defineConfig({
     }
   },
   build: {
-    outDir: resolve(__dirname, '../dist/web')
+    // Same `worker/public` the Discord-bot preview build (`vite.web-preview.config.ts`) writes
+    // to, served by the Worker's single `[assets]` config — one deployable, not a second
+    // Cloudflare product. `emptyOutDir: false` so this build doesn't wipe that other build's
+    // `build-preview.html`/`squad-preview.html`/assets (or vice versa); filenames don't collide
+    // (`index.html` here vs. those two) and hashed chunk names avoid collisions in `assets/`.
+    outDir: resolve(__dirname, '../worker/public'),
+    emptyOutDir: false
   },
   plugins: [react(), serveGameData()]
 })

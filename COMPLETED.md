@@ -2,6 +2,12 @@
 
 Entries are added as work lands, most recent first.
 
+### [Browser End-to-End Verification] — Leg 3
+2026-10-08. Manually exercised the full interactive app via `npm run dev:web`: build editor,
+trait/equipment pickers, stats/boon-condition panel, gear optimizer, squad builder drag-and-drop,
+tags/search/favorites. User confirmed everything works outside Electron with no fixes needed. No
+code changes, no commit.
+
 ### [Web Entry Point + AppWeb Shell] — Leg 2
 2026-10-08. New `web/` directory (sibling to `electron.vite.config.ts`) with its own
 `index.html`/`main.tsx`/`vite.config.ts`, aliasing `@shared`/`@renderer` the way

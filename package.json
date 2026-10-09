@@ -42,6 +42,7 @@
     "dev:web-preview": "npm run sync:web-preview-game-data && vite dev --config vite.web-preview.config.ts",
     "build:web": "vite build --config web/vite.config.ts",
     "dev:web": "vite dev --config web/vite.config.ts",
+    "deploy:web": "npm run build:web-preview && npm run build:web && npm --prefix worker run deploy",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",

@@ -17,22 +17,23 @@ local-only web app first, then a sync backend, then wiring continuous cross-devi
 clients, then polish. Future milestones are named below under Future Milestones (unscheduled)
 rather than detailed yet.
 
-### [Browser End-to-End Verification] — Leg 3
-Manually exercise the full interactive app (not just the existing read-only preview pages) in a
-real browser dev server (`npm run dev:web`): build editor, trait/equipment pickers,
-stats/boon-condition panel, gear optimizer, squad builder drag-and-drop, tags/search/favorites.
-Fix whatever doesn't work outside Electron — expect some, since this is the first time this
-renderer tree runs its interactive half outside Electron. `SharePanel`'s import/share calls hit the
-same `gw2-squaded-share` Worker as desktop and should already work unmodified; capture/update
-UI is intentionally inert (no-op providers from Leg 2) and out of scope here.
-Last touched: 2026-10-08. Re-checks: 0.
-
 ### [Deploy to gw2squaded.vannyproductions.com] — Leg 4
-Decide routing so the full-app build coexists with the existing `build-preview.html`/
-`squad-preview.html`/game-data JSON already served from `worker/public` by the same Worker's
-`[assets]` config (continuing the existing one-deployable pattern rather than adding a second
-Cloudflare product). Attach the custom domain to the Worker.
-Blocked: waiting on Leg 3.
+Routing decided and shipped: `web/vite.config.ts` now builds the full app straight into
+`worker/public` (`emptyOutDir: false`), the same directory the Discord-bot preview build and
+game-data already share — one Worker, one `[assets]` config, no second Cloudflare product.
+`html_handling` changed `"none"` → `"auto-trailing-slash"` so `/` resolves to the app's
+`index.html` (the Discord-bot pages are always requested by exact filename via Puppeteer, so this
+doesn't change their behavior beyond a transparent 307 that Puppeteer follows). `npm run
+deploy:web` builds both bundles and runs `wrangler deploy`; already run once successfully — the
+live Worker now serves the full app at its workers.dev URL.
+Blocked: attaching `gw2squaded.vannyproductions.com` as a Custom Domain fails — Cloudflare has no
+zone for `vannyproductions.com` (its nameservers are IONOS's `ui-dns.*`, not Cloudflare's), so
+there's nothing to attach the domain to. Needs a decision from Vanny: move the domain's DNS to
+Cloudflare (affects whatever else is hosted on it), or use some non-Cloudflare-zone path (e.g. a
+CNAME once Cloudflare for SaaS / Custom Hostnames is set up) instead. The `[[routes]]` block for
+this is commented out in `worker/wrangler.toml` in the meantime — leaving a broken `custom_domain`
+route active also silently disabled the Worker's `workers.dev` route on deploy (see incident note
+below), so it's not safe to leave half-configured.
 Last touched: 2026-10-08. Re-checks: 0.
 
 ## Future Milestones (unscheduled)
