@@ -857,8 +857,15 @@ input[type='password']:focus-visible {
     display: flex;
   }
 
+  /* `!important` (2026-10-09 follow-up): `.build-editor-area-stats` also carries
+     `.build-editor-column-stretch`, whose own `display: flex` is declared later in this file —
+     equal specificity (both single classes) means source order alone decided the winner, and
+     without `!important` here that unrelated later rule kept the Stats+Skills section visible
+     under every tab regardless of `mobileTab`. This class's only job is "force-hidden no matter
+     what else targets this element," the textbook case for `!important`, so later additions to
+     `.build-editor-area-traits`/`-equipment`/`-stats` can't silently reopen the same bug. */
   .mobile-tab-hidden {
-    display: none;
+    display: none !important;
   }
 }
 
@@ -1361,9 +1368,14 @@ input[type='password'] {
 }
 
 /* Copy/paste (2026-07-30): pick a value in one of these 4 template slots, then drag it onto any
-   matching gear slot below, or click "Apply to All" to fill every eligible slot at once. */
+   matching gear slot below, or click "Apply to All" to fill every eligible slot at once.
+   `flex-wrap: wrap` (2026-10-09 phone-width follow-up): same `min-width: auto` flex-shrink floor
+   as `.view-header` — the 4 `.gear-copy-paste-item`s (icon + label + 1-2 buttons each) can't
+   shrink to fit a phone's width without it, and without wrapping that overflow was running the
+   Infusion slot off the right edge of the screen instead of onto its own line. */
 .gear-copy-paste-bar {
   display: flex;
+  flex-wrap: wrap;
   gap: 16px;
   padding: 10px 12px;
   border: 1px dashed var(--border);
@@ -1512,6 +1524,16 @@ input[type='password'] {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
+}
+
+/* Phone tier (2026-10-09 follow-up): 4 even `minmax(0, 1fr)` columns never overflow, but at
+   phone width they squeeze each column (Armor/Accessories/Weapons/Other, often multi-word gear
+   names) down to ~90px — readable-in-theory, cramped-in-practice. 2 columns instead, same
+   `.settings-grid` collapse pattern used elsewhere in this file. */
+@media (max-width: 480px) {
+  .equipment-text-manifest {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .equip-manifest-col {
