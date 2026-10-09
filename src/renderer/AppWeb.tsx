@@ -5,6 +5,7 @@ import { SquadsView } from '@renderer/views/SquadsView'
 import { SettingsView } from '@renderer/views/SettingsView'
 import { BuildsStoreProvider } from '@renderer/state/builds-store'
 import { SquadCompsStoreProvider } from '@renderer/state/squad-comps-store'
+import { SyncStoreProvider } from '@renderer/state/sync-store'
 import { GameDataStoreProvider } from '@renderer/state/game-data-store'
 import { PickerRegistryProvider } from '@renderer/state/picker-registry'
 import { AppSettingsProvider } from '@renderer/state/app-settings-store'
@@ -43,21 +44,23 @@ export function AppWeb() {
               <GameDataStoreProvider provider={webGameDataProvider}>
                 <BuildsStoreProvider>
                   <SquadCompsStoreProvider>
-                    <NavBar active={activeView} onChange={setActiveView} />
-                    <main className="app-content">
-                      <PickerRegistryProvider>
-                        <div style={{ display: activeView === 'builds' ? 'contents' : 'none' }}>
-                          <BuildsView
-                            requestedEditBuildId={requestedEditBuildId}
-                            onRequestedEditBuildHandled={() => setRequestedEditBuildId(null)}
-                          />
-                        </div>
-                        <div style={{ display: activeView === 'squads' ? 'contents' : 'none' }}>
-                          <SquadsView onEditBuild={editBuildFromSquads} />
-                        </div>
-                        {activeView === 'settings' && <SettingsView />}
-                      </PickerRegistryProvider>
-                    </main>
+                    <SyncStoreProvider>
+                      <NavBar active={activeView} onChange={setActiveView} />
+                      <main className="app-content">
+                        <PickerRegistryProvider>
+                          <div style={{ display: activeView === 'builds' ? 'contents' : 'none' }}>
+                            <BuildsView
+                              requestedEditBuildId={requestedEditBuildId}
+                              onRequestedEditBuildHandled={() => setRequestedEditBuildId(null)}
+                            />
+                          </div>
+                          <div style={{ display: activeView === 'squads' ? 'contents' : 'none' }}>
+                            <SquadsView onEditBuild={editBuildFromSquads} />
+                          </div>
+                          {activeView === 'settings' && <SettingsView />}
+                        </PickerRegistryProvider>
+                      </main>
+                    </SyncStoreProvider>
                   </SquadCompsStoreProvider>
                 </BuildsStoreProvider>
               </GameDataStoreProvider>

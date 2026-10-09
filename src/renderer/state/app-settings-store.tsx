@@ -30,13 +30,26 @@ interface AppSettings {
    *  `showRacialSkills` rather than reset per session: it's the same kind of "how much of this build's
    *  real output do I want to see" display preference. */
   partyWideOnly: boolean
+  /** Cross-device sync account, if any (see `useSync.ts`). `null` means local-only storage — the
+   *  default, and the only state before Sign-In UI (TODO.md's Sign-In UI leg) exists at all. Plain
+   *  `localStorage` like the rest of `AppSettings`: this is per-device credential state, not data
+   *  that itself needs to round-trip through sync. */
+  syncUsername: string | null
+  /** Opaque bearer token issued at signup/login (`services/syncApi.ts`) — never the password. */
+  syncToken: string | null
+  /** The synced `SyncPayload.savedAt` ISO timestamp from the last successful `syncNow()`, or `null`
+   *  before the first sync. Display-only; sync itself is driven by `useSync.ts`'s own triggers. */
+  lastSyncedAt: string | null
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
   showUnderwater: false,
   showRacialSkills: false,
   themeMode: 'dark',
-  partyWideOnly: false
+  partyWideOnly: false,
+  syncUsername: null,
+  syncToken: null,
+  lastSyncedAt: null
 }
 
 const STORAGE_KEY = 'gw2squaded.appSettings'
@@ -74,6 +87,9 @@ interface AppSettingsValue extends AppSettings {
   setShowRacialSkills: (value: boolean) => void
   setThemeMode: (value: ThemeMode) => void
   setPartyWideOnly: (value: boolean) => void
+  /** Batched like ChoiceBuds' `updateSettings` since `useSync.ts` always sets these three fields
+   *  together (signup/login/logout/syncNow) — never one at a time. */
+  setSyncCredentials: (patch: Pick<AppSettings, 'syncUsername' | 'syncToken' | 'lastSyncedAt'>) => void
 }
 
 const AppSettingsContext = createContext<AppSettingsValue | null>(null)
@@ -108,7 +124,8 @@ export function AppSettingsProvider({ children }: { children: ReactNode }) {
     setShowUnderwater: (showUnderwater) => setSettings((current) => ({ ...current, showUnderwater })),
     setShowRacialSkills: (showRacialSkills) => setSettings((current) => ({ ...current, showRacialSkills })),
     setThemeMode: (themeMode) => setSettings((current) => ({ ...current, themeMode })),
-    setPartyWideOnly: (partyWideOnly) => setSettings((current) => ({ ...current, partyWideOnly }))
+    setPartyWideOnly: (partyWideOnly) => setSettings((current) => ({ ...current, partyWideOnly })),
+    setSyncCredentials: (patch) => setSettings((current) => ({ ...current, ...patch }))
   }
 
   return <AppSettingsContext.Provider value={value}>{children}</AppSettingsContext.Provider>

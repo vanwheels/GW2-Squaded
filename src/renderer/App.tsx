@@ -6,6 +6,7 @@ import { SettingsView } from '@renderer/views/SettingsView'
 import { CaptureHost } from '@renderer/components/capture/CaptureHost'
 import { BuildsStoreProvider } from '@renderer/state/builds-store'
 import { SquadCompsStoreProvider } from '@renderer/state/squad-comps-store'
+import { SyncStoreProvider } from '@renderer/state/sync-store'
 import { GameDataStoreProvider } from '@renderer/state/game-data-store'
 import { PickerRegistryProvider } from '@renderer/state/picker-registry'
 import { AppSettingsProvider } from '@renderer/state/app-settings-store'
@@ -59,7 +60,11 @@ export function App() {
                         <CaptureHost kind={captureParams.kind} token={captureParams.token} />
                       </PickerRegistryProvider>
                     ) : (
-                      <>
+                      // Excludes the capture branch above on purpose: that's an ephemeral offscreen
+                      // screenshot render, not a real session, and shouldn't trigger a sync cycle
+                      // (network traffic, applySyncedState mid-render) of its own — see
+                      // sync-store.tsx's doc comment.
+                      <SyncStoreProvider>
                         <NavBar active={activeView} onChange={setActiveView} />
                         <main className="app-content">
                           <PickerRegistryProvider>
@@ -78,7 +83,7 @@ export function App() {
                             {activeView === 'settings' && <SettingsView />}
                           </PickerRegistryProvider>
                         </main>
-                      </>
+                      </SyncStoreProvider>
                     )}
                   </SquadCompsStoreProvider>
                 </BuildsStoreProvider>
