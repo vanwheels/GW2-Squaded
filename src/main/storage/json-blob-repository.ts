@@ -70,4 +70,17 @@ export class JsonBlobRepository<T extends { id: string }> implements Repository<
     const placeholders = ids.map(() => '?').join(', ')
     this.db.prepare(`DELETE FROM ${this.tombstoneTable} WHERE id IN (${placeholders})`).run(...ids)
   }
+
+  async replaceAll(records: T[], tombstones: SyncTombstone[]): Promise<void> {
+    const insertRecord = this.db.prepare(`INSERT INTO ${this.table} (id, data, updated_at) VALUES (?, ?, ?)`)
+    const insertTombstone = this.db.prepare(`INSERT INTO ${this.tombstoneTable} (id, deleted_at) VALUES (?, ?)`)
+
+    const run = this.db.transaction((recs: T[], tombs: SyncTombstone[]) => {
+      this.db.prepare(`DELETE FROM ${this.table}`).run()
+      this.db.prepare(`DELETE FROM ${this.tombstoneTable}`).run()
+      for (const record of recs) insertRecord.run(record.id, JSON.stringify(record), new Date().toISOString())
+      for (const tombstone of tombs) insertTombstone.run(tombstone.id, tombstone.deletedAt)
+    })
+    run(records, tombstones)
+  }
 }

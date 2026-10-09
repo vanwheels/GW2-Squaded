@@ -108,6 +108,18 @@ class IndexedDbRepository<T extends { id: string; updatedAt: string }> implement
     const store = await this.openStore(this.tombstoneStoreName, 'readwrite')
     await Promise.all(ids.map((id) => promisifyRequest(store.delete(id))))
   }
+
+  async replaceAll(records: T[], tombstones: SyncTombstone[]): Promise<void> {
+    const db = await this.dbPromise
+    const tx = db.transaction([this.storeName, this.tombstoneStoreName], 'readwrite')
+    const recordStore = tx.objectStore(this.storeName)
+    const tombstoneStore = tx.objectStore(this.tombstoneStoreName)
+    recordStore.clear()
+    tombstoneStore.clear()
+    for (const record of records) recordStore.put(record)
+    for (const tombstone of tombstones) tombstoneStore.put(tombstone)
+    await promisifyTransaction(tx)
+  }
 }
 
 /**

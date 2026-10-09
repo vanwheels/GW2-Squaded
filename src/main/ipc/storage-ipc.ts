@@ -1,6 +1,6 @@
 import { ipcMain } from 'electron'
 import type { Build, SquadComp } from '@shared/types'
-import type { StorageAdapter } from '@shared/storage/storage-interface'
+import type { StorageAdapter, SyncTombstone } from '@shared/storage/storage-interface'
 import { StorageIpcChannel } from '@shared/storage/ipc-channels'
 
 export function registerStorageIpc(storage: StorageAdapter): void {
@@ -12,6 +12,9 @@ export function registerStorageIpc(storage: StorageAdapter): void {
   ipcMain.handle(StorageIpcChannel.buildsListTombstones, () => storage.builds.listTombstones())
   ipcMain.handle(StorageIpcChannel.buildsClearTombstones, (_event, ids: string[]) =>
     storage.builds.clearTombstones(ids)
+  )
+  ipcMain.handle(StorageIpcChannel.buildsReplaceAll, (_event, records: Build[], tombstones: SyncTombstone[]) =>
+    storage.builds.replaceAll(records, tombstones)
   )
 
   ipcMain.handle(StorageIpcChannel.squadCompsList, () => storage.squadComps.list())
@@ -26,5 +29,9 @@ export function registerStorageIpc(storage: StorageAdapter): void {
   ipcMain.handle(StorageIpcChannel.squadCompsListTombstones, () => storage.squadComps.listTombstones())
   ipcMain.handle(StorageIpcChannel.squadCompsClearTombstones, (_event, ids: string[]) =>
     storage.squadComps.clearTombstones(ids)
+  )
+  ipcMain.handle(
+    StorageIpcChannel.squadCompsReplaceAll,
+    (_event, records: SquadComp[], tombstones: SyncTombstone[]) => storage.squadComps.replaceAll(records, tombstones)
   )
 }

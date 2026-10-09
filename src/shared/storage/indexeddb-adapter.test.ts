@@ -92,4 +92,20 @@ describe('createIndexedDbStorage', () => {
     await storage.builds.clearTombstones([])
     expect(await storage.builds.listTombstones()).toHaveLength(1)
   })
+
+  it('replaceAll swaps the entire collection and tombstone set', async () => {
+    const storage = createIndexedDbStorage()
+
+    await storage.builds.create(record('a', '2026-01-01T00:00:00.000Z') as never)
+    await storage.builds.create(record('b', '2026-01-02T00:00:00.000Z') as never)
+    await storage.builds.remove('b')
+
+    await storage.builds.replaceAll(
+      [record('a', '2026-01-03T00:00:00.000Z'), record('c', '2026-01-04T00:00:00.000Z')] as never,
+      [{ id: 'd', deletedAt: '2026-01-01T00:00:00.000Z' }]
+    )
+
+    expect((await storage.builds.list()).map((r) => r.id)).toEqual(['c', 'a'])
+    expect(await storage.builds.listTombstones()).toEqual([{ id: 'd', deletedAt: '2026-01-01T00:00:00.000Z' }])
+  })
 })

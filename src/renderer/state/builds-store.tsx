@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Build } from '@shared/types'
+import type { SyncTombstone } from '@shared/storage/storage-interface'
 import { WEAVER_SPEC_ID } from '@shared/weapon-calc/weapon-skills'
 
 interface BuildsStore {
@@ -9,6 +10,8 @@ interface BuildsStore {
   createBuild: (build: Build) => Promise<void>
   updateBuild: (build: Build) => Promise<void>
   removeBuild: (id: string) => Promise<void>
+  /** Replaces local builds + their tombstones with a sync pull's authoritative merged result. */
+  applySyncedState: (builds: Build[], tombstones: SyncTombstone[]) => Promise<void>
 }
 
 const BuildsStoreContext = createContext<BuildsStore | null>(null)
@@ -106,8 +109,18 @@ export function BuildsStoreProvider({ children }: { children: ReactNode }) {
     [refresh]
   )
 
+  const applySyncedState = useCallback(
+    async (syncedBuilds: Build[], tombstones: SyncTombstone[]) => {
+      await window.gw2Storage.builds.replaceAll(syncedBuilds, tombstones)
+      await refresh()
+    },
+    [refresh]
+  )
+
   return (
-    <BuildsStoreContext.Provider value={{ builds, loading, refresh, createBuild, updateBuild, removeBuild }}>
+    <BuildsStoreContext.Provider
+      value={{ builds, loading, refresh, createBuild, updateBuild, removeBuild, applySyncedState }}
+    >
       {children}
     </BuildsStoreContext.Provider>
   )

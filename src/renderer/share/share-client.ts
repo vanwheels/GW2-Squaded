@@ -12,7 +12,9 @@ const DEFAULT_SHARE_API_BASE_URL = 'https://gw2-squaded-share.vanwheelstheman.wo
  * round-trip through main) since this is a plain public HTTPS API, not a local-resource access —
  * but note `index.html`'s CSP `connect-src` must also allow this origin.
  */
-function apiBaseUrl(): string | null {
+/** Exported for `../services/syncApi.ts` — the sync routes (`/signup`, `/login`, `/sync/:username`)
+ *  live on this same Worker deployment, not a separate one, so there's one base URL to configure. */
+export function apiBaseUrl(): string | null {
   const url = (import.meta.env.VITE_SHARE_API_BASE_URL as string | undefined) || DEFAULT_SHARE_API_BASE_URL
   return url && url.length > 0 ? url.replace(/\/$/, '') : null
 }

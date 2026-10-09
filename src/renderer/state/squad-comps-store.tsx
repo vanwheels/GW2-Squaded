@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { Party, SquadComp, SquadSlot } from '@shared/types'
+import type { SyncTombstone } from '@shared/storage/storage-interface'
 
 interface SquadCompsStore {
   squadComps: SquadComp[]
@@ -8,6 +9,8 @@ interface SquadCompsStore {
   createSquadComp: (squadComp: SquadComp) => Promise<void>
   updateSquadComp: (squadComp: SquadComp) => Promise<void>
   removeSquadComp: (id: string) => Promise<void>
+  /** Replaces local squad comps + their tombstones with a sync pull's authoritative merged result. */
+  applySyncedState: (squadComps: SquadComp[], tombstones: SyncTombstone[]) => Promise<void>
 }
 
 const SquadCompsStoreContext = createContext<SquadCompsStore | null>(null)
@@ -88,9 +91,17 @@ export function SquadCompsStoreProvider({ children }: { children: ReactNode }) {
     [refresh]
   )
 
+  const applySyncedState = useCallback(
+    async (syncedSquadComps: SquadComp[], tombstones: SyncTombstone[]) => {
+      await window.gw2Storage.squadComps.replaceAll(syncedSquadComps, tombstones)
+      await refresh()
+    },
+    [refresh]
+  )
+
   return (
     <SquadCompsStoreContext.Provider
-      value={{ squadComps, loading, refresh, createSquadComp, updateSquadComp, removeSquadComp }}
+      value={{ squadComps, loading, refresh, createSquadComp, updateSquadComp, removeSquadComp, applySyncedState }}
     >
       {children}
     </SquadCompsStoreContext.Provider>

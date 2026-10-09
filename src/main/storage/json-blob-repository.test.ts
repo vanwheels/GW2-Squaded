@@ -61,4 +61,24 @@ describe('JsonBlobRepository', () => {
     await repo.clearTombstones([])
     expect(await repo.listTombstones()).toHaveLength(1)
   })
+
+  it('replaceAll swaps the entire collection and tombstone set', async () => {
+    await repo.create({ id: 'a', name: 'stale' })
+    await repo.create({ id: 'b', name: 'also stale' })
+    await repo.remove('b')
+
+    await repo.replaceAll(
+      [
+        { id: 'a', name: 'synced' },
+        { id: 'c', name: 'new from remote' }
+      ],
+      [{ id: 'd', deletedAt: '2026-01-01T00:00:00.000Z' }]
+    )
+
+    expect((await repo.list()).sort((x, y) => x.id.localeCompare(y.id))).toEqual([
+      { id: 'a', name: 'synced' },
+      { id: 'c', name: 'new from remote' }
+    ])
+    expect(await repo.listTombstones()).toEqual([{ id: 'd', deletedAt: '2026-01-01T00:00:00.000Z' }])
+  })
 })

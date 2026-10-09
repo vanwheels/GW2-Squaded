@@ -28,6 +28,13 @@ export interface Repository<T extends { id: string }> {
   listTombstones(): Promise<SyncTombstone[]>
   /** Drops tombstones once a sync pass has reconciled them with the remote side. */
   clearTombstones(ids: string[]): Promise<void>
+  /**
+   * Replaces the entire collection and its tombstone set with the given authoritative state in
+   * one shot. For applying a sync pull: the Worker's merged PUT response is already the full
+   * post-merge set (not a delta), so there's no per-record create/update/remove to reconcile —
+   * just swap local state to match.
+   */
+  replaceAll(records: T[], tombstones: SyncTombstone[]): Promise<void>
 }
 
 /**

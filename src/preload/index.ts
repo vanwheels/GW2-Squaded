@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type { Build, SquadComp } from '@shared/types'
-import type { StorageAdapter } from '@shared/storage/storage-interface'
+import type { StorageAdapter, SyncTombstone } from '@shared/storage/storage-interface'
 import { StorageIpcChannel } from '@shared/storage/ipc-channels'
 import type { GameDataProvider } from '@shared/game-data/game-data-provider'
 import type { DataUpdateProvider, DataUpdateStatus } from '@shared/game-data/data-update-provider'
@@ -23,7 +23,9 @@ const storage: StorageAdapter = {
     update: (build: Build) => ipcRenderer.invoke(StorageIpcChannel.buildsUpdate, build),
     remove: (id: string) => ipcRenderer.invoke(StorageIpcChannel.buildsRemove, id),
     listTombstones: () => ipcRenderer.invoke(StorageIpcChannel.buildsListTombstones),
-    clearTombstones: (ids: string[]) => ipcRenderer.invoke(StorageIpcChannel.buildsClearTombstones, ids)
+    clearTombstones: (ids: string[]) => ipcRenderer.invoke(StorageIpcChannel.buildsClearTombstones, ids),
+    replaceAll: (records: Build[], tombstones: SyncTombstone[]) =>
+      ipcRenderer.invoke(StorageIpcChannel.buildsReplaceAll, records, tombstones)
   },
   squadComps: {
     list: () => ipcRenderer.invoke(StorageIpcChannel.squadCompsList),
@@ -32,7 +34,9 @@ const storage: StorageAdapter = {
     update: (squadComp: SquadComp) => ipcRenderer.invoke(StorageIpcChannel.squadCompsUpdate, squadComp),
     remove: (id: string) => ipcRenderer.invoke(StorageIpcChannel.squadCompsRemove, id),
     listTombstones: () => ipcRenderer.invoke(StorageIpcChannel.squadCompsListTombstones),
-    clearTombstones: (ids: string[]) => ipcRenderer.invoke(StorageIpcChannel.squadCompsClearTombstones, ids)
+    clearTombstones: (ids: string[]) => ipcRenderer.invoke(StorageIpcChannel.squadCompsClearTombstones, ids),
+    replaceAll: (records: SquadComp[], tombstones: SyncTombstone[]) =>
+      ipcRenderer.invoke(StorageIpcChannel.squadCompsReplaceAll, records, tombstones)
   }
 }
 
