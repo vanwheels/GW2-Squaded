@@ -22,14 +22,6 @@ initiative — the Worker side (accounts, `PUT|GET /sync/:username`, `mergeColle
 Foundation and needs no changes here. This milestone is entirely client-side: both storage layers
 currently just delete a row with nothing surviving to tell a later sync pass "this was removed."
 
-### [Sync API Client + Bulk-Replace Store Methods] — Leg 2
-New client-side sync API module (signup/login/push-pull against the existing Worker routes,
-ChoiceBuds' `services/syncApi.ts` as the pattern to port). Add an `applySyncedState` bulk-replace
-method to `builds-store.tsx`/`squad-comps-store.tsx` (today they only expose
-create/update/remove/refresh) that takes the Worker's merged response and replaces local state +
-storage in one shot, including clearing resolved tombstones.
-Last touched: 2026-10-08. Re-checks: 0.
-
 ### [useSync Hook + Trigger Wiring] — Leg 3
 Shared `useSync` hook in `src/renderer` (platform-agnostic, per ChoiceBuds' `hooks/useSync.ts`)
 firing on: mount/sign-in, the browser `online` event, a ~5min fallback poll, and ~5s

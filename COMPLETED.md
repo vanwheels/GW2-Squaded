@@ -2,6 +2,14 @@
 
 Entries are added as work lands, most recent first.
 
+### [Sync API Client + Bulk-Replace Store Methods] — Leg 2
+2026-10-08. Added `src/renderer/services/syncApi.ts` (signup/login/push/pull, ported from
+ChoiceBuds' client, reusing `share-client.ts`'s `apiBaseUrl()` since it's the same Worker
+deployment) and a `replaceAll(records, tombstones)` method on `Repository<T>`, implemented in
+both storage backends and wired through Electron's IPC bridge. `builds-store.tsx`/
+`squad-comps-store.tsx` each gained `applySyncedState`, the one-shot swap Leg 3's `useSync` hook
+will call with the Worker's merged response. See commit `bf8d5fb`.
+
 ### [Tombstone Tracking in Storage Layers] — Leg 1
 2026-10-08. Added `{id, deletedAt}` tombstone retention to both local storage layers — new
 `<table>_tombstones` SQLite tables (`schema.ts`/`json-blob-repository.ts`) and `<store>_tombstones`
