@@ -21,14 +21,18 @@ const storage: StorageAdapter = {
     get: (id: string) => ipcRenderer.invoke(StorageIpcChannel.buildsGet, id),
     create: (build: Build) => ipcRenderer.invoke(StorageIpcChannel.buildsCreate, build),
     update: (build: Build) => ipcRenderer.invoke(StorageIpcChannel.buildsUpdate, build),
-    remove: (id: string) => ipcRenderer.invoke(StorageIpcChannel.buildsRemove, id)
+    remove: (id: string) => ipcRenderer.invoke(StorageIpcChannel.buildsRemove, id),
+    listTombstones: () => ipcRenderer.invoke(StorageIpcChannel.buildsListTombstones),
+    clearTombstones: (ids: string[]) => ipcRenderer.invoke(StorageIpcChannel.buildsClearTombstones, ids)
   },
   squadComps: {
     list: () => ipcRenderer.invoke(StorageIpcChannel.squadCompsList),
     get: (id: string) => ipcRenderer.invoke(StorageIpcChannel.squadCompsGet, id),
     create: (squadComp: SquadComp) => ipcRenderer.invoke(StorageIpcChannel.squadCompsCreate, squadComp),
     update: (squadComp: SquadComp) => ipcRenderer.invoke(StorageIpcChannel.squadCompsUpdate, squadComp),
-    remove: (id: string) => ipcRenderer.invoke(StorageIpcChannel.squadCompsRemove, id)
+    remove: (id: string) => ipcRenderer.invoke(StorageIpcChannel.squadCompsRemove, id),
+    listTombstones: () => ipcRenderer.invoke(StorageIpcChannel.squadCompsListTombstones),
+    clearTombstones: (ids: string[]) => ipcRenderer.invoke(StorageIpcChannel.squadCompsClearTombstones, ids)
   }
 }
 

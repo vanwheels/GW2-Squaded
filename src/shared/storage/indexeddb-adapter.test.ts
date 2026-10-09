@@ -7,15 +7,16 @@ import { createIndexedDbStorage } from './indexeddb-adapter'
 // own. Clearing (not deleting) the database avoids blocking on the previous test's still-open
 // connection, since `createIndexedDbStorage` never closes the one it opens — same as the real app,
 // whose connection lives for the whole session.
+const ALL_STORE_NAMES = ['builds', 'squad_comps', 'builds_tombstones', 'squad_comps_tombstones']
+
 afterEach(async () => {
   const request = indexedDB.open('gw2-squaded')
   const db = await new Promise<IDBDatabase>((resolve, reject) => {
     request.onsuccess = () => resolve(request.result)
     request.onerror = () => reject(request.error)
   })
-  const tx = db.transaction(['builds', 'squad_comps'], 'readwrite')
-  tx.objectStore('builds').clear()
-  tx.objectStore('squad_comps').clear()
+  const tx = db.transaction(ALL_STORE_NAMES, 'readwrite')
+  for (const storeName of ALL_STORE_NAMES) tx.objectStore(storeName).clear()
   await new Promise<void>((resolve, reject) => {
     tx.oncomplete = () => resolve()
     tx.onerror = () => reject(tx.error)
@@ -54,5 +55,41 @@ describe('createIndexedDbStorage', () => {
 
     expect(await storage.builds.get('shared-id')).toEqual(record('shared-id', '2026-01-01T00:00:00.000Z'))
     expect(await storage.squadComps.get('shared-id')).toEqual(record('shared-id', '2026-01-02T00:00:00.000Z'))
+  })
+
+  it('records a tombstone on remove and clears it later', async () => {
+    const storage = createIndexedDbStorage()
+
+    await storage.builds.create(record('a', '2026-01-01T00:00:00.000Z') as never)
+    await storage.builds.remove('a')
+
+    const tombstones = await storage.builds.listTombstones()
+    expect(tombstones).toHaveLength(1)
+    expect(tombstones[0].id).toBe('a')
+    expect(typeof tombstones[0].deletedAt).toBe('string')
+
+    await storage.builds.clearTombstones(['a'])
+    expect(await storage.builds.listTombstones()).toEqual([])
+  })
+
+  it('keeps builds and squadComps tombstones in separate stores', async () => {
+    const storage = createIndexedDbStorage()
+
+    await storage.builds.create(record('shared-id', '2026-01-01T00:00:00.000Z') as never)
+    await storage.squadComps.create(record('shared-id', '2026-01-02T00:00:00.000Z') as never)
+    await storage.builds.remove('shared-id')
+
+    expect(await storage.builds.listTombstones()).toHaveLength(1)
+    expect(await storage.squadComps.listTombstones()).toEqual([])
+  })
+
+  it('clearTombstones is a no-op for an empty id list', async () => {
+    const storage = createIndexedDbStorage()
+
+    await storage.builds.create(record('a', '2026-01-01T00:00:00.000Z') as never)
+    await storage.builds.remove('a')
+
+    await storage.builds.clearTombstones([])
+    expect(await storage.builds.listTombstones()).toHaveLength(1)
   })
 })

@@ -16,5 +16,15 @@ export function applySchema(db: Database.Database): void {
       data TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS builds_tombstones (
+      id TEXT PRIMARY KEY,
+      deleted_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS squad_comps_tombstones (
+      id TEXT PRIMARY KEY,
+      deleted_at TEXT NOT NULL
+    );
   `)
 }
