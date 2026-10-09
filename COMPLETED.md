@@ -2,6 +2,13 @@
 
 Entries are added as work lands, most recent first.
 
+### [Account Routes + KV Namespace] — Leg 2
+2026-10-08. Wired the already-existing `SYNC_KV` namespace into `wrangler.toml`/`Env`, defined
+`SyncPayload` (`builds`/`buildTombstones`/`squadComps`/`squadCompTombstones`, `savedAt`) in a new
+`worker/src/sync-types.ts`, and added `POST /signup`/`POST /login` to `index.ts`, ported from
+ChoiceBuds' `handleSignup`/`handleLogin` — same key scheme, same limits. Dropped ChoiceBuds'
+optional `email` signup field (not needed here). See commit `72d7ac2`.
+
 ### [Crypto + Merge Port] — Leg 1
 2026-10-08. Ported ChoiceBuds' `worker/src/crypto.ts` and `merge.ts` into GW2-Squaded's
 `gw2-squaded-share` Worker unchanged, except `merge.ts`'s `updatedAt: number` → `Timestamp` (ISO

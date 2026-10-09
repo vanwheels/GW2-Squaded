@@ -22,14 +22,6 @@ onto a `SyncPayload` scoped to GW2-Squaded's `builds`/`squadComps`, on the exist
 GW2-Squaded's `Timestamp` (`src/shared/types/common.ts`) is an ISO 8601 string, which still sorts
 correctly under `>`/`>=` — `merge.ts` ports with that type swapped, no logic change.
 
-### [Account Routes + KV Namespace] — Leg 2
-Define the `SyncPayload` shape (`builds`/`buildTombstones`/`squadComps`/`squadCompTombstones`,
-`savedAt`) in a new `worker/src/sync-types.ts`. Create the new KV namespace (`wrangler kv namespace
-create SYNC_KV`) for account/token/lockout state, add the binding to `wrangler.toml` and `Env`
-(`worker/src/env.ts`). Add `POST /signup` and `POST /login` to `index.ts`, ported from ChoiceBuds'
-`handleSignup`/`handleLogin` (account storage, token issuance, login-fail lockout, signup
-throttling) — same key scheme, same limits.
-
 ### [Sync Routes + R2 Bucket] — Leg 3
 Create the new R2 bucket (`wrangler r2 bucket create`) for the per-account sync blob, add the
 binding to `wrangler.toml`/`Env`. Add `PUT|GET /sync/:username` to `index.ts`, ported from
