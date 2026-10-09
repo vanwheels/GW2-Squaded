@@ -8,33 +8,10 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Current Milestone: Web App Port
-
-Full web transition to `gw2squaded.vannyproductions.com`, mirroring ChoiceBuds' web port
-(`D:/Projects/ChoiceBuds/docs/web-transition-playbook.md`). This milestone is the first of a
-4-milestone initiative (full plan: `C:\Users\vanny\.claude\plans\goofy-stirring-nautilus.md`) —
-local-only web app first, then a sync backend, then wiring continuous cross-device sync into both
-clients, then polish. Future milestones are named below under Future Milestones (unscheduled)
-rather than detailed yet.
-
-### [Deploy to gw2squaded.vannyproductions.com] — Leg 4
-First attempt built the full app into the Worker's `worker/public` and tried a Workers Custom
-Domain, but that needs `vannyproductions.com`'s whole DNS zone on Cloudflare — it's on IONOS
-nameservers today (hosting that domain's email among other things), so moving it was too risky
-just for this subdomain. Reverted that approach and switched to GitHub Pages instead, mirroring
-ChoiceBuds' `choicebuds.vannyproductions.com` (same zone, same constraint, same answer — see its
-`docs/postmortems/web-version-teams-box-mvp.md`): `web/vite.config.ts` back to a standalone
-`dist/web` output, new `.github/workflows/deploy-web.yml` (build + `actions/deploy-pages` on every
-push to main), GitHub Pages enabled on the repo with `build_type: workflow` and custom domain
-`gw2squaded.vannyproductions.com` set via `gh api`. `worker/wrangler.toml` reverted to its original
-shape — the Worker goes back to only serving the share API, Discord bot, and the Discord-bot
-preview pages, unrelated to this domain.
-Blocked: needs one CNAME record added at the IONOS DNS panel for `gw2squaded` → `vanwheels.github.io`
-(same target ChoiceBuds' `choicebuds` CNAME uses) before the custom domain's cert can issue and
-`https_enforced` can flip on — that's Vanny's to add, not something this session can reach. Once
-it's added, confirm `https://gw2squaded.vannyproductions.com` serves the app after the first
-Actions deploy (first push to main after this change triggers it).
-Last touched: 2026-10-08. Re-checks: 0.
+The Web App Port milestone (full plan: `C:\Users\vanny\.claude\plans\goofy-stirring-nautilus.md`)
+shipped 2026-10-08 — see MILESTONES.md / COMPLETED.md. It's the first of a 4-milestone web
+initiative; the next, Sync Backend Foundation, is scoped below under Future Milestones but not
+yet started — promote it to its own `## Current Milestone:` section when picked up.
 
 ## Future Milestones (unscheduled)
 

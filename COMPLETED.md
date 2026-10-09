@@ -2,6 +2,17 @@
 
 Entries are added as work lands, most recent first.
 
+### Web App Port milestone — 2026-10-08
+Shipped. Post-mortem: `docs/postmortems/web-app-port.md`.
+
+### [Deploy to gw2squaded.vannyproductions.com] — Leg 4
+2026-10-08. First attempt (Worker-hosted, Cloudflare Custom Domain) reverted after discovering
+`vannyproductions.com`'s zone is on IONOS, not Cloudflare — same constraint ChoiceBuds already hit
+for `choicebuds.vannyproductions.com`. Switched to GitHub Pages: `.github/workflows/deploy-web.yml`,
+Pages enabled via `gh api` with custom domain `gw2squaded.vannyproductions.com`, Vanny added the
+CNAME record at IONOS, cert issued and HTTPS enforced. Live. See commits `e67afd0` (first attempt +
+incident fix) and `c81472b` (revert + GitHub Pages pivot).
+
 ### [Browser End-to-End Verification] — Leg 3
 2026-10-08. Manually exercised the full interactive app via `npm run dev:web`: build editor,
 trait/equipment pickers, stats/boon-condition panel, gear optimizer, squad builder drag-and-drop,
