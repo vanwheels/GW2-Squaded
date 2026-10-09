@@ -2,6 +2,14 @@
 
 Entries are added as work lands, most recent first.
 
+### [Build Editor Mobile Tabs] — Leg 1
+2026-10-08. Added a Traits/Equipment/Skills & Stats tab control to `BuildScreenshotGrid.tsx`
+(local `mobileTab` state) plus a `max-width: 480px` tier in `global.css` that shows one section
+at a time full-width; a no-op above that width, where the tab row stays hidden and every column
+stays visible regardless of `mobileTab`. Toolbar row (profession/weapon/combat-state) unaffected.
+Not yet manually verified in a real phone-width browser (see Electron sandbox limitation) — flag
+if it needs a follow-up fix after Vanny checks it. See commit `2dca58a`.
+
 ### [Cross-Device Verification Pass] — Leg 5
 2026-10-09. Manually verified concurrent edit/reorder/delete/edit-after-delete-resurrection across
 two real sessions (desktop + browser tab, same account). First attempt surfaced a real bug, not a
