@@ -27,14 +27,6 @@ manifest, see `BuildScreenshotGrid.tsx`) needs a genuinely different mobile layo
 one long scroll — same likely true of the squad editor's sidebar+grid shape. Split into legs below
 instead of one "layout pass."
 
-### [Squad Editor Mobile Layout] — Leg 2
-Squad editor's shape is different from the build editor's (`BuildsSidebar` + drag-and-drop party
-grid, `SquadCompEditorView.tsx`) — side-by-side sidebar+grid won't fit phone width, and drag-and-drop
-itself is awkward on touch. Needs its own design pass (likely tap-to-assign as a touch-friendly
-alternative to drag, plus a collapsible/sheet-based builds picker instead of a persistent sidebar) —
-not yet scoped in detail; raise the touch-interaction question before starting.
-Last touched: 2026-10-08. Re-checks: 0.
-
 ### [Remaining Views Mobile Audit] — Leg 3
 Everything outside the build/squad editors (nav, Builds/Squads list views, Settings, gear optimizer
 modal) at phone width — audit in a real browser (not just devtools resize), fix overflow/unusable

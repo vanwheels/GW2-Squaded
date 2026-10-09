@@ -2,6 +2,17 @@
 
 Entries are added as work lands, most recent first.
 
+### [Squad Editor Mobile Layout] — Leg 2
+2026-10-08. The persistent 200px `BuildsSidebar` beside `.party-rows` left no room for the roster
+at phone width, and `.party-slots`'s own `flex-shrink: 0` kept all 5 slot tiles in one
+non-wrapping row that overflowed too. Turned up during implementation that half of the
+originally-scoped design question was already solved: every slot's `UpgradePicker` already supports
+tap-to-assign with search, independent of the sidebar's drag source, so no new touch-assignment
+mechanism was needed. Reused the existing `Modal` component (Gear Optimizer/build preview) to
+open `BuildsSidebar` from a phone-width-only "Builds" toggle in place of the in-flow column, and
+per the same leg's earlier reflow-over-scrollbar preference, `.party-slots` wraps its tiles across
+multiple lines at `<=480px` rather than scrolling. Manually verified live. See commit `d7fb5ea`.
+
 ### [Build Editor Mobile Tabs] — Leg 1
 2026-10-08/09. Added a Traits/Equipment/Skills & Stats tab control to `BuildScreenshotGrid.tsx`
 (local `mobileTab` state) plus a `max-width: 480px` tier in `global.css` that shows one section at
