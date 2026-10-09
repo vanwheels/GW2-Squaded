@@ -17,23 +17,14 @@ local-only web app first, then a sync backend, then wiring continuous cross-devi
 clients, then polish. Future milestones are named below under Future Milestones (unscheduled)
 rather than detailed yet.
 
-### [Web Entry Point + AppWeb Shell] — Leg 2
-New `web/` directory sibling to `electron.vite.config.ts` (own `index.html`/`main.tsx`/
-`vite.config.ts`), aliasing `@shared`/`@renderer` the way `vite.web-preview.config.ts` already
-does. New `src/renderer/AppWeb.tsx` sibling to `App.tsx` (not a conditional branch inside it).
-Wires in `createIndexedDbStorage()` (`src/shared/storage/indexeddb-adapter.ts`, Leg 1) in place of
-`window.gw2Storage`, `src/web-preview/load-game-data-web.ts` in place of `window.gw2GameData`, and
-no-ops/absence for `window.gw2Capture`/`gw2Updater`/`gw2DataUpdate` (not needed by a local-only web
-build yet).
-Last touched: 2026-10-08. Re-checks: 0.
-
 ### [Browser End-to-End Verification] — Leg 3
 Manually exercise the full interactive app (not just the existing read-only preview pages) in a
-real browser dev server: build editor, trait/equipment pickers, stats/boon-condition panel, gear
-optimizer, squad builder drag-and-drop, tags/search/favorites. Fix whatever doesn't work outside
-Electron — expect some, since this is the first time this renderer tree runs its interactive half
-outside Electron.
-Blocked: waiting on Leg 2.
+real browser dev server (`npm run dev:web`): build editor, trait/equipment pickers,
+stats/boon-condition panel, gear optimizer, squad builder drag-and-drop, tags/search/favorites.
+Fix whatever doesn't work outside Electron — expect some, since this is the first time this
+renderer tree runs its interactive half outside Electron. `SharePanel`'s import/share calls hit the
+same `gw2-squaded-share` Worker as desktop and should already work unmodified; capture/update
+UI is intentionally inert (no-op providers from Leg 2) and out of scope here.
 Last touched: 2026-10-08. Re-checks: 0.
 
 ### [Deploy to gw2squaded.vannyproductions.com] — Leg 4

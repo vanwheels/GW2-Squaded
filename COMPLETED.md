@@ -2,6 +2,22 @@
 
 Entries are added as work lands, most recent first.
 
+### [Web Entry Point + AppWeb Shell] — Leg 2
+2026-10-08. New `web/` directory (sibling to `electron.vite.config.ts`) with its own
+`index.html`/`main.tsx`/`vite.config.ts`, aliasing `@shared`/`@renderer` the way
+`vite.web-preview.config.ts` does. New `src/renderer/AppWeb.tsx`, sibling to `App.tsx`, mounts the
+same provider tree minus the Electron-only offscreen-capture branch, passing
+`webGameDataProvider` (`src/web-preview/load-game-data-web.ts`) straight into
+`GameDataStoreProvider` instead of reading `window.gw2GameData`. `web/main.tsx` wires
+`window.gw2Storage` to `createIndexedDbStorage()` (Leg 1) and assigns no-op
+`gw2Capture`/`gw2Updater`/`gw2DataUpdate` implementations so `NavBar`/`SettingsView`/
+`ReleaseNotesProvider` (which read those globals unconditionally at mount) don't crash — none of
+those three have a browser equivalent yet. `web/vite.config.ts` adds a small dev/build plugin that
+serves `data/game-data/*.json` under `/game-data/*.json` directly from the committed source
+directory (no staged copy, unlike the web-preview build) since that build has no fixed deploy
+target yet. Verified via `npm run dev:web` (index/game-data/icons all serve correctly);
+`npm run typecheck`/`lint`/`test` all pass. See commit `<pending>`.
+
 ### [Local Browser Storage Adapter] — Leg 1
 2026-10-08. New `src/shared/storage/indexeddb-adapter.ts`: `createIndexedDbStorage()` implements
 `StorageAdapter` (`builds`/`squadComps`) purely with IndexedDB — one database, one object store per

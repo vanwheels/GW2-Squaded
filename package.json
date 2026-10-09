@@ -40,6 +40,8 @@
     "sync:web-preview-game-data": "tsx scripts/sync-web-preview-game-data.ts",
     "build:web-preview": "npm run sync:web-preview-game-data && vite build --config vite.web-preview.config.ts",
     "dev:web-preview": "npm run sync:web-preview-game-data && vite dev --config vite.web-preview.config.ts",
+    "build:web": "vite build --config web/vite.config.ts",
+    "dev:web": "vite dev --config web/vite.config.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
