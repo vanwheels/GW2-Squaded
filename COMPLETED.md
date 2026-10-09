@@ -8,7 +8,7 @@ Entries are added as work lands, most recent first.
 collection keyed by `id`, `list()` sorted by `updatedAt` descending in-memory to match
 `JsonBlobRepository`'s `ORDER BY updated_at DESC`. Tested via `fake-indexeddb` since Node has no
 native IndexedDB. No sync/tombstones yet — same local-only scope as the existing SQLite adapter.
-See commit `<pending>`. Everything through the "Known Exceptions
+See commit `544af13`. Everything through the "Known Exceptions
 Sweep" milestone (shipped 2026-09-29) is archived in `COMPLETED-archive-known-exceptions-sweep.md`.
 Everything through the "Sep 15, 2026 patch + fixes" milestone (shipped 2026-09-16) is archived in
 `COMPLETED-archive-sep-15-2026-patch.md`. Everything before that, back through v1.0.0, is in
