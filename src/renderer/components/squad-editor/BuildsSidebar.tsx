@@ -16,6 +16,11 @@ interface Props {
    *  `SquadsView`/`SquadCompEditorView`, since editing a build is a cross-tab navigation, not
    *  something this sidebar or the squad editor it lives in can do on its own. */
   onEditBuild: (buildId: string) => void
+  /** Renders a close (✕) button next to the heading — only `SquadCompEditorView`'s phone-width
+   *  copy of this component (shown inside a `Modal` in place of the persistent sidebar, see its
+   *  own doc comment) passes this. Omitted for the normal in-flow sidebar, which has nothing to
+   *  close. */
+  onClose?: () => void
 }
 
 /**
@@ -26,7 +31,7 @@ interface Props {
  * layout, `BuildPreviewModal`) and "Edit" (`onEditBuild`) — added 2026-08-19 so a squad's roster
  * can be double-checked/tweaked without leaving the squad editor to hunt the build down in Builds.
  */
-export function BuildsSidebar({ onEditBuild }: Props) {
+export function BuildsSidebar({ onEditBuild, onClose }: Props) {
   const { builds, loading } = useBuildsStore()
   const { professions, specializationsById } = useGameData()
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number; build: Build } | null>(null)
@@ -53,7 +58,14 @@ export function BuildsSidebar({ onEditBuild }: Props) {
 
   return (
     <aside className="builds-sidebar">
-      <h3>Saved builds</h3>
+      <div className="builds-sidebar-header">
+        <h3>Saved builds</h3>
+        {onClose && (
+          <button type="button" className="modal-close" onClick={onClose}>
+            ✕
+          </button>
+        )}
+      </div>
       {loading ? (
         <p className="empty-state">Loading…</p>
       ) : builds.length === 0 ? (

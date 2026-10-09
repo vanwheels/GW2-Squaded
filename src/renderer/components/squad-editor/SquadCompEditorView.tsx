@@ -8,6 +8,7 @@ import { SharePanel } from '@renderer/components/common/SharePanel'
 import { ScreenshotButton } from '@renderer/components/common/ScreenshotButton'
 import { TagInput } from '@renderer/components/common/TagInput'
 import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch'
+import { Modal } from '@renderer/components/common/Modal'
 import { BuildsSidebar } from './BuildsSidebar'
 import { SquadCompScreenshotGrid } from './SquadCompScreenshotGrid'
 import type { BuildDragPayload } from './drag-payload'
@@ -25,6 +26,12 @@ const MAX_PARTIES = 10
 export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
   const [draft, setDraft] = useState<SquadComp>(squadComp)
   const [saving, setSaving] = useState(false)
+  /** Phone-width-only (see `.squad-editor-builds-toggle`/`.builds-sidebar-modal` in global.css) —
+   *  the persistent `BuildsSidebar` column doesn't fit a phone's width, so below that breakpoint
+   *  it's reached through this toggle instead, rendered a second time inside a `Modal`. Has no
+   *  effect at wider tiers, where the toggle button itself is CSS-hidden and the in-flow sidebar
+   *  stays visible as before. */
+  const [mobileBuildsOpen, setMobileBuildsOpen] = useState(false)
   const { builds } = useBuildsStore()
   const { squadComps } = useSquadCompsStore()
   const { partyWideOnly, setPartyWideOnly } = useAppSettings()
@@ -136,6 +143,9 @@ export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
         />
         <TagInput tags={draft.tags} onChange={(tags) => setDraft({ ...draft, tags })} suggestions={tagSuggestions} />
         <ToggleSwitch checked={partyWideOnly} onChange={setPartyWideOnly} label="Party-wide only" />
+        <button type="button" className="squad-editor-builds-toggle" onClick={() => setMobileBuildsOpen(true)}>
+          Builds
+        </button>
         <ScreenshotButton capture={() => window.gw2Capture.captureSquadScreenshot({ squadComp: draft })} />
         <SharePanel kind="squadComp" getData={buildSharePayload} />
       </div>
@@ -156,6 +166,10 @@ export function SquadCompEditorView({ squadComp, onBack, onEditBuild }: Props) {
           addPartyDisabled={draft.parties.length >= MAX_PARTIES}
         />
       </div>
+
+      <Modal open={mobileBuildsOpen} onClose={() => setMobileBuildsOpen(false)} className="builds-sidebar-modal">
+        <BuildsSidebar onEditBuild={onEditBuild} onClose={() => setMobileBuildsOpen(false)} />
+      </Modal>
     </section>
   )
 }

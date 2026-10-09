@@ -2699,6 +2699,17 @@ input[type='password'] {
   font-size: 0.85rem;
 }
 
+.builds-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.builds-sidebar-header h3 {
+  margin-bottom: 0;
+}
+
 .builds-sidebar-list {
   list-style: none;
   margin: 0;
@@ -2748,6 +2759,14 @@ input[type='password'] {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Opens the phone-width `Modal` copy of `BuildsSidebar` (see `SquadCompEditorView`'s doc comment
+   on `mobileBuildsOpen`) — hidden at every wider tier, where the sidebar is already visible
+   in-flow and this button would be redundant. `.view-header` already wraps (see its own rule), so
+   this needs no special placement handling of its own once it's shown. */
+.squad-editor-builds-toggle {
+  display: none;
 }
 
 .party-rows {
@@ -2954,6 +2973,44 @@ input[type='password'] {
 
 .party-row-add {
   align-self: flex-start;
+}
+
+/* Phone tier (Squad Editor Mobile Layout Leg 2): the persistent 200px `.builds-sidebar` plus
+   `.party-rows` side by side has no room left for the roster at phone width, and 5 fixed-92px
+   `.slot-tile`s in a non-wrapping row (`.party-slots`'s own `flex-shrink: 0`) run well past it
+   too. Per tonight's "replace stats grid scrollbar with reflow" fix (global.css, Stats & Skills
+   tab), a contained horizontal scrollbar is the rejected alternative here as well — `.party-slots`
+   instead takes the full row width and wraps its own children across 2+ lines instead.
+   Declared after every base rule it overrides, per this file's own recurring cascade-order lesson
+   (see `.ingame-skill-bar`'s phone-tier comment above). */
+@media (max-width: 480px) {
+  .squad-editor-builds-toggle {
+    display: inline-flex;
+  }
+
+  /* Scoped to the in-flow sidebar specifically (not `.builds-sidebar-modal .builds-sidebar`,
+     the phone-width replacement opened by the toggle above) — both share the same base class. */
+  .squad-editor-body .builds-sidebar {
+    display: none;
+  }
+
+  .party-slots {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+  }
+}
+
+/* Dropping this component into the `Modal` the phone-width toggle above opens means it's no
+   longer the fixed-200px, viewport-pinned column `.builds-sidebar`'s base rules assume — the
+   modal dialog already owns sizing/scrolling/background/border (see `.modal-dialog`), so this
+   resets every one of those back to flowing content instead of double-boxing them. */
+.builds-sidebar-modal .builds-sidebar {
+  width: 100%;
+  position: static;
+  max-height: none;
+  padding: 0;
+  border: none;
+  background: transparent;
 }
 
 .view-header-actions {
