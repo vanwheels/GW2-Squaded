@@ -8,27 +8,10 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-The Web App Port milestone (full plan: `C:\Users\vanny\.claude\plans\goofy-stirring-nautilus.md`)
-shipped 2026-10-08 — see MILESTONES.md / COMPLETED.md. It's the first of a 4-milestone web
-initiative; the next, Sync Backend Foundation, is now the current milestone (below).
-
-## Current Milestone: Sync Backend Foundation
-
-Adapt ChoiceBuds' `worker/src/crypto.ts` (password hashing, token gen/hash, constant-time
-compare) and `worker/src/merge.ts` (per-record last-write-wins merge + tombstone reconciliation)
-onto a `SyncPayload` scoped to GW2-Squaded's `builds`/`squadComps`, on the existing
-`gw2-squaded-share` Worker. Reference implementation throughout: `D:\Projects\ChoiceBuds\worker\src\
-{crypto,merge,index}.ts`. One notable adaptation: ChoiceBuds' `updatedAt` is a `number`;
-GW2-Squaded's `Timestamp` (`src/shared/types/common.ts`) is an ISO 8601 string, which still sorts
-correctly under `>`/`>=` — `merge.ts` ports with that type swapped, no logic change.
-
-### [Sync Routes + R2 Bucket] — Leg 3
-Create the new R2 bucket (`wrangler r2 bucket create`) for the per-account sync blob, add the
-binding to `wrangler.toml`/`Env`. Add `PUT|GET /sync/:username` to `index.ts`, ported from
-ChoiceBuds' `handleSyncGet`/`handleSyncPut` (bearer-token auth, per-account write throttle, merge
-via Leg 1's `mergeCollection`/`mergeSingleton`). No legacy-KV-blob fallback needed (unlike
-ChoiceBuds) — this is a new feature, not a migration. Finishes with a manual round-trip test:
-signup → push a payload → push a second, overlapping payload → confirm the merge result.
+The Web App Port and Sync Backend Foundation milestones (full plan: `C:\Users\vanny\.claude\plans\
+goofy-stirring-nautilus.md`) both shipped 2026-10-08 — see MILESTONES.md / COMPLETED.md. They're
+the first two of a 4-milestone web initiative; Milestones 3-4 (below, unscheduled) still need their
+legs scoped out before either becomes the current milestone.
 
 ## Future Milestones (unscheduled)
 

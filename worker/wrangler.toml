@@ -20,6 +20,13 @@ id = "04662513e32840c7820530cc12c83054"
 binding = "SYNC_KV"
 id = "c15de4f1212f4edc83e1aa5ecfbedd71"
 
+# Created via `npx wrangler r2 bucket create gw2-squaded-sync`. The per-account sync blob itself
+# (see sync-types.ts's SyncPayload) — separate from SYNC_KV above since R2 has no comparable daily
+# write cap, and a push/pull round trip writes this blob on every sync.
+[[r2_buckets]]
+binding = "SYNC_R2"
+bucket_name = "gw2-squaded-sync"
+
 # Discord bot board state (guild settings, permissions, builds/squads, pending approvals — see
 # docs/discord-bot.md). Created via `npx wrangler d1 create gw2-squaded-discord-bot`. Separate
 # from SHARES above: this is ordered/relational data with uniqueness constraints, a poor fit for

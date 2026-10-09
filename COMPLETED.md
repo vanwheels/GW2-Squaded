@@ -2,6 +2,16 @@
 
 Entries are added as work lands, most recent first.
 
+### [Sync Routes + R2 Bucket] — Leg 3
+2026-10-08. Created the `gw2-squaded-sync` R2 bucket (`SYNC_R2` binding) for the per-account sync
+blob and added `PUT|GET /sync/:username` to `index.ts`, ported from ChoiceBuds'
+`handleSyncGet`/`handleSyncPut` — bearer-token auth, per-account write throttle via R2
+`customMetadata`, merge via Leg 1's `mergeCollection`. No legacy-KV-blob fallback (new feature, not
+a migration). Manual round-trip test against local `wrangler dev`: signup → push a payload (build
+A, build B) → push an overlapping payload (build A edited, build B tombstoned, build C added) →
+GET confirmed the merged result. This closes out the Sync Backend Foundation milestone. See commit
+`<pending>`.
+
 ### [Account Routes + KV Namespace] — Leg 2
 2026-10-08. Wired the already-existing `SYNC_KV` namespace into `wrangler.toml`/`Env`, defined
 `SyncPayload` (`builds`/`buildTombstones`/`squadComps`/`squadCompTombstones`, `savedAt`) in a new

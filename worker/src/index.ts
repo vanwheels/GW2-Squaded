@@ -1,8 +1,10 @@
-import { generateToken, hashPassword, hashToken, isValidPassword, isValidUsername, verifyPassword, type PasswordHash } from './crypto'
+import { constantTimeEqual, generateToken, hashPassword, hashToken, isValidPassword, isValidUsername, verifyPassword, type PasswordHash } from './crypto'
 import { handleInteraction } from './discord/interactions'
 import type { Env } from './env'
 import { CORS_HEADERS, json } from './http'
+import { mergeCollection, type SyncTombstone } from './merge'
 import { renderShareLandingPage, renderShareNotFoundPage } from './render/share-landing'
+import { EMPTY_SYNC_PAYLOAD, type HasIdAndUpdatedAt, type SyncPayload } from './sync-types'
 
 export type { Env }
 
@@ -230,6 +232,124 @@ async function handleLogin(request: Request, env: Env): Promise<Response> {
   return json({ ok: true, token })
 }
 
+/**
+ * Sync routes (`PUT|GET /sync/:username`) — ported from ChoiceBuds' `handleSyncGet`/
+ * `handleSyncPut`. No legacy-KV-blob fallback (unlike ChoiceBuds): this is a new feature, not a
+ * migration, so the per-account blob only ever lives in `env.SYNC_R2`. PUT doubles as pull — the
+ * Worker merges the pushed payload against the stored one (last-write-wins by `updatedAt`, see
+ * merge.ts) and hands back the merged result in the same response, so the pushing client
+ * reconciles in one round trip instead of needing a separate GET.
+ */
+
+/** builds/squadComps JSON is small text even at real per-account scale — generous but bounded
+ *  against abuse/mistakes, same reasoning as handleCreate's MAX_BODY_BYTES above. */
+const MAX_SYNC_BODY_BYTES = 512 * 1024
+/** Per-account throttle on PUT, not a real abuse defense — guards against a buggy client hammering
+ *  the sync endpoint in a tight loop. */
+const MIN_SYNC_WRITE_INTERVAL_MS = 3000
+
+function syncKey(lowerUsername: string): string {
+  return `sync:${lowerUsername}`
+}
+
+async function verifyBearerToken(env: Env, lowerUsername: string, request: Request): Promise<boolean> {
+  const auth = request.headers.get('Authorization') ?? ''
+  const match = auth.match(/^Bearer (.+)$/)
+  if (!match) return false
+
+  const presentedHash = await hashToken(match[1])
+  const tokens = await getTokens(env, lowerUsername)
+  return tokens.some(t => constantTimeEqual(t.tokenHash, presentedHash))
+}
+
+function isRecordArray(value: unknown): value is HasIdAndUpdatedAt[] {
+  return Array.isArray(value) && value.every((v): v is HasIdAndUpdatedAt =>
+    typeof v === 'object' && v !== null &&
+    typeof (v as Record<string, unknown>).id === 'string' &&
+    typeof (v as Record<string, unknown>).updatedAt === 'string'
+  )
+}
+
+function isTombstoneArray(value: unknown): value is SyncTombstone[] {
+  return Array.isArray(value) && value.every((v): v is SyncTombstone =>
+    typeof v === 'object' && v !== null &&
+    typeof (v as Record<string, unknown>).id === 'string' &&
+    typeof (v as Record<string, unknown>).deletedAt === 'string'
+  )
+}
+
+async function handleSyncGet(env: Env, lowerUsername: string, request: Request): Promise<Response> {
+  if (!(await verifyBearerToken(env, lowerUsername, request))) return json({ error: 'invalid_token' }, 401)
+
+  const r2Object = await env.SYNC_R2.get(syncKey(lowerUsername))
+  if (r2Object === null) return json({ error: 'not_found' }, 404)
+
+  return new Response(await r2Object.text(), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+  })
+}
+
+async function handleSyncPut(request: Request, env: Env, lowerUsername: string): Promise<Response> {
+  if (!(await verifyBearerToken(env, lowerUsername, request))) return json({ error: 'invalid_token' }, 401)
+
+  const contentLength = Number(request.headers.get('content-length') ?? '0')
+  if (contentLength > MAX_SYNC_BODY_BYTES) return json({ error: 'payload_too_large' }, 413)
+
+  const bodyText = await request.text()
+  if (bodyText.length > MAX_SYNC_BODY_BYTES) return json({ error: 'payload_too_large' }, 413)
+
+  let parsed: Partial<SyncPayload>
+  try {
+    parsed = JSON.parse(bodyText)
+  } catch {
+    return json({ error: 'invalid_json' }, 400)
+  }
+
+  if (
+    !isRecordArray(parsed.builds) || !isTombstoneArray(parsed.buildTombstones) ||
+    !isRecordArray(parsed.squadComps) || !isTombstoneArray(parsed.squadCompTombstones)
+  ) {
+    return json({ error: 'invalid_body' }, 400)
+  }
+  const incoming = parsed as SyncPayload
+
+  const r2Key = syncKey(lowerUsername)
+  const r2Object = await env.SYNC_R2.get(r2Key)
+
+  // Throttle on the server's own record of when it last accepted a write for this account (R2
+  // customMetadata, never sent by the client) — a client-supplied timestamp would let a client
+  // bypass the throttle by lying.
+  const receivedAt = Number(r2Object?.customMetadata?.receivedAt ?? '0')
+  if (r2Object && Date.now() - receivedAt < MIN_SYNC_WRITE_INTERVAL_MS) {
+    return json({ error: 'write_throttled' }, 429)
+  }
+
+  const existing: SyncPayload = r2Object ? JSON.parse(await r2Object.text()) : EMPTY_SYNC_PAYLOAD
+
+  const buildsMerge = mergeCollection(existing.builds, existing.buildTombstones, incoming.builds, incoming.buildTombstones)
+  const squadCompsMerge = mergeCollection(existing.squadComps, existing.squadCompTombstones, incoming.squadComps, incoming.squadCompTombstones)
+
+  const merged: SyncPayload = {
+    builds: buildsMerge.records,
+    buildTombstones: buildsMerge.tombstones,
+    squadComps: squadCompsMerge.records,
+    squadCompTombstones: squadCompsMerge.tombstones,
+    savedAt: new Date().toISOString()
+  }
+
+  const mergedText = JSON.stringify(merged)
+  await env.SYNC_R2.put(r2Key, mergedText, {
+    customMetadata: { receivedAt: String(Date.now()) },
+    httpMetadata: { contentType: 'application/json' }
+  })
+
+  return new Response(mergedText, {
+    status: 200,
+    headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+  })
+}
+
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     if (request.method === 'OPTIONS') {
@@ -261,6 +381,16 @@ export default {
 
     if (request.method === 'POST' && pathParts.length === 1 && pathParts[0] === 'login') {
       return handleLogin(request, env)
+    }
+
+    if (pathParts.length === 2 && pathParts[0] === 'sync') {
+      const username = decodeURIComponent(pathParts[1])
+      if (!isValidUsername(username)) return json({ error: 'invalid_username' }, 400)
+      const lowerUsername = username.toLowerCase()
+
+      if (request.method === 'GET') return handleSyncGet(env, lowerUsername, request)
+      if (request.method === 'PUT') return handleSyncPut(request, env, lowerUsername)
+      return json({ error: 'method_not_allowed' }, 405)
     }
 
     return json({ error: 'not_found' }, 404)
