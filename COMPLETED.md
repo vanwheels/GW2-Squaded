@@ -2,6 +2,15 @@
 
 Entries are added as work lands, most recent first.
 
+### [useSync Hook + Trigger Wiring] — Leg 3
+2026-10-08. Added `src/renderer/hooks/useSync.ts` (mount/sign-in, browser `online`, ~5min fallback
+poll, ~5s debounce-on-mutation, ported from ChoiceBuds) and a `SyncStoreProvider`/`useSyncStore()`
+context (`state/sync-store.tsx`) so the one required hook instance lives above both `App.tsx` and
+`AppWeb.tsx` and Leg 4's Settings UI can read/drive it without re-plumbing. Sync credentials joined
+`app-settings-store.tsx`'s existing settings rather than a new store. Also added jsdom +
+`@testing-library/react` as dev dependencies — the project's first stateful-hook test. See commit
+`567e30b`.
+
 ### [Sync API Client + Bulk-Replace Store Methods] — Leg 2
 2026-10-08. Added `src/renderer/services/syncApi.ts` (signup/login/push/pull, ported from
 ChoiceBuds' client, reusing `share-client.ts`'s `apiBaseUrl()` since it's the same Worker
