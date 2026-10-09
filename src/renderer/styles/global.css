@@ -819,13 +819,26 @@ input[type='password']:focus-visible {
   }
 }
 
+/* Base/default state for the phone-tier tab control below — declared ABOVE the
+   `@media (max-width: 480px)` block on purpose. Both this selector and the media-query-wrapped
+   one match simultaneously at phone width, and for a tied specificity the later rule in source
+   order wins per property — so this `display: none` must come first, or it would permanently
+   override the media block's `display: flex` at every width, phone included (exactly the bug
+   that shipped 2026-10-09: this block originally sat after the media query and silently kept the
+   tabs hidden everywhere). */
+.build-editor-area-tabs {
+  grid-area: tabs;
+  display: none;
+  gap: 8px;
+}
+
 /* Phone tier (Leg 1, 2026-10-08) — below the 1279px tier's full reading-order stack, Traits/
    Equipment/Skills+Stats instead take turns owning the full-width `traits`/`equipment`/`stats`
    area one at a time, picked by the `tabs` row injected above them (`.build-editor-area-tabs`,
    see `BuildScreenshotGrid.tsx`'s `mobileTab` state). The Profession/Weapon-type/Combat-state
    toolbar cells stay in their own rows above the tabs, unaffected, since they apply to every
    section. `.build-editor-area-tabs`/`.mobile-tab-hidden` are both no-ops at every wider tier
-   (base rules below) — the tab buttons stay hidden and every column stays visible there,
+   (base rule above) — the tab buttons stay hidden and every column stays visible there,
    regardless of `mobileTab`. */
 @media (max-width: 480px) {
   .build-editor-grid {
@@ -847,12 +860,6 @@ input[type='password']:focus-visible {
   .mobile-tab-hidden {
     display: none;
   }
-}
-
-.build-editor-area-tabs {
-  grid-area: tabs;
-  display: none;
-  gap: 8px;
 }
 
 .build-editor-area-tabs button {
