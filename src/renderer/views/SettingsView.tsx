@@ -5,8 +5,10 @@ import { useAppSettings } from '@renderer/state/app-settings-store'
 import { useDataUpdate } from '@renderer/state/data-update-store'
 import { useUpdater } from '@renderer/state/updater-store'
 import { useReleaseNotes } from '@renderer/state/release-notes-store'
+import { useSyncStore } from '@renderer/state/sync-store'
 import { ToggleSwitch } from '@renderer/components/common/ToggleSwitch'
 import { ThemeModeToggle } from '@renderer/components/common/ThemeModeToggle'
+import { SyncSection } from '@renderer/components/common/SyncSection'
 
 // Application ID is public (it's embedded in every invite link), so hardcoding it here is fine.
 // Permissions bit is the sum of View Channel, Add Reactions, Send Messages, Embed Links, Attach
@@ -27,6 +29,7 @@ export function SettingsView() {
   const dataUpdate = useDataUpdate()
   const updater = useUpdater()
   const { openReleaseNotes } = useReleaseNotes()
+  const syncState = useSyncStore()
   const [localMeta, setLocalMeta] = useState<GameDataMeta | null>(null)
 
   // Re-reads local meta on every status change (not just once) since a completed download
@@ -83,6 +86,8 @@ export function SettingsView() {
           </p>
           <DataUpdateControls status={dataUpdate.status} controls={dataUpdate} />
         </div>
+
+        <SyncSection syncState={syncState} />
 
         <div className="settings-panel">
           <h3>Discord Bot</h3>

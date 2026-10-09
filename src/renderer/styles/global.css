@@ -118,7 +118,8 @@ button:active {
    plain border, matching how buttons already only get their accent treatment from `:hover`/`:active`
    — the ring is for keyboard/tab navigation, where there's no other visual cue which field is live. */
 input[type='text']:focus-visible,
-input[type='number']:focus-visible {
+input[type='number']:focus-visible,
+input[type='password']:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: -1px;
 }
@@ -488,6 +489,36 @@ input[type='number']:focus-visible {
 
 .error-text {
   color: var(--danger);
+}
+
+/* SyncSection (SettingsView's Cross-Device Sync panel) — sign-up/log-in side by side when there's
+   room, stacked on narrow windows via the same wrapping `.settings-grid` breakpoint. */
+.sync-forms {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.sync-form {
+  flex: 1;
+  min-width: 200px;
+}
+
+.sync-form h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.sync-signed-in {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Affirmative sync status ("Up to date") — reuses --toggle-on rather than introducing a third
+   semantic color, same reasoning as that token's own doc comment. */
+.sync-status-ok {
+  color: var(--toggle-on);
 }
 
 .record-open {
@@ -975,7 +1006,8 @@ input[type='number']:focus-visible {
 }
 
 select,
-input[type='text'] {
+input[type='text'],
+input[type='password'] {
   font-family: inherit;
   background: var(--surface);
   color: var(--text);
