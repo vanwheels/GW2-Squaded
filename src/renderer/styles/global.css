@@ -1700,6 +1700,26 @@ input[type='password'] {
   justify-content: start;
 }
 
+/* Phone tier (2026-10-09 follow-up): CSS Grid tracks don't reflow the way flex items can, so the
+   `auto`-sized utility column (Heal/Utility/Elite, or Legend) just ran off the right edge of the
+   screen instead of shrinking — this is what was still broken on the Stats & Skills tab after the
+   mobile-tabs/gear-copy-paste-bar fixes above. Drops the divider column and moves utility-top/
+   utility-skills to their own full-width row below weapon, instead of beside it. */
+@media (max-width: 480px) {
+  .ingame-skill-bar {
+    grid-template-columns: auto auto;
+    grid-template-areas:
+      'env mechanic'
+      'swap weapon'
+      'utility-top utility-top'
+      'utility-skills utility-skills';
+  }
+
+  .ingame-skill-bar-divider {
+    display: none;
+  }
+}
+
 .ingame-skill-bar-env {
   grid-area: env;
 }
