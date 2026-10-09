@@ -9,10 +9,9 @@ import { GAME_DATA_FILE_NAMES } from '../src/shared/game-data/data-files'
  * `fs.readFileSync`, and the same whitelist `scripts/sync-web-preview-game-data.ts` copies from)
  * under `/game-data/*.json` — the path `load-game-data-web.ts`'s `webGameDataProvider` fetches.
  * In dev, reads straight from the single committed source directory. In a production build, the
- * `writeBundle` hook below copies the same files into `outDir/game-data` — which is now
- * `worker/public/game-data`, the same destination `scripts/sync-web-preview-game-data.ts` stages
- * for the Discord-bot preview build. Both copy the same whitelist from the same source, so running
- * either build (or both) leaves identical content there.
+ * `writeBundle` hook below copies the same files into `outDir/game-data` (`dist/web/game-data`)
+ * since GitHub Pages serves this build standalone — it isn't staged into the Worker's
+ * `worker/public` the way the Discord-bot preview build's game-data is.
  */
 function serveGameData(): Plugin {
   const sourceDir = resolve(__dirname, '../data/game-data')
@@ -57,14 +56,14 @@ export default defineConfig({
       '@shared': resolve(__dirname, '../src/shared')
     }
   },
+  // Relative base, not '/': GitHub Pages' custom-domain root still works with either, but this
+  // matches ChoiceBuds' web/vite.config.ts (same deploy shape, same vannyproductions.com zone).
+  base: './',
   build: {
-    // Same `worker/public` the Discord-bot preview build (`vite.web-preview.config.ts`) writes
-    // to, served by the Worker's single `[assets]` config — one deployable, not a second
-    // Cloudflare product. `emptyOutDir: false` so this build doesn't wipe that other build's
-    // `build-preview.html`/`squad-preview.html`/assets (or vice versa); filenames don't collide
-    // (`index.html` here vs. those two) and hashed chunk names avoid collisions in `assets/`.
-    outDir: resolve(__dirname, '../worker/public'),
-    emptyOutDir: false
+    // outDir resolves outside this config's own `root` (`web/`), so Vite won't empty it by
+    // default without this — see ChoiceBuds' identical web/vite.config.ts.
+    outDir: resolve(__dirname, '../dist/web'),
+    emptyOutDir: true
   },
   plugins: [react(), serveGameData()]
 })

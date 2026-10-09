@@ -4,12 +4,6 @@ compatibility_date = "2024-11-01"
 # Required by @cloudflare/puppeteer (render/build-screenshot.ts) — it imports `node:buffer`;
 # without this flag `wrangler deploy` warns the Worker may throw at runtime.
 compatibility_flags = ["nodejs_compat"]
-# Explicit because declaring any [[routes]] below makes wrangler default this to false (it assumes
-# a custom domain/route fully replaces the workers.dev URL) — it doesn't here: PUBLIC_ORIGIN below,
-# the desktop/web app's DEFAULT_SHARE_API_BASE_URL, and the Discord bot's registered Interactions
-# Endpoint URL all still point at the workers.dev URL. Losing it took the share backend and Discord
-# bot offline for the 2026-10-08 deploy that first added a [[routes]] block.
-workers_dev = true
 
 # Created via `npx wrangler kv namespace create SHARES` — id filled in after that command runs
 # (see TODO.md/COMPLETED.md for the deploy log). Immutable JSON blobs (builds/squad comps),
@@ -43,30 +37,11 @@ PUBLIC_ORIGIN = "https://gw2-squaded-share.vanwheelstheman.workers.dev"
 binding = "MYBROWSER"
 
 # Serves the Discord bot's build-screenshot render page (a standalone Vite build, NOT the
-# Electron app — see vite.web-preview.config.ts / docs/discord-bot.md) AND the full web app
-# (`web/vite.config.ts`, the gw2squaded.vannyproductions.com front door below) from the same
-# worker deployable, per this project's "one self-contained deployable" pattern — `npm run
-# deploy:web` (root package.json) builds both into ./public before `wrangler deploy`. It's
-# gitignored, a build artifact only. Static-asset-first routing (Cloudflare's default) means
-# none of this collides with /shares/:id or /interactions below (neither matches a built
-# filename), or with each other (`index.html` vs. `build-preview.html`/`squad-preview.html`;
-# `game-data/`/`icons/` are identical content staged by both builds).
+# Electron app — see vite.web-preview.config.ts / docs/discord-bot.md) from the same worker
+# deployable, per this project's "one self-contained deployable" pattern. `npm run
+# build:web-preview` (root package.json) populates ./public; it's gitignored, a build artifact
+# only. Static-asset-first routing (Cloudflare's default) means this doesn't collide with
+# /shares/:id or /interactions below — neither matches any built filename here.
 [assets]
 directory = "./public"
-# Default ("auto-trailing-slash") rather than "none": needed so `/` resolves to the full web
-# app's `index.html` (added by `web/vite.config.ts`'s build below). The Discord-bot preview pages
-# are always requested by their exact `.html` filename (Puppeteer `page.goto`), which this setting
-# serves unchanged either way, so switching off "none" doesn't affect them.
-html_handling = "auto-trailing-slash"
-
-# Custom Domain for the full web app (see [assets] above), gw2squaded.vannyproductions.com.
-# BLOCKED (2026-10-08): `wrangler deploy` fails this part of the trigger update with "Can't infer
-# zone from route" [code: 10082] — vannyproductions.com's nameservers are IONOS's (ui-dns.org/
-# .de/.biz/.com), not Cloudflare's, so Cloudflare has no zone for this domain to attach a Custom
-# Domain to. Needs a decision from Vanny (move the zone's DNS to Cloudflare?) before this can work
-# — see TODO.md. Commented out rather than left active: an active `[[routes]]` block here also
-# makes wrangler default `workers_dev` to false on deploy (see that setting above), which took the
-# share backend/Discord bot offline for several minutes on 2026-10-08 before this was caught.
-# [[routes]]
-# pattern = "gw2squaded.vannyproductions.com"
-# custom_domain = true
+html_handling = "none"

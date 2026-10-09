@@ -18,22 +18,22 @@ clients, then polish. Future milestones are named below under Future Milestones 
 rather than detailed yet.
 
 ### [Deploy to gw2squaded.vannyproductions.com] — Leg 4
-Routing decided and shipped: `web/vite.config.ts` now builds the full app straight into
-`worker/public` (`emptyOutDir: false`), the same directory the Discord-bot preview build and
-game-data already share — one Worker, one `[assets]` config, no second Cloudflare product.
-`html_handling` changed `"none"` → `"auto-trailing-slash"` so `/` resolves to the app's
-`index.html` (the Discord-bot pages are always requested by exact filename via Puppeteer, so this
-doesn't change their behavior beyond a transparent 307 that Puppeteer follows). `npm run
-deploy:web` builds both bundles and runs `wrangler deploy`; already run once successfully — the
-live Worker now serves the full app at its workers.dev URL.
-Blocked: attaching `gw2squaded.vannyproductions.com` as a Custom Domain fails — Cloudflare has no
-zone for `vannyproductions.com` (its nameservers are IONOS's `ui-dns.*`, not Cloudflare's), so
-there's nothing to attach the domain to. Needs a decision from Vanny: move the domain's DNS to
-Cloudflare (affects whatever else is hosted on it), or use some non-Cloudflare-zone path (e.g. a
-CNAME once Cloudflare for SaaS / Custom Hostnames is set up) instead. The `[[routes]]` block for
-this is commented out in `worker/wrangler.toml` in the meantime — leaving a broken `custom_domain`
-route active also silently disabled the Worker's `workers.dev` route on deploy (see incident note
-below), so it's not safe to leave half-configured.
+First attempt built the full app into the Worker's `worker/public` and tried a Workers Custom
+Domain, but that needs `vannyproductions.com`'s whole DNS zone on Cloudflare — it's on IONOS
+nameservers today (hosting that domain's email among other things), so moving it was too risky
+just for this subdomain. Reverted that approach and switched to GitHub Pages instead, mirroring
+ChoiceBuds' `choicebuds.vannyproductions.com` (same zone, same constraint, same answer — see its
+`docs/postmortems/web-version-teams-box-mvp.md`): `web/vite.config.ts` back to a standalone
+`dist/web` output, new `.github/workflows/deploy-web.yml` (build + `actions/deploy-pages` on every
+push to main), GitHub Pages enabled on the repo with `build_type: workflow` and custom domain
+`gw2squaded.vannyproductions.com` set via `gh api`. `worker/wrangler.toml` reverted to its original
+shape — the Worker goes back to only serving the share API, Discord bot, and the Discord-bot
+preview pages, unrelated to this domain.
+Blocked: needs one CNAME record added at the IONOS DNS panel for `gw2squaded` → `vanwheels.github.io`
+(same target ChoiceBuds' `choicebuds` CNAME uses) before the custom domain's cert can issue and
+`https_enforced` can flip on — that's Vanny's to add, not something this session can reach. Once
+it's added, confirm `https://gw2squaded.vannyproductions.com` serves the app after the first
+Actions deploy (first push to main after this change triggers it).
 Last touched: 2026-10-08. Re-checks: 0.
 
 ## Future Milestones (unscheduled)
