@@ -8,6 +8,64 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
+## Current Milestone: Web App Port
+
+Full web transition to `gw2squaded.vannyproductions.com`, mirroring ChoiceBuds' web port
+(`D:/Projects/ChoiceBuds/docs/web-transition-playbook.md`). This milestone is the first of a
+4-milestone initiative (full plan: `C:\Users\vanny\.claude\plans\goofy-stirring-nautilus.md`) —
+local-only web app first, then a sync backend, then wiring continuous cross-device sync into both
+clients, then polish. Future milestones are named below under Future Milestones (unscheduled)
+rather than detailed yet.
+
+### [Web Entry Point + AppWeb Shell] — Leg 2
+New `web/` directory sibling to `electron.vite.config.ts` (own `index.html`/`main.tsx`/
+`vite.config.ts`), aliasing `@shared`/`@renderer` the way `vite.web-preview.config.ts` already
+does. New `src/renderer/AppWeb.tsx` sibling to `App.tsx` (not a conditional branch inside it).
+Wires in `createIndexedDbStorage()` (`src/shared/storage/indexeddb-adapter.ts`, Leg 1) in place of
+`window.gw2Storage`, `src/web-preview/load-game-data-web.ts` in place of `window.gw2GameData`, and
+no-ops/absence for `window.gw2Capture`/`gw2Updater`/`gw2DataUpdate` (not needed by a local-only web
+build yet).
+Last touched: 2026-10-08. Re-checks: 0.
+
+### [Browser End-to-End Verification] — Leg 3
+Manually exercise the full interactive app (not just the existing read-only preview pages) in a
+real browser dev server: build editor, trait/equipment pickers, stats/boon-condition panel, gear
+optimizer, squad builder drag-and-drop, tags/search/favorites. Fix whatever doesn't work outside
+Electron — expect some, since this is the first time this renderer tree runs its interactive half
+outside Electron.
+Blocked: waiting on Leg 2.
+Last touched: 2026-10-08. Re-checks: 0.
+
+### [Deploy to gw2squaded.vannyproductions.com] — Leg 4
+Decide routing so the full-app build coexists with the existing `build-preview.html`/
+`squad-preview.html`/game-data JSON already served from `worker/public` by the same Worker's
+`[assets]` config (continuing the existing one-deployable pattern rather than adding a second
+Cloudflare product). Attach the custom domain to the Worker.
+Blocked: waiting on Leg 3.
+Last touched: 2026-10-08. Re-checks: 0.
+
+## Future Milestones (unscheduled)
+
+- **Sync Backend Foundation** — adapt ChoiceBuds' `worker/src/crypto.ts` (password hashing, token
+  gen/hash, constant-time compare) and `worker/src/merge.ts` (per-record last-write-wins merge +
+  tombstone reconciliation) onto a `SyncPayload` scoped to GW2-Squaded's `builds`/`squadComps`, on
+  the existing `gw2-squaded-share` Worker. New KV namespace (account/token/lockout state) + new R2
+  bucket (per-account sync blob — not KV, per ChoiceBuds' own write-cap lesson). Routes:
+  `POST /signup`, `POST /login`, `PUT|GET /sync/:username`, same shape as ChoiceBuds'.
+- **Continuous Cross-Device Sync** — add tombstone tracking for deletes to both
+  `src/main/storage/sqlite-storage.ts` (desktop) and the IndexedDB adapter (web) — neither retains
+  anything today once a record is removed. Add an `applySyncedState` bulk-replace method to
+  `builds-store.tsx`/`squad-comps-store.tsx`. Port ChoiceBuds' `useSync.ts` trigger logic
+  (mount/sign-in, `online` event, ~5min fallback poll, ~5s debounce-on-mutation) as a shared hook
+  in `src/renderer`, wired into both `AppWeb` and the existing Electron `App`. Sign-in UI in
+  Settings on both. Finishes with a real cross-device verification pass (concurrent edit, reorder,
+  delete, edit-after-delete resurrection) — note `Build.order`/`SquadComp.order` are already
+  separate from `updatedAt`, so list reordering itself needs no new sync-safety work.
+- **Polish/Parity** — mobile/responsive layout pass for the web build; "Copy screenshot" parity on
+  web (desktop uses Electron offscreen capture; needs a browser-native equivalent or a documented
+  gap); a `deploy-web` CI workflow (build + `wrangler deploy` on push to `main`), separate from the
+  desktop `release.yml`.
+
 ## Unscheduled
 
 ### [Discord Bot Profession-Scoped Game-Data Fetch] — Leg 1 (nice-to-have, deprioritized)
