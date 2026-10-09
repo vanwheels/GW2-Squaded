@@ -16,7 +16,7 @@ those three have a browser equivalent yet. `web/vite.config.ts` adds a small dev
 serves `data/game-data/*.json` under `/game-data/*.json` directly from the committed source
 directory (no staged copy, unlike the web-preview build) since that build has no fixed deploy
 target yet. Verified via `npm run dev:web` (index/game-data/icons all serve correctly);
-`npm run typecheck`/`lint`/`test` all pass. See commit `<pending>`.
+`npm run typecheck`/`lint`/`test` all pass. See commit `8124ff8`.
 
 ### [Local Browser Storage Adapter] — Leg 1
 2026-10-08. New `src/shared/storage/indexeddb-adapter.ts`: `createIndexedDbStorage()` implements
