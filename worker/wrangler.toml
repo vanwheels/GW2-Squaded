@@ -12,13 +12,22 @@ compatibility_flags = ["nodejs_compat"]
 binding = "SHARES"
 id = "04662513e32840c7820530cc12c83054"
 
-# Created via `npx wrangler kv namespace create SYNC_KV`. Account/token/lockout state for the
-# sync feature (see sync-types.ts) — low-volume, unlike the per-account sync blob itself, which
-# lives in an R2 bucket instead (Leg 3) since KV's 1,000 writes/day free-tier cap is shared across
-# every account this Worker serves.
+# Created via `npx wrangler kv namespace create gw2_squaded_sync_kv`. Account/token/lockout state
+# for the sync feature (see sync-types.ts) — low-volume, unlike the per-account sync blob itself,
+# which lives in an R2 bucket instead (Leg 3) since KV's 1,000 writes/day free-tier cap is shared
+# across every account this Worker serves.
+#
+# This id was originally `c15de4f1212f4edc83e1aa5ecfbedd71` — ChoiceBuds' real, already-existing
+# SYNC_KV namespace, reused by mistake in the "Account Routes + KV Namespace" leg instead of
+# provisioning a fresh one. Accounts/tokens were stored in the same KV store both apps read, so a
+# ChoiceBuds-issued token for a username also passed this Worker's own token check for that
+# username's /sync/:username route — a real auth-boundary failure, not just a cosmetic
+# username-collision annoyance. Re-pointed at a genuinely new namespace (titled
+# `gw2_squaded_sync_kv` to avoid the same mix-up recurring); ChoiceBuds' namespace and accounts
+# were untouched by this change.
 [[kv_namespaces]]
 binding = "SYNC_KV"
-id = "c15de4f1212f4edc83e1aa5ecfbedd71"
+id = "8f470569329348b08fbb434d524de787"
 
 # Created via `npx wrangler r2 bucket create gw2-squaded-sync`. The per-account sync blob itself
 # (see sync-types.ts's SyncPayload) — separate from SYNC_KV above since R2 has no comparable daily
