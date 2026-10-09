@@ -3,12 +3,20 @@
 Entries are added as work lands, most recent first.
 
 ### [Build Editor Mobile Tabs] — Leg 1
-2026-10-08. Added a Traits/Equipment/Skills & Stats tab control to `BuildScreenshotGrid.tsx`
-(local `mobileTab` state) plus a `max-width: 480px` tier in `global.css` that shows one section
-at a time full-width; a no-op above that width, where the tab row stays hidden and every column
-stays visible regardless of `mobileTab`. Toolbar row (profession/weapon/combat-state) unaffected.
-Not yet manually verified in a real phone-width browser (see Electron sandbox limitation) — flag
-if it needs a follow-up fix after Vanny checks it. See commit `2dca58a`.
+2026-10-08/09. Added a Traits/Equipment/Skills & Stats tab control to `BuildScreenshotGrid.tsx`
+(local `mobileTab` state) plus a `max-width: 480px` tier in `global.css` that shows one section at
+a time full-width; a no-op above that width. Manually verified live on a real phone (Safari,
+`gw2squaded.vannyproductions.com`) across several rounds of fixes, not just the initial commit:
+`.view-header` and `.gear-copy-paste-bar` needed `flex-wrap` (their items' default
+`min-width: auto` was forcing real overflow, which was tripping Mobile Safari's whole-page
+zoom-to-fit fallback); the equipment text manifest's 4-column grid got a 2-column phone tier;
+`.ingame-skill-bar`'s utility column (Heal/Utility/Elite) needed its own phone-tier reflow since
+CSS Grid tracks don't shrink/wrap like flex; and the stats grid swapped a contained scrollbar for
+an actual 2-column reflow (hiding its spacer element lets the existing label/value DOM order
+auto-place correctly) per user preference. Also hit the same source-order cascade trap 3 times —
+a base rule using `display: none`/other properties declared *after* a `@media` override beats
+that override at tied specificity — now flagged in comments at each fix site so it doesn't ship a
+4th time. See commits `2dca58a`, `c054c49`, `78c72e6`, `550eb9e`, `95f7be9`, `6f300a6`, `4ddbf66`.
 
 ### [Cross-Device Verification Pass] — Leg 5
 2026-10-09. Manually verified concurrent edit/reorder/delete/edit-after-delete-resurrection across
