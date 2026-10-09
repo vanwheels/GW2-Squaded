@@ -1700,36 +1700,6 @@ input[type='password'] {
   justify-content: start;
 }
 
-/* Phone tier (2026-10-09 follow-up): CSS Grid tracks don't reflow the way flex items can, so the
-   `auto`-sized utility column (Heal/Utility/Elite, or Legend) just ran off the right edge of the
-   screen instead of shrinking — this is what was still broken on the Stats & Skills tab after the
-   mobile-tabs/gear-copy-paste-bar fixes above. Drops the divider column and moves utility-top/
-   utility-skills to their own row below weapon instead of beside it — left blank in column 1 (the
-   `.` cells) rather than spanning both columns, so the utility skills line up under the weapon
-   skills instead of starting under the narrow env/swap icon column (2026-10-09 user feedback,
-   "aren't aligned... looks awkward"). The now-horizontal `.ingame-skill-bar-divider` (previously
-   hidden entirely, same feedback: "could use a horizontal divider") sits between them as the
-   same kind of group separator the vertical divider was at wider tiers, just reoriented. */
-@media (max-width: 480px) {
-  .ingame-skill-bar {
-    grid-template-columns: auto auto;
-    grid-template-areas:
-      'env     mechanic'
-      'swap    weapon'
-      'divider divider'
-      '.       utility-top'
-      '.       utility-skills';
-  }
-
-  .ingame-skill-bar-divider {
-    width: 100%;
-    height: 1px;
-    justify-self: stretch;
-    align-self: center;
-    margin: 2px 0;
-  }
-}
-
 .ingame-skill-bar-env {
   grid-area: env;
 }
@@ -1761,6 +1731,40 @@ input[type='password'] {
 
 .ingame-skill-bar-utility-skills {
   grid-area: utility-skills;
+}
+
+/* Phone tier (2026-10-09 follow-up): CSS Grid tracks don't reflow the way flex items can, so the
+   `auto`-sized utility column (Heal/Utility/Elite, or Legend) just ran off the right edge of the
+   screen instead of shrinking — this is what was still broken on the Stats & Skills tab after the
+   mobile-tabs/gear-copy-paste-bar fixes above. Drops the divider column and moves utility-top/
+   utility-skills to their own row below weapon instead of beside it — left blank in column 1 (the
+   `.` cells) rather than spanning both columns, so the utility skills line up under the weapon
+   skills instead of starting under the narrow env/swap icon column. Column 2 switches from `auto`
+   to `1fr` so it (and the divider spanning both columns) fills the box's full width instead of
+   just hugging the weapon icons' own content width.
+   Declared AFTER the base `.ingame-skill-bar*` rules above on purpose — this and the base rules
+   share equal specificity (one class each), and for ties the later rule in source order wins per
+   property; declaring an override earlier than its base rule is exactly the bug that shipped
+   twice already in this file (the tabs-never-showed and stats-leak fixes above), so overrides for
+   this component now always go after their own base rules. */
+@media (max-width: 480px) {
+  .ingame-skill-bar {
+    grid-template-columns: auto 1fr;
+    grid-template-areas:
+      'env     mechanic'
+      'swap    weapon'
+      'divider divider'
+      '.       utility-top'
+      '.       utility-skills';
+  }
+
+  .ingame-skill-bar-divider {
+    width: 100%;
+    height: 1px;
+    justify-self: stretch;
+    align-self: center;
+    margin: 2px 0;
+  }
 }
 
 /* Small control icons (weapon-swap cycle, land/underwater) — a step down from the 48px
@@ -2180,23 +2184,22 @@ input[type='password'] {
   align-items: baseline;
 }
 
-/* Phone tier (2026-10-09 follow-up, "2nd column of stats still spills off the box"): the 5
-   `max-content` tracks (raw attribute | derived stat, paired by row — see `StatsPanel`'s doc
-   comment on why that pairing is intentional, not something to collapse into one column) don't
-   shrink to fit a phone width on their own, and `.stats-boons-row .stats-panel`'s `flex: none`
-   compounds it by refusing to shrink the panel itself too. Rather than break the left/right
-   pairing, let this one grid scroll horizontally within its own bordered box — contained, not a
-   page-level scrollbar — once `.stats-panel` is allowed to actually shrink to the column's width. */
+/* Phone tier (2026-10-09 follow-up, "2nd column of stats still spills off the box"): a contained
+   horizontal scrollbar was the first pass here and the user didn't want it, so this collapses the
+   5-track (attribute | derived stat, paired by row) grid down to a plain 2-track (label | value)
+   one instead. `.stat-gap` (the empty 20px spacer between the pairs) is pulled out of grid flow
+   entirely via `display: none` — with it gone, each `StatRow`'s remaining 4 cells (leftLabel,
+   leftValue, rightLabel, rightValue, in that DOM order, see StatsPanel.tsx) auto-place into 2
+   complete label/value rows apiece instead of sharing one row side by side, so every attribute
+   and its paired derived stat still read as adjacent lines, just stacked instead of side by side,
+   with no scrollbar and no JSX change needed. */
 @media (max-width: 480px) {
-  .stats-boons-row .stats-panel {
-    flex: 1 1 100%;
-    min-width: 0;
-    max-width: 100%;
+  .stats-panel-grid {
+    grid-template-columns: max-content max-content;
   }
 
-  .stats-panel-grid {
-    overflow-x: auto;
-    max-width: 100%;
+  .stat-gap {
+    display: none;
   }
 }
 
