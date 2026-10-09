@@ -8,26 +8,11 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-The Web App Port and Sync Backend Foundation milestones (full plan: `C:\Users\vanny\.claude\plans\
-goofy-stirring-nautilus.md`) both shipped 2026-10-08 — see MILESTONES.md / COMPLETED.md. They're
-the first two of a 4-milestone web initiative; Continuous Cross-Device Sync (Milestone 3, above) is
-now current. Milestone 4 (Polish/Parity, below, unscheduled) still needs its legs scoped out before
-it becomes current.
-
-## Current Milestone: Continuous Cross-Device Sync
-
-Full plan: `C:\Users\vanny\.claude\plans\goofy-stirring-nautilus.md`. Third of the 4-milestone web
-initiative — the Worker side (accounts, `PUT|GET /sync/:username`, `mergeCollection` with
-`SyncTombstone {id, deletedAt}`, last-write-wins by `updatedAt`) already shipped in Sync Backend
-Foundation and needs no changes here. This milestone is entirely client-side: both storage layers
-currently just delete a row with nothing surviving to tell a later sync pass "this was removed."
-
-### [Cross-Device Verification Pass] — Leg 5
-Manual verification across two real sessions (e.g. desktop + browser tab, same account): concurrent
-edit of the same record, reorder on one side, delete on one side, edit-after-delete resurrection.
-`Build.order`/`SquadComp.order` are already separate numeric fields from `updatedAt`, so list
-reordering itself needs no new sync-safety work — verify that holds rather than re-deriving it.
-Last touched: 2026-10-08. Re-checks: 0.
+The Web App Port, Sync Backend Foundation, and Continuous Cross-Device Sync milestones (full plan:
+`C:\Users\vanny\.claude\plans\goofy-stirring-nautilus.md`) all shipped 2026-10-08/09 — see
+MILESTONES.md / COMPLETED.md. They're the first three of a 4-milestone web initiative. Milestone 4
+(Polish/Parity, below, unscheduled) still needs its legs scoped out before it becomes current —
+no milestone is "current" in the interim.
 
 ## Future Milestones (unscheduled)
 

@@ -2,6 +2,24 @@
 
 Entries are added as work lands, most recent first.
 
+### [Cross-Device Verification Pass] — Leg 5
+2026-10-09. Manually verified concurrent edit/reorder/delete/edit-after-delete-resurrection across
+two real sessions (desktop + browser tab, same account). First attempt surfaced a real bug, not a
+test failure: signing up under an existing ChoiceBuds username returned `username_taken` because
+`worker/wrangler.toml`'s `SYNC_KV` binding pointed at ChoiceBuds' own already-existing KV namespace
+instead of a fresh one (see fix below). After the fix, user confirmed cross-device sync works.
+Closes out the Continuous Cross-Device Sync milestone. See commit `5599691` and
+`docs/postmortems/continuous-cross-device-sync.md`.
+
+### [Fix: GW2-Squaded's SYNC_KV namespace was ChoiceBuds']
+2026-10-09. The "Account Routes + KV Namespace" leg (Sync Backend Foundation, 2026-10-08) wired in
+ChoiceBuds' real, already-existing `SYNC_KV` namespace instead of provisioning a new one — accounts
+and tokens for both apps lived in the same KV store, so a ChoiceBuds-issued bearer token for a
+username also passed this Worker's own token check for that username's `/sync/:username` route (a
+real auth-boundary failure, not just a username collision). Provisioned a fresh,
+GW2-Squaded-only namespace and repointed the binding; ChoiceBuds' namespace/accounts untouched. See
+commit `5599691`.
+
 ### [Sign-In UI in Settings] — Leg 4
 2026-10-08. Added `SyncSection` (`components/common/SyncSection.tsx`) to `SettingsView.tsx` — sign
 up/log in/log out, status, manual "Sync Now", and last-synced time, driven by Leg 3's

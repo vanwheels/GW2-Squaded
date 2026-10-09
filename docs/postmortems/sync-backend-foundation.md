@@ -29,9 +29,13 @@ Shipped 2026-10-08. Second of the 4-milestone web-transition initiative (full pl
 
 ## What didn't go well
 
-- Nothing notable. `wrangler r2 bucket create` and the `wrangler.toml` binding edit were the only
-  live-infra touches this milestone made, and (per the previous milestone's postmortem flag) they
-  were low-risk compared to the custom-domain/routes change that caused Milestone 1's incident.
+- **Correction (found during Milestone 3, 2026-10-09):** the `SYNC_KV` binding added here did not
+  create a fresh namespace — it reused ChoiceBuds' real, already-existing `SYNC_KV` namespace id,
+  so both apps' accounts/tokens lived in the same KV store (a ChoiceBuds-issued token for a
+  username also passed this Worker's token check for that username). Not caught at the time
+  because the manual round-trip test below used usernames that happened not to collide. Fixed in
+  Milestone 3; see `docs/postmortems/continuous-cross-device-sync.md`. `wrangler r2 bucket create`
+  and the R2 binding were unaffected — those were a genuinely new, correctly-isolated bucket.
 
 ## Scope creep observed
 

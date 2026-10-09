@@ -2,6 +2,7 @@
 
 | Milestone | Date | Status | Post-mortem |
 |---|---|---|---|
+| Continuous Cross-Device Sync | 2026-10-09 | shipped | [docs/postmortems/continuous-cross-device-sync.md](docs/postmortems/continuous-cross-device-sync.md) |
 | Sync Backend Foundation | 2026-10-08 | shipped | [docs/postmortems/sync-backend-foundation.md](docs/postmortems/sync-backend-foundation.md) |
 | Web App Port | 2026-10-08 | shipped | [docs/postmortems/web-app-port.md](docs/postmortems/web-app-port.md) |
 | Auto-Update Check | 2026-09-29 | shipped | [docs/postmortems/auto-update-check.md](docs/postmortems/auto-update-check.md) |
