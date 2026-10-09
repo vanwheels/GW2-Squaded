@@ -2,6 +2,15 @@
 
 Entries are added as work lands, most recent first.
 
+### [Sign-In UI in Settings] — Leg 4
+2026-10-08. Added `SyncSection` (`components/common/SyncSection.tsx`) to `SettingsView.tsx` — sign
+up/log in/log out, status, manual "Sync Now", and last-synced time, driven by Leg 3's
+`useSyncStore()` with no new plumbing. Mirrors ChoiceBuds' `SyncSection.tsx` form shape but uses
+this project's plain-CSS conventions (new `.sync-forms`/`.sync-form`/`.sync-signed-in`/
+`.sync-status-ok` classes in `global.css`, plus `input[type='password']` styling) instead of
+Tailwind. One implementation covers both desktop and web since Settings is already a shared view.
+See commit `3cd161d`.
+
 ### [useSync Hook + Trigger Wiring] — Leg 3
 2026-10-08. Added `src/renderer/hooks/useSync.ts` (mount/sign-in, browser `online`, ~5min fallback
 poll, ~5s debounce-on-mutation, ported from ChoiceBuds) and a `SyncStoreProvider`/`useSyncStore()`

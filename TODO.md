@@ -22,14 +22,6 @@ initiative — the Worker side (accounts, `PUT|GET /sync/:username`, `mergeColle
 Foundation and needs no changes here. This milestone is entirely client-side: both storage layers
 currently just delete a row with nothing surviving to tell a later sync pass "this was removed."
 
-### [Sign-In UI in Settings] — Leg 4
-Sign-up/sign-in/sign-out section in `SettingsView.tsx`, mirroring ChoiceBuds' `SyncSection.tsx`.
-One implementation covers both desktop and web since Settings is already a shared view. Account
-stays optional — signed-out behavior (local-only storage) must be unchanged. Leg 3's single
-`useSync` instance is already reachable via `useSyncStore()` (`state/sync-store.tsx`) — this leg
-just needs to read/drive it, no new plumbing.
-Last touched: 2026-10-08. Re-checks: 0.
-
 ### [Cross-Device Verification Pass] — Leg 5
 Manual verification across two real sessions (e.g. desktop + browser tab, same account): concurrent
 edit of the same record, reorder on one side, delete on one side, edit-after-delete resurrection.
