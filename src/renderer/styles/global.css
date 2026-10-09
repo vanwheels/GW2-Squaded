@@ -161,8 +161,18 @@ input[type='password']:focus-visible {
   padding: 24px;
 }
 
+/* `flex-wrap: wrap` (Leg 1 follow-up, 2026-10-09): without it, the build editor's header — Back
+   button, fixed-220px name input, tag input, toolbar buttons — forces this row past any phone's
+   viewport width (flex items default to `min-width: auto`, so `flex-shrink` can't shrink them
+   below their own content's min-content size). That genuine overflow was triggering Mobile
+   Safari's "zoom the whole page out to fit the widest content" fallback, which scaled the entire
+   page down and made every section below it (including the correctly-breakpointed
+   `.build-editor-grid`) look shrunk with dead space on the right — not a caching or breakpoint
+   bug, the header row itself was never given any wrap/reflow behavior. Always-on rather than
+   gated behind a breakpoint since wrapping is a no-op whenever there's room to fit on one line. */
 .view-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   margin-bottom: 16px;
