@@ -10,7 +10,7 @@ blob and added `PUT|GET /sync/:username` to `index.ts`, ported from ChoiceBuds'
 a migration). Manual round-trip test against local `wrangler dev`: signup → push a payload (build
 A, build B) → push an overlapping payload (build A edited, build B tombstoned, build C added) →
 GET confirmed the merged result. This closes out the Sync Backend Foundation milestone. See commit
-`<pending>`.
+`6b9dd64`.
 
 ### [Account Routes + KV Namespace] — Leg 2
 2026-10-08. Wired the already-existing `SYNC_KV` namespace into `wrangler.toml`/`Env`, defined
