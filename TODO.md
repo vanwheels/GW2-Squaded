@@ -8,17 +8,39 @@ v1.0.0 shipped 2026-08-15 (see COMPLETED.md). README roadmap items 1-4 (scaffold
 boon/condition calculator, squad preview builder, sync/share backend) plus the Discord bot are all
 implemented and released. Everything below is post-1.0 polish and open curation gaps.
 
-## Current Milestone: Project Revision v2
+## Current Milestone: Polish/Parity
 
-Brings the project up to the v2 global conventions (this project never had a CLAUDE.md at all).
-Audit: `docs/investigations/project-revision-v2-audit.md`. Polish/Parity was paused for this
-migration — see Future Milestones below — and resumes once this milestone closes. Leg 2 shipped
-2026-10-19: `CLAUDE.md`/`ARCHITECTURE.md` now exist, the 3 unpromoted postmortem lessons are rules,
-machine-local paths are gone from tracked docs, and README has both disclosure lines. Leg 3 shipped
-2026-10-19: memory folder cleaned up (63 orphaned files deleted, 36 indexed entries reclassified —
-see COMPLETED.md). Leg 4 shipped 2026-10-19: `Build`/`SquadComp` now carry `schemaVersion`, stamped
-`Conventions: v2` in CLAUDE.md. All 4 legs are shipped — this milestone is ready for
-`/close-milestone`.
+Last milestone of the 4-part web initiative, resumed 2026-10-19 after Project Revision v2 closed
+(see MILESTONES.md/`docs/postmortems/project-revision-v2.md`). Legs 1-2 (Build Editor Mobile Tabs,
+Squad Editor Mobile Layout) already shipped before the pause — archived in
+`docs/archive/completed-2026-09-29-to-2026-10-19.md`. The `deploy-web` CI item originally scoped for
+this milestone turned out to already be shipped as part of Web App Port
+(`.github/workflows/deploy-web.yml` builds + `actions/deploy-pages` on every push to `main`) —
+dropped from scope, nothing left to do there.
+
+`global.css` already reflows down to 820px (and has ultrawide-side tiers up to 2600px+), but nothing
+narrower than phone width (375-480px) has been audited, and Vanny confirmed 2026-10-08 that the build
+editor's 3-column dense layout (Traits/Equipment/Stats+Skills columns + toolbar row + equipment text
+manifest, see `BuildScreenshotGrid.tsx`) needed a genuinely different mobile layout, not a reflow or
+one long scroll — same was true of the squad editor's sidebar+grid shape, both resolved in Legs 1-2.
+
+### [Remaining Views Mobile Audit] — Leg 3
+Everything outside the build/squad editors (nav, Builds/Squads list views, Settings, gear optimizer
+modal) at phone width — audit in a real browser (not just devtools resize), fix overflow/unusable
+layouts found. These are lower-density than the editors, so a reflow matching the existing
+breakpoint-tier pattern in `global.css` is likely sufficient here, unlike Legs 1-2.
+Last touched: 2026-10-08. Re-checks: 0.
+
+### [Copy-Screenshot Web Parity] — Leg 4
+Desktop's "Copy screenshot" drives an Electron-only offscreen `BrowserWindow` capture
+(`src/main/capture/offscreen-capture.ts`); the web build's `window.gw2Capture` is a silent no-op
+(`web/main.tsx`) — clicking the button shows "Copied to clipboard!" and does nothing, which is
+misleading rather than just absent. Two paths: (a) a browser-native capture (e.g. render
+`BuildScreenshotGrid`/`SquadCompScreenshotGrid` off-screen and rasterize via a canvas-based library,
+then use the Clipboard API), or (b) hide/disable the button on web with a documented gap instead of
+building real capture. Decide which during implementation — (a) is real parity but a new dependency
+and rendering path; (b) is cheap but leaves a visible feature gap. Flag the tradeoff before picking.
+Last touched: 2026-10-08. Re-checks: 0.
 
 ## Unscheduled
 
@@ -70,38 +92,6 @@ Blocked: waiting on latency becoming a live complaint again.
 Last touched: 2026-08-19. Re-checks: 0.
 
 ## Future Milestones (unscheduled)
-
-### Polish/Parity (on hold — paused 2026-10-19 for Project Revision v2, resumes after)
-
-Last milestone of the 4-part web initiative. The `deploy-web` CI item originally scoped for this
-milestone turned out to already be shipped as part of Web App Port (`.github/workflows/deploy-web.yml`
-builds + `actions/deploy-pages` on every push to `main`) — dropped from scope, nothing left to do
-there.
-
-`global.css` already reflows down to 820px (and has ultrawide-side tiers up to 2600px+), but nothing
-narrower than phone width (375-480px) has been audited, and Vanny confirmed 2026-10-08 that the build
-editor's 3-column dense layout (Traits/Equipment/Stats+Skills columns + toolbar row + equipment text
-manifest, see `BuildScreenshotGrid.tsx`) needs a genuinely different mobile layout, not a reflow or
-one long scroll — same likely true of the squad editor's sidebar+grid shape. Split into legs below
-instead of one "layout pass."
-
-#### [Remaining Views Mobile Audit] — Leg 3
-Everything outside the build/squad editors (nav, Builds/Squads list views, Settings, gear optimizer
-modal) at phone width — audit in a real browser (not just devtools resize), fix overflow/unusable
-layouts found. These are lower-density than the editors, so a reflow matching the existing
-breakpoint-tier pattern in `global.css` is likely sufficient here, unlike Legs 1-2.
-Last touched: 2026-10-08. Re-checks: 0.
-
-#### [Copy-Screenshot Web Parity] — Leg 4
-Desktop's "Copy screenshot" drives an Electron-only offscreen `BrowserWindow` capture
-(`src/main/capture/offscreen-capture.ts`); the web build's `window.gw2Capture` is a silent no-op
-(`web/main.tsx`) — clicking the button shows "Copied to clipboard!" and does nothing, which is
-misleading rather than just absent. Two paths: (a) a browser-native capture (e.g. render
-`BuildScreenshotGrid`/`SquadCompScreenshotGrid` off-screen and rasterize via a canvas-based library,
-then use the Clipboard API), or (b) hide/disable the button on web with a documented gap instead of
-building real capture. Decide which during implementation — (a) is real parity but a new dependency
-and rendering path; (b) is cheap but leaves a visible feature gap. Flag the tradeoff before picking.
-Last touched: 2026-10-08. Re-checks: 0.
 
 ### File Cap Splits
 
